@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.deser.impl;
 import java.lang.reflect.Member;
 import java.util.*;
 
-import org.codehaus.jackson.type.JavaType;
+import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -45,9 +45,6 @@ public class CreatorCollector
         _canFixAccess = canFixAccess;
     }
 
-    /**
-     * @since 1.9.0
-     */
     public ValueInstantiator constructValueInstantiator(DeserializationConfig config)
     {
         StdValueInstantiator inst = new StdValueInstantiator(config, _beanDesc.getType());

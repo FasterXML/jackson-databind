@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import org.codehaus.jackson.JsonParser;
+import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;

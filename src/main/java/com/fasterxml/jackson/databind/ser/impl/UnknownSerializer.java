@@ -3,9 +3,7 @@ package com.fasterxml.jackson.databind.ser.impl;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.std.SerializerBase;

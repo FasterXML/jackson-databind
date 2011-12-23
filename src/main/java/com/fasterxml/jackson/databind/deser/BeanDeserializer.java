@@ -7,7 +7,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.JavaType;
-import com.fasterxml.jackson.core.util.TokenBuffer;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotate.JsonCachable;
 import com.fasterxml.jackson.databind.deser.impl.*;
@@ -18,7 +17,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Deserializer class that can deserialize instances of
@@ -877,8 +876,6 @@ public class BeanDeserializer
      * values for creator method need to be buffered, first; and 
      * due to non-guaranteed ordering possibly some other properties
      * as well.
-     *
-     * @since 1.2
      */
     protected final Object _deserializeUsingPropertyBased(final JsonParser jp, final DeserializationContext ctxt)
         throws IOException, JsonProcessingException

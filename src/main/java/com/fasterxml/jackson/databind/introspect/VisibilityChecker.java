@@ -1,12 +1,11 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import org.codehaus.jackson.annotate.JsonAutoDetect;
-import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
-import org.codehaus.jackson.annotate.JsonMethod;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 /**
  * Interface for object used for determine which property elements
@@ -15,14 +14,8 @@ import java.lang.reflect.Method;
  *<p>
  * Note on type declaration: funky recursive type is necessary to
  * support builder/fluent pattern.
- *<p>
- * Note on compatibility: 1.9 introduced overloaded "with" method
- * (which takes {@link Visibility} as value to assign); which could
- * be potential issue, but assumption here is that all custom implementations
- * are based on "Std" base class
  * 
  * @author tatu
- * @since 1.5
  */
 public interface VisibilityChecker<T extends VisibilityChecker<T>>
 {
@@ -44,8 +37,6 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
      *     mapper.getVisibilityChecker().with(Visibility.NONE));
      *</pre>
      * (which would basically disable all auto-detection)
-     *
-     * @since 1.9
      */
     public T with(Visibility v);
 

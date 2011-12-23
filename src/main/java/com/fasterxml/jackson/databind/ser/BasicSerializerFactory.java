@@ -7,7 +7,7 @@ import java.net.InetAddress;
 import java.util.*;
 
 import com.fasterxml.jackson.core.type.JavaType;
-import com.fasterxml.jackson.core.util.TokenBuffer;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotate.JsonSerialize;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.ser.std.*;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumValues;
-
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Factory class that can provide serializers for standard JDK classes,

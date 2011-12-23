@@ -5,13 +5,10 @@ import java.util.*;
 import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedConstructor;
-import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
-
 
 /**
  * Basic container for information gathered by {@link ClassIntrospector} to
@@ -75,16 +72,12 @@ public abstract class BeanDescription
     /**
      * Method for resolving given JDK type, using this bean as the
      * generic type resolution context.
-     * 
-     * @since 1.9
      */
     public abstract JavaType resolveType(java.lang.reflect.Type jdkType);
     
     /**
      * Method for accessing collection of annotations the bean
      * class has.
-     * 
-     * @since 1.7
      */
     public abstract Annotations getClassAnnotations();
     
@@ -97,72 +90,18 @@ public abstract class BeanDescription
     /**
      * @return Ordered Map with logical property name as key, and
      *    matching getter method as value.
-     *    
-     * @since 1.9
      */
     public abstract List<BeanPropertyDefinition> findProperties();
 
-    /**
-     * @since 1.9
-     */
     public abstract Map<Object, AnnotatedMember> findInjectables();
     
-    /**
-     * @since 1.9
-     */
     public abstract AnnotatedMethod findAnyGetter();
 
-    /**
-     * @since 1.9
-     */
     public abstract AnnotatedMethod findAnySetter();
 
-    /**
-     * @since 1.9
-     */
     public abstract AnnotatedMethod findJsonValueMethod();
 
-    /**
-     * @since 1.9
-     */
     public abstract AnnotatedConstructor findDefaultConstructor();
     
-    /**
-     * @since 1.9
-     */
     public abstract Set<String> getIgnoredPropertyNames();
-
-    /*
-    /**********************************************************
-    /* Deprecated methods
-    /**********************************************************
-     */
-
-    /**
-     * @deprecated Since 1.9 use {@link #findProperties}
-     */
-    @Deprecated
-    public abstract LinkedHashMap<String,AnnotatedMethod> findGetters(VisibilityChecker<?> visibilityChecker,
-            Collection<String> ignoredProperties);
-
-    /**
-     * @deprecated Since 1.9 use {@link #findProperties}
-     */
-    @Deprecated
-    public abstract LinkedHashMap<String,AnnotatedMethod> findSetters(VisibilityChecker<?> visibilityChecker);
-
-    /**
-     * @deprecated Since 1.9 use {@link #findProperties}
-     */
-    @Deprecated
-    public abstract LinkedHashMap<String,AnnotatedField> findDeserializableFields(VisibilityChecker<?> visibilityChecker,
-            Collection<String> ignoredProperties);
-
-    /**
-     * @deprecated Since 1.9 use the non-deprecated version
-     */
-    @Deprecated
-    public abstract Map<String,AnnotatedField> findSerializableFields(VisibilityChecker<?> visibilityChecker,
-            Collection<String> ignoredProperties);
-
 }

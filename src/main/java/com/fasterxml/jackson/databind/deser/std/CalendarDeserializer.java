@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonProcessingException;
+import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;

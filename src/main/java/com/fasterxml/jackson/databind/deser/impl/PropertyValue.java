@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
-import org.codehaus.jackson.JsonProcessingException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;

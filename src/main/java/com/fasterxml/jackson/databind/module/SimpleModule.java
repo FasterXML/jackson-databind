@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.module;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.codehaus.jackson.Version;
+import com.fasterxml.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;

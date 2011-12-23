@@ -7,7 +7,7 @@ import org.joda.time.*;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
-import org.codehaus.jackson.*;
+import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -189,9 +189,6 @@ public class JodaDeserializers
         }
     }
 
-    /**
-     * @since 1.5
-     */
     public static class DateMidnightDeserializer
         extends JodaDeserializer<DateMidnight>
     {
@@ -228,9 +225,6 @@ public class JodaDeserializers
         }
     }
 
-    /**
-     * @since 1.9.2
-     */
     public static class PeriodDeserializer
         extends JodaDeserializer<ReadablePeriod>
     {

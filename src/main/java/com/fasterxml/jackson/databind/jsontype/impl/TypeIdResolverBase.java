@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import org.codehaus.jackson.type.JavaType;
+import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.type.TypeFactory;

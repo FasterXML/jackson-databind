@@ -7,9 +7,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
+import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 

@@ -4,19 +4,17 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.util.TokenBuffer;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.TypeSerializer;
 import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * We also want to directly support serialization of {@link TokenBuffer};
  * and since it is part of core package, it can not implement
  * {@link com.fasterxml.jackson.databind.JsonSerializable}
  * (which is only included in the mapper package)
- *
- * @since 1.5
  */
 @JacksonStdImpl
 public class TokenBufferSerializer

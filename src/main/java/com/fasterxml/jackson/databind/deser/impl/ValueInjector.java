@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
 
-import org.codehaus.jackson.type.JavaType;
+import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -14,8 +14,6 @@ import com.fasterxml.jackson.databind.util.Annotations;
  * deserialization of a POJO. Details include information needed to find
  * injectable value (logical id) as well as method used for assigning
  * value (setter or field)
- * 
- * @since 1.9
  */
 public class ValueInjector
     extends BeanProperty.Std

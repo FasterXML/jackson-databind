@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 
-import org.codehaus.jackson.type.JavaType;
+import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.util.Annotations;
  * Builder class used for aggregating deserialization information about
  * a POJO, in order to build a {@link JsonDeserializer} for deserializing
  * intances.
- * 
- * @since 1.7
  */
 public class BeanDeserializerBuilder
 {
@@ -163,9 +161,6 @@ public class BeanDeserializerBuilder
         }
     }
 
-    /**
-     * @since 1.9
-     */
     public void addInjectable(String propertyName, JavaType propertyType,
             Annotations contextAnnotations, AnnotatedMember member,
             Object valueId)

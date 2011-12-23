@@ -6,10 +6,10 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
-import com.fasterxml.jackson.core.util.TokenBuffer;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Type deserializer used with {@link As#PROPERTY}
@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  * {@link As#WRAPPER_ARRAY} works.
  * Latter is used if JSON representation is polymorphic
  * 
- * @since 1.5
  * @author tatu
  */
 public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer

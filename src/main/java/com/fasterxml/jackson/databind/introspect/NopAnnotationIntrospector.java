@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
 
-import org.codehaus.jackson.type.JavaType;
+import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JsonDeserializer;

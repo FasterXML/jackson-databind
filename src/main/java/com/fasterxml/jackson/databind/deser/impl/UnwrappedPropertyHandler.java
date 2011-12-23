@@ -4,17 +4,14 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.util.TokenBuffer;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Object that is responsible for handling acrobatics related to
  * deserializing "unwrapped" values; sets of properties that are
  * embedded (inlined) as properties of parent JSON object.
- *
- * @since 1.9
  */
 public class UnwrappedPropertyHandler
 {

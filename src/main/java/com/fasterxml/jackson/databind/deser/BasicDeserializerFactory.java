@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.EnumResolver;
 
-
 /**
  * Abstract factory base class that can provide deserializers for standard
  * JDK classes, including collection classes and simple heuristics for

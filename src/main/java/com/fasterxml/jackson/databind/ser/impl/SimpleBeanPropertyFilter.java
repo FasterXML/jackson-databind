@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.ser.impl;
 
 import java.util.*;
 
-import org.codehaus.jackson.JsonGenerator;
+import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;

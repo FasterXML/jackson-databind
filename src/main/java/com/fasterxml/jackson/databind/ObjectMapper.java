@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 import org.codehaus.jackson.*;
 import org.codehaus.jackson.node.*;
@@ -1744,8 +1745,6 @@ public class ObjectMapper
      *  {@link org.codehaus.jackson.node.ObjectNode}
      * @param fromValue Bean value to convert
      * @return Root node of the resulting JSON tree
-     * 
-     * @since 1.6
      */
     @SuppressWarnings("unchecked")
     public <T extends JsonNode> T valueToTree(Object fromValue)

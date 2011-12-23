@@ -10,9 +10,7 @@ import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -30,8 +28,6 @@ import com.fasterxml.jackson.databind.util.Provider;
  * Note: since many of classes defined are abstract, caller must take
  * care not to just use straight equivalency check but rather consider
  * subclassing as well.
- *
- * @since 1.4
  */
 public class CoreXMLSerializers
     implements Provider<Map.Entry<Class<?>,JsonSerializer<?>>>

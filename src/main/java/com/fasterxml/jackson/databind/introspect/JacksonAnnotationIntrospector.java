@@ -4,8 +4,8 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.jackson.annotate.*;
-import org.codehaus.jackson.type.JavaType;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotate.*;
@@ -287,9 +287,6 @@ public class JacksonAnnotationIntrospector
     @Override
     public Object findSerializer(Annotated a)
     {
-        /* 21-May-2009, tatu: Slight change; primary annotation is now
-         *    @JsonSerialize; @JsonUseSerializer is deprecated
-         */
         JsonSerialize ann = a.getAnnotation(JsonSerialize.class);
         if (ann != null) {
             Class<? extends JsonSerializer<?>> serClass = ann.using();
@@ -337,21 +334,12 @@ public class JacksonAnnotationIntrospector
         return null;
     }
     
-    @SuppressWarnings("deprecation")
     @Override
     public JsonSerialize.Inclusion findSerializationInclusion(Annotated a, JsonSerialize.Inclusion defValue)
     {
         JsonSerialize ann = a.getAnnotation(JsonSerialize.class);
         if (ann != null) {
             return ann.include();
-        }
-        /* 23-May-2009, tatu: Will still support now-deprecated (as of 1.1)
-         *   legacy annotation too:
-         */
-        JsonWriteNullProperties oldAnn = a.getAnnotation(JsonWriteNullProperties.class);
-        if (oldAnn != null) {
-            boolean writeNulls = oldAnn.value();
-            return writeNulls ? JsonSerialize.Inclusion.ALWAYS : JsonSerialize.Inclusion.NON_NULL;
         }
         return defValue;
     }

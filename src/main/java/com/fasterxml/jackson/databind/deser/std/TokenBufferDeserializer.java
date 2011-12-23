@@ -2,12 +2,11 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.util.TokenBuffer;
+import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * We also want to directly support deserialization of

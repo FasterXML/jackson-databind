@@ -5,9 +5,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.io.NumberInput;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.EnumResolver;
 

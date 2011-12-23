@@ -2,9 +2,8 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 
 import java.io.IOException;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.annotate.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -13,7 +12,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  * Type serializer that will embed type information in an array,
  * as the first element, and actual value as the second element.
  * 
- * @since 1.5
  * @author tatu
  */
 public class AsArrayTypeSerializer

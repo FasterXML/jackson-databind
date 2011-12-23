@@ -2,9 +2,8 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 
 import java.io.IOException;
 
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.annotate.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -19,8 +18,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  * Note that implementation of serialization is bit cumbersome as we must
  * serialized external type id AFTER object; this because callback only
  * occurs after field name has been written.
- * 
- * @since 1.9
  */
 public class AsExternalTypeSerializer
    extends TypeSerializerBase

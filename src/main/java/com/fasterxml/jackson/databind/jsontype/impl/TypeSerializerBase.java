@@ -1,14 +1,10 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import org.codehaus.jackson.annotate.JsonTypeInfo;
-
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.TypeSerializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
-/**
- * @since 1.5
- */
 public abstract class TypeSerializerBase extends TypeSerializer
 {
     protected final TypeIdResolver _idResolver;

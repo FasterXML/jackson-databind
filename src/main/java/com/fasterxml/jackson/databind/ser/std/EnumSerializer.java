@@ -3,11 +3,12 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import org.codehaus.jackson.*;
-import org.codehaus.jackson.io.SerializedString;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.type.JavaType;
+
 import org.codehaus.jackson.node.ObjectNode;
 import org.codehaus.jackson.node.ArrayNode;
-import org.codehaus.jackson.type.JavaType;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;

@@ -5,9 +5,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.BasicSerializerFactory;

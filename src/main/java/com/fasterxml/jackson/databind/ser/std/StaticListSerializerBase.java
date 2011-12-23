@@ -3,7 +3,8 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import org.codehaus.jackson.JsonNode;
+import com.fasterxml.jackson.core.JsonNode;
+
 import org.codehaus.jackson.node.ObjectNode;
 
 import com.fasterxml.jackson.databind.BeanProperty;

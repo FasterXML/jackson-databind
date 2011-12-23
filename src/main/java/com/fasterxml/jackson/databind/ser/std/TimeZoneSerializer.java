@@ -3,15 +3,11 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.util.TimeZone;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonGenerator;
+import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.TypeSerializer;
 
-/**
- * @since 1.8
- */
 public class TimeZoneSerializer
     extends ScalarSerializerBase<TimeZone>
 {

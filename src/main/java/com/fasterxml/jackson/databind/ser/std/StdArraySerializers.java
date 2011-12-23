@@ -3,7 +3,8 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
-import org.codehaus.jackson.*;
+import com.fasterxml.jackson.core.*;
+
 import org.codehaus.jackson.node.ObjectNode;
 
 import com.fasterxml.jackson.databind.*;

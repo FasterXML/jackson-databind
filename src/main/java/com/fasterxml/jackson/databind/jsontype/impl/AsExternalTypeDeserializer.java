@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype.impl;
 
-import org.codehaus.jackson.annotate.JsonTypeInfo.As;
-import org.codehaus.jackson.type.JavaType;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;

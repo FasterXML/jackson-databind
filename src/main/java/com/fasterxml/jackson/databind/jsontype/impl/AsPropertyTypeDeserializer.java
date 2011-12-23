@@ -2,11 +2,11 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 
 import java.io.IOException;
 
-import org.codehaus.jackson.*;
-import org.codehaus.jackson.annotate.JsonTypeInfo.As;
-import org.codehaus.jackson.type.JavaType;
-import org.codehaus.jackson.util.JsonParserSequence;
-import org.codehaus.jackson.util.TokenBuffer;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.JavaType;
+import com.fasterxml.jackson.core.util.JsonParserSequence;
+import com.fasterxml.jackson.core.util.TokenBuffer;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -25,12 +25,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 {
     protected final String _typePropertyName;
-
-    @Deprecated // since 1.9
-    public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes, BeanProperty property,
-            String typePropName) {
-        this(bt, idRes, property, null, typePropName);
-    }
     
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes, BeanProperty property,
             Class<?> defaultImpl,

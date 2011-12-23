@@ -3,9 +3,9 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.codehaus.jackson.*;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.codehaus.jackson.type.JavaType;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
 /**
- * @since 1.5
  * @author tatus
  */
 public abstract class TypeDeserializerBase extends TypeDeserializer

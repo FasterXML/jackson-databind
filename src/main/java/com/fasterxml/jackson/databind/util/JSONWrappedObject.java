@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * General-purpose wrapper class that can be used to decorate serialized
@@ -17,7 +16,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * @see com.fasterxml.jackson.databind.util.JSONPObject
  * 
  * @author tatu
- * @since 1.5
  */
 public class JSONWrappedObject
     implements JsonSerializableWithType
@@ -57,18 +55,6 @@ public class JSONWrappedObject
         _suffix = suffix;
         _value = value;
         _serializationType = asType;
-    }
-
-    /**
-     * @deprecated Since 1.8; should construct with resolved <code>JavaType</code>,
-     *   to ensure type has been properly resolved
-     */
-    @Deprecated
-    public JSONWrappedObject(String prefix, String suffix, Object value, Class<?> rawType) {
-        _prefix = prefix;
-        _suffix = suffix;
-        _value = value;
-        _serializationType = (rawType == null) ? null : TypeFactory.defaultInstance().constructType(rawType);
     }
     
     /*

@@ -61,16 +61,6 @@ public final class EnumValues
         throw new IllegalArgumentException("Can not determine enum constants for Class "+enumClass.getName());
     }
 
-    /**
-     * @deprecated since 1.7, use {@link #serializedValueFor} instead
-     */
-    @Deprecated
-    public String valueFor(Enum<?> key)
-    {
-        SerializedString sstr = _values.get(key);
-        return (sstr == null) ? null : sstr.getValue();
-    }
-
     public SerializedString serializedValueFor(Enum<?> key)
     {
         return _values.get(key);

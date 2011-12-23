@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.databind.*;
 
-
 /**
  * Deserializer only used for abstract types used as placeholders during polymorphic
  * type handling deserialization. If so, there is no real deserializer associated
@@ -14,8 +13,6 @@ import com.fasterxml.jackson.databind.*;
  * pass such resolver will result in an error.
  * 
  * @author tatu
- * 
- * @since 1.6
  */
 public class AbstractDeserializer
     extends JsonDeserializer<Object>

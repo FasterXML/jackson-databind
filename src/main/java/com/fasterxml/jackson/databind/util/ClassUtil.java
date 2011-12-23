@@ -80,18 +80,7 @@ public final class ClassUtil
         // Anything else? Seems valid, then
         return null;
     }
-
-    /**
-     * @deprecated since 1.9, use variant that takes second argument
-     */
-    @Deprecated
-    public static String isLocalType(Class<?> type) {
-        return isLocalType(type, false);
-    }
     
-    /**
-     * @since 1.9
-     */
     public static String isLocalType(Class<?> type, boolean allowNonStatic)
     {
         /* As per [JACKSON-187], GAE seems to throw SecurityExceptions

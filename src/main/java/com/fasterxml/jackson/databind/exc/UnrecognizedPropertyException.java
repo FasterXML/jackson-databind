@@ -1,8 +1,7 @@
 package com.fasterxml.jackson.databind.exc;
 
-import org.codehaus.jackson.JsonLocation;
-import org.codehaus.jackson.JsonParser;
-
+import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**

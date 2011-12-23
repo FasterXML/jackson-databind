@@ -15,8 +15,6 @@ import com.fasterxml.jackson.annotation.JacksonAnnotation;
  * Default action to take in absence of annotation depends
  * on object using annotation; with deserializers default is
  * to assume instances are not cachable.
- *
- * @since 1.1
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

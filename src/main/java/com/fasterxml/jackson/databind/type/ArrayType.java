@@ -33,16 +33,6 @@ public final class ArrayType
         _emptyArray = emptyInstance;
     }
 
-    /**
-     * @deprecated Since 1.9, if you must directly instantiate,
-     *  call method that takes handlers
-     */
-    @Deprecated
-    public static ArrayType construct(JavaType componentType)
-    {
-        return construct(componentType, null, null);
-    }                                   
-
     public static ArrayType construct(JavaType componentType,
             Object valueHandler, Object typeHandler)
     {
@@ -56,7 +46,6 @@ public final class ArrayType
         return new ArrayType(componentType, emptyInstance, null, null);
     }                                   
     
-    // Since 1.7:
     @Override
     public ArrayType withTypeHandler(Object h)
     {

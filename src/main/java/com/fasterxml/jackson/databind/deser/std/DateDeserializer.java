@@ -3,8 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.util.Date;
 
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.JsonParser;
+import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 
@@ -14,8 +13,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
  * One way to customize Date formats accepted is to override method
  * {@link DeserializationContext#parseDate} that this basic
  * deserializer calls.
- * 
- * @since 1.9 (moved from higher-level package)
  */
 public class DateDeserializer
     extends StdScalarDeserializer<Date>

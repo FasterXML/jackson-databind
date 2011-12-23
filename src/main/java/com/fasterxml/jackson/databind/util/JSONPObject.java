@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Container class that can be used to wrap any Object instances (including
@@ -16,7 +15,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * @see com.fasterxml.jackson.databind.util.JSONWrappedObject
  * 
  * @author tatu
- * @since 1.5
  */
 public class JSONPObject
     implements JsonSerializableWithType
@@ -48,17 +46,6 @@ public class JSONPObject
         _function = function;
         _value = value;
         _serializationType = asType;
-    }
-
-    /**
-     * @deprecated Since 1.8; instead use variant that takes JavaType: this ensures
-     *    that type information is properly resolved
-     */
-    @Deprecated
-    public JSONPObject(String function, Object value, Class<?> rawType) {
-        _function = function;
-        _value = value;
-        _serializationType = (rawType == null) ? null : TypeFactory.defaultInstance().constructType(rawType);
     }
     
     /*

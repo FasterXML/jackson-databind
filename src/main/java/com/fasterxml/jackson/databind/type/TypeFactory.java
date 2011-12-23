@@ -41,23 +41,17 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders;
 public final class TypeFactory
 {
     /**
-     * Globally shared singleton. Should never be accessed directly; non-core
+     * Globally shared singleton. Not accessed directly; non-core
      * code should use per-ObjectMapper instance (via configuration objects).
      * Core Jackson code uses {@link #defaultInstance} for accessing it.
-     * 
-     * @deprecated As of 1.8, should use a per-ObjectMapper instance instead
-     *    of global singleton
      */
-    @Deprecated
-    public final static TypeFactory instance = new TypeFactory();
+    protected final static TypeFactory instance = new TypeFactory();
 
     private final static JavaType[] NO_TYPES = new JavaType[0];
 
     /**
      * Registered {@link TypeModifier}s: objects that can change details
      * of {@link JavaType} instances factory constructs.
-     * 
-     * @since 1.8
      */
     protected final TypeModifier[] _modifiers;
     
@@ -72,16 +66,12 @@ public final class TypeFactory
     /**
      * Lazily constructed copy of type hierarchy from {@link java.util.HashMap}
      * to its supertypes.
-     * 
-     * @since 1.9
      */
     protected HierarchicType _cachedHashMapType;
 
     /**
      * Lazily constructed copy of type hierarchy from {@link java.util.ArrayList}
      * to its supertypes.
-     * 
-     * @since 1.9
      */
     protected HierarchicType _cachedArrayListType;
     
@@ -113,8 +103,6 @@ public final class TypeFactory
      * Method used to access the globally shared instance, which has
      * no custom configuration. Used by <code>ObjectMapper</code> to
      * get the default factory when constructed.
-     * 
-     * @since 1.8
      */
     public static TypeFactory defaultInstance() { return instance; }
 
@@ -143,157 +131,10 @@ public final class TypeFactory
         return defaultInstance().constructType(t).getRawClass();
     }
     
-    /*
-    /**********************************************************
-    /* Legacy factory methods (pre-1.8)
-    /**********************************************************
-     */
-
-    @Deprecated
-    public static JavaType type(Type t) {
-        return instance._constructType(t, null);
-    }
-
-    @Deprecated
-    public static JavaType type(Type type, Class<?> context) {
-        return instance.constructType(type, context);
-    }
-
-    @Deprecated
-    public static JavaType type(Type type, JavaType context) {
-        return instance.constructType(type, context);
-    }
-    
-    @Deprecated
-    public static JavaType type(Type type, TypeBindings bindings) {
-        return instance._constructType(type, bindings);
-    }
-
-    @Deprecated
-    public static JavaType type(TypeReference<?> ref) {
-        return instance.constructType(ref.getType());
-    }
-    
-    @Deprecated
-    public static JavaType arrayType(Class<?> elementType) {
-        return instance.constructArrayType(instance.constructType(elementType));
-    }
-
-    @Deprecated
-    public static JavaType arrayType(JavaType elementType) {
-        return instance.constructArrayType(elementType);
-    }
-
-    @Deprecated
-    public static JavaType collectionType(Class<? extends Collection> collectionType, Class<?> elementType) {
-        return instance.constructCollectionType(collectionType, instance.constructType(elementType));
-    }
-    
-    @Deprecated
-    public static JavaType collectionType(Class<? extends Collection> collectionType, JavaType elementType) {
-        return instance.constructCollectionType(collectionType, elementType);
-    }
-    
-    @Deprecated
-    public static JavaType mapType(Class<? extends Map> mapClass, Class<?> keyType, Class<?> valueType)
-    {
-        return instance.constructMapType(mapClass, type(keyType), instance.constructType(valueType));
-    }
-
-    @Deprecated
-    public static JavaType mapType(Class<? extends Map> mapType, JavaType keyType, JavaType valueType) {
-        return instance.constructMapType(mapType, keyType, valueType);
-    }
-
-    @Deprecated
-    public static JavaType parametricType(Class<?> parametrized, Class<?>... parameterClasses) {
-        return instance.constructParametricType(parametrized, parameterClasses);
-    }
-    
-    @Deprecated
-    public static JavaType parametricType(Class<?> parametrized, JavaType... parameterTypes) {
-        return instance.constructParametricType(parametrized, parameterTypes);
-    }
-
     public static JavaType fromCanonical(String canonical) throws IllegalArgumentException {
         return instance.constructFromCanonical(canonical);
     }
     
-    @Deprecated
-    public static JavaType specialize(JavaType baseType, Class<?> subclass) {
-        return instance.constructSpecializedType(baseType, subclass);
-    }
-    
-    @Deprecated
-    public static JavaType fastSimpleType(Class<?> cls) {
-        return instance.uncheckedSimpleType(cls);
-    }
-
-    @Deprecated
-    public static JavaType[] findParameterTypes(Class<?> clz, Class<?> expType) {
-        return instance.findTypeParameters(clz, expType);
-    }
-
-    @Deprecated
-    public static JavaType[] findParameterTypes(Class<?> clz, Class<?> expType, TypeBindings bindings) {
-        return instance.findTypeParameters(clz, expType, bindings);
-    }
-
-    @Deprecated
-    public static JavaType[] findParameterTypes(JavaType type, Class<?> expType) {
-        return instance.findTypeParameters(type, expType);
-    }
-    
-    /*
-    /**********************************************************
-    /* Legacy methods
-    /**********************************************************
-     */
-
-    /**
-     * Factory method that can be used if only type information
-     * available is of type {@link Class}. This means that there
-     * will not be generic type information due to type erasure,
-     * but at least it will be possible to recognize array
-     * types and non-typed container types.
-     * And for other types (primitives/wrappers, beans), this
-     * is all that is needed.
-     *
-     * @deprecated Use {@link #type(Type)} instead
-     */
-    @Deprecated
-    public static JavaType fromClass(Class<?> clz)
-    {
-        return instance._fromClass(clz, null);
-    }
-
-    /**
-     * Factory method that can be used if the full generic type has
-     * been passed using {@link TypeReference}. This only needs to be
-     * done if the root type to bind to is generic; but if so,
-     * it must be done to get proper typing.
-     *
-     * @deprecated Use {@link #type(Type)} instead
-     */
-    @Deprecated
-    public static JavaType fromTypeReference(TypeReference<?> ref)
-    {
-        return type(ref.getType());
-    }
-
-    /**
-     * Factory method that can be used if type information is passed
-     * as Java typing returned from <code>getGenericXxx</code> methods
-     * (usually for a return or argument type).
-     *
-     * @deprecated Use {@link #type(Type)} instead
-     */
-    @Deprecated
-    public static JavaType fromType(Type type)
-    {
-        return instance._constructType(type, null);
-    }
-
     /*
     /**********************************************************
     /* Type conversion, parameterization resolution methods

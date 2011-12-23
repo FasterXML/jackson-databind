@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.util.TokenBuffer;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Helper class that is used to flatten JSON structure when using
@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
  * This is needed to store temporary state and buffer tokens, as the structure is
  * rearranged a bit so that actual type deserializer can resolve type and 
  * finalize deserialization.
- * 
- * @since 1.9
  */
 public class ExternalTypeHandler
 {

@@ -3,9 +3,9 @@ package com.fasterxml.jackson.databind.deser.impl;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonProcessingException;
-import org.codehaus.jackson.type.JavaType;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;

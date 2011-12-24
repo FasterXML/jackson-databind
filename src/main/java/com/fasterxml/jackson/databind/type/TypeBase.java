@@ -5,40 +5,26 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializableWithType;
+import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.TypeSerializer;
 
-
 public abstract class TypeBase
     extends JavaType
-    implements JsonSerializableWithType
+    implements JsonSerializable
 {
     /**
      * Lazily initialized external representation of the type
      */
     volatile String _canonicalName;
 
-    @Deprecated // since 1.9; to remove from 2.0
-    protected TypeBase(Class<?> raw, int hash) {
-        super(raw, hash);
-    }
-
     /**
      * Main constructor to use by extending classes.
-     * 
-     * @since 1.9
      */
     protected TypeBase(Class<?> raw, int hash,
             Object valueHandler, Object typeHandler)
     {
-        super(raw, hash);
-        // @TODO: !!! 16-Aug-2011, tatu: With 2.0, we will move value and type
-        //   handles higher in type hierarchy, make final
-
-        // and then comment out these:
-        _valueHandler = valueHandler;
-        _typeHandler = typeHandler;
+        super(raw, hash, valueHandler, typeHandler);
     }
 
     @Override

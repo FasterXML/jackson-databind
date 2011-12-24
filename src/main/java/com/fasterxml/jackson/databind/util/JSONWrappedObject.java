@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.*;
  * @author tatu
  */
 public class JSONWrappedObject
-    implements JsonSerializableWithType
+    implements JsonSerializable
 {
     /**
      * Literal String to output before serialized value.

@@ -9,7 +9,6 @@ import org.codehaus.jackson.node.ObjectNode;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializable;
-import com.fasterxml.jackson.databind.JsonSerializableWithType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.TypeSerializer;
@@ -24,7 +23,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * interface, can not be checked for direct class equivalence.
  */
 @JacksonStdImpl
-@SuppressWarnings("deprecation")
 public class SerializableSerializer
     extends SerializerBase<JsonSerializable>
 {
@@ -44,15 +42,7 @@ public class SerializableSerializer
             TypeSerializer typeSer)
         throws IOException, JsonGenerationException
     {
-        /* 24-Jan-2009, tatus: This is not quite optimal (perhaps we should
-         *   just create separate serializer...), but works until 2.0 will
-         *   deprecate non-typed interface
-         */
-        if (value instanceof JsonSerializableWithType) {
-            ((JsonSerializableWithType) value).serializeWithType(jgen, provider, typeSer);
-        } else {
-            this.serialize(value, jgen, provider);
-        }
+        value.serializeWithType(jgen, provider, typeSer);
     }
     
     @Override

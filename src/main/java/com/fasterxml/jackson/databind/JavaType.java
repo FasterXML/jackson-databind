@@ -33,10 +33,8 @@ public abstract class JavaType
      *<p>
      * Note: untyped (i.e. caller has to cast) because it is used for
      * different kinds of handlers, with unrelated types.
-     *<p>
-     * TODO: make final and possibly promote to sub-classes
      */
-    protected /*final*/ Object _valueHandler;
+    protected final Object _valueHandler;
 
     /**
      * Optional handler that can be attached to indicate how to handle
@@ -44,10 +42,8 @@ public abstract class JavaType
      *<p>
      * Note: untyped (i.e. caller has to cast) because it is used for
      * different kinds of handlers, with unrelated types.
-     *<p>
-     * TODO: make final and possibly promote to sub-classes
      */
-    protected /*final*/ Object _typeHandler;
+    protected final Object _typeHandler;
     
     /*
     /**********************************************************
@@ -60,13 +56,19 @@ public abstract class JavaType
      * @param additionalHash Additional hash code to use, in addition
      *   to hash code of the class name 
      */
-    protected JavaType(Class<?> raw, int additionalHash)
+    protected JavaType(Class<?> raw, int additionalHash,
+            Object valueHandler, Object typeHandler)
     {
         _class = raw;
         _hashCode = raw.getName().hashCode() + additionalHash;
-        _valueHandler = null;
-        _typeHandler = null;
+        _valueHandler = valueHandler;
+        _typeHandler = typeHandler;
     }
+
+    /**
+     * Serialization method called when no additional type information is
+     * to be included in serialization.
+     */
     
     /**
      * "Copy method" that will construct a new instance that is identical to

@@ -242,7 +242,6 @@ public abstract class BasicSerializerFactory
      * This does not include "secondary" interfaces, but
      * mostly concrete or abstract base classes.
      */
-    @SuppressWarnings("deprecation")
     public final JsonSerializer<?> findSerializerByPrimaryType(JavaType type, SerializationConfig config,
             BasicBeanDescription beanDesc, BeanProperty property,
             boolean staticTyping)
@@ -251,9 +250,6 @@ public abstract class BasicSerializerFactory
         Class<?> raw = type.getRawClass();
         // First: JsonSerializable and related
         if (JsonSerializable.class.isAssignableFrom(raw)) {
-            if (JsonSerializableWithType.class.isAssignableFrom(raw)) {
-                return SerializableWithTypeSerializer.instance;
-            }
             return SerializableSerializer.instance;
         }
         // Second: as per [JACKSON-193] consider @JsonValue for any types:

@@ -14,20 +14,35 @@ import com.fasterxml.jackson.core.*;
  * so -- if class is a bean, it can be serialized without
  * implementing this interface.
  *<p>
- * NOTE: as of version 1.5, this interface is missing one crucial
- * aspect, that of dealing with type information embedding.
- * Because of this, this interface is deprecated, although will be
- * fully supported for all 1.x releases, and will work except for
- * cases where polymorphic type information handling is needed for
- * type (in which case implementing if {@link JsonSerializableWithType} is crucial).
- *
- * @see com.fasterxml.jackson.databind.JsonSerializableWithType
- *
- * @since 1.5
+ * NOTE: Jackson 2.0 added another method (from former "JsonSerializableWithType"),
+ * which is required for proper handling of case where additional type information
+ * is needed.
  */
-@Deprecated
 public interface JsonSerializable
 {
+    /**
+     * Serialization method called when no additional type information is
+     * to be included in serialization.
+     */
     public void serialize(JsonGenerator jgen, SerializerProvider provider)
+        throws IOException, JsonProcessingException;
+
+    /**
+     * Serialization method called when additional type information is
+     * expected to be included in serialization, for deserialization to use.
+     *<p>
+     * Usually implementation consists of a call to one of methods
+     * in {@link TypeSerializer} (such as {@link TypeSerializer#writeTypePrefixForObject(Object, JsonGenerator)})
+     * followed by serialization of contents,
+     * followed by another call to {@link TypeSerializer}
+     * (such as {@link TypeSerializer#writeTypeSuffixForObject(Object, JsonGenerator)}).
+     * Exact methods to call in {@link TypeSerializer} depend on shape of JSON Object used
+     * (Array, Object or scalar like String/Number/Boolean).
+     *<p>
+     * Note that some types (most notably, "natural" types: String, Integer,
+     * Double and Boolean) never include type information.
+     */
+    public void serializeWithType(JsonGenerator jgen, SerializerProvider provider,
+            TypeSerializer typeSer)
         throws IOException, JsonProcessingException;
 }

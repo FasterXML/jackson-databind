@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.*;
  * @author tatu
  */
 public class JSONPObject
-    implements JsonSerializableWithType
+    implements JsonSerializable
 {
     /**
      * JSONP function name to use for serialization

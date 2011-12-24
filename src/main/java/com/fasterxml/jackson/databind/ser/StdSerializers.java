@@ -11,11 +11,8 @@ import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
 import com.fasterxml.jackson.databind.ser.std.NonTypedScalarSerializerBase;
 import com.fasterxml.jackson.databind.ser.std.ScalarSerializerBase;
 
-
 /**
  * Container class for serializers used for handling standard JDK-provided types.
- * 
- * @since 1.5
  */
 public class StdSerializers
 {
@@ -67,30 +64,6 @@ public class StdSerializers
              *   'forPrimitive' flag...
              */
             return createSchemaNode("boolean", !_forPrimitive);
-        }
-    }
-
-    /**
-     * @deprecated Since 1.9, use {@link com.fasterxml.jackson.databind.ser.std.StringSerializer} instead
-     */
-    @Deprecated
-    @JacksonStdImpl
-    public final static class StringSerializer
-        extends NonTypedScalarSerializerBase<String>
-    {
-        public StringSerializer() { super(String.class); }
-
-        @Override
-        public void serialize(String value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
-            jgen.writeString(value);
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            return createSchemaNode("string", true);
         }
     }
 
@@ -343,29 +316,5 @@ public class StdSerializers
         {
             return createSchemaNode("string", true);
         }
-    }
-
-    
-    /*
-    /**********************************************************
-    / Other serializers
-    /**********************************************************
-     */
-
-    /**
-     * @deprecated Since 1.9, use {@link com.fasterxml.jackson.databind.ser.std.DateSerializer} instead
-     */
-    @Deprecated
-    @JacksonStdImpl
-    public final static class SerializableSerializer
-        extends com.fasterxml.jackson.databind.ser.std.SerializableSerializer { }
-
-    /**
-     * @deprecated Since 1.9, use {@link com.fasterxml.jackson.databind.ser.std.DateSerializer} instead
-     */
-    @Deprecated
-    @JacksonStdImpl
-    public final static class SerializableWithTypeSerializer
-        extends com.fasterxml.jackson.databind.ser.std.SerializableWithTypeSerializer {
     }
 }

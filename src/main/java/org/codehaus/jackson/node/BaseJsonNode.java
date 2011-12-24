@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.JsonSerializableWithType;
+import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.TypeSerializer;
 
@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.TypeSerializer;
  */
 public abstract class BaseJsonNode
     extends JsonNode
-    implements JsonSerializableWithType
+    implements JsonSerializable
 {
     protected BaseJsonNode() { }
 

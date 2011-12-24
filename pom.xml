@@ -40,6 +40,11 @@
       <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
       <distribution>repo</distribution>
     </license>
+    <license>
+      <name>Lesser Gnu Public License (LGPL), Version 2.1</name>
+      <url>http://www.gnu.org/licenses/lgpl-2.1.html</url>
+      <distribution>repo</distribution>
+    </license>
   </licenses>
   <organization>
     <name>fasterxml.com</name>
@@ -58,6 +63,7 @@
       <artifactId>jackson-annotations</artifactId>
       <version>2.0.0-SNAPSHOT</version>
     </dependency>
+
     <!-- Also: for legacy reasons, we initially keep ref to Joda types;
          will be moved RSN into joda datatype module
       -->
@@ -67,11 +73,38 @@
       <version>1.5.2</version>
       <scope>provided</scope>
     </dependency>
-    <!-- and for testing, JUnit is needed -->
+
+    <!-- and for testing, JUnit is needed, as well as quite a few
+         libs for which we use reflection for code, but direct dep for testing
+      -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.8.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>cglib</groupId>
+      <artifactId>cglib</artifactId>
+      <version>2.2.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.collections</groupId>
+      <artifactId>google-collections</artifactId>
+      <version>1.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy</artifactId>
+      <version>1.7.9</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>3.6.0.FINAL</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

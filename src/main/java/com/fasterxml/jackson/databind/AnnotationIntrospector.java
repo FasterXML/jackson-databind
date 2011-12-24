@@ -473,8 +473,6 @@ public abstract class AnnotationIntrospector
      * {@link JsonSerializer}) or Class (of type
      * <code>Class<JsonSerializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
-     *<p>
-     * Note: this variant was briefly deprecated for 1.7; should not be
      */
     public abstract Object findSerializer(Annotated am);
 
@@ -484,8 +482,6 @@ public abstract class AnnotationIntrospector
      * {@link JsonSerializer}) or Class (of type
      * <code>Class<JsonSerializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
-     * 
-     * @since 1.8
      */
     public Class<? extends JsonSerializer<?>> findKeySerializer(Annotated am) {
         return null;
@@ -498,8 +494,6 @@ public abstract class AnnotationIntrospector
      * {@link JsonSerializer}) or Class (of type
      * <code>Class<JsonSerializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
-     * 
-     * @since 1.8
      */
     public Class<? extends JsonSerializer<?>> findContentSerializer(Annotated am) {
         return null;
@@ -672,9 +666,6 @@ public abstract class AnnotationIntrospector
      * {@link JsonDeserializer}) or Class (of type
      * <code>Class<JsonDeserializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
-     *<p>
-     * Note: this variant was briefly deprecated for 1.7; but it turns out
-     * we really should not try to push BeanProperty through at this point
      */
     public abstract Object findDeserializer(Annotated am);
 
@@ -685,8 +676,6 @@ public abstract class AnnotationIntrospector
      * {@link JsonDeserializer}) or Class (of type
      * <code>Class<JsonDeserializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
-     * 
-     * @since 1.3
      */
     public abstract Class<? extends KeyDeserializer> findKeyDeserializer(Annotated am);
 
@@ -698,8 +687,6 @@ public abstract class AnnotationIntrospector
      * {@link JsonDeserializer}) or Class (of type
      * <code>Class<JsonDeserializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
-     * 
-     * @since 1.3
      */
     public abstract Class<? extends JsonDeserializer<?>> findContentDeserializer(Annotated am);
 

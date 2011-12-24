@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.JavaType;
 /**
  * Interface that defines standard API for converting types
  * to type identifiers and vice versa. Used by type resolvers
- * ({@link com.fasterxml.jackson.databind.TypeSerializer},
- * {@link com.fasterxml.jackson.databind.TypeDeserializer}) for converting
+ * ({@link com.fasterxml.jackson.databind.jsontype.TypeSerializer},
+ * {@link com.fasterxml.jackson.databind.jsontype.TypeDeserializer}) for converting
  * between type and matching id; id is stored in JSON and needed for
  * creating instances of proper subtypes when deserializing values.
  * 

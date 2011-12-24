@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 
 public class AtomicReferenceDeserializer
     extends StdScalarDeserializer<AtomicReference<?>>

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.TypeSerializer;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 public abstract class ScalarSerializerBase<T>
     extends SerializerBase<T>

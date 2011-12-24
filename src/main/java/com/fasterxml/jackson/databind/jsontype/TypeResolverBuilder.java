@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.TypeDeserializer;
-import com.fasterxml.jackson.databind.TypeSerializer;
 
 
 /**

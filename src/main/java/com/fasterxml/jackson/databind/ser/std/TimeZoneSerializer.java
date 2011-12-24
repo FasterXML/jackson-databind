@@ -6,7 +6,7 @@ import java.util.TimeZone;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.TypeSerializer;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 public class TimeZoneSerializer
     extends ScalarSerializerBase<TimeZone>

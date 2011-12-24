@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.TypeSerializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 public abstract class TypeSerializerBase extends TypeSerializer
 {

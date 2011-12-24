@@ -65,7 +65,7 @@
       <groupId>joda-time</groupId>
       <artifactId>joda-time</artifactId>
       <version>1.5.2</version>
-      <scope>test</scope>
+      <scope>provided</scope>
     </dependency>
     <!-- and for testing, JUnit is needed -->
     <dependency>

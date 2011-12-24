@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
  * Abstract class that defines API used by {@link ObjectMapper} (and

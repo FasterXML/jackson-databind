@@ -6,7 +6,9 @@ import java.util.Date;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 
@@ -277,109 +279,10 @@ public abstract class SerializerProvider
      *<p>
      * Note that the serializer itself can be called with instances
      * of any Java object, but not nulls.
-     * 
-     * @since 1.8
      */
     public abstract JsonSerializer<Object> findKeySerializer(JavaType keyType,
             BeanProperty property)
         throws JsonMappingException;
-
-    /*
-    /**********************************************************
-    /* Deprecated serializer locating functionality
-    /**********************************************************
-     */
-
-    /**
-     * Deprecated version of accessor method that was used before version 1.7.
-     * Implemented as final to ensure that existing code does not accidentally
-     * try to redefine it (given that it is not called by core mapper code)
-     *   
-     * @deprecated As of version 1.7, use version that exposes property object
-     *    instead of just its type (needed for contextual serializers)
-     */
-    @Deprecated
-    public final JsonSerializer<Object> findValueSerializer(Class<?> runtimeType)
-        throws JsonMappingException
-    {
-        return findValueSerializer(runtimeType, null);
-    }
-
-    /**
-     * Deprecated version of accessor method that was used before version 1.7.
-     * Implemented as final to ensure that existing code does not accidentally
-     * try to redefine it (given that it is not called by core mapper code)
-     *   
-     * @deprecated As of version 1.7, use version that exposes property object
-     *    instead of just its type (needed for contextual serializers)
-     */
-    @Deprecated
-    public final JsonSerializer<Object> findValueSerializer(JavaType serializationType)
-        throws JsonMappingException
-    {
-        return findValueSerializer(serializationType, null);
-    }
-
-    /**
-     * Deprecated version of accessor method that was used before version 1.7.
-     * Implemented as final to ensure that existing code does not accidentally
-     * try to redefine it (given that it is not called by core mapper code)
-     *   
-     * @deprecated As of version 1.7, use version that exposes property object
-     *    instead of just its type (needed for contextual serializers)
-     */
-    @Deprecated
-    public final JsonSerializer<Object> findTypedValueSerializer(Class<?> valueType,
-            boolean cache)
-        throws JsonMappingException
-    {
-        return findTypedValueSerializer(valueType, cache, null);
-    }
-
-    /**
-     * Deprecated version of accessor method that was used before version 1.7.
-     * Implemented as final to ensure that existing code does not accidentally
-     * try to redefine it (given that it is not called by core mapper code)
-     *   
-     * @deprecated As of version 1.7, use version that exposes property object
-     *    instead of just its type (needed for contextual serializers)
-     */
-    @Deprecated
-    public final JsonSerializer<Object> findTypedValueSerializer(JavaType valueType,
-            boolean cache)
-        throws JsonMappingException
-    {
-        return findTypedValueSerializer(valueType, cache, null);
-    }
-
-    /**
-     * Deprecated version of accessor method that was used before version 1.7.
-     * Implemented as final to ensure that existing code does not accidentally
-     * try to redefine it (given that it is not called by core mapper code)
-     *   
-     * @deprecated As of version 1.7, use version that exposes property object
-     *    instead of just its type (needed for contextual serializers)
-     */
-    @Deprecated
-    public final JsonSerializer<Object> getKeySerializer()
-        throws JsonMappingException
-    {
-        return findKeySerializer(TYPE_OBJECT, null);
-    }
-
-    /**
-     * Deprecated version of accessor method that was used before version 1.8;
-     * renamed as {@link #findKeySerializer}, since process is now
-     * more complicated than simple lookup.
-     *
-     * @deprecated As of version 1.8
-     */
-    @Deprecated
-    public final JsonSerializer<Object> getKeySerializer(JavaType valueType, BeanProperty property)
-        throws JsonMappingException
-    {
-        return findKeySerializer(valueType, property);
-    }
     
     /*
     /********************************************************

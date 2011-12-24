@@ -1,4 +1,7 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.ser;
+
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
 /**
  * Interface used to indicate serializers that want to do post-processing

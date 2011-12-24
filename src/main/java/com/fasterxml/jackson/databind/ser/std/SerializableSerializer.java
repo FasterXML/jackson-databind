@@ -11,9 +11,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.TypeSerializer;
 import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**

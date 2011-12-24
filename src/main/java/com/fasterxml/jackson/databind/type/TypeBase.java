@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.TypeSerializer;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 public abstract class TypeBase
     extends JavaType

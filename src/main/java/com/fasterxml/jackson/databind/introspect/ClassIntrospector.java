@@ -1,4 +1,10 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.introspect;
+
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.MapperConfig;
+import com.fasterxml.jackson.databind.SerializationConfig;
 
 
 /**
@@ -73,44 +79,8 @@ public abstract class ClassIntrospector<T extends BeanDescription>
      * Factory method that constructs an introspector that only has
      * information regarding annotations class itself has (but NOT including
      * its supertypes), but nothing on methods or constructors.
-     * 
-     * @since 1.5
      */
     public abstract T forDirectClassAnnotations(MapperConfig<?> cfg, JavaType type,
             MixInResolver r);
-    
-    /*
-    /**********************************************************
-    /* Deprecated methods
-    /**********************************************************
-     */
-    
-    /**
-     * Factory method that constructs an introspector that only has
-     * information regarding annotations class itself (or its supertypes) has,
-     * but nothing on methods or constructors.
-     * 
-     * @deprecated since 1.9, use variant that takes JavaType
-     */
-    @Deprecated
-    public T forClassAnnotations(MapperConfig<?> cfg, Class<?> cls,
-            MixInResolver r) {
-        return forClassAnnotations(cfg, cfg.constructType(cls), r);
-    }
-
-    /**
-     * Factory method that constructs an introspector that only has
-     * information regarding annotations class itself has (but NOT including
-     * its supertypes), but nothing on methods or constructors.
-     * 
-     * @since 1.5
-     * 
-     * @deprecated since 1.9, use variant that takes JavaType
-     */
-    @Deprecated
-    public T forDirectClassAnnotations(MapperConfig<?> cfg, Class<?> cls,
-            MixInResolver r) {
-        return forDirectClassAnnotations(cfg, cfg.constructType(cls), r);
-    }
 }
 

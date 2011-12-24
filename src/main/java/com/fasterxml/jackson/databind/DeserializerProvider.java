@@ -2,6 +2,9 @@ package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
+import com.fasterxml.jackson.databind.deser.DeserializerFactory;
+import com.fasterxml.jackson.databind.deser.Deserializers;
+import com.fasterxml.jackson.databind.deser.KeyDeserializers;
 import com.fasterxml.jackson.databind.deser.ValueInstantiators;
 
 

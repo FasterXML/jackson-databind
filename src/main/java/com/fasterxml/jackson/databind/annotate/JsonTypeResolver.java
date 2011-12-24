@@ -17,7 +17,7 @@ public @interface JsonTypeResolver
 {
     /**
      * Defines implementation class of {@link TypeResolverBuilder} which is used to construct
-     * actual {@link com.fasterxml.jackson.databind.TypeDeserializer} and {@link com.fasterxml.jackson.databind.TypeDeserializer}
+     * actual {@link com.fasterxml.jackson.databind.jsontype.TypeDeserializer} and {@link com.fasterxml.jackson.databind.jsontype.TypeDeserializer}
      * instances that handle reading and writing addition type information needed to support polymorphic
      * deserialization.
      */

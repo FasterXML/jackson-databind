@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import com.fasterxml.jackson.databind.TypeSerializer;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
  * Intermediate base class for types that contain element(s) of

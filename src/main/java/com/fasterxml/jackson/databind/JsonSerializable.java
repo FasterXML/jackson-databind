@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
  * Interface that can be implemented by objects that know how to

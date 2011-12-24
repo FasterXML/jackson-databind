@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
  * This is a simple dummy serializer that will just output raw values by calling toString()

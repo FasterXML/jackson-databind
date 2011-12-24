@@ -13,7 +13,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
+import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 
 /**
  * Serializer class that can serialize Object that have a

@@ -19,9 +19,6 @@ public abstract class DeserializationContext
 {
     protected final DeserializationConfig _config;
 
-    /**
-     * @since 1.7
-     */
     protected final int _featureFlags;
     
     /*
@@ -51,8 +48,6 @@ public abstract class DeserializationContext
     /**
      * Returns provider that can be used for dynamically locating
      * other deserializers during runtime.
-     * 
-     * @since 1.5
      */
     public DeserializerProvider getDeserializerProvider() {
         // will be overridden by impl class

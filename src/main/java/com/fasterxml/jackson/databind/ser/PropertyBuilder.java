@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotate.JsonSerialize;
 import com.fasterxml.jackson.databind.annotate.JsonSerialize.Inclusion;
 import com.fasterxml.jackson.databind.introspect.*;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.util.*;
 
 /**

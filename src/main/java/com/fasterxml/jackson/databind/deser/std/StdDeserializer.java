@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
  * Base class for common deserializers. Contains shared

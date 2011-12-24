@@ -9,6 +9,8 @@ import org.codehaus.jackson.node.ObjectNode;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 
 /**
  * Dummy container class to group standard homogenous array serializer implementations

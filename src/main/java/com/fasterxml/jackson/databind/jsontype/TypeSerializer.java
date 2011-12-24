@@ -1,9 +1,8 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.jsontype;
 
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 
@@ -15,8 +14,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * calls, to add type information using mechanism type serializer was
  * configured with.
  * 
- * @since 1.5
- * @author tatus
+ * @author tatu
  */
 public abstract class TypeSerializer
 {

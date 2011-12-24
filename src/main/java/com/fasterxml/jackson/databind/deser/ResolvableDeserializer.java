@@ -1,4 +1,8 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.deser;
+
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializerProvider;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * Interface used to indicate deserializers that want to do post-processing

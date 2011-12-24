@@ -6,7 +6,7 @@ import java.net.InetAddress;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.TypeSerializer;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
  * Simple serializer for {@link java.net.InetAddress}. Main complexity is

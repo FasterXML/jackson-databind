@@ -6,7 +6,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.TypeDeserializer;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
  * Base class for deserializers that handle types that are serialized

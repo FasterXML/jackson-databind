@@ -1,9 +1,10 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.jsontype;
 
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 

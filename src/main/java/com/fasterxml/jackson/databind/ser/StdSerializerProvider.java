@@ -5,7 +5,6 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;

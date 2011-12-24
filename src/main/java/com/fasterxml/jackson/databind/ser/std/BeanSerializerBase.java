@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.JavaType;
 
 import org.codehaus.jackson.node.ObjectNode;
 

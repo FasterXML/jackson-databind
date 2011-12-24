@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.type.JavaType;
+import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.VersionUtil;
 import com.fasterxml.jackson.databind.deser.StdDeserializationContext;
@@ -28,7 +28,6 @@ import org.codehaus.jackson.node.TreeTraversingParser;
  * reused.
  * 
  * @author tatu
- * @since 1.6
  */
 public class ObjectReader
     extends ObjectCodec
@@ -359,8 +358,15 @@ public class ObjectReader
      * Value return is either newly constructed, or root value that
      * was specified with {@link #withValueToUpdate(Object)}.
      */
-    @SuppressWarnings("unchecked")
     @Override
+    public <T> T readValue(JsonParser jp, ResolvedType valueType) throws IOException, JsonProcessingException {
+        return readValue(jp, (JavaType) valueType);
+    }
+
+    /**
+     * Type-safe overloaded method, basically alias for {@link #readValue(JsonParser, ResolvedType)}.
+     */
+    @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser jp, JavaType valueType) throws IOException, JsonProcessingException {
         return (T) withType(valueType).readValue(jp);
     }
@@ -411,6 +417,14 @@ public class ObjectReader
      *</pre>
      */
     @Override
+    public <T> Iterator<T> readValues(JsonParser jp, ResolvedType valueType)
+        throws IOException, JsonProcessingException {
+        return readValues(jp, (JavaType) valueType);
+    }
+
+    /**
+     * Type-safe overloaded method, basically alias for {@link #readValues(JsonParser, ResolvedType)}.
+     */
     public <T> Iterator<T> readValues(JsonParser jp, JavaType valueType)
         throws IOException, JsonProcessingException {
         return withType(valueType).readValues(jp);

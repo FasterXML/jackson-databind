@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonNode;
-import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
 import com.fasterxml.jackson.databind.deser.impl.CreatorProperty;

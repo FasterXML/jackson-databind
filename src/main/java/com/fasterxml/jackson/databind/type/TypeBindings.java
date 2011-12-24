@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.type;
 import java.lang.reflect.*;
 import java.util.*;
 
-import com.fasterxml.jackson.core.type.JavaType;
+import com.fasterxml.jackson.databind.JavaType;
 
 /**
  * Helper class used for resolving type parameters for given class

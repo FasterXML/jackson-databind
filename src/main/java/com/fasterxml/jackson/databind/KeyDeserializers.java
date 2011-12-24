@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.core.type.JavaType;
 
 /**
  * Interface that defines API for simple extensions that can provide additional deserializers

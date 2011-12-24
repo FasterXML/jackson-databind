@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.type.JavaType;
+import com.fasterxml.jackson.databind.JavaType;
 
 /**
  * Type that represents Map-like types; things that consist of key/value pairs but that

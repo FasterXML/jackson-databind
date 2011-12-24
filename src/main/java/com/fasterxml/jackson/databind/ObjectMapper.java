@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.type.JavaType;
+import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
 import com.fasterxml.jackson.databind.annotate.JsonSerialize;
@@ -1272,13 +1272,22 @@ public class ObjectMapper
      * {@link TypeFactory}.
      */
     @Override
+    public final <T> T readValue(JsonParser jp, ResolvedType valueType)
+        throws IOException, JsonParseException, JsonMappingException
+    {
+        return readValue(jp, (JavaType) valueType);
+    }
+
+    /**
+     * Type-safe overloaded method, basically alias for {@link #readValues(JsonParser, ResolvedType)}.
+     */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser jp, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
         return (T) _readValue(copyDeserializationConfig(), jp, valueType);
-    } 
-
+    }
+    
     /**
      * Method to deserialize JSON content as tree expressed
      * using set of {@link JsonNode} instances. Returns
@@ -1313,12 +1322,19 @@ public class ObjectMapper
      * Method for reading sequence of Objects from parser stream.
      *<p>
      * Note that {@link ObjectReader} has more complete set of variants.
-     * 
-     * @since 1.8
      */
     @Override
-    public <T> MappingIterator<T> readValues(JsonParser jp, JavaType valueType)
+    public <T> MappingIterator<T> readValues(JsonParser jp, ResolvedType valueType)
         throws IOException, JsonProcessingException
+    {
+        return readValues(jp, (JavaType) valueType);
+    }
+
+    /**
+     * Type-safe overloaded method, basically alias for {@link #readValues(JsonParser, ResolvedType)}.
+     */
+    public <T> MappingIterator<T> readValues(JsonParser jp, JavaType valueType)
+            throws IOException, JsonProcessingException
     {
         DeserializationConfig config = copyDeserializationConfig();
         DeserializationContext ctxt = _createDeserializationContext(jp, config);
@@ -1330,8 +1346,6 @@ public class ObjectMapper
 
     /**
      * Method for reading sequence of Objects from parser stream.
-     * 
-     * @since 1.8
      */
     @Override
     public <T> MappingIterator<T> readValues(JsonParser jp, Class<T> valueType)

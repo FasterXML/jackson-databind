@@ -6,7 +6,6 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.*;
 
-import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotate.JsonSerialize;

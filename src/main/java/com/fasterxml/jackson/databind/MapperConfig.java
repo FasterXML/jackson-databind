@@ -6,7 +6,6 @@ import java.util.Map;
 
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;

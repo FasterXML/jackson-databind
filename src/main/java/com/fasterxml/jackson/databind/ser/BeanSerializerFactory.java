@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;

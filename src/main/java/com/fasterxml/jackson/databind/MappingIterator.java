@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.JavaType;
 
 /**
  * Iterator exposed by {@link ObjectMapper} when binding sequence of

@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.EnumSet;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.TypeSerializer;

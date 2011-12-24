@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ext;
 import java.util.Collection;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;

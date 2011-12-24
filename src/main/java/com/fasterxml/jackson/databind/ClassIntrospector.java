@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.core.type.JavaType;
 
 /**
  * Helper class used to introspect features of POJO value classes

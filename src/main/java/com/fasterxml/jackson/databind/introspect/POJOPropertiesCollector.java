@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.BeanUtil;

@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.reflect.*;
 
-import com.fasterxml.jackson.core.type.JavaType;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 
 public final class AnnotatedMethod

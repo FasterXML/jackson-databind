@@ -188,7 +188,7 @@ public abstract class Module
 
         /**
          * Method that module can use to register additional
-         * {@link TypeModifier} instance, which can augment {@link org.codehaus.jackson.type.JavaType}
+         * {@link TypeModifier} instance, which can augment {@link com.fasterxml.jackson.databind.type.JavaType}
          * instances constructed by {@link com.fasterxml.jackson.databind.type.TypeFactory}.
          * 
          * @param modifier to add

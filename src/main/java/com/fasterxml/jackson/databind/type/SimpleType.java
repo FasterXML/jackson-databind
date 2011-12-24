@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.type.JavaType;
+import com.fasterxml.jackson.databind.JavaType;
 
 /**
  * Simple types are defined as anything other than one of recognized

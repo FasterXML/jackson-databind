@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedConstructor;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;

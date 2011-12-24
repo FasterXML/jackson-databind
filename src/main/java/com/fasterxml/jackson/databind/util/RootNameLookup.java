@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.util;
 
 import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;

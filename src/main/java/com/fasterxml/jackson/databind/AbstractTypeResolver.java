@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.core.type.JavaType;
 
 /**
  * Defines interface for resolvers that can resolve abstract types into concrete

@@ -3,10 +3,10 @@ package com.fasterxml.jackson.databind.module;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-import com.fasterxml.jackson.core.type.JavaType;
 
 import com.fasterxml.jackson.databind.AbstractTypeResolver;
 import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.ClassKey;
 
 /**

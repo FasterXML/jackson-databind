@@ -6,7 +6,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.databind.annotate.JsonSerialize;
 import com.fasterxml.jackson.databind.annotate.JsonSerialize.Inclusion;
 import com.fasterxml.jackson.databind.introspect.Annotated;

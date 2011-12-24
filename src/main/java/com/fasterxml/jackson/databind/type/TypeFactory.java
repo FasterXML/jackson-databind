@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.type;
 import java.util.*;
 import java.lang.reflect.*;
 
-import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 
 

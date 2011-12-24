@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.type;
 
 import java.util.Collection;
 
-import com.fasterxml.jackson.core.type.JavaType;
+import com.fasterxml.jackson.databind.JavaType;
 
 /**
  * Type that represents things that act similar to {@link java.util.Collection};

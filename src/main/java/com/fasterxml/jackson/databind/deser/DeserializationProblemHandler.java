@@ -1,8 +1,12 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * This is the class that can be registered (via

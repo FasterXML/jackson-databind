@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.type;
 
-import com.fasterxml.jackson.core.type.JavaType;
+import com.fasterxml.jackson.databind.JavaType;
 
 /**
  * Type that represents Java Collection types (Lists, Sets).

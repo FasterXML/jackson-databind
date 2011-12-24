@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
@@ -498,7 +497,7 @@ public class DeserializationConfig
     }
 
     @Override
-    public DeserializationConfig withVisibility(JsonMethod forMethod, JsonAutoDetect.Visibility visibility) {
+    public DeserializationConfig withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
         return new DeserializationConfig(this, _base.withVisibility(forMethod, visibility));
     }
     
@@ -599,48 +598,6 @@ public class DeserializationConfig
     /**********************************************************
      */
     
-    /**
-     * Method that checks class annotations that the argument Object has,
-     * and modifies settings of this configuration object accordingly,
-     * similar to how those annotations would affect actual value classes
-     * annotated with them, but with global scope. Note that not all
-     * annotations have global significance, and thus only subset of
-     * Jackson annotations will have any effect.
-     *<p>
-     * Ones that are known to have effect are:
-     *<ul>
-     * <li>{@link JsonAutoDetect}</li>
-     *</ul>
-     * 
-     * @param cls Class of which class annotations to use
-     *   for changing configuration settings
-     *   
-     * @deprecated Since 1.9, it is preferably to explicitly configure
-     *   instances; this method also modifies existing instance which is
-     *   against immutable design goals of this class.
-     */
-    @Deprecated
-    @Override
-    public void fromAnnotations(Class<?> cls)
-    {
-    	/* no class annotation for:
-         *
-         * - CAN_OVERRIDE_ACCESS_MODIFIERS
-         * - USE_BIG_DECIMAL_FOR_FLOATS
-         * - USE_BIG_INTEGER_FOR_INTS
-         * - USE_GETTERS_AS_SETTERS
-         */
-
-        /* 10-Jul-2009, tatu: Should be able to just pass null as
-         *    'MixInResolver'; no mix-ins set at this point
-         */
-        AnnotationIntrospector ai = getAnnotationIntrospector();
-        AnnotatedClass ac = AnnotatedClass.construct(cls, ai, null);
-        // visibility checks handled via separate checker object...
-        VisibilityChecker<?> prevVc = getDefaultVisibilityChecker();
-        _base = _base.withVisibilityChecker(ai.findAutoDetectVisibility(ac, prevVc));
-    }
-
     /**
      * Method that is called to create a non-shared copy of the configuration
      * to be used for a deserialization operation.
@@ -753,39 +710,6 @@ public class DeserializationConfig
      */
     public boolean isEnabled(DeserializationConfig.Feature f) {
         return (_featureFlags & f.getMask()) != 0;
-    }
-
-    /**
-     * @deprecated Since 1.9, it is preferable to use {@link #with} instead;
-     *    this method is deprecated as it modifies current instance instead of
-     *    creating a new one (as the goal is to make this class immutable)
-     */
-    @Deprecated
-    @Override
-    public void enable(DeserializationConfig.Feature f) {
-        super.enable(f);
-    }
-
-    /** 
-     * @deprecated Since 1.9, it is preferable to use {@link #without} instead;
-     *    this method is deprecated as it modifies current instance instead of
-     *    creating a new one (as the goal is to make this class immutable)
-     */
-    @Deprecated
-    @Override
-    public void disable(DeserializationConfig.Feature f) {
-        super.disable(f);
-    }
-
-    /** 
-     * @deprecated Since 1.9, it is preferable to use {@link #without} and {@link #with} instead;
-     *    this method is deprecated as it modifies current instance instead of
-     *    creating a new one (as the goal is to make this class immutable)
-     */
-    @Deprecated
-    @Override
-    public void set(DeserializationConfig.Feature f, boolean state) {
-        super.set(f, state);
     }
     
     /*

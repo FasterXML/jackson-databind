@@ -1,4 +1,4 @@
-package org.codehaus.jackson.schema;
+package com.fasterxml.jackson.databind.jsonschema;
 
 import com.fasterxml.jackson.core.JsonNode;
 

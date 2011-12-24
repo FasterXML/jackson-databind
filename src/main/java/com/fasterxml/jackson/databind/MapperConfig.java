@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -33,9 +34,6 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
  * One major remaining issue is that of handling mix-in annotations, which
  * still represent a bit of mutable state; may need to implement a
  * functional-style immutable map for storing those.
- *
- * @since 1.2 -- major change in 1.8, changed from interface to
- *   abstract class
  */
 public abstract class MapperConfig<T extends MapperConfig<T>>
     implements ClassIntrospector.MixInResolver
@@ -82,8 +80,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * same field or method. They can be further masked by sub-classes:
      * you can think of it as injecting annotations between the target
      * class and its sub-classes (or interfaces)
-     *
-     * @since 1.2
      */
     protected HashMap<ClassKey,Class<?>> _mixInAnnotations;
 
@@ -91,8 +87,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Flag used to detect when a copy if mix-in annotations is
      * needed: set when current copy is shared, cleared when a
      * fresh copy is made
-     *
-     * @since 1.2
      */
     protected boolean _mixInAnnotationsShared;
 
@@ -112,8 +106,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * Note: this is the only property left as non-final, to allow
      * lazy construction of the instance as necessary.
-     * 
-     * @since 1.6
      */
     protected SubtypeResolver _subtypeResolver;
     
@@ -135,15 +127,14 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
 
     /**
      * Simple copy constructor
-     * 
-     * @since 1.8
      */
     protected MapperConfig(MapperConfig<T> src) {
         this(src, src._base, src._subtypeResolver);
     }
 
     /**
-     * @since 1.8
+     * Fluent-copy constructor that creates a new slightly modified version, using
+     * given config object as base for settings not provided.
      */
     protected MapperConfig(MapperConfig<T> src, MapperConfig.Base base, SubtypeResolver str)
     {
@@ -161,27 +152,10 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      */
     
     /**
-     * Method that checks class annotations that the argument Object has,
-     * and modifies settings of this configuration object accordingly,
-     * similar to how those annotations would affect actual value classes
-     * annotated with them, but with global scope. Note that not all
-     * annotations have global significance, and thus only subset of
-     * Jackson annotations will have any effect.
-     * 
-     * @deprecated Since 1.9, it is preferably to explicitly configure
-     *   instances; this method also modifies existing instance which is
-     *   against immutable design goals of this class.
-     */
-    @Deprecated
-    public abstract void fromAnnotations(Class<?> cls);
-
-    /**
      * Method to use for constructing an instance that is not shared
      * between multiple operations but only used for a single one
      * (which may be this instance, if it is immutable; if not, a copy
      * is constructed with same settings)
-     * 
-     * @since 1.8
      */
     public abstract T createUnshared(SubtypeResolver subtypeResolver);
 
@@ -192,8 +166,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
-     * 
-     * @since 1.8
      */
     public abstract T withClassIntrospector(ClassIntrospector<? extends BeanDescription> ci);
 
@@ -203,8 +175,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
-     * 
-     * @since 1.8
      */
     public abstract T withAnnotationIntrospector(AnnotationIntrospector ai);
     
@@ -215,8 +185,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
-     * 
-     * @since 1.8
      */
     public abstract T withVisibilityChecker(VisibilityChecker<?> vc);
 
@@ -226,10 +194,8 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
-     * 
-     * @since 1.9
      */
-    public abstract T withVisibility(JsonMethod forMethod, JsonAutoDetect.Visibility visibility);
+    public abstract T withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility);
     
     /**
      * Method for constructing and returning a new instance with different
@@ -238,8 +204,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
-     * 
-     * @since 1.8
      */
     public abstract T withTypeResolverBuilder(TypeResolverBuilder<?> trb);
     
@@ -250,8 +214,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
-     * 
-     * @since 1.8
      */
     public abstract T withSubtypeResolver(SubtypeResolver str);
     
@@ -262,8 +224,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
-     * 
-     * @since 1.8
      */
     public abstract T withPropertyNamingStrategy(PropertyNamingStrategy strategy);
     
@@ -274,8 +234,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
-     * 
-     * @since 1.8
      */
     public abstract T withTypeFactory(TypeFactory typeFactory);
     
@@ -286,8 +244,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
-     * 
-     * @since 1.8
      */
     public abstract T withDateFormat(DateFormat df);
 
@@ -298,24 +254,18 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<p>
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
-     * 
-     * @since 1.8
      */
     public abstract T withHandlerInstantiator(HandlerInstantiator hi);
 
     /**
      * Method for constructing and returning a new instance with additional
      * {@link AnnotationIntrospector} inserted (as the highest priority one)
-     * 
-     * @since 1.9
      */
     public abstract T withInsertedAnnotationIntrospector(AnnotationIntrospector introspector);
 
     /**
      * Method for constructing and returning a new instance with additional
      * {@link AnnotationIntrospector} appended (as the lowest priority one)
-     * 
-     * @since 1.9
      */
     public abstract T withAppendedAnnotationIntrospector(AnnotationIntrospector introspector);
     
@@ -324,19 +274,12 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /* Configuration: simple features
     /**********************************************************
      */
-
-    /**
-     * Method for checking whether given feature is enabled or not
-     */
-    public abstract boolean isEnabled(ConfigFeature f);
     
     /**
      * Method for determining whether annotation processing is enabled or not
      * (default settings are typically that it is enabled; must explicitly disable).
      * 
      * @return True if annotation processing is enabled; false if not
-     * 
-     * @since 1.8
      */
     public abstract boolean isAnnotationProcessingEnabled();
 
@@ -350,16 +293,12 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * @return True if access modifier overriding is allowed (and may be done for
      *   any Field, Method, Constructor or Class); false to prevent any attempts
      *   to override.
-     * 
-     * @since 1.8
      */
     public abstract boolean canOverrideAccessModifiers();
 
     /**
      * Accessor for checking whether default settings for property handling
      * indicate that properties should be alphabetically ordered or not.
-     * 
-     * @since 1.9
      */
     public abstract boolean shouldSortPropertiesAlphabetically();
     
@@ -384,42 +323,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     }
 
     /**
-     * Method for registering specified {@link AnnotationIntrospector} as the highest
-     * priority introspector (will be chained with existing introspector(s) which
-     * will be used as fallbacks for cases this introspector does not handle)
-     * 
-     * @param introspector Annotation introspector to register.
-     * 
-     * @since 1.7
-     * 
-     * @deprecated Since 1.9 use {@link #withInsertedAnnotationIntrospector(AnnotationIntrospector)} instead;
-     *   this method is deprecated as it changes state, preventing immutability of instances
-     */
-    @Deprecated
-    public final void insertAnnotationIntrospector(AnnotationIntrospector introspector) {
-        _base = _base.withAnnotationIntrospector(AnnotationIntrospector.Pair.create(introspector,
-                getAnnotationIntrospector()));
-    }
-
-    /**
-     * Method for registering specified {@link AnnotationIntrospector} as the lowest
-     * priority introspector, chained with existing introspector(s) and called
-     * as fallback for cases not otherwise handled.
-     * 
-     * @param introspector Annotation introspector to register.
-     * 
-     * @since 1.7
-     * 
-     * @deprecated Since 1.9 use {@link #withAppendedAnnotationIntrospector(AnnotationIntrospector)} instead;
-     *   this method is deprecated as it changes state, preventing immutability of instances
-     */
-    @Deprecated
-    public final void appendAnnotationIntrospector(AnnotationIntrospector introspector) {
-        _base = _base.withAnnotationIntrospector(AnnotationIntrospector.Pair.create(getAnnotationIntrospector(),
-                introspector));
-    }
-
-    /**
      * Accessor for object used for determining whether specific property elements
      * (method, constructors, fields) can be auto-detected based on
      * their visibility (access modifiers). Can be changed to allow
@@ -427,23 +330,15 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * that this is the global handler; individual types (classes)
      * can further override active checker used (using
      * {@link JsonAutoDetect} annotation)
-     * 
-     * @since 1.5
      */
     public VisibilityChecker<?> getDefaultVisibilityChecker() {
         return _base.getVisibilityChecker();
     }
     
-    /**
-     * @since 1.8
-     */
     public final PropertyNamingStrategy getPropertyNamingStrategy() {
         return _base.getPropertyNamingStrategy();
     }
 
-    /**
-     * @since 1.8
-     */
     public final HandlerInstantiator getHandlerInstantiator() {
         return _base.getHandlerInstantiator();
     }
@@ -465,8 +360,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Annotations from source classes (and their supertypes)
      * will <b>override</b>
      * annotations that target classes (and their super-types) have.
-     *
-     * @since 1.2
      */
     public final void setMixInAnnotations(Map<Class<?>, Class<?>> sourceMixins)
     {
@@ -486,8 +379,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * specified class or interface. All annotations from
      * <code>mixinSource</code> are taken to override annotations
      * that <code>target</code> (or its supertypes) has.
-     *
-     * @since 1.2
      *
      * @param target Class (or interface) whose annotations to effectively override
      * @param mixinSource Class (or interface) whose annotations are to
@@ -510,17 +401,12 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * Method that will check if there are "mix-in" classes (with mix-in
      * annotations) for given class
-     * 
-     * @since 1.2
      */
     @Override
     public final Class<?> findMixInClassFor(Class<?> cls) {
         return (_mixInAnnotations == null) ? null : _mixInAnnotations.get(new ClassKey(cls));
     }
 
-    /**
-     * @since 1.8.1
-     */
     public final int mixInCount() {
         return (_mixInAnnotations == null) ? 0 : _mixInAnnotations.size();
     }
@@ -536,8 +422,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * one explicitly declared via annotations (or other configuration).
      * If such default handler is configured, it is returned; otherwise
      * null is returned.
-     * 
-     * @since 1.5
      */
     public final TypeResolverBuilder<?> getDefaultTyper(JavaType baseType) {
         return _base.getTypeResolverBuilder();
@@ -703,49 +587,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         }
         return (TypeIdResolver) ClassUtil.createInstance(resolverClass, canOverrideAccessModifiers());
     }
-    
-    /*
-    /**********************************************************
-    /* Deprecated methods
-    /**********************************************************
-     */
-
-    /**
-     * Method for replacing existing annotation introspector(s) with specified
-     * introspector.
-     * Since this method modifies state of configuration object directly, its use
-     * is not recommended.
-     * 
-     * @deprecated Since 1.8, use either
-     *  {@link #withAnnotationIntrospector(AnnotationIntrospector)} or
-     *  Module API instead
-     */
-    @Deprecated
-    public final void setAnnotationIntrospector(AnnotationIntrospector ai) {
-        _base = _base.withAnnotationIntrospector(ai);
-    }
-    
-    /**
-     * Method that will define specific date format to use for reading/writing
-     * Date and Calendar values.
-     * If null is passed, will use {@link StdDateFormat}.
-     * Instance is used as is, without creating a clone.
-     * Format object in use can be accessed using {@link #getDateFormat}.
-     * 
-     * @param df Date format to use, if not null; if null, the default format
-     *   will be used
-     * 
-     * @deprecated As of version 1.8, it is preferable to call method in
-     *   {@link ObjectMapper} instead; or construct new instance with
-     *   {@link #withDateFormat(DateFormat)}
-     */
-    @Deprecated
-    public void setDateFormat(DateFormat df) {
-        if (df == null) {
-            df = DEFAULT_DATE_FORMAT;
-        }
-        _base = _base.withDateFormat(df);
-    }
 
     /*
     /**********************************************************
@@ -758,8 +599,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * {@link MapperConfig} implementations must implement.
      * Necessary since enums can not be extended using normal
      * inheritance, but can implement interfaces
-     * 
-     * @since 1.9
      */
     public interface ConfigFeature
     {
@@ -919,7 +758,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
                     _typeResolverBuilder, _dateFormat, _handlerInstantiator);
         }
 
-        public Base withVisibility(JsonMethod forMethod, JsonAutoDetect.Visibility visibility) {
+        public Base withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
             return new Base(_classIntrospector, _annotationIntrospector,
                     _visibilityChecker.withVisibility(forMethod, visibility),
                     _propertyNamingStrategy, _typeFactory,
@@ -1082,73 +921,5 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
          */
         public abstract T without(CFG... features);
         
-        /*
-        /**********************************************************
-        /* Configuration: simple features
-        /**********************************************************
-         */
-        
-        /* NOTE: this method was added in 1.9, but should be
-         * removed from 2.0 -- overloads do not work nicely with
-         * enums, so we better not try 
-         *<p>
-         * Also note that we can NOT use type variable CFG here, because
-         * non-generic base class had to use base type.
-         * 
-         * @Deprecated 
-         */
-        @Override
-        public boolean isEnabled(MapperConfig.ConfigFeature f) {
-            return (_featureFlags & f.getMask()) != 0;
-        }
-        
-        /*
-        /**********************************************************
-        /* Configuration: deprecated methods
-        /**********************************************************
-         */
-        
-        /**
-         * Method for enabling specified feature.
-         * 
-         * @deprecated Since 1.9, it is preferable to use {@link #with} instead;
-         *    this method is deprecated as it modifies current instance instead of
-         *    creating a new one (as the goal is to make this class immutable)
-         */
-        @Deprecated
-        public void enable(CFG f) {
-            _featureFlags |= f.getMask();
-        }
-
-        /**
-         * Method for disabling specified feature.
-         * 
-         * @deprecated Since 1.9, it is preferable to use {@link #without} instead;
-         *    this method is deprecated as it modifies current instance instead of
-         *    creating a new one (as the goal is to make this class immutable)
-         */
-        @Deprecated
-        public void disable(CFG f) {
-            _featureFlags &= ~f.getMask();
-        }
-
-        /**
-         * Method for enabling or disabling specified feature.
-         * 
-         * @deprecated Since 1.9, it is preferable to use {@link #with} and
-         * {@link #without} methods instead;
-         *    this method is deprecated as it modifies current instance instead of
-         *    creating a new one (as the goal is to make this class immutable)
-         */
-        @SuppressWarnings("deprecation")
-        @Deprecated
-        public void set(CFG f, boolean state)
-        {
-            if (state) {
-                enable(f);
-            } else {
-                disable(f);
-            }
-        }
     }
 }

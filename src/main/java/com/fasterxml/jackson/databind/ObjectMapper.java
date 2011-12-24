@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -31,9 +33,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
-import org.codehaus.jackson.*;
 import org.codehaus.jackson.node.*;
-import org.codehaus.jackson.schema.JsonSchema;
 
 /**
  * This mapper (or, data binder, or codec) provides functionality for
@@ -70,10 +70,7 @@ public class ObjectMapper
      * Enumeration used with {@link ObjectMapper#enableDefaultTyping()}
      * to specify what kind of types (classes) default typing should
      * be used for. It will only be used if no explicit type information
-     * is found, but this enumeration further limits subset of those
-     * types.
-     * 
-     * @since 1.5
+     * is found, but this enumeration further limits subset of those types.
      */
     public enum DefaultTyping {
         /**
@@ -340,22 +337,8 @@ public class ObjectMapper
         this(jf, null, null);
     }
 
-    /**
-     * Construct mapper that uses specified {@link SerializerFactory}
-     * for constructing necessary serializers.
-     *
-     * @deprecated Use other constructors instead; note that
-     *   you can just set serializer factory with {@link #setSerializerFactory}
-     */
-    @Deprecated
-    public ObjectMapper(SerializerFactory sf)
-    {
-        this(null, null, null);
-        setSerializerFactory(sf);
-    }
-
     public ObjectMapper(JsonFactory jf,
-                        SerializerProvider sp, DeserializerProvider dp)
+            SerializerProvider sp, DeserializerProvider dp)
     {
     	this(jf, sp, dp, null, null);
     }
@@ -432,10 +415,8 @@ public class ObjectMapper
      * custom serializers and deserializers.
      * 
      * @param module Module to register
-     * 
-     * @since 1.7
      */
-    public void registerModule(Module module)
+    public ObjectMapper registerModule(Module module)
     {
         /* Let's ensure we have access to name and version information, 
          * even if we do not have immediate use for either. This way we know
@@ -561,25 +542,6 @@ public class ObjectMapper
                 mapper._serializationConfig.addMixInAnnotations(target, mixinSource);
             }
         });
-    }
-
-    /**
-     * Fluent-style alternative to {@link #registerModule}; functionally equivalent to:
-     *<pre>
-     *  mapper.registerModule(module);
-     *  return mapper;
-     *</pre>
-     * NOTE: name is unfortunately misleading in suggesting that a new instance
-     * might be created (as is the case with most other 'withXxx()' methods
-     * for Jackson core objects) -- this is not the case; rather, this is just
-     * a variant of {@link #registerModule} but one that returns 'this'
-     * (like it should return, but does not for historical reasons).
-     * 
-     * @since 1.8
-     */
-    public ObjectMapper withModule(Module module)
-    {
-        registerModule(module);
         return this;
     }
 
@@ -770,7 +732,7 @@ public class ObjectMapper
      * 
      * @since 1.9
      */
-    public ObjectMapper setVisibility(JsonMethod forMethod, JsonAutoDetect.Visibility visibility)
+    public ObjectMapper setVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility)
     {
         _deserializationConfig = _deserializationConfig.withVisibility(forMethod, visibility);
         _serializationConfig = _serializationConfig.withVisibility(forMethod, visibility);
@@ -1100,9 +1062,9 @@ public class ObjectMapper
      * {@link SerializationConfig#set} on the shared {@link SerializationConfig}
      * object with given arguments.
      */
-    @SuppressWarnings("deprecation")
     public ObjectMapper configure(SerializationConfig.Feature f, boolean state) {
-        _serializationConfig.set(f, state);
+        _serializationConfig = state ?
+                _serializationConfig.with(f) : _serializationConfig.without(f);
         return this;
     }
 
@@ -1114,9 +1076,9 @@ public class ObjectMapper
      * {@link DeserializationConfig#set} on the shared {@link DeserializationConfig}
      * object with given arguments.
      */
-    @SuppressWarnings("deprecation")
     public ObjectMapper configure(DeserializationConfig.Feature f, boolean state) {
-        _deserializationConfig.set(f, state);
+        _deserializationConfig = state ?
+                _deserializationConfig.with(f) : _deserializationConfig.without(f);
         return this;
     }
 
@@ -2127,8 +2089,6 @@ public class ObjectMapper
     /**
      * Convenience method for constructing {@link ObjectWriter}
      * with default settings.
-     * 
-     * @since 1.6
      */
     public ObjectWriter writer() {
         return new ObjectWriter(this, copySerializationConfig());
@@ -2138,8 +2098,6 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified {@link DateFormat}; or, if
      * null passed, using timestamp (64-bit number.
-     * 
-     * @since 1.9
      */
     public ObjectWriter writer(DateFormat df) {
         return new ObjectWriter(this,
@@ -2149,8 +2107,6 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified JSON View (filter).
-     * 
-     * @since 1.9
      */
     public ObjectWriter writerWithView(Class<?> serializationView) {
         return new ObjectWriter(this, copySerializationConfig().withView(serializationView));
@@ -2161,8 +2117,6 @@ public class ObjectMapper
      * serialize objects using specified root type, instead of actual
      * runtime type of value. Type must be a super-type of runtime
      * type.
-     *
-     * @since 1.9
      */
     public ObjectWriter writerWithType(Class<?> rootType) {
         JavaType t = (rootType == null) ? null : _typeFactory.constructType(rootType);
@@ -2173,8 +2127,6 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified root type, instead of actual
      * runtime type of value. Type must be a super-type of runtime type.
-     * 
-     * @since 1.9
      */
     public ObjectWriter writerWithType(JavaType rootType) {
         return new ObjectWriter(this, copySerializationConfig(), rootType, /*PrettyPrinter*/null);
@@ -2184,8 +2136,6 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified root type, instead of actual
      * runtime type of value. Type must be a super-type of runtime type.
-     * 
-     * @since 1.9
      */
     public ObjectWriter writerWithType(TypeReference<?> rootType) {
         JavaType t = (rootType == null) ? null : _typeFactory.constructType(rootType);
@@ -2196,8 +2146,6 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified pretty printer for indentation
      * (or if null, no pretty printer)
-     * 
-     * @since 1.9
      */
     public ObjectWriter writer(PrettyPrinter pp) {
         if (pp == null) { // need to use a marker to indicate explicit disabling of pp
@@ -2209,8 +2157,6 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using the default pretty printer for indentation
-     * 
-     * @since 1.9
      */
     public ObjectWriter writerWithDefaultPrettyPrinter() {
         return new ObjectWriter(this, copySerializationConfig(),
@@ -2220,8 +2166,6 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified filter provider.
-     * 
-     * @since 1.9
      */
     public ObjectWriter writer(FilterProvider filterProvider) {
         return new ObjectWriter(this,
@@ -2234,81 +2178,9 @@ public class ObjectMapper
      * writing content.
      * 
      * @param schema Schema to pass to generator
-     * 
-     * @since 1.9
      */
     public ObjectWriter writer(FormatSchema schema) {
         return new ObjectWriter(this, copySerializationConfig(), schema);
-    }
-    
-    /*
-    /**********************************************************
-    /* Deprecated ObjectWriter creator methods
-    /**********************************************************
-     */
-
-    /**
-     * @deprecated Since 1.9, use {@link #writerWithType(Class)} instead.
-     */
-    @Deprecated
-    public ObjectWriter typedWriter(Class<?> rootType) {
-        return writerWithType(rootType);
-    }
-
-    /**
-     * @deprecated Since 1.9, use {@link #writerWithType(JavaType)} instead.
-     */
-    @Deprecated
-    public ObjectWriter typedWriter(JavaType rootType) {
-        return writerWithType(rootType);
-    }
-
-    /**
-     * @deprecated Since 1.9, use {@link #writerWithType(TypeReference)} instead.
-     */
-    @Deprecated
-    public ObjectWriter typedWriter(TypeReference<?> rootType) {
-        return writerWithType(rootType);
-    }
-    
-    /**
-     * @deprecated Since 1.9, use {@link #writerWithView(Class)} instead.
-     */
-    @Deprecated
-    public ObjectWriter viewWriter(Class<?> serializationView) {
-        return writerWithView(serializationView);
-    }
-    
-    /**
-     * @deprecated Since 1.9, use {@link #writer(FilterProvider)} instead.
-     */
-    @Deprecated
-    public ObjectWriter prettyPrintingWriter(PrettyPrinter pp) {
-        return writer(pp);
-    }
-
-    /**
-     * @deprecated Since 1.9, use {@link #writerWithDefaultPrettyPrinter} instead.
-     */
-    @Deprecated
-    public ObjectWriter defaultPrettyPrintingWriter() {
-        return writerWithDefaultPrettyPrinter();
-    }
-    
-    /**
-     * @deprecated Since 1.9, use {@link #writer(FilterProvider)} instead.
-     */
-    @Deprecated
-    public ObjectWriter filteredWriter(FilterProvider filterProvider) {
-        return writer(filterProvider);
-    }
-    
-    /**
-     * @deprecated Since 1.9, use {@link #writer(FilterProvider)} instead.
-     */
-    @Deprecated
-    public ObjectWriter schemaBasedWriter(FormatSchema schema) {
-        return writer(schema);
     }
     
     /*
@@ -2322,8 +2194,6 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectReader} with
      * default settings. Note that the resulting instance is NOT usable as is,
      * without defining expected value type.
-     * 
-     * @since 1.6
      */
     public ObjectReader reader() {
         return new ObjectReader(this, copyDeserializationConfig())
@@ -2339,8 +2209,6 @@ public class ObjectMapper
      * as root.
      * Runtime type of value object is used for locating deserializer,
      * unless overridden by other factory methods of {@link ObjectReader}
-     * 
-     * @since 1.9
      */
     public ObjectReader readerForUpdating(Object valueToUpdate)
     {
@@ -2413,34 +2281,10 @@ public class ObjectMapper
      * use specified injectable values.
      * 
      * @param injectableValues Injectable values to use
-     * 
-     * @since 1.9
      */
     public ObjectReader reader(InjectableValues injectableValues) {
         return new ObjectReader(this, copyDeserializationConfig(), null, null,
                 null, injectableValues);
-    }
-    
-    /*
-    /**********************************************************
-    /* Deprecated ObjectReader creator methods
-    /**********************************************************
-     */
-    
-    /**
-     * @deprecated Since 1.9, use {@link #readerForUpdating} instead.
-     */
-    @Deprecated
-    public ObjectReader updatingReader(Object valueToUpdate) {
-        return readerForUpdating(valueToUpdate);
-    }
-    
-    /**
-     * @deprecated Since 1.9, use {@link #reader(FormatSchema)} instead.
-     */
-    @Deprecated
-    public ObjectReader schemaBasedReader(FormatSchema schema) {
-        return reader(schema);
     }
     
     /*

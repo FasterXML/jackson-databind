@@ -7,6 +7,8 @@ import java.util.Date;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
+import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.ser.impl.FailingSerializer;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
 import com.fasterxml.jackson.databind.ser.impl.SerializerCache;
@@ -18,8 +20,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.schema.JsonSchema;
-import org.codehaus.jackson.schema.SchemaAware;
 
 
 /**

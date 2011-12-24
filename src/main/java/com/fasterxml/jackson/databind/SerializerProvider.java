@@ -6,10 +6,10 @@ import java.util.Date;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.JavaType;
+import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-import org.codehaus.jackson.schema.JsonSchema;
 
 /**
  * Abstract class that defines API used by {@link ObjectMapper} and

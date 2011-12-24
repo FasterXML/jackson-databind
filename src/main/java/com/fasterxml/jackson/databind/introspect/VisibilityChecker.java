@@ -4,7 +4,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 /**
@@ -52,7 +54,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
      *
      * @since 1.9
      */
-    public T withVisibility(JsonMethod method, Visibility v);
+    public T withVisibility(PropertyAccessor method, Visibility v);
     
     /**
      * Builder method that will return a checker instance that has
@@ -184,13 +186,12 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
          */
 	public Std(JsonAutoDetect ann)
 	{
-	    JsonMethod[] incl = ann.value();
 	    // let's combine checks for enabled/disabled, with minimimum level checks:
-	    _getterMinLevel = hasMethod(incl, JsonMethod.GETTER) ? ann.getterVisibility() : Visibility.NONE;
-            _isGetterMinLevel = hasMethod(incl, JsonMethod.IS_GETTER) ? ann.isGetterVisibility() : Visibility.NONE;
-            _setterMinLevel = hasMethod(incl, JsonMethod.SETTER) ? ann.setterVisibility() : Visibility.NONE;
-            _creatorMinLevel = hasMethod(incl, JsonMethod.CREATOR) ? ann.creatorVisibility() : Visibility.NONE;
-            _fieldMinLevel = hasMethod(incl, JsonMethod.FIELD) ? ann.fieldVisibility() : Visibility.NONE;
+	    _getterMinLevel = ann.getterVisibility();
+            _isGetterMinLevel = ann.isGetterVisibility();
+            _setterMinLevel = ann.setterVisibility();
+            _creatorMinLevel = ann.creatorVisibility();
+            _fieldMinLevel = ann.fieldVisibility();
 	}
 
 	/**
@@ -241,22 +242,14 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         @Override
 	public Std with(JsonAutoDetect ann)
 	{
-	    if (ann == null) return this;
-	    Std curr = this;
-
-	    JsonMethod[] incl = ann.value();
-	    Visibility v;
-
-	    v = hasMethod(incl, JsonMethod.GETTER) ? ann.getterVisibility() : Visibility.NONE;
-	    curr = curr.withGetterVisibility(v);
-	    v = hasMethod(incl, JsonMethod.IS_GETTER) ? ann.isGetterVisibility() : Visibility.NONE;
-	    curr = curr.withIsGetterVisibility(v);
-	    v = hasMethod(incl, JsonMethod.SETTER) ? ann.setterVisibility() : Visibility.NONE;
-            curr  = curr.withSetterVisibility(v);
-            v = hasMethod(incl, JsonMethod.CREATOR) ? ann.creatorVisibility() : Visibility.NONE;
-            curr = curr.withCreatorVisibility(v);
-            v = hasMethod(incl, JsonMethod.FIELD) ? ann.fieldVisibility() : Visibility.NONE;
-            curr = curr.withFieldVisibility(v);
+            Std curr = this;
+	    if (ann != null) {
+    	    curr = curr.withGetterVisibility(ann.getterVisibility());
+    	    curr = curr.withIsGetterVisibility(ann.isGetterVisibility());
+                curr  = curr.withSetterVisibility(ann.setterVisibility());
+                curr = curr.withCreatorVisibility(ann.creatorVisibility());
+                curr = curr.withFieldVisibility(ann.fieldVisibility());
+	    }
 	    return curr;
 	}
 
@@ -270,7 +263,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
 	}
 
         @Override
-	public Std withVisibility(JsonMethod method, Visibility v)
+	public Std withVisibility(PropertyAccessor method, Visibility v)
 	{
 	    switch (method) {
 	    case GETTER:
@@ -380,20 +373,6 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         @Override
         public boolean isSetterVisible(AnnotatedMethod m) {
             return isSetterVisible(m.getAnnotated());
-        }
-
-        /*
-        /********************************************************
-        /* Helper methods
-        /********************************************************
-         */
-    
-        private static boolean hasMethod(JsonMethod[] methods, JsonMethod method)
-        {
-            for (JsonMethod curr : methods) {
-                if (curr == method || curr == JsonMethod.ALL) return true;
-            }
-            return false;
         }
 
         /*

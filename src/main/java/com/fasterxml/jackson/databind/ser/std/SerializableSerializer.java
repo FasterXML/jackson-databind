@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.*;
 
 import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.schema.JsonSerializableSchema;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializable;
@@ -15,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.TypeSerializer;
 import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -64,7 +64,7 @@ public class SerializableSerializer
         String objectProperties = null;
         String itemDefinition = null;
         if (typeHint != null) {
-            Class<?> rawClass = TypeFactory.type(typeHint).getRawClass();
+            Class<?> rawClass = TypeFactory.rawClass(typeHint);
             if (rawClass.isAnnotationPresent(JsonSerializableSchema.class)) {
                 JsonSerializableSchema schemaInfo = rawClass.getAnnotation(JsonSerializableSchema.class);
                 schemaType = schemaInfo.schemaType();

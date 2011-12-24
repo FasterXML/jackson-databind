@@ -8,10 +8,10 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.schema.SchemaAware;
 
 /**
  * Base class used by all standard serializers. Provides some convenience

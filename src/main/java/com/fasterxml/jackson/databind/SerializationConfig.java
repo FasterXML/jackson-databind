@@ -3,13 +3,13 @@ package com.fasterxml.jackson.databind;
 import java.text.DateFormat;
 import java.util.*;
 
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.type.JavaType;
 import com.fasterxml.jackson.databind.annotate.JsonSerialize;
 import com.fasterxml.jackson.databind.annotate.JsonSerialize.Inclusion;
 import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-
 
 /**
  * Object that contains baseline configuration for serialization
@@ -58,8 +57,6 @@ public class SerializationConfig
          * no annotations are considered.
          *<P>
          * Feature is enabled by default.
-         *
-         * @since 1.2
          */
         USE_ANNOTATIONS(true),
 
@@ -110,8 +107,6 @@ public class SerializationConfig
          * configuration available.
          *<p>
          * Feature is enabled by default.
-         *
-         * @since 1.1
          */
          AUTO_DETECT_FIELDS(true),
 
@@ -136,8 +131,6 @@ public class SerializationConfig
          *<p>
          * Feature is disabled by default for backwards compatibility
          * reasons.
-         * 
-         * @since 1.9
          */
         REQUIRE_SETTERS_FOR_GETTERS(false),
         
@@ -146,23 +139,6 @@ public class SerializationConfig
         /* Generic output features
         /******************************************************
          */
-
-        /**
-         * Feature that determines the default settings of whether Bean
-         * properties with null values are to be written out.
-         *<p>
-         * Feature is enabled by default (null properties written).
-         *<p>
-         * Note too that there is annotation
-         * {@link org.codehaus.jackson.annotate.JsonWriteNullProperties}
-         * that can be used for more granular control (annotates bean
-         * classes or individual property access methods).
-         *
-         * @deprecated As of 1.1, use {@link SerializationConfig#setSerializationInclusion}
-         *    instead
-         */
-        @Deprecated
-        WRITE_NULL_PROPERTIES(true),
 
         /**
          * Feature that determines whether the type detection for
@@ -189,8 +165,6 @@ public class SerializationConfig
          * Default value is enabled, meaning that non-annotated
          * properties are included in all views if there is no
          * {@link org.codehaus.jackson.map.annotate.JsonView} annotation.
-         * 
-         * @since 1.5
          */
         DEFAULT_VIEW_INCLUSION(true),
         
@@ -204,8 +178,6 @@ public class SerializationConfig
          * Feature is mostly intended for JAXB compatibility.
          *<p>
          * Default setting is false, meaning root value is not wrapped.
-         *
-         * @since 1.7
          */
         WRAP_ROOT_VALUE(false),
 
@@ -239,8 +211,6 @@ public class SerializationConfig
          *<p>
          * Note that this is just the default behavior, and can be overridden by
          * explicit overrides in classes.
-         *
-         * @since 1.8
          */
         SORT_PROPERTIES_ALPHABETICALLY(false),
         
@@ -262,8 +232,6 @@ public class SerializationConfig
          * those "empty" beans that do not have any recognized annotations
          * (like <code>@JsonSerialize</code>): ones that do have annotations
          * do not result in an exception being thrown.
-         *
-         * @since 1.4
          */
         FAIL_ON_EMPTY_BEANS(true),
 
@@ -280,10 +248,7 @@ public class SerializationConfig
          * However, sometimes calling application may just want "raw"
          * unchecked exceptions passed as is.
          *<p>
-         * Feature is enabled by default, and is similar in behavior
-         * to default prior to 1.7.
-         * 
-         * @since 1.7
+         * Feature is enabled by default.
          */
         WRAP_EXCEPTIONS(true),
 
@@ -306,8 +271,6 @@ public class SerializationConfig
           * NOTE: only affects behavior with <b>root</b> objects, and not other
           * objects reachable from the root object. Put another way, only one
           * call will be made for each 'writeValue' call.
-          * 
-          * @since 1.6 (see [JACKSON-282 for details])
           */
         CLOSE_CLOSEABLE(false),
 
@@ -320,8 +283,6 @@ public class SerializationConfig
          * should not be forced: for example when underlying stream is
          * compressing and flush() causes compression state to be flushed
          * (which occurs with some compression codecs).
-          * 
-          * @since 1.6 (see [JACKSON-401 for details])
          */
         FLUSH_AFTER_WRITE_VALUE(true),
          
@@ -356,8 +317,6 @@ public class SerializationConfig
          *<p>
          * Default value is 'false', meaning that Date-valued Map keys are serialized
          * as textual (ISO-8601) values.
-         * 
-         * @since 1.9
          */
         WRITE_DATE_KEYS_AS_TIMESTAMPS(false),
 
@@ -366,8 +325,6 @@ public class SerializationConfig
          * when enabled, will be serialized as an explict JSON array (with
          * single-character Strings as values); when disabled, defaults to
          * serializing them as Strings (which is more compact).
-         * 
-         * @since 1.6 (see [JACKSON-289 for details])
          */
         WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS(false),
 
@@ -379,8 +336,6 @@ public class SerializationConfig
          *<p>
          * Note: this feature should usually have same value
          * as {@link DeserializationConfig.Feature#READ_ENUMS_USING_TO_STRING}.
-         *<p>
-         * For further details, check out [JACKSON-212]
          * 
          * @since 1.6
          */
@@ -396,8 +351,6 @@ public class SerializationConfig
          *<p>
          * Note that this feature has precedence over {@link #WRITE_ENUMS_USING_TO_STRING},
          * which is only considered if this feature is set to false.
-         * 
-         * @since 1.9
          */
         WRITE_ENUMS_USING_INDEX(false),
         
@@ -406,8 +359,6 @@ public class SerializationConfig
          * to be serialized (true) or not (false).
          *<p>
          * For further details, check out [JACKSON-314]
-         * 
-         * @since 1.6
          */
         WRITE_NULL_MAP_VALUES(true),
 
@@ -419,8 +370,6 @@ public class SerializationConfig
          *<p>
          * Note that this does not change behavior of {@link java.util.Map}s, or
          * "Collection-like" types.
-         * 
-         * @since 1.9
          */
         WRITE_EMPTY_JSON_ARRAYS(true)
         
@@ -493,17 +442,12 @@ public class SerializationConfig
         _filterProvider = null;
     }
     
-    /**
-     * @since 1.8
-     */
     protected SerializationConfig(SerializationConfig src) {
         this(src, src._base);
     }
 
     /**
      * Constructor used to make a private copy of specific mix-in definitions.
-     * 
-     * @since 1.8
      */
     protected SerializationConfig(SerializationConfig src,
             HashMap<ClassKey,Class<?>> mixins, SubtypeResolver str)
@@ -513,9 +457,6 @@ public class SerializationConfig
         _subtypeResolver = str;
     }
     
-    /**
-     * @since 1.8
-     */
     protected SerializationConfig(SerializationConfig src, MapperConfig.Base base)
     {
         super(src, base, src._subtypeResolver);
@@ -524,9 +465,6 @@ public class SerializationConfig
         _filterProvider = src._filterProvider;
     }
 
-    /**
-     * @since 1.8
-     */
     protected SerializationConfig(SerializationConfig src, FilterProvider filters)
     {
         super(src);
@@ -535,9 +473,6 @@ public class SerializationConfig
         _filterProvider = filters;
     }
 
-    /**
-     * @since 1.8
-     */
     protected SerializationConfig(SerializationConfig src, Class<?> view)
     {
         super(src);
@@ -546,26 +481,14 @@ public class SerializationConfig
         _filterProvider = src._filterProvider;
     }
 
-    /**
-     * @since 1.9
-     */
     protected SerializationConfig(SerializationConfig src, JsonSerialize.Inclusion incl)
     {
         super(src);
         _serializationInclusion = incl;
-        // And for some level of backwards compatibility, also...
-        if (incl == JsonSerialize.Inclusion.NON_NULL) {
-            _featureFlags &= ~Feature.WRITE_NULL_PROPERTIES.getMask();
-        } else {
-            _featureFlags |= Feature.WRITE_NULL_PROPERTIES.getMask();
-        }
         _serializationView = src._serializationView;
         _filterProvider = src._filterProvider;
     }
 
-    /**
-     * @since 1.9
-     */
     protected SerializationConfig(SerializationConfig src, int features)
     {
         super(src, features);
@@ -606,7 +529,7 @@ public class SerializationConfig
     }
 
     @Override
-    public SerializationConfig withVisibility(JsonMethod forMethod, JsonAutoDetect.Visibility visibility) {
+    public SerializationConfig withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
         return new SerializationConfig(this, _base.withVisibility(forMethod, visibility));
     }
     
@@ -660,23 +583,14 @@ public class SerializationConfig
     /**********************************************************
      */
     
-    /**
-     * @since 1.7
-     */
     public SerializationConfig withFilters(FilterProvider filterProvider) {
         return new SerializationConfig(this, filterProvider);
     }
 
-    /**
-     * @since 1.8
-     */
     public SerializationConfig withView(Class<?> view) {
         return new SerializationConfig(this, view);
     }
 
-    /**
-     * @since 1.9
-     */
     public SerializationConfig withSerializationInclusion(JsonSerialize.Inclusion incl) {
         return new SerializationConfig(this, incl);
     }
@@ -684,8 +598,6 @@ public class SerializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
-     * 
-     * @since 1.9
      */
     @Override
     public SerializationConfig with(Feature... features)
@@ -700,8 +612,6 @@ public class SerializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
-     * 
-     * @since 1.9
      */
     @Override
     public SerializationConfig without(Feature... features)
@@ -719,56 +629,6 @@ public class SerializationConfig
     /**********************************************************
      */
     
-    /**
-     * Method that checks class annotations that the argument Object has,
-     * and modifies settings of this configuration object accordingly,
-     * similar to how those annotations would affect actual value classes
-     * annotated with them, but with global scope. Note that not all
-     * annotations have global significance, and thus only subset of
-     * Jackson annotations will have any effect.
-     *<p>
-     * Serialization annotations that are known to have effect are:
-     *<ul>
-     * <li>{@link JsonWriteNullProperties}</li>
-     * <li>{@link JsonAutoDetect}</li>
-     * <li>{@link JsonSerialize#typing}</li>
-     *</ul>
-     * 
-     * @param cls Class of which class annotations to use
-     *   for changing configuration settings
-     *   
-     * @deprecated Since 1.9, it is preferably to explicitly configure
-     *   instances; this method also modifies existing instance which is
-     *   against immutable design goals of this class.
-     */
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    @Override
-    public void fromAnnotations(Class<?> cls)
-    {
-        /* 10-Jul-2009, tatu: Should be able to just pass null as
-         *    'MixInResolver'; no mix-ins set at this point
-         * 29-Jul-2009, tatu: Also, we do NOT ignore annotations here, even
-         *    if Feature.USE_ANNOTATIONS was disabled, since caller
-         *    specifically requested annotations to be added with this call
-         */
-        AnnotationIntrospector ai = getAnnotationIntrospector();
-        AnnotatedClass ac = AnnotatedClass.construct(cls, ai, null);
-        _base = _base.withVisibilityChecker(ai.findAutoDetectVisibility(ac,
-                getDefaultVisibilityChecker()));
-
-        // How about writing null property values?
-        JsonSerialize.Inclusion incl = ai.findSerializationInclusion(ac, null);
-        if (incl != _serializationInclusion) {
-            setSerializationInclusion(incl);
-    	}
-
-        JsonSerialize.Typing typing = ai.findSerializationTyping(ac);
-        if (typing != null) {
-            set(Feature.USE_STATIC_TYPING, (typing == JsonSerialize.Typing.STATIC));
-        }
-    }
-
     @Override
     public SerializationConfig createUnshared(SubtypeResolver subtypeResolver)
     {
@@ -868,39 +728,6 @@ public class SerializationConfig
         return (_featureFlags & f.getMask()) != 0;
     }
     
-    /**
-     * @deprecated Since 1.9, it is preferable to use {@link #with} instead;
-     *    this method is deprecated as it modifies current instance instead of
-     *    creating a new one (as the goal is to make this class immutable)
-     */
-    @Deprecated
-    @Override
-    public void enable(SerializationConfig.Feature f) {
-        super.enable(f);
-    }
-
-    /** 
-     * @deprecated Since 1.9, it is preferable to use {@link #without} instead;
-     *    this method is deprecated as it modifies current instance instead of
-     *    creating a new one (as the goal is to make this class immutable)
-     */
-    @Deprecated
-    @Override
-    public void disable(SerializationConfig.Feature f) {
-        super.disable(f);
-    }
-
-    /** 
-     * @deprecated Since 1.9, it is preferable to use {@link #without} and {@link #with} instead;
-     *    this method is deprecated as it modifies current instance instead of
-     *    creating a new one (as the goal is to make this class immutable)
-     */
-    @Deprecated
-    @Override
-    public void set(SerializationConfig.Feature f, boolean state) {
-        super.set(f, state);
-    }
-    
     /*
     /**********************************************************
     /* Configuration: other
@@ -910,8 +737,6 @@ public class SerializationConfig
     /**
      * Method for checking which serialization view is being used,
      * if any; null if none.
-     *
-     * @since 1.4
      */
     public Class<?> getSerializationView() { return _serializationView; }
 
@@ -920,32 +745,7 @@ public class SerializationConfig
         if (_serializationInclusion != null) {
             return _serializationInclusion;
         }
-        return isEnabled(Feature.WRITE_NULL_PROPERTIES) ?
-            JsonSerialize.Inclusion.ALWAYS : JsonSerialize.Inclusion.NON_NULL;
-    }
-    
-    /**
-     * Method that will define global setting of which
-     * bean/map properties are to be included in serialization.
-     * Can be overridden by class annotations (overriding
-     * settings to use for instances of that class) and
-     * method/field annotations (overriding settings for the value
-     * bean for that getter method or field)
-     * 
-     * @deprecated since 1.9 should either use {@link #withSerializationInclusion}
-     *    to construct new instance, or configure through {@link ObjectMapper}
-     */
-    @SuppressWarnings("deprecation")
-    @Deprecated
-    public void setSerializationInclusion(JsonSerialize.Inclusion props)
-    {
-        _serializationInclusion = props;
-        // And for some level of backwards compatibility, also...
-        if (props == JsonSerialize.Inclusion.NON_NULL) {
-            disable(Feature.WRITE_NULL_PROPERTIES);
-        } else {
-            enable(Feature.WRITE_NULL_PROPERTIES);
-        }
+        return JsonSerialize.Inclusion.ALWAYS;
     }
     
     /**
@@ -953,8 +753,6 @@ public class SerializationConfig
      * id (which is usually provided with filter annotations).
      * Will be null if no provided was set for {@link ObjectWriter}
      * (or if serialization directly called from {@link ObjectMapper})
-     * 
-     * @since 1.7
      */
     public FilterProvider getFilterProvider() {
         return _filterProvider;
@@ -992,40 +790,6 @@ public class SerializationConfig
             }
         }
         return (JsonSerializer<Object>) ClassUtil.createInstance(serClass, canOverrideAccessModifiers());
-    }
-    
-    /*
-    /**********************************************************
-    /* Deprecated methods
-    /**********************************************************
-     */
-    
-    /**
-     * One thing to note is that this will set {@link Feature#WRITE_DATES_AS_TIMESTAMPS}
-     * to false (if null format set), or true (if non-null format)
-     * 
-     * @deprecated Since 1.8, use {@link #withDateFormat} instead.
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    @Deprecated
-    public final void setDateFormat(DateFormat df) {
-        super.setDateFormat(df);
-        set(Feature.WRITE_DATES_AS_TIMESTAMPS, (df == null));
-    }
-    
-    /**
-     * Method for checking which serialization view is being used,
-     * if any; null if none.
-     *
-     * @since 1.4
-     * 
-     * @deprecated Since 1.8, use {@link #withView} instead
-     */
-    @Deprecated
-    public void setSerializationView(Class<?> view)
-    {
-        _serializationView = view;
     }
     
     /*

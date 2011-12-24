@@ -8,10 +8,10 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.JavaType;
 
 import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.schema.JsonSchema;
-import org.codehaus.jackson.schema.SchemaAware;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
+import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 
 /**

@@ -101,10 +101,10 @@
       <version>1.7.9</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
+    <dependency> <!--  from core we just test for repackaged cglib, not hibernate proper -->
       <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-core</artifactId>
-      <version>3.6.0.FINAL</version>
+      <artifactId>hibernate-cglib-repack</artifactId>
+      <version>2.1_3</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

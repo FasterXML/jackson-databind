@@ -6,7 +6,7 @@ import java.lang.reflect.Array;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
+import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;

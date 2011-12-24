@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
+import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 
 /**
  * Standard serializer for {@link java.util.Calendar}.

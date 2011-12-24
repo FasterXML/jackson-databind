@@ -131,7 +131,7 @@ public abstract class JsonSerializer<T>
      * indicate that <b>no serializer is configured</b>.
      *<p>
      * Specifically, this class is to be used as the marker for
-     * annotation {@link com.fasterxml.jackson.databind.annotate.JsonSerialize}.
+     * annotation {@link com.fasterxml.jackson.databind.annotation.JsonSerialize}.
      */
     public abstract static class None
         extends JsonSerializer<Object> { }

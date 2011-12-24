@@ -8,7 +8,7 @@ import java.util.*;
 
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotate.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;

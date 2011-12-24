@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.FailingSerializer;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
 import com.fasterxml.jackson.databind.ser.impl.SerializerCache;
@@ -19,7 +20,6 @@ import com.fasterxml.jackson.databind.ser.std.StdKeySerializers;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
-import org.codehaus.jackson.node.ObjectNode;
 
 
 /**

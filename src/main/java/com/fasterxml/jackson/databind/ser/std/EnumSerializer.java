@@ -6,12 +6,12 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 
-import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.node.ArrayNode;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
+import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.EnumValues;
 
 /**

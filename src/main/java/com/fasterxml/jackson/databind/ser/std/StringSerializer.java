@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
+import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 
 /**
  * This is the special serializer for regular {@link java.lang.String}s.

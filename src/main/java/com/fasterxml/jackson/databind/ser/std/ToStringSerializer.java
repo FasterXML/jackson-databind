@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
+import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
@@ -30,7 +30,7 @@ public class ToStringSerializer
      * {@link #instance} which is stateless and fully thread-safe. However,
      * there are cases where constructor is needed; for example,
      * when using explicit serializer annotations like
-     * {@link com.fasterxml.jackson.databind.annotate.JsonSerialize#using}.
+     * {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#using}.
      */
     public ToStringSerializer() { super(Object.class); }
     

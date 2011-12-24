@@ -7,7 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotate.*;
+import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;

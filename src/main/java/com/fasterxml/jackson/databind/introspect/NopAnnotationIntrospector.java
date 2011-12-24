@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
-import com.fasterxml.jackson.databind.annotate.JsonSerialize.Typing;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize.Typing;
 
 /**
  * Dummy, "no-operation" implementation of {@link AnnotationIntrospector}.

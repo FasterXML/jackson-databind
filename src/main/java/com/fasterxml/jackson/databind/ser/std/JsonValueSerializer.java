@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.*;
 
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotate.JacksonStdImpl;
+import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -53,7 +53,7 @@ public class JsonValueSerializer
     /**
      * @param ser Explicit serializer to use, if caller knows it (which
      *            occurs if and only if the "value method" was annotated with
-     *            {@link com.fasterxml.jackson.databind.annotate.JsonSerialize#using}), otherwise
+     *            {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#using}), otherwise
      *            null
      */
     public JsonValueSerializer(Method valueMethod, JsonSerializer<Object> ser, BeanProperty property)

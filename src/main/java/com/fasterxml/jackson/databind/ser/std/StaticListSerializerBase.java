@@ -5,10 +5,10 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonNode;
 
-import org.codehaus.jackson.node.ObjectNode;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Intermediate base class for Lists, Collections and Arrays

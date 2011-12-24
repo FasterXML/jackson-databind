@@ -142,15 +142,40 @@
               <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
               <Bundle-Vendor>fasterml.com</Bundle-Vendor>
               <Import-Package>
+com.fasterxml.jackson.annotation,
 com.fasterxml.jackson.core,
-com.fasterxml.jackson.core.annotation,
+com.fasterxml.jackson.core.base,
 com.fasterxml.jackson.core.format,
-com.fasterxml.jackson.core.type
+com.fasterxml.jackson.core.json,
+com.fasterxml.jackson.core.io,
+com.fasterxml.jackson.core.util,
+com.fasterxml.jackson.core.type,
+org.xml.sax,org.w3c.dom, org.w3c.dom.bootstrap, org.w3c.dom.ls,
+javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
 </Import-Package>
+              <DynamicImport-Package>
+org.joda.time, org.joda.time.format
+</DynamicImport-Package>
               <Private-Package>
 </Private-Package>
               <Export-Package>
-com.fasterxml.jackson.databind
+com.fasterxml.jackson.databind,
+com.fasterxml.jackson.databind.annotation,
+com.fasterxml.jackson.databind.deser,
+com.fasterxml.jackson.databind.deser.impl,
+com.fasterxml.jackson.databind.deser.std,
+com.fasterxml.jackson.databind.exc,
+com.fasterxml.jackson.databind.ext,
+com.fasterxml.jackson.databind.introspect,
+com.fasterxml.jackson.databind.jsonschema,
+com.fasterxml.jackson.databind.jsontype,
+com.fasterxml.jackson.databind.jsontype.impl,
+com.fasterxml.jackson.databind.node,
+com.fasterxml.jackson.databind.ser,
+com.fasterxml.jackson.databind.ser.impl,
+com.fasterxml.jackson.databind.ser.std,
+com.fasterxml.jackson.databind.type,
+com.fasterxml.jackson.databind.util,
 </Export-Package>
             </instructions>
           </configuration>

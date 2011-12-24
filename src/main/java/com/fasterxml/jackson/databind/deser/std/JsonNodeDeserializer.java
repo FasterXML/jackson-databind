@@ -5,8 +5,8 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.node.*;
 
-import org.codehaus.jackson.node.*;
 
 /**
  * Deserializer that can build instances of {@link JsonNode} from any

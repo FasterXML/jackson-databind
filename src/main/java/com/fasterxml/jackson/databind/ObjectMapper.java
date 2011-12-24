@@ -16,7 +16,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
-import com.fasterxml.jackson.databind.annotate.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -30,13 +30,13 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
+import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
-import org.codehaus.jackson.node.*;
 
 /**
  * This mapper (or, data binder, or codec) provides functionality for
@@ -1721,7 +1721,7 @@ public class ObjectMapper
      * more efficient.
      * 
      * @param <T> Actual node type; usually either basic {@link JsonNode} or
-     *  {@link org.codehaus.jackson.node.ObjectNode}
+     *  {@link com.fasterxml.jackson.databind.node.ObjectNode}
      * @param fromValue Bean value to convert
      * @return Root node of the resulting JSON tree
      */

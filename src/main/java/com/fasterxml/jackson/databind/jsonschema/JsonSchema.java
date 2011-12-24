@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import com.fasterxml.jackson.core.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import org.codehaus.jackson.node.ObjectNode;
-import org.codehaus.jackson.node.JsonNodeFactory;
 
 /**
  * A {@link org.codehaus.jackson.JsonNode} that represents a JSON-Schema instance.

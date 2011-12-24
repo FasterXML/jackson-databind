@@ -25,17 +25,17 @@ public class ISO8601DateFormatTest extends BaseMapTest
         df = new ISO8601DateFormat();
     }
 
-    public void format() {
+    public void testFormat() {
         String result = df.format(date);
         assertEquals("2007-08-13T19:51:23Z", result);
     }
 
-    public void parse() throws Exception {
+    public void testParse() throws Exception {
         Date result = df.parse("2007-08-13T19:51:23Z");
         assertEquals(date, result);
     }
 
-    public void cloneObject() throws Exception {
+    public void testCloneObject() throws Exception {
         DateFormat clone = (DateFormat)df.clone();
         assertSame(df, clone);
     }

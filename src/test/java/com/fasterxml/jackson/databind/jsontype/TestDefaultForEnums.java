@@ -58,7 +58,7 @@ public class TestDefaultForEnums
         
         // Typing is needed for enums
         String json = m.writeValueAsString(new Object[] { TestEnum.A });
-        assertEquals("[[\"org.codehaus.jackson.map.jsontype.TestDefaultForEnums$TestEnum\",\"A\"]]", json);
+        assertEquals("[[\"com.fasterxml.jackson.databind.jsontype.TestDefaultForEnums$TestEnum\",\"A\"]]", json);
 
         // and let's verify we get it back ok as well:
         Object[] value = m.readValue(json, Object[].class);
@@ -71,7 +71,7 @@ public class TestDefaultForEnums
         ObjectMapper m = new ObjectMapper();
         m.enableDefaultTyping();
         String json = m.writeValueAsString(new EnumHolder(TestEnum.B));
-        assertEquals("{\"value\":[\"org.codehaus.jackson.map.jsontype.TestDefaultForEnums$TestEnum\",\"B\"]}", json);
+        assertEquals("{\"value\":[\"com.fasterxml.jackson.databind.jsontype.TestDefaultForEnums$TestEnum\",\"B\"]}", json);
         EnumHolder holder = m.readValue(json, EnumHolder.class);
         assertSame(TestEnum.B, holder.value);
     }

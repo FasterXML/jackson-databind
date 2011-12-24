@@ -196,7 +196,7 @@ public class TestTypedSerialization
         list.add(new A());
         map.put(1L, list);
         String json = mapper.writerWithType(new TypeReference<Map<Long, Collection<Super>>>() {}).writeValueAsString(map);
-        assertTrue(json, json.contains("@class"));
+        assertTrue("JSON does not contain '@class': "+json, json.contains("@class"));
     }
 }
 

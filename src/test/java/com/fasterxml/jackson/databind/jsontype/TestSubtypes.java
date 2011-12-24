@@ -145,7 +145,7 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
         mapper.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false);
         json = mapper.writeValueAsString(new EmptyNonFinal());
-        assertEquals("[\"org.codehaus.jackson.map.jsontype.TestSubtypes$EmptyNonFinal\",{}]", json);
+        assertEquals("[\"com.fasterxml.jackson.databind.jsontype.TestSubtypes$EmptyNonFinal\",{}]", json);
     }
 
     public void testDefaultImpl() throws Exception

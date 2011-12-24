@@ -21,8 +21,6 @@ import com.fasterxml.jackson.databind.util.Provider;
  * Since version 1.5, more types are supported. These types use slightly
  * different approach to serialization than core date types: "timestamp"
  * notation is implemented using JSON arrays, for improved readability.
- *
- * @since 1.4
  */
 public class JodaSerializers
     implements Provider<Map.Entry<Class<?>,JsonSerializer<?>>>

@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.type.ArrayType;
 
 /**
  * Generic serializer for Object arrays (<code>Object[]</code>).
- * 
- * @since 1.9 (moved from 'org.codehaus.jackson.map.ser.impl.ObjectArraySerializer')
  */
 @JacksonStdImpl
 public class ObjectArraySerializer
@@ -44,28 +42,15 @@ public class ObjectArraySerializer
 
     /**
      * Value serializer to use, if it can be statically determined.
-     * 
-     * @since 1.5
      */
     protected JsonSerializer<Object> _elementSerializer;
 
     /**
      * If element type can not be statically determined, mapping from
      * runtime type to serializer is handled using this object
-     * 
-     * @since 1.7
      */
     protected PropertySerializerMap _dynamicSerializers;
     
-    /**
-     * @deprecated since 1.8
-     */
-    @Deprecated
-    public ObjectArraySerializer(JavaType elemType, boolean staticTyping,
-            TypeSerializer vts, BeanProperty property)
-    {
-        this(elemType, staticTyping, vts, property, null);
-    }
     
     public ObjectArraySerializer(JavaType elemType, boolean staticTyping,
             TypeSerializer vts, BeanProperty property, JsonSerializer<Object> elementSerializer)
@@ -250,9 +235,6 @@ public class ObjectArraySerializer
         }
     }        
 
-    /**
-     * @since 1.7
-     */
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider) throws JsonMappingException
     {
@@ -264,9 +246,6 @@ public class ObjectArraySerializer
         return result.serializer;
     }
 
-    /**
-     * @since 1.8
-     */
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             JavaType type, SerializerProvider provider) throws JsonMappingException
     {

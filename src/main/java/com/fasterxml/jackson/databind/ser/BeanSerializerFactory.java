@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
- 
 /**
  * Factory class that can provide serializers for any regular Java beans
  * (as defined by "having at least one get method recognizable as bean
@@ -59,8 +58,6 @@ public class BeanSerializerFactory
     /**
      * Configuration settings for this factory; immutable instance (just like this
      * factory), new version created via copy-constructor (fluent-style)
-     * 
-     * @since 1.7
      */
     protected final Config _factoryConfig;
 
@@ -72,8 +69,6 @@ public class BeanSerializerFactory
     
     /**
      * Configuration settings container class for bean serializer factory
-     * 
-     * @since 1.7
      */
     public static class ConfigImpl extends Config
     {
@@ -442,8 +437,6 @@ public class BeanSerializerFactory
         
         // Any properties to suppress?
         props = filterBeanProperties(config, beanDesc, props);
-        // Do they need to be sorted in some special way?
-        props = sortBeanProperties(config, beanDesc, props);
         
         // [JACKSON-440] Need to allow reordering of properties to serialize
         if (_factoryConfig.hasSerializerModifiers()) {
@@ -518,8 +511,6 @@ public class BeanSerializerFactory
     /**
      * Method called to find filter that is configured to be used with bean
      * serializer being built, if any.
-     * 
-     * @since 1.7
      */
     protected Object findFilterId(SerializationConfig config, BasicBeanDescription beanDesc)
     {
@@ -621,32 +612,6 @@ public class BeanSerializerFactory
     }
 
     /**
-     * Overridable method that will impose given partial ordering on
-     * list of discovered propertied. Method can be overridden to
-     * provide custom ordering of properties, beyond configurability
-     * offered by annotations (whic allow alphabetic ordering, as
-     * well as explicit ordering by providing array of property names).
-     *<p>
-     * By default Creator properties will be ordered before other
-     * properties. Explicit custom ordering will override this implicit
-     * default ordering.
-     */
-    /**
-     * Method that used to be called (pre-1.9) to impose configured
-     * ordering on list of discovered properties.
-     * With 1.9 it is not needed any more as ordering is done earlier.
-     * 
-     * @deprecated Since 1.9 this method does nothing, so there is no
-     *    benefit from overriding it; it will be removed from 2.0.
-     */
-    @Deprecated
-    protected List<BeanPropertyWriter> sortBeanProperties(SerializationConfig config,
-            BasicBeanDescription beanDesc, List<BeanPropertyWriter> props)
-    {
-        return props;
-    }
-
-    /**
      * Method called to handle view information for constructed serializer,
      * based on bean property writers.
      *<p>
@@ -688,7 +653,7 @@ public class BeanSerializerFactory
 
     /**
      * Method that will apply by-type limitations (as per [JACKSON-429]);
-     * by default this is based on {@link org.codehaus.jackson.annotate.JsonIgnoreType} annotation but
+     * by default this is based on {@link com.fasterxml.jackson.annotation.JsonIgnoreType} annotation but
      * can be supplied by module-provided introspectors too.
      */
     protected void removeIgnorableTypes(SerializationConfig config, BasicBeanDescription beanDesc,

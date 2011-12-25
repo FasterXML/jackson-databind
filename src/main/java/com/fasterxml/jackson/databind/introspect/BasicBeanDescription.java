@@ -147,9 +147,6 @@ public class BasicBeanDescription extends BeanDescription
     /**********************************************************
      */
 
-    /**        
-     * @since 1.9
-     */
     @Override
     public AnnotatedClass getClassInfo() { return _classInfo; }
     
@@ -160,7 +157,7 @@ public class BasicBeanDescription extends BeanDescription
 
     /**
      * Method for locating the getter method that is annotated with
-     * {@link org.codehaus.jackson.annotate.JsonValue} annotation,
+     * {@link com.fasterxml.jackson.annotation.JsonValue} annotation,
      * if any. If multiple ones are found,
      * an error is reported by throwing {@link IllegalArgumentException}
      */
@@ -213,8 +210,6 @@ public class BasicBeanDescription extends BeanDescription
      * Method that will locate the no-arg constructor for this class,
      * if it has one, and that constructor has not been marked as
      * ignorable.
-     * 
-     * @since 1.9
      */
     @Override
     public AnnotatedConstructor findDefaultConstructor()
@@ -224,7 +219,7 @@ public class BasicBeanDescription extends BeanDescription
 
     /**
      * Method used to locate the method of introspected class that
-     * implements {@link org.codehaus.jackson.annotate.JsonAnySetter}. If no such method exists
+     * implements {@link com.fasterxml.jackson.annotation.JsonAnySetter}. If no such method exists
      * null is returned. If more than one are found, an exception
      * is thrown.
      * Additional checks are also made to see that method signature
@@ -463,11 +458,9 @@ public class BasicBeanDescription extends BeanDescription
 
     /**
      * Method used to locate the method of introspected class that
-     * implements {@link org.codehaus.jackson.annotate.JsonAnyGetter}.
+     * implements {@link com.fasterxml.jackson.annotation.JsonAnyGetter}.
      * If no such method exists null is returned.
      * If more than one are found, an exception is thrown.
-     * 
-     * @since 1.6
      */
     @Override
     public AnnotatedMethod findAnyGetter() throws IllegalArgumentException
@@ -486,8 +479,6 @@ public class BasicBeanDescription extends BeanDescription
     
     /**
      * Method for locating all back-reference properties (setters, fields) bean has
-     * 
-     * @since 1.6
      */
     public Map<String,AnnotatedMember> findBackReferenceProperties()
     {

@@ -40,15 +40,11 @@ public class EnumMapSerializer
 
     /**
      * Property being serialized with this instance
-     * 
-     * @since 1.7
      */
     protected final BeanProperty _property;
     
     /**
      * Value serializer to use, if it can be statically determined
-     * 
-     * @since 1.5
      */
     protected JsonSerializer<Object> _valueSerializer;
 
@@ -56,16 +52,6 @@ public class EnumMapSerializer
      * Type serializer used for values, if any.
      */
     protected final TypeSerializer _valueTypeSerializer;
-
-    /**
-     * @deprecated Since 1.8, use variant that takes value serializer
-     */
-    @Deprecated
-    public EnumMapSerializer(JavaType valueType, boolean staticTyping, EnumValues keyEnums,
-            TypeSerializer vts, BeanProperty property)
-    {
-        this(valueType, staticTyping, keyEnums, vts, property, null);
-    }
 
     public EnumMapSerializer(JavaType valueType, boolean staticTyping, EnumValues keyEnums,
             TypeSerializer vts, BeanProperty property, JsonSerializer<Object> valueSerializer)
@@ -82,7 +68,7 @@ public class EnumMapSerializer
     @Override
     public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts)
     {
-        return new EnumMapSerializer(_valueType, _staticTyping, _keyEnums, vts,  _property);
+        return new EnumMapSerializer(_valueType, _staticTyping, _keyEnums, vts,  _property, _valueSerializer);
     }
     
     @Override

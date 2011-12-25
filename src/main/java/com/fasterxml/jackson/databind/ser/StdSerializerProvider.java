@@ -15,12 +15,9 @@ import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
 import com.fasterxml.jackson.databind.ser.impl.SerializerCache;
 import com.fasterxml.jackson.databind.ser.impl.UnknownSerializer;
 import com.fasterxml.jackson.databind.ser.std.NullSerializer;
-import com.fasterxml.jackson.databind.ser.std.StdKeySerializer;
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
-
-
 
 /**
  * Default {@link SerializerProvider} implementation. Handles
@@ -54,12 +51,6 @@ public class StdSerializerProvider
 
     public final static JsonSerializer<Object> DEFAULT_NULL_KEY_SERIALIZER =
         new FailingSerializer("Null key for a Map not allowed in JSON (use a converting NullKeySerializer?)");
-
-    /**
-     * @deprecated Since 1.9, use {@link StdKeySerializers} instead
-     */
-    @Deprecated
-    public final static JsonSerializer<Object> DEFAULT_KEY_SERIALIZER = new StdKeySerializer();
 
     public final static JsonSerializer<Object> DEFAULT_UNKNOWN_SERIALIZER = new UnknownSerializer();
 

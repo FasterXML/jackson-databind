@@ -7,9 +7,11 @@ import com.fasterxml.jackson.core.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-
 /**
- * A {@link org.codehaus.jackson.JsonNode} that represents a JSON-Schema instance.
+ * Container for a logical JSON Schema instance.
+ * Internally schema data is stored as a JSON Tree
+ * (instance of {@link com.fasterxml.jackson.core.JsonNode} is the root
+ * of schema document)
  *
  * @author Ryan Heaton
  * @see <a href="http://json-schema.org/">JSON Schema</a>

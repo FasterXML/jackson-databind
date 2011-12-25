@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Helper class that is used to flatten JSON structure when using
- * "external type id" (see {@link org.codehaus.jackson.annotate.JsonTypeInfo.As#EXTERNAL_PROPERTY}).
+ * "external type id" (see {@link com.fasterxml.jackson.annotation.JsonTypeInfo.As#EXTERNAL_PROPERTY}).
  * This is needed to store temporary state and buffer tokens, as the structure is
  * rearranged a bit so that actual type deserializer can resolve type and 
  * finalize deserialization.

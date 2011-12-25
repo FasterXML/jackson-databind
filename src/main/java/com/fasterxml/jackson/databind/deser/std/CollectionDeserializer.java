@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedConstructor;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
-
 /**
  * Basic serializer that can take JSON "Array" structure and
  * construct a {@link java.util.Collection} instance, with typed contents.
@@ -24,8 +23,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  * as the type), {@link UntypedObjectDeserializer} is used instead.
  * It can also construct {@link java.util.List}s, but not with specific
  * POJO types, only other containers and primitives/wrappers.
- * 
- * @since 1.9 (renamed from 'org.codehaus.jackson.map.deser.CollectionDeserializer)
  */
 @JacksonStdImpl
 public class CollectionDeserializer
@@ -49,9 +46,6 @@ public class CollectionDeserializer
 
     // // Instance construction settings:
     
-    /**
-     * @since 1.9
-     */
     protected final ValueInstantiator _valueInstantiator;
     
     /**
@@ -106,8 +100,6 @@ public class CollectionDeserializer
     /**
      * Copy-constructor that can be used by sub-classes to allow
      * copy-on-write styling copying of settings of an existing instance.
-     * 
-     * @since 1.9
      */
     protected CollectionDeserializer(CollectionDeserializer src)
     {

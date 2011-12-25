@@ -14,8 +14,6 @@ import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
  *<p>
  * Note that this deserializer was significantly changed in Jackson 1.7
  * (due to massive changes in {@link BeanDeserializer}).
- * 
- * @since 1.9 (renamed from 'org.codehaus.jackson.map.deser.ThrowableDeserializer')
  */
 public class ThrowableDeserializer
     extends BeanDeserializer
@@ -35,8 +33,6 @@ public class ThrowableDeserializer
 
     /**
      * Alternative constructor used when creating "unwrapping" deserializers
-     * 
-     * @since 1.9
      */
     protected ThrowableDeserializer(BeanDeserializer src, boolean ignoreAllUnknown)
     {

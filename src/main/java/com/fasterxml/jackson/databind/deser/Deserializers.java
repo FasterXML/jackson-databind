@@ -24,8 +24,6 @@ import com.fasterxml.jackson.databind.type.*;
  *<p>
  * Unlike with {@link Serializers}, multiple different methods are used since different
  * kinds of types typically require different kinds of inputs.
- * 
- * @since 1.7
  */
 public interface Deserializers
 {
@@ -203,8 +201,6 @@ public interface Deserializers
      *    {@link ResolvableDeserializer} callback)
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
-     * 
-     * @since 1.8
      */
     public JsonDeserializer<?> findMapLikeDeserializer(MapLikeType type, DeserializationConfig config,
             DeserializerProvider provider, BeanDescription beanDesc, BeanProperty property,
@@ -215,7 +211,7 @@ public interface Deserializers
     /**
      * Method called to locate deserializer for specified JSON tree node type.
      * 
-     * @param nodeType Specific type of JSON tree nodes to deserialize (subtype of {@link org.codehaus.jackson.JsonNode})
+     * @param nodeType Specific type of JSON tree nodes to deserialize (subtype of {@link com.fasterxml.jackson.core.JsonNode})
      * @param config Configuration in effect
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it

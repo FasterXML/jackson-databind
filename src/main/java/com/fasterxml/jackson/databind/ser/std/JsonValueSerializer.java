@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 
 /**
  * Serializer class that can serialize Object that have a
- * {@link org.codehaus.jackson.annotate.JsonValue} annotation to
+ * {@link com.fasterxml.jackson.annotation.JsonValue} annotation to
  * indicate that serialization should be done by calling the method
  * annotated, and serializing result it returns.
  * <p/>
@@ -45,16 +45,14 @@ public class JsonValueSerializer
      * is used for "natural" types (boolean, int, String, double); and where
      * we actually must force type information wrapping, even though
      * one would not normally be added.
-     * 
-     * @since 1.7
      */
     protected boolean _forceTypeInformation;
     
     /**
      * @param ser Explicit serializer to use, if caller knows it (which
-     *            occurs if and only if the "value method" was annotated with
-     *            {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#using}), otherwise
-     *            null
+     *    occurs if and only if the "value method" was annotated with
+     *    {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#using}), otherwise
+     *    null
      */
     public JsonValueSerializer(Method valueMethod, JsonSerializer<Object> ser, BeanProperty property)
     {

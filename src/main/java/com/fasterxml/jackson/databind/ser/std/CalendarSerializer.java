@@ -14,8 +14,6 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
  * Standard serializer for {@link java.util.Calendar}.
  * As with other time/date types, is configurable to produce timestamps
  * (standard Java 64-bit timestamp) or textual formats (usually ISO-8601).
- * 
- * @since 1.9 (moved from 'org.codehaus.jackson.map.ser.StdSerializers#CalendarSerializer}
  */
 @JacksonStdImpl
 public class CalendarSerializer

@@ -25,10 +25,6 @@ import com.fasterxml.jackson.databind.util.Annotations;
  * deserializer and injecting are separate, here we deal the two as related
  * things. This is necessary to add proper priority, as well as to simplify
  * coordination.
- *<p>
- * Note that this class was moved in Jackson 1.9
- * from being a static sub-class of "org.codehaus.jackson.map.deser.SettableBeanProperty"
- * into separate class, to make it easier to use it for custom creators.
  */
 public class CreatorProperty
     extends SettableBeanProperty
@@ -43,8 +39,6 @@ public class CreatorProperty
     /**
      * Id of value to inject, if value injection should be used for this parameter
      * (in addition to, or instead of, regular deserialization).
-     * 
-     * @since 1.9
      */
     protected final Object _injectableValueId;
     
@@ -83,8 +77,6 @@ public class CreatorProperty
     /**
      * Method that can be called to locate value to be injected for this
      * property, if it is configured for this.
-     * 
-     * @since 1.9
      */
     public Object findInjectableValue(DeserializationContext context, Object beanInstance)
     {
@@ -97,8 +89,6 @@ public class CreatorProperty
     
     /**
      * Method to find value to inject, and inject it to this property.
-     * 
-     * @since 1.9
      */
     public void inject(DeserializationContext context, Object beanInstance)
         throws IOException

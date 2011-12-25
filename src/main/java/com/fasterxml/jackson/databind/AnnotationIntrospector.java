@@ -34,8 +34,6 @@ public abstract class AnnotationIntrospector
     /**
      * Value type used with managed and back references; contains type and
      * logic name, used to link related references
-     * 
-     * @since 1.6
      */
     public static class ReferenceProperty
     {
@@ -45,7 +43,7 @@ public abstract class AnnotationIntrospector
              * reference object), but is used for resolving back references during
              * deserialization.
              * Usually this can be defined by using
-             * {@link org.codehaus.jackson.annotate.JsonManagedReference}
+             * {@link com.fasterxml.jackson.annotation.JsonManagedReference}
              */
             MANAGED_REFERENCE
     
@@ -53,7 +51,7 @@ public abstract class AnnotationIntrospector
              * Reference property that Jackson manages by suppressing it during serialization,
              * and reconstructing during deserialization.
              * Usually this can be defined by using
-             * {@link org.codehaus.jackson.annotate.JsonBackReference}
+             * {@link com.fasterxml.jackson.annotation.JsonBackReference}
              */
             ,BACK_REFERENCE
             ;
@@ -87,8 +85,6 @@ public abstract class AnnotationIntrospector
      * Factory method for accessing "no operation" implementation
      * of introspector: instance that will never find any annotation-based
      * configuration.
-     * 
-     * @since 1.3
      */
     public static AnnotationIntrospector nopInstance() {
         return NopAnnotationIntrospector.instance;
@@ -177,8 +173,6 @@ public abstract class AnnotationIntrospector
      * for XML compatibility purposes) for given class, if one
      * is defined. Returns null if no declaration found; can return
      * explicit empty String, which is usually ignored as well as null.
-     *
-     * @since 1.3
      */
     public abstract String findRootName(AnnotatedClass ac);
 
@@ -188,15 +182,11 @@ public abstract class AnnotationIntrospector
      * List of property names is applied
      * after other detection mechanisms, to filter out these specific
      * properties from being serialized and deserialized.
-     * 
-     * @since 1.4
      */
     public abstract String[] findPropertiesToIgnore(AnnotatedClass ac);
 
     /**
      * Method for checking whether an annotation indicates that all unknown properties
-     * 
-     * @since 1.4
      */
     public abstract Boolean findIgnoreUnknownProperties(AnnotatedClass ac);
 
@@ -210,8 +200,6 @@ public abstract class AnnotationIntrospector
      * @return Boolean.TRUE if properties of type should be ignored;
      *   Boolean.FALSE if they are not to be ignored, null for default
      *   handling (which is 'do not ignore')
-     *   
-     * @since 1.7
      */
     public Boolean isIgnorableType(AnnotatedClass ac) {
         return null;
@@ -240,8 +228,6 @@ public abstract class AnnotationIntrospector
      * A baseline checker is given, and introspector is to either return it as is (if
      * no annotations are found), or build and return a derived instance (using checker's build
      * methods).
-     *
-     *  @since 1.5
      */
     public VisibilityChecker<?> findAutoDetectVisibility(AnnotatedClass ac, VisibilityChecker<?> checker) {
         return checker;
@@ -266,8 +252,6 @@ public abstract class AnnotationIntrospector
      * @param baseType Base java type of value for which resolver is to be found
      * 
      * @return Type resolver builder for given type, if one found; null if none
-     * 
-     * @since 1.5 -- although changed in 1.8 to pass configuration object
      */
     public TypeResolverBuilder<?> findTypeResolver(MapperConfig<?> config,
             AnnotatedClass ac, JavaType baseType) {
@@ -288,8 +272,6 @@ public abstract class AnnotationIntrospector
      * 
      * @return Type resolver builder for properties of given entity, if one found;
      *    null if none
-     * 
-     * @since 1.5 -- although changed in 1.8 to pass configuration object
      */
     public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
             AnnotatedMember am, JavaType baseType) {
@@ -312,8 +294,6 @@ public abstract class AnnotationIntrospector
      * 
      * @return Type resolver builder for values contained in properties of given entity,
      *    if one found; null if none
-     * 
-     * @since 1.5 -- although changed in 1.8 to pass configuration object
      */    
     public TypeResolverBuilder<?> findPropertyContentTypeResolver(MapperConfig<?> config,
             AnnotatedMember am, JavaType containerType) {
@@ -328,8 +308,6 @@ public abstract class AnnotationIntrospector
      * has to do it if/as necessary)
      * 
      * @param a Annotated entity (class, field/method) to check for annotations
-     * 
-     * @since 1.5
      */
     public List<NamedType> findSubtypes(Annotated a) {
         return null;
@@ -339,8 +317,6 @@ public abstract class AnnotationIntrospector
      * Method for checking if specified type has explicit name.
      * 
      * @param ac Class to check for type name annotations
-     * 
-     * @since 1.5
      */
     public String findTypeName(AnnotatedClass ac) {
         return null;
@@ -355,8 +331,6 @@ public abstract class AnnotationIntrospector
     /**
      * Note: defined as non-abstract to reduce fragility between
      * versions.
-     * 
-     * @since 1.6
      */
     public ReferenceProperty findReferenceType(AnnotatedMember member) {
         return null;
@@ -366,8 +340,6 @@ public abstract class AnnotationIntrospector
      * Method called to check whether given property is marked to be "unwrapped"
      * when being serialized (and appropriately handled in reverse direction,
      * i.e. expect unwrapped representation during deserialization)
-     * 
-     * @since 1.9
      */
     public Boolean shouldUnwrapProperty(AnnotatedMember member) {
         return null;
@@ -381,8 +353,6 @@ public abstract class AnnotationIntrospector
      * Default implementation calls existing 'isIgnored' methods
      * such as {@link #isIgnorableField(AnnotatedField)} and
      * {@link #isIgnorableMethod(AnnotatedMethod)}.
-     * 
-     * @since 1.9
      */
     public boolean hasIgnoreMarker(AnnotatedMember m)
     {
@@ -440,9 +410,6 @@ public abstract class AnnotationIntrospector
      */
     public abstract boolean isIgnorableMethod(AnnotatedMethod m);
 
-    /**
-     * @since 1.2
-     */
     public abstract boolean isIgnorableConstructor(AnnotatedConstructor c);
 
     /*
@@ -554,8 +521,6 @@ public abstract class AnnotationIntrospector
      * (such as actual exact type; or serializer to use which means
      * no type information is needed) take precedence.
      *
-     * @since 1.2
-     *
      * @return Typing mode to use, if annotation is found; null otherwise
      */
     public abstract JsonSerialize.Typing findSerializationTyping(Annotated a);
@@ -583,8 +548,6 @@ public abstract class AnnotationIntrospector
     /**
      * Method for accessing defined property serialization order (which may be
      * partial). May return null if no ordering is defined.
-     * 
-     * @since 1.4
      */
     public abstract String[] findSerializationPropertyOrder(AnnotatedClass ac);
 
@@ -592,8 +555,6 @@ public abstract class AnnotationIntrospector
      * Method for checking whether an annotation indicates that serialized properties
      * for which no explicit is defined should be alphabetically (lexicograpically)
      * ordered
-     * 
-     * @since 1.4
      */
     public abstract Boolean findSerializationSortAlphabetically(AnnotatedClass ac);
     
@@ -748,8 +709,6 @@ public abstract class AnnotationIntrospector
      * Method getting {@link ValueInstantiator} to use for given
      * type (class): return value can either be an instance of
      * instantiator, or class of instantiator to create.
-     * 
-     * @since 1.9
      */
     public Object findValueInstantiator(AnnotatedClass ac) {
         return null;
@@ -794,8 +753,6 @@ public abstract class AnnotationIntrospector
      *
      * @return True if such annotation is found (and is not disabled),
      *   false otherwise
-     *   
-     * @since 1.6
      */
     public boolean hasAnyGetterAnnotation(AnnotatedMethod am) {
         return false;
@@ -882,8 +839,6 @@ public abstract class AnnotationIntrospector
          * Helper method for constructing a Pair from two given introspectors (if
          * neither is null); or returning non-null introspector if one is null
          * (and return just null if both are null)
-         * 
-         * @since 1.7
          */
         public static AnnotationIntrospector create(AnnotationIntrospector primary,
                 AnnotationIntrospector secondary)

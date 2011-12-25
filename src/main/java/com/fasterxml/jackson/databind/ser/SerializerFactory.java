@@ -1,14 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.RuntimeJsonMappingException;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-
 
 /**
  * Abstract class that defines API used by {@link SerializerProvider}
@@ -17,7 +10,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  */
 public abstract class SerializerFactory
 {
-
     /*
     /**********************************************************
     /* Helper class to contain configuration settings
@@ -26,8 +18,6 @@ public abstract class SerializerFactory
 
     /**
      * Configuration settings container class for bean serializer factory.
-     * 
-     * @since 1.7
      */
     public abstract static class Config
     {
@@ -36,9 +26,6 @@ public abstract class SerializerFactory
          */
         public abstract Config withAdditionalSerializers(Serializers additional);
 
-        /**
-         * @since 1.8
-         */
         public abstract Config withAdditionalKeySerializers(Serializers additional);
         
         /**
@@ -66,7 +53,7 @@ public abstract class SerializerFactory
      */
 
     /**
-     * @since 1.7
+     * Accessor for configuration object.
      */
     public abstract Config getConfig();
     
@@ -79,8 +66,6 @@ public abstract class SerializerFactory
      * of this method, as it usually requires instantiating a new instance of
      * factory type. Check out javadocs for
      * {@link com.fasterxml.jackson.databind.ser.BeanSerializerFactory} for more details.
-     * 
-     * @since 1.7
      */
     public abstract SerializerFactory withConfig(Config config);
 
@@ -90,16 +75,11 @@ public abstract class SerializerFactory
      *<pre>
      *   withConfig(getConfig().withAdditionalSerializers(additional));
      *<pre>
-     * 
-     * @since 1.7
      */
     public final SerializerFactory withAdditionalSerializers(Serializers additional) {
         return withConfig(getConfig().withAdditionalSerializers(additional));
     }
 
-    /**
-     * @since 1.8
-     */
     public final SerializerFactory withAdditionalKeySerializers(Serializers additional) {
         return withConfig(getConfig().withAdditionalKeySerializers(additional));
     }
@@ -110,8 +90,6 @@ public abstract class SerializerFactory
      *<pre>
      *   withConfig(getConfig().withSerializerModifier(modifier));
      *<pre>
-     * 
-     * @since 1.7
      */
     public final SerializerFactory withSerializerModifier(BeanSerializerModifier modifier) {
         return withConfig(getConfig().withSerializerModifier(modifier));
@@ -138,8 +116,6 @@ public abstract class SerializerFactory
      * @param baseType Declared type to use as the base type for type information serializer
      * 
      * @return Type serializer to use for the base type, if one is needed; null if not.
-     * 
-     * @since 1.7
      */
     public abstract TypeSerializer createTypeSerializer(SerializationConfig config, JavaType baseType,
             BeanProperty property)
@@ -156,50 +132,8 @@ public abstract class SerializerFactory
      * 
      * @return Serializer to use, if factory knows it; null if not (in which case default serializer
      *   is to be used)
-     *   
-     * @since 1.8
      */
     public abstract JsonSerializer<Object> createKeySerializer(SerializationConfig config, JavaType baseType,
             BeanProperty property)
         throws JsonMappingException;
-    
-    /*
-    /**********************************************************
-    /* Deprecated (as of 1.7) SerializerFactory API:
-    /**********************************************************
-     */
-
-    /**
-     * Deprecated version of accessor for type id serializer: as of 1.7 one needs
-     * to instead call version that passes property information through.
-     * 
-     * @since 1.5
-     * 
-     * @deprecated Since 1.7, call variant with more arguments
-     */
-    @Deprecated
-    public final JsonSerializer<Object> createSerializer(JavaType type, SerializationConfig config) {
-        try {
-            return createSerializer(config, type, null);
-        } catch (JsonMappingException e) { // not optimal but:
-            throw new RuntimeJsonMappingException(e);
-        }
-    }
-    
-    /**
-     * Deprecated version of accessor for type id serializer: as of 1.7 one needs
-     * to instead call version that passes property information through.
-     * 
-     * @since 1.5
-     * 
-     * @deprecated Since 1.7, call variant with more arguments
-     */
-    @Deprecated
-    public final TypeSerializer createTypeSerializer(JavaType baseType, SerializationConfig config) {
-        try {
-            return createTypeSerializer(config, baseType, null);
-        } catch (JsonMappingException e) { // not optimal but:
-            throw new RuntimeException(e);
-        }
-    }
 }

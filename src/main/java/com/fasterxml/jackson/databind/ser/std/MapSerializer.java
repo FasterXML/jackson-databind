@@ -30,8 +30,6 @@ public class MapSerializer
     
     /**
      * Map-valued property being serialized with this instance
-     * 
-     * @since 1.7
      */
     protected final BeanProperty _property;
     
@@ -48,8 +46,6 @@ public class MapSerializer
 
     /**
      * Declared type of keys
-     * 
-     * @since 1.7
      */
     protected final JavaType _keyType;
 
@@ -60,15 +56,11 @@ public class MapSerializer
 
     /**
      * Key serializer to use, if it can be statically determined
-     * 
-     * @since 1.7
      */
     protected JsonSerializer<Object> _keySerializer;
 
     /**
      * Value serializer to use, if it can be statically determined
-     * 
-     * @since 1.5
      */
     protected JsonSerializer<Object> _valueSerializer;
 
@@ -80,8 +72,6 @@ public class MapSerializer
     /**
      * If value type can not be statically determined, mapping from
      * runtime value types to serializers are stored in this object.
-     * 
-     * @since 1.8
      */
     protected PropertySerializerMap _dynamicValueSerializers;
     
@@ -118,25 +108,6 @@ public class MapSerializer
         return ms;
     }
     
-    /**
-     * Factory method used to construct Map serializers.
-     * 
-     * @param ignoredList Array of entry names that are to be filtered on
-     *    serialization; null if none
-     * @param mapType Declared type information (needed for static typing)
-     * @param staticValueType Whether static typing should be used for the
-     *    Map (which includes its contents)
-     * @param vts Type serializer to use for map entry values, if any
-     * 
-     * @deprecated As of 1.8; use the variant with more arguments
-     */
-    @Deprecated
-    public static MapSerializer construct(String[] ignoredList, JavaType mapType,
-            boolean staticValueType, TypeSerializer vts, BeanProperty property)
-    {
-        return construct(ignoredList, mapType, staticValueType, vts, property, null, null);
-    }
-
     public static MapSerializer construct(String[] ignoredList, JavaType mapType,
             boolean staticValueType, TypeSerializer vts, BeanProperty property,
             JsonSerializer<Object> keySerializer, JsonSerializer<Object> valueSerializer)

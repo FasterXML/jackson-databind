@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
 
 /**
  * Base class for simple key deserializers.
- * 
- * @since 1.9 (moved from 'org.codehaus.jackson.map.deser.StdKeyDeserializer')
  */
 public abstract class StdKeyDeserializer
     extends KeyDeserializer

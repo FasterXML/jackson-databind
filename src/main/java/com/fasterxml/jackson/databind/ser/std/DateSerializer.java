@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 /**
  * For efficiency, we will serialize Dates as longs, instead of
  * potentially more readable Strings.
- *<p>
- * @since 1.9 (moved from 'org.codehaus.jackson.map.ser.StdSerializers#UtilDateSerializer}
  */
 @JacksonStdImpl
 public class DateSerializer

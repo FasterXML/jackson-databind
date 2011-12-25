@@ -556,9 +556,6 @@ public abstract class StdDeserializer<T>
     /**
      * Helper method for encapsulating calls to low-level double value parsing; single place
      * just because we need a work-around that must be applied to all calls.
-     *<p>
-     * Note: copied from <code>org.codehaus.jackson.io.NumberUtil</code> (to avoid dependency to
-     * version 1.8; except for String constants, but that gets compiled in bytecode here)
      */
     protected final static double parseDouble(String numStr) throws NumberFormatException
     {

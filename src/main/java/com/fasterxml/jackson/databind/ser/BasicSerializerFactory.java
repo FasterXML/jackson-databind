@@ -51,8 +51,6 @@ public abstract class BasicSerializerFactory
      * Actually it may not make much sense to eagerly instantiate all
      * kinds of serializers: so this Map actually contains class references,
      * not instances
-     *
-     * @since 1.6
      */
     protected final static HashMap<String, Class<? extends JsonSerializer<?>>> _concreteLazy =
         new HashMap<String, Class<? extends JsonSerializer<?>>>();
@@ -328,7 +326,7 @@ public abstract class BasicSerializerFactory
     /**
      * Helper method called to check if a class or method
      * has an annotation
-     * (@link org.codehaus.jackson.map.ser.JsonSerialize#using)
+     * (@link com.fasterxml.jackson.databind.annotation.JsonSerialize#using)
      * that tells the class to use for serialization.
      * Returns null if no such annotation found.
      */

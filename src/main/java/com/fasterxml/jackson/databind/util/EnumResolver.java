@@ -7,8 +7,6 @@ import java.util.*;
 /**
  * Helper class used to resolve String values (either JSON Object field
  * names or regular String values) into Java Enum instances.
- * 
- * @since 1.9 renamed from 'org.codehaus.jackson.map.deser.EnumResolver'
  */
 public class EnumResolver<T extends Enum<T>>
 {
@@ -45,8 +43,6 @@ public class EnumResolver<T extends Enum<T>>
     /**
      * Factory method for constructing resolver that maps from Enum.toString() into
      * Enum value
-     * 
-     * @since 1.6
      */
     public static <ET extends Enum<ET>> EnumResolver<ET> constructUsingToString(Class<ET> enumCls)
     {
@@ -77,8 +73,6 @@ public class EnumResolver<T extends Enum<T>>
     /**
      * Method that needs to be used instead of {@link #constructUsingToString}
      * if static type of enum is not known.
-     * 
-     * @since 1.6
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public static EnumResolver<?> constructUnsafeUsingToString(Class<?> rawEnumCls)

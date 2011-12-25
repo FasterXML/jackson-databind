@@ -18,8 +18,6 @@ import com.fasterxml.jackson.databind.ser.*;
  * of variants that only differ in small details.
  * Can be used for custom bean serializers as well, although that
  * is not the primary design goal.
- * 
- * @since 1.9
  */
 public abstract class BeanSerializerBase
     extends SerializerBase<Object>
@@ -45,10 +43,8 @@ public abstract class BeanSerializerBase
     final protected BeanPropertyWriter[] _filteredProps;
 
     /**
-     * Handler for {@link org.codehaus.jackson.annotate.JsonAnyGetter}
+     * Handler for {@link com.fasterxml.jackson.annotation.JsonAnyGetter}
      * annotated properties
-     * 
-     * @since 1.6
      */
     final protected AnyGetterWriter _anyGetterWriter;
 
@@ -172,8 +168,6 @@ public abstract class BeanSerializerBase
      * Alternative serialization method that gets called when there is a
      * {@link BeanPropertyFilter} that needs to be called to determine
      * which properties are to be serialized (and possibly how)
-     * 
-     * @since 1.7
      */
     protected void serializeFieldsFiltered(Object bean, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
@@ -220,8 +214,6 @@ public abstract class BeanSerializerBase
     /**
      * Helper method used to locate filter that is needed, based on filter id
      * this serializer was constructed with.
-     * 
-     * @since 1.7
      */
     protected BeanPropertyFilter findFilter(SerializerProvider provider)
         throws JsonMappingException

@@ -4,16 +4,16 @@ allows for converting between regular streaming json content and
 Java objects (beans or Tree Model: support for both is via
 {@link com.fasterxml.jackson.databind.ObjectMapper} class, as well
 as convenience methods included in
-{@link org.codehaus.jackson.JsonParser}
+{@link com.fasterxml.jackson.core.JsonParser}
 <p>
 Object mapper will convert Json content to ant from
 basic Java wrapper types (Integer, Boolean, Double),
 Collection types (List, Map), Java Beans,
 Strings and nulls.
 <p>
-Tree mapper builds dynamically typed tree of <code>JsonNode</code>s
-from Json content (and writes such trees as Json),
-similar to how DOM model works with xml.
+Tree mapper builds dynamically typed tree of {@link com.fasterxml.jackson.core.JsonNode}s
+from JSON content (and writes such trees as JSON),
+similar to how DOM model works with XML.
 Main benefits over Object mapping are:
 <ul>
  <li>No null checks are needed (dummy
@@ -21,7 +21,7 @@ nodes are created as necessary to represent "missing" Object fields
 and Array elements)
   </li>
  <li>No type casts are usually needed: all public access methods are defined
-in basic JsonNode class, and when "incompatible" method (such as Array
+in basic <code>JsonNode</code> class, and when "incompatible" method (such as Array
 element access on, say, Boolean node) is used, returned node is
 virtual "missing" node.
   </li>

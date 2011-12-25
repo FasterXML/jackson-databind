@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.util.Provider;
  * javax.xml classes) from standard factories that offer them.
  * 
  * @author tatu
- *
- * @since 1.6.1
  */
 public class OptionalHandlerFactory
 {
@@ -26,17 +24,17 @@ public class OptionalHandlerFactory
     private final static String PACKAGE_PREFIX_JODA_DATETIME = "org.joda.time.";
     private final static String PACKAGE_PREFIX_JAVAX_XML = "javax.xml.";
 
-    private final static String SERIALIZERS_FOR_JODA_DATETIME = "org.codehaus.jackson.map.ext.JodaSerializers";
-    private final static String SERIALIZERS_FOR_JAVAX_XML = "org.codehaus.jackson.map.ext.CoreXMLSerializers";
-    private final static String DESERIALIZERS_FOR_JODA_DATETIME = "org.codehaus.jackson.map.ext.JodaDeserializers";
-    private final static String DESERIALIZERS_FOR_JAVAX_XML = "org.codehaus.jackson.map.ext.CoreXMLDeserializers";
+    private final static String SERIALIZERS_FOR_JODA_DATETIME = "com.fasterxml.jackson.databind.ext.JodaSerializers";
+    private final static String SERIALIZERS_FOR_JAVAX_XML = "com.fasterxml.jackson.databind.ext.CoreXMLSerializers";
+    private final static String DESERIALIZERS_FOR_JODA_DATETIME = "com.fasterxml.jackson.databind.ext.JodaDeserializers";
+    private final static String DESERIALIZERS_FOR_JAVAX_XML = "com.fasterxml.jackson.databind.ext.CoreXMLDeserializers";
 
     // Plus we also have a single serializer for DOM Node:
     private final static String CLASS_NAME_DOM_NODE = "org.w3c.dom.Node";
     private final static String CLASS_NAME_DOM_DOCUMENT = "org.w3c.dom.Node";
-    private final static String SERIALIZER_FOR_DOM_NODE = "org.codehaus.jackson.map.ext.DOMSerializer";
-    private final static String DESERIALIZER_FOR_DOM_DOCUMENT = "org.codehaus.jackson.map.ext.DOMDeserializer$DocumentDeserializer";
-    private final static String DESERIALIZER_FOR_DOM_NODE = "org.codehaus.jackson.map.ext.DOMDeserializer$NodeDeserializer";
+    private final static String SERIALIZER_FOR_DOM_NODE = "com.fasterxml.jackson.databind.ext.DOMSerializer";
+    private final static String DESERIALIZER_FOR_DOM_DOCUMENT = "com.fasterxml.jackson.databind.ext.DOMDeserializer$DocumentDeserializer";
+    private final static String DESERIALIZER_FOR_DOM_NODE = "com.fasterxml.jackson.databind.ext.DOMDeserializer$NodeDeserializer";
     
     public final static OptionalHandlerFactory instance = new OptionalHandlerFactory();
     
@@ -49,7 +47,6 @@ public class OptionalHandlerFactory
      */
     
     public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type)
-//            BasicBeanDescription beanInfo, BeanProperty property)
     {
         Class<?> rawType = type.getRawClass();
         String className = rawType.getName();

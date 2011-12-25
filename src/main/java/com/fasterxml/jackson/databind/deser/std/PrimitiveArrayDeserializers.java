@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
 /**
  * Container for deserializers used for instantiating "primitive arrays",
  * arrays that contain non-object java primitive types.
- * 
- * @since 1.9 (renamed from 'org.codehaus.jackson.map.deser.ArrayDeserilizers)
  */
 public class PrimitiveArrayDeserializers
 {

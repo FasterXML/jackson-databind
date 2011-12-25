@@ -370,9 +370,7 @@ public class DeserializationConfig
     protected LinkedNode<DeserializationProblemHandler> _problemHandlers;
     
     /**
-     * Factory used for constructing {@link org.codehaus.jackson.JsonNode} instances.
-     *
-     * @since 1.6
+     * Factory used for constructing {@link com.fasterxml.jackson.core.JsonNode} instances.
      */
     protected final JsonNodeFactory _nodeFactory;
 
@@ -385,8 +383,6 @@ public class DeserializationConfig
      * it is handled like it was, except for the fact that it is
      * assigned with a call to {@link #passSerializationFeatures}
      * instead of constructor.
-     * 
-     * @since 1.9
      */
     protected boolean _sortPropertiesAlphabetically;
     

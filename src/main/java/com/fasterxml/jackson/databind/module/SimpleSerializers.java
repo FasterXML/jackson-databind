@@ -23,8 +23,6 @@ import com.fasterxml.jackson.databind.type.MapType;
  * for a super type will also be used for handling subtypes, unless an exact match
  * is found first. As an example, handler for {@link CharSequence} would also be used
  * serializing {@link StringBuilder} instances, unless a direct mapping was found.
- * 
- * @since 1.7
  */
 public class SimpleSerializers extends Serializers.Base
 {
@@ -63,7 +61,7 @@ public class SimpleSerializers extends Serializers.Base
         if (cls == null || cls == Object.class) {
             throw new IllegalArgumentException("JsonSerializer of type "+ser.getClass().getName()
                     +" does not define valid handledType() -- must either register with method that takes type argument "
-                    +" or make serializer extend 'org.codehaus.jackson.map.ser.std.SerializerBase'"); 
+                    +" or make serializer extend 'com.fasterxml.jackson.databind.ser.std.SerializerBase'"); 
         }
         _addSerializer(cls, ser);
     }

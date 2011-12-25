@@ -8,13 +8,10 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 
-
 /**
  * Class similar to {@link BeanPropertyWriter}, but that will be used
- * for serializing {@link org.codehaus.jackson.annotate.JsonAnyGetter} annotated
+ * for serializing {@link com.fasterxml.jackson.annotation.JsonAnyGetter} annotated
  * (Map) properties
- * 
- * @since 1.6
  */
 public class AnyGetterWriter
 {

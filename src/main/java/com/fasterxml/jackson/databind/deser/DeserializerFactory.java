@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.type.*;
  *   ({@link #createMapDeserializer}), and another for POJOs
  *   ({@link #createBeanDeserializer(DeserializationConfig, DeserializerProvider, JavaType, BeanProperty)}.
  *  </li>
- * <li>For Tree Model ({@link org.codehaus.jackson.JsonNode}) properties there is
+ * <li>For Tree Model ({@link com.fasterxml.jackson.core.JsonNode}) properties there is
  *    {@link #createTreeDeserializer(DeserializationConfig, DeserializerProvider, JavaType, BeanProperty)}
  * <li>For enumerated types ({@link java.lang.Enum}) there is
  *    {@link #createEnumDeserializer(DeserializationConfig, DeserializerProvider, JavaType, BeanProperty)}

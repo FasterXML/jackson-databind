@@ -9,10 +9,9 @@ import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializationConfig;
 
-
 /**
  * Interface that defines builders that are configured based on
- * annotations (like {@link JsonTypeInfo} or JAXB annotations),
+ * annotations (like {@link com.fasterxml.jackson.annotation.JsonTypeInfo} or JAXB annotations),
  * and produce type serializers and deserializers used for
  * handling type information embedded in JSON to allow for safe
  * polymorphic type handling.
@@ -39,7 +38,6 @@ import com.fasterxml.jackson.databind.SerializationConfig;
  * in second case builder has to first verify whether type information is
  * applicable for given type, and if not, just return null to indicate this.
  * 
- * @since 1.5
  * @author tatu
  */
 public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
@@ -130,7 +128,7 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      * usually only used with {@link As#PROPERTY}.
      *<p>
      * If not explicitly called, name of property to use is based on
-     * defaults for {@link org.codehaus.jackson.annotate.JsonTypeInfo.Id} configured.
+     * defaults for {@link com.fasterxml.jackson.annotation.JsonTypeInfo.Id} configured.
      * 
      * @param propName Name of JSON property to use for including
      *    type information
@@ -143,8 +141,6 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
     /**
      * Method for specifying default implementation to use if type id 
      * is either not available, or can not be resolved.
-     * 
-     * @since 1.9
      */
     public T defaultImpl(Class<?> defaultImpl);
 }

@@ -255,24 +255,6 @@ public class StdSerializers
      */
 
     /**
-     * @deprecated Since 1.9, use {@link com.fasterxml.jackson.databind.ser.std.DateSerializer} instead
-     */
-    @JacksonStdImpl
-    @Deprecated
-    public final static class CalendarSerializer
-        extends com.fasterxml.jackson.databind.ser.std.CalendarSerializer { }
-
-    /**
-     * @deprecated Since 1.9, use {@link com.fasterxml.jackson.databind.ser.std.DateSerializer} instead
-     */
-    @Deprecated
-    @JacksonStdImpl
-    public final static class UtilDateSerializer
-        extends com.fasterxml.jackson.databind.ser.std.DateSerializer {
-        
-    }
-
-    /**
      * Compared to regular {@link UtilDateSerializer}, we do use String
      * representation here. Why? Basically to truncate of time part, since
      * that should not be used by plain SQL date.

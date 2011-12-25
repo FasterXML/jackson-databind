@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * types that are default mappings for corresponding JSON scalar
  * types: {@link java.lang.String}, {@link java.lang.Integer},
  * {@link java.lang.Double} and {@link java.lang.Boolean}.
- * 
- * @since 1.9 (refactored from 'org.codehaus.jackson.map.StdSerializers#NontTypedScalarSerializer')
  */
 public abstract class NonTypedScalarSerializerBase<T>
     extends ScalarSerializerBase<T>

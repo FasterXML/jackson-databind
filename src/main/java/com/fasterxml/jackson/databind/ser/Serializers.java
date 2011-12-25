@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.type.*;
 
-
 /**
  * Interface that defines API for simple extensions that can provide additional serializers
  * for various types. Access is by a single callback method; instance is to either return
@@ -16,8 +15,6 @@ import com.fasterxml.jackson.databind.type.*;
  * does not support handling of the type. In latter case, further calls can be made
  * for other providers; in former case returned serializer is used for handling of
  * instances of specified type.
- * 
- * @since 1.7
  */
 public interface Serializers
 {
@@ -47,8 +44,6 @@ public interface Serializers
      * specified array type.
      * Implementation should return a serializer instance if it supports
      * specified type; or null if it does not.
-     * 
-     * @since 1.8
      */
     public JsonSerializer<?> findArraySerializer(SerializationConfig config,
             ArrayType type, BeanDescription beanDesc, BeanProperty property,
@@ -130,10 +125,4 @@ public interface Serializers
             return null;
         }
     }
-
-    /**
-     * @deprecated As of 1.9, use {@link Base} instead
-     */
-    @Deprecated
-    public static class None extends Base { }
 }

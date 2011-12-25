@@ -35,35 +35,19 @@ public abstract class AsArraySerializerBase<T>
     
     /**
      * Value serializer to use, if it can be statically determined
-     * 
-     * @since 1.5
      */
     protected JsonSerializer<Object> _elementSerializer;
 
     /**
      * Collection-valued property being serialized with this instance
-     * 
-     * @since 1.7
      */
     protected final BeanProperty _property;
 
     /**
      * If element type can not be statically determined, mapping from
      * runtime type to serializer is handled using this object
-     * 
-     * @since 1.7
      */
     protected PropertySerializerMap _dynamicSerializers;
-
-    /**
-     * @deprecated since 1.8
-     */
-    @Deprecated
-    protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
-            TypeSerializer vts, BeanProperty property)
-    {
-        this(cls, et, staticTyping, vts, property, null);
-    }
 
     protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
             TypeSerializer vts, BeanProperty property, JsonSerializer<Object> elementSerializer)

@@ -156,7 +156,7 @@ public class SerializationConfig
         /**
          * Feature that determines whether properties that have no view
          * annotations are included in JSON serialization views (see
-         * {@link org.codehaus.jackson.map.annotate.JsonView} for more
+         * {@link com.fasterxml.jackson.annotation.JsonView} for more
          * details on JSON Views).
          * If enabled, non-annotated properties will be included;
          * when disabled, they will be excluded. So this feature
@@ -165,7 +165,7 @@ public class SerializationConfig
          *<p>
          * Default value is enabled, meaning that non-annotated
          * properties are included in all views if there is no
-         * {@link org.codehaus.jackson.map.annotate.JsonView} annotation.
+         * {@link com.fasterxml.jackson.annotation.JsonView} annotation.
          */
         DEFAULT_VIEW_INCLUSION(true),
         
@@ -186,11 +186,11 @@ public class SerializationConfig
          * Feature that allows enabling (or disabling) indentation
          * for the underlying generator, using the default pretty
          * printer (see
-         * {@link org.codehaus.jackson.JsonGenerator#useDefaultPrettyPrinter}
+         * {@link com.fasterxml.jackson.core.JsonGenerator#useDefaultPrettyPrinter}
          * for details).
          *<p>
          * Note that this only affects cases where
-         * {@link org.codehaus.jackson.JsonGenerator}
+         * {@link com.fasterxml.jackson.core.JsonGenerator}
          * is constructed implicitly by ObjectMapper: if explicit
          * generator is passed, its configuration is not changed.
          *<p>
@@ -206,7 +206,7 @@ public class SerializationConfig
          * for POJO fields (note: does <b>not</b> apply to {@link java.util.Map}
          * serialization!):
          * if enabled, default ordering is alphabetic (similar to
-         * how {@link org.codehaus.jackson.annotate.JsonPropertyOrder#alphabetic()}
+         * how {@link com.fasterxml.jackson.annotation.JsonPropertyOrder#alphabetic()}
          * works); if disabled, order is unspecified (based on what JDK gives
          * us, which may be declaration order, but not guaranteed).
          *<p>

@@ -829,7 +829,7 @@ public class ObjectMapper
     /**
      * Method for enabling automatic inclusion of type information, needed
      * for proper deserialization of polymorphic types (unless types
-     * have been annotated with {@link org.codehaus.jackson.annotate.JsonTypeInfo}).
+     * have been annotated with {@link com.fasterxml.jackson.annotation.JsonTypeInfo}).
      * 
      * @param applicability Defines kinds of types for which additional type information
      *    is added; see {@link DefaultTyping} for more information.
@@ -846,12 +846,10 @@ public class ObjectMapper
     /**
      * Method for enabling automatic inclusion of type information -- needed
      * for proper deserialization of polymorphic types (unless types
-     * have been annotated with {@link org.codehaus.jackson.annotate.JsonTypeInfo}) --
+     * have been annotated with {@link com.fasterxml.jackson.annotation.JsonTypeInfo}) --
      * using "As.PROPERTY" inclusion mechanism and specified property name
      * to use for inclusion (default being "@class" since default type information
      * always uses class name as type identifier)
-     * 
-     * @since 1.7
      */
     public ObjectMapper enableDefaultTypingAsProperty(DefaultTyping applicability, String propertyName)
     {
@@ -866,7 +864,7 @@ public class ObjectMapper
     /**
      * Method for disabling automatic inclusion of type information; if so, only
      * explicitly annotated types (ones with
-     * {@link org.codehaus.jackson.annotate.JsonTypeInfo}) will have
+     * {@link com.fasterxml.jackson.annotation.JsonTypeInfo}) will have
      * additional embedded type information.
      */
     public ObjectMapper disableDefaultTyping() {
@@ -879,8 +877,6 @@ public class ObjectMapper
      * as well as details of how information is embedded.
      * 
      * @param typer Type information inclusion handler
-     * 
-     * 
      */
     public ObjectMapper setDefaultTyping(TypeResolverBuilder<?> typer) {
         _deserializationConfig = _deserializationConfig.withTypeResolverBuilder(typer);
@@ -894,8 +890,6 @@ public class ObjectMapper
      * (as an alternative to using annotations).
      * Type for given class is determined from appropriate annotation;
      * or if missing, default name (unqualified class name)
-     * 
-     * @since 1.6
      */
     public void registerSubtypes(Class<?>... classes) {
         getSubtypeResolver().registerSubtypes(classes);
@@ -908,8 +902,6 @@ public class ObjectMapper
      * Name may be provided as part of argument, but if not will
      * be based on annotations or use default name (unqualified
      * class name).
-     * 
-     * @since 1.6
      */
     public void registerSubtypes(NamedType... types) {
         getSubtypeResolver().registerSubtypes(types);
@@ -923,8 +915,6 @@ public class ObjectMapper
 
     /**
      * Accessor for getting currently configured {@link TypeFactory} instance.
-     * 
-     * @since 1.8
      */
     public TypeFactory getTypeFactory() {
         return _typeFactory;
@@ -949,8 +939,6 @@ public class ObjectMapper
      * Convenience method for constructing {@link JavaType} out of given
      * type (typically <code>java.lang.Class</code>), but without explicit
      * context.
-     * 
-     * @since 1.8
      */
     public JavaType constructType(Type t) {
         return _typeFactory.constructType(t);
@@ -966,8 +954,6 @@ public class ObjectMapper
      * Method for specifying {@link JsonNodeFactory} to use for
      * constructing root level tree nodes (via method
      * {@link #createObjectNode}
-     *
-     * @since 1.2
      */
     public ObjectMapper setNodeFactory(JsonNodeFactory f) {
         _deserializationConfig = _deserializationConfig.withNodeFactory(f);
@@ -989,8 +975,6 @@ public class ObjectMapper
      * Note that usually it is better to use method {@link #filteredWriter}; however, sometimes
      * this method is more convenient. For example, some frameworks only allow configuring
      * of ObjectMapper instances and not ObjectWriters.
-     * 
-     * @since 1.8
      */
     public void setFilters(FilterProvider filterProvider) {
         _serializationConfig = _serializationConfig.withFilters(filterProvider);
@@ -1021,8 +1005,6 @@ public class ObjectMapper
      * create properly configured {@link ObjectWriter} and use that; this because
      * {@link ObjectWriter}s are thread-safe whereas ObjectMapper itself is only
      * thread-safe when configuring methods (such as this one) are NOT called.
-     * 
-     * @since 1.8
      */
     public void setDateFormat(DateFormat dateFormat)
     {
@@ -1044,7 +1026,8 @@ public class ObjectMapper
     }
     
     /**
-     * @since 1.9
+     * Method for configuring {@link InjectableValues} which used to find
+     * values to inject.
      */
     public ObjectMapper setInjectableValues(InjectableValues injectableValues) {
         _injectableValues = injectableValues;

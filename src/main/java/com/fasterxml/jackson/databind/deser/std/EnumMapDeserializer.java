@@ -18,8 +18,6 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
  * to properly deal with recursive definition of "EnumMap<K extends Enum<K>, V>
  * 
  * @author tsaloranta
- * 
- * @since 1.9 (renamed from 'org.codehaus.jackson.map.deser.EnumMapDeserializer')
  */
 @SuppressWarnings({ "unchecked", "rawtypes" }) 
 public class EnumMapDeserializer

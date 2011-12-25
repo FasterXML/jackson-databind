@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-
 /**
  * Base class used by all standard serializers. Provides some convenience
  * methods for implementing {@link SchemaAware}
@@ -26,9 +25,6 @@ public abstract class SerializerBase<T>
         _handledType = t;
     }
 
-    /**
-     * @since 1.7
-     */
     @SuppressWarnings("unchecked")
     protected SerializerBase(JavaType type) {
         _handledType = (Class<T>) type.getRawClass();
@@ -160,21 +156,5 @@ public abstract class SerializerBase<T>
         }
         // [JACKSON-55] Need to add reference information
         throw JsonMappingException.wrapWithPath(t, bean, index);
-    }
-
-    /**
-     * @deprecated Use version that takes <code>SerializerProvider</code> instead.
-     */
-    @Deprecated
-    public void wrapAndThrow(Throwable t, Object bean, String fieldName) throws IOException {
-        wrapAndThrow(null, t, bean, fieldName);
-    }
-
-    /**
-     * @deprecated Use version that takes <code>SerializerProvider</code> instead.
-     */
-    @Deprecated
-    public void wrapAndThrow(Throwable t, Object bean, int index) throws IOException {
-        wrapAndThrow(null, t, bean, index);
     }
 }

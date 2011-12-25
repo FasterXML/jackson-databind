@@ -28,11 +28,11 @@ public class TestMixinDeserForClass
         public void setA(String v) { a = "XXX"+v; }
     }
 
-    @JsonAutoDetect(getterVisibility=Visibility.ANY, fieldVisibility=Visibility.ANY)
+    @JsonAutoDetect(setterVisibility=Visibility.ANY, fieldVisibility=Visibility.ANY)
     static class LeafClass
         extends BaseClass { }
 
-    @JsonAutoDetect(getterVisibility=Visibility.NONE, fieldVisibility=Visibility.NONE)
+    @JsonAutoDetect(setterVisibility=Visibility.NONE, fieldVisibility=Visibility.NONE)
     interface MixIn { }
 
     /*

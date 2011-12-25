@@ -140,6 +140,20 @@
             </execution>
         </executions>
       </plugin>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-surefire-report-plugin</artifactId>
+      <version>2.11</version>
+      <executions>
+        <execution>
+          <phase>test</phase>
+          <goals>
+            <goal>report-only</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+
       <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -215,6 +229,17 @@ com.fasterxml.jackson.databind.util,
         </plugin>
     </plugins>
   </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>2.11</version>
+      </plugin>
+    </plugins>
+  </reporting>
+  
   <profiles>
         <profile>
             <id>release-sign-artifacts</id>

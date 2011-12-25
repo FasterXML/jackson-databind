@@ -287,7 +287,10 @@ public abstract class JavaType
      */
 
     @Override
-    public boolean hasGenericTypes() { return false; }
+    public boolean hasGenericTypes()
+    {
+        return containedTypeCount() > 0;
+    }
 
     @Override
     public JavaType getKeyType() { return null; }

@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
-
 /**
  * Concrete deserializer factory class that adds full Bean deserializer
  * construction logic using class introspection.
@@ -38,8 +37,6 @@ public class BeanDeserializerFactory
     
     /**
      * Standard configuration settings container class implementation.
-     * 
-     * @since 1.7
      */
     public static class ConfigImpl extends Config
     {
@@ -51,16 +48,12 @@ public class BeanDeserializerFactory
         /**
          * List of providers for additional deserializers, checked before considering default
          * basic or bean deserializers.
-         * 
-         * @since 1.7
          */
         protected final Deserializers[] _additionalDeserializers;
 
         /**
          * List of providers for additional key deserializers, checked before considering
          * standard key deserializers.
-         * 
-         * @since 1.7
          */
         protected final KeyDeserializers[] _additionalKeyDeserializers;
         
@@ -74,8 +67,6 @@ public class BeanDeserializerFactory
          * List of objects that may be able to resolve abstract types to
          * concrete types. Used by functionality like "mr Bean" to materialize
          * types as needed.
-         * 
-         * @since 1.8
          */
         protected final AbstractTypeResolver[] _abstractTypeResolvers;
 
@@ -85,8 +76,6 @@ public class BeanDeserializerFactory
          * methods external to value type etc).
          * Used to support objects that are created using non-standard methods;
          * or to support post-constructor functionality.
-         * 
-         * @since 1.9
          */
         protected final ValueInstantiators[] _valueInstantiators;
         
@@ -228,19 +217,9 @@ public class BeanDeserializerFactory
     /**
      * Configuration settings for this factory; immutable instance (just like this
      * factory), new version created via copy-constructor (fluent-style)
-     * 
-     * @since 1.7
      */
     protected final Config _factoryConfig;
 
-    @Deprecated
-    public BeanDeserializerFactory() {
-        this(null);
-    }
-
-    /**
-     * @since 1.7
-     */
     public BeanDeserializerFactory(DeserializerFactory.Config config) {
         if (config == null) {
             config = new ConfigImpl();
@@ -257,8 +236,6 @@ public class BeanDeserializerFactory
      * Method used by module registration functionality, to construct a new bean
      * deserializer factory
      * with different configuration settings.
-     * 
-     * @since 1.7
      */
     @Override
     public DeserializerFactory withConfig(DeserializerFactory.Config config)

@@ -462,30 +462,6 @@ public final class AnnotatedClass
             _fields.addAll(foundFields.values());
         }
     }
-
-    /*
-    /**********************************************************
-    /* Deprecated methods
-    /**********************************************************
-     */
-    
-    /**
-     * @since 1.9 Use version without arguments
-     */
-    @Deprecated
-    public void resolveMemberMethods(MethodFilter methodFilter, boolean collectIgnored)
-    {
-        resolveMemberMethods(methodFilter);
-    }
-    
-    /**
-     * @since 1.9 Use version without arguments
-     */
-    @Deprecated
-    public void resolveFields(boolean collectIgnored)
-    {
-        resolveFields();
-    }
     
     /*
     /**********************************************************

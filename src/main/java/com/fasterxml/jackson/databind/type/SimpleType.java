@@ -34,12 +34,6 @@ public final class SimpleType
         this(cls, null, null, null, null);
     }
 
-    @Deprecated // since 1.9
-    protected SimpleType(Class<?> cls, String[] typeNames, JavaType[] typeParams)
-    {
-        this(cls, typeNames, typeParams, null, null);
-    }
-
     protected SimpleType(Class<?> cls, String[] typeNames, JavaType[] typeParams,
             Object valueHandler, Object typeHandler)
     {

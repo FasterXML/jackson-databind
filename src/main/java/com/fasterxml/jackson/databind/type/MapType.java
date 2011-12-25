@@ -13,11 +13,6 @@ public final class MapType extends MapLikeType
     /**********************************************************
      */
 
-    @Deprecated
-    private MapType(Class<?> mapType, JavaType keyT, JavaType valueT) {
-        this(mapType, keyT, valueT, null, null);
-    }
-
     private MapType(Class<?> mapType, JavaType keyT, JavaType valueT,
             Object valueHandler, Object typeHandler) {
         super(mapType, keyT, valueT, valueHandler, typeHandler);

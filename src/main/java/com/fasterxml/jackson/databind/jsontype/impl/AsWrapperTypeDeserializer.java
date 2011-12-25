@@ -15,15 +15,10 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  * is done using a single-element JSON Object where type id is the key,
  * and actual object data as the value.
  * 
- * @author tatus
+ * @author tatu
  */
 public class AsWrapperTypeDeserializer extends TypeDeserializerBase
 {
-    @Deprecated // since 1.9
-    public AsWrapperTypeDeserializer(JavaType bt, TypeIdResolver idRes, BeanProperty property) {
-        this(bt, idRes, property, null);
-    }
-
     public AsWrapperTypeDeserializer(JavaType bt, TypeIdResolver idRes, BeanProperty property,
             Class<?> defaultImpl)
     {

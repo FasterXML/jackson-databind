@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.JavaType;
  * This specifically allows framework to check for configuration and annotation
  * settings used for Map types, and pass these to custom handlers that may be more
  * familiar with actual type.
- *
- * @since 1.8
  */
 public class CollectionLikeType extends TypeBase
 {
@@ -25,13 +23,6 @@ public class CollectionLikeType extends TypeBase
     /* Life-cycle
     /**********************************************************
      */
-
-    @Deprecated // since 1.9
-    protected CollectionLikeType(Class<?> collT, JavaType elemT)
-    {
-        super(collT,  elemT.hashCode(), null, null);
-        _elementType = elemT;
-    }
 
     protected CollectionLikeType(Class<?> collT, JavaType elemT,
             Object valueHandler, Object typeHandler)
@@ -73,14 +64,12 @@ public class CollectionLikeType extends TypeBase
         return new CollectionLikeType(rawType, elemT, null, null);
     }
 
-    // Since 1.7:
     @Override
     public CollectionLikeType withTypeHandler(Object h)
     {
         return new CollectionLikeType(_class, _elementType, _valueHandler, h);
     }
 
-    // Since 1.7:
     @Override
     public CollectionLikeType withContentTypeHandler(Object h)
     {
@@ -88,13 +77,11 @@ public class CollectionLikeType extends TypeBase
                 _valueHandler, _typeHandler);
     }
 
-    // Since 1.9:
     @Override
     public CollectionLikeType withValueHandler(Object h) {
         return new CollectionLikeType(_class, _elementType, h, _typeHandler);
     }
 
-    // Since 1.9:
     @Override
     public CollectionLikeType withContentValueHandler(Object h) {
         return new CollectionLikeType(_class, _elementType.withValueHandler(h),

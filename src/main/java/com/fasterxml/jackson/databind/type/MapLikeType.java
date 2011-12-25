@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.JavaType;
  * This specifically allows framework to check for configuration and annotation
  * settings used for Map types, and pass these to custom handlers that may be more
  * familiar with actual type.
- *
- * @since 1.8
  */
 public class MapLikeType extends TypeBase
 {
@@ -31,14 +29,6 @@ public class MapLikeType extends TypeBase
     /* Life-cycle
     /**********************************************************
      */
-
-    @Deprecated // since 1.9
-    protected MapLikeType(Class<?> mapType, JavaType keyT, JavaType valueT)
-    {
-        super(mapType, keyT.hashCode() ^ valueT.hashCode(), null, null);
-        _keyType = keyT;
-        _valueType = valueT;
-    }
 
     protected MapLikeType(Class<?> mapType, JavaType keyT, JavaType valueT,
             Object valueHandler, Object typeHandler)

@@ -55,8 +55,6 @@ public class BeanDeserializer
      * Property that contains value to be deserialized using
      * deserializer; mostly needed to find contextual annotations
      * for subtypes.
-     * 
-     * @since 1.7
      */
     final protected BeanProperty _property;
     
@@ -176,26 +174,6 @@ public class BeanDeserializer
     /**********************************************************
      */
 
-    /**
-     * @deprecated (since 1.9) Use the constructor that takes {@link ValueInstantiator} instead
-     */
-    @Deprecated
-    public BeanDeserializer(AnnotatedClass forClass, JavaType type, BeanProperty property,
-            CreatorCollector creators,
-            BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
-            HashSet<String> ignorableProps, boolean ignoreAllUnknown,
-            SettableAnyProperty anySetter)
-    {
-        this(forClass, type, property,
-                creators.constructValueInstantiator(null),
-                properties, backRefs,
-                ignorableProps, ignoreAllUnknown,
-                anySetter, null);
-    }
-
-    /**
-     * @since 1.9
-     */
     public BeanDeserializer(BeanDescription beanDesc, BeanProperty property,
             ValueInstantiator valueInstantiator,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
@@ -209,9 +187,6 @@ public class BeanDeserializer
                 anySetter, injectables);
     }
     
-    /**
-     * @since 1.9
-     */
     protected BeanDeserializer(AnnotatedClass forClass, JavaType type, BeanProperty property,
             ValueInstantiator valueInstantiator,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
@@ -247,17 +222,12 @@ public class BeanDeserializer
     /**
      * Copy-constructor that can be used by sub-classes to allow
      * copy-on-write styling copying of settings of an existing instance.
-     * 
-     * @since 1.7
      */
     protected BeanDeserializer(BeanDeserializer src)
     {
         this(src, src._ignoreAllUnknown);
     }
 
-    /**
-     * @since 1.9
-     */
     protected BeanDeserializer(BeanDeserializer src, boolean ignoreAllUnknown)
     {
         super(src._beanType);
@@ -1506,24 +1476,4 @@ public class BeanDeserializer
         }
         throw ctxt.instantiationException(_beanType.getRawClass(), t);
     }
-    
-    /**
-     * @deprecated Since 1.7 use variant that takes {@link DeserializationContext}
-     */
-    @Deprecated
-    public void wrapAndThrow(Throwable t, Object bean, String fieldName)
-        throws IOException
-    {
-        wrapAndThrow(t, bean, fieldName, null);
-    }
-    
-    /**
-     * @deprecated Since 1.7 use variant that takes {@link DeserializationContext}
-     */
-    @Deprecated
-    public void wrapAndThrow(Throwable t, Object bean, int index)
-        throws IOException
-    {
-        wrapAndThrow(t, bean, index, null);
-    }    
 }

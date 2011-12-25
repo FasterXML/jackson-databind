@@ -3,11 +3,9 @@ package com.fasterxml.jackson.databind;
 import java.text.DateFormat;
 import java.util.*;
 
-
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
@@ -400,12 +398,6 @@ public class SerializationConfig
      * Default settings is to include all regardless of value; can be
      * changed to only include non-null properties, or properties
      * with non-default values.
-     *<p>
-     * Defaults to null for backwards compatibility; if left as null,
-     * will check
-     * deprecated {@link Feature#WRITE_NULL_PROPERTIES}
-     * to choose between {@link Inclusion#ALWAYS}
-     * and {@link Inclusion#NON_NULL}.
      */
     protected JsonSerialize.Inclusion _serializationInclusion = null;
 
@@ -419,8 +411,6 @@ public class SerializationConfig
     /**
      * Object used for resolving filter ids to filter instances.
      * Non-null if explicitly defined; null by default.
-     * 
-     * @since 1.7
      */
     protected FilterProvider _filterProvider;
     

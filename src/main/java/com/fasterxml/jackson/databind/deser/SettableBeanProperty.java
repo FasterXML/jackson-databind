@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
-
 /**
  * Base class for settable properties of a bean: contains
  * both type and name definitions, and reflection-based set functionality.
@@ -23,7 +22,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * setter-backed properties can be handled
  */
 public abstract class SettableBeanProperty
-    implements BeanProperty // since 1.7
+    implements BeanProperty
 {
     /**
      * Logical name of the property (often but not always derived
@@ -143,21 +142,7 @@ public abstract class SettableBeanProperty
             _nullProvider = (nvl == null) ? null : new NullProvider(_type, nvl);
         }
     }
-    
-    @Deprecated
-    public void setValueDeserializer(JsonDeserializer<Object> deser)
-    {
-        if (_valueDeserializer != null) { // sanity check
-            throw new IllegalStateException("Already had assigned deserializer for property '"+getName()+"' (class "+getDeclaringClass().getName()+")");
-        }
-        _valueDeserializer = deser;
-        Object nvl = _valueDeserializer.getNullValue();
-        _nullProvider = (nvl == null) ? null : new NullProvider(_type, nvl);
-    }
-    
-    /**
-     * @since 1.9
-     */
+
     public abstract SettableBeanProperty withValueDeserializer(JsonDeserializer<Object> deser);
     
     public void setManagedReferenceName(String n) {
@@ -166,8 +151,6 @@ public abstract class SettableBeanProperty
     
     /**
      * Method used to assign index for property.
-     * 
-     * @since 1.7
      */
     public void assignIndex(int index) {
         if (_propertyIndex != -1) {
@@ -208,30 +191,15 @@ public abstract class SettableBeanProperty
     protected final Class<?> getDeclaringClass() {
         return getMember().getDeclaringClass();
     }
-    
-    /**
-     * @deprecated Since 1.7, use {@link #getName} instead.
-     */
-    @Deprecated
-    public String getPropertyName() { return _propName; }
 
     public String getManagedReferenceName() { return _managedReferenceName; }
 
     public boolean hasValueDeserializer() { return (_valueDeserializer != null); }
 
-    /**
-     * @since 1.9
-     */
     public boolean hasValueTypeDeserializer() { return (_valueTypeDeserializer != null); }
     
-    /**
-     * @since 1.9
-     */
     public JsonDeserializer<Object> getValueDeserializer() { return _valueDeserializer; }
 
-    /**
-     * @since 1.9
-     */
     public TypeDeserializer getValueTypeDeserializer() { return _valueTypeDeserializer; }
     
     /**
@@ -240,22 +208,12 @@ public abstract class SettableBeanProperty
      * been collected.
      * 
      * @return Index of this property
-     * 
-     * @since 1.7 Although note that it was misspelled as "getProperytIndex"; fixed in 1.9
      */
     public int getPropertyIndex() { return _propertyIndex; }
 
     /**
-     * @deprecated Since 1.9: use {@link #getPropertyIndex} instead
-     */
-    @Deprecated
-    public int getProperytIndex() { return getPropertyIndex(); }
-
-    /**
      * Accessor for id of injectable value, if this bean property supports
      * value injection.
-     * 
-     * @since 1.9
      */
     public Object getInjectableValueId() { return null; }
     
@@ -315,7 +273,7 @@ public abstract class SettableBeanProperty
     {
         if (e instanceof IllegalArgumentException) {
             String actType = (value == null) ? "[NULL]" : value.getClass().getName();
-            StringBuilder msg = new StringBuilder("Problem deserializing property '").append(getPropertyName());
+            StringBuilder msg = new StringBuilder("Problem deserializing property '").append(getName());
             msg.append("' (expected type: ").append(getType());
             msg.append("; actual type: ").append(actType).append(")");
             String origMsg = e.getMessage();

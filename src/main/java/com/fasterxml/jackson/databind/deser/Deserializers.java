@@ -111,8 +111,6 @@ public interface Deserializers
      *    {@link ResolvableDeserializer} callback)
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
-     * 
-     * @since 1.8
      */
     public JsonDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type, DeserializationConfig config,
             DeserializerProvider provider, BeanDescription beanDesc, BeanProperty property,
@@ -251,8 +249,6 @@ public interface Deserializers
      * sub-classes only need to override methods they need, as most of the time some
      * of methods are not needed (especially enumeration and array deserializers are
      * very rarely overridden).
-     * 
-     * @since 1.9
      */
     public static class Base implements Deserializers
     {
@@ -331,11 +327,4 @@ public interface Deserializers
             return null;
         }
     }
-
-
-    /**
-     * @deprecated As of 1.9, use {@link Base} instead
-     */
-    @Deprecated
-    public static class None extends Base { }
 }

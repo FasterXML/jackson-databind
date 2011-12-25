@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
-
 /**
  * Interface that defines functionality accessible through both
  * serialization and deserialization configuration objects;

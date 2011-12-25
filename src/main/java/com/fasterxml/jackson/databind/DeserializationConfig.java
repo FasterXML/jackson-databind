@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 
-
 /**
  * Object that contains baseline configuration for deserialization
  * process. An instance is owned by {@link ObjectMapper}, which makes

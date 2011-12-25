@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -14,12 +13,9 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
-import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
-import com.fasterxml.jackson.databind.introspect.AnnotatedConstructor;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
-
 
 /**
  * Basic serializer that can take Json "Object" structure and
@@ -92,30 +88,6 @@ public class MapDeserializer
     /**********************************************************
      */
 
-    /**
-     * @deprecated Since 1.9, use variant that takes ValueInstantiator
-     */
-    @Deprecated
-    protected MapDeserializer(JavaType mapType, Constructor<Map<Object,Object>> defCtor,
-            KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
-            TypeDeserializer valueTypeDeser)
-    {
-        super(Map.class);
-        _mapType = mapType;
-        _keyDeserializer = keyDeser;
-        _valueDeserializer = valueDeser;
-        _valueTypeDeserializer = valueTypeDeser;
-        // not super-clean, but has to do...
-        StdValueInstantiator inst = new StdValueInstantiator(null, mapType);
-        if (defCtor != null) {
-            AnnotatedConstructor aCtor = new AnnotatedConstructor(defCtor,
-                    null, null);
-            inst.configureFromObjectSettings(aCtor, null, null, null, null);
-        }
-        _hasDefaultCreator = (defCtor != null);
-        _valueInstantiator = inst;
-    }
-
     public MapDeserializer(JavaType mapType, ValueInstantiator valueInstantiator,
             KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser)
@@ -137,8 +109,6 @@ public class MapDeserializer
     /**
      * Copy-constructor that can be used by sub-classes to allow
      * copy-on-write styling copying of settings of an existing instance.
-     * 
-     * @since 1.9
      */
     protected MapDeserializer(MapDeserializer src)
     {

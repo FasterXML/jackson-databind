@@ -72,20 +72,7 @@ public class BasicBeanDescription extends BeanDescription
     /* Life-cycle
     /**********************************************************
      */
-    
-    /**
-     * @deprecated Since 1.9, should use factory methods instead
-     */
-    @Deprecated
-    public BasicBeanDescription(MapperConfig<?> config, JavaType type,
-            AnnotatedClass ac)
-    {
-        this(config, type, ac, Collections.<BeanPropertyDefinition>emptyList());
-    }
 
-    /**
-     * @since 1.9
-     */
     protected BasicBeanDescription(MapperConfig<?> config, JavaType type,
             AnnotatedClass ac, List<BeanPropertyDefinition> properties)
     {
@@ -99,8 +86,6 @@ public class BasicBeanDescription extends BeanDescription
     /**
      * Factory method to use for constructing an instance to use for building
      * deserializers.
-     * 
-     * @since 1.9
      */
     public static BasicBeanDescription forDeserialization(POJOPropertiesCollector coll)
     {
@@ -115,8 +100,6 @@ public class BasicBeanDescription extends BeanDescription
     /**
      * Factory method to use for constructing an instance to use for building
      * serializers.
-     * 
-     * @since 1.9
      */
     public static BasicBeanDescription forSerialization(POJOPropertiesCollector coll)
     {
@@ -131,8 +114,6 @@ public class BasicBeanDescription extends BeanDescription
      * Factory method to use for constructing an instance to use for purposes
      * other than building serializers or deserializers; will only have information
      * on class, not on properties.
-     * 
-     * @since 1.9
      */
     public static BasicBeanDescription forOtherUse(MapperConfig<?> config,
             JavaType type, AnnotatedClass ac)

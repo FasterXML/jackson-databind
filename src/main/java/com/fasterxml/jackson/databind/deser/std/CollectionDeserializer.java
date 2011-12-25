@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -10,8 +9,6 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
-import com.fasterxml.jackson.databind.deser.std.StdValueInstantiator;
-import com.fasterxml.jackson.databind.introspect.AnnotatedConstructor;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -62,31 +59,6 @@ public class CollectionDeserializer
     /**********************************************************
      */
     
-    /**
-     * @deprecated Since 1.9, use variant that takes ValueInstantiator
-     */
-    @Deprecated
-    protected CollectionDeserializer(JavaType collectionType, JsonDeserializer<Object> valueDeser,
-            TypeDeserializer valueTypeDeser,
-            Constructor<Collection<Object>> defCtor)
-    {
-        super(collectionType.getRawClass());
-        _collectionType = collectionType;
-        _valueDeserializer = valueDeser;
-        _valueTypeDeserializer = valueTypeDeser;
-        // not super-clean, but has to do...
-        StdValueInstantiator inst = new StdValueInstantiator(null, collectionType);
-        if (defCtor != null) {
-            AnnotatedConstructor aCtor = new AnnotatedConstructor(defCtor,
-                    null, null);
-            inst.configureFromObjectSettings(aCtor, null, null, null, null);
-        }
-        _valueInstantiator = inst;
-    }
-
-    /**
-     * @since 1.9
-     */
     public CollectionDeserializer(JavaType collectionType, JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator)
     {

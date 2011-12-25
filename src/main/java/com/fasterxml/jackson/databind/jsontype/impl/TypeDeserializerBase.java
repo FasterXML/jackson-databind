@@ -38,18 +38,7 @@ public abstract class TypeDeserializerBase extends TypeDeserializer
      */
     protected final HashMap<String,JsonDeserializer<Object>> _deserializers;
 
-    /**
-     * @since 1.9
-     */
     protected JsonDeserializer<Object> _defaultImplDeserializer;
-    
-    /**
-     * @deprecated Since 1.9, use the constructor that takes 'defaultImpl'
-     */
-    @Deprecated
-    protected TypeDeserializerBase(JavaType baseType, TypeIdResolver idRes, BeanProperty property) {
-        this(baseType, idRes, property, null);
-    }
 
     protected TypeDeserializerBase(JavaType baseType, TypeIdResolver idRes, BeanProperty property,
             Class<?> defaultImpl)

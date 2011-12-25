@@ -477,9 +477,6 @@ public class JacksonAnnotationIntrospector
     @Override
     public Class<? extends JsonDeserializer<?>> findDeserializer(Annotated a)
     {
-        /* 21-May-2009, tatu: Slight change; primary annotation is now
-         *    @JsonDeserialize; @JsonUseDeserializer is deprecated
-         */
         JsonDeserialize ann = a.getAnnotation(JsonDeserialize.class);
         if (ann != null) {
             Class<? extends JsonDeserializer<?>> deserClass = ann.using();
@@ -487,7 +484,6 @@ public class JacksonAnnotationIntrospector
                 return deserClass;
             }
         }
-        // 31-Jan-2010, tatus: @JsonUseDeserializer removed as of 1.5
         return null;
     }
 
@@ -594,19 +590,19 @@ public class JacksonAnnotationIntrospector
     @Override
     public String findSettablePropertyName(AnnotatedMethod am)
     {
-        /* 16-Apr-2010, tatu: Existing priority (since 1.1) is that
-         *   @JsonProperty is checked first; and @JsonSetter next.
-         *   This is not quite optimal now that @JsonSetter is un-deprecated.
-         *   However, it is better to have stable behavior rather than
-         *   cause compatibility problems by fine-tuning.
+        /* 24-Dec-2011, tatu: Jackson 2.0 changes things so that
+         *   @JsonSetter has precedence over @JsonProperty, given
+         *   that this is more intuitive ordering given that
+         *   former is more specific than latter. Note that 1.x
+         *   had the reverse ordering.
          */
-        JsonProperty pann = am.getAnnotation(JsonProperty.class);
-        if (pann != null) {
-            return pann.value();
-        }
         JsonSetter ann = am.getAnnotation(JsonSetter.class);
         if (ann != null) {
             return ann.value();
+        }
+        JsonProperty pann = am.getAnnotation(JsonProperty.class);
+        if (pann != null) {
+            return pann.value();
         }
         /* 22-May-2009, tatu: And finally, JsonSerialize implies
          *   that there is a property, although doesn't define name

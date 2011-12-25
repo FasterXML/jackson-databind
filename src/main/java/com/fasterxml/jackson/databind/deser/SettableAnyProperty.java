@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 
-
 /**
  * Class that represents a "wildcard" set method which can be used
  * to generically set values of otherwise unmapped (aka "unknown")
@@ -25,8 +24,6 @@ public final class SettableAnyProperty
     /**
      * Method used for setting "any" properties, along with annotation
      * information. Retained to allow contextualization of any properties.
-     * 
-     * @since 1.7
      */
     final protected BeanProperty _property;
     
@@ -44,14 +41,6 @@ public final class SettableAnyProperty
     /* Life-cycle
     /**********************************************************
      */
-    
-    /**
-     * @deprecated Since 1.9 - use variant that takes deserializer
-     */
-    @Deprecated
-    public SettableAnyProperty(BeanProperty property, AnnotatedMethod setter, JavaType type) {
-        this(property, setter, type, null);
-    }
 
     public SettableAnyProperty(BeanProperty property, AnnotatedMethod setter, JavaType type,
             JsonDeserializer<Object> valueDeser) {
@@ -68,18 +57,6 @@ public final class SettableAnyProperty
 
     public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
         return new SettableAnyProperty(_property, _setter, _type, deser);
-    }
-    
-    /**
-     * @deprecated Since 1.9 - construct with deserializer
-     */
-    @Deprecated
-    public void setValueDeserializer(JsonDeserializer<Object> deser)
-    {
-        if (_valueDeserializer != null) { // sanity check
-            throw new IllegalStateException("Already had assigned deserializer for SettableAnyProperty");
-        }
-        _valueDeserializer = deser;
     }
     
     /*

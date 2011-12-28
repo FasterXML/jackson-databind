@@ -7,7 +7,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonCachable;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -23,12 +22,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * Deserializer class that can deserialize instances of
  * arbitrary bean objects, usually from JSON Object structs,
  * but possibly also from simple types like String values.
- */
-@JsonCachable
-/* Because of costs associated with constructing bean deserializers,
- * they usually should be cached unlike other deserializer types.
- * But more importantly, it is important to be able to cache
- * bean serializers to handle cyclic references.
  */
 public class BeanDeserializer
     extends StdDeserializer<Object>
@@ -265,6 +258,13 @@ public class BeanDeserializer
     /**********************************************************
      */
 
+    /**
+     * Because of costs associated with constructing bean deserializers,
+     * they usually should be cached unlike other deserializer types.
+     */
+    @Override
+    public boolean isCachable() { return true; }
+    
     public boolean hasProperty(String propertyName) {
         return _beanProperties.find(propertyName) != null;
     }

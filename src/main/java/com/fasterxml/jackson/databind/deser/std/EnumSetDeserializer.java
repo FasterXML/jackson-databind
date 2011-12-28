@@ -16,8 +16,6 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
  * to properly deal with recursive definition of "EnumSet<K extends Enum<K>, V>
  * 
  * @author tsaloranta
- * 
- * @since 1.9 (moved from higher-level package)
  */
 @SuppressWarnings("rawtypes")
 public class EnumSetDeserializer
@@ -36,6 +34,13 @@ public class EnumSetDeserializer
         _enumClass = (Class<Enum>) ((Class<?>) enumRes.getEnumClass());
     }
 
+    /**
+     * Because of costs associated with constructing Enum resolvers,
+     * let's cache instances by default.
+     */
+    @Override
+    public boolean isCachable() { return true; }
+    
     @SuppressWarnings("unchecked") 
     @Override
     public EnumSet<?> deserialize(JsonParser jp, DeserializationContext ctxt)

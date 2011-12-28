@@ -10,7 +10,5 @@
  * many cases, but not all. So if you will need to register
  * handlers for generic types, you will usually need to either
  * sub-class handlers, or implement/extend base types directly.
- * 
- * @since 1.7
  */
 package com.fasterxml.jackson.databind.module;

@@ -78,8 +78,6 @@ public abstract class JsonDeserializer<T>
      * code.
      * 
      * @param typeDeserializer Deserializer to use for handling type information
-     * 
-     * @since 1.5
      */
     @SuppressWarnings("unchecked")
     public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
@@ -104,8 +102,6 @@ public abstract class JsonDeserializer<T>
      *<p>
      * Default implementation just returns 'this'
      * indicating that no unwrapped variant exists
-     * 
-     * @since 1.9
      */
     public JsonDeserializer<T> unwrappingDeserializer() {
         return this;
@@ -142,10 +138,24 @@ public abstract class JsonDeserializer<T>
      *<p>
      * Default implementation simple calls {@link #getNullValue} and
      * returns value.
-     * 
-     * @since 1.9
      */
     public T getEmptyValue() { return getNullValue(); }
+
+    /**
+     * Method called to see if deserializer instance is cachable and
+     * usable for other properties of same type (type for which instance
+     * was created).
+     *<p>
+     * Note that cached instances are still resolved on per-property basis,
+     * if instance implements {@link ResolvableDeserializer}: cached instance
+     * is just as the base. This means that in most cases it is safe to
+     * cache instances; however, it only makes sense to cache instances
+     * if instantiation is expensive, or if instances are heavy-weight.
+     *<p>
+     * Default implementation returns false, to indicate that no caching
+     * is done.
+     */
+    public boolean isCachable() { return false; }
     
     /*
     /**********************************************************
@@ -160,6 +170,7 @@ public abstract class JsonDeserializer<T>
      * Specifically, this class is to be used as the marker for
      * annotation {@link com.fasterxml.jackson.databind.annotation.JsonDeserialize}
      */
-    public abstract static class None
-        extends JsonDeserializer<Object> { }
+    public abstract static class None extends JsonDeserializer<Object> {
+        private None() { } // not to be instantiated
+    }
 }

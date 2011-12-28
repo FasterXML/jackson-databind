@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.EnumResolver;
 
 /**
- * 
+ * Deserializer for {@link EnumMap} values.
  * <p>
  * Note: casting within this class is all messed up -- just could not figure out a way
  * to properly deal with recursive definition of "EnumMap<K extends Enum<K>, V>
@@ -34,6 +34,13 @@ public class EnumMapDeserializer
         _valueDeserializer = valueDes;
     }
 
+    /**
+     * Because of costs associated with constructing Enum resolvers,
+     * let's cache instances by default.
+     */
+    @Override
+    public boolean isCachable() { return true; }
+    
     @Override
     public EnumMap<?,?> deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException

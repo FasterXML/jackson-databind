@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.annotation.JsonCachable;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
@@ -16,10 +15,7 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
 /**
  * Deserializer class that can deserialize instances of
  * specified Enum class from Strings and Integers.
- * 
- * @since 1.9 (moved from higher-level package)
  */
-@JsonCachable
 public class EnumDeserializer
     extends StdScalarDeserializer<Enum<?>>
 {
@@ -37,8 +33,6 @@ public class EnumDeserializer
      * 
      * @return Deserializer based on given factory method, if type was suitable;
      *  null if type can not be used
-     * 
-     * @since 1.6
      */
     public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
             Class<?> enumClass, AnnotatedMethod factory)
@@ -59,6 +53,13 @@ public class EnumDeserializer
     /**********************************************************
      */
 
+    /**
+     * Because of costs associated with constructing Enum resolvers,
+     * let's cache instances by default.
+     */
+    @Override
+    public boolean isCachable() { return true; }
+    
     @Override
     public Enum<?> deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException

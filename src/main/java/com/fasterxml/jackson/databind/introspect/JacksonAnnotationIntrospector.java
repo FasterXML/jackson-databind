@@ -55,16 +55,6 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public Boolean findCachability(AnnotatedClass ac)
-    {
-        JsonCachable ann = ac.getAnnotation(JsonCachable.class);
-        if (ann == null) {
-            return null;
-        }
-        return ann.value() ? Boolean.TRUE : Boolean.FALSE;
-    }
-
-    @Override
     public String findRootName(AnnotatedClass ac)
     {
         JsonRootName ann = ac.getAnnotation(JsonRootName.class);

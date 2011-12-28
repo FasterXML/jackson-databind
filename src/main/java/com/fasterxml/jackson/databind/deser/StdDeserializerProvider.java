@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdKeyDeserializers;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -263,8 +262,6 @@ public class StdDeserializerProvider
      * This can be used to remove memory usage (in case some deserializers are
      * only used once or so), or to force re-construction of deserializers after
      * configuration changes for mapper than owns the provider.
-     * 
-     * @since 1.4
      */
     @Override
     public void flushCachedDeserializers() {
@@ -352,19 +349,8 @@ public class StdDeserializerProvider
          */
         // 08-Jun-2010, tatu: Related to [JACKSON-296], need to avoid caching MapSerializers... so:
         boolean isResolvable = (deser instanceof ResolvableDeserializer);
-        boolean addToCache = (deser.getClass() == BeanDeserializer.class);
-        if (!addToCache) {
-            // 14-Feb-2011, tatu: As per [JACKSON-487], try fully blocking annotation access:
-            if (config.isEnabled(DeserializationConfig.Feature.USE_ANNOTATIONS)) {
-                AnnotationIntrospector aintr = config.getAnnotationIntrospector();
-                // note: pass 'null' to prevent mix-ins from being used
-                AnnotatedClass ac = AnnotatedClass.construct(deser.getClass(), aintr, null);
-                Boolean cacheAnn = aintr.findCachability(ac);
-                if (cacheAnn != null) {
-                    addToCache = cacheAnn.booleanValue();
-                }
-            }
-        }
+        boolean addToCache = deser.isCachable();
+
         /* we will temporarily hold on to all created deserializers (to
          * handle cyclic references, and possibly reuse non-cached
          * deserializers (list, map))

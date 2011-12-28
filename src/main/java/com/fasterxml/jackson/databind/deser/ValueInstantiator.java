@@ -137,7 +137,7 @@ public abstract class ValueInstantiator
      * property types to locate deserializers.
      *<p>
      * NOTE: all properties will be of type
-     * {@link com.fasterxml.jackson.databind.deser.impl.CreatorProperty}.
+     * {@link com.fasterxml.jackson.databind.deser.CreatorProperty}.
      */
     public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
         return null;

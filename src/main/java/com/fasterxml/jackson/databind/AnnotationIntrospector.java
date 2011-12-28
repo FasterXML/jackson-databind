@@ -149,25 +149,6 @@ public abstract class AnnotationIntrospector
     */
 
     /**
-     * Method that checks whether specified class has annotations
-     * that indicate that it is (or is not) cachable. Exact
-     * semantics depend on type of class annotated and using
-     * class (factory or provider).
-     *<p>
-     * Currently only used
-     * with deserializers, to determine whether provider
-     * should cache instances, and if no annotations are found,
-     * assumes non-cachable instances.
-     *
-     * @return True, if class is considered cachable within context,
-     *   False if not, and null if introspector does not care either
-     *   way.
-     */
-    public Boolean findCachability(AnnotatedClass ac) {
-        return null;
-    }
-
-    /**
      * Method for locating name used as "root name" (for use by
      * some serializers when outputting root-level object -- mostly
      * for XML compatibility purposes) for given class, if one
@@ -878,16 +859,6 @@ public abstract class AnnotationIntrospector
         /* General class annotations
         /******************************************************
          */
-
-        @Override
-        public Boolean findCachability(AnnotatedClass ac)
-        {
-            Boolean result = _primary.findCachability(ac);
-            if (result == null) {
-                result = _secondary.findCachability(ac);
-            }
-            return result;
-        }
 
         @Override
         public String findRootName(AnnotatedClass ac)

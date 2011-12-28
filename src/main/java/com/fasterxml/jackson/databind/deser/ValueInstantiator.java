@@ -116,8 +116,9 @@ public abstract class ValueInstantiator
      * constructor or factory method)
      * is available for this instantiator
      */
-    public abstract boolean canCreateUsingDelegate();
-//        return getDelegateType(null) != null;
+    public boolean canCreateUsingDelegate() {
+        return false;
+    }
 
     /**
      * Method that can be called to check whether a property-based creator

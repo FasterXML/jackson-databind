@@ -48,7 +48,7 @@ public class JdkDeserializers
             new StackTraceElementDeserializer()
         };
     }
-
+    
     /*
     /**********************************************************
     /* Deserializer implementations: from-String deserializers

@@ -192,9 +192,6 @@ public class ObjectMapper
     // 16-May-2009, tatu: Ditto ^^^
     protected final static AnnotationIntrospector DEFAULT_ANNOTATION_INTROSPECTOR = new JacksonAnnotationIntrospector();
 
-    /**
-     * @since 1.5
-     */
     protected final static VisibilityChecker<?> STD_VISIBILITY_CHECKER = VisibilityChecker.Std.defaultInstance();
     
     /*
@@ -212,8 +209,6 @@ public class ObjectMapper
     /**
      * Registered concrete subtypes that can be used instead of (or
      * in addition to) ones declared using annotations.
-     * 
-     * @since 1.6
      */
     protected SubtypeResolver _subtypeResolver;
 
@@ -226,8 +221,6 @@ public class ObjectMapper
 
     /**
      * Provider for values to inject in deserialized POJOs.
-     * 
-     * @since 1.9
      */
     protected InjectableValues _injectableValues;
     
@@ -398,8 +391,6 @@ public class ObjectMapper
     /**
      * Method that will return version information stored in and read from jar
      * that contains this class.
-     * 
-     * @since 1.6
      */
     @Override
     public Version version() {
@@ -655,9 +646,6 @@ public class ObjectMapper
         return this;
     }
 
-    /**
-     * @since 1.4
-     */   
     public SerializerProvider getSerializerProvider() {
         return _serializerProvider;
     }
@@ -671,9 +659,6 @@ public class ObjectMapper
         return this;
     }
 
-    /**
-     * @since 1.4
-     */   
     public DeserializerProvider getDeserializerProvider() {
         return _deserializerProvider;
     }
@@ -688,8 +673,6 @@ public class ObjectMapper
      * Method for accessing currently configured visibility checker;
      * object used for determining whether given property element
      * (method, field, constructor) can be auto-detected or not.
-     * 
-     * @since 1.5
      */
     public VisibilityChecker<?> getVisibilityChecker() {
         return _serializationConfig.getDefaultVisibilityChecker();
@@ -701,8 +684,6 @@ public class ObjectMapper
      * (method, field, constructor) can be auto-detected or not.
      * This default checker is used if no per-class overrides
      * are defined.
-     * 
-     * @since 1.5
      */    
     public void setVisibilityChecker(VisibilityChecker<?> vc) {
         _deserializationConfig = _deserializationConfig.withVisibilityChecker(vc);
@@ -732,8 +713,6 @@ public class ObjectMapper
      * 
      * @return Modified mapper instance (that is, "this"), to allow chaining
      *    of configuration calls
-     * 
-     * @since 1.9
      */
     public ObjectMapper setVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility)
     {
@@ -744,8 +723,6 @@ public class ObjectMapper
     
     /**
      * Method for accessing subtype resolver in use.
-     * 
-     * @since 1.6
      */
     public SubtypeResolver getSubtypeResolver() {
         if (_subtypeResolver == null) {
@@ -756,8 +733,6 @@ public class ObjectMapper
 
     /**
      * Method for setting custom subtype resolver to use.
-     * 
-     * @since 1.6
      */
     public void setSubtypeResolver(SubtypeResolver r) {
         _subtypeResolver = r;
@@ -766,8 +741,6 @@ public class ObjectMapper
     /**
      * Method for changing {@link AnnotationIntrospector} used by this
      * mapper instance for both serialization and deserialization
-     * 
-     * @since 1.8
      */
     public ObjectMapper setAnnotationIntrospector(AnnotationIntrospector ai) {
         _serializationConfig = _serializationConfig.withAnnotationIntrospector(ai);
@@ -777,8 +750,6 @@ public class ObjectMapper
     
     /**
      * Method for setting custom property naming strategy to use.
-     * 
-     * @since 1.8
      */
     public ObjectMapper setPropertyNamingStrategy(PropertyNamingStrategy s) {
         _serializationConfig = _serializationConfig.withPropertyNamingStrategy(s);
@@ -792,8 +763,6 @@ public class ObjectMapper
      *<pre>
      *  mapper.setSerializationConfig(mapper.getSerializationConfig().withSerializationInclusion(incl));
      *</pre>
-     * 
-     * @since 1.9
      */
     public ObjectMapper setSerializationInclusion(JsonSerialize.Inclusion incl) {
         _serializationConfig = _serializationConfig.withSerializationInclusion(incl);
@@ -1076,8 +1045,6 @@ public class ObjectMapper
      * {@link JsonFactory#setParserFeature} on the shared
      * {@link JsonFactory} this mapper uses (which is accessible
      * using {@link #getJsonFactory}).
-     *
-     * @since 1.2
      */
     public ObjectMapper configure(JsonParser.Feature f, boolean state) {
         _jsonFactory.configure(f, state);
@@ -1092,8 +1059,6 @@ public class ObjectMapper
      * {@link JsonFactory#setGeneratorFeature} on the shared
      * {@link JsonFactory} this mapper uses (which is accessible
      * using {@link #getJsonFactory}).
-     *
-     * @since 1.2
      */
     public ObjectMapper configure(JsonGenerator.Feature f, boolean state) {
         _jsonFactory.configure(f, state);
@@ -1103,8 +1068,6 @@ public class ObjectMapper
     /**
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
-     * 
-     * @since 1.9
      */
     public ObjectMapper enable(DeserializationConfig.Feature... f) {
         _deserializationConfig = _deserializationConfig.with(f);
@@ -1114,8 +1077,6 @@ public class ObjectMapper
     /**
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
-     * 
-     * @since 1.9
      */
     public ObjectMapper disable(DeserializationConfig.Feature... f) {
         _deserializationConfig = _deserializationConfig.without(f);
@@ -1125,8 +1086,6 @@ public class ObjectMapper
     /**
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
-     * 
-     * @since 1.9
      */
     public ObjectMapper enable(SerializationConfig.Feature... f) {
         _serializationConfig = _serializationConfig.with(f);
@@ -1136,8 +1095,6 @@ public class ObjectMapper
     /**
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
-     * 
-     * @since 1.9
      */
     public ObjectMapper disable(SerializationConfig.Feature... f) {
         _serializationConfig = _serializationConfig.without(f);
@@ -1149,8 +1106,6 @@ public class ObjectMapper
      *<pre>
      *  getSerializationConfig().isEnabled(f);
      *</pre>
-     * 
-     * @since 1.9
      */
     public boolean isEnabled(SerializationConfig.Feature f) {
         return _serializationConfig.isEnabled(f);
@@ -1161,8 +1116,6 @@ public class ObjectMapper
      *<pre>
      *  getDeserializationConfig().isEnabled(f);
      *</pre>
-     * 
-     * @since 1.9
      */
     public boolean isEnabled(DeserializationConfig.Feature f) {
         return _deserializationConfig.isEnabled(f);
@@ -1173,8 +1126,6 @@ public class ObjectMapper
      *<pre>
      *  getJsonFactory().isEnabled(f);
      *</pre>
-     * 
-     * @since 1.9
      */
     public boolean isEnabled(JsonParser.Feature f) {
         return _jsonFactory.isEnabled(f);
@@ -1185,8 +1136,6 @@ public class ObjectMapper
      *<pre>
      *  getJsonFactory().isEnabled(f);
      *</pre>
-     * 
-     * @since 1.9
      */
     public boolean isEnabled(JsonGenerator.Feature f) {
         return _jsonFactory.isEnabled(f);
@@ -1201,8 +1150,6 @@ public class ObjectMapper
      *<pre>
      *   getDeserializationConfig().getNodeFactory()
      *</pre>
-     *
-     * @since 1.2
      */
     public JsonNodeFactory getNodeFactory() {
         return _deserializationConfig.getNodeFactory();
@@ -1231,8 +1178,6 @@ public class ObjectMapper
     public <T> T readValue(JsonParser jp, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-// !!! TODO
-//    	_setupClassLoaderForDeserialization(valueType);
         return (T) _readValue(copyDeserializationConfig(), jp, _typeFactory.constructType(valueType));
     } 
 
@@ -1342,8 +1287,6 @@ public class ObjectMapper
 
     /**
      * Method for reading sequence of Objects from parser stream.
-     * 
-     * @since 1.8
      */
     @Override
     public <T> MappingIterator<T> readValues(JsonParser jp, TypeReference<?> valueTypeRef)
@@ -1368,7 +1311,6 @@ public class ObjectMapper
      * container ({@link java.util.Collection} or {@link java.util.Map}.
      * The reason is that due to type erasure, key and value types
      * can not be introspected when using this method.
-     * @since 1.1
      *
      * @param cfg Specific deserialization configuration to use for
      *   this operation. Note that not all config settings can
@@ -1398,8 +1340,6 @@ public class ObjectMapper
      *   be changed on per-operation basis: some changeds only take effect
      *   before calling the operation for the first time (for the mapper
      *   instance)
-     *
-     * @since 1.1
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser jp, TypeReference<?> valueTypeRef,
@@ -1420,8 +1360,6 @@ public class ObjectMapper
      *   be changed on per-operation basis: some changeds only take effect
      *   before calling the operation for the first time (for the mapper
      *   instance)
-     *
-     * @since 1.1
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser jp, JavaType valueType,
@@ -1443,8 +1381,6 @@ public class ObjectMapper
      *   be changed on per-operation basis: some changeds only take effect
      *   before calling the operation for the first time (for the mapper
      *   instance)
-     *
-     * @since 1.1
      */
     public JsonNode readTree(JsonParser jp, DeserializationConfig cfg)
         throws IOException, JsonProcessingException
@@ -1462,8 +1398,6 @@ public class ObjectMapper
      *
      * @param in Input stream used to read JSON content
      *   for building the JSON tree.
-     *
-     * @since 1.3
      */
     public JsonNode readTree(InputStream in)
         throws IOException, JsonProcessingException
@@ -1481,8 +1415,6 @@ public class ObjectMapper
      *
      * @param r Reader used to read JSON content
      *   for building the JSON tree.
-     *
-     * @since 1.3
      */
     public JsonNode readTree(Reader r)
         throws IOException, JsonProcessingException
@@ -1497,8 +1429,6 @@ public class ObjectMapper
      * event is a value event, not container).
      *
      * @param content JSON content to parse to build the JSON tree.
-     *
-     * @since 1.3
      */
     public JsonNode readTree(String content)
         throws IOException, JsonProcessingException
@@ -1513,8 +1443,6 @@ public class ObjectMapper
      * event is a value event, not container).
      *
      * @param content JSON content to parse to build the JSON tree.
-     *
-     * @since 1.9
      */
     public JsonNode readTree(byte[] content)
         throws IOException, JsonProcessingException
@@ -1529,8 +1457,6 @@ public class ObjectMapper
      * event is a value event, not container).
      *
      * @param file File of which contents to parse as JSON for building a tree instance
-     *
-     * @since 1.9
      */
     public JsonNode readTree(File file)
         throws IOException, JsonProcessingException

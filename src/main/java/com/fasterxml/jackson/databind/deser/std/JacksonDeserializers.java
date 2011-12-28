@@ -6,9 +6,13 @@ import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.impl.CreatorProperty;
+import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -18,13 +22,22 @@ public class JacksonDeserializers
 {
     public static StdDeserializer<?>[] all()
     {
+        // note: JsonLocation supported via ValueInstantiator
         return  new StdDeserializer[] {
             new JavaTypeDeserializer(),
-//            new JsonLocationDeserializer(),
             new TokenBufferDeserializer(),
         };
     }
 
+    public static ValueInstantiator findValueInstantiator(DeserializationConfig config,
+            BasicBeanDescription beanDesc)
+    {
+        if (beanDesc.getBeanClass() == JsonLocation.class) {
+            return new JsonLocationInstantiator();
+        }
+        return null;
+    }
+    
     /*
     /**********************************************************
     /* Deserializer implementations
@@ -60,18 +73,45 @@ public class JacksonDeserializers
         }
     }
 
-    @JacksonStdImpl
-    public static class JsonLocationDeserializer
-        extends StdScalarDeserializer<JsonLocation>
+    /**
+     * For {@link JsonLocation}, we should be able to just implement
+     * {@link ValueInstantiator} (not that explicit one would be very
+     * hard but...)
+     */
+    public static class JsonLocationInstantiator extends ValueInstantiator
     {
-        public JsonLocationDeserializer() { super(JsonLocation.class); }
+        @Override
+        public String getValueTypeDesc() {
+            return JsonLocation.class.getName();
+        }
+        
+        @Override
+        public boolean canCreateFromObjectWith() { return true; }
+        
+        @Override
+        public CreatorProperty[] getFromObjectArguments(DeserializationConfig config) {
+            JavaType intType = config.constructType(Integer.TYPE);
+            JavaType longType = config.constructType(Long.TYPE);
+            return  new CreatorProperty[] {
+                    new CreatorProperty("sourceRef", config.constructType(Object.class), null, null, null, 0, null),
+                    new CreatorProperty("byteOffset", longType, null, null, null, 1, null),
+                    new CreatorProperty("charOffset", longType, null, null, null, 2, null),
+                    new CreatorProperty("lineNr", intType, null, null, null, 3, null),
+                    new CreatorProperty("columnNr", intType, null, null, null, 4, null)
+            };
+        }
 
         @Override
-        public JsonLocation deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-        {
-            // !!! TBI
-            return null;
+        public Object createFromObjectWith(Object[] args) {
+            return new JsonLocation(args[0], _long(args[1]), _long(args[2]),
+                    _int(args[3]), _int(args[4]));
+        }
+
+        private final static long _long(Object o) {
+            return (o == null) ? 0L : ((Number) o).longValue();
+        }
+        private final static int _int(Object o) {
+            return (o == null) ? 0 : ((Number) o).intValue();
         }
     }
     

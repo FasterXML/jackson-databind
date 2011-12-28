@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonNode;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
 import com.fasterxml.jackson.databind.deser.impl.CreatorProperty;
+import com.fasterxml.jackson.databind.deser.std.JacksonDeserializers;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -475,7 +476,13 @@ public class BeanDeserializerFactory
                 instantiator = config.valueInstantiatorInstance(ac, (Class<? extends ValueInstantiator>)instClass);
             }
         } else {
-            instantiator = constructDefaultValueInstantiator(config, beanDesc);
+            /* Second: see if some of standard Jackson/JDK types might provide value
+             * instantiators.
+             */
+            instantiator = findStdValueInstantiator(config, beanDesc);
+            if (instantiator == null) {
+                instantiator = constructDefaultValueInstantiator(config, beanDesc);
+            }
         }
         
         // finally: anyone want to modify ValueInstantiator?
@@ -722,18 +729,21 @@ public class BeanDeserializerFactory
      * Overridable method that constructs a {@link BeanDeserializerBuilder}
      * which is used to accumulate information needed to create deserializer
      * instance.
-     * 
-     * @since 1.7
      */
     protected BeanDeserializerBuilder constructBeanDeserializerBuilder(BasicBeanDescription beanDesc) {
         return new BeanDeserializerBuilder(beanDesc);
     }
 
+    protected ValueInstantiator findStdValueInstantiator(DeserializationConfig config,
+            BasicBeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        return JacksonDeserializers.findValueInstantiator(config, beanDesc);
+    }
+    
     /**
      * Method that will construct standard default {@link ValueInstantiator}
      * using annotations (like @JsonCreator) and visibility rules
-     * 
-     * @since 1.9
      */
     protected ValueInstantiator constructDefaultValueInstantiator(DeserializationConfig config,
             BasicBeanDescription beanDesc)
@@ -1172,8 +1182,6 @@ public class BeanDeserializerFactory
     /**
      * Method called locate all members used for value injection (if any),
      * constructor {@link com.fasterxml.jackson.databind.deser.impl.ValueInjector} instances, and add them to builder.
-     * 
-     * @since 1.9
      */
     protected void addInjectables(DeserializationConfig config,
             BasicBeanDescription beanDesc, BeanDeserializerBuilder builder)

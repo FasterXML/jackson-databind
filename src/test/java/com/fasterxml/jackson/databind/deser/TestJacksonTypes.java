@@ -22,8 +22,12 @@ public class TestJacksonTypes
         // Let's use serializer here; goal is round-tripping
         String ser = serializeAsString(m, loc);
         JsonLocation result = m.readValue(ser, JsonLocation.class);
-        assertEquals("Did not correctly deserialize standard serialization '"+ser+"'",
-                     loc, result);
+        assertNotNull(result);
+        assertEquals(loc.getSourceRef(), result.getSourceRef());
+        assertEquals(loc.getByteOffset(), result.getByteOffset());
+        assertEquals(loc.getCharOffset(), result.getCharOffset());
+        assertEquals(loc.getColumnNr(), result.getColumnNr());
+        assertEquals(loc.getLineNr(), result.getLineNr());
     }
 
     // doesn't really belong here but...

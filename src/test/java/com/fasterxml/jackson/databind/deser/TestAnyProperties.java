@@ -77,6 +77,29 @@ public class TestAnyProperties
         }        
     }
 
+    static class Bean744
+    {
+        protected Map<String,Object> additionalProperties;
+        
+        @JsonAnySetter
+        public void addAdditionalProperty(String key, Object value) {
+            if (additionalProperties == null) additionalProperties = new HashMap<String, Object>();
+            additionalProperties.put(key,value);
+        }
+        
+        public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+            this.additionalProperties = additionalProperties;
+        }
+
+        @JsonAnyGetter
+        public Map<String,Object> getAdditionalProperties() { return additionalProperties; }
+
+        @JsonIgnore
+        public String getName() {
+           return (String) additionalProperties.get("name");
+        }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -139,4 +162,14 @@ public class TestAnyProperties
         assertEquals("Bob", bean.map.get("name"));
         assertEquals(1, bean.map.size());
     }
+
+    public void testProblem744() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        Bean744 bean = m.readValue("{\"name\":\"Bob\"}", Bean744.class);
+        assertNotNull(bean.additionalProperties);
+        assertEquals(1, bean.additionalProperties.size());
+        assertEquals("Bob", bean.additionalProperties.get("name"));
+    }
+
 }

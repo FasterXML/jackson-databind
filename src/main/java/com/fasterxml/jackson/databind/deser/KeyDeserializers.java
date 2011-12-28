@@ -16,8 +16,6 @@ import com.fasterxml.jackson.databind.KeyDeserializer;
  * does not support handling of the type. In latter case, further calls can be made
  * for other providers; in former case returned key deserializer is used for handling of
  * key instances of specified type.
- * 
- * @since 1.8
  */
 public interface KeyDeserializers
 {

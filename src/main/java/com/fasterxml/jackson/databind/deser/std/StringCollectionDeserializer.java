@@ -11,7 +11,11 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
-
+/**
+ * Specifically optimized version for {@link java.util.Collection}s
+ * that contain String values; reason is that this is a very common
+ * type and we can make use of the fact that Strings are final.
+ */
 @JacksonStdImpl
 public final class StringCollectionDeserializer
     extends ContainerDeserializerBase<Collection<String>>
@@ -37,7 +41,7 @@ public final class StringCollectionDeserializer
     // // Instance construction settings:
     
     /**
-     * @since 1.9
+     * Instantiator used in case custom handling is needed for creation.
      */
     protected final ValueInstantiator _valueInstantiator;
 
@@ -69,8 +73,6 @@ public final class StringCollectionDeserializer
     /**
      * Copy-constructor that can be used by sub-classes to allow
      * copy-on-write styling copying of settings of an existing instance.
-     * 
-     * @since 1.9
      */
     protected StringCollectionDeserializer(StringCollectionDeserializer src)
     {

@@ -3,25 +3,11 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.deser.std.AtomicBooleanDeserializer;
-import com.fasterxml.jackson.databind.deser.std.CalendarDeserializer;
-import com.fasterxml.jackson.databind.deser.std.ClassDeserializer;
-import com.fasterxml.jackson.databind.deser.std.DateDeserializer;
-import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
-import com.fasterxml.jackson.databind.deser.std.JavaTypeDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
-import com.fasterxml.jackson.databind.deser.std.TimestampDeserializer;
-import com.fasterxml.jackson.databind.deser.std.TokenBufferDeserializer;
-import com.fasterxml.jackson.databind.deser.std.UntypedObjectDeserializer;
+import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.type.*;
 
 /**
  * Helper class used to contain simple/well-known deserializers for core JDK types.
- *<p>
- * Note: as of Jackson 1.9, we use type-erased class for registering, since
- * some types may come either as type-erased or typed (for example,
- * <code>java.lang.Class</code>).
  */
 class StdDeserializers
 {
@@ -37,62 +23,19 @@ class StdDeserializers
         StdDeserializer<?> strDeser = new StringDeserializer();
         add(strDeser, String.class);
         add(strDeser, CharSequence.class);
-        add(new ClassDeserializer());
 
-        // Then primitive-wrappers (simple):
-        add(new StdDeserializer.BooleanDeserializer(Boolean.class, null));
-        add(new StdDeserializer.ByteDeserializer(Byte.class, null));
-        add(new StdDeserializer.ShortDeserializer(Short.class, null));
-        add(new StdDeserializer.CharacterDeserializer(Character.class, null));
-        add(new StdDeserializer.IntegerDeserializer(Integer.class, null));
-        add(new StdDeserializer.LongDeserializer(Long.class, null));
-        add(new StdDeserializer.FloatDeserializer(Float.class, null));
-        add(new StdDeserializer.DoubleDeserializer(Double.class, null));
-        
-        /* And actual primitives: difference is the way nulls are to be
-         * handled...
-         */
-        add(new StdDeserializer.BooleanDeserializer(Boolean.TYPE, Boolean.FALSE));
-        add(new StdDeserializer.ByteDeserializer(Byte.TYPE, Byte.valueOf((byte)(0))));
-        add(new StdDeserializer.ShortDeserializer(Short.TYPE, Short.valueOf((short)0)));
-        add(new StdDeserializer.CharacterDeserializer(Character.TYPE, Character.valueOf('\0')));
-        add(new StdDeserializer.IntegerDeserializer(Integer.TYPE, Integer.valueOf(0)));
-        add(new StdDeserializer.LongDeserializer(Long.TYPE, Long.valueOf(0L)));
-        add(new StdDeserializer.FloatDeserializer(Float.TYPE, Float.valueOf(0.0f)));
-        add(new StdDeserializer.DoubleDeserializer(Double.TYPE, Double.valueOf(0.0)));
-        
-        // and related
-        add(new StdDeserializer.NumberDeserializer());
-        add(new StdDeserializer.BigDecimalDeserializer());
-        add(new StdDeserializer.BigIntegerDeserializer());
-        
-        add(new CalendarDeserializer());
-        add(new DateDeserializer());
-        /* 24-Jan-2010, tatu: When including type information, we may
-         *    know that we specifically need GregorianCalendar...
-         */
-        add(new CalendarDeserializer(GregorianCalendar.class),
-                GregorianCalendar.class);
-        add(new StdDeserializer.SqlDateDeserializer());
-        add(new TimestampDeserializer());
-
-        // From-string deserializers:
-        for (StdDeserializer<?> deser : FromStringDeserializer.all()) {
-            add(deser);
-        }
-
-        // And finally some odds and ends
-
-        // to deserialize Throwable, need stack trace elements:
-        add(new StdDeserializer.StackTraceElementDeserializer());
+        // Primitives/wrappers, other Numbers:
+        add(NumberDeserializers.all());
+        // Date/time types
+        add(DateDeserializers.all());
+        // other JDK types
+        add(JdkDeserializers.all());
 
         // [JACKSON-283] need to support atomic types, too
         // (note: AtomicInteger/Long work due to single-arg constructor)
         add(new AtomicBooleanDeserializer());
 
-        // including some core Jackson types:
-        add(new TokenBufferDeserializer());
-        add(new JavaTypeDeserializer());
+        add(JacksonDeserializers.all());
     }
 
     /**
@@ -103,8 +46,13 @@ class StdDeserializers
         return new StdDeserializers()._deserializers;
     }
 
-    private void add(StdDeserializer<?> stdDeser)
-    {
+    private void add(StdDeserializer<?>[] serializers) {
+        for (StdDeserializer<?> ser : serializers) {
+            add(ser, ser.getValueClass());
+        }
+    }
+
+    private void add(StdDeserializer<?> stdDeser) {
         add(stdDeser, stdDeser.getValueClass());
     }
 

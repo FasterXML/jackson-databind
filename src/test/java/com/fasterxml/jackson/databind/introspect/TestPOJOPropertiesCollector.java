@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -163,6 +164,29 @@ public class TestPOJOPropertiesCollector
         public Issue701Bean(@JsonProperty int i) { this.i = i; }
 
         public int getX() { return i; }
+    }
+
+    static class Issue744Bean
+    {
+        protected Map<String,Object> additionalProperties;
+        
+        @JsonAnySetter
+        public void addAdditionalProperty(String key, Object value) {
+            if (additionalProperties == null) additionalProperties = new HashMap<String, Object>();
+            additionalProperties.put(key,value);
+        }
+        
+        public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+            this.additionalProperties = additionalProperties;
+        }
+
+        @JsonAnyGetter
+        public Map<String,Object> getAdditionalProperties() { return additionalProperties; }
+
+        @JsonIgnore
+        public String getName() {
+           return (String) additionalProperties.get("name");
+        }
     }
     
     /*
@@ -361,6 +385,15 @@ public class TestPOJOPropertiesCollector
         Jackson703 bean = new Jackson703();
         String json = mapper.writeValueAsString(bean);
         assertNotNull(json);
+    }
+
+    public void testJackson744() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        BasicBeanDescription beanDesc = mapper.getDeserializationConfig().introspect(mapper.constructType(Issue744Bean.class));
+        assertNotNull(beanDesc);
+        AnnotatedMethod setter = beanDesc.findAnySetter();
+        assertNotNull(setter);
     }
     
     /*

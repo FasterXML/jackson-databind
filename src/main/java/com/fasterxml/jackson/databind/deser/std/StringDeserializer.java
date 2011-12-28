@@ -50,4 +50,5 @@ public class StringDeserializer
         throws IOException, JsonProcessingException
     {
         return deserialize(jp, ctxt);
-    }}
+    }
+}

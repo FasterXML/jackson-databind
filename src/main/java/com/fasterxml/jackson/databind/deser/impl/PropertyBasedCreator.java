@@ -40,18 +40,16 @@ public final class PropertyBasedCreator
     /**
      * Array that contains properties that expect value to inject, if any;
      * null if no injectable values are expected.
-     * 
-     * @since 1.9
      */
     protected final SettableBeanProperty[] _propertiesWithInjectables;
     
-    public PropertyBasedCreator(ValueInstantiator valueInstantiator)
+    public PropertyBasedCreator(ValueInstantiator valueInstantiator,
+            SettableBeanProperty[] creatorProps)
     {
         _valueInstantiator = valueInstantiator;
         _properties = new HashMap<String, SettableBeanProperty>();
         // [JACKSON-372]: primitive types need extra care
         Object[] defValues = null;
-        SettableBeanProperty[] creatorProps = valueInstantiator.getFromObjectArguments();
         SettableBeanProperty[] propertiesWithInjectables = null;
         for (int i = 0, len = creatorProps.length; i < len; ++i) {
             SettableBeanProperty prop = creatorProps[i];

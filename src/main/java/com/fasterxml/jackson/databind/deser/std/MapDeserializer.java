@@ -54,14 +54,8 @@ public class MapDeserializer
     
     // // Instance construction settings:
 
-    /**
-     * @since 1.9
-     */
     protected final ValueInstantiator _valueInstantiator;
 
-    /**
-     * @since 1.9
-     */
     protected final boolean _hasDefaultCreator;
     
     /**
@@ -98,11 +92,6 @@ public class MapDeserializer
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
         _valueInstantiator = valueInstantiator;
-        if (valueInstantiator.canCreateFromObjectWith()) {
-            _propertyBasedCreator = new PropertyBasedCreator(valueInstantiator);
-        } else {
-            _propertyBasedCreator = null;
-        }
         _hasDefaultCreator = valueInstantiator.canCreateUsingDefault();
     }
 
@@ -148,7 +137,7 @@ public class MapDeserializer
     {
         // May need to resolve types for delegate- and/or property-based creators:
         if (_valueInstantiator.canCreateUsingDelegate()) {
-            JavaType delegateType = _valueInstantiator.getDelegateType();
+            JavaType delegateType = _valueInstantiator.getDelegateType(config);
             if (delegateType == null) {
                 throw new IllegalArgumentException("Invalid delegate-creator definition for "+_mapType
                         +": value instantiator ("+_valueInstantiator.getClass().getName()
@@ -161,8 +150,10 @@ public class MapDeserializer
                     delegateType, null, delegateCreator);
             _delegateDeserializer = findDeserializer(config, provider, delegateType, property);
         }
-        if (_propertyBasedCreator != null) {
-            for (SettableBeanProperty prop : _propertyBasedCreator.getCreatorProperties()) {
+        if (_valueInstantiator.canCreateFromObjectWith()) {
+            SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(config);
+            _propertyBasedCreator = new PropertyBasedCreator(_valueInstantiator, creatorProps);
+            for (SettableBeanProperty prop : creatorProps) {
                 if (!prop.hasValueDeserializer()) {
                     _propertyBasedCreator.assignDeserializer(prop, findDeserializer(config, provider, prop.getType(), prop));
                 }

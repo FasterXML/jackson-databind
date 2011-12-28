@@ -145,22 +145,24 @@ public class TestAnyProperties
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(com.fasterxml.jackson.databind.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, true);
-        Ignored bean = mapper.readValue("{\"name\":\"Bob\", \"bogus\": [ 1, 2, 3], \"dummy\" : 13 }", Ignored.class);
-        assertNull(bean.map.get("dummy"));
-        assertNull(bean.map.get("bogus"));
-        assertEquals("Bob", bean.map.get("name"));
-        assertEquals(1, bean.map.size());
+        _testIgnorals(mapper);
     }
 
     public void testIgnored383() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(com.fasterxml.jackson.databind.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        _testIgnorals(mapper);
+    }
+    
+    private void _testIgnorals(ObjectMapper mapper) throws Exception
+    {
         Ignored bean = mapper.readValue("{\"name\":\"Bob\", \"bogus\": [ 1, 2, 3], \"dummy\" : 13 }", Ignored.class);
+        // as of 2.0, @JsonIgnoreProperties does block; @JsonIgnore not
         assertNull(bean.map.get("dummy"));
-        assertNull(bean.map.get("bogus"));
+        assertEquals("[1, 2, 3]", ""+bean.map.get("bogus"));
         assertEquals("Bob", bean.map.get("name"));
-        assertEquals(1, bean.map.size());
+        assertEquals(2, bean.map.size());
     }
 
     public void testProblem744() throws Exception

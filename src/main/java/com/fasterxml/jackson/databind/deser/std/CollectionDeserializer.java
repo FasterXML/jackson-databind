@@ -100,7 +100,7 @@ public class CollectionDeserializer
     {
         // May need to resolve types for delegate-based creators:
         if (_valueInstantiator.canCreateUsingDelegate()) {
-            JavaType delegateType = _valueInstantiator.getDelegateType();
+            JavaType delegateType = _valueInstantiator.getDelegateType(config);
             if (delegateType == null) {
                 throw new IllegalArgumentException("Invalid delegate-creator definition for "+_collectionType
                         +": value instantiator ("+_valueInstantiator.getClass().getName()

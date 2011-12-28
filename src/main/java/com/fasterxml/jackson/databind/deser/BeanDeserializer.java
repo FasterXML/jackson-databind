@@ -82,8 +82,9 @@ public class BeanDeserializer
      * or factory method
      * that takes one or more named properties as argument(s),
      * this creator is used for instantiation.
+     * This value gets resolved during general resolution.
      */
-    protected final PropertyBasedCreator _propertyBasedCreator;
+    protected PropertyBasedCreator _propertyBasedCreator;
 
     /**
      * Flag that is set to mark "non-standard" cases; where either
@@ -101,8 +102,6 @@ public class BeanDeserializer
     /**
      * Mapping of property names to properties, built when all properties
      * to use have been successfully resolved.
-     * 
-     * @since 1.7
      */
     final protected BeanPropertyMap _beanProperties;
 
@@ -111,8 +110,6 @@ public class BeanDeserializer
      * expected by the bean; otherwise null.
      * This includes injectors used for injecting values via setters
      * and fields, but not ones passed through constructor parameters.
-     * 
-     * @since 1.9
      */
     final protected ValueInjector[] _injectables;
     
@@ -157,8 +154,6 @@ public class BeanDeserializer
     /**
      * If one of properties has "unwrapped" value, we need separate
      * helper object
-     * 
-     * @since 1.9
      */
     protected UnwrappedPropertyHandler _unwrappedPropertyHandler;
 
@@ -199,11 +194,6 @@ public class BeanDeserializer
         _property = property;
 
         _valueInstantiator = valueInstantiator;
-        if (valueInstantiator.canCreateFromObjectWith()) {
-            _propertyBasedCreator = new PropertyBasedCreator(valueInstantiator);
-        } else {
-            _propertyBasedCreator = null;
-        }
         
         _beanProperties = properties;
         _backRefs = backRefs;
@@ -213,10 +203,11 @@ public class BeanDeserializer
         _injectables = (injectables == null || injectables.isEmpty()) ? null
                 : injectables.toArray(new ValueInjector[injectables.size()]);
 
-        _nonStandardCreation = valueInstantiator.canCreateUsingDelegate()
-            || (_propertyBasedCreator != null)
+        _nonStandardCreation = (_unwrappedPropertyHandler != null)
+            || valueInstantiator.canCreateUsingDelegate()
+            || valueInstantiator.canCreateFromObjectWith()
             || !valueInstantiator.canCreateUsingDefault()
-            || (_unwrappedPropertyHandler != null);
+            ;
     }
 
     /**
@@ -280,8 +271,6 @@ public class BeanDeserializer
 
     /**
      * Accessor for checking number of deserialized properties.
-     * 
-     * @since 1.7
      */
     public int getPropertyCount() { 
         return _beanProperties.size();
@@ -291,13 +280,9 @@ public class BeanDeserializer
 
     @Override public JavaType getValueType() { return _beanType; }
 
-    /**
-     * 
-     * @since 1.6
-     */
     public Iterator<SettableBeanProperty> properties()
     {
-        if (_beanProperties == null) { // since 1.7
+        if (_beanProperties == null) {
             throw new IllegalStateException("Can only call before BeanDeserializer has been resolved");
         }
         return _beanProperties.allProperties();
@@ -315,9 +300,6 @@ public class BeanDeserializer
         return _backRefs.get(logicalName);
     }
 
-    /**
-     * @since 1.9
-     */
     public ValueInstantiator getValueInstantiator() {
         return _valueInstantiator;
     }
@@ -337,6 +319,18 @@ public class BeanDeserializer
     public void resolve(DeserializationConfig config, DeserializerProvider provider)
         throws JsonMappingException
     {
+        // if ValueInstantiator can use "creator" approach, need to resolve it here...
+        if (_valueInstantiator.canCreateFromObjectWith()) {
+            SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(config);
+            _propertyBasedCreator = new PropertyBasedCreator(_valueInstantiator, creatorProps);
+            for (SettableBeanProperty prop : creatorProps) {
+                if (!prop.hasValueDeserializer()) {
+                    _propertyBasedCreator.assignDeserializer(prop,
+                           findDeserializer(config, provider, prop.getType(), prop));
+                }
+            }
+        }
+
         Iterator<SettableBeanProperty> it = _beanProperties.allProperties();
         UnwrappedPropertyHandler unwrapped = null;
         ExternalTypeHandler.Builder extTypes = null;
@@ -388,7 +382,7 @@ public class BeanDeserializer
 
         // as well as delegate-based constructor:
         if (_valueInstantiator.canCreateUsingDelegate()) {
-            JavaType delegateType = _valueInstantiator.getDelegateType();
+            JavaType delegateType = _valueInstantiator.getDelegateType(config);
             if (delegateType == null) {
                 throw new IllegalArgumentException("Invalid delegate-creator definition for "+_beanType
                         +": value instantiator ("+_valueInstantiator.getClass().getName()
@@ -399,16 +393,6 @@ public class BeanDeserializer
             BeanProperty.Std property = new BeanProperty.Std(null,
                     delegateType, _forClass.getAnnotations(), delegateCreator);
             _delegateDeserializer = findDeserializer(config, provider, delegateType, property);
-        }
-        // or property-based one
-        // IMPORTANT: must access properties that _propertyBasedCreator has
-        if (_propertyBasedCreator != null) {
-            for (SettableBeanProperty prop : _propertyBasedCreator.getCreatorProperties()) {
-                if (!prop.hasValueDeserializer()) {
-                    _propertyBasedCreator.assignDeserializer(prop,
-                           findDeserializer(config, provider, prop.getType(), prop));
-                }
-            }
         }
         if (extTypes != null) {
             _externalTypeIdHandler = extTypes.build();

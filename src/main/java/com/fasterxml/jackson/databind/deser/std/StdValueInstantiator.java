@@ -17,8 +17,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
  * supports use of default constructor. Sub-types can add
  * support for alternate construction methods, such as using
  * argument-taking constructors or static factory methods.
- * 
- * @since 1.9.0
  */
 public class StdValueInstantiator
     extends ValueInstantiator
@@ -182,17 +180,22 @@ public class StdValueInstantiator
     }
 
     @Override
+    public boolean canCreateUsingDelegate() {
+        return _delegateType != null;
+    }
+    
+    @Override
     public boolean canCreateFromObjectWith() {
         return (_withArgsCreator != null);
     }
 
     @Override
-    public JavaType getDelegateType() {
+    public JavaType getDelegateType(DeserializationConfig config) {
         return _delegateType;
     }
 
     @Override
-    public SettableBeanProperty[] getFromObjectArguments() {
+    public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
         return _constructorArguments;
     }
     

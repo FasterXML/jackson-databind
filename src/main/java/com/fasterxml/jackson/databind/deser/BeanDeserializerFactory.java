@@ -1045,8 +1045,14 @@ public class BeanDeserializerFactory
         for (String propName : ignored) {
             builder.addIgnorable(propName);
         }
+        // Also, do we have a fallback "any" setter?
+        AnnotatedMethod anySetter = beanDesc.findAnySetter();
+        if (anySetter != null) {
+            builder.setAnySetter(constructAnySetter(config, beanDesc, anySetter));
+        }
+        // NOTE: we do NOT add @JsonIgnore'd properties into blocked ones if there's any setter
         // Implicit ones via @JsonIgnore and equivalent?
-        {
+        if (anySetter == null) {
             Collection<String> ignored2 = beanDesc.getIgnoredPropertyNames();
             if (ignored2 != null) {
                 for (String propName : ignored2) {
@@ -1103,11 +1109,6 @@ public class BeanDeserializerFactory
                     builder.addProperty(prop);
                 }
             }
-        }
-        // Also, do we have a fallback "any" setter?
-        AnnotatedMethod anySetter = beanDesc.findAnySetter();
-        if (anySetter != null) {
-            builder.setAnySetter(constructAnySetter(config, beanDesc, anySetter));
         }
 
         /* As per [JACKSON-88], may also need to consider getters

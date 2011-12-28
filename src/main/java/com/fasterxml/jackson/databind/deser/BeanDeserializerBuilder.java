@@ -33,16 +33,11 @@ public class BeanDeserializerBuilder
     
     /**
      * Properties to deserialize collected so far.
-     *<p>
-     * Note: since 1.9.1, LinkedHashMap has been used, since preservation
-     * of order is actually important for some use cases.
      */
     final protected HashMap<String, SettableBeanProperty> _properties = new LinkedHashMap<String, SettableBeanProperty>();
 
     /**
      * Value injectors for deserialization
-     * 
-     * @since 1.9
      */
     protected List<ValueInjector> _injectables;
     
@@ -59,8 +54,6 @@ public class BeanDeserializerBuilder
     
     /**
      * Object that will handle value instantiation for the bean type.
-     * 
-     * @since 1.9
      */
     protected ValueInstantiator _valueInstantiator;
 
@@ -91,8 +84,6 @@ public class BeanDeserializerBuilder
     /**
      * Copy constructor for sub-classes to use, when constructing
      * custom builder instances
-     * 
-     * @since 1.9
      */
     protected BeanDeserializerBuilder(BeanDeserializerBuilder src)
     {
@@ -192,8 +183,6 @@ public class BeanDeserializerBuilder
      * decision if these properties need to be available through accessors.
      * For now, however, we just have to ensure that we don't try to resolve
      * types that masked setter/field has (see [JACKSON-700] for details).
-     * 
-     * @since 1.9.2
      */
     public void addCreatorProperty(BeanPropertyDefinition propDef)
     {
@@ -212,9 +201,6 @@ public class BeanDeserializerBuilder
         _ignoreAllUnknown = ignore;
     }
 
-    /**
-     * @since 1.9
-     */
     public void setValueInstantiator(ValueInstantiator inst) {
         _valueInstantiator = inst;
     }
@@ -232,8 +218,6 @@ public class BeanDeserializerBuilder
      * Note that properties are returned in order that properties
      * are ordered (explictly, or by rule), which is the serialization
      * order.
-     * 
-     * @since 1.8.3
      */
     public Iterator<SettableBeanProperty> getProperties() {
         return _properties.values().iterator();
@@ -248,9 +232,6 @@ public class BeanDeserializerBuilder
         return _properties.remove(name);
     }
 
-    /**
-     * @since 1.9
-     */
     public ValueInstantiator getValueInstantiator() {
         return _valueInstantiator;
     }

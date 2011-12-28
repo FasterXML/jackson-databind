@@ -101,7 +101,7 @@ public final class StringCollectionDeserializer
         // May need to resolve types for delegate-based creators:
         AnnotatedWithParams delegateCreator = _valueInstantiator.getDelegateCreator();
         if (delegateCreator != null) {
-            JavaType delegateType = _valueInstantiator.getDelegateType();
+            JavaType delegateType = _valueInstantiator.getDelegateType(config);
             // Need to create a temporary property to allow contextual deserializers:
             BeanProperty.Std property = new BeanProperty.Std(null,
                     delegateType, null, delegateCreator);

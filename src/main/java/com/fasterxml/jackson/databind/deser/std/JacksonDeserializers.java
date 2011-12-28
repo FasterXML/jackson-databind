@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
@@ -56,6 +57,21 @@ public class JacksonDeserializers
                 return (JavaType) jp.getEmbeddedObject();
             }
             throw ctxt.mappingException(_valueClass);
+        }
+    }
+
+    @JacksonStdImpl
+    public static class JsonLocationDeserializer
+        extends StdScalarDeserializer<JsonLocation>
+    {
+        public JsonLocationDeserializer() { super(JsonLocation.class); }
+
+        @Override
+        public JsonLocation deserialize(JsonParser jp, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException
+        {
+            // !!! TBI
+            return null;
         }
     }
     

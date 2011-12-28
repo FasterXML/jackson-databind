@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
@@ -115,9 +116,8 @@ public abstract class ValueInstantiator
      * constructor or factory method)
      * is available for this instantiator
      */
-    public boolean canCreateUsingDelegate() {
-        return getDelegateType() != null;
-    }
+    public abstract boolean canCreateUsingDelegate();
+//        return getDelegateType(null) != null;
 
     /**
      * Method that can be called to check whether a property-based creator
@@ -138,7 +138,7 @@ public abstract class ValueInstantiator
      * NOTE: all properties will be of type
      * {@link com.fasterxml.jackson.databind.deser.impl.CreatorProperty}.
      */
-    public SettableBeanProperty[] getFromObjectArguments() {
+    public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
         return null;
     }
 
@@ -149,7 +149,7 @@ public abstract class ValueInstantiator
      * specified type (using standard deserializer for that type), and
      * pass that to instantiator.
      */
-    public JavaType getDelegateType() {
+    public JavaType getDelegateType(DeserializationConfig config) {
         return null;
     }
     

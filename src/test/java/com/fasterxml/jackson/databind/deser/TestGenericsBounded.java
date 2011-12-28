@@ -1,4 +1,4 @@
-package org.codehaus.jackson.map.deser;
+package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 

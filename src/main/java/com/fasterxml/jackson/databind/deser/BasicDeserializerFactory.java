@@ -6,16 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.JsonNode;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.AtomicReferenceDeserializer;
-import com.fasterxml.jackson.databind.deser.std.CollectionDeserializer;
-import com.fasterxml.jackson.databind.deser.std.EnumDeserializer;
-import com.fasterxml.jackson.databind.deser.std.EnumMapDeserializer;
-import com.fasterxml.jackson.databind.deser.std.EnumSetDeserializer;
-import com.fasterxml.jackson.databind.deser.std.JsonNodeDeserializer;
-import com.fasterxml.jackson.databind.deser.std.MapDeserializer;
-import com.fasterxml.jackson.databind.deser.std.ObjectArrayDeserializer;
-import com.fasterxml.jackson.databind.deser.std.PrimitiveArrayDeserializers;
-import com.fasterxml.jackson.databind.deser.std.StringCollectionDeserializer;
+import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -547,7 +538,7 @@ public abstract class BasicDeserializerFactory
                 referencedType = params[0];
             }
             
-            JsonDeserializer<?> d2 = new AtomicReferenceDeserializer(referencedType, property);
+            JsonDeserializer<?> d2 = new JdkDeserializers.AtomicReferenceDeserializer(referencedType, property);
             return (JsonDeserializer<Object>)d2;
         }
         // [JACKSON-386]: External/optional type handlers are handled somewhat differently

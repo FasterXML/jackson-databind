@@ -18,8 +18,9 @@ public class JacksonDeserializers
     public static StdDeserializer<?>[] all()
     {
         return  new StdDeserializer[] {
+            new JavaTypeDeserializer(),
+//            new JsonLocationDeserializer(),
             new TokenBufferDeserializer(),
-            new JavaTypeDeserializer()
         };
     }
 

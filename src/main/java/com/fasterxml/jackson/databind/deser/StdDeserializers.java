@@ -31,10 +31,6 @@ class StdDeserializers
         // other JDK types
         add(JdkDeserializers.all());
 
-        // [JACKSON-283] need to support atomic types, too
-        // (note: AtomicInteger/Long work due to single-arg constructor)
-        add(new AtomicBooleanDeserializer());
-
         add(JacksonDeserializers.all());
     }
 

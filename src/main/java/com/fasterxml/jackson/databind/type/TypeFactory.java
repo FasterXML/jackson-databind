@@ -12,29 +12,20 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders;
  * Class used for creating concrete {@link JavaType} instances,
  * given various inputs.
  *<p>
- * As of Jackson 1.8, usage should be done using instance configured
- * via {@link com.fasterxml.jackson.databind.ObjectMapper} (and exposed through
- * {@link com.fasterxml.jackson.databind.DeserializationConfig} and
- * {@link com.fasterxml.jackson.databind.SerializationConfig}).
- * However, old static-singleton access methods are supported as well; however,
- * using those may cause issues with extension modules that register
- * "type enchancers".
- *<p>
- * Typical usage pattern before Jackson 1.8 was to statically import factory methods
- * of this class, to allow convenient instantiation of structured
- * types, especially {@link Collection} and {@link Map} types
- * to represent generic types. For example
+ * Instances of this class are accessible using {@link com.fasterxml.jackson.databind.ObjectMapper}
+ * as well as many objects it constructs (like
+* {@link com.fasterxml.jackson.databind.DeserializationConfig} and
+ * {@link com.fasterxml.jackson.databind.SerializationConfig})),
+ * but usually those objects also 
+ * expose convenience methods (<code>constructType</code>).
+ * So, you can do for example:
  *<pre>
- * mapType(String.class, Integer.class)
+ *   JavaType stringType = mapper.constructType(String.class);
  *</pre>
- * to represent
+ * However, more advanced methods are only exposed by factory so that you
+ * may need to use:
  *<pre>
- *  Map&lt;String,Integer>
- *</pre>
- * This is an alternative to using {@link TypeReference} that would
- * be something like
- *<pre>
- *  new TypeReference&lt;Map&lt;String,Integer>>() { }
+ *   JavaType stringCollection = mapper.getTypeFactory().constructCollectionType(List.class, String.class);
  *</pre>
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -116,8 +107,6 @@ public final class TypeFactory
      * Method for constructing a marker type that indicates missing generic
      * type information, which is handled same as simple type for
      * <code>java.lang.Object</code>.
-     * 
-     * @since 1.8
      */
     public static JavaType unknownType() {
         return defaultInstance()._unknownType();
@@ -165,7 +154,6 @@ public final class TypeFactory
                 // one more thing: handlers to copy?
                 Object h = baseType.getValueHandler();
                 if (h != null) {
-//                  subtype.setValueHandler(h);
                     subtype = subtype.withValueHandler(h);
                 }
                 h = baseType.getTypeHandler();
@@ -188,8 +176,6 @@ public final class TypeFactory
      * @throws IllegalArgumentException If canonical representation is malformed,
      *   or class that type represents (including its generic parameters) is
      *   not found
-     * 
-     * @since 1.8
      */
     public JavaType constructFromCanonical(String canonical) throws IllegalArgumentException
     {
@@ -204,8 +190,6 @@ public final class TypeFactory
      * key and value types for Map implementations.
      * 
      * @param type Sub-type (leaf type) that implements <code>expType</code>
-     * 
-     * @since 1.6
      */
     public JavaType[] findTypeParameters(JavaType type, Class<?> expType)
     {
@@ -403,8 +387,6 @@ public final class TypeFactory
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
-     * 
-     * @since 1.8
      */
     public CollectionLikeType constructCollectionLikeType(Class<?> collectionClass, Class<?> elementClass) {
         return CollectionLikeType.construct(collectionClass, constructType(elementClass));
@@ -415,8 +397,6 @@ public final class TypeFactory
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
-     * 
-     * @since 1.8
      */
     public CollectionLikeType constructCollectionLikeType(Class<?> collectionClass, JavaType elementType) {
         return CollectionLikeType.construct(collectionClass, elementType);
@@ -427,8 +407,6 @@ public final class TypeFactory
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
-     * 
-     * @since 1.8
      */
     public MapType constructMapType(Class<? extends Map> mapClass, JavaType keyType, JavaType valueType) {
         return MapType.construct(mapClass, keyType, valueType);
@@ -439,8 +417,6 @@ public final class TypeFactory
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
-     * 
-     * @since 1.8
      */
     public MapType constructMapType(Class<? extends Map> mapClass, Class<?> keyClass, Class<?> valueClass) {
         return MapType.construct(mapClass, constructType(keyClass), constructType(valueClass));
@@ -451,8 +427,6 @@ public final class TypeFactory
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
-     * 
-     * @since 1.8
      */
     public MapLikeType constructMapLikeType(Class<?> mapClass, JavaType keyType, JavaType valueType) {
         return MapLikeType.construct(mapClass, keyType, valueType);
@@ -463,8 +437,6 @@ public final class TypeFactory
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
-     * 
-     * @since 1.8
      */
     public MapLikeType constructMapLikeType(Class<?> mapClass, Class<?> keyClass, Class<?> valueClass) {
         return MapType.construct(mapClass, constructType(keyClass), constructType(valueClass));
@@ -472,8 +444,6 @@ public final class TypeFactory
     
     /**
      * Method for constructing a type instance with specified parameterization.
-     * 
-     * @since 1.8
      */
     public JavaType constructSimpleType(Class<?> rawType, JavaType[] parameterTypes)
     {
@@ -497,8 +467,6 @@ public final class TypeFactory
      *<p> 
      * NOTE: no type modifiers are called on type either, so calling this method
      * should only be used if caller really knows what it's doing...
-     * 
-     * @since 1.8
      */
     public JavaType uncheckedSimpleType(Class<?> cls) {
         return new SimpleType(cls);
@@ -515,8 +483,6 @@ public final class TypeFactory
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
-     *
-     * @since 1.5
      */
     public JavaType constructParametricType(Class<?> parametrized, Class<?>... parameterClasses)
     {
@@ -540,8 +506,6 @@ public final class TypeFactory
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
-     *
-     * @since 1.5
      */
     public JavaType constructParametricType(Class<?> parametrized, JavaType... parameterTypes)
     {
@@ -589,8 +553,6 @@ public final class TypeFactory
      *<pre>
      *<p>
      * This method should only be used if parameterization is completely unavailable.
-     * 
-     * @since 1.9
      */
     public CollectionType constructRawCollectionType(Class<? extends Collection> collectionClass) {
         return CollectionType.construct(collectionClass, unknownType());
@@ -606,8 +568,6 @@ public final class TypeFactory
      *<pre>
      *<p>
      * This method should only be used if parameterization is completely unavailable.
-     * 
-     * @since 1.9
      */
     public CollectionLikeType constructRawCollectionLikeType(Class<?> collectionClass) {
         return CollectionLikeType.construct(collectionClass, unknownType());
@@ -623,8 +583,6 @@ public final class TypeFactory
      *<pre>
      *<p>
      * This method should only be used if parameterization is completely unavailable.
-     * 
-     * @since 1.9
      */
     public MapType constructRawMapType(Class<? extends Map> mapClass) {
         return MapType.construct(mapClass, unknownType(), unknownType());
@@ -640,8 +598,6 @@ public final class TypeFactory
      *<pre>
      *<p>
      * This method should only be used if parameterization is completely unavailable.
-     * 
-     * @since 1.9
      */
     public MapLikeType constructRawMapLikeType(Class<?> mapClass) {
         return MapLikeType.construct(mapClass, unknownType(), unknownType());

@@ -2,13 +2,13 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
 
-
+import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.DatabindVersion;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Typing;
-
 /**
  * Dummy, "no-operation" implementation of {@link AnnotationIntrospector}.
  * Can be used as is to suppress handling of annotations; or as a basis
@@ -23,6 +23,11 @@ public class NopAnnotationIntrospector
      * information.
      */
     public final static NopAnnotationIntrospector instance = new NopAnnotationIntrospector();
+
+    @Override
+    public Version version() {
+        return DatabindVersion.instance.version();
+    }
 
     /*
     /**********************************************************

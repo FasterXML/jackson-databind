@@ -9,10 +9,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
-import com.fasterxml.jackson.core.util.VersionUtil;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
-
 
 /**
  * Builder object that can be used for per-serialization configuration of
@@ -23,10 +21,9 @@ import com.fasterxml.jackson.databind.ser.SerializerFactory;
  * reused in completely thread-safe manner with no explicit synchronization
  * 
  * @author tatu
- * @since 1.5
  */
 public class ObjectWriter
-    implements Versioned // since 1.6
+    implements Versioned
 {
     /**
      * We need to keep track of explicit disabling of pretty printing;
@@ -179,12 +176,10 @@ public class ObjectWriter
     /**
      * Method that will return version information stored in and read from jar
      * that contains this class.
-     * 
-     * @since 1.6
      */
     @Override
     public Version version() {
-        return VersionUtil.versionFor(getClass());
+        return DatabindVersion.instance.version();
     }
     
     /*

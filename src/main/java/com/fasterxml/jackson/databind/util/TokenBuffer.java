@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.fasterxml.jackson.databind.DatabindVersion;
 
 /**
  * Utility class used for efficient storage of {@link JsonToken}
@@ -105,7 +106,12 @@ public class TokenBuffer
         _first = _last = new Segment();
         _appendOffset = 0;
     }
-    
+
+    @Override
+    public Version version() {
+        return DatabindVersion.instance.version();
+    }
+
     /**
      * Method used to create a {@link JsonParser} that can read contents
      * stored in this buffer. Will use default <code>_objectCodec</code> for
@@ -813,6 +819,11 @@ public class TokenBuffer
         @Override
         public void setCodec(ObjectCodec c) { _codec = c; }
 
+        @Override
+        public Version version() {
+            return DatabindVersion.instance.version();
+        }
+        
         /*
         /**********************************************************
         /* Extended API beyond JsonParser

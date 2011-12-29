@@ -9,13 +9,11 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.core.util.VersionUtil;
 import com.fasterxml.jackson.databind.deser.StdDeserializationContext;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import com.fasterxml.jackson.databind.type.SimpleType;
-
 
 /**
  * Builder object that can be used for per-serialization configuration of
@@ -168,12 +166,10 @@ public class ObjectReader
     /**
      * Method that will return version information stored in and read from jar
      * that contains this class.
-     * 
-     * @since 1.6
      */
     @Override
     public Version version() {
-        return VersionUtil.versionFor(getClass());
+        return DatabindVersion.instance.version();
     }
 
     /**

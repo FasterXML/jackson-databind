@@ -3,6 +3,9 @@ package com.fasterxml.jackson.databind;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.core.Versioned;
+import com.fasterxml.jackson.core.util.VersionUtil;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -23,7 +26,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
  * This way added methods will not break backwards compatibility of custom annotation
  * introspectors.
  */
-public abstract class AnnotationIntrospector
+public abstract class AnnotationIntrospector implements Versioned
 {    
     /*
     /**********************************************************
@@ -132,10 +135,21 @@ public abstract class AnnotationIntrospector
     
     /*
     /**********************************************************
+    /* Default Versioned impl
+    /**********************************************************
+     */
+
+    @Override
+    public Version version() {
+        return VersionUtil.versionFor(getClass());
+    }
+    
+    /*
+    /**********************************************************
     /* Generic annotation properties, lookup
     /**********************************************************
-    */
-
+     */
+    
     /**
      * Method called by framework to determine whether given annotation
      * is handled by this introspector.
@@ -146,7 +160,7 @@ public abstract class AnnotationIntrospector
     /**********************************************************
     /* General class annotations
     /**********************************************************
-    */
+     */
 
     /**
      * Method for locating name used as "root name" (for use by
@@ -809,13 +823,17 @@ public abstract class AnnotationIntrospector
     {
         protected final AnnotationIntrospector _primary, _secondary;
 
-        public Pair(AnnotationIntrospector p,
-                    AnnotationIntrospector s)
+        public Pair(AnnotationIntrospector p, AnnotationIntrospector s)
         {
             _primary = p;
             _secondary = s;
         }
 
+        @Override
+        public Version version() {
+            return _primary.version();
+        }
+        
         /**
          * Helper method for constructing a Pair from two given introspectors (if
          * neither is null); or returning non-null introspector if one is null

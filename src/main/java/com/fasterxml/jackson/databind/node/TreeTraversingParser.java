@@ -6,6 +6,7 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
+import com.fasterxml.jackson.databind.DatabindVersion;
 
 /**
  * Facade over {@link JsonNode} that implements {@link JsonParser} to allow
@@ -88,6 +89,11 @@ public class TreeTraversingParser extends ParserMinimalBase
         return _objectCodec;
     }
 
+    @Override
+    public Version version() {
+        return DatabindVersion.instance.version();
+    }
+    
     /*
     /**********************************************************
     /* Closeable implementation

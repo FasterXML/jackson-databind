@@ -189,7 +189,7 @@ public class TestSimpleModule extends BaseMapTest
     public void testSimpleBeanSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        SimpleModule mod = new SimpleModule("test", new Version(1, 0, 0, null));
+        SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new CustomBeanSerializer());
         mapper.registerModule(mod);
         assertEquals(quote("abcde|5"), mapper.writeValueAsString(new CustomBean("abcde", 5)));
@@ -198,7 +198,7 @@ public class TestSimpleModule extends BaseMapTest
     public void testSimpleEnumSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        SimpleModule mod = new SimpleModule("test", new Version(1, 0, 0, null));
+        SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new SimpleEnumSerializer());
         mapper.registerModule(mod);
         assertEquals(quote("b"), mapper.writeValueAsString(SimpleEnum.B));
@@ -208,7 +208,7 @@ public class TestSimpleModule extends BaseMapTest
     public void testSimpleInterfaceSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        SimpleModule mod = new SimpleModule("test", new Version(1, 0, 0, null));
+        SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addSerializer(new BaseSerializer());
         mapper.registerModule(mod);
         assertEquals(quote("Base:1"), mapper.writeValueAsString(new Impl1()));
@@ -224,7 +224,7 @@ public class TestSimpleModule extends BaseMapTest
     public void testSimpleBeanDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        SimpleModule mod = new SimpleModule("test", new Version(1, 0, 0, null));
+        SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addDeserializer(CustomBean.class, new CustomBeanDeserializer());
         mapper.registerModule(mod);
         CustomBean bean = mapper.readValue(quote("xyz|3"), CustomBean.class);
@@ -235,7 +235,7 @@ public class TestSimpleModule extends BaseMapTest
     public void testSimpleEnumDeserializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        SimpleModule mod = new SimpleModule("test", new Version(1, 0, 0, null));
+        SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
         mod.addDeserializer(SimpleEnum.class, new SimpleEnumDeserializer());
         mapper.registerModule(mod);
         SimpleEnum result = mapper.readValue(quote("a"), SimpleEnum.class);
@@ -245,8 +245,8 @@ public class TestSimpleModule extends BaseMapTest
     // Simple verification of [JACKSON-455]
     public void testMultipleModules() throws Exception
     {
-        MySimpleModule mod1 = new MySimpleModule("test1", new Version(1, 0, 0, null));
-        SimpleModule mod2 = new SimpleModule("test2", new Version(1, 0, 0, null));
+        MySimpleModule mod1 = new MySimpleModule("test1", Version.unknownVersion());
+        SimpleModule mod2 = new SimpleModule("test2", Version.unknownVersion());
         mod1.addSerializer(SimpleEnum.class, new SimpleEnumSerializer());
         mod1.addDeserializer(CustomBean.class, new CustomBeanDeserializer());
         mod2.addDeserializer(SimpleEnum.class, new SimpleEnumDeserializer());

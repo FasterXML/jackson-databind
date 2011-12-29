@@ -1,26 +1,31 @@
 package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.core.Versioned;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 /**
- * Tests to verify [JACKSON-278]
+ * Tests to ensure that we get proper Version information via
+ * things defined as Versioned.
  */
 public class TestVersions extends com.fasterxml.jackson.test.BaseTest
 {
-    /**
-     * 18-Nov-2010, tatu: Not a good to do this, but has to do, for now...
-     */
+    // Not a good to do this, but has to do, for now...
     private final static int MAJOR_VERSION = 2;
     private final static int MINOR_VERSION = 0;
+
+    private final static String GROUP_ID = "com.fasterxml.jackson.core";
+    private final static String ARTIFACT_ID = "jackson-databind";
 
     public void testMapperVersions()
     {
         ObjectMapper mapper = new ObjectMapper();
-        assertVersion(mapper.version(), MAJOR_VERSION, MINOR_VERSION);
-        assertVersion(mapper.writer().version(), MAJOR_VERSION, MINOR_VERSION);
-        assertVersion(mapper.reader().version(), MAJOR_VERSION, MINOR_VERSION);
+        assertVersion(mapper);
+        assertVersion(mapper.reader());
+        assertVersion(mapper.writer());
+        assertVersion(new JacksonAnnotationIntrospector());
     }
 
     /*
@@ -29,14 +34,16 @@ public class TestVersions extends com.fasterxml.jackson.test.BaseTest
     /**********************************************************
      */
     
-    private void assertVersion(Version v, int major, int minor)
+    private void assertVersion(Versioned vers)
     {
+        Version v = vers.version();
         assertFalse("Should find version information (got "+v+")", v.isUknownVersion());
-        assertEquals(major, v.getMajorVersion());
-        assertEquals(minor, v.getMinorVersion());
-        // 07-Jan-2011, tatus: Check patch level initially, comment out for maint versions
-
-        //assertEquals(0, v.getPatchLevel());
+        assertEquals(MAJOR_VERSION, v.getMajorVersion());
+        assertEquals(MINOR_VERSION, v.getMinorVersion());
+        // Check patch level initially, comment out for maint versions
+        assertEquals(0, v.getPatchLevel());
+        assertEquals(GROUP_ID, v.getGroupId());
+        assertEquals(ARTIFACT_ID, v.getArtifactId());
     }
 }
 

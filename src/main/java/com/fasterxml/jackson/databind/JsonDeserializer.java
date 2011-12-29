@@ -147,8 +147,8 @@ public abstract class JsonDeserializer<T>
      * was created).
      *<p>
      * Note that cached instances are still resolved on per-property basis,
-     * if instance implements {@link ResolvableDeserializer}: cached instance
-     * is just as the base. This means that in most cases it is safe to
+     * if instance implements {@link com.fasterxml.jackson.databind.deser.ResolvableDeserializer}:
+     * cached instance is just as the base. This means that in most cases it is safe to
      * cache instances; however, it only makes sense to cache instances
      * if instantiation is expensive, or if instances are heavy-weight.
      *<p>

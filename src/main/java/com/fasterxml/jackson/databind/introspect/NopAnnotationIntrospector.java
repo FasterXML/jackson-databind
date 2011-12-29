@@ -82,33 +82,6 @@ public class NopAnnotationIntrospector
     public boolean hasIgnoreMarker(AnnotatedMember member) {
         return false;
     }
-    
-    /*
-    /**********************************************************
-    /* General Method annotations
-    /**********************************************************
-     */
-
-    @Override
-    public boolean isIgnorableConstructor(AnnotatedConstructor c) {
-        return false;
-    }
-
-    @Override
-    public boolean isIgnorableMethod(AnnotatedMethod m) {
-        return false;
-    }
-    
-    /*
-    /**********************************************************
-    /* General field annotations
-    /**********************************************************
-     */
-
-    @Override
-    public boolean isIgnorableField(AnnotatedField f) {
-        return false;
-    }
 
     /*
     /**********************************************************

@@ -236,33 +236,6 @@ public class JacksonAnnotationIntrospector
         JsonTypeName tn = ac.getAnnotation(JsonTypeName.class);
         return (tn == null) ? null : tn.value();
     }
-    
-    /*
-    /**********************************************************
-    /* General method annotations
-    /**********************************************************
-    */
-
-    @Override
-    public boolean isIgnorableMethod(AnnotatedMethod m) {
-        return _isIgnorable(m);
-    }
-
-    @Override
-    public boolean isIgnorableConstructor(AnnotatedConstructor c) {
-        return _isIgnorable(c);
-    }
-
-    /*
-    /**********************************************************
-    /* General field annotations
-    /**********************************************************
-     */
-
-    @Override
-    public boolean isIgnorableField(AnnotatedField f) {
-        return _isIgnorable(f);
-    }
 
     /*
     /**********************************************************

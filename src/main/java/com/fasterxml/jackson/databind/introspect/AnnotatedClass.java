@@ -342,14 +342,14 @@ public final class AnnotatedClass
         // 14-Feb-2011, tatu: AnnotationIntrospector is null if annotations not enabled; if so, can skip:
         if (_annotationIntrospector != null) {
             if (_defaultConstructor != null) {
-                if (_annotationIntrospector.isIgnorableConstructor(_defaultConstructor)) {
+                if (_annotationIntrospector.hasIgnoreMarker(_defaultConstructor)) {
                     _defaultConstructor = null;
                 }
             }
             if (_constructors != null) {
                 // count down to allow safe removal
                 for (int i = _constructors.size(); --i >= 0; ) {
-                    if (_annotationIntrospector.isIgnorableConstructor(_constructors.get(i))) {
+                    if (_annotationIntrospector.hasIgnoreMarker(_constructors.get(i))) {
                         _constructors.remove(i);
                     }
                 }
@@ -383,7 +383,7 @@ public final class AnnotatedClass
                 if (_creatorMethods != null) {
                     // count down to allow safe removal
                     for (int i = _creatorMethods.size(); --i >= 0; ) {
-                        if (_annotationIntrospector.isIgnorableMethod(_creatorMethods.get(i))) {
+                        if (_annotationIntrospector.hasIgnoreMarker(_creatorMethods.get(i))) {
                             _creatorMethods.remove(i);
                         }
                     }

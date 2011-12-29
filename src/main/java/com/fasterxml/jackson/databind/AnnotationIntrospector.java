@@ -342,29 +342,13 @@ public abstract class AnnotationIntrospector implements Versioned
 
     /**
      * Method called to check whether given property is marked to
-     * be ignored; but NOT to determine if it should necessarily
-     * be ignored, since that may depend on other factors.
-     *<p>
-     * Default implementation calls existing 'isIgnored' methods
-     * such as {@link #isIgnorableField(AnnotatedField)} and
-     * {@link #isIgnorableMethod(AnnotatedMethod)}.
+     * be ignored. This is used to determine whether to ignore
+     * properties, on per-property basis, usually combining
+     * annotations from multiple accessors (getters, setters, fields,
+     * constructor parameters).
      */
     public boolean hasIgnoreMarker(AnnotatedMember m)
     {
-        /* For maximum backwards compatibility, we better call
-         * existing methods.
-         */
-        /* TODO: For 2.0, replace with simple 'return false;'
-         */
-        if (m instanceof AnnotatedMethod) {
-            return isIgnorableMethod((AnnotatedMethod) m);
-        }
-        if (m instanceof AnnotatedField) {
-            return isIgnorableField((AnnotatedField) m);
-        }
-        if (m instanceof AnnotatedConstructor) {
-            return isIgnorableConstructor((AnnotatedConstructor) m);
-        }
         return false;
     }
 
@@ -384,44 +368,6 @@ public abstract class AnnotationIntrospector implements Versioned
     public Object findInjectableValueId(AnnotatedMember m) {
         return null;
     }
-    
-    /*
-    /**********************************************************
-    /* General method annotations
-    /**********************************************************
-     */
-
-    /**
-     * Method for checking whether there is an annotation that
-     * indicates that given method should be ignored for all
-     * operations (serialization, deserialization).
-     *<p>
-     * Note that this method should <b>ONLY</b> return true for such
-     * explicit ignoral cases; and not if method just happens not to
-     * be visible for annotation processor.
-     *
-     * @return True, if an annotation is found to indicate that the
-     *    method should be ignored; false if not.
-     */
-    public abstract boolean isIgnorableMethod(AnnotatedMethod m);
-
-    public abstract boolean isIgnorableConstructor(AnnotatedConstructor c);
-
-    /*
-    /**********************************************************
-    /* General field annotations
-    /**********************************************************
-     */
-
-    /**
-     * Method for checking whether there is an annotation that
-     * indicates that given field should be ignored for all
-     * operations (serialization, deserialization).
-     *
-     * @return True, if an annotation is found to indicate that the
-     *    field should be ignored; false if not.
-     */
-    public abstract boolean isIgnorableField(AnnotatedField f);
 
     /*
     /**********************************************************
@@ -1048,26 +994,6 @@ public abstract class AnnotationIntrospector implements Versioned
             return _primary.hasIgnoreMarker(m) || _secondary.hasIgnoreMarker(m);
         }
         
-        // // // General method annotations
-
-        @Override
-        public boolean isIgnorableMethod(AnnotatedMethod m) {
-            return _primary.isIgnorableMethod(m) || _secondary.isIgnorableMethod(m);
-        }
-        
-        @Override
-        public boolean isIgnorableConstructor(AnnotatedConstructor c) {
-            return _primary.isIgnorableConstructor(c) || _secondary.isIgnorableConstructor(c);
-        }
-
-        // // // General field annotations
-
-        @Override
-        public boolean isIgnorableField(AnnotatedField f)
-        {
-            return _primary.isIgnorableField(f) || _secondary.isIgnorableField(f);
-        }
-
         // // // Serialization: general annotations
 
         @Override

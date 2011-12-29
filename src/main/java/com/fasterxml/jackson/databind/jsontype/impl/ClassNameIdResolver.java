@@ -47,8 +47,8 @@ public class ClassNameIdResolver
          *    to do translation when necessary
          */
         if (id.indexOf('<') > 0) {
-            JavaType t = TypeFactory.fromCanonical(id);
-            // note: may want to try combining with specialization (esp for EnumMap)
+            JavaType t = _typeFactory.constructFromCanonical(id);
+            // note: may want to try combining with specialization (esp for EnumMap)?
             return t;
         }
         try {

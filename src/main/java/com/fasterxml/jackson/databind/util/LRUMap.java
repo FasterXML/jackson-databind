@@ -5,8 +5,6 @@ import java.util.Map;
 
 /**
  * Helper for simple bounded LRU maps used for reusing lookup values.
- * 
- * @since 1.7
  */
 @SuppressWarnings("serial")
 public class LRUMap<K,V> extends LinkedHashMap<K,V>

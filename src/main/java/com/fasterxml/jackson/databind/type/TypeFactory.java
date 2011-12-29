@@ -112,17 +112,25 @@ public final class TypeFactory
         return defaultInstance()._unknownType();
     }
 
+    /**
+     * Static helper method that can be called to figure out type-erased
+     * call for given JDK type. It can be called statically since type resolution
+     * process can never change actual type-erased class; thereby static
+     * default instance is used for determination.
+     */
     public static Class<?> rawClass(Type t) {
         if (t instanceof Class<?>) {
             return (Class<?>) t;
         }
-        // Can optimize bit more in future...
+        // Shouldbe able to optimize bit more in future...
         return defaultInstance().constructType(t).getRawClass();
     }
     
+    /*
     public static JavaType fromCanonical(String canonical) throws IllegalArgumentException {
         return instance.constructFromCanonical(canonical);
     }
+    */
     
     /*
     /**********************************************************

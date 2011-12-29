@@ -11,7 +11,7 @@ import org.w3c.dom.Element;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.ser.CustomSerializerFactory;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.CollectionSerializer;
 
 /**
@@ -59,12 +59,12 @@ public class TestCustomSerializers
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void testCustomLists() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();    	
-        CustomSerializerFactory sf = new CustomSerializerFactory();
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         JsonSerializer<?> ser = new CollectionSerializer(null, false, null, null, null);
         final JsonSerializer<Object> collectionSerializer = (JsonSerializer<Object>) ser;
-        
-        sf.addGenericMapping(Collection.class, new JsonSerializer<Collection>() {
+
+        module.addSerializer(Collection.class, new JsonSerializer<Collection>() {
             @Override
             public void serialize(Collection value, JsonGenerator jgen, SerializerProvider provider)
                     throws IOException, JsonProcessingException {
@@ -75,7 +75,7 @@ public class TestCustomSerializers
                 }
             }
         });
-        mapper.setSerializerFactory(sf);
+        mapper.registerModule(module);
         assertEquals("null", mapper.writeValueAsString(new ArrayList<Object>()));
     }
 }

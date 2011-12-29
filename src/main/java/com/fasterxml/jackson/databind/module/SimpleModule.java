@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
  * Simple {@link Module} implementation that allows registration
  * of serializers and deserializers, and bean serializer
  * and deserializer modifiers.
- * 
- * @since 1.7
  */
 public class SimpleModule extends Module
 {
@@ -43,8 +41,6 @@ public class SimpleModule extends Module
     /**
      * Lazily-constructed map that contains mix-in definitions, indexed
      * by target class, value being mix-in to apply.
-     * 
-     * @since 1.9
      */
     protected HashMap<Class<?>, Class<?>> _mixins = null;
     
@@ -68,8 +64,6 @@ public class SimpleModule extends Module
 
     /**
      * Resets all currently configured serializers.
-     * 
-     * @since 1.9
      */
     public void setSerializers(SimpleSerializers s) {
         _serializers = s;
@@ -77,8 +71,6 @@ public class SimpleModule extends Module
 
     /**
      * Resets all currently configured deserializers.
-     * 
-     * @since 1.9
      */
     public void setDeserializers(SimpleDeserializers d) {
         _deserializers = d;
@@ -86,8 +78,6 @@ public class SimpleModule extends Module
 
     /**
      * Resets all currently configured key serializers.
-     * 
-     * @since 1.9
      */
     public void setKeySerializers(SimpleSerializers ks) {
         _keySerializers = ks;
@@ -95,8 +85,6 @@ public class SimpleModule extends Module
 
     /**
      * Resets all currently configured key deserializers.
-     * 
-     * @since 1.9
      */
     public void setKeyDeserializers(SimpleKeyDeserializers kd) {
         _keyDeserializers = kd;
@@ -104,8 +92,6 @@ public class SimpleModule extends Module
 
     /**
      * Resets currently configured abstract type mappings
-     *
-     * @since 1.9
      */
     public void setAbstractTypes(SimpleAbstractTypeResolver atr) {
         _abstractTypes = atr;        
@@ -113,8 +99,6 @@ public class SimpleModule extends Module
 
     /**
      * Resets all currently configured value instantiators
-     * 
-     * @since 1.9
      */
     public void setValueInstantiators(SimpleValueInstantiators svi) {
         _valueInstantiators = svi;

@@ -4,12 +4,13 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.CustomSerializerFactory;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 /**
@@ -131,40 +132,6 @@ public class TestEnumSerialization
         StringWriter sw = new StringWriter();
         mapper.writeValue(sw, AnnotatedTestEnum.C2);
         assertEquals("\"c2\"", sw.toString());
-    }
-
-    /**
-     * Unit test that verifies that standard enum serialization
-     * can be overridden by using custom serializer factory
-     * to specify alternative global enum serializer.
-     */
-    public void testEnumUsingCSFEnumOverride() throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        CustomSerializerFactory sf = new CustomSerializerFactory();
-        sf.setEnumSerializer(ToStringSerializer.instance);
-        mapper.setSerializerFactory(sf);
-        StringWriter sw = new StringWriter();
-        mapper.writeValue(sw, TestEnum.B);
-        assertEquals("\"b\"", sw.toString());
-    }
-
-    /**
-     * Unit test that verifies that standard enum serialization
-     * can be overridden by using custom serializer factory
-     * to specify generic serializer for enum base class
-     */
-    @SuppressWarnings("unchecked")
-    public void testEnumUsingCSFGenericMapping() throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        CustomSerializerFactory sf = new CustomSerializerFactory();
-        Class<?> enumCls = Enum.class;
-        sf.addGenericMapping((Class<Object>) enumCls, ToStringSerializer.instance);
-        mapper.setSerializerFactory(sf);
-        StringWriter sw = new StringWriter();
-        mapper.writeValue(sw, TestEnum.A);
-        assertEquals("\"a\"", sw.toString());
     }
 
     // Test [JACKSON-214]

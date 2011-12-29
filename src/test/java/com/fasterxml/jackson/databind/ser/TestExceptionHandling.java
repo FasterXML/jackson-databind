@@ -1,13 +1,12 @@
 package com.fasterxml.jackson.databind.ser;
 
-
 import java.io.*;
 import java.util.*;
 
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ser.CustomSerializerFactory;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+
 import com.fasterxml.jackson.test.BaseTest;
 
 /**
@@ -19,9 +18,9 @@ public class TestExceptionHandling
     extends BaseTest
 {
     /*
-    //////////////////////////////////////////////
-    // Helper classes
-    //////////////////////////////////////////////
+    /**********************************************************
+    /* Helper classes
+    /**********************************************************
      */
 
     static class Bean {
@@ -39,9 +38,9 @@ public class TestExceptionHandling
     }
 
     /*
-    //////////////////////////////////////////////
-    // Tests
-    //////////////////////////////////////////////
+    /**********************************************************
+    /* Tests
+    /**********************************************************
      */
 
     /**
@@ -52,9 +51,9 @@ public class TestExceptionHandling
         throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        CustomSerializerFactory sf = new CustomSerializerFactory();
-        sf.addSpecificMapping(Bean.class, new SerializerWithErrors());
-        mapper.setSerializerFactory(sf);
+        SimpleModule module = new SimpleModule("test-exceptions", Version.unknownVersion());
+        module.addSerializer(Bean.class, new SerializerWithErrors());
+        mapper.registerModule(module);
         try {
             StringWriter sw = new StringWriter();
             /* And just to make things more interesting, let's create
@@ -124,9 +123,9 @@ public class TestExceptionHandling
     }
 
     /*
-    ////////////////////////////////////////////////////
-    // Helper methods
-    ////////////////////////////////////////////////////
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
      */
 
     void verifyException(Exception e, Class<?> expType, String expMsg)

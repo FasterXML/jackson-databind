@@ -78,10 +78,11 @@ public class AsArrayTypeDeserializer extends TypeDeserializerBase
     private final Object _deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
+        boolean hadStartArray = jp.isExpectedStartArrayToken();
         JsonDeserializer<Object> deser = _findDeserializer(ctxt, _locateTypeId(jp, ctxt));
         Object value = deser.deserialize(jp, ctxt);
         // And then need the closing END_ARRAY
-        if (jp.nextToken() != JsonToken.END_ARRAY) {
+        if (hadStartArray && jp.nextToken() != JsonToken.END_ARRAY) {
             throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY,
                     "expected closing END_ARRAY after type information and deserialized value");
         }
@@ -92,13 +93,19 @@ public class AsArrayTypeDeserializer extends TypeDeserializerBase
         throws IOException, JsonProcessingException
     {
         if (!jp.isExpectedStartArrayToken()) {
-            throw ctxt.wrongTokenException(jp, JsonToken.START_ARRAY,
-                    "need JSON Array to contain As.WRAPPER_ARRAY type information for class "+baseTypeName());
+            // [JACKSON-712] Need to allow even more customized handling, if something unexpected seen...
+            // but should there be a way to limit this to likely success cases?
+            if (_defaultImpl != null) {
+                return _idResolver.idFromBaseType();
+            }
+            throw ctxt.wrongTokenException(jp, JsonToken.START_ARRAY, "need JSON Array to contain As.WRAPPER_ARRAY type information for class "+baseTypeName());
         }
         // And then type id as a String
         if (jp.nextToken() != JsonToken.VALUE_STRING) {
-            throw ctxt.wrongTokenException(jp, JsonToken.VALUE_STRING,
-                    "need JSON String that contains type id (for subtype of "+baseTypeName()+")");
+            if (_defaultImpl != null) {
+                return _idResolver.idFromBaseType();
+            }
+            throw ctxt.wrongTokenException(jp, JsonToken.VALUE_STRING, "need JSON String that contains type id (for subtype of "+baseTypeName()+")");
         }
         String result = jp.getText();
         jp.nextToken();

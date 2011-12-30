@@ -52,9 +52,17 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.START_OBJECT) {
             t = jp.nextToken();
+        } else if (t == JsonToken.START_ARRAY) {
+            /* This is most likely due to the fact that not all Java types are
+             * serialized as JSON Objects; so if "as-property" inclusion is requested,
+             * serialization of things like Lists must be instead handled as if
+             * "as-wrapper-array" was requested.
+             * But this can also be due to some custom handling: so, if "defaultImpl"
+             * is defined, it will be asked to handle this case.
+             */
+            return _deserializeTypedUsingDefaultImpl(jp, ctxt, null);
         } else if (t != JsonToken.FIELD_NAME) {
-            throw ctxt.wrongTokenException(jp, JsonToken.START_OBJECT,
-                    "need JSON Object to contain As.PROPERTY type information (for class "+baseTypeName()+")");
+            return _deserializeTypedUsingDefaultImpl(jp, ctxt, null);
         }
         // Ok, let's try to find the property. But first, need token buffer...
         TokenBuffer tb = null;
@@ -85,12 +93,12 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         return _deserializeTypedUsingDefaultImpl(jp, ctxt, tb);
     }
     
-    // off-lined to keep main method lean and meand...
+    // off-lined to keep main method lean and mean...
     protected Object _deserializeTypedUsingDefaultImpl(JsonParser jp,
             DeserializationContext ctxt, TokenBuffer tb)
         throws IOException, JsonProcessingException
     {
-        // As per [JACKSON-614], may have default implement to use
+        // As per [JACKSON-614], may have default implementation to use
         if (_defaultImpl != null) { 
             JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
             if (tb != null) {
@@ -101,7 +109,15 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             }
             return deser.deserialize(jp, ctxt);
         }
-        // if not, an error
+        // or, perhaps we just bumped into a "natural" value (boolean/int/double/String)?
+        Object result = _deserializeIfNatural(jp, ctxt);
+        if (result != null) {
+            return result;
+        }
+        // or, something for which "as-property" won't work, changed into "wrapper-array" type:
+        if (jp.getCurrentToken() == JsonToken.START_ARRAY) {
+            return super.deserializeTypedFromAny(jp, ctxt);
+        }
         throw ctxt.wrongTokenException(jp, JsonToken.FIELD_NAME,
                 "missing property '"+_typePropertyName+"' that is to contain type id  (for class "+baseTypeName()+")");
     }
@@ -126,4 +142,43 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     // These are fine from base class:
     //public Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt)
     //public Object deserializeTypedFromScalar(JsonParser jp, DeserializationContext ctxt)    
+
+    /**
+     * Helper method used to check if given parser might be pointing to
+     * a "natural" value, and one that would be acceptable as the
+     * result value (compatible with declared base type)
+     */
+    protected Object _deserializeIfNatural(JsonParser jp, DeserializationContext ctxt)
+        throws IOException, JsonProcessingException
+    {
+        switch (jp.getCurrentToken()) {
+        case VALUE_STRING:
+            if (_baseType.getRawClass().isAssignableFrom(String.class)) {
+                return jp.getText();
+            }
+            break;
+        case VALUE_NUMBER_INT:
+            if (_baseType.getRawClass().isAssignableFrom(Integer.class)) {
+                return jp.getIntValue();
+            }
+            break;
+
+        case VALUE_NUMBER_FLOAT:
+            if (_baseType.getRawClass().isAssignableFrom(Double.class)) {
+                return Double.valueOf(jp.getDoubleValue());
+            }
+            break;
+        case VALUE_TRUE:
+            if (_baseType.getRawClass().isAssignableFrom(Boolean.class)) {
+                return Boolean.TRUE;
+            }
+            break;
+        case VALUE_FALSE:
+            if (_baseType.getRawClass().isAssignableFrom(Boolean.class)) {
+                return Boolean.FALSE;
+            }
+            break;
+        }
+        return null;
+    }
 }

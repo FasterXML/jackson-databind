@@ -64,6 +64,11 @@ public class TestCustomTypeIdResolver extends BaseMapTest
             }
             return null;
         }
+
+        @Override
+        public String idFromBaseType() {
+            return "xxx";
+        }
     }
     
     /*

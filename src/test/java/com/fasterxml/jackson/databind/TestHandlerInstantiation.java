@@ -157,6 +157,11 @@ public class TestHandlerInstantiation extends BaseMapTest
             }
             return null;
         }
+
+        @Override
+        public String idFromBaseType() {
+            return "xxx";
+        }
     }
 
     /*

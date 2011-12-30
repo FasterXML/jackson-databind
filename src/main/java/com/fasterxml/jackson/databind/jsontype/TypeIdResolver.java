@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.JavaType;
  * {@link com.fasterxml.jackson.databind.jsontype.TypeDeserializer}) for converting
  * between type and matching id; id is stored in JSON and needed for
  * creating instances of proper subtypes when deserializing values.
- * 
- * @since 1.5
  */
 public interface TypeIdResolver
 {
@@ -49,10 +47,16 @@ public interface TypeIdResolver
      * value and type, using suggested type (that serializer provides)
      * and possibly value of that type. Most common implementation will
      * use suggested type as is.
-     * 
-     * @since 1.8
      */
     public String idFromValueAndType(Object value, Class<?> suggestedType);
+
+    /**
+     * Method that can be called to figure out type id to use for instances
+     * of base type (declared type of property). This is usually only used
+     * for fallback handling, for cases where real type information is not
+     * available for some reason.
+     */
+    public String idFromBaseType();
     
     /**
      * Method called to resolve type from given type identifier.

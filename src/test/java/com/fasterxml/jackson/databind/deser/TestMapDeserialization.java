@@ -56,15 +56,16 @@ public class TestMapDeserialization
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
     public void testUntypedMap() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // to get "untyped" default map-to-map, pass Object.class
         String JSON = "{ \"foo\" : \"bar\", \"crazy\" : true, \"null\" : null }";
 
         // Not a guaranteed cast theoretically, but will work:
         @SuppressWarnings("unchecked")
-        Map<String,Object> result = (Map<String,Object>)mapper.readValue(JSON, Object.class);
+        Map<String,Object> result = (Map<String,Object>)MAPPER.readValue(JSON, Object.class);
         assertNotNull(result);
         assertTrue(result instanceof Map<?,?>);
 
@@ -85,12 +86,11 @@ public class TestMapDeserialization
      */
     public void testUntypedMap2() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // to get "untyped" default map-to-map, pass Object.class
         String JSON = "{ \"a\" : \"x\" }";
 
         @SuppressWarnings("unchecked")
-        HashMap<String,Object> result = /*(HashMap<String,Object>)*/ mapper.readValue(JSON, HashMap.class);
+        HashMap<String,Object> result = /*(HashMap<String,Object>)*/ MAPPER.readValue(JSON, HashMap.class);
         assertNotNull(result);
         assertTrue(result instanceof Map<?,?>);
 
@@ -105,8 +105,7 @@ public class TestMapDeserialization
     public void testUntypedMap3() throws Exception
     {
         String JSON = "{\"a\":[{\"a\":\"b\"},\"value\"]}";
-        ObjectMapper m = new ObjectMapper();
-        Map<?,?> result = m.readValue(JSON, Map.class);
+        Map<?,?> result = MAPPER.readValue(JSON, Map.class);
         assertTrue(result instanceof Map<?,?>);
         assertEquals(1, result.size());
         Object ob = result.get("a");
@@ -120,7 +119,7 @@ public class TestMapDeserialization
             +" { \"a\":1 } ]"
             +" }"
             ;
-        result = m.readValue(JSON, Map.class);
+        result = MAPPER.readValue(JSON, Map.class);
         assertTrue(result instanceof Map<?,?>);
         assertEquals(3, result.size());
     }
@@ -135,15 +134,13 @@ public class TestMapDeserialization
     
     public void testSpecialMap() throws IOException
     {
-       final ObjectMapper mapper = new ObjectMapper();
-       final ObjectWrapperMap map = mapper.readValue(UNTYPED_MAP_JSON, ObjectWrapperMap.class);
+       final ObjectWrapperMap map = MAPPER.readValue(UNTYPED_MAP_JSON, ObjectWrapperMap.class);
        _doTestUntyped(map);
     }
 
     public void testGenericMap() throws IOException
     {
-        final ObjectMapper mapper = new ObjectMapper();
-        final Map<String, ObjectWrapper> map = mapper.readValue
+        final Map<String, ObjectWrapper> map = MAPPER.readValue
             (UNTYPED_MAP_JSON,
              new TypeReference<Map<String, ObjectWrapper>>() { });
        _doTestUntyped(map);
@@ -177,10 +174,9 @@ public class TestMapDeserialization
 
     public void testExactStringIntMap() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // to get typing, must use type reference
         String JSON = "{ \"foo\" : 13, \"bar\" : -39, \n \"\" : 0 }";
-        Map<String,Integer> result = mapper.readValue
+        Map<String,Integer> result = MAPPER.readValue
             (JSON, new TypeReference<HashMap<String,Integer>>() { });
 
         assertNotNull(result);
@@ -200,10 +196,9 @@ public class TestMapDeserialization
      */
     public void testIntBooleanMap() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // to get typing, must use type reference
         String JSON = "{ \"1\" : true, \"-1\" : false }";
-        Map<String,Integer> result = mapper.readValue
+        Map<String,Integer> result = MAPPER.readValue
             (JSON, new TypeReference<HashMap<Integer,Boolean>>() { });
 
         assertNotNull(result);
@@ -218,10 +213,9 @@ public class TestMapDeserialization
 
     public void testExactStringStringMap() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // to get typing, must use type reference
         String JSON = "{ \"a\" : \"b\" }";
-        Map<String,Integer> result = mapper.readValue
+        Map<String,Integer> result = MAPPER.readValue
             (JSON, new TypeReference<TreeMap<String,String>>() { });
 
         assertNotNull(result);
@@ -241,10 +235,9 @@ public class TestMapDeserialization
      */
     public void testGenericStringIntMap() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // to get typing, must use type reference; but with abstract type
         String JSON = "{ \"a\" : 1, \"b\" : 2, \"c\" : -99 }";
-        Map<String,Integer> result = mapper.readValue
+        Map<String,Integer> result = MAPPER.readValue
             (JSON, new TypeReference<Map<String,Integer>>() { });
         assertNotNull(result);
         assertTrue(result instanceof Map<?,?>);
@@ -265,11 +258,10 @@ public class TestMapDeserialization
 
     public void testEnumMap() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         String JSON = "{ \"KEY1\" : \"\", \"WHATEVER\" : null }";
 
         // to get typing, must use type reference
-        EnumMap<Key,String> result = mapper.readValue
+        EnumMap<Key,String> result = MAPPER.readValue
             (JSON, new TypeReference<EnumMap<Key,String>>() { });
 
         assertNotNull(result);
@@ -288,11 +280,10 @@ public class TestMapDeserialization
 
     public void testMapWithEnums() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         String JSON = "{ \"KEY2\" : \"WHATEVER\" }";
 
         // to get typing, must use type reference
-        Map<Enum<?>,Enum<?>> result = mapper.readValue
+        Map<Enum<?>,Enum<?>> result = MAPPER.readValue
             (JSON, new TypeReference<Map<Key,Key>>() { });
 
         assertNotNull(result);
@@ -311,12 +302,11 @@ public class TestMapDeserialization
      */
     public void testDateMap() throws Exception
     {
-    	 ObjectMapper mapper = new ObjectMapper();
     	 Date date1=new Date(123456000L);
     	 DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
          
     	 String JSON = "{ \""+  fmt.format(date1)+"\" : \"\", \""+new Date(0).getTime()+"\" : null }";
-    	 HashMap<Date,String> result=  mapper.readValue
+    	 HashMap<Date,String> result=  MAPPER.readValue
     	            (JSON, new TypeReference<HashMap<Date,String>>() { });
     	 
     	 assertNotNull(result);
@@ -328,8 +318,6 @@ public class TestMapDeserialization
     	 
     	 assertTrue(result.containsKey(new Date(0)));
     	 assertNull(result.get(new Date(0)));
-    	 
-    	 
     }
     
     /*
@@ -340,12 +328,11 @@ public class TestMapDeserialization
 
     public void testCalendarMap() throws Exception
     {
-    	 ObjectMapper mapper = new ObjectMapper();
     	 Calendar c = Calendar.getInstance();
          c.setTimeInMillis(123456000L);
          DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
     	 String JSON = "{ \""+fmt.format(c.getTime())+"\" : \"\", \""+new Date(0).getTime()+"\" : null }";
-    	 HashMap<Calendar,String> result=  mapper.readValue
+    	 HashMap<Calendar,String> result=  MAPPER.readValue
     	            (JSON, new TypeReference<HashMap<Calendar,String>>() { });
     	 
     	 assertNotNull(result);
@@ -362,10 +349,9 @@ public class TestMapDeserialization
     // [JACKSON-726]
     public void testUUIDKeyMap() throws Exception
     {
-         ObjectMapper mapper = new ObjectMapper();
          UUID key = UUID.nameUUIDFromBytes("foobar".getBytes("UTF-8"));
          String JSON = "{ \""+key+"\":4}";
-         Map<UUID,Object> result = mapper.readValue(JSON, new TypeReference<Map<UUID,Object>>() { });
+         Map<UUID,Object> result = MAPPER.readValue(JSON, new TypeReference<Map<UUID,Object>>() { });
          assertNotNull(result);
          assertEquals(1, result.size());
          Object ob = result.keySet().iterator().next();
@@ -386,8 +372,7 @@ public class TestMapDeserialization
      */
     public void testMapWithDeserializer() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        CustomMap result = mapper.readValue(quote("xyz"), CustomMap.class);
+        CustomMap result = MAPPER.readValue(quote("xyz"), CustomMap.class);
         assertEquals(1, result.size());
         assertEquals("xyz", result.get("x"));
     }
@@ -400,9 +385,8 @@ public class TestMapDeserialization
 
     public void testMapError() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            Object result = mapper.readValue("[ 1, 2 ]", 
+            Object result = MAPPER.readValue("[ 1, 2 ]", 
                                              new TypeReference<Map<String,String>>() { });
             fail("Expected an exception, but got result value: "+result);
         } catch (JsonMappingException jex) {
@@ -412,9 +396,8 @@ public class TestMapDeserialization
 
     public void testNoCtorMap() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            BrokenMap result = mapper.readValue("{ \"a\" : 3 }", BrokenMap.class);
+            BrokenMap result = MAPPER.readValue("{ \"a\" : 3 }", BrokenMap.class);
             // should never get here; assert added to remove compiler warning
             assertNull(result);
         } catch (JsonMappingException e) {

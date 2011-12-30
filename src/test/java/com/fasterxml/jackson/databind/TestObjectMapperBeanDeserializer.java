@@ -187,20 +187,22 @@ public class TestObjectMapperBeanDeserializer
     }
 
     /*
-    /////////////////////////////////////////////////
-    // Deserialization from simple types (String, int)
-    /////////////////////////////////////////////////
+    /**********************************************************
+    /* Deserialization from simple types (String, int)
+    /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testFromStringCtor() throws Exception
     {
-        CtorValueBean result = new ObjectMapper().readValue("\"abc\"", CtorValueBean.class);
+        CtorValueBean result = MAPPER.readValue("\"abc\"", CtorValueBean.class);
         assertEquals("abc", result.toString());
     }
 
     public void testFromIntCtor() throws Exception
     {
-        CtorValueBean result = new ObjectMapper().readValue("13", CtorValueBean.class);
+        CtorValueBean result = MAPPER.readValue("13", CtorValueBean.class);
         assertEquals("13", result.toString());
     }
 
@@ -208,19 +210,19 @@ public class TestObjectMapperBeanDeserializer
     {
         // Must use something that is forced as Long...
         long value = 12345678901244L;
-        CtorValueBean result = new ObjectMapper().readValue(""+value, CtorValueBean.class);
+        CtorValueBean result = MAPPER.readValue(""+value, CtorValueBean.class);
         assertEquals(""+value, result.toString());
     }
 
     public void testFromStringFactory() throws Exception
     {
-        FactoryValueBean result = new ObjectMapper().readValue("\"abc\"", FactoryValueBean.class);
+        FactoryValueBean result = MAPPER.readValue("\"abc\"", FactoryValueBean.class);
         assertEquals("abc", result.toString());
     }
 
     public void testFromIntFactory() throws Exception
     {
-        FactoryValueBean result = new ObjectMapper().readValue("13", FactoryValueBean.class);
+        FactoryValueBean result = MAPPER.readValue("13", FactoryValueBean.class);
         assertEquals("13", result.toString());
     }
 
@@ -228,14 +230,14 @@ public class TestObjectMapperBeanDeserializer
     {
         // Must use something that is forced as Long...
         long value = 12345678901244L;
-        FactoryValueBean result = new ObjectMapper().readValue(""+value, FactoryValueBean.class);
+        FactoryValueBean result = MAPPER.readValue(""+value, FactoryValueBean.class);
         assertEquals(""+value, result.toString());
     }
 
     /*
-    /////////////////////////////////////////////////
-    // Deserialization from Json Object
-    /////////////////////////////////////////////////
+    /**********************************************************
+    /* Deserialization from JSON Object
+    /**********************************************************
      */
 
     public void testSimpleBean() throws Exception
@@ -248,11 +250,9 @@ public class TestObjectMapperBeanDeserializer
         TestBean bean = new TestBean(13, -900L, "\"test\"", new URL("http://foobar.com"), misc);
 
         // Hmmh. We probably should use serializer too... easier
-        StringWriter sw = new StringWriter();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(sw, bean);
+        String json = MAPPER.writeValueAsString(bean);
 
-        TestBean result = new ObjectMapper().readValue(sw.toString(), TestBean.class);
+        TestBean result = MAPPER.readValue(json, TestBean.class);
         assertEquals(bean, result);
     }
 
@@ -266,10 +266,9 @@ public class TestObjectMapperBeanDeserializer
         BeanWithList bean = new BeanWithList(beans);
 
         StringWriter sw = new StringWriter();
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(sw, bean);
+        MAPPER.writeValue(sw, bean);
 
-        BeanWithList result = new ObjectMapper().readValue(sw.toString(), BeanWithList.class);
+        BeanWithList result = MAPPER.readValue(sw.toString(), BeanWithList.class);
         assertEquals(bean, result);
     }
 
@@ -279,9 +278,8 @@ public class TestObjectMapperBeanDeserializer
      */
     public void testUnknownFields() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            TestBean bean = mapper.readValue("{ \"foobar\" : 3 }", TestBean.class);
+            TestBean bean = MAPPER.readValue("{ \"foobar\" : 3 }", TestBean.class);
             fail("Expected an exception, got bean: "+bean);
         } catch (JsonMappingException jse) {
             ;

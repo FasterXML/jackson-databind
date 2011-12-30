@@ -118,23 +118,23 @@ public class TestAnnotationJsonSerialize2
     /* Test methods
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     // [JACKSON-480], test value annotation applied to List value class
     public void testSerializedAsListWithClassAnnotations() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
         SimpleValueList list = new SimpleValueList();
         list.add(new ActualValue("foo"));
-        assertEquals("[{\"value\":\"foo\"}]", m.writeValueAsString(list));
+        assertEquals("[{\"value\":\"foo\"}]", MAPPER.writeValueAsString(list));
     }
 
     // [JACKSON-480], test value annotation applied to Map value class
     public void testSerializedAsMapWithClassAnnotations() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
         SimpleValueMap map = new SimpleValueMap();
         map.put(new SimpleKey("x"), new ActualValue("y"));
-        assertEquals("{\"toString:x\":{\"value\":\"y\"}}", m.writeValueAsString(map));
+        assertEquals("{\"toString:x\":{\"value\":\"y\"}}", MAPPER.writeValueAsString(map));
     }
 
     // [JACKSON-480], test Serialization annotation with List
@@ -149,46 +149,41 @@ public class TestAnnotationJsonSerialize2
     // [JACKSON-480], test Serialization annotation with Map
     public void testSerializedAsMapWithClassSerializer() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
         SimpleValueMapWithSerializer map = new SimpleValueMapWithSerializer();
         map.put(new SimpleKey("abc"), new ActualValue("123"));
-        assertEquals("{\"key abc\":\"value 123\"}", m.writeValueAsString(map));
+        assertEquals("{\"key abc\":\"value 123\"}", MAPPER.writeValueAsString(map));
     }
     
     // [JACKSON-480], test annotations when applied to List property (getter, setter)
     public void testSerializedAsListWithPropertyAnnotations() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
         ListWrapperSimple input = new ListWrapperSimple("bar");
-        assertEquals("{\"values\":[{\"value\":\"bar\"}]}", m.writeValueAsString(input));
+        assertEquals("{\"values\":[{\"value\":\"bar\"}]}", MAPPER.writeValueAsString(input));
     }
 
     public void testSerializedAsListWithPropertyAnnotations2() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
         ListWrapperWithSerializer input = new ListWrapperWithSerializer("abc");
-        assertEquals("{\"values\":[\"value abc\"]}", m.writeValueAsString(input));
+        assertEquals("{\"values\":[\"value abc\"]}", MAPPER.writeValueAsString(input));
     }
     
     // [JACKSON-480], test annotations when applied to Map property (getter, setter)
     public void testSerializedAsMapWithPropertyAnnotations() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
         MapWrapperSimple input = new MapWrapperSimple("a", "b");
-        assertEquals("{\"values\":{\"toString:a\":{\"value\":\"b\"}}}", m.writeValueAsString(input));
+        assertEquals("{\"values\":{\"toString:a\":{\"value\":\"b\"}}}", MAPPER.writeValueAsString(input));
     }
 
     public void testSerializedAsMapWithPropertyAnnotations2() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
         MapWrapperWithSerializer input = new MapWrapperWithSerializer("foo", "b");
-        assertEquals("{\"values\":{\"key foo\":\"value b\"}}", m.writeValueAsString(input));
+        assertEquals("{\"values\":{\"key foo\":\"value b\"}}", MAPPER.writeValueAsString(input));
     }
 
     // [JACKSON-602]: Include.NON_EMPTY
     public void testEmptyInclusion() throws IOException
     {
-        ObjectMapper defMapper = new ObjectMapper();
+        ObjectMapper defMapper = MAPPER;
         ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY);
 
         StringWrapper str = new StringWrapper("");
@@ -215,8 +210,7 @@ public class TestAnnotationJsonSerialize2
     // [JACKSON-699]
     public void testNullSerializer() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(new NullBean());
+        String json = MAPPER.writeValueAsString(new NullBean());
         assertEquals("{\"value\":null}", json);
     }
 }

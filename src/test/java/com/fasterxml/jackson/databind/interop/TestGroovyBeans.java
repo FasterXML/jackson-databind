@@ -19,11 +19,12 @@ public class TestGroovyBeans
         +"String name = \"whome\";\n"
         +"}";
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testSimpleSerialization() throws Exception
     {
         Object ob = newGroovyObject(SIMPLE_POGO);
-        Map<String,Object> result = writeAndMap(ob);
+        Map<String,Object> result = writeAndMap(MAPPER, ob);
         assertEquals(2, result.size());
         assertEquals("whome", result.get("name"));
         /* 26-Nov-2009, tatu: Strange... Groovy seems to decide
@@ -39,13 +40,13 @@ public class TestGroovyBeans
     {
         Class<?> cls = defineGroovyClass(SIMPLE_POGO);
         // First: deserialize from data
-        Object pogo = new ObjectMapper().readValue("{\"id\":9,\"name\":\"Bob\"}", cls);
+        Object pogo = MAPPER.readValue("{\"id\":9,\"name\":\"Bob\"}", cls);
         assertNotNull(pogo);
         /* Hmmh. Could try to access using Reflection, or by defining
          * a Java interface it implements. Or, maybe simplest, just
          * re-serialize and see what we got.
          */
-        Map<String,Object> result = writeAndMap(pogo);
+        Map<String,Object> result = writeAndMap(MAPPER, pogo);
         assertEquals(2, result.size());
         assertEquals("Bob", result.get("name"));
         // as per earlier, we just get a number...

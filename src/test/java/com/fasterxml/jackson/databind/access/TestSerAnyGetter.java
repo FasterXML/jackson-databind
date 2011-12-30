@@ -51,24 +51,24 @@ public class TestSerAnyGetter
     /* Test cases
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testDynaBean() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         DynaBean b = new DynaBean();
         b.id = 123;
         b.set("name", "Billy");
-        assertEquals("{\"id\":123,\"name\":\"Billy\"}", m.writeValueAsString(b));
+        assertEquals("{\"id\":123,\"name\":\"Billy\"}", MAPPER.writeValueAsString(b));
 
-        DynaBean result = m.readValue("{\"id\":2,\"name\":\"Joe\"}", DynaBean.class);
+        DynaBean result = MAPPER.readValue("{\"id\":2,\"name\":\"Joe\"}", DynaBean.class);
         assertEquals(2, result.id);
         assertEquals("Joe", result.other.get("name"));
     }
 
     public void testPrivate() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(new PrivateThing());
+        String json = MAPPER.writeValueAsString(new PrivateThing());
         assertEquals("{\"a\":\"A\"}", json);
     }
 }

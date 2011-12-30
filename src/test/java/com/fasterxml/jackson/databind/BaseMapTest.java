@@ -169,12 +169,6 @@ public abstract class BaseMapTest
         return (Map<String,Object>) m.readValue(str, Map.class);
     }
 
-    protected Map<String,Object> writeAndMap(Object value)
-        throws IOException
-    {
-        return writeAndMap(new ObjectMapper(), value);
-    }
-
     protected <T> T readAndMapFromString(ObjectMapper m, String input, Class<T> cls)
         throws IOException
     {

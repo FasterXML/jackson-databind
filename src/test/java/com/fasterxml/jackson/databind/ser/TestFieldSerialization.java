@@ -117,13 +117,14 @@ public class TestFieldSerialization
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testSimpleAutoDetect() throws Exception
     {
         SimpleFieldBean bean = new SimpleFieldBean();
         // let's set x, leave y as is
         bean.x = 13;
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, bean);
+        Map<String,Object> result = writeAndMap(MAPPER, bean);
         assertEquals(2, result.size());
         assertEquals(Integer.valueOf(13), result.get("x"));
         assertEquals(Integer.valueOf(0), result.get("y"));
@@ -134,8 +135,7 @@ public class TestFieldSerialization
     {
         SimpleFieldBean2 bean = new SimpleFieldBean2();
         bean.values = new String[] { "a", "b" };
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, bean);
+        Map<String,Object> result = writeAndMap(MAPPER, bean);
         assertEquals(1, result.size());
         List<String> values = (List<String>) result.get("values");
         assertEquals(2, values.size());
@@ -146,7 +146,7 @@ public class TestFieldSerialization
     public void testTransientAndStatic() throws Exception
     {
         TransientBean bean = new TransientBean();
-        Map<String,Object> result = writeAndMap(bean);
+        Map<String,Object> result = writeAndMap(MAPPER, bean);
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(0), result.get("a"));
     }
@@ -155,8 +155,7 @@ public class TestFieldSerialization
     {
         NoAutoDetectBean bean = new NoAutoDetectBean();
         bean._z = -4;
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, bean);
+        Map<String,Object> result = writeAndMap(MAPPER, bean);
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(-4), result.get("z"));
     }
@@ -171,7 +170,7 @@ public class TestFieldSerialization
         FieldAndMethodBean bean = new FieldAndMethodBean();
         bean.z = 9;
         assertEquals(10, bean.getZ());
-        assertEquals("{\"z\":10}", serializeAsString(bean));
+        assertEquals("{\"z\":10}", MAPPER.writeValueAsString(bean));
     }
 
     /**
@@ -181,7 +180,7 @@ public class TestFieldSerialization
     public void testOkDupFields() throws Exception
     {
         OkDupFieldBean bean = new OkDupFieldBean(1, 2);
-        Map<String,Object> json = writeAndMap(new ObjectMapper(), bean);
+        Map<String,Object> json = writeAndMap(MAPPER, bean);
         assertEquals(2, json.size());
         assertEquals(Integer.valueOf(1), json.get("x"));
         assertEquals(Integer.valueOf(2), json.get("y"));
@@ -196,7 +195,7 @@ public class TestFieldSerialization
     public void testFailureDueToDups() throws Exception
     {
         try {
-            writeAndMap(new ObjectMapper(), new DupFieldBean());
+            writeAndMap(MAPPER, new DupFieldBean());
         } catch (JsonMappingException e) {
             verifyException(e, "Multiple fields representing");
         }
@@ -205,7 +204,7 @@ public class TestFieldSerialization
     public void testFailureDueToDupField() throws Exception
     {
         try {
-            writeAndMap(new ObjectMapper(), new DupFieldBean2());
+            writeAndMap(MAPPER, new DupFieldBean2());
         } catch (JsonMappingException e) {
             verifyException(e, "Multiple fields representing");
         }

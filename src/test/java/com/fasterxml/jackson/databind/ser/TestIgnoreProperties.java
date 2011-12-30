@@ -35,10 +35,12 @@ public class TestIgnoreProperties
      ****************************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testExplicitIgnoralWithBean() throws Exception
     {
         IgnoreSome value = new IgnoreSome();
-        Map<String,Object> result = writeAndMap(value);
+        Map<String,Object> result = writeAndMap(MAPPER, value);
         assertEquals(2, result.size());
         // verify that specified fields are ignored
         assertFalse(result.containsKey("b"));
@@ -54,7 +56,7 @@ public class TestIgnoreProperties
         MyMap value = new MyMap();
         value.put("a", "b");
         value.put("@class", MyMap.class.getName());
-        Map<String,Object> result = writeAndMap(value);
+        Map<String,Object> result = writeAndMap(MAPPER, value);
         assertEquals(1, result.size());
         // verify that specified field is ignored
         assertFalse(result.containsKey("@class"));

@@ -78,6 +78,8 @@ public class TestTypedSerialization
     /* Unit tests
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     /**
      * First things first, let's ensure we can serialize using
@@ -85,7 +87,7 @@ public class TestTypedSerialization
      */
     public void testSimpleClassAsProperty() throws Exception
     {
-        Map<String,Object> result = writeAndMap(new Cat("Beelzebub", "tabby"));
+        Map<String,Object> result = writeAndMap(MAPPER, new Cat("Beelzebub", "tabby"));
         assertEquals(3, result.size());
         assertEquals("Beelzebub", result.get("name"));
         assertEquals("tabby", result.get("furColor"));

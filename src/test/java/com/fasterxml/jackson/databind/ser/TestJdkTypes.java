@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.*;
 public class TestJdkTypes
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     /**
      * Unit test related to [JACKSON-155]
      */
@@ -23,7 +25,7 @@ public class TestJdkTypes
          * It'd be hard to make truly portable test tho...
          */
         File f = new File("/tmp/foo.txt");
-        String str = serializeAsString(new ObjectMapper(), f);
+        String str = serializeAsString(MAPPER, f);
         assertEquals("\""+f.getAbsolutePath()+"\"", str);
     }
 
@@ -33,41 +35,37 @@ public class TestJdkTypes
         Pattern p = Pattern.compile(PATTERN_STR);
         Map<String,Object> input = new HashMap<String,Object>();
         input.put("p", p);
-        Map<String,Object> result = writeAndMap(input);
+        Map<String,Object> result = writeAndMap(MAPPER, input);
         assertEquals(p.pattern(), result.get("p"));
     }
 
     public void testCurrency() throws IOException
     {
         Currency usd = Currency.getInstance("USD");
-        assertEquals(quote("USD"), new ObjectMapper().writeValueAsString(usd));
+        assertEquals(quote("USD"), MAPPER.writeValueAsString(usd));
     }
 
-    // @since 1.7
     public void testLocale() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        assertEquals(quote("en"), mapper.writeValueAsString(new Locale("en")));
-        assertEquals(quote("es_ES"), mapper.writeValueAsString(new Locale("es", "ES")));
-        assertEquals(quote("fi_FI_savo"), mapper.writeValueAsString(new Locale("FI", "fi", "savo")));
+        assertEquals(quote("en"), MAPPER.writeValueAsString(new Locale("en")));
+        assertEquals(quote("es_ES"), MAPPER.writeValueAsString(new Locale("es", "ES")));
+        assertEquals(quote("fi_FI_savo"), MAPPER.writeValueAsString(new Locale("FI", "fi", "savo")));
     }
 
     // [JACKSON-484]
     public void testInetAddress() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        assertEquals(quote("127.0.0.1"), mapper.writeValueAsString(InetAddress.getByName("127.0.0.1")));
-        assertEquals(quote("ning.com"), mapper.writeValueAsString(InetAddress.getByName("ning.com")));
+        assertEquals(quote("127.0.0.1"), MAPPER.writeValueAsString(InetAddress.getByName("127.0.0.1")));
+        assertEquals(quote("ning.com"), MAPPER.writeValueAsString(InetAddress.getByName("ning.com")));
     }
 
     // [JACKSON-597]
     public void testClass() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        assertEquals(quote("java.lang.String"), mapper.writeValueAsString(String.class));
-        assertEquals(quote("int"), mapper.writeValueAsString(Integer.TYPE));
-        assertEquals(quote("boolean"), mapper.writeValueAsString(Boolean.TYPE));
-        assertEquals(quote("void"), mapper.writeValueAsString(Void.TYPE));
+        assertEquals(quote("java.lang.String"), MAPPER.writeValueAsString(String.class));
+        assertEquals(quote("int"), MAPPER.writeValueAsString(Integer.TYPE));
+        assertEquals(quote("boolean"), MAPPER.writeValueAsString(Boolean.TYPE));
+        assertEquals(quote("void"), MAPPER.writeValueAsString(Void.TYPE));
     }
 
 }

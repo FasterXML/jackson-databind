@@ -6,6 +6,7 @@ import java.lang.reflect.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import com.fasterxml.jackson.databind.util.LRUMap;
 
 
 /**
@@ -31,29 +32,43 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public final class TypeFactory
 {
+    private final static JavaType[] NO_TYPES = new JavaType[0];
+
     /**
      * Globally shared singleton. Not accessed directly; non-core
      * code should use per-ObjectMapper instance (via configuration objects).
      * Core Jackson code uses {@link #defaultInstance} for accessing it.
      */
     protected final static TypeFactory instance = new TypeFactory();
-
-    private final static JavaType[] NO_TYPES = new JavaType[0];
-
-    /**
-     * Registered {@link TypeModifier}s: objects that can change details
-     * of {@link JavaType} instances factory constructs.
-     */
-    protected final TypeModifier[] _modifiers;
     
-    protected final TypeParser _parser;
+    /*
+    /**********************************************************
+    /* Caching
+    /**********************************************************
+     */
 
+    // // // Let's assume that a small set of core primitive/basic types
+    // // // will not be modified, and can be freely shared to streamline
+    // // // parts of processing
+    
+    protected final static SimpleType CORE_TYPE_STRING = new SimpleType(String.class);
+    protected final static SimpleType CORE_TYPE_BOOL = new SimpleType(Boolean.TYPE);
+    protected final static SimpleType CORE_TYPE_INT = new SimpleType(Integer.TYPE);
+    protected final static SimpleType CORE_TYPE_LONG = new SimpleType(Long.TYPE);
+    
+    /**
+     * Since type resolution can be expensive (specifically when resolving
+     * actual generic types), we will use small cache to avoid repetitive
+     * resolution of core types
+     */
+    protected final LRUMap<ClassKey, JavaType> _typeCache = new LRUMap<ClassKey, JavaType>(16, 100);
+    
     /*
      * Looks like construction of {@link JavaType} instances can be
      * a bottleneck, esp. for root-level Maps, so we better do bit
      * of low-level component caching here...
      */
-
+    
     /**
      * Lazily constructed copy of type hierarchy from {@link java.util.HashMap}
      * to its supertypes.
@@ -66,6 +81,20 @@ public final class TypeFactory
      */
     protected HierarchicType _cachedArrayListType;
     
+    /*
+    /**********************************************************
+    /* Configuration
+    /**********************************************************
+     */
+    
+    /**
+     * Registered {@link TypeModifier}s: objects that can change details
+     * of {@link JavaType} instances factory constructs.
+     */
+    protected final TypeModifier[] _modifiers;
+    
+    protected final TypeParser _parser;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -308,12 +337,6 @@ public final class TypeFactory
         // simple class?
         if (type instanceof Class<?>) {
             Class<?> cls = (Class<?>) type;
-            /* 24-Mar-2010, tatu: Better create context if one was not passed;
-             *   mostly matters for root serialization types
-             */
-            if (context == null) {
-                context = new TypeBindings(this, cls);
-            }
             resultType = _fromClass(cls, context);
         }
         // But if not, need to start resolving.
@@ -616,34 +639,62 @@ public final class TypeFactory
     /* Actual factory methods
     /**********************************************************
      */
-    
+
     /**
      * @param context Mapping of formal parameter declarations (for generic
      *   types) into actual types
      */
     protected JavaType _fromClass(Class<?> clz, TypeBindings context)
     {
+        // Very first thing: small set of core types we know well:
+        if (clz == String.class) return CORE_TYPE_STRING;
+        if (clz == Boolean.TYPE) return CORE_TYPE_BOOL;
+        if (clz == Integer.TYPE) return CORE_TYPE_INT;
+        if (clz == Long.TYPE) return CORE_TYPE_LONG;
+        
+        // Barring that, we may have recently constructed an instance:
+        ClassKey key = new ClassKey(clz);
+        JavaType result;
+        
+        synchronized (_typeCache) {
+            result = _typeCache.get(key);
+        }
+        if (result != null) {
+            return result;
+        }
+
+        // If context was needed, weed do:
+        /*
+        if (context == null) {
+            context = new TypeBindings(this, cls);
+        }
+        */
+        
         // First: do we have an array type?
         if (clz.isArray()) {
-            return ArrayType.construct(_constructType(clz.getComponentType(), null), null, null);
-        }
+            result = ArrayType.construct(_constructType(clz.getComponentType(), null), null, null);
         /* Also: although enums can also be fully resolved, there's little
          * point in doing so (T extends Enum<T>) etc.
          */
-        if (clz.isEnum()) {
-            return new SimpleType(clz);
-        }
+        } else if (clz.isEnum()) {
+            result = new SimpleType(clz);
         /* Maps and Collections aren't quite as hot; problem is, due
          * to type erasure we often do not know typing and can only assume
          * base Object.
          */
-        if (Map.class.isAssignableFrom(clz)) {
-            return _mapType(clz);
+        } else if (Map.class.isAssignableFrom(clz)) {
+            result = _mapType(clz);
+        } else if (Collection.class.isAssignableFrom(clz)) {
+            result =  _collectionType(clz);
+        } else {
+            result = new SimpleType(clz);
         }
-        if (Collection.class.isAssignableFrom(clz)) {
-            return _collectionType(clz);
+        
+        synchronized (_typeCache) {
+            _typeCache.put(key, result);
         }
-        return new SimpleType(clz);
+        
+        return result;
     }
     
     /**
@@ -685,9 +736,6 @@ public final class TypeFactory
     /**
      * This method deals with parameterized types, that is,
      * first class generic classes.
-     *<p>
-     * Since version 1.2, this resolves all parameterized types, not just
-     * Maps or Collections.
      */
     protected JavaType _fromParamType(ParameterizedType type, TypeBindings context)
     {

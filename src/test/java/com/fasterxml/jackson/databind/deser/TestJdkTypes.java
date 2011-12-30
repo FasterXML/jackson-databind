@@ -55,16 +55,17 @@ public class TestJdkTypes
     /* Test methods
     /**********************************************************
      */
+ 
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     /**
      * Related to issue [JACKSON-155].
      */
     public void testFile() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         // Not portable etc... has to do:
         File src = new File("/test").getAbsoluteFile();
-        File result = m.readValue("\""+src.getAbsolutePath()+"\"", File.class);
+        File result = MAPPER.readValue("\""+src.getAbsolutePath()+"\"", File.class);
         assertEquals(src.getAbsolutePath(), result.getAbsolutePath());
     }
 
@@ -75,49 +76,41 @@ public class TestJdkTypes
         /* Ok: easiest way is to just serialize first; problem
          * is the backslash
          */
-        ObjectMapper m = new ObjectMapper();
-        String json = m.writeValueAsString(exp);
-        Pattern result = m.readValue(json, Pattern.class);
+        String json = MAPPER.writeValueAsString(exp);
+        Pattern result = MAPPER.readValue(json, Pattern.class);
         assertEquals(exp.pattern(), result.pattern());
     }
 
     public void testCurrency() throws IOException
     {
         Currency usd = Currency.getInstance("USD");
-        assertEquals(usd, new ObjectMapper().readValue(quote("USD"), Currency.class));
+        assertEquals(usd, MAPPER.readValue(quote("USD"), Currency.class));
     }
 
     /**
      * Test for [JACKSON-419]
-     * 
-     * @since 1.7
      */
     public void testLocale() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        assertEquals(new Locale("en"), mapper.readValue(quote("en"), Locale.class));
-        assertEquals(new Locale("es", "ES"), mapper.readValue(quote("es_ES"), Locale.class));
-        assertEquals(new Locale("FI", "fi", "savo"), mapper.readValue(quote("fi_FI_savo"), Locale.class));
+        assertEquals(new Locale("en"), MAPPER.readValue(quote("en"), Locale.class));
+        assertEquals(new Locale("es", "ES"), MAPPER.readValue(quote("es_ES"), Locale.class));
+        assertEquals(new Locale("FI", "fi", "savo"), MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
     }
 
     /**
      * Test for [JACKSON-420] (add DeserializationConfig.FAIL_ON_NULL_FOR_PRIMITIVES)
-     * 
-     * @since 1.7
      */
     public void testNullForPrimitives() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-
         // by default, ok to rely on defaults
-        PrimitivesBean bean = mapper.readValue("{\"intValue\":null, \"booleanValue\":null, \"doubleValue\":null}",
+        PrimitivesBean bean = MAPPER.readValue("{\"intValue\":null, \"booleanValue\":null, \"doubleValue\":null}",
                 PrimitivesBean.class);
         assertNotNull(bean);
         assertEquals(0, bean.intValue);
         assertEquals(false, bean.booleanValue);
         assertEquals(0.0, bean.doubleValue);
 
-        bean = mapper.readValue("{\"byteValue\":null, \"longValue\":null, \"floatValue\":null}",
+        bean = MAPPER.readValue("{\"byteValue\":null, \"longValue\":null, \"floatValue\":null}",
                 PrimitivesBean.class);
         assertNotNull(bean);
         assertEquals((byte) 0, bean.byteValue);
@@ -125,7 +118,7 @@ public class TestJdkTypes
         assertEquals(0.0f, bean.floatValue);
         
         // but not when enabled
-        mapper = new ObjectMapper();
+        ObjectMapper  mapper = new ObjectMapper();
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_NULL_FOR_PRIMITIVES, true);
 
         // boolean
@@ -187,8 +180,7 @@ public class TestJdkTypes
      */
     public void testCharSequence() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        CharSequence cs = mapper.readValue("\"abc\"", CharSequence.class);
+        CharSequence cs = MAPPER.readValue("\"abc\"", CharSequence.class);
         assertEquals(String.class, cs.getClass());
         assertEquals("abc", cs.toString());
     }
@@ -196,41 +188,38 @@ public class TestJdkTypes
     // [JACKSON-484]
     public void testInetAddress() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        InetAddress address = mapper.readValue(quote("127.0.0.1"), InetAddress.class);
+        InetAddress address = MAPPER.readValue(quote("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
 
         // should we try resolving host names? That requires connectivity... 
         final String HOST = "www.ning.com";
-        address = mapper.readValue(quote(HOST), InetAddress.class);
+        address = MAPPER.readValue(quote(HOST), InetAddress.class);
         assertEquals(HOST, address.getHostName());
     }
 
     // [JACKSON-597]
     public void testClass() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        assertSame(String.class, mapper.readValue(quote("java.lang.String"), Class.class));
+        assertSame(String.class, MAPPER.readValue(quote("java.lang.String"), Class.class));
 
         // then primitive types
-        assertSame(Boolean.TYPE, mapper.readValue(quote("boolean"), Class.class));
-        assertSame(Byte.TYPE, mapper.readValue(quote("byte"), Class.class));
-        assertSame(Short.TYPE, mapper.readValue(quote("short"), Class.class));
-        assertSame(Character.TYPE, mapper.readValue(quote("char"), Class.class));
-        assertSame(Integer.TYPE, mapper.readValue(quote("int"), Class.class));
-        assertSame(Long.TYPE, mapper.readValue(quote("long"), Class.class));
-        assertSame(Float.TYPE, mapper.readValue(quote("float"), Class.class));
-        assertSame(Double.TYPE, mapper.readValue(quote("double"), Class.class));
-        assertSame(Void.TYPE, mapper.readValue(quote("void"), Class.class));
+        assertSame(Boolean.TYPE, MAPPER.readValue(quote("boolean"), Class.class));
+        assertSame(Byte.TYPE, MAPPER.readValue(quote("byte"), Class.class));
+        assertSame(Short.TYPE, MAPPER.readValue(quote("short"), Class.class));
+        assertSame(Character.TYPE, MAPPER.readValue(quote("char"), Class.class));
+        assertSame(Integer.TYPE, MAPPER.readValue(quote("int"), Class.class));
+        assertSame(Long.TYPE, MAPPER.readValue(quote("long"), Class.class));
+        assertSame(Float.TYPE, MAPPER.readValue(quote("float"), Class.class));
+        assertSame(Double.TYPE, MAPPER.readValue(quote("double"), Class.class));
+        assertSame(Void.TYPE, MAPPER.readValue(quote("void"), Class.class));
     }
 
     // [JACKSON-605]
     public void testClassWithParams() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(new ParamClassBean("Foobar"));
+        String json = MAPPER.writeValueAsString(new ParamClassBean("Foobar"));
 
-        ParamClassBean result = mapper.readValue(json, ParamClassBean.class);
+        ParamClassBean result = MAPPER.readValue(json, ParamClassBean.class);
         assertEquals("Foobar", result.name);
         assertSame(String.class, result.clazz);
     }
@@ -238,67 +227,62 @@ public class TestJdkTypes
     // by default, should return nulls, n'est pas?
     public void testEmptyStringForWrappers() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
         WrappersBean bean;
 
         // by default, ok to rely on defaults
-        bean = mapper.readValue("{\"booleanValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"booleanValue\":\"\"}", WrappersBean.class);
         assertNull(bean.booleanValue);
-        bean = mapper.readValue("{\"byteValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"byteValue\":\"\"}", WrappersBean.class);
         assertNull(bean.byteValue);
 
         // char/Character is different... not sure if this should work or not:
-        bean = mapper.readValue("{\"charValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"charValue\":\"\"}", WrappersBean.class);
         assertNull(bean.charValue);
 
-        bean = mapper.readValue("{\"shortValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"shortValue\":\"\"}", WrappersBean.class);
         assertNull(bean.shortValue);
-        bean = mapper.readValue("{\"intValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"intValue\":\"\"}", WrappersBean.class);
         assertNull(bean.intValue);
-        bean = mapper.readValue("{\"longValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"longValue\":\"\"}", WrappersBean.class);
         assertNull(bean.longValue);
-        bean = mapper.readValue("{\"floatValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"floatValue\":\"\"}", WrappersBean.class);
         assertNull(bean.floatValue);
-        bean = mapper.readValue("{\"doubleValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"doubleValue\":\"\"}", WrappersBean.class);
         assertNull(bean.doubleValue);
     }
 
     // for [JACKSON-616]
-    // @since 1.9
     public void testEmptyStringForPrimitives() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
         PrimitivesBean bean;
-        bean = mapper.readValue("{\"booleanValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"booleanValue\":\"\"}", PrimitivesBean.class);
         assertFalse(bean.booleanValue);
-        bean = mapper.readValue("{\"byteValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"byteValue\":\"\"}", PrimitivesBean.class);
         assertEquals((byte) 0, bean.byteValue);
-        bean = mapper.readValue("{\"charValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"charValue\":\"\"}", PrimitivesBean.class);
         assertEquals((char) 0, bean.charValue);
-        bean = mapper.readValue("{\"shortValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"shortValue\":\"\"}", PrimitivesBean.class);
         assertEquals((short) 0, bean.shortValue);
-        bean = mapper.readValue("{\"intValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"intValue\":\"\"}", PrimitivesBean.class);
         assertEquals(0, bean.intValue);
-        bean = mapper.readValue("{\"longValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"longValue\":\"\"}", PrimitivesBean.class);
         assertEquals(0L, bean.longValue);
-        bean = mapper.readValue("{\"floatValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"floatValue\":\"\"}", PrimitivesBean.class);
         assertEquals(0.0f, bean.floatValue);
-        bean = mapper.readValue("{\"doubleValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"doubleValue\":\"\"}", PrimitivesBean.class);
         assertEquals(0.0, bean.doubleValue);
     }
 
     // for [JACKSON-652]
-    // @since 1.9
     public void testUntypedWithJsonArrays() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // by default we get:
-        Object ob = mapper.readValue("[1]", Object.class);
+        Object ob = MAPPER.readValue("[1]", Object.class);
         assertTrue(ob instanceof List<?>);
 
         // but can change to produce Object[]:
-        mapper.configure(DeserializationConfig.Feature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
-        ob = mapper.readValue("[1]", Object.class);
+        MAPPER.configure(DeserializationConfig.Feature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
+        ob = MAPPER.readValue("[1]", Object.class);
         assertEquals(Object[].class, ob.getClass());
     }
 }

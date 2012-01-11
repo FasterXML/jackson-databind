@@ -355,8 +355,9 @@ public class ObjectReader
      * was specified with {@link #withValueToUpdate(Object)}.
      */
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser jp, ResolvedType valueType) throws IOException, JsonProcessingException {
-        return readValue(jp, (JavaType) valueType);
+        return (T) withType((JavaType)valueType).readValue(jp);
     }
 
     /**

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.io.NumberInput;
 
 import com.fasterxml.jackson.databind.*;
@@ -102,7 +103,11 @@ public abstract class StdDeserializer<T>
         }
         // [JACKSON-78]: should accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
-            return (jp.getIntValue() != 0);
+            // 11-Jan-2012, tatus: May be outside of int...
+            if (jp.getNumberType() == NumberType.INT) {
+                return (jp.getIntValue() != 0);
+            }
+            return _parseBooleanFromNumber(jp, ctxt);
         }
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
@@ -131,7 +136,11 @@ public abstract class StdDeserializer<T>
         }
         // [JACKSON-78]: should accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
-            return (jp.getIntValue() == 0) ? Boolean.FALSE : Boolean.TRUE; 
+            // 11-Jan-2012, tatus: May be outside of int...
+            if (jp.getNumberType() == NumberType.INT) {
+                return (jp.getIntValue() == 0) ? Boolean.FALSE : Boolean.TRUE;
+            }
+            return Boolean.valueOf(_parseBooleanFromNumber(jp, ctxt));
         }
         if (t == JsonToken.VALUE_NULL) {
             return (Boolean) getNullValue();
@@ -152,6 +161,20 @@ public abstract class StdDeserializer<T>
         }
         // Otherwise, no can do:
         throw ctxt.mappingException(_valueClass, t);
+    }
+
+    protected final boolean _parseBooleanFromNumber(JsonParser jp, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException
+    {
+        if (jp.getNumberType() == NumberType.LONG) {
+            return (jp.getLongValue() == 0L) ? Boolean.FALSE : Boolean.TRUE;
+        }
+        // no really good logic; let's actually resort to textual comparison
+        String str = jp.getText();
+        if ("0.0".equals(str) || "0".equals(str)) {
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
     }
 
     protected Byte _parseByte(JsonParser jp, DeserializationContext ctxt)

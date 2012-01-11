@@ -1198,10 +1198,11 @@ public class ObjectMapper
      * {@link TypeFactory}.
      */
     @Override
+    @SuppressWarnings("unchecked")
     public final <T> T readValue(JsonParser jp, ResolvedType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return readValue(jp, (JavaType) valueType);
+        return (T) _readValue(copyDeserializationConfig(), jp, (JavaType) valueType);
     }
 
     /**

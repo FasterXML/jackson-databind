@@ -27,7 +27,8 @@ public class StdTypeResolverBuilder
     protected String _typeProperty;
 
     /**
-     * @since 1.9
+     * Default class to use in case type information is not available
+     * or is broken.
      */
     protected Class<?> _defaultImpl;
     
@@ -53,6 +54,10 @@ public class StdTypeResolverBuilder
      */
 
     public StdTypeResolverBuilder() { }
+
+    public static StdTypeResolverBuilder noTypeInfoBuilder() {
+        return new StdTypeResolverBuilder().init(JsonTypeInfo.Id.NONE, null);
+    }
     
     @Override
     public StdTypeResolverBuilder init(JsonTypeInfo.Id idType, TypeIdResolver idRes)
@@ -72,6 +77,9 @@ public class StdTypeResolverBuilder
     public TypeSerializer buildTypeSerializer(SerializationConfig config,
             JavaType baseType, Collection<NamedType> subtypes, BeanProperty property)
     {
+        if (_idType == JsonTypeInfo.Id.NONE) {
+            return null;
+        }
         TypeIdResolver idRes = idResolver(config, baseType, subtypes, true, false);
         switch (_includeAs) {
         case WRAPPER_ARRAY:
@@ -90,6 +98,10 @@ public class StdTypeResolverBuilder
     public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
             JavaType baseType, Collection<NamedType> subtypes, BeanProperty property)
     {
+        if (_idType == JsonTypeInfo.Id.NONE) {
+            return null;
+        }
+
         TypeIdResolver idRes = idResolver(config, baseType, subtypes, false, true);
         
         // First, method for converting type info to type id:
@@ -182,9 +194,9 @@ public class StdTypeResolverBuilder
             return new MinimalClassNameIdResolver(baseType, config.getTypeFactory());
         case NAME:
             return TypeNameIdResolver.construct(config, baseType, subtypes, forSer, forDeser);
-
-        case CUSTOM: // need custom resolver...
         case NONE: // hmmh. should never get this far with 'none'
+            return null;
+        case CUSTOM: // need custom resolver...
         }
         throw new IllegalStateException("Do not know how to construct standard type id resolver for idType: "+_idType);
     }

@@ -186,9 +186,6 @@ public class JacksonAnnotationIntrospector
         return _findTypeResolver(config, ac, baseType);
     }
 
-    /**
-     * Since 1.7, it is possible to use {@link JsonTypeInfo} from a property too.
-     */
     @Override
     public TypeResolverBuilder<?> findPropertyTypeResolver(MapperConfig<?> config,
             AnnotatedMember am, JavaType baseType)
@@ -494,9 +491,6 @@ public class JacksonAnnotationIntrospector
                 return cls;
             }
         }
-        /* 30-Jun-2011, tatu: Here we used to have support for @JsonClass;
-         *    removed in 1.9
-         */
         return null;
     }
 
@@ -512,9 +506,6 @@ public class JacksonAnnotationIntrospector
                 return cls;
             }
         }
-        /* 30-Jun-2011, tatu: Here we used to have support for @JsonKeyClass;
-         *    removed in 1.9
-         */
         return null;
     }
 
@@ -687,6 +678,7 @@ public class JacksonAnnotationIntrospector
         TypeResolverBuilder<?> b;
         JsonTypeInfo info = ann.getAnnotation(JsonTypeInfo.class);
         JsonTypeResolver resAnn = ann.getAnnotation(JsonTypeResolver.class);
+        
         if (resAnn != null) {
             /* 14-Aug-2010, tatu: not sure if this can ever happen normally, but unit
              *    tests were able to trigger this... so let's check:
@@ -700,8 +692,12 @@ public class JacksonAnnotationIntrospector
              */
             b = config.typeResolverBuilderInstance(ann, resAnn.value());
         } else { // if not, use standard one, if indicated by annotations
-            if (info == null || info.use() == JsonTypeInfo.Id.NONE) {
+            if (info == null) {
                 return null;
+            }
+            // bit special; must return 'marker' to block use of default typing:
+            if (info.use() == JsonTypeInfo.Id.NONE) {
+                return _constructNoTypeResolverBuilder();
             }
             b = _constructStdTypeResolverBuilder();
         }
@@ -733,12 +729,16 @@ public class JacksonAnnotationIntrospector
     /**
      * Helper method for constructing standard {@link TypeResolverBuilder}
      * implementation.
-     * 
-     * @since 1.7
      */
-    protected StdTypeResolverBuilder _constructStdTypeResolverBuilder()
-    {
+    protected StdTypeResolverBuilder _constructStdTypeResolverBuilder() {
         return new StdTypeResolverBuilder();
     }
 
+    /**
+     * Helper method for dealing with "no type info" marker; can't be null
+     * (as it'd be replaced by default typing)
+     */
+    protected StdTypeResolverBuilder _constructNoTypeResolverBuilder() {
+        return StdTypeResolverBuilder.noTypeInfoBuilder();
+    }
 }

@@ -432,16 +432,13 @@ public class ObjectMapper
                 return version();
             }
 
+            @SuppressWarnings("unchecked")
             @Override
-            public DeserializationConfig getDeserializationConfig() {
-                return mapper.getDeserializationConfig();
+            public <C extends ObjectCodec> C getOwner() {
+                // why do we need the cast here?!?
+                return (C) mapper;
             }
-
-            @Override
-            public SerializationConfig getSerializationConfig() {
-                return mapper.getSerializationConfig();
-            }
-
+            
             @Override
             public boolean isEnabled(DeserializationConfig.Feature f) {
                 return mapper.isEnabled(f);

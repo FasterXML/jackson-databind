@@ -134,6 +134,41 @@ public class TestSimpleModule extends BaseMapTest
     @JsonPropertyOrder({"c", "a", "b"})
     static class MixInForOrder { }
     
+    protected static class MySimpleSerializers extends SimpleSerializers { }
+    protected static class MySimpleDeserializers extends SimpleDeserializers { }
+
+    /**
+     * Test module which uses custom 'serializers' and 'deserializers' container; used
+     * to trigger type problems.
+     */
+    protected static class MySimpleModule extends SimpleModule
+    {
+        public MySimpleModule(String name, Version version) {
+            super(name, version);
+            _deserializers = new MySimpleDeserializers();
+            _serializers = new MySimpleSerializers();
+        }
+    }
+
+    protected static class ContextVerifierModule extends Module
+    {
+        @Override
+        public String getModuleName() { return "x"; }
+
+        @Override
+        public Version version() { return Version.unknownVersion(); }
+
+        @Override
+        public void setupModule(SetupContext context)
+        {
+            ObjectCodec c = context.getOwner();
+            assertNotNull(c);
+            assertTrue(c instanceof ObjectMapper);
+            ObjectMapper m = context.getOwner();
+            assertNotNull(m);
+        }
+    }
+    
     /*
     /**********************************************************
     /* Unit tests; first, verifying need for custom handlers
@@ -161,22 +196,6 @@ public class TestSimpleModule extends BaseMapTest
             fail("Should have caused an exception");
         } catch (IOException e) {
             verifyException(e, "No suitable constructor found");
-        }
-    }
-
-    protected static class MySimpleSerializers extends SimpleSerializers { }
-    protected static class MySimpleDeserializers extends SimpleDeserializers { }
-
-    /**
-     * Test module which uses custom 'serializers' and 'deserializers' container; used
-     * to trigger type problems.
-     */
-    protected static class MySimpleModule extends SimpleModule
-    {
-        public MySimpleModule(String name, Version version) {
-            super(name, version);
-            _deserializers = new MySimpleDeserializers();
-            _serializers = new MySimpleSerializers();
         }
     }
     
@@ -286,6 +305,14 @@ public class TestSimpleModule extends BaseMapTest
         assertEquals(Integer.valueOf(3), props.get("c"));
         assertEquals(Integer.valueOf(1), props.get("a"));
         assertEquals(Integer.valueOf(2), props.get("b"));
+    }
+
+    // [JACKSON-686]
+    public void testAccessToMapper() throws Exception
+    {
+        ContextVerifierModule module = new ContextVerifierModule();        
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(module);
     }
 }
 

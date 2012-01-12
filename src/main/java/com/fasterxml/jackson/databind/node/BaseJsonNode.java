@@ -8,14 +8,12 @@ import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
-
 /**
  * Abstract base class common to all standard {@link JsonNode}
  * implementations.
  * The main addition here is that we declare that sub-classes must
- * implement {@link JsonSerializableWithType}.
- * This simplifies object mapping
- * aspects a bit, as no external serializers are needed.
+ * implement {@link JsonSerializable}.
+ * This simplifies object mapping aspects a bit, as no external serializers are needed.
  */
 public abstract class BaseJsonNode
     extends JsonNode
@@ -82,14 +80,13 @@ public abstract class BaseJsonNode
      * Will return the first {@link JsonToken} that equivalent
      * stream event would produce (for most nodes there is just
      * one token but for structured/container types multiple)
-     *
-     * @since 1.3
      */
     @Override
     public abstract JsonToken asToken();
 
     /**
-     * @since 1.3
+     * Returns code that identifies type of underlying numeric
+     * value, if (and only if) node is a number node.
      */
     @Override
     public JsonParser.NumberType getNumberType() {

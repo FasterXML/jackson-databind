@@ -3,13 +3,10 @@ package com.fasterxml.jackson.databind.ser;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-
 /**
  * Interface that defines API for filter objects use (as configured
- * using {@link com.fasterxml.jackson.databind.annotate.JsonFilter})
+ * using {@link com.fasterxml.jackson.annotation.JsonFilter})
  * for filtering bean properties to serialize.
- * 
- * @since 1.7
  */
 public interface BeanPropertyFilter
 {

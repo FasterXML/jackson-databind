@@ -255,7 +255,7 @@ public class StdSerializers
      */
 
     /**
-     * Compared to regular {@link UtilDateSerializer}, we do use String
+     * Compared to regular {@link java.util.Date} serialization, we do use String
      * representation here. Why? Basically to truncate of time part, since
      * that should not be used by plain SQL date.
      */

@@ -60,7 +60,7 @@ public abstract class Module
      * Interface Jackson exposes to modules for purpose of registering
      * extended functionality.
      */
-    public interface SetupContext
+    public static interface SetupContext
     {
         /*
         /**********************************************************
@@ -77,41 +77,32 @@ public abstract class Module
         public Version getMapperVersion();
 
         /**
-         * Method that returns current deserialization configuration
-         * settings. Since modules may be interested in these settings,
-         * caller should make sure to make changes to settings before
-         * module registrations.
-         */
-        public DeserializationConfig getDeserializationConfig();
-
-        /**
-         * Method that returns current serialization configuration
-         * settings. Since modules may be interested in these settings,
-         * caller should make sure to make changes to settings before
-         * module registrations.
+         * Fallback access method that allows modules to refer to the
+         * {@link ObjectMapper} that provided this context.
+         * It should NOT be needed by most modules; and ideally should
+         * not be used -- however, there may be cases where this may
+         * be necessary due to various design constraints.
+         *<p>
+         * NOTE: use of this method is discouraged, as it allows access to
+         * things Modules typically should not modify. It is included, however,
+         * to allow access to new features in cases where Module API
+         * has not yet been extended, or there are oversights.
+         *<p>
+         * Return value is chosen to not leak dependency to {@link ObjectMapper};
+         * however, instance will always be of that type.
+         * This is why return value is declared generic, to allow caller to
+         * specify context to often avoid casting.
          * 
-         * @since 1.7.1 (1.7.0 unfortunately had a typo in method name!)
+         * @since 2.0
          */
-        public SerializationConfig getSerializationConfig();
+        public <C extends ObjectCodec> C getOwner();
 
-        /**
-         * @since 1.9.0
-         */
         public boolean isEnabled(DeserializationConfig.Feature f);
 
-        /**
-         * @since 1.9.0
-         */
         public boolean isEnabled(SerializationConfig.Feature f);
 
-        /**
-         * @since 1.9.0
-         */
         public boolean isEnabled(JsonParser.Feature f);
 
-        /**
-         * @since 1.9.0
-         */
         public boolean isEnabled(JsonGenerator.Feature f);
         
         /*
@@ -133,8 +124,6 @@ public abstract class Module
          * Method that module can use to register additional deserializers to use for
          * handling Map key values (which are separate from value deserializers because
          * they are always serialized from String values)
-         *
-         * @since 1.8
          */
         public void addKeyDeserializers(KeyDeserializers s);
         
@@ -151,8 +140,6 @@ public abstract class Module
          * Method that module can use to register additional serializers to use for
          * handling Map key values (which are separate from value serializers because
          * they must write <code>JsonToken.FIELD_NAME</code> instead of String value).
-         *
-         * @since 1.8
          */
         public void addKeySerializers(Serializers s);
 
@@ -184,8 +171,6 @@ public abstract class Module
          * abstract to concrete types (either by defaulting, or by materializing).
          * 
          * @param resolver Resolver to add.
-         * 
-         * @since 1.8
          */
         public void addAbstractTypeResolver(AbstractTypeResolver resolver);
 
@@ -195,8 +180,6 @@ public abstract class Module
          * instances constructed by {@link com.fasterxml.jackson.databind.type.TypeFactory}.
          * 
          * @param modifier to add
-         * 
-         * @since 1.8
          */
         public void addTypeModifier(TypeModifier modifier);
 
@@ -207,8 +190,6 @@ public abstract class Module
          * 
          * @param instantiators Object that can provide {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s for
          *    constructing POJO values during deserialization
-         * 
-         * @since 1.9
          */
         public void addValueInstantiators(ValueInstantiators instantiators);
         

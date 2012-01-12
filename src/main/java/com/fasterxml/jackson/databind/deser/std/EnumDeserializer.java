@@ -41,7 +41,7 @@ public class EnumDeserializer
         if (factory.getParameterType(0) != String.class) {
             throw new IllegalArgumentException("Parameter #0 type for factory method ("+factory+") not suitable, must be java.lang.String");
         }
-        if (config.isEnabled(DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+        if (config.canOverrideAccessModifiers()) {
             ClassUtil.checkAndFixAccess(factory.getMember());
         }
         return new FactoryBasedDeserializer(enumClass, factory);

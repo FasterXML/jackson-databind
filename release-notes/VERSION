@@ -1,0 +1,21 @@
+Version: 2.0.0
+
+Release date:
+  xx-Feb-2012
+
+Description:
+  The son of Jackson! Behold...
+
+Fixes:
+
+Improvements
+
+* [JACKSON-749]: Make @JsonValue work for Enum deserialization
+
+New features:
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+[entries for versions 1.x and earlier not retained; refer to earlier releases)

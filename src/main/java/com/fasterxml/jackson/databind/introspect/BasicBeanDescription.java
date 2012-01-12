@@ -94,6 +94,7 @@ public class BasicBeanDescription extends BeanDescription
         desc._anySetterMethod = coll.getAnySetterMethod();
         desc._ignoredPropertyNames = coll.getIgnoredPropertyNames();
         desc._injectables = coll.getInjectables();
+        desc._jsonValueMethod = coll.getJsonValueMethod();
         return desc;
     }
 

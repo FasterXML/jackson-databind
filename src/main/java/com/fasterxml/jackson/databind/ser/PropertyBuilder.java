@@ -216,7 +216,7 @@ public class PropertyBuilder
             /* If we can fix access rights, we should; otherwise non-public
              * classes or default constructor will prevent instantiation
              */
-            _defaultBean = _beanDesc.instantiateBean(_config.isEnabled(SerializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS));
+            _defaultBean = _beanDesc.instantiateBean(_config.canOverrideAccessModifiers());
             if (_defaultBean == null) {
                 Class<?> cls = _beanDesc.getClassInfo().getAnnotated();
                 throw new IllegalArgumentException("Class "+cls.getName()+" has no default constructor; can not instantiate default bean value to support 'properties=JsonSerialize.Inclusion.NON_DEFAULT' annotation");

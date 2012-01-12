@@ -83,13 +83,12 @@ public class BeanSerializerFactory
         /**
          * List of providers for additional serializers, checked before considering default
          * basic or bean serialializers.
-         * 
-         * @since 1.7
          */
         protected final Serializers[] _additionalSerializers;
 
         /**
-         * @since 1.8
+         * List of providers for additional key serializers, checked before considering default
+         * key serialializers.
          */
         protected final Serializers[] _additionalKeySerializers;
         
@@ -450,7 +449,7 @@ public class BeanSerializerFactory
         
         AnnotatedMethod anyGetter = beanDesc.findAnyGetter();
         if (anyGetter != null) { // since 1.6
-            if (config.isEnabled(SerializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+            if (config.canOverrideAccessModifiers()) {
                 anyGetter.fixAccess();
             }
             JavaType type = anyGetter.getType(beanDesc.bindingsForBeanType());
@@ -720,7 +719,7 @@ public class BeanSerializerFactory
             PropertyBuilder pb, boolean staticTyping, String name, AnnotatedMember accessor)
         throws JsonMappingException
     {
-        if (config.isEnabled(SerializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+        if (config.canOverrideAccessModifiers()) {
             accessor.fixAccess();
         }
         JavaType type = accessor.getType(typeContext);

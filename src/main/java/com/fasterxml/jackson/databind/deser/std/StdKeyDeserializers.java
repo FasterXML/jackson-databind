@@ -79,7 +79,7 @@ public class StdKeyDeserializers
         // Ok, so: can we find T(String) constructor?
         Constructor<?> ctor = beanDesc.findSingleArgConstructor(String.class);
         if (ctor != null) {
-            if (config.isEnabled(DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+            if (config.canOverrideAccessModifiers()) {
                 ClassUtil.checkAndFixAccess(ctor);
             }
             return new StdKeyDeserializer.StringCtorKeyDeserializer(ctor);
@@ -89,7 +89,7 @@ public class StdKeyDeserializers
          */
         Method m = beanDesc.findFactoryMethod(String.class);
         if (m != null){
-            if (config.isEnabled(DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+            if (config.canOverrideAccessModifiers()) {
                 ClassUtil.checkAndFixAccess(m);
             }
             return new StdKeyDeserializer.StringFactoryKeyDeserializer(m);

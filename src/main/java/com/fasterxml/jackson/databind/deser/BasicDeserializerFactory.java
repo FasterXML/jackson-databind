@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.type.*;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
 
 /**
@@ -94,8 +96,7 @@ public abstract class BasicDeserializerFactory
         = PrimitiveArrayDeserializers.getAll();
 
     /**
-     * To support external/optional deserializers, we'll use this helper class
-     * (as per [JACKSON-386])
+     * To support external/optional deserializers, we'll use a helper class
      */
     protected OptionalHandlerFactory optionalHandlers = OptionalHandlerFactory.instance;
     
@@ -258,7 +259,8 @@ public abstract class BasicDeserializerFactory
         if (contentDeser == null) { // not defined by annotation
             // One special type: EnumSet:
             if (EnumSet.class.isAssignableFrom(collectionClass)) {
-                return new EnumSetDeserializer(constructEnumResolver(contentType.getRawClass(), config));
+                return new EnumSetDeserializer(constructEnumResolver(contentType.getRawClass(), config,
+                        _findJsonValueFor(config, contentType)));
             }
             // But otherwise we can just use a generic value deserializer:
             // 'null' -> collections have no referring fields
@@ -383,7 +385,8 @@ public abstract class BasicDeserializerFactory
             if (kt == null || !kt.isEnum()) {
                 throw new IllegalArgumentException("Can not construct EnumMap; generic (key) type not available");
             }
-            return new EnumMapDeserializer(constructEnumResolver(kt, config), contentDeser);
+            return new EnumMapDeserializer(constructEnumResolver(kt, config, _findJsonValueFor(config, keyType)),
+                    contentDeser);
         }
 
         // Otherwise, generic handler works ok.
@@ -460,10 +463,7 @@ public abstract class BasicDeserializerFactory
             JavaType type, BeanProperty property)
         throws JsonMappingException
     {
-        /* 18-Feb-2009, tatu: Must first check if we have a class annotation
-         *    that should override default deserializer
-         */
-        BasicBeanDescription beanDesc = config.introspectForCreation(type);
+        BasicBeanDescription beanDesc = config.introspect(type);
         JsonDeserializer<?> des = findDeserializerFromAnnotation(config, beanDesc.getClassInfo(), property);
         if (des != null) {
             return des;
@@ -490,7 +490,8 @@ public abstract class BasicDeserializerFactory
                         +enumClass.getName()+")");
             }
         }
-        return new EnumDeserializer(constructEnumResolver(enumClass, config));
+        // [JACKSON-749] Also, need to consider @JsonValue, if one found
+        return new EnumDeserializer(constructEnumResolver(enumClass, config, beanDesc.findJsonValueMethod()));
     }
 
     @Override
@@ -511,8 +512,6 @@ public abstract class BasicDeserializerFactory
     /**
      * Method called by {@link BeanDeserializerFactory} to see if there might be a standard
      * deserializer registered for given type.
-     * 
-     * @since 1.8
      */
     @SuppressWarnings("unchecked")
     protected JsonDeserializer<Object> findStdBeanDeserializer(DeserializationConfig config,
@@ -601,8 +600,6 @@ public abstract class BasicDeserializerFactory
      *    deserializer type will be this type or its subtype)
      * 
      * @return Type deserializer to use for given base type, if one is needed; null if not.
-     * 
-     * @since 1.5
      */
     public TypeDeserializer findPropertyTypeDeserializer(DeserializationConfig config, JavaType baseType,
            AnnotatedMember annotated, BeanProperty property)
@@ -629,8 +626,6 @@ public abstract class BasicDeserializerFactory
      * 
      * @param containerType Type of property; must be a container type
      * @param propertyEntity Field or method that contains container property
-     * 
-     * @since 1.5
      */    
     public TypeDeserializer findPropertyContentTypeDeserializer(DeserializationConfig config, JavaType containerType,
             AnnotatedMember propertyEntity, BeanProperty property)
@@ -846,12 +841,29 @@ public abstract class BasicDeserializerFactory
     	return type;
     }
     
-    protected EnumResolver<?> constructEnumResolver(Class<?> enumClass, DeserializationConfig config)
+    protected EnumResolver<?> constructEnumResolver(Class<?> enumClass, DeserializationConfig config,
+            AnnotatedMethod jsonValueMethod)
     {
+        if (jsonValueMethod != null) {
+            Method accessor = jsonValueMethod.getAnnotated();
+            if (config.canOverrideAccessModifiers()) {
+                ClassUtil.checkAndFixAccess(accessor);
+            }
+            return EnumResolver.constructUnsafeUsingMethod(enumClass, accessor);
+        }
         // [JACKSON-212]: may need to use Enum.toString()
         if (config.isEnabled(DeserializationConfig.Feature.READ_ENUMS_USING_TO_STRING)) {
             return EnumResolver.constructUnsafeUsingToString(enumClass);
         }
         return EnumResolver.constructUnsafe(enumClass, config.getAnnotationIntrospector());
+    }
+
+    protected AnnotatedMethod _findJsonValueFor(DeserializationConfig config, JavaType enumType)
+    {
+        if (enumType == null) {
+            return null;
+        }
+        BasicBeanDescription beanDesc = config.introspect(enumType);
+        return beanDesc.findJsonValueMethod();
     }
 }

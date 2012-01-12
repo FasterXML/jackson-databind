@@ -32,7 +32,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 public abstract class BasicSerializerFactory
     extends SerializerFactory
 {
-    
     /*
     /**********************************************************
     /* Configuration, lookup tables/maps
@@ -256,7 +255,7 @@ public abstract class BasicSerializerFactory
         if (valueMethod != null) {
             // [JACKSON-586]: need to ensure accessibility of method
             Method m = valueMethod.getAnnotated();
-            if (config.isEnabled(SerializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+            if (config.canOverrideAccessModifiers()) {
                 ClassUtil.checkAndFixAccess(m);
             }
             JsonSerializer<Object> ser = findSerializerFromAnnotation(config, valueMethod, property);

@@ -502,7 +502,7 @@ public class BeanDeserializer
                     for (Constructor<?> ctor : valueClass.getConstructors()) {
                         Class<?>[] paramTypes = ctor.getParameterTypes();
                         if (paramTypes.length == 1 && paramTypes[0] == enclosing) {
-                            if (config.isEnabled(DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+                            if (config.canOverrideAccessModifiers()) {
                                 ClassUtil.checkAndFixAccess(ctor);
                             }
                             return new SettableBeanProperty.InnerClassProperty(prop, ctor);

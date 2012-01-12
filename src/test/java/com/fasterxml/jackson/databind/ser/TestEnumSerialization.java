@@ -57,7 +57,7 @@ public class TestEnumSerialization
         @Override
         public String toString() { return name; }
     }
-
+    
     protected static interface ToStringMixin {
         @Override
         @JsonValue public String toString();

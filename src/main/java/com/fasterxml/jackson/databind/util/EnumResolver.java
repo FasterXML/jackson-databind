@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.util;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -55,6 +56,26 @@ public class EnumResolver<T extends Enum<T>>
         }
         return new EnumResolver<ET>(enumCls, enumValues, map);
     }    
+
+    public static <ET extends Enum<ET>> EnumResolver<ET> constructUsingMethod(Class<ET> enumCls,
+            Method accessor)
+    {
+        ET[] enumValues = enumCls.getEnumConstants();
+        HashMap<String, ET> map = new HashMap<String, ET>();
+        // from last to first, so that in case of duplicate values, first wins
+        for (int i = enumValues.length; --i >= 0; ) {
+            ET en = enumValues[i];
+            try {
+                Object o = accessor.invoke(en);
+                if (o != null) {
+                    map.put(o.toString(), en);
+                }
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Failed to access @JsonValue of Enum value "+en+": "+e.getMessage());
+            }
+        }
+        return new EnumResolver<ET>(enumCls, enumValues, map);
+    }    
     
     /**
      * This method is needed because of the dynamic nature of constructing Enum
@@ -80,6 +101,18 @@ public class EnumResolver<T extends Enum<T>>
         // oh so wrong... not much that can be done tho
         Class<Enum> enumCls = (Class<Enum>) rawEnumCls;
         return constructUsingToString(enumCls);
+    }
+
+    /**
+     * Method used when actual String serialization is indicated using @JsonValue
+     * on a method.
+     */
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public static EnumResolver<?> constructUnsafeUsingMethod(Class<?> rawEnumCls, Method accessor)
+    {            
+        // wrong as ever but:
+        Class<Enum> enumCls = (Class<Enum>) rawEnumCls;
+        return constructUsingMethod(enumCls, accessor);
     }
     
     public T findEnum(String key)

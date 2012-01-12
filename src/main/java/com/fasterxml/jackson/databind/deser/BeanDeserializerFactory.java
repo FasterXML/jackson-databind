@@ -748,7 +748,7 @@ public class BeanDeserializerFactory
             BasicBeanDescription beanDesc)
         throws JsonMappingException
     {
-        boolean fixAccess = config.isEnabled(DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS);
+        boolean fixAccess = config.canOverrideAccessModifiers();
         CreatorCollector creators =  new CreatorCollector(beanDesc, fixAccess);
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
         
@@ -1188,7 +1188,7 @@ public class BeanDeserializerFactory
     {
         Map<Object, AnnotatedMember> raw = beanDesc.findInjectables();
         if (raw != null) {
-            boolean fixAccess = config.isEnabled(DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS);
+            boolean fixAccess = config.canOverrideAccessModifiers();
             for (Map.Entry<Object, AnnotatedMember> entry : raw.entrySet()) {
                 AnnotatedMember m = entry.getValue();
                 if (fixAccess) {
@@ -1209,7 +1209,7 @@ public class BeanDeserializerFactory
             BasicBeanDescription beanDesc, AnnotatedMethod setter)
         throws JsonMappingException
     {
-        if (config.isEnabled(DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+        if (config.canOverrideAccessModifiers()) {
             setter.fixAccess(); // to ensure we can call it
         }
         // we know it's a 2-arg method, second arg is the value
@@ -1249,7 +1249,7 @@ public class BeanDeserializerFactory
         throws JsonMappingException
     {
         // need to ensure method is callable (for non-public)
-        if (config.isEnabled(DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+        if (config.canOverrideAccessModifiers()) {
             setter.fixAccess();
         }
 
@@ -1286,7 +1286,7 @@ public class BeanDeserializerFactory
         throws JsonMappingException
     {
         // need to ensure method is callable (for non-public)
-        if (config.isEnabled(DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+        if (config.canOverrideAccessModifiers()) {
             field.fixAccess();
         }
         JavaType t0 = beanDesc.bindingsForBeanType().resolveType(field.getGenericType());
@@ -1327,7 +1327,7 @@ public class BeanDeserializerFactory
         throws JsonMappingException
     {
         // need to ensure it is callable now:
-        if (config.isEnabled(DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS)) {
+        if (config.canOverrideAccessModifiers()) {
             getter.fixAccess();
         }
 

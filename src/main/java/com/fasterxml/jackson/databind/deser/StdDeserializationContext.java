@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
-
 /**
  * Default implementation of {@link DeserializationContext}.
  */
@@ -36,14 +35,8 @@ public class StdDeserializationContext
      */
     protected JsonParser _parser;
 
-    /**
-     * @since 1.5
-     */
     protected final DeserializerProvider _deserProvider;
 
-    /**
-     * @since 1.9
-     */
     protected final InjectableValues _injectableValues;
     
     // // // Helper object recycling
@@ -176,8 +169,6 @@ public class StdDeserializationContext
     /**
      * Method deserializers can call to inform configured {@link DeserializationProblemHandler}s
      * of an unrecognized property.
-     * 
-     * @since 1.5
      */
     @Override
     public boolean handleUnknownProperty(JsonParser jp, JsonDeserializer<?> deser, Object instanceOrClass, String propName)

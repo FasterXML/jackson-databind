@@ -32,8 +32,6 @@ import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
  *<p>
  * Default method implementations are "no-op"s, meaning that methods are implemented
  * but have no effect.
- * 
- * @since 1.7
  */
 public abstract class BeanSerializerModifier
 {

@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-
 /**
  * Abstract class that defines API used by {@link ObjectMapper} and
  * {@link JsonSerializer}s to obtain serializers capable of serializing
@@ -53,8 +52,6 @@ public abstract class SerializerProvider
      * used to write JSON property names matching null keys for Java
      * Maps (which will throw an exception if try write such property
      * name)
-     * 
-     * @since 1.8
      */
     public abstract void setNullKeySerializer(JsonSerializer<Object> nks);
 
@@ -62,8 +59,6 @@ public abstract class SerializerProvider
      * Method that can be used to specify serializer that will be
      * used to write JSON values matching Java null values
      * instead of default one (which simply writes JSON null)
-     * 
-     * @since 1.8
      */
     public abstract void setNullValueSerializer(JsonSerializer<Object> nvs);
     
@@ -75,8 +70,6 @@ public abstract class SerializerProvider
      *<p>
      * Note that key serializer registration are different from value serializer
      * registrations.
-     * 
-     * @since 1.8
      */
     public abstract void setDefaultKeySerializer(JsonSerializer<Object> ks);
     
@@ -106,8 +99,6 @@ public abstract class SerializerProvider
      * 
      * @param rootType Type to use for locating serializer to use, instead of actual
      *    runtime type. Must be actual type, or one of its super types
-     *    
-     * @since 1.5
      */
     public abstract void serializeValue(SerializationConfig cfg, JsonGenerator jgen,
             Object value, JavaType rootType, SerializerFactory jsf)
@@ -160,8 +151,6 @@ public abstract class SerializerProvider
      *<pre>
      *   getConfig().getSerializationView();
      *</pre>
-     *
-     * @since 1.4
      */
     public final Class<?> getSerializationView() { return _serializationView; }
 
@@ -171,22 +160,22 @@ public abstract class SerializerProvider
      *<pre>
      *   getConfig().getFilterProvider();
      *</pre>
-     *
-     * @since 1.4
      */
     public final FilterProvider getFilterProvider() {
         return _config.getFilterProvider();
     }
 
     /**
-     * @since 1.8
+     * Convenience method for constructing {@link JavaType} for given JDK
+     * type (usually {@link java.lang.Class})
      */
     public JavaType constructType(Type type) {
          return _config.getTypeFactory().constructType(type);
     }
 
     /**
-     * @since 1.9.1
+     * Convenience method for constructing subtypes, retaining generic
+     * type parameter (if any)
      */
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
         return _config.constructSpecializedType(baseType, subclass);
@@ -224,8 +213,6 @@ public abstract class SerializerProvider
     /**
      * Similar to {@link #findValueSerializer(Class)}, but takes full generics-aware
      * type instead of raw class.
-     * 
-     * @since 1.5
      */
     public abstract JsonSerializer<Object> findValueSerializer(JavaType serializationType,
             BeanProperty property)
@@ -242,9 +229,7 @@ public abstract class SerializerProvider
      *   runtime type, but can also be static declared type, depending on configuration
      * 
      * @param cache Whether resulting value serializer should be cached or not; this is just
-     *    a hint 
-     *    
-     * @since 1.5
+     *    a hint
      */
     public abstract JsonSerializer<Object> findTypedValueSerializer(Class<?> valueType,
             boolean cache, BeanProperty property)
@@ -263,8 +248,6 @@ public abstract class SerializerProvider
      * 
      * @param cache Whether resulting value serializer should be cached or not; this is just
      *    a hint 
-     *    
-     * @since 1.5
      */
     public abstract JsonSerializer<Object> findTypedValueSerializer(JavaType valueType,
             boolean cache, BeanProperty property)
@@ -291,6 +274,18 @@ public abstract class SerializerProvider
      */
 
     /**
+     * @since 2.0
+     */
+    public abstract JsonSerializer<Object> getDefaultNullKeySerializer()
+        throws JsonMappingException;
+
+    /**
+     * @since 2.0
+     */
+    public abstract JsonSerializer<Object> getDefaultNullValueSerializer()
+        throws JsonMappingException;
+    
+    /**
      * Method called to get the serializer to use for serializing
      * Map keys that are nulls: this is needed since JSON does not allow
      * any non-String value as key, including null.
@@ -299,18 +294,34 @@ public abstract class SerializerProvider
      * will either throw an exception, or use an empty String; but
      * other behaviors are possible.
      */
-    public abstract JsonSerializer<Object> getNullKeySerializer();
+    /**
+     * Method called to find a serializer to use for null values for given
+     * declared type. Note that type is completely based on declared type,
+     * since nulls in Java have no type and thus runtime type can not be
+     * determined.
+     * 
+     * @since 2.0
+     */
+    public JsonSerializer<Object> findNullKeySerializer(JavaType serializationType,
+            BeanProperty property)
+        throws JsonMappingException {
+        return getDefaultNullKeySerializer();
+    }
 
     /**
-     * Method called to get the serializer to use for serializing
-     * values (root level, Array members or List field values)
-     * that are nulls. Specific accessor is needed because nulls
-     * in Java do not contain type information.
+     * Method called to get the serializer to use for serializing null
+     * property values.
      *<p>
-     * Typically returned serializer just writes out Json literal
-     * null value.
+     * Default implementation simply calls {@link #getDefaultNullValueSerializer()};
+     * can be overridden to add custom null serialization for properties
+     * of certain type or name.
+     * 
+     * @since 2.0
      */
-    public abstract JsonSerializer<Object> getNullValueSerializer();
+    public JsonSerializer<Object> findNullValueSerializer(BeanProperty property)
+        throws JsonMappingException {
+        return getDefaultNullValueSerializer();
+    }
 
     /**
      * Method called to get the serializer to use if provider
@@ -343,7 +354,7 @@ public abstract class SerializerProvider
         throws IOException, JsonProcessingException
     {
         if (value == null) {
-            getNullValueSerializer().serialize(null, jgen, this);
+            getDefaultNullValueSerializer().serialize(null, jgen, this);
         } else {
             Class<?> cls = value.getClass();
             findTypedValueSerializer(cls, true, null).serialize(value, jgen, this);
@@ -363,7 +374,7 @@ public abstract class SerializerProvider
             /* Note: can't easily check for suppression at this point
              * any more; caller must check it.
              */
-            getNullValueSerializer().serialize(null, jgen, this);
+            getDefaultNullValueSerializer().serialize(null, jgen, this);
         } else {
             Class<?> cls = value.getClass();
             findTypedValueSerializer(cls, true, null).serialize(value, jgen, this);
@@ -410,7 +421,7 @@ public abstract class SerializerProvider
     public final void defaultSerializeNull(JsonGenerator jgen)
         throws IOException, JsonProcessingException
     {
-        getNullValueSerializer().serialize(null, jgen, this);
+        getDefaultNullValueSerializer().serialize(null, jgen, this);
     }
     
     /*
@@ -429,8 +440,6 @@ public abstract class SerializerProvider
      *<p> 
      * The main use case for this method is to allow conditional flushing of
      * serializer cache, if certain number of entries is reached.
-     * 
-     * @since 1.4
      */
     public abstract int cachedSerializersCount();
 
@@ -439,8 +448,6 @@ public abstract class SerializerProvider
      * This can be used to remove memory usage (in case some serializers are
      * only used once or so), or to force re-construction of serializers after
      * configuration changes for mapper than owns the provider.
-     * 
-     * @since 1.4
      */
     public abstract void flushCachedSerializers();
 }

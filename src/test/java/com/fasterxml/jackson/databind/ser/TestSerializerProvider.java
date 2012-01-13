@@ -16,11 +16,12 @@ public class TestSerializerProvider
         ObjectMapper mapper = new ObjectMapper();
         SerializationConfig config = mapper.getSerializationConfig();
         SerializerFactory f = new BeanSerializerFactory(null);
-        StdSerializerProvider prov = new StdSerializerProvider().createInstance(config, f);
+        StdSerializerProvider prov = new StdSerializerProvider.Impl().createInstance(config, f);
 
         // Should have working default key and null key serializers
         assertNotNull(prov.findKeySerializer(null, null));
-        assertNotNull(prov.getNullKeySerializer());
+        assertNotNull(prov.getDefaultNullKeySerializer());
+        assertNotNull(prov.getDefaultNullValueSerializer());
         // as well as 'unknown type' one (throws exception)
         assertNotNull(prov.getUnknownTypeSerializer(getClass()));
         

@@ -8,26 +8,31 @@ import java.util.HashMap;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.Annotations;
 
-
 /**
  * Base bean property handler class, which implements common parts of
  * reflection-based functionality for accessing a property value
  * and serializing it.
+ *<p> 
+ * Note that current design tries to keep instances immutable (semi-functional
+ * style); mostly because these instances are exposed to application
+ * code and this is to reduce likelihood of data corruption and
+ * synchronization issues.
  */
 public class BeanPropertyWriter
     implements BeanProperty
 {
+    /**
+     * Marker object used to indicate "do not serialize if empty"
+     */
+    public final static Object MARKER_FOR_EMPTY = new Object();
+    
     /*
     /**********************************************************
     /* Settings for accessing property value to serialize
@@ -97,22 +102,27 @@ public class BeanPropertyWriter
      * Serializer to use for writing out the value: null if it can not
      * be known statically; non-null if it can.
      */
-    protected final JsonSerializer<Object> _serializer;
+    protected JsonSerializer<Object> _serializer;
 
+    /**
+     * Serializer used for writing out null values, if any: if null,
+     * null values are to be suppressed.
+     */
+    protected JsonSerializer<Object> _nullSerializer;
+    
     /**
      * In case serializer is not known statically (i.e. <code>_serializer</code>
      * is null), we will use a lookup structure for storing dynamically
      * resolved mapping from type(s) to serializer(s).
      */
     protected PropertySerializerMap _dynamicSerializers;
-    
+
     /**
-     * Flag to indicate that null values for this property are not
-     * to be written out. That is, if property has value null,
-     * no entry will be written
+     * Whether null values are to be suppressed (nothing written out if
+     * value is null) or not.
      */
     protected final boolean _suppressNulls;
-
+    
     /**
      * Value that is considered default value of the property; used for
      * default-value-suppression if enabled.
@@ -138,7 +148,7 @@ public class BeanPropertyWriter
      * Base type of the property, if the declared type is "non-trivial";
      * meaning it is either a structured type (collection, map, array),
      * or parameterized. Used to retain type information about contained
-     * type, which is mostly necessary if type metadata is to be
+     * type, which is mostly necessary if type meta-data is to be
      * included.
      */
     protected JavaType _nonTrivialBaseType;
@@ -152,8 +162,7 @@ public class BeanPropertyWriter
     public BeanPropertyWriter(AnnotatedMember member, Annotations contextAnnotations,
             String name, JavaType declaredType,
             JsonSerializer<Object> ser, TypeSerializer typeSer, JavaType serType,
-            Method m, Field f,
-            boolean suppressNulls, Object suppressableValue)
+            Method m, Field f, boolean suppressNulls, Object suppressableValue)
     {
         this(member, contextAnnotations, new SerializedString(name), declaredType,
                 ser, typeSer, serType,
@@ -177,6 +186,9 @@ public class BeanPropertyWriter
         _field = f;
         _suppressNulls = suppressNulls;
         _suppressableValue = suppressableValue;
+
+        // this will be resolved later on, unless nulls are to be suppressed
+        _nullSerializer = null;
     }
 
     /**
@@ -184,21 +196,13 @@ public class BeanPropertyWriter
      */
     protected BeanPropertyWriter(BeanPropertyWriter base)
     {
-        this(base, base._serializer);
-    }
-    
-    /**
-     * "Copy constructor" to be used by filtering sub-classes
-     */
-    protected BeanPropertyWriter(BeanPropertyWriter base, JsonSerializer<Object> ser)
-    {
-        _serializer = ser;
-        
         _member = base._member;
         _contextAnnotations = base._contextAnnotations;
         _declaredType = base._declaredType;
         _accessorMethod = base._accessorMethod;
         _field = base._field;
+        _serializer = base._serializer;
+        _nullSerializer = base._nullSerializer;
         // one more thing: copy internal settings, if any (since 1.7)
         if (base._internalSettings != null) {
             _internalSettings = new HashMap<Object,Object>(base._internalSettings);
@@ -211,22 +215,36 @@ public class BeanPropertyWriter
         _includeInViews = base._includeInViews;
         _typeSerializer = base._typeSerializer;
         _nonTrivialBaseType = base._nonTrivialBaseType;
-   }
-
-    /**
-     * Method that will construct and return a new writer that has
-     * same properties as this writer, but uses specified serializer
-     * instead of currently configured one (if any).
-     */
-    public BeanPropertyWriter withSerializer(JsonSerializer<Object> ser)
-    {
-        // sanity check to ensure sub-classes override...
-        if (getClass() != BeanPropertyWriter.class) {
-            throw new IllegalStateException("BeanPropertyWriter sub-class does not override 'withSerializer()'; needs to!");
-        }
-        return new BeanPropertyWriter(this, ser);
     }
 
+    /**
+     * Method called to assign value serializer for property
+     * 
+     * @since 2.0
+     */
+    public void assignSerializer(JsonSerializer<Object> ser)
+    {
+        // may need to disable check in future?
+        if (_serializer != null && _serializer != ser) {
+            throw new IllegalStateException("Can not override serializer");
+        }
+        _serializer = ser;
+    }
+
+    /**
+     * Method called to assign null value serializer for property
+     * 
+     * @since 2.0
+     */
+    public void assignNullSerializer(JsonSerializer<Object> nullSer)
+    {
+        // may need to disable check in future?
+        if (_nullSerializer != null && _nullSerializer != nullSer) {
+            throw new IllegalStateException("Can not override null serializer");
+        }
+        _nullSerializer = nullSer;
+    }
+    
     /**
      * Method called create an instance that handles details of unwrapping
      * contained value.
@@ -345,6 +363,9 @@ public class BeanPropertyWriter
     public SerializedString getSerializedName() { return _name; }
     
     public boolean hasSerializer() { return _serializer != null; }
+    public boolean hasNullSerializer() { return _nullSerializer != null; }
+
+    public boolean willSuppressNulls() { return _suppressNulls; }
     
     // Needed by BeanSerializer#getSchema
     public JsonSerializer<Object> getSerializer() {
@@ -399,9 +420,9 @@ public class BeanPropertyWriter
         Object value = get(bean);
         // Null handling is bit different, check that first
         if (value == null) {
-            if (!_suppressNulls) {
+            if (_nullSerializer != null) {
                 jgen.writeFieldName(_name);
-                prov.defaultSerializeNull(jgen);
+                _nullSerializer.serialize(null, jgen, prov);
             }
             return;
         }
@@ -409,8 +430,10 @@ public class BeanPropertyWriter
         if (value == bean) {
             _reportSelfReference(bean);
         }
-        if (_suppressableValue != null && _suppressableValue.equals(value)) {
-            return;
+        if (_suppressableValue != null) {
+            if ((MARKER_FOR_EMPTY == _suppressableValue) || _suppressableValue.equals(value)) {
+                return;
+            }
         }
         JsonSerializer<Object> ser = _serializer;
         if (ser == null) {
@@ -429,6 +452,12 @@ public class BeanPropertyWriter
         }
     }
 
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+    
     protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider) throws JsonMappingException
     {

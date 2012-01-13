@@ -59,9 +59,8 @@ public class TestAnnotationJsonRawValue
     public void testNullStringGetter() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        String value = null;
-        String result = m.writeValueAsString(new ClassGetter<String>(value));
-        String expected = String.format("{\"nonRaw\":%d,\"raw\":%d,\"value\":%d}", value, value, value);
+        String result = m.writeValueAsString(new ClassGetter<String>(null));
+        String expected = "{\"nonRaw\":null,\"raw\":null,\"value\":null}";
         assertEquals(expected, result);
     }
 

@@ -58,7 +58,7 @@ public class MapSerializer
      * Key serializer to use, if it can be statically determined
      */
     protected JsonSerializer<Object> _keySerializer;
-
+    
     /**
      * Value serializer to use, if it can be statically determined
      */
@@ -211,7 +211,7 @@ public class MapSerializer
             // First, serialize key
             Object keyElem = entry.getKey();
             if (keyElem == null) {
-                provider.getNullKeySerializer().serialize(null, jgen, provider);
+                provider.findNullKeySerializer(_keyType, _property).serialize(null, jgen, provider);
             } else {
                 // [JACKSON-314] skip entries with null values?
                 if (skipNulls && valueElem == null) continue;
@@ -264,7 +264,7 @@ public class MapSerializer
             Object valueElem = entry.getValue();
             Object keyElem = entry.getKey();
             if (keyElem == null) {
-                provider.getNullKeySerializer().serialize(null, jgen, provider);
+                provider.findNullKeySerializer(_keyType, _property).serialize(null, jgen, provider);
             } else {
                 // [JACKSON-314] also may need to skip entries with null values
                 if (skipNulls && valueElem == null) continue;
@@ -303,7 +303,7 @@ public class MapSerializer
             // First, serialize key
             Object keyElem = entry.getKey();
             if (keyElem == null) {
-                provider.getNullKeySerializer().serialize(null, jgen, provider);
+                provider.findNullKeySerializer(_keyType, _property).serialize(null, jgen, provider);
             } else {
                 // [JACKSON-314] also may need to skip entries with null values
                 if (skipNulls && valueElem == null) continue;

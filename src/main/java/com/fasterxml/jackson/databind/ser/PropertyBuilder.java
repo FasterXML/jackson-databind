@@ -1,11 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Map;
-
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -121,15 +117,16 @@ public class PropertyBuilder
                 // always suppress nulls
                 suppressNulls = true;
                 // but possibly also 'empty' values:
-                valueToSuppress = getEmptyValueChecker(name, declaredType);
+                valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
                 break;
             case NON_NULL:
                 suppressNulls = true;
                 // fall through
             case ALWAYS: // default
                 // we may still want to suppress empty collections, as per [JACKSON-254]:
-                if (declaredType.isContainerType()) {
-                    valueToSuppress = getContainerValueChecker(name, declaredType);
+                if (declaredType.isContainerType()
+                        && !_config.isEnabled(SerializationConfig.Feature.WRITE_EMPTY_JSON_ARRAYS)) {
+                    valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
                 }
                 break;
             }
@@ -238,66 +235,6 @@ public class PropertyBuilder
         }
     }
 
-    /**
-     * Helper method called to see if we need a comparator Object to check if values
-     * of a container (Collection, array) property should be suppressed.
-     * This is usually
-     * 
-     * @param propertyName Name of property to handle
-     * @param propertyType Declared type of values of the property to handle
-     * @return Object whose <code>equals()</code> method is called to check if given value
-     *    is "empty Collection" value to suppress; or null if no such check should be done
-     *    (declared type not Collection or array)
-     * 
-     * @since 1.9
-     */
-    protected Object getContainerValueChecker(String propertyName, JavaType propertyType)
-    {
-        // currently we will only check for certain kinds of empty containers:
-        if (!_config.isEnabled(SerializationConfig.Feature.WRITE_EMPTY_JSON_ARRAYS)) {
-            if (propertyType.isArrayType()) {
-                return new EmptyArrayChecker();
-            }
-            if (Collection.class.isAssignableFrom(propertyType.getRawClass())) {
-                return new EmptyCollectionChecker();
-            }
-        }
-        return null;
-    }
-
-        
-    /**
-     * Helper method called to see if we need a comparator Object to check if values
-     * of specified type are consider empty.
-     * If type has such concept, will build a comparator; otherwise return null, and
-     * in latter case, only null values are considered 'empty'.
-     * 
-     * @param propertyName Name of property to handle
-     * @param propertyType Declared type of values of the property to handle
-     * @return Object whose <code>equals()</code> method is called to check if given value
-     *    is "empty Collection" value to suppress; or null if no such check should be done
-     *    (declared type not Collection or array)
-     * 
-     * @since 1.9
-     */
-    protected Object getEmptyValueChecker(String propertyName, JavaType propertyType)
-    {
-        Class<?> rawType = propertyType.getRawClass();
-        if (rawType == String.class) {
-            return new EmptyStringChecker();
-        }
-        if (propertyType.isArrayType()) {
-            return new EmptyArrayChecker();
-        }
-        if (Collection.class.isAssignableFrom(rawType)) {
-            return new EmptyCollectionChecker();
-        }
-        if (Map.class.isAssignableFrom(rawType)) {
-            return new EmptyMapChecker();
-        }
-        return null;
-    }
-
     /*
     /**********************************************************
     /* Helper methods for exception handling
@@ -314,60 +251,4 @@ public class PropertyBuilder
         if (t instanceof RuntimeException) throw (RuntimeException) t;
         throw new IllegalArgumentException("Failed to get property '"+propName+"' of default "+defaultBean.getClass().getName()+" instance");
     }
-
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
-    /**
-     * Helper object used to check if given Collection object is null or empty
-     * 
-     * @since 1.9
-     */
-    public static class EmptyCollectionChecker
-    {
-        @Override public boolean equals(Object other) {
-            return (other == null) ||  ((Collection<?>) other).size() == 0;
-        }
-    }
-
-    /**
-     * Helper object used to check if given Map object is null or empty
-     * 
-     * @since 1.9
-     */
-    public static class EmptyMapChecker
-    {
-        @Override public boolean equals(Object other) {
-            return (other == null) ||  ((Map<?,?>) other).size() == 0;
-        }
-    }
-
-    /**
-     * Helper object used to check if given array object is null or empty
-     * 
-     * @since 1.9
-     */
-    public static class EmptyArrayChecker
-    {
-        @Override
-        public boolean equals(Object other) {
-            return (other == null) || Array.getLength(other) == 0;
-        }
-     }
-
-    /**
-     * Helper object used to check if given String object is null or empty
-     * 
-     * @since 1.9
-     */
-    public static class EmptyStringChecker
-    {
-        @Override
-        public boolean equals(Object other) {
-            return (other == null) || ((String) other).length() == 0;
-        }
-     }
 }

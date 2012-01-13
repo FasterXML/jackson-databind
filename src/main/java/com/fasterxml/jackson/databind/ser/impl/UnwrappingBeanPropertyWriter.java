@@ -19,40 +19,25 @@ public class UnwrappingBeanPropertyWriter
     public UnwrappingBeanPropertyWriter(BeanPropertyWriter base) {
         super(base);
     }
-
-    public UnwrappingBeanPropertyWriter(BeanPropertyWriter base, JsonSerializer<Object> ser) {
-        super(base, ser);
-    }
     
-    @Override
-    public BeanPropertyWriter withSerializer(JsonSerializer<Object> ser)
-    {
-        if (getClass() != UnwrappingBeanPropertyWriter.class) {
-            throw new IllegalStateException("UnwrappingBeanPropertyWriter sub-class does not override 'withSerializer()'; needs to!");
-        }
-        // better try to create unwrapping instance
-        if (!ser.isUnwrappingSerializer()) {
-            ser = ser.unwrappingSerializer();
-        }
-        return new UnwrappingBeanPropertyWriter(this, ser);
-    }
-
     @Override
     public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov)
         throws Exception
     {
         Object value = get(bean);
         if (value == null) {
-            /* Hmmh. I assume we MUST pretty much suppress nulls, since we
-             * can't really unwrap it...
-             */
+            // Hmmh. I assume we MUST pretty much suppress nulls, since we
+            // can't really unwrap them...
             return;
         }
         // For non-nulls, first: simple check for direct cycles
         if (value == bean) {
             _reportSelfReference(bean);
         }
-        if (_suppressableValue != null && _suppressableValue.equals(value)) {
+        if (_suppressableValue != null) {
+            if ((MARKER_FOR_EMPTY == _suppressableValue) || _suppressableValue.equals(value)) {
+                return;
+            }
             return;
         }
         JsonSerializer<Object> ser = _serializer;

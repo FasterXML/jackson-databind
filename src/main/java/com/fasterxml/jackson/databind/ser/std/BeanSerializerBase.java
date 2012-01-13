@@ -273,6 +273,21 @@ public abstract class BeanSerializerBase
         int filteredCount = (_filteredProps == null) ? 0 : _filteredProps.length;
         for (int i = 0, len = _props.length; i < len; ++i) {
             BeanPropertyWriter prop = _props[i];
+            // let's start with null serializer resolution actually
+            if (!prop.willSuppressNulls() && !prop.hasNullSerializer()) {
+                JsonSerializer<Object> nullSer = provider.findNullValueSerializer(prop);
+                if (nullSer != null) {
+                    prop.assignNullSerializer(nullSer);
+                    // also: remember to replace filtered property too? (see [JACKSON-364])
+                    if (i < filteredCount) {
+                        BeanPropertyWriter w2 = _filteredProps[i];
+                        if (w2 != null) {
+                            w2.assignNullSerializer(nullSer);
+                        }
+                    }
+                }
+            }
+            
             if (prop.hasSerializer()) {
                 continue;
             }
@@ -312,13 +327,12 @@ public abstract class BeanSerializerBase
                     }
                 }
             }
-            prop = prop.withSerializer(ser);
-            _props[i] = prop;
+            prop.assignSerializer(ser);
             // and maybe replace filtered property too? (see [JACKSON-364])
             if (i < filteredCount) {
                 BeanPropertyWriter w2 = _filteredProps[i];
                 if (w2 != null) {
-                    _filteredProps[i] = w2.withSerializer(ser);
+                    w2.assignSerializer(ser);
                 }
             }
         }

@@ -39,11 +39,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * (not factory) and there is no configurability, this
  * factory is stateless.
  * This means that a global singleton instance can be used.
- *<p>
- * Notes for version 1.7 (and above): the new module registration system
- * required addition of {@link #withConfig}, which has to
- * be redefined by sub-classes so that they can work properly with
- * pluggable additional serializer providing components.
  */
 public class BeanSerializerFactory
     extends BasicSerializerFactory

@@ -6,6 +6,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.StdDeserializerProvider;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -38,7 +39,7 @@ import com.fasterxml.jackson.databind.util.RootNameLookup;
  * Provider is also responsible for some parts of type serialization;
  * specifically for locating proper type serializers.
  */
-public class StdSerializerProvider
+public abstract class StdSerializerProvider
     extends SerializerProvider
 {
     /**
@@ -181,10 +182,7 @@ public class StdSerializerProvider
      * Overridable method, used to create a non-blueprint instances from the blueprint.
      * This is needed to retain state during serialization.
      */
-    protected StdSerializerProvider createInstance(SerializationConfig config, SerializerFactory jsf)
-    {
-        return new StdSerializerProvider(config, this, jsf);
-    }
+    protected abstract StdSerializerProvider createInstance(SerializationConfig config, SerializerFactory jsf);
 
     /*
     /**********************************************************
@@ -479,12 +477,12 @@ public class StdSerializerProvider
     }
 
     @Override
-    public JsonSerializer<Object> getNullKeySerializer() {
+    public JsonSerializer<Object> getDefaultNullKeySerializer() {
         return _nullKeySerializer;
     }
 
     @Override
-    public JsonSerializer<Object> getNullValueSerializer() {
+    public JsonSerializer<Object> getDefaultNullValueSerializer() {
         return _nullValueSerializer;
     }
 
@@ -492,7 +490,7 @@ public class StdSerializerProvider
     public JsonSerializer<Object> getUnknownTypeSerializer(Class<?> unknownType) {
         return _unknownTypeSerializer;
     }
-
+    
     /*
     /**********************************************************
     /* Abstract method impls, convenience methods
@@ -584,7 +582,8 @@ public class StdSerializerProvider
         boolean wrap;
 
         if (value == null) {
-            ser = getNullValueSerializer();
+            // no type provided; must just use the default null serializer
+            ser = getDefaultNullValueSerializer();
             wrap = false; // no name to use for wrapping; can't do!
         } else {
             Class<?> cls = value.getClass();
@@ -630,7 +629,7 @@ public class StdSerializerProvider
 
         JsonSerializer<Object> ser;
         if (value == null) {
-            ser = getNullValueSerializer();
+            ser = getDefaultNullValueSerializer();
             wrap = false;
         } else {
             // Let's ensure types are compatible at this point
@@ -795,6 +794,25 @@ public class StdSerializerProvider
     /**********************************************************
      */
 
+    /**
+     * Standard implementation used by {@link ObjectMapper}; just implements
+     * <code>createInstance</code> method which is abstract in
+     * {@link StdDeserializerProvider}
+     */
+    public final static class Impl extends StdSerializerProvider
+    {
+        public Impl() { super(); }
+        private Impl(SerializationConfig config, StdSerializerProvider src, SerializerFactory f) {
+            super(config, src, f);
+        }
+
+        @Override
+        public Impl createInstance(SerializationConfig config, SerializerFactory jsf) {
+            return new Impl(config, this, jsf);
+        }
+        
+    }
+    
     /**
      * Simple serializer that will call configured type serializer, passing
      * in configured data serializer, and exposing it all as a simple

@@ -370,13 +370,13 @@ public class ObjectMapper
         _deserializationConfig = (dconfig != null) ? dconfig :
             new DeserializationConfig(DEFAULT_INTROSPECTOR, DEFAULT_ANNOTATION_INTROSPECTOR, STD_VISIBILITY_CHECKER,
                     null, null, _typeFactory, null);
-        _serializerProvider = (sp == null) ? new StdSerializerProvider() : sp;
+        _serializerProvider = (sp == null) ? new StdSerializerProvider.Impl() : sp;
         _deserializerProvider = (dp == null) ? new StdDeserializerProvider() : dp;
 
         // Default serializer factory is stateless, can just assign
         _serializerFactory = BeanSerializerFactory.instance;
     }
-
+    
     /*
     /**********************************************************
     /* Versioned impl
@@ -2596,7 +2596,7 @@ public class ObjectMapper
         _rootDeserializers.put(valueType, deser);
         return deser;
     }
-    
+
     protected DeserializationContext _createDeserializationContext(JsonParser jp, DeserializationConfig cfg)
     {
         return new StdDeserializationContext(cfg, jp, _deserializerProvider,

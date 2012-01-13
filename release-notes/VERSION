@@ -10,6 +10,8 @@ Fixes:
 
 Improvements
 
+* [JACKSON-695]: Add 'isEmpty(value)' in JsonSerializer to allow
+  customizing handling of serialization of empty values
 * [JACKSON-749]: Make @JsonValue work for Enum deserialization
 
 New features:

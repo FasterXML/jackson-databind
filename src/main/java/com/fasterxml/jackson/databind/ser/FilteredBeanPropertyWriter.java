@@ -6,11 +6,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 
 /**
- * Decorated {@link BeanPropertyWriter} that will filter out
- * properties that are not to be included in currently active
- * JsonView.
- *
- * @since 1.4
+ * Decorated {@link BeanPropertyWriter} that will filter out properties
+ * that are not to be included in currently active JsonView.
  */
 public abstract class FilteredBeanPropertyWriter
 {    
@@ -41,10 +38,15 @@ public abstract class FilteredBeanPropertyWriter
             _delegate = delegate;
             _view = view;
         }
-        
+
         @Override
-        public BeanPropertyWriter withSerializer(JsonSerializer<Object> ser) {
-            return new SingleView(_delegate.withSerializer(ser), _view);
+        public void assignSerializer(JsonSerializer<Object> ser) {
+            _delegate.assignSerializer(ser);
+        }
+
+        @Override
+        public void assignNullSerializer(JsonSerializer<Object> nullSer) {
+            _delegate.assignNullSerializer(nullSer);
         }
         
         @Override
@@ -72,8 +74,13 @@ public abstract class FilteredBeanPropertyWriter
         }
         
         @Override
-        public BeanPropertyWriter withSerializer(JsonSerializer<Object> ser) {
-            return new MultiView(_delegate.withSerializer(ser), _views);
+        public void assignSerializer(JsonSerializer<Object> ser) {
+            _delegate.assignSerializer(ser);
+        }
+
+        @Override
+        public void assignNullSerializer(JsonSerializer<Object> nullSer) {
+            _delegate.assignNullSerializer(nullSer);
         }
         
         @Override

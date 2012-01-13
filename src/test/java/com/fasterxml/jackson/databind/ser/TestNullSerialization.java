@@ -20,17 +20,61 @@ public class TestNullSerialization
         }
     }
 
+    static class Bean1 {
+        public String name = null;
+    }
+
+    static class Bean2 {
+        public String type = null;
+    }
+    
+    static class MyNullProvider extends StdSerializerProvider
+    {
+        public MyNullProvider() { super(); }
+        public MyNullProvider(SerializationConfig config, MyNullProvider base, SerializerFactory jsf) {
+            super(config, base, jsf);
+        }
+        
+        protected StdSerializerProvider createInstance(SerializationConfig config, SerializerFactory jsf) {
+            return new MyNullProvider(config, this, jsf);
+        }
+        
+        @Override
+        public JsonSerializer<Object> findNullValueSerializer(BeanProperty property)
+            throws JsonMappingException
+        {
+            if ("name".equals(property.getName())) {
+                return new NullSerializer();
+            }
+            return super.findNullValueSerializer(property);
+        }
+    }
+    
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+    
     public void testSimple() throws Exception
     {
         assertEquals("null", new ObjectMapper().writeValueAsString(null));
     }
 
-    public void testCustom() throws Exception
+    public void testOverriddenDefaultNulls() throws Exception
     {
-        StdSerializerProvider sp = new StdSerializerProvider();
+        StdSerializerProvider sp = new StdSerializerProvider.Impl();
         sp.setNullValueSerializer(new NullSerializer());
         ObjectMapper m = new ObjectMapper();
         m.setSerializerProvider(sp);
         assertEquals("\"foobar\"", m.writeValueAsString(null));
+    }
+
+    public void testCustomNulls() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        m.setSerializerProvider(new MyNullProvider());
+        assertEquals("{\"name\":\"foobar\"}", m.writeValueAsString(new Bean1()));
+        assertEquals("{\"type\":null}", m.writeValueAsString(new Bean2()));
     }
 }

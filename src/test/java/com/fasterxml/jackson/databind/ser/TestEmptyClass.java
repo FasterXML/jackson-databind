@@ -16,13 +16,14 @@ public class TestEmptyClass
 
     // for [JACKSON-695]:
 
-    @JsonSerialize(using=NonZeroSerializer.class, include=JsonSerialize.Inclusion.NON_EMPTY)
+    @JsonSerialize(using=NonZeroSerializer.class)
     static class NonZero {
-        public int value;
+        public int nr;
         
-        public NonZero(int i) { value = i; }
+        public NonZero(int i) { nr = i; }
     }
 
+    @JsonSerialize(include=JsonSerialize.Inclusion.NON_EMPTY)
     static class NonZeroWrapper {
         public NonZero value;
         
@@ -36,14 +37,13 @@ public class TestEmptyClass
         @Override
         public void serialize(NonZero value, JsonGenerator jgen, SerializerProvider provider) throws IOException
         {
-            jgen.writeNumber(value.value);
+            jgen.writeNumber(value.nr);
         }
 
         @Override
         public boolean isEmpty(NonZero value) {
-System.err.println("Empty? "+value);            
             if (value == null) return true;
-            return (value.value == 0);
+            return (value.nr == 0);
         }
     }
     

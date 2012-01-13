@@ -34,12 +34,6 @@ public class UnwrappingBeanPropertyWriter
         if (value == bean) {
             _reportSelfReference(bean);
         }
-        if (_suppressableValue != null) {
-            if ((MARKER_FOR_EMPTY == _suppressableValue) || _suppressableValue.equals(value)) {
-                return;
-            }
-            return;
-        }
         JsonSerializer<Object> ser = _serializer;
         if (ser == null) {
             Class<?> cls = value.getClass();
@@ -47,6 +41,15 @@ public class UnwrappingBeanPropertyWriter
             ser = map.serializerFor(cls);
             if (ser == null) {
                 ser = _findAndAddDynamic(map, cls, prov);
+            }
+        }
+        if (_suppressableValue != null) {
+            if (MARKER_FOR_EMPTY == _suppressableValue) {
+                if (ser.isEmpty(value)) {
+                    return;
+                }
+            } else if (_suppressableValue.equals(value)) {
+                return;
             }
         }
 

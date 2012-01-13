@@ -99,7 +99,7 @@ public class PropertyBuilder
         boolean suppressNulls = false;
 
         JsonSerialize.Inclusion methodProps = _annotationIntrospector.findSerializationInclusion(am, _outputProps);
-
+        
         if (methodProps != null) {
             switch (methodProps) {
             case NON_DEFAULT:

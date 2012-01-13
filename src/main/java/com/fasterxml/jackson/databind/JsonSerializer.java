@@ -33,8 +33,6 @@ public abstract class JsonSerializer<T>
      *<p>
      * Default implementation just returns serializer as-is,
      * indicating that no unwrapped variant exists
-     * 
-     * @since 1.9
      */
     public JsonSerializer<T> unwrappingSerializer() {
         return this;
@@ -45,8 +43,6 @@ public abstract class JsonSerializer<T>
      * "unwrapping" serializer; this is necessary to know since
      * it may also require caller to suppress writing of the
      * leading property name.
-     * 
-     * @since 1.9
      */
     public boolean isUnwrappingSerializer() {
         return false;
@@ -91,8 +87,6 @@ public abstract class JsonSerializer<T>
      * @param provider Provider that can be used to get serializers for
      *   serializing Objects value contains, if any.
      * @param typeSer Type serializer to use for including type information
-     *
-     * @since 1.5
      */
     public void serializeWithType(T value, JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)
@@ -119,6 +113,19 @@ public abstract class JsonSerializer<T>
      *<p>
      */
     public Class<T> handledType() { return null; }
+
+    /**
+     * Method called to check whether given serializable value is
+     * considered "empty" value (for purposes of suppressing serialization
+     * of empty values).
+     *<p>
+     * Default implementation will consider only null values to be empty.
+     * 
+     * @since 2.0
+     */
+    public boolean isEmpty(T value) {
+        return (value == null);
+    }
     
     /*
     /**********************************************************

@@ -67,6 +67,11 @@ public class ObjectArraySerializer
     {
         return new ObjectArraySerializer(_elementType, _staticTyping, vts, _property, _elementSerializer);
     }
+
+    @Override
+    public boolean isEmpty(Object[] value) {
+        return (value == null) || (value.length == 0);
+    }
     
     @Override
     public void serializeContents(Object[] value, JsonGenerator jgen, SerializerProvider provider)

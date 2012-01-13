@@ -24,6 +24,11 @@ public class EnumSetSerializer
         // no typing for enums (always "hard" type)
         return this;
     }
+
+    @Override
+    public boolean isEmpty(EnumSet<? extends Enum<?>> value) {
+        return (value == null) || value.isEmpty();
+    }
     
     @Override
     public void serializeContents(EnumSet<? extends Enum<?>> value, JsonGenerator jgen, SerializerProvider provider)

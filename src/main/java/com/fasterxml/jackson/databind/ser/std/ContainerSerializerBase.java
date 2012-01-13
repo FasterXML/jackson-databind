@@ -6,8 +6,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * Intermediate base class for types that contain element(s) of
  * other types. Used for example for List, Map, Object array and
  * Iterator serializers.
- * 
- * @since 1.5
  */
 public abstract class ContainerSerializerBase<T>
     extends SerializerBase<T>
@@ -47,5 +45,11 @@ public abstract class ContainerSerializerBase<T>
         return _withValueTypeSerializer(vts);
     }
 
+    /* Overridden as abstract, to force re-implementation; necessary for all
+     * collection types.
+     */
+    @Override
+    public abstract boolean isEmpty(T value);
+    
     public abstract ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts);
 }

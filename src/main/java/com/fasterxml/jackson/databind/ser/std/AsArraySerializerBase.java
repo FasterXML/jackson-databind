@@ -141,9 +141,6 @@ public abstract class AsArraySerializerBase<T>
         }
     }
 
-    /**
-     * @since 1.7
-     */
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider) throws JsonMappingException
     {
@@ -155,9 +152,6 @@ public abstract class AsArraySerializerBase<T>
         return result.serializer;
     }
 
-    /**
-     * @since 1.8
-     */
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             JavaType type, SerializerProvider provider) throws JsonMappingException
     {

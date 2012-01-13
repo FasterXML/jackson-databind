@@ -147,6 +147,11 @@ public class MapSerializer
      */
 
     @Override
+    public boolean isEmpty(Map<?,?> value) {
+        return (value == null) || value.isEmpty();
+    }
+    
+    @Override
     public void serialize(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {

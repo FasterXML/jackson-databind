@@ -16,9 +16,6 @@ import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
  * to figure out actual serializers for final types. This must be
  * done from {@link #resolve} method, and NOT from constructor;
  * otherwise we could end up with an infinite loop.
- *<p>
- * Since 1.7 instances are immutable; this is achieved by using a
- * separate builder during construction process.
  */
 public class BeanSerializer
     extends BeanSerializerBase
@@ -52,8 +49,6 @@ public class BeanSerializer
     /**
      * Copy-constructor that is useful for sub-classes that just want to
      * copy all super-class properties without modifications.
-     * 
-     * @since 1.7
      */
     protected BeanSerializer(BeanSerializer src) {
         super(src);
@@ -63,8 +58,6 @@ public class BeanSerializer
      * Alternate copy constructor that can be used to construct
      * standard {@link BeanSerializer} passing an instance of
      * "compatible enough" source serializer.
-     * 
-     * @since 1.9
      */
     protected BeanSerializer(BeanSerializerBase src) {
         super(src);

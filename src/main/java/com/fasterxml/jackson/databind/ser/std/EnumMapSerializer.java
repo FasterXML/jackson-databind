@@ -70,6 +70,11 @@ public class EnumMapSerializer
     {
         return new EnumMapSerializer(_valueType, _staticTyping, _keyEnums, vts,  _property, _valueSerializer);
     }
+
+    @Override
+    public boolean isEmpty(EnumMap<? extends Enum<?>,?> value) {
+        return (value == null) || value.isEmpty();
+    }
     
     @Override
     public void serialize(EnumMap<? extends Enum<?>,?> value, JsonGenerator jgen, SerializerProvider provider)

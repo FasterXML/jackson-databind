@@ -33,6 +33,11 @@ public class CollectionSerializer
     public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
         return new CollectionSerializer(_elementType, _staticTyping, vts, _property, _elementSerializer);
     }
+
+    @Override
+    public boolean isEmpty(Collection<?> value) {
+        return (value == null) || value.isEmpty();
+    }
     
     @Override
     public void serializeContents(Collection<?> value, JsonGenerator jgen, SerializerProvider provider)

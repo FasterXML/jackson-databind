@@ -40,8 +40,6 @@ public class StdArraySerializers
 
         /**
          * Array-valued property being serialized with this instance
-         * 
-         * @since 1.7
          */
         protected final BeanProperty _property;
         
@@ -92,8 +90,6 @@ public class StdArraySerializers
         /**
          * Value serializer to use, if it's not the standard one
          * (if it is we can optimize serialization a lot)
-         * 
-         * @since 1.7
          */
         protected JsonSerializer<Object> _elementSerializer;
 
@@ -108,6 +104,11 @@ public class StdArraySerializers
         @Override
         public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
             return this;
+        }
+
+        @Override
+        public boolean isEmpty(String[] value) {
+            return (value == null) || (value.length == 0);
         }
         
         @Override
@@ -190,9 +191,13 @@ public class StdArraySerializers
          * we'll ignore it...
          */
         @Override
-        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts)
-        {
+        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
             return this;
+        }
+
+        @Override
+        public boolean isEmpty(boolean[] value) {
+            return (value == null) || (value.length == 0);
         }
         
         @Override
@@ -226,6 +231,11 @@ public class StdArraySerializers
     {
         public ByteArraySerializer() {
             super(byte[].class);
+        }
+
+        @Override
+        public boolean isEmpty(byte[] value) {
+            return (value == null) || (value.length == 0);
         }
         
         @Override
@@ -267,6 +277,11 @@ public class StdArraySerializers
             return new ShortArraySerializer(vts);
         }
         
+        @Override
+        public boolean isEmpty(short[] value) {
+            return (value == null) || (value.length == 0);
+        }
+
         @SuppressWarnings("cast")
         @Override
         public void serializeContents(short[] value, JsonGenerator jgen, SerializerProvider provider)
@@ -299,6 +314,11 @@ public class StdArraySerializers
         extends SerializerBase<char[]>
     {
         public CharArraySerializer() { super(char[].class); }
+
+        @Override
+        public boolean isEmpty(char[] value) {
+            return (value == null) || (value.length == 0);
+        }
         
         @Override
         public void serialize(char[] value, JsonGenerator jgen, SerializerProvider provider)
@@ -361,10 +381,14 @@ public class StdArraySerializers
          * we'll ignore it...
          */
         @Override
-        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts)
-        {
+        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
             return this;
         }        
+
+        @Override
+        public boolean isEmpty(int[] value) {
+            return (value == null) || (value.length == 0);
+        }
         
         @Override
         public void serializeContents(int[] value, JsonGenerator jgen, SerializerProvider provider)
@@ -394,6 +418,11 @@ public class StdArraySerializers
         @Override
         public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
             return new LongArraySerializer(vts);
+        }
+
+        @Override
+        public boolean isEmpty(long[] value) {
+            return (value == null) || (value.length == 0);
         }
         
         @Override
@@ -425,7 +454,12 @@ public class StdArraySerializers
         public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
             return new FloatArraySerializer(vts);
         }
-        
+
+        @Override
+        public boolean isEmpty(float[] value) {
+            return (value == null) || (value.length == 0);
+        }
+
         @Override
         public void serializeContents(float[] value, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonGenerationException
@@ -455,9 +489,13 @@ public class StdArraySerializers
          * we'll ignore it...
          */
         @Override
-        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts)
-        {
+        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
             return this;
+        }
+
+        @Override
+        public boolean isEmpty(double[] value) {
+            return (value == null) || (value.length == 0);
         }
         
         @Override

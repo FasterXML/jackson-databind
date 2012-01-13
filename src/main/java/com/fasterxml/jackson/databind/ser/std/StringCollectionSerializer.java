@@ -19,8 +19,6 @@ import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
  * may be overridde; because of this, logic is needed to ensure that the default
  * serializer is in use to use fastest mode, or if not, to defer to custom
  * String serializer.
- * 
- * @since 1.7
  */
 @JacksonStdImpl
 

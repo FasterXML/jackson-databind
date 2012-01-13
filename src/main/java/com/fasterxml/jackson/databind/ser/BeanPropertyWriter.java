@@ -37,8 +37,6 @@ public class BeanPropertyWriter
     /**
      * Member (field, method) that represents property and allows access
      * to associated annotations.
-     * 
-     * @since 1.7
      */
     protected final AnnotatedMember _member;
 
@@ -72,8 +70,6 @@ public class BeanPropertyWriter
     /**********************************************************
     /* Opaque internal data that bean serializer factory and
     /* bean serializers can add.
-    /* 
-    /* @since 1.7
     /**********************************************************
      */
 
@@ -107,8 +103,6 @@ public class BeanPropertyWriter
      * In case serializer is not known statically (i.e. <code>_serializer</code>
      * is null), we will use a lookup structure for storing dynamically
      * resolved mapping from type(s) to serializer(s).
-     * 
-     * @since 1.7
      */
     protected PropertySerializerMap _dynamicSerializers;
     
@@ -128,8 +122,6 @@ public class BeanPropertyWriter
     /**
      * Alternate set of property writers used when view-based filtering
      * is available for the Bean.
-     * 
-     * @since 1.4
      */
     protected Class<?>[] _includeInViews;
 
@@ -145,11 +137,9 @@ public class BeanPropertyWriter
     /**
      * Base type of the property, if the declared type is "non-trivial";
      * meaning it is either a structured type (collection, map, array),
-     * or parametrized. Used to retain type information about contained
+     * or parameterized. Used to retain type information about contained
      * type, which is mostly necessary if type metadata is to be
      * included.
-     *
-     * @since 1.5
      */
     protected JavaType _nonTrivialBaseType;
 
@@ -240,8 +230,6 @@ public class BeanPropertyWriter
     /**
      * Method called create an instance that handles details of unwrapping
      * contained value.
-     * 
-     * @since 1.9
      */
     public BeanPropertyWriter unwrappingWriter() {
         return new UnwrappingBeanPropertyWriter(this);
@@ -261,8 +249,6 @@ public class BeanPropertyWriter
      * Method called to define type to consider as "non-trivial" basetype,
      * needed for dynamic serialization resolution for complex (usually container)
      * types
-     *
-     * @since 1.5
      */
     public void setNonTrivialBaseType(JavaType t) {
         _nonTrivialBaseType = t;
@@ -310,8 +296,6 @@ public class BeanPropertyWriter
      * Method for accessing value of specified internal setting.
      * 
      * @return Value of the setting, if any; null if none.
-     * 
-     * @since 1.7
      */
     public Object getInternalSetting(Object key)
     {
@@ -325,8 +309,6 @@ public class BeanPropertyWriter
      * Method for setting specific internal setting to given value
      * 
      * @return Old value of the setting, if any (null if none)
-     * 
-     * @since 1.7
      */
     public Object setInternalSetting(Object key, Object value)
     {
@@ -340,8 +322,6 @@ public class BeanPropertyWriter
      * Method for removing entry for specified internal setting.
      * 
      * @return Existing value of the setting, if any (null if none)
-     * 
-     * @since 1.7
      */
     public Object removeInternalSetting(Object key)
     {
@@ -432,7 +412,6 @@ public class BeanPropertyWriter
         if (_suppressableValue != null && _suppressableValue.equals(value)) {
             return;
         }
-
         JsonSerializer<Object> ser = _serializer;
         if (ser == null) {
             Class<?> cls = value.getClass();
@@ -450,9 +429,6 @@ public class BeanPropertyWriter
         }
     }
 
-    /**
-     * @since 1.7
-     */
     protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider) throws JsonMappingException
     {

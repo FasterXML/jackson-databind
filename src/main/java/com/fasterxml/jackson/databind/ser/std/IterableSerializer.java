@@ -25,6 +25,12 @@ public class IterableSerializer
     public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
         return new IterableSerializer(_elementType, _staticTyping, vts, _property);
     }
+
+    @Override
+    public boolean isEmpty(Iterable<?> value) {
+        // Not really good way to implement this, but has to do for now:
+        return (value == null) || value.iterator().hasNext();
+    }
     
     @Override
     public void serializeContents(Iterable<?> value, JsonGenerator jgen, SerializerProvider provider)

@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
  * intances.
  * Main reason for using separate builder class is that this makes it easier
  * to make actual serializer class fully immutable.
- * 
- * @since 1.7
  */
 public class BeanSerializerBuilder
 {
@@ -78,9 +76,6 @@ public class BeanSerializerBuilder
     public List<BeanPropertyWriter> getProperties() { return _properties; }
     public BeanPropertyWriter[] getFilteredProperties() { return _filteredProperties; }
     
-    /**
-     * @since 1.9
-     */
     public boolean hasProperties() {
         return (_properties != null) && (_properties.size() > 0);
     }

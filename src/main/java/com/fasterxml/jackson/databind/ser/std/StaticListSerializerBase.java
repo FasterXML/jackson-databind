@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 /**
  * Intermediate base class for Lists, Collections and Arrays
  * that contain static (non-dynamic) value types.
- * 
- * @since 1.7
  */
 public abstract class StaticListSerializerBase<T extends Collection<?>>
     extends SerializerBase<T>
@@ -28,6 +26,11 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     {
         super(cls, false);
         _property = property;
+    }
+
+    @Override
+    public boolean isEmpty(T value) {
+        return (value == null) || (value.size() == 0);
     }
     
     @Override

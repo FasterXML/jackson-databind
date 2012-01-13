@@ -395,8 +395,6 @@ public abstract class SerializerProvider
      * Method that will handle serialization of Dates used as {@link java.util.Map} keys,
      * based on {@link SerializationConfig.Feature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
-     * 
-     * @since 1.9
      */
     public abstract void defaultSerializeDateKey(long timestamp, JsonGenerator jgen)
         throws IOException, JsonProcessingException;
@@ -405,15 +403,10 @@ public abstract class SerializerProvider
      * Method that will handle serialization of Dates used as {@link java.util.Map} keys,
      * based on {@link SerializationConfig.Feature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
-     * 
-     * @since 1.9
      */
     public abstract void defaultSerializeDateKey(Date date, JsonGenerator jgen)
         throws IOException, JsonProcessingException;
     
-    /**
-     * @since 1.7
-     */
     public final void defaultSerializeNull(JsonGenerator jgen)
         throws IOException, JsonProcessingException
     {

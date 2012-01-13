@@ -33,6 +33,16 @@ public class ToStringSerializer
      * {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#using}.
      */
     public ToStringSerializer() { super(Object.class); }
+
+    @Override
+    public boolean isEmpty(Object value) {
+        if (value == null) {
+            return true;
+        }
+        String str = value.toString();
+        // would use String.isEmpty(), but that's JDK 1.6
+        return (str == null) || (str.length() == 0);
+    }
     
     @Override
     public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)

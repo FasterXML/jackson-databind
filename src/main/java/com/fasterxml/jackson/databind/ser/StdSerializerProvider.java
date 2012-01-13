@@ -35,9 +35,8 @@ import com.fasterxml.jackson.databind.util.RootNameLookup;
  * (<code>instance.getClass() == blueprint.getClass()</code>).
  * Check is done to prevent weird bugs that would otherwise occur.
  *<p>
- * Starting with version 1.5, provider is also responsible for
- * some parts of type serialization; specifically for locating
- * proper type serializers to use for types.
+ * Provider is also responsible for some parts of type serialization;
+ * specifically for locating proper type serializers.
  */
 public class StdSerializerProvider
     extends SerializerProvider
@@ -738,9 +737,6 @@ public class StdSerializerProvider
         return ser;
     }
 
-    /**
-     * @since 1.5
-]     */
     protected JsonSerializer<Object> _createAndCacheUntypedSerializer(JavaType type,
             BeanProperty property)
         throws JsonMappingException
@@ -774,9 +770,6 @@ public class StdSerializerProvider
         return (JsonSerializer<Object>)_serializerFactory.createSerializer(_config, type, property);
     }
 
-    /**
-     * @since 1.8.5
-     */
     @SuppressWarnings("unchecked")
     protected JsonSerializer<Object> _handleContextualResolvable(JsonSerializer<Object> ser,
             BeanProperty property)

@@ -20,6 +20,14 @@ public final class StringSerializer
 {
     public StringSerializer() { super(String.class); }
 
+    /**
+     * For Strings, both null and Empty String qualify for emptiness.
+     */
+    @Override
+    public boolean isEmpty(String value) {
+        return (value == null) || (value.length() == 0);
+    }
+    
     @Override
     public void serialize(String value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException

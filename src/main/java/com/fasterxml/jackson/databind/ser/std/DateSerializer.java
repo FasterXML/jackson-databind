@@ -16,12 +16,18 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
  */
 @JacksonStdImpl
 public class DateSerializer
-    extends ScalarSerializerBase<java.util.Date>
+    extends ScalarSerializerBase<Date>
 {
     public static DateSerializer instance = new DateSerializer();
     
     public DateSerializer() { super(Date.class); }
 
+    @Override
+    public boolean isEmpty(Date value) {
+        // let's assume "null date" (timestamp 0) qualifies for empty
+        return (value == null) || (value.getTime() == 0L);
+    }
+    
     @Override
     public void serialize(Date value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException

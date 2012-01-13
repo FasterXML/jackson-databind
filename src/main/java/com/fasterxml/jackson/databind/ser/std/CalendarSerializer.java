@@ -24,6 +24,12 @@ public class CalendarSerializer
     public CalendarSerializer() { super(Calendar.class); }
     
     @Override
+    public boolean isEmpty(Calendar value) {
+        // let's assume "null date" (timestamp 0) qualifies for empty
+        return (value == null) || (value.getTimeInMillis() == 0L);
+    }
+
+    @Override
     public void serialize(Calendar value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {

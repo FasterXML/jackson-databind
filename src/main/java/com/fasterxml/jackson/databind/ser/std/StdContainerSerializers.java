@@ -79,6 +79,11 @@ public class StdContainerSerializers
         }
 
         @Override
+        public boolean isEmpty(List<?> value) {
+            return (value == null) || value.isEmpty();
+        }
+        
+        @Override
         public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
             return new IndexedListSerializer(_elementType, _staticTyping, vts, _property, _elementSerializer);
         }
@@ -202,6 +207,11 @@ public class StdContainerSerializers
             super(Iterator.class, elemType, staticTyping, vts, property, null);
         }
 
+        @Override
+        public boolean isEmpty(Iterator<?> value) {
+            return (value == null) || !value.hasNext();
+        }
+        
         @Override
         public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
             return new IteratorSerializer(_elementType, _staticTyping, vts, _property);

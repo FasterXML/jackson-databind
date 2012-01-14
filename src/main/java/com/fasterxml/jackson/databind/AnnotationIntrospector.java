@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.util.VersionUtil;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -394,7 +395,7 @@ public abstract class AnnotationIntrospector implements Versioned
      * <code>Class<JsonSerializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
-    public Class<? extends JsonSerializer<?>> findKeySerializer(Annotated am) {
+    public Object findKeySerializer(Annotated am) {
         return null;
     }
 
@@ -406,7 +407,7 @@ public abstract class AnnotationIntrospector implements Versioned
      * <code>Class<JsonSerializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
-    public Class<? extends JsonSerializer<?>> findContentSerializer(Annotated am) {
+    public Object findContentSerializer(Annotated am) {
         return null;
     }
     
@@ -582,7 +583,7 @@ public abstract class AnnotationIntrospector implements Versioned
      * <code>Class<JsonDeserializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
-    public abstract Class<? extends KeyDeserializer> findKeyDeserializer(Annotated am);
+    public abstract Object findKeyDeserializer(Annotated am);
 
     /**
      * Method for getting a deserializer definition for content (values) of
@@ -593,7 +594,7 @@ public abstract class AnnotationIntrospector implements Versioned
      * <code>Class<JsonDeserializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
-    public abstract Class<? extends JsonDeserializer<?>> findContentDeserializer(Annotated am);
+    public abstract Object findContentDeserializer(Annotated am);
 
     /**
      * Method for accessing annotated type definition that a
@@ -1010,20 +1011,20 @@ public abstract class AnnotationIntrospector implements Versioned
         }
         
         @Override
-        public Class<? extends JsonSerializer<?>> findKeySerializer(Annotated a)
+        public Object findKeySerializer(Annotated a)
         {
-            Class<? extends JsonSerializer<?>> result = _primary.findKeySerializer(a);
-            if (result == null || result == JsonSerializer.None.class) {
+            Object result = _primary.findKeySerializer(a);
+            if (result == null || result == JsonSerializer.None.class || result == NoClass.class) {
                 result = _secondary.findKeySerializer(a);
             }
             return result;
         }
 
         @Override
-        public Class<? extends JsonSerializer<?>> findContentSerializer(Annotated a)
+        public Object findContentSerializer(Annotated a)
         {
-            Class<? extends JsonSerializer<?>> result = _primary.findContentSerializer(a);
-            if (result == null || result == JsonSerializer.None.class) {
+            Object result = _primary.findContentSerializer(a);
+            if (result == null || result == JsonSerializer.None.class || result == NoClass.class) {
                 result = _secondary.findContentSerializer(a);
             }
             return result;
@@ -1197,20 +1198,20 @@ public abstract class AnnotationIntrospector implements Versioned
         }
         
         @Override
-        public Class<? extends KeyDeserializer> findKeyDeserializer(Annotated am)
+        public Object findKeyDeserializer(Annotated am)
         {
-            Class<? extends KeyDeserializer> result = _primary.findKeyDeserializer(am);
-            if (result == null || result == KeyDeserializer.None.class) {
+            Object result = _primary.findKeyDeserializer(am);
+            if (result == null || result == KeyDeserializer.None.class || result == NoClass.class) {
                 result = _secondary.findKeyDeserializer(am);
             }
             return result;
         }
 
         @Override
-        public Class<? extends JsonDeserializer<?>> findContentDeserializer(Annotated am)
+        public Object findContentDeserializer(Annotated am)
         {
-            Class<? extends JsonDeserializer<?>> result = _primary.findContentDeserializer(am);
-            if (result == null || result == JsonDeserializer.None.class) {
+            Object result = _primary.findContentDeserializer(am);
+            if (result == null || result == JsonDeserializer.None.class || result == NoClass.class) {
                 result = _secondary.findContentDeserializer(am);
             }
             return result;

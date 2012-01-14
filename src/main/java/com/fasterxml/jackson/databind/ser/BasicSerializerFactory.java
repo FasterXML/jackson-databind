@@ -9,6 +9,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -370,6 +371,7 @@ public abstract class BasicSerializerFactory
     
     public JsonSerializer<?> buildContainerSerializer(SerializationConfig config, JavaType type,
             BasicBeanDescription beanDesc, BeanProperty property, boolean staticTyping)
+        throws JsonMappingException
     {
         // Let's see what we can learn about element/content/value type, type serializer for it:
         JavaType elementType = type.getContentType();
@@ -413,14 +415,13 @@ public abstract class BasicSerializerFactory
     /**
      * Helper method that handles configuration details when constructing serializers for
      * Collection and Collection-like types.
-     * 
-     * @since 1.8
      */
     protected JsonSerializer<?> buildCollectionLikeSerializer(SerializationConfig config,
             CollectionLikeType type,
             BasicBeanDescription beanDesc, BeanProperty property,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
+        throws JsonMappingException
     {
         for (Serializers serializers : customSerializers()) {
             JsonSerializer<?> ser = serializers.findCollectionLikeSerializer(config, type, beanDesc, property,
@@ -435,14 +436,13 @@ public abstract class BasicSerializerFactory
     /**
      * Helper method that handles configuration details when constructing serializers for
      * {@link java.util.List} types that support efficient by-index access
-     *<p> 
-     * Note: signature changed in 1.8, to take 'staticTyping' argument
      */
     protected JsonSerializer<?> buildCollectionSerializer(SerializationConfig config,
             CollectionType type,
             BasicBeanDescription beanDesc, BeanProperty property,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
+        throws JsonMappingException
     {
         // Module-provided custom collection serializers?
         for (Serializers serializers : customSerializers()) {
@@ -486,9 +486,6 @@ public abstract class BasicSerializerFactory
         return StdContainerSerializers.enumSetSerializer(enumType, property);
     }
     
-    /**
-     * @since 1.8
-     */
     protected boolean isIndexedList(Class<?> cls)
     {
         return RandomAccess.class.isAssignableFrom(cls);
@@ -504,14 +501,13 @@ public abstract class BasicSerializerFactory
      * Helper method that handles configuration details when constructing serializers for
      * all "Map-like" types; both ones that implement {@link java.util.Map} and
      * ones that do not (but that have been indicated to behave like Maps).
-     * 
-     * @since 1.8
      */
     protected JsonSerializer<?> buildMapLikeSerializer(SerializationConfig config, MapLikeType type,
             BasicBeanDescription beanDesc, BeanProperty property,
             boolean staticTyping,
             JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
+        throws JsonMappingException
     {
         for (Serializers serializers : customSerializers()) {
             JsonSerializer<?> ser = serializers.findMapLikeSerializer(config, type, beanDesc, property,
@@ -526,14 +522,13 @@ public abstract class BasicSerializerFactory
     /**
      * Helper method that handles configuration details when constructing serializers for
      * {@link java.util.Map} types.
-     *<p> 
-     * Note: signature changed in 1.8, to take 'staticTyping' argument
      */
     protected JsonSerializer<?> buildMapSerializer(SerializationConfig config, MapType type,
             BasicBeanDescription beanDesc, BeanProperty property,
             boolean staticTyping,
             JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
+        throws JsonMappingException
     {
         for (Serializers serializers : customSerializers()) {
             JsonSerializer<?> ser = serializers.findMapSerializer(config, type, beanDesc, property,
@@ -554,13 +549,12 @@ public abstract class BasicSerializerFactory
     /**
      * Helper method that handles configuration details when constructing serializers for
      * {@link java.util.EnumMap} types.
-     *<p> 
-     * Note: signature changed in 1.8, to take 'staticTyping' argument
      */
     protected JsonSerializer<?> buildEnumMapSerializer(SerializationConfig config, JavaType type,
             BasicBeanDescription beanDesc, BeanProperty property,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
+        throws JsonMappingException
     {
         JavaType keyType = type.getKeyType();
         // Need to find key enum values...
@@ -588,6 +582,7 @@ public abstract class BasicSerializerFactory
             BasicBeanDescription beanDesc, BeanProperty property,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
+        throws JsonMappingException
     {
         Class<?> raw = type.getRawClass();
         if (String[].class == raw) {
@@ -611,6 +606,7 @@ public abstract class BasicSerializerFactory
     protected JsonSerializer<?> buildIteratorSerializer(SerializationConfig config, JavaType type,
             BasicBeanDescription beanDesc, BeanProperty property,
             boolean staticTyping)
+        throws JsonMappingException
     {
         // if there's generic type, it'll be the first contained type
         JavaType valueType = type.containedType(0);
@@ -625,6 +621,7 @@ public abstract class BasicSerializerFactory
     protected JsonSerializer<?> buildIterableSerializer(SerializationConfig config, JavaType type,
             BasicBeanDescription beanDesc, BeanProperty property,
             boolean staticTyping)
+        throws JsonMappingException
     {
         // if there's generic type, it'll be the first contained type
         JavaType valueType = type.containedType(0);
@@ -643,10 +640,7 @@ public abstract class BasicSerializerFactory
      */
     
     /**
-     * Helper method used to encapsulate details of annotation-based type
-     * coercion
-     * 
-     * @since 1.8
+     * Helper method used to encapsulate details of annotation-based type coercion
      */
     @SuppressWarnings("unchecked")
     protected <T extends JavaType> T modifyTypeByAnnotation(SerializationConfig config, Annotated a, T type)
@@ -663,9 +657,6 @@ public abstract class BasicSerializerFactory
         return modifySecondaryTypesByAnnotation(config, a, type);
     }
 
-    /**
-     * @since 1.8
-     */
     @SuppressWarnings("unchecked")
     protected static <T extends JavaType> T modifySecondaryTypesByAnnotation(SerializationConfig config, Annotated a, T type)
     {
@@ -698,34 +689,72 @@ public abstract class BasicSerializerFactory
         return type;
     }
 
+    @SuppressWarnings("unchecked")
     protected static JsonSerializer<Object> findKeySerializer(SerializationConfig config,
             Annotated a, BeanProperty property)
+        throws JsonMappingException
     {
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        Class<? extends JsonSerializer<?>> serClass = intr.findKeySerializer(a);
-        if (serClass == null || serClass == JsonSerializer.None.class) {
+        Object serDef = intr.findKeySerializer(a);
+        if (serDef == null || serDef == JsonSerializer.None.class || serDef == NoClass.class) {
             if (property != null) {
-                serClass = intr.findKeySerializer(property.getMember());
+                AnnotatedMember m = property.getMember();
+                if (m != null) {
+                    serDef = intr.findKeySerializer(m);
+                }
             }
         }
-        if (serClass != null && serClass != JsonSerializer.None.class) {
-            return config.serializerInstance(a, serClass);
+        // ok, what did we get?
+        if (serDef != null) {
+            if (serDef instanceof JsonSerializer<?>) {
+                JsonSerializer<Object> ser = (JsonSerializer<Object>) serDef;
+                if (ser instanceof ContextualSerializer<?>) {
+                    return ((ContextualSerializer<Object>) ser).createContextual(config, property);
+                }
+                return ser;
+            }
+            if (!(serDef instanceof Class)) {
+                throw new IllegalStateException("AnnotationIntrospector.findKeySerializer() returned value of type "+serDef.getClass().getName()+": expected type JsonSerializer or Class<JsonSerializer> instead");
+            }
+            Class<?> serClass = (Class<?>) serDef;
+            if (serClass != JsonSerializer.None.class && serClass != NoClass.class) {
+                return config.serializerInstance(a, (Class<JsonSerializer<?>>) serClass);
+            }
         }
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     protected static JsonSerializer<Object> findContentSerializer(SerializationConfig config,
             Annotated a, BeanProperty property)
+        throws JsonMappingException
     {
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        Class<? extends JsonSerializer<?>> serClass = intr.findContentSerializer(a);
-        if (serClass == null || serClass == JsonSerializer.None.class) {
+        Object serDef = intr.findContentSerializer(a);
+        if (serDef == null || serDef == JsonSerializer.None.class || serDef == NoClass.class) {
             if (property != null) {
-                serClass = intr.findContentSerializer(property.getMember());
+                AnnotatedMember m = property.getMember();
+                if (m != null) {
+                    serDef = intr.findContentSerializer(m);
+                }
             }
         }
-        if (serClass != null && serClass != JsonSerializer.None.class) {
-            return config.serializerInstance(a, serClass);
+        // ok, what did we get?
+        if (serDef != null) {
+            if (serDef instanceof JsonSerializer<?>) {
+                JsonSerializer<Object> ser = (JsonSerializer<Object>) serDef;
+                if (ser instanceof ContextualSerializer<?>) {
+                    return ((ContextualSerializer<Object>) ser).createContextual(config, property);
+                }
+                return ser;
+            }
+            if (!(serDef instanceof Class)) {
+                throw new IllegalStateException("AnnotationIntrospector.findContentSerializer() returned value of type "+serDef.getClass().getName()+": expected type JsonSerializer or Class<JsonSerializer> instead");
+            }
+            Class<?> serClass = (Class<?>) serDef;
+            if (serClass != JsonSerializer.None.class && serClass != NoClass.class) {
+                return config.serializerInstance(a, (Class<JsonSerializer<?>>) serClass);
+            }
         }
         return null;
     }

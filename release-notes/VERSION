@@ -16,6 +16,9 @@ Improvements
   customizing handling of serialization of empty values
 * [JACKSON-710]: 'ObjectMapper.convertValue()' should ignore root value
   wrapping/unwrapping settings
+* [JACKSON-732]: Allow 'AnnotationIntrospector.findContentDeserializer()'
+  (and similar) to return instance, not just Class<?> for instance
+ (requested by James R)
 * [JACKSON-749]: Make @JsonValue work for Enum deserialization
 
 New features:

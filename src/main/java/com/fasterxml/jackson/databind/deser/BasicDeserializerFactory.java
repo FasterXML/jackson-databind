@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.JsonNode;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -751,11 +752,21 @@ public abstract class BasicDeserializerFactory
              *   is not good: for now, let's just avoid errors)
              */
             if (keyType != null && keyType.getValueHandler() == null) {
-                Class<? extends KeyDeserializer> kdClass = intr.findKeyDeserializer(a);
-                if (kdClass != null && kdClass != KeyDeserializer.None.class) {
-                    KeyDeserializer kd = config.keyDeserializerInstance(a, kdClass);
-                    type = (T) ((MapLikeType) type).withKeyValueHandler(kd);
-                    keyType = type.getKeyType(); // just in case it's used below
+                Object kdDef = intr.findKeyDeserializer(a);
+                if (kdDef != null) {
+                    KeyDeserializer kd = null;
+                    if (kdDef instanceof KeyDeserializer) {
+                        kd = (KeyDeserializer) kdDef;
+                    } else {
+                        Class<?> kdClass = _verifyAsClass(kdDef, "findKeyDeserializer", KeyDeserializer.None.class);
+                        if (kdClass != null) {
+                            kd = config.keyDeserializerInstance(a, kdClass);
+                        }
+                    }
+                    if (kd != null) {
+                        type = (T) ((MapLikeType) type).withKeyValueHandler(kd);
+                        keyType = type.getKeyType(); // just in case it's used below
+                    }
                 }
             }            
             
@@ -771,10 +782,20 @@ public abstract class BasicDeserializerFactory
             // ... as well as deserializer for contents:
             JavaType contentType = type.getContentType();
             if (contentType.getValueHandler() == null) { // as with above, avoid resetting (which would trigger exception)
-                Class<? extends JsonDeserializer<?>> cdClass = intr.findContentDeserializer(a);
-                if (cdClass != null && cdClass != JsonDeserializer.None.class) {
-                    JsonDeserializer<Object> cd = config.deserializerInstance(a, cdClass);
-                    type = (T) type.withContentValueHandler(cd);
+                Object cdDef = intr.findContentDeserializer(a);
+                if (cdDef != null) {
+                    JsonDeserializer<?> cd = null;
+                    if (cdDef instanceof JsonDeserializer<?>) {
+                        cdDef = (JsonDeserializer<?>) cdDef;
+                    } else {
+                        Class<?> cdClass = _verifyAsClass(cdDef, "findContentDeserializer", JsonDeserializer.None.class);
+                        if (cdClass != null) {
+                            cd = config.deserializerInstance(a, cdClass);
+                        }
+                    }
+                    if (cd != null) {
+                        type = (T) type.withContentValueHandler(cd);
+                    }
                 }
             }
         }
@@ -787,9 +808,6 @@ public abstract class BasicDeserializerFactory
      * have type variable binding information (when deserializing
      * using generic type passed as type reference), which is
      * needed in some cases.
-     *<p>
-     * Starting with version 1.3, this method will also resolve instances
-     * of key and content deserializers if defined by annotations.
      */
     protected JavaType resolveType(DeserializationConfig config,
             BasicBeanDescription beanDesc, JavaType type, AnnotatedMember member,
@@ -801,18 +819,38 @@ public abstract class BasicDeserializerFactory
             AnnotationIntrospector intr = config.getAnnotationIntrospector();
             JavaType keyType = type.getKeyType();
             if (keyType != null) {
-                Class<? extends KeyDeserializer> kdClass = intr.findKeyDeserializer(member);
-                if (kdClass != null && kdClass != KeyDeserializer.None.class) {
-                    KeyDeserializer kd = config.keyDeserializerInstance(member, kdClass);
-                    type = ((MapLikeType) type).withKeyValueHandler(kd);
-                    keyType = type.getKeyType(); // just in case it's used below
+                Object kdDef = intr.findKeyDeserializer(member);
+                if (kdDef != null) {
+                    KeyDeserializer kd = null;
+                    if (kdDef instanceof KeyDeserializer) {
+                        kd = (KeyDeserializer) kdDef;
+                    } else {
+                        Class<?> kdClass = _verifyAsClass(kdDef, "findKeyDeserializer", KeyDeserializer.None.class);
+                        if (kdClass != null) {
+                            kd = config.keyDeserializerInstance(member, kdClass);
+                        }
+                    }
+                    if (kd != null) {
+                        type = ((MapLikeType) type).withKeyValueHandler(kd);
+                        keyType = type.getKeyType(); // just in case it's used below
+                    }
                 }
             }
             // and all container types have content types...
-            Class<? extends JsonDeserializer<?>> cdClass = intr.findContentDeserializer(member);
-            if (cdClass != null && cdClass != JsonDeserializer.None.class) {
-                JsonDeserializer<Object> cd = config.deserializerInstance(member, cdClass);
-                type = type.withContentValueHandler(cd);
+            Object cdDef = intr.findContentDeserializer(member);
+            if (cdDef != null) {
+                JsonDeserializer<?> cd = null;
+                if (cdDef instanceof JsonDeserializer<?>) {
+                    cd = (JsonDeserializer<?>) cdDef;
+                } else {
+                    Class<?> cdClass = _verifyAsClass(cdDef, "findContentDeserializer", JsonDeserializer.None.class);
+                    if (cdClass != null) {
+                        cd = config.deserializerInstance(member, cdClass);
+                    }
+                }
+                if (cd != null) {
+                    type = type.withContentValueHandler(cd);
+                }
             }
             /* 04-Feb-2010, tatu: Need to figure out JAXB annotations that indicate type
              *    information to use for polymorphic members; and specifically types for
@@ -866,4 +904,21 @@ public abstract class BasicDeserializerFactory
         BasicBeanDescription beanDesc = config.introspect(enumType);
         return beanDesc.findJsonValueMethod();
     }
-}
+
+    protected Class<?> _verifyAsClass(Object src, String methodName, Class<?> noneClass)
+    {
+        if (src == null) {
+            return null;
+        }
+        if (!(src instanceof Class)) {
+            throw new IllegalStateException("AnnotationIntrospector."+methodName+"() returned value of type "+src.getClass().getName()+": expected type JsonSerializer or Class<JsonSerializer> instead");
+        }
+        Class<?> cls = (Class<?>) src;
+        if (cls == noneClass || cls == NoClass.class) {
+            return null;
+        }
+        return cls;
+    }
+
+    }
+

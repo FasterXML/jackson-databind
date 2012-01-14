@@ -759,11 +759,12 @@ public class DeserializationConfig
 
     @SuppressWarnings("unchecked")
     public JsonDeserializer<Object> deserializerInstance(Annotated annotated,
-            Class<? extends JsonDeserializer<?>> deserClass)
+            Class<?> deserClass)
     {
         HandlerInstantiator hi = getHandlerInstantiator();
         if (hi != null) {
-            JsonDeserializer<?> deser = hi.deserializerInstance(this, annotated, deserClass);
+            JsonDeserializer<?> deser = hi.deserializerInstance(this, annotated,
+                    (Class<JsonDeserializer<?>>)deserClass);
             if (deser != null) {
                 return (JsonDeserializer<Object>) deser;
             }
@@ -772,11 +773,13 @@ public class DeserializationConfig
     }
 
     public KeyDeserializer keyDeserializerInstance(Annotated annotated,
-            Class<? extends KeyDeserializer> keyDeserClass)
+            Class<?> keyDeserClass)
     {
         HandlerInstantiator hi = getHandlerInstantiator();
         if (hi != null) {
-            KeyDeserializer keyDeser = hi.keyDeserializerInstance(this, annotated, keyDeserClass);
+            @SuppressWarnings("unchecked")
+            KeyDeserializer keyDeser = hi.keyDeserializerInstance(this, annotated,
+                    (Class<KeyDeserializer>)keyDeserClass);
             if (keyDeser != null) {
                 return (KeyDeserializer) keyDeser;
             }
@@ -785,11 +788,13 @@ public class DeserializationConfig
     }
 
     public ValueInstantiator valueInstantiatorInstance(Annotated annotated,
-            Class<? extends ValueInstantiator> instClass)
+            Class<?> instClass)
     {
         HandlerInstantiator hi = getHandlerInstantiator();
         if (hi != null) {
-            ValueInstantiator inst = hi.valueInstantiatorInstance(this, annotated, instClass);
+            @SuppressWarnings("unchecked")
+            ValueInstantiator inst = hi.valueInstantiatorInstance(this, annotated,
+                    (Class<ValueInstantiator>)instClass);
             if (inst != null) {
                 return (ValueInstantiator) inst;
             }

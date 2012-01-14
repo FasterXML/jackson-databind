@@ -565,6 +565,10 @@ public class ObjectMapper
         return _serializationConfig.createUnshared(_subtypeResolver);
     }
 
+    public SerializationConfig copySerializationConfig(int features) {
+        return _serializationConfig.createUnshared(_subtypeResolver, features);
+    }
+    
     /**
      * Method for replacing the shared default serialization configuration
      * object.
@@ -2204,6 +2208,14 @@ public class ObjectMapper
         return (T) _convert(fromValue, toValueType);
     } 
 
+    /**
+     * Actual conversion implementation: instead of using existing read
+     * and write methods, much of code is inlined. Reason for this is
+     * that we must avoid wrapping/unwrapping both for efficiency and
+     * for correctness. If wrapping/unwrapping is actually desired,
+     * caller must use explicit <code>writeValue</code> and
+     * <code>readValue</code> methods.
+     */
     protected Object _convert(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
     {
@@ -2214,17 +2226,36 @@ public class ObjectMapper
          */
         TokenBuffer buf = new TokenBuffer(this);
         try {
-            writeValue(buf, fromValue);
-            // and provide as with a JsonParser for contents as well!
-            JsonParser jp = buf.asParser();
-            Object result = readValue(jp, toValueType);
+            // inlined 'writeValue' with minor changes:
+            // first: disable wrapping when writing
+            int serFeatures = _serializationConfig._featureFlags & ~(SerializationConfig.Feature.WRAP_ROOT_VALUE.getMask());
+            // no need to check for closing of TokenBuffer
+            _serializerProvider.serializeValue(copySerializationConfig(serFeatures),
+                    buf, fromValue, _serializerFactory);
+
+            // then matching read, inlined 'readValue' with minor mods:
+            final JsonParser jp = buf.asParser();
+            Object result;
+            // ok to pass in existing feature flags; unwrapping handled by mapper
+            final DeserializationConfig deserConfig = copyDeserializationConfig();
+            JsonToken t = _initForReading(jp);
+            if (t == JsonToken.VALUE_NULL) {
+                result = _findRootDeserializer(deserConfig, toValueType).getNullValue();
+            } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
+                result = null;
+            } else { // pointing to event other than null
+                DeserializationContext ctxt = _createDeserializationContext(jp, deserConfig);
+                JsonDeserializer<Object> deser = _findRootDeserializer(deserConfig, toValueType);
+                // note: no handling of unwarpping
+                result = deser.deserialize(jp, ctxt);
+            }
             jp.close();
             return result;
         } catch (IOException e) { // should not occur, no real i/o...
             throw new IllegalArgumentException(e.getMessage(), e);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Extended Public API: JSON Schema generation
@@ -2428,7 +2459,6 @@ public class ObjectMapper
         jp.clearCurrentToken();
         return result;
     }
-
     
     protected Object _readMapAndClose(JsonParser jp, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException

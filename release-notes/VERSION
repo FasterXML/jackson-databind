@@ -14,6 +14,8 @@ Improvements
  (requested by Aner P)
 * [JACKSON-695]: Add 'isEmpty(value)' in JsonSerializer to allow
   customizing handling of serialization of empty values
+* [JACKSON-710]: 'ObjectMapper.convertValue()' should ignore root value
+  wrapping/unwrapping settings
 * [JACKSON-749]: Make @JsonValue work for Enum deserialization
 
 New features:

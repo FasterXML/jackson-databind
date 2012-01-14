@@ -159,6 +159,14 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public abstract T createUnshared(SubtypeResolver subtypeResolver);
 
     /**
+     * Method to use for constructing an instance that is not shared
+     * between multiple operations but only used for a single one
+     * (which may be this instance, if it is immutable; if not, a copy
+     * is constructed with same settings)
+     */
+    public abstract T createUnshared(SubtypeResolver subtypeResolver, int features);
+    
+    /**
      * Method for constructing and returning a new instance with different
      * {@link ClassIntrospector}
      * to use.
@@ -430,8 +438,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Accessor for object used for finding out all reachable subtypes
      * for supertypes; needed when a logical type name is used instead
      * of class name (or custom scheme).
-     * 
-     * @since 1.6
      */
     public final SubtypeResolver getSubtypeResolver() {
         if (_subtypeResolver == null) {
@@ -440,9 +446,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         return _subtypeResolver;
     }
 
-    /**
-     * @since 1.8
-     */
     public final TypeFactory getTypeFactory() {
         return _base.getTypeFactory();
     }
@@ -454,8 +457,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<pre>
      *    getTypeFactory().constructType(cls);
      *</pre>
-     * 
-     * @since 1.8
      */
     public final JavaType constructType(Class<?> cls) {
         return getTypeFactory().constructType(cls, (TypeBindings) null);
@@ -468,16 +469,11 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      *<pre>
      *    getTypeFactory().constructType(valueTypeRef);
      *</pre>
-     * 
-     * @since 1.9
      */
     public final JavaType constructType(TypeReference<?> valueTypeRef) {
         return getTypeFactory().constructType(valueTypeRef.getType(), (TypeBindings) null);
     }
 
-    /**
-     * @since 1.9.1
-     */
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
         return getTypeFactory().constructSpecializedType(baseType, subclass);
     }
@@ -509,8 +505,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * Accessor for getting bean description that only contains class
      * annotations: useful if no getter/setter/creator information is needed.
-     * 
-     * @since 1.7
      */
     @SuppressWarnings("unchecked")
     public <DESC extends BeanDescription> DESC introspectClassAnnotations(Class<?> cls) {
@@ -520,8 +514,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * Accessor for getting bean description that only contains class
      * annotations: useful if no getter/setter/creator information is needed.
-     * 
-     * @since 1.9
      */
     public abstract <DESC extends BeanDescription> DESC introspectClassAnnotations(JavaType type);
 
@@ -529,8 +521,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Accessor for getting bean description that only contains immediate class
      * annotations: ones from the class, and its direct mix-in, if any, but
      * not from super types.
-     * 
-     * @since 1.7
      */
     @SuppressWarnings("unchecked")
     public <DESC extends BeanDescription> DESC introspectDirectClassAnnotations(Class<?> cls) {
@@ -552,8 +542,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * Method that can be called to obtain an instance of <code>TypeIdResolver</code> of
      * specified type.
-     * 
-     * @since 1.8
      */
     public TypeResolverBuilder<?> typeResolverBuilderInstance(Annotated annotated,
             Class<? extends TypeResolverBuilder<?>> builderClass)
@@ -571,8 +559,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**
      * Method that can be called to obtain an instance of <code>TypeIdResolver</code> of
      * specified type.
-     * 
-     * @since 1.8
      */
     public TypeIdResolver typeIdResolverInstance(Annotated annotated,
             Class<? extends TypeIdResolver> resolverClass)
@@ -652,15 +638,11 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
          * that this is the global handler; individual types (classes)
          * can further override active checker used (using
          * {@link JsonAutoDetect} annotation)
-         * 
-         * @since 1.5
          */
         protected final VisibilityChecker<?> _visibilityChecker;
 
         /**
          * Custom property naming strategy in use, if any.
-         * 
-         * @since 1.8
          */
         protected final PropertyNamingStrategy _propertyNamingStrategy;
 
@@ -680,8 +662,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         /**
          * Type information handler used for "untyped" values (ones declared
          * to have type <code>Object.class</code>)
-         * 
-         * @since 1.5
          */
         protected final TypeResolverBuilder<?> _typeResolverBuilder;
         
@@ -733,7 +713,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         /* Factory methods
         /**********************************************************
          */
-
+        
         public Base withClassIntrospector(ClassIntrospector<? extends BeanDescription> ci) {
             return new Base(ci, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
                     _typeResolverBuilder, _dateFormat, _handlerInstantiator);
@@ -874,15 +854,19 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
             _featureFlags = features;
         }
         
-        /**
-         * @since 1.8
-         */
         protected Impl(Impl<CFG,T> src, MapperConfig.Base base, SubtypeResolver str)
         {
             super(src, base, str);
             _featureFlags = src._featureFlags;
         }
         
+        protected Impl(Impl<CFG,T> src, MapperConfig.Base base, SubtypeResolver str,
+                int features)
+        {
+            super(src, base, str);
+            _featureFlags = features;
+        }
+
         /**
          * Method that calculates bit set (flags) of all features that
          * are enabled by default.
@@ -907,16 +891,12 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         /**
          * Fluent factory method that will construct and return a new configuration
          * object instance with specified features enabled.
-         * 
-         * @since 1.9
          */
         public abstract T with(CFG... features);
 
         /**
          * Fluent factory method that will construct and return a new configuration
          * object instance with specified features disabled.
-         * 
-         * @since 1.9
          */
         public abstract T without(CFG... features);
         

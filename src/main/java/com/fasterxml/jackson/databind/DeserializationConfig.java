@@ -33,10 +33,7 @@ import com.fasterxml.jackson.databind.util.LinkedNode;
  * instance. This because some objects may be configured, constructed and
  * cached first time they are needed.
  *<p>
- * As of version 1.9, the goal is to make this class eventually immutable.
- * Because of this, existing methods that allow changing state of this
- * instance are deprecated in favor of methods that create new instances
- * with different configuration ("fluent factories")
+ * Note: as of 2.0, goal is still to make config instances fully immutable.
  */
 public class DeserializationConfig
     extends MapperConfig.Impl<DeserializationConfig.Feature, DeserializationConfig>
@@ -60,8 +57,6 @@ public class DeserializationConfig
          * no annotations are considered.
          *<P>
          * Feature is enabled by default.
-         *
-         * @since 1.2
          */
         USE_ANNOTATIONS(true),
 
@@ -109,8 +104,6 @@ public class DeserializationConfig
          * configuration available.
          *<P>
          * Feature is enabled by default.
-         *
-         * @since 1.1
          */
         AUTO_DETECT_FIELDS(true),
 
@@ -191,8 +184,6 @@ public class DeserializationConfig
          *<p>
          * Feature is disabled by default, meaning that JSON arrays are bound as
          * {@link java.util.List}s.
-         * 
-         * @since 1.9
          */
         USE_JAVA_ARRAY_FOR_JSON_ARRAY(false),
         
@@ -207,8 +198,6 @@ public class DeserializationConfig
          * as {@link SerializationConfig.Feature#WRITE_ENUMS_USING_TO_STRING}.
          *<p>
          * For further details, check out [JACKSON-212]
-         * 
-         * @since 1.6
          */
         READ_ENUMS_USING_TO_STRING(false),
         
@@ -232,8 +221,6 @@ public class DeserializationConfig
          * {@link JsonMappingException} is thrown if an unknown property
          * is encountered. This is the implicit default prior to
          * introduction of the feature.
-         *
-         * @since 1.2
          */
         FAIL_ON_UNKNOWN_PROPERTIES(true),
 
@@ -244,11 +231,8 @@ public class DeserializationConfig
          * is thrown to indicate this; if not, default value is used
          * (0 for 'int', 0.0 for double, same defaulting as what JVM uses).
          *<p>
-         * Feature is disabled by default (to be consistent with behavior
-         * of Jackson 1.6),
+         * Feature is disabled by default,
          * i.e. to allow use of nulls for primitive properties.
-         * 
-         * @since 1.7
          */
         FAIL_ON_NULL_FOR_PRIMITIVES(false),
 
@@ -262,11 +246,8 @@ public class DeserializationConfig
          * mapping from integer values to enums might happen (and when enums
          * are always serialized as JSON Strings)
          *<p>
-         * Feature is disabled by default (to be consistent with behavior
-         * of Jackson 1.6), 
+         * Feature is disabled by default
          * i.e. to allow use of JSON integers for Java enums.
-         * 
-         * @since 1.7
          */
         FAIL_ON_NUMBERS_FOR_ENUMS(false),
 
@@ -285,8 +266,6 @@ public class DeserializationConfig
          *<p>
          * Feature is enabled by default, and is similar in behavior
          * to default prior to 1.7.
-         * 
-         * @since 1.7
          */
         WRAP_EXCEPTIONS(true),
         
@@ -304,8 +283,6 @@ public class DeserializationConfig
          * This feature is meant to be used for compatibility/interoperability reasons,
          * to work with packages (such as XML-to-JSON converters) that leave out JSON
          * array in cases where there is just a single element in array.
-         * 
-         * @since 1.8
          */
         ACCEPT_SINGLE_VALUE_AS_ARRAY(false),
         
@@ -316,8 +293,6 @@ public class DeserializationConfig
          * a single property with expected root name. If not, a
          * {@link JsonMappingException} is thrown; otherwise value of the wrapped property
          * will be deserialized as if it was the root value.
-         * 
-         * @since 1.9
          */
         UNWRAP_ROOT_VALUE(false),
 
@@ -335,8 +310,6 @@ public class DeserializationConfig
          * constructors are defined; both of which can add support for other
          * kinds of JSON values); if enable, empty JSON String can be taken
          * to be equivalent of JSON null.
-         * 
-         * @since 1.8
          */
         ACCEPT_EMPTY_STRING_AS_NULL_OBJECT(false)
         
@@ -404,9 +377,6 @@ public class DeserializationConfig
         _nodeFactory = JsonNodeFactory.instance;
     }
     
-    /**
-     * @since 1.8
-     */
     protected DeserializationConfig(DeserializationConfig src) {
         this(src, src._base);
     }
@@ -414,8 +384,6 @@ public class DeserializationConfig
     /**
      * Copy constructor used to create a non-shared instance with given mix-in
      * annotation definitions and subtype resolver.
-     * 
-     * @since 1.8
      */
     private DeserializationConfig(DeserializationConfig src,
             HashMap<ClassKey,Class<?>> mixins, SubtypeResolver str)
@@ -424,21 +392,28 @@ public class DeserializationConfig
         _mixInAnnotations = mixins;
         _subtypeResolver = str;
     }
+
+    private DeserializationConfig(DeserializationConfig src,
+            HashMap<ClassKey,Class<?>> mixins, SubtypeResolver str,
+            int features)
+    {
+        super(src, src._base, str, features);
+
+        _problemHandlers = src._problemHandlers;
+        _nodeFactory = src._nodeFactory;
+        _sortPropertiesAlphabetically = src._sortPropertiesAlphabetically;
+
+        _mixInAnnotations = mixins;
+    }
     
-    /**
-     * @since 1.8
-     */
     protected DeserializationConfig(DeserializationConfig src, MapperConfig.Base base)
     {
-        super(src, base, src._subtypeResolver);
+        super(src, base, src._subtypeResolver, src._featureFlags);
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
         _sortPropertiesAlphabetically = src._sortPropertiesAlphabetically;
     }
     
-    /**
-     * @since 1.8
-     */
     protected DeserializationConfig(DeserializationConfig src, JsonNodeFactory f)
     {
         super(src);
@@ -447,9 +422,6 @@ public class DeserializationConfig
         _sortPropertiesAlphabetically = src._sortPropertiesAlphabetically;
     }
 
-    /**
-     * @since 1.9
-     */
     protected DeserializationConfig(DeserializationConfig src, int featureFlags)
     {
         super(src, featureFlags);
@@ -462,8 +434,6 @@ public class DeserializationConfig
      * Helper method to be called right after creating a non-shared
      * instance, needed to pass state of feature(s) shared with
      * SerializationConfig.
-     * 
-     * Since 1.9
      */
     protected DeserializationConfig passSerializationFeatures(int serializationFeatureFlags)
     {
@@ -550,8 +520,6 @@ public class DeserializationConfig
     /**
      * Fluent factory method that will construct a new instance with
      * specified {@link JsonNodeFactory}
-     * 
-     * @since 1.8
      */
     public DeserializationConfig withNodeFactory(JsonNodeFactory f) {
         return new DeserializationConfig(this, f);
@@ -560,8 +528,6 @@ public class DeserializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
-     * 
-     * @since 1.9
      */
     @Override
     public DeserializationConfig with(DeserializationConfig.Feature... features)
@@ -576,8 +542,6 @@ public class DeserializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
-     * 
-     * @since 1.9
      */
     @Override
     public DeserializationConfig without(DeserializationConfig.Feature... features)
@@ -612,6 +576,15 @@ public class DeserializationConfig
         return new DeserializationConfig(this, mixins, subtypeResolver);
     }
 
+
+    @Override
+    public DeserializationConfig createUnshared(SubtypeResolver subtypeResolver, int features) {
+        HashMap<ClassKey,Class<?>> mixins = _mixInAnnotations;
+        // ensure that we assume sharing at this point:
+        _mixInAnnotationsShared = true;
+        return new DeserializationConfig(this, mixins, subtypeResolver, features);
+    }
+    
     /**
      * Method for getting {@link AnnotationIntrospector} configured
      * to introspect annotation values used for configuration.
@@ -631,8 +604,6 @@ public class DeserializationConfig
     /**
      * Accessor for getting bean description that only contains class
      * annotations: useful if no getter/setter/creator information is needed.
-     *<p>
-     * Note: part of {@link MapperConfig} since 1.7
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -644,8 +615,6 @@ public class DeserializationConfig
      * Accessor for getting bean description that only contains immediate class
      * annotations: ones from the class, and its direct mix-in, if any, but
      * not from super types.
-     *<p>
-     * Note: part of {@link MapperConfig} since 1.7
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -689,21 +658,10 @@ public class DeserializationConfig
     /* MapperConfig overrides for 1.8 backwards compatibility
     /**********************************************************
      */
-
-    /* NOTE: these are overloads we MUST have, but that were missing
-     * from 1.9.0 and 1.9.1. Type erasure can bite in the ass...
-     *<p>
-     * NOTE: will remove either these variants, or base class one, in 2.0.
-     */
     
     /**
      * An overload for {@link MapperConfig#isEnabled(MapperConfig.ConfigFeature)},
      * needed for backwards-compatibility.
-     *<p>
-     * NOTE: will remove either this variant, or base class one, in 2.0./
-     * 
-     * @since 1.0 However, note that version 1.9.0 and 1.9.1 accidentally missed
-     *    this overloaded variant
      */
     public boolean isEnabled(DeserializationConfig.Feature f) {
         return (_featureFlags & f.getMask()) != 0;
@@ -741,8 +699,6 @@ public class DeserializationConfig
     /**
      * Method for removing all configured problem handlers; usually done to replace
      * existing handler(s) with different one(s)
-     *
-     * @since 1.1
      */
     public void clearHandlers()
     {
@@ -765,9 +721,6 @@ public class DeserializationConfig
         return Base64Variants.getDefaultVariant();
     }
 
-    /**
-     * @since 1.6
-     */
     public final JsonNodeFactory getNodeFactory() {
         return _nodeFactory;
     }

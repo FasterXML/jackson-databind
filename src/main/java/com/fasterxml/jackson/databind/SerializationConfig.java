@@ -29,10 +29,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * instance. This because some objects may be configured, constructed and
  * cached first time they are needed.
  *<p>
- * As of version 1.9, the goal is to make this class eventually immutable.
- * Because of this, existing methods that allow changing state of this
- * instance are deprecated in favor of methods that create new instances
- * with different configuration ("fluent factories")
+ * Note: as of 2.0, goal is still to make config instances fully immutable.
  */
 public class SerializationConfig
     extends MapperConfig.Impl<SerializationConfig.Feature, SerializationConfig>
@@ -447,6 +444,20 @@ public class SerializationConfig
         _mixInAnnotations = mixins;
         _subtypeResolver = str;
     }
+
+    /**
+     * Constructor used to make a private copy of specific mix-in definitions.
+     */
+    protected SerializationConfig(SerializationConfig src,
+            HashMap<ClassKey,Class<?>> mixins, SubtypeResolver str,
+            int features)
+    {
+        super(src, src._base, str, features);
+        _serializationInclusion = src._serializationInclusion;
+        _serializationView = src._serializationView;
+        _filterProvider = src._filterProvider;
+        _mixInAnnotations = mixins;
+    }
     
     protected SerializationConfig(SerializationConfig src, MapperConfig.Base base)
     {
@@ -627,6 +638,15 @@ public class SerializationConfig
         _mixInAnnotationsShared = true;
         return new SerializationConfig(this, mixins, subtypeResolver);
     }
+
+    @Override
+    public SerializationConfig createUnshared(SubtypeResolver subtypeResolver,
+            int features)
+    {
+        HashMap<ClassKey,Class<?>> mixins = _mixInAnnotations;
+        _mixInAnnotationsShared = true;
+        return new SerializationConfig(this, mixins, subtypeResolver, features);
+    }
     
     @Override
     public AnnotationIntrospector getAnnotationIntrospector()
@@ -643,8 +663,6 @@ public class SerializationConfig
     /**
      * Accessor for getting bean description that only contains class
      * annotations: useful if no getter/setter/creator information is needed.
-     *<p>
-     * Note: part of {@link MapperConfig} since 1.7
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -656,8 +674,6 @@ public class SerializationConfig
      * Accessor for getting bean description that only contains immediate class
      * annotations: ones from the class, and its direct mix-in, if any, but
      * not from super types.
-     *<p>
-     * Note: part of {@link MapperConfig} since 1.7
      */
     @SuppressWarnings("unchecked")
     @Override
@@ -697,18 +713,6 @@ public class SerializationConfig
         return vchecker;
     }
 
-    /*
-    /**********************************************************
-    /* MapperConfig overrides for 1.8 backwards compatibility
-    /**********************************************************
-     */
-
-    /* NOTE: these are overloads we MUST have, but that were missing
-     * from 1.9.0 and 1.9.1. Type erasure can bite in the ass...
-     *<p>
-     * NOTE: will remove either these variants, or base class one, in 2.0.
-     */
-    
     /** 
      * Alias for {@link MapperConfig#isEnabled(com.fasterxml.jackson.databind.MapperConfig.ConfigFeature)}.
      * 

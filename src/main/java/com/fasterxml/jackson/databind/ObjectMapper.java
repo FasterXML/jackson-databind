@@ -1464,8 +1464,6 @@ public class ObjectMapper
      * event is a value event, not container).
      *
      * @param source URL to use for fetching contents to parse as JSON for building a tree instance
-     *
-     * @since 1.9
      */
     public JsonNode readTree(URL source)
         throws IOException, JsonProcessingException
@@ -1504,8 +1502,6 @@ public class ObjectMapper
      * Method that can be used to serialize any Java value as
      * JSON output, using provided {@link JsonGenerator},
      * configured as per passed configuration object.
-     *
-     * @since 1.1
      */
     public void writeValue(JsonGenerator jgen, Object value, SerializationConfig config)
         throws IOException, JsonGenerationException, JsonMappingException
@@ -1539,8 +1535,6 @@ public class ObjectMapper
     /**
      * Method to serialize given Json Tree, using generator
      * provided.
-     *
-     * @since 1.1
      */
     public void writeTree(JsonGenerator jgen, JsonNode rootNode,
                           SerializationConfig cfg)
@@ -1564,8 +1558,6 @@ public class ObjectMapper
      * abstraction can not refer to concrete node types (as it's
      * part of core package, whereas impls are part of mapper
      * package)
-     *
-     * @since 1.2
      */
     @Override    
     public ObjectNode createObjectNode() {
@@ -1578,8 +1570,6 @@ public class ObjectMapper
      * abstraction can not refer to concrete node types (as it's
      * part of core package, whereas impls are part of mapper
      * package)
-     *
-     * @since 1.2
      */
     @Override
     public ArrayNode createArrayNode() {
@@ -1591,8 +1581,6 @@ public class ObjectMapper
      * representation.
      * 
      * @param n Root node of the tree that resulting parser will read from
-     * 
-     * @since 1.3
      */
     @Override
     public JsonParser treeAsTokens(JsonNode n)
@@ -1804,9 +1792,6 @@ public class ObjectMapper
         return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), valueType);
     } 
 
-    /**
-     * @since 1.8
-     */
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
@@ -1826,9 +1811,6 @@ public class ObjectMapper
         return (T) _readMapAndClose(_jsonFactory.createJsonParser(src, offset, len), _typeFactory.constructType(valueType));
     } 
 
-    /**
-     * @since 1.8
-     */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T readValue(byte[] src, TypeReference valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
@@ -1844,9 +1826,6 @@ public class ObjectMapper
         return (T) _readMapAndClose(_jsonFactory.createJsonParser(src, offset, len), _typeFactory.constructType(valueTypeRef));
     } 
 
-    /**
-     * @since 1.8
-     */
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
@@ -1868,8 +1847,6 @@ public class ObjectMapper
      *<pre>
      *   mapper.readValue(mapper.treeAsTokens(root), valueType);
      *</pre>
-     *
-     * @since 1.6
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonNode root, Class<T> valueType)
@@ -1886,8 +1863,6 @@ public class ObjectMapper
      *<pre>
      *   mapper.readValue(mapper.treeAsTokens(root), valueType);
      *</pre>
-     *
-     * @since 1.6
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T readValue(JsonNode root, TypeReference valueTypeRef)
@@ -1902,8 +1877,6 @@ public class ObjectMapper
      *<pre>
      *   mapper.readValue(mapper.treeAsTokens(root), valueType);
      *</pre>
-     *
-     * @since 1.6
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonNode root, JavaType valueType)
@@ -1967,8 +1940,6 @@ public class ObjectMapper
      * a String. Functionally equivalent to calling
      * {@link #writeValue(Writer,Object)} with {@link java.io.StringWriter}
      * and constructing String, but more efficient.
-     *
-     * @since 1.3
      */
     public String writeValueAsString(Object value)
         throws IOException, JsonGenerationException, JsonMappingException
@@ -1985,8 +1956,6 @@ public class ObjectMapper
      * {@link #writeValue(Writer,Object)} with {@link java.io.ByteArrayOutputStream}
      * and getting bytes, but more efficient.
      * Encoding used will be UTF-8.
-     *
-     * @since 1.5
      */
     public byte[] writeValueAsBytes(Object value)
         throws IOException, JsonGenerationException, JsonMappingException
@@ -2139,8 +2108,6 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectReader} that will
      * read or update instances of specified type
-     * 
-     * @since 1.6
      */
     public ObjectReader reader(JavaType type)
     {
@@ -2151,8 +2118,6 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectReader} that will
      * read or update instances of specified type
-     * 
-     * @since 1.6
      */
     public ObjectReader reader(Class<?> type)
     {
@@ -2162,8 +2127,6 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectReader} that will
      * read or update instances of specified type
-     * 
-     * @since 1.6
      */
     public ObjectReader reader(TypeReference<?> type)
     {
@@ -2173,8 +2136,6 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectReader} that will
      * use specified {@link JsonNodeFactory} for constructing JSON trees.
-     * 
-     * @since 1.6
      */
     public ObjectReader reader(JsonNodeFactory f)
     {
@@ -2187,8 +2148,6 @@ public class ObjectMapper
      * reading content.
      * 
      * @param schema Schema to pass to parser
-     * 
-     * @since 1.8
      */
     public ObjectReader reader(FormatSchema schema) {
         return new ObjectReader(this, copyDeserializationConfig(), null, null,
@@ -2309,8 +2268,6 @@ public class ObjectMapper
      * Helper method that should return default pretty-printer to
      * use for generators constructed by this mapper, when instructed
      * to use default pretty printer.
-     * 
-     * @since 1.7
      */
     protected PrettyPrinter _defaultPrettyPrinter() {
         return new DefaultPrettyPrinter();

@@ -34,13 +34,13 @@ public class ThrowableDeserializer
     /**
      * Alternative constructor used when creating "unwrapping" deserializers
      */
-    protected ThrowableDeserializer(BeanDeserializer src, boolean ignoreAllUnknown)
+    protected ThrowableDeserializer(BeanDeserializer src, String unwrapPrefix)
     {
-        super(src, ignoreAllUnknown);
+        super(src, unwrapPrefix);
     }
     
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer()
+    public JsonDeserializer<Object> unwrappingDeserializer(String prefix)
     {
         if (getClass() != ThrowableDeserializer.class) {
             return this;
@@ -49,7 +49,7 @@ public class ThrowableDeserializer
          * properties; since there may be multiple unwrapped values
          * and properties for all may be interleaved...
          */
-        return new ThrowableDeserializer(this, true);
+        return new ThrowableDeserializer(this, prefix);
     }
 
     

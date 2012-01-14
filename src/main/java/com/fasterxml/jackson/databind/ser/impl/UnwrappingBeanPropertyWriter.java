@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.*;
-
 
 /**
  * Variant of {@link BeanPropertyWriter} which will handle unwrapping
@@ -16,8 +16,24 @@ import com.fasterxml.jackson.databind.ser.*;
 public class UnwrappingBeanPropertyWriter
     extends BeanPropertyWriter
 {
-    public UnwrappingBeanPropertyWriter(BeanPropertyWriter base) {
+    protected final String _prefix;
+    
+    public UnwrappingBeanPropertyWriter(BeanPropertyWriter base, String prefix) {
         super(base);
+        _prefix = (prefix == null || prefix.length() == 0) ? null : prefix;
+    }
+
+    private UnwrappingBeanPropertyWriter(UnwrappingBeanPropertyWriter base, SerializedString name) {
+        super(base);
+        _prefix = base._prefix;
+    }
+
+    @Override
+    public UnwrappingBeanPropertyWriter withName(String newName) {
+        if (newName.equals(_name.toString())) {
+            return this;
+        }
+        return new UnwrappingBeanPropertyWriter(this, new SerializedString(newName));
     }
     
     @Override
@@ -78,7 +94,7 @@ public class UnwrappingBeanPropertyWriter
             serializer = provider.findValueSerializer(type, this);
         }
         if (!serializer.isUnwrappingSerializer()) {
-            serializer = serializer.unwrappingSerializer();
+            serializer = serializer.unwrappingSerializer(_prefix);
         }
         _dynamicSerializers = _dynamicSerializers.newWith(type, serializer);
         return serializer;

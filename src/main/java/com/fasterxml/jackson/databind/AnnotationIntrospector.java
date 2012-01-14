@@ -334,9 +334,12 @@ public abstract class AnnotationIntrospector implements Versioned
     /**
      * Method called to check whether given property is marked to be "unwrapped"
      * when being serialized (and appropriately handled in reverse direction,
-     * i.e. expect unwrapped representation during deserialization)
+     * i.e. expect unwrapped representation during deserialization).
+     * Return value is the prefix to use for properties (empty String
+     * meaning no prefix), if not null; or null to indicate that no
+     * unwrapping is expected.
      */
-    public Boolean shouldUnwrapProperty(AnnotatedMember member) {
+    public String findUnwrapPrefix(AnnotatedMember member) {
         return null;
     }
 
@@ -347,8 +350,7 @@ public abstract class AnnotationIntrospector implements Versioned
      * annotations from multiple accessors (getters, setters, fields,
      * constructor parameters).
      */
-    public boolean hasIgnoreMarker(AnnotatedMember m)
-    {
+    public boolean hasIgnoreMarker(AnnotatedMember m) {
         return false;
     }
 
@@ -970,11 +972,11 @@ public abstract class AnnotationIntrospector implements Versioned
         }
 
         @Override        
-        public Boolean shouldUnwrapProperty(AnnotatedMember member)
+        public String findUnwrapPrefix(AnnotatedMember member)
         {
-            Boolean value = _primary.shouldUnwrapProperty(member);
+            String value = _primary.findUnwrapPrefix(member);
             if (value == null) {
-                value = _secondary.shouldUnwrapProperty(member);
+                value = _secondary.findUnwrapPrefix(member);
             }
             return value;
         }

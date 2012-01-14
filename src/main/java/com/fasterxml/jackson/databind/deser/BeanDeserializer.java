@@ -215,6 +215,29 @@ public class BeanDeserializer
     protected BeanDeserializer(BeanDeserializer src, boolean ignoreAllUnknown)
     {
         super(src._beanType);
+        
+        _forClass = src._forClass;
+        _beanType = src._beanType;
+        _property = src._property;
+        
+        _valueInstantiator = src._valueInstantiator;
+        _delegateDeserializer = src._delegateDeserializer;
+        _propertyBasedCreator = src._propertyBasedCreator;
+        
+        _beanProperties = src._beanProperties;
+        _backRefs = src._backRefs;
+        _ignorableProps = src._ignorableProps;
+        _ignoreAllUnknown = ignoreAllUnknown;
+        _anySetter = src._anySetter;
+        _injectables = src._injectables;
+        
+        _nonStandardCreation = src._nonStandardCreation;
+        _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+    }
+    
+    protected BeanDeserializer(BeanDeserializer src, String unwrapPrefix)
+    {
+        super(src._beanType);
     
         _forClass = src._forClass;
         _beanType = src._beanType;
@@ -224,10 +247,11 @@ public class BeanDeserializer
         _delegateDeserializer = src._delegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
 
-        _beanProperties = src._beanProperties;
+        _beanProperties = src._beanProperties.withPrefix(unwrapPrefix);
+
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
-        _ignoreAllUnknown = ignoreAllUnknown;
+        _ignoreAllUnknown = (unwrapPrefix != null) || src._ignoreAllUnknown;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
 
@@ -236,7 +260,7 @@ public class BeanDeserializer
     }
 
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer()
+    public JsonDeserializer<Object> unwrappingDeserializer(String prefix)
     {
         /* bit kludgy but we don't want to accidentally change type;
          * sub-classes MUST override this method to support unwrapped
@@ -249,7 +273,7 @@ public class BeanDeserializer
          * properties; since there may be multiple unwrapped values
          * and properties for all may be interleaved...
          */
-        return new BeanDeserializer(this, true);
+        return new BeanDeserializer(this, prefix);
     }
     
     /*
@@ -409,8 +433,6 @@ public class BeanDeserializer
     /**
      * Helper method called to see if given property is part of 'managed' property
      * pair (managed + back reference), and if so, handle resolution details.
-     * 
-     * @since 1.9
      */
     protected SettableBeanProperty _resolveManagedReferenceProperty(DeserializationConfig config,
             SettableBeanProperty prop)
@@ -459,19 +481,20 @@ public class BeanDeserializer
     /**
      * Helper method called to see if given property might be so-called unwrapped
      * property: these require special handling.
-     * 
-     * @since 1.9
      */
     protected SettableBeanProperty _resolveUnwrappedProperty(DeserializationConfig config,
             SettableBeanProperty prop)
     {
         AnnotatedMember am = prop.getMember();
-        if (am != null && config.getAnnotationIntrospector().shouldUnwrapProperty(am) == Boolean.TRUE) {
-            JsonDeserializer<Object> orig = prop.getValueDeserializer();
-            JsonDeserializer<Object> unwrapping = orig.unwrappingDeserializer();
-            if (unwrapping != orig && unwrapping != null) {
-                // might be cleaner to create new instance; but difficult to do reliably, so:
-                return prop.withValueDeserializer(unwrapping);
+        if (am != null) {
+            String prefix = config.getAnnotationIntrospector().findUnwrapPrefix(am);
+            if (prefix != null) {
+                JsonDeserializer<Object> orig = prop.getValueDeserializer();
+                JsonDeserializer<Object> unwrapping = orig.unwrappingDeserializer(prefix);
+                if (unwrapping != orig && unwrapping != null) {
+                    // might be cleaner to create new instance; but difficult to do reliably, so:
+                    return prop.withValueDeserializer(unwrapping);
+                }
             }
         }
         return null;
@@ -480,8 +503,6 @@ public class BeanDeserializer
     /**
      * Helper method that will handle gruesome details of dealing with properties
      * that have non-static inner class as value...
-     * 
-     * @since 1.9
      */
     protected SettableBeanProperty _resolveInnerClassValuedProperty(DeserializationConfig config,
             SettableBeanProperty prop)

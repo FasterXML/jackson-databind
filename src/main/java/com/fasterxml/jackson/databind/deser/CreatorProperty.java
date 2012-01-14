@@ -62,10 +62,21 @@ public class CreatorProperty
         _injectableValueId = injectableValueId;
     }
 
+    protected CreatorProperty(CreatorProperty src, String newName) {
+        super(src, newName);
+        _annotated = src._annotated;
+        _injectableValueId = src._injectableValueId;
+    }
+    
     protected CreatorProperty(CreatorProperty src, JsonDeserializer<Object> deser) {
         super(src, deser);
         _annotated = src._annotated;
         _injectableValueId = src._injectableValueId;
+    }
+
+    @Override
+    public CreatorProperty withName(String newName) {
+        return new CreatorProperty(this, newName);
     }
     
     @Override

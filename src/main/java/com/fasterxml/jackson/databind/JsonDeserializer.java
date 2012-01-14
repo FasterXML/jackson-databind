@@ -103,7 +103,7 @@ public abstract class JsonDeserializer<T>
      * Default implementation just returns 'this'
      * indicating that no unwrapped variant exists
      */
-    public JsonDeserializer<T> unwrappingDeserializer() {
+    public JsonDeserializer<T> unwrappingDeserializer(String prefix) {
         return this;
     }
     

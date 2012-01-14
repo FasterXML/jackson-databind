@@ -96,6 +96,34 @@ public abstract class BeanSerializerBase
         this(src._handledType,
                 src._props, src._filteredProps, src._anyGetterWriter, src._propertyFilterId);
     }
+
+    /**
+     * Copy-constructor that will also rename properties with given prefix
+     * (if it's non-empty)
+     */
+    protected BeanSerializerBase(BeanSerializerBase src, String propertyPrefix) {
+        this(src._handledType,
+                appendPrefix(src._props, propertyPrefix),
+                appendPrefix(src._filteredProps, propertyPrefix),
+                src._anyGetterWriter, src._propertyFilterId);
+    }
+
+    private final static BeanPropertyWriter[] appendPrefix(BeanPropertyWriter[] props,
+            String prefix)
+    {
+        if (prefix == null || prefix.length() == 0 || props == null || props.length == 0) {
+            return props;
+        }
+        final int len = props.length;
+        BeanPropertyWriter[] result = new BeanPropertyWriter[len];
+        for (int i = 0; i < len; ++i) {
+            BeanPropertyWriter bpw = props[i];
+            if (bpw != null) {
+                result[i] = bpw.withName(prefix + bpw.getName());
+            }
+        }
+        return result;
+    }
     
     /*
     /**********************************************************

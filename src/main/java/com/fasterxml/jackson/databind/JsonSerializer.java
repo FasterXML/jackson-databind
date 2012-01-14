@@ -33,8 +33,10 @@ public abstract class JsonSerializer<T>
      *<p>
      * Default implementation just returns serializer as-is,
      * indicating that no unwrapped variant exists
+     * 
+     * @param prefix Prefix to use for embedded properties, if any
      */
-    public JsonSerializer<T> unwrappingSerializer() {
+    public JsonSerializer<T> unwrappingSerializer(String prefix) {
         return this;
     }
 

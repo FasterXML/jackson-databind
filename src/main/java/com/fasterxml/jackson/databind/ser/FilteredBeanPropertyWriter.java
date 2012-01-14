@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-
 /**
  * Decorated {@link BeanPropertyWriter} that will filter out properties
  * that are not to be included in currently active JsonView.
@@ -40,6 +39,11 @@ public abstract class FilteredBeanPropertyWriter
         }
 
         @Override
+        public SingleView withName(String newName) {
+            return new SingleView(_delegate.withName(newName), _view);
+        }
+        
+        @Override
         public void assignSerializer(JsonSerializer<Object> ser) {
             _delegate.assignSerializer(ser);
         }
@@ -71,6 +75,11 @@ public abstract class FilteredBeanPropertyWriter
             super(delegate);
             _delegate = delegate;
             _views = views;
+        }
+
+        @Override
+        public MultiView withName(String newName) {
+            return new MultiView(_delegate.withName(newName), _views);
         }
         
         @Override

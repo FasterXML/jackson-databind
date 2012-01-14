@@ -135,12 +135,15 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Boolean shouldUnwrapProperty(AnnotatedMember member)
+    public String findUnwrapPrefix(AnnotatedMember member)
     {
         JsonUnwrapped ann = member.getAnnotation(JsonUnwrapped.class);
         // if not enabled, just means annotation is not enabled; not necessarily
         // that unwrapping should not be done (relevant when using chained introspectors)
-        return (ann != null && ann.enabled()) ? Boolean.TRUE : null;
+        if (ann != null && ann.enabled()) {
+            return ann.prefix();
+        }
+        return null;
     }
 
     @Override

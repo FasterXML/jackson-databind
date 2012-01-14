@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 
-
 public class UnwrappingBeanSerializer
     extends BeanSerializerBase
 {
@@ -21,8 +20,8 @@ public class UnwrappingBeanSerializer
      * Constructor used for creating unwrapping instance of a
      * standard <code>BeanSerializer</code>
      */
-    public UnwrappingBeanSerializer(BeanSerializerBase src) {
-        super(src);
+    public UnwrappingBeanSerializer(BeanSerializerBase src, String prefix) {
+        super(src, prefix);
     }
 
     /*
@@ -32,8 +31,10 @@ public class UnwrappingBeanSerializer
      */
 
     @Override
-    public JsonSerializer<Object> unwrappingSerializer() {
-        // already unwrapping, nothing more to do:
+    public JsonSerializer<Object> unwrappingSerializer(String prefix) {
+        /* !!! 13-Jan-2011, tatu: do we need to do something here?
+         *    Would this affect multi-level unwrapping?
+         */
         return this;
     }
 

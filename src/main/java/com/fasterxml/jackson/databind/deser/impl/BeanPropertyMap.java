@@ -12,8 +12,6 @@ import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
  * is performance: although default implementation is very good for generic
  * use cases, it can still be streamlined a bit for specific use case
  * we have.
- * 
- * @since 1.7
  */
 public final class BeanPropertyMap
 {
@@ -37,7 +35,26 @@ public final class BeanPropertyMap
         _buckets = buckets;
     }
 
-    public void assignIndexes()
+    /**
+     * Factory method for constructing a map where all entries use given
+     * prefix
+     */
+    public BeanPropertyMap withPrefix(String prefix)
+    {
+        if (prefix == null || prefix.length() == 0) {
+            return this;
+        }
+        Iterator<SettableBeanProperty> it = allProperties();
+        ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>();
+        while (it.hasNext()) {
+            SettableBeanProperty prop = it.next();
+            newProps.add(prop.withName(prefix + prop.getName()));
+        }
+        // should we try to re-index? Ordering probably changed but called probably doesn't want changes...
+        return new BeanPropertyMap(newProps);
+    }
+    
+    public BeanPropertyMap assignIndexes()
     {
         // order is arbitrary, but stable:
         int index = 0;
@@ -47,6 +64,7 @@ public final class BeanPropertyMap
                 bucket = bucket.next;
             }
         }
+        return this;
     }
     
     private final static int findSize(int size)
@@ -134,8 +152,6 @@ public final class BeanPropertyMap
     /**
      * Specialized method for removing specified existing entry.
      * NOTE: entry MUST exist, otherwise an exception is thrown.
-     * 
-     * @since 1.9
      */
     public void remove(SettableBeanProperty property)
     {

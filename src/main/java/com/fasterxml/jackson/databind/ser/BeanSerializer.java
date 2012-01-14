@@ -79,8 +79,8 @@ public class BeanSerializer
     }
 
     @Override
-    public JsonSerializer<Object> unwrappingSerializer() {
-        return new UnwrappingBeanSerializer(this);
+    public JsonSerializer<Object> unwrappingSerializer(String prefix) {
+        return new UnwrappingBeanSerializer(this, prefix);
     }
     
     /*

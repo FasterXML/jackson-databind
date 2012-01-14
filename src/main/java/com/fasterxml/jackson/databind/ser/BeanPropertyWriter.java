@@ -194,8 +194,14 @@ public class BeanPropertyWriter
     /**
      * "Copy constructor" to be used by filtering sub-classes
      */
-    protected BeanPropertyWriter(BeanPropertyWriter base)
+    protected BeanPropertyWriter(BeanPropertyWriter base) {
+        this(base, base._name);
+    }
+
+    protected BeanPropertyWriter(BeanPropertyWriter base, SerializedString name)
     {
+        _name = name;
+
         _member = base._member;
         _contextAnnotations = base._contextAnnotations;
         _declaredType = base._declaredType;
@@ -207,7 +213,6 @@ public class BeanPropertyWriter
         if (base._internalSettings != null) {
             _internalSettings = new HashMap<Object,Object>(base._internalSettings);
         }
-        _name = base._name;
         _cfgSerializationType = base._cfgSerializationType;
         _dynamicSerializers = base._dynamicSerializers;
         _suppressNulls = base._suppressNulls;
@@ -216,7 +221,14 @@ public class BeanPropertyWriter
         _typeSerializer = base._typeSerializer;
         _nonTrivialBaseType = base._nonTrivialBaseType;
     }
-
+    
+    public BeanPropertyWriter withName(String newName) {
+        if (newName.equals(_name.toString())) {
+            return this;
+        }
+        return new BeanPropertyWriter(this, new SerializedString(newName));
+    }
+    
     /**
      * Method called to assign value serializer for property
      * 
@@ -249,8 +261,8 @@ public class BeanPropertyWriter
      * Method called create an instance that handles details of unwrapping
      * contained value.
      */
-    public BeanPropertyWriter unwrappingWriter() {
-        return new UnwrappingBeanPropertyWriter(this);
+    public BeanPropertyWriter unwrappingWriter(String prefix) {
+        return new UnwrappingBeanPropertyWriter(this, prefix);
     }
     
     /**

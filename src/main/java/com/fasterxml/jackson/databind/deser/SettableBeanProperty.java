@@ -58,8 +58,6 @@ public abstract class SettableBeanProperty
      * Object used to figure out value to be used when 'null' literal is encountered in JSON.
      * For most types simply Java null, but for primitive types must
      * be a non-null value (like Integer.valueOf(0) for int).
-     * 
-     * @since 1.7
      */
     protected NullProvider _nullProvider;
 
@@ -75,8 +73,6 @@ public abstract class SettableBeanProperty
      * when all properties have been collected. Order of entries
      * is arbitrary, but once indexes are assigned they are not
      * changed.
-     * 
-     * @since 1.7
      */
     protected int _propertyIndex = -1;
     
@@ -105,8 +101,6 @@ public abstract class SettableBeanProperty
 
     /**
      * Basic copy-constructor for sub-classes to use.
-     * 
-     * @since 1.9
      */
     protected SettableBeanProperty(SettableBeanProperty src)
     {
@@ -122,8 +116,6 @@ public abstract class SettableBeanProperty
 
     /**
      * Copy-with-deserializer-change constructor for sub-classes to use.
-     * 
-     * @since 1.9
      */
     protected SettableBeanProperty(SettableBeanProperty src, JsonDeserializer<Object> deser)
     {
@@ -143,7 +135,24 @@ public abstract class SettableBeanProperty
         }
     }
 
+    /**
+     * Copy-with-deserializer-change constructor for sub-classes to use.
+     */
+    protected SettableBeanProperty(SettableBeanProperty src, String newName)
+    {
+        _propName = newName;
+        _type = src._type;
+        _contextAnnotations = src._contextAnnotations;
+        _valueDeserializer = src._valueDeserializer;
+        _valueTypeDeserializer = src._valueTypeDeserializer;
+        _nullProvider = src._nullProvider;
+        _managedReferenceName = src._managedReferenceName;
+        _propertyIndex = src._propertyIndex;
+    }
+    
     public abstract SettableBeanProperty withValueDeserializer(JsonDeserializer<Object> deser);
+
+    public abstract SettableBeanProperty withName(String newName);
     
     public void setManagedReferenceName(String n) {
         _managedReferenceName = n;
@@ -340,6 +349,17 @@ public abstract class SettableBeanProperty
             _annotated = src._annotated;
             _setter = src._setter;
         }
+
+        protected MethodProperty(MethodProperty src, String newName) {
+            super(src, newName);
+            _annotated = src._annotated;
+            _setter = src._setter;
+        }
+
+        @Override
+        public MethodProperty withName(String newName) {
+            return new MethodProperty(this, newName);
+        }
         
         @Override
         public MethodProperty withValueDeserializer(JsonDeserializer<Object> deser) {
@@ -412,6 +432,17 @@ public abstract class SettableBeanProperty
             super(src, deser);
             _annotated = src._annotated;
             _getter = src._getter;
+        }
+
+        protected SetterlessProperty(SetterlessProperty src, String newName) {
+            super(src, newName);
+            _annotated = src._annotated;
+            _getter = src._getter;
+        }
+
+        @Override
+        public SetterlessProperty withName(String newName) {
+            return new SetterlessProperty(this, newName);
         }
         
         @Override
@@ -505,6 +536,17 @@ public abstract class SettableBeanProperty
             _annotated = src._annotated;
             _field = src._field;
         }
+
+        protected FieldProperty(FieldProperty src, String newName) {
+            super(src, newName);
+            _annotated = src._annotated;
+            _field = src._field;
+        }
+
+        @Override
+        public FieldProperty withName(String newName) {
+            return new FieldProperty(this, newName);
+        }
         
         @Override
         public FieldProperty withValueDeserializer(JsonDeserializer<Object> deser) {
@@ -593,6 +635,19 @@ public abstract class SettableBeanProperty
             _managedProperty = src._managedProperty;
             _backProperty = src._backProperty;
         }
+
+        protected ManagedReferenceProperty(ManagedReferenceProperty src, String newName) {
+            super(src, newName);
+            _referenceName = src._referenceName;
+            _isContainer = src._isContainer;
+            _managedProperty = src._managedProperty;
+            _backProperty = src._backProperty;
+        }
+
+        @Override
+        public ManagedReferenceProperty withName(String newName) {
+            return new ManagedReferenceProperty(this, newName);
+        }
         
         @Override
         public ManagedReferenceProperty withValueDeserializer(JsonDeserializer<Object> deser) {
@@ -670,8 +725,6 @@ public abstract class SettableBeanProperty
      * non-static inner class. If so, we will have to use a special
      * alternative for default constructor; but otherwise can delegate
      * to regular implementation.
-     * 
-     * @since 1.9
      */
     public final static class InnerClassProperty
         extends SettableBeanProperty
@@ -700,7 +753,18 @@ public abstract class SettableBeanProperty
             _delegate = src._delegate.withValueDeserializer(deser);
             _creator = src._creator;
         }
-        
+
+        protected InnerClassProperty(InnerClassProperty src, String newName) {
+            super(src, newName);
+            _delegate = src._delegate.withName(newName);
+            _creator = src._creator;
+        }
+
+        @Override
+        public InnerClassProperty withName(String newName) {
+            return new InnerClassProperty(this, newName);
+        }
+
         @Override
         public InnerClassProperty withValueDeserializer(JsonDeserializer<Object> deser) {
             return new InnerClassProperty(this, deser);

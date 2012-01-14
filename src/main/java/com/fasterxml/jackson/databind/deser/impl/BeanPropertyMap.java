@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.impl;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
  * Helper class used for storing mapping from property name to
@@ -39,16 +40,16 @@ public final class BeanPropertyMap
      * Factory method for constructing a map where all entries use given
      * prefix
      */
-    public BeanPropertyMap withPrefix(String prefix)
+    public BeanPropertyMap renameAll(NameTransformer transformer)
     {
-        if (prefix == null || prefix.length() == 0) {
+        if (transformer == null || (transformer == NameTransformer.NOP)) {
             return this;
         }
         Iterator<SettableBeanProperty> it = allProperties();
         ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>();
         while (it.hasNext()) {
             SettableBeanProperty prop = it.next();
-            newProps.add(prop.withName(prefix + prop.getName()));
+            newProps.add(prop.withName(transformer.transform(prop.getName())));
         }
         // should we try to re-index? Ordering probably changed but called probably doesn't want changes...
         return new BeanPropertyMap(newProps);

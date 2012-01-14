@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.*;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
  * Variant of {@link BeanPropertyWriter} which will handle unwrapping
@@ -16,16 +17,16 @@ import com.fasterxml.jackson.databind.ser.*;
 public class UnwrappingBeanPropertyWriter
     extends BeanPropertyWriter
 {
-    protected final String _prefix;
+    protected final NameTransformer _unwrapper;
     
-    public UnwrappingBeanPropertyWriter(BeanPropertyWriter base, String prefix) {
+    public UnwrappingBeanPropertyWriter(BeanPropertyWriter base, NameTransformer unwrapper) {
         super(base);
-        _prefix = (prefix == null || prefix.length() == 0) ? null : prefix;
+        _unwrapper = unwrapper;
     }
 
     private UnwrappingBeanPropertyWriter(UnwrappingBeanPropertyWriter base, SerializedString name) {
-        super(base);
-        _prefix = base._prefix;
+        super(base, name);
+        _unwrapper = base._unwrapper;
     }
 
     @Override
@@ -94,7 +95,7 @@ public class UnwrappingBeanPropertyWriter
             serializer = provider.findValueSerializer(type, this);
         }
         if (!serializer.isUnwrappingSerializer()) {
-            serializer = serializer.unwrappingSerializer(_prefix);
+            serializer = serializer.unwrappingSerializer(_unwrapper);
         }
         _dynamicSerializers = _dynamicSerializers.newWith(type, serializer);
         return serializer;

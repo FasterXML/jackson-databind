@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.Annotations;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
  * Base bean property handler class, which implements common parts of
@@ -261,8 +262,8 @@ public class BeanPropertyWriter
      * Method called create an instance that handles details of unwrapping
      * contained value.
      */
-    public BeanPropertyWriter unwrappingWriter(String prefix) {
-        return new UnwrappingBeanPropertyWriter(this, prefix);
+    public BeanPropertyWriter unwrappingWriter(NameTransformer unwrapper) {
+        return new UnwrappingBeanPropertyWriter(this, unwrapper);
     }
     
     /**

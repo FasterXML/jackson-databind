@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -235,7 +236,7 @@ public class BeanDeserializer
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
     }
     
-    protected BeanDeserializer(BeanDeserializer src, String unwrapPrefix)
+    protected BeanDeserializer(BeanDeserializer src, NameTransformer unwrapper)
     {
         super(src._beanType);
     
@@ -247,11 +248,11 @@ public class BeanDeserializer
         _delegateDeserializer = src._delegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
 
-        _beanProperties = src._beanProperties.withPrefix(unwrapPrefix);
+        _beanProperties = src._beanProperties.renameAll(unwrapper);
 
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
-        _ignoreAllUnknown = (unwrapPrefix != null) || src._ignoreAllUnknown;
+        _ignoreAllUnknown = (unwrapper != null) || src._ignoreAllUnknown;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
 
@@ -260,7 +261,7 @@ public class BeanDeserializer
     }
 
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer(String prefix)
+    public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
     {
         /* bit kludgy but we don't want to accidentally change type;
          * sub-classes MUST override this method to support unwrapped
@@ -273,7 +274,7 @@ public class BeanDeserializer
          * properties; since there may be multiple unwrapped values
          * and properties for all may be interleaved...
          */
-        return new BeanDeserializer(this, prefix);
+        return new BeanDeserializer(this, unwrapper);
     }
     
     /*
@@ -487,10 +488,10 @@ public class BeanDeserializer
     {
         AnnotatedMember am = prop.getMember();
         if (am != null) {
-            String prefix = config.getAnnotationIntrospector().findUnwrapPrefix(am);
-            if (prefix != null) {
+            NameTransformer unwrapper = config.getAnnotationIntrospector().findUnwrappingNameTransformer(am);
+            if (unwrapper != null) {
                 JsonDeserializer<Object> orig = prop.getValueDeserializer();
-                JsonDeserializer<Object> unwrapping = orig.unwrappingDeserializer(prefix);
+                JsonDeserializer<Object> unwrapping = orig.unwrappingDeserializer(unwrapper);
                 if (unwrapping != orig && unwrapping != null) {
                     // might be cleaner to create new instance; but difficult to do reliably, so:
                     return prop.withValueDeserializer(unwrapping);

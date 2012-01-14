@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
  * Abstract class that defines API used by {@link ObjectMapper} (and
@@ -34,9 +35,10 @@ public abstract class JsonSerializer<T>
      * Default implementation just returns serializer as-is,
      * indicating that no unwrapped variant exists
      * 
-     * @param prefix Prefix to use for embedded properties, if any
+     * @param unwrapper Name transformation to use to convert between names
+     *   of unwrapper properties
      */
-    public JsonSerializer<T> unwrappingSerializer(String prefix) {
+    public JsonSerializer<T> unwrappingSerializer(NameTransformer unwrapper) {
         return this;
     }
 

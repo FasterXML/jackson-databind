@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
  * Abstract class that defines API used by {@link ObjectMapper} (and
@@ -103,7 +104,7 @@ public abstract class JsonDeserializer<T>
      * Default implementation just returns 'this'
      * indicating that no unwrapped variant exists
      */
-    public JsonDeserializer<T> unwrappingDeserializer(String prefix) {
+    public JsonDeserializer<T> unwrappingDeserializer(NameTransformer unwrapper) {
         return this;
     }
     

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
  * Base class both for the standard bean serializer, and couple
@@ -101,17 +102,17 @@ public abstract class BeanSerializerBase
      * Copy-constructor that will also rename properties with given prefix
      * (if it's non-empty)
      */
-    protected BeanSerializerBase(BeanSerializerBase src, String propertyPrefix) {
+    protected BeanSerializerBase(BeanSerializerBase src, NameTransformer unwrapper) {
         this(src._handledType,
-                appendPrefix(src._props, propertyPrefix),
-                appendPrefix(src._filteredProps, propertyPrefix),
+                rename(src._props, unwrapper),
+                rename(src._filteredProps, unwrapper),
                 src._anyGetterWriter, src._propertyFilterId);
     }
 
-    private final static BeanPropertyWriter[] appendPrefix(BeanPropertyWriter[] props,
-            String prefix)
+    private final static BeanPropertyWriter[] rename(BeanPropertyWriter[] props,
+            NameTransformer transformer)
     {
-        if (prefix == null || prefix.length() == 0 || props == null || props.length == 0) {
+        if (props == null || props.length == 0 || transformer == null || transformer == NameTransformer.NOP) {
             return props;
         }
         final int len = props.length;
@@ -119,7 +120,7 @@ public abstract class BeanSerializerBase
         for (int i = 0; i < len; ++i) {
             BeanPropertyWriter bpw = props[i];
             if (bpw != null) {
-                result[i] = bpw.withName(prefix + bpw.getName());
+                result[i] = bpw.withName(transformer.transform(bpw.getName()));
             }
         }
         return result;

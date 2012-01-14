@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
  * Deserializer that builds on basic {@link BeanDeserializer} but
@@ -34,13 +35,13 @@ public class ThrowableDeserializer
     /**
      * Alternative constructor used when creating "unwrapping" deserializers
      */
-    protected ThrowableDeserializer(BeanDeserializer src, String unwrapPrefix)
+    protected ThrowableDeserializer(BeanDeserializer src, NameTransformer unwrapper)
     {
-        super(src, unwrapPrefix);
+        super(src, unwrapper);
     }
     
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer(String prefix)
+    public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
     {
         if (getClass() != ThrowableDeserializer.class) {
             return this;
@@ -49,7 +50,7 @@ public class ThrowableDeserializer
          * properties; since there may be multiple unwrapped values
          * and properties for all may be interleaved...
          */
-        return new ThrowableDeserializer(this, prefix);
+        return new ThrowableDeserializer(this, unwrapper);
     }
 
     

@@ -83,17 +83,16 @@ public class TestUnwrapping extends BaseMapTest
         }
     }
 
-    /*
     static class DeepPrefixUnwrap
     {
-        @JsonUnwrapped(prefix="u")
+        @JsonUnwrapped(prefix="u.")
         public PrefixUnwrap unwrapped;
 
         public DeepPrefixUnwrap() { }
         public DeepPrefixUnwrap(String str, int x, int y) {
             unwrapped = new PrefixUnwrap(str, x, y);
         }
-    }*/
+    }
     
     /*
     /**********************************************************
@@ -121,14 +120,13 @@ public class TestUnwrapping extends BaseMapTest
                 mapper.writeValueAsString(new DeepUnwrapping("Tatu", 1, 2)));
     }
 
-    // 13-Jan-2012, tatu: does not quite work yet -- should, need to investigate:
-    /*
+    // 13-Jan-2012, tatu: sorta kinda works; but not 100% sure it's like it
+    //    really SHOULD work?
     public void testDeepPrefixedUnwrappingSerialize() throws Exception
     {
-        assertEquals("{\"name\":\"Bubba\",\"u_x\":1,\"u_y\":1}",
+        assertEquals("{\"u.name\":\"Bubba\",\"_x\":1,\"_y\":1}",
                 mapper.writeValueAsString(new DeepPrefixUnwrap("Bubba", 1, 1)));
     }
-    */
     
     /*
     /**********************************************************

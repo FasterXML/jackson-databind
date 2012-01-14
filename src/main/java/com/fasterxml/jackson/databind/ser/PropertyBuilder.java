@@ -136,9 +136,9 @@ public class PropertyBuilder
                 ser, typeSer, serializationType, m, f, suppressNulls, valueToSuppress);
         
         // [JACKSON-132]: Unwrapping
-        String unwrapPrefix = _annotationIntrospector.findUnwrapPrefix(am);
-        if (unwrapPrefix != null) {
-            bpw = bpw.unwrappingWriter(unwrapPrefix);
+        NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(am);
+        if (unwrapper != null) {
+            bpw = bpw.unwrappingWriter(unwrapper);
         }
         return bpw;
     }

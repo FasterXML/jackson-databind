@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanSerializer;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 
 
 /**
@@ -79,8 +80,8 @@ public class BeanSerializer
     }
 
     @Override
-    public JsonSerializer<Object> unwrappingSerializer(String prefix) {
-        return new UnwrappingBeanSerializer(this, prefix);
+    public JsonSerializer<Object> unwrappingSerializer(NameTransformer unwrapper) {
+        return new UnwrappingBeanSerializer(this, unwrapper);
     }
     
     /*

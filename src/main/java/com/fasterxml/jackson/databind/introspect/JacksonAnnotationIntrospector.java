@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.std.RawSerializer;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
  * {@link AnnotationIntrospector} implementation that handles standard
@@ -135,15 +136,17 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public String findUnwrapPrefix(AnnotatedMember member)
+    public NameTransformer findUnwrappingNameTransformer(AnnotatedMember member)
     {
         JsonUnwrapped ann = member.getAnnotation(JsonUnwrapped.class);
         // if not enabled, just means annotation is not enabled; not necessarily
         // that unwrapping should not be done (relevant when using chained introspectors)
-        if (ann != null && ann.enabled()) {
-            return ann.prefix();
+        if (ann == null || !ann.enabled()) {
+            return null;
         }
-        return null;
+        String prefix = ann.prefix();
+        String suffix = ann.suffix();
+        return NameTransformer.simpleTransformer(prefix, suffix);
     }
 
     @Override

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
  * Abstract class that defines API used for introspecting annotation-based
@@ -335,11 +336,11 @@ public abstract class AnnotationIntrospector implements Versioned
      * Method called to check whether given property is marked to be "unwrapped"
      * when being serialized (and appropriately handled in reverse direction,
      * i.e. expect unwrapped representation during deserialization).
-     * Return value is the prefix to use for properties (empty String
-     * meaning no prefix), if not null; or null to indicate that no
-     * unwrapping is expected.
+     * Return value is the name transformation to use, if wrapping/unwrapping
+     * should  be done, or null if not -- note that transformation may simply
+     * be identity transformation (no changes).
      */
-    public String findUnwrapPrefix(AnnotatedMember member) {
+    public NameTransformer findUnwrappingNameTransformer(AnnotatedMember member) {
         return null;
     }
 
@@ -972,11 +973,11 @@ public abstract class AnnotationIntrospector implements Versioned
         }
 
         @Override        
-        public String findUnwrapPrefix(AnnotatedMember member)
+        public NameTransformer findUnwrappingNameTransformer(AnnotatedMember member)
         {
-            String value = _primary.findUnwrapPrefix(member);
+            NameTransformer value = _primary.findUnwrappingNameTransformer(member);
             if (value == null) {
-                value = _secondary.findUnwrapPrefix(member);
+                value = _secondary.findUnwrappingNameTransformer(member);
             }
             return value;
         }

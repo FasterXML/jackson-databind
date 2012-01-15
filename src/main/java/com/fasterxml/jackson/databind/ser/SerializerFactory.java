@@ -45,10 +45,10 @@ public abstract class SerializerFactory
         
         public abstract Iterable<BeanSerializerModifier> serializerModifiers();
     }
-
+    
     /*
     /**********************************************************
-    /* Additional configuration
+    /* Additional configuration methods
     /**********************************************************
      */
 

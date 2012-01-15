@@ -50,12 +50,6 @@ public class BeanSerializerFactory
      */
     public final static BeanSerializerFactory instance = new BeanSerializerFactory(null);
 
-    /**
-     * Configuration settings for this factory; immutable instance (just like this
-     * factory), new version created via copy-constructor (fluent-style)
-     */
-    protected final Config _factoryConfig;
-
     /*
     /**********************************************************
     /* Config class implementation
@@ -174,10 +168,7 @@ public class BeanSerializerFactory
      */
     protected BeanSerializerFactory(Config config)
     {
-        if (config == null) {
-            config = new ConfigImpl();
-        }
-        _factoryConfig = config;
+        super((config == null) ? new ConfigImpl() : config);
     }
 
     @Override public Config getConfig() { return _factoryConfig; }
@@ -281,30 +272,6 @@ public class BeanSerializerFactory
                 if (ser == null) {
                     ser = findSerializerByAddonType(config, type, beanDesc, property, staticTyping);
                 }
-            }
-        }
-        return (JsonSerializer<Object>) ser;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> createKeySerializer(SerializationConfig config, JavaType type,
-            BeanProperty property)
-    {
-        // Minor optimization: to avoid constructing beanDesc, bail out if none registered
-        if (!_factoryConfig.hasKeySerializers()) {
-            return null;
-        }
-        
-        // We should not need any member method info; at most class annotations for Map type
-        BasicBeanDescription beanDesc = config.introspectClassAnnotations(type.getRawClass());
-        JsonSerializer<?> ser = null;
-        
-        // Only thing we have here are module-provided key serializers:
-        for (Serializers serializers : _factoryConfig.keySerializers()) {
-            ser = serializers.findSerializer(config, type, beanDesc, property);
-            if (ser != null) {
-                break;
             }
         }
         return (JsonSerializer<Object>) ser;

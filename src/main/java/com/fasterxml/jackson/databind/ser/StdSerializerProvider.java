@@ -452,7 +452,6 @@ public abstract class StdSerializerProvider
     /**********************************************************
      */
 
-    @SuppressWarnings("unchecked")
     @Override
     public JsonSerializer<Object> findKeySerializer(JavaType keyType, BeanProperty property)
         throws JsonMappingException
@@ -469,11 +468,7 @@ public abstract class StdSerializerProvider
             }
         }
         // 25-Feb-2011, tatu: As per [JACKSON-519], need to ensure contextuality works here, too
-        if (ser instanceof ContextualSerializer<?>) {
-            ContextualSerializer<?> contextual = (ContextualSerializer<?>) ser;
-            ser = (JsonSerializer<Object>)contextual.createContextual(_config, property);
-        }
-        return ser;
+        return _handleContextualResolvable(ser, property);
     }
 
     @Override

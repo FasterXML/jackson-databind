@@ -192,7 +192,8 @@ public class MapDeserializer
             return _deserializeUsingCreator(jp, ctxt);
         }
         if (_delegateDeserializer != null) {
-            return (Map<Object,Object>) _valueInstantiator.createUsingDelegate(_delegateDeserializer.deserialize(jp, ctxt));
+            return (Map<Object,Object>) _valueInstantiator.createUsingDelegate(ctxt,
+                    _delegateDeserializer.deserialize(jp, ctxt));
         }
         if (!_hasDefaultCreator) {
             throw ctxt.instantiationException(getMapClass(), "No default constructor found");
@@ -202,11 +203,11 @@ public class MapDeserializer
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME && t != JsonToken.END_OBJECT) {
             // [JACKSON-620] (empty) String may be ok however:
             if (t == JsonToken.VALUE_STRING) {
-                return (Map<Object,Object>) _valueInstantiator.createFromString(jp.getText());
+                return (Map<Object,Object>) _valueInstantiator.createFromString(ctxt, jp.getText());
             }
             throw ctxt.mappingException(getMapClass());
         }
-        final Map<Object,Object> result = (Map<Object,Object>) _valueInstantiator.createUsingDefault();
+        final Map<Object,Object> result = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
         _readAndBind(jp, ctxt, result);
         return result;
     }
@@ -318,7 +319,7 @@ public class MapDeserializer
                     jp.nextToken();
                     Map<Object,Object> result;
                     try {
-                        result = (Map<Object,Object>)creator.build(buffer);
+                        result = (Map<Object,Object>)creator.build(ctxt, buffer);
                     } catch (Exception e) {
                         wrapAndThrow(e, _mapType.getRawClass());
                         return null;
@@ -344,7 +345,7 @@ public class MapDeserializer
         // end of JSON object?
         // if so, can just construct and leave...
         try {
-            return (Map<Object,Object>)creator.build(buffer);
+            return (Map<Object,Object>)creator.build(ctxt, buffer);
         } catch (Exception e) {
             wrapAndThrow(e, _mapType.getRawClass());
             return null;

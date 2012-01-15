@@ -143,7 +143,8 @@ public class CollectionDeserializer
         throws IOException, JsonProcessingException
     {
         if (_delegateDeserializer != null) {
-            return (Collection<Object>) _valueInstantiator.createUsingDelegate(_delegateDeserializer.deserialize(jp, ctxt));
+            return (Collection<Object>) _valueInstantiator.createUsingDelegate(ctxt,
+                    _delegateDeserializer.deserialize(jp, ctxt));
         }
         /* [JACKSON-620]: empty String may be ok; bit tricky to check, however, since
          *  there is also possibility of "auto-wrapping" of single-element arrays.
@@ -152,10 +153,10 @@ public class CollectionDeserializer
         if (jp.getCurrentToken() == JsonToken.VALUE_STRING) {
             String str = jp.getText();
             if (str.length() == 0) {
-                return (Collection<Object>) _valueInstantiator.createFromString(str);
+                return (Collection<Object>) _valueInstantiator.createFromString(ctxt, str);
             }
         }
-        return deserialize(jp, ctxt, (Collection<Object>) _valueInstantiator.createUsingDefault());
+        return deserialize(jp, ctxt, (Collection<Object>) _valueInstantiator.createUsingDefault(ctxt));
     }
 
     @Override

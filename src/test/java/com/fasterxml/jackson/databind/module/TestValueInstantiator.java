@@ -86,7 +86,7 @@ public class TestValueInstantiator extends BaseMapTest
         public boolean canCreateUsingDefault() { return true; }
 
         @Override
-        public MyBean createUsingDefault() {
+        public MyBean createUsingDefault(DeserializationContext ctxt) {
             return new MyBean("secret!", true);
         }
     }
@@ -115,7 +115,7 @@ public class TestValueInstantiator extends BaseMapTest
         }
 
         @Override
-        public Object createFromObjectWith(Object[] args) {
+        public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
             try {
                 Class<?> cls = (Class<?>) args[0];
                 return cls.newInstance();
@@ -144,7 +144,7 @@ public class TestValueInstantiator extends BaseMapTest
         }
 
         @Override
-        public Object createFromObjectWith(Object[] args) {
+        public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
             return new MyMap((String) args[0]);
         }
     }
@@ -163,7 +163,7 @@ public class TestValueInstantiator extends BaseMapTest
         }
         
         @Override
-        public Object createUsingDelegate(Object delegate) {
+        public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) {
             return new MyBean(""+delegate, true);
         }
     }
@@ -179,7 +179,7 @@ public class TestValueInstantiator extends BaseMapTest
         public boolean canCreateUsingDefault() { return true; }
 
         @Override
-        public MyList createUsingDefault() {
+        public MyList createUsingDefault(DeserializationContext ctxt) {
             return new MyList(true);
         }
     }
@@ -198,7 +198,7 @@ public class TestValueInstantiator extends BaseMapTest
         }
         
         @Override
-        public Object createUsingDelegate(Object delegate) {
+        public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) {
             MyList list = new MyList(true);
             list.add(delegate);
             return list;
@@ -216,7 +216,7 @@ public class TestValueInstantiator extends BaseMapTest
         public boolean canCreateUsingDefault() { return true; }
 
         @Override
-        public MyMap createUsingDefault() {
+        public MyMap createUsingDefault(DeserializationContext ctxt) {
             return new MyMap(true);
         }
     }
@@ -235,7 +235,7 @@ public class TestValueInstantiator extends BaseMapTest
         }
         
         @Override
-        public Object createUsingDelegate(Object delegate) {
+        public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) {
             MyMap map = new MyMap(true);
             map.put("value", delegate);
             return map;
@@ -264,7 +264,7 @@ public class TestValueInstantiator extends BaseMapTest
         public boolean canCreateUsingDefault() { return true; }
 
         @Override
-        public AnnotatedBean createUsingDefault() {
+        public AnnotatedBean createUsingDefault(DeserializationContext ctxt) {
             return new AnnotatedBean("foo", 3);
         }
     }
@@ -371,7 +371,7 @@ public class TestValueInstantiator extends BaseMapTest
                     }
         
                     @Override
-                    public Object createFromObjectWith(Object[] args) {
+                    public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
                         return new CreatorBean((String) args[0]);
                     }
         }));
@@ -406,7 +406,7 @@ public class TestValueInstantiator extends BaseMapTest
                     public boolean canCreateFromString() { return true; }
                     
                     @Override
-                    public Object createFromString(String value) {
+                    public Object createFromString(DeserializationContext ctxt, String value) {
                         return new MysteryBean(value);
                     }
         }));
@@ -424,7 +424,7 @@ public class TestValueInstantiator extends BaseMapTest
                     public boolean canCreateFromInt() { return true; }
                     
                     @Override
-                    public Object createFromInt(int value) {
+                    public Object createFromInt(DeserializationContext ctxt, int value) {
                         return new MysteryBean(value+1);
                     }
         }));
@@ -442,7 +442,7 @@ public class TestValueInstantiator extends BaseMapTest
                     public boolean canCreateFromLong() { return true; }
                     
                     @Override
-                    public Object createFromLong(long value) {
+                    public Object createFromLong(DeserializationContext ctxt, long value) {
                         return new MysteryBean(value+1L);
                     }
         }));
@@ -460,7 +460,7 @@ public class TestValueInstantiator extends BaseMapTest
                     public boolean canCreateFromDouble() { return true; }
 
                     @Override
-                    public Object createFromDouble(double value) {
+                    public Object createFromDouble(DeserializationContext ctxt, double value) {
                         return new MysteryBean(2.0 * value);
                     }
         }));
@@ -478,7 +478,7 @@ public class TestValueInstantiator extends BaseMapTest
                     public boolean canCreateFromBoolean() { return true; }
                     
                     @Override
-                    public Object createFromBoolean(boolean value) {
+                    public Object createFromBoolean(DeserializationContext ctxt, boolean value) {
                         return new MysteryBean(Boolean.valueOf(value));
                     }
         }));

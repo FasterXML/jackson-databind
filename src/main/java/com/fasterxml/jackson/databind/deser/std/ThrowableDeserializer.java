@@ -69,7 +69,8 @@ public class ThrowableDeserializer
             return _deserializeUsingPropertyBased(jp, ctxt);
         }
         if (_delegateDeserializer != null) {
-            return _valueInstantiator.createUsingDelegate(_delegateDeserializer.deserialize(jp, ctxt));
+            return _valueInstantiator.createUsingDelegate(ctxt,
+                    _delegateDeserializer.deserialize(jp, ctxt));
         }
         if (_beanType.isAbstract()) { // for good measure, check this too
             throw JsonMappingException.from(jp, "Can not instantiate abstract type "+_beanType
@@ -110,7 +111,7 @@ public class ThrowableDeserializer
             // Maybe it's "message"?
             if (PROP_NAME_MESSAGE.equals(propName)) {
                 if (hasStringCreator) {
-                    throwable = _valueInstantiator.createFromString(jp.getText());
+                    throwable = _valueInstantiator.createFromString(ctxt, jp.getText());
                     // any pending values?
                     if (pending != null) {
                         for (int i = 0, len = pendingIx; i < len; i += 2) {
@@ -145,9 +146,9 @@ public class ThrowableDeserializer
              */
             //throw new JsonMappingException("No 'message' property found: could not deserialize "+_beanType);
             if (hasStringCreator) {
-                throwable = _valueInstantiator.createFromString(null);
+                throwable = _valueInstantiator.createFromString(ctxt, null);
             } else {
-                throwable = _valueInstantiator.createUsingDefault();
+                throwable = _valueInstantiator.createUsingDefault(ctxt);
             }
             // any pending values?
             if (pending != null) {

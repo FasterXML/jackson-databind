@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
@@ -170,7 +171,7 @@ public abstract class ValueInstantiator
      * This method is called if {@link #getFromObjectArguments} returns
      * null or empty List.
      */
-    public Object createUsingDefault()
+    public Object createUsingDefault(DeserializationContext ctxt)
         throws IOException, JsonProcessingException {
         throw new JsonMappingException("Can not instantiate value of type "
                 +getValueTypeDesc()+"; no default creator found");
@@ -184,7 +185,7 @@ public abstract class ValueInstantiator
      * This method is called if {@link #getFromObjectArguments} returns
      * a non-empty List of arguments.
      */
-    public Object createFromObjectWith(Object[] args)
+    public Object createFromObjectWith(DeserializationContext ctxt, Object[] args)
         throws IOException, JsonProcessingException {
         throw new JsonMappingException("Can not instantiate value of type "
                 +getValueTypeDesc()+" with arguments");
@@ -194,7 +195,7 @@ public abstract class ValueInstantiator
      * Method to called to create value instance from JSON Object using
      * an intermediate "delegate" value to pass to createor method
      */
-    public Object createUsingDelegate(Object delegate)
+    public Object createUsingDelegate(DeserializationContext ctxt, Object delegate)
         throws IOException, JsonProcessingException
     {
         throw new JsonMappingException("Can not instantiate value of type "
@@ -208,27 +209,32 @@ public abstract class ValueInstantiator
     /**********************************************************
      */
     
-    public Object createFromString(String value) throws IOException, JsonProcessingException {
+    public Object createFromString(DeserializationContext ctxt, String value)
+            throws IOException, JsonProcessingException {
         throw new JsonMappingException("Can not instantiate value of type "
                 +getValueTypeDesc()+" from JSON String");
     }
     
-    public Object createFromInt(int value) throws IOException, JsonProcessingException {
+    public Object createFromInt(DeserializationContext ctxt, int value)
+            throws IOException, JsonProcessingException {
         throw new JsonMappingException("Can not instantiate value of type "
                 +getValueTypeDesc()+" from JSON int number");
     }
 
-    public Object createFromLong(long value) throws IOException, JsonProcessingException {
+    public Object createFromLong(DeserializationContext ctxt, long value)
+            throws IOException, JsonProcessingException {
         throw new JsonMappingException("Can not instantiate value of type "
                 +getValueTypeDesc()+" from JSON long number");
     }
 
-    public Object createFromDouble(double value) throws IOException, JsonProcessingException {
+    public Object createFromDouble(DeserializationContext ctxt, double value)
+            throws IOException, JsonProcessingException {
         throw new JsonMappingException("Can not instantiate value of type "
                 +getValueTypeDesc()+" from JSON floating-point number");
     }
     
-    public Object createFromBoolean(boolean value) throws IOException, JsonProcessingException {
+    public Object createFromBoolean(DeserializationContext ctxt, boolean value)
+            throws IOException, JsonProcessingException {
         throw new JsonMappingException("Can not instantiate value of type "
                 +getValueTypeDesc()+" from JSON boolean value");
     }

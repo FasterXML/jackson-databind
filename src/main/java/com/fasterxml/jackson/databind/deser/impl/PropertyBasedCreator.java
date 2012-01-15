@@ -97,9 +97,9 @@ public final class PropertyBasedCreator
         return buffer;
     }
     
-    public Object build(PropertyValueBuffer buffer) throws IOException
+    public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException
     {
-        Object bean = _valueInstantiator.createFromObjectWith(buffer.getParameters(_defaultValues));
+        Object bean = _valueInstantiator.createFromObjectWith(ctxt, buffer.getParameters(_defaultValues));
         // Anything buffered?
         for (PropertyValue pv = buffer.buffered(); pv != null; pv = pv.next) {
             pv.assign(bean);

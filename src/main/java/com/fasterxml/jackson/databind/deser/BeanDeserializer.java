@@ -659,7 +659,7 @@ public class BeanDeserializer
             return deserializeFromObjectUsingNonDefault(jp, ctxt);
         }
 
-        final Object bean = _valueInstantiator.createUsingDefault();
+        final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
@@ -696,14 +696,11 @@ public class BeanDeserializer
         return bean;
     }
 
-    /**
-     * @since 1.9
-     */
     protected Object deserializeFromObjectUsingNonDefault(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {        
         if (_delegateDeserializer != null) {
-            return _valueInstantiator.createUsingDelegate(_delegateDeserializer.deserialize(jp, ctxt));
+            return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
         }
         if (_propertyBasedCreator != null) {
             return _deserializeUsingPropertyBased(jp, ctxt);
@@ -725,14 +722,14 @@ public class BeanDeserializer
          */
         if (_delegateDeserializer != null) {
             if (!_valueInstantiator.canCreateFromString()) {
-                Object bean = _valueInstantiator.createUsingDelegate(_delegateDeserializer.deserialize(jp, ctxt));
+                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
                 if (_injectables != null) {
                     injectValues(ctxt, bean);
                 }
                 return bean;
             }
         }
-        return _valueInstantiator.createFromString(jp.getText());
+        return _valueInstantiator.createFromString(ctxt, jp.getText());
     }
 
     public Object deserializeFromNumber(JsonParser jp, DeserializationContext ctxt)
@@ -742,29 +739,29 @@ public class BeanDeserializer
         case INT:
             if (_delegateDeserializer != null) {
                 if (!_valueInstantiator.canCreateFromInt()) {
-                    Object bean = _valueInstantiator.createUsingDelegate(_delegateDeserializer.deserialize(jp, ctxt));
+                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
                     if (_injectables != null) {
                         injectValues(ctxt, bean);
                     }
                     return bean;
                 }
             }
-            return _valueInstantiator.createFromInt(jp.getIntValue());
+            return _valueInstantiator.createFromInt(ctxt, jp.getIntValue());
         case LONG:
             if (_delegateDeserializer != null) {
                 if (!_valueInstantiator.canCreateFromInt()) {
-                    Object bean = _valueInstantiator.createUsingDelegate(_delegateDeserializer.deserialize(jp, ctxt));
+                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
                     if (_injectables != null) {
                         injectValues(ctxt, bean);
                     }
                     return bean;
                 }
             }
-            return _valueInstantiator.createFromLong(jp.getLongValue());
+            return _valueInstantiator.createFromLong(ctxt, jp.getLongValue());
     	}
         // actually, could also be BigInteger, so:
         if (_delegateDeserializer != null) {
-            Object bean = _valueInstantiator.createUsingDelegate(_delegateDeserializer.deserialize(jp, ctxt));
+            Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
             if (_injectables != null) {
                 injectValues(ctxt, bean);
             }
@@ -776,8 +773,6 @@ public class BeanDeserializer
     /**
      * Method called to deserialize POJO value from a JSON floating-point
      * number.
-     * 
-     * @since 1.9
      */
     public Object deserializeFromDouble(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
@@ -787,34 +782,31 @@ public class BeanDeserializer
         case DOUBLE:
             if (_delegateDeserializer != null) {
                 if (!_valueInstantiator.canCreateFromDouble()) {
-                    Object bean = _valueInstantiator.createUsingDelegate(_delegateDeserializer.deserialize(jp, ctxt));
+                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
                     if (_injectables != null) {
                         injectValues(ctxt, bean);
                     }
                     return bean;
                 }
             }
-            return _valueInstantiator.createFromDouble(jp.getDoubleValue());
+            return _valueInstantiator.createFromDouble(ctxt, jp.getDoubleValue());
         }
         // actually, could also be BigDecimal, so:
         if (_delegateDeserializer != null) {
-            return _valueInstantiator.createUsingDelegate(_delegateDeserializer.deserialize(jp, ctxt));
+            return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
         }
         throw ctxt.instantiationException(getBeanClass(), "no suitable creator method found to deserialize from JSON floating-point number");
     }
 
     /**
-     * Method called to deserialize POJO value from a JSON boolean
-     * value (true, false)
-     * 
-     * @since 1.9
+     * Method called to deserialize POJO value from a JSON boolean value (true, false)
      */
     public Object deserializeFromBoolean(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
         if (_delegateDeserializer != null) {
             if (!_valueInstantiator.canCreateFromBoolean()) {
-                Object bean = _valueInstantiator.createUsingDelegate(_delegateDeserializer.deserialize(jp, ctxt));
+                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
                 if (_injectables != null) {
                     injectValues(ctxt, bean);
                 }
@@ -822,18 +814,15 @@ public class BeanDeserializer
             }
         }
         boolean value = (jp.getCurrentToken() == JsonToken.VALUE_TRUE);
-        return _valueInstantiator.createFromBoolean(value);
+        return _valueInstantiator.createFromBoolean(ctxt, value);
     }
 
-    /**
-     * @since 1.9
-     */
     public Object deserializeFromArray(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
     	if (_delegateDeserializer != null) {
     	    try {
-    	        Object bean = _valueInstantiator.createUsingDelegate(_delegateDeserializer.deserialize(jp, ctxt));
+    	        Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
     	        if (_injectables != null) {
     	            injectValues(ctxt, bean);
     	        }
@@ -875,7 +864,7 @@ public class BeanDeserializer
                     jp.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
                     try {
-                        bean = creator.build(buffer);
+                        bean = creator.build(ctxt, buffer);
                     } catch (Exception e) {
                         wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                         continue; // never gets here
@@ -921,7 +910,7 @@ public class BeanDeserializer
         // We hit END_OBJECT, so:
         Object bean;
         try {
-            bean =  creator.build(buffer);
+            bean =  creator.build(ctxt, buffer);
         } catch (Exception e) {
             wrapInstantiationProblem(e, ctxt);
             return null; // never gets here
@@ -993,7 +982,7 @@ public class BeanDeserializer
         throws IOException, JsonProcessingException
     {
         if (_delegateDeserializer != null) {
-            return _valueInstantiator.createUsingDelegate(_delegateDeserializer.deserialize(jp, ctxt));
+            return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
         }
         if (_propertyBasedCreator != null) {
             return deserializeUsingPropertyBasedWithUnwrapped(jp, ctxt);
@@ -1001,7 +990,7 @@ public class BeanDeserializer
         
         TokenBuffer tokens = new TokenBuffer(jp.getCodec());
         tokens.writeStartObject();
-        final Object bean = _valueInstantiator.createUsingDefault();
+        final Object bean = _valueInstantiator.createUsingDefault(ctxt);
 
         if (_injectables != null) {
             injectValues(ctxt, bean);
@@ -1102,7 +1091,7 @@ public class BeanDeserializer
                     t = jp.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
                     try {
-                        bean = creator.build(buffer);
+                        bean = creator.build(ctxt, buffer);
                     } catch (Exception e) {
                         wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                         continue; // never gets here
@@ -1147,7 +1136,7 @@ public class BeanDeserializer
         // We hit END_OBJECT, so:
         Object bean;
         try {
-            bean =  creator.build(buffer);
+            bean =  creator.build(ctxt, buffer);
         } catch (Exception e) {
             wrapInstantiationProblem(e, ctxt);
             return null; // never gets here
@@ -1168,7 +1157,7 @@ public class BeanDeserializer
         if (_propertyBasedCreator != null) {
             return deserializeUsingPropertyBasedWithExternalTypeId(jp, ctxt);
         }
-        return deserializeWithExternalTypeId(jp, ctxt, _valueInstantiator.createUsingDefault());
+        return deserializeWithExternalTypeId(jp, ctxt, _valueInstantiator.createUsingDefault(ctxt));
     }
 
     protected Object deserializeWithExternalTypeId(JsonParser jp, DeserializationContext ctxt,
@@ -1237,7 +1226,7 @@ public class BeanDeserializer
                     t = jp.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
                     try {
-                        bean = creator.build(buffer);
+                        bean = creator.build(ctxt, buffer);
                     } catch (Exception e) {
                         wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                         continue; // never gets here
@@ -1283,7 +1272,7 @@ public class BeanDeserializer
         // We hit END_OBJECT, so:
         Object bean;
         try {
-            bean = creator.build(buffer);
+            bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
             wrapInstantiationProblem(e, ctxt);
             return null; // never gets here

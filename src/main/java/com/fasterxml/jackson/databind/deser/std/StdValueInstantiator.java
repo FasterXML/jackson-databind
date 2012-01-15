@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
@@ -206,7 +207,7 @@ public class StdValueInstantiator
      */
     
     @Override
-    public Object createUsingDefault()
+    public Object createUsingDefault(DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
         if (_defaultCreator == null) { // sanity-check; caller should check
@@ -222,7 +223,7 @@ public class StdValueInstantiator
     }
     
     @Override
-    public Object createFromObjectWith(Object[] args)
+    public Object createFromObjectWith(DeserializationContext ctxt, Object[] args)
         throws IOException, JsonProcessingException
     {
         if (_withArgsCreator == null) { // sanity-check; caller should check
@@ -238,7 +239,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createUsingDelegate(Object delegate)
+    public Object createUsingDelegate(DeserializationContext ctxt, Object delegate)
         throws IOException, JsonProcessingException
     {
         if (_delegateCreator == null) { // sanity-check; caller should check
@@ -260,7 +261,8 @@ public class StdValueInstantiator
      */
     
     @Override
-    public Object createFromString(String value) throws IOException, JsonProcessingException
+    public Object createFromString(DeserializationContext ctxt, String value)
+            throws IOException, JsonProcessingException
     {
         if (_fromStringCreator != null) {
             try {
@@ -269,11 +271,12 @@ public class StdValueInstantiator
                 throw wrapException(e);
             }
         }
-        return _createFromStringFallbacks(value);
+        return _createFromStringFallbacks(ctxt, value);
     }
     
     @Override
-    public Object createFromInt(int value) throws IOException, JsonProcessingException
+    public Object createFromInt(DeserializationContext ctxt, int value)
+            throws IOException, JsonProcessingException
     {
         try {
             // First: "native" int methods work best:
@@ -292,7 +295,8 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromLong(long value) throws IOException, JsonProcessingException
+    public Object createFromLong(DeserializationContext ctxt, long value)
+            throws IOException, JsonProcessingException
     {
         try {
             if (_fromLongCreator != null) {
@@ -306,7 +310,8 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromDouble(double value) throws IOException, JsonProcessingException
+    public Object createFromDouble(DeserializationContext ctxt, double value)
+            throws IOException, JsonProcessingException
     {
         try {
             if (_fromDoubleCreator != null) {
@@ -320,7 +325,8 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromBoolean(boolean value) throws IOException, JsonProcessingException
+    public Object createFromBoolean(DeserializationContext ctxt, boolean value)
+            throws IOException, JsonProcessingException
     {
         try {
             if (_fromBooleanCreator != null) {
@@ -360,7 +366,8 @@ public class StdValueInstantiator
     /**********************************************************
      */
 
-    protected Object _createFromStringFallbacks(String value) throws IOException, JsonProcessingException
+    protected Object _createFromStringFallbacks(DeserializationContext ctxt, String value)
+            throws IOException, JsonProcessingException
     {
         /* 28-Sep-2011, tatu: Ok this is not clean at all; but since there are legacy
          *   systems that expect conversions in some cases, let's just add a minimal
@@ -369,10 +376,10 @@ public class StdValueInstantiator
         if (_fromBooleanCreator != null) {
             String str = value.trim();
             if ("true".equals(str)) {
-                return createFromBoolean(true);
+                return createFromBoolean(ctxt, true);
             }
             if ("false".equals(str)) {
-                return createFromBoolean(false);
+                return createFromBoolean(ctxt, false);
             }
         }
         

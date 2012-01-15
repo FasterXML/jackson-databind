@@ -102,7 +102,7 @@ public class JacksonDeserializers
         }
 
         @Override
-        public Object createFromObjectWith(Object[] args) {
+        public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
             return new JsonLocation(args[0], _long(args[1]), _long(args[2]),
                     _int(args[3]), _int(args[4]));
         }

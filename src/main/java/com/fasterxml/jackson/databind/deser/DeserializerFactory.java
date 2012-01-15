@@ -55,8 +55,6 @@ public abstract class DeserializerFactory
 
     /**
      * Configuration settings container class for bean deserializer factory
-     * 
-     * @since 1.7
      */
     public abstract static class Config
     {
@@ -90,8 +88,6 @@ public abstract class DeserializerFactory
          * abstract type resolver.
          * Added resolver has the highest priority (that is, it
          * gets called before any already registered resolver).
-         * 
-         * @since 1.8
          */
         public abstract Config withAbstractTypeResolver(AbstractTypeResolver resolver);
 
@@ -104,42 +100,25 @@ public abstract class DeserializerFactory
          * 
          * @param instantiators Object that can provide {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s for
          *    constructing POJO values during deserialization
-         * 
-         * @since 1.9
          */
         public abstract Config withValueInstantiators(ValueInstantiators instantiators);
         
         public abstract Iterable<Deserializers> deserializers();
 
-        /**
-         * @since 1.8
-         */
         public abstract Iterable<KeyDeserializers> keyDeserializers();
         
         public abstract Iterable<BeanDeserializerModifier> deserializerModifiers();
 
-        /**
-         * @since 1.8
-         */
         public abstract Iterable<AbstractTypeResolver> abstractTypeResolvers();
 
-        /**
-         * @since 1.9
-         */
         public abstract Iterable<ValueInstantiators> valueInstantiators();
         
         public abstract boolean hasDeserializers();
 
-        /**
-         * @since 1.8
-         */
         public abstract boolean hasKeyDeserializers();
         
         public abstract boolean hasDeserializerModifiers();
 
-        /**
-         * @since 1.8
-         */
         public abstract boolean hasAbstractTypeResolvers();
 
         /**
@@ -155,7 +134,8 @@ public abstract class DeserializerFactory
      */
 
     /**
-     * @since 1.7
+     * Method for accessing factory configuration (NOT the general
+     * {@link DeserializationConfig}!)
      */
     public abstract Config getConfig();
     
@@ -168,16 +148,12 @@ public abstract class DeserializerFactory
      * of this method, as it usually requires instantiating a new instance of
      * factory type. Check out javadocs for
      * {@link com.fasterxml.jackson.databind.deser.BeanDeserializerFactory} for more details.
-     * 
-     * @since 1.7
      */
     public abstract DeserializerFactory withConfig(Config config);
 
     /**
      * Convenience method for creating a new factory instance with additional deserializer
      * provider.
-     * 
-     * @since 1.7
      */
     public final DeserializerFactory withAdditionalDeserializers(Deserializers additional) {
         return withConfig(getConfig().withAdditionalDeserializers(additional));
@@ -186,8 +162,6 @@ public abstract class DeserializerFactory
     /**
      * Convenience method for creating a new factory instance with additional
      * {@link KeyDeserializers}.
-     * 
-     * @since 1.8
      */
     public final DeserializerFactory withAdditionalKeyDeserializers(KeyDeserializers additional) {
         return withConfig(getConfig().withAdditionalKeyDeserializers(additional));
@@ -196,8 +170,6 @@ public abstract class DeserializerFactory
     /**
      * Convenience method for creating a new factory instance with additional
      * {@link BeanDeserializerModifier}.
-     * 
-     * @since 1.7
      */
     public final DeserializerFactory withDeserializerModifier(BeanDeserializerModifier modifier) {
         return withConfig(getConfig().withDeserializerModifier(modifier));
@@ -206,8 +178,6 @@ public abstract class DeserializerFactory
     /**
      * Convenience method for creating a new factory instance with additional
      * {@link AbstractTypeResolver}.
-     * 
-     * @since 1.7
      */
     public final DeserializerFactory withAbstractTypeResolver(AbstractTypeResolver resolver) {
         return withConfig(getConfig().withAbstractTypeResolver(resolver));
@@ -216,8 +186,6 @@ public abstract class DeserializerFactory
     /**
      * Convenience method for creating a new factory instance with additional
      * {@link ValueInstantiators}.
-     * 
-     * @since 1.9
      */
     public final DeserializerFactory withValueInstantiators(ValueInstantiators instantiators) {
         return withConfig(getConfig().withValueInstantiators(instantiators));
@@ -234,8 +202,6 @@ public abstract class DeserializerFactory
      * (interface, abstract class) into a concrete type, or at least
      * something "more concrete" (abstract class instead of interface).
      * Will either return passed type, or a more specific type.
-     * 
-     * @since 1.9
      */
     public abstract JavaType mapAbstractType(DeserializationConfig config, JavaType type)
         throws JsonMappingException;
@@ -243,8 +209,6 @@ public abstract class DeserializerFactory
     /**
      * Method that is to find all creators (constructors, factory methods)
      * for the bean type to deserialize.
-     * 
-     * @since 1.9
      */
     public abstract ValueInstantiator findValueInstantiator(DeserializationConfig config,
             BasicBeanDescription beanDesc)
@@ -285,9 +249,6 @@ public abstract class DeserializerFactory
             DeserializerProvider p, CollectionType type, BeanProperty property)
         throws JsonMappingException;
 
-    /**
-     * @since 1.8
-     */
     public abstract JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationConfig config,
             DeserializerProvider p, CollectionLikeType type, BeanProperty property)
         throws JsonMappingException;
@@ -300,9 +261,6 @@ public abstract class DeserializerFactory
             DeserializerProvider p, MapType type, BeanProperty property)
         throws JsonMappingException;
 
-    /**
-     * @since 1.8
-     */
     public abstract JsonDeserializer<?> createMapLikeDeserializer(DeserializationConfig config,
             DeserializerProvider p, MapLikeType type, BeanProperty property)
         throws JsonMappingException;
@@ -322,8 +280,6 @@ public abstract class DeserializerFactory
      * 
      * @return Key deserializer to use for specified type, if one found; null if not
      *   (and default key deserializer should be used)
-     * 
-     * @since 1.8
      */
     public KeyDeserializer createKeyDeserializer(DeserializationConfig config, JavaType type,
             BeanProperty property)
@@ -345,8 +301,6 @@ public abstract class DeserializerFactory
      *    deserializer type will be this type or its subtype)
      * 
      * @return Type deserializer to use for given base type, if one is needed; null if not.
-     * 
-     * @since 1.5
      */
     public TypeDeserializer findTypeDeserializer(DeserializationConfig config, JavaType baseType,
             BeanProperty property)

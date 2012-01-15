@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.ser.std.CollectionSerializer;
 
@@ -26,27 +27,27 @@ public class StdContainerSerializers
     /**********************************************************
      */
         
-    public static ContainerSerializerBase<?> indexedListSerializer(JavaType elemType,
+    public static ContainerSerializer<?> indexedListSerializer(JavaType elemType,
             boolean staticTyping, TypeSerializer vts, BeanProperty property,
             JsonSerializer<Object> valueSerializer)
     {
         return new IndexedListSerializer(elemType, staticTyping, vts, property, valueSerializer);
     }
 
-    public static ContainerSerializerBase<?> collectionSerializer(JavaType elemType,
+    public static ContainerSerializer<?> collectionSerializer(JavaType elemType,
             boolean staticTyping, TypeSerializer vts, BeanProperty property,
             JsonSerializer<Object> valueSerializer)
     {
         return new CollectionSerializer(elemType, staticTyping, vts, property, valueSerializer);
     }
 
-    public static ContainerSerializerBase<?> iteratorSerializer(JavaType elemType,
+    public static ContainerSerializer<?> iteratorSerializer(JavaType elemType,
             boolean staticTyping, TypeSerializer vts, BeanProperty property)
     {
         return new IteratorSerializer(elemType, staticTyping, vts, property);
     }
 
-    public static ContainerSerializerBase<?> iterableSerializer(JavaType elemType,
+    public static ContainerSerializer<?> iterableSerializer(JavaType elemType,
             boolean staticTyping, TypeSerializer vts, BeanProperty property)
     {
         return new IterableSerializer(elemType, staticTyping, vts, property);
@@ -84,7 +85,7 @@ public class StdContainerSerializers
         }
         
         @Override
-        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
+        public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
             return new IndexedListSerializer(_elementType, _staticTyping, vts, _property, _elementSerializer);
         }
         
@@ -213,7 +214,7 @@ public class StdContainerSerializers
         }
         
         @Override
-        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
+        public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
             return new IteratorSerializer(_elementType, _staticTyping, vts, _property);
         }
         

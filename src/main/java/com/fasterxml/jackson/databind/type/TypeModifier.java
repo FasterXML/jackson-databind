@@ -12,14 +12,12 @@ import com.fasterxml.jackson.databind.JavaType;
  * This is typically needed to support creation of
  * {@link MapLikeType} and {@link CollectionLikeType} instances,
  * as those can not be constructed in generic fashion.
- * 
- * @since 1.8
  */
 public abstract class TypeModifier
 {
     /**
      * Method called to let modifier change constructed type definition.
-     * Note that as of version 1.8 this is only guaranteed to be called for
+     * Note that this is only guaranteed to be called for
      * non-container types ("simple" types not recognized as arrays,
      * <code>java.util.Collection</code> or <code>java.util.Map</code>).
      * 

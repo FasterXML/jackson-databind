@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -23,7 +24,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  */
 @JacksonStdImpl
 public class MapSerializer
-    extends ContainerSerializerBase<Map<?,?>>
+    extends ContainerSerializer<Map<?,?>>
     implements ResolvableSerializer
 {
     protected final static JavaType UNSPECIFIED_TYPE = TypeFactory.unknownType();
@@ -98,7 +99,7 @@ public class MapSerializer
     }
     
     @Override
-    public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts)
+    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts)
     {
         MapSerializer ms = new MapSerializer(_ignoredEntries, _keyType, _valueType, _valueTypeIsStatic, vts,
                 _keySerializer, _valueSerializer, _property);
@@ -146,6 +147,11 @@ public class MapSerializer
     /**********************************************************
      */
 
+    @Override
+    public JavaType getContentType() {
+        return _valueType;
+    }
+    
     @Override
     public boolean isEmpty(Map<?,?> value) {
         return (value == null) || value.isEmpty();

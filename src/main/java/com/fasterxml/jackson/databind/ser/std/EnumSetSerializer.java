@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 
 public class EnumSetSerializer
     extends AsArraySerializerBase<EnumSet<? extends Enum<?>>>
@@ -20,7 +21,7 @@ public class EnumSetSerializer
     }
 
     @Override
-    public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
+    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         // no typing for enums (always "hard" type)
         return this;
     }

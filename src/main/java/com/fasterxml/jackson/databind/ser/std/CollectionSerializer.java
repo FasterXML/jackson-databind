@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 
 
@@ -30,7 +31,7 @@ public class CollectionSerializer
     }
     
     @Override
-    public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
+    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         return new CollectionSerializer(_elementType, _staticTyping, vts, _property, _elementSerializer);
     }
 

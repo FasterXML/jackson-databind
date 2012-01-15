@@ -10,7 +10,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Dummy container class to group standard homogenous array serializer implementations
@@ -31,7 +33,7 @@ public class StdArraySerializers
      * arrays.
      */
     public abstract static class ArraySerializerBase<T>
-        extends ContainerSerializerBase<T>
+        extends ContainerSerializer<T>
     {
          /**
          * Type serializer used for values, if any.
@@ -87,6 +89,11 @@ public class StdArraySerializers
         extends ArraySerializerBase<String[]>
         implements ResolvableSerializer
     {
+        /* Note: not clean in general, but we are betting against
+         * anyone re-defining properties of String.class here...
+         */
+        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(String.class);
+            
         /**
          * Value serializer to use, if it's not the standard one
          * (if it is we can optimize serialization a lot)
@@ -102,10 +109,15 @@ public class StdArraySerializers
          * we'll ignore it...
          */
         @Override
-        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
+        public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
             return this;
         }
 
+        @Override
+        public JavaType getContentType() {
+            return VALUE_TYPE;
+        }
+        
         @Override
         public boolean isEmpty(String[] value) {
             return (value == null) || (value.length == 0);
@@ -184,6 +196,9 @@ public class StdArraySerializers
     public final static class BooleanArraySerializer
         extends ArraySerializerBase<boolean[]>
     {
+        // as above, assuming no one re-defines primitive/wrapper types
+        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Boolean.class);
+
         public BooleanArraySerializer() { super(boolean[].class, null, null); }
 
         /**
@@ -191,10 +206,15 @@ public class StdArraySerializers
          * we'll ignore it...
          */
         @Override
-        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
+        public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
             return this;
         }
 
+        @Override
+        public JavaType getContentType() {
+            return VALUE_TYPE;
+        }
+        
         @Override
         public boolean isEmpty(boolean[] value) {
             return (value == null) || (value.length == 0);
@@ -232,7 +252,7 @@ public class StdArraySerializers
         public ByteArraySerializer() {
             super(byte[].class);
         }
-
+        
         @Override
         public boolean isEmpty(byte[] value) {
             return (value == null) || (value.length == 0);
@@ -269,12 +289,20 @@ public class StdArraySerializers
     public final static class ShortArraySerializer
         extends ArraySerializerBase<short[]>
     {
+        // as above, assuming no one re-defines primitive/wrapper types
+        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Short.TYPE);
+
         public ShortArraySerializer() { this(null); }
         public ShortArraySerializer(TypeSerializer vts) { super(short[].class, vts, null); }
 
         @Override
-        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
+        public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
             return new ShortArraySerializer(vts);
+        }
+
+        @Override
+        public JavaType getContentType() {
+            return VALUE_TYPE;
         }
         
         @Override
@@ -314,7 +342,7 @@ public class StdArraySerializers
         extends SerializerBase<char[]>
     {
         public CharArraySerializer() { super(char[].class); }
-
+        
         @Override
         public boolean isEmpty(char[] value) {
             return (value == null) || (value.length == 0);
@@ -374,6 +402,9 @@ public class StdArraySerializers
     public final static class IntArraySerializer
         extends ArraySerializerBase<int[]>
     {
+        // as above, assuming no one re-defines primitive/wrapper types
+        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Integer.TYPE);
+
         public IntArraySerializer() { super(int[].class, null, null); }
 
         /**
@@ -381,10 +412,15 @@ public class StdArraySerializers
          * we'll ignore it...
          */
         @Override
-        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
+        public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
             return this;
         }        
 
+        @Override
+        public JavaType getContentType() {
+            return VALUE_TYPE;
+        }
+        
         @Override
         public boolean isEmpty(int[] value) {
             return (value == null) || (value.length == 0);
@@ -412,14 +448,22 @@ public class StdArraySerializers
     public final static class LongArraySerializer
         extends ArraySerializerBase<long[]>
     {
+        // as above, assuming no one re-defines primitive/wrapper types
+        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Long.TYPE);
+
         public LongArraySerializer() { this(null); }
         public LongArraySerializer(TypeSerializer vts) { super(long[].class, vts, null); }
 
         @Override
-        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
+        public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
             return new LongArraySerializer(vts);
         }
 
+        @Override
+        public JavaType getContentType() {
+            return VALUE_TYPE;
+        }
+        
         @Override
         public boolean isEmpty(long[] value) {
             return (value == null) || (value.length == 0);
@@ -447,12 +491,20 @@ public class StdArraySerializers
     public final static class FloatArraySerializer
         extends ArraySerializerBase<float[]>
     {
+        // as above, assuming no one re-defines primitive/wrapper types
+        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Float.TYPE);
+        
         public FloatArraySerializer() { this(null); }
         public FloatArraySerializer(TypeSerializer vts) { super(float[].class, vts, null); }
 
         @Override
-        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
+        public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
             return new FloatArraySerializer(vts);
+        }
+
+        @Override
+        public JavaType getContentType() {
+            return VALUE_TYPE;
         }
 
         @Override
@@ -482,6 +534,9 @@ public class StdArraySerializers
     public final static class DoubleArraySerializer
         extends ArraySerializerBase<double[]>
     {
+        // as above, assuming no one re-defines primitive/wrapper types
+        private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Double.TYPE);
+
         public DoubleArraySerializer() { super(double[].class, null, null); }
 
         /**
@@ -489,10 +544,15 @@ public class StdArraySerializers
          * we'll ignore it...
          */
         @Override
-        public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
+        public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
             return this;
         }
 
+        @Override
+        public JavaType getContentType() {
+            return VALUE_TYPE;
+        }
+        
         @Override
         public boolean isEmpty(double[] value) {
             return (value == null) || (value.length == 0);

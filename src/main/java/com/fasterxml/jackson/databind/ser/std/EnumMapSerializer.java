@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 import com.fasterxml.jackson.databind.util.EnumValues;
 
@@ -25,7 +26,7 @@ import com.fasterxml.jackson.databind.util.EnumValues;
  */
 @JacksonStdImpl
 public class EnumMapSerializer
-    extends ContainerSerializerBase<EnumMap<? extends Enum<?>, ?>>
+    extends ContainerSerializer<EnumMap<? extends Enum<?>, ?>>
     implements ResolvableSerializer
 {
     protected final boolean _staticTyping;
@@ -66,11 +67,16 @@ public class EnumMapSerializer
     }
 
     @Override
-    public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts)
+    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts)
     {
         return new EnumMapSerializer(_valueType, _staticTyping, _keyEnums, vts,  _property, _valueSerializer);
     }
 
+    @Override
+    public JavaType getContentType() {
+        return _valueType;
+    }
+    
     @Override
     public boolean isEmpty(EnumMap<? extends Enum<?>,?> value) {
         return (value == null) || value.isEmpty();

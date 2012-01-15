@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 
@@ -21,7 +22,7 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
  * and array types.
  */
 public abstract class AsArraySerializerBase<T>
-    extends ContainerSerializerBase<T>
+    extends ContainerSerializer<T>
     implements ResolvableSerializer
 {
     protected final boolean _staticTyping;
@@ -48,7 +49,7 @@ public abstract class AsArraySerializerBase<T>
      * runtime type to serializer is handled using this object
      */
     protected PropertySerializerMap _dynamicSerializers;
-
+    
     protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
             TypeSerializer vts, BeanProperty property, JsonSerializer<Object> elementSerializer)
     {
@@ -63,6 +64,11 @@ public abstract class AsArraySerializerBase<T>
         _dynamicSerializers = PropertySerializerMap.emptyMap();
     }
 
+    @Override
+    public JavaType getContentType() {
+        return _elementType;
+    }
+    
     @Override
     public final void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException

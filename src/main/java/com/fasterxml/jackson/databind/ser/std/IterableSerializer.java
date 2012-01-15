@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 
 @JacksonStdImpl
 public class IterableSerializer
@@ -22,7 +23,7 @@ public class IterableSerializer
     }
 
     @Override
-    public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts) {
+    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         return new IterableSerializer(_elementType, _staticTyping, vts, _property);
     }
 

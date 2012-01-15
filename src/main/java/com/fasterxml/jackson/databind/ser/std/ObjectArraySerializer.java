@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.type.ArrayType;
@@ -63,11 +64,16 @@ public class ObjectArraySerializer
     }
 
     @Override
-    public ContainerSerializerBase<?> _withValueTypeSerializer(TypeSerializer vts)
+    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts)
     {
         return new ObjectArraySerializer(_elementType, _staticTyping, vts, _property, _elementSerializer);
     }
 
+    @Override
+    public JavaType getContentType() {
+        return _elementType;
+    }
+    
     @Override
     public boolean isEmpty(Object[] value) {
         return (value == null) || (value.length == 0);

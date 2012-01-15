@@ -154,12 +154,17 @@ public final class TypeFactory
         // Shouldbe able to optimize bit more in future...
         return defaultInstance().constructType(t).getRawClass();
     }
-    
-    /*
-    public static JavaType fromCanonical(String canonical) throws IllegalArgumentException {
-        return instance.constructFromCanonical(canonical);
+
+    /**
+     * Method used by framework for handling types that are known
+     * not to have generic types both due to being passed as Class,
+     * and because caller guarantees that no container types
+     * are passed (this is important since type modifiers will not
+     * be consulted).
+     */
+    public SimpleType unsafeTrivialType(Class<?> erasedType) {
+        return new SimpleType(erasedType);
     }
-    */
     
     /*
     /**********************************************************

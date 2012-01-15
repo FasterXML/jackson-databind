@@ -297,11 +297,26 @@ public class JacksonAnnotationIntrospector
     }
     
     @Override
-    public JsonSerialize.Inclusion findSerializationInclusion(Annotated a, JsonSerialize.Inclusion defValue)
+    public JsonInclude.Include findSerializationInclusion(Annotated a, JsonInclude.Include defValue)
     {
+        JsonInclude inc = a.getAnnotation(JsonInclude.class);
+        if (inc != null) {
+            return inc.value();
+        }
         JsonSerialize ann = a.getAnnotation(JsonSerialize.class);
         if (ann != null) {
-            return ann.include();
+            @SuppressWarnings("deprecation")
+            JsonSerialize.Inclusion i2 = ann.include();
+            switch (i2) {
+            case ALWAYS:
+                return JsonInclude.Include.ALWAYS;
+            case NON_NULL:
+                return JsonInclude.Include.NON_NULL;
+            case NON_DEFAULT:
+                return JsonInclude.Include.NON_DEFAULT;
+            case NON_EMPTY:
+                return JsonInclude.Include.NON_EMPTY;
+            }
         }
         return defValue;
     }

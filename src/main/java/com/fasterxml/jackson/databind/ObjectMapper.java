@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
@@ -16,7 +17,6 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -760,7 +760,7 @@ public class ObjectMapper
      *  mapper.setSerializationConfig(mapper.getSerializationConfig().withSerializationInclusion(incl));
      *</pre>
      */
-    public ObjectMapper setSerializationInclusion(JsonSerialize.Inclusion incl) {
+    public ObjectMapper setSerializationInclusion(JsonInclude.Include incl) {
         _serializationConfig = _serializationConfig.withSerializationInclusion(incl);
         return this;
     }

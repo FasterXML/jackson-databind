@@ -3,14 +3,12 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.io.IOException;
 import java.util.*;
 
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
@@ -156,7 +154,7 @@ public class TestWithGenerics extends BaseMapTest
     {
         ObjectMapper om = new ObjectMapper();
         om.enableDefaultTyping( ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY );
-        om.setSerializationInclusion( JsonSerialize.Inclusion.NON_NULL );
+        om.setSerializationInclusion(JsonInclude.Include.NON_NULL );
         om.enable( SerializationConfig.Feature.INDENT_OUTPUT);
 
         MyClass mc = new MyClass();

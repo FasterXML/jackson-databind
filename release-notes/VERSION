@@ -10,8 +10,6 @@ Fixes:
 
 Improvements
 
-* [JACKSON-669]: Allow prefix/suffix for @JsonUnwrapped properties
- (requested by Aner P)
 * [JACKSON-695]: Add 'isEmpty(value)' in JsonSerializer to allow
   customizing handling of serialization of empty values
 * [JACKSON-710]: 'ObjectMapper.convertValue()' should ignore root value
@@ -22,6 +20,10 @@ Improvements
 * [JACKSON-749]: Make @JsonValue work for Enum deserialization
 
 New features:
+
+* [JACKSON-669]: Allow prefix/suffix for @JsonUnwrapped properties
+ (requested by Aner P)
+* [JACKSON-752]: Add @JsonInclude (replacement of @JsonSerialize.include)
 
 ------------------------------------------------------------------------
 === History: ===

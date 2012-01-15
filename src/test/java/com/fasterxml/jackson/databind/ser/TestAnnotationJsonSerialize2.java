@@ -184,7 +184,7 @@ public class TestAnnotationJsonSerialize2
     public void testEmptyInclusion() throws IOException
     {
         ObjectMapper defMapper = MAPPER;
-        ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY);
+        ObjectMapper inclMapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
 
         StringWrapper str = new StringWrapper("");
         assertEquals("{\"str\":\"\"}", defMapper.writeValueAsString(str));

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
 import com.fasterxml.jackson.core.util.VersionUtil;
@@ -421,7 +422,7 @@ public abstract class AnnotationIntrospector implements Versioned
      * @return Enumerated value indicating which properties to include
      *   in serialization
      */
-    public JsonSerialize.Inclusion findSerializationInclusion(Annotated a, JsonSerialize.Inclusion defValue) {
+    public JsonInclude.Include findSerializationInclusion(Annotated a, JsonInclude.Include defValue) {
         return defValue;
     }
 
@@ -1031,8 +1032,8 @@ public abstract class AnnotationIntrospector implements Versioned
         }
         
         @Override
-        public JsonSerialize.Inclusion findSerializationInclusion(Annotated a,
-                JsonSerialize.Inclusion defValue)
+        public JsonInclude.Include findSerializationInclusion(Annotated a,
+                JsonInclude.Include defValue)
         {
             /* This is bit trickier: need to combine results in a meaningful
              * way. Seems like it should be a disjoint; that is, most

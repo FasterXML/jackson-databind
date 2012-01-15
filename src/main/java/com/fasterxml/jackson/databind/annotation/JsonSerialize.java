@@ -18,18 +18,12 @@ import com.fasterxml.jackson.databind.*;
  *<pre>
  *  &#64;JsonSerialize(using=MySerializer.class,
  *    as=MySubClass.class,
- *    include=JsonSerialize.Inclusion.NON_NULL,
  *    typing=JsonSerialize.Typing.STATIC
  *  )
  *</pre>
  * (which would be redundant, since some properties block others:
  * specifically, 'using' has precedence over 'as', which has precedence
  * over 'typing' setting)
- *<p>
- * NOTE: since version 1.2, annotation has also been applicable
- * to (constructor) parameters
- *
- * @since 1.1
  */
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.TYPE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
@@ -52,8 +46,6 @@ public @interface JsonSerialize
      * of a Collection/array, values of Maps) of annotated property.
      * Can only be used on properties (methods, fields, constructors),
      * and not value classes themselves (as they are typically generic)
-     *
-     * @since 1.8
      */
     public Class<? extends JsonSerializer<?>> contentUsing()
         default JsonSerializer.None.class;
@@ -63,8 +55,6 @@ public @interface JsonSerialize
      * of annotated property.
      * Can only be used on properties (methods, fields, constructors),
      * and not value classes themselves.
-     *
-     * @since 1.8
      */
     public Class<? extends JsonSerializer<?>> keyUsing()
         default JsonSerializer.None.class;
@@ -110,8 +100,6 @@ public @interface JsonSerialize
      * Whether type detection used is dynamic or static: that is,
      * whether actual runtime type is used (dynamic), or just the
      * declared type (static).
-     *
-     * @since 1.2
      */
     public Typing typing() default Typing.DYNAMIC;
 
@@ -126,7 +114,10 @@ public @interface JsonSerialize
      * being property setting for a Bean constructed with default no-arg
      * constructor, often null).
      *
+     * @deprecated As of Jackson 2.0, this annotation has been replaced
+     *    by {@link com.fasterxml.jackson.annotation.JsonInclude}
      */
+    @Deprecated
     public Inclusion include() default Inclusion.ALWAYS;
     
     /*
@@ -139,8 +130,6 @@ public @interface JsonSerialize
      * Enumeration used with {@link JsonSerialize#include} property
      * to define which properties
      * of Java Beans are to be included in serialization
-     *
-     * @since 1.1
      */
     public enum Inclusion
     {
@@ -183,8 +172,6 @@ public @interface JsonSerialize
          *   </li>
          * <ul>
          *  For other types, non-null values are to be included.
-         * 
-         * @since 1.9
          */
         NON_EMPTY
         ;
@@ -194,8 +181,6 @@ public @interface JsonSerialize
      * Enumeration used with {@link JsonSerialize#typing} property
      * to define whether type detection is based on dynamic runtime
      * type (DYNAMIC) or declared type (STATIC).
-     * 
-     * @since 1.1
      */
     public enum Typing
     {

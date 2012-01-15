@@ -5,7 +5,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 public class TestMixinSerWithViews
     extends BaseMapTest
@@ -193,7 +192,7 @@ public class TestMixinSerWithViews
     {
       ObjectMapper objectMapper = new ObjectMapper( );
       objectMapper.configure( SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false );
-      objectMapper.setSerializationInclusion( JsonSerialize.Inclusion.NON_NULL );
+      objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL );
       objectMapper.configure( SerializationConfig.Feature.DEFAULT_VIEW_INCLUSION, false );
 
       Map<Class<?>, Class<?>> sourceMixins = new HashMap<Class<?>, Class<?>>( );

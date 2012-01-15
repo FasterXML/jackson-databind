@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
@@ -19,7 +20,7 @@ public class PropertyBuilder
 {
     final protected SerializationConfig _config;
     final protected BasicBeanDescription _beanDesc;
-    final protected JsonSerialize.Inclusion _outputProps;
+    final protected JsonInclude.Include _outputProps;
 
     final protected AnnotationIntrospector _annotationIntrospector;
 
@@ -98,7 +99,7 @@ public class PropertyBuilder
         Object valueToSuppress = null;
         boolean suppressNulls = false;
 
-        JsonSerialize.Inclusion methodProps = _annotationIntrospector.findSerializationInclusion(am, _outputProps);
+        JsonInclude.Include methodProps = _annotationIntrospector.findSerializationInclusion(am, _outputProps);
         
         if (methodProps != null) {
             switch (methodProps) {

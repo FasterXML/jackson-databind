@@ -1,13 +1,11 @@
 package com.fasterxml.jackson.databind.deser;
 
-
 import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Unit tests for verifying that simple exceptions can be deserialized.
@@ -80,7 +78,7 @@ public class TestExceptionDeserialization
     public void testWithNullMessage() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String json = mapper.writeValueAsString(new IOException((String) null));
         IOException result = mapper.readValue(json, IOException.class);
         assertNotNull(result);

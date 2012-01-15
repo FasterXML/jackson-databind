@@ -4,9 +4,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 
-
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
 
@@ -430,7 +429,7 @@ public class BasicBeanDescription extends BeanDescription
      * feature (lowest priority, passed as argument)
      * and per-class annotation (highest priority).
      */
-    public JsonSerialize.Inclusion findSerializationInclusion(JsonSerialize.Inclusion defValue)
+    public JsonInclude.Include findSerializationInclusion(JsonInclude.Include defValue)
     {
         if (_annotationIntrospector == null) {
             return defValue;

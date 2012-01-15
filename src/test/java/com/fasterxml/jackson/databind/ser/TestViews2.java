@@ -5,11 +5,9 @@ import java.io.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 public class TestViews2 extends BaseMapTest
 {
-
     /*
     /************************************************************************ 
     /* Tests
@@ -40,7 +38,7 @@ public class TestViews2 extends BaseMapTest
   {
     ObjectMapper objectMapper = new ObjectMapper( );
     objectMapper.configure( SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false );
-    objectMapper.setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL );
+    objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL );
     objectMapper.configure( SerializationConfig.Feature.DEFAULT_VIEW_INCLUSION, false );
 //    objectMapper.getSerializationConfig( ).disable( SerializationConfig.Feature.DEFAULT_VIEW_INCLUSION );
 //    objectMapper.getSerializationConfig( ).setSerializationView( viewClass );

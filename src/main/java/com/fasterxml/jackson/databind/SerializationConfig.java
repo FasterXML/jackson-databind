@@ -396,7 +396,7 @@ public class SerializationConfig
      * changed to only include non-null properties, or properties
      * with non-default values.
      */
-    protected JsonSerialize.Inclusion _serializationInclusion = null;
+    protected JsonInclude.Include _serializationInclusion = null;
 
     /**
      * View to use for filtering out properties to serialize.
@@ -483,7 +483,7 @@ public class SerializationConfig
         _filterProvider = src._filterProvider;
     }
 
-    protected SerializationConfig(SerializationConfig src, JsonSerialize.Inclusion incl)
+    protected SerializationConfig(SerializationConfig src, JsonInclude.Include incl)
     {
         super(src);
         _serializationInclusion = incl;
@@ -593,7 +593,7 @@ public class SerializationConfig
         return new SerializationConfig(this, view);
     }
 
-    public SerializationConfig withSerializationInclusion(JsonSerialize.Inclusion incl) {
+    public SerializationConfig withSerializationInclusion(JsonInclude.Include incl) {
         return new SerializationConfig(this, incl);
     }
 
@@ -729,12 +729,12 @@ public class SerializationConfig
      */
     public Class<?> getSerializationView() { return _serializationView; }
 
-    public JsonSerialize.Inclusion getSerializationInclusion()
+    public JsonInclude.Include getSerializationInclusion()
     {
         if (_serializationInclusion != null) {
             return _serializationInclusion;
         }
-        return JsonSerialize.Inclusion.ALWAYS;
+        return JsonInclude.Include.ALWAYS;
     }
     
     /**

@@ -76,6 +76,11 @@ public class EnumMapSerializer
     public JavaType getContentType() {
         return _valueType;
     }
+
+    @Override
+    public JsonSerializer<?> getContentSerializer() {
+        return _valueSerializer;
+    }
     
     @Override
     public boolean isEmpty(EnumMap<? extends Enum<?>,?> value) {

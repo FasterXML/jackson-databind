@@ -713,12 +713,6 @@ public class SerializationConfig
         return vchecker;
     }
 
-    /** 
-     * Alias for {@link MapperConfig#isEnabled(com.fasterxml.jackson.databind.MapperConfig.ConfigFeature)}.
-     * 
-     * @since 1.0 However, note that version 1.9.0 and 1.9.1 accidentally missed
-     *    this overloaded variant
-     */
     public boolean isEnabled(SerializationConfig.Feature f) {
         return (_featureFlags & f.getMask()) != 0;
     }

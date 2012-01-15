@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.SerializerBase;
 
@@ -60,6 +61,17 @@ public abstract class ContainerSerializer<T>
      * type this serializer is used for.
      */
     public abstract JavaType getContentType();
+
+    /**
+     * Accessor for serializer used for serializing contents
+     * (List and array elements, Map values etc) of the
+     * container for which this serializer is used, if it is
+     * known statically.
+     * Note that for dynamic types this may return null; if so,
+     * caller has to instead use {@link #getContentType()} and
+     * {@link com.fasterxml.jackson.databind.SerializerProvider#findValueSerializer}.
+     */
+    public abstract JsonSerializer<?> getContentSerializer();
     
     /*
     /**********************************************************
@@ -72,6 +84,11 @@ public abstract class ContainerSerializer<T>
      */
     @Override
     public abstract boolean isEmpty(T value);
-    
-    public abstract ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts);
+
+    /**
+     * Method that needs to be implemented to allow construction of a new
+     * serializer object with given {@link TypeSerializer}, used when
+     * addition type information is to be embedded.
+     */
+    protected abstract ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts);
 }

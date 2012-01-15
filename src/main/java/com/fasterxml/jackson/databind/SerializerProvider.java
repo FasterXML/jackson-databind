@@ -211,7 +211,7 @@ public abstract class SerializerProvider
         throws JsonMappingException;
 
     /**
-     * Similar to {@link #findValueSerializer(Class)}, but takes full generics-aware
+     * Similar to {@link #findValueSerializer(Class,BeanProperty)}, but takes full generics-aware
      * type instead of raw class.
      */
     public abstract JsonSerializer<Object> findValueSerializer(JavaType serializationType,
@@ -330,8 +330,8 @@ public abstract class SerializerProvider
      * instances are able to construct a serializer.
      *<p>
      * Typically, returned serializer will throw an exception,
-     * although alternatively {@link com.fasterxml.jackson.databind.ser.ToStringSerializer} could
-     * be returned as well.
+     * although alternatively {@link com.fasterxml.jackson.databind.ser.std.ToStringSerializer}
+     * could be returned as well.
      *
      * @param unknownType Type for which no serializer is found
      */

@@ -653,16 +653,6 @@ public class DeserializationConfig
         return vchecker;
     }
 
-    /*
-    /**********************************************************
-    /* MapperConfig overrides for 1.8 backwards compatibility
-    /**********************************************************
-     */
-    
-    /**
-     * An overload for {@link MapperConfig#isEnabled(MapperConfig.ConfigFeature)},
-     * needed for backwards-compatibility.
-     */
     public boolean isEnabled(DeserializationConfig.Feature f) {
         return (_featureFlags & f.getMask()) != 0;
     }

@@ -33,7 +33,7 @@ public abstract class AsArraySerializerBase<T>
      * Type serializer used for values, if any.
      */
     protected final TypeSerializer _valueTypeSerializer;
-    
+
     /**
      * Value serializer to use, if it can be statically determined
      */
@@ -67,6 +67,11 @@ public abstract class AsArraySerializerBase<T>
     @Override
     public JavaType getContentType() {
         return _elementType;
+    }
+
+    @Override
+    public JsonSerializer<?> getContentSerializer() {
+        return _elementSerializer;
     }
     
     @Override

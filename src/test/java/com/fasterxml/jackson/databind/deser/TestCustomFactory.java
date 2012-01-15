@@ -10,8 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 /**
- * Test to check that customization using {@link CustomDeserializerFactory}
- * works as expected.
+ * Test to check that customizations work as expected.
  */
 public class TestCustomFactory
     extends BaseMapTest

@@ -151,6 +151,11 @@ public class MapSerializer
     public JavaType getContentType() {
         return _valueType;
     }
+
+    @Override
+    public JsonSerializer<?> getContentSerializer() {
+        return _valueSerializer;
+    }
     
     @Override
     public boolean isEmpty(Map<?,?> value) {

@@ -3,10 +3,8 @@ package com.fasterxml.jackson.databind.ser;
 /**
  * Interface for objects that providers instances of {@link BeanPropertyFilter}
  * that match given ids. A provider is configured to be used during serialization,
- * to find filter to used based on id specified by {@link com.fasterxml.jackson.databind.annotate.JsonFilter}
+ * to find filter to used based on id specified by {@link com.fasterxml.jackson.annotation.JsonFilter}
  * annotation on bean class.
- * 
- * @since 1.7
  */
 public abstract class FilterProvider
 {

@@ -73,7 +73,12 @@ public class ObjectArraySerializer
     public JavaType getContentType() {
         return _elementType;
     }
-    
+
+    @Override
+    public JsonSerializer<?> getContentSerializer() {
+        return _elementSerializer;
+    }
+
     @Override
     public boolean isEmpty(Object[] value) {
         return (value == null) || (value.length == 0);

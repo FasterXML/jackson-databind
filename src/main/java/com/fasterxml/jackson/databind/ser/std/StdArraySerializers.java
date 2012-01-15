@@ -117,6 +117,11 @@ public class StdArraySerializers
         public JavaType getContentType() {
             return VALUE_TYPE;
         }
+
+        @Override
+        public JsonSerializer<?> getContentSerializer() {
+            return _elementSerializer;
+        }
         
         @Override
         public boolean isEmpty(String[] value) {
@@ -214,6 +219,12 @@ public class StdArraySerializers
         public JavaType getContentType() {
             return VALUE_TYPE;
         }
+
+        @Override
+        public JsonSerializer<?> getContentSerializer() {
+            // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
+            return null;
+        }
         
         @Override
         public boolean isEmpty(boolean[] value) {
@@ -303,6 +314,12 @@ public class StdArraySerializers
         @Override
         public JavaType getContentType() {
             return VALUE_TYPE;
+        }
+
+        @Override
+        public JsonSerializer<?> getContentSerializer() {
+            // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
+            return null;
         }
         
         @Override
@@ -420,6 +437,12 @@ public class StdArraySerializers
         public JavaType getContentType() {
             return VALUE_TYPE;
         }
+
+        @Override
+        public JsonSerializer<?> getContentSerializer() {
+            // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
+            return null;
+        }
         
         @Override
         public boolean isEmpty(int[] value) {
@@ -462,6 +485,12 @@ public class StdArraySerializers
         @Override
         public JavaType getContentType() {
             return VALUE_TYPE;
+        }
+
+        @Override
+        public JsonSerializer<?> getContentSerializer() {
+            // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
+            return null;
         }
         
         @Override
@@ -508,6 +537,12 @@ public class StdArraySerializers
         }
 
         @Override
+        public JsonSerializer<?> getContentSerializer() {
+            // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
+            return null;
+        }
+        
+        @Override
         public boolean isEmpty(float[] value) {
             return (value == null) || (value.length == 0);
         }
@@ -551,6 +586,12 @@ public class StdArraySerializers
         @Override
         public JavaType getContentType() {
             return VALUE_TYPE;
+        }
+
+        @Override
+        public JsonSerializer<?> getContentSerializer() {
+            // 14-Jan-2012, tatu: We could refer to an actual serializer if absolutely necessary
+            return null;
         }
         
         @Override

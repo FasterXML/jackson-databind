@@ -559,7 +559,7 @@ public class ObjectMapper
      * argument.
      *<p>
      * The use case is that of changing object settings of the configuration
-     * (like date format being used, see {@link SerializationConfig#setDateFormat}).
+     * (like date format being used, see {@link SerializationConfig#withDateFormat}).
      */
     public SerializationConfig copySerializationConfig() {
         return _serializationConfig.createUnshared(_subtypeResolver);
@@ -937,14 +937,15 @@ public class ObjectMapper
      *  mapper.setFilters(mapper.getSerializationConfig().withFilters(filterProvider));
      *</pre>
      *<p>
-     * Note that usually it is better to use method {@link #filteredWriter}; however, sometimes
+     * Note that usually it is better to use method {@link #writer(FilterProvider)};
+     * however, sometimes
      * this method is more convenient. For example, some frameworks only allow configuring
      * of ObjectMapper instances and not ObjectWriters.
      */
     public void setFilters(FilterProvider filterProvider) {
         _serializationConfig = _serializationConfig.withFilters(filterProvider);
     }
-    
+
     /*
     /**********************************************************
     /* Configuration, other
@@ -1008,10 +1009,6 @@ public class ObjectMapper
     /**
      * Method for changing state of an on/off serialization feature for
      * this object mapper.
-     *<p>
-     * This is method is basically a shortcut method for calling
-     * {@link SerializationConfig#set} on the shared {@link SerializationConfig}
-     * object with given arguments.
      */
     public ObjectMapper configure(SerializationConfig.Feature f, boolean state) {
         _serializationConfig = state ?
@@ -1022,10 +1019,6 @@ public class ObjectMapper
     /**
      * Method for changing state of an on/off deserialization feature for
      * this object mapper.
-     *<p>
-     * This is method is basically a shortcut method for calling
-     * {@link DeserializationConfig#set} on the shared {@link DeserializationConfig}
-     * object with given arguments.
      */
     public ObjectMapper configure(DeserializationConfig.Feature f, boolean state) {
         _deserializationConfig = state ?
@@ -1038,7 +1031,7 @@ public class ObjectMapper
      * {@link JsonFactory} instance this object mapper uses.
      *<p>
      * This is method is basically a shortcut method for calling
-     * {@link JsonFactory#setParserFeature} on the shared
+     * {@link JsonFactory#enable} on the shared
      * {@link JsonFactory} this mapper uses (which is accessible
      * using {@link #getJsonFactory}).
      */
@@ -1052,7 +1045,7 @@ public class ObjectMapper
      * {@link JsonFactory} instance this object mapper uses.
      *<p>
      * This is method is basically a shortcut method for calling
-     * {@link JsonFactory#setGeneratorFeature} on the shared
+     * {@link JsonFactory#enable} on the shared
      * {@link JsonFactory} this mapper uses (which is accessible
      * using {@link #getJsonFactory}).
      */

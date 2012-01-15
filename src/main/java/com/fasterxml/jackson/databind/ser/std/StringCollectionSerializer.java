@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Efficient implement for serializing {@link Collection}s that contain Strings.
@@ -41,7 +42,7 @@ public class StringCollectionSerializer
     public void resolve(SerializerProvider provider) throws JsonMappingException
     {
         JsonSerializer<?> ser = provider.findValueSerializer(String.class, _property);
-        if (!isDefaultSerializer(ser)) {
+        if (!ClassUtil.isJacksonStdImpl(ser)) {
             _serializer = (JsonSerializer<String>) ser;
         }
     }

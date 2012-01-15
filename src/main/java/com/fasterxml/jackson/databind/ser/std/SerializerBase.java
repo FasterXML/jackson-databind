@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -75,19 +74,6 @@ public abstract class SerializerBase<T>
             schema.put("required", !isOptional);
         }
         return schema;
-    }
-
-    /**
-     * Method that can be called to determine if given serializer is the default
-     * serializer Jackson uses; as opposed to a custom serializer installed by
-     * a module or calling application. Determination is done using
-     * {@link JacksonStdImpl} annotation on serializer class.
-     * 
-     * @since 1.7
-     */
-    protected boolean isDefaultSerializer(JsonSerializer<?> serializer)
-    {
-        return (serializer != null && serializer.getClass().getAnnotation(JacksonStdImpl.class) != null);
     }
     
     /**

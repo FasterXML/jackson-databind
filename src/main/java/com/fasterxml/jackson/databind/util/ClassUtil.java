@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.util;
 import java.lang.reflect.*;
 import java.util.*;
 
+import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+
 public final class ClassUtil
 {
     /*
@@ -112,8 +114,6 @@ public final class ClassUtil
 
     /**
      * Method for finding enclosing class for non-static inner classes
-     * 
-     * @since 1.9
      */
     public static Class<?> getOuterClass(Class<?> type)
     {
@@ -163,9 +163,6 @@ public final class ClassUtil
         return (mod & (Modifier.INTERFACE | Modifier.ABSTRACT)) == 0;
     }
 
-    /**
-     * @since 1.6
-     */
     public static boolean isConcrete(Member member)
     {
         int mod = member.getModifiers();
@@ -249,8 +246,6 @@ public final class ClassUtil
      * the innermost {@link Exception} or {@link Error} as is.
      * This is useful in cases where mandatory wrapping is added, which
      * is often done by Reflection API.
-     * 
-     * @since 1.7
      */
     public static void throwRootCause(Throwable t) throws Exception
     {
@@ -371,8 +366,6 @@ public final class ClassUtil
     /**
      * Helper method used to get default value for wrappers used for primitive types
      * (0 for Integer etc)
-     * 
-     * @since 1.6.1
      */
     public static Object defaultValue(Class<?> cls)
     {
@@ -406,8 +399,6 @@ public final class ClassUtil
     /**
      * Helper method for finding wrapper type for given primitive type (why isn't
      * there one in JDK?)
-     * 
-     * @since 1.7.1
      */
     public static Class<?> wrapperType(Class<?> primitiveType)
     {
@@ -486,8 +477,6 @@ public final class ClassUtil
      * enumeration type of given {@link EnumSet}, without having
      * access to its declaration.
      * Code is needed to work around design flaw in JDK.
-     * 
-     * @since 1.5
      */
     public static Class<? extends Enum<?>> findEnumType(EnumSet<?> s)
 	{
@@ -504,8 +493,6 @@ public final class ClassUtil
      * enumeration type of given {@link EnumSet}, without having
      * access to its declaration.
      * Code is needed to work around design flaw in JDK.
-     * 
-     * @since 1.5
      */
     public static Class<? extends Enum<?>> findEnumType(EnumMap<?,?> m)
     {
@@ -540,7 +527,7 @@ public final class ClassUtil
      * or its superclass (for enums with instance fields or methods)
      */
     @SuppressWarnings("unchecked")
-	public static Class<? extends Enum<?>> findEnumType(Class<?> cls)
+    public static Class<? extends Enum<?>> findEnumType(Class<?> cls)
     {
 		// enums with "body" are sub-classes of the formal type
 		if (cls.getSuperclass() != Enum.class) {
@@ -548,7 +535,28 @@ public final class ClassUtil
 		}
 		return (Class<? extends Enum<?>>) cls;
     }
+
+    /*
+    /**********************************************************
+    /* Jackson-specific stuff
+    /**********************************************************
+     */
     
+    /**
+     * Method that can be called to determine if given Object is the default
+     * implementation Jackson uses; as opposed to a custom serializer installed by
+     * a module or calling application. Determination is done using
+     * {@link JacksonStdImpl} annotation on handler (serializer, deserializer etc)
+     * class.
+     */
+    public static boolean isJacksonStdImpl(Object impl) {
+        return (impl != null) && isJacksonStdImpl(impl.getClass());
+    }
+
+    public static boolean isJacksonStdImpl(Class<?> implClass) {
+        return (implClass.getAnnotation(JacksonStdImpl.class) != null);
+    }
+
     /*
     /**********************************************************
     /* Helper classes

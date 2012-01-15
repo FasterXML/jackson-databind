@@ -17,8 +17,6 @@ import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
  * Test cases to verify that it is possible to define serializers
  * that can use contextual information (like field/method
  * annotations) for configuration.
- * 
- * @since 1.7
  */
 public class TestContextualSerialization extends BaseMapTest
 {
@@ -76,6 +74,17 @@ public class TestContextualSerialization extends BaseMapTest
         public final String[] beans;
         
         public ContextualArrayBean(String... strings) {
+            beans = strings;
+        }
+    }
+
+    static class ContextualArrayElementBean
+    {
+        @Prefix("elem->")
+        @JsonSerialize(contentUsing=AnnotatedContextualSerializer.class)
+        public final String[] beans;
+        
+        public ContextualArrayElementBean(String... strings) {
             beans = strings;
         }
     }
@@ -186,10 +195,8 @@ public class TestContextualSerialization extends BaseMapTest
     /**********************************************************
      */
 
-    /**
-     * Test to verify that contextual serializer can make use of property
-     * (method, field) annotations.
-     */
+    // Test to verify that contextual serializer can make use of property
+    // (method, field) annotations.
     public void testMethodAnnotations() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -199,10 +206,8 @@ public class TestContextualSerialization extends BaseMapTest
         assertEquals("{\"value\":\"see:foobar\"}", mapper.writeValueAsString(new ContextualBean("foobar")));
     }
 
-    /**
-     * Test to verify that contextual serializer can also use annotations
-     * for enclosing class.
-     */
+    // Test to verify that contextual serializer can also use annotations
+    // for enclosing class.
     public void testClassAnnotations() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -221,9 +226,7 @@ public class TestContextualSerialization extends BaseMapTest
         assertEquals("{\"wrapped\":{\"value\":\"see:xyz\"}}", mapper.writeValueAsString(new ContextualBeanWrapper("xyz")));
     }
     
-    /**
-     * Serializer should get passed property context even if contained in an array.
-     */
+    // Serializer should get passed property context even if contained in an array.
     public void testMethodAnnotationInArray() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -234,9 +237,7 @@ public class TestContextualSerialization extends BaseMapTest
         assertEquals("{\"beans\":[\"array->123\"]}", mapper.writeValueAsString(beans));
     }
 
-    /**
-     * Serializer should get passed property context even if contained in a Collection.
-     */
+    // Serializer should get passed property context even if contained in a Collection.
     public void testMethodAnnotationInList() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -247,9 +248,7 @@ public class TestContextualSerialization extends BaseMapTest
         assertEquals("{\"beans\":[\"list->abc\"]}", mapper.writeValueAsString(beans));
     }
 
-    /**
-     * Serializer should get passed property context even if contained in a Collection.
-     */
+    // Serializer should get passed property context even if contained in a Collection.
     public void testMethodAnnotationInMap() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -276,5 +275,12 @@ public class TestContextualSerialization extends BaseMapTest
         module.addSerializer(String.class, new ContextualAndResolvable());
         mapper.registerModule(module);
         assertEquals(quote("contextual=true,resolved=true"), mapper.writeValueAsString("abc"));
+    }
+
+    public void testContextualArrayElement() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        ContextualArrayElementBean beans = new ContextualArrayElementBean("456");
+        assertEquals("{\"beans\":[\"elem->456\"]}", mapper.writeValueAsString(beans));
     }
 }

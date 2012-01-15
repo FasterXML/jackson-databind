@@ -585,13 +585,17 @@ public abstract class BasicSerializerFactory
         throws JsonMappingException
     {
         Class<?> raw = type.getRawClass();
-        if (String[].class == raw) {
-            return new StdArraySerializers.StringArraySerializer(property);
-        }
-        // other standard types?
-        JsonSerializer<?> ser = _arraySerializers.get(raw.getName());
-        if (ser != null) {
-            return ser;
+        // Important: do NOT use standard serializers if non-standard element value serializer specified
+        if (elementValueSerializer == null || ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
+            if (String[].class == raw) {
+                return new StdArraySerializers.StringArraySerializer(property);
+            } else {
+                // other standard types?
+                JsonSerializer<?> ser = _arraySerializers.get(raw.getName());
+                if (ser != null) {
+                    return ser;
+                }
+            }
         }
         return new ObjectArraySerializer(type.getContentType(), staticTyping, elementTypeSerializer,
                 property, elementValueSerializer);
@@ -658,7 +662,8 @@ public abstract class BasicSerializerFactory
     }
 
     @SuppressWarnings("unchecked")
-    protected static <T extends JavaType> T modifySecondaryTypesByAnnotation(SerializationConfig config, Annotated a, T type)
+    protected static <T extends JavaType> T modifySecondaryTypesByAnnotation(SerializationConfig config,
+            Annotated a, T type)
     {
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
         // then key class
@@ -690,71 +695,77 @@ public abstract class BasicSerializerFactory
     }
 
     @SuppressWarnings("unchecked")
-    protected static JsonSerializer<Object> findKeySerializer(SerializationConfig config,
+    protected JsonSerializer<Object> findKeySerializer(SerializationConfig config,
             Annotated a, BeanProperty property)
         throws JsonMappingException
     {
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        Object serDef = intr.findKeySerializer(a);
-        if (serDef == null || serDef == JsonSerializer.None.class || serDef == NoClass.class) {
-            if (property != null) {
-                AnnotatedMember m = property.getMember();
-                if (m != null) {
-                    serDef = intr.findKeySerializer(m);
-                }
+        Object serDef = null;
+
+        // Start with property (more specific); if not found, then find from type
+        if (property != null) {
+            AnnotatedMember m = property.getMember();
+            if (m != null) {
+                serDef = intr.findKeySerializer(m);
             }
         }
+        if (serDef == null) {
+            serDef = intr.findKeySerializer(a);
+        }
+
         // ok, what did we get?
         if (serDef != null) {
+            JsonSerializer<?> ser = null;
             if (serDef instanceof JsonSerializer<?>) {
-                JsonSerializer<Object> ser = (JsonSerializer<Object>) serDef;
-                if (ser instanceof ContextualSerializer<?>) {
-                    return ((ContextualSerializer<Object>) ser).createContextual(config, property);
+                ser = (JsonSerializer<Object>) serDef;
+            } else {
+                Class<?> serClass = _verifyAsClass(serDef, "findKeySerializer", JsonSerializer.None.class);
+                if (serClass != null) {
+                    return config.serializerInstance(a, serClass);
                 }
-                return ser;
             }
-            if (!(serDef instanceof Class)) {
-                throw new IllegalStateException("AnnotationIntrospector.findKeySerializer() returned value of type "+serDef.getClass().getName()+": expected type JsonSerializer or Class<JsonSerializer> instead");
+            if (ser instanceof ContextualSerializer<?>) {
+                ser = ((ContextualSerializer<Object>) ser).createContextual(config, property);
             }
-            Class<?> serClass = (Class<?>) serDef;
-            if (serClass != JsonSerializer.None.class && serClass != NoClass.class) {
-                return config.serializerInstance(a, (Class<JsonSerializer<?>>) serClass);
-            }
+            return (JsonSerializer<Object>) ser;
         }
         return null;
     }
 
     @SuppressWarnings("unchecked")
-    protected static JsonSerializer<Object> findContentSerializer(SerializationConfig config,
+    protected JsonSerializer<Object> findContentSerializer(SerializationConfig config,
             Annotated a, BeanProperty property)
         throws JsonMappingException
     {
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        Object serDef = intr.findContentSerializer(a);
-        if (serDef == null || serDef == JsonSerializer.None.class || serDef == NoClass.class) {
-            if (property != null) {
-                AnnotatedMember m = property.getMember();
-                if (m != null) {
-                    serDef = intr.findContentSerializer(m);
-                }
+        Object serDef = null;
+
+        // Start with property (more specific); if not found, then find from type
+        if (property != null) {
+            AnnotatedMember m = property.getMember();
+            if (m != null) {
+                serDef = intr.findContentSerializer(m);
             }
         }
+        if (serDef == null) {
+            serDef = intr.findContentSerializer(a);
+        }
+
         // ok, what did we get?
         if (serDef != null) {
+            JsonSerializer<?> ser = null;
             if (serDef instanceof JsonSerializer<?>) {
-                JsonSerializer<Object> ser = (JsonSerializer<Object>) serDef;
-                if (ser instanceof ContextualSerializer<?>) {
-                    return ((ContextualSerializer<Object>) ser).createContextual(config, property);
+                ser = (JsonSerializer<Object>) serDef;
+            } else {
+                Class<?> serClass = _verifyAsClass(serDef, "findContentSerializer", JsonSerializer.None.class);
+                if (serClass != null) {
+                    ser = config.serializerInstance(a, serClass);
                 }
-                return ser;
             }
-            if (!(serDef instanceof Class)) {
-                throw new IllegalStateException("AnnotationIntrospector.findContentSerializer() returned value of type "+serDef.getClass().getName()+": expected type JsonSerializer or Class<JsonSerializer> instead");
+            if (ser instanceof ContextualSerializer<?>) {
+                ser = ((ContextualSerializer<Object>) ser).createContextual(config, property);
             }
-            Class<?> serClass = (Class<?>) serDef;
-            if (serClass != JsonSerializer.None.class && serClass != NoClass.class) {
-                return config.serializerInstance(a, (Class<JsonSerializer<?>>) serClass);
-            }
+            return (JsonSerializer<Object>) ser;
         }
         return null;
     }
@@ -802,5 +813,20 @@ public abstract class BasicSerializerFactory
             }
         }
         return false;
+    }
+
+    protected Class<?> _verifyAsClass(Object src, String methodName, Class<?> noneClass)
+    {
+        if (src == null) {
+            return null;
+        }
+        if (!(src instanceof Class)) {
+            throw new IllegalStateException("AnnotationIntrospector."+methodName+"() returned value of type "+src.getClass().getName()+": expected type JsonSerializer or Class<JsonSerializer> instead");
+        }
+        Class<?> cls = (Class<?>) src;
+        if (cls == noneClass || cls == NoClass.class) {
+            return null;
+        }
+        return cls;
     }
 }

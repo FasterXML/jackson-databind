@@ -919,6 +919,4 @@ public abstract class BasicDeserializerFactory
         }
         return cls;
     }
-
-    }
-
+}

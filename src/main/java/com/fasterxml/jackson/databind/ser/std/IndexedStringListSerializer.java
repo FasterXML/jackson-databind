@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Efficient implement for serializing {@link List}s that contains Strings and are random-accessible.
@@ -19,8 +20,6 @@ import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
  * may be overridde; because of this, logic is needed to ensure that the default
  * serializer is in use to use fastest mode, or if not, to defer to custom
  * String serializer.
- * 
- * @since 1.7
  */
 @JacksonStdImpl
 public final class IndexedStringListSerializer
@@ -42,7 +41,7 @@ public final class IndexedStringListSerializer
     public void resolve(SerializerProvider provider) throws JsonMappingException
     {
         JsonSerializer<?> ser = provider.findValueSerializer(String.class, _property);
-        if (!isDefaultSerializer(ser)) {
+        if (!ClassUtil.isJacksonStdImpl(ser)) {
             _serializer = (JsonSerializer<String>) ser;
         }
     }

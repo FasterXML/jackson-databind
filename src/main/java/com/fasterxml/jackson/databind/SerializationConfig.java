@@ -769,11 +769,12 @@ public class SerializationConfig
      */
 
     @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> serializerInstance(Annotated annotated, Class<? extends JsonSerializer<?>> serClass)
+    public JsonSerializer<Object> serializerInstance(Annotated annotated, Class<?> serClass)
     {
         HandlerInstantiator hi = getHandlerInstantiator();
         if (hi != null) {
-            JsonSerializer<?> ser = hi.serializerInstance(this, annotated, serClass);
+            JsonSerializer<?> ser = hi.serializerInstance(this, annotated,
+                    (Class<JsonSerializer<?>>)serClass);
             if (ser != null) {
                 return (JsonSerializer<Object>) ser;
             }

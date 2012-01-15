@@ -11,10 +11,13 @@ import com.fasterxml.jackson.databind.SerializationConfig;
  * handling properties of supported type. This can be useful
  * for serializers that can be configured by annotations, or should otherwise
  * have differing behavior depending on what kind of property is being serialized.
+ *<p>
+ * Note that in cases where serializer needs both contextualization and
+ * resolution -- that is, implements both this interface and {@link ResolvableSerializer}
+ * -- resolution via {@link ResolvableSerializer} occurs first, and contextual
+ * resolution (via this interface) later on.
  *
  * @param <T> Type of serializer to contextualize
- * 
- * @since 1.7
  */
 public interface ContextualSerializer<T>
 {

@@ -7,14 +7,18 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * Add-on interface that {@link JsonDeserializer}s can implement to get a callback
- * that can be used to create contextual instances of deserializer to use for
- * handling properties of supported type. This can be useful
+ * that can be used to create contextual (context-dependent) instances of
+ * deserializer to use for  handling properties of supported type.
+ * This can be useful
  * for deserializers that can be configured by annotations, or should otherwise
  * have differing behavior depending on what kind of property is being deserialized.
+ *<p>
+ * Note that in cases where deserializer needs both contextualization and
+ * resolution -- that is, implements both this interface and {@link ResolvableDeserializer}
+ * -- resolution via {@link ResolvableDeserializer} occurs first, and contextual
+ * resolution (via this interface) later on.
  *
  * @param <T> Type of deserializer to contextualize
- * 
- * @since 1.7
  */
 public interface ContextualDeserializer<T>
 {

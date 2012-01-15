@@ -10,6 +10,11 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * but before being used. This is typically used to resolve references
  * to other contained types; for example, bean deserializers use this
  * to eagerly find deserializers for contained field types.
+ *<p>
+ * Note that in cases where deserializer needs both contextualization and
+ * resolution -- that is, implements both this interface and {@link ContextualDeserializer}
+ * -- resolution via this interface occurs first, and contextual
+ * resolution (using {@link ContextualDeserializer}) later on.
  */
 public interface ResolvableDeserializer
 {

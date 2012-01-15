@@ -53,6 +53,10 @@ public abstract class DeserializationContext
         // will be overridden by impl class
         return null;
     }
+
+    public AnnotationIntrospector getAnnotationIntrospector() {
+        return _config.getAnnotationIntrospector();
+    }
     
     /**
      * Convenience method for checking whether specified on/off
@@ -87,23 +91,14 @@ public abstract class DeserializationContext
         return _config.getNodeFactory();
     }
 
-    /**
-     * @since 1.8
-     */
     public JavaType constructType(Class<?> cls) {
         return _config.constructType(cls);
     }
 
-    /**
-     * @since 1.9
-     */
     public TypeFactory getTypeFactory() {
         return _config.getTypeFactory();
     }
 
-    /**
-     * @since 1.9
-     */
     public abstract Object findInjectableValue(Object valueId,
             BeanProperty forProperty, Object beanInstance);
     

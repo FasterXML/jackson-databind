@@ -405,7 +405,7 @@ public abstract class BasicSerializerFactory
     /**********************************************************
      */
     
-    public JsonSerializer<?> buildContainerSerializer(SerializationConfig config, JavaType type,
+    protected JsonSerializer<?> buildContainerSerializer(SerializationConfig config, JavaType type,
             BasicBeanDescription beanDesc, BeanProperty property, boolean staticTyping)
         throws JsonMappingException
     {
@@ -419,12 +419,12 @@ public abstract class BasicSerializerFactory
         } else if (!staticTyping) {
             staticTyping = usesStaticTyping(config, beanDesc, elementTypeSerializer, property);
         }
-        JsonSerializer<Object> elementValueSerializer = findContentSerializer(config,
+        JsonSerializer<Object> elementValueSerializer = _findContentSerializer(config,
                 beanDesc.getClassInfo(), property);
         
         if (type.isMapLikeType()) { // implements java.util.Map
             MapLikeType mlt = (MapLikeType) type;
-            JsonSerializer<Object> keySerializer = findKeySerializer(config, beanDesc.getClassInfo(), property);
+            JsonSerializer<Object> keySerializer = _findKeySerializer(config, beanDesc.getClassInfo(), property);
             if (mlt.isTrueMapType()) {
                 return buildMapSerializer(config, (MapType) mlt, beanDesc, property, staticTyping,
                         keySerializer, elementTypeSerializer, elementValueSerializer);
@@ -731,7 +731,7 @@ public abstract class BasicSerializerFactory
     }
 
     @SuppressWarnings("unchecked")
-    protected JsonSerializer<Object> findKeySerializer(SerializationConfig config,
+    protected JsonSerializer<Object> _findKeySerializer(SerializationConfig config,
             Annotated a, BeanProperty property)
         throws JsonMappingException
     {
@@ -769,7 +769,7 @@ public abstract class BasicSerializerFactory
     }
 
     @SuppressWarnings("unchecked")
-    protected JsonSerializer<Object> findContentSerializer(SerializationConfig config,
+    protected JsonSerializer<Object> _findContentSerializer(SerializationConfig config,
             Annotated a, BeanProperty property)
         throws JsonMappingException
     {

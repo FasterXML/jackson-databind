@@ -178,8 +178,6 @@ public class BeanSerializerFactory
      * serializer providers into this serializer factory. This is typically
      * handled by constructing a new instance with additional serializers,
      * to ensure thread-safe access.
-     * 
-     * @since 1.7
      */
     @Override
     public SerializerFactory withConfig(Config config)

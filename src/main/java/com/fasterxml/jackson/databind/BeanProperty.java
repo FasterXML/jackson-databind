@@ -22,8 +22,6 @@ import com.fasterxml.jackson.databind.util.Named;
  * and deserializers for futher use; mostly to retain access
  * to annotations when dynamically locating handlers for
  * sub-properties or dynamic types.
- *
- * @since 1.7
  */
 public interface BeanProperty extends Named
 {
@@ -97,7 +95,7 @@ public interface BeanProperty extends Named
         
         @Override
         public <A extends Annotation> A getAnnotation(Class<A> acls) {
-            return _member.getAnnotation(acls);
+            return (_member == null) ? null : _member.getAnnotation(acls);
         }
 
         @Override

@@ -837,6 +837,19 @@ Andreas Knoepfle, Tobias Schmid:
     java.util.Date and java.util.Calendar types
    [1.9.3]
 
+Steve Loeppky:
+  * Reported [JACKSON-746] Problems with JsonTypeInfo.Id.NONE, default typing
+   [1.9.4]
+
+Sebastian Thelen:
+  * Reported [JACKSON-753] JsonParserDelegate missing delegation of getBooleanValue(),
+    getEmbeddedObject()
+   [1.9.4]
+
+Stephan Bailliez:
+  * Reported [JACKSON-757] Problems with Enum values, annotations on constructors
+   [1.9.4]
+
 James Roper:
   * Requested [JACKSON-732]: Allow 'AnnotationIntrospector.findContentDeserializer()'
     (and similar) to return instance, not just Class<?> for instance

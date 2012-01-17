@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -254,9 +253,6 @@ public final class AnnotatedClass
      * Initialization method that will recursively collect Jackson
      * annotations for this class and all super classes and
      * interfaces.
-     *<p>
-     * Starting with 1.2, it will also apply mix-in annotations,
-     * as per [JACKSON-76]
      */
     public void resolveClassAnnotations()
     {
@@ -563,11 +559,11 @@ public final class AnnotatedClass
         // first, mixIns, since they have higher priority then class methods
         if (mixInCls != null) {
             _addMethodMixIns(methodFilter, methods, mixInCls, mixIns);
-        }
-
+        }        
         if (cls == null) { // just so caller need not check when passing super-class
             return;
         }
+
         // then methods from the class itself
         for (Method m : cls.getDeclaredMethods()) {
             if (!_isIncludableMethod(m, methodFilter)) {
@@ -845,7 +841,7 @@ public final class AnnotatedClass
         if (anns != null) {
             List<Annotation[]> bundles = null;
             for (Annotation ann : anns) { // first: direct annotations
-                if (ann.annotationType().getAnnotation(JacksonAnnotationsInside.class) != null) {
+                if (_isAnnotationBundle(ann)) {
                     if (bundles == null) {
                         bundles = new LinkedList<Annotation[]>();
                     }
@@ -855,7 +851,9 @@ public final class AnnotatedClass
                 }
             }
             if (bundles != null) { // and secondarily handle bundles, if any found: precedence important
-                _addAnnotationsIfNotPresent(result, bundles.toArray(new Annotation[bundles.size()]));
+                for (Annotation[] annotations : bundles) {
+                    _addAnnotationsIfNotPresent(result, annotations);
+                }
             }
         }
     }
@@ -865,7 +863,7 @@ public final class AnnotatedClass
         if (anns != null) {
             List<Annotation[]> bundles = null;
             for (Annotation ann : anns) { // first: direct annotations
-                if (ann.annotationType().getAnnotation(JacksonAnnotationsInside.class) != null) {
+                if (_isAnnotationBundle(ann)) {
                     if (bundles == null) {
                         bundles = new LinkedList<Annotation[]>();
                     }
@@ -875,7 +873,9 @@ public final class AnnotatedClass
                 }
             }
             if (bundles != null) { // and secondarily handle bundles, if any found: precedence important
-                _addAnnotationsIfNotPresent(target, bundles.toArray(new Annotation[bundles.size()]));
+                for (Annotation[] annotations : bundles) {
+                    _addAnnotationsIfNotPresent(target, annotations);
+                }
             }
         }
     }
@@ -885,7 +885,7 @@ public final class AnnotatedClass
         if (anns != null) {
             List<Annotation[]> bundles = null;
             for (Annotation ann : anns) { // first: direct annotations
-                if (ann.annotationType().getAnnotation(JacksonAnnotationsInside.class) != null) {
+                if (_isAnnotationBundle(ann)) {
                     if (bundles == null) {
                         bundles = new LinkedList<Annotation[]>();
                     }
@@ -895,7 +895,9 @@ public final class AnnotatedClass
                 }
             }
             if (bundles != null) { // and then bundles, if any: important for precedence
-                _addOrOverrideAnnotations(target, bundles.toArray(new Annotation[bundles.size()]));
+                for (Annotation[] annotations : bundles) {
+                    _addOrOverrideAnnotations(target, annotations);
+                }
             }
         }
     }
@@ -944,6 +946,11 @@ public final class AnnotatedClass
         _addAnnotationsIfNotPresent(target, src.getDeclaredAnnotations());
     }
 
+   private final boolean _isAnnotationBundle(Annotation ann)
+   {
+       return (_annotationIntrospector != null) && _annotationIntrospector.isAnnotationBundle(ann);
+   }
+    
     /*
     /**********************************************************
     /* Other methods

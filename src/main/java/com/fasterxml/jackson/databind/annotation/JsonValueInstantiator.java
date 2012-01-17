@@ -10,10 +10,8 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 /**
  * Annotation that can be used to indicate a {@link ValueInstantiator} to use
  * for creating instances of specified type.
- * 
- * @since 1.9
  */
-@Target(ElementType.TYPE)
+@Target({ElementType.ANNOTATION_TYPE, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @com.fasterxml.jackson.annotation.JacksonAnnotation
 public @interface JsonValueInstantiator

@@ -25,6 +25,8 @@ New features:
 * [JACKSON-669]: Allow prefix/suffix for @JsonUnwrapped properties
  (requested by Aner P)
 * [JACKSON-752]: Add @JsonInclude (replacement of @JsonSerialize.include)
+* [JACKSON-754]: Add @JacksonAnnotationsInside for creating "annotation
+  bundles" (also: AnnotationIntrospector.isAnnotationBundle())
 
 ------------------------------------------------------------------------
 === History: ===

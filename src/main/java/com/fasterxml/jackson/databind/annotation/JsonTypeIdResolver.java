@@ -18,11 +18,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  * for converting between java types and type id included in JSON content.
  * In simplest cases this can be a simple class with static mapping between
  * type names and matching classes.
- * 
- * @author tatu
- * @since 1.5
  */
-@Target({ElementType.TYPE})
+@Target({ElementType.ANNOTATION_TYPE, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @JacksonAnnotation
 public @interface JsonTypeIdResolver

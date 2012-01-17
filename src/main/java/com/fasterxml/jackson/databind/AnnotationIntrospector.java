@@ -158,6 +158,17 @@ public abstract class AnnotationIntrospector implements Versioned
      * is handled by this introspector.
      */
     public abstract boolean isHandled(Annotation ann);
+
+    /**
+     * Method for checking whether given annotation is considered an
+     * annotation bundle: if so, all meta-annotations it has will
+     * be used instead of annotation ("bundle") itself.
+     * 
+     * @since 2.0
+     */
+    public boolean isAnnotationBundle(Annotation ann) {
+        return false;
+    }
     
     /*
     /**********************************************************
@@ -818,11 +829,15 @@ public abstract class AnnotationIntrospector implements Versioned
         // // // Generic annotation properties, lookup
         
         @Override
-        public boolean isHandled(Annotation ann)
-        {
+        public boolean isHandled(Annotation ann) {
             return _primary.isHandled(ann) || _secondary.isHandled(ann);
         }
 
+        @Override
+        public boolean isAnnotationBundle(Annotation ann) {
+            return _primary.isAnnotationBundle(ann) || _secondary.isAnnotationBundle(ann);
+        }
+        
         /*
         /******************************************************
         /* General class annotations

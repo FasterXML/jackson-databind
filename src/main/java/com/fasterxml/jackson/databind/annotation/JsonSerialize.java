@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.*;
  * specifically, 'using' has precedence over 'as', which has precedence
  * over 'typing' setting)
  */
-@Target({ElementType.METHOD, ElementType.FIELD, ElementType.TYPE, ElementType.PARAMETER})
+@Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.TYPE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @com.fasterxml.jackson.annotation.JacksonAnnotation
 public @interface JsonSerialize

@@ -14,8 +14,6 @@ import com.fasterxml.jackson.annotation.JacksonAnnotation;
  * added in cases where certain optimizations can be made if
  * default instances are uses; for example when handling conversions
  * of "natural" JSON types like Strings, booleans and numbers.
- * 
- * @since 1.6
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

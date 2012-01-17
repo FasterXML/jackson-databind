@@ -43,6 +43,16 @@ public class JacksonAnnotationIntrospector
         return acls.getAnnotation(JacksonAnnotation.class) != null;
     }
 
+    /**
+     * Annotations with meta-annotation {@link JacksonAnnotationsInside}
+     * are considered bundles.
+     */
+    @Override
+    public boolean isAnnotationBundle(Annotation ann)
+    {
+        return ann.annotationType().getAnnotation(JacksonAnnotationsInside.class) != null;
+    }
+    
     /*
     /**********************************************************
     /* General annotations

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
  * needed for handling of polymorphic types (or sometimes just for linking
  * abstract types to concrete types)
  */
-@Target({ElementType.TYPE})
+@Target({ElementType.ANNOTATION_TYPE, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @com.fasterxml.jackson.annotation.JacksonAnnotation
 public @interface JsonTypeResolver

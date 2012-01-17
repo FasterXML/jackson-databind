@@ -24,12 +24,8 @@ import com.fasterxml.jackson.databind.KeyDeserializer;
  *  )
  *</pre>
  *<p>
- * NOTE: since version 1.2, annotation has also been applicable
- * to (constructor) parameters
- *
- * @since 1.1
  */
-@Target({ElementType.METHOD, ElementType.FIELD, ElementType.TYPE, ElementType.PARAMETER})
+@Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.TYPE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @com.fasterxml.jackson.annotation.JacksonAnnotation
 public @interface JsonDeserialize

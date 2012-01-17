@@ -213,6 +213,10 @@ public abstract class SerializerProvider
     /**
      * Similar to {@link #findValueSerializer(Class,BeanProperty)}, but takes full generics-aware
      * type instead of raw class.
+     * 
+     * @param property When creating secondary serializers, property for which
+     *   serializer is needed: annotations of the property (or bean that contains it)
+     *   may be checked to create contextual serializers.
      */
     public abstract JsonSerializer<Object> findValueSerializer(JavaType serializationType,
             BeanProperty property)
@@ -227,9 +231,11 @@ public abstract class SerializerProvider
      * 
      * @param valueType Type for purpose of locating a serializer; usually dynamic
      *   runtime type, but can also be static declared type, depending on configuration
-     * 
      * @param cache Whether resulting value serializer should be cached or not; this is just
      *    a hint
+     * @param property When creating secondary serializers, property for which
+     *   serializer is needed: annotations of the property (or bean that contains it)
+     *   may be checked to create contextual serializers.
      */
     public abstract JsonSerializer<Object> findTypedValueSerializer(Class<?> valueType,
             boolean cache, BeanProperty property)
@@ -245,9 +251,11 @@ public abstract class SerializerProvider
      * @param valueType Declared type of value being serialized (which may not
      *    be actual runtime type); used for finding both value serializer and
      *    type serializer to use for adding polymorphic type (if any)
-     * 
      * @param cache Whether resulting value serializer should be cached or not; this is just
      *    a hint 
+     * @param property When creating secondary serializers, property for which
+     *   serializer is needed: annotations of the property (or bean that contains it)
+     *   may be checked to create contextual serializers.
      */
     public abstract JsonSerializer<Object> findTypedValueSerializer(JavaType valueType,
             boolean cache, BeanProperty property)

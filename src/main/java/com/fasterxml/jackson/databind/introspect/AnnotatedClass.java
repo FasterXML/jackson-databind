@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector.MixInResolver;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -194,9 +195,6 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
-    /**
-     * @return 1.7
-     */
     public Annotations getAnnotations() { return _classAnnotations; }
     
     public boolean hasAnnotations() { return _classAnnotations.size() > 0; }
@@ -273,21 +271,13 @@ public final class AnnotatedClass
             _addClassMixIns(_classAnnotations, _class, _primaryMixIn);
         }
         // first, annotations from the class itself:
-        for (Annotation a : _class.getDeclaredAnnotations()) {
-            if (_annotationIntrospector.isHandled(a)) {
-                _classAnnotations.addIfNotPresent(a);
-            }
-        }
+        _addAnnotationsIfNotPresent(_classAnnotations, _class.getDeclaredAnnotations());
 
         // and then from super types
         for (Class<?> cls : _superTypes) {
             // and mix mix-in annotations in-between
             _addClassMixIns(_classAnnotations, cls);
-            for (Annotation a : cls.getDeclaredAnnotations()) {
-                if (_annotationIntrospector.isHandled(a)) {
-                    _classAnnotations.addIfNotPresent(a);
-                }
-            }
+            _addAnnotationsIfNotPresent(_classAnnotations, cls.getDeclaredAnnotations());
         }
 
         /* and finally... any annotations there might be for plain
@@ -300,13 +290,10 @@ public final class AnnotatedClass
          */
         _addClassMixIns(_classAnnotations, Object.class);
     }
-
+    
     /**
      * Initialization method that will find out all constructors
      * and potential static factory methods the class has.
-     *<p>
-     * Starting with 1.2, it will also apply mix-in annotations,
-     * as per [JACKSON-76]
      *
      * @param includeAll If true, includes all creator methods; if false,
      *   will only include the no-arguments "default" constructor
@@ -397,8 +384,6 @@ public final class AnnotatedClass
      * and combining annotations (to implement method-annotation inheritance)
      * 
      * @param methodFilter Filter used to determine which methods to include
-     * 
-     * @since 1.9
      */
     public void resolveMemberMethods(MethodFilter methodFilter)
     {
@@ -448,8 +433,6 @@ public final class AnnotatedClass
      * Method that will collect all member (non-static) fields
      * that are either public, or have at least a single annotation
      * associated with them.
-     * 
-     * @since 1.9
      */
     public void resolveFields()
     {
@@ -489,11 +472,8 @@ public final class AnnotatedClass
             return;
         }
         // Ok, first: annotations from mix-in class itself:
-        for (Annotation a : mixin.getDeclaredAnnotations()) {
-            if (_annotationIntrospector.isHandled(a)) {
-                annotations.addIfNotPresent(a);
-            }
-        }
+        _addAnnotationsIfNotPresent(annotations, mixin.getDeclaredAnnotations());
+
         /* And then from its supertypes, if any. But note that we will
          *  only consider super-types up until reaching the masked
          * class (if found); this because often mix-in class
@@ -502,11 +482,7 @@ public final class AnnotatedClass
          * as that would inverse precedence of annotations.
          */
         for (Class<?> parent : ClassUtil.findSuperTypes(mixin, toMask)) {
-            for (Annotation a : parent.getDeclaredAnnotations()) {
-                if (_annotationIntrospector.isHandled(a)) {
-                    annotations.addIfNotPresent(a);
-                }
-            }
+            _addAnnotationsIfNotPresent(annotations, parent.getDeclaredAnnotations());
         }
     }
 
@@ -710,11 +686,7 @@ public final class AnnotatedClass
             // anything to mask? (if not, quietly ignore)
             AnnotatedField maskedField = fields.get(name);
             if (maskedField != null) {
-                for (Annotation a : mixinField.getDeclaredAnnotations()) {
-                    if (_annotationIntrospector.isHandled(a)) {
-                        maskedField.addOrOverride(a);
-                    }
-                }
+                _addOrOverrideAnnotations(maskedField, mixinField.getDeclaredAnnotations());
             }
         }
     }
@@ -788,29 +760,6 @@ public final class AnnotatedClass
         }
         return new AnnotatedField(f, _collectRelevantAnnotations(f.getDeclaredAnnotations()));
     }
-
-    protected AnnotationMap[] _collectRelevantAnnotations(Annotation[][] anns)
-    {
-        int len = anns.length;
-        AnnotationMap[] result = new AnnotationMap[len];
-        for (int i = 0; i < len; ++i) {
-            result[i] = _collectRelevantAnnotations(anns[i]);
-        }
-        return result;
-    }
-
-    protected AnnotationMap _collectRelevantAnnotations(Annotation[] anns)
-    {
-        AnnotationMap annMap = new AnnotationMap();
-        if (anns != null) {
-            for (Annotation a : anns) {
-                if (_annotationIntrospector.isHandled(a)) {
-                    annMap.add(a);
-                }
-            }
-        }
-        return annMap;
-    }
  
     private AnnotationMap _emptyAnnotationMap() {
         return new AnnotationMap();
@@ -870,6 +819,87 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
+    protected AnnotationMap[] _collectRelevantAnnotations(Annotation[][] anns)
+    {
+        int len = anns.length;
+        AnnotationMap[] result = new AnnotationMap[len];
+        for (int i = 0; i < len; ++i) {
+            result[i] = _collectRelevantAnnotations(anns[i]);
+        }
+        return result;
+    }
+
+    protected AnnotationMap _collectRelevantAnnotations(Annotation[] anns)
+    {
+        AnnotationMap annMap = new AnnotationMap();
+        _addAnnotationsIfNotPresent(annMap, anns);
+        return annMap;
+    }
+    
+    /* Helper method used to add all applicable annotations from given set.
+     * Takes into account possible "annotation bundles" (meta-annotations to
+     * include instead of main-level annotation)
+     */
+    private void _addAnnotationsIfNotPresent(AnnotationMap result, Annotation[] anns)
+    {
+        if (anns != null) {
+            List<Annotation[]> bundles = null;
+            for (Annotation ann : anns) { // first: direct annotations
+                if (ann.annotationType().getAnnotation(JacksonAnnotationsInside.class) != null) {
+                    if (bundles == null) {
+                        bundles = new LinkedList<Annotation[]>();
+                    }
+                    bundles.add(ann.annotationType().getDeclaredAnnotations());
+                } else { // note: we will NOT filter out non-Jackson anns any more
+                    result.addIfNotPresent(ann);
+                }
+            }
+            if (bundles != null) { // and secondarily handle bundles, if any found: precedence important
+                _addAnnotationsIfNotPresent(result, bundles.toArray(new Annotation[bundles.size()]));
+            }
+        }
+    }
+
+    private void _addAnnotationsIfNotPresent(AnnotatedMember target, Annotation[] anns)
+    {
+        if (anns != null) {
+            List<Annotation[]> bundles = null;
+            for (Annotation ann : anns) { // first: direct annotations
+                if (ann.annotationType().getAnnotation(JacksonAnnotationsInside.class) != null) {
+                    if (bundles == null) {
+                        bundles = new LinkedList<Annotation[]>();
+                    }
+                    bundles.add(ann.annotationType().getDeclaredAnnotations());
+                } else { // note: we will NOT filter out non-Jackson anns any more
+                    target.addIfNotPresent(ann);
+                }
+            }
+            if (bundles != null) { // and secondarily handle bundles, if any found: precedence important
+                _addAnnotationsIfNotPresent(target, bundles.toArray(new Annotation[bundles.size()]));
+            }
+        }
+    }
+    
+    private void _addOrOverrideAnnotations(AnnotatedMember target, Annotation[] anns)
+    {
+        if (anns != null) {
+            List<Annotation[]> bundles = null;
+            for (Annotation ann : anns) { // first: direct annotations
+                if (ann.annotationType().getAnnotation(JacksonAnnotationsInside.class) != null) {
+                    if (bundles == null) {
+                        bundles = new LinkedList<Annotation[]>();
+                    }
+                    bundles.add(ann.annotationType().getDeclaredAnnotations());
+                } else { // note: no filtering by jackson-annotations
+                    target.addOrOverride(ann);
+                }
+            }
+            if (bundles != null) { // and then bundles, if any: important for precedence
+                _addOrOverrideAnnotations(target, bundles.toArray(new Annotation[bundles.size()]));
+            }
+        }
+    }
+    
     /**
      * @param addParamAnnotations Whether parameter annotations are to be
      *   added as well
@@ -877,11 +907,7 @@ public final class AnnotatedClass
     protected void _addMixOvers(Constructor<?> mixin, AnnotatedConstructor target,
             boolean addParamAnnotations)
     {
-        for (Annotation a : mixin.getDeclaredAnnotations()) {
-            if (_annotationIntrospector.isHandled(a)) {
-                target.addOrOverride(a);
-            }
-        }
+        _addOrOverrideAnnotations(target, mixin.getDeclaredAnnotations());
         if (addParamAnnotations) {
             Annotation[][] pa = mixin.getParameterAnnotations();
             for (int i = 0, len = pa.length; i < len; ++i) {
@@ -899,11 +925,7 @@ public final class AnnotatedClass
     protected void _addMixOvers(Method mixin, AnnotatedMethod target,
             boolean addParamAnnotations)
     {
-        for (Annotation a : mixin.getDeclaredAnnotations()) {
-            if (_annotationIntrospector.isHandled(a)) {
-                target.addOrOverride(a);
-            }
-        }
+        _addOrOverrideAnnotations(target, mixin.getDeclaredAnnotations());
         if (addParamAnnotations) {
             Annotation[][] pa = mixin.getParameterAnnotations();
             for (int i = 0, len = pa.length; i < len; ++i) {
@@ -918,13 +940,8 @@ public final class AnnotatedClass
      * Method that will add annotations from specified source method to target method,
      * but only if target does not yet have them.
      */
-    protected void _addMixUnders(Method src, AnnotatedMethod target)
-    {
-        for (Annotation a : src.getDeclaredAnnotations()) {
-            if (_annotationIntrospector.isHandled(a)) {
-                target.addIfNotPresent(a);
-            }
-        }
+    protected void _addMixUnders(Method src, AnnotatedMethod target) {
+        _addAnnotationsIfNotPresent(target, src.getDeclaredAnnotations());
     }
 
     /*
@@ -939,4 +956,3 @@ public final class AnnotatedClass
         return "[AnnotedClass "+_class.getName()+"]";
     }
 }
-

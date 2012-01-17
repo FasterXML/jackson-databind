@@ -32,16 +32,6 @@ public final class AnnotatedField
     public AnnotatedField withAnnotations(AnnotationMap ann) {
         return new AnnotatedField(_field, ann);
     }
-    
-    /**
-     * Method called to override an annotation, usually due to a mix-in
-     * annotation masking or overriding an annotation 'real' constructor
-     * has.
-     */
-    public void addOrOverride(Annotation a)
-    {
-        _annotations.add(a);
-    }
 
     /*
     /**********************************************************

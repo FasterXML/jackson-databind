@@ -64,11 +64,6 @@ public final class AnnotatedParameter
         }
         return _owner.replaceParameterAnnotations(_index, ann);
     }
-    
-    public void addOrOverride(Annotation a)
-    {
-        _annotations.add(a);
-    }
 
     /*
     /**********************************************************

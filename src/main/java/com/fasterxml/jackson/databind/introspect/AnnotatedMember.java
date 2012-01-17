@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
 
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -11,7 +12,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * constructors in addition to fields and methods.
  * 
  * @author tatu
- * @since 1.5
  */
 public abstract class AnnotatedMember extends Annotated
 {
@@ -29,6 +29,24 @@ public abstract class AnnotatedMember extends Annotated
     @Override
     protected AnnotationMap getAllAnnotations() {
         return _annotations;
+    }
+
+    /**
+     * Method called to override an annotation, usually due to a mix-in
+     * annotation masking or overriding an annotation 'real' constructor
+     * has.
+     */
+    public final void addOrOverride(Annotation a) {
+        _annotations.add(a);
+    }
+
+    /**
+     * Method called to augment annotations, by adding specified
+     * annotation if and only if it is not yet present in the
+     * annotation map we have.
+     */
+    public final void addIfNotPresent(Annotation a) {
+        _annotations.addIfNotPresent(a);
     }
     
     /**

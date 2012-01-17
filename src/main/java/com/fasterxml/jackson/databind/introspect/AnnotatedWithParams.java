@@ -35,15 +35,6 @@ public abstract class AnnotatedWithParams
     }
 
     /**
-     * Method called to override a class annotation, usually due to a mix-in
-     * annotation masking or overriding an annotation 'real' class
-     */
-    public final void addOrOverride(Annotation a)
-    {
-        _annotations.add(a);
-    }
-
-    /**
      * Method called to override a method parameter annotation,
      * usually due to a mix-in
      * annotation masking or overriding an annotation 'real' method
@@ -60,21 +51,8 @@ public abstract class AnnotatedWithParams
     }
 
     /**
-     * Method called to augment annotations, by adding specified
-     * annotation if and only if it is not yet present in the
-     * annotation map we have.
-     */
-    public final void addIfNotPresent(Annotation a)
-    {
-        _annotations.addIfNotPresent(a);
-    }
-
-    
-    /**
      * Method called by parameter object when an augmented instance is created;
      * needs to replace parameter with new instance
-     * 
-     * @since 1.9
      */
     protected AnnotatedParameter replaceParameterAnnotations(int index, AnnotationMap ann)
     {

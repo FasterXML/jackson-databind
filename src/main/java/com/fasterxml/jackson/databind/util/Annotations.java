@@ -6,8 +6,6 @@ import java.lang.annotation.Annotation;
  * Interface that defines interface for collection of annotations.
  *<p>
  * Standard mutable implementation is {@link com.fasterxml.jackson.databind.introspect.AnnotationMap}
- * 
- * @since 1.7
  */
 public interface Annotations
 {

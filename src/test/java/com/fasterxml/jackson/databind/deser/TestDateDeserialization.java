@@ -24,9 +24,6 @@ public class TestDateDeserialization
         assertEquals("Date: expect "+value+" ("+value.getTime()+"), got "+result+" ("+result.getTime()+")", value.getTime(), result.getTime());
     }
 
-    /**
-     * @since 1.5.0
-     */
     public void testDateUtilWithStringTimestamp() throws Exception
     {
         long now = 1321992375446L;
@@ -38,10 +35,6 @@ public class TestDateDeserialization
         assertEquals(now, value.getTime());
     }
 
-    /**
-     * As of version 0.9.8, we'll try to cover RFC-1123 Strings too,
-     * automatically.
-     */
     public void testDateUtilRFC1123() throws Exception
     {
         DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");

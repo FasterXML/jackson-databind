@@ -51,7 +51,7 @@ public class TestEnumDeserialization
             return null;
         }
     }
-
+    
     protected enum LowerCaseEnum {
         A, B, C;
         private LowerCaseEnum() { }
@@ -205,8 +205,8 @@ public class TestEnumDeserialization
         assertEquals(String.valueOf(TestEnum.RULES.ordinal()), json);
         TestEnum result = m.readValue(json, TestEnum.class);
         assertSame(TestEnum.RULES, result);
-    }        
-
+    }
+    
     // [JACKSON-749]: @JsonValue should be considered as well
     public void testEnumsWithJsonValue() throws Exception
     {
@@ -230,5 +230,25 @@ public class TestEnumDeserialization
         assertNotNull(map);
         assertEquals(1, map.size());
         assertEquals(Integer.valueOf(13), map.get(EnumWithJsonValue.A));
+    }
+
+    // [JACKSON-756], next three tests
+
+    public void testEnumWithCreatorEnumMaps() throws Exception {
+          EnumMap<EnumWithCreator,String> value = mapper.readValue("{\"enumA\":\"value\"}",
+                  new TypeReference<EnumMap<EnumWithCreator,String>>() {});
+          assertEquals("value", value.get(EnumWithCreator.A));
+    }
+
+    public void testEnumWithCreatorMaps() throws Exception {
+          java.util.HashMap<EnumWithCreator,String> value = mapper.readValue("{\"enumA\":\"value\"}",
+                  new TypeReference<java.util.HashMap<EnumWithCreator,String>>() {});
+          assertEquals("value", value.get(EnumWithCreator.A));
+    }
+
+    public void testEnumWithCreatorEnumSets() throws Exception {
+          EnumSet<EnumWithCreator> value = mapper.readValue("[\"enumA\"]",
+                  new TypeReference<EnumSet<EnumWithCreator>>() {});
+          assertTrue(value.contains(EnumWithCreator.A));
     }
 }

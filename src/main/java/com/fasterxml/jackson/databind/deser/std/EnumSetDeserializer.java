@@ -5,9 +5,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.util.EnumResolver;
 
 /**
  * 
@@ -23,15 +22,14 @@ public class EnumSetDeserializer
 {
     protected final Class<Enum> _enumClass;
 
-    protected final EnumDeserializer _enumDeserializer;
+    protected final JsonDeserializer<Enum<?>> _enumDeserializer;
 
     @SuppressWarnings("unchecked" )
-    public EnumSetDeserializer(EnumResolver enumRes)
+    public EnumSetDeserializer(Class<?> enumClass, JsonDeserializer<?> deser)
     {
         super(EnumSet.class);
-        _enumDeserializer = new EnumDeserializer(enumRes);
-        // this is fugly, but not sure of a better way...
-        _enumClass = (Class<Enum>) ((Class<?>) enumRes.getEnumClass());
+        _enumClass = (Class<Enum>) enumClass;
+        _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
     }
 
     /**

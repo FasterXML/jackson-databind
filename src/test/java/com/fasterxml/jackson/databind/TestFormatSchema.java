@@ -76,6 +76,11 @@ public class TestFormatSchema extends BaseMapTest
         }
 
         @Override
+        public byte[] getEmbeddedObject() {
+            return null;
+        }
+
+        @Override
         public String getText() throws IOException, JsonParseException {
             return null;
         }

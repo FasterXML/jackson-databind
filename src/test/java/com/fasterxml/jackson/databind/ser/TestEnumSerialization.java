@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -96,6 +97,20 @@ public class TestEnumSerialization
         public void add(TestEnum key, int value) {
             map.put(key, Integer.valueOf(value));
         }
+    }
+
+    // [JACKSON-757]
+    static enum NOT_OK {
+        V1("v1"); 
+        protected String key;
+        // any runtime-persistent annotation is fine
+        NOT_OK(@JsonProperty String key) { this.key = key; }
+    }
+
+    static enum OK {
+        V1("v1");
+        protected String key;
+        OK(String key) { this.key = key; }
     }
     
     /*
@@ -204,5 +219,13 @@ public class TestEnumSerialization
         // but we can change (dynamically, too!) it to be number-based
         mapper.enable(SerializationConfig.Feature.WRITE_ENUMS_USING_INDEX);
         assertEquals("1", mapper.writeValueAsString(TestEnum.B));
+    }
+
+    // [JACKSON-757]
+    public void testAnnotationsOnEnumCtor() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValueAsString(OK.V1);
+        mapper.writeValueAsString(NOT_OK.V1);
     }
 }

@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.util.EnumResolver;
 
 /**
  * Deserializer for {@link EnumMap} values.
@@ -23,15 +22,19 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
 public class EnumMapDeserializer
     extends StdDeserializer<EnumMap<?,?>>
 {
-    protected final EnumResolver<?> _enumResolver;
+    protected final Class<?> _enumClass;
+
+    protected final JsonDeserializer<Enum<?>> _keyDeserializer;
 
     protected final JsonDeserializer<Object> _valueDeserializer;
 
-    public EnumMapDeserializer(EnumResolver<?> enumRes, JsonDeserializer<Object> valueDes)
+    public EnumMapDeserializer(Class<?> enumClass, JsonDeserializer<?> keyDeserializer,
+            JsonDeserializer<Object> valueDeser)
     {
         super(EnumMap.class);
-        _enumResolver = enumRes;
-        _valueDeserializer = valueDes;
+        _enumClass = enumClass;
+        _keyDeserializer = (JsonDeserializer<Enum<?>>) keyDeserializer;
+        _valueDeserializer = valueDeser;
     }
 
     /**
@@ -52,10 +55,9 @@ public class EnumMapDeserializer
         EnumMap result = constructMap();
 
         while ((jp.nextToken()) != JsonToken.END_OBJECT) {
-            String fieldName = jp.getCurrentName();
-            Enum<?> key = _enumResolver.findEnum(fieldName);
+            Enum<?> key = _keyDeserializer.deserialize(jp, ctxt);
             if (key == null) {
-                throw ctxt.weirdStringException(_enumResolver.getEnumClass(), "value not one of declared Enum instance names");
+                throw ctxt.weirdStringException(_enumClass, "value not one of declared Enum instance names");
             }
             // And then the value...
             JsonToken t = jp.nextToken();
@@ -78,9 +80,7 @@ public class EnumMapDeserializer
         return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
     }
     
-    private EnumMap<?,?> constructMap()
-    {
-        Class<? extends Enum<?>> enumCls = _enumResolver.getEnumClass();
-    	return new EnumMap(enumCls);
+    private EnumMap<?,?> constructMap() {
+        return new EnumMap(_enumClass);
     }
 }

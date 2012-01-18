@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonNode;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
 import com.fasterxml.jackson.databind.deser.std.JacksonDeserializers;
+import com.fasterxml.jackson.databind.deser.std.StdKeyDeserializers;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -29,6 +30,13 @@ public class BeanDeserializerFactory
      */
     private final static Class<?>[] INIT_CAUSE_PARAMS = new Class<?>[] { Throwable.class };
 
+    /**
+     * Set of available key deserializers is currently limited
+     * to standard types; and all known instances are storing
+     * in this map.
+     */
+    final static HashMap<JavaType, KeyDeserializer> _keyDeserializers = StdKeyDeserializers.constructAll();
+    
     /*
     /**********************************************************
     /* Config class implementation
@@ -279,7 +287,24 @@ public class BeanDeserializerFactory
                 }
             }
         }
-        return null;
+        // and if none found, standard ones:
+        // No serializer needed if it's plain old String, or Object/untyped
+        Class<?> raw = type.getRawClass();
+        if (raw == String.class || raw == Object.class) {
+            return StdKeyDeserializers.constructStringKeyDeserializer(config, type);
+        }
+        // Most other keys are of limited number of static types
+        KeyDeserializer kdes = _keyDeserializers.get(type);
+        if (kdes != null) {
+            return kdes;
+        }
+        // And then other one-offs; first, Enum:
+        if (type.isEnumType()) {
+            return StdKeyDeserializers.constructEnumKeyDeserializer(config, type);
+        }
+        // One more thing: can we find ctor(String) or valueOf(String)?
+        kdes = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
+        return kdes;
     }
     
     @Override

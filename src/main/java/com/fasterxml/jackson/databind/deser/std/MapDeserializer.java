@@ -266,7 +266,7 @@ public class MapDeserializer
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             // Must point to field name
             String fieldName = jp.getCurrentName();
-            Object key = (keyDes == null) ? fieldName : keyDes.deserializeKey(fieldName, ctxt);
+            Object key = keyDes.deserializeKey(fieldName, ctxt);
             // And then the value...
             t = jp.nextToken();
             if (_ignorableProperties != null && _ignorableProperties.contains(fieldName)) {
@@ -331,7 +331,7 @@ public class MapDeserializer
             }
             // other property? needs buffering
             String fieldName = jp.getCurrentName();
-            Object key = (_keyDeserializer == null) ? fieldName : _keyDeserializer.deserializeKey(fieldName, ctxt);
+            Object key = _keyDeserializer.deserializeKey(fieldName, ctxt);
             Object value;            
             if (t == JsonToken.VALUE_NULL) {
                 value = null;

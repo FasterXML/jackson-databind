@@ -29,13 +29,6 @@ public class StdDeserializerProvider
      */
 
     /**
-     * Set of available key deserializers is currently limited
-     * to standard types; and all known instances are storing
-     * in this map.
-     */
-    final static HashMap<JavaType, KeyDeserializer> _keyDeserializers = StdKeyDeserializers.constructAll();
-
-    /**
      * We will also cache some dynamically constructed deserializers;
      * specifically, ones that are expensive to construct.
      * This currently means bean and Enum deserializers; array, List and Map
@@ -194,36 +187,13 @@ public class StdDeserializerProvider
             JavaType type, BeanProperty property)
         throws JsonMappingException
     {
-        // 1.8: check if there are custom key deserializers...
         KeyDeserializer kd = _factory.createKeyDeserializer(config, type, property);
-        if (kd == null) {
-            // No serializer needed if it's plain old String, or Object/untyped
-            Class<?> raw = type.getRawClass();
-            if (raw == String.class || raw == Object.class) {
-                return null;
-            }
-            // Most other keys are of limited number of static types
-            KeyDeserializer kdes = _keyDeserializers.get(type);
-            if (kdes != null) {
-                return kdes;
-            }
-            // And then other one-offs; first, Enum:
-            if (type.isEnumType()) {
-                return StdKeyDeserializers.constructEnumKeyDeserializer(config, type);
-            }
-            // One more thing: can we find ctor(String) or valueOf(String)?
-            kdes = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
-            if (kdes != null) {
-                return kdes;
-            }
-            if (kd == null) {
-                // otherwise, will probably fail:
-                return _handleUnknownKeyDeserializer(type);
-            }
-        }
-        // One more thing: contextuality:
+        // One more thing: contextuality
         if (kd instanceof ContextualKeyDeserializer) {
             kd = ((ContextualKeyDeserializer) kd).createContextual(config, property);
+        }
+        if (kd == null) { // if none found, need to use a placeholder that'll fail
+            return _handleUnknownKeyDeserializer(type);
         }
         return kd;
     }

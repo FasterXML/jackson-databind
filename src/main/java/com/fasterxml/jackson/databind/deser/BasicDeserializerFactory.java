@@ -377,16 +377,15 @@ public abstract class BasicDeserializerFactory
             // 'null' -> maps have no referring fields
             contentDeser = p.findValueDeserializer(config, contentType, property);
         }
-        /* Value handling is identical for all,
-         * but EnumMap requires special handling for keys
-         */
+        // Value handling is identical for all, but EnumMap requires special handling for keys
         Class<?> mapClass = type.getRawClass();
         if (EnumMap.class.isAssignableFrom(mapClass)) {
             Class<?> kt = keyType.getRawClass();
             if (kt == null || !kt.isEnum()) {
                 throw new IllegalArgumentException("Can not construct EnumMap; generic (key) type not available");
             }
-            return new EnumMapDeserializer(constructEnumResolver(kt, config, _findJsonValueFor(config, keyType)),
+            return new EnumMapDeserializer(keyType.getRawClass(),
+                    createEnumDeserializer(config, p, keyType, property),
                     contentDeser);
         }
 

@@ -65,6 +65,36 @@ public abstract class StdKeyDeserializer
 
     /*
     /**********************************************************
+    /* First: the standard "String as String" deserializer
+    /**********************************************************
+     */
+
+    final static class StringKD extends StdKeyDeserializer
+    {
+        private final static StringKD sString = new StringKD(String.class);
+        private final static StringKD sObject = new StringKD(Object.class);
+        
+        private StringKD(Class<?> nominalType) { super(nominalType); }
+
+        public static StringKD forType(Class<?> nominalType)
+        {
+            if (nominalType == String.class) {
+                return sString;
+            }
+            if (nominalType == Object.class) {
+                return sObject;
+            }
+            return new StringKD(nominalType);
+        }
+        
+        @Override
+        public String _parse(String key, DeserializationContext ctxt) throws JsonMappingException {
+            return key;
+        }
+    }    
+    
+    /*
+    /**********************************************************
     /* Key deserializer implementations; wrappers
     /**********************************************************
      */

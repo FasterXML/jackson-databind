@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
 
-
 /**
  * Helper class used to contain simple/well-known key deserializers.
  * Following kinds of Objects can be handled currently:
@@ -64,6 +63,11 @@ public class StdKeyDeserializers
     /**********************************************************
      */
 
+    public static KeyDeserializer constructStringKeyDeserializer(DeserializationConfig config, JavaType type)
+    {
+        return StdKeyDeserializer.StringKD.forType(type.getClass());
+    }
+    
     public static KeyDeserializer constructEnumKeyDeserializer(DeserializationConfig config, JavaType type)
     {
         EnumResolver<?> er = EnumResolver.constructUnsafe(type.getRawClass(), config.getAnnotationIntrospector());

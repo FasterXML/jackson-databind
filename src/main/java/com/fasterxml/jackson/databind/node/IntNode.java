@@ -70,6 +70,9 @@ public final class IntNode
     @Override
     public boolean isInt() { return true; }
 
+    @Override public boolean canConvertToInt() { return true; }
+    @Override public boolean canConvertToLong() { return true; }
+    
     @Override
     public Number getNumberValue() {
         return Integer.valueOf(_value);

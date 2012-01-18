@@ -34,6 +34,9 @@ public abstract class NumericNode
     @Override
     public abstract BigInteger getBigIntegerValue();
 
+    @Override public abstract boolean canConvertToInt();
+    @Override public abstract boolean canConvertToLong();
+    
     /* 
     /**********************************************************
     /* General type coercions

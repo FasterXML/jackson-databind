@@ -10,6 +10,8 @@ Fixes:
 
 Improvements
 
+* [JACKSON-664]: Reduce overhead of type resolution by adding caching
+  in TypeFactory
 * [JACKSON-690]: Pass DeserializationContext through ValueInstantiator
 * [JACKSON-695]: Add 'isEmpty(value)' in JsonSerializer to allow
   customizing handling of serialization of empty values

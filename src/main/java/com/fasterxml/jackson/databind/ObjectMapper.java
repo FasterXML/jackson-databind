@@ -1596,9 +1596,15 @@ public class ObjectMapper
      */
     @Override
     public <T> T treeToValue(JsonNode n, Class<T> valueType)
-        throws IOException, JsonParseException, JsonMappingException
+        throws JsonProcessingException
     {
-        return readValue(treeAsTokens(n), valueType);
+        try {
+            return readValue(treeAsTokens(n), valueType);
+        } catch (JsonProcessingException e) {
+            throw e;
+        } catch (IOException e) { // should not occur, no real i/o...
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 
     /**

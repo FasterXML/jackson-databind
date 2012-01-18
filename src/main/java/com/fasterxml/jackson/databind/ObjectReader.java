@@ -46,10 +46,7 @@ public class ObjectReader
     protected final DeserializationConfig _config;
 
     /**
-     * Flag that indicates whether root values are expected to be unwrapped
-     * or not
-     * 
-     * @since 1.9
+     * Flag that indicates whether root values are expected to be unwrapped or not
      */
     protected final boolean _unwrapRoot;
     
@@ -94,15 +91,11 @@ public class ObjectReader
     /**
      * When using data format that uses a schema, schema is passed
      * to parser.
-     * 
-     * @since 1.8
      */
     protected final FormatSchema _schema;
 
     /**
      * Values that can be injected during deserialization, if any.
-     * 
-     * @since 1.9
      */
     protected final InjectableValues _injectableValues;
     
@@ -114,8 +107,6 @@ public class ObjectReader
 
     /**
      * Constructor used by {@link ObjectMapper} for initial instantiation
-     * 
-     * @since 1.8
      */
     protected ObjectReader(ObjectMapper mapper, DeserializationConfig config)
     {
@@ -217,8 +208,6 @@ public class ObjectReader
      *<p>
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
-     * 
-     * @since 1.8
      */
     public ObjectReader withType(TypeReference<?> valueTypeRef)
     {
@@ -267,8 +256,6 @@ public class ObjectReader
      *<p>
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
-     * 
-     * @since 1.8
      */
     public ObjectReader withSchema(FormatSchema schema)
     {
@@ -285,8 +272,6 @@ public class ObjectReader
      *<p>
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
-     * 
-     * @since 1.9
      */
     public ObjectReader withInjectableValues(InjectableValues injectableValues)
     {
@@ -585,8 +570,6 @@ public class ObjectReader
     
     /**
      * Method for reading sequence of Objects from parser stream.
-     * 
-     * @since 1.8
      */
     public <T> MappingIterator<T> readValues(JsonParser jp)
         throws IOException, JsonProcessingException
@@ -600,8 +583,6 @@ public class ObjectReader
     
     /**
      * Method for reading sequence of Objects from parser stream.
-     * 
-     * @since 1.8
      */
     public <T> MappingIterator<T> readValues(InputStream src)
         throws IOException, JsonProcessingException
@@ -635,8 +616,6 @@ public class ObjectReader
     
     /**
      * Method for reading sequence of Objects from parser stream.
-     * 
-     * @since 1.8
      */
     public <T> MappingIterator<T> readValues(String json)
         throws IOException, JsonProcessingException
@@ -652,8 +631,6 @@ public class ObjectReader
 
     /**
      * Method for reading sequence of Objects from parser stream.
-     * 
-     * @since 1.8
      */
     public <T> MappingIterator<T> readValues(byte[] src, int offset, int length)
         throws IOException, JsonProcessingException
@@ -667,9 +644,6 @@ public class ObjectReader
                 _findRootDeserializer(_config, _valueType), true, _valueToUpdate);
     }
 
-    /**
-     * Since 1.9.3
-     */
     public final <T> MappingIterator<T> readValues(byte[] src)
             throws IOException, JsonProcessingException {
         return readValues(src, 0, src.length);
@@ -677,8 +651,6 @@ public class ObjectReader
     
     /**
      * Method for reading sequence of Objects from parser stream.
-     * 
-     * @since 1.8
      */
     public <T> MappingIterator<T> readValues(File src)
         throws IOException, JsonProcessingException
@@ -694,8 +666,6 @@ public class ObjectReader
 
     /**
      * Method for reading sequence of Objects from parser stream.
-     * 
-     * @since 1.8
      */
     public <T> MappingIterator<T> readValues(URL src)
         throws IOException, JsonProcessingException
@@ -937,9 +907,15 @@ public class ObjectReader
 
     @Override
     public <T> T treeToValue(JsonNode n, Class<T> valueType)
-            throws IOException, JsonProcessingException
+        throws JsonProcessingException
     {
-        return readValue(treeAsTokens(n), valueType);
+        try {
+            return readValue(treeAsTokens(n), valueType);
+        } catch (JsonProcessingException e) {
+            throw e;
+        } catch (IOException e) { // should not occur, no real i/o...
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 
     /**

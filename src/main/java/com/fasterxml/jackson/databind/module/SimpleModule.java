@@ -49,9 +49,36 @@ public class SimpleModule extends Module
     /* Life-cycle: creation
     /**********************************************************
      */
+
+    /**
+     * Constructors that should only be used for non-reusable
+     * convenience modules used by app code: "real" modules should
+     * use actual name and version number information.
+     */
+    public SimpleModule() {
+        // when passing 'this', can not chain constructors...
+        _name = "SimpleModule-"+System.identityHashCode(this);
+        _version = Version.unknownVersion();
+    }
     
-    public SimpleModule(String name, Version version)
-    {
+    /**
+     * Convenience constructor that will default version to
+     * {@link Version#unknownVersion()}.
+     */
+    public SimpleModule(String name) {
+        this(name, Version.unknownVersion());
+    }
+
+    /**
+     * Constructor to use for actual reusable modules.
+     * ObjectMapper may use name as identifier to notice attempts
+     * for multiple registrations of the same module (although it
+     * does not have to).
+     * 
+     * @param name Unique name of the module
+     * @param version Version of the module
+     */
+    public SimpleModule(String name, Version version) {
         _name = name;
         _version = version;
     }

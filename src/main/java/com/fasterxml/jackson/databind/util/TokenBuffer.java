@@ -426,14 +426,6 @@ public class TokenBuffer
         _append(JsonToken.FIELD_NAME, name);
         _writeContext.writeFieldName(name.getValue());
     }
-
-    @Override
-    public void writeFieldName(SerializedString name)
-        throws IOException, JsonGenerationException
-    {
-        _append(JsonToken.FIELD_NAME, name);
-        _writeContext.writeFieldName(name.getValue());
-    }
     
     /*
     /**********************************************************

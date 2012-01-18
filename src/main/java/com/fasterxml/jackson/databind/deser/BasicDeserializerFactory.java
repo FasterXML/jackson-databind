@@ -90,16 +90,33 @@ public abstract class BasicDeserializerFactory
     }
 
     /**
-     * And finally, we have special array deserializers for primitive
-     * array types
+     * Also special array deserializers for primitive array types.
      */
     protected final static HashMap<JavaType,JsonDeserializer<Object>> _arrayDeserializers
         = PrimitiveArrayDeserializers.getAll();
 
     /**
+     * Set of available key deserializers is currently limited
+     * to standard types; and all known instances are storing in this map.
+     */
+    final static HashMap<JavaType, KeyDeserializer> _keyDeserializers = StdKeyDeserializers.constructAll();
+    
+    /**
      * To support external/optional deserializers, we'll use a helper class
      */
     protected OptionalHandlerFactory optionalHandlers = OptionalHandlerFactory.instance;
+
+    /*
+    /**********************************************************
+    /* Config
+    /**********************************************************
+     */
+    
+    /**
+     * Configuration settings for this factory; immutable instance (just like this
+     * factory), new version created via copy-constructor (fluent-style)
+     */
+    protected final Config _factoryConfig;
     
     /*
     /**********************************************************
@@ -107,8 +124,15 @@ public abstract class BasicDeserializerFactory
     /**********************************************************
      */
 
-    protected BasicDeserializerFactory() { }
+    protected BasicDeserializerFactory(Config config) {
+        _factoryConfig = config;
+    }
 
+    @Override
+    public final Config getConfig() {
+        return _factoryConfig;
+    }
+    
     // can't be implemented quite here
     @Override
     public abstract DeserializerFactory withConfig(DeserializerFactory.Config config);
@@ -358,7 +382,7 @@ public abstract class BasicDeserializerFactory
         if (keyDes == null) {
             keyDes = p.findKeyDeserializer(config, keyType, property);
         }
-        // Then optional type info (1.5); either attached to type, or resolve separately:
+        // Then optional type info (1.5); either attached to type, or resolved separately:
         TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
         // but if not, may still be possible to find:
         if (contentTypeDeser == null) {
@@ -454,7 +478,7 @@ public abstract class BasicDeserializerFactory
         return _findCustomMapLikeDeserializer(type, config, p, beanDesc, property,
                 keyDes, contentTypeDeser, contentDeser);
     }
-    
+
     /**
      * Factory method for constructing serializers of {@link Enum} types.
      */
@@ -580,6 +604,83 @@ public abstract class BasicDeserializerFactory
             }
         }
         return b.buildTypeDeserializer(config, baseType, subtypes, property);
+    }
+
+    @Override
+    public KeyDeserializer createKeyDeserializer(DeserializationConfig config, JavaType type,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        if (_factoryConfig.hasKeyDeserializers()) {
+            BasicBeanDescription beanDesc = config.introspectClassAnnotations(type.getRawClass());
+            for (KeyDeserializers d  : _factoryConfig.keyDeserializers()) {
+                KeyDeserializer deser = d.findKeyDeserializer(type, config, beanDesc, property);
+                if (deser != null) {
+                    return deser;
+                }
+            }
+        }
+        // and if none found, standard ones:
+        // No serializer needed if it's plain old String, or Object/untyped
+        Class<?> raw = type.getRawClass();
+        if (raw == String.class || raw == Object.class) {
+            return StdKeyDeserializers.constructStringKeyDeserializer(config, type);
+        }
+        // Most other keys are of limited number of static types
+        KeyDeserializer kdes = _keyDeserializers.get(type);
+        if (kdes != null) {
+            return kdes;
+        }
+        // And then other one-offs; first, Enum:
+        if (type.isEnumType()) {
+            return _createEnumKeyDeserializer(config, type, property);
+        }
+        // One more thing: can we find ctor(String) or valueOf(String)?
+        kdes = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
+        return kdes;
+    }
+
+    private KeyDeserializer _createEnumKeyDeserializer(DeserializationConfig config, JavaType type,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        BasicBeanDescription beanDesc = config.introspect(type);
+        JsonDeserializer<?> des = findDeserializerFromAnnotation(config, beanDesc.getClassInfo(), property);
+        if (des != null) {
+            return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, des);
+        }
+        Class<?> enumClass = type.getRawClass();
+        // 23-Nov-2010, tatu: Custom deserializer?
+        JsonDeserializer<?> custom = _findCustomEnumDeserializer(enumClass, config, beanDesc, property);
+        if (custom != null) {
+            return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, des);
+        }
+
+        EnumResolver<?> enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueMethod());
+        // [JACKSON-193] May have @JsonCreator for static factory method:
+        for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
+            if (config.getAnnotationIntrospector().hasCreatorAnnotation(factory)) {
+                int argCount = factory.getParameterCount();
+                if (argCount == 1) {
+                    Class<?> returnType = factory.getRawType();
+                    // usually should be class, but may be just plain Enum<?> (for Enum.valueOf()?)
+                    if (returnType.isAssignableFrom(enumClass)) {
+                        // note: mostly copied from 'EnumDeserializer.deserializerForCreator(...)'
+                        if (factory.getParameterType(0) != String.class) {
+                            throw new IllegalArgumentException("Parameter #0 type for factory method ("+factory+") not suitable, must be java.lang.String");
+                        }
+                        if (config.canOverrideAccessModifiers()) {
+                            ClassUtil.checkAndFixAccess(factory.getMember());
+                        }
+                        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes, factory);
+                    }
+                }
+                throw new IllegalArgumentException("Unsuitable method ("+factory+") decorated with @JsonCreator (for Enum type "
+                        +enumClass.getName()+")");
+            }
+        }
+        // [JACKSON-749] Also, need to consider @JsonValue, if one found
+        return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes);
     }
     
     /*

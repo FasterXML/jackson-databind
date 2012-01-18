@@ -6,7 +6,9 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -63,17 +65,25 @@ public class StdKeyDeserializers
     /**********************************************************
      */
 
-    public static KeyDeserializer constructStringKeyDeserializer(DeserializationConfig config, JavaType type)
-    {
-        return StdKeyDeserializer.StringKD.forType(type.getClass());
+    public static KeyDeserializer constructStringKeyDeserializer(DeserializationConfig config, JavaType type) {
+        return StdKeyDeserializer.StringKD.forType(type.getRawClass());
     }
     
-    public static KeyDeserializer constructEnumKeyDeserializer(DeserializationConfig config, JavaType type)
-    {
-        EnumResolver<?> er = EnumResolver.constructUnsafe(type.getRawClass(), config.getAnnotationIntrospector());
-        return new StdKeyDeserializer.EnumKD(er);
+    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver<?> enumResolver) {
+        return new StdKeyDeserializer.EnumKD(enumResolver, null);
     }
 
+    public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver<?> enumResolver,
+            AnnotatedMethod factory) {
+        return new StdKeyDeserializer.EnumKD(enumResolver, factory);
+    }
+    
+    public static KeyDeserializer constructDelegatingKeyDeserializer(DeserializationConfig config,
+            JavaType type, JsonDeserializer<?> deser)
+    {
+        return new StdKeyDeserializer.DelegatingKD(type.getRawClass(), deser);
+    }
+    
     public static KeyDeserializer findStringBasedKeyDeserializer(DeserializationConfig config, JavaType type)
     {
         /* We don't need full deserialization information, just need to

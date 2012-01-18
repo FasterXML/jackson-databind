@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.JsonNode;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
 import com.fasterxml.jackson.databind.deser.std.JacksonDeserializers;
-import com.fasterxml.jackson.databind.deser.std.StdKeyDeserializers;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -29,13 +28,6 @@ public class BeanDeserializerFactory
      * Signature of <b>Throwable.initCause</b> method.
      */
     private final static Class<?>[] INIT_CAUSE_PARAMS = new Class<?>[] { Throwable.class };
-
-    /**
-     * Set of available key deserializers is currently limited
-     * to standard types; and all known instances are storing
-     * in this map.
-     */
-    final static HashMap<JavaType, KeyDeserializer> _keyDeserializers = StdKeyDeserializers.constructAll();
     
     /*
     /**********************************************************
@@ -222,22 +214,9 @@ public class BeanDeserializerFactory
      */
     public final static BeanDeserializerFactory instance = new BeanDeserializerFactory(null);
 
-    /**
-     * Configuration settings for this factory; immutable instance (just like this
-     * factory), new version created via copy-constructor (fluent-style)
-     */
-    protected final Config _factoryConfig;
-
-    public BeanDeserializerFactory(DeserializerFactory.Config config) {
-        if (config == null) {
-            config = new ConfigImpl();
-        }
-        _factoryConfig = config;
-    }
-
-    @Override
-    public final Config getConfig() {
-        return _factoryConfig;
+    public BeanDeserializerFactory(DeserializerFactory.Config config)
+    {
+        super((config == null) ? new ConfigImpl() : config);
     }
     
     /**
@@ -272,40 +251,6 @@ public class BeanDeserializerFactory
     /* custom deserializers
     /**********************************************************
      */
-
-    @Override
-    public KeyDeserializer createKeyDeserializer(DeserializationConfig config, JavaType type,
-            BeanProperty property)
-        throws JsonMappingException
-    {
-        if (_factoryConfig.hasKeyDeserializers()) {
-            BasicBeanDescription beanDesc = config.introspectClassAnnotations(type.getRawClass());
-            for (KeyDeserializers d  : _factoryConfig.keyDeserializers()) {
-                KeyDeserializer deser = d.findKeyDeserializer(type, config, beanDesc, property);
-                if (deser != null) {
-                    return deser;
-                }
-            }
-        }
-        // and if none found, standard ones:
-        // No serializer needed if it's plain old String, or Object/untyped
-        Class<?> raw = type.getRawClass();
-        if (raw == String.class || raw == Object.class) {
-            return StdKeyDeserializers.constructStringKeyDeserializer(config, type);
-        }
-        // Most other keys are of limited number of static types
-        KeyDeserializer kdes = _keyDeserializers.get(type);
-        if (kdes != null) {
-            return kdes;
-        }
-        // And then other one-offs; first, Enum:
-        if (type.isEnumType()) {
-            return StdKeyDeserializers.constructEnumKeyDeserializer(config, type);
-        }
-        // One more thing: can we find ctor(String) or valueOf(String)?
-        kdes = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
-        return kdes;
-    }
     
     @Override
     protected JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type, DeserializationConfig config,
@@ -1179,8 +1124,6 @@ public class BeanDeserializerFactory
     /**
      * Method that will find if bean has any managed- or back-reference properties,
      * and if so add them to bean, to be linked during resolution phase.
-     * 
-     * @since 1.6
      */
     protected void addReferenceProperties(DeserializationConfig config,
             BasicBeanDescription beanDesc, BeanDeserializerBuilder builder)

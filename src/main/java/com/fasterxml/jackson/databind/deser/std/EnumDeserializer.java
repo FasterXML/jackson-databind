@@ -129,7 +129,7 @@ public class EnumDeserializer
             }
             String value = jp.getText();
             try {
-                return _factory.invoke(_enumClass, value);
+                return _factory.invoke(null, value);
             } catch (Exception e) {
                 ClassUtil.unwrapAndThrowAsIAE(e);
             }

@@ -8,6 +8,8 @@ import java.util.UUID;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
 
 /**
@@ -217,19 +219,66 @@ public abstract class StdKeyDeserializer
     /**********************************************************
      */
 
+    /**
+     * Key deserializer that wraps a "regular" deserializer (but one
+     * that must recognize FIELD_NAMEs as text!) to reuse existing
+     * handlers as key handlers.
+     */
+    final static class DelegatingKD extends KeyDeserializer // note: NOT the std one
+    {
+        final protected Class<?> _keyClass;
+
+        protected final JsonDeserializer<?> _delegate;
+        
+        protected DelegatingKD(Class<?> cls, JsonDeserializer<?> deser) {
+            _keyClass = cls;
+            _delegate = deser;
+        }
+
+        @Override
+        public final Object deserializeKey(String key, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException
+        {
+            if (key == null) { // is this even legal call?
+                return null;
+            }
+            try {
+                // Ugh... should not have to give parser which may or may not be correct one...
+                Object result = _delegate.deserialize(ctxt.getParser(), ctxt);
+                if (result != null) {
+                    return result;
+                }
+            } catch (Exception re) {
+                throw ctxt.weirdKeyException(_keyClass, key, "not a valid representation: "+re.getMessage());
+            }
+            throw ctxt.weirdKeyException(_keyClass, key, "not a valid representation");
+        }
+
+        public Class<?> getKeyClass() { return _keyClass; }
+    }
+     
     final static class EnumKD extends StdKeyDeserializer
     {
         protected final EnumResolver<?> _resolver;
 
-        protected EnumKD(EnumResolver<?> er)
-        {
+        protected final AnnotatedMethod _factory;
+
+        protected EnumKD(EnumResolver<?> er, AnnotatedMethod factory) {
             super(er.getEnumClass());
             _resolver = er;
+            _factory = factory;
         }
 
         @Override
-        public Enum<?> _parse(String key, DeserializationContext ctxt) throws JsonMappingException
+        public Object _parse(String key, DeserializationContext ctxt) throws JsonMappingException
         {
+            if (_factory != null) {
+                try {
+                    return _factory.call1(key);
+                } catch (Exception e) {
+                    ClassUtil.unwrapAndThrowAsIAE(e);
+                }
+            }
             Enum<?> e = _resolver.findEnum(key);
             if (e == null) {
                 throw ctxt.weirdKeyException(_keyClass, key, "not one of values for Enum class");
@@ -237,7 +286,7 @@ public abstract class StdKeyDeserializer
             return e;
         }
     }
-
+    
     /**
      * Key deserializer that calls a single-string-arg constructor
      * to instantiate desired key type.
@@ -286,7 +335,7 @@ public abstract class StdKeyDeserializer
         }
 
         @Override
-        public java.util.Date _parse(String key, DeserializationContext ctxt)
+        public Object _parse(String key, DeserializationContext ctxt)
             throws IllegalArgumentException, JsonMappingException
         {
             return ctxt.parseDate(key);
@@ -301,7 +350,7 @@ public abstract class StdKeyDeserializer
         }
 
         @Override
-        public java.util.Calendar _parse(String key, DeserializationContext ctxt)
+        public Object _parse(String key, DeserializationContext ctxt)
             throws IllegalArgumentException, JsonMappingException
         {
             java.util.Date date = ctxt.parseDate(key);
@@ -317,7 +366,7 @@ public abstract class StdKeyDeserializer
         }
 
         @Override
-        public UUID _parse(String key, DeserializationContext ctxt)
+        public Object _parse(String key, DeserializationContext ctxt)
             throws IllegalArgumentException, JsonMappingException
         {
             return UUID.fromString(key);

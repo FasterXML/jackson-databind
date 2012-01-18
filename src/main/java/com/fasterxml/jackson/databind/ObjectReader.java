@@ -838,8 +838,11 @@ public class ObjectReader
         JsonToken t = jp.getCurrentToken();
         if (t == null) { // and then we must get something...
             t = jp.nextToken();
-            if (t == null) { // [JACKSON-99] Should throw EOFException?
-                throw new EOFException("No content to map to Object due to end of input");
+            if (t == null) {
+                /* [JACKSON-546] Throw mapping exception, since it's failure to map,
+                 *   not an actual parsing problem
+                 */
+                throw JsonMappingException.from(jp, "No content to map due to end-of-input");
             }
         }
         return t;

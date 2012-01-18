@@ -41,7 +41,8 @@ public class TestExceptionHandling
 
     /**
      * Simple test to check behavior when end-of-stream is encountered
-     * without content. Should throw EOFException.
+     * without content. Used to expect EOFException (Jackson 1.x); but
+     * nowadays ought to be JsonMappingException
      */
     public void testExceptionWithEmpty() throws Exception
     {
@@ -50,7 +51,7 @@ public class TestExceptionHandling
             Object result = mapper.readValue("    ", Object.class);
             fail("Expected an exception, but got result value: "+result);
         } catch (Exception e) {
-            verifyException(e, EOFException.class, "No content");
+            verifyException(e, JsonMappingException.class, "No content");
         }
     }
 
@@ -89,7 +90,7 @@ public class TestExceptionHandling
             I = mapper.readValue(jp, Integer.class);
             fail("Should have gotten an exception");
         } catch (IOException e) {
-            verifyException(e, EOFException.class, "No content");
+            verifyException(e, JsonMappingException.class, "No content");
         }
         // also: should have no current token after end-of-input
         JsonToken t = jp.getCurrentToken();

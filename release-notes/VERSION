@@ -10,6 +10,8 @@ Fixes:
 
 Improvements
 
+* [JACKSON-546]: Indicate end-of-input with JsonMappingException instead
+  of EOFException, when there is no parsing exception
 * [JACKSON-664]: Reduce overhead of type resolution by adding caching
   in TypeFactory
 * [JACKSON-690]: Pass DeserializationContext through ValueInstantiator

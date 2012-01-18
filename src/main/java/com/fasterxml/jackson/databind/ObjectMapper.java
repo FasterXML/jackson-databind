@@ -2512,10 +2512,10 @@ public class ObjectMapper
             // and then we must get something...
             t = jp.nextToken();
             if (t == null) {
-                /* [JACKSON-99] Should throw EOFException, closest thing
-                 *   semantically
+                /* [JACKSON-546] Throw mapping exception, since it's failure to map,
+                 *   not an actual parsing problem
                  */
-                throw new EOFException("No content to map to Object due to end of input");
+                throw JsonMappingException.from(jp, "No content to map due to end-of-input");
             }
         }
         return t;

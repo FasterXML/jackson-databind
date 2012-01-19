@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 /**
  * Interface that defines functionality accessible through both
@@ -22,29 +21,13 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
  * accessors to mode-independent configuration settings
  * and such.
  *<p>
- * As of version 1.9, the goal is to make this class eventually immutable.
- * Because of this, existing methods that allow changing state of this
- * instance are deprecated in favor of methods that create new instances
- * with different configuration ("fluent factories").
- * One major remaining issue is that of handling mix-in annotations, which
- * still represent a bit of mutable state; may need to implement a
- * functional-style immutable map for storing those.
+ * Small part of implementation is included here by aggregating
+ * {@link BaseSettings} instance that contains configuration
+ * that is shared between different types of instances.
  */
 public abstract class MapperConfig<T extends MapperConfig<T>>
     implements ClassIntrospector.MixInResolver
 {
-    /*
-    /**********************************************************
-    /* Constants, default values
-    /**********************************************************
-     */
-
-    /**
-     * This is the default {@link DateFormat} used unless overridden by
-     * custom implementation.
-     */
-    protected final static DateFormat DEFAULT_DATE_FORMAT = StdDateFormat.instance;
-
     /*
     /**********************************************************
     /* Simple immutable basic settings
@@ -61,13 +44,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /* Life-cycle: constructors
     /**********************************************************
      */
-
-    protected MapperConfig(ClassIntrospector<? extends BeanDescription> ci, AnnotationIntrospector ai,
-            VisibilityChecker<?> vc, PropertyNamingStrategy pns, TypeFactory tf,
-            HandlerInstantiator hi)
-    {
-        _base = new BaseSettings(ci, ai, vc, pns, tf, null, DEFAULT_DATE_FORMAT, hi);
-    }
 
     protected MapperConfig(BaseSettings base)
     {
@@ -424,38 +400,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
             }
         }
         return (TypeIdResolver) ClassUtil.createInstance(resolverClass, canOverrideAccessModifiers());
-    }
-
-    /*
-    /**********************************************************
-    /* Helper interface used with simple on/off features
-    /**********************************************************
-     */
-    
-    /**
-     * Interface that actual Feature enumerations used by
-     * {@link MapperConfig} implementations must implement.
-     * Necessary since enums can not be extended using normal
-     * inheritance, but can implement interfaces
-     */
-    public interface ConfigFeature
-    {
-        /**
-         * Accessor for checking whether this feature is enabled by default.
-         */
-        public boolean enabledByDefault();
-
-        /**
-         * Accessor for checking whether feature can be used on per-call basis
-         * (true), or not (false): in latter case it can only be configured once
-         * before any serialization or deserialization.
-         */
-        public boolean canUseForInstance();
-        
-        /**
-         * Returns bit mask for this feature instance
-         */
-        public int getMask();
     }
 }
 

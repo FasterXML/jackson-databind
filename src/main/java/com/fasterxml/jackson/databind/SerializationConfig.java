@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfigBase;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -49,7 +49,7 @@ public class SerializationConfig
      * Trying enable/disable ObjectMapper-only feature will result in
      * an {@link IllegalArgumentException}.
      */
-    public enum Feature implements MapperConfig.ConfigFeature
+    public enum Feature implements ConfigFeature
     {
         /*
         /******************************************************
@@ -510,16 +510,10 @@ public class SerializationConfig
     /**
      * Constructor used by ObjectMapper to create default configuration object instance.
      */
-    public SerializationConfig(ClassIntrospector<? extends BeanDescription> intr,
-            AnnotationIntrospector annIntr, VisibilityChecker<?> vc,
-            SubtypeResolver subtypeResolver, PropertyNamingStrategy propertyNamingStrategy,
-            TypeFactory typeFactory, HandlerInstantiator handlerInstantiator,
-            Map<ClassKey,Class<?>> mixins)
-
+    public SerializationConfig(BaseSettings base,
+            int defaultFeatures, SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
     {
-        super(intr, annIntr, vc, subtypeResolver, propertyNamingStrategy, typeFactory, handlerInstantiator,
-                collectFeatureDefaults(SerializationConfig.Feature.class),
-                mixins);
+        super(base, defaultFeatures, null, mixins);
         _filterProvider = null;
     }
     

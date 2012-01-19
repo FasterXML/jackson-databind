@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfigBase;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.deser.DeserializerFactory;
@@ -53,7 +53,7 @@ public class DeserializationConfig
      * Trying enable/disable ObjectMapper-only feature will result in
      * an {@link IllegalArgumentException}.
      */
-    public enum Feature implements MapperConfig.ConfigFeature
+    public enum Feature implements ConfigFeature
     {
         /*
         /******************************************************
@@ -414,19 +414,14 @@ public class DeserializationConfig
     /**
      * Constructor used by ObjectMapper to create default configuration object instance.
      */
-    public DeserializationConfig(ClassIntrospector<? extends BeanDescription> intr,
-            AnnotationIntrospector annIntr, VisibilityChecker<?> vc,
-            SubtypeResolver subtypeResolver, PropertyNamingStrategy propertyNamingStrategy,
-            TypeFactory typeFactory, HandlerInstantiator handlerInstantiator,
-            Map<ClassKey,Class<?>> mixins)
+    public DeserializationConfig(BaseSettings base,
+            int defaultFeatures, SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
     {
-        super(intr, annIntr, vc, subtypeResolver, propertyNamingStrategy, typeFactory, handlerInstantiator,
-                collectFeatureDefaults(DeserializationConfig.Feature.class),
-                mixins);
+        super(base, defaultFeatures, null, mixins);
         _nodeFactory = JsonNodeFactory.instance;
     }
     
-    protected DeserializationConfig(DeserializationConfig src) {
+    private DeserializationConfig(DeserializationConfig src) {
         this(src, src._base);
     }
 
@@ -450,7 +445,7 @@ public class DeserializationConfig
         _sortPropertiesAlphabetically = src._sortPropertiesAlphabetically;
     }
     
-    protected DeserializationConfig(DeserializationConfig src, BaseSettings base)
+    private DeserializationConfig(DeserializationConfig src, BaseSettings base)
     {
         super(src, base, src._subtypeResolver, src._featureFlags);
         _problemHandlers = src._problemHandlers;
@@ -458,7 +453,7 @@ public class DeserializationConfig
         _sortPropertiesAlphabetically = src._sortPropertiesAlphabetically;
     }
     
-    protected DeserializationConfig(DeserializationConfig src, JsonNodeFactory f)
+    private DeserializationConfig(DeserializationConfig src, JsonNodeFactory f)
     {
         super(src);
         _problemHandlers = src._problemHandlers;
@@ -466,7 +461,7 @@ public class DeserializationConfig
         _sortPropertiesAlphabetically = src._sortPropertiesAlphabetically;
     }
 
-    protected DeserializationConfig(DeserializationConfig src, int featureFlags)
+    private DeserializationConfig(DeserializationConfig src, int featureFlags)
     {
         super(src, featureFlags);
         _problemHandlers = src._problemHandlers;

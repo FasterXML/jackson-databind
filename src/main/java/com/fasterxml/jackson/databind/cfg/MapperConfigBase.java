@@ -2,15 +2,11 @@ package com.fasterxml.jackson.databind.cfg;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.type.ClassKey;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
-public abstract class MapperConfigBase<CFG extends MapperConfig.ConfigFeature,
+public abstract class MapperConfigBase<CFG extends ConfigFeature,
     T extends MapperConfigBase<CFG,T>>
     extends MapperConfig<T>
 {
@@ -53,12 +49,23 @@ public abstract class MapperConfigBase<CFG extends MapperConfig.ConfigFeature,
     /**********************************************************
      */
     
+    /*
     protected MapperConfigBase(ClassIntrospector<? extends BeanDescription> ci, AnnotationIntrospector ai,
             VisibilityChecker<?> vc, SubtypeResolver str, PropertyNamingStrategy pns, TypeFactory tf,
             HandlerInstantiator hi,
             int defaultFeatures, Map<ClassKey,Class<?>> mixins)
     {
-        super(ci, ai, vc, pns, tf, hi);
+        super(new BaseSettings(ci, ai, vc, pns, tf, null, DEFAULT_DATE_FORMAT, hi));
+        _featureFlags = defaultFeatures;
+        _mixInAnnotations = mixins;
+        _subtypeResolver = str;
+    }
+    */
+
+    protected MapperConfigBase(BaseSettings base,
+            int defaultFeatures, SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
+    {
+        super(base);
         _featureFlags = defaultFeatures;
         _mixInAnnotations = mixins;
         _subtypeResolver = str;
@@ -102,21 +109,6 @@ public abstract class MapperConfigBase<CFG extends MapperConfig.ConfigFeature,
         _featureFlags = features;
         _mixInAnnotations = src._mixInAnnotations;
         _subtypeResolver = str;
-    }
-    
-    /**
-     * Method that calculates bit set (flags) of all features that
-     * are enabled by default.
-     */
-    protected static <F extends Enum<F> & MapperConfig.ConfigFeature> int collectFeatureDefaults(Class<F> enumClass)
-    {
-        int flags = 0;
-        for (F value : enumClass.getEnumConstants()) {
-            if (value.enabledByDefault()) {
-                flags |= value.getMask();
-            }
-        }
-        return flags;
     }
     
     /*

@@ -19,6 +19,8 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
+import com.fasterxml.jackson.databind.cfg.BaseSettings;
+import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -34,6 +36,7 @@ import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -191,6 +194,12 @@ public class ObjectMapper
     protected final static AnnotationIntrospector DEFAULT_ANNOTATION_INTROSPECTOR = new JacksonAnnotationIntrospector();
 
     protected final static VisibilityChecker<?> STD_VISIBILITY_CHECKER = VisibilityChecker.Std.defaultInstance();
+
+    /**
+     * This is the default {@link DateFormat} used unless overridden by
+     * custom implementation.
+     */
+    protected final static DateFormat DEFAULT_DATE_FORMAT = StdDateFormat.instance;
     
     /*
     /**********************************************************
@@ -388,16 +397,40 @@ public class ObjectMapper
         // and default type factory is shared one
         _typeFactory = TypeFactory.defaultInstance();
         _serializationConfig = (sconfig != null) ? sconfig :
-            new SerializationConfig(DEFAULT_INTROSPECTOR, DEFAULT_ANNOTATION_INTROSPECTOR, STD_VISIBILITY_CHECKER,
-                    null, null, _typeFactory, null, _mixInAnnotations);
+            new SerializationConfig(DEFAULT_BASE, collectFeatureDefaults(SerializationConfig.Feature.class),
+                    null, _mixInAnnotations);
         _deserializationConfig = (dconfig != null) ? dconfig :
-            new DeserializationConfig(DEFAULT_INTROSPECTOR, DEFAULT_ANNOTATION_INTROSPECTOR, STD_VISIBILITY_CHECKER,
-                    null, null, _typeFactory, null, _mixInAnnotations);
+            new DeserializationConfig(DEFAULT_BASE, collectFeatureDefaults(DeserializationConfig.Feature.class),
+                    null, _mixInAnnotations);
         _serializerProvider = (sp == null) ? new StdSerializerProvider.Impl() : sp;
         _deserializerProvider = (dp == null) ? new StdDeserializerProvider() : dp;
 
         // Default serializer factory is stateless, can just assign
         _serializerFactory = BeanSerializerFactory.instance;
+    }
+
+    /*
+    public BaseSettings(ClassIntrospector<? extends BeanDescription> ci, AnnotationIntrospector ai,
+            VisibilityChecker<?> vc, PropertyNamingStrategy pns, TypeFactory tf,
+            TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi)
+     */
+    protected final static BaseSettings DEFAULT_BASE = new BaseSettings(DEFAULT_INTROSPECTOR,
+            DEFAULT_ANNOTATION_INTROSPECTOR, STD_VISIBILITY_CHECKER, null, TypeFactory.defaultInstance(),
+            null, DEFAULT_DATE_FORMAT, null);
+
+    /**
+     * Method that calculates bit set (flags) of all features that
+     * are enabled by default.
+     */
+    protected static <F extends Enum<F> & ConfigFeature> int collectFeatureDefaults(Class<F> enumClass)
+    {
+        int flags = 0;
+        for (F value : enumClass.getEnumConstants()) {
+            if (value.enabledByDefault()) {
+                flags |= value.getMask();
+            }
+        }
+        return flags;
     }
     
     /*

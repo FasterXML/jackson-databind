@@ -420,10 +420,6 @@ public class DeserializationConfig
         super(base, defaultFeatures, null, mixins);
         _nodeFactory = JsonNodeFactory.instance;
     }
-    
-    private DeserializationConfig(DeserializationConfig src) {
-        this(src, src._base);
-    }
 
     /**
      * Copy constructor used to create a non-shared instance with given mix-in
@@ -431,8 +427,10 @@ public class DeserializationConfig
      */
     private DeserializationConfig(DeserializationConfig src, SubtypeResolver str)
     {
-        this(src, src._base);
-        _subtypeResolver = str;
+        super(src, str);
+        _problemHandlers = src._problemHandlers;
+        _nodeFactory = src._nodeFactory;
+        _sortPropertiesAlphabetically = src._sortPropertiesAlphabetically;
     }
 
     private DeserializationConfig(DeserializationConfig src, SubtypeResolver str,
@@ -513,11 +511,8 @@ public class DeserializationConfig
     }
 
     @Override
-    public DeserializationConfig withSubtypeResolver(SubtypeResolver str)
-    {
-        DeserializationConfig cfg = new DeserializationConfig(this);
-        cfg._subtypeResolver = str;
-        return cfg;
+    public DeserializationConfig withSubtypeResolver(SubtypeResolver str) {
+        return new DeserializationConfig(this, str);
     }
     
     @Override

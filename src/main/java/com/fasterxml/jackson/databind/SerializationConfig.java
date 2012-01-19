@@ -517,8 +517,11 @@ public class SerializationConfig
         _filterProvider = null;
     }
     
-    private SerializationConfig(SerializationConfig src) {
-        this(src, src._base);
+    private SerializationConfig(SerializationConfig src, SubtypeResolver str) {
+        super(src, str);
+        _serializationInclusion = src._serializationInclusion;
+        _serializationView = src._serializationView;
+        _filterProvider = src._filterProvider;
     }
 
     private SerializationConfig(SerializationConfig src, int features) {
@@ -612,9 +615,7 @@ public class SerializationConfig
 
     @Override
     public SerializationConfig withSubtypeResolver(SubtypeResolver str) {
-        SerializationConfig cfg =  new SerializationConfig(this);
-        cfg._subtypeResolver = str;
-        return cfg;
+        return new SerializationConfig(this, str);
     }
     
     @Override

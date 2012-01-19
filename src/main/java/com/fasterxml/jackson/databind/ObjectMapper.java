@@ -200,6 +200,10 @@ public class ObjectMapper
      * custom implementation.
      */
     protected final static DateFormat DEFAULT_DATE_FORMAT = StdDateFormat.instance;
+
+    protected final static BaseSettings DEFAULT_BASE = new BaseSettings(DEFAULT_INTROSPECTOR,
+            DEFAULT_ANNOTATION_INTROSPECTOR, STD_VISIBILITY_CHECKER, null, TypeFactory.defaultInstance(),
+            null, DEFAULT_DATE_FORMAT, null);
     
     /*
     /**********************************************************
@@ -394,29 +398,21 @@ public class ObjectMapper
                 _jsonFactory.setCodec(this);
             }
         }
+        _subtypeResolver = new StdSubtypeResolver();
         // and default type factory is shared one
         _typeFactory = TypeFactory.defaultInstance();
         _serializationConfig = (sconfig != null) ? sconfig :
             new SerializationConfig(DEFAULT_BASE, collectFeatureDefaults(SerializationConfig.Feature.class),
-                    null, _mixInAnnotations);
+                    _subtypeResolver, _mixInAnnotations);
         _deserializationConfig = (dconfig != null) ? dconfig :
             new DeserializationConfig(DEFAULT_BASE, collectFeatureDefaults(DeserializationConfig.Feature.class),
-                    null, _mixInAnnotations);
+                    _subtypeResolver, _mixInAnnotations);
         _serializerProvider = (sp == null) ? new StdSerializerProvider.Impl() : sp;
         _deserializerProvider = (dp == null) ? new StdDeserializerProvider() : dp;
 
         // Default serializer factory is stateless, can just assign
         _serializerFactory = BeanSerializerFactory.instance;
     }
-
-    /*
-    public BaseSettings(ClassIntrospector<? extends BeanDescription> ci, AnnotationIntrospector ai,
-            VisibilityChecker<?> vc, PropertyNamingStrategy pns, TypeFactory tf,
-            TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi)
-     */
-    protected final static BaseSettings DEFAULT_BASE = new BaseSettings(DEFAULT_INTROSPECTOR,
-            DEFAULT_ANNOTATION_INTROSPECTOR, STD_VISIBILITY_CHECKER, null, TypeFactory.defaultInstance(),
-            null, DEFAULT_DATE_FORMAT, null);
 
     /**
      * Method that calculates bit set (flags) of all features that
@@ -827,9 +823,6 @@ public class ObjectMapper
      * Method for accessing subtype resolver in use.
      */
     public SubtypeResolver getSubtypeResolver() {
-        if (_subtypeResolver == null) {
-            _subtypeResolver = new StdSubtypeResolver();
-        }
         return _subtypeResolver;
     }
 

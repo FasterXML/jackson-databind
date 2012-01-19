@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.cfg;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
-import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.type.ClassKey;
 
 public abstract class MapperConfigBase<CFG extends ConfigFeature,
@@ -16,6 +15,10 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**********************************************************
      */
 
+    /**
+     * Set of features enabled; actual type (kind of features)
+     * depends on sub-classes.
+     */
     protected int _featureFlags;
 
     /**
@@ -24,43 +27,17 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     protected final Map<ClassKey,Class<?>> _mixInAnnotations;
 
-    /*
-    /**********************************************************
-    /* "Late bound" settings
-    /**********************************************************
-     */
-
     /**
      * Registered concrete subtypes that can be used instead of (or
      * in addition to) ones declared using annotations.
-     * Unlike most other settings, it is not configured as early
-     * as it is set, but rather only when a non-shared instance
-     * is constructed by <code>ObjectMapper</code> (or -Reader
-     * or -Writer)
-     *<p>
-     * Note: this is the only property left as non-final, to allow
-     * lazy construction of the instance as necessary.
      */
-    protected SubtypeResolver _subtypeResolver;
+    protected final SubtypeResolver _subtypeResolver;
     
     /*
     /**********************************************************
     /* Construction
     /**********************************************************
      */
-    
-    /*
-    protected MapperConfigBase(ClassIntrospector<? extends BeanDescription> ci, AnnotationIntrospector ai,
-            VisibilityChecker<?> vc, SubtypeResolver str, PropertyNamingStrategy pns, TypeFactory tf,
-            HandlerInstantiator hi,
-            int defaultFeatures, Map<ClassKey,Class<?>> mixins)
-    {
-        super(new BaseSettings(ci, ai, vc, pns, tf, null, DEFAULT_DATE_FORMAT, hi));
-        _featureFlags = defaultFeatures;
-        _mixInAnnotations = mixins;
-        _subtypeResolver = str;
-    }
-    */
 
     protected MapperConfigBase(BaseSettings base,
             int defaultFeatures, SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
@@ -85,6 +62,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _subtypeResolver = src._subtypeResolver;
     }
 
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, SubtypeResolver str) {
+        super(src._base);
+        _featureFlags = src._featureFlags;
+        _mixInAnnotations = src._mixInAnnotations;
+        _subtypeResolver = str;
+    }
     
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SubtypeResolver str,
             int features)
@@ -145,9 +128,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * of class name (or custom scheme).
      */
     public final SubtypeResolver getSubtypeResolver() {
-        if (_subtypeResolver == null) {
-            _subtypeResolver = new StdSubtypeResolver();
-        }
         return _subtypeResolver;
     }
     

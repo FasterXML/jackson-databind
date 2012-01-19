@@ -330,9 +330,9 @@ public class POJOPropertiesCollector
                  *   fields, and similarly for deserialize-only annotations... so
                  *   no fallbacks in this particular case.
                  */
-                explName = ai.findSerializablePropertyName(f);
+                explName = ai.findSerializationName(f);
             } else {
-                explName = ai.findDeserializablePropertyName(f);
+                explName = ai.findDeserializationName(f);
             }
             if ("".equals(explName)) { // empty String meaning "use default name", here just means "same as field name"
                 explName = implName;
@@ -364,7 +364,7 @@ public class POJOPropertiesCollector
             }
             for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
                 AnnotatedParameter param = ctor.getParameter(i);
-                String name = ai.findPropertyNameForParam(param);
+                String name = ai.findDeserializationName(param);
                 // is it legal not to have name?
                 if (name != null) {
                     // shouldn't need to worry about @JsonIgnore (no real point, so)
@@ -380,7 +380,7 @@ public class POJOPropertiesCollector
             }
             for (int i = 0, len = factory.getParameterCount(); i < len; ++i) {
                 AnnotatedParameter param = factory.getParameter(i);
-                String name = ai.findPropertyNameForParam(param);
+                String name = ai.findDeserializationName(param);
                 // is it legal not to have name?
                 if (name != null) {
                     // shouldn't need to worry about @JsonIgnore (no real point, so)
@@ -431,7 +431,7 @@ public class POJOPropertiesCollector
                     }
                 }
                 
-                explName = (ai == null) ? null : ai.findGettablePropertyName(m);
+                explName = (ai == null) ? null : ai.findSerializationName(m);
                 if (explName == null) { // no explicit name; must follow naming convention
                     implName = BeanUtil.okNameForRegularGetter(m, m.getName());
                     if (implName == null) { // if not, must skip
@@ -458,7 +458,7 @@ public class POJOPropertiesCollector
                 boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
                 _property(implName).addGetter(m, explName, visible, ignore);
             } else if (argCount == 1) { // setters
-                explName = (ai == null) ? null : ai.findSettablePropertyName(m);
+                explName = (ai == null) ? null : ai.findDeserializationName(m);
                 if (explName == null) { // no explicit name; must follow naming convention
                     implName = BeanUtil.okNameForSetter(m);
                     if (implName == null) { // if not, must skip

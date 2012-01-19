@@ -401,14 +401,14 @@ public class BasicBeanDescription extends BeanDescription
             for (AnnotatedWithParams creator : l) {
                 int argCount = creator.getParameterCount();
                 if (argCount < 1) continue;
-                String name = _annotationIntrospector.findPropertyNameForParam(creator.getParameter(0));
+                String name = _annotationIntrospector.findDeserializationName(creator.getParameter(0));
                 if (name == null) continue;
                 if (names == null) {
                     names = new ArrayList<String>();
                 }
                 names.add(name);
                 for (int p = 1; p < argCount; ++p) {
-                    names.add(_annotationIntrospector.findPropertyNameForParam(creator.getParameter(p)));
+                    names.add(_annotationIntrospector.findDeserializationName(creator.getParameter(p)));
                 }
             }
         }

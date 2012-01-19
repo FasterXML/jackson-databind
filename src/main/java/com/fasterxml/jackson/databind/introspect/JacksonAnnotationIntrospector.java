@@ -411,21 +411,16 @@ public class JacksonAnnotationIntrospector
 
     @SuppressWarnings("deprecation")
     @Override
-    public String findGettablePropertyName(AnnotatedMethod am)
+    public String findSerializationName(AnnotatedMethod am)
     {
-        /* 22-May-2009, tatu: JsonProperty is the primary annotation
-         *   to check for
-         */
-        JsonProperty pann = am.getAnnotation(JsonProperty.class);
-        if (pann != null) {
-            return pann.value();
-        }
-        /* 22-May-2009, tatu: JsonGetter is deprecated as of 1.1
-         *    but still supported
-         */
+        // @JsonGetter is most specific, has precedence
         JsonGetter ann = am.getAnnotation(JsonGetter.class);
         if (ann != null) {
             return ann.value();
+        }
+        JsonProperty pann = am.getAnnotation(JsonProperty.class);
+        if (pann != null) {
+            return pann.value();
         }
         /* 22-May-2009, tatu: And finally, JsonSerialize implies
          *   that there is a property, although doesn't define name
@@ -452,7 +447,7 @@ public class JacksonAnnotationIntrospector
     */
 
     @Override
-    public String findSerializablePropertyName(AnnotatedField af)
+    public String findSerializationName(AnnotatedField af)
     {
         JsonProperty pann = af.getAnnotation(JsonProperty.class);
         if (pann != null) {
@@ -580,14 +575,9 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public String findSettablePropertyName(AnnotatedMethod am)
+    public String findDeserializationName(AnnotatedMethod am)
     {
-        /* 24-Dec-2011, tatu: Jackson 2.0 changes things so that
-         *   @JsonSetter has precedence over @JsonProperty, given
-         *   that this is more intuitive ordering given that
-         *   former is more specific than latter. Note that 1.x
-         *   had the reverse ordering.
-         */
+        // @JsonSetter has precedence over @JsonProperty, being more specific
         JsonSetter ann = am.getAnnotation(JsonSetter.class);
         if (ann != null) {
             return ann.value();
@@ -596,9 +586,7 @@ public class JacksonAnnotationIntrospector
         if (pann != null) {
             return pann.value();
         }
-        /* 22-May-2009, tatu: And finally, JsonSerialize implies
-         *   that there is a property, although doesn't define name
-         */
+        // @JsonSerialize implies that there is a property, but no name
         // 09-Apr-2010, tatu: Ditto for JsonView
         // 19-Oct-2011, tatu: And JsonBackReference/JsonManagedReference
     	if (am.hasAnnotation(JsonDeserialize.class)
@@ -647,7 +635,7 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public String findDeserializablePropertyName(AnnotatedField af)
+    public String findDeserializationName(AnnotatedField af)
     {
         JsonProperty pann = af.getAnnotation(JsonProperty.class);
         if (pann != null) {
@@ -672,7 +660,7 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public String findPropertyNameForParam(AnnotatedParameter param)
+    public String findDeserializationName(AnnotatedParameter param)
     {
         if (param != null) {
             JsonProperty pann = param.getAnnotation(JsonProperty.class);

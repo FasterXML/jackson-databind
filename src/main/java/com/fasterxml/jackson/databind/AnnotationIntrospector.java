@@ -532,7 +532,7 @@ public abstract class AnnotationIntrospector implements Versioned
      * "use standard bean name detection if applicable;
      * method name if not".
      */
-    public abstract String findGettablePropertyName(AnnotatedMethod am);
+    public abstract String findSerializationName(AnnotatedMethod am);
 
     /**
      * Method for checking whether given method has an annotation
@@ -570,7 +570,7 @@ public abstract class AnnotationIntrospector implements Versioned
      * name, except for empty String ("") which is taken to mean
      * "use the field name as is".
      */
-    public abstract String findSerializablePropertyName(AnnotatedField af);
+    public abstract String findSerializationName(AnnotatedField af);
 
     /*
     /**********************************************************
@@ -688,7 +688,7 @@ public abstract class AnnotationIntrospector implements Versioned
      * "use standard bean name detection if applicable;
      * method name if not".
      */
-    public abstract String findSettablePropertyName(AnnotatedMethod am);
+    public abstract String findDeserializationName(AnnotatedMethod am);
 
     /**
      * Method for checking whether given method has an annotation
@@ -746,7 +746,7 @@ public abstract class AnnotationIntrospector implements Versioned
      * name, except for empty String ("") which is taken to mean
      * "use the field name as is".
      */
-    public abstract String findDeserializablePropertyName(AnnotatedField af);
+    public abstract String findDeserializationName(AnnotatedField af);
 
     /*
     /**********************************************************
@@ -761,7 +761,7 @@ public abstract class AnnotationIntrospector implements Versioned
      * No actual parameter object can be passed since JDK offers no
      * representation; just annotations.
      */
-    public abstract String findPropertyNameForParam(AnnotatedParameter param);
+    public abstract String findDeserializationName(AnnotatedParameter param);
 
     /*
     /**********************************************************
@@ -1149,16 +1149,16 @@ public abstract class AnnotationIntrospector implements Versioned
         // // // Serialization: method annotations
         
         @Override
-        public String findGettablePropertyName(AnnotatedMethod am)
+        public String findSerializationName(AnnotatedMethod am)
         {
-            String result = _primary.findGettablePropertyName(am);
+            String result = _primary.findSerializationName(am);
             if (result == null) {
-                result = _secondary.findGettablePropertyName(am);
+                result = _secondary.findSerializationName(am);
             } else if (result.length() == 0) {
                 /* Empty String is a default; can be overridden by
                  * more explicit answer from secondary entry
                  */
-                String str2 = _secondary.findGettablePropertyName(am);
+                String str2 = _secondary.findSerializationName(am);
                 if (str2 != null) {
                     result = str2;
                 }
@@ -1185,16 +1185,16 @@ public abstract class AnnotationIntrospector implements Versioned
         // // // Serialization: field annotations
 
         @Override
-        public String findSerializablePropertyName(AnnotatedField af)
+        public String findSerializationName(AnnotatedField af)
         {
-            String result = _primary.findSerializablePropertyName(af);
+            String result = _primary.findSerializationName(af);
             if (result == null) {
-                result = _secondary.findSerializablePropertyName(af);
+                result = _secondary.findSerializationName(af);
             } else if (result.length() == 0) {
                 /* Empty String is a default; can be overridden by
                  * more explicit answer from secondary entry
                  */
-                String str2 = _secondary.findSerializablePropertyName(af);
+                String str2 = _secondary.findSerializationName(af);
                 if (str2 != null) {
                     result = str2;
                 }
@@ -1282,16 +1282,16 @@ public abstract class AnnotationIntrospector implements Versioned
         // // // Deserialization: method annotations
 
         @Override
-        public String findSettablePropertyName(AnnotatedMethod am)
+        public String findDeserializationName(AnnotatedMethod am)
         {
-            String result = _primary.findSettablePropertyName(am);
+            String result = _primary.findDeserializationName(am);
             if (result == null) {
-                result = _secondary.findSettablePropertyName(am);
+                result = _secondary.findDeserializationName(am);
             } else if (result.length() == 0) {
                 /* Empty String is a default; can be overridden by
                  * more explicit answer from secondary entry
                  */
-                String str2 = _secondary.findSettablePropertyName(am);
+                String str2 = _secondary.findDeserializationName(am);
                 if (str2 != null) {
                     result = str2;
                 }
@@ -1320,16 +1320,16 @@ public abstract class AnnotationIntrospector implements Versioned
         // // // Deserialization: field annotations
 
         @Override
-        public String findDeserializablePropertyName(AnnotatedField af)
+        public String findDeserializationName(AnnotatedField af)
         {
-            String result = _primary.findDeserializablePropertyName(af);
+            String result = _primary.findDeserializationName(af);
             if (result == null) {
-                result = _secondary.findDeserializablePropertyName(af);
+                result = _secondary.findDeserializationName(af);
             } else if (result.length() == 0) {
                 /* Empty String is a default; can be overridden by
                  * more explicit answer from secondary entry
                  */
-                String str2 = _secondary.findDeserializablePropertyName(af);
+                String str2 = _secondary.findDeserializationName(af);
                 if (str2 != null) {
                     result = str2;
                 }
@@ -1340,11 +1340,11 @@ public abstract class AnnotationIntrospector implements Versioned
         // // // Deserialization: parameter annotations (for creators)
 
         @Override
-        public String findPropertyNameForParam(AnnotatedParameter param)
+        public String findDeserializationName(AnnotatedParameter param)
         {
-            String result = _primary.findPropertyNameForParam(param);
+            String result = _primary.findDeserializationName(param);
             if (result == null) {
-                result = _secondary.findPropertyNameForParam(param);
+                result = _secondary.findDeserializationName(param);
             }
             return result;
         }

@@ -783,7 +783,7 @@ public class BeanDeserializerFactory
             CreatorProperty[] properties = new CreatorProperty[argCount];
             for (int i = 0; i < argCount; ++i) {
                 AnnotatedParameter param = ctor.getParameter(i);
-                String name = (param == null) ? null : intr.findPropertyNameForParam(param);
+                String name = (param == null) ? null : intr.findDeserializationName(param);
                 Object injectId = intr.findInjectableValueId(param);
                 if (name != null && name.length() > 0) {
                     ++namedCount;
@@ -824,7 +824,7 @@ public class BeanDeserializerFactory
     {
         // note: if we do have parameter name, it'll be "property constructor":
         AnnotatedParameter param = ctor.getParameter(0);
-        String name = intr.findPropertyNameForParam(param);
+        String name = intr.findDeserializationName(param);
         Object injectId = intr.findInjectableValueId(param);
     
         if ((injectId != null) || (name != null && name.length() > 0)) { // property-based
@@ -885,7 +885,7 @@ public class BeanDeserializerFactory
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
                 AnnotatedParameter param = factory.getParameter(0);
-                String name = intr.findPropertyNameForParam(param);
+                String name = intr.findDeserializationName(param);
                 Object injectId = intr.findInjectableValueId(param);
 
                 if ((injectId == null) && (name == null || name.length() == 0)) { // not property based
@@ -905,7 +905,7 @@ public class BeanDeserializerFactory
             CreatorProperty[] properties = new CreatorProperty[argCount];
             for (int i = 0; i < argCount; ++i) {
                 AnnotatedParameter param = factory.getParameter(i);
-                String name = intr.findPropertyNameForParam(param);
+                String name = intr.findDeserializationName(param);
                 Object injectableId = intr.findInjectableValueId(param);
                 // At this point, name annotation is NOT optional
                 if ((name == null || name.length() == 0) && (injectableId == null)) {

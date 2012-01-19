@@ -132,7 +132,7 @@ public class NopAnnotationIntrospector
      */
 
     @Override
-    public String findGettablePropertyName(AnnotatedMethod am) {
+    public String findSerializationName(AnnotatedMethod am) {
         return null;
     }
 
@@ -142,7 +142,7 @@ public class NopAnnotationIntrospector
     }
     
     @Override
-    public String findDeserializablePropertyName(AnnotatedField af) {
+    public String findDeserializationName(AnnotatedField af) {
         return null;
     }
 
@@ -172,17 +172,17 @@ public class NopAnnotationIntrospector
 
 
     @Override
-    public String findPropertyNameForParam(AnnotatedParameter param) {
+    public String findDeserializationName(AnnotatedParameter param) {
         return null;
     }
 
     @Override
-    public String findSerializablePropertyName(AnnotatedField af) {
+    public String findSerializationName(AnnotatedField af) {
         return null;
     }
     
     @Override
-    public String findSettablePropertyName(AnnotatedMethod am) {
+    public String findDeserializationName(AnnotatedMethod am) {
         return null;
     }
 }

@@ -115,7 +115,7 @@ public abstract class AnnotatedWithParams
 
     public final AnnotatedParameter getParameter(int index) {
         return new AnnotatedParameter(this, getParameterType(index),
-                _paramAnnotations[index], index);
+                getParameterAnnotations(index), index);
     }
 
     public abstract int getParameterCount();
@@ -127,8 +127,6 @@ public abstract class AnnotatedWithParams
     /**
      * Method called to fully resolve type of one of parameters, given
      * specified type variable bindings.
-     * 
-     * @since 1.8
      */
     public final JavaType resolveParameterType(int index, TypeBindings bindings) {
         return bindings.resolveType(getParameterType(index));
@@ -143,8 +141,6 @@ public abstract class AnnotatedWithParams
      * Exceptions are thrown directly from actual low-level call.
      *<p>
      * Note: only works for constructors and static methods.
-     * 
-     * @since 1.9
      */
     public abstract Object call() throws Exception;
 
@@ -155,8 +151,6 @@ public abstract class AnnotatedWithParams
      * Exceptions are thrown directly from actual low-level call.
      *<p>
      * Note: only works for constructors and static methods.
-     * 
-     * @since 1.9
      */
     public abstract Object call(Object[] args) throws Exception;
 
@@ -167,8 +161,6 @@ public abstract class AnnotatedWithParams
      * Exceptions are thrown directly from actual low-level call.
      *<p>
      * Note: only works for constructors and static methods.
-     * 
-     * @since 1.9
      */
     public abstract Object call1(Object arg) throws Exception;
 }

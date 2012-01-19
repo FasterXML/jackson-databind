@@ -6,6 +6,9 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.cfg.BaseSettings;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.MapperConfigBase;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
@@ -32,7 +35,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * Note: as of 2.0, goal is still to make config instances fully immutable.
  */
 public class SerializationConfig
-    extends MapperConfig.Impl<SerializationConfig.Feature, SerializationConfig>
+    extends MapperConfigBase<SerializationConfig.Feature, SerializationConfig>
 {
     /**
      * Enumeration that defines togglable features that guide
@@ -546,7 +549,7 @@ public class SerializationConfig
         _mixInAnnotations = mixins;
     }
     
-    protected SerializationConfig(SerializationConfig src, MapperConfig.Base base)
+    protected SerializationConfig(SerializationConfig src, BaseSettings base)
     {
         super(src, base, src._subtypeResolver);
         _serializationInclusion = src._serializationInclusion;

@@ -6,6 +6,9 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.cfg.BaseSettings;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.MapperConfigBase;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.deser.DeserializerFactory;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -36,7 +39,7 @@ import com.fasterxml.jackson.databind.util.LinkedNode;
  * Note: as of 2.0, goal is still to make config instances fully immutable.
  */
 public class DeserializationConfig
-    extends MapperConfig.Impl<DeserializationConfig.Feature, DeserializationConfig>
+    extends MapperConfigBase<DeserializationConfig.Feature, DeserializationConfig>
 {
     /**
      * Enumeration that defines togglable features that guide
@@ -450,7 +453,7 @@ public class DeserializationConfig
         _mixInAnnotations = mixins;
     }
     
-    protected DeserializationConfig(DeserializationConfig src, MapperConfig.Base base)
+    protected DeserializationConfig(DeserializationConfig src, BaseSettings base)
     {
         super(src, base, src._subtypeResolver, src._featureFlags);
         _problemHandlers = src._problemHandlers;

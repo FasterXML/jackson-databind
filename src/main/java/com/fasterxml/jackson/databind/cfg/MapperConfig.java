@@ -1,12 +1,12 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.cfg;
 
 import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
@@ -61,7 +61,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Note: ideally this would be final, but until we can eliminate
      * mutators, must keep it mutable.
      */
-    protected Base _base;
+    protected BaseSettings _base;
     
     /*
     /**********************************************************
@@ -118,7 +118,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
             VisibilityChecker<?> vc, SubtypeResolver str, PropertyNamingStrategy pns, TypeFactory tf,
             HandlerInstantiator hi)
     {
-        _base = new Base(ci, ai, vc, pns, tf, null, DEFAULT_DATE_FORMAT, hi);
+        _base = new BaseSettings(ci, ai, vc, pns, tf, null, DEFAULT_DATE_FORMAT, hi);
         _subtypeResolver = str;
         // by default, assumed to be shared; only cleared when explicit copy is made
         _mixInAnnotationsShared = true;
@@ -135,7 +135,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Fluent-copy constructor that creates a new slightly modified version, using
      * given config object as base for settings not provided.
      */
-    protected MapperConfig(MapperConfig<T> src, MapperConfig.Base base, SubtypeResolver str)
+    protected MapperConfig(MapperConfig<T> src, BaseSettings base, SubtypeResolver str)
     {
         _base = base;
         _subtypeResolver = str;
@@ -604,308 +604,5 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
          */
         public int getMask();
     }
-    
-    /*
-    /**********************************************************
-    /* Helper class to contain basic state needed to implement
-    /* MapperConfig.
-    /**********************************************************
-     */
-    
-    /**
-     * Immutable container class used to store simple configuration
-     * settings. Since instances are fully immutable, instances can
-     * be freely shared and used without synchronization.
-     */
-    public static class Base
-    {
-        /*
-        /**********************************************************
-        /* Configuration settings; introspection, related
-        /**********************************************************
-         */
-        
-        /**
-         * Introspector used to figure out Bean properties needed for bean serialization
-         * and deserialization. Overridable so that it is possible to change low-level
-         * details of introspection, like adding new annotation types.
-         */
-        protected final ClassIntrospector<? extends BeanDescription> _classIntrospector;
-
-        /**
-         * Introspector used for accessing annotation value based configuration.
-         */
-        protected final AnnotationIntrospector _annotationIntrospector;
-
-        /**
-         * Object used for determining whether specific property elements
-         * (method, constructors, fields) can be auto-detected based on
-         * their visibility (access modifiers). Can be changed to allow
-         * different minimum visibility levels for auto-detection. Note
-         * that this is the global handler; individual types (classes)
-         * can further override active checker used (using
-         * {@link JsonAutoDetect} annotation)
-         */
-        protected final VisibilityChecker<?> _visibilityChecker;
-
-        /**
-         * Custom property naming strategy in use, if any.
-         */
-        protected final PropertyNamingStrategy _propertyNamingStrategy;
-
-        /**
-         * Specific factory used for creating {@link JavaType} instances;
-         * needed to allow modules to add more custom type handling
-         * (mostly to support types of non-Java JVM languages)
-         */
-        protected final TypeFactory _typeFactory;
-
-        /*
-        /**********************************************************
-        /* Configuration settings; type resolution
-        /**********************************************************
-         */
-
-        /**
-         * Type information handler used for "untyped" values (ones declared
-         * to have type <code>Object.class</code>)
-         */
-        protected final TypeResolverBuilder<?> _typeResolverBuilder;
-        
-        /*
-        /**********************************************************
-        /* Configuration settings; other
-        /**********************************************************
-         */
-        
-        /**
-         * Custom date format to use for de-serialization. If specified, will be
-         * used instead of {@link com.fasterxml.jackson.databind.util.StdDateFormat}.
-         *<p>
-         * Note that the configured format object will be cloned once per
-         * deserialization process (first time it is needed)
-         */
-        protected final DateFormat _dateFormat;
-
-        /**
-         * Object used for creating instances of handlers (serializers, deserializers,
-         * type and type id resolvers), given class to instantiate. This is typically
-         * used to do additional configuration (with dependency injection, for example)
-         * beyond simply construction of instances; or to use alternative constructors.
-         */
-        protected final HandlerInstantiator _handlerInstantiator;
-        
-        /*
-        /**********************************************************
-        /* Construction
-        /**********************************************************
-         */
-
-        public Base(ClassIntrospector<? extends BeanDescription> ci, AnnotationIntrospector ai,
-                VisibilityChecker<?> vc, PropertyNamingStrategy pns, TypeFactory tf,
-                TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi)
-        {
-            _classIntrospector = ci;
-            _annotationIntrospector = ai;
-            _visibilityChecker = vc;
-            _propertyNamingStrategy = pns;
-            _typeFactory = tf;
-            _typeResolverBuilder = typer;
-            _dateFormat = dateFormat;
-            _handlerInstantiator = hi;
-        }
-
-        /*
-        /**********************************************************
-        /* Factory methods
-        /**********************************************************
-         */
-        
-        public Base withClassIntrospector(ClassIntrospector<? extends BeanDescription> ci) {
-            return new Base(ci, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
-                    _typeResolverBuilder, _dateFormat, _handlerInstantiator);
-        }
-        
-        public Base withAnnotationIntrospector(AnnotationIntrospector ai) {
-            return new Base(_classIntrospector, ai, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
-                    _typeResolverBuilder, _dateFormat, _handlerInstantiator);
-        }
-
-        public Base withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
-            return withAnnotationIntrospector(AnnotationIntrospector.Pair.create(ai, _annotationIntrospector));
-        }
-
-        public Base withAppendedAnnotationIntrospector(AnnotationIntrospector ai) {
-            return withAnnotationIntrospector(AnnotationIntrospector.Pair.create(_annotationIntrospector, ai));
-        }
-        
-        public Base withVisibilityChecker(VisibilityChecker<?> vc) {
-            return new Base(_classIntrospector, _annotationIntrospector, vc, _propertyNamingStrategy, _typeFactory,
-                    _typeResolverBuilder, _dateFormat, _handlerInstantiator);
-        }
-
-        public Base withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
-            return new Base(_classIntrospector, _annotationIntrospector,
-                    _visibilityChecker.withVisibility(forMethod, visibility),
-                    _propertyNamingStrategy, _typeFactory,
-                    _typeResolverBuilder, _dateFormat, _handlerInstantiator);
-        }
-        
-        public Base withPropertyNamingStrategy(PropertyNamingStrategy pns) {
-            return new Base(_classIntrospector, _annotationIntrospector, _visibilityChecker, pns, _typeFactory,
-                    _typeResolverBuilder, _dateFormat, _handlerInstantiator);
-        }
-
-        public Base withTypeFactory(TypeFactory tf) {
-            return new Base(_classIntrospector, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, tf,
-                    _typeResolverBuilder, _dateFormat, _handlerInstantiator);
-        }
-
-        public Base withTypeResolverBuilder(TypeResolverBuilder<?> typer) {
-            return new Base(_classIntrospector, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
-                    typer, _dateFormat, _handlerInstantiator);
-        }
-        
-        public Base withDateFormat(DateFormat df) {
-            return new Base(_classIntrospector, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
-                    _typeResolverBuilder, df, _handlerInstantiator);
-        }
-
-        public Base withHandlerInstantiator(HandlerInstantiator hi) {
-            return new Base(_classIntrospector, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
-                    _typeResolverBuilder, _dateFormat, hi);
-        }
-        
-        /*
-        /**********************************************************
-        /* API
-        /**********************************************************
-         */
-
-        public ClassIntrospector<? extends BeanDescription> getClassIntrospector() {
-            return _classIntrospector;
-        }
-        
-        public AnnotationIntrospector getAnnotationIntrospector() {
-            return _annotationIntrospector;
-        }
-
-
-        public VisibilityChecker<?> getVisibilityChecker() {
-            return _visibilityChecker;
-        }
-
-        public PropertyNamingStrategy getPropertyNamingStrategy() {
-            return _propertyNamingStrategy;
-        }
-
-        public TypeFactory getTypeFactory() {
-            return _typeFactory;
-        }
-
-        public TypeResolverBuilder<?> getTypeResolverBuilder() {
-            return _typeResolverBuilder;
-        }
-        
-        public DateFormat getDateFormat() {
-            return _dateFormat;
-        }
-
-        public HandlerInstantiator getHandlerInstantiator() {
-            return _handlerInstantiator;
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* Basic extension; added to avoid having to change generic
-    /* signature of MapperConfig
-    /* 
-    /* NOTE: May be merge in MapperConfig for 2.0, depending
-    /* on how much we value backwards compatibility
-    /**********************************************************
-     */
-
-    static abstract class Impl<CFG extends MapperConfig.ConfigFeature,
-        T extends Impl<CFG,T>>
-        extends MapperConfig<T>
-    {
-        /**
-         *<p>
-         * Note: moved to base class in 1.9; was stored by sub-class earlier
-         */
-        protected int _featureFlags;
-        
-        /*
-        /**********************************************************
-        /* Construction
-        /**********************************************************
-         */
-        
-        protected Impl(ClassIntrospector<? extends BeanDescription> ci, AnnotationIntrospector ai,
-                VisibilityChecker<?> vc, SubtypeResolver str, PropertyNamingStrategy pns, TypeFactory tf,
-                HandlerInstantiator hi,
-                int defaultFeatures)
-        {
-            super(ci, ai, vc, str, pns, tf, hi);
-            _featureFlags = defaultFeatures;
-        }
-
-        protected Impl(Impl<CFG,T> src) {
-            super(src);
-            _featureFlags = src._featureFlags;
-        }
-
-        protected Impl(Impl<CFG,T> src, int features) {
-            super(src);
-            _featureFlags = features;
-        }
-        
-        protected Impl(Impl<CFG,T> src, MapperConfig.Base base, SubtypeResolver str)
-        {
-            super(src, base, str);
-            _featureFlags = src._featureFlags;
-        }
-        
-        protected Impl(Impl<CFG,T> src, MapperConfig.Base base, SubtypeResolver str,
-                int features)
-        {
-            super(src, base, str);
-            _featureFlags = features;
-        }
-
-        /**
-         * Method that calculates bit set (flags) of all features that
-         * are enabled by default.
-         */
-        static <F extends Enum<F> & MapperConfig.ConfigFeature> int collectFeatureDefaults(Class<F> enumClass)
-        {
-            int flags = 0;
-            for (F value : enumClass.getEnumConstants()) {
-                if (value.enabledByDefault()) {
-                    flags |= value.getMask();
-                }
-            }
-            return flags;
-        }
-        
-        /*
-        /**********************************************************
-        /* Additional fluent-factory methods
-        /**********************************************************
-         */
-        
-        /**
-         * Fluent factory method that will construct and return a new configuration
-         * object instance with specified features enabled.
-         */
-        public abstract T with(CFG... features);
-
-        /**
-         * Fluent factory method that will construct and return a new configuration
-         * object instance with specified features disabled.
-         */
-        public abstract T without(CFG... features);
-        
-    }
 }
+

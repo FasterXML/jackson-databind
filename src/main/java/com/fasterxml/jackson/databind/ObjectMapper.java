@@ -606,7 +606,7 @@ public class ObjectMapper
      */
     public DeserializationConfig copyDeserializationConfig() {
         return _deserializationConfig.createUnshared(_subtypeResolver)
-                .passSerializationFeatures(_serializationConfig._featureFlags);
+                .passSerializationFeatures(_serializationConfig.getFeatureFlags());
     }
 
     /**
@@ -2227,7 +2227,8 @@ public class ObjectMapper
         try {
             // inlined 'writeValue' with minor changes:
             // first: disable wrapping when writing
-            int serFeatures = _serializationConfig._featureFlags & ~(SerializationConfig.Feature.WRAP_ROOT_VALUE.getMask());
+            int serFeatures = _serializationConfig.getFeatureFlags()
+                    & ~(SerializationConfig.Feature.WRAP_ROOT_VALUE.getMask());
             // no need to check for closing of TokenBuffer
             _serializerProvider.serializeValue(copySerializationConfig(serFeatures),
                     buf, fromValue, _serializerFactory);

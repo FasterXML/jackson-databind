@@ -30,7 +30,7 @@ public abstract class DeserializationContext
     protected DeserializationContext(DeserializationConfig config)
     {
         _config = config;
-        _featureFlags = config._featureFlags;
+        _featureFlags = config.getFeatureFlags();
     }
 
     /*

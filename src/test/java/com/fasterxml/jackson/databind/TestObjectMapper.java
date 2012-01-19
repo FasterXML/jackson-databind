@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonNode;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -51,20 +52,21 @@ public class TestObjectMapper extends BaseMapTest
         ObjectMapper m = new ObjectMapper();
         
         // sort-alphabetically is disabled by default:
-        assertFalse(m.isEnabled(SerializationConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY));
-        SerializationConfig sc = m.copySerializationConfig();
-        assertFalse(sc.isEnabled(SerializationConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY));
+        assertFalse(m.isEnabled(MapperConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY));
+        SerializationConfig sc = m.getSerializationConfig();
+        assertFalse(sc.isEnabled(MapperConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY));
         assertFalse(sc.shouldSortPropertiesAlphabetically());
-        DeserializationConfig dc = m.copyDeserializationConfig();
+        DeserializationConfig dc = m.getDeserializationConfig();
         assertFalse(dc.shouldSortPropertiesAlphabetically());
 
         // but when enabled, should be visible:
-        m.enable(SerializationConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY);
-        sc = m.copySerializationConfig();
-        assertTrue(sc.isEnabled(SerializationConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY));
+        m.enable(MapperConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY);
+        sc = m.getSerializationConfig();
+        assertTrue(sc.isEnabled(MapperConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY));
         assertTrue(sc.shouldSortPropertiesAlphabetically());
-        dc = m.copyDeserializationConfig();
+        dc = m.getDeserializationConfig();
         // and not just via SerializationConfig, but also via DeserializationConfig
+        assertTrue(dc.isEnabled(MapperConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY));
         assertTrue(dc.shouldSortPropertiesAlphabetically());
     }
 

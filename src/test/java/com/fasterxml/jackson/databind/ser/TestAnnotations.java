@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.ser;
 
-
 import java.io.*;
 import java.util.*;
 
@@ -10,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * This unit test suite tests use of Annotations for
@@ -240,14 +240,14 @@ public class TestAnnotations
     {
         ObjectMapper m = new ObjectMapper();
         GettersWithoutSetters bean = new GettersWithoutSetters(123);
-        assertFalse(m.isEnabled(SerializationConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS));
+        assertFalse(m.isEnabled(MapperConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS));
     
         // by default, all 4 found:
         assertEquals("{\"a\":3,\"b\":4,\"c\":5,\"d\":6}", m.writeValueAsString(bean));
 
         // but 3 if we require mutator:
         m = new ObjectMapper();
-        m.enable(SerializationConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS);
+        m.enable(MapperConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS);
         assertEquals("{\"a\":3,\"c\":5,\"d\":6}", m.writeValueAsString(bean));
     }
 }

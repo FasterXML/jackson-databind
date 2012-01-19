@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * Unit tests for checking handling of DeserializationConfig.
@@ -35,11 +36,11 @@ public class TestConfig
         DeserializationConfig cfg = m.getDeserializationConfig();
 
         // Expected defaults:
-        assertTrue(cfg.isEnabled(DeserializationConfig.Feature.USE_ANNOTATIONS));
-        assertTrue(cfg.isEnabled(DeserializationConfig.Feature.AUTO_DETECT_SETTERS));
-        assertTrue(cfg.isEnabled(DeserializationConfig.Feature.AUTO_DETECT_CREATORS));
-        assertTrue(cfg.isEnabled(DeserializationConfig.Feature.USE_GETTERS_AS_SETTERS));
-        assertTrue(cfg.isEnabled(DeserializationConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS));
+        assertTrue(cfg.isEnabled(MapperConfig.Feature.USE_ANNOTATIONS));
+        assertTrue(cfg.isEnabled(MapperConfig.Feature.AUTO_DETECT_SETTERS));
+        assertTrue(cfg.isEnabled(MapperConfig.Feature.AUTO_DETECT_CREATORS));
+        assertTrue(cfg.isEnabled(MapperConfig.Feature.USE_GETTERS_AS_SETTERS));
+        assertTrue(cfg.isEnabled(MapperConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS));
 
 
         assertFalse(cfg.isEnabled(DeserializationConfig.Feature.USE_BIG_DECIMAL_FOR_FLOATS));
@@ -62,13 +63,13 @@ public class TestConfig
     {
         // first: verify that annotation introspection is enabled by default
         ObjectMapper m = new ObjectMapper();
-        assertTrue(m.getDeserializationConfig().isEnabled(DeserializationConfig.Feature.USE_ANNOTATIONS));
+        assertTrue(m.getDeserializationConfig().isEnabled(MapperConfig.Feature.USE_ANNOTATIONS));
         // with annotations, property is renamed
         AnnoBean bean = m.readValue("{ \"y\" : 0 }", AnnoBean.class);
         assertEquals(0, bean.value);
 
         m = new ObjectMapper();
-        m.configure(DeserializationConfig.Feature.USE_ANNOTATIONS, false);
+        m.configure(MapperConfig.Feature.USE_ANNOTATIONS, false);
         // without annotations, should default to default bean-based name...
         bean = m.readValue("{ \"x\" : 0 }", AnnoBean.class);
         assertEquals(0, bean.value);

@@ -26,8 +26,6 @@ public abstract class DeserializerProvider
     /**
      * Method that sub-classes need to override, to ensure that fluent-factory
      * methods will produce proper sub-type.
-     * 
-     * @since 1.9
      */
     public abstract DeserializerProvider withFactory(DeserializerFactory factory);
     
@@ -36,31 +34,18 @@ public abstract class DeserializerProvider
      * to use specified deserializer provider, with highest precedence (that is,
      * additional providers have higher precedence than default one or previously
      * added ones)
-     * 
-     * @since 1.7
      */
     public abstract DeserializerProvider withAdditionalDeserializers(Deserializers d);
 
-    /**
-     * @since 1.8
-     */
     public abstract DeserializerProvider withAdditionalKeyDeserializers(KeyDeserializers d);
     
-    /**
-     * @since 1.7
-     */
     public abstract DeserializerProvider withDeserializerModifier(BeanDeserializerModifier modifier);
 
-    /**
-     * @since 1.8
-     */
     public abstract DeserializerProvider withAbstractTypeResolver(AbstractTypeResolver resolver);
 
     /**
      * Method that will construct a new instance with specified additional value instantiators
      * (i.e. does NOT replace existing ones)
-     * 
-     * @since 1.9
      */
     public abstract DeserializerProvider withValueInstantiators(ValueInstantiators instantiators);
     
@@ -101,8 +86,6 @@ public abstract class DeserializerProvider
      *<p>
      * Since this method is only called for root elements, no referral information
      * is taken.
-     *    
-     * @since 1.5
      */
     public abstract JsonDeserializer<Object> findTypedValueDeserializer(DeserializationConfig config,
             JavaType type, BeanProperty property)
@@ -138,8 +121,6 @@ public abstract class DeserializerProvider
      * (interface, abstract class) into a concrete type, or at least
      * something "more concrete" (abstract class instead of interface).
      * Will either return passed type, or a more specific type.
-     * 
-     * @since 1.9
      */
     public abstract JavaType mapAbstractType(DeserializationConfig config, JavaType type)
         throws JsonMappingException;
@@ -170,8 +151,6 @@ public abstract class DeserializerProvider
      *<p>
      * The main use case for this method is to allow conditional flushing of
      * deserializer cache, if certain number of entries is reached.
-     * 
-     * @since 1.4
      */
     public abstract int cachedDeserializersCount();
 
@@ -181,8 +160,6 @@ public abstract class DeserializerProvider
      * This can be used to remove memory usage (in case some deserializers are
      * only used once or so), or to force re-construction of deserializers after
      * configuration changes for mapper than owns the provider.
-     * 
-     * @since 1.4
      */
     public abstract void flushCachedDeserializers();
 }

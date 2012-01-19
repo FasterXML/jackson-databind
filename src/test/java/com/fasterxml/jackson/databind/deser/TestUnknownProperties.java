@@ -116,8 +116,8 @@ public class TestUnknownProperties
         throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.getDeserializationConfig().clearHandlers();
-        mapper.getDeserializationConfig().addHandler(new MyHandler());
+        mapper.clearProblemHandlers();
+        mapper.addHandler(new MyHandler());
         TestBean result = mapper.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
         assertNotNull(result);
         assertEquals(1, result._a);
@@ -128,8 +128,6 @@ public class TestUnknownProperties
     /**
      * Test for checking that it is also possible to simply suppress
      * error reporting for unknown properties.
-     *
-     * @since 1.2
      */
     public void testUnknownHandlingIgnoreWithFeature()
         throws Exception

@@ -3,10 +3,12 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * Unit tests for checking whether JsonSerializerFactory.Feature
@@ -97,7 +99,7 @@ public class TestFeatures
         // Then auto-detection disabled. But note: we MUST create a new
         // mapper, since old version of serializer may be cached by now
         m = new ObjectMapper();
-        m.configure(SerializationConfig.Feature.AUTO_DETECT_GETTERS, false);
+        m.configure(MapperConfig.Feature.AUTO_DETECT_GETTERS, false);
         result = writeAndMap(m, new GetterClass());
         assertEquals(1, result.size());
         assertTrue(result.containsKey("x"));
@@ -112,7 +114,7 @@ public class TestFeatures
         assertTrue(result.containsKey("x"));
 
         // And then class-level auto-detection enabling, should override defaults
-        m.configure(SerializationConfig.Feature.AUTO_DETECT_GETTERS, false);
+        m.configure(MapperConfig.Feature.AUTO_DETECT_GETTERS, false);
         result = writeAndMap(m, new EnabledGetterClass());
         assertEquals(2, result.size());
         assertTrue(result.containsKey("x"));
@@ -123,8 +125,8 @@ public class TestFeatures
     {
         ObjectMapper m = new ObjectMapper();
         // class level should override
-        m.configure(SerializationConfig.Feature.AUTO_DETECT_GETTERS, true);
-        m.configure(SerializationConfig.Feature.AUTO_DETECT_IS_GETTERS, false);
+        m.configure(MapperConfig.Feature.AUTO_DETECT_GETTERS, true);
+        m.configure(MapperConfig.Feature.AUTO_DETECT_IS_GETTERS, false);
          Map<String,Object> result = writeAndMap(m, new EnabledIsGetterClass());
         assertEquals(1, result.size());
         assertTrue(result.containsKey("ok"));
@@ -135,11 +137,12 @@ public class TestFeatures
     public void testConfigChainability()
     {
         ObjectMapper m = new ObjectMapper();
-        assertTrue(m.getDeserializationConfig().isEnabled(DeserializationConfig.Feature.AUTO_DETECT_SETTERS));
-        assertTrue(m.getSerializationConfig().isEnabled(SerializationConfig.Feature.AUTO_DETECT_GETTERS));
-        m.configure(DeserializationConfig.Feature.AUTO_DETECT_SETTERS, false).configure(SerializationConfig.Feature.AUTO_DETECT_GETTERS, false);
-        assertFalse(m.getDeserializationConfig().isEnabled(DeserializationConfig.Feature.AUTO_DETECT_SETTERS));
-        assertFalse(m.getSerializationConfig().isEnabled(SerializationConfig.Feature.AUTO_DETECT_GETTERS));
+        assertTrue(m.isEnabled(MapperConfig.Feature.AUTO_DETECT_SETTERS));
+        assertTrue(m.isEnabled(MapperConfig.Feature.AUTO_DETECT_GETTERS));
+        m.configure(MapperConfig.Feature.AUTO_DETECT_SETTERS, false)
+            .configure(MapperConfig.Feature.AUTO_DETECT_GETTERS, false);
+        assertFalse(m.isEnabled(MapperConfig.Feature.AUTO_DETECT_SETTERS));
+        assertFalse(m.isEnabled(MapperConfig.Feature.AUTO_DETECT_GETTERS));
     }
 
     // Test for [JACKSON-282]

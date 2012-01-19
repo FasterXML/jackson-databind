@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 /**
@@ -96,17 +97,17 @@ public class TestAnnotationJsonValue
     /*********************************************************
      */
 
+    private final ObjectMapper mapper = new ObjectMapper();
+    
     public void testSimpleJsonValue() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        String result = serializeAsString(m, new ValueClass<String>("abc"));
+        String result = mapper.writeValueAsString(new ValueClass<String>("abc"));
         assertEquals("\"abc\"", result);
     }
 
     public void testJsonValueWithUseSerializer() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        String result = serializeAsString(m, new ToStringValueClass<Integer>(Integer.valueOf(123)));
+        String result = serializeAsString(mapper, new ToStringValueClass<Integer>(Integer.valueOf(123)));
         assertEquals("\"123\"", result);
     }
 
@@ -115,25 +116,23 @@ public class TestAnnotationJsonValue
      */
     public void testMixedJsonValue() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        String result = serializeAsString(m, new ToStringValueClass2("xyz"));
+        String result = serializeAsString(mapper, new ToStringValueClass2("xyz"));
         assertEquals("\"xyz\"", result);
     }
 
     public void testValueWithStaticType() throws Exception
     {
         // Ok; first, with dynamic type:
-        ObjectMapper m = new ObjectMapper();
-        assertEquals("{\"a\":\"a\",\"b\":\"b\"}", serializeAsString(m, new ValueWrapper()));
+        assertEquals("{\"a\":\"a\",\"b\":\"b\"}", mapper.writeValueAsString(new ValueWrapper()));
 
         // then static
-        m = new ObjectMapper();
-        m.configure(SerializationConfig.Feature.USE_STATIC_TYPING, true);
-        assertEquals("{\"a\":\"a\"}", serializeAsString(m, new ValueWrapper()));
+        ObjectMapper staticMapper = new ObjectMapper();
+        staticMapper.configure(MapperConfig.Feature.USE_STATIC_TYPING, true);
+        assertEquals("{\"a\":\"a\"}", staticMapper.writeValueAsString(new ValueWrapper()));
     }
 
     public void testMapWithJsonValue() throws Exception
     {
-        assertEquals("{\"a\":\"1\"}", new ObjectMapper().writeValueAsString(new MapBean()));
+        assertEquals("{\"a\":\"1\"}", mapper.writeValueAsString(new MapBean()));
     }
 }

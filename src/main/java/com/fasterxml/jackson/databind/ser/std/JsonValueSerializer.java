@@ -8,9 +8,9 @@ import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -181,7 +181,7 @@ public class JsonValueSerializer
              * the actual type until we get the instance.
              */
             // 10-Mar-2010, tatu: Except if static typing is to be used
-            if (provider.isEnabled(SerializationConfig.Feature.USE_STATIC_TYPING)
+            if (provider.isEnabled(MapperConfig.Feature.USE_STATIC_TYPING)
                     || Modifier.isFinal(_accessorMethod.getReturnType().getModifiers())) {
                 JavaType t = provider.constructType(_accessorMethod.getGenericReturnType());
                 // false -> no need to cache

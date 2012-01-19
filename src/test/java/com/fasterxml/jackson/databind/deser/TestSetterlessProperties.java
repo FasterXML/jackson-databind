@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * Unit tests for verifying that feature requested
@@ -73,9 +74,9 @@ public class TestSetterlessProperties
     {
         ObjectMapper m = new ObjectMapper();
         // by default, it should be enabled
-        assertTrue(m.getDeserializationConfig().isEnabled(DeserializationConfig.Feature.USE_GETTERS_AS_SETTERS));
-        m.configure(DeserializationConfig.Feature.USE_GETTERS_AS_SETTERS, false);
-        assertFalse(m.getDeserializationConfig().isEnabled(DeserializationConfig.Feature.USE_GETTERS_AS_SETTERS));
+        assertTrue(m.isEnabled(MapperConfig.Feature.USE_GETTERS_AS_SETTERS));
+        m.configure(MapperConfig.Feature.USE_GETTERS_AS_SETTERS, false);
+        assertFalse(m.isEnabled(MapperConfig.Feature.USE_GETTERS_AS_SETTERS));
 
         // and now this should fail
         try {
@@ -105,7 +106,7 @@ public class TestSetterlessProperties
         throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationConfig.Feature.USE_GETTERS_AS_SETTERS, false);
+        m.configure(MapperConfig.Feature.USE_GETTERS_AS_SETTERS, false);
         // so this should fail now without a setter
         try {
             m.readValue
@@ -122,7 +123,7 @@ public class TestSetterlessProperties
     public void testSetterlessPrecedence() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationConfig.Feature.USE_GETTERS_AS_SETTERS, true);
+        m.configure(MapperConfig.Feature.USE_GETTERS_AS_SETTERS, true);
         Dual value = m.readValue("{\"list\":[1,2,3]}, valueType)", Dual.class);
         assertNotNull(value);
         assertEquals(3, value.values.size());

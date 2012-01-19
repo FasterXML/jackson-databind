@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.util.Date;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -142,10 +143,22 @@ public abstract class SerializerProvider
      *  getConfig().isEnabled(feature);
      *</pre>
      */
-    public final boolean isEnabled(SerializationConfig.Feature feature) {
+    public final boolean isEnabled(MapperConfig.Feature feature) {
         return _config.isEnabled(feature);
     }
 
+    /**
+     * Convenience method for checking whether specified serialization
+     * feature is enabled or not.
+     * Shortcut for:
+     *<pre>
+     *  getConfig().isEnabled(feature);
+     *</pre>
+     */
+    public final boolean isEnabled(SerializationConfig.Feature feature) {
+        return _config.isEnabled(feature);
+    }
+    
     /**
      * Convenience method for accessing serialization view in use (if any); equivalent to:
      *<pre>

@@ -4,9 +4,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.text.DateFormat;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -20,7 +18,7 @@ import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
-import com.fasterxml.jackson.databind.cfg.ConfigFeature;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -402,31 +400,16 @@ public class ObjectMapper
         // and default type factory is shared one
         _typeFactory = TypeFactory.defaultInstance();
         _serializationConfig = (sconfig != null) ? sconfig :
-            new SerializationConfig(DEFAULT_BASE, collectFeatureDefaults(SerializationConfig.Feature.class),
+            new SerializationConfig(DEFAULT_BASE,
                     _subtypeResolver, _mixInAnnotations);
         _deserializationConfig = (dconfig != null) ? dconfig :
-            new DeserializationConfig(DEFAULT_BASE, collectFeatureDefaults(DeserializationConfig.Feature.class),
+            new DeserializationConfig(DEFAULT_BASE,
                     _subtypeResolver, _mixInAnnotations);
         _serializerProvider = (sp == null) ? new StdSerializerProvider.Impl() : sp;
         _deserializerProvider = (dp == null) ? new StdDeserializerProvider() : dp;
 
         // Default serializer factory is stateless, can just assign
         _serializerFactory = BeanSerializerFactory.instance;
-    }
-
-    /**
-     * Method that calculates bit set (flags) of all features that
-     * are enabled by default.
-     */
-    protected static <F extends Enum<F> & ConfigFeature> int collectFeatureDefaults(Class<F> enumClass)
-    {
-        int flags = 0;
-        for (F value : enumClass.getEnumConstants()) {
-            if (value.enabledByDefault()) {
-                flags |= value.getMask();
-            }
-        }
-        return flags;
     }
     
     /*
@@ -598,27 +581,6 @@ public class ObjectMapper
     public SerializationConfig getSerializationConfig() {
         return _serializationConfig;
     }
-
-    /**
-     * Method that creates a copy of
-     * the shared default {@link SerializationConfig} object
-     * that defines configuration settings for serialization.
-     * Since it is a copy, any changes made to the configuration
-     * object will NOT directly affect serialization done using
-     * basic serialization methods that use the shared object (that is,
-     * ones that do not take separate {@link SerializationConfig}
-     * argument.
-     *<p>
-     * The use case is that of changing object settings of the configuration
-     * (like date format being used, see {@link SerializationConfig#withDateFormat}).
-     */
-    public SerializationConfig copySerializationConfig() {
-        return _serializationConfig.createUnshared();
-    }
-
-    public SerializationConfig copySerializationConfig(int features) {
-        return _serializationConfig.createUnshared(features);
-    }
     
     /**
      * Method for replacing the shared default serialization configuration
@@ -639,25 +601,6 @@ public class ObjectMapper
      */
     public DeserializationConfig getDeserializationConfig() {
         return _deserializationConfig;
-    }
-
-    /**
-     * Method that creates a copy of
-     * the shared default {@link DeserializationConfig} object
-     * that defines configuration settings for deserialization.
-     * Since it is a copy, any changes made to the configuration
-     * object will NOT directly affect deserialization done using
-     * basic deserialization methods that use the shared object (that is,
-     * ones that do not take separate {@link DeserializationConfig}
-     * argument.
-     *<p>
-     * The use case is that of changing object settings of the configuration
-     * (like deserialization problem handler,
-     * see {@link DeserializationConfig#addHandler})
-     */
-    public DeserializationConfig copyDeserializationConfig() {
-        return _deserializationConfig.createUnshared()
-                .passSerializationFeatures(_serializationConfig.getFeatureFlags());
     }
 
     /**
@@ -1027,6 +970,25 @@ public class ObjectMapper
         return this;
     }
 
+    /**
+     * Method for adding specified {@link DeserializationProblemHandler}
+     * to be used for handling specific problems during deserialization.
+     */
+    public ObjectMapper addHandler(DeserializationProblemHandler h) {
+        _deserializationConfig = _deserializationConfig.withHandler(h);
+        return this;
+    }
+
+    /**
+     * Method for removing all registered {@link DeserializationProblemHandler}s
+     * instances from this mapper.
+     */
+    public ObjectMapper clearProblemHandlers() {
+        _deserializationConfig = _deserializationConfig.withNoProblemHandlers();
+        return this;
+    }
+    
+    
     /*
     /**********************************************************
     /* Configuration, serialization
@@ -1109,6 +1071,18 @@ public class ObjectMapper
      */
 
     /**
+     * Method for changing state of an on/off mapper feature for
+     * this mapper instance.
+     */
+    public ObjectMapper configure(MapperConfig.Feature f, boolean state) {
+        _serializationConfig = state ?
+                _serializationConfig.with(f) : _serializationConfig.without(f);
+        _deserializationConfig = state ?
+                _deserializationConfig.with(f) : _deserializationConfig.without(f);
+        return this;
+    }
+    
+    /**
      * Method for changing state of an on/off serialization feature for
      * this object mapper.
      */
@@ -1157,6 +1131,26 @@ public class ObjectMapper
     }
 
     /**
+     * Method for enabling specified {@link MapperConfig} features.
+     * Modifies and returns this instance; no new object is created.
+     */
+    public ObjectMapper enable(MapperConfig.Feature... f) {
+        _deserializationConfig = _deserializationConfig.with(f);
+        _serializationConfig = _serializationConfig.with(f);
+        return this;
+    }
+
+    /**
+     * Method for enabling specified {@link DeserializationConfig} features.
+     * Modifies and returns this instance; no new object is created.
+     */
+    public ObjectMapper disable(MapperConfig.Feature... f) {
+        _deserializationConfig = _deserializationConfig.without(f);
+        _serializationConfig = _serializationConfig.without(f);
+        return this;
+    }
+    
+    /**
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
@@ -1193,20 +1187,25 @@ public class ObjectMapper
     }
     
     /**
-     * Convenience method, equivalent to:
-     *<pre>
-     *  getSerializationConfig().isEnabled(f);
-     *</pre>
+     * Method for checking whether given Mapper
+     * feature is enabled.
      */
-    public boolean isEnabled(SerializationConfig.Feature f) {
+    public boolean isEnabled(MapperConfig.Feature f) {
+        // ok to use either one, should be kept in sync
         return _serializationConfig.isEnabled(f);
     }
 
     /**
-     * Convenience method, equivalent to:
-     *<pre>
-     *  getDeserializationConfig().isEnabled(f);
-     *</pre>
+     * Method for checking whether given serialization-specific
+     * feature is enabled.
+     */
+    public boolean isEnabled(SerializationConfig.Feature f) {
+        return _serializationConfig.isEnabled(f);
+    }
+    
+    /**
+     * Method for checking whether given deserialization-specific
+     * feature is enabled.
      */
     public boolean isEnabled(DeserializationConfig.Feature f) {
         return _deserializationConfig.isEnabled(f);
@@ -1269,7 +1268,7 @@ public class ObjectMapper
     public <T> T readValue(JsonParser jp, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readValue(copyDeserializationConfig(), jp, _typeFactory.constructType(valueType));
+        return (T) _readValue(getDeserializationConfig(), jp, _typeFactory.constructType(valueType));
     } 
 
     /**
@@ -1284,7 +1283,7 @@ public class ObjectMapper
     public <T> T readValue(JsonParser jp, TypeReference<?> valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readValue(copyDeserializationConfig(), jp, _typeFactory.constructType(valueTypeRef));
+        return (T) _readValue(getDeserializationConfig(), jp, _typeFactory.constructType(valueTypeRef));
     }
 
     /**
@@ -1298,7 +1297,7 @@ public class ObjectMapper
     public final <T> T readValue(JsonParser jp, ResolvedType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readValue(copyDeserializationConfig(), jp, (JavaType) valueType);
+        return (T) _readValue(getDeserializationConfig(), jp, (JavaType) valueType);
     }
 
     /**
@@ -1308,7 +1307,7 @@ public class ObjectMapper
     public <T> T readValue(JsonParser jp, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readValue(copyDeserializationConfig(), jp, valueType);
+        return (T) _readValue(getDeserializationConfig(), jp, valueType);
     }
     
     /**
@@ -1329,7 +1328,7 @@ public class ObjectMapper
         /* 05-Aug-2011, tatu: Also, must check for EOF here before
          *   calling readValue(), since that'll choke on it otherwise
          */
-        DeserializationConfig cfg = copyDeserializationConfig();
+        DeserializationConfig cfg = getDeserializationConfig();
         JsonToken t = jp.getCurrentToken();
         if (t == null) {
             t = jp.nextToken();
@@ -1359,7 +1358,7 @@ public class ObjectMapper
     public <T> MappingIterator<T> readValues(JsonParser jp, JavaType valueType)
             throws IOException, JsonProcessingException
     {
-        DeserializationConfig config = copyDeserializationConfig();
+        DeserializationConfig config = getDeserializationConfig();
         DeserializationContext ctxt = _createDeserializationContext(jp, config);
         JsonDeserializer<?> deser = _findRootDeserializer(config, valueType);
         // false -> do NOT close JsonParser (since caller passed it)
@@ -1586,7 +1585,7 @@ public class ObjectMapper
     public void writeValue(JsonGenerator jgen, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        SerializationConfig config = copySerializationConfig();
+        SerializationConfig config = getSerializationConfig();
         if (config.isEnabled(SerializationConfig.Feature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _writeCloseableValue(jgen, value, config);
         } else {
@@ -1624,7 +1623,7 @@ public class ObjectMapper
     public void writeTree(JsonGenerator jgen, JsonNode rootNode)
         throws IOException, JsonProcessingException
     {
-        SerializationConfig config = copySerializationConfig();
+        SerializationConfig config = getSerializationConfig();
         _serializerProvider.serializeValue(config, jgen, rootNode, _serializerFactory);
         if (config.isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE)) {
             jgen.flush();
@@ -1756,7 +1755,7 @@ public class ObjectMapper
      */
     public boolean canSerialize(Class<?> type)
     {
-        return _serializerProvider.hasSerializerFor(copySerializationConfig(),
+        return _serializerProvider.hasSerializerFor(getSerializationConfig(),
                 type, _serializerFactory);
     }
 
@@ -1772,7 +1771,7 @@ public class ObjectMapper
      */
     public boolean canDeserialize(JavaType type)
     {
-        return _deserializerProvider.hasValueDeserializerFor(copyDeserializationConfig(), type);
+        return _deserializerProvider.hasValueDeserializerFor(getDeserializationConfig(), type);
     }
 
     /*
@@ -1959,7 +1958,7 @@ public class ObjectMapper
     {
      // !!! TODO
 //    	_setupClassLoaderForDeserialization(valueType);
-        return (T) _readValue(copyDeserializationConfig(), treeAsTokens(root), _typeFactory.constructType(valueType));
+        return (T) _readValue(getDeserializationConfig(), treeAsTokens(root), _typeFactory.constructType(valueType));
     } 
 
     /**
@@ -1973,7 +1972,7 @@ public class ObjectMapper
     public <T> T readValue(JsonNode root, TypeReference valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readValue(copyDeserializationConfig(), treeAsTokens(root), _typeFactory.constructType(valueTypeRef));
+        return (T) _readValue(getDeserializationConfig(), treeAsTokens(root), _typeFactory.constructType(valueTypeRef));
     } 
     
     /**
@@ -1987,7 +1986,7 @@ public class ObjectMapper
     public <T> T readValue(JsonNode root, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readValue(copyDeserializationConfig(), treeAsTokens(root), valueType);
+        return (T) _readValue(getDeserializationConfig(), treeAsTokens(root), valueType);
     } 
     
     /*
@@ -2084,7 +2083,7 @@ public class ObjectMapper
      * with default settings.
      */
     public ObjectWriter writer() {
-        return new ObjectWriter(this, copySerializationConfig());
+        return new ObjectWriter(this, getSerializationConfig());
     }
 
     /**
@@ -2094,7 +2093,7 @@ public class ObjectMapper
      */
     public ObjectWriter writer(DateFormat df) {
         return new ObjectWriter(this,
-                copySerializationConfig().withDateFormat(df));
+                getSerializationConfig().withDateFormat(df));
     }
     
     /**
@@ -2102,7 +2101,7 @@ public class ObjectMapper
      * serialize objects using specified JSON View (filter).
      */
     public ObjectWriter writerWithView(Class<?> serializationView) {
-        return new ObjectWriter(this, copySerializationConfig().withView(serializationView));
+        return new ObjectWriter(this, getSerializationConfig().withView(serializationView));
     }
     
     /**
@@ -2113,7 +2112,7 @@ public class ObjectMapper
      */
     public ObjectWriter writerWithType(Class<?> rootType) {
         JavaType t = (rootType == null) ? null : _typeFactory.constructType(rootType);
-        return new ObjectWriter(this, copySerializationConfig(), t, /*PrettyPrinter*/null);
+        return new ObjectWriter(this, getSerializationConfig(), t, /*PrettyPrinter*/null);
     }
 
     /**
@@ -2122,7 +2121,7 @@ public class ObjectMapper
      * runtime type of value. Type must be a super-type of runtime type.
      */
     public ObjectWriter writerWithType(JavaType rootType) {
-        return new ObjectWriter(this, copySerializationConfig(), rootType, /*PrettyPrinter*/null);
+        return new ObjectWriter(this, getSerializationConfig(), rootType, /*PrettyPrinter*/null);
     }
 
     /**
@@ -2132,7 +2131,7 @@ public class ObjectMapper
      */
     public ObjectWriter writerWithType(TypeReference<?> rootType) {
         JavaType t = (rootType == null) ? null : _typeFactory.constructType(rootType);
-        return new ObjectWriter(this, copySerializationConfig(), t, /*PrettyPrinter*/null);
+        return new ObjectWriter(this, getSerializationConfig(), t, /*PrettyPrinter*/null);
     }
     
     /**
@@ -2144,7 +2143,7 @@ public class ObjectMapper
         if (pp == null) { // need to use a marker to indicate explicit disabling of pp
             pp = ObjectWriter.NULL_PRETTY_PRINTER;
         }
-        return new ObjectWriter(this, copySerializationConfig(), /*root type*/ null, pp);
+        return new ObjectWriter(this, getSerializationConfig(), /*root type*/ null, pp);
     }
     
     /**
@@ -2152,7 +2151,7 @@ public class ObjectMapper
      * serialize objects using the default pretty printer for indentation
      */
     public ObjectWriter writerWithDefaultPrettyPrinter() {
-        return new ObjectWriter(this, copySerializationConfig(),
+        return new ObjectWriter(this, getSerializationConfig(),
                 /*root type*/ null, _defaultPrettyPrinter());
     }
     
@@ -2162,7 +2161,7 @@ public class ObjectMapper
      */
     public ObjectWriter writer(FilterProvider filterProvider) {
         return new ObjectWriter(this,
-                copySerializationConfig().withFilters(filterProvider));
+                getSerializationConfig().withFilters(filterProvider));
     }
     
     /**
@@ -2173,7 +2172,7 @@ public class ObjectMapper
      * @param schema Schema to pass to generator
      */
     public ObjectWriter writer(FormatSchema schema) {
-        return new ObjectWriter(this, copySerializationConfig(), schema);
+        return new ObjectWriter(this, getSerializationConfig(), schema);
     }
     
     /*
@@ -2189,7 +2188,7 @@ public class ObjectMapper
      * without defining expected value type.
      */
     public ObjectReader reader() {
-        return new ObjectReader(this, copyDeserializationConfig())
+        return new ObjectReader(this, getDeserializationConfig())
             .withInjectableValues(_injectableValues);
     }
     
@@ -2206,7 +2205,7 @@ public class ObjectMapper
     public ObjectReader readerForUpdating(Object valueToUpdate)
     {
         JavaType t = _typeFactory.constructType(valueToUpdate.getClass());
-        return new ObjectReader(this, copyDeserializationConfig(), t, valueToUpdate,
+        return new ObjectReader(this, getDeserializationConfig(), t, valueToUpdate,
                 null, _injectableValues);
     }
 
@@ -2216,7 +2215,7 @@ public class ObjectMapper
      */
     public ObjectReader reader(JavaType type)
     {
-        return new ObjectReader(this, copyDeserializationConfig(), type, null,
+        return new ObjectReader(this, getDeserializationConfig(), type, null,
                 null, _injectableValues);
     }
 
@@ -2244,7 +2243,7 @@ public class ObjectMapper
      */
     public ObjectReader reader(JsonNodeFactory f)
     {
-        return new ObjectReader(this, copyDeserializationConfig()).withNodeFactory(f);
+        return new ObjectReader(this, getDeserializationConfig()).withNodeFactory(f);
     }
 
     /**
@@ -2255,7 +2254,7 @@ public class ObjectMapper
      * @param schema Schema to pass to parser
      */
     public ObjectReader reader(FormatSchema schema) {
-        return new ObjectReader(this, copyDeserializationConfig(), null, null,
+        return new ObjectReader(this, getDeserializationConfig(), null, null,
                 schema, _injectableValues);
     }
 
@@ -2266,7 +2265,7 @@ public class ObjectMapper
      * @param injectableValues Injectable values to use
      */
     public ObjectReader reader(InjectableValues injectableValues) {
-        return new ObjectReader(this, copyDeserializationConfig(), null, null,
+        return new ObjectReader(this, getDeserializationConfig(), null, null,
                 null, injectableValues);
     }
     
@@ -2329,17 +2328,15 @@ public class ObjectMapper
         try {
             // inlined 'writeValue' with minor changes:
             // first: disable wrapping when writing
-            int serFeatures = _serializationConfig.getFeatureFlags()
-                    & ~(SerializationConfig.Feature.WRAP_ROOT_VALUE.getMask());
+            SerializationConfig config = getSerializationConfig().without(SerializationConfig.Feature.WRAP_ROOT_VALUE);
             // no need to check for closing of TokenBuffer
-            _serializerProvider.serializeValue(copySerializationConfig(serFeatures),
-                    buf, fromValue, _serializerFactory);
+            _serializerProvider.serializeValue(config, buf, fromValue, _serializerFactory);
 
             // then matching read, inlined 'readValue' with minor mods:
             final JsonParser jp = buf.asParser();
             Object result;
             // ok to pass in existing feature flags; unwrapping handled by mapper
-            final DeserializationConfig deserConfig = copyDeserializationConfig();
+            final DeserializationConfig deserConfig = getDeserializationConfig();
             JsonToken t = _initForReading(jp);
             if (t == JsonToken.VALUE_NULL) {
                 result = _findRootDeserializer(deserConfig, toValueType).getNullValue();
@@ -2374,7 +2371,7 @@ public class ObjectMapper
     public JsonSchema generateJsonSchema(Class<?> t)
             throws JsonMappingException
     {
-        return generateJsonSchema(t, copySerializationConfig());
+        return generateJsonSchema(t, getSerializationConfig());
     }
 
     /**
@@ -2413,7 +2410,7 @@ public class ObjectMapper
     protected final void _configAndWriteValue(JsonGenerator jgen, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        SerializationConfig cfg = copySerializationConfig();
+        SerializationConfig cfg = getSerializationConfig();
         // [JACKSON-96]: allow enabling pretty printing for ObjectMapper directly
         if (cfg.isEnabled(SerializationConfig.Feature.INDENT_OUTPUT)) {
             jgen.useDefaultPrettyPrinter();
@@ -2443,7 +2440,7 @@ public class ObjectMapper
     protected final void _configAndWriteValue(JsonGenerator jgen, Object value, Class<?> viewClass)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        SerializationConfig cfg = copySerializationConfig().withView(viewClass);
+        SerializationConfig cfg = getSerializationConfig().withView(viewClass);
         if (cfg.isEnabled(SerializationConfig.Feature.INDENT_OUTPUT)) {
             jgen.useDefaultPrettyPrinter();
         }
@@ -2570,12 +2567,11 @@ public class ObjectMapper
             JsonToken t = _initForReading(jp);
             if (t == JsonToken.VALUE_NULL) {
                 // [JACKSON-643]: Ask JsonDeserializer what 'null value' to use:
-                // (note: probably no need to make a copy of config for just this access)
-                result = _findRootDeserializer(this._deserializationConfig, valueType).getNullValue();
+                result = _findRootDeserializer(getDeserializationConfig(), valueType).getNullValue();
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = null;
             } else {
-                DeserializationConfig cfg = copyDeserializationConfig();
+                DeserializationConfig cfg = getDeserializationConfig();
                 DeserializationContext ctxt = _createDeserializationContext(jp, cfg);
                 JsonDeserializer<Object> deser = _findRootDeserializer(cfg, valueType);
                 if (cfg.isEnabled(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE)) {

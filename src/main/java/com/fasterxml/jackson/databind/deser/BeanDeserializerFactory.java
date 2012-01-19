@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.JsonNode;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
 import com.fasterxml.jackson.databind.deser.std.JacksonDeserializers;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
@@ -1096,7 +1097,7 @@ public class BeanDeserializerFactory
         /* also, as per [JACKSON-328], should not override fields (or actual setters),
          * thus these are added AFTER adding fields
          */
-        if (config.isEnabled(DeserializationConfig.Feature.USE_GETTERS_AS_SETTERS)) {
+        if (config.isEnabled(MapperConfig.Feature.USE_GETTERS_AS_SETTERS)) {
             /* Hmmh. We have to assume that 'use getters as setters' also
              * implies 'yes, do auto-detect these getters'? (if not, we'd
              * need to add AUTO_DETECT_GETTERS to deser config too, not

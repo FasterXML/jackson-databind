@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -106,7 +107,7 @@ public class TestRootType
     {
         ObjectMapper mapper = new ObjectMapper();
         // must force static typing, otherwise won't matter a lot
-        mapper.configure(SerializationConfig.Feature.USE_STATIC_TYPING, true);
+        mapper.configure(MapperConfig.Feature.USE_STATIC_TYPING, true);
         SubType[] ob = new SubType[] { new SubType() };
         String json = mapper.writerWithType(BaseInterface[].class).writeValueAsString(ob);
         // should propagate interface type through due to root declaration; static typing

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -414,7 +415,7 @@ public class BeanSerializerFactory
             }
             JavaType type = anyGetter.getType(beanDesc.bindingsForBeanType());
             // copied from BasicSerializerFactory.buildMapSerializer():
-            boolean staticTyping = config.isEnabled(SerializationConfig.Feature.USE_STATIC_TYPING);
+            boolean staticTyping = config.isEnabled(MapperConfig.Feature.USE_STATIC_TYPING);
             JavaType valueType = type.getContentType();
             TypeSerializer typeSer = createTypeSerializer(config, valueType, property);
             // last 2 nulls; don't know key, value serializers (yet)
@@ -509,7 +510,7 @@ public class BeanSerializerFactory
         removeIgnorableTypes(config, beanDesc, properties);
         
         // and possibly remove ones without matching mutator...
-        if (config.isEnabled(SerializationConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS)) {
+        if (config.isEnabled(MapperConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS)) {
             removeSetterlessGetters(config, beanDesc, properties);
         }
         
@@ -578,15 +579,12 @@ public class BeanSerializerFactory
      * if they want to provide custom view handling. As such it is not
      * considered an internal implementation detail, and will be supported
      * as part of API going forward.
-     *<p>
-     * NOTE: signature of this method changed in 1.7, due to other significant
-     * changes (esp. use of builder for serializer construction).
      */
     protected void processViews(SerializationConfig config, BeanSerializerBuilder builder)
     {
         // [JACKSON-232]: whether non-annotated fields are included by default or not is configurable
         List<BeanPropertyWriter> props = builder.getProperties();
-        boolean includeByDefault = config.isEnabled(SerializationConfig.Feature.DEFAULT_VIEW_INCLUSION);
+        boolean includeByDefault = config.isEnabled(MapperConfig.Feature.DEFAULT_VIEW_INCLUSION);
         final int propCount = props.size();
         int viewsFound = 0;
         BeanPropertyWriter[] filtered = new BeanPropertyWriter[propCount];

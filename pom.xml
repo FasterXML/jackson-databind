@@ -215,6 +215,7 @@ org.joda.time, org.joda.time.format
               <Export-Package>
 com.fasterxml.jackson.databind,
 com.fasterxml.jackson.databind.annotation,
+com.fasterxml.jackson.databind.cfg,
 com.fasterxml.jackson.databind.deser,
 com.fasterxml.jackson.databind.deser.impl,
 com.fasterxml.jackson.databind.deser.std,

@@ -1,20 +1,14 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
-/**
- * @since 1.9
- */
 public class TestPOJOPropertiesCollector
     extends BaseMapTest
 {
@@ -307,7 +301,7 @@ public class TestPOJOPropertiesCollector
     public void testGlobalVisibilityForGetters()
     {
         ObjectMapper m = new ObjectMapper();
-        m.configure(SerializationConfig.Feature.AUTO_DETECT_GETTERS, false);
+        m.configure(MapperConfig.Feature.AUTO_DETECT_GETTERS, false);
         POJOPropertiesCollector coll = collector(m, SimpleGetterVisibility.class, true);
         // should be 1, expect that we disabled getter auto-detection, so
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
@@ -378,7 +372,7 @@ public class TestPOJOPropertiesCollector
     public void testJackson703() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationConfig.Feature.USE_ANNOTATIONS, false);
+        mapper.configure(MapperConfig.Feature.USE_ANNOTATIONS, false);
         BasicBeanDescription beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(Jackson703.class));
         assertNotNull(beanDesc);
 

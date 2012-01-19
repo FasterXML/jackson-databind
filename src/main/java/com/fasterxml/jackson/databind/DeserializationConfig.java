@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
 import com.fasterxml.jackson.databind.cfg.ConfigFeature;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.cfg.MapperConfigBase;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.deser.DeserializerFactory;
@@ -26,126 +27,32 @@ import com.fasterxml.jackson.databind.util.LinkedNode;
 
 /**
  * Object that contains baseline configuration for deserialization
- * process. An instance is owned by {@link ObjectMapper}, which makes
- * a copy that is passed during serialization process to
- * {@link DeserializerProvider} and {@link DeserializerFactory}.
+ * process. An instance is owned by {@link ObjectMapper}, which
+ * passes an immutable instance for serialization process to
+ * {@link DeserializerProvider} and {@link DeserializerFactory}
+ * (either directly, or through {@link ObjectReader}.
  *<p>
- * Note: although configuration settings can be changed at any time
- * (for factories and instances), they are not guaranteed to have
- * effect if called after constructing relevant mapper or deserializer
- * instance. This because some objects may be configured, constructed and
- * cached first time they are needed.
- *<p>
- * Note: as of 2.0, goal is still to make config instances fully immutable.
+ * Note that instances are considered immutable and as such no copies
+ * should need to be created (there are some implementation details
+ * with respect to mix-in annotations; where this is guaranteed as
+ * long as caller follow "copy-then-use" pattern)
  */
 public class DeserializationConfig
     extends MapperConfigBase<DeserializationConfig.Feature, DeserializationConfig>
 {
     /**
-     * Enumeration that defines togglable features that guide
-     * the serialization feature.
-     * 
-     * Note that some features can only be set for
-     * {@link ObjectMapper} (as default for all deserializations),
-     * while others can be changed on per-call basis using {@link ObjectReader}.
-     * Ones that can be used on per-call basis will return <code>true</code>
-     * from {@link #canUseForInstance}.
-     * Trying enable/disable ObjectMapper-only feature will result in
-     * an {@link IllegalArgumentException}.
+     * Enumeration that defines simple on/off features that affect
+     * the way Java objects are deserialized from JSON
+     *<p>
+     * Note that features can be set both through
+     * {@link ObjectMapper} (as sort of defaults) and through
+     * {@link ObjectReader}.
+     * In first case these defaults must follow "config-then-use" patterns
+     * (i.e. defined once, not changed afterwards); all per-call
+     * changes must be done using {@link ObjectReader}.
      */
     public enum Feature implements ConfigFeature
     {
-        /*
-        /******************************************************
-         *  Introspection features
-        /******************************************************
-         */
-
-        /**
-         * Feature that determines whether annotation introspection
-         * is used for configuration; if enabled, configured
-         * {@link AnnotationIntrospector} will be used: if disabled,
-         * no annotations are considered.
-         *<P>
-         * Feature is enabled by default.
-         */
-        USE_ANNOTATIONS(true, false),
-
-        /**
-         * Feature that determines whether "setter" methods are
-         * automatically detected based on standard Bean naming convention
-         * or not. If yes, then all public one-argument methods that
-         * start with prefix "set"
-         * are considered setters. If disabled, only methods explicitly
-         * annotated are considered setters.
-         *<p>
-         * Note that this feature has lower precedence than per-class
-         * annotations, and is only used if there isn't more granular
-         * configuration available.
-         *<P>
-         * Feature is enabled by default.
-         */
-        AUTO_DETECT_SETTERS(true, false),
-
-        /**
-         * Feature that determines whether "creator" methods are
-         * automatically detected by consider public constructors,
-         * and static single argument methods with name "valueOf".
-         * If disabled, only methods explicitly annotated are considered
-         * creator methods (except for the no-arg default constructor which
-         * is always considered a factory method).
-         *<p>
-         * Note that this feature has lower precedence than per-class
-         * annotations, and is only used if there isn't more granular
-         * configuration available.
-         *<P>
-         * Feature is enabled by default.
-         */
-        AUTO_DETECT_CREATORS(true, false),
-
-        /**
-         * Feature that determines whether non-static fields are recognized as
-         * properties.
-         * If yes, then all public member fields
-         * are considered as properties. If disabled, only fields explicitly
-         * annotated are considered property fields.
-         *<p>
-         * Note that this feature has lower precedence than per-class
-         * annotations, and is only used if there isn't more granular
-         * configuration available.
-         *<P>
-         * Feature is enabled by default.
-         */
-        AUTO_DETECT_FIELDS(true, false),
-
-        /**
-         * Feature that determines whether otherwise regular "getter"
-         * methods (but only ones that handle Collections and Maps,
-         * not getters of other type)
-         * can be used for purpose of getting a reference to a Collection
-         * and Map to modify the property, without requiring a setter
-         * method.
-         * This is similar to how JAXB framework sets Collections and
-         * Maps: no setter is involved, just setter.
-         *<p>
-         * Note that such getters-as-setters methods have lower
-         * precedence than setters, so they are only used if no
-         * setter is found for the Map/Collection property.
-         *<p>
-         * Feature is enabled by default.
-         */
-        USE_GETTERS_AS_SETTERS(true, false),
-
-        /**
-         * Feature that determines whether method and field access
-         * modifier settings can be overridden when accessing
-         * properties. If enabled, method
-         * {@link java.lang.reflect.AccessibleObject#setAccessible}
-         * may be called to enable access to otherwise unaccessible
-         * objects.
-         */
-        CAN_OVERRIDE_ACCESS_MODIFIERS(true, false),
-
         /*
         /******************************************************
         /* Type conversion features
@@ -153,7 +60,7 @@ public class DeserializationConfig
          */
 
         /**
-         * Feature that determines whether Json floating point numbers
+         * Feature that determines whether JSON floating point numbers
          * are to be deserialized into {@link java.math.BigDecimal}s
          * if only generic type description (either {@link Object} or
          * {@link Number}, or within untyped {@link java.util.Map}
@@ -165,14 +72,11 @@ public class DeserializationConfig
          * point numbers will by default be deserialized as {@link Double}s
          * (choice is for performance reason -- BigDecimals are slower than
          * Doubles).
-         * Feature <b>can</b> be changed
-         * after first call to serialization; that is, it is changeable
-         * via {@link ObjectWriter}
          */
-        USE_BIG_DECIMAL_FOR_FLOATS(false, true),
+        USE_BIG_DECIMAL_FOR_FLOATS(false),
 
         /**
-         * Feature that determines whether Json integral (non-floating-point)
+         * Feature that determines whether JSON integral (non-floating-point)
          * numbers are to be deserialized into {@link java.math.BigInteger}s
          * if only generic type description (either {@link Object} or
          * {@link Number}, or within untyped {@link java.util.Map}
@@ -186,11 +90,8 @@ public class DeserializationConfig
          * Feature is disabled by default, meaning that "untyped" floating
          * point numbers will by default be deserialized using whatever
          * is the most compact integral type, to optimize efficiency.
-         * Feature <b>can</b> be changed
-         * after first call to serialization; that is, it is changeable
-         * via {@link ObjectWriter}
          */
-        USE_BIG_INTEGER_FOR_INTS(false, true),
+        USE_BIG_INTEGER_FOR_INTS(false),
 
         // [JACKSON-652]
         /**
@@ -200,27 +101,22 @@ public class DeserializationConfig
          * If true, binds as <code>Object[]</code>; if false, as <code>List&lt;Object></code>.
          *<p>
          * Feature is disabled by default, meaning that JSON arrays are bound as
-         * {@link java.util.List}s. It <b>can</b> be changed
-         * after first call to serialization; that is, it is changeable
-         * via {@link ObjectWriter}
+         * {@link java.util.List}s.
          */
-        USE_JAVA_ARRAY_FOR_JSON_ARRAY(false, true),
+        USE_JAVA_ARRAY_FOR_JSON_ARRAY(false),
         
         /**
          * Feature that determines standard deserialization mechanism used for
          * Enum values: if enabled, Enums are assumed to have been serialized  using
          * return value of <code>Enum.toString()</code>;
          * if disabled, return value of <code>Enum.name()</code> is assumed to have been used.
-         * Since pre-1.6 method was to use Enum name, this is the default.
          *<p>
          * Note: this feature should usually have same value
          * as {@link SerializationConfig.Feature#WRITE_ENUMS_USING_TO_STRING}.
          *<p>
-         * Feature is disabled by default. It <b>can</b> be changed
-         * after first call to serialization; that is, it is changeable
-         * via {@link ObjectWriter}
+         * Feature is disabled by default.
          */
-        READ_ENUMS_USING_TO_STRING(false, true),
+        READ_ENUMS_USING_TO_STRING(false),
         
         /*
         /******************************************************
@@ -240,11 +136,9 @@ public class DeserializationConfig
          *<p>
          * Feature is enabled by default (meaning that a
          * {@link JsonMappingException} will be thrown if an unknown property
-         * is encountered). It <b>can</b> be changed
-         * after first call to serialization; that is, it is changeable
-         * via {@link ObjectWriter}
+         * is encountered).
          */
-        FAIL_ON_UNKNOWN_PROPERTIES(true, true),
+        FAIL_ON_UNKNOWN_PROPERTIES(true),
 
         /**
          * Feature that determines whether encountering of JSON null
@@ -253,11 +147,9 @@ public class DeserializationConfig
          * is thrown to indicate this; if not, default value is used
          * (0 for 'int', 0.0 for double, same defaulting as what JVM uses).
          *<p>
-         * Feature is disabled by default. It <b>can</b> be changed
-         * after first call to serialization; that is, it is changeable
-         * via {@link ObjectWriter}
+         * Feature is disabled by default.
          */
-        FAIL_ON_NULL_FOR_PRIMITIVES(false, true),
+        FAIL_ON_NULL_FOR_PRIMITIVES(false),
 
         /**
          * Feature that determines whether JSON integer numbers are valid
@@ -269,11 +161,9 @@ public class DeserializationConfig
          * mapping from integer values to enums might happen (and when enums
          * are always serialized as JSON Strings)
          *<p>
-         * Feature is disabled by default. It <b>can</b> be changed
-         * after first call to serialization; that is, it is changeable
-         * via {@link ObjectWriter}
+         * Feature is disabled by default.
          */
-        FAIL_ON_NUMBERS_FOR_ENUMS(false, true),
+        FAIL_ON_NUMBERS_FOR_ENUMS(false),
 
         /**
          * Feature that determines whether Jackson code should catch
@@ -288,11 +178,9 @@ public class DeserializationConfig
          * However, sometimes calling application may just want "raw"
          * unchecked exceptions passed as is.
          *<p>
-         * Feature is enabled by default. It <b>can</b> be changed
-         * after first call to serialization; that is, it is changeable
-         * via {@link ObjectWriter}
+         * Feature is enabled by default.
          */
-        WRAP_EXCEPTIONS(true, true),
+        WRAP_EXCEPTIONS(true),
         
         /*
         /******************************************************
@@ -309,11 +197,9 @@ public class DeserializationConfig
          * to work with packages (such as XML-to-JSON converters) that leave out JSON
          * array in cases where there is just a single element in array.
          *<p>
-         * Feature is disabled by default. It <b>can</b> be changed
-         * after first call to serialization; that is, it is changeable
-         * via {@link ObjectWriter}
+         * Feature is disabled by default.
          */
-        ACCEPT_SINGLE_VALUE_AS_ARRAY(false, true),
+        ACCEPT_SINGLE_VALUE_AS_ARRAY(false),
         
         /**
          * Feature to allow "unwrapping" root-level JSON value, to match setting of
@@ -323,15 +209,13 @@ public class DeserializationConfig
          * {@link JsonMappingException} is thrown; otherwise value of the wrapped property
          * will be deserialized as if it was the root value.
          *<p>
-         * Feature is disabled by default. It <b>can</b> be changed
-         * after first call to serialization; that is, it is changeable
-         * via {@link ObjectWriter}
+         * Feature is disabled by default.
          */
-        UNWRAP_ROOT_VALUE(false, true),
+        UNWRAP_ROOT_VALUE(false),
 
         /*
         /******************************************************
-         *  Value conversion features
+        /* Value conversion features
         /******************************************************
          */
         
@@ -344,32 +228,20 @@ public class DeserializationConfig
          * kinds of JSON values); if enable, empty JSON String can be taken
          * to be equivalent of JSON null.
          *<p>
-         * Feature is enabled by default. It <b>can</b> be changed
-         * after first call to serialization; that is, it is changeable
-         * via {@link ObjectWriter}
+         * Feature is enabled by default.
          */
-        ACCEPT_EMPTY_STRING_AS_NULL_OBJECT(false, true)
+        ACCEPT_EMPTY_STRING_AS_NULL_OBJECT(false)
         
         ;
 
         private final boolean _defaultState;
-
-        /**
-         * Whether feature can be used and changed on per-call basis (true),
-         * or just for <code>ObjectMapper</code> (false).
-         */
-        private final boolean _canUseForInstance;
         
-        private Feature(boolean defaultState, boolean canUseForInstance) {
+        private Feature(boolean defaultState) {
             _defaultState = defaultState;
-            _canUseForInstance = canUseForInstance;
         }
 
         @Override
         public boolean enabledByDefault() { return _defaultState; }
-
-        @Override
-        public boolean canUseForInstance() { return _canUseForInstance; }
     
         @Override
         public int getMask() { return (1 << ordinal()); }
@@ -382,28 +254,22 @@ public class DeserializationConfig
      */
 
     /**
+     * Set of features enabled; actual type (kind of features)
+     * depends on sub-classes.
+     */
+    protected final int _featureFlags;
+    
+    /**
      * Linked list that contains all registered problem handlers.
      * Implementation as front-added linked list allows for sharing
      * of the list (tail) without copying the list.
      */
-    protected LinkedNode<DeserializationProblemHandler> _problemHandlers;
+    protected final LinkedNode<DeserializationProblemHandler> _problemHandlers;
     
     /**
      * Factory used for constructing {@link com.fasterxml.jackson.core.JsonNode} instances.
      */
     protected final JsonNodeFactory _nodeFactory;
-
-    /**
-     * Feature flag from {@link SerializationConfig} which is needed to
-     * know if serializer will by default sort properties in
-     * alphabetic order.
-     *<p>
-     * Note that although this property is not marked as final,
-     * it is handled like it was, except for the fact that it is
-     * assigned with a call to {@link #passSerializationFeatures}
-     * instead of constructor.
-     */
-    protected boolean _sortPropertiesAlphabetically;
     
     /*
     /**********************************************************
@@ -415,10 +281,12 @@ public class DeserializationConfig
      * Constructor used by ObjectMapper to create default configuration object instance.
      */
     public DeserializationConfig(BaseSettings base,
-            int defaultFeatures, SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
+            SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
     {
-        super(base, defaultFeatures, str, mixins);
+        super(base, str, mixins);
+        _featureFlags = collectFeatureDefaults(DeserializationConfig.Feature.class);
         _nodeFactory = JsonNodeFactory.instance;
+        _problemHandlers = null;
     }
 
     /**
@@ -428,57 +296,45 @@ public class DeserializationConfig
     private DeserializationConfig(DeserializationConfig src, SubtypeResolver str)
     {
         super(src, str);
-        _problemHandlers = src._problemHandlers;
+        _featureFlags = src._featureFlags;
         _nodeFactory = src._nodeFactory;
-        _sortPropertiesAlphabetically = src._sortPropertiesAlphabetically;
+        _problemHandlers = src._problemHandlers;
     }
 
-    private DeserializationConfig(DeserializationConfig src, SubtypeResolver str,
-            int features)
+    private DeserializationConfig(DeserializationConfig src,
+            int mapperFeatures, int deserFeatures)
     {
-        super(src, src._base, str, features);
-
-        _problemHandlers = src._problemHandlers;
+        super(src, mapperFeatures);
+        _featureFlags = deserFeatures;
         _nodeFactory = src._nodeFactory;
-        _sortPropertiesAlphabetically = src._sortPropertiesAlphabetically;
+        _problemHandlers = src._problemHandlers;
     }
     
     private DeserializationConfig(DeserializationConfig src, BaseSettings base)
     {
-        super(src, base, src._subtypeResolver, src._featureFlags);
-        _problemHandlers = src._problemHandlers;
+        super(src, base);
+        _featureFlags = src._featureFlags;
         _nodeFactory = src._nodeFactory;
-        _sortPropertiesAlphabetically = src._sortPropertiesAlphabetically;
+        _problemHandlers = src._problemHandlers;
     }
     
     private DeserializationConfig(DeserializationConfig src, JsonNodeFactory f)
     {
         super(src);
+        _featureFlags = src._featureFlags;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = f;
-        _sortPropertiesAlphabetically = src._sortPropertiesAlphabetically;
     }
 
-    private DeserializationConfig(DeserializationConfig src, int featureFlags)
+    private DeserializationConfig(DeserializationConfig src,
+            LinkedNode<DeserializationProblemHandler> problemHandlers)
     {
-        super(src, featureFlags);
-        _problemHandlers = src._problemHandlers;
+        super(src);
+        _featureFlags = src._featureFlags;
+        _problemHandlers = problemHandlers;
         _nodeFactory = src._nodeFactory;
-        _sortPropertiesAlphabetically = src._sortPropertiesAlphabetically;
     }
-    
-    /**
-     * Helper method to be called right after creating a non-shared
-     * instance, needed to pass state of feature(s) shared with
-     * SerializationConfig.
-     */
-    protected DeserializationConfig passSerializationFeatures(int serializationFeatureFlags)
-    {
-        _sortPropertiesAlphabetically = (serializationFeatureFlags
-                & SerializationConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY.getMask()) != 0;
-        return this;
-    }
-    
+       
     /*
     /**********************************************************
     /* Life-cycle, factory methods from MapperConfig
@@ -556,9 +412,52 @@ public class DeserializationConfig
      * specified {@link JsonNodeFactory}
      */
     public DeserializationConfig withNodeFactory(JsonNodeFactory f) {
+        if (_nodeFactory == f) {
+            return this;
+        }
         return new DeserializationConfig(this, f);
     }
 
+    /**
+     * Method that can be used to add a handler that can (try to)
+     * resolve non-fatal deserialization problems.
+     */
+    public DeserializationConfig withHandler(DeserializationProblemHandler h)
+    {
+        // Sanity check: let's prevent adding same handler multiple times
+        if (LinkedNode.contains(_problemHandlers, h)) {
+            return this;
+        }
+        return new DeserializationConfig(this,
+                new LinkedNode<DeserializationProblemHandler>(h, _problemHandlers));
+    }
+
+    /**
+     * Method for removing all configured problem handlers; usually done to replace
+     * existing handler(s) with different one(s)
+     */
+    public DeserializationConfig withNoProblemHandlers() {
+        if (_problemHandlers == null) {
+            return this;
+        }
+        return new DeserializationConfig(this,
+                (LinkedNode<DeserializationProblemHandler>) null);
+    }
+    
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified features enabled.
+     */
+    @Override
+    public DeserializationConfig with(MapperConfig.Feature... features)
+    {
+        int newMapperFlags = _mapperFeatures;
+        for (MapperConfig.Feature f : features) {
+            newMapperFlags |= f.getMask();
+        }
+        return new DeserializationConfig(this, newMapperFlags, _featureFlags);
+    }
+    
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
@@ -570,9 +469,23 @@ public class DeserializationConfig
         for (Feature f : features) {
             flags |= f.getMask();
         }
-        return new DeserializationConfig(this, flags);
+        return new DeserializationConfig(this, _mapperFeatures, flags);
     }
 
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified features disabled.
+     */
+    @Override
+    public DeserializationConfig without(MapperConfig.Feature... features)
+    {
+        int newMapperFlags = _mapperFeatures;
+        for (MapperConfig.Feature f : features) {
+             newMapperFlags &= ~f.getMask();
+        }
+        return new DeserializationConfig(this, newMapperFlags, _featureFlags);
+    }
+    
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
@@ -584,7 +497,7 @@ public class DeserializationConfig
         for (Feature f : features) {
             flags &= ~f.getMask();
         }
-        return new DeserializationConfig(this, flags);
+        return new DeserializationConfig(this, _mapperFeatures, flags);
     }
     
     /*
@@ -592,24 +505,10 @@ public class DeserializationConfig
     /* MapperConfig implementation
     /**********************************************************
      */
-    
-    /**
-     * Method that is called to create a non-shared copy of the configuration
-     * to be used for a deserialization operation.
-     * Note that if sub-classing
-     * and sub-class has additional instance methods,
-     * this method <b>must</b> be overridden to produce proper sub-class
-     * instance.
-     */
-    @Override
-    public DeserializationConfig createUnshared() {
-        return this;
-    }
-
 
     @Override
-    public DeserializationConfig createUnshared(int features) {
-        return new DeserializationConfig(this, features);
+    public final int getFeatureFlags() {
+        return _featureFlags;
     }
     
     /**
@@ -622,7 +521,7 @@ public class DeserializationConfig
         /* 29-Jul-2009, tatu: it's now possible to disable use of
          *   annotations; can be done using "no-op" introspector
          */
-        if (isEnabled(Feature.USE_ANNOTATIONS)) {
+        if (isEnabled(MapperConfig.Feature.USE_ANNOTATIONS)) {
             return super.getAnnotationIntrospector();
         }
         return NopAnnotationIntrospector.instance;
@@ -648,33 +547,18 @@ public class DeserializationConfig
     public <T extends BeanDescription> T introspectDirectClassAnnotations(JavaType type) {
         return (T) getClassIntrospector().forDirectClassAnnotations(this, type, this);
     }
-    
-    @Override
-    public boolean isAnnotationProcessingEnabled() {
-        return isEnabled(Feature.USE_ANNOTATIONS);
-    }
-
-    @Override
-    public boolean canOverrideAccessModifiers() {
-        return isEnabled(Feature.CAN_OVERRIDE_ACCESS_MODIFIERS);
-    }
-
-    @Override
-    public boolean shouldSortPropertiesAlphabetically() {
-        return _sortPropertiesAlphabetically;
-    }
 
     @Override
     public VisibilityChecker<?> getDefaultVisibilityChecker()
     {
         VisibilityChecker<?> vchecker = super.getDefaultVisibilityChecker();
-        if (!isEnabled(DeserializationConfig.Feature.AUTO_DETECT_SETTERS)) {
+        if (!isEnabled(MapperConfig.Feature.AUTO_DETECT_SETTERS)) {
             vchecker = vchecker.withSetterVisibility(Visibility.NONE);
         }
-        if (!isEnabled(DeserializationConfig.Feature.AUTO_DETECT_CREATORS)) {
+        if (!isEnabled(MapperConfig.Feature.AUTO_DETECT_CREATORS)) {
             vchecker = vchecker.withCreatorVisibility(Visibility.NONE);
         }
-        if (!isEnabled(DeserializationConfig.Feature.AUTO_DETECT_FIELDS)) {
+        if (!isEnabled(MapperConfig.Feature.AUTO_DETECT_FIELDS)) {
             vchecker = vchecker.withFieldVisibility(Visibility.NONE);
         }
         return vchecker;
@@ -683,44 +567,6 @@ public class DeserializationConfig
     public boolean isEnabled(DeserializationConfig.Feature f) {
         return (_featureFlags & f.getMask()) != 0;
     }
-    
-    /*
-    /**********************************************************
-    /* Problem handlers
-    /**********************************************************
-     */
-
-    /**
-     * Method for getting head of the problem handler chain. May be null,
-     * if no handlers have been added.
-     */
-    public LinkedNode<DeserializationProblemHandler> getProblemHandlers()
-    {
-        return _problemHandlers;
-    }
-    
-    /**
-     * Method that can be used to add a handler that can (try to)
-     * resolve non-fatal deserialization problems.
-     */
-    public void addHandler(DeserializationProblemHandler h)
-    {
-        /* Sanity check: let's prevent adding same handler multiple
-         * times
-         */
-        if (!LinkedNode.contains(_problemHandlers, h)) {
-            _problemHandlers = new LinkedNode<DeserializationProblemHandler>(h, _problemHandlers);
-        }
-    }
-
-    /**
-     * Method for removing all configured problem handlers; usually done to replace
-     * existing handler(s) with different one(s)
-     */
-    public void clearHandlers()
-    {
-        _problemHandlers = null;
-    }
 
     /*
     /**********************************************************
@@ -728,6 +574,14 @@ public class DeserializationConfig
     /**********************************************************
      */
 
+    /**
+     * Method for getting head of the problem handler chain. May be null,
+     * if no handlers have been added.
+     */
+    public LinkedNode<DeserializationProblemHandler> getProblemHandlers() {
+        return _problemHandlers;
+    }
+    
     /**
      * Method called during deserialization if Base64 encoded content
      * needs to be decoded. Default version just returns default Jackson

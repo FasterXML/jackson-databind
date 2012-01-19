@@ -9,17 +9,13 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     T extends MapperConfigBase<CFG,T>>
     extends MapperConfig<T>
 {
+    private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperConfig.Feature.class);
+
     /*
     /**********************************************************
     /* Immutable config
     /**********************************************************
      */
-
-    /**
-     * Set of features enabled; actual type (kind of features)
-     * depends on sub-classes.
-     */
-    protected int _featureFlags;
 
     /**
      * Mix-in annotation mappings to use, if any: immutable,
@@ -39,59 +35,46 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**********************************************************
      */
 
+    /**
+     * Constructor used when creating a new instance (compared to
+     * that of creating fluent copies)
+     */
     protected MapperConfigBase(BaseSettings base,
-            int defaultFeatures, SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
+            SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
     {
-        super(base);
-        _featureFlags = defaultFeatures;
+        super(base, DEFAULT_MAPPER_FEATURES);
         _mixInAnnotations = mixins;
         _subtypeResolver = str;
     }
     
+    /**
+     * Pass-through constructor used when no changes are needed to the
+     * base class.
+     */
     protected MapperConfigBase(MapperConfigBase<CFG,T> src) {
-        super(src._base);
-        _featureFlags = src._featureFlags;
+        super(src);
         _mixInAnnotations = src._mixInAnnotations;
         _subtypeResolver = src._subtypeResolver;
     }
     
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, int features) {
-        super(src._base);
-        _featureFlags = features;
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, int mapperFeatures)
+    {
+        super(src._base, mapperFeatures);
         _mixInAnnotations = src._mixInAnnotations;
         _subtypeResolver = src._subtypeResolver;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SubtypeResolver str) {
-        super(src._base);
-        _featureFlags = src._featureFlags;
+        super(src);
         _mixInAnnotations = src._mixInAnnotations;
         _subtypeResolver = str;
     }
-    
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, SubtypeResolver str,
-            int features)
+
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base)
     {
-        super(src._base);
-        _featureFlags = features;
+        super(base, src._mapperFeatures);
         _mixInAnnotations = src._mixInAnnotations;
-        _subtypeResolver = str;
-    }
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base, SubtypeResolver str)
-    {
-        super(base);
-        _featureFlags = src._featureFlags;
-        _mixInAnnotations = src._mixInAnnotations;
-        _subtypeResolver = str;
-    }
-    
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base, SubtypeResolver str,
-            int features)
-    {
-        super(base);
-        _featureFlags = features;
-        _mixInAnnotations = src._mixInAnnotations;
-        _subtypeResolver = str;
+        _subtypeResolver = src._subtypeResolver;
     }
     
     /*
@@ -118,9 +101,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /**********************************************************
      */
 
-    public final int getFeatureFlags() {
-        return _featureFlags;
-    }
+    public abstract int getFeatureFlags();
 
     /**
      * Accessor for object used for finding out all reachable subtypes

@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * Unit tests for verifying that constraints on ordering of serialized
@@ -112,7 +114,7 @@ public class TestSerializationOrder
     public void testOrderWithFeature() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.configure(SerializationConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY, true);
+        m.configure(MapperConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY, true);
         assertEquals("{\"a\":1,\"b\":2,\"c\":3,\"d\":4}", serializeAsString(m, new BeanFor459()));
     }
 }

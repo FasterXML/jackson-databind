@@ -86,7 +86,7 @@ public class TestMixinDeserForCreators
     public void testForConstructor() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
-        m.getDeserializationConfig().addMixInAnnotations(BaseClassWithPrivateCtor.class, MixInForPrivate.class);
+        m.addMixInAnnotations(BaseClassWithPrivateCtor.class, MixInForPrivate.class);
         BaseClassWithPrivateCtor result = m.readValue("\"?\"", BaseClassWithPrivateCtor.class);
         assertEquals("?...", result._a);
     }
@@ -102,7 +102,7 @@ public class TestMixinDeserForCreators
 
         // Then with simple mix-in: should change to use the factory method
         m = new ObjectMapper();
-        m.getDeserializationConfig().addMixInAnnotations(BaseClass.class, MixIn.class);
+        m.addMixInAnnotations(BaseClass.class, MixIn.class);
         result = m.readValue("\"string\"", BaseClass.class);
         assertEquals("stringX", result._a);
     }
@@ -110,7 +110,7 @@ public class TestMixinDeserForCreators
     public void testFactoryMixIn() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
-        m.getDeserializationConfig().addMixInAnnotations(StringWrapper.class, StringWrapperMixIn.class);
+        m.addMixInAnnotations(StringWrapper.class, StringWrapperMixIn.class);
         StringWrapper result = m.readValue("\"a\"", StringWrapper.class);
         assertEquals("a", result._value);
     }

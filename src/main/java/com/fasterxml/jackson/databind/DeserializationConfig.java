@@ -417,10 +417,12 @@ public class DeserializationConfig
     public DeserializationConfig(ClassIntrospector<? extends BeanDescription> intr,
             AnnotationIntrospector annIntr, VisibilityChecker<?> vc,
             SubtypeResolver subtypeResolver, PropertyNamingStrategy propertyNamingStrategy,
-            TypeFactory typeFactory, HandlerInstantiator handlerInstantiator)
+            TypeFactory typeFactory, HandlerInstantiator handlerInstantiator,
+            Map<ClassKey,Class<?>> mixins)
     {
         super(intr, annIntr, vc, subtypeResolver, propertyNamingStrategy, typeFactory, handlerInstantiator,
-                collectFeatureDefaults(DeserializationConfig.Feature.class));
+                collectFeatureDefaults(DeserializationConfig.Feature.class),
+                mixins);
         _nodeFactory = JsonNodeFactory.instance;
     }
     
@@ -432,16 +434,13 @@ public class DeserializationConfig
      * Copy constructor used to create a non-shared instance with given mix-in
      * annotation definitions and subtype resolver.
      */
-    private DeserializationConfig(DeserializationConfig src,
-            HashMap<ClassKey,Class<?>> mixins, SubtypeResolver str)
+    private DeserializationConfig(DeserializationConfig src, SubtypeResolver str)
     {
         this(src, src._base);
-        _mixInAnnotations = mixins;
         _subtypeResolver = str;
     }
 
-    private DeserializationConfig(DeserializationConfig src,
-            HashMap<ClassKey,Class<?>> mixins, SubtypeResolver str,
+    private DeserializationConfig(DeserializationConfig src, SubtypeResolver str,
             int features)
     {
         super(src, src._base, str, features);
@@ -449,8 +448,6 @@ public class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
         _sortPropertiesAlphabetically = src._sortPropertiesAlphabetically;
-
-        _mixInAnnotations = mixins;
     }
     
     protected DeserializationConfig(DeserializationConfig src, BaseSettings base)
@@ -617,19 +614,15 @@ public class DeserializationConfig
     @Override
     public DeserializationConfig createUnshared(SubtypeResolver subtypeResolver)
     {
-        HashMap<ClassKey,Class<?>> mixins = _mixInAnnotations;
-        // ensure that we assume sharing at this point:
-        _mixInAnnotationsShared = true;
-        return new DeserializationConfig(this, mixins, subtypeResolver);
+        return new DeserializationConfig(this, subtypeResolver);
     }
 
 
     @Override
-    public DeserializationConfig createUnshared(SubtypeResolver subtypeResolver, int features) {
-        HashMap<ClassKey,Class<?>> mixins = _mixInAnnotations;
-        // ensure that we assume sharing at this point:
-        _mixInAnnotationsShared = true;
-        return new DeserializationConfig(this, mixins, subtypeResolver, features);
+    public DeserializationConfig createUnshared(SubtypeResolver subtypeResolver,
+            int features)
+    {
+        return new DeserializationConfig(this, subtypeResolver, features);
     }
     
     /**

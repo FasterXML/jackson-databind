@@ -479,7 +479,7 @@ public class SerializationConfig
     /* Configuration settings
     /**********************************************************
      */
-
+    
     /**
      * Which Bean/Map properties are to be included in serialization?
      * Default settings is to include all regardless of value; can be
@@ -513,43 +513,28 @@ public class SerializationConfig
     public SerializationConfig(ClassIntrospector<? extends BeanDescription> intr,
             AnnotationIntrospector annIntr, VisibilityChecker<?> vc,
             SubtypeResolver subtypeResolver, PropertyNamingStrategy propertyNamingStrategy,
-            TypeFactory typeFactory, HandlerInstantiator handlerInstantiator)
+            TypeFactory typeFactory, HandlerInstantiator handlerInstantiator,
+            Map<ClassKey,Class<?>> mixins)
+
     {
         super(intr, annIntr, vc, subtypeResolver, propertyNamingStrategy, typeFactory, handlerInstantiator,
-                collectFeatureDefaults(SerializationConfig.Feature.class));
+                collectFeatureDefaults(SerializationConfig.Feature.class),
+                mixins);
         _filterProvider = null;
     }
     
-    protected SerializationConfig(SerializationConfig src) {
+    private SerializationConfig(SerializationConfig src) {
         this(src, src._base);
     }
 
-    /**
-     * Constructor used to make a private copy of specific mix-in definitions.
-     */
-    protected SerializationConfig(SerializationConfig src,
-            HashMap<ClassKey,Class<?>> mixins, SubtypeResolver str)
-    {
-        this(src, src._base);
-        _mixInAnnotations = mixins;
-        _subtypeResolver = str;
-    }
-
-    /**
-     * Constructor used to make a private copy of specific mix-in definitions.
-     */
-    protected SerializationConfig(SerializationConfig src,
-            HashMap<ClassKey,Class<?>> mixins, SubtypeResolver str,
-            int features)
-    {
-        super(src, src._base, str, features);
+    private SerializationConfig(SerializationConfig src, int features) {
+        super(src, features);
         _serializationInclusion = src._serializationInclusion;
         _serializationView = src._serializationView;
         _filterProvider = src._filterProvider;
-        _mixInAnnotations = mixins;
     }
     
-    protected SerializationConfig(SerializationConfig src, BaseSettings base)
+    private SerializationConfig(SerializationConfig src, BaseSettings base)
     {
         super(src, base, src._subtypeResolver);
         _serializationInclusion = src._serializationInclusion;
@@ -557,7 +542,7 @@ public class SerializationConfig
         _filterProvider = src._filterProvider;
     }
 
-    protected SerializationConfig(SerializationConfig src, FilterProvider filters)
+    private SerializationConfig(SerializationConfig src, FilterProvider filters)
     {
         super(src);
         _serializationInclusion = src._serializationInclusion;
@@ -565,7 +550,7 @@ public class SerializationConfig
         _filterProvider = filters;
     }
 
-    protected SerializationConfig(SerializationConfig src, Class<?> view)
+    private SerializationConfig(SerializationConfig src, Class<?> view)
     {
         super(src);
         _serializationInclusion = src._serializationInclusion;
@@ -573,7 +558,7 @@ public class SerializationConfig
         _filterProvider = src._filterProvider;
     }
 
-    protected SerializationConfig(SerializationConfig src, JsonInclude.Include incl)
+    private SerializationConfig(SerializationConfig src, JsonInclude.Include incl)
     {
         super(src);
         _serializationInclusion = incl;
@@ -581,9 +566,10 @@ public class SerializationConfig
         _filterProvider = src._filterProvider;
     }
 
-    protected SerializationConfig(SerializationConfig src, int features)
+    private SerializationConfig(SerializationConfig src, SubtypeResolver str,
+            int features)
     {
-        super(src, features);
+        super(src, str, features);
         _serializationInclusion = src._serializationInclusion;
         _serializationView = src._serializationView;
         _filterProvider = src._filterProvider;
@@ -724,18 +710,14 @@ public class SerializationConfig
     @Override
     public SerializationConfig createUnshared(SubtypeResolver subtypeResolver)
     {
-        HashMap<ClassKey,Class<?>> mixins = _mixInAnnotations;
-        _mixInAnnotationsShared = true;
-        return new SerializationConfig(this, mixins, subtypeResolver);
+        return new SerializationConfig(this, subtypeResolver, _featureFlags);
     }
 
     @Override
     public SerializationConfig createUnshared(SubtypeResolver subtypeResolver,
             int features)
     {
-        HashMap<ClassKey,Class<?>> mixins = _mixInAnnotations;
-        _mixInAnnotationsShared = true;
-        return new SerializationConfig(this, mixins, subtypeResolver, features);
+        return new SerializationConfig(this, subtypeResolver, features);
     }
     
     @Override

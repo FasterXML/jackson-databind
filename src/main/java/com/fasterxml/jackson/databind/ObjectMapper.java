@@ -5,6 +5,8 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.text.DateFormat;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -28,6 +30,7 @@ import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.ser.*;
+import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
@@ -218,6 +221,26 @@ public class ObjectMapper
      * Provider for values to inject in deserialized POJOs.
      */
     protected InjectableValues _injectableValues;
+
+    /*
+    /**********************************************************
+    /* Configuration settings: mix-in annotations
+    /**********************************************************
+     */
+    
+    /**
+     * Mapping that defines how to apply mix-in annotations: key is
+     * the type to received additional annotations, and value is the
+     * type that has annotations to "mix in".
+     *<p>
+     * Annotations associated with the value classes will be used to
+     * override annotations of the key class, associated with the
+     * same field or method. They can be further masked by sub-classes:
+     * you can think of it as injecting annotations between the target
+     * class and its sub-classes (or interfaces)
+     */
+    protected final HashMap<ClassKey,Class<?>> _mixInAnnotations
+        = new HashMap<ClassKey,Class<?>>();
     
     /*
     /**********************************************************
@@ -366,10 +389,10 @@ public class ObjectMapper
         _typeFactory = TypeFactory.defaultInstance();
         _serializationConfig = (sconfig != null) ? sconfig :
             new SerializationConfig(DEFAULT_INTROSPECTOR, DEFAULT_ANNOTATION_INTROSPECTOR, STD_VISIBILITY_CHECKER,
-                    null, null, _typeFactory, null);
+                    null, null, _typeFactory, null, _mixInAnnotations);
         _deserializationConfig = (dconfig != null) ? dconfig :
             new DeserializationConfig(DEFAULT_INTROSPECTOR, DEFAULT_ANNOTATION_INTROSPECTOR, STD_VISIBILITY_CHECKER,
-                    null, null, _typeFactory, null);
+                    null, null, _typeFactory, null, _mixInAnnotations);
         _serializerProvider = (sp == null) ? new StdSerializerProvider.Impl() : sp;
         _deserializerProvider = (dp == null) ? new StdDeserializerProvider() : dp;
 
@@ -524,8 +547,7 @@ public class ObjectMapper
 
             @Override
             public void setMixInAnnotations(Class<?> target, Class<?> mixinSource) {
-                mapper._deserializationConfig.addMixInAnnotations(target, mixinSource);
-                mapper._serializationConfig.addMixInAnnotations(target, mixinSource);
+                mapper.addMixInAnnotations(target, mixinSource);
             }
         });
         return this;
@@ -617,7 +639,7 @@ public class ObjectMapper
         _deserializationConfig = cfg;
         return this;
     }
-
+    
     /*
     /**********************************************************
     /* Configuration: ser/deser factory, provider access
@@ -658,7 +680,58 @@ public class ObjectMapper
     public DeserializerProvider getDeserializerProvider() {
         return _deserializerProvider;
     }
+    
+    /*
+    /**********************************************************
+    /* Configuration: mix-in annotations
+    /**********************************************************
+     */
+    
+    /**
+     * Method to use for defining mix-in annotations to use for augmenting
+     * annotations that processable (serializable / deserializable)
+     * classes have.
+     * Mixing in is done when introspecting class annotations and properties.
+     * Map passed contains keys that are target classes (ones to augment
+     * with new annotation overrides), and values that are source classes
+     * (have annotations to use for augmentation).
+     * Annotations from source classes (and their supertypes)
+     * will <b>override</b>
+     * annotations that target classes (and their super-types) have.
+     */
+    public final void setMixInAnnotations(Map<Class<?>, Class<?>> sourceMixins)
+    {
+        _mixInAnnotations.clear();
+        if (sourceMixins != null && sourceMixins.size() > 0) {
+            for (Map.Entry<Class<?>,Class<?>> en : sourceMixins.entrySet()) {
+                _mixInAnnotations.put(new ClassKey(en.getKey()), en.getValue());
+            }
+        }
+    }
 
+    /**
+     * Method to use for adding mix-in annotations to use for augmenting
+     * specified class or interface. All annotations from
+     * <code>mixinSource</code> are taken to override annotations
+     * that <code>target</code> (or its supertypes) has.
+     *
+     * @param target Class (or interface) whose annotations to effectively override
+     * @param mixinSource Class (or interface) whose annotations are to
+     *   be "added" to target's annotations, overriding as necessary
+     */
+    public final void addMixInAnnotations(Class<?> target, Class<?> mixinSource)
+    {
+        _mixInAnnotations.put(new ClassKey(target), mixinSource);
+    }
+
+    public final Class<?> findMixInClassFor(Class<?> cls) {
+        return (_mixInAnnotations == null) ? null : _mixInAnnotations.get(new ClassKey(cls));
+    }
+
+    public final int mixInCount() {
+        return (_mixInAnnotations == null) ? 0 : _mixInAnnotations.size();
+    }
+    
     /*
     /**********************************************************
     /* Configuration, introspection

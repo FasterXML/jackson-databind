@@ -127,7 +127,7 @@ public class TestTypedDeserialization
     public void testTypeAsWrapper() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.getDeserializationConfig().addMixInAnnotations(Animal.class, TypeWithWrapper.class);
+        m.addMixInAnnotations(Animal.class, TypeWithWrapper.class);
         String JSON = "{\".TestTypedDeserialization$Dog\" : "
             +asJSONObjectValueString(m, "name", "Scooby", "boneCount", "6")+" }";
         Animal a = m.readValue(JSON, Animal.class);
@@ -142,7 +142,7 @@ public class TestTypedDeserialization
     public void testTypeAsArray() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.getDeserializationConfig().addMixInAnnotations(Animal.class, TypeWithArray.class);
+        m.addMixInAnnotations(Animal.class, TypeWithArray.class);
         // hmmh. Not good idea to rely on exact output, order may change. But...
         String JSON = "[\""+Dog.class.getName()+"\", "
             +asJSONObjectValueString(m, "name", "Martti", "boneCount", "11")+" ]";

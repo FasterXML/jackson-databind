@@ -49,7 +49,7 @@ public class TestCustomSerializers
     public void testCustomization() throws Exception
     {
         ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.getSerializationConfig().addMixInAnnotations(Element.class, ElementMixin.class);
+        objectMapper.addMixInAnnotations(Element.class, ElementMixin.class);
         Element element = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument().createElement("el");
         StringWriter sw = new StringWriter();
         objectMapper.writeValue(sw, element);

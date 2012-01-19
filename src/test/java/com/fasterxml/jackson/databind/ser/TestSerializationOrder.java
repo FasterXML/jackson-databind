@@ -97,7 +97,7 @@ public class TestSerializationOrder
     public void testOrderWithMixins() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.getSerializationConfig().addMixInAnnotations(BeanWithOrder.class, OrderMixIn.class);
+        m.addMixInAnnotations(BeanWithOrder.class, OrderMixIn.class);
         assertEquals("{\"b\":2,\"a\":1,\"c\":3,\"d\":4}", serializeAsString(m, new BeanWithOrder(1, 2, 3, 4)));
     }
 

@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind.cfg;
 
 import java.text.DateFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -13,8 +11,6 @@ import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
-import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
-import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -57,56 +53,8 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
 
     /**
      * Immutable container object for simple configuration settings.
-     *<p>
-     * Note: ideally this would be final, but until we can eliminate
-     * mutators, must keep it mutable.
      */
-    protected BaseSettings _base;
-    
-    /*
-    /**********************************************************
-    /* Mix-in annotations
-    /**********************************************************
-     */
-    
-    /**
-     * Mapping that defines how to apply mix-in annotations: key is
-     * the type to received additional annotations, and value is the
-     * type that has annotations to "mix in".
-     *<p>
-     * Annotations associated with the value classes will be used to
-     * override annotations of the key class, associated with the
-     * same field or method. They can be further masked by sub-classes:
-     * you can think of it as injecting annotations between the target
-     * class and its sub-classes (or interfaces)
-     */
-    protected HashMap<ClassKey,Class<?>> _mixInAnnotations;
-
-    /**
-     * Flag used to detect when a copy if mix-in annotations is
-     * needed: set when current copy is shared, cleared when a
-     * fresh copy is made
-     */
-    protected boolean _mixInAnnotationsShared;
-
-    /*
-    /**********************************************************
-    /* "Late bound" settings
-    /**********************************************************
-     */
-
-    /**
-     * Registered concrete subtypes that can be used instead of (or
-     * in addition to) ones declared using annotations.
-     * Unlike most other settings, it is not configured as early
-     * as it is set, but rather only when a non-shared instance
-     * is constructed by <code>ObjectMapper</code> (or -Reader
-     * or -Writer)
-     *<p>
-     * Note: this is the only property left as non-final, to allow
-     * lazy construction of the instance as necessary.
-     */
-    protected SubtypeResolver _subtypeResolver;
+    protected final BaseSettings _base;
     
     /*
     /**********************************************************
@@ -115,33 +63,15 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      */
 
     protected MapperConfig(ClassIntrospector<? extends BeanDescription> ci, AnnotationIntrospector ai,
-            VisibilityChecker<?> vc, SubtypeResolver str, PropertyNamingStrategy pns, TypeFactory tf,
+            VisibilityChecker<?> vc, PropertyNamingStrategy pns, TypeFactory tf,
             HandlerInstantiator hi)
     {
         _base = new BaseSettings(ci, ai, vc, pns, tf, null, DEFAULT_DATE_FORMAT, hi);
-        _subtypeResolver = str;
-        // by default, assumed to be shared; only cleared when explicit copy is made
-        _mixInAnnotationsShared = true;
     }
 
-    /**
-     * Simple copy constructor
-     */
-    protected MapperConfig(MapperConfig<T> src) {
-        this(src, src._base, src._subtypeResolver);
-    }
-
-    /**
-     * Fluent-copy constructor that creates a new slightly modified version, using
-     * given config object as base for settings not provided.
-     */
-    protected MapperConfig(MapperConfig<T> src, BaseSettings base, SubtypeResolver str)
+    protected MapperConfig(BaseSettings base)
     {
         _base = base;
-        _subtypeResolver = str;
-        // by default, assumed to be shared; only cleared when explicit copy is made
-        _mixInAnnotationsShared = true;
-        _mixInAnnotations = src._mixInAnnotations;
     }
     
     /*
@@ -164,8 +94,9 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * (which may be this instance, if it is immutable; if not, a copy
      * is constructed with same settings)
      */
-    public abstract T createUnshared(SubtypeResolver subtypeResolver, int features);
-    
+    public abstract T createUnshared(SubtypeResolver subtypeResolver,
+            int features);
+
     /**
      * Method for constructing and returning a new instance with different
      * {@link ClassIntrospector}
@@ -352,74 +283,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     
     /*
     /**********************************************************
-    /* Configuration: mix-in annotations
-    /**********************************************************
-     */
-    
-    /**
-     * Method to use for defining mix-in annotations to use for augmenting
-     * annotations that processable (serializable / deserializable)
-     * classes have.
-     * Mixing in is done when introspecting class annotations and properties.
-     * Map passed contains keys that are target classes (ones to augment
-     * with new annotation overrides), and values that are source classes
-     * (have annotations to use for augmentation).
-     * Annotations from source classes (and their supertypes)
-     * will <b>override</b>
-     * annotations that target classes (and their super-types) have.
-     */
-    public final void setMixInAnnotations(Map<Class<?>, Class<?>> sourceMixins)
-    {
-        HashMap<ClassKey,Class<?>> mixins = null;
-        if (sourceMixins != null && sourceMixins.size() > 0) {
-            mixins = new HashMap<ClassKey,Class<?>>(sourceMixins.size());
-            for (Map.Entry<Class<?>,Class<?>> en : sourceMixins.entrySet()) {
-                mixins.put(new ClassKey(en.getKey()), en.getValue());
-            }
-        }
-        _mixInAnnotationsShared = false;
-        _mixInAnnotations = mixins;
-    }
-
-    /**
-     * Method to use for adding mix-in annotations to use for augmenting
-     * specified class or interface. All annotations from
-     * <code>mixinSource</code> are taken to override annotations
-     * that <code>target</code> (or its supertypes) has.
-     *
-     * @param target Class (or interface) whose annotations to effectively override
-     * @param mixinSource Class (or interface) whose annotations are to
-     *   be "added" to target's annotations, overriding as necessary
-     */
-    public final void addMixInAnnotations(Class<?> target, Class<?> mixinSource)
-    {
-        if (_mixInAnnotations == null) {
-            _mixInAnnotationsShared = false;
-            _mixInAnnotations = new HashMap<ClassKey,Class<?>>();
-        } else if (_mixInAnnotationsShared) {
-            _mixInAnnotationsShared = false;
-            _mixInAnnotations = new HashMap<ClassKey,Class<?>>(_mixInAnnotations);
-        }
-        _mixInAnnotations.put(new ClassKey(target), mixinSource);
-    }
-
-    // ClassIntrospector.MixInResolver impl:
-
-    /**
-     * Method that will check if there are "mix-in" classes (with mix-in
-     * annotations) for given class
-     */
-    @Override
-    public final Class<?> findMixInClassFor(Class<?> cls) {
-        return (_mixInAnnotations == null) ? null : _mixInAnnotations.get(new ClassKey(cls));
-    }
-
-    public final int mixInCount() {
-        return (_mixInAnnotations == null) ? 0 : _mixInAnnotations.size();
-    }
-    
-    /*
-    /**********************************************************
     /* Configuration: type and subtype handling
     /**********************************************************
      */
@@ -434,17 +297,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         return _base.getTypeResolverBuilder();
     }
     
-    /**
-     * Accessor for object used for finding out all reachable subtypes
-     * for supertypes; needed when a logical type name is used instead
-     * of class name (or custom scheme).
-     */
-    public final SubtypeResolver getSubtypeResolver() {
-        if (_subtypeResolver == null) {
-            _subtypeResolver = new StdSubtypeResolver();
-        }
-        return _subtypeResolver;
-    }
+    public abstract SubtypeResolver getSubtypeResolver();
 
     public final TypeFactory getTypeFactory() {
         return _base.getTypeFactory();

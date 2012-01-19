@@ -167,7 +167,7 @@ public class TestEnumSerialization
     public void testEnumsWithJsonValueUsingMixin() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.getSerializationConfig().addMixInAnnotations(TestEnum.class, ToStringMixin.class);
+        mapper.addMixInAnnotations(TestEnum.class, ToStringMixin.class);
         assertEquals("\"b\"", mapper.writeValueAsString(TestEnum.B));
     }
 

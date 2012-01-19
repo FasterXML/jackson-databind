@@ -73,7 +73,7 @@ public class TestEmptyClass
 
         // Including class annotation through mix-ins
         ObjectMapper m2 = new ObjectMapper();
-        m2.getSerializationConfig().addMixInAnnotations(Empty.class, EmptyWithAnno.class);
+        m2.addMixInAnnotations(Empty.class, EmptyWithAnno.class);
         assertEquals("{}", m2.writeValueAsString(new Empty()));
     }
 

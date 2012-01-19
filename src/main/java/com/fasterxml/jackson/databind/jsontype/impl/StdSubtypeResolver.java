@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 
 /**
- * @since 1.5
+ * Standard {@link SubtypeResolver} implementation.
  */
 public class StdSubtypeResolver extends SubtypeResolver
 {

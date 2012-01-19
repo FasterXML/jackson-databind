@@ -8,10 +8,8 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
- * Helper object used for handling registration on resolving of supertypes
- * to subtypes.
- * 
- * @since 1.5
+ * Helper object used for handling registration on resolving of super-types
+ * to sub-types.
  */
 public abstract class SubtypeResolver
 {

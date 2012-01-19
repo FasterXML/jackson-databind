@@ -37,6 +37,14 @@ public class SerializationConfig
     /**
      * Enumeration that defines togglable features that guide
      * the serialization feature.
+     * 
+     * Note that some features can only be set for
+     * {@link ObjectMapper} (as default for all serializations),
+     * while others can be changed on per-call basis using {@link ObjectWriter}.
+     * Ones that can be used on per-call basis will return <code>true</code>
+     * from {@link #canUseForInstance}.
+     * Trying enable/disable ObjectMapper-only feature will result in
+     * an {@link IllegalArgumentException}.
      */
     public enum Feature implements MapperConfig.ConfigFeature
     {
@@ -51,10 +59,12 @@ public class SerializationConfig
          * is used for configuration; if enabled, configured
          * {@link AnnotationIntrospector} will be used: if disabled,
          * no annotations are considered.
-         *<P>
-         * Feature is enabled by default.
+         *<p>
+         * Feature is enabled by default. It can <b>not</b> changed
+         * after first call to serialization; that is, it is not changeable
+         * via {@link ObjectWriter}
          */
-        USE_ANNOTATIONS(true),
+        USE_ANNOTATIONS(true, false),
 
         /**
          * Feature that determines whether regualr "getter" methods are
@@ -70,10 +80,12 @@ public class SerializationConfig
          * Note that this feature has lower precedence than per-class
          * annotations, and is only used if there isn't more granular
          * configuration available.
-         *<P>
-         * Feature is enabled by default.
+         *<p>
+         * Feature is enabled by default. It can <b>not</b> changed
+         * after first call to serialization; that is, it is not changeable
+         * via {@link ObjectWriter}
          */
-        AUTO_DETECT_GETTERS(true),
+        AUTO_DETECT_GETTERS(true, false),
 
         /**
          * Feature that determines whether "is getter" methods are
@@ -86,10 +98,12 @@ public class SerializationConfig
          * Note that this feature has lower precedence than per-class
          * annotations, and is only used if there isn't more granular
          * configuration available.
-         *<P>
-         * Feature is enabled by default.
+         *<p>
+         * Feature is enabled by default. It can <b>not</b> changed
+         * after first call to serialization; that is, it is not changeable
+         * via {@link ObjectWriter}
          */
-        AUTO_DETECT_IS_GETTERS(true),
+        AUTO_DETECT_IS_GETTERS(true, false),
 
         /**
          * Feature that determines whether non-static fields are recognized as
@@ -102,9 +116,11 @@ public class SerializationConfig
          * annotations, and is only used if there isn't more granular
          * configuration available.
          *<p>
-         * Feature is enabled by default.
+         * Feature is enabled by default. It can <b>not</b> changed
+         * after first call to serialization; that is, it is not changeable
+         * via {@link ObjectWriter}
          */
-         AUTO_DETECT_FIELDS(true),
+         AUTO_DETECT_FIELDS(true, false),
 
         /**
          * Feature that determines whether method and field access
@@ -114,9 +130,11 @@ public class SerializationConfig
          * may be called to enable access to otherwise unaccessible
          * objects.
          *<p>
-         * Feature is enabled by default.
+         * Feature is enabled by default. It can <b>not</b> changed
+         * after first call to serialization; that is, it is not changeable
+         * via {@link ObjectWriter}
          */
-        CAN_OVERRIDE_ACCESS_MODIFIERS(true),
+        CAN_OVERRIDE_ACCESS_MODIFIERS(true, false),
 
         /**
          * Feature that determines whether getters (getter methods)
@@ -125,10 +143,11 @@ public class SerializationConfig
          * only getters that match a mutator are auto-discovered; if
          * false, all auto-detectable getters can be discovered.
          *<p>
-         * Feature is disabled by default for backwards compatibility
-         * reasons.
+         * Feature is disabled by default. It can <b>not</b> changed
+         * after first call to serialization; that is, it is not changeable
+         * via {@link ObjectWriter}
          */
-        REQUIRE_SETTERS_FOR_GETTERS(false),
+        REQUIRE_SETTERS_FOR_GETTERS(false, false),
         
         /*
         /******************************************************
@@ -145,8 +164,12 @@ public class SerializationConfig
          * This global default value can be overridden at class, method
          * or field level by using {@link JsonSerialize#typing} annotation
          * property
+         *<p>
+         * Feature is disabled by default. It can <b>not</b> changed
+         * after first call to serialization; that is, it is not changeable
+         * via {@link ObjectWriter}
          */
-        USE_STATIC_TYPING(false),
+        USE_STATIC_TYPING(false, false),
 
         /**
          * Feature that determines whether properties that have no view
@@ -161,8 +184,12 @@ public class SerializationConfig
          * Default value is enabled, meaning that non-annotated
          * properties are included in all views if there is no
          * {@link com.fasterxml.jackson.annotation.JsonView} annotation.
+         *<p>
+         * Feature is enabled by default. It <b>can not</b> changed
+         * after first call to serialization; that is, it is not changeable
+         * via {@link ObjectWriter}
          */
-        DEFAULT_VIEW_INCLUSION(true),
+        DEFAULT_VIEW_INCLUSION(true, false),
         
         /**
          * Feature that can be enabled to make root value (usually JSON
@@ -173,9 +200,11 @@ public class SerializationConfig
          * class name).
          * Feature is mostly intended for JAXB compatibility.
          *<p>
-         * Default setting is false, meaning root value is not wrapped.
+         * Feature is enabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        WRAP_ROOT_VALUE(false),
+        WRAP_ROOT_VALUE(false, true),
 
         /**
          * Feature that allows enabling (or disabling) indentation
@@ -193,8 +222,12 @@ public class SerializationConfig
          * you need to directly configure the generator: there is a
          * method to use any <code>PrettyPrinter</code> instance.
          * This feature will only allow using the default implementation.
+         *<p>
+         * Feature is enabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        INDENT_OUTPUT(false),
+        INDENT_OUTPUT(false, true),
 
         /**
          * Feature that defines default property serialization order used
@@ -207,8 +240,12 @@ public class SerializationConfig
          *<p>
          * Note that this is just the default behavior, and can be overridden by
          * explicit overrides in classes.
+         *<p>
+         * Feature is disabled by default. It <b>can not</b> be changed
+         * after first call to serialization; that is, it is not changeable
+         * via {@link ObjectWriter}
          */
-        SORT_PROPERTIES_ALPHABETICALLY(false),
+        SORT_PROPERTIES_ALPHABETICALLY(false, false),
         
         /*
         /******************************************************
@@ -228,8 +265,12 @@ public class SerializationConfig
          * those "empty" beans that do not have any recognized annotations
          * (like <code>@JsonSerialize</code>): ones that do have annotations
          * do not result in an exception being thrown.
+         *<p>
+         * Feature is enabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        FAIL_ON_EMPTY_BEANS(true),
+        FAIL_ON_EMPTY_BEANS(true, true),
 
         /**
          * Feature that determines whether Jackson code should catch
@@ -244,9 +285,12 @@ public class SerializationConfig
          * However, sometimes calling application may just want "raw"
          * unchecked exceptions passed as is.
          *<p>
-         * Feature is enabled by default.
+         *<p>
+         * Feature is enabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        WRAP_EXCEPTIONS(true),
+        WRAP_EXCEPTIONS(true, true),
 
         /*
         /******************************************************
@@ -267,8 +311,12 @@ public class SerializationConfig
           * NOTE: only affects behavior with <b>root</b> objects, and not other
           * objects reachable from the root object. Put another way, only one
           * call will be made for each 'writeValue' call.
+         *<p>
+         * Feature is disabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
           */
-        CLOSE_CLOSEABLE(false),
+        CLOSE_CLOSEABLE(false, true),
 
         /**
          * Feature that determines whether <code>JsonGenerator.flush()</code> is
@@ -279,8 +327,12 @@ public class SerializationConfig
          * should not be forced: for example when underlying stream is
          * compressing and flush() causes compression state to be flushed
          * (which occurs with some compression codecs).
+         *<p>
+         * Feature is enabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        FLUSH_AFTER_WRITE_VALUE(true),
+        FLUSH_AFTER_WRITE_VALUE(true, true),
          
         /*
         /******************************************************
@@ -302,8 +354,12 @@ public class SerializationConfig
          *<p>
          * Note: whether {@link java.util.Map} keys are serialized as Strings
          * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS}.
+         *<p>
+         * Feature is enabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        WRITE_DATES_AS_TIMESTAMPS(true),
+        WRITE_DATES_AS_TIMESTAMPS(true, true),
 
         /**
          * Feature that determines whether {@link java.util.Date}s
@@ -313,29 +369,38 @@ public class SerializationConfig
          *<p>
          * Default value is 'false', meaning that Date-valued Map keys are serialized
          * as textual (ISO-8601) values.
+         *<p>
+         * Feature is disabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        WRITE_DATE_KEYS_AS_TIMESTAMPS(false),
+        WRITE_DATE_KEYS_AS_TIMESTAMPS(false, true),
 
         /**
          * Feature that determines how type <code>char[]</code> is serialized:
          * when enabled, will be serialized as an explict JSON array (with
          * single-character Strings as values); when disabled, defaults to
          * serializing them as Strings (which is more compact).
+         *<p>
+         * Feature is disabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS(false),
+        WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS(false, true),
 
         /**
          * Feature that determines standard serialization mechanism used for
          * Enum values: if enabled, return value of <code>Enum.toString()</code>
          * is used; if disabled, return value of <code>Enum.name()</code> is used.
-         * Since pre-1.6 method was to use Enum name, this is the default.
          *<p>
          * Note: this feature should usually have same value
          * as {@link DeserializationConfig.Feature#READ_ENUMS_USING_TO_STRING}.
-         * 
-         * @since 1.6
+         *<p>
+         * Feature is disabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        WRITE_ENUMS_USING_TO_STRING(false),
+        WRITE_ENUMS_USING_TO_STRING(false, true),
 
         /**
          * Feature that determines whethere Java Enum values are serialized
@@ -347,16 +412,24 @@ public class SerializationConfig
          *<p>
          * Note that this feature has precedence over {@link #WRITE_ENUMS_USING_TO_STRING},
          * which is only considered if this feature is set to false.
+         *<p>
+         * Feature is disabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        WRITE_ENUMS_USING_INDEX(false),
+        WRITE_ENUMS_USING_INDEX(false, true),
         
         /**
          * Feature that determines whether Map entries with null values are
          * to be serialized (true) or not (false).
          *<p>
          * For further details, check out [JACKSON-314]
+         *<p>
+         * Feature is enabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        WRITE_NULL_MAP_VALUES(true),
+        WRITE_NULL_MAP_VALUES(true, true),
 
         /**
          * Feature that determines whether Container properties (POJO properties
@@ -366,20 +439,34 @@ public class SerializationConfig
          *<p>
          * Note that this does not change behavior of {@link java.util.Map}s, or
          * "Collection-like" types.
+         *<p>
+         * Feature is enabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        WRITE_EMPTY_JSON_ARRAYS(true)
+        WRITE_EMPTY_JSON_ARRAYS(true, true)
         
             ;
 
-        final boolean _defaultState;
-        
-        private Feature(boolean defaultState) {
-            _defaultState = defaultState;
-        }
+        private final boolean _defaultState;
 
+        /**
+         * Whether feature can be used and changed on per-call basis (true),
+         * or just for <code>ObjectMapper</code> (false).
+         */
+        private final boolean _canUseForInstance;
+        
+        private Feature(boolean defaultState, boolean canUseForInstance) {
+            _defaultState = defaultState;
+            _canUseForInstance = canUseForInstance;
+        }
+        
         @Override
         public boolean enabledByDefault() { return _defaultState; }
-    
+
+        @Override
+        public boolean canUseForInstance() { return _canUseForInstance; }
+
         @Override
         public int getMask() { return (1 << ordinal()); }
     }

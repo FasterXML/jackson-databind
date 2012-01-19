@@ -41,6 +41,14 @@ public class DeserializationConfig
     /**
      * Enumeration that defines togglable features that guide
      * the serialization feature.
+     * 
+     * Note that some features can only be set for
+     * {@link ObjectMapper} (as default for all deserializations),
+     * while others can be changed on per-call basis using {@link ObjectReader}.
+     * Ones that can be used on per-call basis will return <code>true</code>
+     * from {@link #canUseForInstance}.
+     * Trying enable/disable ObjectMapper-only feature will result in
+     * an {@link IllegalArgumentException}.
      */
     public enum Feature implements MapperConfig.ConfigFeature
     {
@@ -58,7 +66,7 @@ public class DeserializationConfig
          *<P>
          * Feature is enabled by default.
          */
-        USE_ANNOTATIONS(true),
+        USE_ANNOTATIONS(true, false),
 
         /**
          * Feature that determines whether "setter" methods are
@@ -74,7 +82,7 @@ public class DeserializationConfig
          *<P>
          * Feature is enabled by default.
          */
-        AUTO_DETECT_SETTERS(true),
+        AUTO_DETECT_SETTERS(true, false),
 
         /**
          * Feature that determines whether "creator" methods are
@@ -90,7 +98,7 @@ public class DeserializationConfig
          *<P>
          * Feature is enabled by default.
          */
-        AUTO_DETECT_CREATORS(true),
+        AUTO_DETECT_CREATORS(true, false),
 
         /**
          * Feature that determines whether non-static fields are recognized as
@@ -105,7 +113,7 @@ public class DeserializationConfig
          *<P>
          * Feature is enabled by default.
          */
-        AUTO_DETECT_FIELDS(true),
+        AUTO_DETECT_FIELDS(true, false),
 
         /**
          * Feature that determines whether otherwise regular "getter"
@@ -123,7 +131,7 @@ public class DeserializationConfig
          *<p>
          * Feature is enabled by default.
          */
-        USE_GETTERS_AS_SETTERS(true),
+        USE_GETTERS_AS_SETTERS(true, false),
 
         /**
          * Feature that determines whether method and field access
@@ -133,7 +141,7 @@ public class DeserializationConfig
          * may be called to enable access to otherwise unaccessible
          * objects.
          */
-        CAN_OVERRIDE_ACCESS_MODIFIERS(true),
+        CAN_OVERRIDE_ACCESS_MODIFIERS(true, false),
 
         /*
         /******************************************************
@@ -153,9 +161,12 @@ public class DeserializationConfig
          * Feature is disabled by default, meaning that "untyped" floating
          * point numbers will by default be deserialized as {@link Double}s
          * (choice is for performance reason -- BigDecimals are slower than
-         * Doubles)
+         * Doubles).
+         * Feature <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        USE_BIG_DECIMAL_FOR_FLOATS(false),
+        USE_BIG_DECIMAL_FOR_FLOATS(false, true),
 
         /**
          * Feature that determines whether Json integral (non-floating-point)
@@ -172,8 +183,11 @@ public class DeserializationConfig
          * Feature is disabled by default, meaning that "untyped" floating
          * point numbers will by default be deserialized using whatever
          * is the most compact integral type, to optimize efficiency.
+         * Feature <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        USE_BIG_INTEGER_FOR_INTS(false),
+        USE_BIG_INTEGER_FOR_INTS(false, true),
 
         // [JACKSON-652]
         /**
@@ -183,9 +197,11 @@ public class DeserializationConfig
          * If true, binds as <code>Object[]</code>; if false, as <code>List&lt;Object></code>.
          *<p>
          * Feature is disabled by default, meaning that JSON arrays are bound as
-         * {@link java.util.List}s.
+         * {@link java.util.List}s. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        USE_JAVA_ARRAY_FOR_JSON_ARRAY(false),
+        USE_JAVA_ARRAY_FOR_JSON_ARRAY(false, true),
         
         /**
          * Feature that determines standard deserialization mechanism used for
@@ -197,9 +213,11 @@ public class DeserializationConfig
          * Note: this feature should usually have same value
          * as {@link SerializationConfig.Feature#WRITE_ENUMS_USING_TO_STRING}.
          *<p>
-         * For further details, check out [JACKSON-212]
+         * Feature is disabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        READ_ENUMS_USING_TO_STRING(false),
+        READ_ENUMS_USING_TO_STRING(false, true),
         
         /*
         /******************************************************
@@ -217,12 +235,13 @@ public class DeserializationConfig
          * methods for unknown properties have been tried, and
          * property remains unhandled.
          *<p>
-         * Feature is enabled by default, meaning that 
-         * {@link JsonMappingException} is thrown if an unknown property
-         * is encountered. This is the implicit default prior to
-         * introduction of the feature.
+         * Feature is enabled by default (meaning that a
+         * {@link JsonMappingException} will be thrown if an unknown property
+         * is encountered). It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        FAIL_ON_UNKNOWN_PROPERTIES(true),
+        FAIL_ON_UNKNOWN_PROPERTIES(true, true),
 
         /**
          * Feature that determines whether encountering of JSON null
@@ -231,10 +250,11 @@ public class DeserializationConfig
          * is thrown to indicate this; if not, default value is used
          * (0 for 'int', 0.0 for double, same defaulting as what JVM uses).
          *<p>
-         * Feature is disabled by default,
-         * i.e. to allow use of nulls for primitive properties.
+         * Feature is disabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        FAIL_ON_NULL_FOR_PRIMITIVES(false),
+        FAIL_ON_NULL_FOR_PRIMITIVES(false, true),
 
         /**
          * Feature that determines whether JSON integer numbers are valid
@@ -246,10 +266,11 @@ public class DeserializationConfig
          * mapping from integer values to enums might happen (and when enums
          * are always serialized as JSON Strings)
          *<p>
-         * Feature is disabled by default
-         * i.e. to allow use of JSON integers for Java enums.
+         * Feature is disabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        FAIL_ON_NUMBERS_FOR_ENUMS(false),
+        FAIL_ON_NUMBERS_FOR_ENUMS(false, true),
 
         /**
          * Feature that determines whether Jackson code should catch
@@ -264,10 +285,11 @@ public class DeserializationConfig
          * However, sometimes calling application may just want "raw"
          * unchecked exceptions passed as is.
          *<p>
-         * Feature is enabled by default, and is similar in behavior
-         * to default prior to 1.7.
+         * Feature is enabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        WRAP_EXCEPTIONS(true),
+        WRAP_EXCEPTIONS(true, true),
         
         /*
         /******************************************************
@@ -283,8 +305,12 @@ public class DeserializationConfig
          * This feature is meant to be used for compatibility/interoperability reasons,
          * to work with packages (such as XML-to-JSON converters) that leave out JSON
          * array in cases where there is just a single element in array.
+         *<p>
+         * Feature is disabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        ACCEPT_SINGLE_VALUE_AS_ARRAY(false),
+        ACCEPT_SINGLE_VALUE_AS_ARRAY(false, true),
         
         /**
          * Feature to allow "unwrapping" root-level JSON value, to match setting of
@@ -293,8 +319,12 @@ public class DeserializationConfig
          * a single property with expected root name. If not, a
          * {@link JsonMappingException} is thrown; otherwise value of the wrapped property
          * will be deserialized as if it was the root value.
+         *<p>
+         * Feature is disabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        UNWRAP_ROOT_VALUE(false),
+        UNWRAP_ROOT_VALUE(false, true),
 
         /*
         /******************************************************
@@ -310,19 +340,33 @@ public class DeserializationConfig
          * constructors are defined; both of which can add support for other
          * kinds of JSON values); if enable, empty JSON String can be taken
          * to be equivalent of JSON null.
+         *<p>
+         * Feature is enabled by default. It <b>can</b> be changed
+         * after first call to serialization; that is, it is changeable
+         * via {@link ObjectWriter}
          */
-        ACCEPT_EMPTY_STRING_AS_NULL_OBJECT(false)
+        ACCEPT_EMPTY_STRING_AS_NULL_OBJECT(false, true)
         
         ;
 
-        final boolean _defaultState;
-	        
-        private Feature(boolean defaultState) {
+        private final boolean _defaultState;
+
+        /**
+         * Whether feature can be used and changed on per-call basis (true),
+         * or just for <code>ObjectMapper</code> (false).
+         */
+        private final boolean _canUseForInstance;
+        
+        private Feature(boolean defaultState, boolean canUseForInstance) {
             _defaultState = defaultState;
+            _canUseForInstance = canUseForInstance;
         }
 
         @Override
         public boolean enabledByDefault() { return _defaultState; }
+
+        @Override
+        public boolean canUseForInstance() { return _canUseForInstance; }
     
         @Override
         public int getMask() { return (1 << ordinal()); }

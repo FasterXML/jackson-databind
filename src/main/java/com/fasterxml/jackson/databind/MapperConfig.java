@@ -593,6 +593,13 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         public boolean enabledByDefault();
 
         /**
+         * Accessor for checking whether feature can be used on per-call basis
+         * (true), or not (false): in latter case it can only be configured once
+         * before any serialization or deserialization.
+         */
+        public boolean canUseForInstance();
+        
+        /**
          * Returns bit mask for this feature instance
          */
         public int getMask();

@@ -8,7 +8,7 @@ Description:
 
 Fixes:
 
-* [JACKSON-712]: Delegating @JsonCreator did not work with Injectable values
+* [JACKSON-711]: Delegating @JsonCreator did not work with Injectable values
 
 Improvements
 

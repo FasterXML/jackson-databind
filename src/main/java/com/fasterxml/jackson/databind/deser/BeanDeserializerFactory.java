@@ -772,9 +772,7 @@ public class BeanDeserializerFactory
             // [JACKSON-541] improved handling a bit so:
             // 2 or more args; all params must have name annotations
             // ... or @JacksonInject (or equivalent)
-            // But if it was auto-detected and there's no annotations, keep silent (was not meant to be a creator?)
-            boolean annotationFound = false;
-            /* [JACKSON-712] One more possibility; can have 1 or more injectables, and
+            /* [JACKSON-711] One more possibility; can have 1 or more injectables, and
              * exactly one non-annotated parameter: if so, it's still delegating.
              */
             AnnotatedParameter nonAnnotatedParam = null;
@@ -802,16 +800,11 @@ public class BeanDeserializerFactory
                 if ((namedCount + injectCount) == argCount) {
                     creators.addPropertyCreator(ctor, properties);
                 } else if ((namedCount == 0) && ((injectCount + 1) == argCount)) {
-                    // secondary: all but one injectable, one un-annotated (un-named)
-                    // [JACKSON-712] SHOULD support; but we won't yet (tricky to do, not impossible)
-                    throw new IllegalArgumentException("Delegated constructor with Injectables not yet supported (see [JACKSON-712]) for "
-                            +ctor);
+                    // [712] secondary: all but one injectable, one un-annotated (un-named)
+                    creators.addDelegatingCreator(ctor, properties);
                 } else { // otherwise, epic fail
                     throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()+" of constructor "+ctor+" has no property name annotation; must have name when multiple-paramater constructor annotated as Creator");
                 }
-            }
-            if (annotationFound) {
-            	creators.addPropertyCreator(ctor, properties);
             }
         }
     }
@@ -864,7 +857,7 @@ public class BeanDeserializerFactory
     
         // Delegating Creator ok iff it has @JsonCreator (etc)
         if (isCreator) {
-            creators.addDelegatingCreator(ctor);
+            creators.addDelegatingCreator(ctor, null);
             return true;
         }
         return false;
@@ -902,18 +895,38 @@ public class BeanDeserializerFactory
                 }
             }
             // 1 or more args; all params must have name annotations
+            AnnotatedParameter nonAnnotatedParam = null;            
             CreatorProperty[] properties = new CreatorProperty[argCount];
+            int namedCount = 0;
+            int injectCount = 0;            
             for (int i = 0; i < argCount; ++i) {
                 AnnotatedParameter param = factory.getParameter(i);
                 String name = intr.findDeserializationName(param);
-                Object injectableId = intr.findInjectableValueId(param);
-                // At this point, name annotation is NOT optional
-                if ((name == null || name.length() == 0) && (injectableId == null)) {
-                    throw new IllegalArgumentException("Argument #"+i+" of factory method "+factory+" has no property name annotation; must have when multiple-paramater static method annotated as Creator");
+                Object injectId = intr.findInjectableValueId(param);
+                if (name != null && name.length() > 0) {
+                    ++namedCount;
+                    properties[i] = constructCreatorProperty(config, beanDesc, name, i, param, injectId);
+                } else if (injectId != null) {
+                    ++injectCount;
+                    properties[i] = constructCreatorProperty(config, beanDesc, name, i, param, injectId);
+                } else if (nonAnnotatedParam == null) {
+                    nonAnnotatedParam = param;
                 }
-                properties[i] = constructCreatorProperty(config, beanDesc, name, i, param, injectableId);
             }
-            creators.addPropertyCreator(factory, properties);
+
+            // Ok: if named or injectable, we have more work to do
+            if (isCreator || namedCount > 0 || injectCount > 0) {
+                // simple case; everything covered:
+                if ((namedCount + injectCount) == argCount) {
+                    creators.addPropertyCreator(factory, properties);
+                } else if ((namedCount == 0) && ((injectCount + 1) == argCount)) {
+                    // [712] secondary: all but one injectable, one un-annotated (un-named)
+                    creators.addDelegatingCreator(factory, properties);
+                } else { // otherwise, epic fail
+                    throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()
+                            +" of factory method "+factory+" has no property name annotation; must have name when multiple-paramater constructor annotated as Creator");
+                }
+            }
         }
     }
 
@@ -956,7 +969,7 @@ public class BeanDeserializerFactory
             return true;
         }
         if (intr.hasCreatorAnnotation(factory)) {
-            creators.addDelegatingCreator(factory);
+            creators.addDelegatingCreator(factory, null);
             return true;
         }
         return false;

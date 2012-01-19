@@ -30,6 +30,8 @@ public class CreatorCollector
     protected AnnotatedWithParams _doubleCreator, _booleanCreator;
 
     protected AnnotatedWithParams _delegateCreator;
+    // when there are injectable values along with delegate:
+    protected CreatorProperty[] _delegateArgs;
     
     protected AnnotatedWithParams _propertyBasedCreator;
     protected CreatorProperty[] _propertyBasedArgs = null;
@@ -55,12 +57,22 @@ public class CreatorCollector
         if (_delegateCreator == null) {
             delegateType = null;
         } else {
+            // need to find type...
+            int ix = 0;
+            if (_delegateArgs != null) {
+                for (int i = 0, len = _delegateArgs.length; i < len; ++i) {
+                    if (_delegateArgs[i] == null) { // marker for delegate itself
+                        ix = i;
+                        break;
+                    }
+                }
+            }
             TypeBindings bindings = _beanDesc.bindingsForBeanType();
-            delegateType = bindings.resolveType(_delegateCreator.getParameterType(0));
+            delegateType = bindings.resolveType(_delegateCreator.getParameterType(ix));
         }
         
         inst.configureFromObjectSettings(_defaultConstructor,
-                _delegateCreator, delegateType,
+                _delegateCreator, delegateType, _delegateArgs,
                 _propertyBasedCreator, _propertyBasedArgs);
         inst.configureFromStringCreator(_stringCreator);
         inst.configureFromIntCreator(_intCreator);
@@ -96,8 +108,11 @@ public class CreatorCollector
         _booleanCreator = verifyNonDup(creator, _booleanCreator, "boolean");
     }
 
-    public void addDelegatingCreator(AnnotatedWithParams creator) {
+    public void addDelegatingCreator(AnnotatedWithParams creator,
+            CreatorProperty[] injectables)
+    {
         _delegateCreator = verifyNonDup(creator, _delegateCreator, "delegate");
+        _delegateArgs = injectables;
     }
     
     public void addPropertyCreator(AnnotatedWithParams creator, CreatorProperty[] properties)

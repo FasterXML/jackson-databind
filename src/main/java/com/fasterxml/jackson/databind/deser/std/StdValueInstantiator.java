@@ -14,10 +14,9 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 
 
 /**
- * Basic {@link ValueInstantiator} implementation, which only
- * supports use of default constructor. Sub-types can add
- * support for alternate construction methods, such as using
- * argument-taking constructors or static factory methods.
+ * Default {@link ValueInstantiator} implementation, which supports
+ * Creator methods that can be indicated by standard Jackson
+ * annotations.
  */
 public class StdValueInstantiator
     extends ValueInstantiator
@@ -43,13 +42,14 @@ public class StdValueInstantiator
 
     // // // With-args (property-based) construction
 
-    protected CreatorProperty[] _constructorArguments;
     protected AnnotatedWithParams _withArgsCreator;
+    protected CreatorProperty[] _constructorArguments;
 
     // // // Delegate construction
     
     protected JavaType _delegateType;
     protected AnnotatedWithParams _delegateCreator;
+    protected CreatorProperty[] _delegateArguments;
     
     // // // Scalar construction
 
@@ -95,6 +95,7 @@ public class StdValueInstantiator
 
         _delegateType = src._delegateType;
         _delegateCreator = src._delegateCreator;
+        _delegateArguments = src._delegateArguments;
         
         _fromStringCreator = src._fromStringCreator;
         _fromIntCreator = src._fromIntCreator;
@@ -109,12 +110,13 @@ public class StdValueInstantiator
      * three), and clear other properties
      */
     public void configureFromObjectSettings(AnnotatedWithParams defaultCreator,
-            AnnotatedWithParams delegateCreator, JavaType delegateType,
+            AnnotatedWithParams delegateCreator, JavaType delegateType, CreatorProperty[] delegateArgs,
             AnnotatedWithParams withArgsCreator, CreatorProperty[] constructorArgs)
     {
         _defaultCreator = defaultCreator;
         _delegateCreator = delegateCreator;
         _delegateType = delegateType;
+        _delegateArguments = delegateArgs;
         _withArgsCreator = withArgsCreator;
         _constructorArguments = constructorArgs;
     }
@@ -246,7 +248,23 @@ public class StdValueInstantiator
             throw new IllegalStateException("No delegate constructor for "+getValueTypeDesc());
         }
         try {
-            return _delegateCreator.call1(delegate);
+            // First simple case: just delegate, no injectables
+            if (_delegateArguments == null) {
+                return _delegateCreator.call1(delegate);
+            }
+            // And then the case with at least one injectable...
+            final int len = _delegateArguments.length;
+            Object[] args = new Object[len];
+            for (int i = 0; i < len; ++i) {
+                CreatorProperty prop = _delegateArguments[i];
+                if (prop == null) { // delegate
+                    args[i] = delegate;
+                } else { // nope, injectable:
+                    args[i] = ctxt.findInjectableValue(prop.getInjectableValueId(), prop, null);
+                }
+            }
+            // and then try calling with full set of arguments
+            return _delegateCreator.call(args);
         } catch (ExceptionInInitializerError e) {
             throw wrapException(e);
         } catch (Exception e) {

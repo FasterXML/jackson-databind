@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.util.Annotations;
  * It is not a full-featured implementation in that its set method
  * should never be called -- instead, value must separately passed.
  *<p>
- * Note on injectable values (1.9): unlike with other mutators, where
+ * Note on injectable values: unlike with other mutators, where
  * deserializer and injecting are separate, here we deal the two as related
  * things. This is necessary to add proper priority, as well as to simplify
  * coordination.
@@ -150,4 +150,7 @@ public class CreatorProperty
     public Object getInjectableValueId() {
         return _injectableValueId;
     }
+
+    @Override
+    public String toString() { return "[creator property, name '"+getName()+"'; inject id '"+_injectableValueId+"']"; }
 }

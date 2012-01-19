@@ -8,6 +8,8 @@ Description:
 
 Fixes:
 
+* [JACKSON-712]: Delegating @JsonCreator did not work with Injectable values
+
 Improvements
 
 * [JACKSON-546]: Indicate end-of-input with JsonMappingException instead

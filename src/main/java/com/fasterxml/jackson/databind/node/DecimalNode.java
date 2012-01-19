@@ -15,6 +15,11 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public final class DecimalNode
     extends NumericNode
 {
+    private final static BigDecimal MIN_INTEGER = BigDecimal.valueOf(Integer.MIN_VALUE);
+    private final static BigDecimal MAX_INTEGER = BigDecimal.valueOf(Integer.MAX_VALUE);
+    private final static BigDecimal MIN_LONG = BigDecimal.valueOf(Long.MIN_VALUE);
+    private final static BigDecimal MAX_LONG = BigDecimal.valueOf(Long.MAX_VALUE);
+
     final protected BigDecimal _value;
 
     /* 
@@ -49,6 +54,13 @@ public final class DecimalNode
     
     @Override
     public boolean isBigDecimal() { return true; }
+
+    @Override public boolean canConvertToInt() {
+        return (_value.compareTo(MIN_INTEGER) >= 0) && (_value.compareTo(MAX_INTEGER) <= 0);
+    }
+    @Override public boolean canConvertToLong() {
+        return (_value.compareTo(MIN_LONG) >= 0) && (_value.compareTo(MAX_LONG) <= 0);
+    }
     
     @Override
     public Number getNumberValue() { return _value; }

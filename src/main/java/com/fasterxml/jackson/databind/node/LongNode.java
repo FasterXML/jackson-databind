@@ -45,6 +45,11 @@ public final class LongNode
     @Override
     public boolean isLong() { return true; }
 
+    @Override public boolean canConvertToInt() {
+        return (_value >= Integer.MIN_VALUE && _value <= Integer.MAX_VALUE);
+    }
+    @Override public boolean canConvertToLong() { return true; }
+    
     @Override
     public Number getNumberValue() {
         return Long.valueOf(_value);

@@ -6,17 +6,6 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.node.BigIntegerNode;
-import com.fasterxml.jackson.databind.node.BinaryNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import com.fasterxml.jackson.databind.node.DecimalNode;
-import com.fasterxml.jackson.databind.node.DoubleNode;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.LongNode;
-import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.POJONode;
-import com.fasterxml.jackson.databind.node.TextNode;
 
 /**
  * Basic tests for {@link JsonNode} base class and some features
@@ -108,110 +97,6 @@ public class TestJsonNode
         assertNodeNumbers(t, 1, 1.0);
     }
 
-    public void testInt()
-    {
-        IntNode n = IntNode.valueOf(1);
-        assertStandardEquals(n);
-        assertTrue(0 != n.hashCode());
-        assertEquals(JsonToken.VALUE_NUMBER_INT, n.asToken());
-        assertEquals(JsonParser.NumberType.INT, n.getNumberType());
-        assertEquals(1, n.getIntValue());
-        assertEquals(1L, n.getLongValue());
-        assertEquals(BigDecimal.ONE, n.getDecimalValue());
-        assertEquals(BigInteger.ONE, n.getBigIntegerValue());
-        assertEquals("1", n.asText());
-
-        // 1.6:
-        assertNodeNumbers(n, 1, 1.0);
-    }
-
-    public void testLong()
-    {
-        LongNode n = LongNode.valueOf(1L);
-        assertStandardEquals(n);
-        assertTrue(0 != n.hashCode());
-        assertEquals(JsonToken.VALUE_NUMBER_INT, n.asToken());
-        assertEquals(JsonParser.NumberType.LONG, n.getNumberType());
-        assertEquals(1, n.getIntValue());
-        assertEquals(1L, n.getLongValue());
-        assertEquals(BigDecimal.ONE, n.getDecimalValue());
-        assertEquals(BigInteger.ONE, n.getBigIntegerValue());
-        assertEquals("1", n.asText());
-
-        // 1.6:
-        assertNodeNumbers(n, 1, 1.0);
-    }
-
-    public void testDouble()
-    {
-        DoubleNode n = DoubleNode.valueOf(0.25);
-        assertStandardEquals(n);
-        assertTrue(0 != n.hashCode());
-        assertEquals(JsonToken.VALUE_NUMBER_FLOAT, n.asToken());
-        assertEquals(JsonParser.NumberType.DOUBLE, n.getNumberType());
-        assertEquals(0, n.getIntValue());
-        assertEquals(0.25, n.getDoubleValue());
-        assertNotNull(n.getDecimalValue());
-        assertEquals(BigInteger.ZERO, n.getBigIntegerValue());
-        assertEquals("0.25", n.asText());
-
-        // 1.6:
-        assertNodeNumbers(DoubleNode.valueOf(4.5), 4, 4.5);
-    }
-
-    public void testDecimalNode() throws Exception
-    {
-        DecimalNode n = DecimalNode.valueOf(BigDecimal.ONE);
-        assertStandardEquals(n);
-        assertTrue(n.equals(new DecimalNode(BigDecimal.ONE)));
-        assertEquals(JsonToken.VALUE_NUMBER_FLOAT, n.asToken());
-        assertEquals(JsonParser.NumberType.BIG_DECIMAL, n.getNumberType());
-        assertTrue(n.isNumber());
-        assertFalse(n.isIntegralNumber());
-        assertTrue(n.isBigDecimal());
-        assertEquals(BigDecimal.ONE, n.getNumberValue());
-        assertEquals(1, n.getIntValue());
-        assertEquals(1L, n.getLongValue());
-        assertEquals(BigDecimal.ONE, n.getDecimalValue());
-        assertEquals("1", n.asText());
-
-        // 1.6:
-        assertNodeNumbers(n, 1, 1.0);
-    }
-
-    public void testBigIntegerNode() throws Exception
-    {
-        BigIntegerNode n = BigIntegerNode.valueOf(BigInteger.ONE);
-        assertStandardEquals(n);
-        assertTrue(n.equals(new BigIntegerNode(BigInteger.ONE)));
-        assertEquals(JsonToken.VALUE_NUMBER_INT, n.asToken());
-        assertEquals(JsonParser.NumberType.BIG_INTEGER, n.getNumberType());
-        assertTrue(n.isNumber());
-        assertTrue(n.isIntegralNumber());
-        assertTrue(n.isBigInteger());
-        assertEquals(BigInteger.ONE, n.getNumberValue());
-        assertEquals(1, n.getIntValue());
-        assertEquals(1L, n.getLongValue());
-        assertEquals(BigInteger.ONE, n.getBigIntegerValue());
-        assertEquals("1", n.asText());
-        
-        // 1.6:
-        assertNodeNumbers(n, 1, 1.0);
-
-        BigInteger maxLong = BigInteger.valueOf(Long.MAX_VALUE);
-        
-        n = BigIntegerNode.valueOf(maxLong);
-        assertEquals(Long.MAX_VALUE, n.getLongValue());
-
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode n2 = mapper.readTree(maxLong.toString());
-        assertEquals(Long.MAX_VALUE, n2.getLongValue());
-
-        // then over long limit:
-        BigInteger beyondLong = maxLong.shiftLeft(2); // 4x max long
-        n2 = mapper.readTree(beyondLong.toString());
-        assertEquals(beyondLong, n2.getBigIntegerValue());
-    }
 
     public void testBinary() throws Exception
     {

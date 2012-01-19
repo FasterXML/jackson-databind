@@ -14,8 +14,13 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public final class BigIntegerNode
     extends NumericNode
 {
+    private final static BigInteger MIN_INTEGER = BigInteger.valueOf(Integer.MIN_VALUE);
+    private final static BigInteger MAX_INTEGER = BigInteger.valueOf(Integer.MAX_VALUE);
+    private final static BigInteger MIN_LONG = BigInteger.valueOf(Long.MIN_VALUE);
+    private final static BigInteger MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
+    
     final protected BigInteger _value;
-
+    
     /*
     /**********************************************************
     /* Construction
@@ -44,6 +49,13 @@ public final class BigIntegerNode
     @Override
     public boolean isBigInteger() { return true; }
 
+    @Override public boolean canConvertToInt() {
+        return (_value.compareTo(MIN_INTEGER) >= 0) && (_value.compareTo(MAX_INTEGER) <= 0);
+    }
+    @Override public boolean canConvertToLong() {
+        return (_value.compareTo(MIN_LONG) >= 0) && (_value.compareTo(MAX_LONG) <= 0);
+    }
+    
     @Override
     public Number getNumberValue() {
         return _value;

@@ -417,7 +417,7 @@ public class DeserializationConfig
     public DeserializationConfig(BaseSettings base,
             int defaultFeatures, SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
     {
-        super(base, defaultFeatures, null, mixins);
+        super(base, defaultFeatures, str, mixins);
         _nodeFactory = JsonNodeFactory.instance;
     }
 
@@ -602,17 +602,14 @@ public class DeserializationConfig
      * instance.
      */
     @Override
-    public DeserializationConfig createUnshared(SubtypeResolver subtypeResolver)
-    {
-        return new DeserializationConfig(this, subtypeResolver);
+    public DeserializationConfig createUnshared() {
+        return this;
     }
 
 
     @Override
-    public DeserializationConfig createUnshared(SubtypeResolver subtypeResolver,
-            int features)
-    {
-        return new DeserializationConfig(this, subtypeResolver, features);
+    public DeserializationConfig createUnshared(int features) {
+        return new DeserializationConfig(this, features);
     }
     
     /**

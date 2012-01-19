@@ -62,7 +62,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * (which may be this instance, if it is immutable; if not, a copy
      * is constructed with same settings)
      */
-    public abstract T createUnshared(SubtypeResolver subtypeResolver);
+    public abstract T createUnshared();
 
     /**
      * Method to use for constructing an instance that is not shared
@@ -70,8 +70,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * (which may be this instance, if it is immutable; if not, a copy
      * is constructed with same settings)
      */
-    public abstract T createUnshared(SubtypeResolver subtypeResolver,
-            int features);
+    public abstract T createUnshared(int features);
 
     /**
      * Method for constructing and returning a new instance with different

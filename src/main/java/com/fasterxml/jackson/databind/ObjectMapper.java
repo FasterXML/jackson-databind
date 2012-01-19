@@ -218,12 +218,6 @@ public class ObjectMapper
     protected final JsonFactory _jsonFactory;
 
     /**
-     * Registered concrete subtypes that can be used instead of (or
-     * in addition to) ones declared using annotations.
-     */
-    protected SubtypeResolver _subtypeResolver;
-
-    /**
      * Specific factory used for creating {@link JavaType} instances;
      * needed to allow modules to add more custom type handling
      * (mostly to support types of non-Java JVM languages)
@@ -235,6 +229,12 @@ public class ObjectMapper
      */
     protected InjectableValues _injectableValues;
 
+    /**
+     * Thing used for registering sub-types, resolving them to
+     * super/sub-types as needed.
+     */
+    protected SubtypeResolver _subtypeResolver;
+    
     /*
     /**********************************************************
     /* Configuration settings: mix-in annotations
@@ -613,11 +613,11 @@ public class ObjectMapper
      * (like date format being used, see {@link SerializationConfig#withDateFormat}).
      */
     public SerializationConfig copySerializationConfig() {
-        return _serializationConfig.createUnshared(_subtypeResolver);
+        return _serializationConfig.createUnshared();
     }
 
     public SerializationConfig copySerializationConfig(int features) {
-        return _serializationConfig.createUnshared(_subtypeResolver, features);
+        return _serializationConfig.createUnshared(features);
     }
     
     /**
@@ -656,7 +656,7 @@ public class ObjectMapper
      * see {@link DeserializationConfig#addHandler})
      */
     public DeserializationConfig copyDeserializationConfig() {
-        return _deserializationConfig.createUnshared(_subtypeResolver)
+        return _deserializationConfig.createUnshared()
                 .passSerializationFeatures(_serializationConfig.getFeatureFlags());
     }
 
@@ -829,8 +829,11 @@ public class ObjectMapper
     /**
      * Method for setting custom subtype resolver to use.
      */
-    public void setSubtypeResolver(SubtypeResolver r) {
-        _subtypeResolver = r;
+    public ObjectMapper setSubtypeResolver(SubtypeResolver str) {
+        _subtypeResolver = str;
+        _deserializationConfig = _deserializationConfig.withSubtypeResolver(str);
+        _serializationConfig = _serializationConfig.withSubtypeResolver(str);
+        return this;
     }
 
     /**

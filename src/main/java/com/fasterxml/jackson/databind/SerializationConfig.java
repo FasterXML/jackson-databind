@@ -513,7 +513,7 @@ public class SerializationConfig
     public SerializationConfig(BaseSettings base,
             int defaultFeatures, SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
     {
-        super(base, defaultFeatures, null, mixins);
+        super(base, defaultFeatures, str, mixins);
         _filterProvider = null;
     }
     
@@ -703,16 +703,13 @@ public class SerializationConfig
      */
     
     @Override
-    public SerializationConfig createUnshared(SubtypeResolver subtypeResolver)
-    {
-        return new SerializationConfig(this, subtypeResolver, _featureFlags);
+    public SerializationConfig createUnshared() {
+        return this;
     }
 
     @Override
-    public SerializationConfig createUnshared(SubtypeResolver subtypeResolver,
-            int features)
-    {
-        return new SerializationConfig(this, subtypeResolver, features);
+    public SerializationConfig createUnshared(int features) {
+        return new SerializationConfig(this, features);
     }
     
     @Override

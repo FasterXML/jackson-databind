@@ -19,6 +19,10 @@ Improvements
   customizing handling of serialization of empty values
 * [JACKSON-710]: 'ObjectMapper.convertValue()' should ignore root value
   wrapping/unwrapping settings
+* [JACKSON-730] Split various features (JsonParser, JsonGenerator,
+  SerializationConfig, DeserializationConfig) into per-factory
+  features (MapperConfig.Feature, JsonFactory.Feature) an per
+  instance features (existing ones)
 * [JACKSON-732]: Allow 'AnnotationIntrospector.findContentDeserializer()'
   (and similar) to return instance, not just Class<?> for instance
  (requested by James R)

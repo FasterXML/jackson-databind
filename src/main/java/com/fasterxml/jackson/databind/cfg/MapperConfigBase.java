@@ -76,24 +76,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _mixInAnnotations = src._mixInAnnotations;
         _subtypeResolver = src._subtypeResolver;
     }
-    
-    /*
-    /**********************************************************
-    /* Additional fluent-factory methods
-    /**********************************************************
-     */
-    
-    /**
-     * Fluent factory method that will construct and return a new configuration
-     * object instance with specified features enabled.
-     */
-    public abstract T with(CFG... features);
-    
-    /**
-     * Fluent factory method that will construct and return a new configuration
-     * object instance with specified features disabled.
-     */
-    public abstract T without(CFG... features);
 
     /*
     /**********************************************************

@@ -319,7 +319,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /* Life-cycle: factory methods
     /**********************************************************
      */
-
+    
     /**
      * Method for constructing and returning a new instance with specified
      * mapper features enabled.

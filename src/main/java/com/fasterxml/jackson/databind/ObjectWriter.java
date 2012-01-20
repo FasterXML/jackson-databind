@@ -73,8 +73,6 @@ public class ObjectWriter
     /**
      * When using data format that uses a schema, schema is passed
      * to generator.
-     * 
-     * @since 1.8
      */
     protected final FormatSchema _schema;
     
@@ -103,8 +101,6 @@ public class ObjectWriter
 
     /**
      * Alternative constructor for initial instantiation.
-     * 
-     * @since 1.7
      */
     protected ObjectWriter(ObjectMapper mapper, SerializationConfig config)
     {
@@ -121,8 +117,6 @@ public class ObjectWriter
 
     /**
      * Alternative constructor for initial instantiation.
-     * 
-     * @since 1.7
      */
     protected ObjectWriter(ObjectMapper mapper, SerializationConfig config,
             FormatSchema s)
@@ -187,6 +181,48 @@ public class ObjectWriter
     /* Life-cycle, fluent factories
     /**********************************************************
      */
+
+    /**
+     * Method for constructing a new instance that is configured
+     * with specified feature enabled.
+     */
+    public ObjectWriter with(SerializationConfig.Feature feature) 
+    {
+        SerializationConfig newConfig = _config.with(feature);
+        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+    }    
+
+    /**
+     * Method for constructing a new instance that is configured
+     * with specified features enabled.
+     */
+    public ObjectWriter with(SerializationConfig.Feature first,
+            SerializationConfig.Feature... other)
+    {
+        SerializationConfig newConfig = _config.with(first, other);
+        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+    }    
+
+    /**
+     * Method for constructing a new instance that is configured
+     * with specified feature enabled.
+     */
+    public ObjectWriter without(SerializationConfig.Feature feature) 
+    {
+        SerializationConfig newConfig = _config.without(feature);
+        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+    }    
+
+    /**
+     * Method for constructing a new instance that is configured
+     * with specified features enabled.
+     */
+    public ObjectWriter without(SerializationConfig.Feature first,
+            SerializationConfig.Feature... other)
+    {
+        SerializationConfig newConfig = _config.without(first, other);
+        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+    }    
     
     /**
      * Method that will construct a new instance that uses specified
@@ -221,9 +257,6 @@ public class ObjectWriter
         return withType(_config.constructType(rootType));
     }
 
-    /**
-     * @since 1.7
-     */
     public ObjectWriter withType(TypeReference<?> rootType)
     {
         return withType(_config.getTypeFactory().constructType(rootType.getType()));
@@ -232,8 +265,6 @@ public class ObjectWriter
     /**
      * Method that will construct a new instance that will use specified pretty
      * printer (or, if null, will not do any pretty-printing)
-     * 
-     * @since 1.6
      */
     public ObjectWriter withPrettyPrinter(PrettyPrinter pp)
     {

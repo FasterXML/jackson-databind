@@ -2127,6 +2127,25 @@ public class ObjectMapper
     }
 
     /**
+     * Factory method for constructing {@link ObjectWriter} with
+     * specified feature enabled (compared to settings that this
+     * mapper instance has).
+     */
+    public ObjectWriter writer(SerializationConfig.Feature feature) {
+        return new ObjectWriter(this, getSerializationConfig().with(feature));
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectWriter} with
+     * specified features enabled (compared to settings that this
+     * mapper instance has).
+     */
+    public ObjectWriter writer(SerializationConfig.Feature first,
+            SerializationConfig.Feature... other) {
+        return new ObjectWriter(this, getSerializationConfig().with(first, other));
+    }
+    
+    /**
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified {@link DateFormat}; or, if
      * null passed, using timestamp (64-bit number.
@@ -2230,6 +2249,29 @@ public class ObjectMapper
     public ObjectReader reader() {
         return new ObjectReader(this, getDeserializationConfig())
             .withInjectableValues(_injectableValues);
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} with
+     * specified feature enabled (compared to settings that this
+     * mapper instance has).
+     * Note that the resulting instance is NOT usable as is,
+     * without defining expected value type.
+     */
+    public ObjectReader reader(DeserializationConfig.Feature feature) {
+        return new ObjectReader(this, getDeserializationConfig().with(feature));
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} with
+     * specified features enabled (compared to settings that this
+     * mapper instance has).
+     * Note that the resulting instance is NOT usable as is,
+     * without defining expected value type.
+     */
+    public ObjectReader reader(DeserializationConfig.Feature first,
+            DeserializationConfig.Feature... other) {
+        return new ObjectReader(this, getDeserializationConfig().with(first, other));
     }
     
     /**

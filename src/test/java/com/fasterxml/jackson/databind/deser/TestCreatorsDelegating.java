@@ -1,15 +1,24 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JacksonInject;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.InjectableValues;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 
-public class TestDelegatingCreators extends BaseMapTest
+public class TestCreatorsDelegating extends BaseMapTest
 {
+    static class BooleanBean
+    {
+        protected Boolean value;
+
+        public BooleanBean(Boolean v) { value = v; }
+        
+        @JsonCreator
+        protected static BooleanBean create(Boolean value) {
+            return new BooleanBean(value);
+        }
+    }
+
     // for [JACKSON-711]; should allow delegate-based one(s) too
     static class CtorBean711
     {
@@ -24,6 +33,7 @@ public class TestDelegatingCreators extends BaseMapTest
         }
     }
 
+    // for [JACKSON-711]; should allow delegate-based one(s) too
     static class FactoryBean711
     {
         protected String name1;
@@ -47,6 +57,18 @@ public class TestDelegatingCreators extends BaseMapTest
     /* Unit tests
     /**********************************************************
      */
+
+    public void testBooleanDelegate() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        // should obviously work with booleans...
+        BooleanBean bb = m.readValue("true", BooleanBean.class);
+        assertEquals(Boolean.TRUE, bb.value);
+
+        // but also with value conversion from String
+        bb = m.readValue(quote("true"), BooleanBean.class);
+        assertEquals(Boolean.TRUE, bb.value);
+    }
     
     // As per [JACKSON-711]: should also work with delegate model (single non-annotated arg)
     public void testWithCtorAndDelegate() throws Exception

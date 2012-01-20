@@ -1154,8 +1154,8 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
-    public ObjectMapper enable(DeserializationConfig.Feature... f) {
-        _deserializationConfig = _deserializationConfig.with(f);
+    public ObjectMapper enable(DeserializationConfig.Feature feature) {
+        _deserializationConfig = _deserializationConfig.with(feature);
         return this;
     }
 
@@ -1163,8 +1163,18 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
-    public ObjectMapper disable(DeserializationConfig.Feature... f) {
-        _deserializationConfig = _deserializationConfig.without(f);
+    public ObjectMapper enable(DeserializationConfig.Feature first,
+            DeserializationConfig.Feature... f) {
+        _deserializationConfig = _deserializationConfig.with(first, f);
+        return this;
+    }
+    
+    /**
+     * Method for enabling specified {@link DeserializationConfig} features.
+     * Modifies and returns this instance; no new object is created.
+     */
+    public ObjectMapper disable(DeserializationConfig.Feature feature) {
+        _deserializationConfig = _deserializationConfig.without(feature);
         return this;
     }
 
@@ -1172,7 +1182,17 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
-    public ObjectMapper enable(SerializationConfig.Feature... f) {
+    public ObjectMapper disable(DeserializationConfig.Feature first,
+            DeserializationConfig.Feature... f) {
+        _deserializationConfig = _deserializationConfig.without(first, f);
+        return this;
+    }
+    
+    /**
+     * Method for enabling specified {@link DeserializationConfig} feature.
+     * Modifies and returns this instance; no new object is created.
+     */
+    public ObjectMapper enable(SerializationConfig.Feature f) {
         _serializationConfig = _serializationConfig.with(f);
         return this;
     }
@@ -1181,11 +1201,31 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
-    public ObjectMapper disable(SerializationConfig.Feature... f) {
-        _serializationConfig = _serializationConfig.without(f);
+    public ObjectMapper enable(SerializationConfig.Feature first,
+            SerializationConfig.Feature... f) {
+        _serializationConfig = _serializationConfig.with(first, f);
         return this;
     }
     
+    /**
+     * Method for enabling specified {@link DeserializationConfig} features.
+     * Modifies and returns this instance; no new object is created.
+     */
+    public ObjectMapper disable(SerializationConfig.Feature f) {
+        _serializationConfig = _serializationConfig.without(f);
+        return this;
+    }
+
+    /**
+     * Method for enabling specified {@link DeserializationConfig} features.
+     * Modifies and returns this instance; no new object is created.
+     */
+    public ObjectMapper disable(SerializationConfig.Feature first,
+            SerializationConfig.Feature... f) {
+        _serializationConfig = _serializationConfig.without(first, f);
+        return this;
+    }
+
     /**
      * Method for checking whether given Mapper
      * feature is enabled.

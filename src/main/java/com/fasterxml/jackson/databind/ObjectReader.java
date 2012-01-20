@@ -24,8 +24,6 @@ import com.fasterxml.jackson.databind.type.SimpleType;
  * new instances are constructed for different configurations.
  * Instances are initially constructed by {@link ObjectMapper} and can be
  * reused.
- * 
- * @author tatu
  */
 public class ObjectReader
     extends ObjectCodec
@@ -101,7 +99,7 @@ public class ObjectReader
     
     /*
     /**********************************************************
-    /* Life-cycle
+    /* Life-cycle, construction
     /**********************************************************
      */
 
@@ -155,6 +153,24 @@ public class ObjectReader
     }
 
     /**
+     * Copy constructor used when modifying simple feature flags
+     */
+    protected ObjectReader(ObjectReader base, DeserializationConfig config)
+    {
+        _config = config;
+
+        _rootDeserializers = base._rootDeserializers;
+        _provider = base._provider;
+        _jsonFactory = base._jsonFactory;
+
+        _valueType = base._valueType;
+        _valueToUpdate = base._valueToUpdate;
+        _schema = base._schema;
+        _injectableValues = base._injectableValues;
+        _unwrapRoot = config.isEnabled(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE);
+    }
+    
+    /**
      * Method that will return version information stored in and read from jar
      * that contains this class.
      */
@@ -163,6 +179,33 @@ public class ObjectReader
         return DatabindVersion.instance.version();
     }
 
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factory methods
+    /**********************************************************
+     */
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified feature enabled.
+     */
+    public ObjectReader with(DeserializationConfig.Feature feature) 
+    {
+        DeserializationConfig newConfig = _config.with(feature);
+        return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+    }    
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified features enabled.
+     */
+    public ObjectReader with(DeserializationConfig.Feature first,
+            DeserializationConfig.Feature... other)
+    {
+        DeserializationConfig newConfig = _config.with(first, other);
+        return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+    }    
+    
     /**
      * Method for constructing a new reader instance that is configured
      * to data bind into specified type.
@@ -172,7 +215,7 @@ public class ObjectReader
      */
     public ObjectReader withType(JavaType valueType)
     {
-        if (valueType == _valueType) return this;
+        if (valueType != null && valueType.equals(_valueType)) return this;
         // type is stored here, no need to make a copy of config
         return new ObjectReader(this, _config, valueType, _valueToUpdate,
                 _schema, _injectableValues);
@@ -185,8 +228,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader withType(Class<?> valueType)
-    {
+    public ObjectReader withType(Class<?> valueType) {
         return withType(_config.constructType(valueType));
     }    
 

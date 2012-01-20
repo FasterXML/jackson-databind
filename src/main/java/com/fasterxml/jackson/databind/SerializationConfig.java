@@ -290,7 +290,7 @@ public class SerializationConfig
      * Set of features enabled; actual type (kind of features)
      * depends on sub-classes.
      */
-    protected final int _featureFlags;
+    protected final int _serFeatures;
     
     /**
      * Which Bean/Map properties are to be included in serialization?
@@ -326,14 +326,14 @@ public class SerializationConfig
             SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
     {
         super(base, str, mixins);
-        _featureFlags = collectFeatureDefaults(SerializationConfig.Feature.class);
+        _serFeatures = collectFeatureDefaults(SerializationConfig.Feature.class);
         _filterProvider = null;
     }
     
     private SerializationConfig(SerializationConfig src, SubtypeResolver str)
     {
         super(src, str);
-        _featureFlags = src._featureFlags;
+        _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _serializationView = src._serializationView;
         _filterProvider = src._filterProvider;
@@ -343,7 +343,7 @@ public class SerializationConfig
             int mapperFeatures, int serFeatures)
     {
         super(src, mapperFeatures);
-        _featureFlags = serFeatures;
+        _serFeatures = serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _serializationView = src._serializationView;
         _filterProvider = src._filterProvider;
@@ -352,7 +352,7 @@ public class SerializationConfig
     private SerializationConfig(SerializationConfig src, BaseSettings base)
     {
         super(src, base);
-        _featureFlags = src._featureFlags;
+        _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _serializationView = src._serializationView;
         _filterProvider = src._filterProvider;
@@ -361,7 +361,7 @@ public class SerializationConfig
     private SerializationConfig(SerializationConfig src, FilterProvider filters)
     {
         super(src);
-        _featureFlags = src._featureFlags;
+        _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _serializationView = src._serializationView;
         _filterProvider = filters;
@@ -370,7 +370,7 @@ public class SerializationConfig
     private SerializationConfig(SerializationConfig src, Class<?> view)
     {
         super(src);
-        _featureFlags = src._featureFlags;
+        _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _serializationView = view;
         _filterProvider = src._filterProvider;
@@ -379,7 +379,7 @@ public class SerializationConfig
     private SerializationConfig(SerializationConfig src, JsonInclude.Include incl)
     {
         super(src);
-        _featureFlags = src._featureFlags;
+        _serFeatures = src._serFeatures;
         _serializationInclusion = incl;
         _serializationView = src._serializationView;
         _filterProvider = src._filterProvider;
@@ -391,54 +391,84 @@ public class SerializationConfig
     /**********************************************************
      */
 
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified features enabled.
+     */
+    @Override
+    public SerializationConfig with(MapperConfig.Feature... features)
+    {
+        int newMapperFlags = _mapperFeatures;
+        for (MapperConfig.Feature f : features) {
+            newMapperFlags |= f.getMask();
+        }
+        return (newMapperFlags == _mapperFeatures) ? this
+                : new SerializationConfig(this, newMapperFlags, _serFeatures);
+    }
+    
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified features disabled.
+     */
+    @Override
+    public SerializationConfig without(MapperConfig.Feature... features)
+    {
+        int newMapperFlags = _mapperFeatures;
+        for (MapperConfig.Feature f : features) {
+             newMapperFlags &= ~f.getMask();
+        }
+        return (newMapperFlags == _mapperFeatures) ? this
+                : new SerializationConfig(this, newMapperFlags, _serFeatures);
+    }
+    
     @Override
     public SerializationConfig withClassIntrospector(ClassIntrospector<? extends BeanDescription> ci) {
-        return new SerializationConfig(this, _base.withClassIntrospector(ci));
+        return _withBase(_base.withClassIntrospector(ci));
     }
 
     @Override
     public SerializationConfig withAnnotationIntrospector(AnnotationIntrospector ai) {
-        return new SerializationConfig(this, _base.withAnnotationIntrospector(ai));
+        return _withBase(_base.withAnnotationIntrospector(ai));
     }
 
     @Override
     public SerializationConfig withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
-        return new SerializationConfig(this, _base.withInsertedAnnotationIntrospector(ai));
+        return _withBase(_base.withInsertedAnnotationIntrospector(ai));
     }
 
     @Override
     public SerializationConfig withAppendedAnnotationIntrospector(AnnotationIntrospector ai) {
-        return new SerializationConfig(this, _base.withAppendedAnnotationIntrospector(ai));
+        return _withBase(_base.withAppendedAnnotationIntrospector(ai));
     }
     
     @Override
     public SerializationConfig withVisibilityChecker(VisibilityChecker<?> vc) {
-        return new SerializationConfig(this, _base.withVisibilityChecker(vc));
+        return _withBase(_base.withVisibilityChecker(vc));
     }
 
     @Override
     public SerializationConfig withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
-        return new SerializationConfig(this, _base.withVisibility(forMethod, visibility));
+        return _withBase(_base.withVisibility(forMethod, visibility));
     }
     
     @Override
     public SerializationConfig withTypeResolverBuilder(TypeResolverBuilder<?> trb) {
-        return new SerializationConfig(this, _base.withTypeResolverBuilder(trb));
+        return _withBase(_base.withTypeResolverBuilder(trb));
     }
-
+    
     @Override
     public SerializationConfig withSubtypeResolver(SubtypeResolver str) {
-        return new SerializationConfig(this, str);
+        return (str == _subtypeResolver)? this : new SerializationConfig(this, str);
     }
     
     @Override
     public SerializationConfig withPropertyNamingStrategy(PropertyNamingStrategy pns) {
-        return new SerializationConfig(this, _base.withPropertyNamingStrategy(pns));
+        return _withBase(_base.withPropertyNamingStrategy(pns));
     }
     
     @Override
     public SerializationConfig withTypeFactory(TypeFactory tf) {
-        return new SerializationConfig(this, _base.withTypeFactory(tf));
+        return _withBase(_base.withTypeFactory(tf));
     }
 
     /**
@@ -460,9 +490,13 @@ public class SerializationConfig
     
     @Override
     public SerializationConfig withHandlerInstantiator(HandlerInstantiator hi) {
-        return new SerializationConfig(this, _base.withHandlerInstantiator(hi));
+        return _withBase(_base.withHandlerInstantiator(hi));
     }
-        
+
+    private final SerializationConfig _withBase(BaseSettings newBase) {
+        return (_base == newBase) ? this : new SerializationConfig(this, newBase);
+    }
+    
     /*
     /**********************************************************
     /* Life-cycle, SerializationConfig specific factory methods
@@ -470,71 +504,65 @@ public class SerializationConfig
      */
     
     public SerializationConfig withFilters(FilterProvider filterProvider) {
-        return new SerializationConfig(this, filterProvider);
+        return (filterProvider == _filterProvider) ? this : new SerializationConfig(this, filterProvider);
     }
 
     public SerializationConfig withView(Class<?> view) {
-        return new SerializationConfig(this, view);
+        return (_serializationView == view) ? this : new SerializationConfig(this, view);
     }
 
     public SerializationConfig withSerializationInclusion(JsonInclude.Include incl) {
-        return new SerializationConfig(this, incl);
+        return (_serializationInclusion == incl) ? this:  new SerializationConfig(this, incl);
+    }
+    
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified feature enabled.
+     */
+    public SerializationConfig with(Feature feature)
+    {
+        int newSerFeatures = _serFeatures | feature.getMask();
+        return (newSerFeatures == _serFeatures) ? this
+                : new SerializationConfig(this, _mapperFeatures, newSerFeatures);
     }
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
      */
-    @Override
-    public SerializationConfig with(MapperConfig.Feature... features)
+    public SerializationConfig with(Feature first, Feature... features)
     {
-        int newMapperFlags = _mapperFeatures;
-        for (MapperConfig.Feature f : features) {
-            newMapperFlags |= f.getMask();
+        int newSerFeatures = _serFeatures | first.getMask();
+        for (Feature f : features) {
+            newSerFeatures |= f.getMask();
         }
-        return new SerializationConfig(this, newMapperFlags, _featureFlags);
+        return (newSerFeatures == _serFeatures) ? this
+                : new SerializationConfig(this, _mapperFeatures, newSerFeatures);
     }
     
     /**
      * Fluent factory method that will construct and return a new configuration
-     * object instance with specified features enabled.
+     * object instance with specified feature disabled.
      */
-    @Override
-    public SerializationConfig with(Feature... features)
+    public SerializationConfig without(Feature feature)
     {
-        int flags = _featureFlags;
-        for (Feature f : features) {
-            flags |= f.getMask();
-        }
-        return new SerializationConfig(this, _mapperFeatures, flags);
+        int newSerFeatures = _serFeatures & ~feature.getMask();
+        return (newSerFeatures == _serFeatures) ? this
+                : new SerializationConfig(this, _mapperFeatures, newSerFeatures);
     }
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
      */
-    @Override
-    public SerializationConfig without(MapperConfig.Feature... features)
+    public SerializationConfig without(Feature first, Feature... features)
     {
-        int newMapperFlags = _mapperFeatures;
-        for (MapperConfig.Feature f : features) {
-             newMapperFlags &= ~f.getMask();
-        }
-        return new SerializationConfig(this, newMapperFlags, _featureFlags);
-    }
-    
-    /**
-     * Fluent factory method that will construct and return a new configuration
-     * object instance with specified features disabled.
-     */
-    @Override
-    public SerializationConfig without(Feature... features)
-    {
-        int flags = _featureFlags;
+        int newSerFeatures = _serFeatures & ~first.getMask();
         for (Feature f : features) {
-            flags &= ~f.getMask();
+            newSerFeatures &= ~f.getMask();
         }
-        return new SerializationConfig(this, _mapperFeatures, flags);
+        return (newSerFeatures == _serFeatures) ? this
+                : new SerializationConfig(this, _mapperFeatures, newSerFeatures);
     }
     
     /*
@@ -545,7 +573,7 @@ public class SerializationConfig
 
     @Override
     public final int getFeatureFlags() {
-        return _featureFlags;
+        return _serFeatures;
     }
     
     @Override
@@ -599,7 +627,7 @@ public class SerializationConfig
     }
 
     public boolean isEnabled(SerializationConfig.Feature f) {
-        return (_featureFlags & f.getMask()) != 0;
+        return (_serFeatures & f.getMask()) != 0;
     }
     
     /*
@@ -675,6 +703,6 @@ public class SerializationConfig
     
     @Override public String toString()
     {
-        return "[SerializationConfig: flags=0x"+Integer.toHexString(_featureFlags)+"]";
+        return "[SerializationConfig: flags=0x"+Integer.toHexString(_serFeatures)+"]";
     }
 }

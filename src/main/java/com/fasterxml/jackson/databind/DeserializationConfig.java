@@ -257,8 +257,8 @@ public class DeserializationConfig
      * Set of features enabled; actual type (kind of features)
      * depends on sub-classes.
      */
-    protected final int _featureFlags;
-    
+    protected final int _deserFeatures;
+
     /**
      * Linked list that contains all registered problem handlers.
      * Implementation as front-added linked list allows for sharing
@@ -284,7 +284,7 @@ public class DeserializationConfig
             SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
     {
         super(base, str, mixins);
-        _featureFlags = collectFeatureDefaults(DeserializationConfig.Feature.class);
+        _deserFeatures = collectFeatureDefaults(DeserializationConfig.Feature.class);
         _nodeFactory = JsonNodeFactory.instance;
         _problemHandlers = null;
     }
@@ -296,7 +296,7 @@ public class DeserializationConfig
     private DeserializationConfig(DeserializationConfig src, SubtypeResolver str)
     {
         super(src, str);
-        _featureFlags = src._featureFlags;
+        _deserFeatures = src._deserFeatures;
         _nodeFactory = src._nodeFactory;
         _problemHandlers = src._problemHandlers;
     }
@@ -305,7 +305,7 @@ public class DeserializationConfig
             int mapperFeatures, int deserFeatures)
     {
         super(src, mapperFeatures);
-        _featureFlags = deserFeatures;
+        _deserFeatures = deserFeatures;
         _nodeFactory = src._nodeFactory;
         _problemHandlers = src._problemHandlers;
     }
@@ -313,7 +313,7 @@ public class DeserializationConfig
     private DeserializationConfig(DeserializationConfig src, BaseSettings base)
     {
         super(src, base);
-        _featureFlags = src._featureFlags;
+        _deserFeatures = src._deserFeatures;
         _nodeFactory = src._nodeFactory;
         _problemHandlers = src._problemHandlers;
     }
@@ -321,7 +321,7 @@ public class DeserializationConfig
     private DeserializationConfig(DeserializationConfig src, JsonNodeFactory f)
     {
         super(src);
-        _featureFlags = src._featureFlags;
+        _deserFeatures = src._deserFeatures;
         _problemHandlers = src._problemHandlers;
         _nodeFactory = f;
     }
@@ -330,7 +330,7 @@ public class DeserializationConfig
             LinkedNode<DeserializationProblemHandler> problemHandlers)
     {
         super(src);
-        _featureFlags = src._featureFlags;
+        _deserFeatures = src._deserFeatures;
         _problemHandlers = problemHandlers;
         _nodeFactory = src._nodeFactory;
     }
@@ -341,6 +341,28 @@ public class DeserializationConfig
     /**********************************************************
      */
 
+    @Override
+    public DeserializationConfig with(MapperConfig.Feature... features)
+    {
+        int newMapperFlags = _mapperFeatures;
+        for (MapperConfig.Feature f : features) {
+            newMapperFlags |= f.getMask();
+        }
+        return (newMapperFlags == _mapperFeatures) ? this :
+            new DeserializationConfig(this, newMapperFlags, _deserFeatures);
+    }
+
+    @Override
+    public DeserializationConfig without(MapperConfig.Feature... features)
+    {
+        int newMapperFlags = _mapperFeatures;
+        for (MapperConfig.Feature f : features) {
+             newMapperFlags &= ~f.getMask();
+        }
+        return (newMapperFlags == _mapperFeatures) ? this :
+            new DeserializationConfig(this, newMapperFlags, _deserFeatures);
+    }
+    
     @Override
     public DeserializationConfig withClassIntrospector(ClassIntrospector<? extends BeanDescription> ci) {
         return new DeserializationConfig(this, _base.withClassIntrospector(ci));
@@ -443,61 +465,57 @@ public class DeserializationConfig
         return new DeserializationConfig(this,
                 (LinkedNode<DeserializationProblemHandler>) null);
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
      */
-    @Override
-    public DeserializationConfig with(MapperConfig.Feature... features)
+    public DeserializationConfig with(DeserializationConfig.Feature feature)
     {
-        int newMapperFlags = _mapperFeatures;
-        for (MapperConfig.Feature f : features) {
-            newMapperFlags |= f.getMask();
-        }
-        return new DeserializationConfig(this, newMapperFlags, _featureFlags);
+        int newDeserFeatures = (_deserFeatures | feature.getMask());
+        return (newDeserFeatures == _deserFeatures) ? this :
+            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures);
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
      */
-    @Override
-    public DeserializationConfig with(DeserializationConfig.Feature... features)
+    public DeserializationConfig with(DeserializationConfig.Feature first,
+            DeserializationConfig.Feature... features)
     {
-        int flags = _featureFlags;
+        int newDeserFeatures = _deserFeatures | first.getMask();
         for (Feature f : features) {
-            flags |= f.getMask();
+            newDeserFeatures |= f.getMask();
         }
-        return new DeserializationConfig(this, _mapperFeatures, flags);
+        return (newDeserFeatures == _deserFeatures) ? this :
+            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures);
+    }
+
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified feature disabled.
+     */
+    public DeserializationConfig without(DeserializationConfig.Feature feature)
+    {
+        int newDeserFeatures = _deserFeatures & ~feature.getMask();
+        return (newDeserFeatures == _deserFeatures) ? this :
+            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures);
     }
 
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
      */
-    @Override
-    public DeserializationConfig without(MapperConfig.Feature... features)
+    public DeserializationConfig without(DeserializationConfig.Feature first,
+            DeserializationConfig.Feature... features)
     {
-        int newMapperFlags = _mapperFeatures;
-        for (MapperConfig.Feature f : features) {
-             newMapperFlags &= ~f.getMask();
-        }
-        return new DeserializationConfig(this, newMapperFlags, _featureFlags);
-    }
-    
-    /**
-     * Fluent factory method that will construct and return a new configuration
-     * object instance with specified features disabled.
-     */
-    @Override
-    public DeserializationConfig without(DeserializationConfig.Feature... features)
-    {
-        int flags = _featureFlags;
+        int newDeserFeatures = _deserFeatures & ~first.getMask();
         for (Feature f : features) {
-            flags &= ~f.getMask();
+            newDeserFeatures &= ~f.getMask();
         }
-        return new DeserializationConfig(this, _mapperFeatures, flags);
+        return (newDeserFeatures == _deserFeatures) ? this :
+            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures);
     }
     
     /*
@@ -508,7 +526,7 @@ public class DeserializationConfig
 
     @Override
     public final int getFeatureFlags() {
-        return _featureFlags;
+        return _deserFeatures;
     }
     
     /**
@@ -565,7 +583,7 @@ public class DeserializationConfig
     }
 
     public boolean isEnabled(DeserializationConfig.Feature f) {
-        return (_featureFlags & f.getMask()) != 0;
+        return (_deserFeatures & f.getMask()) != 0;
     }
 
     /*

@@ -10,12 +10,6 @@ import java.io.Serializable;
 public class TestGenericsBounded
     extends BaseMapTest
 {
-    /*
-    /*******************************************************
-    /* Helper types
-    /*******************************************************
-     */
-
     @SuppressWarnings("serial")
     static class Range<E extends Comparable<E>> implements Serializable
     {
@@ -57,20 +51,6 @@ public class TestGenericsBounded
         public T wrapped;
     }
 
-    // Helper types for [JACKSON-743]
-    
-    public static abstract class Base<T> {
-        public T inconsequential = null;
-    }
-
-    public static abstract class BaseData<T> {
-        public T dataObj;
-    }
-   
-    public static class Child extends Base<Long> {
-        public static class ChildData extends BaseData<List<String>> { }
-    }
-
     /*
     /*******************************************************
     /* Unit tests
@@ -108,16 +88,5 @@ public class TestGenericsBounded
         assertNotNull(out);
         assertEquals(-0.5, out.start);
         assertEquals(0.5, out.end);
-    }
-
-    // Reproducing issue 743
-    public void testResolution743() throws Exception
-    {
-        String s3 = "{\"dataObj\" : [ \"one\", \"two\", \"three\" ] }";
-        ObjectMapper m = new ObjectMapper();
-   
-        Child.ChildData d = m.readValue(s3, Child.ChildData.class);
-        assertNotNull(d.dataObj);
-        assertEquals(3, d.dataObj.size());
     }
 }

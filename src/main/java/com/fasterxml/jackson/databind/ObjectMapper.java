@@ -475,12 +475,22 @@ public class ObjectMapper
             }
             
             @Override
-            public boolean isEnabled(DeserializationConfig.Feature f) {
+            public boolean isEnabled(MapperConfig.Feature f) {
                 return mapper.isEnabled(f);
             }
 
             @Override
+            public boolean isEnabled(DeserializationConfig.Feature f) {
+                return mapper.isEnabled(f);
+            }
+            
+            @Override
             public boolean isEnabled(SerializationConfig.Feature f) {
+                return mapper.isEnabled(f);
+            }
+
+            @Override
+            public boolean isEnabled(JsonFactory.Feature f) {
                 return mapper.isEnabled(f);
             }
 
@@ -488,7 +498,7 @@ public class ObjectMapper
             public boolean isEnabled(JsonParser.Feature f) {
                 return mapper.isEnabled(f);
             }
-
+            
             @Override
             public boolean isEnabled(JsonGenerator.Feature f) {
                 return mapper.isEnabled(f);
@@ -557,6 +567,16 @@ public class ObjectMapper
                 mapper._serializationConfig = mapper._serializationConfig.withAppendedAnnotationIntrospector(ai);
             }
 
+            @Override
+            public void registerSubtypes(Class<?>... subtypes) {
+                mapper.registerSubtypes(subtypes);
+            }
+
+            @Override
+            public void registerSubtypes(NamedType... subtypes) {
+                mapper.registerSubtypes(subtypes);
+            }
+            
             @Override
             public void setMixInAnnotations(Class<?> target, Class<?> mixinSource) {
                 mapper.addMixInAnnotations(target, mixinSource);
@@ -1257,10 +1277,20 @@ public class ObjectMapper
      *  getJsonFactory().isEnabled(f);
      *</pre>
      */
-    public boolean isEnabled(JsonParser.Feature f) {
+    public boolean isEnabled(JsonFactory.Feature f) {
         return _jsonFactory.isEnabled(f);
     }
 
+    /**
+     * Convenience method, equivalent to:
+     *<pre>
+     *  getJsonFactory().isEnabled(f);
+     *</pre>
+     */
+    public boolean isEnabled(JsonParser.Feature f) {
+        return _jsonFactory.isEnabled(f);
+    }
+    
     /**
      * Convenience method, equivalent to:
      *<pre>
@@ -2127,6 +2157,25 @@ public class ObjectMapper
     }
 
     /**
+     * Factory method for constructing {@link ObjectWriter} with
+     * specified feature enabled (compared to settings that this
+     * mapper instance has).
+     */
+    public ObjectWriter writer(SerializationConfig.Feature feature) {
+        return new ObjectWriter(this, getSerializationConfig().with(feature));
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectWriter} with
+     * specified features enabled (compared to settings that this
+     * mapper instance has).
+     */
+    public ObjectWriter writer(SerializationConfig.Feature first,
+            SerializationConfig.Feature... other) {
+        return new ObjectWriter(this, getSerializationConfig().with(first, other));
+    }
+    
+    /**
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified {@link DateFormat}; or, if
      * null passed, using timestamp (64-bit number.
@@ -2230,6 +2279,29 @@ public class ObjectMapper
     public ObjectReader reader() {
         return new ObjectReader(this, getDeserializationConfig())
             .withInjectableValues(_injectableValues);
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} with
+     * specified feature enabled (compared to settings that this
+     * mapper instance has).
+     * Note that the resulting instance is NOT usable as is,
+     * without defining expected value type.
+     */
+    public ObjectReader reader(DeserializationConfig.Feature feature) {
+        return new ObjectReader(this, getDeserializationConfig().with(feature));
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} with
+     * specified features enabled (compared to settings that this
+     * mapper instance has).
+     * Note that the resulting instance is NOT usable as is,
+     * without defining expected value type.
+     */
+    public ObjectReader reader(DeserializationConfig.Feature first,
+            DeserializationConfig.Feature... other) {
+        return new ObjectReader(this, getDeserializationConfig().with(first, other));
     }
     
     /**

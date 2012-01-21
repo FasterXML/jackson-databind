@@ -1,12 +1,14 @@
 package com.fasterxml.jackson.databind.module;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 /**
  * Simple {@link Module} implementation that allows registration
@@ -43,6 +45,11 @@ public class SimpleModule extends Module
      * by target class, value being mix-in to apply.
      */
     protected HashMap<Class<?>, Class<?>> _mixins = null;
+    
+    /**
+     * Set of subtypes to register, if any.
+     */
+    protected LinkedHashSet<NamedType> _subtypes = null;
     
     /*
     /**********************************************************
@@ -215,6 +222,38 @@ public class SimpleModule extends Module
     }
 
     /**
+     * Method for adding set of subtypes to be registered with
+     * {@link ObjectMapper}
+     * this is an alternative to using annotations in super type to indicate subtypes.
+     */
+    public SimpleModule registerSubtypes(Class<?> ... subtypes)
+    {
+        if (_subtypes == null) {
+            _subtypes = new LinkedHashSet<NamedType>(Math.max(16, subtypes.length));
+        }
+        for (Class<?> subtype : subtypes) {
+            _subtypes.add(new NamedType(subtype));
+        }
+        return this;
+    }
+
+    /**
+     * Method for adding set of subtypes (along with type name to use) to be registered with
+     * {@link ObjectMapper}
+     * this is an alternative to using annotations in super type to indicate subtypes.
+     */
+    public SimpleModule registerSubtypes(NamedType ... subtypes)
+    {
+        if (_subtypes == null) {
+            _subtypes = new LinkedHashSet<NamedType>(Math.max(16, subtypes.length));
+        }
+        for (NamedType subtype : subtypes) {
+            _subtypes.add(subtype);
+        }
+        return this;
+    }
+    
+    /**
      * Method for specifying that annotations define by <code>mixinClass</code>
      * should be "mixed in" with annotations that <code>targetType</code>
      * has (as if they were directly included on it!).
@@ -262,6 +301,9 @@ public class SimpleModule extends Module
         }
         if (_valueInstantiators != null) {
             context.addValueInstantiators(_valueInstantiators);
+        }
+        if (_subtypes != null && _subtypes.size() > 0) {
+            context.registerSubtypes(_subtypes.toArray(new NamedType[_subtypes.size()]));
         }
         if (_mixins != null) {
             for (Map.Entry<Class<?>,Class<?>> entry : _mixins.entrySet()) {

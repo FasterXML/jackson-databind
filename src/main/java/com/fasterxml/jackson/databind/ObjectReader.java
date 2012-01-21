@@ -205,6 +205,27 @@ public class ObjectReader
         DeserializationConfig newConfig = _config.with(first, other);
         return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
     }    
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified feature disabled.
+     */
+    public ObjectReader without(DeserializationConfig.Feature feature) 
+    {
+        DeserializationConfig newConfig = _config.without(feature);
+        return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+    }    
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified features disabled.
+     */
+    public ObjectReader without(DeserializationConfig.Feature first,
+            DeserializationConfig.Feature... other)
+    {
+        DeserializationConfig newConfig = _config.without(first, other);
+        return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+    }    
     
     /**
      * Method for constructing a new reader instance that is configured

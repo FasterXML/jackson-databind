@@ -83,6 +83,18 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertSame(SubC.class, result.value.getClass());
     }
 
+    // [JACKSON-748]: also works via modules
+    public void testSubtypesViaModule() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.registerSubtypes(SubB.class, SubC.class, SubD.class);
+        mapper.registerModule(module);
+        String json = mapper.writeValueAsString(new PropertyBean(new SubC()));
+        PropertyBean result = mapper.readValue(json, PropertyBean.class);
+        assertSame(SubC.class, result.value.getClass());
+    }
+    
     public void testSerialization() throws Exception
     {
         // serialization can detect type name ok without anything extra:

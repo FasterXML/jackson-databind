@@ -28,6 +28,7 @@ Improvements
 * [JACKSON-732]: Allow 'AnnotationIntrospector.findContentDeserializer()'
   (and similar) to return instance, not just Class<?> for instance
  (requested by James R)
+* [JACKSON-748]: Add 'registerSubtypes' to 'Module.setupContext' (and SimpleModule)
 * [JACKSON-749]: Make @JsonValue work for Enum deserialization
 
 New features:
@@ -35,6 +36,8 @@ New features:
 * [JACKSON-669]: Allow prefix/suffix for @JsonUnwrapped properties
  (requested by Aner P)
 * [JACKSON-718]: Added 'JsonNode.canConvertToInt()', 'JsonNode.canConvertToLong()'
+* [JACKSON-747]: Allow changing of 'SerializationConfig.Feature' for ObjectWriter,
+  'DeserializationConfig.Feature' for ObjectReader.
 * [JACKSON-752]: Add @JsonInclude (replacement of @JsonSerialize.include)
 * [JACKSON-754]: Add @JacksonAnnotationsInside for creating "annotation
   bundles" (also: AnnotationIntrospector.isAnnotationBundle())

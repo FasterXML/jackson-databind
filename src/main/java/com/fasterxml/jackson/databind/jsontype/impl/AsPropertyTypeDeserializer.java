@@ -22,23 +22,16 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 {
-    protected final String _typePropertyName;
-    
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes, BeanProperty property,
-            Class<?> defaultImpl,
-            String typePropName)
+            String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl)
     {
-        super(bt, idRes, property, defaultImpl);
-        _typePropertyName = typePropName;
+        super(bt, idRes, property, typePropertyName, typeIdVisible, defaultImpl);
     }
 
     @Override
     public As getTypeInclusion() {
         return As.PROPERTY;
     }
-
-    @Override
-    public String getPropertyName() { return _typePropertyName; }
 
     /**
      * This is the trickiest thing to handle, since property we are looking
@@ -71,17 +64,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             String name = jp.getCurrentName();
             jp.nextToken(); // to point to the value
             if (_typePropertyName.equals(name)) { // gotcha!
-                String typeId = jp.getText();
-                JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
-               if (tb != null) { // need to put back skipped properties?
-                    jp = JsonParserSequence.createFlattened(tb.asParser(jp), jp);
-                }
-                /* Must point to the next value; tb had no current, jp
-                 * pointed to VALUE_STRING:
-                 */
-                jp.nextToken(); // to skip past String value
-                // deserializer should take care of closing END_OBJECT as well
-                return deser.deserialize(jp, ctxt);
+                return _deserializeTypedForId(jp, ctxt, tb);
             }
             if (tb == null) {
                 tb = new TokenBuffer(null);
@@ -90,6 +73,28 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             tb.copyCurrentStructure(jp);
         }
         return _deserializeTypedUsingDefaultImpl(jp, ctxt, tb);
+    }
+
+    protected final Object _deserializeTypedForId(JsonParser jp, DeserializationContext ctxt,
+            TokenBuffer tb)
+        throws IOException, JsonProcessingException
+    {
+        String typeId = jp.getText();
+        JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+        if (_typeIdVisible) { // need to merge id back in JSON input?
+            if (tb == null) {
+                tb = new TokenBuffer(null);
+            }
+            tb.writeFieldName(jp.getCurrentName());
+            tb.writeString(typeId);
+        }
+        if (tb != null) { // need to put back skipped properties?
+            jp = JsonParserSequence.createFlattened(tb.asParser(jp), jp);
+        }
+        // Must point to the next value; tb had no current, jp pointed to VALUE_STRING:
+        jp.nextToken(); // to skip past String value
+        // deserializer should take care of closing END_OBJECT as well
+        return deser.deserialize(jp, ctxt);
     }
     
     // off-lined to keep main method lean and mean...

@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  * uses a JSON Array wrapper (similar to how
  * {@link As#WRAPPER_ARRAY} always works) as a fallback.
  * 
- * @since 1.5
  * @author tatus
  */
 public class AsPropertyTypeSerializer

@@ -29,6 +29,14 @@ public abstract class TypeDeserializerBase extends TypeDeserializer
      * missing or can not be resolved.
      */
     protected final JavaType _defaultImpl;
+
+    /**
+     * Name of type property used; needed for non-property versions too,
+     * in cases where type id is to be exposed as part of JSON.
+     */
+    protected final String _typePropertyName;
+    
+    protected final boolean _typeIdVisible;
     
     /**
      * For efficient operation we will lazily build mappings from type ids
@@ -39,11 +47,13 @@ public abstract class TypeDeserializerBase extends TypeDeserializer
     protected JsonDeserializer<Object> _defaultImplDeserializer;
 
     protected TypeDeserializerBase(JavaType baseType, TypeIdResolver idRes, BeanProperty property,
-            Class<?> defaultImpl)
+            String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl)
     {
         _baseType = baseType;
         _idResolver = idRes;
         _property = property;
+        _typePropertyName = typePropertyName;
+        _typeIdVisible = typeIdVisible;
         _deserializers = new HashMap<String,JsonDeserializer<Object>>();
         if (defaultImpl == null) {
             _defaultImpl = null;
@@ -62,7 +72,7 @@ public abstract class TypeDeserializerBase extends TypeDeserializer
     public String baseTypeName() { return _baseType.getRawClass().getName(); }
 
     @Override
-    public String getPropertyName() { return null; }
+    public final String getPropertyName() { return _typePropertyName; }
     
     @Override    
     public TypeIdResolver getTypeIdResolver() { return _idResolver; }

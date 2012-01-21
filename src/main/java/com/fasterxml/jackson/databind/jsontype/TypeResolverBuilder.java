@@ -52,8 +52,6 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      * Accessor for currently configured default type; implementation
      * class that may be used in case no valid type information is
      * available during type resolution
-     * 
-     * @since 1.9
      */
     public Class<?> getDefaultImpl();
     
@@ -143,4 +141,12 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      * is either not available, or can not be resolved.
      */
     public T defaultImpl(Class<?> defaultImpl);
+
+    /**
+     * Method for specifying whether type id should be visible to
+     * {@link com.fasterxml.jackson.databind.JsonDeserializer}s or not.
+     * 
+     * @since 2.0
+     */
+    public T typeIdVisibility(boolean isVisible);
 }

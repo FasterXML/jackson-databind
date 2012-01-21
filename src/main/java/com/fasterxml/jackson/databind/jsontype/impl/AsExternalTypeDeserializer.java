@@ -16,21 +16,14 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  */
 public class AsExternalTypeDeserializer extends AsArrayTypeDeserializer
 {
-    protected final String _typePropertyName;
-    
     public AsExternalTypeDeserializer(JavaType bt, TypeIdResolver idRes, BeanProperty property,
-            Class<?> defaultImpl,
-            String typePropName)
+            String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl)
     {
-        super(bt, idRes, property, defaultImpl);
-        _typePropertyName = typePropName;
+        super(bt, idRes, property, typePropertyName, typeIdVisible, defaultImpl);
     }
 
     @Override
     public As getTypeInclusion() {
         return As.EXTERNAL_PROPERTY;
     }
-
-    @Override
-    public String getPropertyName() { return _typePropertyName; }
 }

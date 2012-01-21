@@ -4,9 +4,11 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.util.JsonParserSequence;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Type deserializer used with {@link As#WRAPPER_ARRAY}
@@ -15,14 +17,14 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  * is done using a 2-element JSON Array where type id is the first
  * element, and actual object data as second element.
  * 
- * @author tatus
+ * @author tatu
  */
 public class AsArrayTypeDeserializer extends TypeDeserializerBase
 {
     public AsArrayTypeDeserializer(JavaType bt, TypeIdResolver idRes, BeanProperty property,
-            Class<?> defaultImpl)
+            String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl)
     {
-        super(bt, idRes, property, defaultImpl);
+        super(bt, idRes, property, typePropertyName, typeIdVisible, defaultImpl);
     }
     
     @Override
@@ -79,7 +81,18 @@ public class AsArrayTypeDeserializer extends TypeDeserializerBase
         throws IOException, JsonProcessingException
     {
         boolean hadStartArray = jp.isExpectedStartArrayToken();
-        JsonDeserializer<Object> deser = _findDeserializer(ctxt, _locateTypeId(jp, ctxt));
+        String typeId = _locateTypeId(jp, ctxt);
+        JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
+        // Minor complication: we may need to merge type id in?
+        if (_typeIdVisible && jp.getCurrentToken() == JsonToken.START_OBJECT) {
+            // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
+            TokenBuffer tb = new TokenBuffer(null);
+            tb.writeStartObject(); // recreate START_OBJECT
+            tb.writeFieldName(_typePropertyName);
+            tb.writeString(typeId);
+            jp = JsonParserSequence.createFlattened(tb.asParser(jp), jp);
+            jp.nextToken();
+        }
         Object value = deser.deserialize(jp, ctxt);
         // And then need the closing END_ARRAY
         if (hadStartArray && jp.nextToken() != JsonToken.END_ARRAY) {

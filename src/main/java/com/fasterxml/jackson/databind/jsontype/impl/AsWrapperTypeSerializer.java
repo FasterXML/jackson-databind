@@ -16,8 +16,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  * just use a wrapping array with type information as the first element
  * and value as second.
  * 
- * @since 1.5
- * @author tatus
+ * @author tatu
  */
 public class AsWrapperTypeSerializer
     extends TypeSerializerBase

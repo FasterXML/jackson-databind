@@ -28,6 +28,11 @@ public class StdTypeResolverBuilder
     protected String _typeProperty;
 
     /**
+     * Whether type id should be exposed to deserializers or not
+     */
+    protected boolean _typeIdVisible = false;
+    
+    /**
      * Default class to use in case type information is not available
      * or is broken.
      */
@@ -36,17 +41,6 @@ public class StdTypeResolverBuilder
     // Objects
     
     protected TypeIdResolver _customIdResolver;
-
-    /*
-    /**********************************************************
-    /* Accessors
-    /**********************************************************
-     */
-
-    @Override
-    public Class<?> getDefaultImpl() {
-        return _defaultImpl;
-    }
     
     /*
     /**********************************************************
@@ -86,11 +80,13 @@ public class StdTypeResolverBuilder
         case WRAPPER_ARRAY:
             return new AsArrayTypeSerializer(idRes, property);
         case PROPERTY:
-            return new AsPropertyTypeSerializer(idRes, property, _typeProperty);
+            return new AsPropertyTypeSerializer(idRes, property,
+                    _typeProperty);
         case WRAPPER_OBJECT:
             return new AsWrapperTypeSerializer(idRes, property);
         case EXTERNAL_PROPERTY:
-            return new AsExternalTypeSerializer(idRes, property, _typeProperty);
+            return new AsExternalTypeSerializer(idRes, property,
+                    _typeProperty);
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
@@ -108,19 +104,21 @@ public class StdTypeResolverBuilder
         // First, method for converting type info to type id:
         switch (_includeAs) {
         case WRAPPER_ARRAY:
-            return new AsArrayTypeDeserializer(baseType, idRes, property, _defaultImpl);
+            return new AsArrayTypeDeserializer(baseType, idRes, property,
+                    _typeProperty, _typeIdVisible, _defaultImpl);
         case PROPERTY:
             return new AsPropertyTypeDeserializer(baseType, idRes, property,
-                    _defaultImpl, _typeProperty);
+                    _typeProperty, _typeIdVisible, _defaultImpl);
         case WRAPPER_OBJECT:
-            return new AsWrapperTypeDeserializer(baseType, idRes, property, _defaultImpl);
+            return new AsWrapperTypeDeserializer(baseType, idRes, property,
+                    _typeProperty, _typeIdVisible, _defaultImpl);
         case EXTERNAL_PROPERTY:
             return new AsExternalTypeDeserializer(baseType, idRes, property,
-                    _defaultImpl, _typeProperty);
+                    _typeProperty, _typeIdVisible, _defaultImpl);
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
-    
+
     /*
     /**********************************************************
     /* Construction, configuration
@@ -157,6 +155,12 @@ public class StdTypeResolverBuilder
         _defaultImpl = defaultImpl;
         return this;
     }
+
+    @Override
+    public StdTypeResolverBuilder typeIdVisibility(boolean isVisible) {
+        _typeIdVisible = isVisible;
+        return this;
+    }
     
     /*
     /**********************************************************
@@ -165,6 +169,13 @@ public class StdTypeResolverBuilder
      */
 
     public String getTypeProperty() { return _typeProperty; }
+
+    @Override
+    public Class<?> getDefaultImpl() {
+        return _defaultImpl;
+    }
+
+    public boolean isTypeIdVisible() { return _typeIdVisible; }
     
     /*
     /**********************************************************

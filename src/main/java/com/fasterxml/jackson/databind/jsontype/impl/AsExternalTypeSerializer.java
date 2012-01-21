@@ -25,7 +25,7 @@ public class AsExternalTypeSerializer
    protected final String _typePropertyName;
 
    public AsExternalTypeSerializer(TypeIdResolver idRes, BeanProperty property,
-           String propName)
+          String propName)
    {
        super(idRes, property);
        _typePropertyName = propName;

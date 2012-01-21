@@ -131,7 +131,6 @@ public class JacksonAnnotationIntrospector
     /**********************************************************
      */
 
-    // @since 1.6
     @Override        
     public ReferenceProperty findReferenceType(AnnotatedMember member)
     {
@@ -215,9 +214,6 @@ public class JacksonAnnotationIntrospector
         return _findTypeResolver(config, am, baseType);
     }
 
-    /**
-     * Since 1.7, it is possible to use {@link JsonTypeInfo} from a property too.
-     */
     @Override
     public TypeResolverBuilder<?> findPropertyContentTypeResolver(MapperConfig<?> config,
             AnnotatedMember am, JavaType containerType)
@@ -700,9 +696,6 @@ public class JacksonAnnotationIntrospector
         JsonTypeResolver resAnn = ann.getAnnotation(JsonTypeResolver.class);
         
         if (resAnn != null) {
-            /* 14-Aug-2010, tatu: not sure if this can ever happen normally, but unit
-             *    tests were able to trigger this... so let's check:
-             */
             if (info == null) {
                 return null;
             }
@@ -743,6 +736,7 @@ public class JacksonAnnotationIntrospector
         if (defaultImpl != JsonTypeInfo.None.class) {
             b = b.defaultImpl(defaultImpl);
         }
+        b = b.typeIdVisibility(info.visible());
         return b;
     }
 

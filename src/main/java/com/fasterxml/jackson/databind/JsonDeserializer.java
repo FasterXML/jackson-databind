@@ -57,7 +57,8 @@ public abstract class JsonDeserializer<T>
      *<p>
      * Default implementation just throws
      * {@link UnsupportedOperationException}, to indicate that types
-     * that do not explicitly add support do not expect to get the call.
+     * that do not explicitly add support do not necessarily support
+     * update-existing-value operation (esp. immutable types)
      */
     public T deserialize(JsonParser jp, DeserializationContext ctxt,
                          T intoValue)
@@ -80,13 +81,12 @@ public abstract class JsonDeserializer<T>
      * 
      * @param typeDeserializer Deserializer to use for handling type information
      */
-    @SuppressWarnings("unchecked")
     public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws IOException, JsonProcessingException
     {
         // We could try calling 
-        return (T) typeDeserializer.deserializeTypedFromAny(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
     }
 
     /*

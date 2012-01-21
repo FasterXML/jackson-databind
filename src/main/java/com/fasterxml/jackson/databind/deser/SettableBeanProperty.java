@@ -89,6 +89,9 @@ public abstract class SettableBeanProperty
          *   field names are (usually) interned too, hence lookups will be faster.
          */
         // 23-Oct-2009, tatu: should this be disabled wrt [JACKSON-180]?
+        /*   Probably need not, given that namespace of field/method names
+         *   is not unbounded, unlike potential JSON names.
+         */
         if (propName == null || propName.length() == 0) {
             _propName = "";
         } else {
@@ -312,9 +315,9 @@ public abstract class SettableBeanProperty
         }
         throw new JsonMappingException(th.getMessage(), null, th);
     }
-    
-    @Override public String toString() { return "[property '"+getName()+"']"; }
 
+    @Override public String toString() { return "[property '"+getName()+"']"; }
+    
     /*
     /**********************************************************
     /* Implementation classes

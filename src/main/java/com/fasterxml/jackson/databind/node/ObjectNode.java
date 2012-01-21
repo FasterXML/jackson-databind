@@ -294,8 +294,6 @@ public class ObjectNode
      * @param fieldNames Names of fields to remove
      * 
      * @return This ObjectNode after removing entries
-     * 
-     * @since 1.6
      */
     public ObjectNode remove(Collection<String> fieldNames)
     {
@@ -325,8 +323,6 @@ public class ObjectNode
      * @param properties Properties to add
      * 
      * @return This node (to allow chaining)
-     * 
-     * @since 1.3
      */
     public JsonNode putAll(Map<String,JsonNode> properties)
     {
@@ -351,8 +347,6 @@ public class ObjectNode
      * @param other Object of which properties to add to this object
      * 
      * @return This node (to allow chaining)
-     * 
-     * @since 1.3
      */
     public JsonNode putAll(ObjectNode other)
     {
@@ -373,8 +367,6 @@ public class ObjectNode
      * @param fieldNames Fields to <b>retain</b> in this ObjectNode
      * 
      * @return This ObjectNode (to allow call chaining)
-     * 
-     * @since 1.6
      */
     public ObjectNode retain(Collection<String> fieldNames)
     {
@@ -397,8 +389,6 @@ public class ObjectNode
      * @param fieldNames Fields to <b>retain</b> in this ObjectNode
      * 
      * @return This ObjectNode (to allow call chaining)
-     * 
-     * @since 1.6
      */
     public ObjectNode retain(String... fieldNames) {
         return retain(Arrays.asList(fieldNames));
@@ -456,8 +446,6 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void put(String fieldName, Integer value) {
         if (value == null) {
@@ -475,8 +463,6 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void put(String fieldName, Long value) {
         if (value == null) {
@@ -494,8 +480,6 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void put(String fieldName, Float value) {
         if (value == null) {
@@ -513,8 +497,6 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void put(String fieldName, Double value) {
         if (value == null) {
@@ -554,8 +536,6 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void put(String fieldName, Boolean value) {
         if (value == null) {
@@ -582,9 +562,6 @@ public class ObjectNode
     /**********************************************************
      */
 
-    /**
-     * @since 1.6
-     */
     protected void putContentsTo(Map<String,JsonNode> dst)
     {
         if (_children != null) {

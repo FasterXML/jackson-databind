@@ -58,8 +58,6 @@ public class JsonNodeFactory
      * be null.
      * Due to possibility of null, returning type is not guaranteed to be
      * {@link NumericNode}, but just {@link ValueNode}.
-     * 
-     * @since 1.9
      */
     public ValueNode numberNode(Byte value) {
         return (value == null) ? nullNode() : IntNode.valueOf(value.intValue());
@@ -76,8 +74,6 @@ public class JsonNodeFactory
      * be null.
      * Due to possibility of null, returning type is not guaranteed to be
      * {@link NumericNode}, but just {@link ValueNode}.
-     * 
-     * @since 1.9
      */
     public ValueNode numberNode(Short value) {
         return (value == null) ? nullNode() : IntNode.valueOf(value.shortValue());
@@ -94,8 +90,6 @@ public class JsonNodeFactory
      * be null.
      * Due to possibility of null, returning type is not guaranteed to be
      * {@link NumericNode}, but just {@link ValueNode}.
-     * 
-     * @since 1.9
      */
     public ValueNode numberNode(Integer value) {
         return (value == null) ? nullNode() : IntNode.valueOf(value.intValue());
@@ -108,12 +102,9 @@ public class JsonNodeFactory
     public NumericNode numberNode(long v) { return LongNode.valueOf(v); }
 
     /**
-     * Alternate factory method that will handle wrapper value, which may
-     * be null.
+     * Alternate factory method that will handle wrapper value, which may be null.
      * Due to possibility of null, returning type is not guaranteed to be
      * {@link NumericNode}, but just {@link ValueNode}.
-     * 
-     * @since 1.9
      */
     public ValueNode numberNode(Long value) {
         return (value == null) ? nullNode() : LongNode.valueOf(value.longValue());
@@ -136,8 +127,6 @@ public class JsonNodeFactory
      * be null.
      * Due to possibility of null, returning type is not guaranteed to be
      * {@link NumericNode}, but just {@link ValueNode}.
-     * 
-     * @since 1.9
      */
     public ValueNode numberNode(Float value) {
         return (value == null) ? nullNode() : DoubleNode.valueOf(value.doubleValue());
@@ -154,8 +143,6 @@ public class JsonNodeFactory
      * be null.
      * Due to possibility of null, returning type is not guaranteed to be
      * {@link NumericNode}, but just {@link ValueNode}.
-     * 
-     * @since 1.9
      */
     public ValueNode numberNode(Double value) {
         return (value == null) ? nullNode() : DoubleNode.valueOf(value.doubleValue());

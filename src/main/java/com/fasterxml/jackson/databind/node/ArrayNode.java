@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
-
 /**
  * Node class that represents Arrays mapped from Json content.
  */
@@ -211,8 +210,6 @@ public final class ArrayNode
      * @param other Array to add contents from
      * 
      * @return This node (to allow chaining)
-     * 
-     * @since 1.3
      */
     public JsonNode addAll(ArrayNode other)
     {
@@ -232,8 +229,6 @@ public final class ArrayNode
      * @param nodes Nodes to add
      * 
      * @return This node (to allow chaining)
-     * 
-     * @since 1.3
      */
     public JsonNode addAll(Collection<JsonNode> nodes)
     {
@@ -341,8 +336,6 @@ public final class ArrayNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void add(Integer value) {
         if (value == null) {
@@ -360,8 +353,6 @@ public final class ArrayNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void add(Long value) {
         if (value == null) {
@@ -379,8 +370,6 @@ public final class ArrayNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void add(Float value) {
         if (value == null) {
@@ -398,8 +387,6 @@ public final class ArrayNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void add(Double value) {
         if (value == null) {
@@ -439,8 +426,6 @@ public final class ArrayNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void add(Boolean value) {
         if (value == null) {
@@ -507,8 +492,6 @@ public final class ArrayNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void insert(int index, Integer value) {
         if (value == null) {
@@ -526,8 +509,6 @@ public final class ArrayNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void insert(int index, Long value) {
         if (value == null) {
@@ -545,8 +526,6 @@ public final class ArrayNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void insert(int index, Float value) {
         if (value == null) {
@@ -564,8 +543,6 @@ public final class ArrayNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void insert(int index, Double value) {
         if (value == null) {
@@ -605,8 +582,6 @@ public final class ArrayNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
-     * 
-     * @since 1.9
      */
     public void insert(int index, Boolean value) {
         if (value == null) {
@@ -633,9 +608,6 @@ public final class ArrayNode
     /**********************************************************
      */
 
-    /**
-     * @since 1.6
-     */
     protected void addContentsTo(List<JsonNode> dst)
     {
         if (_children != null) {

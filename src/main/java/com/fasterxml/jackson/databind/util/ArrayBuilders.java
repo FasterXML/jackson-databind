@@ -229,10 +229,7 @@ public final class ArrayBuilders
     }
     
     /**
-     * Helper method for exposing contents of arrays using a read-only
-     * iterator
-     * 
-     * @since 1.7
+     * Helper method for exposing contents of arrays using a read-only iterator
      */
     public static <T> Iterator<T> arrayAsIterator(T[] array)
     {
@@ -253,8 +250,6 @@ public final class ArrayBuilders
     /**
      * Iterator implementation used to efficiently expose contents of an
      * Array as read-only iterator.
-     * 
-     * @since 1.7
      */
     private final static class ArrayIterator<T>
         implements Iterator<T>, Iterable<T>

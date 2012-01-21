@@ -64,9 +64,6 @@ public final class SerializerCache
     /**********************************************************
      */
 
-    /**
-     * @since 1.4
-     */
     public synchronized int size() {
         return _sharedMap.size();
     }
@@ -82,9 +79,6 @@ public final class SerializerCache
         }
     }
 
-    /**
-     * @since 1.5
-     */
     public JsonSerializer<Object> untypedValueSerializer(JavaType type)
     {
         synchronized (this) {
@@ -137,9 +131,6 @@ public final class SerializerCache
         }
     }
     
-    /**
-     * @since 1.8
-     */
     public void addAndResolveNonTypedSerializer(Class<?> type, JsonSerializer<Object> ser,
             SerializerProvider provider)
         throws JsonMappingException
@@ -162,9 +153,6 @@ public final class SerializerCache
         }
     }
 
-    /**
-     * @since 1.8
-     */
     public void addAndResolveNonTypedSerializer(JavaType type, JsonSerializer<Object> ser,
             SerializerProvider provider)
         throws JsonMappingException

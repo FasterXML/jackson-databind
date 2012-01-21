@@ -27,16 +27,12 @@ public abstract class Annotated
     /**
      * Fluent factory method that will construct a new instance that uses specified
      * instance annotations instead of currently configured ones.
-     * 
-     * @since 1.9
      */
     public abstract Annotated withAnnotations(AnnotationMap fallback);
 
     /**
      * Fluent factory method that will construct a new instance that uses
      * annotations from specified {@link Annotated} as fallback annotations
-     * 
-     * @since 1.9
      */
     public final Annotated withFallBackAnnotationsFrom(Annotated annotated) {
         return withAnnotations(AnnotationMap.merge(getAllAnnotations(), annotated.getAllAnnotations()));
@@ -68,16 +64,12 @@ public abstract class Annotated
     /**
      * Full generic type of the annotated element; definition
      * of what exactly this means depends on sub-class.
-     * 
-     * @since 1.5
      */
     public abstract Type getGenericType();
 
     /**
      * "Raw" type (type-erased class) of the annotated element; definition
      * of what exactly this means depends on sub-class.
-     * 
-     * @since 1.5
      */
     public abstract Class<?> getRawType();
 

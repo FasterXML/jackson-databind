@@ -122,8 +122,6 @@ public abstract class TypeSerializer
      * Alternative version of the prefix-for-scalar method, which is given
      * actual type to use (instead of using exact type of the value); typically
      * a super type of actual value type
-     * 
-     * @since 1.8
      */
     public void writeTypePrefixForScalar(Object value, JsonGenerator jgen,
             Class<?> type)
@@ -136,8 +134,6 @@ public abstract class TypeSerializer
      * Alternative version of the prefix-for-object method, which is given
      * actual type to use (instead of using exact type of the value); typically
      * a super type of actual value type
-     * 
-     * @since 1.8
      */
     public void writeTypePrefixForObject(Object value, JsonGenerator jgen,
             Class<?> type)
@@ -150,8 +146,6 @@ public abstract class TypeSerializer
      * Alternative version of the prefix-for-array method, which is given
      * actual type to use (instead of using exact type of the value); typically
      * a super type of actual value type
-     * 
-     * @since 1.8
      */
     public void writeTypePrefixForArray(Object value, JsonGenerator jgen,
             Class<?> type)

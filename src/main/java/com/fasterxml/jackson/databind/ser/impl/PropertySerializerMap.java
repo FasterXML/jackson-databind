@@ -16,8 +16,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * this implementation is optimized for efficiency.
  * Instances are immutable; new instances are created with factory methods: this
  * is important to ensure correct multi-threaded access.
- * 
- * @since 1.7
  */
 public abstract class PropertySerializerMap
 {

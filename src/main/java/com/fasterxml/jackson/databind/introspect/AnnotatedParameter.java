@@ -25,8 +25,6 @@ public final class AnnotatedParameter
 {
     /**
      * Member (method, constructor) that this parameter belongs to
-     * 
-     * @since 1.7
      */
     protected final AnnotatedWithParams _owner;
     
@@ -37,8 +35,6 @@ public final class AnnotatedParameter
     
     /**
      * Index of the parameter within argument list
-     * 
-     * @since 1.9
      */
     protected final int _index;
     
@@ -158,8 +154,6 @@ public final class AnnotatedParameter
      * has this parameter as member of its argument list.
      * 
      * @return Owner (member or creator) object of this parameter
-     * 
-     * @since 1.9
      */
     public AnnotatedWithParams getOwner() { return _owner; }
     
@@ -167,8 +161,6 @@ public final class AnnotatedParameter
      * Accessor for index of this parameter within argument list
      * 
      * @return Index of this parameter within argument list
-     * 
-     * @since 1.9
      */
     public int getIndex() { return _index; }
 

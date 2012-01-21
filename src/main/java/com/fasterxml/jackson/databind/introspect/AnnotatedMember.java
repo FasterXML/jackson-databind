@@ -66,8 +66,6 @@ public abstract class AnnotatedMember extends Annotated
      * This is implemented for fiedlds and single-argument
      * methods; but not for constructor parameters or
      * other types of methods.
-     * 
-     * @since 1.9
      */
     public abstract void setValue(Object pojo, Object value)
         throws UnsupportedOperationException, IllegalArgumentException;

@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 /**
  * Simple {@link BeanPropertyFilter} implementation that only uses property name
  * to determine whether to serialize property as is, or to filter it out.
- * 
- * @since 1.7
  */
 public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
 {

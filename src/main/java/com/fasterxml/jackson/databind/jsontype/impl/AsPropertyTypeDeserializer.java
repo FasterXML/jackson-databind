@@ -73,8 +73,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             if (_typePropertyName.equals(name)) { // gotcha!
                 String typeId = jp.getText();
                 JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
-                // deserializer should take care of closing END_OBJECT as well
-               if (tb != null) {
+               if (tb != null) { // need to put back skipped properties?
                     jp = JsonParserSequence.createFlattened(tb.asParser(jp), jp);
                 }
                 /* Must point to the next value; tb had no current, jp

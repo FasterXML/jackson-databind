@@ -4,8 +4,6 @@ import java.lang.reflect.Array;
 
 /**
  * Helper class for constructing objects for comparing content values
- * 
- * @since 1.9.0
  */
 public class Comparators
 {
@@ -15,9 +13,7 @@ public class Comparators
      *<p>
      * Note: current implementation is not optimized for speed; if performance
      * ever becomes an issue, it is possible to construct much more efficient
-     * typed instances (one for Object[] and sub-types; one per primitive type)
-     * 
-     * @since 1.9
+     * typed instances (one for Object[] and sub-types; one per primitive type).
      */
     public static Object getArrayComparator(final Object defaultValue)
     {

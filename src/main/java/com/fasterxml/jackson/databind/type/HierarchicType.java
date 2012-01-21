@@ -8,8 +8,6 @@ import java.lang.reflect.*;
  * specific relationship between one subtype and one supertype. This is needed
  * for resolving type parameters. Instances are doubly-linked so that chain
  * can be traversed in both directions
- * 
- * @since 1.6
  */
 public class HierarchicType
 {
@@ -54,8 +52,6 @@ public class HierarchicType
     /**
      * Method that can be used to create a deep clone of this hierarchic type, including
      * super types (but not subtypes)
-     * 
-     * @since 1.9
      */
     public HierarchicType deepCloneWithoutSubtype()
     {

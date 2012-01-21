@@ -17,11 +17,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
  * form for inclusion mechanism {@link As#PROPERTY}
  * is slighty different if value is not expressed as JSON Object:
  * and as such both type deserializer and serializer need to
- * JSON Object form (array, object or other (== scalar)) being
- * used.
- * 
- * @since 1.5
- * @author tatus
+ * JSON Object form (array, object or other (== scalar)) being used.
  */
 public abstract class TypeDeserializer
 {
@@ -55,8 +51,6 @@ public abstract class TypeDeserializer
      * class to use in cases where type id is not
      * accessible for some reason (either missing, or can not be
      * resolved)
-     * 
-     * @since 1.9
      */
     public abstract Class<?> getDefaultImpl();
     
@@ -75,7 +69,8 @@ public abstract class TypeDeserializer
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */
-    public abstract Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt)
+    public abstract Object deserializeTypedFromObject(JsonParser jp,
+            DeserializationContext ctxt)
         throws IOException, JsonProcessingException;
 
     /**
@@ -87,7 +82,8 @@ public abstract class TypeDeserializer
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */
-    public abstract Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt)
+    public abstract Object deserializeTypedFromArray(JsonParser jp,
+            DeserializationContext ctxt)
         throws IOException, JsonProcessingException;
 
     /**
@@ -100,7 +96,8 @@ public abstract class TypeDeserializer
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */
-    public abstract Object deserializeTypedFromScalar(JsonParser jp, DeserializationContext ctxt)
+    public abstract Object deserializeTypedFromScalar(JsonParser jp,
+            DeserializationContext ctxt)
         throws IOException, JsonProcessingException;
 
     /**
@@ -112,7 +109,8 @@ public abstract class TypeDeserializer
      * using JSON node representation, or "untyped" Java object
      * (which may be Map, Collection, wrapper/primitive etc).
      */
-    public abstract Object deserializeTypedFromAny(JsonParser jp, DeserializationContext ctxt)
+    public abstract Object deserializeTypedFromAny(JsonParser jp,
+            DeserializationContext ctxt)
         throws IOException, JsonProcessingException;
 
 }

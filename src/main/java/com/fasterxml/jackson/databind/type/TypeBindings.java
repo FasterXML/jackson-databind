@@ -7,8 +7,6 @@ import com.fasterxml.jackson.databind.JavaType;
 
 /**
  * Helper class used for resolving type parameters for given class
- * 
- * @since 1.5
  */
 public class TypeBindings
 {
@@ -52,8 +50,6 @@ public class TypeBindings
      * Sometimes it is necessary to allow hierarchic resolution of types: specifically
      * in cases where there are local bindings (for methods, constructors). If so,
      * we'll just use simple delegation model.
-     * 
-     * @since 1.7
      */
     private final TypeBindings _parentBindings;
 
@@ -78,16 +74,11 @@ public class TypeBindings
      * allow delegation from explicitly defined local overrides
      * (local type variables for methods, constructors) to
      * contextual (class-defined) ones.
-     * 
-     * @since 1.7
      */
     public TypeBindings childInstance() {
         return new TypeBindings(_typeFactory, this, _contextClass, _contextType);
     }
 
-    /**
-     * @since 1.7
-     */
     private TypeBindings(TypeFactory tf, TypeBindings parent, Class<?> cc, JavaType type)
     {
         _typeFactory = tf;
@@ -116,15 +107,6 @@ public class TypeBindings
     /**********************************************************
      */
 
-    /**
-     * @since 1.8
-     */
-    /*
-    public TypeFactory getTypeFactory() {
-        return _typeFactory;
-    }
-    */
-    
     public int getBindingCount() {
         if (_bindings == null) {
             _resolve();
@@ -144,7 +126,6 @@ public class TypeBindings
         if (_placeholders != null && _placeholders.contains(name)) {
             return UNBOUND;
         }
-        // New with 1.7: check parent context
         if (_parentBindings != null) {
             return _parentBindings.findType(name);
         }

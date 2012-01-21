@@ -81,9 +81,6 @@ public class MapLikeType extends TypeBase
                 _valueHandler, _typeHandler);
     }
 
-    /**
-     * @since 1.8
-     */
     public JavaType widenKey(Class<?> keySubclass)
     {
         // Can do a quick check first:
@@ -94,14 +91,12 @@ public class MapLikeType extends TypeBase
                 _valueHandler, _typeHandler);
     }
     
-    // Since 1.7:
     @Override
     public MapLikeType withTypeHandler(Object h)
     {
         return new MapLikeType(_class, _keyType, _valueType, _valueHandler, h);
     }
 
-    // Since 1.7:
     @Override
     public MapLikeType withContentTypeHandler(Object h)
     {
@@ -109,13 +104,11 @@ public class MapLikeType extends TypeBase
                 _valueHandler, _typeHandler);
     }
 
-    // Since 1.9:
     @Override
     public MapLikeType withValueHandler(Object h) {
         return new MapLikeType(_class, _keyType, _valueType, h, _typeHandler);
     }
 
-    // Since 1.9:
     @Override
     public MapLikeType withContentValueHandler(Object h) {
         return new MapLikeType(_class, _keyType, _valueType.withValueHandler(h),
@@ -198,18 +191,12 @@ public class MapLikeType extends TypeBase
     /**********************************************************
      */
 
-    /**
-     * @since 1.9
-     */
     public MapLikeType withKeyTypeHandler(Object h)
     {
         return new MapLikeType(_class, _keyType.withTypeHandler(h), _valueType,
                 _valueHandler, _typeHandler);
     }
 
-    /**
-     * @since 1.9
-     */
     public MapLikeType withKeyValueHandler(Object h) {
         return new MapLikeType(_class, _keyType.withValueHandler(h), _valueType,
                 _valueHandler, _typeHandler);
@@ -220,8 +207,6 @@ public class MapLikeType extends TypeBase
      * "real" Collection type; meaning whether it represents a parameterized
      * subtype of {@link java.util.Collection} or just something that acts
      * like one.
-     * 
-     * @since 1.8
      */
     public boolean isTrueMapType() {
         return Map.class.isAssignableFrom(_class);

@@ -10,10 +10,8 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
- * This is a simple dummy serializer that will just output raw values by calling toString()
- * on value to serialize.
- * 
- * @since 1.7
+ * This is a simple dummy serializer that will just output raw values by calling
+ * toString() on value to serialize.
  */
 @JacksonStdImpl
 public class RawSerializer<T>

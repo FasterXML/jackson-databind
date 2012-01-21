@@ -39,8 +39,6 @@ public class StdDateFormat
 
     /**
      * ISO-8601 with just the Date part, no time
-     *
-     * @since 1.3.1
      */
     protected final static String DATE_FORMAT_STR_PLAIN = "yyyy-MM-dd";
 

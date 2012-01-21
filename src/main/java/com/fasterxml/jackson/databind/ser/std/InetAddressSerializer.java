@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 /**
  * Simple serializer for {@link java.net.InetAddress}. Main complexity is
  * with registration, since same serializer is to be used for sub-classes.
- *
- * @since 1.8
  */
 public class InetAddressSerializer
     extends ScalarSerializerBase<InetAddress>

@@ -27,8 +27,6 @@ public class SimpleFilterProvider extends FilterProvider
      * result an exception (default) or not.
      * Note that this is only relevant if no default filter has been
      * configured.
-     * 
-     * @since 1.9
      */
     protected boolean _cfgFailOnUnknownId = true;
     
@@ -61,24 +59,15 @@ public class SimpleFilterProvider extends FilterProvider
         return this;
     }
 
-    /**
-     * @since 1.9
-     */
     public BeanPropertyFilter getDefaultFilter() {
         return _defaultFilter;
     }
     
-    /**
-     * @since 1.9
-     */
     public SimpleFilterProvider setFailOnUnknownId(boolean state) {
         _cfgFailOnUnknownId = state;
         return this;
     }
 
-    /**
-     * @since 1.9
-     */
     public boolean willFailOnUnknownId() {
         return _cfgFailOnUnknownId;
     }

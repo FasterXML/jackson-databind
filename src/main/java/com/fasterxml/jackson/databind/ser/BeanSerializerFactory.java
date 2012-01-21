@@ -315,8 +315,6 @@ public class BeanSerializerFactory
      * @param baseType Declared type to use as the base type for type information serializer
      * 
      * @return Type serializer to use for property values, if one is needed; null if not.
-     * 
-     * @since 1.5
      */
     public TypeSerializer findPropertyTypeSerializer(JavaType baseType, SerializationConfig config,
             AnnotatedMember accessor, BeanProperty property)
@@ -341,8 +339,6 @@ public class BeanSerializerFactory
      * @param containerType Declared type of the container to use as the base type for type information serializer
      * 
      * @return Type serializer to use for property value contents, if one is needed; null if not.
-     * 
-     * @since 1.5
      */    
     public TypeSerializer findPropertyContentTypeSerializer(JavaType containerType, SerializationConfig config,
             AnnotatedMember accessor, BeanProperty property)
@@ -367,8 +363,6 @@ public class BeanSerializerFactory
 
     /**
      * Method called to construct serializer for serializing specified bean type.
-     * 
-     * @since 1.6
      */
     @SuppressWarnings("unchecked")
     protected JsonSerializer<Object> constructBeanSerializer(SerializationConfig config,
@@ -646,10 +640,7 @@ public class BeanSerializerFactory
     }
 
     /**
-     * Helper method that will remove all properties that do not have a
-     * mutator.
-     * 
-     * @since 1.9
+     * Helper method that will remove all properties that do not have a mutator.
      */
     protected void removeSetterlessGetters(SerializationConfig config, BasicBeanDescription beanDesc,
             List<BeanPropertyDefinition> properties)

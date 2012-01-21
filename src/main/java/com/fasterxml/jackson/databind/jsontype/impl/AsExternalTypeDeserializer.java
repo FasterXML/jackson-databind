@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  * to basically transform external type id into structure that looks more like
  * "wrapper-array" style inclusion. This intermediate form is chosen to allow
  * supporting all possible JSON structures.
- * 
- * @since 1.9
  */
 public class AsExternalTypeDeserializer extends AsArrayTypeDeserializer
 {

@@ -17,8 +17,6 @@ import com.fasterxml.jackson.databind.util.Provider;
 /**
  * Provider for deserializers that handle some basic data types
  * for <a href="http://joda-time.sourceforge.net/">Joda</a> date/time library.
- *
- * @since 1.4
  */
 public class JodaDeserializers
     implements Provider<StdDeserializer<?>>
@@ -98,9 +96,6 @@ public class JodaDeserializers
         }
     }
 
-    /**
-     * @since 1.5
-     */
     public static class LocalDateDeserializer
         extends JodaDeserializer<LocalDate>
     {
@@ -137,9 +132,6 @@ public class JodaDeserializers
         }
     }
 
-    /**
-     * @since 1.5
-     */
     public static class LocalDateTimeDeserializer
         extends JodaDeserializer<LocalDateTime>
     {

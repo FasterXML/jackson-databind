@@ -147,11 +147,6 @@ public final class ObjectBuffer
         return result;
     }
 
-    /**
-     * Another
-     * 
-     * @since 1.6
-     */
     public void completeAndClearBuffer(Object[] lastChunk, int lastChunkEntries, List<Object> resultList)
     {
         for (Node n = _bufferHead; n != null; n = n.next()) {

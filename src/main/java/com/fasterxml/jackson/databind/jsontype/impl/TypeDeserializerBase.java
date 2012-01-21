@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
 /**
- * @author tatus
+ * Base class for all standard Jackson {@link TypeDeserializer}s.
  */
 public abstract class TypeDeserializerBase extends TypeDeserializer
 {
@@ -27,8 +27,6 @@ public abstract class TypeDeserializerBase extends TypeDeserializer
     /**
      * Type to use as the default implementation, if type id is
      * missing or can not be resolved.
-     * 
-     * @since 1.9
      */
     protected final JavaType _defaultImpl;
     

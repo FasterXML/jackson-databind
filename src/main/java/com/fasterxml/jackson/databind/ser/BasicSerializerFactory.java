@@ -67,26 +67,12 @@ public abstract class BasicSerializerFactory
         _concrete.put(Character.TYPE.getName(), sls);
 
         // Primitives/wrappers for primitives (primitives needed for Beans)
-        _concrete.put(Boolean.TYPE.getName(), new StdSerializers.BooleanSerializer(true));
-        _concrete.put(Boolean.class.getName(), new StdSerializers.BooleanSerializer(false));
-        final JsonSerializer<?> intS = new StdSerializers.IntegerSerializer();
-        _concrete.put(Integer.class.getName(), intS);
-        _concrete.put(Integer.TYPE.getName(), intS);
-        _concrete.put(Long.class.getName(), StdSerializers.LongSerializer.instance);
-        _concrete.put(Long.TYPE.getName(), StdSerializers.LongSerializer.instance);
-        _concrete.put(Byte.class.getName(), StdSerializers.IntLikeSerializer.instance);
-        _concrete.put(Byte.TYPE.getName(), StdSerializers.IntLikeSerializer.instance);
-        _concrete.put(Short.class.getName(), StdSerializers.IntLikeSerializer.instance);
-        _concrete.put(Short.TYPE.getName(), StdSerializers.IntLikeSerializer.instance);
-
-        // Numbers, limited length floating point
-        _concrete.put(Float.class.getName(), StdSerializers.FloatSerializer.instance);
-        _concrete.put(Float.TYPE.getName(), StdSerializers.FloatSerializer.instance);
-        _concrete.put(Double.class.getName(), StdSerializers.DoubleSerializer.instance);
-        _concrete.put(Double.TYPE.getName(), StdSerializers.DoubleSerializer.instance);
+        NumberSerializers.addAll(_concrete);
+        _concrete.put(Boolean.TYPE.getName(), new BooleanSerializer(true));
+        _concrete.put(Boolean.class.getName(), new BooleanSerializer(false));
 
         // Other numbers, more complicated
-        final JsonSerializer<?> ns = new StdSerializers.NumberSerializer();
+        final JsonSerializer<?> ns = new NumberSerializers.NumberSerializer();
         _concrete.put(BigInteger.class.getName(), ns);
         _concrete.put(BigDecimal.class.getName(), ns);
         
@@ -97,8 +83,8 @@ public abstract class BasicSerializerFactory
         _concrete.put(java.util.Date.class.getName(), dateSer);
         // note: timestamps are very similar to java.util.Date, thus serialized as such
         _concrete.put(java.sql.Timestamp.class.getName(), dateSer);
-        _concrete.put(java.sql.Date.class.getName(), new StdSerializers.SqlDateSerializer());
-        _concrete.put(java.sql.Time.class.getName(), new StdSerializers.SqlTimeSerializer());
+        _concrete.put(java.sql.Date.class.getName(), new SqlDateSerializer());
+        _concrete.put(java.sql.Time.class.getName(), new SqlTimeSerializer());
 
         // And then other standard non-structured JDK types
         for (Map.Entry<Class<?>,Object> en : new StdJdkSerializers().provide()) {
@@ -316,7 +302,7 @@ public abstract class BasicSerializerFactory
         }
         
         if (Number.class.isAssignableFrom(raw)) {
-            return StdSerializers.NumberSerializer.instance;
+            return NumberSerializers.NumberSerializer.instance;
         }
         if (Enum.class.isAssignableFrom(raw)) {
             @SuppressWarnings("unchecked")

@@ -1,71 +1,48 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.ser.std.NonTypedScalarSerializerBase;
-import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
 /**
  * Container class for serializers used for handling standard JDK-provided types.
  */
-public class StdSerializers
+public class NumberSerializers
 {
-    protected StdSerializers() { }
+    protected NumberSerializers() { }
+    
+    public static void addAll(Map<String, JsonSerializer<?>> allDeserializers)
+    {
+        final JsonSerializer<?> intS = new IntegerSerializer();
+        allDeserializers.put(Integer.class.getName(), intS);
+        allDeserializers.put(Integer.TYPE.getName(), intS);
+        allDeserializers.put(Long.class.getName(), LongSerializer.instance);
+        allDeserializers.put(Long.TYPE.getName(), LongSerializer.instance);
+        allDeserializers.put(Byte.class.getName(), IntLikeSerializer.instance);
+        allDeserializers.put(Byte.TYPE.getName(), IntLikeSerializer.instance);
+        allDeserializers.put(Short.class.getName(), IntLikeSerializer.instance);
+        allDeserializers.put(Short.TYPE.getName(), IntLikeSerializer.instance);
+
+        // Numbers, limited length floating point
+        allDeserializers.put(Float.class.getName(), FloatSerializer.instance);
+        allDeserializers.put(Float.TYPE.getName(), FloatSerializer.instance);
+        allDeserializers.put(Double.class.getName(), DoubleSerializer.instance);
+        allDeserializers.put(Double.TYPE.getName(), DoubleSerializer.instance);
+    }
     
     /*
     /**********************************************************
-    /* Concrete serializers, non-numeric primitives, Strings, Classes
+    /* Concrete serializers
     /**********************************************************
      */
     
-    /**
-     * Serializer used for primitive boolean, as well as java.util.Boolean
-     * wrapper type.
-     *<p>
-     * Since this is one of "native" types, no type information is ever
-     * included on serialization (unlike for most scalar types as of 1.5)
-     */
-    @JacksonStdImpl
-    public final static class BooleanSerializer
-        extends NonTypedScalarSerializerBase<Boolean>
-    {
-        /**
-         * Whether type serialized is primitive (boolean) or wrapper
-         * (java.lang.Boolean); if true, former, if false, latter.
-         */
-        final boolean _forPrimitive;
-    
-        public BooleanSerializer(boolean forPrimitive)
-        {
-            super(Boolean.class);
-            _forPrimitive = forPrimitive;
-        }
-    
-        @Override
-        public void serialize(Boolean value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
-            jgen.writeBoolean(value.booleanValue());
-        }
-    
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            /*(ryan) it may not, in fact, be optional, but there's no way
-             * to tell whether we're referencing a boolean or java.lang.Boolean.
-             */
-            /* 27-Jun-2009, tatu: Now we can tell, after passing
-             *   'forPrimitive' flag...
-             */
-            return createSchemaNode("boolean", !_forPrimitive);
-        }
-    }
+
 
     /*
     /**********************************************************
@@ -245,58 +222,6 @@ public class StdSerializers
         public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         {
             return createSchemaNode("number", true);
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* Serializers for JDK date/time data types
-    /**********************************************************
-     */
-
-    /**
-     * Compared to regular {@link java.util.Date} serialization, we do use String
-     * representation here. Why? Basically to truncate of time part, since
-     * that should not be used by plain SQL date.
-     */
-    @JacksonStdImpl
-    public final static class SqlDateSerializer
-        extends StdScalarSerializer<java.sql.Date>
-    {
-        public SqlDateSerializer() { super(java.sql.Date.class); }
-
-        @Override
-        public void serialize(java.sql.Date value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
-            jgen.writeString(value.toString());
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            //todo: (ryan) add a format for the date in the schema?
-            return createSchemaNode("string", true);
-        }
-    }
-
-    @JacksonStdImpl
-    public final static class SqlTimeSerializer
-        extends StdScalarSerializer<java.sql.Time>
-    {
-        public SqlTimeSerializer() { super(java.sql.Time.class); }
-
-        @Override
-        public void serialize(java.sql.Time value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
-            jgen.writeString(value.toString());
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            return createSchemaNode("string", true);
         }
     }
 }

@@ -36,7 +36,54 @@ public abstract class BasicDeserializerFactory
      * (that is things other than Collection, Map or array)
      * types. These need not go through factory.
      */
-    final static HashMap<ClassKey, JsonDeserializer<Object>> _simpleDeserializers = StdDeserializers.constructAll();
+    final protected static HashMap<ClassKey, JsonDeserializer<Object>> _simpleDeserializers
+        = new HashMap<ClassKey, JsonDeserializer<Object>>();
+
+    /**
+     * Also special array deserializers for primitive array types.
+     */
+    final protected static HashMap<JavaType,JsonDeserializer<Object>> _arrayDeserializers
+        = PrimitiveArrayDeserializers.getAll();
+
+    /**
+     * Set of available key deserializers is currently limited
+     * to standard types; and all known instances are storing in this map.
+     */
+    final protected static HashMap<JavaType, KeyDeserializer> _keyDeserializers = StdKeyDeserializers.constructAll();
+
+    static {
+        // First, add the fall-back "untyped" deserializer:
+        _add(_simpleDeserializers, Object.class, new UntypedObjectDeserializer());
+    
+        // Then String and String-like converters:
+        StdDeserializer<?> strDeser = new StringDeserializer();
+        _add(_simpleDeserializers, String.class, strDeser);
+        _add(_simpleDeserializers, CharSequence.class, strDeser);
+    
+        // Primitives/wrappers, other Numbers:
+        _add(_simpleDeserializers, NumberDeserializers.all());
+        // Date/time types
+        _add(_simpleDeserializers, DateDeserializers.all());
+        // other JDK types
+        _add(_simpleDeserializers, JdkDeserializers.all());
+        // and a few Jackson types as well:
+        _add(_simpleDeserializers, JacksonDeserializers.all());
+    }
+
+    private static void _add(Map<ClassKey, JsonDeserializer<Object>> desers,
+            StdDeserializer<?>[] serializers) {
+        for (StdDeserializer<?> ser : serializers) {
+            _add(desers, ser.getValueClass(), ser);
+        }
+    }
+
+    private static void _add(Map<ClassKey, JsonDeserializer<Object>> desers,
+            Class<?> valueClass, StdDeserializer<?> stdDeser)
+    {
+        @SuppressWarnings("unchecked")
+        JsonDeserializer<Object> deser = (JsonDeserializer<Object>) stdDeser;
+        desers.put(new ClassKey(valueClass), deser);
+    }
     
     /* We do some defaulting for abstract Map classes and
      * interfaces, to avoid having to use exact types or annotations in
@@ -90,22 +137,10 @@ public abstract class BasicDeserializerFactory
     }
 
     /**
-     * Also special array deserializers for primitive array types.
-     */
-    protected final static HashMap<JavaType,JsonDeserializer<Object>> _arrayDeserializers
-        = PrimitiveArrayDeserializers.getAll();
-
-    /**
-     * Set of available key deserializers is currently limited
-     * to standard types; and all known instances are storing in this map.
-     */
-    final static HashMap<JavaType, KeyDeserializer> _keyDeserializers = StdKeyDeserializers.constructAll();
-    
-    /**
      * To support external/optional deserializers, we'll use a helper class
      */
     protected OptionalHandlerFactory optionalHandlers = OptionalHandlerFactory.instance;
-
+    
     /*
     /**********************************************************
     /* Config

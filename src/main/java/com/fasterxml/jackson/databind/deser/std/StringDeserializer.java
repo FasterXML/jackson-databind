@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 @JacksonStdImpl
-public class StringDeserializer
+public final class StringDeserializer
     extends StdScalarDeserializer<String>
 {
     public StringDeserializer() { super(String.class); }

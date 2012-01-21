@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * {@link java.lang.Double} and {@link java.lang.Boolean}.
  */
 public abstract class NonTypedScalarSerializerBase<T>
-    extends ScalarSerializerBase<T>
+    extends StdScalarSerializer<T>
 {
     protected NonTypedScalarSerializerBase(Class<T> t) {
         super(t);

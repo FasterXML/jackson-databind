@@ -9,10 +9,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
-public abstract class ScalarSerializerBase<T>
-    extends SerializerBase<T>
+public abstract class StdScalarSerializer<T>
+    extends StdSerializer<T>
 {
-    protected ScalarSerializerBase(Class<T> t) {
+    protected StdScalarSerializer(Class<T> t) {
         super(t);
     }
 
@@ -21,7 +21,7 @@ public abstract class ScalarSerializerBase<T>
      * around kinks of generic type handling
      */
     @SuppressWarnings("unchecked")
-    protected ScalarSerializerBase(Class<?> t, boolean dummy) {
+    protected StdScalarSerializer(Class<?> t, boolean dummy) {
         super((Class<T>) t);
     }
     

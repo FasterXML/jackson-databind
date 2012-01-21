@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.ser.std.NonTypedScalarSerializerBase;
-import com.fasterxml.jackson.databind.ser.std.ScalarSerializerBase;
+import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 
 /**
  * Container class for serializers used for handling standard JDK-provided types.
@@ -107,7 +107,7 @@ public class StdSerializers
      */
     @JacksonStdImpl
     public final static class IntLikeSerializer
-        extends ScalarSerializerBase<Number>
+        extends StdScalarSerializer<Number>
     {
         final static IntLikeSerializer instance = new IntLikeSerializer();
     
@@ -129,7 +129,7 @@ public class StdSerializers
 
     @JacksonStdImpl
     public final static class LongSerializer
-        extends ScalarSerializerBase<Long>
+        extends StdScalarSerializer<Long>
     {
         final static LongSerializer instance = new LongSerializer();
     
@@ -151,7 +151,7 @@ public class StdSerializers
     
     @JacksonStdImpl
     public final static class FloatSerializer
-        extends ScalarSerializerBase<Float>
+        extends StdScalarSerializer<Float>
     {
         final static FloatSerializer instance = new FloatSerializer();
     
@@ -206,7 +206,7 @@ public class StdSerializers
      */
     @JacksonStdImpl
     public final static class NumberSerializer
-        extends ScalarSerializerBase<Number>
+        extends StdScalarSerializer<Number>
     {
         public final static NumberSerializer instance = new NumberSerializer();
     
@@ -261,7 +261,7 @@ public class StdSerializers
      */
     @JacksonStdImpl
     public final static class SqlDateSerializer
-        extends ScalarSerializerBase<java.sql.Date>
+        extends StdScalarSerializer<java.sql.Date>
     {
         public SqlDateSerializer() { super(java.sql.Date.class); }
 
@@ -282,7 +282,7 @@ public class StdSerializers
 
     @JacksonStdImpl
     public final static class SqlTimeSerializer
-        extends ScalarSerializerBase<java.sql.Time>
+        extends StdScalarSerializer<java.sql.Time>
     {
         public SqlTimeSerializer() { super(java.sql.Time.class); }
 

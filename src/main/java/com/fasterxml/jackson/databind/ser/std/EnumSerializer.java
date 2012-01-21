@@ -17,14 +17,14 @@ import com.fasterxml.jackson.databind.util.EnumValues;
 /**
  * Standard serializer used for {@link java.lang.Enum} types.
  *<p>
- * Based on {@link ScalarSerializerBase} since the JSON value is
+ * Based on {@link StdScalarSerializer} since the JSON value is
  * scalar (String).
  * 
  * @author tatu
  */
 @JacksonStdImpl
 public class EnumSerializer
-    extends ScalarSerializerBase<Enum<?>>
+    extends StdScalarSerializer<Enum<?>>
 {
     /**
      * This map contains pre-resolved values (since there are ways

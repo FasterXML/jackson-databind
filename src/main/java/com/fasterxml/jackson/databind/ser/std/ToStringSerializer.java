@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  */
 @JacksonStdImpl
 public class ToStringSerializer
-    extends SerializerBase<Object>
+    extends StdSerializer<Object>
 {
     /**
      * Singleton instance to use.

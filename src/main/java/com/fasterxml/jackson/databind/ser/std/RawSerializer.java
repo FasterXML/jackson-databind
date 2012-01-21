@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  */
 @JacksonStdImpl
 public class RawSerializer<T>
-    extends SerializerBase<T>
+    extends StdSerializer<T>
 {
     /**
      * Constructor takes in expected type of values; but since caller

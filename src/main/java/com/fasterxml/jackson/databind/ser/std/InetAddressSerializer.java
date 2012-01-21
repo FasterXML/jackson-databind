@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * with registration, since same serializer is to be used for sub-classes.
  */
 public class InetAddressSerializer
-    extends ScalarSerializerBase<InetAddress>
+    extends StdScalarSerializer<InetAddress>
 {
     public final static InetAddressSerializer instance = new InetAddressSerializer();
     

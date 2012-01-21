@@ -65,7 +65,7 @@ public class StdJdkSerializers
      */
 
     public final static class AtomicBooleanSerializer
-        extends ScalarSerializerBase<AtomicBoolean>
+        extends StdScalarSerializer<AtomicBoolean>
     {
         public AtomicBooleanSerializer() { super(AtomicBoolean.class, false); }
     
@@ -84,7 +84,7 @@ public class StdJdkSerializers
     }
     
     public final static class AtomicIntegerSerializer
-        extends ScalarSerializerBase<AtomicInteger>
+        extends StdScalarSerializer<AtomicInteger>
     {
         public AtomicIntegerSerializer() { super(AtomicInteger.class, false); }
     
@@ -103,7 +103,7 @@ public class StdJdkSerializers
     }
 
     public final static class AtomicLongSerializer
-        extends ScalarSerializerBase<AtomicLong>
+        extends StdScalarSerializer<AtomicLong>
     {
         public AtomicLongSerializer() { super(AtomicLong.class, false); }
     
@@ -122,7 +122,7 @@ public class StdJdkSerializers
     }
     
     public final static class AtomicReferenceSerializer
-        extends SerializerBase<AtomicReference<?>>
+        extends StdSerializer<AtomicReference<?>>
     {
         public AtomicReferenceSerializer() { super(AtomicReference.class, false); }
 
@@ -151,7 +151,7 @@ public class StdJdkSerializers
      * absolute (but not canonical) name as String value
      */
     public final static class FileSerializer
-        extends ScalarSerializerBase<File>
+        extends StdScalarSerializer<File>
     {
         public FileSerializer() { super(File.class); }
 
@@ -174,7 +174,7 @@ public class StdJdkSerializers
      * we can just serialize the class name and that should be enough.
      */
     public final static class ClassSerializer
-        extends ScalarSerializerBase<Class<?>>
+        extends StdScalarSerializer<Class<?>>
     {
         public ClassSerializer() { super(Class.class, false); }
 

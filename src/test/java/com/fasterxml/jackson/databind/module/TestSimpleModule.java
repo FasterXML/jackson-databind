@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleDeserializers;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.module.SimpleSerializers;
-import com.fasterxml.jackson.databind.ser.std.ScalarSerializerBase;
-import com.fasterxml.jackson.databind.ser.std.SerializerBase;
+import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 public class TestSimpleModule extends BaseMapTest
 {
@@ -39,7 +39,7 @@ public class TestSimpleModule extends BaseMapTest
     static enum SimpleEnum { A, B; }
     
     // Extend SerializerBase to get access to declared handledType
-    static class CustomBeanSerializer extends SerializerBase<CustomBean>
+    static class CustomBeanSerializer extends StdSerializer<CustomBean>
     {
         public CustomBeanSerializer() { super(CustomBean.class); }
 
@@ -74,7 +74,7 @@ public class TestSimpleModule extends BaseMapTest
         }
     }
 
-    static class SimpleEnumSerializer extends SerializerBase<SimpleEnum>
+    static class SimpleEnumSerializer extends StdSerializer<SimpleEnum>
     {
         public SimpleEnumSerializer() { super(SimpleEnum.class); }
 
@@ -115,7 +115,7 @@ public class TestSimpleModule extends BaseMapTest
         public String getText() { return "2"; }
     }
 
-    static class BaseSerializer extends ScalarSerializerBase<Base>
+    static class BaseSerializer extends StdScalarSerializer<Base>
     {
         public BaseSerializer() { super(Base.class); }
         

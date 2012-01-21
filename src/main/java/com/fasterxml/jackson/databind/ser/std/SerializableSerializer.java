@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  */
 @JacksonStdImpl
 public class SerializableSerializer
-    extends SerializerBase<JsonSerializable>
+    extends StdSerializer<JsonSerializable>
 {
     public final static SerializableSerializer instance = new SerializableSerializer();
 

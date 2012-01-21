@@ -130,7 +130,7 @@ public class EnumMapSerializer
                  * default serializer tho -- so ideally code should be rewritten)
                  */
                 // ... and lovely two-step casting process too...
-                SerializerBase<?> ser = (SerializerBase<?>) provider.findValueSerializer(
+                StdSerializer<?> ser = (StdSerializer<?>) provider.findValueSerializer(
                         key.getDeclaringClass(), _property);
                 keyEnums = ((EnumSerializer) ser).getEnumValues();
             }
@@ -168,7 +168,7 @@ public class EnumMapSerializer
             Enum<?> key = entry.getKey();
             if (keyEnums == null) {
                 // clumsy, but has to do for now:
-                SerializerBase<?> ser = (SerializerBase<?>) provider.findValueSerializer(key.getDeclaringClass(),
+                StdSerializer<?> ser = (StdSerializer<?>) provider.findValueSerializer(key.getDeclaringClass(),
                         _property);
                 keyEnums = ((EnumSerializer) ser).getEnumValues();
             }

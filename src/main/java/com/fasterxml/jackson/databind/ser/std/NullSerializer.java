@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
  */
 @JacksonStdImpl
 public class NullSerializer
-    extends SerializerBase<Object>
+    extends StdSerializer<Object>
 {
     public final static NullSerializer instance = new NullSerializer();
     

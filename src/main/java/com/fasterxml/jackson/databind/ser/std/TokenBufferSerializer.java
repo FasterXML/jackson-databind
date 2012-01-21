@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 @JacksonStdImpl
 public class TokenBufferSerializer
-    extends SerializerBase<TokenBuffer>
+    extends StdSerializer<TokenBuffer>
 {
     public TokenBufferSerializer() { super(TokenBuffer.class); }
 

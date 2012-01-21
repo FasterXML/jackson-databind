@@ -51,7 +51,7 @@ public class StdKeySerializers
      */
 
     public static class StringKeySerializer
-        extends SerializerBase<String>
+        extends StdSerializer<String>
     {
         public StringKeySerializer() { super(String.class); }
         
@@ -64,7 +64,7 @@ public class StdKeySerializers
     }
 
     public static class DateKeySerializer
-        extends SerializerBase<Date>
+        extends StdSerializer<Date>
     {
         protected final static JsonSerializer<?> instance = new DateKeySerializer();
 
@@ -79,7 +79,7 @@ public class StdKeySerializers
     }
 
     public static class CalendarKeySerializer
-        extends SerializerBase<Calendar>
+        extends StdSerializer<Calendar>
     {
         protected final static JsonSerializer<?> instance = new CalendarKeySerializer();
 

@@ -258,7 +258,7 @@ public class StdArraySerializers
      */
     @JacksonStdImpl
     public final static class ByteArraySerializer
-        extends SerializerBase<byte[]>
+        extends StdSerializer<byte[]>
     {
         public ByteArraySerializer() {
             super(byte[].class);
@@ -356,7 +356,7 @@ public class StdArraySerializers
      */
     @JacksonStdImpl
     public final static class CharArraySerializer
-        extends SerializerBase<char[]>
+        extends StdSerializer<char[]>
     {
         public CharArraySerializer() { super(char[].class); }
         

@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
  */
 @JacksonStdImpl
 public class JsonValueSerializer
-    extends SerializerBase<Object>
+    extends StdSerializer<Object>
     implements ResolvableSerializer, SchemaAware
 {
     protected final Method _accessorMethod;

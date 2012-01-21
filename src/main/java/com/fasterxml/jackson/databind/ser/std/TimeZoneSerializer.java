@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 public class TimeZoneSerializer
-    extends ScalarSerializerBase<TimeZone>
+    extends StdScalarSerializer<TimeZone>
 {
     public final static TimeZoneSerializer instance = new TimeZoneSerializer();
     

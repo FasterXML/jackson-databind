@@ -9,10 +9,10 @@ import  org.w3c.dom.ls.LSSerializer;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.SerializerBase;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 public class DOMSerializer
-    extends SerializerBase<Node>
+    extends StdSerializer<Node>
 {
     protected final DOMImplementationLS _domImpl;
 

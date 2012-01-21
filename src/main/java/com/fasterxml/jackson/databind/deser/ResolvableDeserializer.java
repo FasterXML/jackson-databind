@@ -11,6 +11,15 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * to other contained types; for example, bean deserializers use this
  * to eagerly find deserializers for contained field types.
  *<p>
+ * Note that {@link #resolve} method does NOT allow returning anything 
+ * (specifically, a new deserializer instance): reason for this is that
+ * allowing this would not work with proper handling of cyclic dependencies,
+ * which are resolved by two-phase processing, where initially constructed
+ * deserializer is added as known deserializer, and only after this
+ * resolution is done. Resolution is the part that results in lookups for
+ * dependant deserializers, which may include handling references to
+ * deserializer itself.
+ *<p>
  * Note that in cases where deserializer needs both contextualization and
  * resolution -- that is, implements both this interface and {@link ContextualDeserializer}
  * -- resolution via this interface occurs first, and contextual

@@ -10,7 +10,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ser.std.SerializerBase;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.databind.util.Provider;
 
@@ -48,7 +48,7 @@ public class JodaSerializers
     /**********************************************************
      */
 
-    protected abstract static class JodaSerializer<T> extends SerializerBase<T>
+    protected abstract static class JodaSerializer<T> extends StdSerializer<T>
     {
         final static DateTimeFormatter _localDateTimeFormat = ISODateTimeFormat.dateTime();
         final static DateTimeFormatter _localDateFormat = ISODateTimeFormat.date();

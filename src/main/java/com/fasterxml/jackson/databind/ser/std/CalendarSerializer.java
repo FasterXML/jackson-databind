@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
  */
 @JacksonStdImpl
 public class CalendarSerializer
-    extends ScalarSerializerBase<Calendar>
+    extends StdScalarSerializer<Calendar>
 {
     public static CalendarSerializer instance = new CalendarSerializer();
 

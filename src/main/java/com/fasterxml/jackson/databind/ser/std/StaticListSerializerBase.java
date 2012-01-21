@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * that contain static (non-dynamic) value types.
  */
 public abstract class StaticListSerializerBase<T extends Collection<?>>
-    extends SerializerBase<T>
+    extends StdSerializer<T>
 {
     /**
      * Property that contains String List to serialize, if known.

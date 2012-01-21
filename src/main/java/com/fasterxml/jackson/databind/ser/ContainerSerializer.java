@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.std.SerializerBase;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /**
  * Intermediate base class for serializers used for serializing
@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ser.std.SerializerBase;
  * ({@link java.util.Iterator}s).
  */
 public abstract class ContainerSerializer<T>
-    extends SerializerBase<T>
+    extends StdSerializer<T>
 {
     /*
     /**********************************************************

@@ -7,10 +7,10 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.std.SerializerBase;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 public class UnknownSerializer
-    extends SerializerBase<Object>
+    extends StdSerializer<Object>
 {
     public UnknownSerializer() {
         super(Object.class);

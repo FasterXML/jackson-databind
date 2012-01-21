@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.CalendarSerializer;
-import com.fasterxml.jackson.databind.ser.std.SerializerBase;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.databind.util.Provider;
 
@@ -49,7 +49,7 @@ public class CoreXMLSerializers
         return _serializers.entrySet();
     }
 
-    public static class XMLGregorianCalendarSerializer extends SerializerBase<XMLGregorianCalendar>
+    public static class XMLGregorianCalendarSerializer extends StdSerializer<XMLGregorianCalendar>
     {
         public XMLGregorianCalendarSerializer() {
             super(XMLGregorianCalendar.class);

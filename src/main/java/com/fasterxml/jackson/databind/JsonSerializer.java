@@ -12,9 +12,32 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * arbitrary types into JSON, using provided {@link JsonGenerator}.
  *<p>
  * NOTE: it is recommended that custom serializers extend
- * {@link com.fasterxml.jackson.databind.ser.std.SerializerBase} instead
+ * {@link com.fasterxml.jackson.databind.ser.std.StdSerializer} instead
  * of this class, since it will implement many of optional
  * methods of this class.
+ *<p>
+ * If serializer is an aggregate one -- meaning it delegates handling of some
+ * of its contents by using other serializer(s) -- it typically also needs
+ * to implement {@link com.fasterxml.jackson.databind.ser.ResolvableSerializer},
+ * which can locate secondary serializers needed. This is important to allow dynamic
+ * overrides of serializers; separate call interface is needed to separate
+ * resolution of secondary serializers (which may have cyclic link back
+ * to serializer itself, directly or indirectly).
+ *<p>
+ * In addition, to support per-property annotations (to configure aspects
+ * of serialization on per-property basis), serializers may want
+ * to implement 
+ * {@link com.fasterxml.jackson.databind.ser.ContextualSerializer},
+ * which allows specialization of serializers: call to
+ * {@link com.fasterxml.jackson.databind.ser.ContextualSerializer#createContextual}
+ * is passed information on property, and can create a newly configured
+ * serializer for handling that particular property.
+ *<p>
+ * If both
+ * {@link com.fasterxml.jackson.databind.ser.ResolvableSerializer} and
+ * {@link com.fasterxml.jackson.databind.ser.ContextualSerializer}
+ * are implemented, resolution of serializers occurs before
+ * contextualization.
  */
 public abstract class JsonSerializer<T>
 {

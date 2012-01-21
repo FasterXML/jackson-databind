@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * is not the primary design goal.
  */
 public abstract class BeanSerializerBase
-    extends SerializerBase<Object>
+    extends StdSerializer<Object>
     implements ResolvableSerializer, SchemaAware
 {
     final protected static BeanPropertyWriter[] NO_PROPS = new BeanPropertyWriter[0];

@@ -10,6 +10,33 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * Abstract class that defines API used by {@link ObjectMapper} (and
  * other chained {@link JsonDeserializer}s too) to deserialize Objects of
  * arbitrary types from JSON, using provided {@link JsonParser}.
+ *<p>
+ * Custom deserializers should usually not directly extend this class,
+ * but instead extend {@link com.fasterxml.jackson.databind.deser.std.StdDeserializer}
+ * (or its subtypes like {@link com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer}).
+ *<p>
+ * If deserializer is an aggregate one -- meaning it delegates handling of some
+ * of its contents by using other deserializer(s) -- it typically also needs
+ * to implement {@link com.fasterxml.jackson.databind.deser.ResolvableDeserializer},
+ * which can locate dependant deserializers. This is important to allow dynamic
+ * overrides of deserializers; separate call interface is needed to separate
+ * resolution of dependant deserializers (which may have cyclic link back
+ * to deserializer itself, directly or indirectly).
+ *<p>
+ * In addition, to support per-property annotations (to configure aspects
+ * of deserialization on per-property basis), deserializers may want
+ * to implement 
+ * {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer},
+ * which allows specialization of deserializers: call to
+ * {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer#createContextual}
+ * is passed information on property, and can create a newly configured
+ * deserializer for handling that particular property.
+ *<p>
+ * If both
+ * {@link com.fasterxml.jackson.databind.deser.ResolvableDeserializer} and
+ * {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer}
+ * are implemented, resolution of deserializers occurs before
+ * contextualization.
  */
 public abstract class JsonDeserializer<T>
 {

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.SerializerBase;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /**
  * Specialized serializer that can be used as the generic key
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ser.std.SerializerBase;
  * Objects.
  */
 public class StdKeySerializer
-    extends SerializerBase<Object>
+    extends StdSerializer<Object>
 {
     final static StdKeySerializer instace = new StdKeySerializer();
 

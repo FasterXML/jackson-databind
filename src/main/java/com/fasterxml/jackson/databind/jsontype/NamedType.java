@@ -5,7 +5,6 @@ package com.fasterxml.jackson.databind.jsontype;
  * as external identifier
  * 
  * @author tatu
- * @since 1.5
  */
 public final class NamedType
 {

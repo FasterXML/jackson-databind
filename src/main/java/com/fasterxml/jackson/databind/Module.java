@@ -1,10 +1,12 @@
 package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.deser.KeyDeserializers;
 import com.fasterxml.jackson.databind.deser.ValueInstantiators;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.type.TypeModifier;
@@ -59,6 +61,9 @@ public abstract class Module
     /**
      * Interface Jackson exposes to modules for purpose of registering
      * extended functionality.
+     * Usually implemented by {@link ObjectMapper}, but modules should
+     * NOT rely on this -- if they do require access to mapper instance,
+     * they need to call {@link SetupContext#getOwner} method.
      */
     public static interface SetupContext
     {
@@ -97,10 +102,14 @@ public abstract class Module
          */
         public <C extends ObjectCodec> C getOwner();
 
+        public boolean isEnabled(MapperConfig.Feature f);
+        
         public boolean isEnabled(DeserializationConfig.Feature f);
 
         public boolean isEnabled(SerializationConfig.Feature f);
 
+        public boolean isEnabled(JsonFactory.Feature f);
+        
         public boolean isEnabled(JsonParser.Feature f);
 
         public boolean isEnabled(JsonGenerator.Feature f);
@@ -211,6 +220,18 @@ public abstract class Module
          */
         public void appendAnnotationIntrospector(AnnotationIntrospector ai);
 
+        /**
+         * Method for registering specified classes as subtypes (of supertype(s)
+         * they have)
+         */
+        public void registerSubtypes(Class<?>... subtypes);
+
+        /**
+         * Method for registering specified classes as subtypes (of supertype(s)
+         * they have), using specified type names.
+         */
+        public void registerSubtypes(NamedType... subtypes);
+        
         /**
          * Method used for defining mix-in annotations to use for augmenting
          * specified class or interface.

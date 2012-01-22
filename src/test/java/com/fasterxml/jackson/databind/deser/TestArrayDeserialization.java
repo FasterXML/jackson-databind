@@ -369,6 +369,16 @@ public class TestArrayDeserialization
         }
     }
 
+    // [JACKSON-763]
+    public void testByteArraysWith763() throws Exception
+    {
+        String[] input = new String[] { "YQ==", "Yg==", "Yw==" };
+        byte[][] data = new ObjectMapper().convertValue(input, byte[][].class);
+        assertEquals("a", new String(data[0], "US-ASCII"));
+        assertEquals("b", new String(data[1], "US-ASCII"));
+        assertEquals("c", new String(data[2], "US-ASCII"));
+    }
+    
     public void testShortArray() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

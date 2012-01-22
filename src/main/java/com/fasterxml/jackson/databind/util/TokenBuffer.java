@@ -1084,6 +1084,8 @@ public class TokenBuffer
             ByteArrayBuilder builder = _byteBuilder;
             if (builder == null) {
                 _byteBuilder = builder = new ByteArrayBuilder(100);
+            } else {
+                _byteBuilder.reset();
             }
             _decodeBase64(str, builder, b64variant);
             return builder.toByteArray();

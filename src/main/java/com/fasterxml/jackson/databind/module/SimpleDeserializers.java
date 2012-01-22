@@ -18,8 +18,6 @@ import com.fasterxml.jackson.databind.type.*;
  *<p>
  * Unlike {@link SimpleSerializers}, this class does not currently support generic mappings;
  * all mappings must be to exact declared deserialization type.
- * 
- * @since 1.7
  */
 public class SimpleDeserializers implements Deserializers
 {

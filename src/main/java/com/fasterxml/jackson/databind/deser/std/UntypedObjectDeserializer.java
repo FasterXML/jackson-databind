@@ -20,8 +20,6 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
  * Object[]), JSON objects to {@link java.util.Map}s, numbers to
  * {@link java.lang.Number}s, booleans to {@link java.lang.Boolean}s and
  * strings to {@link java.lang.String} (and nulls to nulls).
- *
- * @since 1.9 (moved from higher-level package)
  */
 @JacksonStdImpl
 public class UntypedObjectDeserializer
@@ -221,8 +219,6 @@ public class UntypedObjectDeserializer
 
     /**
      * Method called to map a JSON Array into a Java Object array (Object[]).
-     * 
-     * @since 1.9
      */
     protected Object[] mapArrayToArray(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException

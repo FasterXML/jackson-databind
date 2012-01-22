@@ -9,7 +9,5 @@
  * Note that since this package was only added relatively late
  * in development cycle, not all classes that belong here are
  * included. Plan is to move more classes over time.
- * 
- * @since 1.9
  */
 package com.fasterxml.jackson.databind.deser.std;

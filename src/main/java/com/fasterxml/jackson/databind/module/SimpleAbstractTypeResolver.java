@@ -25,8 +25,6 @@ import com.fasterxml.jackson.databind.type.ClassKey;
  * Can also be used as an alternative to per-class annotations when defining
  * concrete implementations; however, only works with abstract types (since
  * this is only called for abstract types)
- *
- * @since 1.8
  */
 public class SimpleAbstractTypeResolver extends AbstractTypeResolver
 {

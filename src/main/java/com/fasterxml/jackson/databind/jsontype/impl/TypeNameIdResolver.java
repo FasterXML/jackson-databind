@@ -12,9 +12,6 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 public class TypeNameIdResolver
     extends TypeIdResolverBase
 {
-    /**
-     * @since 1.8
-     */
     protected final MapperConfig<?> _config;
     
     /**

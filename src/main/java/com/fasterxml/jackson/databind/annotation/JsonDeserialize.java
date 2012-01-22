@@ -47,8 +47,6 @@ public @interface JsonDeserialize
      * of a Collection/array, values of Maps) of annotated property.
      * Can only be used on instances (methods, fields, constructors),
      * and not value classes themselves.
-     *
-     * @since 1.3
      */
     public Class<? extends JsonDeserializer<?>> contentUsing()
         default JsonDeserializer.None.class;
@@ -58,8 +56,6 @@ public @interface JsonDeserialize
      * of annotated property.
      * Can only be used on instances (methods, fields, constructors),
      * and not value classes themselves.
-     *
-     * @since 1.3
      */
     public Class<? extends KeyDeserializer> keyUsing()
         default KeyDeserializer.None.class;

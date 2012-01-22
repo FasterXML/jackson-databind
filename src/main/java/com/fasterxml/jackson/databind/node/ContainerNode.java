@@ -119,8 +119,6 @@ public abstract class ContainerNode
      * Method for removing all children container has (if any)
      *
      * @return Container node itself (to allow method call chaining)
-     *
-     * @since 1.3
      */
     public abstract ContainerNode removeAll();
 

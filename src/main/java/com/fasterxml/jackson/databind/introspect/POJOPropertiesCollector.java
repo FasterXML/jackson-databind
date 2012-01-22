@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.util.BeanUtil;
 /**
  * Helper class used for aggregating information about all possible
  * properties of a POJO.
- * 
- * @since 1.9
  */
 public class POJOPropertiesCollector
 {

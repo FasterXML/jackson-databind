@@ -29,7 +29,6 @@ public class UnknownSerializer
         jgen.writeEndObject();
     }
 
-    // since 1.6.2; needed to retain type information
     @Override
     public final void serializeWithType(Object value, JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)

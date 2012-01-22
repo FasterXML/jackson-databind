@@ -25,8 +25,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
  * is used, which leaves field names as is, and removes set/get/is prefix
  * from methods (as well as lower-cases initial sequence of capitalized
  * characters).
- * 
- * @since 1.8
  */
 public abstract class PropertyNamingStrategy
 {
@@ -107,7 +105,6 @@ public abstract class PropertyNamingStrategy
      *   during serialization or deserialization
      * @param ctorParam Constructor parameter used to pass property.
      * @param defaultName Default name that would be used for property in absence of custom strategy
-     * @since 1.9
      */
     public String nameForConstructorParameter(MapperConfig<?> config, AnnotatedParameter ctorParam,
             String defaultName)
@@ -121,9 +118,6 @@ public abstract class PropertyNamingStrategy
     /**********************************************************
      */
     
-    /**
-     * @since 1.9
-     */
     public static abstract class PropertyNamingStrategyBase extends PropertyNamingStrategy
     {
         @Override
@@ -163,8 +157,6 @@ public abstract class PropertyNamingStrategy
 
     /**
      * See {@link LowerCaseWithUnderscoresStrategy} for details.
-     * 
-     * @since 1.9
      */
     public static final PropertyNamingStrategy CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES =
         new LowerCaseWithUnderscoresStrategy();
@@ -217,8 +209,6 @@ public abstract class PropertyNamingStrategy
      * (the first of two underscores was removed)</li>
      * <li>&quot;user__name&quot; is translated to &quot;user__name&quot;
      * (unchanged, with two underscores)</li></ul>
-     * 
-     * @since 1.9
      */
     public static class LowerCaseWithUnderscoresStrategy extends PropertyNamingStrategyBase
     {

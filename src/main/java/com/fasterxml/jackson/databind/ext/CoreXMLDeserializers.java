@@ -21,8 +21,6 @@ import com.fasterxml.jackson.databind.util.Provider;
  * Container deserializers that handle "core" XML types: ones included in standard
  * JDK 1.5. Types are directly needed by JAXB, and are thus supported within core
  * mapper package, not in "xc" package.
- *
- * @since 1.3
  */
 public class CoreXMLDeserializers
     implements Provider<StdDeserializer<?>>

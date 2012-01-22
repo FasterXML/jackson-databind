@@ -139,8 +139,6 @@ public class DateDeserializers
 
     /**
      * As per [JACKSON-522], also need special handling for TimeZones
-     * 
-     * @since 1.7.4
      */
     protected static class TimeZoneDeserializer
         extends FromStringDeserializer<TimeZone>

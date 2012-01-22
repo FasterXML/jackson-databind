@@ -51,8 +51,6 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
      *     mapper.getVisibilityChecker().withVisibility(JsonMethod.FIELD, Visibility.ANY));
      *</pre>
      * (which would basically enable auto-detection for all member fields)
-     *
-     * @since 1.9
      */
     public T withVisibility(PropertyAccessor method, Visibility v);
     
@@ -211,8 +209,6 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
 	 * properties.
 	 * 
 	 * @param v level to use for all property types
-	 * 
-	 * @since 1.9
 	 */
         public Std(Visibility v)
         {

@@ -124,9 +124,6 @@ public class BasicClassIntrospector
     /**********************************************************
      */
 
-    /**
-     * @since 1.9
-     */
     public POJOPropertiesCollector collectProperties(MapperConfig<?> config,
             JavaType type, MixInResolver r, boolean forSerialization)
     {
@@ -139,8 +136,6 @@ public class BasicClassIntrospector
     /**
      * Overridable method called for creating {@link POJOPropertiesCollector} instance
      * to use; override is needed if a custom sub-class is to be used.
-     * 
-     * @since 1.9
      */
     protected POJOPropertiesCollector constructPropertyCollector(MapperConfig<?> config,
             AnnotatedClass ac, JavaType type,
@@ -149,9 +144,6 @@ public class BasicClassIntrospector
         return new POJOPropertiesCollector(config, forSerialization, type, ac);
     }
     
-    /**
-     * @since 1.9
-     */
     public AnnotatedClass classWithCreators(MapperConfig<?> config,
             JavaType type, MixInResolver r)
     {
@@ -167,8 +159,6 @@ public class BasicClassIntrospector
     /**
      * Method called to see if type is one of core JDK types
      * that we have cached for efficiency.
-     * 
-     * @since 1.9
      */
     protected BasicBeanDescription _findCachedDesc(JavaType type)
     {
@@ -197,8 +187,6 @@ public class BasicClassIntrospector
     /**
      * Going forward, we will only do very minimal filtering;
      * mostly just gets rid of static methods really.
-     * 
-     * @since 1.9
      */
     private static class MinimalMethodFilter
         implements MethodFilter

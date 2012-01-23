@@ -570,7 +570,7 @@ public abstract class StdSerializerProvider
      * Method called on the actual non-blueprint provider instance object,
      * to kick off the serialization.
      */
-    protected  void _serializeValue(JsonGenerator jgen, Object value)
+    protected final void _serializeValue(JsonGenerator jgen, Object value)
         throws IOException, JsonProcessingException
     {
         JsonSerializer<Object> ser;
@@ -584,11 +584,23 @@ public abstract class StdSerializerProvider
             Class<?> cls = value.getClass();
             // true, since we do want to cache root-level typed serializers (ditto for null property)
             ser = findTypedValueSerializer(cls, true, null);
-            // [JACKSON-163]
-            wrap = _config.isEnabled(SerializationConfig.Feature.WRAP_ROOT_VALUE);
-            if (wrap) {
+
+            // Ok: should we wrap result in an additional property ("root name")?
+            String rootName = _config.getRootName();
+            if (rootName == null) { // not explicitly specified
+                // [JACKSON-163]
+                wrap = _config.isEnabled(SerializationConfig.Feature.WRAP_ROOT_VALUE);
+                if (wrap) {
+                    jgen.writeStartObject();
+                    jgen.writeFieldName(_rootNames.findRootName(value.getClass(), _config));
+                }
+            } else if (rootName.length() == 0) {
+                wrap = false;
+            } else { // [JACKSON-764]
+                // empty String means explicitly disabled; non-empty that it is enabled
+                wrap = true;
                 jgen.writeStartObject();
-                jgen.writeFieldName(_rootNames.findRootName(value.getClass(), _config));
+                jgen.writeFieldName(rootName);
             }
         }
         try {

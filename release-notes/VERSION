@@ -43,6 +43,8 @@ New features:
 * [JACKSON-752]: Add @JsonInclude (replacement of @JsonSerialize.include)
 * [JACKSON-754]: Add @JacksonAnnotationsInside for creating "annotation
   bundles" (also: AnnotationIntrospector.isAnnotationBundle())
+* [JACKSON-764]: Allow specifying "root name" to use for root wrapping
+  via ObjectReader, ObjectWriter.
 
 ------------------------------------------------------------------------
 === History: ===

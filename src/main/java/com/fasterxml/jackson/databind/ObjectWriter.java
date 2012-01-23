@@ -151,8 +151,6 @@ public class ObjectWriter
 
     /**
      * Copy constructor used for building variations.
-     * 
-     * @since 1.7
      */
     protected ObjectWriter(ObjectWriter base, SerializationConfig config)
     {
@@ -223,45 +221,42 @@ public class ObjectWriter
         SerializationConfig newConfig = _config.without(first, other);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }    
-    
+
+    /**
+     * Fluent factory method that will construct a new writer instance that will
+     * use specified date format for serializing dates; or if null passed, one
+     * that will serialize dates as numeric timestamps.
+     *<p>
+     * Note that the method does NOT change state of this reader, but
+     * rather construct and returns a newly configured instance.
+     */
+    public ObjectWriter withDateFormat(DateFormat df)
+    {
+        SerializationConfig newConfig = _config.withDateFormat(df);
+        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+    }
+
+    /**
+     * Method that will construct a new instance that will use the default
+     * pretty printer for serialization.
+     */
+    public ObjectWriter withDefaultPrettyPrinter()
+    {
+        return withPrettyPrinter(new DefaultPrettyPrinter());
+    }
+
     /**
      * Method that will construct a new instance that uses specified
-     * serialization view for serialization (with null basically disables
-     * view processing)
+     * provider for resolving filter instances by id.
      */
-    public ObjectWriter withView(Class<?> view)
+    public ObjectWriter withFilters(FilterProvider filterProvider)
     {
-        if (view == _config.getSerializationView()) return this;
-        return new ObjectWriter(this, _config.withView(view));
-    }    
-    
-    /**
-     * Method that will construct a new instance that uses specific type
-     * as the root type for serialization, instead of runtime dynamic
-     * type of the root object itself.
-     */
-    public ObjectWriter withType(JavaType rootType)
-    {
-        if (rootType == _rootType) return this;
-        // type is stored here, no need to make a copy of config
-        return new ObjectWriter(this, _config, rootType, _prettyPrinter, _schema);
-    }    
-
-    /**
-     * Method that will construct a new instance that uses specific type
-     * as the root type for serialization, instead of runtime dynamic
-     * type of the root object itself.
-     */
-    public ObjectWriter withType(Class<?> rootType)
-    {
-        return withType(_config.constructType(rootType));
+        if (filterProvider == _config.getFilterProvider()) { // no change?
+            return this;
+        }
+        return new ObjectWriter(this, _config.withFilters(filterProvider));
     }
 
-    public ObjectWriter withType(TypeReference<?> rootType)
-    {
-        return withType(_config.getTypeFactory().constructType(rootType.getType()));
-    }
-    
     /**
      * Method that will construct a new instance that will use specified pretty
      * printer (or, if null, will not do any pretty-printing)
@@ -279,56 +274,74 @@ public class ObjectWriter
     }
 
     /**
-     * Method that will construct a new instance that will use the default
-     * pretty printer for serialization.
-     * 
-     * @since 1.6
+     * Method for constructing a new instance with configuration that
+     * specifies what root name to use for "root element wrapping".
+     * See {@link SerializationConfig#withRootName(String)} for details.
+     *<p>
+     * Note that method does NOT change state of this reader, but
+     * rather construct and returns a newly configured instance.
      */
-    public ObjectWriter withDefaultPrettyPrinter()
+    public ObjectWriter withRootName(String rootName)
     {
-        return withPrettyPrinter(new DefaultPrettyPrinter());
+        SerializationConfig newConfig = _config.withRootName(rootName);
+        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+    }
+
+    /**
+     * Method that will construct a new instance that uses specific format schema
+     * for serialization.
+     *<p>
+     * Note that method does NOT change state of this reader, but
+     * rather construct and returns a newly configured instance.
+     */
+    
+    public ObjectWriter withSchema(FormatSchema schema)
+    {
+        return (_schema == schema) ? this :
+            new ObjectWriter(this, _config, _rootType, _prettyPrinter, schema);
+    }
+    
+    /**
+     * Method that will construct a new instance that uses specific type
+     * as the root type for serialization, instead of runtime dynamic
+     * type of the root object itself.
+     *<p>
+     * Note that method does NOT change state of this reader, but
+     * rather construct and returns a newly configured instance.
+     */
+    public ObjectWriter withType(JavaType rootType)
+    {
+        return (rootType == _rootType) ? this
+        // type is stored here, no need to make a copy of config
+            : new ObjectWriter(this, _config, rootType, _prettyPrinter, _schema);
+    }    
+
+    /**
+     * Method that will construct a new instance that uses specific type
+     * as the root type for serialization, instead of runtime dynamic
+     * type of the root object itself.
+     */
+    public ObjectWriter withType(Class<?> rootType) {
+        return withType(_config.constructType(rootType));
+    }
+
+    public ObjectWriter withType(TypeReference<?> rootType) {
+        return withType(_config.getTypeFactory().constructType(rootType.getType()));
     }
 
     /**
      * Method that will construct a new instance that uses specified
-     * provider for resolving filter instances by id.
-     * 
-     * @since 1.7
+     * serialization view for serialization (with null basically disables
+     * view processing)
+     *<p>
+     * Note that the method does NOT change state of this reader, but
+     * rather construct and returns a newly configured instance.
      */
-    public ObjectWriter withFilters(FilterProvider filterProvider)
+    public ObjectWriter withView(Class<?> view)
     {
-        if (filterProvider == _config.getFilterProvider()) { // no change?
-            return this;
-        }
-        return new ObjectWriter(this, _config.withFilters(filterProvider));
-    }
-
-    /**
-     * @since 1.8
-     */
-    public ObjectWriter withSchema(FormatSchema schema)
-    {
-        if (_schema == schema) {
-            return this;
-        }
-        return new ObjectWriter(this, _config, _rootType, _prettyPrinter, schema);
-    }
-
-    /**
-     * Fluent factory method that will construct a new writer instance that will
-     * use specified date format for serializing dates; or if null passed, one
-     * that will serialize dates as numeric timestamps.
-     * 
-     * @since 1.9
-     */
-    public ObjectWriter withDateFormat(DateFormat df)
-    {
-        SerializationConfig newConfig = _config.withDateFormat(df);
-        if (newConfig == _config) {
-            return this;
-        }
-        return new ObjectWriter(this, newConfig);
-    }
+        return (view == _config.getSerializationView()) ? this
+            : new ObjectWriter(this, _config.withView(view));
+    }    
     
     /*
     /**********************************************************

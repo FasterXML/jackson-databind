@@ -69,6 +69,29 @@ public class TestRootName extends BaseMapTest
         assertNotNull(result);
     }
     
+    // [JACKSON-764]
+    public void testRootUsingExplicitConfig() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectWriter writer = mapper.writer().withRootName("wrapper");
+        String json = writer.writeValueAsString(new Bean());
+        assertEquals("{\"wrapper\":{\"a\":3}}", json);
+
+        ObjectReader reader = mapper.reader(Bean.class).withRootName("wrapper");
+        Bean bean = reader.readValue(json);
+        assertNotNull(bean);
+
+        // also: verify that we can override Feature as well:
+        ObjectMapper wrapping = rootMapper();
+        json = wrapping.writer().withRootName("something").writeValueAsString(new Bean());
+        assertEquals("{\"something\":{\"a\":3}}", json);
+        json = wrapping.writer().withRootName("").writeValueAsString(new Bean());
+        assertEquals("{\"a\":3}", json);
+
+        bean = wrapping.reader(Bean.class).withRootName("").readValue(json);
+        assertNotNull(bean);
+    }
+
     /*
     /**********************************************************
     /* Helper methods

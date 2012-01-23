@@ -5,10 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.databind.cfg.BaseSettings;
-import com.fasterxml.jackson.databind.cfg.ConfigFeature;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.cfg.MapperConfigBase;
+import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
@@ -32,7 +29,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * with respect to mix-in annotations; where this is guaranteed as
  * long as caller follow "copy-then-use" pattern)
  */
-public class SerializationConfig
+public final class SerializationConfig
     extends MapperConfigBase<SerializationConfig.Feature, SerializationConfig>
 {
     /**
@@ -384,6 +381,15 @@ public class SerializationConfig
         _serializationView = src._serializationView;
         _filterProvider = src._filterProvider;
     }
+
+    private SerializationConfig(SerializationConfig src, String rootName)
+    {
+        super(src, rootName);
+        _serFeatures = src._serFeatures;
+        _serializationInclusion = src._serializationInclusion;
+        _serializationView = src._serializationView;
+        _filterProvider = src._filterProvider;
+    }
     
     /*
     /**********************************************************
@@ -464,6 +470,18 @@ public class SerializationConfig
     @Override
     public SerializationConfig withPropertyNamingStrategy(PropertyNamingStrategy pns) {
         return _withBase(_base.withPropertyNamingStrategy(pns));
+    }
+
+    @Override
+    public SerializationConfig withRootName(String rootName) {
+        if (rootName == null) {
+            if (_rootName == null) {
+                return this;
+            }
+        } else if (rootName.equals(_rootName)) {
+            return this;
+        }
+        return new SerializationConfig(this, rootName);
     }
     
     @Override
@@ -574,6 +592,15 @@ public class SerializationConfig
     @Override
     public final int getFeatureFlags() {
         return _serFeatures;
+    }
+    
+    @Override
+    public boolean useRootWrapping()
+    {
+        if (_rootName != null) { // empty String disables wrapping; non-empty enables
+            return (_rootName.length() > 0);
+        }
+        return isEnabled(SerializationConfig.Feature.WRAP_ROOT_VALUE);
     }
     
     @Override

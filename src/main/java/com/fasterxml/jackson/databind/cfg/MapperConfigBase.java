@@ -1,9 +1,20 @@
 package com.fasterxml.jackson.databind.cfg;
 
+import java.text.DateFormat;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.HandlerInstantiator;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
+import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.type.ClassKey;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public abstract class MapperConfigBase<CFG extends ConfigFeature,
     T extends MapperConfigBase<CFG,T>>
@@ -28,6 +39,13 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * in addition to) ones declared using annotations.
      */
     protected final SubtypeResolver _subtypeResolver;
+
+    /**
+     * Explicitly definite root name to use, if any; if empty
+     * String, will disable root-name wrapping; if null, will
+     * use defaults
+     */
+    protected final String _rootName;
     
     /*
     /**********************************************************
@@ -45,6 +63,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         super(base, DEFAULT_MAPPER_FEATURES);
         _mixInAnnotations = mixins;
         _subtypeResolver = str;
+        _rootName = null;
     }
     
     /**
@@ -55,19 +74,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         super(src);
         _mixInAnnotations = src._mixInAnnotations;
         _subtypeResolver = src._subtypeResolver;
-    }
-    
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, int mapperFeatures)
-    {
-        super(src._base, mapperFeatures);
-        _mixInAnnotations = src._mixInAnnotations;
-        _subtypeResolver = src._subtypeResolver;
-    }
-
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src, SubtypeResolver str) {
-        super(src);
-        _mixInAnnotations = src._mixInAnnotations;
-        _subtypeResolver = str;
+        _rootName = src._rootName;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base)
@@ -75,8 +82,150 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         super(base, src._mapperFeatures);
         _mixInAnnotations = src._mixInAnnotations;
         _subtypeResolver = src._subtypeResolver;
+        _rootName = src._rootName;
+    }
+    
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, int mapperFeatures)
+    {
+        super(src._base, mapperFeatures);
+        _mixInAnnotations = src._mixInAnnotations;
+        _subtypeResolver = src._subtypeResolver;
+        _rootName = src._rootName;
     }
 
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, SubtypeResolver str) {
+        super(src);
+        _mixInAnnotations = src._mixInAnnotations;
+        _subtypeResolver = str;
+        _rootName = src._rootName;
+    }
+
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, String rootName) {
+        super(src);
+        _mixInAnnotations = src._mixInAnnotations;
+        _subtypeResolver = src._subtypeResolver;
+        _rootName = rootName;
+    }
+    
+    /*
+    /**********************************************************
+    /* Addition fluent factory methods, common to all sub-types
+    /**********************************************************
+     */
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link AnnotationIntrospector} to use (replacing old one).
+     *<p>
+     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
+     * if directly calling this method.
+     */
+    public abstract T withAnnotationIntrospector(AnnotationIntrospector ai);
+
+    /**
+     * Method for constructing and returning a new instance with additional
+     * {@link AnnotationIntrospector} appended (as the lowest priority one)
+     */
+    public abstract T withAppendedAnnotationIntrospector(AnnotationIntrospector introspector);
+
+    /**
+     * Method for constructing and returning a new instance with additional
+     * {@link AnnotationIntrospector} inserted (as the highest priority one)
+     */
+    public abstract T withInsertedAnnotationIntrospector(AnnotationIntrospector introspector);
+    
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link ClassIntrospector}
+     * to use.
+     *<p>
+     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
+     * if directly calling this method.
+     */
+    public abstract T withClassIntrospector(ClassIntrospector<? extends BeanDescription> ci);
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link DateFormat}
+     * to use.
+     *<p>
+     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
+     * if directly calling this method.
+     */
+    public abstract T withDateFormat(DateFormat df);
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link HandlerInstantiator}
+     * to use.
+     *<p>
+     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
+     * if directly calling this method.
+     */
+    public abstract T withHandlerInstantiator(HandlerInstantiator hi);
+    
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link PropertyNamingStrategy}
+     * to use.
+     *<p>
+     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
+     * if directly calling this method.
+     */
+    public abstract T withPropertyNamingStrategy(PropertyNamingStrategy strategy);
+    
+    /**
+     * Method for constructing and returning a new instance with different
+     * root name to use (none, if null).
+     *<p>
+     * Note that when a root name is set to a non-Empty String, this will automatically force use
+     * of root element wrapping with given name. If empty String passed, will
+     * disable root name wrapping; and if null used, will instead use
+     * <code>Feature</code> to determine if to use wrapping, and annotation
+     * (or default name) for actual root name to use.
+     * 
+     * @param rootName to use: if null, means "use default" (clear setting);
+     *   if empty String ("") means that no root name wrapping is used;
+     *   otherwise defines root name to use.
+     */
+    public abstract T withRootName(String rootName);
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link SubtypeResolver}
+     * to use.
+     *<p>
+     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
+     * if directly calling this method.
+     */
+    public abstract T withSubtypeResolver(SubtypeResolver str);
+    
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link TypeFactory}
+     * to use.
+     */
+    public abstract T withTypeFactory(TypeFactory typeFactory);
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link TypeResolverBuilder} to use.
+     */
+    public abstract T withTypeResolverBuilder(TypeResolverBuilder<?> trb);
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * {@link VisibilityChecker}
+     * to use.
+     */
+    public abstract T withVisibilityChecker(VisibilityChecker<?> vc);
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * minimal visibility level for specified property type
+     */
+    public abstract T withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility);
+    
     /*
     /**********************************************************
     /* Simple accessors
@@ -92,6 +241,10 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     public final SubtypeResolver getSubtypeResolver() {
         return _subtypeResolver;
+    }
+
+    public final String getRootName() {
+        return _rootName;
     }
     
     /*

@@ -37,7 +37,7 @@ import com.fasterxml.jackson.databind.util.LinkedNode;
  * with respect to mix-in annotations; where this is guaranteed as
  * long as caller follow "copy-then-use" pattern)
  */
-public class DeserializationConfig
+public final class DeserializationConfig
     extends MapperConfigBase<DeserializationConfig.Feature, DeserializationConfig>
 {
     /**
@@ -334,7 +334,15 @@ public class DeserializationConfig
         _problemHandlers = problemHandlers;
         _nodeFactory = src._nodeFactory;
     }
-       
+
+    private DeserializationConfig(DeserializationConfig src, String rootName)
+    {
+        super(src, rootName);
+        _deserFeatures = src._deserFeatures;
+        _problemHandlers = src._problemHandlers;
+        _nodeFactory = src._nodeFactory;
+    }
+    
     /*
     /**********************************************************
     /* Life-cycle, factory methods from MapperConfig
@@ -365,62 +373,78 @@ public class DeserializationConfig
     
     @Override
     public DeserializationConfig withClassIntrospector(ClassIntrospector<? extends BeanDescription> ci) {
-        return new DeserializationConfig(this, _base.withClassIntrospector(ci));
+        return _withBase(_base.withClassIntrospector(ci));
     }
 
     @Override
     public DeserializationConfig withAnnotationIntrospector(AnnotationIntrospector ai) {
-        return new DeserializationConfig(this, _base.withAnnotationIntrospector(ai));
+        return _withBase(_base.withAnnotationIntrospector(ai));
     }
 
     @Override
     public DeserializationConfig withVisibilityChecker(VisibilityChecker<?> vc) {
-        return new DeserializationConfig(this, _base.withVisibilityChecker(vc));
+        return _withBase(_base.withVisibilityChecker(vc));
     }
 
     @Override
     public DeserializationConfig withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
-        return new DeserializationConfig(this, _base.withVisibility(forMethod, visibility));
+        return _withBase( _base.withVisibility(forMethod, visibility));
     }
     
     @Override
     public DeserializationConfig withTypeResolverBuilder(TypeResolverBuilder<?> trb) {
-        return new DeserializationConfig(this, _base.withTypeResolverBuilder(trb));
+        return _withBase(_base.withTypeResolverBuilder(trb));
     }
 
     @Override
     public DeserializationConfig withSubtypeResolver(SubtypeResolver str) {
-        return new DeserializationConfig(this, str);
+        return (_subtypeResolver == str) ? this : new DeserializationConfig(this, str);
     }
     
     @Override
     public DeserializationConfig withPropertyNamingStrategy(PropertyNamingStrategy pns) {
-        return new DeserializationConfig(this, _base.withPropertyNamingStrategy(pns));
+        return _withBase(_base.withPropertyNamingStrategy(pns));
+    }
+
+    @Override
+    public DeserializationConfig withRootName(String rootName) {
+        if (rootName == null) {
+            if (_rootName == null) {
+                return this;
+            }
+        } else if (rootName.equals(_rootName)) {
+            return this;
+        }
+        return new DeserializationConfig(this, rootName);
     }
     
     @Override
     public DeserializationConfig withTypeFactory(TypeFactory tf) {
-        return (tf == _base.getTypeFactory()) ? this : new DeserializationConfig(this, _base.withTypeFactory(tf));
+        return _withBase( _base.withTypeFactory(tf));
     }
 
     @Override
     public DeserializationConfig withDateFormat(DateFormat df) {
-        return (df == _base.getDateFormat()) ? this : new DeserializationConfig(this, _base.withDateFormat(df));
+        return _withBase(_base.withDateFormat(df));
     }
     
     @Override
     public DeserializationConfig withHandlerInstantiator(HandlerInstantiator hi) {
-        return (hi == _base.getHandlerInstantiator()) ? this : new DeserializationConfig(this, _base.withHandlerInstantiator(hi));
+        return _withBase(_base.withHandlerInstantiator(hi));
     }
 
     @Override
     public DeserializationConfig withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
-        return new DeserializationConfig(this, _base.withInsertedAnnotationIntrospector(ai));
+        return _withBase(_base.withInsertedAnnotationIntrospector(ai));
     }
 
     @Override
     public DeserializationConfig withAppendedAnnotationIntrospector(AnnotationIntrospector ai) {
-        return new DeserializationConfig(this, _base.withAppendedAnnotationIntrospector(ai));
+        return _withBase(_base.withAppendedAnnotationIntrospector(ai));
+    }
+
+    private final DeserializationConfig _withBase(BaseSettings newBase) {
+        return (_base == newBase) ? this : new DeserializationConfig(this, newBase);
     }
     
     /*
@@ -544,6 +568,15 @@ public class DeserializationConfig
         }
         return NopAnnotationIntrospector.instance;
     }
+
+    @Override
+    public boolean useRootWrapping()
+    {
+        if (_rootName != null) { // empty String disables wrapping; non-empty enables
+            return (_rootName.length() > 0);
+        }
+        return isEnabled(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE);
+    }
     
     /**
      * Accessor for getting bean description that only contains class
@@ -582,7 +615,7 @@ public class DeserializationConfig
         return vchecker;
     }
 
-    public boolean isEnabled(DeserializationConfig.Feature f) {
+    public final boolean isEnabled(DeserializationConfig.Feature f) {
         return (_deserFeatures & f.getMask()) != 0;
     }
 

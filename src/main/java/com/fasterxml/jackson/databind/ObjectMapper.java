@@ -194,14 +194,12 @@ public class ObjectMapper
     protected final static VisibilityChecker<?> STD_VISIBILITY_CHECKER = VisibilityChecker.Std.defaultInstance();
 
     /**
-     * This is the default {@link DateFormat} used unless overridden by
-     * custom implementation.
+     * Base settings contain defaults used for all {@link ObjectMapper}
+     * instances.
      */
-    protected final static DateFormat DEFAULT_DATE_FORMAT = StdDateFormat.instance;
-
     protected final static BaseSettings DEFAULT_BASE = new BaseSettings(DEFAULT_INTROSPECTOR,
             DEFAULT_ANNOTATION_INTROSPECTOR, STD_VISIBILITY_CHECKER, null, TypeFactory.defaultInstance(),
-            null, DEFAULT_DATE_FORMAT, null);
+            null, StdDateFormat.instance, null);
     
     /*
     /**********************************************************
@@ -353,7 +351,7 @@ public class ObjectMapper
     }
 
     /**
-     * Construct mapper that uses specified {@link JsonFactory}
+     * Constructs instance that uses specified {@link JsonFactory}
      * for constructing necessary {@link JsonParser}s and/or
      * {@link JsonGenerator}s.
      */
@@ -362,25 +360,18 @@ public class ObjectMapper
         this(jf, null, null);
     }
 
-    public ObjectMapper(JsonFactory jf,
-            SerializerProvider sp, DeserializerProvider dp)
-    {
-    	this(jf, sp, dp, null, null);
-    }
-
     /**
+     * Constructs instance that uses specified {@link JsonFactory}
+     * for constructing necessary {@link JsonParser}s and/or
+     * {@link JsonGenerator}s, and uses given providers for accessing
+     * serializers and deserializers.
      * 
      * @param jf JsonFactory to use: if null, a new {@link MappingJsonFactory} will be constructed
      * @param sp SerializerProvider to use: if null, a {@link StdSerializerProvider} will be constructed
      * @param dp DeserializerProvider to use: if null, a {@link StdDeserializerProvider} will be constructed
-     * @param sconfig Serialization configuration to use; if null, basic {@link SerializationConfig}
-     * 	will be constructed
-     * @param dconfig Deserialization configuration to use; if null, basic {@link DeserializationConfig}
-     * 	will be constructed
      */
     public ObjectMapper(JsonFactory jf,
-            SerializerProvider sp, DeserializerProvider dp,
-            SerializationConfig sconfig, DeserializationConfig dconfig)
+            SerializerProvider sp, DeserializerProvider dp)
     {
         /* 02-Mar-2009, tatu: Important: we MUST default to using
          *   the mapping factory, otherwise tree serialization will
@@ -399,11 +390,9 @@ public class ObjectMapper
         _subtypeResolver = new StdSubtypeResolver();
         // and default type factory is shared one
         _typeFactory = TypeFactory.defaultInstance();
-        _serializationConfig = (sconfig != null) ? sconfig :
-            new SerializationConfig(DEFAULT_BASE,
+        _serializationConfig = new SerializationConfig(DEFAULT_BASE,
                     _subtypeResolver, _mixInAnnotations);
-        _deserializationConfig = (dconfig != null) ? dconfig :
-            new DeserializationConfig(DEFAULT_BASE,
+        _deserializationConfig = new DeserializationConfig(DEFAULT_BASE,
                     _subtypeResolver, _mixInAnnotations);
         _serializerProvider = (sp == null) ? new StdSerializerProvider.Impl() : sp;
         _deserializerProvider = (dp == null) ? new StdDeserializerProvider() : dp;
@@ -601,15 +590,6 @@ public class ObjectMapper
     public SerializationConfig getSerializationConfig() {
         return _serializationConfig;
     }
-    
-    /**
-     * Method for replacing the shared default serialization configuration
-     * object.
-     */
-    public ObjectMapper setSerializationConfig(SerializationConfig cfg) {
-        _serializationConfig = cfg;
-        return this;
-    }
 
     /**
      * Method that returns
@@ -621,15 +601,6 @@ public class ObjectMapper
      */
     public DeserializationConfig getDeserializationConfig() {
         return _deserializationConfig;
-    }
-
-    /**
-     * Method for replacing the shared default deserialization configuration
-     * object.
-     */
-    public ObjectMapper setDeserializationConfig(DeserializationConfig cfg) {
-        _deserializationConfig = cfg;
-        return this;
     }
     
     /*
@@ -2660,8 +2631,8 @@ public class ObjectMapper
             DeserializationContext ctxt = _createDeserializationContext(jp, cfg);
             JsonDeserializer<Object> deser = _findRootDeserializer(cfg, valueType);
             // ok, let's get the value
-            if (cfg.isEnabled(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE)) {
-                result = _unwrapAndDeserialize(jp, valueType, ctxt, deser);
+            if (cfg.useRootWrapping()) {
+                result = _unwrapAndDeserialize(jp, ctxt, cfg, valueType, deser);
             } else {
                 result = deser.deserialize(jp, ctxt);
             }
@@ -2686,8 +2657,8 @@ public class ObjectMapper
                 DeserializationConfig cfg = getDeserializationConfig();
                 DeserializationContext ctxt = _createDeserializationContext(jp, cfg);
                 JsonDeserializer<Object> deser = _findRootDeserializer(cfg, valueType);
-                if (cfg.isEnabled(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE)) {
-                    result = _unwrapAndDeserialize(jp, valueType, ctxt, deser);
+                if (cfg.useRootWrapping()) {
+                    result = _unwrapAndDeserialize(jp, ctxt, cfg, valueType, deser);
                 } else {
                     result = deser.deserialize(jp, ctxt);
                 }
@@ -2738,32 +2709,36 @@ public class ObjectMapper
         return t;
     }
 
-    protected Object _unwrapAndDeserialize(JsonParser jp, JavaType rootType,
-            DeserializationContext ctxt, JsonDeserializer<Object> deser)
+    protected Object _unwrapAndDeserialize(JsonParser jp, DeserializationContext ctxt, 
+            DeserializationConfig config,
+            JavaType rootType, JsonDeserializer<Object> deser)
         throws IOException, JsonParseException, JsonMappingException
     {
-        SerializedString rootName = _deserializerProvider.findExpectedRootName(ctxt.getConfig(), rootType);
+        String expName = config.getRootName();
+        if (expName == null) {
+            SerializedString sstr = _deserializerProvider.findExpectedRootName(config, rootType);
+            expName = sstr.getValue();
+        }
         if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
             throw JsonMappingException.from(jp, "Current token not START_OBJECT (needed to unwrap root name '"
-                    +rootName+"'), but "+jp.getCurrentToken());
+                    +expName+"'), but "+jp.getCurrentToken());
         }
         if (jp.nextToken() != JsonToken.FIELD_NAME) {
             throw JsonMappingException.from(jp, "Current token not FIELD_NAME (to contain expected root name '"
-                    +rootName+"'), but "+jp.getCurrentToken());
+                    +expName+"'), but "+jp.getCurrentToken());
         }
         String actualName = jp.getCurrentName();
-        if (!rootName.getValue().equals(actualName)) {
-            throw JsonMappingException.from(jp, "Root name '"+actualName+"' does not match expected ('"+rootName
-                    +"') for type "+rootType);
+        if (!expName.equals(actualName)) {
+            throw JsonMappingException.from(jp, "Root name '"+actualName+"' does not match expected ('"
+                    +expName+"') for type "+rootType);
         }
         // ok, then move to value itself....
         jp.nextToken();
-        
         Object result = deser.deserialize(jp, ctxt);
         // and last, verify that we now get matching END_OBJECT
         if (jp.nextToken() != JsonToken.END_OBJECT) {
             throw JsonMappingException.from(jp, "Current token not END_OBJECT (to match wrapper object with root name '"
-                    +rootName+"'), but "+jp.getCurrentToken());
+                    +expName+"'), but "+jp.getCurrentToken());
         }
         return result;
     }

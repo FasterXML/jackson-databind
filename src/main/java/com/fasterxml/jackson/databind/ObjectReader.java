@@ -126,7 +126,7 @@ public class ObjectReader
         }
         _schema = schema;
         _injectableValues = injectableValues;
-        _unwrapRoot = config.isEnabled(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE);
+        _unwrapRoot = config.useRootWrapping();
     }
     
     /**
@@ -149,7 +149,7 @@ public class ObjectReader
         }
         _schema = schema;
         _injectableValues = injectableValues;
-        _unwrapRoot = config.isEnabled(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE);
+        _unwrapRoot = config.useRootWrapping();
     }
 
     /**
@@ -167,7 +167,7 @@ public class ObjectReader
         _valueToUpdate = base._valueToUpdate;
         _schema = base._schema;
         _injectableValues = base._injectableValues;
-        _unwrapRoot = config.isEnabled(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE);
+        _unwrapRoot = config.useRootWrapping();
     }
     
     /**
@@ -226,6 +226,68 @@ public class ObjectReader
         DeserializationConfig newConfig = _config.without(first, other);
         return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
     }    
+
+    /**
+     * Method for constructing a new instance with configuration that uses
+     * passed {@link InjectableValues} to provide injectable values.
+     *<p>
+     * Note that the method does NOT change state of this reader, but
+     * rather construct and returns a newly configured instance.
+     */
+    public ObjectReader withInjectableValues(InjectableValues injectableValues)
+    {
+        if (_injectableValues == injectableValues) {
+            return this;
+        }
+        return new ObjectReader(this, _config, _valueType, _valueToUpdate,
+                _schema, injectableValues);
+    }
+
+    /**
+     * Method for constructing a new reader instance with configuration that uses
+     * passed {@link JsonNodeFactory} for constructing {@link JsonNode}
+     * instances.
+     *<p>
+     * Note that the method does NOT change state of this reader, but
+     * rather construct and returns a newly configured instance.
+     */
+    public ObjectReader withNodeFactory(JsonNodeFactory f)
+    {
+        DeserializationConfig newConfig = _config.withNodeFactory(f);
+        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    }
+
+    /**
+     * Method for constructing a new instance with configuration that
+     * specifies what root name to expect for "root name unwrapping".
+     * See {@link DeserializationConfig#withRootName(String)} for
+     * details.
+     *<p>
+     * Note that the method does NOT change state of this reader, but
+     * rather construct and returns a newly configured instance.
+     */
+    public ObjectReader withRootName(String rootName)
+    {
+        DeserializationConfig newConfig = _config.withRootName(rootName);
+        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    }
+    
+    /**
+     * Method for constructing a new instance with configuration that
+     * passes specified {@link FormatSchema} to {@link JsonParser} that
+     * is constructed for parsing content.
+     *<p>
+     * Note that the method does NOT change state of this reader, but
+     * rather construct and returns a newly configured instance.
+     */
+    public ObjectReader withSchema(FormatSchema schema)
+    {
+        if (_schema == schema) {
+            return this;
+        }
+        return new ObjectReader(this, _config, _valueType, _valueToUpdate,
+                schema, _injectableValues);
+    }
     
     /**
      * Method for constructing a new reader instance that is configured
@@ -276,22 +338,6 @@ public class ObjectReader
     {
         return withType(_config.getTypeFactory().constructType(valueTypeRef.getType()));
     }    
-    
-    /**
-     * Method for constructing a new reader instance with configuration that uses
-     * passed {@link JsonNodeFactory} for constructing {@link JsonNode}
-     * instances.
-     *<p>
-     * Note that the method does NOT change state of this reader, but
-     * rather construct and returns a newly configured instance.
-     */
-    public ObjectReader withNodeFactory(JsonNodeFactory f)
-    {
-        // node factory is stored within config, so need to copy that first
-        if (f == _config.getNodeFactory()) return this;
-        return new ObjectReader(this, _config.withNodeFactory(f), _valueType, _valueToUpdate,
-                _schema, _injectableValues);
-    }
 
     /**
      * Method for constructing a new instance with configuration that
@@ -311,39 +357,6 @@ public class ObjectReader
         return new ObjectReader(this, _config, t, value,
                 _schema, _injectableValues);
     }    
-
-    /**
-     * Method for constructing a new instance with configuration that
-     * passes specified {@link FormatSchema} to {@link JsonParser} that
-     * is constructed for parsing content.
-     *<p>
-     * Note that the method does NOT change state of this reader, but
-     * rather construct and returns a newly configured instance.
-     */
-    public ObjectReader withSchema(FormatSchema schema)
-    {
-        if (_schema == schema) {
-            return this;
-        }
-        return new ObjectReader(this, _config, _valueType, _valueToUpdate,
-                schema, _injectableValues);
-    }
-
-    /**
-     * Method for constructing a new instance with configuration that uses
-     * passed {@link InjectableValues} to provide injectable values.
-     *<p>
-     * Note that the method does NOT change state of this reader, but
-     * rather construct and returns a newly configured instance.
-     */
-    public ObjectReader withInjectableValues(InjectableValues injectableValues)
-    {
-        if (_injectableValues == injectableValues) {
-            return this;
-        }
-        return new ObjectReader(this, _config, _valueType, _valueToUpdate,
-                _schema, injectableValues);
-    }
     
     /*
     /**********************************************************
@@ -916,19 +929,23 @@ public class ObjectReader
             JavaType rootType, JsonDeserializer<Object> deser)
         throws IOException, JsonParseException, JsonMappingException
     {
-        SerializedString rootName = _provider.findExpectedRootName(ctxt.getConfig(), rootType);
+        String expName = _config.getRootName();
+        if (expName == null) {
+            SerializedString sstr = _provider.findExpectedRootName(_config, rootType);
+            expName = sstr.getValue();
+        }
         if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
             throw JsonMappingException.from(jp, "Current token not START_OBJECT (needed to unwrap root name '"
-                    +rootName+"'), but "+jp.getCurrentToken());
+                    +expName+"'), but "+jp.getCurrentToken());
         }
         if (jp.nextToken() != JsonToken.FIELD_NAME) {
             throw JsonMappingException.from(jp, "Current token not FIELD_NAME (to contain expected root name '"
-                    +rootName+"'), but "+jp.getCurrentToken());
+                    +expName+"'), but "+jp.getCurrentToken());
         }
         String actualName = jp.getCurrentName();
-        if (!rootName.getValue().equals(actualName)) {
-            throw JsonMappingException.from(jp, "Root name '"+actualName+"' does not match expected ('"+rootName
-                    +"') for type "+rootType);
+        if (!expName.equals(actualName)) {
+            throw JsonMappingException.from(jp, "Root name '"+actualName+"' does not match expected ('"
+                    +expName+"') for type "+rootType);
         }
         // ok, then move to value itself....
         jp.nextToken();
@@ -942,7 +959,7 @@ public class ObjectReader
         // and last, verify that we now get matching END_OBJECT
         if (jp.nextToken() != JsonToken.END_OBJECT) {
             throw JsonMappingException.from(jp, "Current token not END_OBJECT (to match wrapper object with root name '"
-                    +rootName+"'), but "+jp.getCurrentToken());
+                    +expName+"'), but "+jp.getCurrentToken());
         }
         return result;
     }

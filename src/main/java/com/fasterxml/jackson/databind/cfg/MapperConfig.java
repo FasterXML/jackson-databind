@@ -313,7 +313,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         }
         return flags;
     }
-    
     /*
     /**********************************************************
     /* Life-cycle: factory methods
@@ -331,116 +330,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * mapper features disabled.
      */
     public abstract T without(MapperConfig.Feature... features);
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link ClassIntrospector}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T withClassIntrospector(ClassIntrospector<? extends BeanDescription> ci);
-
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link AnnotationIntrospector} to use (replacing old one).
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T withAnnotationIntrospector(AnnotationIntrospector ai);
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link VisibilityChecker}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T withVisibilityChecker(VisibilityChecker<?> vc);
-
-    /**
-     * Method for constructing and returning a new instance with different
-     * minimal visibility level for specified property type
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility);
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link TypeResolverBuilder}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T withTypeResolverBuilder(TypeResolverBuilder<?> trb);
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link SubtypeResolver}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T withSubtypeResolver(SubtypeResolver str);
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link PropertyNamingStrategy}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T withPropertyNamingStrategy(PropertyNamingStrategy strategy);
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link TypeFactory}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T withTypeFactory(TypeFactory typeFactory);
-    
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link DateFormat}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T withDateFormat(DateFormat df);
-
-    /**
-     * Method for constructing and returning a new instance with different
-     * {@link HandlerInstantiator}
-     * to use.
-     *<p>
-     * NOTE: make sure to register new instance with <code>ObjectMapper</code>
-     * if directly calling this method.
-     */
-    public abstract T withHandlerInstantiator(HandlerInstantiator hi);
-
-    /**
-     * Method for constructing and returning a new instance with additional
-     * {@link AnnotationIntrospector} inserted (as the highest priority one)
-     */
-    public abstract T withInsertedAnnotationIntrospector(AnnotationIntrospector introspector);
-
-    /**
-     * Method for constructing and returning a new instance with additional
-     * {@link AnnotationIntrospector} appended (as the lowest priority one)
-     */
-    public abstract T withAppendedAnnotationIntrospector(AnnotationIntrospector introspector);
     
     /*
     /**********************************************************
@@ -488,6 +377,13 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public final boolean shouldSortPropertiesAlphabetically() {
         return isEnabled(MapperConfig.Feature.SORT_PROPERTIES_ALPHABETICALLY);
     }
+
+    /**
+     * Accessor for checking whether configuration indicates that
+     * "root wrapping" (use of an extra property/name pair at root level)
+     * is expected or not.
+     */
+    public abstract boolean useRootWrapping();
     
     /*
     /**********************************************************

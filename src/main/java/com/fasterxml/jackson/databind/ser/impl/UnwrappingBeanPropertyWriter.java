@@ -17,7 +17,11 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public class UnwrappingBeanPropertyWriter
     extends BeanPropertyWriter
 {
-    protected final NameTransformer _unwrapper;
+    /**
+     * Transformer used to add prefix and/or suffix for properties
+     * of unwrapped POJO.
+     */
+    protected final NameTransformer _nameTransformer;
     
     /*
     /**********************************************************
@@ -27,20 +31,25 @@ public class UnwrappingBeanPropertyWriter
     
     public UnwrappingBeanPropertyWriter(BeanPropertyWriter base, NameTransformer unwrapper) {
         super(base);
-        _unwrapper = unwrapper;
+        _nameTransformer = unwrapper;
     }
 
-    private UnwrappingBeanPropertyWriter(UnwrappingBeanPropertyWriter base, SerializedString name) {
+    private UnwrappingBeanPropertyWriter(UnwrappingBeanPropertyWriter base, NameTransformer transformer,
+            SerializedString name) {
         super(base, name);
-        _unwrapper = base._unwrapper;
+        _nameTransformer = transformer;
     }
 
     @Override
-    public UnwrappingBeanPropertyWriter withName(String newName) {
-        if (newName.equals(_name.toString())) {
-            return this;
-        }
-        return new UnwrappingBeanPropertyWriter(this, new SerializedString(newName));
+    public UnwrappingBeanPropertyWriter rename(NameTransformer transformer)
+    {
+        String oldName = _name.getValue();
+        String newName = transformer.transform(oldName);
+
+        // important: combine transformers:
+        transformer = NameTransformer.chainedTransformer(transformer, _nameTransformer);
+    
+        return new UnwrappingBeanPropertyWriter(this, transformer, new SerializedString(newName));
     }
 
     /*
@@ -100,7 +109,11 @@ public class UnwrappingBeanPropertyWriter
     {
         super.assignSerializer(ser);
         if (_serializer != null) {
-            _serializer = _serializer.unwrappingSerializer(_unwrapper);
+            NameTransformer t = _nameTransformer;
+            if (_serializer.isUnwrappingSerializer()) {
+                t = NameTransformer.chainedTransformer(t, ((UnwrappingBeanSerializer) _serializer)._nameTransformer);
+            }
+            _serializer = _serializer.unwrappingSerializer(t);
         }
     }
     
@@ -116,7 +129,12 @@ public class UnwrappingBeanPropertyWriter
         } else {
             serializer = provider.findValueSerializer(type, this);
         }
-        serializer = serializer.unwrappingSerializer(_unwrapper);
+        NameTransformer t = _nameTransformer;
+        if (serializer.isUnwrappingSerializer()) {
+            t = NameTransformer.chainedTransformer(t, ((UnwrappingBeanSerializer) serializer)._nameTransformer);
+        }
+        serializer = serializer.unwrappingSerializer(t);
+        
         _dynamicSerializers = _dynamicSerializers.newWith(type, serializer);
         return serializer;
     }

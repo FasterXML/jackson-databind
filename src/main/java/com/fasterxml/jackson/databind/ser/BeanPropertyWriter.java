@@ -222,8 +222,9 @@ public class BeanPropertyWriter
         _typeSerializer = base._typeSerializer;
         _nonTrivialBaseType = base._nonTrivialBaseType;
     }
-    
-    public BeanPropertyWriter withName(String newName) {
+
+    public BeanPropertyWriter rename(NameTransformer transformer) {
+        String newName = transformer.transform(_name.getValue());
         if (newName.equals(_name.toString())) {
             return this;
         }

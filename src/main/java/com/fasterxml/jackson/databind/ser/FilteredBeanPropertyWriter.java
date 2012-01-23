@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
  * Decorated {@link BeanPropertyWriter} that will filter out properties
@@ -39,8 +40,8 @@ public abstract class FilteredBeanPropertyWriter
         }
 
         @Override
-        public SingleView withName(String newName) {
-            return new SingleView(_delegate.withName(newName), _view);
+        public SingleView rename(NameTransformer transformer) {
+            return new SingleView(_delegate.rename(transformer), _view);
         }
         
         @Override
@@ -78,8 +79,8 @@ public abstract class FilteredBeanPropertyWriter
         }
 
         @Override
-        public MultiView withName(String newName) {
-            return new MultiView(_delegate.withName(newName), _views);
+        public MultiView rename(NameTransformer transformer) {
+            return new MultiView(_delegate.rename(transformer), _views);
         }
         
         @Override

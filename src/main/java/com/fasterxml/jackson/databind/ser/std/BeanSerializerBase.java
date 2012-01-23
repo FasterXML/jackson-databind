@@ -120,7 +120,7 @@ public abstract class BeanSerializerBase
         for (int i = 0; i < len; ++i) {
             BeanPropertyWriter bpw = props[i];
             if (bpw != null) {
-                result[i] = bpw.withName(transformer.transform(bpw.getName()));
+                result[i] = bpw.rename(transformer);
             }
         }
         return result;

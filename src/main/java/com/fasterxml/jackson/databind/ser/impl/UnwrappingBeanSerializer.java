@@ -11,6 +11,12 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public class UnwrappingBeanSerializer
     extends BeanSerializerBase
 {
+    /**
+     * Transformer used to add prefix and/or suffix for properties
+     * of unwrapped POJO.
+     */
+    protected final NameTransformer _nameTransformer;
+    
     /*
     /**********************************************************
     /* Life-cycle: constructors
@@ -21,8 +27,9 @@ public class UnwrappingBeanSerializer
      * Constructor used for creating unwrapping instance of a
      * standard <code>BeanSerializer</code>
      */
-    public UnwrappingBeanSerializer(BeanSerializerBase src, NameTransformer unwrapper) {
-        super(src, unwrapper);
+    public UnwrappingBeanSerializer(BeanSerializerBase src, NameTransformer transformer) {
+        super(src, transformer);
+        _nameTransformer = transformer;
     }
 
     /*
@@ -32,11 +39,9 @@ public class UnwrappingBeanSerializer
      */
 
     @Override
-    public JsonSerializer<Object> unwrappingSerializer(NameTransformer unwrapper) {
-        /* !!! 13-Jan-2011, tatu: do we need to do something here?
-         *    Would this affect multi-level unwrapping?
-         */
-        return this;
+    public JsonSerializer<Object> unwrappingSerializer(NameTransformer transformer) {
+        // !!! 23-Jan-2012, tatu: Should we chain transformers?
+        return new UnwrappingBeanSerializer(this, transformer);
     }
 
     @Override

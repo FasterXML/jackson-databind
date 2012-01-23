@@ -19,6 +19,12 @@ public class UnwrappingBeanPropertyWriter
 {
     protected final NameTransformer _unwrapper;
     
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+    
     public UnwrappingBeanPropertyWriter(BeanPropertyWriter base, NameTransformer unwrapper) {
         super(base);
         _unwrapper = unwrapper;
@@ -36,6 +42,12 @@ public class UnwrappingBeanPropertyWriter
         }
         return new UnwrappingBeanPropertyWriter(this, new SerializedString(newName));
     }
+
+    /*
+    /**********************************************************
+    /* Overrides
+    /**********************************************************
+     */
     
     @Override
     public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov)
@@ -84,6 +96,16 @@ public class UnwrappingBeanPropertyWriter
 
     // need to override as we must get unwrapping instance...
     @Override
+    public void assignSerializer(JsonSerializer<Object> ser)
+    {
+        super.assignSerializer(ser);
+        if (_serializer != null) {
+            _serializer = _serializer.unwrappingSerializer(_unwrapper);
+        }
+    }
+    
+    // need to override as we must get unwrapping instance...
+    @Override
     protected JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider) throws JsonMappingException
     {
@@ -94,9 +116,7 @@ public class UnwrappingBeanPropertyWriter
         } else {
             serializer = provider.findValueSerializer(type, this);
         }
-        if (!serializer.isUnwrappingSerializer()) {
-            serializer = serializer.unwrappingSerializer(_unwrapper);
-        }
+        serializer = serializer.unwrappingSerializer(_unwrapper);
         _dynamicSerializers = _dynamicSerializers.newWith(type, serializer);
         return serializer;
     }

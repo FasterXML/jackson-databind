@@ -151,8 +151,6 @@ public class BasicClassIntrospector
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         AnnotatedClass ac = AnnotatedClass.construct(type.getRawClass(), (useAnnotations ? ai : null), r);
         ac.resolveMemberMethods(MINIMAL_FILTER);
-        // true -> include all creators, not just default constructor
-        ac.resolveCreators(true);
         return ac;
     }
     

@@ -65,6 +65,12 @@ public final class AnnotatedClass
     protected AnnotationMap _classAnnotations;
 
     /**
+     * Flag to indicate whether creator information has been resolved
+     * or not.
+     */
+    protected boolean _creatorsResolved = false;
+    
+    /**
      * Default constructor of the annotated class, if it has one.
      */
     protected AnnotatedConstructor _defaultConstructor;
@@ -130,9 +136,7 @@ public final class AnnotatedClass
             AnnotationIntrospector aintr, MixInResolver mir)
     {
         List<Class<?>> st = ClassUtil.findSuperTypes(cls, null);
-        AnnotatedClass ac = new AnnotatedClass(cls, st, aintr, mir, null);
-        ac.resolveClassAnnotations();
-        return ac;
+        return new AnnotatedClass(cls, st, aintr, mir, null);
     }
 
     /**
@@ -144,9 +148,7 @@ public final class AnnotatedClass
             AnnotationIntrospector aintr, MixInResolver mir)
     {
         List<Class<?>> empty = Collections.emptyList();
-        AnnotatedClass ac = new AnnotatedClass(cls, empty, aintr, mir, null);
-        ac.resolveClassAnnotations();
-        return ac;
+        return new AnnotatedClass(cls, empty, aintr, mir, null);
     }
     
     /*
@@ -168,7 +170,7 @@ public final class AnnotatedClass
     public <A extends Annotation> A getAnnotation(Class<A> acls)
     {
         if (_classAnnotations == null) {
-            return null;
+            resolveClassAnnotations();
         }
         return _classAnnotations.get(acls);
     }
@@ -185,6 +187,9 @@ public final class AnnotatedClass
 
     @Override
     protected AnnotationMap getAllAnnotations() {
+        if (_classAnnotations == null) {
+            resolveClassAnnotations();
+        }
         return _classAnnotations;
     }
     
@@ -194,24 +199,40 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
-    public Annotations getAnnotations() { return _classAnnotations; }
+    public Annotations getAnnotations() {
+        if (_classAnnotations == null) {
+            resolveClassAnnotations();
+        }
+        return _classAnnotations;
+    }
     
-    public boolean hasAnnotations() { return _classAnnotations.size() > 0; }
+    public boolean hasAnnotations() {
+        if (_classAnnotations == null) {
+            resolveClassAnnotations();
+        }
+        return _classAnnotations.size() > 0;
+    }
 
-    public AnnotatedConstructor getDefaultConstructor() { return _defaultConstructor; }
+    public AnnotatedConstructor getDefaultConstructor()
+    {
+        if (!_creatorsResolved) {
+            resolveCreators();
+        }
+        return _defaultConstructor;
+    }
 
     public List<AnnotatedConstructor> getConstructors()
     {
-        if (_constructors == null) {
-            return Collections.emptyList();
+        if (!_creatorsResolved) {
+            resolveCreators();
         }
         return _constructors;
     }
 
     public List<AnnotatedMethod> getStaticMethods()
     {
-        if (_creatorMethods == null) {
-            return Collections.emptyList();
+        if (!_creatorsResolved) {
+            resolveCreators();
         }
         return _creatorMethods;
     }
@@ -254,66 +275,62 @@ public final class AnnotatedClass
      * annotations for this class and all super classes and
      * interfaces.
      */
-    public void resolveClassAnnotations()
+    private void resolveClassAnnotations()
     {
         _classAnnotations = new AnnotationMap();
         // [JACKSON-659] Should skip processing if annotation processing disabled
-        if (_annotationIntrospector == null) {
-            return;
+        if (_annotationIntrospector != null) {
+            // add mix-in annotations first (overrides)
+            if (_primaryMixIn != null) {
+                _addClassMixIns(_classAnnotations, _class, _primaryMixIn);
+            }
+            // first, annotations from the class itself:
+            _addAnnotationsIfNotPresent(_classAnnotations, _class.getDeclaredAnnotations());
+    
+            // and then from super types
+            for (Class<?> cls : _superTypes) {
+                // and mix mix-in annotations in-between
+                _addClassMixIns(_classAnnotations, cls);
+                _addAnnotationsIfNotPresent(_classAnnotations, cls.getDeclaredAnnotations());
+            }
+            /* and finally... any annotations there might be for plain
+             * old Object.class: separate because for all other purposes
+             * it is just ignored (not included in super types)
+             */
+            /* 12-Jul-2009, tatu: Should this be done for interfaces too?
+             *   For now, yes, seems useful for some cases, and not harmful for any?
+             */
+            _addClassMixIns(_classAnnotations, Object.class);
         }
-        
-        // add mix-in annotations first (overrides)
-        if (_primaryMixIn != null) {
-            _addClassMixIns(_classAnnotations, _class, _primaryMixIn);
-        }
-        // first, annotations from the class itself:
-        _addAnnotationsIfNotPresent(_classAnnotations, _class.getDeclaredAnnotations());
-
-        // and then from super types
-        for (Class<?> cls : _superTypes) {
-            // and mix mix-in annotations in-between
-            _addClassMixIns(_classAnnotations, cls);
-            _addAnnotationsIfNotPresent(_classAnnotations, cls.getDeclaredAnnotations());
-        }
-
-        /* and finally... any annotations there might be for plain
-         * old Object.class: separate because for all other purposes
-         * it is just ignored (not included in super types)
-         */
-        /* 12-Jul-2009, tatu: Should this be done for interfaces too?
-         *   For now, yes, seems useful for some cases, and not harmful
-         *   for any?
-         */
-        _addClassMixIns(_classAnnotations, Object.class);
     }
     
     /**
      * Initialization method that will find out all constructors
      * and potential static factory methods the class has.
-     *
-     * @param includeAll If true, includes all creator methods; if false,
-     *   will only include the no-arguments "default" constructor
      */
-    public void resolveCreators(boolean includeAll)
+    private void resolveCreators()
     {
         // Then see which constructors we have
-        _constructors = null;
+        List<AnnotatedConstructor> constructors = null;
         Constructor<?>[] declaredCtors = _class.getDeclaredConstructors();
         for (Constructor<?> ctor : declaredCtors) {
             if (ctor.getParameterTypes().length == 0) {
                 _defaultConstructor = _constructConstructor(ctor, true);
             } else {
-                if (includeAll) {
-                    if (_constructors == null) {
-                        _constructors = new ArrayList<AnnotatedConstructor>(Math.max(10, declaredCtors.length));
-                    }
-                    _constructors.add(_constructConstructor(ctor, false));
+                if (constructors == null) {
+                    constructors = new ArrayList<AnnotatedConstructor>(Math.max(10, declaredCtors.length));
                 }
+                constructors.add(_constructConstructor(ctor, false));
             }
+        }
+        if (constructors == null) {
+            _constructors = Collections.emptyList();
+        } else {
+            _constructors = constructors;
         }
         // and if need be, augment with mix-ins
         if (_primaryMixIn != null) {
-            if (_defaultConstructor != null || _constructors != null) {
+            if (_defaultConstructor != null || !_constructors.isEmpty()) {
                 _addConstructorMixIns(_primaryMixIn);
             }
         }
@@ -338,41 +355,42 @@ public final class AnnotatedClass
                 }
             }
         }
-
-        _creatorMethods = null;
+        List<AnnotatedMethod> creatorMethods = null;
         
-        if (includeAll) {
-            // Then static methods which are potential factory methods
-            for (Method m : _class.getDeclaredMethods()) {
-                if (!Modifier.isStatic(m.getModifiers())) {
-                    continue;
-                }
-                int argCount = m.getParameterTypes().length;
-                // factory methods take at least one arg:
-                if (argCount < 1) {
-                    continue;
-                }
-                if (_creatorMethods == null) {
-                    _creatorMethods = new ArrayList<AnnotatedMethod>(8);
-                }
-                _creatorMethods.add(_constructCreatorMethod(m));
+        // Then static methods which are potential factory methods
+        for (Method m : _class.getDeclaredMethods()) {
+            if (!Modifier.isStatic(m.getModifiers())) {
+                continue;
             }
+            int argCount = m.getParameterTypes().length;
+            // factory methods take at least one arg:
+            if (argCount < 1) {
+                continue;
+            }
+            if (creatorMethods == null) {
+                creatorMethods = new ArrayList<AnnotatedMethod>(8);
+            }
+            creatorMethods.add(_constructCreatorMethod(m));
+        }
+        if (creatorMethods == null) {
+            _creatorMethods = Collections.emptyList();
+        } else {
+            _creatorMethods = creatorMethods;
             // mix-ins to mix in?
-            if (_primaryMixIn != null && _creatorMethods != null) {
+            if (_primaryMixIn != null) {
                 _addFactoryMixIns(_primaryMixIn);
             }
             // anything to ignore at this point?
             if (_annotationIntrospector != null) {
-                if (_creatorMethods != null) {
-                    // count down to allow safe removal
-                    for (int i = _creatorMethods.size(); --i >= 0; ) {
-                        if (_annotationIntrospector.hasIgnoreMarker(_creatorMethods.get(i))) {
-                            _creatorMethods.remove(i);
-                        }
+                // count down to allow safe removal
+                for (int i = _creatorMethods.size(); --i >= 0; ) {
+                    if (_annotationIntrospector.hasIgnoreMarker(_creatorMethods.get(i))) {
+                        _creatorMethods.remove(i);
                     }
                 }
             }
         }
+        _creatorsResolved = true;
     }
     
     /**

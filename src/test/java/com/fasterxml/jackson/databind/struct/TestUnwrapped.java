@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.*;
 /**
  * Unit tests for verifying [JACKSON-132] implementation.
  */
-public class TestUnwrapping extends BaseMapTest
+public class TestUnwrapped extends BaseMapTest
 {
     static class Unwrapping {
         public String name;
@@ -21,6 +21,17 @@ public class TestUnwrapping extends BaseMapTest
         }
     }
 
+    static class DeepUnwrapping
+    {
+        @JsonUnwrapped
+        public Unwrapping unwrapped;
+
+        public DeepUnwrapping() { }
+        public DeepUnwrapping(String str, int x, int y) {
+            unwrapped = new Unwrapping(str, x, y);
+        }
+    }
+    
     static class UnwrappingWithCreator {
         public String name;
 
@@ -58,42 +69,6 @@ public class TestUnwrapping extends BaseMapTest
         public String first, last;
     }
 
-    static class DeepUnwrapping
-    {
-        @JsonUnwrapped
-        public Unwrapping unwrapped;
-
-        public DeepUnwrapping() { }
-        public DeepUnwrapping(String str, int x, int y) {
-            unwrapped = new Unwrapping(str, x, y);
-        }
-    }
-
-    // Class with unwrapping using prefixes
-    static class PrefixUnwrap
-    {
-        public String name;
-        @JsonUnwrapped(prefix="_")
-        public Location location;
-
-        public PrefixUnwrap() { }
-        public PrefixUnwrap(String str, int x, int y) {
-            name = str;
-            location = new Location(x, y);
-        }
-    }
-
-    static class DeepPrefixUnwrap
-    {
-        @JsonUnwrapped(prefix="u.")
-        public PrefixUnwrap unwrapped;
-
-        public DeepPrefixUnwrap() { }
-        public DeepPrefixUnwrap(String str, int x, int y) {
-            unwrapped = new PrefixUnwrap(str, x, y);
-        }
-    }
-    
     /*
     /**********************************************************
     /* Tests, serialization
@@ -107,27 +82,12 @@ public class TestUnwrapping extends BaseMapTest
         assertEquals("{\"name\":\"Tatu\",\"x\":1,\"y\":2}",
                 mapper.writeValueAsString(new Unwrapping("Tatu", 1, 2)));
     }
-
-    public void testPrefixedUnwrappingSerialize() throws Exception
-    {
-        assertEquals("{\"name\":\"Tatu\",\"_x\":1,\"_y\":2}",
-                mapper.writeValueAsString(new PrefixUnwrap("Tatu", 1, 2)));
-    }
-    
     public void testDeepUnwrappingSerialize() throws Exception
     {
         assertEquals("{\"name\":\"Tatu\",\"x\":1,\"y\":2}",
                 mapper.writeValueAsString(new DeepUnwrapping("Tatu", 1, 2)));
     }
 
-    // 13-Jan-2012, tatu: sorta kinda works; but not 100% sure it's like it
-    //    really SHOULD work?
-    public void testDeepPrefixedUnwrappingSerialize() throws Exception
-    {
-        assertEquals("{\"u.name\":\"Bubba\",\"_x\":1,\"_y\":1}",
-                mapper.writeValueAsString(new DeepPrefixUnwrap("Bubba", 1, 1)));
-    }
-    
     /*
     /**********************************************************
     /* Tests, deserialization
@@ -181,15 +141,5 @@ public class TestUnwrapping extends BaseMapTest
         assertNotNull(loc);
         assertEquals(1, loc.x);
         assertEquals(2, loc.y);
-    }
-
-    public void testPrefixedUnwrapping() throws Exception
-    {
-        PrefixUnwrap bean = mapper.readValue("{\"name\":\"Axel\",\"_x\":4,\"_y\":7}", PrefixUnwrap.class);
-        assertNotNull(bean);
-        assertEquals("Axel", bean.name);
-        assertNotNull(bean.location);
-        assertEquals(4, bean.location.x);
-        assertEquals(7, bean.location.y);
     }
 }

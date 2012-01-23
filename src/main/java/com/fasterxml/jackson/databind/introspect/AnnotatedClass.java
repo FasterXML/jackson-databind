@@ -135,8 +135,8 @@ public final class AnnotatedClass
     public static AnnotatedClass construct(Class<?> cls,
             AnnotationIntrospector aintr, MixInResolver mir)
     {
-        List<Class<?>> st = ClassUtil.findSuperTypes(cls, null);
-        return new AnnotatedClass(cls, st, aintr, mir, null);
+        return new AnnotatedClass(cls,
+                ClassUtil.findSuperTypes(cls, null), aintr, mir, null);
     }
 
     /**
@@ -147,8 +147,8 @@ public final class AnnotatedClass
     public static AnnotatedClass constructWithoutSuperTypes(Class<?> cls,
             AnnotationIntrospector aintr, MixInResolver mir)
     {
-        List<Class<?>> empty = Collections.emptyList();
-        return new AnnotatedClass(cls, empty, aintr, mir, null);
+        return new AnnotatedClass(cls,
+                Collections.<Class<?>>emptyList(), aintr, mir, null);
     }
     
     /*
@@ -239,16 +239,25 @@ public final class AnnotatedClass
 
     public Iterable<AnnotatedMethod> memberMethods()
     {
+        if (_memberMethods == null) {
+            resolveMemberMethods();
+        }
         return _memberMethods;
     }
 
     public int getMemberMethodCount()
     {
+        if (_memberMethods == null) {
+            resolveMemberMethods();
+        }
         return _memberMethods.size();
     }
 
     public AnnotatedMethod findMethod(String name, Class<?>[] paramTypes)
     {
+        if (_memberMethods == null) {
+            resolveMemberMethods();
+        }
         return _memberMethods.find(name, paramTypes);
     }
 
@@ -402,23 +411,23 @@ public final class AnnotatedClass
      * 
      * @param methodFilter Filter used to determine which methods to include
      */
-    public void resolveMemberMethods(MethodFilter methodFilter)
+    private void resolveMemberMethods()
     {
         _memberMethods = new AnnotatedMethodMap();
         AnnotatedMethodMap mixins = new AnnotatedMethodMap();
         // first: methods from the class itself
-        _addMemberMethods(_class, methodFilter, _memberMethods, _primaryMixIn, mixins);
+        _addMemberMethods(_class, _memberMethods, _primaryMixIn, mixins);
 
         // and then augment these with annotations from super-types:
         for (Class<?> cls : _superTypes) {
             Class<?> mixin = (_mixInResolver == null) ? null : _mixInResolver.findMixInClassFor(cls);
-            _addMemberMethods(cls, methodFilter, _memberMethods, mixin, mixins);
+            _addMemberMethods(cls, _memberMethods, mixin, mixins);
         }
         // Special case: mix-ins for Object.class? (to apply to ALL classes)
         if (_mixInResolver != null) {
             Class<?> mixin = _mixInResolver.findMixInClassFor(Object.class);
             if (mixin != null) {
-                _addMethodMixIns(methodFilter, _memberMethods, mixin, mixins);
+                _addMethodMixIns(_memberMethods, mixin, mixins);
             }
         }
 
@@ -572,13 +581,12 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
-    protected void _addMemberMethods(Class<?> cls,
-            MethodFilter methodFilter, AnnotatedMethodMap methods,
+    protected void _addMemberMethods(Class<?> cls, AnnotatedMethodMap methods,
             Class<?> mixInCls, AnnotatedMethodMap mixIns)
     {
         // first, mixIns, since they have higher priority then class methods
         if (mixInCls != null) {
-            _addMethodMixIns(methodFilter, methods, mixInCls, mixIns);
+            _addMethodMixIns(methods, mixInCls, mixIns);
         }        
         if (cls == null) { // just so caller need not check when passing super-class
             return;
@@ -586,7 +594,7 @@ public final class AnnotatedClass
 
         // then methods from the class itself
         for (Method m : cls.getDeclaredMethods()) {
-            if (!_isIncludableMethod(m, methodFilter)) {
+            if (!_isIncludableMemberMethod(m)) {
                 continue;
             }
             AnnotatedMethod old = methods.find(m);
@@ -618,11 +626,11 @@ public final class AnnotatedClass
         }
     }
 
-    protected void _addMethodMixIns(MethodFilter methodFilter, AnnotatedMethodMap methods,
+    protected void _addMethodMixIns(AnnotatedMethodMap methods,
             Class<?> mixInCls, AnnotatedMethodMap mixIns)
     {
         for (Method m : mixInCls.getDeclaredMethods()) {
-            if (!_isIncludableMethod(m, methodFilter)) {
+            if (!_isIncludableMemberMethod(m)) {
                 continue;
             }
             AnnotatedMethod am = methods.find(m);
@@ -816,9 +824,9 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
-    protected boolean _isIncludableMethod(Method m, MethodFilter filter)
+    protected boolean _isIncludableMemberMethod(Method m)
     {
-        if (filter != null && !filter.includeMethod(m)) {
+        if (Modifier.isStatic(m.getModifiers())) {
             return false;
         }
         /* 07-Apr-2009, tatu: Looks like generics can introduce hidden
@@ -828,7 +836,9 @@ public final class AnnotatedClass
         if (m.isSynthetic() || m.isBridge()) {
             return false;
         }
-        return true;
+        // also, for now we have no use for methods with 2 or more arguments:
+        int pcount = m.getParameterTypes().length;
+        return (pcount <= 2);
     }
 
     private boolean _isIncludableField(Field f)
@@ -988,7 +998,7 @@ public final class AnnotatedClass
    {
        return (_annotationIntrospector != null) && _annotationIntrospector.isAnnotationBundle(ann);
    }
-    
+   
     /*
     /**********************************************************
     /* Other methods

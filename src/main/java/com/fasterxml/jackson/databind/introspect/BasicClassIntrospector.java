@@ -1,9 +1,5 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
-
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
@@ -41,10 +37,6 @@ public class BasicClassIntrospector
         AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(Long.TYPE, null, null);
         LONG_DESC = BasicBeanDescription.forOtherUse(null, SimpleType.constructUnsafe(Long.TYPE), ac);
     }
-
-    // // // Then static filter singletons
-    
-    protected final static MethodFilter MINIMAL_FILTER = new MinimalMethodFilter();
     
     /*
     /**********************************************************
@@ -127,8 +119,9 @@ public class BasicClassIntrospector
     public POJOPropertiesCollector collectProperties(MapperConfig<?> config,
             JavaType type, MixInResolver r, boolean forSerialization)
     {
-        AnnotatedClass ac = classWithCreators(config, type, r);
-        ac.resolveMemberMethods(MINIMAL_FILTER);
+        boolean useAnnotations = config.isAnnotationProcessingEnabled();
+        AnnotatedClass ac = AnnotatedClass.construct(type.getRawClass(),
+                (useAnnotations ? config.getAnnotationIntrospector() : null), r);
         return constructPropertyCollector(config, ac, type, forSerialization).collect();
     }
 
@@ -141,16 +134,6 @@ public class BasicClassIntrospector
             boolean forSerialization)
     {
         return new POJOPropertiesCollector(config, forSerialization, type, ac);
-    }
-    
-    public AnnotatedClass classWithCreators(MapperConfig<?> config,
-            JavaType type, MixInResolver r)
-    {
-        boolean useAnnotations = config.isAnnotationProcessingEnabled();
-        AnnotationIntrospector ai = config.getAnnotationIntrospector();
-        AnnotatedClass ac = AnnotatedClass.construct(type.getRawClass(), (useAnnotations ? ai : null), r);
-        ac.resolveMemberMethods(MINIMAL_FILTER);
-        return ac;
     }
     
     /**
@@ -173,29 +156,5 @@ public class BasicClassIntrospector
             return LONG_DESC;
         }
         return null;
-    }
-
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
-    /**
-     * Going forward, we will only do very minimal filtering;
-     * mostly just gets rid of static methods really.
-     */
-    private static class MinimalMethodFilter
-        implements MethodFilter
-    {
-        @Override
-        public boolean includeMethod(Method m)
-        {
-            if (Modifier.isStatic(m.getModifiers())) {
-                return false;
-            }
-            int pcount = m.getParameterTypes().length;
-            return (pcount <= 2);
-        }
     }
 }

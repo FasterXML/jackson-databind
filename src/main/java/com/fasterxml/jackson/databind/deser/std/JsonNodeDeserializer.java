@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.node.*;
 /**
  * Deserializer that can build instances of {@link JsonNode} from any
  * JSON content, using appropriate {@link JsonNode} type.
- * 
- * @since 1.9 (moved from higher-level package)
  */
 public class JsonNodeDeserializer
     extends BaseNodeDeserializer<JsonNode>

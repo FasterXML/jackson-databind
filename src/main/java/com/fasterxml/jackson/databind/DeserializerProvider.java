@@ -128,8 +128,6 @@ public abstract class DeserializerProvider
 
     /**
      * Method that can be used to try find expected root name for given type
-     * 
-     * @since 1.9
      */
     public abstract SerializedString findExpectedRootName(DeserializationConfig config, JavaType type)
         throws JsonMappingException;

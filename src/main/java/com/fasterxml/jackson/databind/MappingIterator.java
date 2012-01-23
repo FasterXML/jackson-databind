@@ -9,8 +9,6 @@ import com.fasterxml.jackson.core.*;
  * Iterator exposed by {@link ObjectMapper} when binding sequence of
  * objects. Extension is done to allow more convenient exposing of
  * {@link IOException} (which basic {@link Iterator} does not expose)
- * 
- * @since 1.8
  */
 public class MappingIterator<T> implements Iterator<T>
 {
@@ -50,9 +48,6 @@ public class MappingIterator<T> implements Iterator<T>
         this(type, jp, ctxt, deser, true, null);
     }
     
-    /**
-     * @since 1.9.3
-     */
     @SuppressWarnings("unchecked")
     protected MappingIterator(JavaType type, JsonParser jp, DeserializationContext ctxt, JsonDeserializer<?> deser,
             boolean closeParser, Object valueToUpdate)

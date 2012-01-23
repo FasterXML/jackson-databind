@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.*;
  * usually to support custom value types with alternate constructors, or
  * which need specified post-processing after construction but before
  * binding data.
- * 
- * @since 1.9
  */
 public interface ValueInstantiators
 {

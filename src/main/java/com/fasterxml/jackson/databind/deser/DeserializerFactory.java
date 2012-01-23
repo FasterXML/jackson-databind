@@ -121,9 +121,6 @@ public abstract class DeserializerFactory
 
         public abstract boolean hasAbstractTypeResolvers();
 
-        /**
-         * @since 1.9
-         */
         public abstract boolean hasValueInstantiators();
     }
 

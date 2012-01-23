@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.util.Named;
  * These instances are created before actual {@link BeanProperty}
  * instances are created, i.e. they are used earlier in the process
  * flow.
- *
- * @since 1.9
  */
 public abstract class BeanPropertyDefinition
     implements Named

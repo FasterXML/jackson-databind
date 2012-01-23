@@ -104,10 +104,6 @@ public class JodaSerializers
         }
     }
  
-    /**
-     * 
-     * @since 1.5
-     */
     public final static class LocalDateTimeSerializer
         extends JodaSerializer<LocalDateTime>
     {

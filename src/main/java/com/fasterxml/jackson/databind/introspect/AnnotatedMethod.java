@@ -30,8 +30,6 @@ public final class AnnotatedMethod
     /**
      * Method that constructs a new instance with settings (annotations, parameter annotations)
      * of this instance, but with different physical {@link Method}.
-     * 
-     * @since 1.7
      */
     public AnnotatedMethod withMethod(Method m)
     {

@@ -9,8 +9,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * to indicate problems due to encountering a JSON property that could
  * not be mapped to an Object property (via getter, constructor argument
  * or field).
- * 
- * @since 1.6
  */
 public class UnrecognizedPropertyException
     extends JsonMappingException

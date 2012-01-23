@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.BeanPropertyDefinition;
 /**
  * Helper class used for aggregating information about a single
  * potential POJO property.
- * 
- * @since 1.9
  */
 public class POJOPropertyBuilder
     extends BeanPropertyDefinition

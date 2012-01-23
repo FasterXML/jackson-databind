@@ -5,8 +5,6 @@ import java.util.*;
 /**
  * Abstract class that defines API for objects that provide value to
  * "inject" during deserialization. An instance of this object
- * 
- * @since 1.9
  */
 public abstract class InjectableValues
 {

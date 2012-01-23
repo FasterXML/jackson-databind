@@ -23,8 +23,6 @@ public abstract class KeyDeserializer
      *<p>
      * Specifically, this class is to be used as the marker for
      * annotation {@link com.fasterxml.jackson.databind.annotation.JsonDeserialize}.
-     *
-     * @since 1.3
      */
     public abstract static class None
         extends KeyDeserializer { }

@@ -675,8 +675,6 @@ public class ObjectReader
 
     /**
      * Method for reading sequence of Objects from parser stream.
-     * 
-     * @since 1.8
      */
     public <T> MappingIterator<T> readValues(Reader src)
         throws IOException, JsonProcessingException

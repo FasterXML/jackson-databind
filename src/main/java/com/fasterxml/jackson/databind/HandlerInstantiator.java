@@ -21,8 +21,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
  *<p>
  * Care has to be taken to ensure that if instance returned is shared, it will
  * be thread-safe; caller will not synchronize access to returned instances.
- * 
- * @since 1.8
  */
 public abstract class HandlerInstantiator
 {
@@ -106,8 +104,6 @@ public abstract class HandlerInstantiator
 
     /**
      * Method called to construct an instance of ValueInstantiator of specified type.
-     * 
-     * @since 1.9
      */
     public ValueInstantiator valueInstantiatorInstance(MapperConfig<?> config,
             Annotated annotated, Class<? extends ValueInstantiator> resolverClass) {

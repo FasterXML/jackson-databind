@@ -166,9 +166,7 @@ public abstract class DeserializationContext
      * of an unrecognized property.
      * 
      * @return True if there was a configured problem handler that was able to handle the
-     *   proble
-     * 
-     * @since 1.5
+     *   problem
      */
     public abstract boolean handleUnknownProperty(JsonParser jp, JsonDeserializer<?> deser, Object instanceOrClass, String propName)
         throws IOException, JsonProcessingException;
@@ -178,16 +176,11 @@ public abstract class DeserializationContext
      */
     public abstract JsonMappingException mappingException(Class<?> targetClass);
 
-    /**
-     * @since 1.9
-     */
     public abstract JsonMappingException mappingException(Class<?> targetClass, JsonToken t);
     
     /**
      * Helper method for constructing generic mapping exception with specified
      * message and current location information
-     * 
-     * @since 1.7
      */
     public JsonMappingException mappingException(String message)
     {
@@ -242,8 +235,6 @@ public abstract class DeserializationContext
     /**
      * Helper method for constructing exception to indicate that given
      * type id (parsed from JSON) could not be converted to a Java type.
-     * 
-     * @since 1.5
      */
     public abstract JsonMappingException unknownTypeException(JavaType baseType, String id);
 }

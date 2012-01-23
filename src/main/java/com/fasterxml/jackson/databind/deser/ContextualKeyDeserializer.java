@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.KeyDeserializer;
  * handling Map keys of supported type. This can be useful
  * for key deserializers that can be configured by annotations, or should otherwise
  * have differing behavior depending on what kind of Map property keys are being deserialized.
- * 
- * @since 1.8
  */
 public interface ContextualKeyDeserializer
 {

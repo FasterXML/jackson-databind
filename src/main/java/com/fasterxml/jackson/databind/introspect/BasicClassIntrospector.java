@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.SimpleType;
 
 public class BasicClassIntrospector
-    extends ClassIntrospector<BasicBeanDescription>
+    extends ClassIntrospector
 {
     /* We keep a small set of pre-constructed descriptions to use for
      * common non-structured values, such as Numbers and Strings.

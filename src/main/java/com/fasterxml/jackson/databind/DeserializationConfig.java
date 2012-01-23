@@ -372,7 +372,7 @@ public final class DeserializationConfig
     }
     
     @Override
-    public DeserializationConfig withClassIntrospector(ClassIntrospector<? extends BeanDescription> ci) {
+    public DeserializationConfig withClassIntrospector(ClassIntrospector ci) {
         return _withBase(_base.withClassIntrospector(ci));
     }
 
@@ -582,10 +582,9 @@ public final class DeserializationConfig
      * Accessor for getting bean description that only contains class
      * annotations: useful if no getter/setter/creator information is needed.
      */
-    @SuppressWarnings("unchecked")
     @Override
-    public <T extends BeanDescription> T introspectClassAnnotations(JavaType type) {
-        return (T) getClassIntrospector().forClassAnnotations(this, type, this);
+    public BeanDescription introspectClassAnnotations(JavaType type) {
+        return getClassIntrospector().forClassAnnotations(this, type, this);
     }
 
     /**
@@ -594,9 +593,8 @@ public final class DeserializationConfig
      * not from super types.
      */
     @Override
-    @SuppressWarnings("unchecked")
-    public <T extends BeanDescription> T introspectDirectClassAnnotations(JavaType type) {
-        return (T) getClassIntrospector().forDirectClassAnnotations(this, type, this);
+    public BeanDescription introspectDirectClassAnnotations(JavaType type) {
+        return getClassIntrospector().forDirectClassAnnotations(this, type, this);
     }
 
     @Override

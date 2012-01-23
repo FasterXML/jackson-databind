@@ -4,9 +4,9 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 
 public class TypeNameIdResolver
@@ -91,7 +91,7 @@ public class TypeNameIdResolver
                 // 24-Feb-2011, tatu: As per [JACKSON-498], may need to dynamically look up name
                 // can either throw an exception, or use default name...
                 if (_config.isAnnotationProcessingEnabled()) {
-                    BasicBeanDescription beanDesc = _config.introspectClassAnnotations(cls);
+                    BeanDescription beanDesc = _config.introspectClassAnnotations(cls);
                     name = _config.getAnnotationIntrospector().findTypeName(beanDesc.getClassInfo());
                 }
                 if (name == null) {

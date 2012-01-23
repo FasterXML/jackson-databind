@@ -19,10 +19,7 @@ public interface ValueInstantiators
      * passed instance as is (returning null is an error)
      * 
      * @param config Deserialization configuration in use
-     * @param beanDesc Additional information about POJO type to be instantiated:
-     *    description will always be of type
-     *    {@link com.fasterxml.jackson.databind.introspect.BasicBeanDescription} (that is,
-     *    safe to cast to this more specific type)
+     * @param beanDesc Additional information about POJO type to be instantiated
      * @param defaultInstantiator Instantiator that will be used if no changes are made;
      *   passed to allow custom instances to use annotation-provided information
      *   (note, however, that earlier {@link ValueInstantiators} may have changed it to

@@ -175,7 +175,7 @@ public abstract class BasicSerializerFactory
         }
         
         // We should not need any member method info; at most class annotations for Map type
-        BasicBeanDescription beanDesc = config.introspectClassAnnotations(type.getRawClass());
+        BeanDescription beanDesc = config.introspectClassAnnotations(type.getRawClass());
         JsonSerializer<?> ser = null;
         
         // Only thing we have here are module-provided key serializers:
@@ -197,7 +197,7 @@ public abstract class BasicSerializerFactory
     public TypeSerializer createTypeSerializer(SerializationConfig config,
             JavaType baseType, BeanProperty property)
     {
-        BasicBeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
+        BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
         AnnotatedClass ac = bean.getClassInfo();
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findTypeResolver(config, ac, baseType);
@@ -236,7 +236,7 @@ public abstract class BasicSerializerFactory
      * see if we know serializer to use for given type.
      */
     protected final JsonSerializer<?> findSerializerByLookup(JavaType type,
-            SerializationConfig config, BasicBeanDescription beanDesc, BeanProperty property,
+            SerializationConfig config, BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping)
     {
         Class<?> raw = type.getRawClass();
@@ -265,7 +265,7 @@ public abstract class BasicSerializerFactory
      * mostly concrete or abstract base classes.
      */
     protected final JsonSerializer<?> findSerializerByPrimaryType(JavaType type,
-            SerializationConfig config, BasicBeanDescription beanDesc, BeanProperty property,
+            SerializationConfig config, BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping)
         throws JsonMappingException
     {
@@ -327,7 +327,7 @@ public abstract class BasicSerializerFactory
      * function is usually something else. The reason for
      */
     protected final JsonSerializer<?> findSerializerByAddonType(SerializationConfig config, JavaType javaType,
-            BasicBeanDescription beanDesc, BeanProperty property,
+            BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping)
         throws JsonMappingException
     {
@@ -393,7 +393,7 @@ public abstract class BasicSerializerFactory
      */
     
     protected JsonSerializer<?> buildContainerSerializer(SerializationConfig config, JavaType type,
-            BasicBeanDescription beanDesc, BeanProperty property, boolean staticTyping)
+            BeanDescription beanDesc, BeanProperty property, boolean staticTyping)
         throws JsonMappingException
     {
         // Let's see what we can learn about element/content/value type, type serializer for it:
@@ -441,7 +441,7 @@ public abstract class BasicSerializerFactory
      */
     protected JsonSerializer<?> buildCollectionLikeSerializer(SerializationConfig config,
             CollectionLikeType type,
-            BasicBeanDescription beanDesc, BeanProperty property,
+            BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
         throws JsonMappingException
@@ -462,7 +462,7 @@ public abstract class BasicSerializerFactory
      */
     protected JsonSerializer<?> buildCollectionSerializer(SerializationConfig config,
             CollectionType type,
-            BasicBeanDescription beanDesc, BeanProperty property,
+            BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
         throws JsonMappingException
@@ -496,7 +496,7 @@ public abstract class BasicSerializerFactory
     }
 
     protected JsonSerializer<?> buildEnumSetSerializer(SerializationConfig config, JavaType type,
-            BasicBeanDescription beanDesc, BeanProperty property,
+            BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
     {
@@ -526,7 +526,7 @@ public abstract class BasicSerializerFactory
      * ones that do not (but that have been indicated to behave like Maps).
      */
     protected JsonSerializer<?> buildMapLikeSerializer(SerializationConfig config, MapLikeType type,
-            BasicBeanDescription beanDesc, BeanProperty property,
+            BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping,
             JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
@@ -547,7 +547,7 @@ public abstract class BasicSerializerFactory
      * {@link java.util.Map} types.
      */
     protected JsonSerializer<?> buildMapSerializer(SerializationConfig config, MapType type,
-            BasicBeanDescription beanDesc, BeanProperty property,
+            BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping,
             JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
@@ -574,7 +574,7 @@ public abstract class BasicSerializerFactory
      * {@link java.util.EnumMap} types.
      */
     protected JsonSerializer<?> buildEnumMapSerializer(SerializationConfig config, JavaType type,
-            BasicBeanDescription beanDesc, BeanProperty property,
+            BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
         throws JsonMappingException
@@ -602,7 +602,7 @@ public abstract class BasicSerializerFactory
      * <code>Object[]</code> (and subtypes, except for String).
      */
     protected JsonSerializer<?> buildArraySerializer(SerializationConfig config,
-            ArrayType type, BasicBeanDescription beanDesc, BeanProperty property,
+            ArrayType type, BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
         throws JsonMappingException
@@ -631,7 +631,7 @@ public abstract class BasicSerializerFactory
      */
 
     protected JsonSerializer<?> buildIteratorSerializer(SerializationConfig config,
-            JavaType type, BasicBeanDescription beanDesc, BeanProperty property,
+            JavaType type, BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping)
         throws JsonMappingException
     {
@@ -646,7 +646,7 @@ public abstract class BasicSerializerFactory
     }
     
     protected JsonSerializer<?> buildIterableSerializer(SerializationConfig config,
-            JavaType type, BasicBeanDescription beanDesc, BeanProperty property,
+            JavaType type, BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping)
         throws JsonMappingException
     {
@@ -799,7 +799,7 @@ public abstract class BasicSerializerFactory
      * (declared types)  should be used for properties.
      * (instead of dynamic runtime types).
      */
-    protected boolean usesStaticTyping(SerializationConfig config, BasicBeanDescription beanDesc,
+    protected boolean usesStaticTyping(SerializationConfig config, BeanDescription beanDesc,
             TypeSerializer typeSer, BeanProperty property)
     {
         /* 16-Aug-2010, tatu: If there is a (value) type serializer, we can not force

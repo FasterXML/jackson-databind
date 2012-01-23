@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.util.*;
 public class PropertyBuilder
 {
     final protected SerializationConfig _config;
-    final protected BasicBeanDescription _beanDesc;
+    final protected BeanDescription _beanDesc;
     final protected JsonInclude.Include _outputProps;
 
     final protected AnnotationIntrospector _annotationIntrospector;
@@ -32,7 +32,7 @@ public class PropertyBuilder
      */
     protected Object _defaultBean;
 
-    public PropertyBuilder(SerializationConfig config, BasicBeanDescription beanDesc)
+    public PropertyBuilder(SerializationConfig config, BeanDescription beanDesc)
     {
         _config = config;
         _beanDesc = beanDesc;

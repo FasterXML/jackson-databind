@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
 import com.fasterxml.jackson.databind.deser.impl.ValueInjector;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 import com.fasterxml.jackson.databind.util.Annotations;
 
 /**
@@ -23,7 +22,7 @@ public class BeanDeserializerBuilder
     /**********************************************************
      */
 
-    final protected BasicBeanDescription _beanDesc;
+    final protected BeanDescription _beanDesc;
     
     /*
     /**********************************************************
@@ -76,7 +75,7 @@ public class BeanDeserializerBuilder
     /**********************************************************
      */
     
-    public BeanDeserializerBuilder(BasicBeanDescription beanDesc)
+    public BeanDeserializerBuilder(BeanDescription beanDesc)
     { 
         _beanDesc = beanDesc;
     }

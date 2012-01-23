@@ -6,7 +6,6 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.HandlerInstantiator;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -142,7 +141,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
      */
-    public abstract T withClassIntrospector(ClassIntrospector<? extends BeanDescription> ci);
+    public abstract T withClassIntrospector(ClassIntrospector ci);
 
     /**
      * Method for constructing and returning a new instance with different

@@ -22,15 +22,10 @@ public interface Serializers
      * Method called by serialization framework first time a serializer is needed for
      * specified type, which is not of a container type (for which other methods are
      * called).
-     *<p>
-     * Note: in version 1.7, this method was called to find serializers for all
-     * type, including container types.
      * 
      * @param type Fully resolved type of instances to serialize
      * @param config Serialization configuration in use
-     * @param beanDesc Additional information about type; will always be of type
-     *    {@link com.fasterxml.jackson.databind.introspect.BasicBeanDescription} (that is,
-     *    safe to cast to this more specific type)
+     * @param beanDesc Additional information about type
      * @param property Property that contains values to serialize
      *    
      * @return Configured serializer to use for the type; or null if implementation

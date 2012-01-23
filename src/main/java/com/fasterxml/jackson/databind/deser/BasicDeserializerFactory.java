@@ -175,41 +175,41 @@ public abstract class BasicDeserializerFactory
     /*
     /**********************************************************
     /* Methods for sub-classes to override to provide
-    /* custom deserializers (since 1.7)
+    /* custom deserializers
     /**********************************************************
      */
     
-    protected abstract JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type, DeserializationConfig config,
-            DeserializerProvider p, BeanProperty property,
+    protected abstract JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type,
+            DeserializationConfig config, DeserializerProvider p, BeanProperty property,
             TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
         throws JsonMappingException;
     
     protected abstract JsonDeserializer<?> _findCustomCollectionDeserializer(
             CollectionType type, DeserializationConfig config,
-            DeserializerProvider p, BasicBeanDescription beanDesc, BeanProperty property,
+            DeserializerProvider p, BeanDescription beanDesc, BeanProperty property,
             TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
         throws JsonMappingException;
 
     protected abstract JsonDeserializer<?> _findCustomCollectionLikeDeserializer(
             CollectionLikeType type, DeserializationConfig config,
-            DeserializerProvider p, BasicBeanDescription beanDesc, BeanProperty property,
+            DeserializerProvider p, BeanDescription beanDesc, BeanProperty property,
             TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
         throws JsonMappingException;
     
     protected abstract JsonDeserializer<?> _findCustomEnumDeserializer(Class<?> type,
-            DeserializationConfig config, BasicBeanDescription beanDesc, BeanProperty property)
+            DeserializationConfig config, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
     protected abstract JsonDeserializer<?> _findCustomMapDeserializer(MapType type,
             DeserializationConfig config,
-            DeserializerProvider p, BasicBeanDescription beanDesc, BeanProperty property,
+            DeserializerProvider p, BeanDescription beanDesc, BeanProperty property,
             KeyDeserializer keyDeser,
             TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
         throws JsonMappingException;
 
     protected abstract JsonDeserializer<?> _findCustomMapLikeDeserializer(MapLikeType type,
             DeserializationConfig config,
-            DeserializerProvider p, BasicBeanDescription beanDesc, BeanProperty property,
+            DeserializerProvider p, BeanDescription beanDesc, BeanProperty property,
             KeyDeserializer keyDeser,
             TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
         throws JsonMappingException;
@@ -226,7 +226,7 @@ public abstract class BasicDeserializerFactory
 
     @Override
     public abstract ValueInstantiator findValueInstantiator(DeserializationConfig config,
-            BasicBeanDescription beanDesc)
+            BeanDescription beanDesc)
         throws JsonMappingException;
 
     @Override
@@ -289,7 +289,7 @@ public abstract class BasicDeserializerFactory
         type = (CollectionType) mapAbstractType(config, type);
 
         Class<?> collectionClass = type.getRawClass();
-        BasicBeanDescription beanDesc = config.introspectForCreation(type);
+        BeanDescription beanDesc = config.introspectForCreation(type);
         // Explicit deserializer to use? (@JsonDeserialize.using)
         JsonDeserializer<Object> deser = findDeserializerFromAnnotation(config, beanDesc.getClassInfo(), property);
         if (deser != null) {
@@ -366,7 +366,7 @@ public abstract class BasicDeserializerFactory
         type = (CollectionLikeType) mapAbstractType(config, type);
 
         Class<?> collectionClass = type.getRawClass();
-        BasicBeanDescription beanDesc = config.introspectClassAnnotations(collectionClass);
+        BeanDescription beanDesc = config.introspectClassAnnotations(collectionClass);
         // Explicit deserializer to use? (@JsonDeserialize.using)
         JsonDeserializer<Object> deser = findDeserializerFromAnnotation(config, beanDesc.getClassInfo(), property);
         if (deser != null) {
@@ -397,7 +397,7 @@ public abstract class BasicDeserializerFactory
         // First: global defaulting:
         type = (MapType) mapAbstractType(config, type);
 
-        BasicBeanDescription beanDesc = config.introspectForCreation(type);
+        BeanDescription beanDesc = config.introspectForCreation(type);
         // Explicit deserializer to use? (@JsonDeserialize.using)
         JsonDeserializer<Object> deser = findDeserializerFromAnnotation(config, beanDesc.getClassInfo(), property);
         if (deser != null) {
@@ -484,7 +484,7 @@ public abstract class BasicDeserializerFactory
     {
         // First: global defaulting:
         type = (MapLikeType) mapAbstractType(config, type);
-        BasicBeanDescription beanDesc = config.introspectForCreation(type);
+        BeanDescription beanDesc = config.introspectForCreation(type);
         // Explicit deserializer to use? (@JsonDeserialize.using)
         JsonDeserializer<Object> deser = findDeserializerFromAnnotation(config, beanDesc.getClassInfo(), property);
         if (deser != null) {
@@ -522,7 +522,7 @@ public abstract class BasicDeserializerFactory
             JavaType type, BeanProperty property)
         throws JsonMappingException
     {
-        BasicBeanDescription beanDesc = config.introspect(type);
+        BeanDescription beanDesc = config.introspect(type);
         JsonDeserializer<?> des = findDeserializerFromAnnotation(config, beanDesc.getClassInfo(), property);
         if (des != null) {
             return des;
@@ -613,7 +613,7 @@ public abstract class BasicDeserializerFactory
         throws JsonMappingException
     {
         Class<?> cls = baseType.getRawClass();
-        BasicBeanDescription bean = config.introspectClassAnnotations(cls);
+        BeanDescription bean = config.introspectClassAnnotations(cls);
         AnnotatedClass ac = bean.getClassInfo();
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findTypeResolver(config, ac, baseType);
@@ -647,7 +647,7 @@ public abstract class BasicDeserializerFactory
         throws JsonMappingException
     {
         if (_factoryConfig.hasKeyDeserializers()) {
-            BasicBeanDescription beanDesc = config.introspectClassAnnotations(type.getRawClass());
+            BeanDescription beanDesc = config.introspectClassAnnotations(type.getRawClass());
             for (KeyDeserializers d  : _factoryConfig.keyDeserializers()) {
                 KeyDeserializer deser = d.findKeyDeserializer(type, config, beanDesc, property);
                 if (deser != null) {
@@ -679,7 +679,7 @@ public abstract class BasicDeserializerFactory
             BeanProperty property)
         throws JsonMappingException
     {
-        BasicBeanDescription beanDesc = config.introspect(type);
+        BeanDescription beanDesc = config.introspect(type);
         JsonDeserializer<?> des = findDeserializerFromAnnotation(config, beanDesc.getClassInfo(), property);
         if (des != null) {
             return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, des);
@@ -945,7 +945,7 @@ public abstract class BasicDeserializerFactory
      * needed in some cases.
      */
     protected JavaType resolveType(DeserializationConfig config,
-            BasicBeanDescription beanDesc, JavaType type, AnnotatedMember member,
+            BeanDescription beanDesc, JavaType type, AnnotatedMember member,
             BeanProperty property)                    
         throws JsonMappingException
     {
@@ -1036,7 +1036,7 @@ public abstract class BasicDeserializerFactory
         if (enumType == null) {
             return null;
         }
-        BasicBeanDescription beanDesc = config.introspect(enumType);
+        BeanDescription beanDesc = config.introspect(enumType);
         return beanDesc.findJsonValueMethod();
     }
 

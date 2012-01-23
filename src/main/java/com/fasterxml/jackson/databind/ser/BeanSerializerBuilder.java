@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ser;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 
 /**
  * Builder class used for aggregating deserialization information about
@@ -22,7 +21,7 @@ public class BeanSerializerBuilder
     /**********************************************************
      */
 
-    final protected BasicBeanDescription _beanDesc;
+    final protected BeanDescription _beanDesc;
 
     /*
     /**********************************************************
@@ -57,7 +56,7 @@ public class BeanSerializerBuilder
     /**********************************************************
      */
     
-    public BeanSerializerBuilder(BasicBeanDescription beanDesc) {
+    public BeanSerializerBuilder(BeanDescription beanDesc) {
         _beanDesc = beanDesc;
     }
 
@@ -72,7 +71,7 @@ public class BeanSerializerBuilder
         _filterId = src._filterId;
     }
     
-    public BasicBeanDescription getBeanDescription() { return _beanDesc; }
+    public BeanDescription getBeanDescription() { return _beanDesc; }
     public List<BeanPropertyWriter> getProperties() { return _properties; }
     public BeanPropertyWriter[] getFilteredProperties() { return _filteredProperties; }
     

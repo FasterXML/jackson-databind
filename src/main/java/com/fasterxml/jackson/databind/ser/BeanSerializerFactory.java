@@ -228,7 +228,7 @@ public class BeanSerializerFactory
         throws JsonMappingException
     {
         // Very first thing, let's check if there is explicit serializer annotation:
-        BasicBeanDescription beanDesc = config.introspect(origType);
+        BeanDescription beanDesc = config.introspect(origType);
         JsonSerializer<?> ser = findSerializerFromAnnotation(config, beanDesc.getClassInfo(), property);
         if (ser != null) {
             return (JsonSerializer<Object>) ser;
@@ -289,7 +289,7 @@ public class BeanSerializerFactory
      */
     @SuppressWarnings("unchecked")
     public JsonSerializer<Object> findBeanSerializer(SerializationConfig config, JavaType type,
-            BasicBeanDescription beanDesc, BeanProperty property)
+            BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException
     {
         // First things first: we know some types are not beans...
@@ -366,7 +366,7 @@ public class BeanSerializerFactory
      */
     @SuppressWarnings("unchecked")
     protected JsonSerializer<Object> constructBeanSerializer(SerializationConfig config,
-            BasicBeanDescription beanDesc, BeanProperty property)
+            BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException
     {
         // 13-Oct-2010, tatu: quick sanity check: never try to create bean serializer for plain Object
@@ -453,12 +453,12 @@ public class BeanSerializerFactory
     }
     
     protected PropertyBuilder constructPropertyBuilder(SerializationConfig config,
-                                                       BasicBeanDescription beanDesc)
+                                                       BeanDescription beanDesc)
     {
         return new PropertyBuilder(config, beanDesc);
     }
 
-    protected BeanSerializerBuilder constructBeanSerializerBuilder(BasicBeanDescription beanDesc) {
+    protected BeanSerializerBuilder constructBeanSerializerBuilder(BeanDescription beanDesc) {
         return new BeanSerializerBuilder(beanDesc);
     }
 
@@ -466,7 +466,7 @@ public class BeanSerializerFactory
      * Method called to find filter that is configured to be used with bean
      * serializer being built, if any.
      */
-    protected Object findFilterId(SerializationConfig config, BasicBeanDescription beanDesc)
+    protected Object findFilterId(SerializationConfig config, BeanDescription beanDesc)
     {
         return config.getAnnotationIntrospector().findFilterId(beanDesc.getClassInfo());
     }
@@ -494,7 +494,7 @@ public class BeanSerializerFactory
      * Method used to collect all actual serializable properties.
      * Can be overridden to implement custom detection schemes.
      */
-    protected List<BeanPropertyWriter> findBeanProperties(SerializationConfig config, BasicBeanDescription beanDesc)
+    protected List<BeanPropertyWriter> findBeanProperties(SerializationConfig config, BeanDescription beanDesc)
         throws JsonMappingException
     {
         List<BeanPropertyDefinition> properties = beanDesc.findProperties();
@@ -548,7 +548,7 @@ public class BeanSerializerFactory
      * checks annotations class may have.
      */
     protected List<BeanPropertyWriter> filterBeanProperties(SerializationConfig config,
-            BasicBeanDescription beanDesc, List<BeanPropertyWriter> props)
+            BeanDescription beanDesc, List<BeanPropertyWriter> props)
     {
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
         AnnotatedClass ac = beanDesc.getClassInfo();
@@ -607,7 +607,7 @@ public class BeanSerializerFactory
      * by default this is based on {@link com.fasterxml.jackson.annotation.JsonIgnoreType} annotation but
      * can be supplied by module-provided introspectors too.
      */
-    protected void removeIgnorableTypes(SerializationConfig config, BasicBeanDescription beanDesc,
+    protected void removeIgnorableTypes(SerializationConfig config, BeanDescription beanDesc,
             List<BeanPropertyDefinition> properties)
     {
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
@@ -623,7 +623,7 @@ public class BeanSerializerFactory
             Class<?> type = accessor.getRawType();
             Boolean result = ignores.get(type);
             if (result == null) {
-                BasicBeanDescription desc = config.introspectClassAnnotations(type);
+                BeanDescription desc = config.introspectClassAnnotations(type);
                 AnnotatedClass ac = desc.getClassInfo();
                 result = intr.isIgnorableType(ac);
                 // default to false, non-ignorable
@@ -642,7 +642,7 @@ public class BeanSerializerFactory
     /**
      * Helper method that will remove all properties that do not have a mutator.
      */
-    protected void removeSetterlessGetters(SerializationConfig config, BasicBeanDescription beanDesc,
+    protected void removeSetterlessGetters(SerializationConfig config, BeanDescription beanDesc,
             List<BeanPropertyDefinition> properties)
     {
         Iterator<BeanPropertyDefinition> it = properties.iterator();

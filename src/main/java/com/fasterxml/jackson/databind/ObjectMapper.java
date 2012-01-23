@@ -186,7 +186,7 @@ public class ObjectMapper
     /* !!! 03-Apr-2009, tatu: Should try to avoid direct reference... but not
      *   sure what'd be simple and elegant way. So until then:
      */
-    protected final static ClassIntrospector<? extends BeanDescription> DEFAULT_INTROSPECTOR = BasicClassIntrospector.instance;
+    protected final static ClassIntrospector DEFAULT_INTROSPECTOR = BasicClassIntrospector.instance;
 
     // 16-May-2009, tatu: Ditto ^^^
     protected final static AnnotationIntrospector DEFAULT_ANNOTATION_INTROSPECTOR = new JacksonAnnotationIntrospector();

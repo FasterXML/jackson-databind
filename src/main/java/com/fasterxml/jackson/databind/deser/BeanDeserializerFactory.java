@@ -254,8 +254,8 @@ public class BeanDeserializerFactory
      */
     
     @Override
-    protected JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type, DeserializationConfig config,
-            DeserializerProvider provider,
+    protected JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type,
+            DeserializationConfig config, DeserializerProvider provider,
             BeanProperty property,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
@@ -271,8 +271,8 @@ public class BeanDeserializerFactory
     }
 
     @Override
-    protected JsonDeserializer<?> _findCustomCollectionDeserializer(CollectionType type, DeserializationConfig config,
-            DeserializerProvider provider, BasicBeanDescription beanDesc,
+    protected JsonDeserializer<?> _findCustomCollectionDeserializer(CollectionType type,
+            DeserializationConfig config, DeserializerProvider provider, BeanDescription beanDesc,
             BeanProperty property,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
@@ -288,8 +288,8 @@ public class BeanDeserializerFactory
     }
 
     @Override
-    protected JsonDeserializer<?> _findCustomCollectionLikeDeserializer(CollectionLikeType type, DeserializationConfig config,
-            DeserializerProvider provider, BasicBeanDescription beanDesc,
+    protected JsonDeserializer<?> _findCustomCollectionLikeDeserializer(CollectionLikeType type,
+            DeserializationConfig config, DeserializerProvider provider, BeanDescription beanDesc,
             BeanProperty property,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
@@ -305,8 +305,8 @@ public class BeanDeserializerFactory
     }
     
     @Override
-    protected JsonDeserializer<?> _findCustomEnumDeserializer(Class<?> type, DeserializationConfig config,
-            BasicBeanDescription beanDesc, BeanProperty property)
+    protected JsonDeserializer<?> _findCustomEnumDeserializer(Class<?> type,
+            DeserializationConfig config, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
@@ -320,8 +320,7 @@ public class BeanDeserializerFactory
 
     @Override
     protected JsonDeserializer<?> _findCustomMapDeserializer(MapType type,
-            DeserializationConfig config,
-            DeserializerProvider provider, BasicBeanDescription beanDesc, BeanProperty property,
+            DeserializationConfig config, DeserializerProvider provider, BeanDescription beanDesc, BeanProperty property,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
@@ -339,7 +338,7 @@ public class BeanDeserializerFactory
     @Override
     protected JsonDeserializer<?> _findCustomMapLikeDeserializer(MapLikeType type,
             DeserializationConfig config,
-            DeserializerProvider provider, BasicBeanDescription beanDesc, BeanProperty property,
+            DeserializerProvider provider, BeanDescription beanDesc, BeanProperty property,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
@@ -371,7 +370,7 @@ public class BeanDeserializerFactory
     // Note: NOT overriding, superclass has no matching method
     @SuppressWarnings("unchecked")
     protected JsonDeserializer<Object> _findCustomBeanDeserializer(JavaType type, DeserializationConfig config,
-            DeserializerProvider provider, BasicBeanDescription beanDesc, BeanProperty property)
+            DeserializerProvider provider, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
@@ -422,7 +421,7 @@ public class BeanDeserializerFactory
      */
     @Override
     public ValueInstantiator findValueInstantiator(DeserializationConfig config,
-            BasicBeanDescription beanDesc)
+            BeanDescription beanDesc)
         throws JsonMappingException
     {
         ValueInstantiator instantiator;
@@ -486,7 +485,7 @@ public class BeanDeserializerFactory
         }
         
         // First things first: maybe explicit definition via annotations?
-        BasicBeanDescription beanDesc = config.introspect(type);
+        BeanDescription beanDesc = config.introspect(type);
         JsonDeserializer<Object> ad = findDeserializerFromAnnotation(config, beanDesc.getClassInfo(), property);
         if (ad != null) {
             return ad;
@@ -558,7 +557,7 @@ public class BeanDeserializerFactory
     }
     
     protected JavaType materializeAbstractType(DeserializationConfig config,
-            BasicBeanDescription beanDesc)
+            BeanDescription beanDesc)
         throws JsonMappingException
     {
         final JavaType abstractType = beanDesc.getType();
@@ -591,7 +590,7 @@ public class BeanDeserializerFactory
      */
     @SuppressWarnings("unchecked")
     public JsonDeserializer<Object> buildBeanDeserializer(DeserializationConfig config,
-            JavaType type, BasicBeanDescription beanDesc, BeanProperty property)
+            JavaType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException
     {
         // First: check what creators we can use, if any
@@ -631,7 +630,7 @@ public class BeanDeserializerFactory
 
     @SuppressWarnings("unchecked")
     public JsonDeserializer<Object> buildThrowableDeserializer(DeserializationConfig config,
-            JavaType type, BasicBeanDescription beanDesc, BeanProperty property)
+            JavaType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException
     {
         // first: construct like a regular bean deserializer...
@@ -700,12 +699,12 @@ public class BeanDeserializerFactory
      * which is used to accumulate information needed to create deserializer
      * instance.
      */
-    protected BeanDeserializerBuilder constructBeanDeserializerBuilder(BasicBeanDescription beanDesc) {
+    protected BeanDeserializerBuilder constructBeanDeserializerBuilder(BeanDescription beanDesc) {
         return new BeanDeserializerBuilder(beanDesc);
     }
 
     protected ValueInstantiator findStdValueInstantiator(DeserializationConfig config,
-            BasicBeanDescription beanDesc)
+            BeanDescription beanDesc)
         throws JsonMappingException
     {
         return JacksonDeserializers.findValueInstantiator(config, beanDesc);
@@ -716,7 +715,7 @@ public class BeanDeserializerFactory
      * using annotations (like @JsonCreator) and visibility rules
      */
     protected ValueInstantiator constructDefaultValueInstantiator(DeserializationConfig config,
-            BasicBeanDescription beanDesc)
+            BeanDescription beanDesc)
         throws JsonMappingException
     {
         boolean fixAccess = config.canOverrideAccessModifiers();
@@ -749,7 +748,7 @@ public class BeanDeserializerFactory
     }
 
     protected void _addDeserializerConstructors
-        (DeserializationConfig config, BasicBeanDescription beanDesc, VisibilityChecker<?> vchecker,
+        (DeserializationConfig config, BeanDescription beanDesc, VisibilityChecker<?> vchecker,
          AnnotationIntrospector intr, CreatorCollector creators)
         throws JsonMappingException
     {
@@ -810,7 +809,7 @@ public class BeanDeserializerFactory
     }
 
     protected boolean _handleSingleArgumentConstructor(DeserializationConfig config,
-            BasicBeanDescription beanDesc, VisibilityChecker<?> vchecker,
+            BeanDescription beanDesc, VisibilityChecker<?> vchecker,
             AnnotationIntrospector intr, CreatorCollector creators,
             AnnotatedConstructor ctor, boolean isCreator, boolean isVisible)
         throws JsonMappingException
@@ -864,7 +863,7 @@ public class BeanDeserializerFactory
     }
     
     protected void _addDeserializerFactoryMethods
-        (DeserializationConfig config, BasicBeanDescription beanDesc, VisibilityChecker<?> vchecker,
+        (DeserializationConfig config, BeanDescription beanDesc, VisibilityChecker<?> vchecker,
          AnnotationIntrospector intr, CreatorCollector creators)
         throws JsonMappingException
     {
@@ -931,7 +930,7 @@ public class BeanDeserializerFactory
     }
 
     protected boolean _handleSingleArgumentFactory(DeserializationConfig config,
-            BasicBeanDescription beanDesc, VisibilityChecker<?> vchecker,
+            BeanDescription beanDesc, VisibilityChecker<?> vchecker,
             AnnotationIntrospector intr, CreatorCollector creators,
             AnnotatedMethod factory, boolean isCreator)
         throws JsonMappingException
@@ -981,7 +980,7 @@ public class BeanDeserializerFactory
      * factory method)
      */
     protected CreatorProperty constructCreatorProperty(DeserializationConfig config,
-            BasicBeanDescription beanDesc, String name, int index,
+            BeanDescription beanDesc, String name, int index,
             AnnotatedParameter param,
             Object injectableValueId)
         throws JsonMappingException
@@ -1019,7 +1018,7 @@ public class BeanDeserializerFactory
      * similar between versions.
      */
     protected void addBeanProps(DeserializationConfig config,
-            BasicBeanDescription beanDesc, BeanDeserializerBuilder builder)
+            BeanDescription beanDesc, BeanDeserializerBuilder builder)
         throws JsonMappingException
     {
         List<BeanPropertyDefinition> props = beanDesc.findProperties();
@@ -1140,7 +1139,7 @@ public class BeanDeserializerFactory
      * and if so add them to bean, to be linked during resolution phase.
      */
     protected void addReferenceProperties(DeserializationConfig config,
-            BasicBeanDescription beanDesc, BeanDeserializerBuilder builder)
+            BeanDescription beanDesc, BeanDeserializerBuilder builder)
         throws JsonMappingException
     {
         // and then back references, not necessarily found as regular properties
@@ -1165,7 +1164,7 @@ public class BeanDeserializerFactory
      * constructor {@link com.fasterxml.jackson.databind.deser.impl.ValueInjector} instances, and add them to builder.
      */
     protected void addInjectables(DeserializationConfig config,
-            BasicBeanDescription beanDesc, BeanDeserializerBuilder builder)
+            BeanDescription beanDesc, BeanDeserializerBuilder builder)
         throws JsonMappingException
     {
         Map<Object, AnnotatedMember> raw = beanDesc.findInjectables();
@@ -1188,7 +1187,7 @@ public class BeanDeserializerFactory
      * has been designated as such setter.
      */
     protected SettableAnyProperty constructAnySetter(DeserializationConfig config,
-            BasicBeanDescription beanDesc, AnnotatedMethod setter)
+            BeanDescription beanDesc, AnnotatedMethod setter)
         throws JsonMappingException
     {
         if (config.canOverrideAccessModifiers()) {
@@ -1226,7 +1225,7 @@ public class BeanDeserializerFactory
      *   there should be no property based on given definitions.
      */
     protected SettableBeanProperty constructSettableProperty(DeserializationConfig config,
-            BasicBeanDescription beanDesc, String name,
+            BeanDescription beanDesc, String name,
             AnnotatedMethod setter)
         throws JsonMappingException
     {
@@ -1264,7 +1263,7 @@ public class BeanDeserializerFactory
     }
 
     protected SettableBeanProperty constructSettableProperty(DeserializationConfig config,
-            BasicBeanDescription beanDesc, String name, AnnotatedField field)
+            BeanDescription beanDesc, String name, AnnotatedField field)
         throws JsonMappingException
     {
         // need to ensure method is callable (for non-public)
@@ -1305,7 +1304,7 @@ public class BeanDeserializerFactory
      *    none. Non-null for "setterless" properties.
      */
     protected SettableBeanProperty constructSetterlessProperty(DeserializationConfig config,
-            BasicBeanDescription beanDesc, String name, AnnotatedMethod getter)
+            BeanDescription beanDesc, String name, AnnotatedMethod getter)
         throws JsonMappingException
     {
         // need to ensure it is callable now:
@@ -1367,12 +1366,12 @@ public class BeanDeserializerFactory
      * Helper method that will check whether given raw type is marked as always ignorable
      * (for purpose of ignoring properties with type)
      */
-    protected boolean isIgnorableType(DeserializationConfig config, BasicBeanDescription beanDesc,
+    protected boolean isIgnorableType(DeserializationConfig config, BeanDescription beanDesc,
             Class<?> type, Map<Class<?>,Boolean> ignoredTypes)
     {
         Boolean status = ignoredTypes.get(type);
         if (status == null) {
-            BasicBeanDescription desc = config.introspectClassAnnotations(type);
+            BeanDescription desc = config.introspectClassAnnotations(type);
             status = config.getAnnotationIntrospector().isIgnorableType(desc.getClassInfo());
             // We default to 'false', ie. not ignorable
             if (status == null) {

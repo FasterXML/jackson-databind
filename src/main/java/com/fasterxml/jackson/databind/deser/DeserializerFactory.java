@@ -1,17 +1,8 @@
 package com.fasterxml.jackson.databind.deser;
 
-import com.fasterxml.jackson.databind.AbstractTypeResolver;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.DeserializerProvider;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.KeyDeserializer;
-import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.*;
-
 
 /**
  * Abstract class that defines API used by {@link DeserializerProvider}
@@ -208,7 +199,7 @@ public abstract class DeserializerFactory
      * for the bean type to deserialize.
      */
     public abstract ValueInstantiator findValueInstantiator(DeserializationConfig config,
-            BasicBeanDescription beanDesc)
+            BeanDescription beanDesc)
         throws JsonMappingException;
     
     /**

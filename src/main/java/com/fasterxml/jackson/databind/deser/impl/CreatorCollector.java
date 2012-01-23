@@ -4,6 +4,7 @@ import java.lang.reflect.Member;
 import java.util.*;
 
 
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
@@ -20,7 +21,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class CreatorCollector
 {
     /// Type of bean being created
-    final BasicBeanDescription _beanDesc;
+    final BeanDescription _beanDesc;
 
     final boolean _canFixAccess;
 
@@ -42,7 +43,7 @@ public class CreatorCollector
     /**********************************************************
      */
     
-    public CreatorCollector(BasicBeanDescription beanDesc, boolean canFixAccess)
+    public CreatorCollector(BeanDescription beanDesc, boolean canFixAccess)
     {
         _beanDesc = beanDesc;
         _canFixAccess = canFixAccess;

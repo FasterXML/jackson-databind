@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -106,7 +105,7 @@ public class TestWithGenerics extends BaseMapTest
         public CustomJsonSerializerFactory() { super(null); }
 
         @Override
-        protected JsonSerializer<Object> constructBeanSerializer( SerializationConfig config, BasicBeanDescription beanDesc,
+        protected JsonSerializer<Object> constructBeanSerializer( SerializationConfig config, BeanDescription beanDesc,
                 BeanProperty property)
             throws JsonMappingException
         {                

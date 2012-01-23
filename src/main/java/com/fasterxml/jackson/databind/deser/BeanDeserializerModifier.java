@@ -1,10 +1,8 @@
 package com.fasterxml.jackson.databind.deser;
 
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerFactory;
-import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 
 /**
  * Abstract class that defines API for objects that can be registered (for {@link BeanDeserializerFactory}
@@ -37,7 +35,7 @@ public abstract class BeanDeserializerModifier
      * deserializer). Typically changes mostly concern set of properties to deserialize.
      */
     public BeanDeserializerBuilder updateBuilder(DeserializationConfig config,
-            BasicBeanDescription beanDesc, BeanDeserializerBuilder builder) {
+            BeanDescription beanDesc, BeanDeserializerBuilder builder) {
         return builder;
     }
 
@@ -50,7 +48,7 @@ public abstract class BeanDeserializerModifier
      * and this is why implementations must check for type before casting.
      */
     public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
-            BasicBeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+            BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
         return deserializer;
     }
 }

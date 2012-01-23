@@ -2,9 +2,9 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.List;
 
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 
 /**
  * Abstract class that defines API for objects that can be registered (for {@link BeanSerializerFactory}
@@ -45,7 +45,7 @@ public abstract class BeanSerializerModifier
      * modifiers.
      */
     public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
-            BasicBeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
+            BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
         return beanProperties;
     }
 
@@ -60,7 +60,7 @@ public abstract class BeanSerializerModifier
      * modifiers.
      */
     public List<BeanPropertyWriter> orderProperties(SerializationConfig config,
-            BasicBeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
+            BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties) {
         return beanProperties;
     }
 
@@ -74,7 +74,7 @@ public abstract class BeanSerializerModifier
      * some modifications.
      */
     public BeanSerializerBuilder updateBuilder(SerializationConfig config,
-            BasicBeanDescription beanDesc, BeanSerializerBuilder builder) {
+            BeanDescription beanDesc, BeanSerializerBuilder builder) {
         return builder;
     }
     
@@ -87,7 +87,7 @@ public abstract class BeanSerializerModifier
      * and this is why implementations must check for type before casting.
      */
     public JsonSerializer<?> modifySerializer(SerializationConfig config,
-            BasicBeanDescription beanDesc, JsonSerializer<?> serializer) {
+            BeanDescription beanDesc, JsonSerializer<?> serializer) {
         return serializer;
     }
 }

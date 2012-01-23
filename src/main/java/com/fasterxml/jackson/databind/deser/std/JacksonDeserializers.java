@@ -6,13 +6,13 @@ import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
-import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -30,7 +30,7 @@ public class JacksonDeserializers
     }
 
     public static ValueInstantiator findValueInstantiator(DeserializationConfig config,
-            BasicBeanDescription beanDesc)
+            BeanDescription beanDesc)
     {
         if (beanDesc.getBeanClass() == JsonLocation.class) {
             return new JsonLocationInstantiator();

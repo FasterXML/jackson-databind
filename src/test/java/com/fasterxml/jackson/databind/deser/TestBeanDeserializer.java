@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerBuilder;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
-import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class TestBeanDeserializer extends BaseMapTest
@@ -58,7 +57,7 @@ public class TestBeanDeserializer extends BaseMapTest
         
         @Override
         public BeanDeserializerBuilder updateBuilder(DeserializationConfig config,
-                BasicBeanDescription beanDesc, BeanDeserializerBuilder builder) {
+                BeanDescription beanDesc, BeanDeserializerBuilder builder) {
             builder.addIgnorable(_removedProperty);
             return builder;
         }
@@ -71,8 +70,8 @@ public class TestBeanDeserializer extends BaseMapTest
         public ReplacingModifier(JsonDeserializer<?> s) { _deserializer = s; }
         
         @Override
-        public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config, BasicBeanDescription beanDesc,
-                JsonDeserializer<?> deserializer) {
+        public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
+                BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
             return _deserializer;
         }
     }
@@ -117,7 +116,8 @@ public class TestBeanDeserializer extends BaseMapTest
     }
     public class Issue476DeserializerModifier extends BeanDeserializerModifier {
         @Override
-        public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config, BasicBeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+        public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
+                BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
             if (Issue476Type.class == beanDesc.getBeanClass()) {
                 return new Issue476Deserializer((BeanDeserializer)deserializer);
             }

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
@@ -17,8 +16,6 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 /**
  * Unit tests for verifying that it is possible to configure
  * construction of {@link BeanSerializer} instances.
- * 
- * @since 1.7
  */
 public class TestBeanSerializer extends BaseMapTest
 {
@@ -61,7 +58,7 @@ public class TestBeanSerializer extends BaseMapTest
         public RemovingModifier(String remove) { _removedProperty = remove; }
         
         @Override
-        public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BasicBeanDescription beanDesc,
+        public List<BeanPropertyWriter> changeProperties(SerializationConfig config, BeanDescription beanDesc,
                 List<BeanPropertyWriter> beanProperties)
         {
             Iterator<BeanPropertyWriter> it = beanProperties.iterator();
@@ -78,7 +75,7 @@ public class TestBeanSerializer extends BaseMapTest
     static class ReorderingModifier extends BeanSerializerModifier
     {
         @Override
-        public List<BeanPropertyWriter> orderProperties(SerializationConfig config, BasicBeanDescription beanDesc, List<BeanPropertyWriter> beanProperties)
+        public List<BeanPropertyWriter> orderProperties(SerializationConfig config, BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties)
         {
             TreeMap<String,BeanPropertyWriter> props = new TreeMap<String,BeanPropertyWriter>();
             for (BeanPropertyWriter bpw : beanProperties) {
@@ -95,7 +92,7 @@ public class TestBeanSerializer extends BaseMapTest
         public ReplacingModifier(JsonSerializer<?> s) { _serializer = s; }
         
         @Override
-        public JsonSerializer<?> modifySerializer(SerializationConfig config, BasicBeanDescription beanDesc,
+        public JsonSerializer<?> modifySerializer(SerializationConfig config, BeanDescription beanDesc,
                 JsonSerializer<?> serializer) {
             return _serializer;
         }
@@ -111,7 +108,7 @@ public class TestBeanSerializer extends BaseMapTest
         
         @Override
         public BeanSerializerBuilder updateBuilder(SerializationConfig config,
-                BasicBeanDescription beanDesc, BeanSerializerBuilder builder) {
+                BeanDescription beanDesc, BeanSerializerBuilder builder) {
             return new BogusSerializerBuilder(builder, _serializer);
         }
     }
@@ -156,7 +153,7 @@ public class TestBeanSerializer extends BaseMapTest
     {
         @Override
         public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
-                BasicBeanDescription beanDesc, List<BeanPropertyWriter> beanProperties)
+                BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties)
         {
             JavaType strType = config.constructType(String.class);
             try {

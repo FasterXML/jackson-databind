@@ -4,12 +4,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
-import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
@@ -89,7 +85,7 @@ public class StdKeyDeserializers
         /* We don't need full deserialization information, just need to
          * know creators.
          */
-    	BasicBeanDescription beanDesc = config.introspect(type);
+        BeanDescription beanDesc = config.introspect(type);
         // Ok, so: can we find T(String) constructor?
         Constructor<?> ctor = beanDesc.findSingleArgConstructor(String.class);
         if (ctor != null) {

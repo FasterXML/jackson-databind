@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.type.*;
 
-
 /**
  * Interface that defines API for simple extensions that can provide additional deserializers
  * for various types. Access is by a single callback method; instance is to either return
@@ -69,8 +68,7 @@ public interface Deserializers
      *   (but note that in many cases resolution must be deferred by using {@link ResolvableDeserializer} callback)
      * @param property Property that contains array value  (null for root values)
      * @param beanDesc Definition of the enumeration type that contains class annotations and
-     *    other information typically needed for building deserializers (note: always instance
-     *    of {@link com.fasterxml.jackson.databind.introspect.BasicBeanDescription})
+     *    other information typically needed for building deserializers
      * @param elementTypeDeserializer If element type needs polymorphic type handling, this is
      *    the type information deserializer to use; should usually be used as is when constructing
      *    array deserializer.
@@ -101,8 +99,7 @@ public interface Deserializers
      *   (but note that in many cases resolution must be deferred by using {@link ResolvableDeserializer} callback)
      * @param property Property that contains array value  (null for root values)
      * @param beanDesc Definition of the enumeration type that contains class annotations and
-     *    other information typically needed for building deserializers (note: always instance
-     *    of {@link com.fasterxml.jackson.databind.introspect.BasicBeanDescription})
+     *    other information typically needed for building deserializers
      * @param elementTypeDeserializer If element type needs polymorphic type handling, this is
      *    the type information deserializer to use; should usually be used as is when constructing
      *    array deserializer.
@@ -123,8 +120,7 @@ public interface Deserializers
      * @param type Type of {@link java.lang.Enum} instances to deserialize
      * @param config Configuration in effect
      * @param beanDesc Definition of the enumeration type that contains class annotations and
-     *    other information typically needed for building deserializers (note: always instance
-     *    of {@link com.fasterxml.jackson.databind.introspect.BasicBeanDescription})
+     *    other information typically needed for building deserializers
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
@@ -149,8 +145,7 @@ public interface Deserializers
      * @param provider Provider that can be used to locate dependant deserializers if and as necessary
      *   (but note that in many cases resolution must be deferred by using {@link ResolvableDeserializer} callback)
      * @param beanDesc Definition of the enumeration type that contains class annotations and
-     *    other information typically needed for building deserializers (note: always instance
-     *    of {@link com.fasterxml.jackson.databind.introspect.BasicBeanDescription})
+     *    other information typically needed for building deserializers
      * @param keyDeserializer Key deserializer use, if it is defined via annotations or other configuration;
      *    null if default key deserializer for key type can be used.
      * @param elementTypeDeserializer If element type needs polymorphic type handling, this is
@@ -187,8 +182,7 @@ public interface Deserializers
      * @param provider Provider that can be used to locate dependant deserializers if and as necessary
      *   (but note that in many cases resolution must be deferred by using {@link ResolvableDeserializer} callback)
      * @param beanDesc Definition of the enumeration type that contains class annotations and
-     *    other information typically needed for building deserializers (note: always instance
-     *    of {@link com.fasterxml.jackson.databind.introspect.BasicBeanDescription})
+     *    other information typically needed for building deserializers
      * @param keyDeserializer Key deserializer use, if it is defined via annotations or other configuration;
      *    null if default key deserializer for key type can be used.
      * @param elementTypeDeserializer If element type needs polymorphic type handling, this is
@@ -227,8 +221,7 @@ public interface Deserializers
      * @param provider Provider that can be used to locate dependant deserializers if and as necessary
      *   (but note that in many cases resolution must be deferred by using {@link ResolvableDeserializer} callback)
      * @param beanDesc Definition of the enumeration type that contains class annotations and
-     *    other information typically needed for building deserializers (note: always instance
-     *    of {@link com.fasterxml.jackson.databind.introspect.BasicBeanDescription})
+     *    other information typically needed for building deserializers
      * 
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */

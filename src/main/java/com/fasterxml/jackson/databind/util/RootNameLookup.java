@@ -2,11 +2,9 @@ package com.fasterxml.jackson.databind.util;
 
 import com.fasterxml.jackson.core.io.SerializedString;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
-import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 import com.fasterxml.jackson.databind.type.ClassKey;
 
 /**
@@ -39,7 +37,7 @@ public class RootNameLookup
                 return name;
             }
         }
-        BasicBeanDescription beanDesc = (BasicBeanDescription) config.introspectClassAnnotations(rootType);
+        BeanDescription beanDesc = config.introspectClassAnnotations(rootType);
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
         AnnotatedClass ac = beanDesc.getClassInfo();
         String nameStr = intr.findRootName(ac);

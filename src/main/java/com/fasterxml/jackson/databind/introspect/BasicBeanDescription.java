@@ -137,15 +137,8 @@ public class BasicBeanDescription extends BeanDescription
         return _properties;
     }
 
-    /**
-     * Method for locating the getter method that is annotated with
-     * {@link com.fasterxml.jackson.annotation.JsonValue} annotation,
-     * if any. If multiple ones are found,
-     * an error is reported by throwing {@link IllegalArgumentException}
-     */
     @Override
-    public AnnotatedMethod findJsonValueMethod()
-    {
+    public AnnotatedMethod findJsonValueMethod() {
         return _jsonValueMethod;
     }
 
@@ -157,10 +150,6 @@ public class BasicBeanDescription extends BeanDescription
         return _ignoredPropertyNames;
     }
     
-    /**
-     * Method for checking whether class being described has any
-     * annotations recognized by registered annotation introspector.
-     */
     @Override
     public boolean hasKnownClassAnnotations() {
         return _classInfo.hasAnnotations();
@@ -188,26 +177,11 @@ public class BasicBeanDescription extends BeanDescription
         return bindingsForBeanType().resolveType(jdkType);
     }
 
-    /**
-     * Method that will locate the no-arg constructor for this class,
-     * if it has one, and that constructor has not been marked as
-     * ignorable.
-     */
     @Override
-    public AnnotatedConstructor findDefaultConstructor()
-    {
+    public AnnotatedConstructor findDefaultConstructor() {
         return _classInfo.getDefaultConstructor();
     }
 
-    /**
-     * Method used to locate the method of introspected class that
-     * implements {@link com.fasterxml.jackson.annotation.JsonAnySetter}. If no such method exists
-     * null is returned. If more than one are found, an exception
-     * is thrown.
-     * Additional checks are also made to see that method signature
-     * is acceptable: needs to take 2 arguments, first one String or
-     * Object; second any can be any type.
-     */
     @Override
     public AnnotatedMethod findAnySetter() throws IllegalArgumentException
     {
@@ -229,39 +203,16 @@ public class BasicBeanDescription extends BeanDescription
     }
 
     @Override
-    public Map<Object, AnnotatedMember> findInjectables()
-    {
+    public Map<Object, AnnotatedMember> findInjectables() {
         return _injectables;
     }
-    
-    public List<AnnotatedConstructor> getConstructors()
-    {
+
+    @Override
+    public List<AnnotatedConstructor> getConstructors() {
         return _classInfo.getConstructors();
     }
-    
-    /*
-    /**********************************************************
-    /* Simple accessors, extended
-    /**********************************************************
-     */
 
-    public AnnotatedMethod findMethod(String name, Class<?>[] paramTypes)
-    {
-        return _classInfo.findMethod(name, paramTypes);
-    }
-
-    /**
-     * Method called to create a "default instance" of the bean, currently
-     * only needed for obtaining default field values which may be used for
-     * suppressing serialization of fields that have "not changed".
-     * 
-     * @param fixAccess If true, method is allowed to fix access to the
-     *   default constructor (to be able to call non-public constructor);
-     *   if false, has to use constructor as is.
-     *
-     * @return Instance of class represented by this descriptor, if
-     *   suitable default constructor was found; null otherwise.
-     */
+    @Override
     public Object instantiateBean(boolean fixAccess)
     {
         AnnotatedConstructor ac = _classInfo.getDefaultConstructor();
@@ -283,6 +234,17 @@ public class BasicBeanDescription extends BeanDescription
             throw new IllegalArgumentException("Failed to instantiate bean of type "+_classInfo.getAnnotated().getName()+": ("+t.getClass().getName()+") "+t.getMessage(), t);
         }
     }
+    
+    /*
+    /**********************************************************
+    /* Simple accessors, extended
+    /**********************************************************
+     */
+
+    @Override
+    public AnnotatedMethod findMethod(String name, Class<?>[] paramTypes) {
+        return _classInfo.findMethod(name, paramTypes);
+    }
 
     /*
     /**********************************************************
@@ -290,6 +252,7 @@ public class BasicBeanDescription extends BeanDescription
     /**********************************************************
      */
 
+    @Override
     public List<AnnotatedMethod> getFactoryMethods()
     {
         // must filter out anything that clearly is not a factory method
@@ -306,12 +269,7 @@ public class BasicBeanDescription extends BeanDescription
         return result;
     }
 
-    /**
-     * Method that can be called to locate a single-arg constructor that
-     * takes specified exact type (will not accept supertype constructors)
-     *
-     * @param argTypes Type(s) of the argument that we are looking for
-     */
+    @Override
     public Constructor<?> findSingleArgConstructor(Class<?>... argTypes)
     {
         for (AnnotatedConstructor ac : _classInfo.getConstructors()) {
@@ -331,15 +289,7 @@ public class BasicBeanDescription extends BeanDescription
         return null;
     }
 
-    /**
-     * Method that can be called to find if introspected class declares
-     * a static "valueOf" factory method that returns an instance of
-     * introspected type, given one of acceptable types.
-     *
-     * @param expArgTypes Types that the matching single argument factory
-     *   method can take: will also accept super types of these types
-     *   (ie. arg just has to be assignable from expArgType)
-     */
+    @Override
     public Method findFactoryMethod(Class<?>... expArgTypes)
     {
         // So, of all single-arg static methods:
@@ -430,6 +380,7 @@ public class BasicBeanDescription extends BeanDescription
      * feature (lowest priority, passed as argument)
      * and per-class annotation (highest priority).
      */
+    @Override
     public JsonInclude.Include findSerializationInclusion(JsonInclude.Include defValue)
     {
         if (_annotationIntrospector == null) {
@@ -459,9 +410,7 @@ public class BasicBeanDescription extends BeanDescription
         return _anyGetterMethod;
     }
     
-    /**
-     * Method for locating all back-reference properties (setters, fields) bean has
-     */
+    @Override
     public Map<String,AnnotatedMember> findBackReferenceProperties()
     {
         HashMap<String,AnnotatedMember> result = null;

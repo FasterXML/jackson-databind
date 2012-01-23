@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.io.SerializedString;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.introspect.BasicBeanDescription;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.EnumValues;
@@ -39,7 +38,7 @@ public class EnumSerializer
     }
 
     public static EnumSerializer construct(Class<Enum<?>> enumClass, SerializationConfig config,
-            BasicBeanDescription beanDesc)
+            BeanDescription beanDesc)
     {
         // [JACKSON-212]: If toString() is to be used instead, leave EnumValues null
         AnnotationIntrospector intr = config.getAnnotationIntrospector();

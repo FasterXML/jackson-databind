@@ -4,10 +4,7 @@ import java.text.DateFormat;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.HandlerInstantiator;
-import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
@@ -32,7 +29,7 @@ public final class BaseSettings
      * and deserialization. Overridable so that it is possible to change low-level
      * details of introspection, like adding new annotation types.
      */
-    protected final ClassIntrospector<? extends BeanDescription> _classIntrospector;
+    protected final ClassIntrospector _classIntrospector;
 
     /**
      * Introspector used for accessing annotation value based configuration.
@@ -103,7 +100,7 @@ public final class BaseSettings
     /**********************************************************
      */
 
-    public BaseSettings(ClassIntrospector<? extends BeanDescription> ci, AnnotationIntrospector ai,
+    public BaseSettings(ClassIntrospector ci, AnnotationIntrospector ai,
             VisibilityChecker<?> vc, PropertyNamingStrategy pns, TypeFactory tf,
             TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi)
     {
@@ -123,7 +120,7 @@ public final class BaseSettings
     /**********************************************************
      */
     
-    public BaseSettings withClassIntrospector(ClassIntrospector<? extends BeanDescription> ci) {
+    public BaseSettings withClassIntrospector(ClassIntrospector ci) {
         return new BaseSettings(ci, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator);
     }
@@ -184,7 +181,7 @@ public final class BaseSettings
     /**********************************************************
      */
 
-    public ClassIntrospector<? extends BeanDescription> getClassIntrospector() {
+    public ClassIntrospector getClassIntrospector() {
         return _classIntrospector;
     }
     

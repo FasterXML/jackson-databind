@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  * methods and annotations that define configuration of using
  * those methods.
  */
-public abstract class ClassIntrospector<T extends BeanDescription>
+public abstract class ClassIntrospector
 {
     /*
     /**********************************************************
@@ -48,14 +48,14 @@ public abstract class ClassIntrospector<T extends BeanDescription>
      * Factory method that constructs an introspector that has all
      * information needed for serialization purposes.
      */
-    public abstract T forSerialization(SerializationConfig cfg, JavaType type,
+    public abstract BeanDescription forSerialization(SerializationConfig cfg, JavaType type,
             MixInResolver r);
 
     /**
      * Factory method that constructs an introspector that has all
      * information needed for deserialization purposes.
      */
-    public abstract T forDeserialization(DeserializationConfig cfg, JavaType type,
+    public abstract BeanDescription forDeserialization(DeserializationConfig cfg, JavaType type,
             MixInResolver r);
     
     /**
@@ -64,7 +64,7 @@ public abstract class ClassIntrospector<T extends BeanDescription>
      * class ("creator"), as well as class annotations, but
      * no information on member methods
      */
-    public abstract T forCreation(DeserializationConfig cfg, JavaType type,
+    public abstract BeanDescription forCreation(DeserializationConfig cfg, JavaType type,
             MixInResolver r);
 
     /**
@@ -72,7 +72,7 @@ public abstract class ClassIntrospector<T extends BeanDescription>
      * information regarding annotations class itself (or its supertypes) has,
      * but nothing on methods or constructors.
      */
-    public abstract T forClassAnnotations(MapperConfig<?> cfg, JavaType type,
+    public abstract BeanDescription forClassAnnotations(MapperConfig<?> cfg, JavaType type,
             MixInResolver r);
 
     /**
@@ -80,7 +80,7 @@ public abstract class ClassIntrospector<T extends BeanDescription>
      * information regarding annotations class itself has (but NOT including
      * its supertypes), but nothing on methods or constructors.
      */
-    public abstract T forDirectClassAnnotations(MapperConfig<?> cfg, JavaType type,
+    public abstract BeanDescription forDirectClassAnnotations(MapperConfig<?> cfg, JavaType type,
             MixInResolver r);
 }
 

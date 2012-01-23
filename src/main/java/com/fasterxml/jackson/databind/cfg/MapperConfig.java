@@ -391,7 +391,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     /**********************************************************
      */
     
-    public ClassIntrospector<? extends BeanDescription> getClassIntrospector() {
+    public ClassIntrospector getClassIntrospector() {
         return _base.getClassIntrospector();
     }
 
@@ -504,32 +504,30 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Accessor for getting bean description that only contains class
      * annotations: useful if no getter/setter/creator information is needed.
      */
-    @SuppressWarnings("unchecked")
-    public <DESC extends BeanDescription> DESC introspectClassAnnotations(Class<?> cls) {
-        return (DESC) introspectClassAnnotations(constructType(cls));
+    public BeanDescription introspectClassAnnotations(Class<?> cls) {
+        return introspectClassAnnotations(constructType(cls));
     }
     
     /**
      * Accessor for getting bean description that only contains class
      * annotations: useful if no getter/setter/creator information is needed.
      */
-    public abstract <DESC extends BeanDescription> DESC introspectClassAnnotations(JavaType type);
+    public abstract BeanDescription introspectClassAnnotations(JavaType type);
 
     /**
      * Accessor for getting bean description that only contains immediate class
      * annotations: ones from the class, and its direct mix-in, if any, but
      * not from super types.
      */
-    @SuppressWarnings("unchecked")
-    public <DESC extends BeanDescription> DESC introspectDirectClassAnnotations(Class<?> cls) {
-        return (DESC) introspectDirectClassAnnotations(constructType(cls));
+    public BeanDescription introspectDirectClassAnnotations(Class<?> cls) {
+        return introspectDirectClassAnnotations(constructType(cls));
     }
     /**
      * Accessor for getting bean description that only contains immediate class
      * annotations: ones from the class, and its direct mix-in, if any, but
      * not from super types.
      */
-    public abstract <DESC extends BeanDescription> DESC introspectDirectClassAnnotations(JavaType type);
+    public abstract BeanDescription introspectDirectClassAnnotations(JavaType type);
         
     /*
     /**********************************************************

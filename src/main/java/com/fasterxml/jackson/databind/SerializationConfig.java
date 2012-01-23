@@ -428,7 +428,7 @@ public final class SerializationConfig
     }
     
     @Override
-    public SerializationConfig withClassIntrospector(ClassIntrospector<? extends BeanDescription> ci) {
+    public SerializationConfig withClassIntrospector(ClassIntrospector ci) {
         return _withBase(_base.withClassIntrospector(ci));
     }
 
@@ -619,10 +619,9 @@ public final class SerializationConfig
      * Accessor for getting bean description that only contains class
      * annotations: useful if no getter/setter/creator information is needed.
      */
-    @SuppressWarnings("unchecked")
     @Override
-    public <T extends BeanDescription> T introspectClassAnnotations(JavaType type) {
-        return (T) getClassIntrospector().forClassAnnotations(this, type, this);
+    public BeanDescription introspectClassAnnotations(JavaType type) {
+        return getClassIntrospector().forClassAnnotations(this, type, this);
     }
 
     /**
@@ -630,10 +629,9 @@ public final class SerializationConfig
      * annotations: ones from the class, and its direct mix-in, if any, but
      * not from super types.
      */
-    @SuppressWarnings("unchecked")
     @Override
-    public <T extends BeanDescription> T introspectDirectClassAnnotations(JavaType type) {
-        return (T) getClassIntrospector().forDirectClassAnnotations(this, type, this);
+    public BeanDescription introspectDirectClassAnnotations(JavaType type) {
+        return getClassIntrospector().forDirectClassAnnotations(this, type, this);
     }
     
     @Override

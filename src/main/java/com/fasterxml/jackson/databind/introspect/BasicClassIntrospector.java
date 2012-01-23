@@ -129,7 +129,6 @@ public class BasicClassIntrospector
     {
         AnnotatedClass ac = classWithCreators(config, type, r);
         ac.resolveMemberMethods(MINIMAL_FILTER);
-        ac.resolveFields();
         return constructPropertyCollector(config, ac, type, forSerialization).collect();
     }
 

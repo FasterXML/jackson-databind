@@ -253,13 +253,16 @@ public final class AnnotatedClass
     }
 
     public int getFieldCount() {
-        return (_fields == null) ? 0 : _fields.size();
+        if (_fields == null) {
+            resolveFields();
+        }
+        return _fields.size();
     }
 
     public Iterable<AnnotatedField> fields()
     {
         if (_fields == null) {
-            return Collections.emptyList();
+            resolveFields();
         }
         return _fields;
     }
@@ -448,11 +451,10 @@ public final class AnnotatedClass
      * that are either public, or have at least a single annotation
      * associated with them.
      */
-    public void resolveFields()
+    private void resolveFields()
     {
-        LinkedHashMap<String,AnnotatedField> foundFields = new LinkedHashMap<String,AnnotatedField>();
-        _addFields(foundFields, _class);
-        if (foundFields.isEmpty()) {
+        Map<String,AnnotatedField> foundFields = _findFields(_class, null);
+        if (foundFields == null || foundFields.size() == 0) {
             _fields = Collections.emptyList();
         } else {
             _fields = new ArrayList<AnnotatedField>(foundFields.size());
@@ -646,7 +648,7 @@ public final class AnnotatedClass
     /**********************************************************
      */
 
-    protected void _addFields(Map<String,AnnotatedField> fields, Class<?> c)
+    protected Map<String,AnnotatedField> _findFields(Class<?> c, Map<String,AnnotatedField> fields)
     {
         /* First, a quick test: we only care for regular classes (not
          * interfaces, primitive types etc), except for Object.class.
@@ -659,7 +661,7 @@ public final class AnnotatedClass
             /* 21-Feb-2010, tatu: Need to handle masking: as per [JACKSON-226]
              *    we otherwise get into trouble...
              */
-            _addFields(fields, parent);
+            fields = _findFields(parent, fields);
             for (Field f : c.getDeclaredFields()) {
                 // static fields not included, nor transient
                 if (!_isIncludableField(f)) {
@@ -670,6 +672,9 @@ public final class AnnotatedClass
                  * added, and partly because logic can be done when
                  * determining get/settability of the field.
                  */
+                if (fields == null) {
+                    fields = new LinkedHashMap<String,AnnotatedField>();
+                }
                 fields.put(f.getName(), _constructField(f));
             }
             // And then... any mix-in overrides?
@@ -680,6 +685,7 @@ public final class AnnotatedClass
                 }
             }
         }
+        return fields;
     }
 
     /**

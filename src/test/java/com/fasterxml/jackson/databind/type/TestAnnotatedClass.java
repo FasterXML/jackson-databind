@@ -76,11 +76,7 @@ public class TestAnnotatedClass
     {
         // null -> no mix-in annotations
         AnnotatedClass ac = AnnotatedClass.construct(FieldBean.class, new JacksonAnnotationIntrospector(), null);
-        ac.resolveFields();
-        /* 14-Jul-2009, tatu: AnnotatedClass does remove forcibly ignored
-         *   entries, but will still contain non-public fields too (earlier
-         *   versions didn't, but filtering was moved to a later point)
-         */
+        // AnnotatedClass does not ignore non-visible fields, yet
         assertEquals(2, ac.getFieldCount());
         for (AnnotatedField f : ac.fields()) {
             String fname = f.getName();

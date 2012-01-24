@@ -94,8 +94,8 @@ public class BasicClassIntrospector
             JavaType type, MixInResolver r)
     {
         boolean useAnnotations = cfg.isAnnotationProcessingEnabled();
-        AnnotationIntrospector ai =  cfg.getAnnotationIntrospector();
-        AnnotatedClass ac = AnnotatedClass.construct(type.getRawClass(), (useAnnotations ? ai : null), r);
+        AnnotatedClass ac = AnnotatedClass.construct(type.getRawClass(),
+                (useAnnotations ? cfg.getAnnotationIntrospector() : null), r);
         return BasicBeanDescription.forOtherUse(cfg, type, ac);
     }
 
@@ -116,7 +116,7 @@ public class BasicClassIntrospector
     /**********************************************************
      */
 
-    public POJOPropertiesCollector collectProperties(MapperConfig<?> config,
+    protected POJOPropertiesCollector collectProperties(MapperConfig<?> config,
             JavaType type, MixInResolver r, boolean forSerialization)
     {
         boolean useAnnotations = config.isAnnotationProcessingEnabled();

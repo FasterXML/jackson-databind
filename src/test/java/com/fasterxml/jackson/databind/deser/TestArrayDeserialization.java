@@ -94,8 +94,6 @@ public class TestArrayDeserialization
         public void serializeWithType(JsonGenerator jgen,
                 SerializerProvider provider, TypeSerializer typeSer)
                 throws IOException, JsonProcessingException {
-            // TODO Auto-generated method stub
-            
         }
     }	
 
@@ -134,14 +132,15 @@ public class TestArrayDeserialization
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testUntypedArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
 
         // to get "untyped" default map-to-map, pass Object[].class
         String JSON = "[ 1, null, \"x\", true, 2.0 ]";
 
-        Object[] result = mapper.readValue(JSON, Object[].class);
+        Object[] result = MAPPER.readValue(JSON, Object[].class);
         assertNotNull(result);
 
         assertEquals(5, result.length);
@@ -155,7 +154,6 @@ public class TestArrayDeserialization
 
     public void testIntegerArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         final int LEN = 90000;
 
         // Let's construct array to get it big enough
@@ -170,7 +168,7 @@ public class TestArrayDeserialization
         }
         sb.append(']');
 
-        Integer[] result = mapper.readValue(sb.toString(), Integer[].class);
+        Integer[] result = MAPPER.readValue(sb.toString(), Integer[].class);
         assertNotNull(result);
 
         assertEquals(LEN, result.length);
@@ -197,28 +195,26 @@ public class TestArrayDeserialization
 
     public void testUntypedArrayOfArrays() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-
         // to get "untyped" default map-to-map, pass Object[].class
         final String JSON = "[[[-0.027512,51.503221],[-0.008497,51.503221],[-0.008497,51.509744],[-0.027512,51.509744]]]";
 
-        Object result = mapper.readValue(JSON, Object.class);
+        Object result = MAPPER.readValue(JSON, Object.class);
         assertEquals(ArrayList.class, result.getClass());
         assertNotNull(result);
 
         // Should be able to get it as an Object array as well
 
-        Object[] array = mapper.readValue(JSON, Object[].class);
+        Object[] array = MAPPER.readValue(JSON, Object[].class);
         assertNotNull(array);
         assertEquals(Object[].class, array.getClass());
 
         // and as wrapped variants too
-        ObjectWrapper w = mapper.readValue("{\"wrapped\":"+JSON+"}", ObjectWrapper.class);
+        ObjectWrapper w = MAPPER.readValue("{\"wrapped\":"+JSON+"}", ObjectWrapper.class);
         assertNotNull(w);
         assertNotNull(w.wrapped);
         assertEquals(ArrayList.class, w.wrapped.getClass());
 
-        ObjectArrayWrapper aw = mapper.readValue("{\"wrapped\":"+JSON+"}", ObjectArrayWrapper.class);
+        ObjectArrayWrapper aw = MAPPER.readValue("{\"wrapped\":"+JSON+"}", ObjectArrayWrapper.class);
         assertNotNull(aw);
         assertNotNull(aw.wrapped);
     }    
@@ -243,8 +239,7 @@ public class TestArrayDeserialization
         jg.writeEndArray();
         jg.close();
 
-        ObjectMapper mapper = new ObjectMapper();
-        String[] result = mapper.readValue(sw.toString(), String[].class);
+        String[] result = MAPPER.readValue(sw.toString(), String[].class);
         assertNotNull(result);
 
         assertEquals(STRS.length, result.length);
@@ -256,12 +251,11 @@ public class TestArrayDeserialization
     public void testCharArray() throws Exception
     {
         final String TEST_STR = "Let's just test it? Ok!";
-        ObjectMapper mapper = new ObjectMapper();
-        char[] result = mapper.readValue("\""+TEST_STR+"\"", char[].class);
+        char[] result = MAPPER.readValue("\""+TEST_STR+"\"", char[].class);
         assertEquals(TEST_STR, new String(result));
 
         // And just for [JACKSON-289], let's verify that fluffy arrays work too
-        result = mapper.readValue("[\"a\",\"b\",\"c\"]", char[].class);
+        result = MAPPER.readValue("[\"a\",\"b\",\"c\"]", char[].class);
         assertEquals("abc", new String(result));
     }
 
@@ -273,8 +267,7 @@ public class TestArrayDeserialization
 
     public void testBooleanArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        boolean[] result = mapper.readValue("[ true, false, false ]", boolean[].class);
+        boolean[] result = MAPPER.readValue("[ true, false, false ]", boolean[].class);
         assertNotNull(result);
         assertEquals(3, result.length);
         assertTrue(result[0]);
@@ -284,7 +277,6 @@ public class TestArrayDeserialization
 
     public void testByteArrayAsNumbers() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         final int LEN = 37000;
         StringBuilder sb = new StringBuilder();
         sb.append('[');
@@ -295,7 +287,7 @@ public class TestArrayDeserialization
             sb.append(i & 0x7F);
         }
         sb.append(']');
-        byte[] result = mapper.readValue(sb.toString(), byte[].class);
+        byte[] result = MAPPER.readValue(sb.toString(), byte[].class);
         assertNotNull(result);
         assertEquals(LEN, result.length);
         for (int i = 0; i < LEN; ++i) {
@@ -324,8 +316,7 @@ public class TestArrayDeserialization
         jg.close();
         String inputData = sw.toString();
 
-        ObjectMapper mapper = new ObjectMapper();
-        byte[] result = mapper.readValue(inputData, byte[].class);
+        byte[] result = MAPPER.readValue(inputData, byte[].class);
         assertNotNull(result);
         assertArrayEquals(TEST, result);
     }
@@ -358,8 +349,7 @@ public class TestArrayDeserialization
 
         String inputData = sw.toString();
 
-        ObjectMapper mapper = new ObjectMapper();
-        byte[][] result = mapper.readValue(inputData, byte[][].class);
+        byte[][] result = MAPPER.readValue(inputData, byte[][].class);
         assertNotNull(result);
 
         assertEquals(entryCount, result.length);
@@ -373,7 +363,7 @@ public class TestArrayDeserialization
     public void testByteArraysWith763() throws Exception
     {
         String[] input = new String[] { "YQ==", "Yg==", "Yw==" };
-        byte[][] data = new ObjectMapper().convertValue(input, byte[][].class);
+        byte[][] data = MAPPER.convertValue(input, byte[][].class);
         assertEquals("a", new String(data[0], "US-ASCII"));
         assertEquals("b", new String(data[1], "US-ASCII"));
         assertEquals("c", new String(data[2], "US-ASCII"));
@@ -381,7 +371,6 @@ public class TestArrayDeserialization
     
     public void testShortArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         final int LEN = 31001; // fits in signed 16-bit
         StringBuilder sb = new StringBuilder();
         sb.append('[');
@@ -393,7 +382,7 @@ public class TestArrayDeserialization
         }
         sb.append(']');
 
-        short[] result = mapper.readValue(sb.toString(), short[].class);
+        short[] result = MAPPER.readValue(sb.toString(), short[].class);
         assertNotNull(result);
 
         assertEquals(LEN, result.length);
@@ -405,7 +394,6 @@ public class TestArrayDeserialization
 
     public void testIntArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         final int LEN = 70000;
 
         // Let's construct array to get it big enough
@@ -420,7 +408,7 @@ public class TestArrayDeserialization
         }
         sb.append(']');
 
-        int[] result = mapper.readValue(sb.toString(), int[].class);
+        int[] result = MAPPER.readValue(sb.toString(), int[].class);
         assertNotNull(result);
 
         assertEquals(LEN, result.length);
@@ -431,7 +419,6 @@ public class TestArrayDeserialization
 
     public void testLongArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         final int LEN = 12300;
         StringBuilder sb = new StringBuilder();
         sb.append('[');
@@ -443,7 +430,7 @@ public class TestArrayDeserialization
         }
         sb.append(']');
 
-        long[] result = mapper.readValue(sb.toString(), long[].class);
+        long[] result = MAPPER.readValue(sb.toString(), long[].class);
         assertNotNull(result);
 
         assertEquals(LEN, result.length);
@@ -455,7 +442,6 @@ public class TestArrayDeserialization
 
     public void testDoubleArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         final int LEN = 7000;
         StringBuilder sb = new StringBuilder();
         sb.append('[');
@@ -468,7 +454,7 @@ public class TestArrayDeserialization
         }
         sb.append(']');
 
-        double[] result = mapper.readValue(sb.toString(), double[].class);
+        double[] result = MAPPER.readValue(sb.toString(), double[].class);
         assertNotNull(result);
 
         assertEquals(LEN, result.length);
@@ -483,7 +469,6 @@ public class TestArrayDeserialization
 
     public void testFloatArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         final int LEN = 7000;
         StringBuilder sb = new StringBuilder();
         sb.append('[');
@@ -496,7 +481,7 @@ public class TestArrayDeserialization
         }
         sb.append(']');
 
-        float[] result = mapper.readValue(sb.toString(), float[].class);
+        float[] result = MAPPER.readValue(sb.toString(), float[].class);
         assertNotNull(result);
 
         assertEquals(LEN, result.length);
@@ -527,13 +512,12 @@ public class TestArrayDeserialization
         src.add(new Bean1(4, 5, b2));
 
         // Ok: let's assume bean serializer works ok....
-        ObjectMapper mapper = new ObjectMapper();
         StringWriter sw = new StringWriter();
 
-        mapper.writeValue(sw, src);
+        MAPPER.writeValue(sw, src);
 
         // And then test de-serializer
-        List<Bean1> result = mapper.readValue(sw.toString(), new TypeReference<List<Bean1>>() { });
+        List<Bean1> result = MAPPER.readValue(sw.toString(), new TypeReference<List<Bean1>>() { });
         assertNotNull(result);
         assertEquals(src, result);
     }

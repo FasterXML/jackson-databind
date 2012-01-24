@@ -17,6 +17,7 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
             location = new Location(x, y);
         }
     }
+
     static class DeepUnwrapping
     {
         @JsonUnwrapped
@@ -77,6 +78,25 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
         public ConfigRoot() { }
         public ConfigRoot(String name, int value)
         {
+            general = new ConfigGeneral(name);
+            misc.value = value;
+        }
+    }
+
+    static class ConfigAlternate
+    {
+        @JsonUnwrapped
+        public ConfigGeneral general = new ConfigGeneral();
+        
+        @JsonUnwrapped(prefix="misc.")
+        public ConfigMisc misc = new ConfigMisc();
+
+        public int id;
+        
+        public ConfigAlternate() { }
+        public ConfigAlternate(int id, String name, int value)
+        {
+            this.id = id;
             general = new ConfigGeneral(name);
             misc.value = value;
         }
@@ -165,5 +185,25 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
         assertNotNull(root.misc);
         assertEquals(3, root.misc.value);
         assertEquals("Bob", root.general.names.name);
+    }
+
+    /*
+    /**********************************************************
+    /* Tests, deserialization
+    /**********************************************************
+     */
+    
+    public void testHierarchicConfigRoundTrip() throws Exception
+    {
+        ConfigAlternate input = new ConfigAlternate(123, "Joe", 42);
+        String json = mapper.writeValueAsString(input);
+
+        ConfigAlternate root = mapper.readValue(json, ConfigAlternate.class);
+        assertEquals(123, root.id);
+        assertNotNull(root.general);
+        assertNotNull(root.general.names);
+        assertNotNull(root.misc);
+        assertEquals("Joe", root.general.names.name);
+        assertEquals(42, root.misc.value);
     }
 }

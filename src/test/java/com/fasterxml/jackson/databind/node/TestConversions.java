@@ -91,8 +91,6 @@ public class TestConversions extends BaseMapTest
         Root r1 = mapper.treeToValue(root, Root.class);
         assertNotNull(r1);
         assertEquals(13, r1.leaf.value);
-        Root r2 = mapper.readValue(root, Root.class);
-        assertEquals(13, r2.leaf.value);
     }
 
     // Test for [JACKSON-631]
@@ -141,7 +139,7 @@ public class TestConversions extends BaseMapTest
         byte[] inputData = new byte[] { 1, 2, 3 };
         ObjectNode node = mapper.createObjectNode();
         node.put("data", inputData);
-        Issue709Bean result = mapper.readValue(node, Issue709Bean.class);
+        Issue709Bean result = mapper.treeToValue(node, Issue709Bean.class);
         String json = mapper.writeValueAsString(node);
         Issue709Bean resultFromString = mapper.readValue(json, Issue709Bean.class);
         Issue709Bean resultFromConvert = mapper.convertValue(node, Issue709Bean.class);

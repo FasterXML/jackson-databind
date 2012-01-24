@@ -1,15 +1,9 @@
 package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.core.JsonNode;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.type.*;
 
 /**
@@ -20,8 +14,9 @@ import com.fasterxml.jackson.databind.type.*;
  * for other providers; in former case returned deserializer is used for handling of
  * instances of specified type.
  *<p>
- * Unlike with {@link Serializers}, multiple different methods are used since different
- * kinds of types typically require different kinds of inputs.
+ * Unlike with {@link com.fasterxml.jackson.databind.ser.Serializers},
+ * multiple different methods are used since different kinds of types typically
+ * require different kinds of inputs.
  */
 public interface Deserializers
 {

@@ -1408,7 +1408,7 @@ public class ObjectMapper
     {
         DeserializationConfig config = getDeserializationConfig();
         DeserializationContext ctxt = _createDeserializationContext(jp, config);
-        JsonDeserializer<?> deser = _findRootDeserializer(config, valueType);
+        JsonDeserializer<?> deser = _findRootDeserializer(ctxt, valueType);
         // false -> do NOT close JsonParser (since caller passed it)
         return new MappingIterator<T>(valueType, jp, ctxt, deser,
                 false, null);
@@ -1440,93 +1440,6 @@ public class ObjectMapper
     /* (mapping from JSON to Java types)
     /**********************************************************
      */
-    
-    /**
-     * Method to deserialize JSON content into a non-container
-     * type (it can be an array type, however): typically a bean, array
-     * or a wrapper type (like {@link java.lang.Boolean}).
-     *<p>
-     * Note: this method should NOT be used if the result type is a
-     * container ({@link java.util.Collection} or {@link java.util.Map}.
-     * The reason is that due to type erasure, key and value types
-     * can not be introspected when using this method.
-     *
-     * @param cfg Specific deserialization configuration to use for
-     *   this operation. Note that not all config settings can
-     *   be changed on per-operation basis: some changeds only take effect
-     *   before calling the operation for the first time (for the mapper
-     *   instance)
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser jp, Class<T> valueType, 
-                           DeserializationConfig cfg)
-        throws IOException, JsonParseException, JsonMappingException
-    {
-     // !!! TODO
-//    	_setupClassLoaderForDeserialization(valueType);
-        return (T) _readValue(cfg, jp, _typeFactory.constructType(valueType));
-    } 
-
-    /**
-     * Method to deserialize JSON content into a Java type, reference
-     * to which is passed as argument. Type is passed using so-called
-     * "super type token" (see )
-     * and specifically needs to be used if the root type is a 
-     * parameterized (generic) container type.
-     *
-     * @param cfg Specific deserialization configuration to use for
-     *   this operation. Note that not all config settings can
-     *   be changed on per-operation basis: some changeds only take effect
-     *   before calling the operation for the first time (for the mapper
-     *   instance)
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser jp, TypeReference<?> valueTypeRef,
-                           DeserializationConfig cfg)
-        throws IOException, JsonParseException, JsonMappingException
-    {
-        return (T) _readValue(cfg, jp, _typeFactory.constructType(valueTypeRef));
-    } 
-
-    /**
-     * Method to deserialize JSON content into a Java type, reference
-     * to which is passed as argument. Type is passed using 
-     * Jackson specific type; instance of which can be constructed using
-     * {@link TypeFactory}.
-     *
-     * @param cfg Specific deserialization configuration to use for
-     *   this operation. Note that not all config settings can
-     *   be changed on per-operation basis: some changeds only take effect
-     *   before calling the operation for the first time (for the mapper
-     *   instance)
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonParser jp, JavaType valueType,
-                           DeserializationConfig cfg)
-        throws IOException, JsonParseException, JsonMappingException
-    {
-        return (T) _readValue(cfg, jp, valueType);
-    } 
-
-    /**
-     * Method to deserialize JSON content as tree expressed
-     * using set of {@link JsonNode} instances. Returns
-     * root of the resulting tree (where root can consist
-     * of just a single node if the current event is a
-     * value event, not container).
-     *
-     * @param cfg Specific deserialization configuration to use for
-     *   this operation. Note that not all config settings can
-     *   be changed on per-operation basis: some changeds only take effect
-     *   before calling the operation for the first time (for the mapper
-     *   instance)
-     */
-    public JsonNode readTree(JsonParser jp, DeserializationConfig cfg)
-        throws IOException, JsonProcessingException
-    {
-        JsonNode n = (JsonNode) _readValue(cfg, jp, JSON_NODE_TYPE);
-        return (n == null) ? NullNode.instance : n;
-    }
 
     /**
      * Method to deserialize JSON content as tree expressed
@@ -1645,25 +1558,6 @@ public class ObjectMapper
     }
 
     /**
-     * Method that can be used to serialize any Java value as
-     * JSON output, using provided {@link JsonGenerator},
-     * configured as per passed configuration object.
-     */
-    public void writeValue(JsonGenerator jgen, Object value, SerializationConfig config)
-        throws IOException, JsonGenerationException, JsonMappingException
-    {
-        // [JACKSON-282] Consider java.util.Closeable
-        if (config.isEnabled(SerializationConfig.Feature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
-            _writeCloseableValue(jgen, value, config);
-        } else {
-            _serializerProvider.serializeValue(config, jgen, value, _serializerFactory);
-            if (config.isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE)) {
-                jgen.flush();
-            }
-        }
-    }
-
-    /**
      * Method to serialize given JSON Tree, using generator
      * provided.
      */
@@ -1674,20 +1568,6 @@ public class ObjectMapper
         SerializationConfig config = getSerializationConfig();
         _serializerProvider.serializeValue(config, jgen, rootNode, _serializerFactory);
         if (config.isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE)) {
-            jgen.flush();
-        }
-    }
-
-    /**
-     * Method to serialize given Json Tree, using generator
-     * provided.
-     */
-    public void writeTree(JsonGenerator jgen, JsonNode rootNode,
-                          SerializationConfig cfg)
-        throws IOException, JsonProcessingException
-    {
-        _serializerProvider.serializeValue(cfg, jgen, rootNode, _serializerFactory);
-        if (cfg.isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE)) {
             jgen.flush();
         }
     }
@@ -1993,54 +1873,10 @@ public class ObjectMapper
         return (T) _readMapAndClose(_jsonFactory.createJsonParser(src, offset, len), valueType);
     } 
     
-    /**
-     * Convenience method for converting results from given JSON tree into given
-     * value type. Basically short-cut for:
-     *<pre>
-     *   mapper.readValue(mapper.treeAsTokens(root), valueType);
-     *</pre>
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonNode root, Class<T> valueType)
-        throws IOException, JsonParseException, JsonMappingException
-    {
-     // !!! TODO
-//    	_setupClassLoaderForDeserialization(valueType);
-        return (T) _readValue(getDeserializationConfig(), treeAsTokens(root), _typeFactory.constructType(valueType));
-    } 
-
-    /**
-     * Convenience method for converting results from given JSON tree into given
-     * value type. Basically short-cut for:
-     *<pre>
-     *   mapper.readValue(mapper.treeAsTokens(root), valueType);
-     *</pre>
-     */
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T readValue(JsonNode root, TypeReference valueTypeRef)
-        throws IOException, JsonParseException, JsonMappingException
-    {
-        return (T) _readValue(getDeserializationConfig(), treeAsTokens(root), _typeFactory.constructType(valueTypeRef));
-    } 
-    
-    /**
-     * Convenience method for converting results from given JSON tree into given
-     * value type. Basically short-cut for:
-     *<pre>
-     *   mapper.readValue(mapper.treeAsTokens(root), valueType);
-     *</pre>
-     */
-    @SuppressWarnings("unchecked")
-    public <T> T readValue(JsonNode root, JavaType valueType)
-        throws IOException, JsonParseException, JsonMappingException
-    {
-        return (T) _readValue(getDeserializationConfig(), treeAsTokens(root), valueType);
-    } 
-    
     /*
     /**********************************************************
     /* Extended Public API: serialization
-    /* (mapping from Java types to Json)
+    /* (mapping from Java types to JSON)
     /**********************************************************
      */
 
@@ -2429,12 +2265,13 @@ public class ObjectMapper
             final DeserializationConfig deserConfig = getDeserializationConfig();
             JsonToken t = _initForReading(jp);
             if (t == JsonToken.VALUE_NULL) {
-                result = _findRootDeserializer(deserConfig, toValueType).getNullValue();
+                DeserializationContext ctxt = _createDeserializationContext(jp, deserConfig);
+                result = _findRootDeserializer(ctxt, toValueType).getNullValue();
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = null;
             } else { // pointing to event other than null
                 DeserializationContext ctxt = _createDeserializationContext(jp, deserConfig);
-                JsonDeserializer<Object> deser = _findRootDeserializer(deserConfig, toValueType);
+                JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, toValueType);
                 // note: no handling of unwarpping
                 result = deser.deserialize(jp, ctxt);
             }
@@ -2631,12 +2468,13 @@ public class ObjectMapper
         JsonToken t = _initForReading(jp);
         if (t == JsonToken.VALUE_NULL) {
             // [JACKSON-643]: Ask JsonDeserializer what 'null value' to use:
-            result = _findRootDeserializer(cfg, valueType).getNullValue();
+            DeserializationContext ctxt = _createDeserializationContext(jp, cfg);
+            result = _findRootDeserializer(ctxt, valueType).getNullValue();
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = null;
         } else { // pointing to event other than null
             DeserializationContext ctxt = _createDeserializationContext(jp, cfg);
-            JsonDeserializer<Object> deser = _findRootDeserializer(cfg, valueType);
+            JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
             // ok, let's get the value
             if (cfg.useRootWrapping()) {
                 result = _unwrapAndDeserialize(jp, ctxt, cfg, valueType, deser);
@@ -2657,13 +2495,15 @@ public class ObjectMapper
             JsonToken t = _initForReading(jp);
             if (t == JsonToken.VALUE_NULL) {
                 // [JACKSON-643]: Ask JsonDeserializer what 'null value' to use:
-                result = _findRootDeserializer(getDeserializationConfig(), valueType).getNullValue();
+                DeserializationContext ctxt = _createDeserializationContext(jp,
+                        getDeserializationConfig());
+                result = _findRootDeserializer(ctxt, valueType).getNullValue();
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = null;
             } else {
                 DeserializationConfig cfg = getDeserializationConfig();
                 DeserializationContext ctxt = _createDeserializationContext(jp, cfg);
-                JsonDeserializer<Object> deser = _findRootDeserializer(cfg, valueType);
+                JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
                 if (cfg.useRootWrapping()) {
                     result = _unwrapAndDeserialize(jp, ctxt, cfg, valueType, deser);
                 } else {
@@ -2759,7 +2599,8 @@ public class ObjectMapper
     /**
      * Method called to locate deserializer for the passed root-level value.
      */
-    protected JsonDeserializer<Object> _findRootDeserializer(DeserializationConfig cfg, JavaType valueType)
+    protected JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt,
+            JavaType valueType)
         throws JsonMappingException
     {
         // First: have we already seen it?
@@ -2768,7 +2609,7 @@ public class ObjectMapper
             return deser;
         }
         // Nope: need to ask provider to resolve it
-        deser = _deserializerProvider.findTypedValueDeserializer(cfg, valueType, null);
+        deser = ctxt.findTypedValueDeserializer(valueType, null);
         if (deser == null) { // can this happen?
             throw new JsonMappingException("Can not find a deserializer for type "+valueType);
         }

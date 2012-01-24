@@ -33,10 +33,16 @@ public class EnumMapDeserializer
     
     protected final Class<?> _enumClass;
 
-    protected final JsonDeserializer<Enum<?>> _keyDeserializer;
+    protected JsonDeserializer<Enum<?>> _keyDeserializer;
 
     protected JsonDeserializer<Object> _valueDeserializer;
 
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+    
     public EnumMapDeserializer(JavaType mapType, BeanProperty prop,
             JsonDeserializer<?> keyDeserializer, JsonDeserializer<Object> valueDeser)
     {
@@ -48,6 +54,22 @@ public class EnumMapDeserializer
         _valueDeserializer = valueDeser;
     }
 
+    @Override
+    public void resolve(DeserializationContext ctxt) throws JsonMappingException
+    {
+        if (_keyDeserializer == null) {
+            // note: instead of finding key deserializer, with enums we actually
+            // work with regular deserializers (less code duplication; but not
+            // quite as clean as it ought to be)
+            _keyDeserializer = (JsonDeserializer<Enum<?>>)(JsonDeserializer<?>)
+                ctxt.findValueDeserializer(_mapType.getKeyType(), _property);
+        }
+        if (_valueDeserializer == null) {
+            // 'null' -> arrays have no referring fields
+            _valueDeserializer = ctxt.findValueDeserializer(_mapType.getContentType(), _property);
+        }
+    }
+    
     /**
      * Because of costs associated with constructing Enum resolvers,
      * let's cache instances by default.
@@ -55,6 +77,12 @@ public class EnumMapDeserializer
     @Override
     public boolean isCachable() { return true; }
     
+    /*
+    /**********************************************************
+    /* Actual deserialization
+    /**********************************************************
+     */
+
     @Override
     public EnumMap<?,?> deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
@@ -89,15 +117,6 @@ public class EnumMapDeserializer
     {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
-    }
-
-    @Override
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException
-    {
-        if (_valueDeserializer == null) {
-            // 'null' -> arrays have no referring fields
-            _valueDeserializer = ctxt.findValueDeserializer(_mapType.getContentType(), _property);
-        }
     }
     
     private EnumMap<?,?> constructMap() {

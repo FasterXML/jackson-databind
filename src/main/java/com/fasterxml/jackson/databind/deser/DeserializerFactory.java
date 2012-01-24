@@ -215,7 +215,7 @@ public abstract class DeserializerFactory
      * @param type Type to be deserialized
      */
     public abstract JsonDeserializer<Object> createBeanDeserializer(DeserializationConfig config,
-            JavaType type, BeanProperty property)
+            JavaType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
     /**
@@ -226,27 +226,27 @@ public abstract class DeserializerFactory
      * @param type Type to be deserialized
      */
     public abstract JsonDeserializer<?> createArrayDeserializer(DeserializationConfig config,
-            ArrayType type, BeanProperty property)
+            ArrayType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createCollectionDeserializer(DeserializationConfig config,
-            CollectionType type, BeanProperty property)
+            CollectionType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationConfig config,
-            CollectionLikeType type, BeanProperty property)
+            CollectionLikeType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
     
     public abstract JsonDeserializer<?> createEnumDeserializer(DeserializationConfig config,
-            JavaType type, BeanProperty property)
+            JavaType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createMapDeserializer(DeserializationConfig config,
-            MapType type, BeanProperty property)
+            MapType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createMapLikeDeserializer(DeserializationConfig config,
-            MapLikeType type, BeanProperty property)
+            MapLikeType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
     /**
@@ -254,7 +254,7 @@ public abstract class DeserializerFactory
      * JsonNode(s) from JSON content.
      */
     public abstract JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config,
-            JavaType type, BeanProperty property)
+            JavaType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
     /**
@@ -265,13 +265,9 @@ public abstract class DeserializerFactory
      * @return Key deserializer to use for specified type, if one found; null if not
      *   (and default key deserializer should be used)
      */
-    public KeyDeserializer createKeyDeserializer(DeserializationConfig config,
+    public abstract KeyDeserializer createKeyDeserializer(DeserializationConfig config,
             JavaType type, BeanProperty property)
-        throws JsonMappingException
-    {
-        // Default implementation returns null for backwards compatibility reasons
-        return null;
-    }
+        throws JsonMappingException;
     
     /**
      * Method called to find and create a type information deserializer for given base type,
@@ -286,11 +282,7 @@ public abstract class DeserializerFactory
      * 
      * @return Type deserializer to use for given base type, if one is needed; null if not.
      */
-    public TypeDeserializer findTypeDeserializer(DeserializationConfig config, JavaType baseType,
-            BeanProperty property)
-        throws JsonMappingException
-    {
-        // Default implementation returns null for backwards compatibility reasons
-        return null;
-    }
+    public abstract TypeDeserializer findTypeDeserializer(DeserializationConfig config,
+            JavaType baseType, BeanProperty property)
+        throws JsonMappingException;
 }

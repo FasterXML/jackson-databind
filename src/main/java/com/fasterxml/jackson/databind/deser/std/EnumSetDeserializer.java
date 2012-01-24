@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -19,16 +20,24 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 @SuppressWarnings("rawtypes")
 public class EnumSetDeserializer
     extends StdDeserializer<EnumSet<?>>
+    implements ResolvableDeserializer
 {
+    protected final JavaType _enumType;
+
+    protected final BeanProperty _property;
+
     protected final Class<Enum> _enumClass;
 
-    protected final JsonDeserializer<Enum<?>> _enumDeserializer;
+    protected JsonDeserializer<Enum<?>> _enumDeserializer;
 
     @SuppressWarnings("unchecked" )
-    public EnumSetDeserializer(Class<?> enumClass, JsonDeserializer<?> deser)
+    public EnumSetDeserializer(JavaType enumType, BeanProperty prop,
+            JsonDeserializer<?> deser)
     {
         super(EnumSet.class);
-        _enumClass = (Class<Enum>) enumClass;
+        _enumType = enumType;
+        _property = prop;
+        _enumClass = (Class<Enum>) enumType.getRawClass();
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
     }
 
@@ -38,6 +47,16 @@ public class EnumSetDeserializer
      */
     @Override
     public boolean isCachable() { return true; }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public void resolve(DeserializationContext ctxt) throws JsonMappingException
+    {
+        if (_enumDeserializer == null) {
+            _enumDeserializer = (JsonDeserializer<Enum<?>>)(JsonDeserializer<?>)
+                ctxt.findValueDeserializer(_enumType, _property);
+        }
+    }
     
     @SuppressWarnings("unchecked") 
     @Override

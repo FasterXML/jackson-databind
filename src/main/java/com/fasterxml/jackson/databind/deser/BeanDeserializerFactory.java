@@ -397,6 +397,7 @@ public class BeanDeserializerFactory
     public JavaType mapAbstractType(DeserializationConfig config, JavaType type)
         throws JsonMappingException
     {
+        // first, general mappings
         while (true) {
             JavaType next = _mapAbstractType2(config, type);
             if (next == null) {
@@ -477,26 +478,9 @@ public class BeanDeserializerFactory
      */
     @Override
     public JsonDeserializer<Object> createBeanDeserializer(DeserializationConfig config,
-            JavaType type, BeanProperty property)
+            JavaType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException
     {
-        // First things first: abstract types may use defaulting:
-        if (type.isAbstract()) {
-            type = mapAbstractType(config, type);
-        }
-        
-        // First things first: maybe explicit definition via annotations?
-        BeanDescription beanDesc = config.introspect(type);
-        JsonDeserializer<Object> ad = findDeserializerFromAnnotation(config, beanDesc.getClassInfo(), property);
-        if (ad != null) {
-            return ad;
-        }
-        // Or value annotation that indicates more specific type to use:
-        JavaType newType =  modifyTypeByAnnotation(config, beanDesc.getClassInfo(), type, null);
-        if (newType.getRawClass() != type.getRawClass()) {
-            type = newType;
-            beanDesc = config.introspect(type);
-        }
         // We may also have custom overrides:
         JsonDeserializer<Object> custom = _findCustomBeanDeserializer(type, config, beanDesc, property);
         if (custom != null) {
@@ -1380,5 +1364,110 @@ public class BeanDeserializerFactory
             }
         }
         return status;
+    }
+
+    /**
+     * Method called to see if given method has annotations that indicate
+     * a more specific type than what the argument specifies.
+     * If annotations are present, they must specify compatible Class;
+     * instance of which can be assigned using the method. This means
+     * that the Class has to be raw class of type, or its sub-class
+     * (or, implementing class if original Class instance is an interface).
+     *
+     * @param a Method or field that the type is associated with
+     * @param type Type derived from the setter argument
+     * @param propName Name of property that refers to type, if any; null
+     *   if no property information available (when modify type declaration
+     *   of a class, for example)
+     *
+     * @return Original type if no annotations are present; or a more
+     *   specific type derived from it if type annotation(s) was found
+     *
+     * @throws JsonMappingException if invalid annotation is found
+     */
+    @SuppressWarnings({ "unchecked" })
+    protected <T extends JavaType> T modifyTypeByAnnotation(DeserializationConfig config,
+            Annotated a, T type, String propName)
+        throws JsonMappingException
+    {
+        // first: let's check class for the instance itself:
+        AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        Class<?> subclass = intr.findDeserializationType(a, type, propName);
+        if (subclass != null) {
+            try {
+                type = (T) type.narrowBy(subclass);
+            } catch (IllegalArgumentException iae) {
+                throw new JsonMappingException("Failed to narrow type "+type+" with concrete-type annotation (value "+subclass.getName()+"), method '"+a.getName()+"': "+iae.getMessage(), null, iae);
+            }
+        }
+
+        // then key class
+        if (type.isContainerType()) {
+            Class<?> keyClass = intr.findDeserializationKeyType(a, type.getKeyType(), propName);
+            if (keyClass != null) {
+                // illegal to use on non-Maps
+                if (!(type instanceof MapLikeType)) {
+                    throw new JsonMappingException("Illegal key-type annotation: type "+type+" is not a Map(-like) type");
+                }
+                try {
+                    type = (T) ((MapLikeType) type).narrowKey(keyClass);
+                } catch (IllegalArgumentException iae) {
+                    throw new JsonMappingException("Failed to narrow key type "+type+" with key-type annotation ("+keyClass.getName()+"): "+iae.getMessage(), null, iae);
+                }
+            }
+            JavaType keyType = type.getKeyType();
+            /* 21-Mar-2011, tatu: ... and associated deserializer too (unless already assigned)
+             *   (not 100% why or how, but this does seem to get called more than once, which
+             *   is not good: for now, let's just avoid errors)
+             */
+            if (keyType != null && keyType.getValueHandler() == null) {
+                Object kdDef = intr.findKeyDeserializer(a);
+                if (kdDef != null) {
+                    KeyDeserializer kd = null;
+                    if (kdDef instanceof KeyDeserializer) {
+                        kd = (KeyDeserializer) kdDef;
+                    } else {
+                        Class<?> kdClass = _verifyAsClass(kdDef, "findKeyDeserializer", KeyDeserializer.None.class);
+                        if (kdClass != null) {
+                            kd = config.keyDeserializerInstance(a, kdClass);
+                        }
+                    }
+                    if (kd != null) {
+                        type = (T) ((MapLikeType) type).withKeyValueHandler(kd);
+                        keyType = type.getKeyType(); // just in case it's used below
+                    }
+                }
+            }            
+           
+           // and finally content class; only applicable to structured types
+           Class<?> cc = intr.findDeserializationContentType(a, type.getContentType(), propName);
+           if (cc != null) {
+               try {
+                   type = (T) type.narrowContentsBy(cc);
+               } catch (IllegalArgumentException iae) {
+                   throw new JsonMappingException("Failed to narrow content type "+type+" with content-type annotation ("+cc.getName()+"): "+iae.getMessage(), null, iae);
+               }
+           }
+           // ... as well as deserializer for contents:
+           JavaType contentType = type.getContentType();
+           if (contentType.getValueHandler() == null) { // as with above, avoid resetting (which would trigger exception)
+               Object cdDef = intr.findContentDeserializer(a);
+                if (cdDef != null) {
+                    JsonDeserializer<?> cd = null;
+                    if (cdDef instanceof JsonDeserializer<?>) {
+                        cdDef = (JsonDeserializer<?>) cdDef;
+                    } else {
+                        Class<?> cdClass = _verifyAsClass(cdDef, "findContentDeserializer", JsonDeserializer.None.class);
+                        if (cdClass != null) {
+                            cd = config.deserializerInstance(a, cdClass);
+                        }
+                    }
+                    if (cd != null) {
+                        type = (T) type.withContentValueHandler(cd);
+                    }
+                }
+            }
+        }
+        return type;
     }
 }

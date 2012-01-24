@@ -8,6 +8,8 @@ import com.fasterxml.jackson.core.JsonNode;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.NoClass;
+import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.CollectionLikeType;
@@ -272,7 +274,7 @@ public final class DeserializerCache
 
     /*
     /**********************************************************
-    /* Overridable helper methods
+    /* Helper methods that handle cache lookups
     /**********************************************************
      */
 
@@ -336,7 +338,7 @@ public final class DeserializerCache
     {
         JsonDeserializer<Object> deser;
         try {
-            deser = _createDeserializer(ctxt.getConfig(), type, property);
+            deser = _createDeserializer(ctxt, type, property);
         } catch (IllegalArgumentException iae) {
             /* We better only expose checked exceptions, since those
              * are what caller is expected to handle
@@ -367,7 +369,7 @@ public final class DeserializerCache
          */
         if (isResolvable) {
             _incompleteDeserializers.put(type, deser);
-            _resolveDeserializer(ctxt, (ResolvableDeserializer)deser);
+            ((ResolvableDeserializer)deser).resolve(ctxt);
             _incompleteDeserializers.remove(type);
         }
         if (addToCache) {
@@ -376,55 +378,247 @@ public final class DeserializerCache
         return deser;
     }
 
-    /* Refactored so we can isolate the casts that require suppression
-     * of type-safety warnings.
+    /*
+    /**********************************************************
+    /* Helper methods for actual construction of deserializers
+    /**********************************************************
+     */
+    
+    /**
+     * Method that does the heavy lifting of checking for per-type annotations,
+     * find out full type, and figure out which actual factory method
+     * to call.
      */
     @SuppressWarnings("unchecked")
-    protected JsonDeserializer<Object> _createDeserializer(DeserializationConfig config, 
+    protected JsonDeserializer<Object> _createDeserializer(DeserializationContext ctxt,
             JavaType type, BeanProperty property)
         throws JsonMappingException
     {
+        final DeserializationConfig config = ctxt.getConfig();
+
+        // First things first: do we need to use abstract type mapping?
+        if (type.isAbstract() || type.isMapLikeType() || type.isCollectionLikeType()) {
+            type = _factory.mapAbstractType(config, type);
+        }
+        BeanDescription beanDesc = config.introspect(type);
+        // Then: does type define explicit deserializer to use, with annotation(s)?
+        JsonDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt,
+                beanDesc.getClassInfo(), property);
+        if (deser != null) {
+            return deser;
+        }
+
+        // If not, may have further type-modification annotations to check:
+        JavaType newType = modifyTypeByAnnotation(config, beanDesc.getClassInfo(), type, property);
+        if (newType != type) {
+            type = newType;
+            beanDesc = config.introspect(newType);
+        }
+
+        // If not, let's see which factory method to use:
         if (type.isEnumType()) {
-            return (JsonDeserializer<Object>) _factory.createEnumDeserializer(config, type, property);
+            return (JsonDeserializer<Object>) _factory.createEnumDeserializer(config, type,
+                    beanDesc, property);
         }
         if (type.isContainerType()) {
             if (type.isArrayType()) {
                 return (JsonDeserializer<Object>)_factory.createArrayDeserializer(config,
-                        (ArrayType) type, property);
+                        (ArrayType) type, beanDesc, property);
             }
             if (type.isMapLikeType()) {
                 MapLikeType mlt = (MapLikeType) type;
                 if (mlt.isTrueMapType()) {
                     return (JsonDeserializer<Object>)_factory.createMapDeserializer(config,
-                            (MapType) mlt, property);
+                            (MapType) mlt, beanDesc, property);
                 }
                 return (JsonDeserializer<Object>)_factory.createMapLikeDeserializer(config,
-                        mlt, property);
+                        mlt, beanDesc, property);
             }
             if (type.isCollectionLikeType()) {
                 CollectionLikeType clt = (CollectionLikeType) type;
                 if (clt.isTrueCollectionType()) {
                     return (JsonDeserializer<Object>)_factory.createCollectionDeserializer(config,
-                            (CollectionType) clt, property);
+                            (CollectionType) clt, beanDesc, property);
                 }
                 return (JsonDeserializer<Object>)_factory.createCollectionLikeDeserializer(config,
-                        clt, property);
+                        clt, beanDesc, property);
             }
         }
 
         // 02-Mar-2009, tatu: Let's consider JsonNode to be a type of its own
         if (JsonNode.class.isAssignableFrom(type.getRawClass())) {
-            return (JsonDeserializer<Object>)_factory.createTreeDeserializer(config, type, property);
+            return (JsonDeserializer<Object>)_factory.createTreeDeserializer(config, type, beanDesc, property);
         }
-        return (JsonDeserializer<Object>)_factory.createBeanDeserializer(config, type, property);
+        return (JsonDeserializer<Object>)_factory.createBeanDeserializer(config, type, beanDesc, property);
     }
 
-    protected void _resolveDeserializer(DeserializationContext ctxt, ResolvableDeserializer ser)
+    /**
+     * Helper method called to check if a class or method
+     * has annotation that tells which class to use for deserialization.
+     * Returns null if no such annotation found.
+     */
+    @SuppressWarnings("unchecked")
+    protected JsonDeserializer<Object> findDeserializerFromAnnotation(DeserializationContext ctxt,
+            Annotated ann, BeanProperty property)
         throws JsonMappingException
     {
-        ser.resolve(ctxt);
+        Object deserDef = ctxt.getAnnotationIntrospector().findDeserializer(ann);
+        if (deserDef == null) {
+            return null;
+        }
+        if (deserDef instanceof JsonDeserializer) {
+            JsonDeserializer<Object> deser = (JsonDeserializer<Object>) deserDef;
+            // related to [JACKSON-569], need contextualization:
+            if (deser instanceof ContextualDeserializer<?>) {
+                deser = (JsonDeserializer<Object>)((ContextualDeserializer<?>) deser).createContextual(ctxt.getConfig(), property);
+            }
+            return deser;
+        }
+        /* Alas, there's no way to force return type of "either class
+         * X or Y" -- need to throw an exception after the fact
+         */
+        if (!(deserDef instanceof Class)) {
+            throw new IllegalStateException("AnnotationIntrospector returned deserializer definition of type "+deserDef.getClass().getName()+"; expected type JsonDeserializer or Class<JsonDeserializer> instead");
+        }
+        Class<? extends JsonDeserializer<?>> deserClass = (Class<? extends JsonDeserializer<?>>) deserDef;
+        if (!JsonDeserializer.class.isAssignableFrom(deserClass)) {
+            throw new IllegalStateException("AnnotationIntrospector returned Class "+deserClass.getName()+"; expected Class<JsonDeserializer>");
+        }
+        JsonDeserializer<Object> deser = ctxt.getConfig().deserializerInstance(ann, deserClass);
+        // related to [JACKSON-569], need contextualization:
+        if (deser instanceof ContextualDeserializer<?>) {
+            deser = (JsonDeserializer<Object>)((ContextualDeserializer<?>) deser).createContextual(ctxt.getConfig(), property);
+        }
+        return deser;
+    }
+    
+    private JavaType modifyTypeByAnnotation(DeserializationConfig config,
+            Annotated a, JavaType type, BeanProperty prop)
+        throws JsonMappingException
+    {
+        return modifyTypeByAnnotation(config, a, type,
+                (prop == null)  ? null : prop.getName());
     }
 
+    /**
+     * Method called to see if given method has annotations that indicate
+     * a more specific type than what the argument specifies.
+     * If annotations are present, they must specify compatible Class;
+     * instance of which can be assigned using the method. This means
+     * that the Class has to be raw class of type, or its sub-class
+     * (or, implementing class if original Class instance is an interface).
+     *
+     * @param a Method or field that the type is associated with
+     * @param type Type derived from the setter argument
+     * @param propName Name of property that refers to type, if any; null
+     *   if no property information available (when modify type declaration
+     *   of a class, for example)
+     *
+     * @return Original type if no annotations are present; or a more
+     *   specific type derived from it if type annotation(s) was found
+     *
+     * @throws JsonMappingException if invalid annotation is found
+     */
+    private JavaType modifyTypeByAnnotation(DeserializationConfig config,
+            Annotated a, JavaType type, String propName)
+        throws JsonMappingException
+    {
+        // first: let's check class for the instance itself:
+        AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        Class<?> subclass = intr.findDeserializationType(a, type, propName);
+        if (subclass != null) {
+            try {
+                type = type.narrowBy(subclass);
+            } catch (IllegalArgumentException iae) {
+                throw new JsonMappingException("Failed to narrow type "+type+" with concrete-type annotation (value "+subclass.getName()+"), method '"+a.getName()+"': "+iae.getMessage(), null, iae);
+            }
+        }
+
+        // then key class
+        if (type.isContainerType()) {
+            Class<?> keyClass = intr.findDeserializationKeyType(a, type.getKeyType(), propName);
+            if (keyClass != null) {
+                // illegal to use on non-Maps
+                if (!(type instanceof MapLikeType)) {
+                    throw new JsonMappingException("Illegal key-type annotation: type "+type+" is not a Map(-like) type");
+                }
+                try {
+                    type = ((MapLikeType) type).narrowKey(keyClass);
+                } catch (IllegalArgumentException iae) {
+                    throw new JsonMappingException("Failed to narrow key type "+type+" with key-type annotation ("+keyClass.getName()+"): "+iae.getMessage(), null, iae);
+                }
+            }
+            JavaType keyType = type.getKeyType();
+            /* 21-Mar-2011, tatu: ... and associated deserializer too (unless already assigned)
+             *   (not 100% why or how, but this does seem to get called more than once, which
+             *   is not good: for now, let's just avoid errors)
+             */
+            if (keyType != null && keyType.getValueHandler() == null) {
+                Object kdDef = intr.findKeyDeserializer(a);
+                if (kdDef != null) {
+                    KeyDeserializer kd = null;
+                    if (kdDef instanceof KeyDeserializer) {
+                        kd = (KeyDeserializer) kdDef;
+                    } else {
+                        Class<?> kdClass = _verifyAsClass(kdDef, "findKeyDeserializer", KeyDeserializer.None.class);
+                        if (kdClass != null) {
+                            kd = config.keyDeserializerInstance(a, kdClass);
+                        }
+                    }
+                    if (kd != null) {
+                        type = ((MapLikeType) type).withKeyValueHandler(kd);
+                        keyType = type.getKeyType(); // just in case it's used below
+                    }
+                }
+            }            
+            
+            // and finally content class; only applicable to structured types
+            Class<?> cc = intr.findDeserializationContentType(a, type.getContentType(), propName);
+            if (cc != null) {
+                try {
+                    type = type.narrowContentsBy(cc);
+                } catch (IllegalArgumentException iae) {
+                    throw new JsonMappingException("Failed to narrow content type "+type+" with content-type annotation ("+cc.getName()+"): "+iae.getMessage(), null, iae);
+                }
+            }
+            // ... as well as deserializer for contents:
+            JavaType contentType = type.getContentType();
+            if (contentType.getValueHandler() == null) { // as with above, avoid resetting (which would trigger exception)
+                Object cdDef = intr.findContentDeserializer(a);
+                if (cdDef != null) {
+                    JsonDeserializer<?> cd = null;
+                    if (cdDef instanceof JsonDeserializer<?>) {
+                        cdDef = (JsonDeserializer<?>) cdDef;
+                    } else {
+                        Class<?> cdClass = _verifyAsClass(cdDef, "findContentDeserializer", JsonDeserializer.None.class);
+                        if (cdClass != null) {
+                            cd = config.deserializerInstance(a, cdClass);
+                        }
+                    }
+                    if (cd != null) {
+                        type = type.withContentValueHandler(cd);
+                    }
+                }
+            }
+        }
+        return type;
+    }
+
+    private Class<?> _verifyAsClass(Object src, String methodName, Class<?> noneClass)
+    {
+        if (src == null) {
+            return null;
+        }
+        if (!(src instanceof Class)) {
+            throw new IllegalStateException("AnnotationIntrospector."+methodName+"() returned value of type "+src.getClass().getName()+": expected type JsonSerializer or Class<JsonSerializer> instead");
+        }
+        Class<?> cls = (Class<?>) src;
+        if (cls == noneClass || cls == NoClass.class) {
+            return null;
+        }
+        return cls;
+    }
+    
     /*
     /**********************************************************
     /* Overridable error reporting methods

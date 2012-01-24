@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
+import com.fasterxml.jackson.databind.util.RootNameLookup;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -230,6 +231,11 @@ public class ObjectMapper
      * super/sub-types as needed.
      */
     protected SubtypeResolver _subtypeResolver;
+
+    /**
+     * Cache for root names used when root-wrapping is enabled.
+     */
+    protected final RootNameLookup _rootNames;
     
     /*
     /**********************************************************
@@ -388,6 +394,7 @@ public class ObjectMapper
             }
         }
         _subtypeResolver = new StdSubtypeResolver();
+        _rootNames = new RootNameLookup();
         // and default type factory is shared one
         _typeFactory = TypeFactory.defaultInstance();
         _serializationConfig = new SerializationConfig(DEFAULT_BASE,
@@ -2716,7 +2723,7 @@ public class ObjectMapper
     {
         String expName = config.getRootName();
         if (expName == null) {
-            SerializedString sstr = _deserializerProvider.findExpectedRootName(config, rootType);
+            SerializedString sstr = _rootNames.findRootName(rootType, config);
             expName = sstr.getValue();
         }
         if (jp.getCurrentToken() != JsonToken.START_OBJECT) {

@@ -1,12 +1,6 @@
 package com.fasterxml.jackson.databind;
 
-import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
-import com.fasterxml.jackson.databind.deser.DeserializerFactory;
-import com.fasterxml.jackson.databind.deser.Deserializers;
-import com.fasterxml.jackson.databind.deser.KeyDeserializers;
-import com.fasterxml.jackson.databind.deser.ValueInstantiators;
-
+import com.fasterxml.jackson.databind.deser.*;
 
 /**
  * Abstract class that defines API used by {@link ObjectMapper} and
@@ -123,13 +117,6 @@ public abstract class DeserializerProvider
      * Will either return passed type, or a more specific type.
      */
     public abstract JavaType mapAbstractType(DeserializationConfig config, JavaType type)
-        throws JsonMappingException;
-
-
-    /**
-     * Method that can be used to try find expected root name for given type
-     */
-    public abstract SerializedString findExpectedRootName(DeserializationConfig config, JavaType type)
         throws JsonMappingException;
     
     /*

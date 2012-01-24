@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import com.fasterxml.jackson.databind.type.SimpleType;
+import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
  * Builder object that can be used for per-serialization configuration of
@@ -59,6 +60,11 @@ public class ObjectReader
      * Factory used for constructing {@link JsonGenerator}s
      */
     protected final JsonFactory _jsonFactory;
+
+    /**
+     * Cache for root names used when root-wrapping is enabled.
+     */
+    protected final RootNameLookup _rootNames;
     
     /*
     /**********************************************************
@@ -119,6 +125,7 @@ public class ObjectReader
         _rootDeserializers = mapper._rootDeserializers;
         _provider = mapper._deserializerProvider;
         _jsonFactory = mapper._jsonFactory;
+        _rootNames = mapper._rootNames;
         _valueType = valueType;
         _valueToUpdate = valueToUpdate;
         if (valueToUpdate != null && valueType.isArrayType()) {
@@ -141,6 +148,7 @@ public class ObjectReader
         _rootDeserializers = base._rootDeserializers;
         _provider = base._provider;
         _jsonFactory = base._jsonFactory;
+        _rootNames = base._rootNames;
 
         _valueType = valueType;
         _valueToUpdate = valueToUpdate;
@@ -162,6 +170,7 @@ public class ObjectReader
         _rootDeserializers = base._rootDeserializers;
         _provider = base._provider;
         _jsonFactory = base._jsonFactory;
+        _rootNames = base._rootNames;
 
         _valueType = base._valueType;
         _valueToUpdate = base._valueToUpdate;
@@ -929,7 +938,7 @@ public class ObjectReader
     {
         String expName = _config.getRootName();
         if (expName == null) {
-            SerializedString sstr = _provider.findExpectedRootName(_config, rootType);
+            SerializedString sstr = _rootNames.findRootName(rootType, _config);
             expName = sstr.getValue();
         }
         if (jp.getCurrentToken() != JsonToken.START_OBJECT) {

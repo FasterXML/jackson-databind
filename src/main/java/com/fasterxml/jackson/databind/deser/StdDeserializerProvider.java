@@ -5,12 +5,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
  * Default {@link DeserializerProvider} implementation.
@@ -47,8 +45,6 @@ public class StdDeserializerProvider
      */
     final protected HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
         = new HashMap<JavaType, JsonDeserializer<Object>>(8);
-
-    final protected RootNameLookup _rootNames;
     
     /*
     /**********************************************************
@@ -78,7 +74,6 @@ public class StdDeserializerProvider
 
     public StdDeserializerProvider(DeserializerFactory f) {
         _factory = f;
-        _rootNames = new RootNameLookup();
     }
 
     @Override
@@ -127,13 +122,6 @@ public class StdDeserializerProvider
             throws JsonMappingException
     {
         return _factory.mapAbstractType(config, type);
-    }
-
-    @Override
-    public SerializedString findExpectedRootName(DeserializationConfig config, JavaType type)
-         throws JsonMappingException
-    {
-        return _rootNames.findRootName(type, config);
     }
     
     @SuppressWarnings("unchecked")

@@ -93,6 +93,30 @@ public class StdDeserializationContext
         }
         return _injectableValues.findInjectableValue(valueId, this, forProperty, beanInstance);
     }
+
+    /*
+    /**********************************************************
+    /* Public API, pass-through to DeserializerProvider
+    /**********************************************************
+     */
+
+    @Override
+    public JsonDeserializer<Object> findValueDeserializer(JavaType type,
+            BeanProperty property) throws JsonMappingException {
+        return _deserProvider.findValueDeserializer(_config, type, property);
+    }
+    
+    @Override
+    public JsonDeserializer<Object> findTypedValueDeserializer(JavaType type,
+            BeanProperty property) throws JsonMappingException {
+        return _deserProvider.findTypedValueDeserializer(_config, type, property);
+    }
+
+    @Override
+    public KeyDeserializer findKeyDeserializer(JavaType keyType,
+            BeanProperty property) throws JsonMappingException {
+        return _deserProvider.findKeyDeserializer(_config, keyType, property);
+    }
     
     /*
     /**********************************************************

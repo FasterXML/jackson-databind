@@ -103,21 +103,6 @@ public abstract class DeserializerProvider
      * through fields or membership in an array or collection)
      */
     public abstract boolean hasValueDeserializerFor(DeserializationConfig config, JavaType type);
-
-    /*
-    /**********************************************************
-    /* Additional type handling methods, related
-    /**********************************************************
-     */
-
-    /**
-     * Method that can be called to try to resolve an abstract type
-     * (interface, abstract class) into a concrete type, or at least
-     * something "more concrete" (abstract class instead of interface).
-     * Will either return passed type, or a more specific type.
-     */
-    public abstract JavaType mapAbstractType(DeserializationConfig config, JavaType type)
-        throws JsonMappingException;
     
     /*
     /**********************************************************

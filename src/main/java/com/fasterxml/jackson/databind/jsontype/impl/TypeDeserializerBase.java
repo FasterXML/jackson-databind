@@ -126,7 +126,7 @@ public abstract class TypeDeserializerBase extends TypeDeserializer
                     if (_baseType != null && _baseType.getClass() == type.getClass()) {
                         type = _baseType.narrowBy(type.getRawClass());
                     }
-                    deser = ctxt.getDeserializerProvider().findValueDeserializer(ctxt.getConfig(), type, _property);
+                    deser = ctxt.findValueDeserializer(type, _property);
                 }
                 _deserializers.put(typeId, deser);
             }
@@ -142,8 +142,7 @@ public abstract class TypeDeserializerBase extends TypeDeserializer
         }
         synchronized (_defaultImpl) {
             if (_defaultImplDeserializer == null) {
-                _defaultImplDeserializer = ctxt.getDeserializerProvider().findValueDeserializer(ctxt.getConfig(),
-                        _defaultImpl, _property);
+                _defaultImplDeserializer = ctxt.findValueDeserializer(_defaultImpl, _property);
             }
             return _defaultImplDeserializer;
         }

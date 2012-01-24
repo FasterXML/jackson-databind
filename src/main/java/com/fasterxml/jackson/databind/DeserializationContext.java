@@ -97,6 +97,42 @@ public abstract class DeserializationContext
 
     public abstract Object findInjectableValue(Object valueId,
             BeanProperty forProperty, Object beanInstance);
+
+    /*
+    /**********************************************************
+    /* By-pass methods to DeserializerProvider
+    /**********************************************************
+     */
+
+    /**
+     * Convenience method, functionally same as:
+     *<pre>
+     *  getDeserializerProvider().findValueDeserializer(getConfig(), propertyType, property);
+     *</pre>
+     */
+    public abstract JsonDeserializer<Object> findValueDeserializer(JavaType propertyType,
+            BeanProperty property)
+        throws JsonMappingException;
+    
+    /**
+     * Convenience method, functionally same as:
+     *<pre>
+     *  getDeserializerProvider().findTypedValueDeserializer(getConfig(), propertyType, property);
+     *</pre>
+     */
+    public abstract JsonDeserializer<Object> findTypedValueDeserializer(JavaType type,
+            BeanProperty property)
+        throws JsonMappingException;
+
+    /**
+     * Convenience method, functionally same as:
+     *<pre>
+     *  getDeserializerProvider().findKeyDeserializer(getConfig(), propertyType, property);
+     *</pre>
+     */
+    public abstract KeyDeserializer findKeyDeserializer(JavaType keyType,
+            BeanProperty property)
+        throws JsonMappingException;
     
     /*
     /**********************************************************

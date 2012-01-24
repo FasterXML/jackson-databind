@@ -604,12 +604,12 @@ public abstract class StdDeserializer<T>
      * @param property Actual property object (field, method, constuctor parameter) used
      *     for passing deserialized values; provided so deserializer can be contextualized if necessary (since 1.7)
      */
-    protected JsonDeserializer<Object> findDeserializer(DeserializationConfig config, DeserializerProvider provider,
-                                                        JavaType type, BeanProperty property)
+    protected JsonDeserializer<Object> findDeserializer(DeserializationConfig config,
+            DeserializerProvider provider,
+            JavaType type, BeanProperty property)
         throws JsonMappingException
     {
-        JsonDeserializer<Object> deser = provider.findValueDeserializer(config, type, property);
-        return deser;
+        return provider.findValueDeserializer(config, type, property);
     }
 
     /*

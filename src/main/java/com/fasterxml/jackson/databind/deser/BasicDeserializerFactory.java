@@ -234,7 +234,7 @@ public abstract class BasicDeserializerFactory
             throws JsonMappingException;
     
     @Override
-    public JsonDeserializer<?> createArrayDeserializer(DeserializationConfig config, DeserializerCache p,
+    public JsonDeserializer<?> createArrayDeserializer(DeserializationConfig config,
             ArrayType type, BeanProperty property)
         throws JsonMappingException
     {
@@ -277,7 +277,6 @@ public abstract class BasicDeserializerFactory
     
     @Override
     public JsonDeserializer<?> createCollectionDeserializer(DeserializationConfig config,
-            DeserializerCache p,
             CollectionType type, BeanProperty property)
         throws JsonMappingException
     {
@@ -316,7 +315,7 @@ public abstract class BasicDeserializerFactory
             // One special type: EnumSet:
             if (EnumSet.class.isAssignableFrom(collectionClass)) {
                 return new EnumSetDeserializer(contentType.getRawClass(),
-                        createEnumDeserializer(config, p, contentType, property));
+                        createEnumDeserializer(config, contentType, property));
             }
         }
         
@@ -352,7 +351,7 @@ public abstract class BasicDeserializerFactory
     // Copied almost verbatim from "createCollectionDeserializer" -- should try to share more code
     @Override
     public JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationConfig config,
-            DeserializerCache p, CollectionLikeType type, BeanProperty property)
+            CollectionLikeType type, BeanProperty property)
         throws JsonMappingException
     {
         // First: global defaulting:
@@ -383,7 +382,7 @@ public abstract class BasicDeserializerFactory
     }
     
     @Override
-    public JsonDeserializer<?> createMapDeserializer(DeserializationConfig config, DeserializerCache p,
+    public JsonDeserializer<?> createMapDeserializer(DeserializationConfig config,
             MapType type, BeanProperty property)
         throws JsonMappingException
     {
@@ -407,9 +406,6 @@ public abstract class BasicDeserializerFactory
         
         // Ok: need a key deserializer (null indicates 'default' here)
         KeyDeserializer keyDes = (KeyDeserializer) keyType.getValueHandler();
-        if (keyDes == null) {
-            keyDes = p.findKeyDeserializer(config, keyType, property);
-        }
         // Then optional type info (1.5); either attached to type, or resolved separately:
         TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
         // but if not, may still be possible to find:
@@ -432,7 +428,7 @@ public abstract class BasicDeserializerFactory
                 throw new IllegalArgumentException("Can not construct EnumMap; generic (key) type not available");
             }
             return new EnumMapDeserializer(type, property,
-                    createEnumDeserializer(config, p, keyType, property),
+                    createEnumDeserializer(config, keyType, property),
                     contentDeser);
         }
 
@@ -467,7 +463,7 @@ public abstract class BasicDeserializerFactory
     // Copied almost verbatim from "createMapDeserializer" -- should try to share more code
     @Override
     public JsonDeserializer<?> createMapLikeDeserializer(DeserializationConfig config,
-            DeserializerCache p, MapLikeType type, BeanProperty property)
+            MapLikeType type, BeanProperty property)
         throws JsonMappingException
     {
         // First: global defaulting:
@@ -489,9 +485,11 @@ public abstract class BasicDeserializerFactory
         
         // Ok: need a key deserializer (null indicates 'default' here)
         KeyDeserializer keyDes = (KeyDeserializer) keyType.getValueHandler();
+        /* !!! 24-Jan-2012, tatu: NOTE: impls MUST use resolve() to find key deserializer!
         if (keyDes == null) {
             keyDes = p.findKeyDeserializer(config, keyType, property);
         }
+        */
         // Then optional type info (1.5); either attached to type, or resolve separately:
         TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
         // but if not, may still be possible to find:
@@ -506,7 +504,7 @@ public abstract class BasicDeserializerFactory
      * Factory method for constructing serializers of {@link Enum} types.
      */
     @Override
-    public JsonDeserializer<?> createEnumDeserializer(DeserializationConfig config, DeserializerCache p,
+    public JsonDeserializer<?> createEnumDeserializer(DeserializationConfig config,
             JavaType type, BeanProperty property)
         throws JsonMappingException
     {
@@ -542,7 +540,7 @@ public abstract class BasicDeserializerFactory
     }
 
     @Override
-    public JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config, DeserializerCache p,
+    public JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config,
             JavaType nodeType, BeanProperty property)
         throws JsonMappingException
     {
@@ -562,7 +560,7 @@ public abstract class BasicDeserializerFactory
      */
     @SuppressWarnings("unchecked")
     protected JsonDeserializer<Object> findStdBeanDeserializer(DeserializationConfig config,
-            DeserializerCache p, JavaType type, BeanProperty property)
+            JavaType type, BeanProperty property)
         throws JsonMappingException
     {
         Class<?> cls = type.getRawClass();
@@ -588,7 +586,7 @@ public abstract class BasicDeserializerFactory
             return (JsonDeserializer<Object>)d2;
         }
         // [JACKSON-386]: External/optional type handlers are handled somewhat differently
-        JsonDeserializer<?> d = optionalHandlers.findDeserializer(type, config, p);
+        JsonDeserializer<?> d = optionalHandlers.findDeserializer(type, config);
         if (d != null) {
             return (JsonDeserializer<Object>)d;
         }

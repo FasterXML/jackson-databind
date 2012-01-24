@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
@@ -71,6 +72,7 @@ public abstract class StdKeyDeserializer
     /**********************************************************
      */
 
+    @JacksonStdImpl
     final static class StringKD extends StdKeyDeserializer
     {
         private final static StringKD sString = new StringKD(String.class);
@@ -101,6 +103,7 @@ public abstract class StdKeyDeserializer
     /**********************************************************
      */
 
+    @JacksonStdImpl
     final static class BoolKD extends StdKeyDeserializer
     {
         BoolKD() { super(Boolean.class); }
@@ -118,6 +121,7 @@ public abstract class StdKeyDeserializer
         }
     }
 
+    @JacksonStdImpl
     final static class ByteKD extends StdKeyDeserializer
     {
         ByteKD() { super(Byte.class); }
@@ -133,6 +137,7 @@ public abstract class StdKeyDeserializer
         }
     }
 
+    @JacksonStdImpl
     final static class ShortKD extends StdKeyDeserializer
     {
         ShortKD() { super(Integer.class); }
@@ -152,6 +157,7 @@ public abstract class StdKeyDeserializer
      * Dealing with Characters is bit trickier: let's assume it must be a String, and that
      * Unicode numeric value is never used.
      */
+    @JacksonStdImpl
     final static class CharKD extends StdKeyDeserializer
     {
         CharKD() { super(Character.class); }
@@ -166,6 +172,7 @@ public abstract class StdKeyDeserializer
         }
     }
 
+    @JacksonStdImpl
     final static class IntKD extends StdKeyDeserializer
     {
         IntKD() { super(Integer.class); }
@@ -177,6 +184,7 @@ public abstract class StdKeyDeserializer
         }
     }
 
+    @JacksonStdImpl
     final static class LongKD extends StdKeyDeserializer
     {
         LongKD() { super(Long.class); }
@@ -188,6 +196,7 @@ public abstract class StdKeyDeserializer
         }
     }
 
+    @JacksonStdImpl
     final static class DoubleKD extends StdKeyDeserializer
     {
         DoubleKD() { super(Double.class); }
@@ -199,6 +208,7 @@ public abstract class StdKeyDeserializer
         }
     }
 
+    @JacksonStdImpl
     final static class FloatKD extends StdKeyDeserializer
     {
         FloatKD() { super(Float.class); }
@@ -257,6 +267,7 @@ public abstract class StdKeyDeserializer
         public Class<?> getKeyClass() { return _keyClass; }
     }
      
+    @JacksonStdImpl
     final static class EnumKD extends StdKeyDeserializer
     {
         protected final EnumResolver<?> _resolver;
@@ -328,6 +339,7 @@ public abstract class StdKeyDeserializer
     }
 
     // as per [JACKSON-657]
+    @JacksonStdImpl
     final static class DateKD extends StdKeyDeserializer
     {
         protected DateKD() {
@@ -343,6 +355,7 @@ public abstract class StdKeyDeserializer
     }
         
     // as per [JACKSON-657]
+    @JacksonStdImpl
     final static class CalendarKD extends StdKeyDeserializer
     {
         protected CalendarKD() {
@@ -359,6 +372,7 @@ public abstract class StdKeyDeserializer
     }
 
     // as per [JACKSON-726]
+    @JacksonStdImpl
     final static class UuidKD extends StdKeyDeserializer
     {
         protected UuidKD() {

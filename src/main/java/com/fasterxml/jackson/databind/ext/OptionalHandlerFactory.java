@@ -3,9 +3,7 @@ package com.fasterxml.jackson.databind.ext;
 import java.util.Collection;
 import java.util.Map;
 
-
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.util.Provider;
 
@@ -88,7 +86,7 @@ public class OptionalHandlerFactory
         return null;
     }
 
-    public JsonDeserializer<?> findDeserializer(JavaType type, DeserializationConfig config, DeserializerCache p)
+    public JsonDeserializer<?> findDeserializer(JavaType type, DeserializationConfig config)
     {
         Class<?> rawType = type.getRawClass();
         String className = rawType.getName();

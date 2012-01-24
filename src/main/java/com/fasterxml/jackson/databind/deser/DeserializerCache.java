@@ -385,38 +385,38 @@ public final class DeserializerCache
         throws JsonMappingException
     {
         if (type.isEnumType()) {
-            return (JsonDeserializer<Object>) _factory.createEnumDeserializer(config, this, type, property);
+            return (JsonDeserializer<Object>) _factory.createEnumDeserializer(config, type, property);
         }
         if (type.isContainerType()) {
             if (type.isArrayType()) {
-                return (JsonDeserializer<Object>)_factory.createArrayDeserializer(config, this,
+                return (JsonDeserializer<Object>)_factory.createArrayDeserializer(config,
                         (ArrayType) type, property);
             }
             if (type.isMapLikeType()) {
                 MapLikeType mlt = (MapLikeType) type;
                 if (mlt.isTrueMapType()) {
-                    return (JsonDeserializer<Object>)_factory.createMapDeserializer(config, this,
+                    return (JsonDeserializer<Object>)_factory.createMapDeserializer(config,
                             (MapType) mlt, property);
                 }
-                return (JsonDeserializer<Object>)_factory.createMapLikeDeserializer(config, this,
+                return (JsonDeserializer<Object>)_factory.createMapLikeDeserializer(config,
                         mlt, property);
             }
             if (type.isCollectionLikeType()) {
                 CollectionLikeType clt = (CollectionLikeType) type;
                 if (clt.isTrueCollectionType()) {
-                    return (JsonDeserializer<Object>)_factory.createCollectionDeserializer(config, this,
+                    return (JsonDeserializer<Object>)_factory.createCollectionDeserializer(config,
                             (CollectionType) clt, property);
                 }
-                return (JsonDeserializer<Object>)_factory.createCollectionLikeDeserializer(config, this,
+                return (JsonDeserializer<Object>)_factory.createCollectionLikeDeserializer(config,
                         clt, property);
             }
         }
 
         // 02-Mar-2009, tatu: Let's consider JsonNode to be a type of its own
         if (JsonNode.class.isAssignableFrom(type.getRawClass())) {
-            return (JsonDeserializer<Object>)_factory.createTreeDeserializer(config, this, type, property);
+            return (JsonDeserializer<Object>)_factory.createTreeDeserializer(config, type, property);
         }
-        return (JsonDeserializer<Object>)_factory.createBeanDeserializer(config, this, type, property);
+        return (JsonDeserializer<Object>)_factory.createBeanDeserializer(config, type, property);
     }
 
     protected void _resolveDeserializer(DeserializationContext ctxt, ResolvableDeserializer ser)

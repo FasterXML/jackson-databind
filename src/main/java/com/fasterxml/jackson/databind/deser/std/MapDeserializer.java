@@ -38,11 +38,21 @@ public class MapDeserializer
     protected final BeanProperty _property;
     
     /**
-     * Key deserializer used, if not null. If null, String from JSON
-     * content is used as is.
+     * Key deserializer to use; either passed via constructor
+     * (when indicated by annotations), or resolved when
+     * {@link #resolve} is called;
      */
-    protected final KeyDeserializer _keyDeserializer;
+    protected KeyDeserializer _keyDeserializer;
 
+    /**
+     * Flag set to indicate that the key type is
+     * {@link java.lang.String} (or {@link java.lang.Object}, for
+     * which String is acceptable), <b>and</b> that the
+     * default Jackson key deserializer would be used.
+     * If both are true, can optimize handling.
+     */
+    protected boolean _standardStringKey;
+    
     /**
      * Value deserializer.
      */
@@ -165,6 +175,12 @@ public class MapDeserializer
                 }
             }
         }
+        if (_keyDeserializer == null) {
+            _keyDeserializer = ctxt.findKeyDeserializer(_mapType.getKeyType(), _property);
+        }
+        Class<?> raw = _mapType.getKeyType().getRawClass();
+        _standardStringKey =  (raw == String.class || raw == Object.class)
+            && isDefaultKeyDeserializer(_keyDeserializer);
         if (_valueDeserializer == null) {
             _valueDeserializer = ctxt.findValueDeserializer(_mapType.getContentType(), _property);
         }
@@ -217,6 +233,10 @@ public class MapDeserializer
             throw ctxt.mappingException(getMapClass());
         }
         final Map<Object,Object> result = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
+        if (_standardStringKey) {
+            _readAndBindStringMap(jp, ctxt, result);
+            return result;
+        }
         _readAndBind(jp, ctxt, result);
         return result;
     }
@@ -230,6 +250,10 @@ public class MapDeserializer
         JsonToken t = jp.getCurrentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME) {
             throw ctxt.mappingException(getMapClass());
+        }
+        if (_standardStringKey) {
+            _readAndBindStringMap(jp, ctxt, result);
+            return result;
         }
         _readAndBind(jp, ctxt, result);
         return result;
@@ -262,7 +286,7 @@ public class MapDeserializer
      */
 
     protected final void _readAndBind(JsonParser jp, DeserializationContext ctxt,
-                                      Map<Object,Object> result)
+            Map<Object,Object> result)
         throws IOException, JsonProcessingException
     {
         JsonToken t = jp.getCurrentToken();
@@ -270,6 +294,7 @@ public class MapDeserializer
             t = jp.nextToken();
         }
         final KeyDeserializer keyDes = _keyDeserializer;
+        
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
@@ -299,6 +324,43 @@ public class MapDeserializer
         }
     }
 
+    /**
+     * Optimized method used when keys can be deserialized as plain old
+     * {@link java.lang.String}s, and there is no custom deserialized
+     * specified.
+     */
+    protected final void _readAndBindStringMap(JsonParser jp, DeserializationContext ctxt,
+            Map<Object,Object> result)
+        throws IOException, JsonProcessingException
+    {
+        JsonToken t = jp.getCurrentToken();
+        if (t == JsonToken.START_OBJECT) {
+            t = jp.nextToken();
+        }
+        final JsonDeserializer<Object> valueDes = _valueDeserializer;
+        final TypeDeserializer typeDeser = _valueTypeDeserializer;
+        for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
+            // Must point to field name
+            String fieldName = jp.getCurrentName();
+            // And then the value...
+            t = jp.nextToken();
+            if (_ignorableProperties != null && _ignorableProperties.contains(fieldName)) {
+                jp.skipChildren();
+                continue;
+            }
+            // Note: must handle null explicitly here; value deserializers won't
+            Object value;            
+            if (t == JsonToken.VALUE_NULL) {
+                value = null;
+            } else if (typeDeser == null) {
+                value = valueDes.deserialize(jp, ctxt);
+            } else {
+                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+            }
+            result.put(fieldName, value);
+        }
+    }
+    
     @SuppressWarnings("unchecked") 
     public Map<Object,Object> _deserializeUsingCreator(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException

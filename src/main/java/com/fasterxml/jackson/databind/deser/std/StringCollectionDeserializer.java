@@ -96,7 +96,7 @@ public final class StringCollectionDeserializer
             JsonDeserializer<?> deser = ctxt.findValueDeserializer(_collectionType.getContentType(), _property);
             _valueDeserializer = (JsonDeserializer<String>) deser;
         }
-        if (isDefaultSerializer(_valueDeserializer)) {
+        if (isDefaultDeserializer(_valueDeserializer)) {
             _valueDeserializer = null;
         }
     }

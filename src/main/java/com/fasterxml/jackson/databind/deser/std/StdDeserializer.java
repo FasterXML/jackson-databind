@@ -56,9 +56,12 @@ public abstract class StdDeserializer<T>
      * a module or calling application. Determination is done using
      * {@link JacksonStdImpl} annotation on deserializer class.
      */
-    protected boolean isDefaultSerializer(JsonDeserializer<?> deserializer)
-    {
+    protected boolean isDefaultDeserializer(JsonDeserializer<?> deserializer) {
         return (deserializer != null && deserializer.getClass().getAnnotation(JacksonStdImpl.class) != null);
+    }
+
+    protected boolean isDefaultKeyDeserializer(KeyDeserializer keyDeser) {
+        return (keyDeser != null && keyDeser.getClass().getAnnotation(JacksonStdImpl.class) != null);
     }
     
     /*

@@ -371,7 +371,7 @@ public class BeanDeserializerFactory
     // Note: NOT overriding, superclass has no matching method
     @SuppressWarnings("unchecked")
     protected JsonDeserializer<Object> _findCustomBeanDeserializer(JavaType type, DeserializationConfig config,
-            DeserializerCache provider, BeanDescription beanDesc, BeanProperty property)
+            BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
@@ -477,7 +477,7 @@ public class BeanDeserializerFactory
      */
     @Override
     public JsonDeserializer<Object> createBeanDeserializer(DeserializationConfig config,
-            DeserializerCache p, JavaType type, BeanProperty property)
+            JavaType type, BeanProperty property)
         throws JsonMappingException
     {
         // First things first: abstract types may use defaulting:
@@ -498,7 +498,7 @@ public class BeanDeserializerFactory
             beanDesc = config.introspect(type);
         }
         // We may also have custom overrides:
-        JsonDeserializer<Object> custom = _findCustomBeanDeserializer(type, config, p, beanDesc, property);
+        JsonDeserializer<Object> custom = _findCustomBeanDeserializer(type, config, beanDesc, property);
         if (custom != null) {
             return custom;
         }
@@ -525,7 +525,7 @@ public class BeanDeserializerFactory
         }
 
         // Otherwise, may want to check handlers for standard types, from superclass:
-        JsonDeserializer<Object> deser = findStdBeanDeserializer(config, p, type, property);
+        JsonDeserializer<Object> deser = findStdBeanDeserializer(config, type, property);
         if (deser != null) {
             return deser;
         }

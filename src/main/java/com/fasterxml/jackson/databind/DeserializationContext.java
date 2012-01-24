@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
-
 /**
  * Context for deserialization process. Used to allow passing in configuration
  * settings and reusable temporary objects (scrap arrays, containers).
@@ -49,12 +48,9 @@ public abstract class DeserializationContext
      * Returns provider that can be used for dynamically locating
      * other deserializers during runtime.
      */
-    public DeserializerProvider getDeserializerProvider() {
-        // will be overridden by impl class
-        return null;
-    }
+    public abstract DeserializerProvider getDeserializerProvider();
 
-    public AnnotationIntrospector getAnnotationIntrospector() {
+    public final AnnotationIntrospector getAnnotationIntrospector() {
         return _config.getAnnotationIntrospector();
     }
     
@@ -62,7 +58,7 @@ public abstract class DeserializationContext
      * Convenience method for checking whether specified on/off
      * feature is enabled
      */
-    public boolean isEnabled(DeserializationConfig.Feature feat) {
+    public final boolean isEnabled(DeserializationConfig.Feature feat) {
         /* 03-Dec-2010, tatu: minor shortcut; since this is called quite often,
          *   let's use a local copy of feature settings:
          */
@@ -91,11 +87,11 @@ public abstract class DeserializationContext
         return _config.getNodeFactory();
     }
 
-    public JavaType constructType(Class<?> cls) {
+    public final JavaType constructType(Class<?> cls) {
         return _config.constructType(cls);
     }
 
-    public TypeFactory getTypeFactory() {
+    public final TypeFactory getTypeFactory() {
         return _config.getTypeFactory();
     }
 

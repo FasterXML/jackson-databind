@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.deser.DeserializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.module.SimpleDeserializers;
@@ -58,7 +57,7 @@ public class TestTypeModifiers extends BaseMapTest
             context.addDeserializers(new SimpleDeserializers() {
                 @Override
                 public JsonDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type, DeserializationConfig config,
-                        DeserializerProvider provider, BeanDescription beanDesc, BeanProperty property,
+                        BeanDescription beanDesc, BeanProperty property,
                         TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
                     throws JsonMappingException
                 {
@@ -69,7 +68,7 @@ public class TestTypeModifiers extends BaseMapTest
                 }
                 @Override
                 public JsonDeserializer<?> findMapLikeDeserializer(MapLikeType type, DeserializationConfig config,
-                        DeserializerProvider provider, BeanDescription beanDesc, BeanProperty property,
+                        BeanDescription beanDesc, BeanProperty property,
                         KeyDeserializer keyDeserializer,
                         TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
                     throws JsonMappingException

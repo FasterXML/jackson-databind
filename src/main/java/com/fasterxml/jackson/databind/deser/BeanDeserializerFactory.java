@@ -255,13 +255,13 @@ public class BeanDeserializerFactory
     
     @Override
     protected JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type,
-            DeserializationConfig config, DeserializerProvider provider,
+            DeserializationConfig config,
             BeanProperty property,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findArrayDeserializer(type, config, provider, property,
+            JsonDeserializer<?> deser = d.findArrayDeserializer(type, config, property,
                         elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -272,13 +272,13 @@ public class BeanDeserializerFactory
 
     @Override
     protected JsonDeserializer<?> _findCustomCollectionDeserializer(CollectionType type,
-            DeserializationConfig config, DeserializerProvider provider, BeanDescription beanDesc,
-            BeanProperty property,
+            DeserializationConfig config,
+            BeanDescription beanDesc, BeanProperty property,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findCollectionDeserializer(type, config, provider, beanDesc, property,
+            JsonDeserializer<?> deser = d.findCollectionDeserializer(type, config, beanDesc, property,
                     elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -289,13 +289,13 @@ public class BeanDeserializerFactory
 
     @Override
     protected JsonDeserializer<?> _findCustomCollectionLikeDeserializer(CollectionLikeType type,
-            DeserializationConfig config, DeserializerProvider provider, BeanDescription beanDesc,
-            BeanProperty property,
+            DeserializationConfig config,
+            BeanDescription beanDesc, BeanProperty property,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findCollectionLikeDeserializer(type, config, provider, beanDesc, property,
+            JsonDeserializer<?> deser = d.findCollectionLikeDeserializer(type, config, beanDesc, property,
                     elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -320,13 +320,14 @@ public class BeanDeserializerFactory
 
     @Override
     protected JsonDeserializer<?> _findCustomMapDeserializer(MapType type,
-            DeserializationConfig config, DeserializerProvider provider, BeanDescription beanDesc, BeanProperty property,
+            DeserializationConfig config, 
+            BeanDescription beanDesc, BeanProperty property,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findMapDeserializer(type, config, provider, beanDesc, property,
+            JsonDeserializer<?> deser = d.findMapDeserializer(type, config, beanDesc, property,
                     keyDeserializer, elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -338,13 +339,13 @@ public class BeanDeserializerFactory
     @Override
     protected JsonDeserializer<?> _findCustomMapLikeDeserializer(MapLikeType type,
             DeserializationConfig config,
-            DeserializerProvider provider, BeanDescription beanDesc, BeanProperty property,
+            BeanDescription beanDesc, BeanProperty property,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findMapLikeDeserializer(type, config, provider, beanDesc, property,
+            JsonDeserializer<?> deser = d.findMapLikeDeserializer(type, config, beanDesc, property,
                     keyDeserializer, elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -374,7 +375,7 @@ public class BeanDeserializerFactory
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findBeanDeserializer(type, config, provider, beanDesc, property);
+            JsonDeserializer<?> deser = d.findBeanDeserializer(type, config, beanDesc, property);
             if (deser != null) {
                 return (JsonDeserializer<Object>) deser;
             }

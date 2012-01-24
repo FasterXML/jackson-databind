@@ -5,7 +5,6 @@ import java.util.*;
 import com.fasterxml.jackson.core.JsonNode;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.DeserializerProvider;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.*;
@@ -49,10 +48,9 @@ public class SimpleDeserializers implements Deserializers
     
     @Override
     public JsonDeserializer<?> findArrayDeserializer(ArrayType type,
-            DeserializationConfig config, DeserializerProvider provider,
+            DeserializationConfig config, 
             BeanProperty property,
-            TypeDeserializer elementTypeDeserializer,
-            JsonDeserializer<?> elementDeserializer)
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
         return (_classMappings == null) ? null : _classMappings.get(new ClassKey(type.getRawClass()));
@@ -60,7 +58,7 @@ public class SimpleDeserializers implements Deserializers
 
     @Override
     public JsonDeserializer<?> findBeanDeserializer(JavaType type,
-            DeserializationConfig config, DeserializerProvider provider,
+            DeserializationConfig config,
             BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException
     {
@@ -69,7 +67,7 @@ public class SimpleDeserializers implements Deserializers
 
     @Override
     public JsonDeserializer<?> findCollectionDeserializer(CollectionType type,
-            DeserializationConfig config, DeserializerProvider provider,
+            DeserializationConfig config,
             BeanDescription beanDesc, BeanProperty property,
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer)
@@ -80,7 +78,7 @@ public class SimpleDeserializers implements Deserializers
 
     @Override
     public JsonDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type,
-            DeserializationConfig config, DeserializerProvider provider,
+            DeserializationConfig config,
             BeanDescription beanDesc, BeanProperty property,
             TypeDeserializer elementTypeDeserializer,
             JsonDeserializer<?> elementDeserializer)
@@ -99,7 +97,7 @@ public class SimpleDeserializers implements Deserializers
 
     @Override
     public JsonDeserializer<?> findMapDeserializer(MapType type,
-            DeserializationConfig config, DeserializerProvider provider,
+            DeserializationConfig config,
             BeanDescription beanDesc, BeanProperty property,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,
@@ -111,7 +109,7 @@ public class SimpleDeserializers implements Deserializers
 
     @Override
     public JsonDeserializer<?> findMapLikeDeserializer(MapLikeType type,
-            DeserializationConfig config, DeserializerProvider provider,
+            DeserializationConfig config,
             BeanDescription beanDesc, BeanProperty property,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer,

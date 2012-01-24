@@ -180,19 +180,19 @@ public abstract class BasicDeserializerFactory
      */
     
     protected abstract JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type,
-            DeserializationConfig config, DeserializerProvider p, BeanProperty property,
+            DeserializationConfig config, BeanProperty property,
             TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
         throws JsonMappingException;
     
     protected abstract JsonDeserializer<?> _findCustomCollectionDeserializer(
             CollectionType type, DeserializationConfig config,
-            DeserializerProvider p, BeanDescription beanDesc, BeanProperty property,
+            BeanDescription beanDesc, BeanProperty property,
             TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
         throws JsonMappingException;
 
     protected abstract JsonDeserializer<?> _findCustomCollectionLikeDeserializer(
             CollectionLikeType type, DeserializationConfig config,
-            DeserializerProvider p, BeanDescription beanDesc, BeanProperty property,
+            BeanDescription beanDesc, BeanProperty property,
             TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
         throws JsonMappingException;
     
@@ -202,14 +202,14 @@ public abstract class BasicDeserializerFactory
 
     protected abstract JsonDeserializer<?> _findCustomMapDeserializer(MapType type,
             DeserializationConfig config,
-            DeserializerProvider p, BeanDescription beanDesc, BeanProperty property,
+            BeanDescription beanDesc, BeanProperty property,
             KeyDeserializer keyDeser,
             TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
         throws JsonMappingException;
 
     protected abstract JsonDeserializer<?> _findCustomMapLikeDeserializer(MapLikeType type,
             DeserializationConfig config,
-            DeserializerProvider p, BeanDescription beanDesc, BeanProperty property,
+            BeanDescription beanDesc, BeanProperty property,
             KeyDeserializer keyDeser,
             TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
         throws JsonMappingException;
@@ -250,7 +250,7 @@ public abstract class BasicDeserializerFactory
                  *   deserializers for all types (including primitive arrays) is useful
                  *   so let's allow this
                  */
-                JsonDeserializer<?> custom = _findCustomArrayDeserializer(type, config, p, property, null, null);
+                JsonDeserializer<?> custom = _findCustomArrayDeserializer(type, config, property, null, null);
                 if (custom != null) {
                     return custom;
                 }
@@ -268,7 +268,7 @@ public abstract class BasicDeserializerFactory
             elemTypeDeser = findTypeDeserializer(config, elemType, property);
         }
         // 23-Nov-2010, tatu: Custom array deserializer?
-        JsonDeserializer<?> custom = _findCustomArrayDeserializer(type, config, p, property, elemTypeDeser, contentDeser);
+        JsonDeserializer<?> custom = _findCustomArrayDeserializer(type, config, property, elemTypeDeser, contentDeser);
         if (custom != null) {
             return custom;
         }
@@ -310,7 +310,7 @@ public abstract class BasicDeserializerFactory
         }
 
         // 23-Nov-2010, tatu: Custom deserializer?
-        JsonDeserializer<?> custom = _findCustomCollectionDeserializer(type, config, p, beanDesc, property,
+        JsonDeserializer<?> custom = _findCustomCollectionDeserializer(type, config, beanDesc, property,
                 contentTypeDeser, contentDeser);
         if (custom != null) {
             return custom;
@@ -385,7 +385,7 @@ public abstract class BasicDeserializerFactory
         if (contentTypeDeser == null) {
             contentTypeDeser = findTypeDeserializer(config, contentType, property);
         }
-        return _findCustomCollectionLikeDeserializer(type, config, p, beanDesc, property,
+        return _findCustomCollectionLikeDeserializer(type, config, beanDesc, property,
                 contentTypeDeser, contentDeser);
     }
     
@@ -425,7 +425,7 @@ public abstract class BasicDeserializerFactory
         }
 
         // 23-Nov-2010, tatu: Custom deserializer?
-        JsonDeserializer<?> custom = _findCustomMapDeserializer(type, config, p, beanDesc, property,
+        JsonDeserializer<?> custom = _findCustomMapDeserializer(type, config, beanDesc, property,
                 keyDes, contentTypeDeser, contentDeser);
 
         if (custom != null) {
@@ -510,7 +510,7 @@ public abstract class BasicDeserializerFactory
         if (contentTypeDeser == null) {
             contentTypeDeser = findTypeDeserializer(config, contentType, property);
         }
-        return _findCustomMapLikeDeserializer(type, config, p, beanDesc, property,
+        return _findCustomMapLikeDeserializer(type, config, beanDesc, property,
                 keyDes, contentTypeDeser, contentDeser);
     }
 

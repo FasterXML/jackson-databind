@@ -129,7 +129,7 @@ public interface Deserializers
      *<p>
      * Similarly, a {@link KeyDeserializer} may be passed, but this is only done if there is
      * a specific configuration override (annotations) to indicate instance to use. Otherwise
-     * null is passed, and key deserializer needs to be obtained using {@link DeserializerProvider}
+     * null is passed, and key deserializer needs to be obtained using {@link DeserializerCache}
      * 
      * @param type Type of {@link java.util.Map} instances to deserialize
      * @param config Configuration in effect
@@ -166,7 +166,7 @@ public interface Deserializers
      *<p>
      * Similarly, a {@link KeyDeserializer} may be passed, but this is only done if there is
      * a specific configuration override (annotations) to indicate instance to use. Otherwise
-     * null is passed, and key deserializer needs to be obtained using {@link DeserializerProvider}
+     * null is passed, and key deserializer needs to be obtained using {@link DeserializerCache}
      * 
      * @param type Type of {@link java.util.Map} instances to deserialize
      * @param config Configuration in effect

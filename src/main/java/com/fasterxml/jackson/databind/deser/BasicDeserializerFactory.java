@@ -234,7 +234,7 @@ public abstract class BasicDeserializerFactory
             throws JsonMappingException;
     
     @Override
-    public JsonDeserializer<?> createArrayDeserializer(DeserializationConfig config, DeserializerProvider p,
+    public JsonDeserializer<?> createArrayDeserializer(DeserializationConfig config, DeserializerCache p,
             ArrayType type, BeanProperty property)
         throws JsonMappingException
     {
@@ -281,7 +281,7 @@ public abstract class BasicDeserializerFactory
     }
     
     @Override
-    public JsonDeserializer<?> createCollectionDeserializer(DeserializationConfig config, DeserializerProvider p,
+    public JsonDeserializer<?> createCollectionDeserializer(DeserializationConfig config, DeserializerCache p,
             CollectionType type, BeanProperty property)
         throws JsonMappingException
     {
@@ -359,7 +359,7 @@ public abstract class BasicDeserializerFactory
     // Copied almost verbatim from "createCollectionDeserializer" -- should try to share more code
     @Override
     public JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationConfig config,
-            DeserializerProvider p, CollectionLikeType type, BeanProperty property)
+            DeserializerCache p, CollectionLikeType type, BeanProperty property)
         throws JsonMappingException
     {
         // First: global defaulting:
@@ -390,7 +390,7 @@ public abstract class BasicDeserializerFactory
     }
     
     @Override
-    public JsonDeserializer<?> createMapDeserializer(DeserializationConfig config, DeserializerProvider p,
+    public JsonDeserializer<?> createMapDeserializer(DeserializationConfig config, DeserializerCache p,
             MapType type, BeanProperty property)
         throws JsonMappingException
     {
@@ -479,7 +479,7 @@ public abstract class BasicDeserializerFactory
     // Copied almost verbatim from "createMapDeserializer" -- should try to share more code
     @Override
     public JsonDeserializer<?> createMapLikeDeserializer(DeserializationConfig config,
-            DeserializerProvider p, MapLikeType type, BeanProperty property)
+            DeserializerCache p, MapLikeType type, BeanProperty property)
         throws JsonMappingException
     {
         // First: global defaulting:
@@ -518,7 +518,7 @@ public abstract class BasicDeserializerFactory
      * Factory method for constructing serializers of {@link Enum} types.
      */
     @Override
-    public JsonDeserializer<?> createEnumDeserializer(DeserializationConfig config, DeserializerProvider p,
+    public JsonDeserializer<?> createEnumDeserializer(DeserializationConfig config, DeserializerCache p,
             JavaType type, BeanProperty property)
         throws JsonMappingException
     {
@@ -554,7 +554,7 @@ public abstract class BasicDeserializerFactory
     }
 
     @Override
-    public JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config, DeserializerProvider p,
+    public JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config, DeserializerCache p,
             JavaType nodeType, BeanProperty property)
         throws JsonMappingException
     {
@@ -574,7 +574,7 @@ public abstract class BasicDeserializerFactory
      */
     @SuppressWarnings("unchecked")
     protected JsonDeserializer<Object> findStdBeanDeserializer(DeserializationConfig config,
-            DeserializerProvider p, JavaType type, BeanProperty property)
+            DeserializerCache p, JavaType type, BeanProperty property)
         throws JsonMappingException
     {
         Class<?> cls = type.getRawClass();

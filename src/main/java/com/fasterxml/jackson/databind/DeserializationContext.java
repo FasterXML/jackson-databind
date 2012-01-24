@@ -5,7 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
-import com.fasterxml.jackson.databind.deser.DeserializerProvider;
+import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
@@ -49,7 +49,7 @@ public abstract class DeserializationContext
      * Returns provider that can be used for dynamically locating
      * other deserializers during runtime.
      */
-    public abstract DeserializerProvider getDeserializerProvider();
+    public abstract DeserializerCache getDeserializerProvider();
 
     public final AnnotationIntrospector getAnnotationIntrospector() {
         return _config.getAnnotationIntrospector();
@@ -101,7 +101,7 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************
-    /* By-pass methods to DeserializerProvider
+    /* By-pass methods to DeserializerCache
     /**********************************************************
      */
 

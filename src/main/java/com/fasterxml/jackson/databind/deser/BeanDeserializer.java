@@ -349,7 +349,7 @@ public class BeanDeserializer
      * This is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public void resolve(DeserializationConfig config, DeserializerProvider provider)
+    public void resolve(DeserializationConfig config, DeserializerCache provider)
         throws JsonMappingException
     {
         // if ValueInstantiator can use "creator" approach, need to resolve it here...
@@ -1366,7 +1366,7 @@ public class BeanDeserializer
             return subDeser;
         }
         // If not, maybe we can locate one. First, need provider
-        DeserializerProvider deserProv = ctxt.getDeserializerProvider();
+        DeserializerCache deserProv = ctxt.getDeserializerProvider();
         if (deserProv != null) {
             JavaType type = ctxt.constructType(bean.getClass());
             /* 09-Dec-2010, tatu: Would be nice to know which property pointed to this

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.DeserializerProvider;
+import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -606,7 +606,7 @@ public abstract class StdDeserializer<T>
      *     for passing deserialized values; provided so deserializer can be contextualized if necessary (since 1.7)
      */
     protected JsonDeserializer<Object> findDeserializer(DeserializationConfig config,
-            DeserializerProvider provider,
+            DeserializerCache provider,
             JavaType type, BeanProperty property)
         throws JsonMappingException
     {

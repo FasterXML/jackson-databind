@@ -296,11 +296,11 @@ public class ObjectMapper
 
     /**
      * Object that manages access to deserializers used for deserializing
-     * JSON content into Java objects, including possible caching
+     * JSON content into Java objects, including caching
      * of the deserializers. It contains a reference to
      * {@link DeserializerFactory} to use for constructing acutal deserializers.
      */
-    protected DeserializerProvider _deserializerProvider;
+    protected DeserializerCache _deserializerCache;
 
     /*
     /**********************************************************
@@ -374,10 +374,10 @@ public class ObjectMapper
      * 
      * @param jf JsonFactory to use: if null, a new {@link MappingJsonFactory} will be constructed
      * @param sp SerializerProvider to use: if null, a {@link StdSerializerProvider} will be constructed
-     * @param dp DeserializerProvider to use: if null, a {@link StdDeserializerProvider} will be constructed
+     * @param dp DeserializerCache to use: if null, a {@link StdDeserializerProvider} will be constructed
      */
     public ObjectMapper(JsonFactory jf,
-            SerializerProvider sp, DeserializerProvider dp)
+            SerializerProvider sp, DeserializerCache dp)
     {
         /* 02-Mar-2009, tatu: Important: we MUST default to using
          *   the mapping factory, otherwise tree serialization will
@@ -402,7 +402,7 @@ public class ObjectMapper
         _deserializationConfig = new DeserializationConfig(DEFAULT_BASE,
                     _subtypeResolver, _mixInAnnotations);
         _serializerProvider = (sp == null) ? new StdSerializerProvider.Impl() : sp;
-        _deserializerProvider = (dp == null) ? new StdDeserializerProvider() : dp;
+        _deserializerCache = (dp == null) ? new DeserializerCache(BeanDeserializerFactory.instance) : dp;
 
         // Default serializer factory is stateless, can just assign
         _serializerFactory = BeanSerializerFactory.instance;
@@ -504,12 +504,12 @@ public class ObjectMapper
             
             @Override
             public void addDeserializers(Deserializers d) {
-                mapper._deserializerProvider = mapper._deserializerProvider.withAdditionalDeserializers(d);
+                mapper._deserializerCache = mapper._deserializerCache.withAdditionalDeserializers(d);
             }
 
             @Override
             public void addKeyDeserializers(KeyDeserializers d) {
-                mapper._deserializerProvider = mapper._deserializerProvider.withAdditionalKeyDeserializers(d);
+                mapper._deserializerCache = mapper._deserializerCache.withAdditionalKeyDeserializers(d);
             }
             
             @Override
@@ -529,14 +529,14 @@ public class ObjectMapper
 
             @Override
             public void addBeanDeserializerModifier(BeanDeserializerModifier modifier) {
-                mapper._deserializerProvider = mapper._deserializerProvider.withDeserializerModifier(modifier);
+                mapper._deserializerCache = mapper._deserializerCache.withDeserializerModifier(modifier);
             }
 
             // // // Methods for registering handlers: other
             
             @Override
             public void addAbstractTypeResolver(AbstractTypeResolver resolver) {
-                mapper._deserializerProvider = mapper._deserializerProvider.withAbstractTypeResolver(resolver);
+                mapper._deserializerCache = mapper._deserializerCache.withAbstractTypeResolver(resolver);
             }
 
             @Override
@@ -548,7 +548,7 @@ public class ObjectMapper
 
             @Override
             public void addValueInstantiators(ValueInstantiators instantiators) {
-                mapper._deserializerProvider = mapper._deserializerProvider.withValueInstantiators(instantiators);
+                mapper._deserializerCache = mapper._deserializerCache.withValueInstantiators(instantiators);
             }
             
             @Override
@@ -639,16 +639,16 @@ public class ObjectMapper
     }
     
     /**
-     * Method for setting specific {@link DeserializerProvider} to use
+     * Method for setting specific {@link DeserializerCache} to use
      * for handling caching of {@link JsonDeserializer} instances.
      */
-    public ObjectMapper setDeserializerProvider(DeserializerProvider p) {
-        _deserializerProvider = p;
+    public ObjectMapper setDeserializerProvider(DeserializerCache p) {
+        _deserializerCache = p;
         return this;
     }
 
-    public DeserializerProvider getDeserializerProvider() {
-        return _deserializerProvider;
+    public DeserializerCache getDeserializerProvider() {
+        return _deserializerCache;
     }
     
     /*
@@ -1699,7 +1699,7 @@ public class ObjectMapper
      */
     public boolean canDeserialize(JavaType type)
     {
-        return _deserializerProvider.hasValueDeserializerFor(getDeserializationConfig(), type);
+        return _deserializerCache.hasValueDeserializerFor(getDeserializationConfig(), type);
     }
 
     /*
@@ -2619,7 +2619,7 @@ public class ObjectMapper
 
     protected DeserializationContext _createDeserializationContext(JsonParser jp, DeserializationConfig cfg)
     {
-        return new StdDeserializationContext(cfg, jp, _deserializerProvider,
+        return new StdDeserializationContext(cfg, jp, _deserializerCache,
                 _injectableValues);
     }
 }

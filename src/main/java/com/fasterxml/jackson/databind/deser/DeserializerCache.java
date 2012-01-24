@@ -1,23 +1,27 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonNode;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.*;
+import com.fasterxml.jackson.databind.type.ArrayType;
+import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.MapLikeType;
+import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
- * Default {@link DeserializerProvider} implementation.
- * Handles low-level caching (non-root) aspects of deserializer
- * handling; all construction details are delegated to configured
- *  {@link DeserializerFactory} instance that the provider owns.
+ * Class that defines caching layer between callers (like
+ * {@link ObjectMapper}, {@link com.fasterxml.jackson.map.deser.DeserializationContext})
+ * and classes that construct deserializers ({@link com.fasterxml.jackson.map.deser.DeserializerFactory}).
  */
-public class StdDeserializerProvider
-    extends DeserializerProvider
+public final class DeserializerCache
 {
     /*
     /**********************************************************
@@ -45,7 +49,7 @@ public class StdDeserializerProvider
      */
     final protected HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
         = new HashMap<JavaType, JsonDeserializer<Object>>(8);
-    
+
     /*
     /**********************************************************
     /* Configuration
@@ -56,7 +60,7 @@ public class StdDeserializerProvider
      * Factory responsible for constructing actual deserializers, if not
      * one of pre-configured types.
      */
-    protected DeserializerFactory _factory;
+    protected final DeserializerFactory _factory;
 
     /*
     /**********************************************************
@@ -64,61 +68,113 @@ public class StdDeserializerProvider
     /**********************************************************
      */
 
-    /**
-     * Default constructor. Equivalent to calling
-     *<pre>
-     *   new StdDeserializerProvider(BeanDeserializerFactory.instance);
-     *</pre>
-     */
-    public StdDeserializerProvider() { this(BeanDeserializerFactory.instance); }
-
-    public StdDeserializerProvider(DeserializerFactory f) {
+    public DeserializerCache(DeserializerFactory f) {
         _factory = f;
     }
 
-    @Override
-    public DeserializerProvider withAdditionalDeserializers(Deserializers d) {
+    /*
+    /**********************************************************
+    /* Fluent factory methods
+    /**********************************************************
+     */
+    
+    /**
+     * Method that sub-classes need to override, to ensure that fluent-factory
+     * methods will produce proper sub-type.
+     */
+    public DeserializerCache withFactory(DeserializerFactory factory) {
+        return new DeserializerCache(factory);
+    }
+    
+    /**
+     * Method that is to configure {@link DeserializerFactory} that provider has
+     * to use specified deserializer provider, with highest precedence (that is,
+     * additional providers have higher precedence than default one or previously
+     * added ones)
+     */
+    public DeserializerCache withAdditionalDeserializers(Deserializers d) {
         return withFactory(_factory.withAdditionalDeserializers(d));
     }
 
-    @Override
-    public DeserializerProvider withAdditionalKeyDeserializers(KeyDeserializers d) {
+    public DeserializerCache withAdditionalKeyDeserializers(KeyDeserializers d) {
         return withFactory(_factory.withAdditionalKeyDeserializers(d));
     }
     
-    @Override
-    public DeserializerProvider withDeserializerModifier(BeanDeserializerModifier modifier) {
+    public DeserializerCache withDeserializerModifier(BeanDeserializerModifier modifier) {
         return withFactory(_factory.withDeserializerModifier(modifier));
     }
 
-    @Override
-    public DeserializerProvider withAbstractTypeResolver(AbstractTypeResolver resolver) {
+    public DeserializerCache withAbstractTypeResolver(AbstractTypeResolver resolver) {
         return withFactory(_factory.withAbstractTypeResolver(resolver));
     }
 
-    @Override
-    public DeserializerProvider withValueInstantiators(ValueInstantiators instantiators) {
+    /**
+     * Method that will construct a new instance with specified additional value instantiators
+     * (i.e. does NOT replace existing ones)
+     */
+    public DeserializerCache withValueInstantiators(ValueInstantiators instantiators) {
         return withFactory(_factory.withValueInstantiators(instantiators));
-    }
-
-    @Override
-    public StdDeserializerProvider withFactory(DeserializerFactory factory) {
-        // sanity-check to try to prevent hard-to-debug problems; sub-classes MUST override this method
-        if (this.getClass() != StdDeserializerProvider.class) {
-            throw new IllegalStateException("DeserializerProvider of type "
-                    +this.getClass().getName()+" does not override 'withFactory()' method");
-        }
-        return new StdDeserializerProvider(factory);
     }
     
     /*
     /**********************************************************
-    /* Abstract methods impls
+    /* Access to caching aspects
     /**********************************************************
      */
-    
+
+    /**
+     * Method that can be used to determine how many deserializers this
+     * provider is caching currently 
+     * (if it does caching: default implementation does)
+     * Exact count depends on what kind of deserializers get cached;
+     * default implementation caches only dynamically constructed deserializers,
+     * but not eagerly constructed standard deserializers (which is different
+     * from how serializer provider works).
+     *<p>
+     * The main use case for this method is to allow conditional flushing of
+     * deserializer cache, if certain number of entries is reached.
+     */
+    public int cachedDeserializersCount() {
+        return _cachedDeserializers.size();
+    }
+
+    /**
+     * Method that will drop all dynamically constructed deserializers (ones that
+     * are counted as result value for {@link #cachedDeserializersCount}).
+     * This can be used to remove memory usage (in case some deserializers are
+     * only used once or so), or to force re-construction of deserializers after
+     * configuration changes for mapper than owns the provider.
+     */
+    public void flushCachedDeserializers() {
+        _cachedDeserializers.clear();       
+    }
+
+    /*
+    /**********************************************************
+    /* General deserializer locating method
+    /**********************************************************
+     */
+
+    /**
+     * Method called to get hold of a deserializer for a value of given type;
+     * or if no such deserializer can be found, a default handler (which
+     * may do a best-effort generic serialization or just simply
+     * throw an exception when invoked).
+     *<p>
+     * Note: this method is only called for value types; not for keys.
+     * Key deserializers can be accessed using {@link #findKeyDeserializer}.
+     *
+     * @param config Deserialization configuration
+     * @param propertyType Declared type of the value to deserializer (obtained using
+     *   'setter' method signature and/or type annotations
+     * @param property Object that represents accessor for property value; field,
+     *    setter method or constructor parameter.
+     *
+     * @throws JsonMappingException if there are fatal problems with
+     *   accessing suitable deserializer; including that of not
+     *   finding any serializer
+     */
     @SuppressWarnings("unchecked")
-    @Override
     public JsonDeserializer<Object> findValueDeserializer(DeserializationConfig config,
             JavaType propertyType, BeanProperty property)
         throws JsonMappingException
@@ -149,7 +205,15 @@ public class StdDeserializerProvider
         return deser;
     }
     
-    @Override
+    /**
+     * Method called to locate deserializer for given type, as well as matching
+     * type deserializer (if one is needed); and if type deserializer is needed,
+     * construct a "wrapped" deserializer that can extract and use type information
+     * for calling actual deserializer.
+     *<p>
+     * Since this method is only called for root elements, no referral information
+     * is taken.
+     */
     public JsonDeserializer<Object> findTypedValueDeserializer(DeserializationConfig config,
             JavaType type, BeanProperty property)
         throws JsonMappingException
@@ -162,7 +226,14 @@ public class StdDeserializerProvider
         return deser;
     }
 
-    @Override
+    /**
+     * Method called to get hold of a deserializer to use for deserializing
+     * keys for {@link java.util.Map}.
+     *
+     * @throws JsonMappingException if there are fatal problems with
+     *   accessing suitable key deserializer; including that of not
+     *   finding any serializer
+     */
     public KeyDeserializer findKeyDeserializer(DeserializationConfig config,
             JavaType type, BeanProperty property)
         throws JsonMappingException
@@ -179,10 +250,10 @@ public class StdDeserializerProvider
     }
 
     /**
-     * Method that can be called to find out whether a deserializer can
-     * be found for given type
+     * Method called to find out whether provider would be able to find
+     * a deserializer for given type, using a root reference (i.e. not
+     * through fields or membership in an array or collection)
      */
-    @Override
     public boolean hasValueDeserializerFor(DeserializationConfig config, JavaType type)
     {
         /* Note: mostly copied from findValueDeserializer, except for
@@ -197,23 +268,6 @@ public class StdDeserializerProvider
             }
         }
         return (deser != null);
-    }
-
-    @Override
-    public int cachedDeserializersCount() {
-        return _cachedDeserializers.size();
-    }
-
-    /**
-     * Method that will drop all dynamically constructed deserializers (ones that
-     * are counted as result value for {@link #cachedDeserializersCount}).
-     * This can be used to remove memory usage (in case some deserializers are
-     * only used once or so), or to force re-construction of deserializers after
-     * configuration changes for mapper than owns the provider.
-     */
-    @Override
-    public void flushCachedDeserializers() {
-        _cachedDeserializers.clear();       
     }
 
     /*
@@ -436,5 +490,4 @@ public class StdDeserializerProvider
             throw new IllegalStateException("Type-wrapped deserializer's deserializeWithType should never get called");
         }
     }
-
 }

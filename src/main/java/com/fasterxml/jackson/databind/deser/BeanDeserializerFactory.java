@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  *<p>
  * Since there is no caching, this factory is stateless and a globally
  * shared singleton instance ({@link #instance}) can be  used by
- * {@link DeserializerProvider}s).
+ * {@link DeserializerCache}s).
  */
 public class BeanDeserializerFactory
     extends BasicDeserializerFactory
@@ -371,7 +371,7 @@ public class BeanDeserializerFactory
     // Note: NOT overriding, superclass has no matching method
     @SuppressWarnings("unchecked")
     protected JsonDeserializer<Object> _findCustomBeanDeserializer(JavaType type, DeserializationConfig config,
-            DeserializerProvider provider, BeanDescription beanDesc, BeanProperty property)
+            DeserializerCache provider, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
@@ -471,13 +471,13 @@ public class BeanDeserializerFactory
     }
 
     /**
-     * Method that {@link DeserializerProvider}s call to create a new
+     * Method that {@link DeserializerCache}s call to create a new
      * deserializer for types other than Collections, Maps, arrays and
      * enums.
      */
     @Override
     public JsonDeserializer<Object> createBeanDeserializer(DeserializationConfig config,
-            DeserializerProvider p, JavaType type, BeanProperty property)
+            DeserializerCache p, JavaType type, BeanProperty property)
         throws JsonMappingException
     {
         // First things first: abstract types may use defaulting:

@@ -35,7 +35,7 @@ public class StdDeserializationContext
      */
     protected JsonParser _parser;
 
-    protected final DeserializerProvider _deserProvider;
+    protected final DeserializerCache _deserProvider;
 
     protected final InjectableValues _injectableValues;
     
@@ -54,7 +54,7 @@ public class StdDeserializationContext
      */
 
     public StdDeserializationContext(DeserializationConfig config, JsonParser jp,
-            DeserializerProvider prov, InjectableValues injectableValues)
+            DeserializerCache prov, InjectableValues injectableValues)
     {
     	super(config);
         _parser = jp;
@@ -69,7 +69,7 @@ public class StdDeserializationContext
      */
 
     @Override
-    public DeserializerProvider getDeserializerProvider() {
+    public DeserializerCache getDeserializerProvider() {
         return _deserProvider;
     }
 
@@ -96,7 +96,7 @@ public class StdDeserializationContext
 
     /*
     /**********************************************************
-    /* Public API, pass-through to DeserializerProvider
+    /* Public API, pass-through to DeserializerCache
     /**********************************************************
      */
 

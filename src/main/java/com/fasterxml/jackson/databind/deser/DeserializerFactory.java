@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.*;
 
 /**
- * Abstract class that defines API used by {@link DeserializerProvider}
+ * Abstract class that defines API used by {@link DeserializerCache}
  * to obtain actual
  * {@link JsonDeserializer} instances from multiple distinct factories.
  *<p>
@@ -15,19 +15,19 @@ import com.fasterxml.jackson.databind.type.*;
  * <li>For JSON "Array" type, we need 2 methods: one to deal with expected
  *   Java arrays ({@link #createArrayDeserializer})
  *   and the other for other Java containers like {@link java.util.List}s
- *   and {@link java.util.Set}s ({@link #createCollectionDeserializer(DeserializationConfig, DeserializerProvider, CollectionType, BeanProperty)})
+ *   and {@link java.util.Set}s ({@link #createCollectionDeserializer(DeserializationConfig, DeserializerCache, CollectionType, BeanProperty)})
  *  </li>
  * <li>For JSON "Object" type, we need 2 methods: one to deal with
  *   expected Java {@link java.util.Map}s
  *   ({@link #createMapDeserializer}), and another for POJOs
- *   ({@link #createBeanDeserializer(DeserializationConfig, DeserializerProvider, JavaType, BeanProperty)}.
+ *   ({@link #createBeanDeserializer(DeserializationConfig, DeserializerCache, JavaType, BeanProperty)}.
  *  </li>
  * <li>For Tree Model ({@link com.fasterxml.jackson.core.JsonNode}) properties there is
- *    {@link #createTreeDeserializer(DeserializationConfig, DeserializerProvider, JavaType, BeanProperty)}
+ *    {@link #createTreeDeserializer(DeserializationConfig, DeserializerCache, JavaType, BeanProperty)}
  * <li>For enumerated types ({@link java.lang.Enum}) there is
- *    {@link #createEnumDeserializer(DeserializationConfig, DeserializerProvider, JavaType, BeanProperty)}
+ *    {@link #createEnumDeserializer(DeserializationConfig, DeserializerCache, JavaType, BeanProperty)}
  *  </li>
- * <li>For all other types, {@link #createBeanDeserializer(DeserializationConfig, DeserializerProvider, JavaType, BeanProperty)}
+ * <li>For all other types, {@link #createBeanDeserializer(DeserializationConfig, DeserializerCache, JavaType, BeanProperty)}
  *   is used.
  * </ul>
  *<p>
@@ -216,7 +216,7 @@ public abstract class DeserializerFactory
      * @param p Provider that can be called to create deserializers for
      *   contained member types
      */
-    public abstract JsonDeserializer<Object> createBeanDeserializer(DeserializationConfig config, DeserializerProvider p,
+    public abstract JsonDeserializer<Object> createBeanDeserializer(DeserializationConfig config, DeserializerCache p,
             JavaType type, BeanProperty property)
         throws JsonMappingException;
 
@@ -229,35 +229,35 @@ public abstract class DeserializerFactory
      * @param p Provider that can be called to create deserializers for
      *   contained member types
      */
-    public abstract JsonDeserializer<?> createArrayDeserializer(DeserializationConfig config, DeserializerProvider p,
+    public abstract JsonDeserializer<?> createArrayDeserializer(DeserializationConfig config, DeserializerCache p,
             ArrayType type, BeanProperty property)
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createCollectionDeserializer(DeserializationConfig config,
-            DeserializerProvider p, CollectionType type, BeanProperty property)
+            DeserializerCache p, CollectionType type, BeanProperty property)
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationConfig config,
-            DeserializerProvider p, CollectionLikeType type, BeanProperty property)
+            DeserializerCache p, CollectionLikeType type, BeanProperty property)
         throws JsonMappingException;
     
     public abstract JsonDeserializer<?> createEnumDeserializer(DeserializationConfig config,
-            DeserializerProvider p, JavaType type, BeanProperty property)
+            DeserializerCache p, JavaType type, BeanProperty property)
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createMapDeserializer(DeserializationConfig config,
-            DeserializerProvider p, MapType type, BeanProperty property)
+            DeserializerCache p, MapType type, BeanProperty property)
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createMapLikeDeserializer(DeserializationConfig config,
-            DeserializerProvider p, MapLikeType type, BeanProperty property)
+            DeserializerCache p, MapLikeType type, BeanProperty property)
         throws JsonMappingException;
 
     /**
      * Method called to create and return a deserializer that can construct
      * JsonNode(s) from JSON content.
      */
-    public abstract JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config, DeserializerProvider p,
+    public abstract JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config, DeserializerCache p,
             JavaType type, BeanProperty property)
         throws JsonMappingException;
 

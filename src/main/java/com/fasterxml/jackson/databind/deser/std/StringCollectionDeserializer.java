@@ -6,7 +6,7 @@ import java.util.Collection;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.DeserializerProvider;
+import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
@@ -96,7 +96,7 @@ public final class StringCollectionDeserializer
      * is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public void resolve(DeserializationConfig config, DeserializerProvider provider)
+    public void resolve(DeserializationConfig config, DeserializerCache provider)
         throws JsonMappingException
     {
         // May need to resolve types for delegate-based creators:

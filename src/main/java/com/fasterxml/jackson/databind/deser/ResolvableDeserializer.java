@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * Interface used to indicate deserializers that want to do post-processing
- * after construction and being added to {@link DeserializerProvider},
+ * after construction and being added to {@link DeserializerCache},
  * but before being used. This is typically used to resolve references
  * to other contained types; for example, bean deserializers use this
  * to eagerly find deserializers for contained field types.
@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 public interface ResolvableDeserializer
 {
     /**
-     * Method called after {@link DeserializerProvider} has registered
+     * Method called after {@link DeserializerCache} has registered
      * the deserializer, but before it has returned it to the caller.
      * Called object can then resolve its dependencies to other types,
      * including self-references (direct or indirect).
@@ -35,6 +35,6 @@ public interface ResolvableDeserializer
      * @param provider Provider that has constructed deserializer this method
      *   is called on.
      */
-    public abstract void resolve(DeserializationConfig config, DeserializerProvider provider)
+    public abstract void resolve(DeserializationConfig config, DeserializerCache provider)
         throws JsonMappingException;
 }

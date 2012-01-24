@@ -52,7 +52,7 @@ public class TestConcurrency extends BaseMapTest
         }
 
         @Override
-        public void resolve(DeserializationConfig config, DeserializerProvider provider)
+        public void resolve(DeserializationConfig config, DeserializerCache provider)
             throws JsonMappingException
         {
             try {

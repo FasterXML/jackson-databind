@@ -7,7 +7,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.DeserializerProvider;
+import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -133,7 +133,7 @@ public class MapDeserializer
      * is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public void resolve(DeserializationConfig config, DeserializerProvider provider)
+    public void resolve(DeserializationConfig config, DeserializerCache provider)
         throws JsonMappingException
     {
         // May need to resolve types for delegate- and/or property-based creators:

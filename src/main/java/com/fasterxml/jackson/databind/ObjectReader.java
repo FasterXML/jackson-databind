@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.deser.DeserializerProvider;
+import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.StdDeserializationContext;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -55,7 +55,7 @@ public class ObjectReader
      */
     final protected ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _rootDeserializers;
    
-    protected final DeserializerProvider _provider;
+    protected final DeserializerCache _deserializerCache;
 
     /**
      * Factory used for constructing {@link JsonGenerator}s
@@ -124,7 +124,7 @@ public class ObjectReader
     {
         _config = config;
         _rootDeserializers = mapper._rootDeserializers;
-        _provider = mapper._deserializerProvider;
+        _deserializerCache = mapper._deserializerCache;
         _jsonFactory = mapper._jsonFactory;
         _rootNames = mapper._rootNames;
         _valueType = valueType;
@@ -147,7 +147,7 @@ public class ObjectReader
         _config = config;
 
         _rootDeserializers = base._rootDeserializers;
-        _provider = base._provider;
+        _deserializerCache = base._deserializerCache;
         _jsonFactory = base._jsonFactory;
         _rootNames = base._rootNames;
 
@@ -169,7 +169,7 @@ public class ObjectReader
         _config = config;
 
         _rootDeserializers = base._rootDeserializers;
-        _provider = base._provider;
+        _deserializerCache = base._deserializerCache;
         _jsonFactory = base._jsonFactory;
         _rootNames = base._rootNames;
 
@@ -920,7 +920,7 @@ public class ObjectReader
         }
 
         // Nope: need to ask provider to resolve it
-        deser = _provider.findTypedValueDeserializer(cfg, valueType, null);
+        deser = _deserializerCache.findTypedValueDeserializer(cfg, valueType, null);
         if (deser == null) { // can this happen?
             throw new JsonMappingException("Can not find a deserializer for type "+valueType);
         }
@@ -930,7 +930,7 @@ public class ObjectReader
     
     protected DeserializationContext _createDeserializationContext(JsonParser jp, DeserializationConfig cfg) {
         // 04-Jan-2010, tatu: we do actually need the provider too... (for polymorphic deser)
-        return new StdDeserializationContext(cfg, jp, _provider, _injectableValues);
+        return new StdDeserializationContext(cfg, jp, _deserializerCache, _injectableValues);
     }
 
     protected Object _unwrapAndDeserialize(JsonParser jp, DeserializationContext ctxt,

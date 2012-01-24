@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.DeserializerProvider;
+import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -271,7 +271,7 @@ public class JdkDeserializers
         }
         
         @Override
-        public void resolve(DeserializationConfig config, DeserializerProvider provider)
+        public void resolve(DeserializationConfig config, DeserializerCache provider)
             throws JsonMappingException
         {
             if (_valueDeserializer == null) {

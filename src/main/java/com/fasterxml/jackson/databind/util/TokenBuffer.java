@@ -284,15 +284,20 @@ public class TokenBuffer
             JsonToken t;
             try {
                 t = jp.nextToken();
+                if (t == null) break;
+                if (count < MAX_COUNT) {
+                    if (count > 0) {
+                        sb.append(", ");
+                    }
+                    sb.append(t.toString());
+                    if (t == JsonToken.FIELD_NAME) {
+                        sb.append('(');
+                        sb.append(jp.getCurrentName());
+                        sb.append(')');
+                    }
+                }
             } catch (IOException ioe) { // should never occur
                 throw new IllegalStateException(ioe);
-            }
-            if (t == null) break;
-            if (count < MAX_COUNT) {
-                if (count > 0) {
-                    sb.append(", ");
-                }
-                sb.append(t.toString());
             }
             ++count;
         }

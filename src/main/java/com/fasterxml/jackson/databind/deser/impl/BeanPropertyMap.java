@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.util.*;
 
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -49,7 +50,18 @@ public final class BeanPropertyMap
         ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>();
         while (it.hasNext()) {
             SettableBeanProperty prop = it.next();
-            newProps.add(prop.withName(transformer.transform(prop.getName())));
+            String newName = transformer.transform(prop.getName());
+            prop = prop.withName(newName);
+            JsonDeserializer<?> deser = prop.getValueDeserializer();
+            if (deser != null) {
+                @SuppressWarnings("unchecked")
+                JsonDeserializer<Object> newDeser = (JsonDeserializer<Object>)
+                    deser.unwrappingDeserializer(transformer);
+                if (newDeser != deser) {
+                    prop = prop.withValueDeserializer(newDeser);
+                }
+            }
+            newProps.add(prop);
         }
         // should we try to re-index? Ordering probably changed but called probably doesn't want changes...
         return new BeanPropertyMap(newProps);

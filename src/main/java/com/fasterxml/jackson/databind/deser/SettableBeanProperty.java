@@ -261,6 +261,7 @@ public abstract class SettableBeanProperty
         throws IOException, JsonProcessingException
     {
         JsonToken t = jp.getCurrentToken();
+        
         if (t == JsonToken.VALUE_NULL) {
             return (_nullProvider == null) ? null : _nullProvider.nullValue(ctxt);
         }

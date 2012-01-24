@@ -135,7 +135,6 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
     /**********************************************************
      */
 
-    /*
     public void testPrefixedUnwrapping() throws Exception
     {
         PrefixUnwrap bean = mapper.readValue("{\"name\":\"Axel\",\"_x\":4,\"_y\":7}", PrefixUnwrap.class);
@@ -148,13 +147,13 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
     
     public void testDeepPrefixedUnwrappingDeserialize() throws Exception
     {
-        DeepPrefixUnwrap bean = mapper.readValue("{\"u.name\":\"Bubba\",\"_x\":2,\"_y\":3}",
+        DeepPrefixUnwrap bean = mapper.readValue("{\"u.name\":\"Bubba\",\"u._x\":2,\"u._y\":3}",
                 DeepPrefixUnwrap.class);
         assertNotNull(bean.unwrapped);
-        assertEquals("Bubba", bean.unwrapped.name);
         assertNotNull(bean.unwrapped.location);
         assertEquals(2, bean.unwrapped.location.x);
         assertEquals(3, bean.unwrapped.location.y);
+        assertEquals("Bubba", bean.unwrapped.name);
     }
     
     public void testHierarchicConfigDeserialize() throws Exception
@@ -163,9 +162,8 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
                 ConfigRoot.class);
         assertNotNull(root.general);
         assertNotNull(root.general.names);
-        assertEquals("Bob", root.general.names.name);
         assertNotNull(root.misc);
         assertEquals(3, root.misc.value);
+        assertEquals("Bob", root.general.names.name);
     }
-*/
 }

@@ -247,9 +247,7 @@ public class BeanDeserializer
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
-
-        _beanProperties = src._beanProperties.renameAll(unwrapper);
-
+        
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
         _ignoreAllUnknown = (unwrapper != null) || src._ignoreAllUnknown;
@@ -258,14 +256,24 @@ public class BeanDeserializer
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+
+        if (unwrapper != null) {
+            // delegate further unwraps, if any
+            if (_unwrappedPropertyHandler != null) { // got handler, delegate
+                _unwrappedPropertyHandler.renameAll(unwrapper);
+            }
+            // and handle direct unwrapping as well:
+            _beanProperties = src._beanProperties.renameAll(unwrapper);
+        } else {
+            _beanProperties = src._beanProperties;
+        }
     }
 
     @Override
     public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
     {
-        /* bit kludgy but we don't want to accidentally change type;
-         * sub-classes MUST override this method to support unwrapped
-         * properties...
+        /* bit kludgy but we don't want to accidentally change type; sub-classes
+         * MUST override this method to support unwrapped properties...
          */
         if (getClass() != BeanDeserializer.class) {
             return this;
@@ -377,6 +385,7 @@ public class BeanDeserializer
                     unwrapped = new UnwrappedPropertyHandler();
                 }
                 unwrapped.addProperty(prop);
+                continue;
             }
             // [JACKSON-594]: non-static inner classes too:
             prop = _resolveInnerClassValuedProperty(config, prop);

@@ -52,8 +52,7 @@ public class TestConcurrency extends BaseMapTest
         }
 
         @Override
-        public void resolve(DeserializationConfig config, DeserializerCache provider)
-            throws JsonMappingException
+        public void resolve(DeserializationContext ctxt) throws JsonMappingException
         {
             try {
                 Thread.sleep(100L);

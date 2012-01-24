@@ -1686,7 +1686,9 @@ public class ObjectMapper
      */
     public boolean canDeserialize(JavaType type)
     {
-        return _deserializerCache.hasValueDeserializerFor(getDeserializationConfig(), type);
+        DeserializationContext ctxt = _createDeserializationContext(null,
+                getDeserializationConfig());
+        return _deserializerCache.hasValueDeserializerFor(ctxt, type);
     }
 
     /*

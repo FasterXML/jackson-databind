@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
-import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
@@ -32,9 +32,9 @@ public interface ResolvableDeserializer
      * Called object can then resolve its dependencies to other types,
      * including self-references (direct or indirect).
      *
-     * @param provider Provider that has constructed deserializer this method
-     *   is called on.
+     * @param ctxt Context to use for accessing configuration, resolving
+     *    secondary deserializers
      */
-    public abstract void resolve(DeserializationConfig config, DeserializerCache provider)
+    public abstract void resolve(DeserializationContext ctxt)
         throws JsonMappingException;
 }

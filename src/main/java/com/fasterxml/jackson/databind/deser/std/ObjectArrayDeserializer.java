@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
@@ -17,10 +18,20 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
 @JacksonStdImpl
 public class ObjectArrayDeserializer
     extends ContainerDeserializerBase<Object[]>
+    implements ResolvableDeserializer
 {
     // // Configuration
 
+    /**
+     * Full generic type of the array being deserialized
+     */
     protected final JavaType _arrayType;
+
+    /**
+     * Bean property for which deserializer was created; null
+     * for root-level deserializers.
+     */
+    protected final BeanProperty _property;
     
     /**
      * Flag that indicates whether the component type is Object or not.
@@ -37,7 +48,7 @@ public class ObjectArrayDeserializer
     /**
      * Element deserializer
      */
-    protected final JsonDeserializer<Object> _elementDeserializer;
+    protected JsonDeserializer<Object> _elementDeserializer;
 
     /**
      * If element instances have polymorphic type information, this
@@ -45,11 +56,12 @@ public class ObjectArrayDeserializer
      */
     protected final TypeDeserializer _elementTypeDeserializer;
 
-    public ObjectArrayDeserializer(ArrayType arrayType, JsonDeserializer<Object> elemDeser,
-            TypeDeserializer elemTypeDeser)
+    public ObjectArrayDeserializer(ArrayType arrayType, BeanProperty prop,
+            JsonDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser)
     {
         super(Object[].class);
         _arrayType = arrayType;
+        _property = prop;
         _elementClass = arrayType.getContentType().getRawClass();
         _untyped = (_elementClass == Object.class);
         _elementDeserializer = elemDeser;
@@ -133,6 +145,14 @@ public class ObjectArrayDeserializer
         return (Object[]) typeDeserializer.deserializeTypedFromArray(jp, ctxt);
     }
 
+    @Override
+    public void resolve(DeserializationContext ctxt) throws JsonMappingException
+    {
+        if (_elementDeserializer == null) {
+            _elementDeserializer = ctxt.findValueDeserializer(_arrayType.getContentType(), _property);
+        }
+    }
+    
     /*
     /**********************************************************
     /* Internal methods

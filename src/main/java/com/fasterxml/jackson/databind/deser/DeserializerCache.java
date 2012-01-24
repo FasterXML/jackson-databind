@@ -175,7 +175,7 @@ public final class DeserializerCache
      *   finding any serializer
      */
     @SuppressWarnings("unchecked")
-    public JsonDeserializer<Object> findValueDeserializer(DeserializationConfig config,
+    public JsonDeserializer<Object> findValueDeserializer(DeserializationContext ctxt,
             JavaType propertyType, BeanProperty property)
         throws JsonMappingException
     {
@@ -183,13 +183,13 @@ public final class DeserializerCache
         if (deser != null) {
             // [JACKSON-385]: need to support contextualization:
             if (deser instanceof ContextualDeserializer<?>) {
-                JsonDeserializer<?> d = ((ContextualDeserializer<?>) deser).createContextual(config, property);
+                JsonDeserializer<?> d = ((ContextualDeserializer<?>) deser).createContextual(ctxt.getConfig(), property);
                 deser = (JsonDeserializer<Object>) d;
             }
             return deser;
         }
         // If not, need to request factory to construct (or recycle)
-        deser = _createAndCacheValueDeserializer(config, propertyType, property);
+        deser = _createAndCacheValueDeserializer(ctxt, propertyType, property);
         if (deser == null) {
             /* Should we let caller handle it? Let's have a helper method
              * decide it; can throw an exception, or return a valid
@@ -199,7 +199,7 @@ public final class DeserializerCache
         }
         // [JACKSON-385]: need to support contextualization:
         if (deser instanceof ContextualDeserializer<?>) {
-            JsonDeserializer<?> d = ((ContextualDeserializer<?>) deser).createContextual(config, property);
+            JsonDeserializer<?> d = ((ContextualDeserializer<?>) deser).createContextual(ctxt.getConfig(), property);
             deser = (JsonDeserializer<Object>) d;
         }
         return deser;
@@ -214,12 +214,12 @@ public final class DeserializerCache
      * Since this method is only called for root elements, no referral information
      * is taken.
      */
-    public JsonDeserializer<Object> findTypedValueDeserializer(DeserializationConfig config,
+    public JsonDeserializer<Object> findTypedValueDeserializer(DeserializationContext ctxt,
             JavaType type, BeanProperty property)
         throws JsonMappingException
     {
-        JsonDeserializer<Object> deser = findValueDeserializer(config, type, property);
-        TypeDeserializer typeDeser = _factory.findTypeDeserializer(config, type, property);
+        JsonDeserializer<Object> deser = findValueDeserializer(ctxt, type, property);
+        TypeDeserializer typeDeser = _factory.findTypeDeserializer(ctxt.getConfig(), type, property);
         if (typeDeser != null) {
             return new WrappedDeserializer(typeDeser, deser);
         }
@@ -254,7 +254,7 @@ public final class DeserializerCache
      * a deserializer for given type, using a root reference (i.e. not
      * through fields or membership in an array or collection)
      */
-    public boolean hasValueDeserializerFor(DeserializationConfig config, JavaType type)
+    public boolean hasValueDeserializerFor(DeserializationContext ctxt, JavaType type)
     {
         /* Note: mostly copied from findValueDeserializer, except for
          * handling of unknown types
@@ -262,7 +262,7 @@ public final class DeserializerCache
         JsonDeserializer<Object> deser = _findCachedDeserializer(type);
         if (deser == null) {
             try {
-                deser = _createAndCacheValueDeserializer(config, type, null);
+                deser = _createAndCacheValueDeserializer(ctxt, type, null);
             } catch (Exception e) {
                 return false;
             }
@@ -292,7 +292,7 @@ public final class DeserializerCache
      * @param type Type of property to deserializer
      * @param property Property (field, setter, ctor arg) to use deserializer for
      */
-    protected JsonDeserializer<Object>_createAndCacheValueDeserializer(DeserializationConfig config,
+    protected JsonDeserializer<Object>_createAndCacheValueDeserializer(DeserializationContext ctxt,
             JavaType type, BeanProperty property)
         throws JsonMappingException
     {
@@ -316,7 +316,7 @@ public final class DeserializerCache
             }
             // Nope: need to create and possibly cache
             try {
-                return _createAndCache2(config, type, property);
+                return _createAndCache2(ctxt, type, property);
             } finally {
                 // also: any deserializers that have been created are complete by now
                 if (count == 0 && _incompleteDeserializers.size() > 0) {
@@ -330,13 +330,13 @@ public final class DeserializerCache
      * Method that handles actual construction (via factory) and caching (both
      * intermediate and eventual)
      */
-    protected JsonDeserializer<Object> _createAndCache2(DeserializationConfig config, JavaType type,
-            BeanProperty property)
+    protected JsonDeserializer<Object> _createAndCache2(DeserializationContext ctxt,
+            JavaType type, BeanProperty property)
         throws JsonMappingException
     {
         JsonDeserializer<Object> deser;
         try {
-            deser = _createDeserializer(config, type, property);
+            deser = _createDeserializer(ctxt.getConfig(), type, property);
         } catch (IllegalArgumentException iae) {
             /* We better only expose checked exceptions, since those
              * are what caller is expected to handle
@@ -367,7 +367,7 @@ public final class DeserializerCache
          */
         if (isResolvable) {
             _incompleteDeserializers.put(type, deser);
-            _resolveDeserializer(config, (ResolvableDeserializer)deser);
+            _resolveDeserializer(ctxt, (ResolvableDeserializer)deser);
             _incompleteDeserializers.remove(type);
         }
         if (addToCache) {
@@ -419,10 +419,10 @@ public final class DeserializerCache
         return (JsonDeserializer<Object>)_factory.createBeanDeserializer(config, this, type, property);
     }
 
-    protected void _resolveDeserializer(DeserializationConfig config, ResolvableDeserializer ser)
+    protected void _resolveDeserializer(DeserializationContext ctxt, ResolvableDeserializer ser)
         throws JsonMappingException
     {
-        ser.resolve(config, this);
+        ser.resolve(ctxt);
     }
 
     /*

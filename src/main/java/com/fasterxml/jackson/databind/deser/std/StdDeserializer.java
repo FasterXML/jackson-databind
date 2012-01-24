@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.io.NumberInput;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -599,18 +598,15 @@ public abstract class StdDeserializer<T>
      * type this deserializer handles contains (usually for properties of
      * bean types)
      * 
-     * @param config Active deserialization configuration 
-     * @param provider Deserializer provider to use for actually finding deserializer(s)
      * @param type Type of property to deserialize
      * @param property Actual property object (field, method, constuctor parameter) used
      *     for passing deserialized values; provided so deserializer can be contextualized if necessary (since 1.7)
      */
-    protected JsonDeserializer<Object> findDeserializer(DeserializationConfig config,
-            DeserializerCache provider,
+    protected JsonDeserializer<Object> findDeserializer(DeserializationContext ctxt,
             JavaType type, BeanProperty property)
         throws JsonMappingException
     {
-        return provider.findValueDeserializer(config, type, property);
+        return ctxt.findValueDeserializer(type, property);
     }
 
     /*

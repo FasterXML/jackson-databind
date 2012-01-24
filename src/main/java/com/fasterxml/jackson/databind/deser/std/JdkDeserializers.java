@@ -14,13 +14,11 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -271,11 +269,11 @@ public class JdkDeserializers
         }
         
         @Override
-        public void resolve(DeserializationConfig config, DeserializerCache provider)
+        public void resolve(DeserializationContext ctxt)
             throws JsonMappingException
         {
             if (_valueDeserializer == null) {
-                _valueDeserializer = provider.findValueDeserializer(config, _referencedType, _property);
+                _valueDeserializer = ctxt.findValueDeserializer(_referencedType, _property);
             }
         }
     }

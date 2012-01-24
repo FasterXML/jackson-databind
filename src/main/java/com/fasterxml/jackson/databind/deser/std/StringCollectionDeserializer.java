@@ -6,7 +6,6 @@ import java.util.Collection;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
@@ -26,18 +25,13 @@ public final class StringCollectionDeserializer
 
     protected final JavaType _collectionType;
 
+    protected final BeanProperty _property;
+    
     /**
-     * Value deserializer; needed even if it is the standard String
-     * deserializer
+     * Value deserializer to use, if NOT the standard one
+     * (if it is, will be null).
      */
-    protected final JsonDeserializer<String> _valueDeserializer;
-
-    /**
-     * Flag that indicates whether value deserializer is the standard
-     * Jackson-provided one; if it is, we can use more efficient
-     * handling.
-     */
-    protected final boolean _isDefaultDeserializer;
+    protected JsonDeserializer<String> _valueDeserializer;
 
     // // Instance construction settings:
     
@@ -61,27 +55,15 @@ public final class StringCollectionDeserializer
      */
     
     @SuppressWarnings("unchecked")
-    public StringCollectionDeserializer(JavaType collectionType, JsonDeserializer<?> valueDeser,
+    public StringCollectionDeserializer(JavaType collectionType, BeanProperty prop,
+            JsonDeserializer<?> valueDeser,
             ValueInstantiator valueInstantiator)
     {
         super(collectionType.getRawClass());
+        _property = prop;
         _collectionType = collectionType;
         _valueDeserializer = (JsonDeserializer<String>) valueDeser;
         _valueInstantiator = valueInstantiator;
-        _isDefaultDeserializer = isDefaultSerializer(valueDeser);
-    }
-
-    /**
-     * Copy-constructor that can be used by sub-classes to allow
-     * copy-on-write styling copying of settings of an existing instance.
-     */
-    protected StringCollectionDeserializer(StringCollectionDeserializer src)
-    {
-        super(src._valueClass);
-        _collectionType = src._collectionType;
-        _valueDeserializer = src._valueDeserializer;
-        _valueInstantiator = src._valueInstantiator;
-        _isDefaultDeserializer = src._isDefaultDeserializer;
     }
 
     /*
@@ -90,23 +72,32 @@ public final class StringCollectionDeserializer
     /**********************************************************
      */
 
+    @SuppressWarnings("unchecked")
     /**
      * Method called to finalize setup of this deserializer,
      * after deserializer itself has been registered. This
      * is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public void resolve(DeserializationConfig config, DeserializerCache provider)
+    public void resolve(DeserializationContext ctxt)
         throws JsonMappingException
     {
         // May need to resolve types for delegate-based creators:
         AnnotatedWithParams delegateCreator = _valueInstantiator.getDelegateCreator();
         if (delegateCreator != null) {
-            JavaType delegateType = _valueInstantiator.getDelegateType(config);
+            JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
             // Need to create a temporary property to allow contextual deserializers:
             BeanProperty.Std property = new BeanProperty.Std(null,
                     delegateType, null, delegateCreator);
-            _delegateDeserializer = findDeserializer(config, provider, delegateType, property);
+            _delegateDeserializer = findDeserializer(ctxt, delegateType, property);
+        }
+        if (_valueDeserializer == null) {
+            // And we may also need to get deserializer for String
+            JsonDeserializer<?> deser = ctxt.findValueDeserializer(_collectionType.getContentType(), _property);
+            _valueDeserializer = (JsonDeserializer<String>) deser;
+        }
+        if (isDefaultSerializer(_valueDeserializer)) {
+            _valueDeserializer = null;
         }
     }
     
@@ -157,8 +148,8 @@ public final class StringCollectionDeserializer
             return handleNonArray(jp, ctxt, result);
         }
 
-        if (!_isDefaultDeserializer) {
-            return deserializeUsingCustom(jp, ctxt, result);
+        if (_valueDeserializer != null) {
+            return deserializeUsingCustom(jp, ctxt, result, _valueDeserializer);
         }
         JsonToken t;
 
@@ -169,12 +160,10 @@ public final class StringCollectionDeserializer
     }
     
     private Collection<String> deserializeUsingCustom(JsonParser jp, DeserializationContext ctxt,
-            Collection<String> result)
+            Collection<String> result, final JsonDeserializer<String> deser)
         throws IOException, JsonProcessingException
     {
         JsonToken t;
-        final JsonDeserializer<String> deser = _valueDeserializer;
-
         while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
             String value;
 

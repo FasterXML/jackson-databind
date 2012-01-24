@@ -349,17 +349,17 @@ public class BeanDeserializer
      * This is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public void resolve(DeserializationConfig config, DeserializerCache provider)
+    public void resolve(DeserializationContext ctxt)
         throws JsonMappingException
     {
         // if ValueInstantiator can use "creator" approach, need to resolve it here...
         if (_valueInstantiator.canCreateFromObjectWith()) {
-            SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(config);
+            SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
             _propertyBasedCreator = new PropertyBasedCreator(_valueInstantiator, creatorProps);
             for (SettableBeanProperty prop : creatorProps) {
                 if (!prop.hasValueDeserializer()) {
                     _propertyBasedCreator.assignDeserializer(prop,
-                           findDeserializer(config, provider, prop.getType(), prop));
+                           findDeserializer(ctxt, prop.getType(), prop));
                 }
             }
         }
@@ -373,12 +373,12 @@ public class BeanDeserializer
             SettableBeanProperty prop = origProp;
             // May already have deserializer from annotations, if so, skip:
             if (!prop.hasValueDeserializer()) {
-                prop = prop.withValueDeserializer(findDeserializer(config, provider, prop.getType(), prop));
+                prop = prop.withValueDeserializer(findDeserializer(ctxt, prop.getType(), prop));
             }
             // [JACKSON-235]: need to link managed references with matching back references
-            prop = _resolveManagedReferenceProperty(config, prop);
+            prop = _resolveManagedReferenceProperty(ctxt, prop);
             // [JACKSON-132]: support unwrapped values (via @JsonUnwrapped)
-            SettableBeanProperty u = _resolveUnwrappedProperty(config, prop);
+            SettableBeanProperty u = _resolveUnwrappedProperty(ctxt, prop);
             if (u != null) {
                 prop = u;
                 if (unwrapped == null) {
@@ -388,7 +388,7 @@ public class BeanDeserializer
                 continue;
             }
             // [JACKSON-594]: non-static inner classes too:
-            prop = _resolveInnerClassValuedProperty(config, prop);
+            prop = _resolveInnerClassValuedProperty(ctxt, prop);
             if (prop != origProp) {
                 _beanProperties.replace(prop);
             }
@@ -411,12 +411,12 @@ public class BeanDeserializer
 
         // Finally, "any setter" may also need to be resolved now
         if (_anySetter != null && !_anySetter.hasValueDeserializer()) {
-            _anySetter = _anySetter.withValueDeserializer(findDeserializer(config, provider, _anySetter.getType(), _anySetter.getProperty()));
+            _anySetter = _anySetter.withValueDeserializer(findDeserializer(ctxt, _anySetter.getType(), _anySetter.getProperty()));
         }
 
         // as well as delegate-based constructor:
         if (_valueInstantiator.canCreateUsingDelegate()) {
-            JavaType delegateType = _valueInstantiator.getDelegateType(config);
+            JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
             if (delegateType == null) {
                 throw new IllegalArgumentException("Invalid delegate-creator definition for "+_beanType
                         +": value instantiator ("+_valueInstantiator.getClass().getName()
@@ -426,7 +426,7 @@ public class BeanDeserializer
             // Need to create a temporary property to allow contextual deserializers:
             BeanProperty.Std property = new BeanProperty.Std(null,
                     delegateType, _forClass.getAnnotations(), delegateCreator);
-            _delegateDeserializer = findDeserializer(config, provider, delegateType, property);
+            _delegateDeserializer = findDeserializer(ctxt, delegateType, property);
         }
         if (extTypes != null) {
             _externalTypeIdHandler = extTypes.build();
@@ -444,7 +444,7 @@ public class BeanDeserializer
      * Helper method called to see if given property is part of 'managed' property
      * pair (managed + back reference), and if so, handle resolution details.
      */
-    protected SettableBeanProperty _resolveManagedReferenceProperty(DeserializationConfig config,
+    protected SettableBeanProperty _resolveManagedReferenceProperty(DeserializationContext ctxt,
             SettableBeanProperty prop)
     {
         String refName = prop.getManagedReferenceName();
@@ -492,12 +492,12 @@ public class BeanDeserializer
      * Helper method called to see if given property might be so-called unwrapped
      * property: these require special handling.
      */
-    protected SettableBeanProperty _resolveUnwrappedProperty(DeserializationConfig config,
+    protected SettableBeanProperty _resolveUnwrappedProperty(DeserializationContext ctxt,
             SettableBeanProperty prop)
     {
         AnnotatedMember am = prop.getMember();
         if (am != null) {
-            NameTransformer unwrapper = config.getAnnotationIntrospector().findUnwrappingNameTransformer(am);
+            NameTransformer unwrapper = ctxt.getAnnotationIntrospector().findUnwrappingNameTransformer(am);
             if (unwrapper != null) {
                 JsonDeserializer<Object> orig = prop.getValueDeserializer();
                 JsonDeserializer<Object> unwrapping = orig.unwrappingDeserializer(unwrapper);
@@ -514,7 +514,7 @@ public class BeanDeserializer
      * Helper method that will handle gruesome details of dealing with properties
      * that have non-static inner class as value...
      */
-    protected SettableBeanProperty _resolveInnerClassValuedProperty(DeserializationConfig config,
+    protected SettableBeanProperty _resolveInnerClassValuedProperty(DeserializationContext ctxt,
             SettableBeanProperty prop)
     {            
         /* Should we encounter a property that has non-static inner-class
@@ -533,7 +533,7 @@ public class BeanDeserializer
                     for (Constructor<?> ctor : valueClass.getConstructors()) {
                         Class<?>[] paramTypes = ctor.getParameterTypes();
                         if (paramTypes.length == 1 && paramTypes[0] == enclosing) {
-                            if (config.canOverrideAccessModifiers()) {
+                            if (ctxt.getConfig().canOverrideAccessModifiers()) {
                                 ClassUtil.checkAndFixAccess(ctor);
                             }
                             return new SettableBeanProperty.InnerClassProperty(prop, ctor);
@@ -1353,7 +1353,8 @@ public class BeanDeserializer
      * Helper method called to (try to) locate deserializer for given sub-type of
      * type that this deserializer handles.
      */
-    protected JsonDeserializer<Object> _findSubclassDeserializer(DeserializationContext ctxt, Object bean, TokenBuffer unknownTokens)
+    protected JsonDeserializer<Object> _findSubclassDeserializer(DeserializationContext ctxt,
+            Object bean, TokenBuffer unknownTokens)
         throws IOException, JsonProcessingException
     {  
         JsonDeserializer<Object> subDeser;
@@ -1372,7 +1373,7 @@ public class BeanDeserializer
             /* 09-Dec-2010, tatu: Would be nice to know which property pointed to this
              *    bean... but, alas, no such information is retained, so:
              */
-            subDeser = deserProv.findValueDeserializer(ctxt.getConfig(), type, _property);
+            subDeser = ctxt.findValueDeserializer(type, _property);
             // Also, need to cache it
             if (subDeser != null) {
                 synchronized (this) {

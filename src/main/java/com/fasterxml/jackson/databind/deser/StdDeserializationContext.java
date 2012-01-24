@@ -103,13 +103,13 @@ public class StdDeserializationContext
     @Override
     public JsonDeserializer<Object> findValueDeserializer(JavaType type,
             BeanProperty property) throws JsonMappingException {
-        return _deserProvider.findValueDeserializer(_config, type, property);
+        return _deserProvider.findValueDeserializer(this, type, property);
     }
     
     @Override
     public JsonDeserializer<Object> findTypedValueDeserializer(JavaType type,
             BeanProperty property) throws JsonMappingException {
-        return _deserProvider.findTypedValueDeserializer(_config, type, property);
+        return _deserProvider.findTypedValueDeserializer(this, type, property);
     }
 
     @Override

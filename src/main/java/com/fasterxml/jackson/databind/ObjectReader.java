@@ -663,7 +663,7 @@ public class ObjectReader
         DeserializationContext ctxt = _createDeserializationContext(jp, _config);
         // false -> do not close as caller gave parser instance
         return new MappingIterator<T>(_valueType, jp, ctxt,
-                _findRootDeserializer(_config, _valueType),
+                _findRootDeserializer(ctxt, _valueType),
                 false, _valueToUpdate);
     }
     
@@ -679,7 +679,7 @@ public class ObjectReader
         }
         DeserializationContext ctxt = _createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt, 
-                _findRootDeserializer(_config, _valueType),
+                _findRootDeserializer(ctxt, _valueType),
                 true, _valueToUpdate);
     }
 
@@ -695,7 +695,7 @@ public class ObjectReader
         }
         DeserializationContext ctxt = _createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
-                _findRootDeserializer(_config, _valueType), true, _valueToUpdate);
+                _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
     
     /**
@@ -710,7 +710,7 @@ public class ObjectReader
         }
         DeserializationContext ctxt = _createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
-                _findRootDeserializer(_config, _valueType), true, _valueToUpdate);
+                _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
 
     /**
@@ -725,7 +725,7 @@ public class ObjectReader
         }
         DeserializationContext ctxt = _createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
-                _findRootDeserializer(_config, _valueType), true, _valueToUpdate);
+                _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
 
     public final <T> MappingIterator<T> readValues(byte[] src)
@@ -745,7 +745,7 @@ public class ObjectReader
         }
         DeserializationContext ctxt = _createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
-                _findRootDeserializer(_config, _valueType), true, _valueToUpdate);
+                _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
 
     /**
@@ -760,7 +760,7 @@ public class ObjectReader
         }
         DeserializationContext ctxt = _createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
-                _findRootDeserializer(_config, _valueType), true, _valueToUpdate);
+                _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
     
     /*
@@ -782,7 +782,8 @@ public class ObjectReader
         JsonToken t = _initForReading(jp);
         if (t == JsonToken.VALUE_NULL) {
             if (_valueToUpdate == null) {
-                result = _findRootDeserializer(_config, _valueType).getNullValue();
+                DeserializationContext ctxt = _createDeserializationContext(jp, _config);
+                result = _findRootDeserializer(ctxt, _valueType).getNullValue();
             } else {
                 result = _valueToUpdate;
             }
@@ -790,7 +791,7 @@ public class ObjectReader
             result = _valueToUpdate;
         } else { // pointing to event other than null
             DeserializationContext ctxt = _createDeserializationContext(jp, _config);
-            JsonDeserializer<Object> deser = _findRootDeserializer(_config, _valueType);
+            JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, _valueType);
             if (_unwrapRoot) {
                 result = _unwrapAndDeserialize(jp, ctxt, _valueType, deser);
             } else {
@@ -818,7 +819,8 @@ public class ObjectReader
             JsonToken t = _initForReading(jp);
             if (t == JsonToken.VALUE_NULL) {
                 if (_valueToUpdate == null) {
-                    result = _findRootDeserializer(_config, _valueType).getNullValue();
+                    DeserializationContext ctxt = _createDeserializationContext(jp, _config);
+                    result = _findRootDeserializer(ctxt, _valueType).getNullValue();
                 } else {
                     result = _valueToUpdate;
                 }
@@ -826,7 +828,7 @@ public class ObjectReader
                 result = _valueToUpdate;
             } else {
                 DeserializationContext ctxt = _createDeserializationContext(jp, _config);
-                JsonDeserializer<Object> deser = _findRootDeserializer(_config, _valueType);
+                JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, _valueType);
                 if (_unwrapRoot) {
                     result = _unwrapAndDeserialize(jp, ctxt, _valueType, deser);
                 } else {
@@ -855,7 +857,7 @@ public class ObjectReader
             result = NullNode.instance;
         } else {
             DeserializationContext ctxt = _createDeserializationContext(jp, _config);
-            JsonDeserializer<Object> deser = _findRootDeserializer(_config, JSON_NODE_TYPE);
+            JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, JSON_NODE_TYPE);
             if (_unwrapRoot) {
                 result = (JsonNode) _unwrapAndDeserialize(jp, ctxt, JSON_NODE_TYPE, deser);
             } else {
@@ -905,7 +907,8 @@ public class ObjectReader
     /**
      * Method called to locate deserializer for the passed root-level value.
      */
-    protected JsonDeserializer<Object> _findRootDeserializer(DeserializationConfig cfg, JavaType valueType)
+    protected JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt,
+            JavaType valueType)
         throws JsonMappingException
     {
         // Sanity check: must have actual type...
@@ -918,9 +921,8 @@ public class ObjectReader
         if (deser != null) {
             return deser;
         }
-
         // Nope: need to ask provider to resolve it
-        deser = _deserializerCache.findTypedValueDeserializer(cfg, valueType, null);
+        deser = ctxt.findTypedValueDeserializer(valueType, null);
         if (deser == null) { // can this happen?
             throw new JsonMappingException("Can not find a deserializer for type "+valueType);
         }

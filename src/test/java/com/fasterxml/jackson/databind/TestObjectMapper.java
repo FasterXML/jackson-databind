@@ -98,7 +98,7 @@ public class TestObjectMapper extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         assertEquals(0, mapper._deserializerCache.cachedDeserializersCount());
         // and then should get one constructed for:
-        Bean bean = mapper.readValue("{ \"c\" : 3 }", Bean.class);
+        Bean bean = mapper.readValue("{ \"x\" : 3 }", Bean.class);
         assertNotNull(bean);
         assertEquals(1, mapper._deserializerCache.cachedDeserializersCount());
         mapper._deserializerCache.flushCachedDeserializers();

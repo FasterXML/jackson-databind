@@ -7,7 +7,6 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -36,6 +35,8 @@ public class MapDeserializer
 
     protected final JavaType _mapType;
 
+    protected final BeanProperty _property;
+    
     /**
      * Key deserializer used, if not null. If null, String from JSON
      * content is used as is.
@@ -45,7 +46,7 @@ public class MapDeserializer
     /**
      * Value deserializer.
      */
-    protected final JsonDeserializer<Object> _valueDeserializer;
+    protected JsonDeserializer<Object> _valueDeserializer;
 
     /**
      * If value instances have polymorphic type information, this
@@ -83,12 +84,14 @@ public class MapDeserializer
     /**********************************************************
      */
 
-    public MapDeserializer(JavaType mapType, ValueInstantiator valueInstantiator,
+    public MapDeserializer(JavaType mapType, BeanProperty prop,
+            ValueInstantiator valueInstantiator,
             KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser)
     {
         super(Map.class);
         _mapType = mapType;
+        _property = prop;
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
@@ -104,6 +107,7 @@ public class MapDeserializer
     {
         super(src._valueClass);
         _mapType = src._mapType;
+        _property = src._property;
         _keyDeserializer = src._keyDeserializer;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
@@ -133,12 +137,12 @@ public class MapDeserializer
      * is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public void resolve(DeserializationConfig config, DeserializerCache provider)
+    public void resolve(DeserializationContext ctxt)
         throws JsonMappingException
     {
         // May need to resolve types for delegate- and/or property-based creators:
         if (_valueInstantiator.canCreateUsingDelegate()) {
-            JavaType delegateType = _valueInstantiator.getDelegateType(config);
+            JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
             if (delegateType == null) {
                 throw new IllegalArgumentException("Invalid delegate-creator definition for "+_mapType
                         +": value instantiator ("+_valueInstantiator.getClass().getName()
@@ -149,16 +153,20 @@ public class MapDeserializer
             // Note: unlike BeanDeserializer, we don't have an AnnotatedClass around; hence no annotations passed
             BeanProperty.Std property = new BeanProperty.Std(null,
                     delegateType, null, delegateCreator);
-            _delegateDeserializer = findDeserializer(config, provider, delegateType, property);
+            _delegateDeserializer = findDeserializer(ctxt, delegateType, property);
         }
         if (_valueInstantiator.canCreateFromObjectWith()) {
-            SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(config);
+            SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
             _propertyBasedCreator = new PropertyBasedCreator(_valueInstantiator, creatorProps);
             for (SettableBeanProperty prop : creatorProps) {
                 if (!prop.hasValueDeserializer()) {
-                    _propertyBasedCreator.assignDeserializer(prop, findDeserializer(config, provider, prop.getType(), prop));
+                    _propertyBasedCreator.assignDeserializer(prop,
+                            findDeserializer(ctxt, prop.getType(), prop));
                 }
             }
+        }
+        if (_valueDeserializer == null) {
+            _valueDeserializer = ctxt.findValueDeserializer(_mapType.getContentType(), _property);
         }
     }
     

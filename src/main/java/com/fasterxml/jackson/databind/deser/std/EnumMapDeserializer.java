@@ -5,8 +5,12 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -21,18 +25,25 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 @SuppressWarnings({ "unchecked", "rawtypes" }) 
 public class EnumMapDeserializer
     extends StdDeserializer<EnumMap<?,?>>
+    implements ResolvableDeserializer
 {
+    protected final JavaType _mapType;
+    
+    protected final BeanProperty _property;
+    
     protected final Class<?> _enumClass;
 
     protected final JsonDeserializer<Enum<?>> _keyDeserializer;
 
-    protected final JsonDeserializer<Object> _valueDeserializer;
+    protected JsonDeserializer<Object> _valueDeserializer;
 
-    public EnumMapDeserializer(Class<?> enumClass, JsonDeserializer<?> keyDeserializer,
-            JsonDeserializer<Object> valueDeser)
+    public EnumMapDeserializer(JavaType mapType, BeanProperty prop,
+            JsonDeserializer<?> keyDeserializer, JsonDeserializer<Object> valueDeser)
     {
         super(EnumMap.class);
-        _enumClass = enumClass;
+        _mapType = mapType;
+        _property = prop;
+        _enumClass = mapType.getKeyType().getRawClass();
         _keyDeserializer = (JsonDeserializer<Enum<?>>) keyDeserializer;
         _valueDeserializer = valueDeser;
     }
@@ -78,6 +89,15 @@ public class EnumMapDeserializer
     {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
+    }
+
+    @Override
+    public void resolve(DeserializationContext ctxt) throws JsonMappingException
+    {
+        if (_valueDeserializer == null) {
+            // 'null' -> arrays have no referring fields
+            _valueDeserializer = ctxt.findValueDeserializer(_mapType.getContentType(), _property);
+        }
     }
     
     private EnumMap<?,?> constructMap() {

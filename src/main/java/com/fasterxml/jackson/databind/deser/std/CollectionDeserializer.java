@@ -6,7 +6,6 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
@@ -31,10 +30,12 @@ public class CollectionDeserializer
 
     protected final JavaType _collectionType;
 
+    protected final BeanProperty _property;
+    
     /**
      * Value deserializer.
      */
-    protected final JsonDeserializer<Object> _valueDeserializer;
+    protected JsonDeserializer<Object> _valueDeserializer;
 
     /**
      * If element instances have polymorphic type information, this
@@ -60,11 +61,13 @@ public class CollectionDeserializer
     /**********************************************************
      */
     
-    public CollectionDeserializer(JavaType collectionType, JsonDeserializer<Object> valueDeser,
+    public CollectionDeserializer(JavaType collectionType, BeanProperty prop,
+            JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator)
     {
         super(collectionType.getRawClass());
         _collectionType = collectionType;
+        _property = prop;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
         _valueInstantiator = valueInstantiator;
@@ -78,6 +81,7 @@ public class CollectionDeserializer
     {
         super(src._valueClass);
         _collectionType = src._collectionType;
+        _property = src._property;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
         _valueInstantiator = src._valueInstantiator;
@@ -96,12 +100,12 @@ public class CollectionDeserializer
      * is needed to handle recursive and transitive dependencies.
      */
     @Override
-    public void resolve(DeserializationConfig config, DeserializerCache provider)
+    public void resolve(DeserializationContext ctxt)
         throws JsonMappingException
     {
         // May need to resolve types for delegate-based creators:
         if (_valueInstantiator.canCreateUsingDelegate()) {
-            JavaType delegateType = _valueInstantiator.getDelegateType(config);
+            JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
             if (delegateType == null) {
                 throw new IllegalArgumentException("Invalid delegate-creator definition for "+_collectionType
                         +": value instantiator ("+_valueInstantiator.getClass().getName()
@@ -112,7 +116,11 @@ public class CollectionDeserializer
             // Note: unlike BeanDeserializer, we don't have an AnnotatedClass around; hence no annotations passed
             BeanProperty.Std property = new BeanProperty.Std(null,
                     delegateType, null, delegateCreator);
-            _delegateDeserializer = findDeserializer(config, provider, delegateType, property);
+            _delegateDeserializer = findDeserializer(ctxt, delegateType, property);
+        }
+        // also, often value deserializer is resolved here:
+        if (_valueDeserializer == null) {
+            _valueDeserializer = ctxt.findValueDeserializer(_collectionType.getContentType(), _property);
         }
     }
     

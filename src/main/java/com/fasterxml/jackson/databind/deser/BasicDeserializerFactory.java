@@ -272,16 +272,12 @@ public abstract class BasicDeserializerFactory
         if (custom != null) {
             return custom;
         }
-        
-        if (contentDeser == null) {
-            // 'null' -> arrays have no referring fields
-            contentDeser = p.findValueDeserializer(config, elemType, property);
-        }
-        return new ObjectArrayDeserializer(type, contentDeser, elemTypeDeser);
+        return new ObjectArrayDeserializer(type, property, contentDeser, elemTypeDeser);
     }
     
     @Override
-    public JsonDeserializer<?> createCollectionDeserializer(DeserializationConfig config, DeserializerCache p,
+    public JsonDeserializer<?> createCollectionDeserializer(DeserializationConfig config,
+            DeserializerCache p,
             CollectionType type, BeanProperty property)
         throws JsonMappingException
     {
@@ -322,9 +318,6 @@ public abstract class BasicDeserializerFactory
                 return new EnumSetDeserializer(contentType.getRawClass(),
                         createEnumDeserializer(config, p, contentType, property));
             }
-            // But otherwise we can just use a generic value deserializer:
-            // 'null' -> collections have no referring fields
-            contentDeser = p.findValueDeserializer(config, contentType, property);            
         }
         
         /* One twist: if we are being asked to instantiate an interface or
@@ -351,9 +344,9 @@ public abstract class BasicDeserializerFactory
         // 13-Dec-2010, tatu: Can use more optimal deserializer if content type is String, so:
         if (contentType.getRawClass() == String.class) {
             // no value type deserializer because Strings are one of natural/native types:
-            return new StringCollectionDeserializer(type, contentDeser, inst);
+            return new StringCollectionDeserializer(type, property, contentDeser, inst);
         }
-        return new CollectionDeserializer(type, contentDeser, contentTypeDeser, inst);
+        return new CollectionDeserializer(type, property, contentDeser, contentTypeDeser, inst);
     }
 
     // Copied almost verbatim from "createCollectionDeserializer" -- should try to share more code
@@ -431,11 +424,6 @@ public abstract class BasicDeserializerFactory
         if (custom != null) {
             return custom;
         }
-
-        if (contentDeser == null) { // nope...
-            // 'null' -> maps have no referring fields
-            contentDeser = p.findValueDeserializer(config, contentType, property);
-        }
         // Value handling is identical for all, but EnumMap requires special handling for keys
         Class<?> mapClass = type.getRawClass();
         if (EnumMap.class.isAssignableFrom(mapClass)) {
@@ -443,7 +431,7 @@ public abstract class BasicDeserializerFactory
             if (kt == null || !kt.isEnum()) {
                 throw new IllegalArgumentException("Can not construct EnumMap; generic (key) type not available");
             }
-            return new EnumMapDeserializer(keyType.getRawClass(),
+            return new EnumMapDeserializer(type, property,
                     createEnumDeserializer(config, p, keyType, property),
                     contentDeser);
         }
@@ -471,7 +459,7 @@ public abstract class BasicDeserializerFactory
             beanDesc = config.introspectForCreation(type);
         }
         ValueInstantiator inst = findValueInstantiator(config, beanDesc);
-        MapDeserializer md = new MapDeserializer(type, inst, keyDes, contentDeser, contentTypeDeser);
+        MapDeserializer md = new MapDeserializer(type, property, inst, keyDes, contentDeser, contentTypeDeser);
         md.setIgnorableProperties(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()));
         return md;
     }

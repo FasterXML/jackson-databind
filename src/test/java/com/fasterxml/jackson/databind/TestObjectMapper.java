@@ -2,9 +2,9 @@ package com.fasterxml.jackson.databind;
 
 import java.io.*;
 
-
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonNode;
+
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationConfig;
@@ -14,6 +14,12 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class TestObjectMapper extends BaseMapTest
 {
+    static class Bean {
+        int value = 3;
+        
+        public void setX(int v) { value = v; }
+    }
+    
     public void testProps()
     {
         ObjectMapper m = new ObjectMapper();
@@ -82,5 +88,20 @@ public class TestObjectMapper extends BaseMapTest
         m = new ObjectMapper(f);
         assertSame(f, m.getJsonFactory());
         assertSame(m, f.getCodec());
+    }
+    
+    /**
+     * Test for verifying working of [JACKSON-191]
+     */
+    public void testProviderConfig() throws Exception   
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        assertEquals(0, mapper._deserializerCache.cachedDeserializersCount());
+        // and then should get one constructed for:
+        Bean bean = mapper.readValue("{ \"c\" : 3 }", Bean.class);
+        assertNotNull(bean);
+        assertEquals(1, mapper._deserializerCache.cachedDeserializersCount());
+        mapper._deserializerCache.flushCachedDeserializers();
+        assertEquals(0, mapper._deserializerCache.cachedDeserializersCount());
     }
 }

@@ -638,19 +638,6 @@ public class ObjectMapper
         return _serializerProvider;
     }
     
-    /**
-     * Method for setting specific {@link DeserializerCache} to use
-     * for handling caching of {@link JsonDeserializer} instances.
-     */
-    public ObjectMapper setDeserializerProvider(DeserializerCache p) {
-        _deserializerCache = p;
-        return this;
-    }
-
-    public DeserializerCache getDeserializerProvider() {
-        return _deserializerCache;
-    }
-    
     /*
     /**********************************************************
     /* Configuration: mix-in annotations

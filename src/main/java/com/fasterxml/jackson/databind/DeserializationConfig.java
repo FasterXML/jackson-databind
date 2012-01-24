@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.cfg.MapperConfigBase;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
-import com.fasterxml.jackson.databind.deser.DeserializerFactory;
-import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -29,9 +27,7 @@ import com.fasterxml.jackson.databind.util.LinkedNode;
 /**
  * Object that contains baseline configuration for deserialization
  * process. An instance is owned by {@link ObjectMapper}, which
- * passes an immutable instance for serialization process to
- * {@link DeserializerCache} and {@link DeserializerFactory}
- * (either directly, or through {@link ObjectReader}.
+ * passes an immutable instance to be used for deserialization process.
  *<p>
  * Note that instances are considered immutable and as such no copies
  * should need to be created (there are some implementation details

@@ -5,6 +5,7 @@ import java.util.Map;
 
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.DeserializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.util.Provider;
 

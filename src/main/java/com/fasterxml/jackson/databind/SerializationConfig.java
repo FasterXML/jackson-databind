@@ -294,19 +294,12 @@ public final class SerializationConfig
      * with non-default values.
      */
     protected JsonInclude.Include _serializationInclusion = null;
-
-    /**
-     * View to use for filtering out properties to serialize.
-     * Null if none (will also be assigned null if <code>Object.class</code>
-     * is defined), meaning that all properties are to be included.
-     */
-    protected Class<?> _serializationView;
     
     /**
      * Object used for resolving filter ids to filter instances.
      * Non-null if explicitly defined; null by default.
      */
-    protected FilterProvider _filterProvider;
+    protected final FilterProvider _filterProvider;
     
     /*
     /**********************************************************
@@ -330,7 +323,6 @@ public final class SerializationConfig
         super(src, str);
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
-        _serializationView = src._serializationView;
         _filterProvider = src._filterProvider;
     }
 
@@ -340,7 +332,6 @@ public final class SerializationConfig
         super(src, mapperFeatures);
         _serFeatures = serFeatures;
         _serializationInclusion = src._serializationInclusion;
-        _serializationView = src._serializationView;
         _filterProvider = src._filterProvider;
     }
     
@@ -349,7 +340,6 @@ public final class SerializationConfig
         super(src, base);
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
-        _serializationView = src._serializationView;
         _filterProvider = src._filterProvider;
     }
 
@@ -358,16 +348,14 @@ public final class SerializationConfig
         super(src);
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
-        _serializationView = src._serializationView;
         _filterProvider = filters;
     }
 
     private SerializationConfig(SerializationConfig src, Class<?> view)
     {
-        super(src);
+        super(src, view);
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
-        _serializationView = view;
         _filterProvider = src._filterProvider;
     }
 
@@ -376,7 +364,6 @@ public final class SerializationConfig
         super(src);
         _serFeatures = src._serFeatures;
         _serializationInclusion = incl;
-        _serializationView = src._serializationView;
         _filterProvider = src._filterProvider;
     }
 
@@ -385,7 +372,6 @@ public final class SerializationConfig
         super(src, rootName);
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
-        _serializationView = src._serializationView;
         _filterProvider = src._filterProvider;
     }
     
@@ -424,15 +410,15 @@ public final class SerializationConfig
         return (newMapperFlags == _mapperFeatures) ? this
                 : new SerializationConfig(this, newMapperFlags, _serFeatures);
     }
-    
-    @Override
-    public SerializationConfig withClassIntrospector(ClassIntrospector ci) {
-        return _withBase(_base.withClassIntrospector(ci));
-    }
 
     @Override
     public SerializationConfig withAnnotationIntrospector(AnnotationIntrospector ai) {
         return _withBase(_base.withAnnotationIntrospector(ai));
+    }
+
+    @Override
+    public SerializationConfig withAppendedAnnotationIntrospector(AnnotationIntrospector ai) {
+        return _withBase(_base.withAppendedAnnotationIntrospector(ai));
     }
 
     @Override
@@ -441,52 +427,10 @@ public final class SerializationConfig
     }
 
     @Override
-    public SerializationConfig withAppendedAnnotationIntrospector(AnnotationIntrospector ai) {
-        return _withBase(_base.withAppendedAnnotationIntrospector(ai));
+    public SerializationConfig withClassIntrospector(ClassIntrospector ci) {
+        return _withBase(_base.withClassIntrospector(ci));
     }
     
-    @Override
-    public SerializationConfig withVisibilityChecker(VisibilityChecker<?> vc) {
-        return _withBase(_base.withVisibilityChecker(vc));
-    }
-
-    @Override
-    public SerializationConfig withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
-        return _withBase(_base.withVisibility(forMethod, visibility));
-    }
-    
-    @Override
-    public SerializationConfig withTypeResolverBuilder(TypeResolverBuilder<?> trb) {
-        return _withBase(_base.withTypeResolverBuilder(trb));
-    }
-    
-    @Override
-    public SerializationConfig withSubtypeResolver(SubtypeResolver str) {
-        return (str == _subtypeResolver)? this : new SerializationConfig(this, str);
-    }
-    
-    @Override
-    public SerializationConfig withPropertyNamingStrategy(PropertyNamingStrategy pns) {
-        return _withBase(_base.withPropertyNamingStrategy(pns));
-    }
-
-    @Override
-    public SerializationConfig withRootName(String rootName) {
-        if (rootName == null) {
-            if (_rootName == null) {
-                return this;
-            }
-        } else if (rootName.equals(_rootName)) {
-            return this;
-        }
-        return new SerializationConfig(this, rootName);
-    }
-    
-    @Override
-    public SerializationConfig withTypeFactory(TypeFactory tf) {
-        return _withBase(_base.withTypeFactory(tf));
-    }
-
     /**
      * In addition to constructing instance with specified date format,
      * will enable or disable <code>Feature.WRITE_DATES_AS_TIMESTAMPS</code>
@@ -508,7 +452,53 @@ public final class SerializationConfig
     public SerializationConfig withHandlerInstantiator(HandlerInstantiator hi) {
         return _withBase(_base.withHandlerInstantiator(hi));
     }
+    
+    @Override
+    public SerializationConfig withPropertyNamingStrategy(PropertyNamingStrategy pns) {
+        return _withBase(_base.withPropertyNamingStrategy(pns));
+    }
 
+    @Override
+    public SerializationConfig withRootName(String rootName) {
+        if (rootName == null) {
+            if (_rootName == null) {
+                return this;
+            }
+        } else if (rootName.equals(_rootName)) {
+            return this;
+        }
+        return new SerializationConfig(this, rootName);
+    }
+
+    @Override
+    public SerializationConfig withSubtypeResolver(SubtypeResolver str) {
+        return (str == _subtypeResolver)? this : new SerializationConfig(this, str);
+    }
+
+    @Override
+    public SerializationConfig withTypeFactory(TypeFactory tf) {
+        return _withBase(_base.withTypeFactory(tf));
+    }
+
+    @Override
+    public SerializationConfig withTypeResolverBuilder(TypeResolverBuilder<?> trb) {
+        return _withBase(_base.withTypeResolverBuilder(trb));
+    }
+    
+    public SerializationConfig withView(Class<?> view) {
+        return (_view == view) ? this : new SerializationConfig(this, view);
+    }
+
+    @Override
+    public SerializationConfig withVisibilityChecker(VisibilityChecker<?> vc) {
+        return _withBase(_base.withVisibilityChecker(vc));
+    }
+
+    @Override
+    public SerializationConfig withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
+        return _withBase(_base.withVisibility(forMethod, visibility));
+    }
+    
     private final SerializationConfig _withBase(BaseSettings newBase) {
         return (_base == newBase) ? this : new SerializationConfig(this, newBase);
     }
@@ -518,19 +508,7 @@ public final class SerializationConfig
     /* Life-cycle, SerializationConfig specific factory methods
     /**********************************************************
      */
-    
-    public SerializationConfig withFilters(FilterProvider filterProvider) {
-        return (filterProvider == _filterProvider) ? this : new SerializationConfig(this, filterProvider);
-    }
-
-    public SerializationConfig withView(Class<?> view) {
-        return (_serializationView == view) ? this : new SerializationConfig(this, view);
-    }
-
-    public SerializationConfig withSerializationInclusion(JsonInclude.Include incl) {
-        return (_serializationInclusion == incl) ? this:  new SerializationConfig(this, incl);
-    }
-    
+        
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature enabled.
@@ -579,6 +557,14 @@ public final class SerializationConfig
         }
         return (newSerFeatures == _serFeatures) ? this
                 : new SerializationConfig(this, _mapperFeatures, newSerFeatures);
+    }
+
+    public SerializationConfig withFilters(FilterProvider filterProvider) {
+        return (filterProvider == _filterProvider) ? this : new SerializationConfig(this, filterProvider);
+    }
+
+    public SerializationConfig withSerializationInclusion(JsonInclude.Include incl) {
+        return (_serializationInclusion == incl) ? this:  new SerializationConfig(this, incl);
     }
     
     /*
@@ -663,7 +649,7 @@ public final class SerializationConfig
      * Method for checking which serialization view is being used,
      * if any; null if none.
      */
-    public Class<?> getSerializationView() { return _serializationView; }
+    public Class<?> getSerializationView() { return _view; }
 
     public JsonInclude.Include getSerializationInclusion()
     {

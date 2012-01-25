@@ -336,6 +336,14 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
     }
+
+    private DeserializationConfig(DeserializationConfig src, Class<?> view)
+    {
+        super(src, view);
+        _deserFeatures = src._deserFeatures;
+        _problemHandlers = src._problemHandlers;
+        _nodeFactory = src._nodeFactory;
+    }
     
     /*
     /**********************************************************
@@ -437,6 +445,11 @@ public final class DeserializationConfig
         return _withBase(_base.withAppendedAnnotationIntrospector(ai));
     }
 
+    @Override
+    public DeserializationConfig withView(Class<?> view) {
+        return (_view == view) ? this : new DeserializationConfig(this, view);
+    }
+    
     private final DeserializationConfig _withBase(BaseSettings newBase) {
         return (_base == newBase) ? this : new DeserializationConfig(this, newBase);
     }

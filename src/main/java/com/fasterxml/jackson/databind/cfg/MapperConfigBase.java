@@ -45,6 +45,14 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * use defaults
      */
     protected final String _rootName;
+
+    /**
+     * View to use for filtering out properties to serialize
+     * or deserialize.
+     * Null if none (will also be assigned null if <code>Object.class</code>
+     * is defined), meaning that all properties are to be included.
+     */
+    protected final Class<?> _view;
     
     /*
     /**********************************************************
@@ -63,17 +71,20 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _mixInAnnotations = mixins;
         _subtypeResolver = str;
         _rootName = null;
+        _view = null;
     }
     
     /**
      * Pass-through constructor used when no changes are needed to the
      * base class.
      */
-    protected MapperConfigBase(MapperConfigBase<CFG,T> src) {
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src)
+    {
         super(src);
         _mixInAnnotations = src._mixInAnnotations;
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
+        _view = src._view;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base)
@@ -82,6 +93,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _mixInAnnotations = src._mixInAnnotations;
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
+        _view = src._view;
     }
     
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, int mapperFeatures)
@@ -90,6 +102,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _mixInAnnotations = src._mixInAnnotations;
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
+        _view = src._view;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SubtypeResolver str) {
@@ -97,6 +110,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _mixInAnnotations = src._mixInAnnotations;
         _subtypeResolver = str;
         _rootName = src._rootName;
+        _view = src._view;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, String rootName) {
@@ -104,6 +118,16 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _mixInAnnotations = src._mixInAnnotations;
         _subtypeResolver = src._subtypeResolver;
         _rootName = rootName;
+        _view = src._view;
+    }
+
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, Class<?> view)
+    {
+        super(src);
+        _mixInAnnotations = src._mixInAnnotations;
+        _subtypeResolver = src._subtypeResolver;
+        _rootName = src._rootName;
+        _view = view;
     }
     
     /*
@@ -212,6 +236,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      */
     public abstract T withTypeResolverBuilder(TypeResolverBuilder<?> trb);
 
+    /**
+     * Method for constructing and returning a new instance with different
+     * view to use.
+     */
+    public abstract T withView(Class<?> view);
+    
     /**
      * Method for constructing and returning a new instance with different
      * {@link VisibilityChecker}

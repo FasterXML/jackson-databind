@@ -2183,6 +2183,14 @@ public class ObjectMapper
         return new ObjectReader(this, getDeserializationConfig(), null, null,
                 null, injectableValues);
     }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} that will
+     * deserialize objects using specified JSON View (filter).
+     */
+    public ObjectReader readerWithView(Class<?> view) {
+        return new ObjectReader(this, getDeserializationConfig().withView(view));
+    }
     
     /*
     /**********************************************************

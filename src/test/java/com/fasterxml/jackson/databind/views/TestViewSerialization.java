@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.views;
 
 import java.io.*;
 import java.util.*;
@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
  * Unit tests for verifying JSON view functionality: ability to declaratively
  * suppress subset of properties from being serialized.
  */
-public class TestViews
+public class TestViewSerialization
     extends BaseMapTest
 {
     /*

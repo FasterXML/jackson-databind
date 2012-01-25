@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.views;
 
 import java.io.*;
 
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
-public class TestViews2 extends BaseMapTest
+public class TestViewsSerialization2 extends BaseMapTest
 {
     /*
     /************************************************************************ 

@@ -803,7 +803,7 @@ public abstract class StdSerializerProvider
     /**
      * Standard implementation used by {@link ObjectMapper}; just implements
      * <code>createInstance</code> method which is abstract in
-     * {@link StdDeserializerProvider}
+     * {@link StdSerializerProvider}
      */
     public final static class Impl extends StdSerializerProvider
     {

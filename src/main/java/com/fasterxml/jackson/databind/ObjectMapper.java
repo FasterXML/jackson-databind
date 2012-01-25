@@ -374,7 +374,7 @@ public class ObjectMapper
      * 
      * @param jf JsonFactory to use: if null, a new {@link MappingJsonFactory} will be constructed
      * @param sp SerializerProvider to use: if null, a {@link StdSerializerProvider} will be constructed
-     * @param dp DeserializerCache to use: if null, a {@link StdDeserializerProvider} will be constructed
+     * @param dp DeserializerCache to use
      */
     public ObjectMapper(JsonFactory jf,
             SerializerProvider sp, DeserializerCache dp)

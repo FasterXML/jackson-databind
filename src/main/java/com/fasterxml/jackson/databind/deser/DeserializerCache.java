@@ -20,8 +20,10 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Class that defines caching layer between callers (like
- * {@link ObjectMapper}, {@link com.fasterxml.jackson.map.deser.DeserializationContext})
- * and classes that construct deserializers ({@link com.fasterxml.jackson.map.deser.DeserializerFactory}).
+ * {@link ObjectMapper},
+ * {@link com.fasterxml.jackson.databind.DeserializationContext})
+ * and classes that construct deserializers
+ * ({@link com.fasterxml.jackson.databind.deser.DeserializerFactory}).
  */
 public final class DeserializerCache
 {
@@ -166,7 +168,7 @@ public final class DeserializerCache
      * Note: this method is only called for value types; not for keys.
      * Key deserializers can be accessed using {@link #findKeyDeserializer}.
      *
-     * @param config Deserialization configuration
+     * @param ctxt Deserialization context
      * @param propertyType Declared type of the value to deserializer (obtained using
      *   'setter' method signature and/or type annotations
      * @param property Object that represents accessor for property value; field,

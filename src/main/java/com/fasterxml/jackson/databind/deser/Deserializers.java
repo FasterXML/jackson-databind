@@ -58,7 +58,6 @@ public interface Deserializers
      * 
      * @param type Type of collection instances to deserialize
      * @param config Configuration in effect
-     * @param property Property that contains array value  (null for root values)
      * @param beanDesc Definition of the enumeration type that contains class annotations and
      *    other information typically needed for building deserializers
      * @param property Property that contains array value  (null for root values)

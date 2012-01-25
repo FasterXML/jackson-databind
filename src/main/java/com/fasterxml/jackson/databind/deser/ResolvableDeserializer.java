@@ -5,10 +5,14 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * Interface used to indicate deserializers that want to do post-processing
- * after construction and being added to {@link DeserializerCache},
- * but before being used. This is typically used to resolve references
- * to other contained types; for example, bean deserializers use this
- * to eagerly find deserializers for contained field types.
+ * after construction but before being returned to caller (and possibly cached)
+ * and used.
+ * This is typically used to resolve references
+ * to other contained types; for example, bean deserializers use this callback
+ * to locate deserializers for contained field types.
+ * Main reason for using a callback (instead of trying to resolve dependencies
+ * immediately) is to make it possible to cleanly handle self-references;
+ * otherwise it would be easy to get into infinite recursion.
  *<p>
  * Note that {@link #resolve} method does NOT allow returning anything 
  * (specifically, a new deserializer instance): reason for this is that
@@ -27,8 +31,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 public interface ResolvableDeserializer
 {
     /**
-     * Method called after {@link DeserializerCache} has registered
-     * the deserializer, but before it has returned it to the caller.
+     * Method called after deserializer instance has been constructed
+     * (and registered as necessary by provider objects),
+     * but before it has returned it to the caller.
      * Called object can then resolve its dependencies to other types,
      * including self-references (direct or indirect).
      *

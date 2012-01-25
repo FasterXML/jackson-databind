@@ -16,10 +16,13 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 /**
  * Concrete deserializer factory class that adds full Bean deserializer
  * construction logic using class introspection.
+ * Note that factories specifically do not implement any form of caching:
+ * aside from configuration they are stateless; caching is implemented
+ * by other components.
  *<p>
- * Since there is no caching, this factory is stateless and a globally
- * shared singleton instance ({@link #instance}) can be  used by
- * {@link DeserializerCache}s).
+ * Instances of this class are fully immutable as all configuration is
+ * done by using "fluent factories" (methods that construct new factory
+ * instances with different configuration, instead of modifying instance).
  */
 public class BeanDeserializerFactory
     extends BasicDeserializerFactory

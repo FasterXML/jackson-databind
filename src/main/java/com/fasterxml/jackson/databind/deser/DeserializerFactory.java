@@ -5,9 +5,10 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.*;
 
 /**
- * Abstract class that defines API used by {@link DeserializerCache}
- * to obtain actual
- * {@link JsonDeserializer} instances from multiple distinct factories.
+ * Abstract class that defines API used by {@link DeserializationContext}
+ * to construct actual
+ * {@link JsonDeserializer} instances (which are then cached by
+ * context and/or dedicated cache).
  *<p>
  * Since there are multiple broad categories of deserializers, there are 
  * multiple factory methods:
@@ -15,24 +16,27 @@ import com.fasterxml.jackson.databind.type.*;
  * <li>For JSON "Array" type, we need 2 methods: one to deal with expected
  *   Java arrays ({@link #createArrayDeserializer})
  *   and the other for other Java containers like {@link java.util.List}s
- *   and {@link java.util.Set}s ({@link #createCollectionDeserializer(DeserializationConfig, DeserializerCache, CollectionType, BeanProperty)})
+ *   and {@link java.util.Set}s ({@link #createCollectionDeserializer}).
+ *   Actually there is also a third method for "Collection-like" types;
+ *   things like Scala collections that act like JDK collections but do not
+ *   implement same interfaces.
  *  </li>
  * <li>For JSON "Object" type, we need 2 methods: one to deal with
  *   expected Java {@link java.util.Map}s
  *   ({@link #createMapDeserializer}), and another for POJOs
- *   ({@link #createBeanDeserializer(DeserializationConfig, DeserializerCache, JavaType, BeanProperty)}.
+ *   ({@link #createBeanDeserializer}.
+ *   As an additional twist there is also a callback for "Map-like" types,
+ *   mostly to make it possible to support Scala Maps (which are NOT JDK
+ *   Map compatible).
  *  </li>
  * <li>For Tree Model ({@link com.fasterxml.jackson.core.JsonNode}) properties there is
- *    {@link #createTreeDeserializer(DeserializationConfig, DeserializerCache, JavaType, BeanProperty)}
+ *    {@link #createTreeDeserializer}
  * <li>For enumerated types ({@link java.lang.Enum}) there is
- *    {@link #createEnumDeserializer(DeserializationConfig, DeserializerCache, JavaType, BeanProperty)}
+ *    {@link #createEnumDeserializer}
  *  </li>
- * <li>For all other types, {@link #createBeanDeserializer(DeserializationConfig, DeserializerCache, JavaType, BeanProperty)}
- *   is used.
+ * <li>For all other types, {@link #createBeanDeserializer} is used.
  * </ul>
  *<p>
- * All above methods take 2 type arguments, except for the first one
- * which takes just a single argument.
  */
 public abstract class DeserializerFactory
 {

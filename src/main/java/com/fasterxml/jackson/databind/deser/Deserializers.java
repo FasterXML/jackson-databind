@@ -132,8 +132,9 @@ public interface Deserializers
      * (annotations on declared element class; or on field or method type is associated with).
      *<p>
      * Similarly, a {@link KeyDeserializer} may be passed, but this is only done if there is
-     * a specific configuration override (annotations) to indicate instance to use. Otherwise
-     * null is passed, and key deserializer needs to be obtained using {@link DeserializerCache}
+     * a specific configuration override (annotations) to indicate instance to use.
+     * Otherwise null is passed, and key deserializer needs to be obtained later during
+     * resolution (using {@link ResolvableDeserializer#resolve}).
      * 
      * @param type Type of {@link java.util.Map} instances to deserialize
      * @param config Configuration in effect
@@ -169,8 +170,9 @@ public interface Deserializers
      * (annotations on declared element class; or on field or method type is associated with).
      *<p>
      * Similarly, a {@link KeyDeserializer} may be passed, but this is only done if there is
-     * a specific configuration override (annotations) to indicate instance to use. Otherwise
-     * null is passed, and key deserializer needs to be obtained using {@link DeserializerCache}
+     * a specific configuration override (annotations) to indicate instance to use.
+     * Otherwise null is passed, and key deserializer needs to be obtained later during
+     * resolution (using {@link ResolvableDeserializer#resolve}).
      * 
      * @param type Type of {@link java.util.Map} instances to deserialize
      * @param config Configuration in effect

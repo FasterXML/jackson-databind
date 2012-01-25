@@ -179,44 +179,114 @@ public abstract class BasicDeserializerFactory
     /**********************************************************
      */
     
-    protected abstract JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type,
-            DeserializationConfig config, BeanProperty property,
-            TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
-        throws JsonMappingException;
-    
-    protected abstract JsonDeserializer<?> _findCustomCollectionDeserializer(
-            CollectionType type, DeserializationConfig config,
+    protected JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type,
+            DeserializationConfig config,
             BeanDescription beanDesc, BeanProperty property,
-            TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
-        throws JsonMappingException;
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findArrayDeserializer(type, config,
+                    beanDesc, property, elementTypeDeserializer, elementDeserializer);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
+    
+    protected JsonDeserializer<?> _findCustomCollectionDeserializer(CollectionType type,
+            DeserializationConfig config,
+            BeanDescription beanDesc, BeanProperty property,
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findCollectionDeserializer(type, config, beanDesc, property,
+                    elementTypeDeserializer, elementDeserializer);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
 
-    protected abstract JsonDeserializer<?> _findCustomCollectionLikeDeserializer(
-            CollectionLikeType type, DeserializationConfig config,
+    protected JsonDeserializer<?> _findCustomCollectionLikeDeserializer(CollectionLikeType type,
+            DeserializationConfig config,
             BeanDescription beanDesc, BeanProperty property,
-            TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
-        throws JsonMappingException;
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findCollectionLikeDeserializer(type, config, beanDesc, property,
+                    elementTypeDeserializer, elementDeserializer);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
     
-    protected abstract JsonDeserializer<?> _findCustomEnumDeserializer(Class<?> type,
+    protected JsonDeserializer<?> _findCustomEnumDeserializer(Class<?> type,
             DeserializationConfig config, BeanDescription beanDesc, BeanProperty property)
-        throws JsonMappingException;
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findEnumDeserializer(type, config, beanDesc, property);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
 
-    protected abstract JsonDeserializer<?> _findCustomMapDeserializer(MapType type,
+    protected JsonDeserializer<?> _findCustomMapDeserializer(MapType type,
+            DeserializationConfig config, 
+            BeanDescription beanDesc, BeanProperty property,
+            KeyDeserializer keyDeserializer,
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findMapDeserializer(type, config, beanDesc, property,
+                    keyDeserializer, elementTypeDeserializer, elementDeserializer);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
+
+    protected JsonDeserializer<?> _findCustomMapLikeDeserializer(MapLikeType type,
             DeserializationConfig config,
             BeanDescription beanDesc, BeanProperty property,
-            KeyDeserializer keyDeser,
-            TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
-        throws JsonMappingException;
-
-    protected abstract JsonDeserializer<?> _findCustomMapLikeDeserializer(MapLikeType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property,
-            KeyDeserializer keyDeser,
-            TypeDeserializer elementTypeDeser, JsonDeserializer<?> elementDeser)
-        throws JsonMappingException;
+            KeyDeserializer keyDeserializer,
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findMapLikeDeserializer(type, config, beanDesc, property,
+                    keyDeserializer, elementTypeDeserializer, elementDeserializer);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
     
-    protected abstract JsonDeserializer<?> _findCustomTreeNodeDeserializer(Class<? extends JsonNode> type,
-            DeserializationConfig config, BeanProperty property)
-        throws JsonMappingException;
+    protected JsonDeserializer<?> _findCustomTreeNodeDeserializer(Class<? extends JsonNode> type,
+            DeserializationConfig config,
+            BeanDescription beanDesc, BeanProperty property)
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findTreeNodeDeserializer(type, config, beanDesc, property);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
     
     /*
     /**********************************************************
@@ -251,7 +321,7 @@ public abstract class BasicDeserializerFactory
                  *   so let's allow this
                  */
                 JsonDeserializer<?> custom = _findCustomArrayDeserializer(type,
-                        ctxt.getConfig(), property, null, null);
+                        ctxt.getConfig(), beanDesc, property, null, contentDeser);
                 if (custom != null) {
                     return custom;
                 }
@@ -270,7 +340,7 @@ public abstract class BasicDeserializerFactory
         }
         // 23-Nov-2010, tatu: Custom array deserializer?
         JsonDeserializer<?> custom = _findCustomArrayDeserializer(type,
-                ctxt.getConfig(), property, elemTypeDeser, contentDeser);
+                ctxt.getConfig(), beanDesc, property, elemTypeDeser, contentDeser);
         if (custom != null) {
             return custom;
         }
@@ -498,7 +568,8 @@ public abstract class BasicDeserializerFactory
         @SuppressWarnings("unchecked")
         Class<? extends JsonNode> nodeClass = (Class<? extends JsonNode>) nodeType.getRawClass();
         // 23-Nov-2010, tatu: Custom deserializer?
-        JsonDeserializer<?> custom = _findCustomTreeNodeDeserializer(nodeClass, config, property);
+        JsonDeserializer<?> custom = _findCustomTreeNodeDeserializer(nodeClass, config,
+                beanDesc, property);
         if (custom != null) {
             return custom;
         }

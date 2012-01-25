@@ -185,7 +185,7 @@ public final class DeserializerCache
         if (deser != null) {
             // [JACKSON-385]: need to support contextualization:
             if (deser instanceof ContextualDeserializer<?>) {
-                JsonDeserializer<?> d = ((ContextualDeserializer<?>) deser).createContextual(ctxt.getConfig(), property);
+                JsonDeserializer<?> d = ((ContextualDeserializer<?>) deser).createContextual(ctxt, property);
                 deser = (JsonDeserializer<Object>) d;
             }
             return deser;
@@ -201,7 +201,7 @@ public final class DeserializerCache
         }
         // [JACKSON-385]: need to support contextualization:
         if (deser instanceof ContextualDeserializer<?>) {
-            JsonDeserializer<?> d = ((ContextualDeserializer<?>) deser).createContextual(ctxt.getConfig(), property);
+            JsonDeserializer<?> d = ((ContextualDeserializer<?>) deser).createContextual(ctxt, property);
             deser = (JsonDeserializer<Object>) d;
         }
         return deser;
@@ -250,7 +250,7 @@ public final class DeserializerCache
         }
         // Second: contextualize?
         if (kd instanceof ContextualKeyDeserializer) {
-            kd = ((ContextualKeyDeserializer) kd).createContextual(ctxt.getConfig(), property);
+            kd = ((ContextualKeyDeserializer) kd).createContextual(ctxt, property);
         }
         return kd;
     }

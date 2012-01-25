@@ -49,7 +49,7 @@ public class SimpleDeserializers implements Deserializers
     @Override
     public JsonDeserializer<?> findArrayDeserializer(ArrayType type,
             DeserializationConfig config, 
-            BeanProperty property,
+            BeanDescription beanDesc, BeanProperty property,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
@@ -121,7 +121,8 @@ public class SimpleDeserializers implements Deserializers
     
     @Override
     public JsonDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
-            DeserializationConfig config, BeanProperty property)
+            DeserializationConfig config,
+            BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException
     {
         return (_classMappings == null) ? null : _classMappings.get(new ClassKey(nodeType));

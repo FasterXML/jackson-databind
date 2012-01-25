@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.*;
 
 /**
  * Add-on interface that {@link KeyDeserializer}s can implement to get a callback
@@ -22,7 +19,8 @@ public interface ContextualKeyDeserializer
      * and return a new instance. This instance should only be returned as-is, in case
      * it is already suitable for use.
      * 
-     * @param config Current deserialization configuration
+     * @param ctxt Deserialization context to access configuration, additional 
+     *    deserializers that may be needed by this deserializer
      * @param property Method, field or constructor parameter that declared Map for which
      *   contextual instance will be used. Will not be available when deserializing root-level
      *   Map value; otherwise should not be null.
@@ -30,7 +28,7 @@ public interface ContextualKeyDeserializer
      * @return Key deserializer to use for deserializing keys specified Map property,
      *   may be this instance or a new instance.
      */
-    public KeyDeserializer createContextual(DeserializationConfig config,
+    public KeyDeserializer createContextual(DeserializationContext ctxt,
             BeanProperty property)
         throws JsonMappingException;
 }

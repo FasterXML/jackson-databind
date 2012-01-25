@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.*;
 
 /**
  * Add-on interface that {@link JsonDeserializer}s can implement to get a callback
@@ -17,8 +14,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
  * resolution -- that is, implements both this interface and {@link ResolvableDeserializer}
  * -- resolution via {@link ResolvableDeserializer} occurs first, and contextual
  * resolution (via this interface) later on.
- *
- * @param <T> Type of deserializer to contextualize
  */
 public interface ContextualDeserializer<T>
 {
@@ -30,7 +25,8 @@ public interface ContextualDeserializer<T>
      * and return a new instance. This instance should only be returned as-is, in case
      * it is already suitable for use.
      * 
-     * @param config Current deserialization configuration
+     * @param ctxt Deserialization context to access configuration, additional 
+     *    deserializers that may be needed by this deserializer
      * @param property Method, field or constructor parameter that represents the property
      *   (and is used to assign deserialized value).
      *   Should be available; but there may be cases where caller can not provide it and
@@ -41,7 +37,7 @@ public interface ContextualDeserializer<T>
      * 
      * @throws JsonMappingException
      */
-    public JsonDeserializer<T> createContextual(DeserializationConfig config,
+    public JsonDeserializer<T> createContextual(DeserializationContext ctxt,
             BeanProperty property)
         throws JsonMappingException;
 }

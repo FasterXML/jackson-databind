@@ -161,7 +161,7 @@ public class StdDeserializationContext
         }
         // Second: contextualize:
         if (deser instanceof ContextualDeserializer<?>) {
-            deser = ((ContextualDeserializer<?>) deser).createContextual(_config, property);
+            deser = ((ContextualDeserializer<?>) deser).createContextual(this, property);
         }
         return (JsonDeserializer<Object>) deser;
     }
@@ -208,7 +208,7 @@ public class StdDeserializationContext
         }
         // Second: contextualize:
         if (deser instanceof ContextualKeyDeserializer) {
-            deser = ((ContextualKeyDeserializer) deser).createContextual(_config, property);
+            deser = ((ContextualKeyDeserializer) deser).createContextual(this, property);
         }
         return deser;
     }

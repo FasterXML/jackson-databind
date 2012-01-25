@@ -7,7 +7,9 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.LinkedNode;
@@ -35,7 +37,7 @@ public class StdDeserializationContext
      */
     protected JsonParser _parser;
 
-    protected final DeserializerCache _deserProvider;
+    protected final DeserializerCache _deserCache;
 
     protected final InjectableValues _injectableValues;
     
@@ -54,11 +56,11 @@ public class StdDeserializationContext
      */
 
     public StdDeserializationContext(DeserializationConfig config, JsonParser jp,
-            DeserializerCache prov, InjectableValues injectableValues)
+            DeserializerCache cache, InjectableValues injectableValues)
     {
     	super(config);
         _parser = jp;
-        _deserProvider = prov;
+        _deserCache = cache;
         _injectableValues = injectableValues;
     }
 
@@ -68,9 +70,8 @@ public class StdDeserializationContext
     /**********************************************************
      */
 
-    @Override
-    public DeserializerCache getDeserializerProvider() {
-        return _deserProvider;
+    public DeserializerCache getDeserializerCache() {
+        return _deserCache;
     }
 
     /**
@@ -103,21 +104,115 @@ public class StdDeserializationContext
     @Override
     public JsonDeserializer<Object> findValueDeserializer(JavaType type,
             BeanProperty property) throws JsonMappingException {
-        return _deserProvider.findValueDeserializer(this, type, property);
+        return _deserCache.findValueDeserializer(this, type, property);
     }
     
     @Override
     public JsonDeserializer<Object> findTypedValueDeserializer(JavaType type,
             BeanProperty property) throws JsonMappingException {
-        return _deserProvider.findTypedValueDeserializer(this, type, property);
+        return _deserCache.findTypedValueDeserializer(this, type, property);
     }
 
     @Override
     public KeyDeserializer findKeyDeserializer(JavaType keyType,
             BeanProperty property) throws JsonMappingException {
-        return _deserProvider.findKeyDeserializer(_config, keyType, property);
+        return _deserCache.findKeyDeserializer(this, keyType, property);
     }
     
+    @SuppressWarnings("unchecked")
+    @Override
+    public JsonDeserializer<Object> deserializerInstance(Annotated annotated,
+            BeanProperty property, Object deserDef)
+        throws JsonMappingException
+    {
+        if (deserDef == null) {
+            return null;
+        }
+        JsonDeserializer<?> deser;
+        
+        if (deserDef instanceof JsonDeserializer) {
+            deser = (JsonDeserializer<?>) deserDef;
+        } else {
+            /* Alas, there's no way to force return type of "either class
+             * X or Y" -- need to throw an exception after the fact
+             */
+            if (!(deserDef instanceof Class)) {
+                throw new IllegalStateException("AnnotationIntrospector returned deserializer definition of type "+deserDef.getClass().getName()+"; expected type JsonDeserializer or Class<JsonDeserializer> instead");
+            }
+            Class<?> deserClass = (Class<?>)deserDef;
+            // there are some known "no class" markers to consider too:
+            if (deserClass == JsonDeserializer.None.class || deserClass == NoClass.class) {
+                return null;
+            }
+            if (!JsonDeserializer.class.isAssignableFrom(deserClass)) {
+                throw new IllegalStateException("AnnotationIntrospector returned Class "+deserClass.getName()+"; expected Class<JsonDeserializer>");
+            }
+            HandlerInstantiator hi = _config.getHandlerInstantiator();
+            if (hi != null) {
+                deser = hi.deserializerInstance(_config, annotated, deserClass);
+            } else {
+                deser = (JsonDeserializer<?>) ClassUtil.createInstance(deserClass,
+                        _config.canOverrideAccessModifiers());
+            }
+        }
+        // First: need to resolve
+        if (deser instanceof ResolvableDeserializer) {
+            ((ResolvableDeserializer) deser).resolve(this);
+        }
+        // Second: contextualize:
+        if (deser instanceof ContextualDeserializer<?>) {
+            deser = ((ContextualDeserializer<?>) deser).createContextual(_config, property);
+        }
+        return (JsonDeserializer<Object>) deser;
+    }
+
+    @Override
+    public KeyDeserializer keyDeserializerInstance(Annotated annotated,
+            BeanProperty property, Object deserDef)
+        throws JsonMappingException
+    {
+        if (deserDef == null) {
+            return null;
+        }
+
+        KeyDeserializer deser;
+        
+        if (deserDef instanceof KeyDeserializer) {
+            deser = (KeyDeserializer) deserDef;
+        } else {
+            if (!(deserDef instanceof Class)) {
+                throw new IllegalStateException("AnnotationIntrospector returned key deserializer definition of type "
+                        +deserDef.getClass().getName()
+                        +"; expected type KeyDeserializer or Class<KeyDeserializer> instead");
+            }
+            Class<?> deserClass = (Class<?>)deserDef;
+            // there are some known "no class" markers to consider too:
+            if (deserClass == KeyDeserializer.None.class || deserClass == NoClass.class) {
+                return null;
+            }
+            if (!KeyDeserializer.class.isAssignableFrom(deserClass)) {
+                throw new IllegalStateException("AnnotationIntrospector returned Class "+deserClass.getName()
+                        +"; expected Class<KeyDeserializer>");
+            }
+            HandlerInstantiator hi = _config.getHandlerInstantiator();
+            if (hi != null) {
+                deser = hi.keyDeserializerInstance(_config, annotated, deserClass);
+            } else {
+                deser = (KeyDeserializer) ClassUtil.createInstance(deserClass,
+                        _config.canOverrideAccessModifiers());
+            }
+        }
+        // First: need to resolve
+        if (deser instanceof ResolvableDeserializer) {
+            ((ResolvableDeserializer) deser).resolve(this);
+        }
+        // Second: contextualize:
+        if (deser instanceof ContextualKeyDeserializer) {
+            deser = ((ContextualKeyDeserializer) deser).createContextual(_config, property);
+        }
+        return deser;
+    }
+
     /*
     /**********************************************************
     /* Public API, helper object recycling

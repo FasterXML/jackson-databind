@@ -198,7 +198,7 @@ public abstract class DeserializerFactory
      * Method that is to find all creators (constructors, factory methods)
      * for the bean type to deserialize.
      */
-    public abstract ValueInstantiator findValueInstantiator(DeserializationConfig config,
+    public abstract ValueInstantiator findValueInstantiator(DeserializationContext ctxt,
             BeanDescription beanDesc)
         throws JsonMappingException;
     
@@ -214,7 +214,7 @@ public abstract class DeserializerFactory
      *
      * @param type Type to be deserialized
      */
-    public abstract JsonDeserializer<Object> createBeanDeserializer(DeserializationConfig config,
+    public abstract JsonDeserializer<Object> createBeanDeserializer(DeserializationContext ctxt,
             JavaType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
@@ -225,27 +225,27 @@ public abstract class DeserializerFactory
      *
      * @param type Type to be deserialized
      */
-    public abstract JsonDeserializer<?> createArrayDeserializer(DeserializationConfig config,
+    public abstract JsonDeserializer<?> createArrayDeserializer(DeserializationContext ctxt,
             ArrayType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
-    public abstract JsonDeserializer<?> createCollectionDeserializer(DeserializationConfig config,
+    public abstract JsonDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
             CollectionType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
-    public abstract JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationConfig config,
+    public abstract JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
             CollectionLikeType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
     
-    public abstract JsonDeserializer<?> createEnumDeserializer(DeserializationConfig config,
+    public abstract JsonDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
             JavaType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
-    public abstract JsonDeserializer<?> createMapDeserializer(DeserializationConfig config,
+    public abstract JsonDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
             MapType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
-    public abstract JsonDeserializer<?> createMapLikeDeserializer(DeserializationConfig config,
+    public abstract JsonDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
             MapLikeType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
@@ -265,7 +265,7 @@ public abstract class DeserializerFactory
      * @return Key deserializer to use for specified type, if one found; null if not
      *   (and default key deserializer should be used)
      */
-    public abstract KeyDeserializer createKeyDeserializer(DeserializationConfig config,
+    public abstract KeyDeserializer createKeyDeserializer(DeserializationContext ctxt,
             JavaType type, BeanProperty property)
         throws JsonMappingException;
     

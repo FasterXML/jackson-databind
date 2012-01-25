@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.cfg.ConfigFeature;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.cfg.MapperConfigBase;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
-import com.fasterxml.jackson.databind.deser.ValueInstantiator;
-import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
@@ -21,7 +19,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 
 /**
@@ -666,56 +663,5 @@ public final class DeserializationConfig
     @SuppressWarnings("unchecked")
     public <T extends BeanDescription> T introspectForCreation(JavaType type) {
         return (T) getClassIntrospector().forCreation(this, type, this);
-    }
-    
-    /*
-    /**********************************************************
-    /* Extended API: handler instantiation
-    /**********************************************************
-     */
-
-    @SuppressWarnings("unchecked")
-    public JsonDeserializer<Object> deserializerInstance(Annotated annotated,
-            Class<?> deserClass)
-    {
-        HandlerInstantiator hi = getHandlerInstantiator();
-        if (hi != null) {
-            JsonDeserializer<?> deser = hi.deserializerInstance(this, annotated,
-                    (Class<JsonDeserializer<?>>)deserClass);
-            if (deser != null) {
-                return (JsonDeserializer<Object>) deser;
-            }
-        }
-        return (JsonDeserializer<Object>) ClassUtil.createInstance(deserClass, canOverrideAccessModifiers());
-    }
-
-    public KeyDeserializer keyDeserializerInstance(Annotated annotated,
-            Class<?> keyDeserClass)
-    {
-        HandlerInstantiator hi = getHandlerInstantiator();
-        if (hi != null) {
-            @SuppressWarnings("unchecked")
-            KeyDeserializer keyDeser = hi.keyDeserializerInstance(this, annotated,
-                    (Class<KeyDeserializer>)keyDeserClass);
-            if (keyDeser != null) {
-                return (KeyDeserializer) keyDeser;
-            }
-        }
-        return (KeyDeserializer) ClassUtil.createInstance(keyDeserClass, canOverrideAccessModifiers());
-    }
-
-    public ValueInstantiator valueInstantiatorInstance(Annotated annotated,
-            Class<?> instClass)
-    {
-        HandlerInstantiator hi = getHandlerInstantiator();
-        if (hi != null) {
-            @SuppressWarnings("unchecked")
-            ValueInstantiator inst = hi.valueInstantiatorInstance(this, annotated,
-                    (Class<ValueInstantiator>)instClass);
-            if (inst != null) {
-                return (ValueInstantiator) inst;
-            }
-        }
-        return (ValueInstantiator) ClassUtil.createInstance(instClass, canOverrideAccessModifiers());
     }
 }

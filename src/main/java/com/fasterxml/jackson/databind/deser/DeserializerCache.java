@@ -236,17 +236,21 @@ public final class DeserializerCache
      *   accessing suitable key deserializer; including that of not
      *   finding any serializer
      */
-    public KeyDeserializer findKeyDeserializer(DeserializationConfig config,
+    public KeyDeserializer findKeyDeserializer(DeserializationContext ctxt,
             JavaType type, BeanProperty property)
         throws JsonMappingException
     {
-        KeyDeserializer kd = _factory.createKeyDeserializer(config, type, property);
-        // One more thing: contextuality
-        if (kd instanceof ContextualKeyDeserializer) {
-            kd = ((ContextualKeyDeserializer) kd).createContextual(config, property);
-        }
+        KeyDeserializer kd = _factory.createKeyDeserializer(ctxt, type, property);
         if (kd == null) { // if none found, need to use a placeholder that'll fail
             return _handleUnknownKeyDeserializer(type);
+        }
+        // First: need to resolve?
+        if (kd instanceof ResolvableDeserializer) {
+            ((ResolvableDeserializer) kd).resolve(ctxt);
+        }
+        // Second: contextualize?
+        if (kd instanceof ContextualKeyDeserializer) {
+            kd = ((ContextualKeyDeserializer) kd).createContextual(ctxt.getConfig(), property);
         }
         return kd;
     }
@@ -409,7 +413,7 @@ public final class DeserializerCache
         }
 
         // If not, may have further type-modification annotations to check:
-        JavaType newType = modifyTypeByAnnotation(config, beanDesc.getClassInfo(), type, property);
+        JavaType newType = modifyTypeByAnnotation(ctxt, beanDesc.getClassInfo(), type, property);
         if (newType != type) {
             type = newType;
             beanDesc = config.introspect(newType);
@@ -417,30 +421,30 @@ public final class DeserializerCache
 
         // If not, let's see which factory method to use:
         if (type.isEnumType()) {
-            return (JsonDeserializer<Object>) _factory.createEnumDeserializer(config, type,
+            return (JsonDeserializer<Object>) _factory.createEnumDeserializer(ctxt, type,
                     beanDesc, property);
         }
         if (type.isContainerType()) {
             if (type.isArrayType()) {
-                return (JsonDeserializer<Object>)_factory.createArrayDeserializer(config,
+                return (JsonDeserializer<Object>)_factory.createArrayDeserializer(ctxt,
                         (ArrayType) type, beanDesc, property);
             }
             if (type.isMapLikeType()) {
                 MapLikeType mlt = (MapLikeType) type;
                 if (mlt.isTrueMapType()) {
-                    return (JsonDeserializer<Object>)_factory.createMapDeserializer(config,
+                    return (JsonDeserializer<Object>)_factory.createMapDeserializer(ctxt,
                             (MapType) mlt, beanDesc, property);
                 }
-                return (JsonDeserializer<Object>)_factory.createMapLikeDeserializer(config,
+                return (JsonDeserializer<Object>)_factory.createMapLikeDeserializer(ctxt,
                         mlt, beanDesc, property);
             }
             if (type.isCollectionLikeType()) {
                 CollectionLikeType clt = (CollectionLikeType) type;
                 if (clt.isTrueCollectionType()) {
-                    return (JsonDeserializer<Object>)_factory.createCollectionDeserializer(config,
+                    return (JsonDeserializer<Object>)_factory.createCollectionDeserializer(ctxt,
                             (CollectionType) clt, beanDesc, property);
                 }
-                return (JsonDeserializer<Object>)_factory.createCollectionLikeDeserializer(config,
+                return (JsonDeserializer<Object>)_factory.createCollectionLikeDeserializer(ctxt,
                         clt, beanDesc, property);
             }
         }
@@ -449,7 +453,7 @@ public final class DeserializerCache
         if (JsonNode.class.isAssignableFrom(type.getRawClass())) {
             return (JsonDeserializer<Object>)_factory.createTreeDeserializer(config, type, beanDesc, property);
         }
-        return (JsonDeserializer<Object>)_factory.createBeanDeserializer(config, type, beanDesc, property);
+        return (JsonDeserializer<Object>)_factory.createBeanDeserializer(ctxt, type, beanDesc, property);
     }
 
     /**
@@ -457,7 +461,6 @@ public final class DeserializerCache
      * has annotation that tells which class to use for deserialization.
      * Returns null if no such annotation found.
      */
-    @SuppressWarnings("unchecked")
     protected JsonDeserializer<Object> findDeserializerFromAnnotation(DeserializationContext ctxt,
             Annotated ann, BeanProperty property)
         throws JsonMappingException
@@ -466,38 +469,7 @@ public final class DeserializerCache
         if (deserDef == null) {
             return null;
         }
-        if (deserDef instanceof JsonDeserializer) {
-            JsonDeserializer<Object> deser = (JsonDeserializer<Object>) deserDef;
-            // related to [JACKSON-569], need contextualization:
-            if (deser instanceof ContextualDeserializer<?>) {
-                deser = (JsonDeserializer<Object>)((ContextualDeserializer<?>) deser).createContextual(ctxt.getConfig(), property);
-            }
-            return deser;
-        }
-        /* Alas, there's no way to force return type of "either class
-         * X or Y" -- need to throw an exception after the fact
-         */
-        if (!(deserDef instanceof Class)) {
-            throw new IllegalStateException("AnnotationIntrospector returned deserializer definition of type "+deserDef.getClass().getName()+"; expected type JsonDeserializer or Class<JsonDeserializer> instead");
-        }
-        Class<? extends JsonDeserializer<?>> deserClass = (Class<? extends JsonDeserializer<?>>) deserDef;
-        if (!JsonDeserializer.class.isAssignableFrom(deserClass)) {
-            throw new IllegalStateException("AnnotationIntrospector returned Class "+deserClass.getName()+"; expected Class<JsonDeserializer>");
-        }
-        JsonDeserializer<Object> deser = ctxt.getConfig().deserializerInstance(ann, deserClass);
-        // related to [JACKSON-569], need contextualization:
-        if (deser instanceof ContextualDeserializer<?>) {
-            deser = (JsonDeserializer<Object>)((ContextualDeserializer<?>) deser).createContextual(ctxt.getConfig(), property);
-        }
-        return deser;
-    }
-    
-    private JavaType modifyTypeByAnnotation(DeserializationConfig config,
-            Annotated a, JavaType type, BeanProperty prop)
-        throws JsonMappingException
-    {
-        return modifyTypeByAnnotation(config, a, type,
-                (prop == null)  ? null : prop.getName());
+        return ctxt.deserializerInstance(ann, property, deserDef);
     }
 
     /**
@@ -510,22 +482,21 @@ public final class DeserializerCache
      *
      * @param a Method or field that the type is associated with
      * @param type Type derived from the setter argument
-     * @param propName Name of property that refers to type, if any; null
-     *   if no property information available (when modify type declaration
-     *   of a class, for example)
+     * @param prop Property that lead to this annotation, if any.
      *
      * @return Original type if no annotations are present; or a more
      *   specific type derived from it if type annotation(s) was found
      *
      * @throws JsonMappingException if invalid annotation is found
      */
-    private JavaType modifyTypeByAnnotation(DeserializationConfig config,
-            Annotated a, JavaType type, String propName)
+    private JavaType modifyTypeByAnnotation(DeserializationContext ctxt,
+            Annotated a, JavaType type, BeanProperty prop)
         throws JsonMappingException
     {
         // first: let's check class for the instance itself:
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        Class<?> subclass = intr.findDeserializationType(a, type, propName);
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        Class<?> subclass = intr.findDeserializationType(a, type,
+                (prop == null)? null : prop.getName());
         if (subclass != null) {
             try {
                 type = type.narrowBy(subclass);
@@ -536,7 +507,8 @@ public final class DeserializerCache
 
         // then key class
         if (type.isContainerType()) {
-            Class<?> keyClass = intr.findDeserializationKeyType(a, type.getKeyType(), propName);
+            Class<?> keyClass = intr.findDeserializationKeyType(a, type.getKeyType(),
+                    (prop == null)? null : prop.getName());
             if (keyClass != null) {
                 // illegal to use on non-Maps
                 if (!(type instanceof MapLikeType)) {
@@ -556,15 +528,7 @@ public final class DeserializerCache
             if (keyType != null && keyType.getValueHandler() == null) {
                 Object kdDef = intr.findKeyDeserializer(a);
                 if (kdDef != null) {
-                    KeyDeserializer kd = null;
-                    if (kdDef instanceof KeyDeserializer) {
-                        kd = (KeyDeserializer) kdDef;
-                    } else {
-                        Class<?> kdClass = _verifyAsClass(kdDef, "findKeyDeserializer", KeyDeserializer.None.class);
-                        if (kdClass != null) {
-                            kd = config.keyDeserializerInstance(a, kdClass);
-                        }
-                    }
+                    KeyDeserializer kd = ctxt.keyDeserializerInstance(a, prop, kdDef);
                     if (kd != null) {
                         type = ((MapLikeType) type).withKeyValueHandler(kd);
                         keyType = type.getKeyType(); // just in case it's used below
@@ -573,7 +537,8 @@ public final class DeserializerCache
             }            
             
             // and finally content class; only applicable to structured types
-            Class<?> cc = intr.findDeserializationContentType(a, type.getContentType(), propName);
+            Class<?> cc = intr.findDeserializationContentType(a, type.getContentType(),
+                    (prop == null) ? null : prop.getName());
             if (cc != null) {
                 try {
                     type = type.narrowContentsBy(cc);
@@ -592,7 +557,7 @@ public final class DeserializerCache
                     } else {
                         Class<?> cdClass = _verifyAsClass(cdDef, "findContentDeserializer", JsonDeserializer.None.class);
                         if (cdClass != null) {
-                            cd = config.deserializerInstance(a, cdClass);
+                            cd = ctxt.deserializerInstance(a, prop, cdClass);
                         }
                     }
                     if (cd != null) {

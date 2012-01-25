@@ -179,8 +179,9 @@ public class TestHandlerInstantiation extends BaseMapTest
         }
         
         @Override
-        public JsonDeserializer<?> deserializerInstance(DeserializationConfig config, Annotated annotated,
-                Class<? extends JsonDeserializer<?>> deserClass)
+        public JsonDeserializer<?> deserializerInstance(DeserializationConfig config,
+                Annotated annotated,
+                Class<?> deserClass)
         {
             if (deserClass == MyBeanDeserializer.class) {
                 return new MyBeanDeserializer(_prefix);
@@ -190,7 +191,7 @@ public class TestHandlerInstantiation extends BaseMapTest
 
         @Override
         public KeyDeserializer keyDeserializerInstance(DeserializationConfig config,
-                Annotated annotated, Class<? extends KeyDeserializer> keyDeserClass)
+                Annotated annotated, Class<?> keyDeserClass)
         {
             if (keyDeserClass == MyKeyDeserializer.class) {
                 return new MyKeyDeserializer();
@@ -211,7 +212,7 @@ public class TestHandlerInstantiation extends BaseMapTest
 
         @Override
         public TypeIdResolver typeIdResolverInstance(MapperConfig<?> config,
-                Annotated annotated, Class<? extends TypeIdResolver> resolverClass)
+                Annotated annotated, Class<?> resolverClass)
         {
             if (resolverClass == CustomIdResolver.class) {
                 return new CustomIdResolver("!!!");
@@ -221,7 +222,7 @@ public class TestHandlerInstantiation extends BaseMapTest
 
         @Override
         public TypeResolverBuilder<?> typeResolverBuilderInstance(MapperConfig<?> config, Annotated annotated,
-                Class<? extends TypeResolverBuilder<?>> builderClass)
+                Class<?> builderClass)
         {
             return null;
         }

@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
-import com.fasterxml.jackson.databind.deser.DeserializerCache;
+import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
@@ -45,12 +47,6 @@ public abstract class DeserializationContext
      */
     public DeserializationConfig getConfig() { return _config; }
 
-    /**
-     * Returns provider that can be used for dynamically locating
-     * other deserializers during runtime.
-     */
-    public abstract DeserializerCache getDeserializerProvider();
-
     public final AnnotationIntrospector getAnnotationIntrospector() {
         return _config.getAnnotationIntrospector();
     }
@@ -64,6 +60,14 @@ public abstract class DeserializationContext
          *   let's use a local copy of feature settings:
          */
         return (_featureFlags & feat.getMask()) != 0;
+    }
+
+    public final boolean isEnabled(MapperConfig.Feature feat) {
+        return _config.isEnabled(feat);
+    }
+    
+    public final boolean canOverrideAccessModifiers() {
+        return _config.canOverrideAccessModifiers();
     }
 
     /**
@@ -133,6 +137,20 @@ public abstract class DeserializationContext
      */
     public abstract KeyDeserializer findKeyDeserializer(JavaType keyType,
             BeanProperty property)
+        throws JsonMappingException;
+
+    /*
+    /**********************************************************
+    /* Extended API: handler instantiation
+    /**********************************************************
+     */
+
+    public abstract JsonDeserializer<Object> deserializerInstance(Annotated annotated,
+            BeanProperty property, Object deserDef)
+        throws JsonMappingException;
+
+    public abstract KeyDeserializer keyDeserializerInstance(Annotated annotated,
+            BeanProperty property, Object keyDeserClass)
         throws JsonMappingException;
     
     /*

@@ -1367,22 +1367,19 @@ public class BeanDeserializer
             return subDeser;
         }
         // If not, maybe we can locate one. First, need provider
-        DeserializerCache deserProv = ctxt.getDeserializerProvider();
-        if (deserProv != null) {
-            JavaType type = ctxt.constructType(bean.getClass());
-            /* 09-Dec-2010, tatu: Would be nice to know which property pointed to this
-             *    bean... but, alas, no such information is retained, so:
-             */
-            subDeser = ctxt.findValueDeserializer(type, _property);
-            // Also, need to cache it
-            if (subDeser != null) {
-                synchronized (this) {
-                    if (_subDeserializers == null) {
-                        _subDeserializers = new HashMap<ClassKey,JsonDeserializer<Object>>();;
-                    }
-                    _subDeserializers.put(new ClassKey(bean.getClass()), subDeser);
-                }            
-            }
+        JavaType type = ctxt.constructType(bean.getClass());
+        /* 09-Dec-2010, tatu: Would be nice to know which property pointed to this
+         *    bean... but, alas, no such information is retained, so:
+         */
+        subDeser = ctxt.findValueDeserializer(type, _property);
+        // Also, need to cache it
+        if (subDeser != null) {
+            synchronized (this) {
+                if (_subDeserializers == null) {
+                    _subDeserializers = new HashMap<ClassKey,JsonDeserializer<Object>>();;
+                }
+                _subDeserializers.put(new ClassKey(bean.getClass()), subDeser);
+            }            
         }
         return subDeser;
     }

@@ -42,7 +42,7 @@ public abstract class HandlerInstantiator
      * @return Deserializer instance to use
      */
     public abstract JsonDeserializer<?> deserializerInstance(DeserializationConfig config,
-            Annotated annotated, Class<? extends JsonDeserializer<?>> deserClass);
+            Annotated annotated, Class<?> deserClass);
 
     /**
      * Method called to get an instance of key deserializer of specified type.
@@ -56,7 +56,7 @@ public abstract class HandlerInstantiator
      * @return Key deserializer instance to use
      */
     public abstract KeyDeserializer keyDeserializerInstance(DeserializationConfig config,
-            Annotated annotated, Class<? extends KeyDeserializer> keyDeserClass);
+            Annotated annotated, Class<?> keyDeserClass);
     
     /**
      * Method called to get an instance of serializer of specified type.
@@ -85,7 +85,7 @@ public abstract class HandlerInstantiator
      * @return TypeResolverBuilder instance to use
      */
     public abstract TypeResolverBuilder<?> typeResolverBuilderInstance(MapperConfig<?> config,
-            Annotated annotated, Class<? extends TypeResolverBuilder<?>> builderClass);
+            Annotated annotated, Class<?> builderClass);
 
     /**
      * Method called to get an instance of TypeIdResolver of specified type.
@@ -100,13 +100,13 @@ public abstract class HandlerInstantiator
      * @return TypeResolverBuilder instance to use
      */
     public abstract TypeIdResolver typeIdResolverInstance(MapperConfig<?> config,
-            Annotated annotated, Class<? extends TypeIdResolver> resolverClass);
+            Annotated annotated, Class<?> resolverClass);
 
     /**
      * Method called to construct an instance of ValueInstantiator of specified type.
      */
     public ValueInstantiator valueInstantiatorInstance(MapperConfig<?> config,
-            Annotated annotated, Class<? extends ValueInstantiator> resolverClass) {
+            Annotated annotated, Class<?> resolverClass) {
         return null;
     }
 }

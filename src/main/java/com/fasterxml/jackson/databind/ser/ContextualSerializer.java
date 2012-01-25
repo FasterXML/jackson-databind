@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.*;
 
 /**
  * Add-on interface that {@link JsonSerializer}s can implement to get a callback
@@ -29,7 +26,7 @@ public interface ContextualSerializer<T>
      * and return a new instance. This instance should only be returned as-is, in case
      * it is already suitable for use.
      * 
-     * @param config Current serialization configuration
+     * @param prov Serializer provider to use for accessing config, other serializers
      * @param property Method or field that represents the property
      *   (and is used to access value to serialize).
      *   Should be available; but there may be cases where caller can not provide it and
@@ -40,7 +37,7 @@ public interface ContextualSerializer<T>
      * 
      * @throws JsonMappingException
      */
-    public JsonSerializer<T> createContextual(SerializationConfig config,
+    public JsonSerializer<T> createContextual(SerializerProvider prov,
             BeanProperty property)
         throws JsonMappingException;
 }

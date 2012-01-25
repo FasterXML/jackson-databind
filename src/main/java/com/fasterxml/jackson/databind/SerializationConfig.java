@@ -6,7 +6,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.databind.cfg.*;
-import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
@@ -15,7 +14,6 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Object that contains baseline configuration for serialization
@@ -698,26 +696,6 @@ public final class SerializationConfig
     @SuppressWarnings("unchecked")
     public <T extends BeanDescription> T introspect(JavaType type) {
         return (T) getClassIntrospector().forSerialization(this, type, this);
-    }
-
-    /*
-    /**********************************************************
-    /* Extended API: serializer instantiation
-    /**********************************************************
-     */
-
-    @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> serializerInstance(Annotated annotated, Class<?> serClass)
-    {
-        HandlerInstantiator hi = getHandlerInstantiator();
-        if (hi != null) {
-            JsonSerializer<?> ser = hi.serializerInstance(this, annotated,
-                    (Class<JsonSerializer<?>>)serClass);
-            if (ser != null) {
-                return (JsonSerializer<Object>) ser;
-            }
-        }
-        return (JsonSerializer<Object>) ClassUtil.createInstance(serClass, canOverrideAccessModifiers());
     }
     
     /*

@@ -160,20 +160,21 @@ public abstract class BasicSerializerFactory
 
     // Implemented by sub-classes
     @Override
-    public abstract JsonSerializer<Object> createSerializer(SerializationConfig config,
+    public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov,
             JavaType type, BeanProperty property)
         throws JsonMappingException;
 
     @Override
     @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> createKeySerializer(SerializationConfig config,
+    public JsonSerializer<Object> createKeySerializer(SerializerProvider prov,
             JavaType type, BeanProperty property)
     {
         // Minor optimization: to avoid constructing beanDesc, bail out if none registered
         if (!_factoryConfig.hasKeySerializers()) {
             return null;
         }
-        
+
+        final SerializationConfig config = prov.getConfig();
         // We should not need any member method info; at most class annotations for Map type
         BeanDescription beanDesc = config.introspectClassAnnotations(type.getRawClass());
         JsonSerializer<?> ser = null;
@@ -264,8 +265,8 @@ public abstract class BasicSerializerFactory
      * This does not include "secondary" interfaces, but
      * mostly concrete or abstract base classes.
      */
-    protected final JsonSerializer<?> findSerializerByPrimaryType(JavaType type,
-            SerializationConfig config, BeanDescription beanDesc, BeanProperty property,
+    protected final JsonSerializer<?> findSerializerByPrimaryType(SerializerProvider prov, 
+            JavaType type, BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping)
         throws JsonMappingException
     {
@@ -279,10 +280,10 @@ public abstract class BasicSerializerFactory
         if (valueMethod != null) {
             // [JACKSON-586]: need to ensure accessibility of method
             Method m = valueMethod.getAnnotated();
-            if (config.canOverrideAccessModifiers()) {
+            if (prov.canOverrideAccessModifiers()) {
                 ClassUtil.checkAndFixAccess(m);
             }
-            JsonSerializer<Object> ser = findSerializerFromAnnotation(config, valueMethod, property);
+            JsonSerializer<Object> ser = findSerializerFromAnnotation(prov, valueMethod, property);
             return new JsonValueSerializer(m, ser, property);
         }
         
@@ -296,7 +297,7 @@ public abstract class BasicSerializerFactory
         }
         
         // Then check for optional/external serializers [JACKSON-386]
-        JsonSerializer<?> ser = optionalHandlers.findSerializer(config, type);
+        JsonSerializer<?> ser = optionalHandlers.findSerializer(prov.getConfig(), type);
         if (ser != null) {
             return ser;
         }
@@ -307,7 +308,7 @@ public abstract class BasicSerializerFactory
         if (Enum.class.isAssignableFrom(raw)) {
             @SuppressWarnings("unchecked")
             Class<Enum<?>> enumClass = (Class<Enum<?>>) raw;
-            return EnumSerializer.construct(enumClass, config, beanDesc);
+            return EnumSerializer.construct(enumClass, prov.getConfig(), beanDesc);
         }
         if (Calendar.class.isAssignableFrom(raw)) {
             return CalendarSerializer.instance;
@@ -353,37 +354,15 @@ public abstract class BasicSerializerFactory
      * that tells the class to use for serialization.
      * Returns null if no such annotation found.
      */
-    @SuppressWarnings("unchecked")
-    protected JsonSerializer<Object> findSerializerFromAnnotation(SerializationConfig config, Annotated a,
-            BeanProperty property)
+    protected JsonSerializer<Object> findSerializerFromAnnotation(SerializerProvider prov,
+            Annotated a, BeanProperty property)
         throws JsonMappingException
     {
-        Object serDef = config.getAnnotationIntrospector().findSerializer(a);
+        Object serDef = prov.getAnnotationIntrospector().findSerializer(a);
         if (serDef == null) {
             return null;
         }
-        if (serDef instanceof JsonSerializer) {
-            JsonSerializer<Object> ser = (JsonSerializer<Object>) serDef;
-            if (ser instanceof ContextualSerializer<?>) {
-                return ((ContextualSerializer<Object>) ser).createContextual(config, property);
-            }
-            return ser;
-        }
-        /* Alas, there's no way to force return type of "either class
-         * X or Y" -- need to throw an exception after the fact
-         */
-        if (!(serDef instanceof Class)) {
-            throw new IllegalStateException("AnnotationIntrospector returned value of type "+serDef.getClass().getName()+"; expected type JsonSerializer or Class<JsonSerializer> instead");
-        }
-        Class<?> cls = (Class<?>) serDef;
-        if (!JsonSerializer.class.isAssignableFrom(cls)) {
-            throw new IllegalStateException("AnnotationIntrospector returned Class "+cls.getName()+"; expected Class<JsonSerializer>");
-        }
-        JsonSerializer<Object> ser = config.serializerInstance(a, (Class<? extends JsonSerializer<?>>) cls);
-        if (ser instanceof ContextualSerializer<?>) {
-            return ((ContextualSerializer<Object>) ser).createContextual(config, property);
-        }
-        return ser;
+        return prov.serializerInstance(a, property, serDef);
     }
 
     /*
@@ -392,13 +371,15 @@ public abstract class BasicSerializerFactory
     /**********************************************************
      */
     
-    protected JsonSerializer<?> buildContainerSerializer(SerializationConfig config, JavaType type,
-            BeanDescription beanDesc, BeanProperty property, boolean staticTyping)
+    protected JsonSerializer<?> buildContainerSerializer(SerializerProvider prov,
+            JavaType type, BeanDescription beanDesc, BeanProperty property, boolean staticTyping)
         throws JsonMappingException
     {
+        final SerializationConfig config = prov.getConfig();
         // Let's see what we can learn about element/content/value type, type serializer for it:
         JavaType elementType = type.getContentType();
-        TypeSerializer elementTypeSerializer = createTypeSerializer(config, elementType, property);
+        TypeSerializer elementTypeSerializer = createTypeSerializer(config,
+                elementType, property);
         
         // if elements have type serializer, can not force static typing:
         if (elementTypeSerializer != null) {
@@ -406,12 +387,12 @@ public abstract class BasicSerializerFactory
         } else if (!staticTyping) {
             staticTyping = usesStaticTyping(config, beanDesc, elementTypeSerializer, property);
         }
-        JsonSerializer<Object> elementValueSerializer = _findContentSerializer(config,
+        JsonSerializer<Object> elementValueSerializer = _findContentSerializer(prov,
                 beanDesc.getClassInfo(), property);
         
         if (type.isMapLikeType()) { // implements java.util.Map
             MapLikeType mlt = (MapLikeType) type;
-            JsonSerializer<Object> keySerializer = _findKeySerializer(config, beanDesc.getClassInfo(), property);
+            JsonSerializer<Object> keySerializer = _findKeySerializer(prov, beanDesc.getClassInfo(), property);
             if (mlt.isTrueMapType()) {
                 return buildMapSerializer(config, (MapType) mlt, beanDesc, property, staticTyping,
                         keySerializer, elementTypeSerializer, elementValueSerializer);
@@ -717,78 +698,48 @@ public abstract class BasicSerializerFactory
         return type;
     }
 
-    @SuppressWarnings("unchecked")
-    protected JsonSerializer<Object> _findKeySerializer(SerializationConfig config,
+    protected JsonSerializer<Object> _findKeySerializer(SerializerProvider prov,
             Annotated a, BeanProperty property)
         throws JsonMappingException
     {
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        Object serDef = null;
+        AnnotationIntrospector intr = prov.getAnnotationIntrospector();
 
         // Start with property (more specific); if not found, then find from type
         if (property != null) {
             AnnotatedMember m = property.getMember();
             if (m != null) {
-                serDef = intr.findKeySerializer(m);
-            }
-        }
-        if (serDef == null) {
-            serDef = intr.findKeySerializer(a);
-        }
-
-        // ok, what did we get?
-        if (serDef != null) {
-            JsonSerializer<?> ser = null;
-            if (serDef instanceof JsonSerializer<?>) {
-                ser = (JsonSerializer<Object>) serDef;
-            } else {
-                Class<?> serClass = _verifyAsClass(serDef, "findKeySerializer", JsonSerializer.None.class);
-                if (serClass != null) {
-                    return config.serializerInstance(a, serClass);
+                Object serDef = intr.findKeySerializer(m);
+                if (serDef != null) {
+                    return prov.serializerInstance(m, property, serDef);
                 }
             }
-            if (ser instanceof ContextualSerializer<?>) {
-                ser = ((ContextualSerializer<Object>) ser).createContextual(config, property);
-            }
-            return (JsonSerializer<Object>) ser;
+        }
+        Object serDef = intr.findKeySerializer(a);
+        if (serDef != null) {
+            return prov.serializerInstance(a, property, serDef);
         }
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    protected JsonSerializer<Object> _findContentSerializer(SerializationConfig config,
+    protected JsonSerializer<Object> _findContentSerializer(SerializerProvider prov,
             Annotated a, BeanProperty property)
         throws JsonMappingException
     {
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        Object serDef = null;
+        AnnotationIntrospector intr = prov.getAnnotationIntrospector();
 
         // Start with property (more specific); if not found, then find from type
         if (property != null) {
             AnnotatedMember m = property.getMember();
             if (m != null) {
-                serDef = intr.findContentSerializer(m);
-            }
-        }
-        if (serDef == null) {
-            serDef = intr.findContentSerializer(a);
-        }
-
-        // ok, what did we get?
-        if (serDef != null) {
-            JsonSerializer<?> ser = null;
-            if (serDef instanceof JsonSerializer<?>) {
-                ser = (JsonSerializer<Object>) serDef;
-            } else {
-                Class<?> serClass = _verifyAsClass(serDef, "findContentSerializer", JsonSerializer.None.class);
-                if (serClass != null) {
-                    ser = config.serializerInstance(a, serClass);
+                Object serDef = intr.findContentSerializer(m);
+                if (serDef != null) {
+                    return prov.serializerInstance(m, property, serDef);
                 }
             }
-            if (ser instanceof ContextualSerializer<?>) {
-                ser = ((ContextualSerializer<Object>) ser).createContextual(config, property);
-            }
-            return (JsonSerializer<Object>) ser;
+        }
+        Object serDef = intr.findContentSerializer(a);
+        if (serDef != null) {
+            return prov.serializerInstance(a, property, serDef);
         }
         return null;
     }

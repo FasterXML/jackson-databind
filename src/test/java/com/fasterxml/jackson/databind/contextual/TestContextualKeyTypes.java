@@ -16,8 +16,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 /**
  * Tests to ensure that we can do contextual key serializers and
  * deserializers as well as value ser/deser.
- * 
- * @since 1.8
  */
 public class TestContextualKeyTypes extends BaseMapTest
 {
@@ -48,7 +46,7 @@ public class TestContextualKeyTypes extends BaseMapTest
         }
     
         @Override
-        public JsonSerializer<String> createContextual(SerializationConfig config, BeanProperty property)
+        public JsonSerializer<String> createContextual(SerializerProvider prov, BeanProperty property)
             throws JsonMappingException
         {
             return new ContextualKeySerializer(_prefix+":");

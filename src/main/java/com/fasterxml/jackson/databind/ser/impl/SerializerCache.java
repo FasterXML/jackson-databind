@@ -2,12 +2,8 @@ package com.fasterxml.jackson.databind.ser.impl;
 
 import java.util.*;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
-
 
 /**
  * Simple cache object that allows for doing 2-level lookups: first level is

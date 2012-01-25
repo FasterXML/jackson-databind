@@ -223,13 +223,15 @@ public class BeanSerializerFactory
      */
     @Override
     @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> createSerializer(SerializationConfig config, JavaType origType,
+    public JsonSerializer<Object> createSerializer(SerializerProvider prov,
+            JavaType origType,
             BeanProperty property)
         throws JsonMappingException
     {
         // Very first thing, let's check if there is explicit serializer annotation:
+        final SerializationConfig config = prov.getConfig();
         BeanDescription beanDesc = config.introspect(origType);
-        JsonSerializer<?> ser = findSerializerFromAnnotation(config, beanDesc.getClassInfo(), property);
+        JsonSerializer<?> ser = findSerializerFromAnnotation(prov, beanDesc.getClassInfo(), property);
         if (ser != null) {
             return (JsonSerializer<Object>) ser;
         }
@@ -241,7 +243,7 @@ public class BeanSerializerFactory
         
         // Container types differ from non-container types:
         if (origType.isContainerType()) {
-            return (JsonSerializer<Object>) buildContainerSerializer(config, type, beanDesc, property, staticTyping);
+            return (JsonSerializer<Object>) buildContainerSerializer(prov, type, beanDesc, property, staticTyping);
         }
 
         // Modules may provide serializers of all types:
@@ -258,13 +260,13 @@ public class BeanSerializerFactory
          */
         ser = findSerializerByLookup(type, config, beanDesc, property, staticTyping);
         if (ser == null) {
-            ser = findSerializerByPrimaryType(type, config, beanDesc, property, staticTyping);
+            ser = findSerializerByPrimaryType(prov, type, beanDesc, property, staticTyping);
             if (ser == null) {
                 /* And this is where this class comes in: if type is not a
                  * known "primary JDK type", perhaps it's a bean? We can still
                  * get a null, if we can't find a single suitable bean property.
                  */
-                ser = findBeanSerializer(config, type, beanDesc, property);
+                ser = findBeanSerializer(prov, type, beanDesc, property);
                 /* Finally: maybe we can still deal with it as an
                  * implementation of some basic JDK interface?
                  */
@@ -288,19 +290,20 @@ public class BeanSerializerFactory
      * given class. Returns null if no properties are found.
      */
     @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> findBeanSerializer(SerializationConfig config, JavaType type,
-            BeanDescription beanDesc, BeanProperty property)
+    public JsonSerializer<Object> findBeanSerializer(SerializerProvider prov,
+            JavaType type, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException
     {
         // First things first: we know some types are not beans...
         if (!isPotentialBeanType(type.getRawClass())) {
             return null;
         }
-        JsonSerializer<Object> serializer = constructBeanSerializer(config, beanDesc, property);
+        JsonSerializer<Object> serializer = constructBeanSerializer(prov, beanDesc, property);
         // [JACKSON-440] Need to allow overriding actual serializer, as well...
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
-                serializer = (JsonSerializer<Object>)mod.modifySerializer(config, beanDesc, serializer);
+                serializer = (JsonSerializer<Object>)mod.modifySerializer(prov.getConfig(),
+                        beanDesc, serializer);
             }
         }
         return serializer;
@@ -365,7 +368,7 @@ public class BeanSerializerFactory
      * Method called to construct serializer for serializing specified bean type.
      */
     @SuppressWarnings("unchecked")
-    protected JsonSerializer<Object> constructBeanSerializer(SerializationConfig config,
+    protected JsonSerializer<Object> constructBeanSerializer(SerializerProvider prov,
             BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException
     {
@@ -373,11 +376,12 @@ public class BeanSerializerFactory
         if (beanDesc.getBeanClass() == Object.class) {
             throw new IllegalArgumentException("Can not create bean serializer for Object.class");
         }
-        
+
+        final SerializationConfig config = prov.getConfig();
         BeanSerializerBuilder builder = constructBeanSerializerBuilder(beanDesc);
         
         // First: any detectable (auto-detect, annotations) properties to serialize?
-        List<BeanPropertyWriter> props = findBeanProperties(config, beanDesc);
+        List<BeanPropertyWriter> props = findBeanProperties(prov, beanDesc);
 
         if (props == null) {
             props = new ArrayList<BeanPropertyWriter>();
@@ -494,11 +498,13 @@ public class BeanSerializerFactory
      * Method used to collect all actual serializable properties.
      * Can be overridden to implement custom detection schemes.
      */
-    protected List<BeanPropertyWriter> findBeanProperties(SerializationConfig config, BeanDescription beanDesc)
+    protected List<BeanPropertyWriter> findBeanProperties(SerializerProvider prov,
+            BeanDescription beanDesc)
         throws JsonMappingException
     {
         List<BeanPropertyDefinition> properties = beanDesc.findProperties();
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        AnnotationIntrospector intr = prov.getAnnotationIntrospector();
+        final SerializationConfig config = prov.getConfig();
 
         // [JACKSON-429]: ignore specified types
         removeIgnorableTypes(config, beanDesc, properties);
@@ -529,9 +535,9 @@ public class BeanSerializerFactory
             }
             String name = property.getName();
             if (accessor instanceof AnnotatedMethod) {
-                result.add(_constructWriter(config, typeBind, pb, staticTyping, name, (AnnotatedMethod) accessor));
+                result.add(_constructWriter(prov, typeBind, pb, staticTyping, name, (AnnotatedMethod) accessor));
             } else {
-                result.add(_constructWriter(config, typeBind, pb, staticTyping, name, (AnnotatedField) accessor));
+                result.add(_constructWriter(prov, typeBind, pb, staticTyping, name, (AnnotatedField) accessor));
             }
         }
         return result;
@@ -664,30 +670,31 @@ public class BeanSerializerFactory
      * Secondary helper method for constructing {@link BeanPropertyWriter} for
      * given member (field or method).
      */
-    protected BeanPropertyWriter _constructWriter(SerializationConfig config, TypeBindings typeContext,
+    protected BeanPropertyWriter _constructWriter(SerializerProvider prov,
+            TypeBindings typeContext,
             PropertyBuilder pb, boolean staticTyping, String name, AnnotatedMember accessor)
         throws JsonMappingException
     {
-        if (config.canOverrideAccessModifiers()) {
+        if (prov.canOverrideAccessModifiers()) {
             accessor.fixAccess();
         }
         JavaType type = accessor.getType(typeContext);
         BeanProperty.Std property = new BeanProperty.Std(name, type, pb.getClassAnnotations(), accessor);
 
         // Does member specify a serializer? If so, let's use it.
-        JsonSerializer<Object> annotatedSerializer = findSerializerFromAnnotation(config, accessor, property);
+        JsonSerializer<Object> annotatedSerializer = findSerializerFromAnnotation(prov, accessor, property);
         // And how about polymorphic typing? First special to cover JAXB per-field settings:
         TypeSerializer contentTypeSer = null;
         if (ClassUtil.isCollectionMapOrArray(type.getRawClass())) {
-            contentTypeSer = findPropertyContentTypeSerializer(type, config, accessor, property);
+            contentTypeSer = findPropertyContentTypeSerializer(type, prov.getConfig(), accessor, property);
         }
 
         // and if not JAXB collection/array with annotations, maybe regular type info?
-        TypeSerializer typeSer = findPropertyTypeSerializer(type, config, accessor, property);
+        TypeSerializer typeSer = findPropertyTypeSerializer(type, prov.getConfig(), accessor, property);
         BeanPropertyWriter pbw = pb.buildWriter(name, type, annotatedSerializer,
                         typeSer, contentTypeSer, accessor, staticTyping);
         // how about views? (1.4+)
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
+        AnnotationIntrospector intr = prov.getAnnotationIntrospector();
         pbw.setViews(intr.findSerializationViews(accessor));
         return pbw;
     }

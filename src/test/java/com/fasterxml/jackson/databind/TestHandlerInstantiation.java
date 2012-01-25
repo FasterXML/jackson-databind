@@ -202,7 +202,7 @@ public class TestHandlerInstantiation extends BaseMapTest
         
         @Override
         public JsonSerializer<?> serializerInstance(SerializationConfig config,
-                Annotated annotated, Class<? extends JsonSerializer<?>> serClass)
+                Annotated annotated, Class<?> serClass)
         {
             if (serClass == MyBeanSerializer.class) {
                 return new MyBeanSerializer(_prefix);

@@ -70,7 +70,7 @@ public abstract class HandlerInstantiator
      * @return Serializer instance to use
      */
     public abstract JsonSerializer<?> serializerInstance(SerializationConfig config,
-            Annotated annotated, Class<? extends JsonSerializer<?>> serClass);
+            Annotated annotated, Class<?> serClass);
 
     /**
      * Method called to get an instance of TypeResolverBuilder of specified type.

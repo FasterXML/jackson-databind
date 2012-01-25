@@ -103,9 +103,12 @@ public abstract class SerializerFactory
 
     /**
       * Method called to create (or, for immutable serializers, reuse) a serializer for given type. 
+      * 
+      * @param prov Provider that needs to be used to resolve annotation-provided
+      *    serializers (but NOT for others)
       */
-    public abstract JsonSerializer<Object> createSerializer(SerializationConfig config, JavaType baseType,
-            BeanProperty property)
+    public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov,
+            JavaType baseType, BeanProperty property)
         throws JsonMappingException;
     
     /**
@@ -117,8 +120,8 @@ public abstract class SerializerFactory
      * 
      * @return Type serializer to use for the base type, if one is needed; null if not.
      */
-    public abstract TypeSerializer createTypeSerializer(SerializationConfig config, JavaType baseType,
-            BeanProperty property)
+    public abstract TypeSerializer createTypeSerializer(SerializationConfig config,
+            JavaType baseType, BeanProperty property)
         throws JsonMappingException;
 
     /**
@@ -126,14 +129,13 @@ public abstract class SerializerFactory
      * be output as <code>JsonToken.FIELD_NAME</code>) for Map that has specified declared
      * key type, and is for specified property (or, if property is null, as root value)
      * 
-     * @param config Serialization configuration in use
      * @param baseType Declared type for Map keys
      * @param property Property that contains Map being serialized; null when serializing root Map value.
      * 
      * @return Serializer to use, if factory knows it; null if not (in which case default serializer
      *   is to be used)
      */
-    public abstract JsonSerializer<Object> createKeySerializer(SerializationConfig config, JavaType baseType,
-            BeanProperty property)
+    public abstract JsonSerializer<Object> createKeySerializer(SerializerProvider prov,
+            JavaType baseType, BeanProperty property)
         throws JsonMappingException;
 }

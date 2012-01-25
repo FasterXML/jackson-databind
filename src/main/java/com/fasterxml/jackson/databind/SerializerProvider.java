@@ -6,6 +6,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -111,7 +112,8 @@ public abstract class SerializerProvider
      *
      * @param type The type for which to generate schema
      */
-    public abstract JsonSchema generateJsonSchema(Class<?> type, SerializationConfig config, SerializerFactory jsf)
+    public abstract JsonSchema generateJsonSchema(Class<?> type,
+            SerializationConfig config, SerializerFactory jsf)
         throws JsonMappingException;
 
     /**
@@ -157,6 +159,26 @@ public abstract class SerializerProvider
      */
     public final boolean isEnabled(SerializationConfig.Feature feature) {
         return _config.isEnabled(feature);
+    }
+
+    /**
+     * Convenience method for accessing serialization view in use (if any); equivalent to:
+     *<pre>
+     *   getConfig().canOverrideAccessModifiers();
+     *</pre>
+     */
+    public final boolean canOverrideAccessModifiers() {
+        return _config.canOverrideAccessModifiers();
+    }
+    
+    /**
+     * Convenience method for accessing serialization view in use (if any); equivalent to:
+     *<pre>
+     *   getConfig().getAnnotationIntrospector();
+     *</pre>
+     */
+    public final AnnotationIntrospector getAnnotationIntrospector() {
+        return _config.getAnnotationIntrospector();
     }
     
     /**
@@ -358,6 +380,28 @@ public abstract class SerializerProvider
      */
     public abstract JsonSerializer<Object> getUnknownTypeSerializer(Class<?> unknownType);
 
+
+    /*
+    /**********************************************************
+    /* Methods for creating instances based on annotations
+    /**********************************************************
+     */
+
+    /**
+     * Method that can be called to construct and configure serializer instance,
+     * either given a {@link Class} to instantiate (with default constructor),
+     * or an uninitialized serializer instance.
+     * Either way, serialize will be properly resolved
+     * (via {@link com.fasterxml.jackson.databind.ser.ResolvableSerializer}) and/or contextualized
+     * (via {@link com.fasterxml.jackson.databind.ser.ContextualSerializer}) as necessary.
+     * 
+     * @param annotated Annotated entity that contained definition
+     * @param serDef Serializer definition: either an instance or class
+     */
+    public abstract JsonSerializer<Object> serializerInstance(Annotated annotated,
+            BeanProperty property, Object serDef)
+        throws JsonMappingException;
+    
     /*
     /********************************************************
     /* Convenience methods

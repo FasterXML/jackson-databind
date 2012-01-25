@@ -140,7 +140,7 @@ public class TestContextualSerialization extends BaseMapTest
         }
 
         @Override
-        public JsonSerializer<String> createContextual(SerializationConfig config, BeanProperty property)
+        public JsonSerializer<String> createContextual(SerializerProvider prov, BeanProperty property)
                 throws JsonMappingException
         {
             String prefix = "UNKNOWN";
@@ -159,15 +159,15 @@ public class TestContextualSerialization extends BaseMapTest
         extends JsonSerializer<String>
         implements ContextualSerializer<String>, ResolvableSerializer
     {
-        protected boolean isContextual;
-        protected boolean isResolved;
+        protected int isContextual;
+        protected int isResolved;
 
-        public ContextualAndResolvable() { this(false); }
+        public ContextualAndResolvable() { this(0, 0); }
         
-        public ContextualAndResolvable(boolean contextual)
+        public ContextualAndResolvable(int resolved, int contextual)
         {
             isContextual = contextual;
-            isResolved = false;
+            isResolved = resolved;
         }
         
         @Override
@@ -177,15 +177,15 @@ public class TestContextualSerialization extends BaseMapTest
         }
 
         @Override
-        public JsonSerializer<String> createContextual(SerializationConfig config, BeanProperty property)
+        public JsonSerializer<String> createContextual(SerializerProvider prov, BeanProperty property)
                 throws JsonMappingException
         {
-            return new ContextualAndResolvable(true);
+            return new ContextualAndResolvable(isResolved, isContextual+1);
         }
 
         @Override
         public void resolve(SerializerProvider provider) {
-            isResolved = true;
+            ++isResolved;
         }
     }
     
@@ -274,7 +274,7 @@ public class TestContextualSerialization extends BaseMapTest
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(String.class, new ContextualAndResolvable());
         mapper.registerModule(module);
-        assertEquals(quote("contextual=true,resolved=true"), mapper.writeValueAsString("abc"));
+        assertEquals(quote("contextual=1,resolved=1"), mapper.writeValueAsString("abc"));
     }
 
     public void testContextualArrayElement() throws Exception

@@ -6,6 +6,8 @@ import java.util.Date;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.NoClass;
+import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -293,7 +295,7 @@ public abstract class StdSerializerProvider
 
     @Override
     public boolean hasSerializerFor(SerializationConfig config,
-                                    Class<?> cls, SerializerFactory jsf)
+            Class<?> cls, SerializerFactory jsf)
     {
         return createInstance(config, jsf)._findExplicitUntypedSerializer(cls, null) != null;
     }
@@ -345,8 +347,9 @@ public abstract class StdSerializerProvider
                     }
                 }
             }
-        }            
-        return _handleContextualResolvable(ser, property);
+        }
+        // at this point, resolution has occured, but not contextualization
+        return _handleContextual(ser, property);
     }
 
     /**
@@ -381,7 +384,7 @@ public abstract class StdSerializerProvider
                 }
             }
         }
-        return _handleContextualResolvable(ser, property);
+        return _handleContextual(ser, property);
     }
     
     /**
@@ -455,7 +458,7 @@ public abstract class StdSerializerProvider
     public JsonSerializer<Object> findKeySerializer(JavaType keyType, BeanProperty property)
         throws JsonMappingException
     {
-        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(_config, keyType, property);
+        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(this, keyType, property);
 
         // First things first: maybe there are registered custom implementations
         // if not, use default one:
@@ -483,6 +486,52 @@ public abstract class StdSerializerProvider
     @Override
     public JsonSerializer<Object> getUnknownTypeSerializer(Class<?> unknownType) {
         return _unknownTypeSerializer;
+    }
+
+    /*
+    /**********************************************************
+    /* Abstract method impls, instantiating handlers
+    /**********************************************************
+     */
+    
+    @Override
+    public JsonSerializer<Object> serializerInstance(Annotated annotated,
+            BeanProperty property, Object serDef)
+        throws JsonMappingException
+    {
+        if (serDef == null) {
+            return null;
+        }
+        JsonSerializer<?> ser;
+        
+        if (serDef instanceof JsonSerializer) {
+            ser = (JsonSerializer<?>) serDef;
+        } else {
+            /* Alas, there's no way to force return type of "either class
+             * X or Y" -- need to throw an exception after the fact
+             */
+            if (!(serDef instanceof Class)) {
+                throw new IllegalStateException("AnnotationIntrospector returned serializer definition of type "
+                        +serDef.getClass().getName()+"; expected type JsonSerializer or Class<JsonSerializer> instead");
+            }
+            Class<?> serClass = (Class<?>)serDef;
+            // there are some known "no class" markers to consider too:
+            if (serClass == JsonSerializer.None.class || serClass == NoClass.class) {
+                return null;
+            }
+            if (!JsonSerializer.class.isAssignableFrom(serClass)) {
+                throw new IllegalStateException("AnnotationIntrospector returned Class "
+                        +serClass.getName()+"; expected Class<JsonSerializer>");
+            }
+            HandlerInstantiator hi = _config.getHandlerInstantiator();
+            if (hi != null) {
+                ser = hi.serializerInstance(_config, annotated, serClass);
+            } else {
+                ser = (JsonSerializer<?>) ClassUtil.createInstance(serClass,
+                        _config.canOverrideAccessModifiers());
+            }
+        }
+        return (JsonSerializer<Object>) _handleContextualResolvable(ser, property);
     }
     
     /*
@@ -772,26 +821,32 @@ public abstract class StdSerializerProvider
          *   and keep track of creation chain to look for loops -- fairly
          *   easy to do, but won't add yet since it seems unnecessary.
          */
-        return (JsonSerializer<Object>)_serializerFactory.createSerializer(_config, type, property);
+        return (JsonSerializer<Object>)_serializerFactory.createSerializer(this, type, property);
     }
 
-    @SuppressWarnings("unchecked")
-    protected JsonSerializer<Object> _handleContextualResolvable(JsonSerializer<Object> ser,
+    /**
+     * Helper method called to resolve and contextualize given
+     * serializer, if and as necessary.
+     */
+    protected JsonSerializer<Object> _handleContextualResolvable(JsonSerializer<?> ser,
             BeanProperty property)
         throws JsonMappingException
     {
-        if (!(ser instanceof ContextualSerializer<?>)) {
-            return ser;
+        if (ser instanceof ResolvableSerializer) {
+            ((ResolvableSerializer) ser).resolve(this);
         }
-        JsonSerializer<Object> ctxtSer = ((ContextualSerializer<Object>) ser).createContextual(_config, property);
-        if (ctxtSer != ser) {
-            // need to re-resolve?
-            if (ctxtSer instanceof ResolvableSerializer) {
-                ((ResolvableSerializer) ctxtSer).resolve(this);
-            }
-            ser = ctxtSer;
+        return _handleContextual(ser, property);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected JsonSerializer<Object> _handleContextual(JsonSerializer<?> ser,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        if (ser instanceof ContextualSerializer<?>) {
+            ser = ((ContextualSerializer<?>) ser).createContextual(this, property);
         }
-        return ser;
+        return (JsonSerializer<Object>) ser;
     }
     
     /*

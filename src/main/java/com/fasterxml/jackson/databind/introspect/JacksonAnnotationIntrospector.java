@@ -375,7 +375,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Class<?>[] findSerializationViews(Annotated a)
+    public Class<?>[] findViews(Annotated a)
     {
         JsonView ann = a.getAnnotation(JsonView.class);
         return (ann == null) ? null : ann.value();

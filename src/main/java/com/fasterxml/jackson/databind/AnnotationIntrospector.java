@@ -6,7 +6,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
-import com.fasterxml.jackson.core.util.VersionUtil;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -144,9 +143,7 @@ public abstract class AnnotationIntrospector implements Versioned
      */
 
     @Override
-    public Version version() {
-        return VersionUtil.versionFor(getClass());
-    }
+    public abstract Version version();
     
     /*
     /**********************************************************
@@ -158,7 +155,9 @@ public abstract class AnnotationIntrospector implements Versioned
      * Method called by framework to determine whether given annotation
      * is handled by this introspector.
      */
-    public abstract boolean isHandled(Annotation ann);
+    public boolean isHandled(Annotation ann) {
+        return false;
+    }
 
     /**
      * Method for checking whether given annotation is considered an
@@ -184,7 +183,9 @@ public abstract class AnnotationIntrospector implements Versioned
      * is defined. Returns null if no declaration found; can return
      * explicit empty String, which is usually ignored as well as null.
      */
-    public abstract String findRootName(AnnotatedClass ac);
+    public String findRootName(AnnotatedClass ac) {
+        return null;
+    }
 
     /**
      * Method for finding list of properties to ignore for given class
@@ -193,12 +194,16 @@ public abstract class AnnotationIntrospector implements Versioned
      * after other detection mechanisms, to filter out these specific
      * properties from being serialized and deserialized.
      */
-    public abstract String[] findPropertiesToIgnore(AnnotatedClass ac);
+    public String[] findPropertiesToIgnore(AnnotatedClass ac) {
+        return null;
+    }
 
     /**
      * Method for checking whether an annotation indicates that all unknown properties
      */
-    public abstract Boolean findIgnoreUnknownProperties(AnnotatedClass ac);
+    public Boolean findIgnoreUnknownProperties(AnnotatedClass ac) {
+        return null;
+    }
 
     /**
      * Method for checking whether properties that have specified type
@@ -339,8 +344,8 @@ public abstract class AnnotationIntrospector implements Versioned
      */
 
     /**
-     * Note: defined as non-abstract to reduce fragility between
-     * versions.
+     * Method for checking if given member indicates that it is part
+     * of a reference (parent/child).
      */
     public ReferenceProperty findReferenceType(AnnotatedMember member) {
         return null;
@@ -386,6 +391,23 @@ public abstract class AnnotationIntrospector implements Versioned
         return null;
     }
 
+    /**
+     * Method for checking if annotated property (represented by a field or
+     * getter/setter method) has definitions for views it is to be included in.
+     * If null is returned, no view definitions exist and property is always
+     * included (or always excluded as per default view inclusion configuration);
+     * otherwise it will only be included for views included in returned
+     * array. View matches are checked using class inheritance rules (sub-classes
+     * inherit inclusions of super-classes)
+     * 
+     * @param a Annotated property (represented by a method, field or ctor parameter)
+     * @return Array of views (represented by classes) that the property is included in;
+     *    if null, always included (same as returning array containing <code>Object.class</code>)
+     */
+    public Class<?>[] findViews(Annotated a) {
+        return null;
+    }
+    
     /*
     /**********************************************************
     /* Serialization: general annotations
@@ -399,7 +421,9 @@ public abstract class AnnotationIntrospector implements Versioned
      * <code>Class<JsonSerializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
-    public abstract Object findSerializer(Annotated am);
+    public Object findSerializer(Annotated am) {
+        return null;
+    }
 
     /**
      * Method for getting a serializer definition for keys of associated <code>Map</code> property.
@@ -447,7 +471,9 @@ public abstract class AnnotationIntrospector implements Versioned
      *
      * @return Class to use instead of runtime type
      */
-    public abstract Class<?> findSerializationType(Annotated a);
+    public Class<?> findSerializationType(Annotated a) {
+        return null;
+    }
 
     /**
      * Method for finding possible widening type definition that a property
@@ -481,21 +507,9 @@ public abstract class AnnotationIntrospector implements Versioned
      *
      * @return Typing mode to use, if annotation is found; null otherwise
      */
-    public abstract JsonSerialize.Typing findSerializationTyping(Annotated a);
-
-    /**
-     * Method for checking if annotated serializable property (represented by
-     * field or getter method) has definitions for views it is to be included
-     * in. If null is returned, no view definitions exist and property is always
-     * included; otherwise it will only be included for views included in returned
-     * array. View matches are checked using class inheritance rules (sub-classes
-     * inherit inclusions of super-classes)
-     * 
-     * @param a Annotated serializable property (field or getter method)
-     * @return Array of views (represented by classes) that the property is included in;
-     *    if null, always included (same as returning array containing <code>Object.class</code>)
-     */
-    public abstract Class<?>[] findSerializationViews(Annotated a);
+    public JsonSerialize.Typing findSerializationTyping(Annotated a) {
+        return null;
+    }
     
     /*
     /**********************************************************
@@ -507,14 +521,18 @@ public abstract class AnnotationIntrospector implements Versioned
      * Method for accessing defined property serialization order (which may be
      * partial). May return null if no ordering is defined.
      */
-    public abstract String[] findSerializationPropertyOrder(AnnotatedClass ac);
+    public String[] findSerializationPropertyOrder(AnnotatedClass ac) {
+        return null;
+    }
 
     /**
      * Method for checking whether an annotation indicates that serialized properties
      * for which no explicit is defined should be alphabetically (lexicograpically)
      * ordered
      */
-    public abstract Boolean findSerializationSortAlphabetically(AnnotatedClass ac);
+    public Boolean findSerializationSortAlphabetically(AnnotatedClass ac) {
+        return null;
+    }
     
     /*
     /**********************************************************
@@ -532,7 +550,9 @@ public abstract class AnnotationIntrospector implements Versioned
      * "use standard bean name detection if applicable;
      * method name if not".
      */
-    public abstract String findSerializationName(AnnotatedMethod am);
+    public String findSerializationName(AnnotatedMethod am) {
+        return null;
+    }
 
     /**
      * Method for checking whether given method has an annotation
@@ -543,7 +563,9 @@ public abstract class AnnotationIntrospector implements Versioned
      * @return True if such annotation is found (and is not disabled);
      *   false if no enabled annotation is found
      */
-    public abstract boolean hasAsValueAnnotation(AnnotatedMethod am);
+    public boolean hasAsValueAnnotation(AnnotatedMethod am) {
+        return false;
+    }
 
     /**
      * Method for determining the String value to use for serializing
@@ -552,7 +574,9 @@ public abstract class AnnotationIntrospector implements Versioned
      *
      * @return Serialized enum value.
      */
-    public abstract String findEnumValue(Enum<?> value);
+    public String findEnumValue(Enum<?> value) {
+        return null;
+    }
 
     /*
     /**********************************************************
@@ -570,7 +594,9 @@ public abstract class AnnotationIntrospector implements Versioned
      * name, except for empty String ("") which is taken to mean
      * "use the field name as is".
      */
-    public abstract String findSerializationName(AnnotatedField af);
+    public String findSerializationName(AnnotatedField af) {
+        return null;
+    }
 
     /*
     /**********************************************************
@@ -586,7 +612,9 @@ public abstract class AnnotationIntrospector implements Versioned
      * <code>Class<JsonDeserializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
-    public abstract Object findDeserializer(Annotated am);
+    public Object findDeserializer(Annotated am) {
+        return null;
+    }
 
     /**
      * Method for getting a deserializer definition for keys of
@@ -596,7 +624,9 @@ public abstract class AnnotationIntrospector implements Versioned
      * <code>Class<JsonDeserializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
-    public abstract Object findKeyDeserializer(Annotated am);
+    public Object findKeyDeserializer(Annotated am) {
+        return null;
+    }
 
     /**
      * Method for getting a deserializer definition for content (values) of
@@ -607,7 +637,9 @@ public abstract class AnnotationIntrospector implements Versioned
      * <code>Class<JsonDeserializer></code>); if value of different
      * type is returned, a runtime exception may be thrown by caller.
      */
-    public abstract Object findContentDeserializer(Annotated am);
+    public Object findContentDeserializer(Annotated am) {
+        return null;
+    }
 
     /**
      * Method for accessing annotated type definition that a
@@ -623,8 +655,10 @@ public abstract class AnnotationIntrospector implements Versioned
      *
      * @return Class to use for deserialization instead of declared type
      */
-    public abstract Class<?> findDeserializationType(Annotated am, JavaType baseType,
-            String propName);
+    public Class<?> findDeserializationType(Annotated am, JavaType baseType,
+            String propName) {
+        return null;
+    }
 
     /**
      * Method for accessing additional narrowing type definition that a
@@ -638,8 +672,10 @@ public abstract class AnnotationIntrospector implements Versioned
      * @return Class specifying more specific type to use instead of
      *   declared type, if annotation found; null if not
      */
-    public abstract Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType,
-            String propName);
+    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType,
+            String propName) {
+        return null;
+    }
 
     /**
      * Method for accessing additional narrowing type definition that a
@@ -654,8 +690,10 @@ public abstract class AnnotationIntrospector implements Versioned
      * @return Class specifying more specific type to use instead of
      *   declared type, if annotation found; null if not
      */
-    public abstract Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType,
-            String propName);
+    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType,
+            String propName) {
+        return null;
+    }
 
     /*
     /**********************************************************
@@ -688,7 +726,9 @@ public abstract class AnnotationIntrospector implements Versioned
      * "use standard bean name detection if applicable;
      * method name if not".
      */
-    public abstract String findDeserializationName(AnnotatedMethod am);
+    public String findDeserializationName(AnnotatedMethod am) {
+        return null;
+    }
 
     /**
      * Method for checking whether given method has an annotation
@@ -746,7 +786,9 @@ public abstract class AnnotationIntrospector implements Versioned
      * name, except for empty String ("") which is taken to mean
      * "use the field name as is".
      */
-    public abstract String findDeserializationName(AnnotatedField af);
+    public String findDeserializationName(AnnotatedField af) {
+        return null;
+    }
 
     /*
     /**********************************************************
@@ -761,7 +803,9 @@ public abstract class AnnotationIntrospector implements Versioned
      * No actual parameter object can be passed since JDK offers no
      * representation; just annotations.
      */
-    public abstract String findDeserializationName(AnnotatedParameter param);
+    public String findDeserializationName(AnnotatedParameter param) {
+        return null;
+    }
 
     /*
     /**********************************************************
@@ -1108,15 +1152,15 @@ public abstract class AnnotationIntrospector implements Versioned
         }
 
         @Override
-        public Class<?>[] findSerializationViews(Annotated a)
+        public Class<?>[] findViews(Annotated a)
         {
             /* Theoretically this could be trickier, if multiple introspectors
              * return non-null entries. For now, though, we'll just consider
              * first one to return non-null to win.
              */
-            Class<?>[] result = _primary.findSerializationViews(a);
+            Class<?>[] result = _primary.findViews(a);
             if (result == null) {
-                result = _secondary.findSerializationViews(a);
+                result = _secondary.findViews(a);
             }
             return result;
         }

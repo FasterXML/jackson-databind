@@ -346,7 +346,7 @@ public final class TypeFactory
             resultType = _fromWildcard((WildcardType) type, context);
         } else {
             // sanity check
-            throw new IllegalArgumentException("Unrecognized Type: "+type.toString());
+            throw new IllegalArgumentException("Unrecognized Type: "+((type == null) ? "[null]" : type.toString()));
         }
         /* [JACKSON-521]: Need to allow TypeModifiers to alter actual type; however,
          * for now only call for simple types (i.e. not for arrays, map or collections).

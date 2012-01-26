@@ -170,6 +170,10 @@ public final class AnnotatedMethod
         return (index >= types.length) ? null : types[index];
     }
 
+    public Type getGenericReturnType() {
+        return _method.getGenericReturnType();
+    }
+    
     public Class<?> getRawReturnType() {
         return _method.getReturnType();
     }

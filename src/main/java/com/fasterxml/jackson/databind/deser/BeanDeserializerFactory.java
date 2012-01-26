@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -510,7 +511,8 @@ public class BeanDeserializerFactory
          */
         AnnotatedMethod am = beanDesc.findMethod("initCause", INIT_CAUSE_PARAMS);
         if (am != null) { // should never be null
-            SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, "cause", am);
+            SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, "cause", am,
+                    am.getParameterType(0));
             if (prop != null) {
                 /* 21-Aug-2011, tatus: We may actually have found 'cause' property
                  *   to set (with new 1.9 code)... but let's replace it just in case,
@@ -937,32 +939,29 @@ public class BeanDeserializerFactory
                 builder.addCreatorProperty(property);
                 continue;
             }
-            // primary: have a setter?
+            AnnotatedMember accessor;
+            Class<?> rawPropertyType;
+            Type propertyType;
             if (property.hasSetter()) {
                 AnnotatedMethod setter = property.getSetter();
-                // [JACKSON-429] Some types are declared as ignorable as well
-                Class<?> type = setter.getParameterClass(0);
-                if (isIgnorableType(ctxt.getConfig(), beanDesc, type, ignoredTypes)) {
-                    // important: make ignorable, to avoid errors if value is actually seen
-                    builder.addIgnorable(name);
-                    continue;
-                }
-                SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, name, setter);
-                if (prop != null) {
-                    builder.addProperty(prop);
-                }
+                rawPropertyType = setter.getParameterClass(0);
+                propertyType = setter.getParameterType(0);
+                accessor = setter;
+            } else if (property.hasField()) {
+                accessor = property.getField();
+                rawPropertyType = accessor.getRawType();
+                propertyType = accessor.getGenericType();
+            } else {
                 continue;
             }
-            if (property.hasField()) {
-                AnnotatedField field = property.getField();
-                // [JACKSON-429] Some types are declared as ignorable as well
-                Class<?> type = field.getRawType();
-                if (isIgnorableType(ctxt.getConfig(), beanDesc, type, ignoredTypes)) {
-                    // important: make ignorable, to avoid errors if value is actually seen
-                    builder.addIgnorable(name);
-                    continue;
-                }
-                SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, name, field);
+            
+            // [JACKSON-429] Some types are declared as ignorable as well
+            if (isIgnorableType(ctxt.getConfig(), beanDesc, rawPropertyType, ignoredTypes)) {
+                // important: make ignorable, to avoid errors if value is actually seen
+                builder.addIgnorable(name);
+            } else {
+                SettableBeanProperty prop = constructSettableProperty(ctxt,
+                        beanDesc, name, accessor, propertyType);
                 if (prop != null) {
                     builder.addProperty(prop);
                 }
@@ -1014,13 +1013,14 @@ public class BeanDeserializerFactory
             for (Map.Entry<String, AnnotatedMember> en : refs.entrySet()) {
                 String name = en.getKey();
                 AnnotatedMember m = en.getValue();
+                Type genericType;
                 if (m instanceof AnnotatedMethod) {
-                    builder.addBackReferenceProperty(name, constructSettableProperty(
-                            ctxt, beanDesc, m.getName(), (AnnotatedMethod) m));
+                    genericType = ((AnnotatedMethod) m).getParameterType(0);
                 } else {
-                    builder.addBackReferenceProperty(name, constructSettableProperty(
-                            ctxt, beanDesc, m.getName(), (AnnotatedField) m));
+                    genericType = m.getRawType();
                 }
+                builder.addBackReferenceProperty(name, constructSettableProperty(
+                        ctxt, beanDesc, m.getName(), m, genericType));
             }
         }
     }
@@ -1092,7 +1092,7 @@ public class BeanDeserializerFactory
      */
     protected SettableBeanProperty constructSettableProperty(DeserializationContext ctxt,
             BeanDescription beanDesc, String name,
-            AnnotatedMethod setter)
+            AnnotatedMember setter, Type jdkType)
         throws JsonMappingException
     {
         // need to ensure method is callable (for non-public)
@@ -1101,7 +1101,8 @@ public class BeanDeserializerFactory
         }
 
         // note: this works since we know there's exactly one argument for methods
-        JavaType t0 = beanDesc.bindingsForBeanType().resolveType(setter.getParameterType(0));
+        JavaType t0 = beanDesc.resolveType(jdkType);
+
         BeanProperty.Std property = new BeanProperty.Std(name, t0, beanDesc.getClassAnnotations(), setter);
         JavaType type = resolveType(ctxt, beanDesc, t0, setter, property);
         // did type change?
@@ -1115,47 +1116,19 @@ public class BeanDeserializerFactory
         JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, setter, property);
         type = modifyTypeByAnnotation(ctxt, setter, type, property);
         TypeDeserializer typeDeser = type.getTypeHandler();
-        SettableBeanProperty prop = new SettableBeanProperty.MethodProperty(name, type, typeDeser,
-                beanDesc.getClassAnnotations(), setter);
+        SettableBeanProperty prop;
+        if (setter instanceof AnnotatedMethod) {
+            prop = new SettableBeanProperty.MethodProperty(name, type, typeDeser,
+                beanDesc.getClassAnnotations(), (AnnotatedMethod) setter);
+        } else {
+            prop = new SettableBeanProperty.FieldProperty(name, type, typeDeser,
+                    beanDesc.getClassAnnotations(), (AnnotatedField) setter);
+        }
         if (propDeser != null) {
             prop = prop.withValueDeserializer(propDeser);
         }
         // [JACKSON-235]: need to retain name of managed forward references:
         AnnotationIntrospector.ReferenceProperty ref = ctxt.getAnnotationIntrospector().findReferenceType(setter);
-        if (ref != null && ref.isManagedReference()) {
-            prop.setManagedReferenceName(ref.getName());
-        }
-        return prop;
-    }
-
-    protected SettableBeanProperty constructSettableProperty(DeserializationContext ctxt,
-            BeanDescription beanDesc, String name, AnnotatedField field)
-        throws JsonMappingException
-    {
-        // need to ensure method is callable (for non-public)
-        if (ctxt.canOverrideAccessModifiers()) {
-            field.fixAccess();
-        }
-        JavaType t0 = beanDesc.bindingsForBeanType().resolveType(field.getGenericType());
-        BeanProperty.Std property = new BeanProperty.Std(name, t0, beanDesc.getClassAnnotations(), field);
-        JavaType type = resolveType(ctxt, beanDesc, t0, field, property);
-        // did type change?
-        if (type != t0) {
-            property = property.withType(type);
-        }
-        /* First: does the Method specify the deserializer to use?
-         * If so, let's use it.
-         */
-        JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, field, property);
-        type = modifyTypeByAnnotation(ctxt, field, type, property);
-        TypeDeserializer typeDeser = type.getTypeHandler();
-        SettableBeanProperty prop = new SettableBeanProperty.FieldProperty(name, type, typeDeser,
-                beanDesc.getClassAnnotations(), field);
-        if (propDeser != null) {
-            prop = prop.withValueDeserializer(propDeser);
-        }
-        // [JACKSON-235]: need to retain name of managed forward references:
-        AnnotationIntrospector.ReferenceProperty ref = ctxt.getAnnotationIntrospector().findReferenceType(field);
         if (ref != null && ref.isManagedReference()) {
             prop.setManagedReferenceName(ref.getName());
         }
@@ -1178,6 +1151,9 @@ public class BeanDeserializerFactory
             getter.fixAccess();
         }
 
+        /* 26-Jan-2012, tatu: Alas, this complication is still needed to handle
+         *   (or at least work around) local type declarations...
+         */
         JavaType type = getter.getType(beanDesc.bindingsForBeanType());
         /* First: does the Method specify the deserializer to use?
          * If so, let's use it.

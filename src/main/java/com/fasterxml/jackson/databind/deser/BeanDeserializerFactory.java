@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.SimpleBeanPropertyDefinition;
 
 /**
  * Concrete deserializer factory class that adds full Bean deserializer
@@ -511,7 +512,8 @@ public class BeanDeserializerFactory
          */
         AnnotatedMethod am = beanDesc.findMethod("initCause", INIT_CAUSE_PARAMS);
         if (am != null) { // should never be null
-            SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, "cause", am,
+            SimpleBeanPropertyDefinition propDef = new SimpleBeanPropertyDefinition(am, "cause");
+            SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, propDef,
                     am.getGenericParameterType(0));
             if (prop != null) {
                 /* 21-Aug-2011, tatus: We may actually have found 'cause' property
@@ -930,29 +932,29 @@ public class BeanDeserializerFactory
             if (ignored.contains(name)) { // explicit ignoral using @JsonIgnoreProperties needs to block entries
                 continue;
             }
-            /* [JACKSON-700] If property as passed via constructor parameter, we must
-             *   handle things in special way. Not sure what is the most optimal way...
-             *   for now, let's just call a (new) method in builder, which does nothing.
-             */
             if (property.hasConstructorParameter()) {
+                /* [JACKSON-700] If property as passed via constructor parameter, we must
+                 *   handle things in special way. Not sure what is the most optimal way...
+                 *   for now, let's just call a (new) method in builder, which does nothing.
+                 */
                 // but let's call a method just to allow custom builders to be aware...
                 builder.addCreatorProperty(property);
                 continue;
             }
-            AnnotatedMember accessor;
             Class<?> rawPropertyType;
             Type propertyType;
-            if (property.hasSetter()) {
-                AnnotatedMethod setter = property.getSetter();
+            AnnotatedMethod setter = property.getSetter();
+            if (setter != null) {
                 rawPropertyType = setter.getRawParameterType(0);
                 propertyType = setter.getGenericParameterType(0);
-                accessor = setter;
-            } else if (property.hasField()) {
-                accessor = property.getField();
-                rawPropertyType = accessor.getRawType();
-                propertyType = accessor.getGenericType();
             } else {
-                continue;
+                AnnotatedField field = property.getField();
+                if (field != null) {
+                    rawPropertyType = field.getRawType();
+                    propertyType = field.getGenericType();
+                } else {
+                    continue;
+                }
             }
             
             // [JACKSON-429] Some types are declared as ignorable as well
@@ -961,7 +963,7 @@ public class BeanDeserializerFactory
                 builder.addIgnorable(name);
             } else {
                 SettableBeanProperty prop = constructSettableProperty(ctxt,
-                        beanDesc, name, accessor, propertyType);
+                        beanDesc, property, propertyType);
                 if (prop != null) {
                     builder.addProperty(prop);
                 }
@@ -1019,8 +1021,9 @@ public class BeanDeserializerFactory
                 } else {
                     genericType = m.getRawType();
                 }
+                SimpleBeanPropertyDefinition propDef = new SimpleBeanPropertyDefinition(m);
                 builder.addBackReferenceProperty(name, constructSettableProperty(
-                        ctxt, beanDesc, m.getName(), m, genericType));
+                        ctxt, beanDesc, propDef, genericType));
             }
         }
     }
@@ -1091,20 +1094,26 @@ public class BeanDeserializerFactory
      *   there should be no property based on given definitions.
      */
     protected SettableBeanProperty constructSettableProperty(DeserializationContext ctxt,
-            BeanDescription beanDesc, String name,
-            AnnotatedMember setter, Type jdkType)
+            BeanDescription beanDesc, BeanPropertyDefinition propDef,
+            /*
+            String name,
+            AnnotatedMember setter,
+            */
+            Type jdkType)
         throws JsonMappingException
     {
         // need to ensure method is callable (for non-public)
+        AnnotatedMember mutator = propDef.getMutator();
         if (ctxt.canOverrideAccessModifiers()) {
-            setter.fixAccess();
+            mutator.fixAccess();
         }
+        final String name = propDef.getName();
 
         // note: this works since we know there's exactly one argument for methods
         JavaType t0 = beanDesc.resolveType(jdkType);
 
-        BeanProperty.Std property = new BeanProperty.Std(name, t0, beanDesc.getClassAnnotations(), setter);
-        JavaType type = resolveType(ctxt, beanDesc, t0, setter, property);
+        BeanProperty.Std property = new BeanProperty.Std(name, t0, beanDesc.getClassAnnotations(), mutator);
+        JavaType type = resolveType(ctxt, beanDesc, t0, mutator, property);
         // did type change?
         if (type != t0) {
             property = property.withType(type);
@@ -1113,22 +1122,22 @@ public class BeanDeserializerFactory
         /* First: does the Method specify the deserializer to use?
          * If so, let's use it.
          */
-        JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, setter, property);
-        type = modifyTypeByAnnotation(ctxt, setter, type, property);
+        JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, mutator, property);
+        type = modifyTypeByAnnotation(ctxt, mutator, type, property);
         TypeDeserializer typeDeser = type.getTypeHandler();
         SettableBeanProperty prop;
-        if (setter instanceof AnnotatedMethod) {
+        if (mutator instanceof AnnotatedMethod) {
             prop = new SettableBeanProperty.MethodProperty(name, type, typeDeser,
-                beanDesc.getClassAnnotations(), (AnnotatedMethod) setter);
+                beanDesc.getClassAnnotations(), (AnnotatedMethod) mutator);
         } else {
             prop = new SettableBeanProperty.FieldProperty(name, type, typeDeser,
-                    beanDesc.getClassAnnotations(), (AnnotatedField) setter);
+                    beanDesc.getClassAnnotations(), (AnnotatedField) mutator);
         }
         if (propDeser != null) {
             prop = prop.withValueDeserializer(propDeser);
         }
         // [JACKSON-235]: need to retain name of managed forward references:
-        AnnotationIntrospector.ReferenceProperty ref = ctxt.getAnnotationIntrospector().findReferenceType(setter);
+        AnnotationIntrospector.ReferenceProperty ref = ctxt.getAnnotationIntrospector().findReferenceType(mutator);
         if (ref != null && ref.isManagedReference()) {
             prop.setManagedReferenceName(ref.getName());
         }

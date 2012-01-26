@@ -451,7 +451,8 @@ public class BeanSerializerFactory
      * definitions. Default implementation constructs filter that checks
      * active view type to views property is to be included in.
      */
-    protected BeanPropertyWriter constructFilteredBeanWriter(BeanPropertyWriter writer, Class<?>[] inViews)
+    protected BeanPropertyWriter constructFilteredBeanWriter(BeanPropertyWriter writer,
+            Class<?>[] inViews)
     {
         return FilteredBeanPropertyWriter.constructViewBased(writer, inViews);
     }

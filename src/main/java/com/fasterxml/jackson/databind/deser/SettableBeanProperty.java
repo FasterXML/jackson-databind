@@ -69,6 +69,13 @@ public abstract class SettableBeanProperty
     protected String _managedReferenceName;
 
     /**
+     * If property has associated view information (list of
+     * Views in which property is to be included), this contains
+     * those views; if not, will be null.
+     */
+    protected Class<?>[] _views;
+    
+    /**
      * Index of property (within all property of a bean); assigned
      * when all properties have been collected. Order of entries
      * is arbitrary, but once indexes are assigned they are not
@@ -161,6 +168,10 @@ public abstract class SettableBeanProperty
         _managedReferenceName = n;
     }
     
+    public void setViews(Class<?>[] views) {
+        _views = views;
+    }
+    
     /**
      * Method used to assign index for property.
      */
@@ -213,6 +224,10 @@ public abstract class SettableBeanProperty
     public JsonDeserializer<Object> getValueDeserializer() { return _valueDeserializer; }
 
     public TypeDeserializer getValueTypeDeserializer() { return _valueTypeDeserializer; }
+
+    public Class<?>[] getViews() { return _views; }
+
+    public boolean hasViews() { return _views != null; }
     
     /**
      * Method for accessing unique index of this property; indexes are

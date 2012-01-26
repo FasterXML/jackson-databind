@@ -11,7 +11,11 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 
 
 /**
- * Serializer class that can serialize arbitrary bean objects
+ * Serializer class that can serialize Java objects that map
+ * to JSON Object output. Internally handling is mostly dealt with
+ * by a sequence of {@link BeanPropertyWriter}s that will handle
+ * access value to serialize and call appropriate serializers to
+ * write out JSON.
  *<p>
  * Implementation note: we will post-process resulting serializer,
  * to figure out actual serializers for final types. This must be

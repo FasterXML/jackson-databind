@@ -12,9 +12,6 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 /**
  * Deserializer that builds on basic {@link BeanDeserializer} but
  * override some aspects like instance construction.
- *<p>
- * Note that this deserializer was significantly changed in Jackson 1.7
- * (due to massive changes in {@link BeanDeserializer}).
  */
 public class ThrowableDeserializer
     extends BeanDeserializer

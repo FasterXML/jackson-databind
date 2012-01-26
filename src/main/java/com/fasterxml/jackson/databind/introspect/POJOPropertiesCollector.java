@@ -233,7 +233,7 @@ public class POJOPropertiesCollector
 
     /*
     /**********************************************************
-    /* Overridable internal methods, sorting
+    /* Overridable internal methods, sorting, other stuff
     /**********************************************************
      */
     
@@ -243,16 +243,16 @@ public class POJOPropertiesCollector
     protected void _sortProperties()
     {
         // Then how about explicit ordering?
-        AnnotationIntrospector intr = _config.getAnnotationIntrospector();
+        AnnotationIntrospector intr = _annotationIntrospector;
         boolean sort;
-        Boolean alpha = intr.findSerializationSortAlphabetically(_classDef);
+        Boolean alpha = (intr == null) ? null : intr.findSerializationSortAlphabetically(_classDef);
         
         if (alpha == null) {
             sort = _config.shouldSortPropertiesAlphabetically();
         } else {
             sort = alpha.booleanValue();
         }
-        String[] propertyOrder = intr.findSerializationPropertyOrder(_classDef);
+        String[] propertyOrder = (intr == null) ? null : intr.findSerializationPropertyOrder(_classDef);
         
         // no sorting? no need to shuffle, then
         if (!sort && (_creatorProperties == null) && (propertyOrder == null)) {
@@ -302,7 +302,7 @@ public class POJOPropertiesCollector
         _properties.clear();
         _properties.putAll(ordered);
     }        
-
+    
     /*
     /**********************************************************
     /* Overridable internal methods, adding members
@@ -673,7 +673,8 @@ public class POJOPropertiesCollector
     {
         POJOPropertyBuilder prop = _properties.get(implName);
         if (prop == null) {
-            prop = new POJOPropertyBuilder(implName);
+            prop = new POJOPropertyBuilder(implName, _annotationIntrospector,
+                    _forSerialization);
             _properties.put(implName, prop);
         }
         return prop;

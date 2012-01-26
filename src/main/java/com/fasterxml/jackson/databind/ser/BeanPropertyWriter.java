@@ -134,7 +134,7 @@ public class BeanPropertyWriter
      * Alternate set of property writers used when view-based filtering
      * is available for the Bean.
      */
-    protected Class<?>[] _includeInViews;
+    protected final Class<?>[] _includeInViews;
 
     /**
      * If property being serialized needs type information to be
@@ -159,25 +159,17 @@ public class BeanPropertyWriter
     /* Construction, configuration
     /**********************************************************
      */
-
-    public BeanPropertyWriter(AnnotatedMember member, Annotations contextAnnotations,
-            String name, JavaType declaredType,
-            JsonSerializer<Object> ser, TypeSerializer typeSer, JavaType serType,
-            Method m, Field f, boolean suppressNulls, Object suppressableValue)
-    {
-        this(member, contextAnnotations, new SerializedString(name), declaredType,
-                ser, typeSer, serType,
-                m, f, suppressNulls, suppressableValue);
-    }
     
-    public BeanPropertyWriter(AnnotatedMember member, Annotations contextAnnotations,
-            SerializedString name, JavaType declaredType,
+    public BeanPropertyWriter(BeanPropertyDefinition propDef,
+            AnnotatedMember member, Annotations contextAnnotations,
+            JavaType declaredType,
             JsonSerializer<Object> ser, TypeSerializer typeSer, JavaType serType,
             Method m, Field f, boolean suppressNulls, Object suppressableValue)
     {
+        
         _member = member;
         _contextAnnotations = contextAnnotations;
-        _name = name;
+        _name = new SerializedString(propDef.getName());
         _declaredType = declaredType;
         _serializer = ser;
         _dynamicSerializers = (ser == null) ? PropertySerializerMap.emptyMap() : null;
@@ -187,6 +179,7 @@ public class BeanPropertyWriter
         _field = f;
         _suppressNulls = suppressNulls;
         _suppressableValue = suppressableValue;
+        _includeInViews = propDef.getViews();
 
         // this will be resolved later on, unless nulls are to be suppressed
         _nullSerializer = null;
@@ -266,16 +259,6 @@ public class BeanPropertyWriter
     public BeanPropertyWriter unwrappingWriter(NameTransformer unwrapper) {
         return new UnwrappingBeanPropertyWriter(this, unwrapper);
     }
-    
-    /**
-     * Method for defining which views to included value of this
-     * property in. If left undefined, will always be included;
-     * otherwise active view definition will be checked against
-     * definition list and value is only included if active
-     * view is one of defined views, or its sub-view (as defined
-     * by class/sub-class relationship).
-     */
-    public void setViews(Class<?>[] views) { _includeInViews = views; }
 
     /**
      * Method called to define type to consider as "non-trivial" basetype,

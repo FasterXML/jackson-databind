@@ -55,7 +55,8 @@ public class PropertyBuilder
      *    to use for contained values (only used for properties that are
      *    of container type)
      */
-    protected BeanPropertyWriter buildWriter(String name, JavaType declaredType,
+    protected BeanPropertyWriter buildWriter(BeanPropertyDefinition propDef,
+            JavaType declaredType,
             JsonSerializer<Object> ser,
             TypeSerializer typeSer, TypeSerializer contentTypeSer,
             AnnotatedMember am, boolean defaultUseStaticTyping)
@@ -90,7 +91,7 @@ public class PropertyBuilder
              */
             if (ct == null) {
                 throw new IllegalStateException("Problem trying to create BeanPropertyWriter for property '"
-                        +name+"' (of type "+_beanDesc.getType()+"); serialization type "+serializationType+" has no content");
+                        +propDef.getName()+"' (of type "+_beanDesc.getType()+"); serialization type "+serializationType+" has no content");
             }
             serializationType = serializationType.withContentTypeHandler(contentTypeSer);
             ct = serializationType.getContentType();
@@ -104,7 +105,7 @@ public class PropertyBuilder
         if (methodProps != null) {
             switch (methodProps) {
             case NON_DEFAULT:
-                valueToSuppress = getDefaultValue(name, m, f);
+                valueToSuppress = getDefaultValue(propDef.getName(), m, f);
                 if (valueToSuppress == null) {
                     suppressNulls = true;
                 } else {
@@ -133,7 +134,8 @@ public class PropertyBuilder
             }
         }
 
-        BeanPropertyWriter bpw = new BeanPropertyWriter(am, _beanDesc.getClassAnnotations(), name, declaredType,
+        BeanPropertyWriter bpw = new BeanPropertyWriter(propDef,
+                am, _beanDesc.getClassAnnotations(), declaredType,
                 ser, typeSer, serializationType, m, f, suppressNulls, valueToSuppress);
         
         // [JACKSON-132]: Unwrapping

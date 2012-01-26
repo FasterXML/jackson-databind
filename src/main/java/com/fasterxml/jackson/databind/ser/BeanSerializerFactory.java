@@ -519,7 +519,6 @@ public class BeanSerializerFactory
         if (properties.isEmpty()) {
             return null;
         }
-        
         // null is for value type serializer, which we don't have access to from here (ditto for bean prop)
         boolean staticTyping = usesStaticTyping(config, beanDesc, null, null);
         PropertyBuilder pb = constructPropertyBuilder(config, beanDesc);
@@ -534,11 +533,10 @@ public class BeanSerializerFactory
             if (prop != null && prop.isBackReference()) {
                 continue;
             }
-            String name = property.getName();
             if (accessor instanceof AnnotatedMethod) {
-                result.add(_constructWriter(prov, typeBind, pb, staticTyping, name, (AnnotatedMethod) accessor));
+                result.add(_constructWriter(property, prov, typeBind, pb, staticTyping, (AnnotatedMethod) accessor));
             } else {
-                result.add(_constructWriter(prov, typeBind, pb, staticTyping, name, (AnnotatedField) accessor));
+                result.add(_constructWriter(property, prov, typeBind, pb, staticTyping, (AnnotatedField) accessor));
             }
         }
         return result;
@@ -671,11 +669,12 @@ public class BeanSerializerFactory
      * Secondary helper method for constructing {@link BeanPropertyWriter} for
      * given member (field or method).
      */
-    protected BeanPropertyWriter _constructWriter(SerializerProvider prov,
-            TypeBindings typeContext,
-            PropertyBuilder pb, boolean staticTyping, String name, AnnotatedMember accessor)
+    protected BeanPropertyWriter _constructWriter(BeanPropertyDefinition propDef,
+            SerializerProvider prov, TypeBindings typeContext,
+            PropertyBuilder pb, boolean staticTyping, AnnotatedMember accessor)
         throws JsonMappingException
     {
+        final String name = propDef.getName();
         if (prov.canOverrideAccessModifiers()) {
             accessor.fixAccess();
         }
@@ -692,11 +691,8 @@ public class BeanSerializerFactory
 
         // and if not JAXB collection/array with annotations, maybe regular type info?
         TypeSerializer typeSer = findPropertyTypeSerializer(type, prov.getConfig(), accessor, property);
-        BeanPropertyWriter pbw = pb.buildWriter(name, type, annotatedSerializer,
+        BeanPropertyWriter pbw = pb.buildWriter(propDef, type, annotatedSerializer,
                         typeSer, contentTypeSer, accessor, staticTyping);
-        // how about views? (1.4+)
-        AnnotationIntrospector intr = prov.getAnnotationIntrospector();
-        pbw.setViews(intr.findViews(accessor));
         return pbw;
     }
 }

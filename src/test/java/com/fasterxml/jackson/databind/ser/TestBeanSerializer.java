@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.POJOPropertyBuilder;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
@@ -156,14 +157,15 @@ public class TestBeanSerializer extends BaseMapTest
                 BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties)
         {
             JavaType strType = config.constructType(String.class);
+            // we need a valid BeanPropertyDefinition; this will do (just need name to match)
+            POJOPropertyBuilder prop = new POJOPropertyBuilder("bogus", null, true);
             try {
-                beanProperties.add(new BeanPropertyWriter(
+                beanProperties.add(new BeanPropertyWriter(prop,
                         null, null,
-                        "bogus", strType,
+                        strType,
                         null, null, strType,
                         null, EmptyBean.class.getDeclaredField("name"),
-                        false, null
-                        ));
+                        false, null));
             } catch (NoSuchFieldException e) {
                 throw new IllegalStateException(e.getMessage());
             }

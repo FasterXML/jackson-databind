@@ -42,7 +42,7 @@ public abstract class BeanPropertyDefinition
     public boolean couldSerialize() {
         return getAccessor() != null;
     }
-
+    
     public abstract AnnotatedMethod getGetter();
     public abstract AnnotatedMethod getSetter();
     public abstract AnnotatedField getField();
@@ -61,4 +61,9 @@ public abstract class BeanPropertyDefinition
      * Null if no such member exists.
      */
     public abstract AnnotatedMember getMutator();
+
+    /**
+     * Method used to find View-inclusion definitions for the property.
+     */
+    public abstract Class<?>[] getViews();
 }

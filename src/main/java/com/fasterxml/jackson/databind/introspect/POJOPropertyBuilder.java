@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanPropertyDefinition;
 
 /**
@@ -10,6 +11,14 @@ public class POJOPropertyBuilder
     extends BeanPropertyDefinition
     implements Comparable<POJOPropertyBuilder>
 {
+    /**
+     * Whether property is being composed for serialization
+     * (true) or deserialization (false)
+     */
+    protected final boolean _forSerialization;
+
+    protected final AnnotationIntrospector _annotationIntrospector;
+    
     /**
      * External name of logical property; may change with
      * renaming (by new instance being constructed using
@@ -30,21 +39,26 @@ public class POJOPropertyBuilder
     protected Node<AnnotatedMethod> _getters;
 
     protected Node<AnnotatedMethod> _setters;
-
-    public POJOPropertyBuilder(String internalName)
+    
+    public POJOPropertyBuilder(String internalName, AnnotationIntrospector annotationIntrospector,
+            boolean forSerialization)
     {
         _internalName = internalName;
         _name = internalName;
+        _annotationIntrospector = annotationIntrospector;
+        _forSerialization = forSerialization;
     }
 
     public POJOPropertyBuilder(POJOPropertyBuilder src, String newName)
     {
         _internalName = src._internalName;
         _name = newName;
+        _annotationIntrospector = src._annotationIntrospector;
         _fields = src._fields;
         _ctorParameters = src._ctorParameters;
         _getters = src._getters;
         _setters = src._setters;
+        _forSerialization = src._forSerialization;
     }
 
     /**
@@ -102,29 +116,6 @@ public class POJOPropertyBuilder
 
     @Override
     public boolean hasConstructorParameter() { return _ctorParameters != null; }
-
-    @Override
-    public AnnotatedMember getAccessor()
-    {
-        AnnotatedMember m = getGetter();
-        if (m == null) {
-            m = getField();
-        }
-        return m;
-    }
-
-    @Override
-    public AnnotatedMember getMutator()
-    {
-        AnnotatedMember m = getConstructorParameter();
-        if (m == null) {
-            m = getSetter();
-            if (m == null) {
-                m = getField();
-            }
-        }
-        return m;
-    }
 
     @Override
     public boolean couldSerialize() {
@@ -245,6 +236,42 @@ public class POJOPropertyBuilder
             curr = curr.next;
         } while (curr != null);
         return _ctorParameters.value;
+    }
+    
+    @Override
+    public AnnotatedMember getAccessor()
+    {
+        AnnotatedMember m = getGetter();
+        if (m == null) {
+            m = getField();
+        }
+        return m;
+    }
+
+    @Override
+    public AnnotatedMember getMutator()
+    {
+        AnnotatedMember m = getConstructorParameter();
+        if (m == null) {
+            m = getSetter();
+            if (m == null) {
+                m = getField();
+            }
+        }
+        return m;
+    }
+
+    /**
+     * Method that will try to find JSON View inclusion information
+     * for this property.
+     */
+    public Class<?>[] getViews()
+    {
+        if (_annotationIntrospector != null) {
+            AnnotatedMember m = _forSerialization ? getAccessor() : getMutator();
+            return _annotationIntrospector.findViews(m);
+        }
+        return null;
     }
     
     /*

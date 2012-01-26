@@ -194,7 +194,7 @@ public class BasicBeanDescription extends BeanDescription
              *  requested; easy enough for devs to add support within
              *  method.
              */
-            Class<?> type = _anySetterMethod.getParameterClass(0);
+            Class<?> type = _anySetterMethod.getRawParameterType(0);
             if (type != String.class && type != Object.class) {
                 throw new IllegalArgumentException("Invalid 'any-setter' annotation on method "+_anySetterMethod.getName()+"(): first argument not of type String or Object, but "+type.getName());
             }
@@ -278,7 +278,7 @@ public class BasicBeanDescription extends BeanDescription
              * that may change; thus leaving here for now)
              */
             if (ac.getParameterCount() == 1) {
-                Class<?> actArg = ac.getParameterClass(0);
+                Class<?> actArg = ac.getRawParameterType(0);
                 for (Class<?> expArg : argTypes) {
                     if (expArg == actArg) {
                         return ac.getAnnotated();
@@ -296,7 +296,7 @@ public class BasicBeanDescription extends BeanDescription
         for (AnnotatedMethod am : _classInfo.getStaticMethods()) {
             if (isFactoryMethod(am)) {
                 // And must take one of expected arg types (or supertype)
-                Class<?> actualArgType = am.getParameterClass(0);
+                Class<?> actualArgType = am.getRawParameterType(0);
                 for (Class<?> expArgType : expArgTypes) {
                     // And one that matches what we would pass in
                     if (actualArgType.isAssignableFrom(expArgType)) {

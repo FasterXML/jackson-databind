@@ -38,7 +38,7 @@ public class EnumDeserializer
             Class<?> enumClass, AnnotatedMethod factory)
     {
         // note: caller has verified there's just one arg; but we must verify its type
-        if (factory.getParameterType(0) != String.class) {
+        if (factory.getGenericParameterType(0) != String.class) {
             throw new IllegalArgumentException("Parameter #0 type for factory method ("+factory+") not suitable, must be java.lang.String");
         }
         if (config.canOverrideAccessModifiers()) {

@@ -710,7 +710,7 @@ public abstract class BasicDeserializerFactory
                     // usually should be class, but may be just plain Enum<?> (for Enum.valueOf()?)
                     if (returnType.isAssignableFrom(enumClass)) {
                         // note: mostly copied from 'EnumDeserializer.deserializerForCreator(...)'
-                        if (factory.getParameterType(0) != String.class) {
+                        if (factory.getGenericParameterType(0) != String.class) {
                             throw new IllegalArgumentException("Parameter #0 type for factory method ("+factory+") not suitable, must be java.lang.String");
                         }
                         if (config.canOverrideAccessModifiers()) {

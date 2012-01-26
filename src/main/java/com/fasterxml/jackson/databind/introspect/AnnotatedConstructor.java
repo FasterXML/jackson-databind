@@ -82,14 +82,14 @@ public final class AnnotatedConstructor
     }
 
     @Override
-    public Class<?> getParameterClass(int index)
+    public Class<?> getRawParameterType(int index)
     {
         Class<?>[] types = _constructor.getParameterTypes();
         return (index >= types.length) ? null : types[index];
     }
 
     @Override
-    public Type getParameterType(int index)
+    public Type getGenericParameterType(int index)
     {
         Type[] types = _constructor.getGenericParameterTypes();
         return (index >= types.length) ? null : types[index];

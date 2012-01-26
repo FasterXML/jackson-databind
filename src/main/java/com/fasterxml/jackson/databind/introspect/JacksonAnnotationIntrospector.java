@@ -184,7 +184,7 @@ public class JacksonAnnotationIntrospector
             if (am.getParameterCount() == 0) {
                 return m.getRawType().getName();
             }
-            return am.getParameterClass(0).getName();
+            return am.getRawParameterType(0).getName();
         }
         return id;
     }

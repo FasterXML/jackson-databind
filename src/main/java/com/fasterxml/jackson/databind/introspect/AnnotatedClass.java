@@ -443,7 +443,7 @@ public final class AnnotatedClass
                 while (it.hasNext()) {
                     AnnotatedMethod mixIn = it.next();
                     try {
-                        Method m = Object.class.getDeclaredMethod(mixIn.getName(), mixIn.getParameterClasses());
+                        Method m = Object.class.getDeclaredMethod(mixIn.getName(), mixIn.getRawParameterTypes());
                         if (m != null) {
                             AnnotatedMethod am = _constructMethod(m);
                             _addMixOvers(mixIn.getAnnotated(), am, false);

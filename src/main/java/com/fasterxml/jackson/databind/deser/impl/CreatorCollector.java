@@ -69,7 +69,7 @@ public class CreatorCollector
                 }
             }
             TypeBindings bindings = _beanDesc.bindingsForBeanType();
-            delegateType = bindings.resolveType(_delegateCreator.getParameterType(ix));
+            delegateType = bindings.resolveType(_delegateCreator.getGenericParameterType(ix));
         }
         
         inst.configureFromObjectSettings(_defaultConstructor,

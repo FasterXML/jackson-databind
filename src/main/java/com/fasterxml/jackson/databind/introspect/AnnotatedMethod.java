@@ -149,50 +149,46 @@ public final class AnnotatedMethod
 
     @Override
     public int getParameterCount() {
-        return getParameterClasses().length;
+        return getRawParameterTypes().length;
     }
 
-    public Type[] getParameterTypes() {
-        return _method.getGenericParameterTypes();
-    }
-
-    @Override
-    public Class<?> getParameterClass(int index)
-    {
-        Class<?>[] types = getParameterClasses();
-        return (index >= types.length) ? null : types[index];
-    }
-
-    @Override
-    public Type getParameterType(int index)
-    {
-        Type[] types = _method.getGenericParameterTypes();
-        return (index >= types.length) ? null : types[index];
-    }
-
-    public Type getGenericReturnType() {
-        return _method.getGenericReturnType();
+    public String getFullName() {
+        return getDeclaringClass().getName() + "#" + getName() + "("
+            +getParameterCount()+" params)";
     }
     
-    public Class<?> getRawReturnType() {
-        return _method.getReturnType();
-    }
-    
-    public Class<?>[] getParameterClasses()
+    public Class<?>[] getRawParameterTypes()
     {
         if (_paramClasses == null) {
             _paramClasses = _method.getParameterTypes();
         }
         return _paramClasses;
     }
+    
+    public Type[] getGenericParameterTypes() {
+        return _method.getGenericParameterTypes();
+    }
 
-    //public Type getGenericReturnType() { return _method.getGenericReturnType(); }
+    @Override
+    public Class<?> getRawParameterType(int index)
+    {
+        Class<?>[] types = getRawParameterTypes();
+        return (index >= types.length) ? null : types[index];
+    }
 
-    //public Class<?> getReturnType() { return _method.getReturnType(); }
+    @Override
+    public Type getGenericParameterType(int index)
+    {
+        Type[] types = _method.getGenericParameterTypes();
+        return (index >= types.length) ? null : types[index];
+    }
 
-    public String getFullName() {
-        return getDeclaringClass().getName() + "#" + getName() + "("
-            +getParameterCount()+" params)";
+    public Class<?> getRawReturnType() {
+        return _method.getReturnType();
+    }
+    
+    public Type getGenericReturnType() {
+        return _method.getGenericReturnType();
     }
 
     /*

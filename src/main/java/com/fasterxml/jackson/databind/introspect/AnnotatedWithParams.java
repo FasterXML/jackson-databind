@@ -114,22 +114,22 @@ public abstract class AnnotatedWithParams
     }
 
     public final AnnotatedParameter getParameter(int index) {
-        return new AnnotatedParameter(this, getParameterType(index),
+        return new AnnotatedParameter(this, getGenericParameterType(index),
                 getParameterAnnotations(index), index);
     }
 
     public abstract int getParameterCount();
 
-    public abstract Class<?> getParameterClass(int index);
+    public abstract Class<?> getRawParameterType(int index);
 
-    public abstract Type getParameterType(int index);
+    public abstract Type getGenericParameterType(int index);
 
     /**
      * Method called to fully resolve type of one of parameters, given
      * specified type variable bindings.
      */
     public final JavaType resolveParameterType(int index, TypeBindings bindings) {
-        return bindings.resolveType(getParameterType(index));
+        return bindings.resolveType(getGenericParameterType(index));
     }
     
     public final int getAnnotationCount() { return _annotations.size(); }

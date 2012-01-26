@@ -132,7 +132,7 @@ public class BeanUtil
      */
     protected static boolean isGroovyMetaClassSetter(AnnotatedMethod am)
     {
-        Class<?> argType = am.getParameterClass(0);
+        Class<?> argType = am.getRawParameterType(0);
         Package pkg = argType.getPackage();
         if (pkg != null && pkg.getName().startsWith("groovy.lang")) {
             return true;

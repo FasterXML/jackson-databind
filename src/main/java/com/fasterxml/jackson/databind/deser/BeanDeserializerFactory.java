@@ -512,7 +512,7 @@ public class BeanDeserializerFactory
         AnnotatedMethod am = beanDesc.findMethod("initCause", INIT_CAUSE_PARAMS);
         if (am != null) { // should never be null
             SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, "cause", am,
-                    am.getParameterType(0));
+                    am.getGenericParameterType(0));
             if (prop != null) {
                 /* 21-Aug-2011, tatus: We may actually have found 'cause' property
                  *   to set (with new 1.9 code)... but let's replace it just in case,
@@ -695,7 +695,7 @@ public class BeanDeserializerFactory
         }
     
         // otherwise either 'simple' number, String, or general delegate:
-        Class<?> type = ctor.getParameterClass(0);
+        Class<?> type = ctor.getRawParameterType(0);
         if (type == String.class) {
             if (isCreator || isVisible) {
                 creators.addStringCreator(ctor);
@@ -802,7 +802,7 @@ public class BeanDeserializerFactory
             AnnotatedMethod factory, boolean isCreator)
         throws JsonMappingException
     {
-        Class<?> type = factory.getParameterClass(0);
+        Class<?> type = factory.getRawParameterType(0);
         
         if (type == String.class) {
             if (isCreator || vchecker.isCreatorVisible(factory)) {
@@ -944,8 +944,8 @@ public class BeanDeserializerFactory
             Type propertyType;
             if (property.hasSetter()) {
                 AnnotatedMethod setter = property.getSetter();
-                rawPropertyType = setter.getParameterClass(0);
-                propertyType = setter.getParameterType(0);
+                rawPropertyType = setter.getRawParameterType(0);
+                propertyType = setter.getGenericParameterType(0);
                 accessor = setter;
             } else if (property.hasField()) {
                 accessor = property.getField();
@@ -1015,7 +1015,7 @@ public class BeanDeserializerFactory
                 AnnotatedMember m = en.getValue();
                 Type genericType;
                 if (m instanceof AnnotatedMethod) {
-                    genericType = ((AnnotatedMethod) m).getParameterType(0);
+                    genericType = ((AnnotatedMethod) m).getGenericParameterType(0);
                 } else {
                     genericType = m.getRawType();
                 }
@@ -1060,7 +1060,7 @@ public class BeanDeserializerFactory
             setter.fixAccess(); // to ensure we can call it
         }
         // we know it's a 2-arg method, second arg is the value
-        JavaType type = beanDesc.bindingsForBeanType().resolveType(setter.getParameterType(1));
+        JavaType type = beanDesc.bindingsForBeanType().resolveType(setter.getGenericParameterType(1));
         BeanProperty.Std property = new BeanProperty.Std(setter.getName(), type, beanDesc.getClassAnnotations(), setter);
         type = resolveType(ctxt, beanDesc, type, setter, property);
 

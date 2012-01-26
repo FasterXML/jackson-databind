@@ -43,145 +43,40 @@ public abstract class DeserializerFactory
     protected final static Deserializers[] NO_DESERIALIZERS = new Deserializers[0];
 
     /*
-    /**********************************************************
-    /* Helper class to contain configuration settings
-    /**********************************************************
-     */
-
-    /**
-     * Configuration settings container class for bean deserializer factory
-     */
-    public abstract static class Config
-    {
-        /**
-         * Fluent/factory method used to construct a configuration object that
-         * has same deserializer providers as this instance, plus one specified
-         * as argument. Additional provider will be added before existing ones,
-         * meaning it has priority over existing definitions.
-         */
-        public abstract Config withAdditionalDeserializers(Deserializers additional);
-
-        /**
-         * Fluent/factory method used to construct a configuration object that
-         * has same key deserializer providers as this instance, plus one specified
-         * as argument. Additional provider will be added before existing ones,
-         * meaning it has priority over existing definitions.
-         */
-        public abstract Config withAdditionalKeyDeserializers(KeyDeserializers additional);
-        
-        /**
-         * Fluent/factory method used to construct a configuration object that
-         * has same configuration as this instance plus one additional
-         * deserialiazer modifier. Added modifier has the highest priority (that is, it
-         * gets called before any already registered modifier).
-         */
-        public abstract Config withDeserializerModifier(BeanDeserializerModifier modifier);
-
-        /**
-         * Fluent/factory method used to construct a configuration object that
-         * has same configuration as this instance plus one additional
-         * abstract type resolver.
-         * Added resolver has the highest priority (that is, it
-         * gets called before any already registered resolver).
-         */
-        public abstract Config withAbstractTypeResolver(AbstractTypeResolver resolver);
-
-        /**
-         * Fluent/factory method used to construct a configuration object that
-         * has same configuration as this instance plus specified additional
-         * value instantiator provider object.
-         * Added instantiator provider has the highest priority (that is, it
-         * gets called before any already registered resolver).
-         * 
-         * @param instantiators Object that can provide {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s for
-         *    constructing POJO values during deserialization
-         */
-        public abstract Config withValueInstantiators(ValueInstantiators instantiators);
-        
-        public abstract Iterable<Deserializers> deserializers();
-
-        public abstract Iterable<KeyDeserializers> keyDeserializers();
-        
-        public abstract Iterable<BeanDeserializerModifier> deserializerModifiers();
-
-        public abstract Iterable<AbstractTypeResolver> abstractTypeResolvers();
-
-        public abstract Iterable<ValueInstantiators> valueInstantiators();
-        
-        public abstract boolean hasDeserializers();
-
-        public abstract boolean hasKeyDeserializers();
-        
-        public abstract boolean hasDeserializerModifiers();
-
-        public abstract boolean hasAbstractTypeResolvers();
-
-        public abstract boolean hasValueInstantiators();
-    }
-
-    /*
     /********************************************************
     /* Configuration handling
     /********************************************************
      */
 
     /**
-     * Method for accessing factory configuration (NOT the general
-     * {@link DeserializationConfig}!)
-     */
-    public abstract Config getConfig();
-    
-    /**
-     * Method used for creating a new instance of this factory, but with different
-     * configuration. Reason for specifying factory method (instead of plain constructor)
-     * is to allow proper sub-classing of factories.
-     *<p>
-     * Note that custom sub-classes <b>must override</b> implementation
-     * of this method, as it usually requires instantiating a new instance of
-     * factory type. Check out javadocs for
-     * {@link com.fasterxml.jackson.databind.deser.BeanDeserializerFactory} for more details.
-     */
-    public abstract DeserializerFactory withConfig(Config config);
-
-    /**
      * Convenience method for creating a new factory instance with additional deserializer
      * provider.
      */
-    public final DeserializerFactory withAdditionalDeserializers(Deserializers additional) {
-        return withConfig(getConfig().withAdditionalDeserializers(additional));
-    }
+    public abstract DeserializerFactory withAdditionalDeserializers(Deserializers additional);
 
     /**
      * Convenience method for creating a new factory instance with additional
      * {@link KeyDeserializers}.
      */
-    public final DeserializerFactory withAdditionalKeyDeserializers(KeyDeserializers additional) {
-        return withConfig(getConfig().withAdditionalKeyDeserializers(additional));
-    }
+    public abstract DeserializerFactory withAdditionalKeyDeserializers(KeyDeserializers additional);
     
     /**
      * Convenience method for creating a new factory instance with additional
      * {@link BeanDeserializerModifier}.
      */
-    public final DeserializerFactory withDeserializerModifier(BeanDeserializerModifier modifier) {
-        return withConfig(getConfig().withDeserializerModifier(modifier));
-    }
+    public abstract DeserializerFactory withDeserializerModifier(BeanDeserializerModifier modifier);
 
     /**
      * Convenience method for creating a new factory instance with additional
      * {@link AbstractTypeResolver}.
      */
-    public final DeserializerFactory withAbstractTypeResolver(AbstractTypeResolver resolver) {
-        return withConfig(getConfig().withAbstractTypeResolver(resolver));
-    }
+    public abstract DeserializerFactory withAbstractTypeResolver(AbstractTypeResolver resolver);
 
     /**
      * Convenience method for creating a new factory instance with additional
      * {@link ValueInstantiators}.
      */
-    public final DeserializerFactory withValueInstantiators(ValueInstantiators instantiators) {
-        return withConfig(getConfig().withValueInstantiators(instantiators));
-    }
+    public abstract DeserializerFactory withValueInstantiators(ValueInstantiators instantiators);
     
     /*
     /**********************************************************

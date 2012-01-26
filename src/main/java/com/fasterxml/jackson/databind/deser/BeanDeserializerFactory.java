@@ -2,12 +2,17 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.deser.impl.DeserializerFactoryConfig;
+import com.fasterxml.jackson.databind.deser.std.JdkDeserializers;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.type.ClassKey;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.SimpleBeanPropertyDefinition;
@@ -30,180 +35,7 @@ public class BeanDeserializerFactory
      * Signature of <b>Throwable.initCause</b> method.
      */
     private final static Class<?>[] INIT_CAUSE_PARAMS = new Class<?>[] { Throwable.class };
-    
-    /*
-    /**********************************************************
-    /* Config class implementation
-    /**********************************************************
-     */
-    
-    /**
-     * Standard configuration settings container class implementation.
-     */
-    public static class ConfigImpl extends Config
-    {
-        protected final static KeyDeserializers[] NO_KEY_DESERIALIZERS = new KeyDeserializers[0];
-        protected final static BeanDeserializerModifier[] NO_MODIFIERS = new BeanDeserializerModifier[0];
-        protected final static AbstractTypeResolver[] NO_ABSTRACT_TYPE_RESOLVERS = new AbstractTypeResolver[0];
-        protected final static ValueInstantiators[] NO_VALUE_INSTANTIATORS = new ValueInstantiators[0];
-        
-        /**
-         * List of providers for additional deserializers, checked before considering default
-         * basic or bean deserializers.
-         */
-        protected final Deserializers[] _additionalDeserializers;
 
-        /**
-         * List of providers for additional key deserializers, checked before considering
-         * standard key deserializers.
-         */
-        protected final KeyDeserializers[] _additionalKeyDeserializers;
-        
-        /**
-         * List of modifiers that can change the way {@link BeanDeserializer} instances
-         * are configured and constructed.
-         */
-        protected final BeanDeserializerModifier[] _modifiers;
-
-        /**
-         * List of objects that may be able to resolve abstract types to
-         * concrete types. Used by functionality like "mr Bean" to materialize
-         * types as needed.
-         */
-        protected final AbstractTypeResolver[] _abstractTypeResolvers;
-
-        /**
-         * List of objects that know how to create instances of POJO types;
-         * possibly using custom construction (non-annoted constructors; factory
-         * methods external to value type etc).
-         * Used to support objects that are created using non-standard methods;
-         * or to support post-constructor functionality.
-         */
-        protected final ValueInstantiators[] _valueInstantiators;
-        
-        /**
-         * Constructor for creating basic configuration with no additional
-         * handlers.
-         */
-        public ConfigImpl() {
-            this(null, null, null, null, null);
-        }
-
-        /**
-         * Copy-constructor that will create an instance that contains defined
-         * set of additional deserializer providers.
-         */
-        protected ConfigImpl(Deserializers[] allAdditionalDeserializers,
-                KeyDeserializers[] allAdditionalKeyDeserializers,
-                BeanDeserializerModifier[] modifiers,
-                AbstractTypeResolver[] atr,
-                ValueInstantiators[] vi)
-        {
-            _additionalDeserializers = (allAdditionalDeserializers == null) ?
-                    NO_DESERIALIZERS : allAdditionalDeserializers;
-            _additionalKeyDeserializers = (allAdditionalKeyDeserializers == null) ?
-                    NO_KEY_DESERIALIZERS : allAdditionalKeyDeserializers;
-            _modifiers = (modifiers == null) ? NO_MODIFIERS : modifiers;
-            _abstractTypeResolvers = (atr == null) ? NO_ABSTRACT_TYPE_RESOLVERS : atr;
-            _valueInstantiators = (vi == null) ? NO_VALUE_INSTANTIATORS : vi;
-        }
-
-        @Override
-        public Config withAdditionalDeserializers(Deserializers additional)
-        {
-            if (additional == null) {
-                throw new IllegalArgumentException("Can not pass null Deserializers");
-            }
-            Deserializers[] all = ArrayBuilders.insertInListNoDup(_additionalDeserializers, additional);
-            return new ConfigImpl(all, _additionalKeyDeserializers, _modifiers,
-                    _abstractTypeResolvers, _valueInstantiators);
-        }
-
-        @Override
-        public Config withAdditionalKeyDeserializers(KeyDeserializers additional)
-        {
-            if (additional == null) {
-                throw new IllegalArgumentException("Can not pass null KeyDeserializers");
-            }
-            KeyDeserializers[] all = ArrayBuilders.insertInListNoDup(_additionalKeyDeserializers, additional);
-            return new ConfigImpl(_additionalDeserializers, all, _modifiers,
-                    _abstractTypeResolvers, _valueInstantiators);
-        }
-        
-        @Override
-        public Config withDeserializerModifier(BeanDeserializerModifier modifier)
-        {
-            if (modifier == null) {
-                throw new IllegalArgumentException("Can not pass null modifier");
-            }
-            BeanDeserializerModifier[] all = ArrayBuilders.insertInListNoDup(_modifiers, modifier);
-            return new ConfigImpl(_additionalDeserializers, _additionalKeyDeserializers, all,
-                    _abstractTypeResolvers, _valueInstantiators);
-        }
-
-        @Override
-        public Config withAbstractTypeResolver(AbstractTypeResolver resolver)
-        {
-            if (resolver == null) {
-                throw new IllegalArgumentException("Can not pass null resolver");
-            }
-            AbstractTypeResolver[] all = ArrayBuilders.insertInListNoDup(_abstractTypeResolvers, resolver);
-            return new ConfigImpl(_additionalDeserializers, _additionalKeyDeserializers, _modifiers,
-                    all, _valueInstantiators);
-        }
-
-        @Override
-        public Config withValueInstantiators(ValueInstantiators instantiators) 
-        {
-            if (instantiators == null) {
-                throw new IllegalArgumentException("Can not pass null resolver");
-            }
-            ValueInstantiators[] all = ArrayBuilders.insertInListNoDup(_valueInstantiators, instantiators);
-            return new ConfigImpl(_additionalDeserializers, _additionalKeyDeserializers, _modifiers,
-                    _abstractTypeResolvers, all);
-        }
-        
-        @Override
-        public boolean hasDeserializers() { return _additionalDeserializers.length > 0; }
-
-        @Override
-        public boolean hasKeyDeserializers() { return _additionalKeyDeserializers.length > 0; }
-        
-        @Override
-        public boolean hasDeserializerModifiers() { return _modifiers.length > 0; }
-
-        @Override
-        public boolean hasAbstractTypeResolvers() { return _abstractTypeResolvers.length > 0; }
-
-        @Override
-        public boolean hasValueInstantiators() { return _valueInstantiators.length > 0; }
-        
-        @Override
-        public Iterable<Deserializers> deserializers() {
-            return ArrayBuilders.arrayAsIterable(_additionalDeserializers);
-        }
-
-        @Override
-        public Iterable<KeyDeserializers> keyDeserializers() {
-            return ArrayBuilders.arrayAsIterable(_additionalKeyDeserializers);
-        }
-        
-        @Override
-        public Iterable<BeanDeserializerModifier> deserializerModifiers() {
-            return ArrayBuilders.arrayAsIterable(_modifiers);
-        }
-
-        @Override
-        public Iterable<AbstractTypeResolver> abstractTypeResolvers() {
-            return ArrayBuilders.arrayAsIterable(_abstractTypeResolvers);
-        }
-
-        @Override
-        public Iterable<ValueInstantiators> valueInstantiators() {
-            return ArrayBuilders.arrayAsIterable(_valueInstantiators);
-        }
-    }
-    
     /*
     /**********************************************************
     /* Life-cycle
@@ -214,11 +46,11 @@ public class BeanDeserializerFactory
      * Globally shareable thread-safe instance which has no additional custom deserializers
      * registered
      */
-    public final static BeanDeserializerFactory instance = new BeanDeserializerFactory(null);
+    public final static BeanDeserializerFactory instance = new BeanDeserializerFactory(
+            new DeserializerFactoryConfig());
 
-    public BeanDeserializerFactory(DeserializerFactory.Config config)
-    {
-        super((config == null) ? new ConfigImpl() : config);
+    public BeanDeserializerFactory(DeserializerFactoryConfig config) {
+        super(config);
     }
     
     /**
@@ -227,12 +59,11 @@ public class BeanDeserializerFactory
      * with different configuration settings.
      */
     @Override
-    public DeserializerFactory withConfig(DeserializerFactory.Config config)
+    public DeserializerFactory withConfig(DeserializerFactoryConfig config)
     {
         if (_factoryConfig == config) {
             return this;
         }
-
         /* 22-Nov-2010, tatu: Handling of subtypes is tricky if we do immutable-with-copy-ctor;
          *    and we pretty much have to here either choose between losing subtype instance
          *    when registering additional deserializers, or losing deserializers.
@@ -325,6 +156,45 @@ public class BeanDeserializerFactory
         }
         // Use generic bean introspection to build deserializer
         return buildBeanDeserializer(ctxt, type, beanDesc, property);
+    }
+    
+    /**
+     * Method called by {@link BeanDeserializerFactory} to see if there might be a standard
+     * deserializer registered for given type.
+     */
+    @SuppressWarnings("unchecked")
+    protected JsonDeserializer<Object> findStdBeanDeserializer(DeserializationConfig config,
+            JavaType type, BeanProperty property)
+        throws JsonMappingException
+    {
+        Class<?> cls = type.getRawClass();
+        // note: we do NOT check for custom deserializers here; that's for sub-class to do
+        JsonDeserializer<Object> deser = _simpleDeserializers.get(new ClassKey(cls));
+        if (deser != null) {
+            return deser;
+        }
+        
+        // [JACKSON-283]: AtomicReference is a rather special type...
+        if (AtomicReference.class.isAssignableFrom(cls)) {
+            // Must find parameterization
+            TypeFactory tf = config.getTypeFactory();
+            JavaType[] params = tf.findTypeParameters(type, AtomicReference.class);
+            JavaType referencedType;
+            if (params == null || params.length < 1) { // untyped (raw)
+                referencedType = TypeFactory.unknownType();
+            } else {
+                referencedType = params[0];
+            }
+            
+            JsonDeserializer<?> d2 = new JdkDeserializers.AtomicReferenceDeserializer(referencedType, property);
+            return (JsonDeserializer<Object>)d2;
+        }
+        // [JACKSON-386]: External/optional type handlers are handled somewhat differently
+        JsonDeserializer<?> d = optionalHandlers.findDeserializer(type, config);
+        if (d != null) {
+            return (JsonDeserializer<Object>)d;
+        }
+        return null;
     }
     
     protected JavaType materializeAbstractType(DeserializationConfig config,

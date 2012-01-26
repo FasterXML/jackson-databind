@@ -3,12 +3,12 @@ package com.fasterxml.jackson.databind.deser;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.JsonNode;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
+import com.fasterxml.jackson.databind.deser.impl.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -152,7 +152,7 @@ public abstract class BasicDeserializerFactory
      * Configuration settings for this factory; immutable instance (just like this
      * factory), new version created via copy-constructor (fluent-style)
      */
-    protected final Config _factoryConfig;
+    protected final DeserializerFactoryConfig _factoryConfig;
     
     /*
     /**********************************************************
@@ -160,133 +160,56 @@ public abstract class BasicDeserializerFactory
     /**********************************************************
      */
 
-    protected BasicDeserializerFactory(Config config) {
+    protected BasicDeserializerFactory(DeserializerFactoryConfig config) {
         _factoryConfig = config;
     }
-
-    @Override
-    public final Config getConfig() {
-        return _factoryConfig;
-    }
     
-    // can't be implemented quite here
-    @Override
-    public abstract DeserializerFactory withConfig(DeserializerFactory.Config config);
+    protected abstract DeserializerFactory withConfig(DeserializerFactoryConfig config);
     
     /*
-    /**********************************************************
-    /* Methods for sub-classes to override to provide
-    /* custom deserializers
-    /**********************************************************
+    /********************************************************
+    /* Configuration handling: fluent factories
+    /********************************************************
      */
-    
-    protected JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
-    {
-        for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findArrayDeserializer(type, config,
-                    beanDesc, property, elementTypeDeserializer, elementDeserializer);
-            if (deser != null) {
-                return deser;
-            }
-        }
-        return null;
-    }
-    
-    protected JsonDeserializer<?> _findCustomCollectionDeserializer(CollectionType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
-    {
-        for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findCollectionDeserializer(type, config, beanDesc, property,
-                    elementTypeDeserializer, elementDeserializer);
-            if (deser != null) {
-                return deser;
-            }
-        }
-        return null;
+
+    /**
+     * Convenience method for creating a new factory instance with additional deserializer
+     * provider.
+     */
+    public final DeserializerFactory withAdditionalDeserializers(Deserializers additional) {
+        return withConfig(_factoryConfig.withAdditionalDeserializers(additional));
     }
 
-    protected JsonDeserializer<?> _findCustomCollectionLikeDeserializer(CollectionLikeType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
-    {
-        for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findCollectionLikeDeserializer(type, config, beanDesc, property,
-                    elementTypeDeserializer, elementDeserializer);
-            if (deser != null) {
-                return deser;
-            }
-        }
-        return null;
+    /**
+     * Convenience method for creating a new factory instance with additional
+     * {@link KeyDeserializers}.
+     */
+    public final DeserializerFactory withAdditionalKeyDeserializers(KeyDeserializers additional) {
+        return withConfig(_factoryConfig.withAdditionalKeyDeserializers(additional));
     }
     
-    protected JsonDeserializer<?> _findCustomEnumDeserializer(Class<?> type,
-            DeserializationConfig config, BeanDescription beanDesc, BeanProperty property)
-        throws JsonMappingException
-    {
-        for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findEnumDeserializer(type, config, beanDesc, property);
-            if (deser != null) {
-                return deser;
-            }
-        }
-        return null;
+    /**
+     * Convenience method for creating a new factory instance with additional
+     * {@link BeanDeserializerModifier}.
+     */
+    public final DeserializerFactory withDeserializerModifier(BeanDeserializerModifier modifier) {
+        return withConfig(_factoryConfig.withDeserializerModifier(modifier));
     }
 
-    protected JsonDeserializer<?> _findCustomMapDeserializer(MapType type,
-            DeserializationConfig config, 
-            BeanDescription beanDesc, BeanProperty property,
-            KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
-    {
-        for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findMapDeserializer(type, config, beanDesc, property,
-                    keyDeserializer, elementTypeDeserializer, elementDeserializer);
-            if (deser != null) {
-                return deser;
-            }
-        }
-        return null;
+    /**
+     * Convenience method for creating a new factory instance with additional
+     * {@link AbstractTypeResolver}.
+     */
+    public final DeserializerFactory withAbstractTypeResolver(AbstractTypeResolver resolver) {
+        return withConfig(_factoryConfig.withAbstractTypeResolver(resolver));
     }
 
-    protected JsonDeserializer<?> _findCustomMapLikeDeserializer(MapLikeType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property,
-            KeyDeserializer keyDeserializer,
-            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
-        throws JsonMappingException
-    {
-        for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findMapLikeDeserializer(type, config, beanDesc, property,
-                    keyDeserializer, elementTypeDeserializer, elementDeserializer);
-            if (deser != null) {
-                return deser;
-            }
-        }
-        return null;
-    }
-    
-    protected JsonDeserializer<?> _findCustomTreeNodeDeserializer(Class<? extends JsonNode> type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property)
-        throws JsonMappingException
-    {
-        for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findTreeNodeDeserializer(type, config, beanDesc, property);
-            if (deser != null) {
-                return deser;
-            }
-        }
-        return null;
+    /**
+     * Convenience method for creating a new factory instance with additional
+     * {@link ValueInstantiators}.
+     */
+    public final DeserializerFactory withValueInstantiators(ValueInstantiators instantiators) {
+        return withConfig(_factoryConfig.withValueInstantiators(instantiators));
     }
 
     /*
@@ -735,8 +658,7 @@ public abstract class BasicDeserializerFactory
     
     /*
     /**********************************************************
-    /* JsonDeserializerFactory impl (partial): actual
-    /* deserializer factory methods
+    /* JsonDeserializerFactory impl: array deserializers
     /**********************************************************
      */
         
@@ -783,6 +705,28 @@ public abstract class BasicDeserializerFactory
         }
         return new ObjectArrayDeserializer(type, property, contentDeser, elemTypeDeser);
     }
+
+    protected JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type,
+            DeserializationConfig config,
+            BeanDescription beanDesc, BeanProperty property,
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findArrayDeserializer(type, config,
+                    beanDesc, property, elementTypeDeserializer, elementDeserializer);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
+    
+    /*
+    /**********************************************************
+    /* JsonDeserializerFactory impl: Collection(-like) deserializers
+    /**********************************************************
+     */
     
     @Override
     public JsonDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
@@ -864,6 +808,44 @@ public abstract class BasicDeserializerFactory
         return _findCustomCollectionLikeDeserializer(type, ctxt.getConfig(), beanDesc, property,
                 contentTypeDeser, contentDeser);
     }
+  
+    protected JsonDeserializer<?> _findCustomCollectionDeserializer(CollectionType type,
+            DeserializationConfig config,
+            BeanDescription beanDesc, BeanProperty property,
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findCollectionDeserializer(type, config, beanDesc, property,
+                    elementTypeDeserializer, elementDeserializer);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
+
+    protected JsonDeserializer<?> _findCustomCollectionLikeDeserializer(CollectionLikeType type,
+            DeserializationConfig config,
+            BeanDescription beanDesc, BeanProperty property,
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findCollectionLikeDeserializer(type, config, beanDesc, property,
+                    elementTypeDeserializer, elementDeserializer);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
+
+    /*
+    /**********************************************************
+    /* JsonDeserializerFactory impl: Map(-like) deserializers
+    /**********************************************************
+     */
     
     @Override
     public JsonDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
@@ -962,6 +944,46 @@ public abstract class BasicDeserializerFactory
                 beanDesc, property, keyDes, contentTypeDeser, contentDeser);
     }
 
+    protected JsonDeserializer<?> _findCustomMapDeserializer(MapType type,
+            DeserializationConfig config, 
+            BeanDescription beanDesc, BeanProperty property,
+            KeyDeserializer keyDeserializer,
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findMapDeserializer(type, config, beanDesc, property,
+                    keyDeserializer, elementTypeDeserializer, elementDeserializer);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
+
+    protected JsonDeserializer<?> _findCustomMapLikeDeserializer(MapLikeType type,
+            DeserializationConfig config,
+            BeanDescription beanDesc, BeanProperty property,
+            KeyDeserializer keyDeserializer,
+            TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findMapLikeDeserializer(type, config, beanDesc, property,
+                    keyDeserializer, elementTypeDeserializer, elementDeserializer);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
+    
+    /*
+    /**********************************************************
+    /* JsonDeserializerFactory impl: Enum deserializers
+    /**********************************************************
+     */
+    
     /**
      * Factory method for constructing serializers of {@link Enum} types.
      */
@@ -997,6 +1019,25 @@ public abstract class BasicDeserializerFactory
         return new EnumDeserializer(constructEnumResolver(enumClass, ctxt.getConfig(), beanDesc.findJsonValueMethod()));
     }
 
+    protected JsonDeserializer<?> _findCustomEnumDeserializer(Class<?> type,
+            DeserializationConfig config, BeanDescription beanDesc, BeanProperty property)
+        throws JsonMappingException
+    {
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findEnumDeserializer(type, config, beanDesc, property);
+            if (deser != null) {
+                return deser;
+            }
+        }
+        return null;
+    }
+    
+    /*
+    /**********************************************************
+    /* JsonDeserializerFactory impl: Tree deserializers
+    /**********************************************************
+     */
+    
     @Override
     public JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config,
             JavaType nodeType, BeanDescription beanDesc, BeanProperty property)
@@ -1013,45 +1054,20 @@ public abstract class BasicDeserializerFactory
         return JsonNodeDeserializer.getDeserializer(nodeClass);
     }
 
-    /**
-     * Method called by {@link BeanDeserializerFactory} to see if there might be a standard
-     * deserializer registered for given type.
-     */
-    @SuppressWarnings("unchecked")
-    protected JsonDeserializer<Object> findStdBeanDeserializer(DeserializationConfig config,
-            JavaType type, BeanProperty property)
+    protected JsonDeserializer<?> _findCustomTreeNodeDeserializer(Class<? extends JsonNode> type,
+            DeserializationConfig config,
+            BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException
     {
-        Class<?> cls = type.getRawClass();
-        // note: we do NOT check for custom deserializers here; that's for sub-class to do
-        JsonDeserializer<Object> deser = _simpleDeserializers.get(new ClassKey(cls));
-        if (deser != null) {
-            return deser;
-        }
-        
-        // [JACKSON-283]: AtomicReference is a rather special type...
-        if (AtomicReference.class.isAssignableFrom(cls)) {
-            // Must find parameterization
-            TypeFactory tf = config.getTypeFactory();
-            JavaType[] params = tf.findTypeParameters(type, AtomicReference.class);
-            JavaType referencedType;
-            if (params == null || params.length < 1) { // untyped (raw)
-                referencedType = TypeFactory.unknownType();
-            } else {
-                referencedType = params[0];
+        for (Deserializers d  : _factoryConfig.deserializers()) {
+            JsonDeserializer<?> deser = d.findTreeNodeDeserializer(type, config, beanDesc, property);
+            if (deser != null) {
+                return deser;
             }
-            
-            JsonDeserializer<?> d2 = new JdkDeserializers.AtomicReferenceDeserializer(referencedType, property);
-            return (JsonDeserializer<Object>)d2;
-        }
-        // [JACKSON-386]: External/optional type handlers are handled somewhat differently
-        JsonDeserializer<?> d = optionalHandlers.findDeserializer(type, config);
-        if (d != null) {
-            return (JsonDeserializer<Object>)d;
         }
         return null;
     }
-
+    
     /*
     /**********************************************************
     /* JsonDeserializerFactory impl (partial): type deserializers

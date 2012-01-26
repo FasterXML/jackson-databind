@@ -54,13 +54,14 @@ public class AbstractDeserializer
             throws IOException, JsonProcessingException
     {
         // This method should never be called...
-        throw ctxt.instantiationException(_baseType.getRawClass(), "abstract types either need to be mapped to concrete types, have custom deserializer, or be instantiated with additional type information");
+        throw ctxt.instantiationException(_baseType.getRawClass(),
+                "abstract types either need to be mapped to concrete types, have custom deserializer, or be instantiated with additional type information");
     }
 
     protected Object _deserializeIfNatural(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
-        /* As per [JACKSON-417], there is a chance we might be "natular" types
+        /* As per [JACKSON-417], there is a chance we might be "natural" types
          * (String, Boolean, Integer, Double), which do not include any type information...
          * Care must be taken to only return this if return type matches, however.
          * Finally, we may have to consider possibility of custom handlers for

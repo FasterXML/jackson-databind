@@ -751,27 +751,26 @@ public final class AnnotatedClass
          * (for non-static inner classes) are NOT included, but type is? Strange, sounds like
          * a bug. Alas, we can't really fix that...
          */
-        // Also: [JACKSON-767] (enum value constructors)
+        // Also: [JACKSON-757] (enum value constructors)
         AnnotationMap[] resolvedAnnotations = null;
         if (paramCount != paramAnns.length) {
             // Limits of the work-around (to avoid hiding real errors):
             // first, only applicable for member classes and then either:
 
             Class<?> dc = ctor.getDeclaringClass();
-            if (dc.isMemberClass()) {
-                // (a) just one annotation (for non-static inner classes)
+            // (a) is enum, which have two extra hidden params (name, index)
+            if (dc.isEnum() && (paramCount == paramAnns.length + 2)) {
+                Annotation[][] old = paramAnns;
+                paramAnns = new Annotation[old.length+2][];
+                System.arraycopy(old, 0, paramAnns, 2, old.length);
+                resolvedAnnotations = _collectRelevantAnnotations(paramAnns);
+            } else if (dc.isMemberClass()) {
+                // (b) non-static inner classes, get implicit 'this' for parameter, not  annotation
                 if (paramCount == (paramAnns.length + 1)) {
                     // hack attack: prepend a null entry to make things match
                     Annotation[][] old = paramAnns;
                     paramAnns = new Annotation[old.length+1][];
                     System.arraycopy(old, 0, paramAnns, 1, old.length);
-                    resolvedAnnotations = _collectRelevantAnnotations(paramAnns);
-
-                    // (b) or is enum, which have two extra hidden params (but not for annotations!)
-                } else if (dc.isEnum() && (paramCount == paramAnns.length + 2)) {
-                    Annotation[][] old = paramAnns;
-                    paramAnns = new Annotation[old.length+2][];
-                    System.arraycopy(old, 0, paramAnns, 2, old.length);
                     resolvedAnnotations = _collectRelevantAnnotations(paramAnns);
                 }
             }

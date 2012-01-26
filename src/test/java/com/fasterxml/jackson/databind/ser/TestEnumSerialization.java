@@ -119,17 +119,15 @@ public class TestEnumSerialization
     /**********************************************************
      */
 
+    private final ObjectMapper mapper = new ObjectMapper();
+    
     public void testSimple() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        StringWriter sw = new StringWriter();
-        mapper.writeValue(sw, TestEnum.B);
-        assertEquals("\"B\"", sw.toString());
+        assertEquals("\"B\"", mapper.writeValueAsString(TestEnum.B));
     }
 
     public void testEnumSet() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         StringWriter sw = new StringWriter();
         EnumSet<TestEnum> value = EnumSet.of(TestEnum.B);
         mapper.writeValue(sw, value);
@@ -143,7 +141,6 @@ public class TestEnumSerialization
      */
     public void testEnumUsingToString() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         StringWriter sw = new StringWriter();
         mapper.writeValue(sw, AnnotatedTestEnum.C2);
         assertEquals("\"c2\"", sw.toString());
@@ -152,20 +149,19 @@ public class TestEnumSerialization
     // Test [JACKSON-214]
     public void testSubclassedEnums() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         assertEquals("\"B\"", mapper.writeValueAsString(EnumWithSubClass.B));
     }
 
     // [JACKSON-193]
     public void testEnumsWithJsonValue() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         assertEquals("\"bar\"", mapper.writeValueAsString(EnumWithJsonValue.B));
     }
 
     // also, for [JACKSON-193], needs to work via mix-ins
     public void testEnumsWithJsonValueUsingMixin() throws Exception
     {
+        // can't share, as new mix-ins are added
         ObjectMapper mapper = new ObjectMapper();
         mapper.addMixInAnnotations(TestEnum.class, ToStringMixin.class);
         assertEquals("\"b\"", mapper.writeValueAsString(TestEnum.B));
@@ -177,7 +173,6 @@ public class TestEnumSerialization
      */
     public void testSerializableEnum() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         assertEquals("\"foo\"", mapper.writeValueAsString(SerializableEnum.A));
     }
 
@@ -193,9 +188,9 @@ public class TestEnumSerialization
     public void testToStringEnumWithEnumMap() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(SerializationConfig.Feature.WRITE_ENUMS_USING_TO_STRING, true);
         EnumMap<LowerCaseEnum,String> m = new EnumMap<LowerCaseEnum,String>(LowerCaseEnum.class);
         m.put(LowerCaseEnum.C, "value");
-        mapper.configure(SerializationConfig.Feature.WRITE_ENUMS_USING_TO_STRING, true);
         assertEquals("{\"c\":\"value\"}", mapper.writeValueAsString(m));
     }
 
@@ -204,7 +199,7 @@ public class TestEnumSerialization
     {
         MapBean bean = new MapBean();
         bean.add(TestEnum.B, 3);
-        String json = new ObjectMapper().writeValueAsString(bean);
+        String json = mapper.writeValueAsString(bean);
         assertEquals("{\"map\":{\"b\":3}}", json);
     }
     
@@ -224,8 +219,16 @@ public class TestEnumSerialization
     // [JACKSON-757]
     public void testAnnotationsOnEnumCtor() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValueAsString(OK.V1);
-        mapper.writeValueAsString(NOT_OK.V1);
+        assertEquals(quote("V1"), mapper.writeValueAsString(OK.V1));
+        assertEquals(quote("V1"), mapper.writeValueAsString(NOT_OK.V1));
+        assertEquals(quote("V2"), mapper.writeValueAsString(NOT_OK2.V2));
     }
+}
+
+// [JACKSON-757], non-inner enum
+enum NOT_OK2 {
+    V2("v2"); 
+    protected String key;
+    // any runtime-persistent annotation is fine
+    NOT_OK2(@JsonProperty String key) { this.key = key; }
 }

@@ -696,7 +696,7 @@ public class BeanSerializerFactory
                         typeSer, contentTypeSer, accessor, staticTyping);
         // how about views? (1.4+)
         AnnotationIntrospector intr = prov.getAnnotationIntrospector();
-        pbw.setViews(intr.findSerializationViews(accessor));
+        pbw.setViews(intr.findViews(accessor));
         return pbw;
     }
 }

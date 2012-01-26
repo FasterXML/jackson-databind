@@ -142,6 +142,9 @@ public class BeanDeserializer
     /**
      * Lazily constructed map used to contain deserializers needed
      * for polymorphic subtypes.
+     * Note that this is <b>only needed</b> for polymorphic types,
+     * that is, when the actual type is not statically known.
+     * For other types this remains null.
      */
     protected HashMap<ClassKey, JsonDeserializer<Object>> _subDeserializers;
 

@@ -9,7 +9,9 @@ import java.util.HashMap;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanPropertyWriter;
@@ -164,7 +166,7 @@ public class BeanPropertyWriter
             AnnotatedMember member, Annotations contextAnnotations,
             JavaType declaredType,
             JsonSerializer<Object> ser, TypeSerializer typeSer, JavaType serType,
-            Method m, Field f, boolean suppressNulls, Object suppressableValue)
+            boolean suppressNulls, Object suppressableValue)
     {
         
         _member = member;
@@ -175,8 +177,16 @@ public class BeanPropertyWriter
         _dynamicSerializers = (ser == null) ? PropertySerializerMap.emptyMap() : null;
         _typeSerializer = typeSer;
         _cfgSerializationType = serType;
-        _accessorMethod = m;
-        _field = f;
+
+        if (member instanceof AnnotatedField) {
+            _accessorMethod = null;
+            _field = (Field) member.getMember();
+        } else if (member instanceof AnnotatedMethod) {
+            _accessorMethod = (Method) member.getMember();
+            _field = null;
+        } else {
+            throw new IllegalArgumentException("Can not pass member of type "+member.getClass().getName());
+        }
         _suppressNulls = suppressNulls;
         _suppressableValue = suppressableValue;
         _includeInViews = propDef.getViews();

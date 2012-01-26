@@ -63,10 +63,22 @@ public abstract class AnnotatedMember extends Annotated
      * this member on given object, if this is a supported
      * operation for member type.
      *<p>
-     * This is implemented for fiedlds and single-argument
-     * methods; but not for constructor parameters or
-     * other types of methods.
+     * This is implemented for fields and single-argument
+     * member methods; but not for constructor parameters or
+     * other types of methods (like static methods)
      */
     public abstract void setValue(Object pojo, Object value)
+        throws UnsupportedOperationException, IllegalArgumentException;
+
+    /**
+     * Optional method that can be used to access the value of
+     * this member on given object, if this is a supported
+     * operation for member type.
+     *<p>
+     * This is implemented for fields and no-argument
+     * member methods; but not for constructor parameters or
+     * other types of methods (like static methods)
+     */
+    public abstract Object getValue(Object pojo)
         throws UnsupportedOperationException, IllegalArgumentException;
 }

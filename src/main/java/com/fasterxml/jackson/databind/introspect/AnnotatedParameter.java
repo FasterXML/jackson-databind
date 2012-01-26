@@ -134,10 +134,16 @@ public final class AnnotatedParameter
     }
 
     @Override
-    public void setValue(Object pojo, Object value)
-        throws UnsupportedOperationException
+    public void setValue(Object pojo, Object value) throws UnsupportedOperationException
     {
         throw new UnsupportedOperationException("Cannot call setValue() on constructor parameter of "
+                +getDeclaringClass().getName());
+    }
+
+    @Override
+    public Object getValue(Object pojo) throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException("Cannot call getValue() on constructor parameter of "
                 +getDeclaringClass().getName());
     }
     

@@ -1,8 +1,5 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -61,16 +58,6 @@ public class PropertyBuilder
             TypeSerializer typeSer, TypeSerializer contentTypeSer,
             AnnotatedMember am, boolean defaultUseStaticTyping)
     {
-        Field f;
-        Method m;
-        if (am instanceof AnnotatedField) {
-            m = null;
-            f = ((AnnotatedField) am).getAnnotated();
-        } else {
-            m = ((AnnotatedMethod) am).getAnnotated();
-            f = null;
-        }
-
         // do we have annotation that forces type to use (to declared type or its super type)?
         JavaType serializationType = findSerializationType(am, defaultUseStaticTyping, declaredType);
 
@@ -101,11 +88,10 @@ public class PropertyBuilder
         boolean suppressNulls = false;
 
         JsonInclude.Include methodProps = _annotationIntrospector.findSerializationInclusion(am, _outputProps);
-        
         if (methodProps != null) {
             switch (methodProps) {
             case NON_DEFAULT:
-                valueToSuppress = getDefaultValue(propDef.getName(), m, f);
+                valueToSuppress = getDefaultValue(propDef.getName(), am);
                 if (valueToSuppress == null) {
                     suppressNulls = true;
                 } else {
@@ -136,7 +122,7 @@ public class PropertyBuilder
 
         BeanPropertyWriter bpw = new BeanPropertyWriter(propDef,
                 am, _beanDesc.getClassAnnotations(), declaredType,
-                ser, typeSer, serializationType, m, f, suppressNulls, valueToSuppress);
+                ser, typeSer, serializationType, suppressNulls, valueToSuppress);
         
         // [JACKSON-132]: Unwrapping
         NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(am);
@@ -225,14 +211,11 @@ public class PropertyBuilder
         return _defaultBean;
     }
 
-    protected Object getDefaultValue(String name, Method m, Field f)
+    protected Object getDefaultValue(String name, AnnotatedMember member)
     {
         Object defaultBean = getDefaultBean();
         try {
-            if (m != null) {
-                return m.invoke(defaultBean);
-            }
-            return f.get(defaultBean);
+            return member.getValue(defaultBean);
         } catch (Exception e) {
             return _throwWrapped(e, name, defaultBean);
         }

@@ -126,6 +126,20 @@ public final class AnnotatedMethod
                     +getFullName()+": "+e.getMessage(), e);
         }
     }
+
+    @Override
+    public Object getValue(Object pojo) throws IllegalArgumentException
+    {
+        try {
+            return _method.invoke(pojo);
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException("Failed to getValue() with method "
+                    +getFullName()+": "+e.getMessage(), e);
+        } catch (InvocationTargetException e) {
+            throw new IllegalArgumentException("Failed to getValue() with method "
+                    +getFullName()+": "+e.getMessage(), e);
+        }
+    }
     
     /*
     /*****************************************************

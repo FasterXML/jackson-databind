@@ -129,6 +129,14 @@ public final class AnnotatedConstructor
         throw new UnsupportedOperationException("Cannot call setValue() on constructor of "
                 +getDeclaringClass().getName());
     }
+
+    @Override
+    public Object getValue(Object pojo)
+        throws UnsupportedOperationException
+    {
+        throw new UnsupportedOperationException("Cannot call getValue() on constructor of "
+                +getDeclaringClass().getName());
+    }
     
     /*
     /**********************************************************

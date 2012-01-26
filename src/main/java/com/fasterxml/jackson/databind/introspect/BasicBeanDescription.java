@@ -314,7 +314,7 @@ public class BasicBeanDescription extends BeanDescription
          * (i.e. allowed to be sub-class, although usually is the same
          * class)
          */
-        Class<?> rt = am.getRawType();
+        Class<?> rt = am.getRawReturnType();
         if (!getBeanClass().isAssignableFrom(rt)) {
             return false;
         }
@@ -402,7 +402,7 @@ public class BasicBeanDescription extends BeanDescription
             /* For now let's require a Map; in future can add support for other
              * types like perhaps Iterable<Map.Entry>?
              */
-            Class<?> type = _anyGetterMethod.getRawType();
+            Class<?> type = _anyGetterMethod.getRawReturnType();
             if (!Map.class.isAssignableFrom(type)) {
                 throw new IllegalArgumentException("Invalid 'any-getter' annotation on method "+_anyGetterMethod.getName()+"(): return type is not instance of java.util.Map");
             }

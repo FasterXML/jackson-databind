@@ -546,7 +546,7 @@ public abstract class BasicDeserializerFactory
             if (ctxt.getAnnotationIntrospector().hasCreatorAnnotation(factory)) {
                 int argCount = factory.getParameterCount();
                 if (argCount == 1) {
-                    Class<?> returnType = factory.getRawType();
+                    Class<?> returnType = factory.getRawReturnType();
                     // usually should be class, but may be just plain Enum<?> (for Enum.valueOf()?)
                     if (returnType.isAssignableFrom(enumClass)) {
                         return EnumDeserializer.deserializerForCreator(ctxt.getConfig(), enumClass, factory);
@@ -706,7 +706,7 @@ public abstract class BasicDeserializerFactory
             if (config.getAnnotationIntrospector().hasCreatorAnnotation(factory)) {
                 int argCount = factory.getParameterCount();
                 if (argCount == 1) {
-                    Class<?> returnType = factory.getRawType();
+                    Class<?> returnType = factory.getRawReturnType();
                     // usually should be class, but may be just plain Enum<?> (for Enum.valueOf()?)
                     if (returnType.isAssignableFrom(enumClass)) {
                         // note: mostly copied from 'EnumDeserializer.deserializerForCreator(...)'

@@ -13,7 +13,7 @@ public final class AnnotatedMethod
 
     // // Simple lazy-caching:
 
-    protected Class<?>[] _paramTypes;
+    protected Class<?>[] _paramClasses;
 
     /*
     /*****************************************************
@@ -68,8 +68,8 @@ public final class AnnotatedMethod
 
     /**
      * For methods, this returns declared return type, which is only
-     * useful with getters (setters do not return anything; hence "void"
-     * type is returned here)
+     * useful with getters (setters do not usually return anything;
+     * hence "void" type is returned here)
      */
     @Override
     public Class<?> getRawType() {
@@ -149,7 +149,7 @@ public final class AnnotatedMethod
 
     @Override
     public int getParameterCount() {
-        return getParameterTypes().length;
+        return getParameterClasses().length;
     }
 
     public Type[] getParameterTypes() {
@@ -159,7 +159,7 @@ public final class AnnotatedMethod
     @Override
     public Class<?> getParameterClass(int index)
     {
-        Class<?>[] types = _method.getParameterTypes();
+        Class<?>[] types = getParameterClasses();
         return (index >= types.length) ? null : types[index];
     }
 
@@ -170,12 +170,16 @@ public final class AnnotatedMethod
         return (index >= types.length) ? null : types[index];
     }
 
+    public Class<?> getRawReturnType() {
+        return _method.getReturnType();
+    }
+    
     public Class<?>[] getParameterClasses()
     {
-        if (_paramTypes == null) {
-            _paramTypes = _method.getParameterTypes();
+        if (_paramClasses == null) {
+            _paramClasses = _method.getParameterTypes();
         }
-        return _paramTypes;
+        return _paramClasses;
     }
 
     //public Type getGenericReturnType() { return _method.getGenericReturnType(); }

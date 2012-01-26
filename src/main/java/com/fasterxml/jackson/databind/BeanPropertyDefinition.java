@@ -17,6 +17,12 @@ import com.fasterxml.jackson.databind.util.Named;
 public abstract class BeanPropertyDefinition
     implements Named
 {
+    /*
+    /*****************************************************
+    /* Basic property information, name, type
+    /*****************************************************
+     */
+
     /**
      * Accessor for name used for external representation (in JSON).
      */
@@ -30,11 +36,12 @@ public abstract class BeanPropertyDefinition
      * annotations or naming strategy.
      */
     public abstract String getInternalName();
-    
-    public abstract boolean hasGetter();
-    public abstract boolean hasSetter();
-    public abstract boolean hasField();
-    public abstract boolean hasConstructorParameter();
+
+    /*
+    /*****************************************************
+    /* Capabilities
+    /*****************************************************
+     */
 
     public boolean couldDeserialize() {
         return getMutator() != null;
@@ -42,6 +49,17 @@ public abstract class BeanPropertyDefinition
     public boolean couldSerialize() {
         return getAccessor() != null;
     }
+    
+    /*
+    /*****************************************************
+    /* Access to accessors (fields, methods etc)
+    /*****************************************************
+     */
+    
+    public abstract boolean hasGetter();
+    public abstract boolean hasSetter();
+    public abstract boolean hasField();
+    public abstract boolean hasConstructorParameter();
     
     public abstract AnnotatedMethod getGetter();
     public abstract AnnotatedMethod getSetter();
@@ -62,6 +80,12 @@ public abstract class BeanPropertyDefinition
      */
     public abstract AnnotatedMember getMutator();
 
+    /*
+    /*****************************************************
+    /* More refined access to features
+    /*****************************************************
+     */
+    
     /**
      * Method used to find View-inclusion definitions for the property.
      */

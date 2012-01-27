@@ -40,6 +40,20 @@ public class SimpleBeanPropertyDefinition
     }
 
     /*
+    /**********************************************************
+    /* Fluent factories
+    /**********************************************************
+     */
+
+    @Override
+    public SimpleBeanPropertyDefinition withName(String newName) {
+        if (_name.equals(newName)) {
+            return this;
+        }
+        return new SimpleBeanPropertyDefinition(_member, newName);
+    }
+    
+    /*
     /*****************************************************
     /* Basic property information, name, type
     /*****************************************************

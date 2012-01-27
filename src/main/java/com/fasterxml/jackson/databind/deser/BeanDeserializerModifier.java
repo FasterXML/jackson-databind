@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.util.List;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerFactory;
@@ -11,10 +13,13 @@ import com.fasterxml.jackson.databind.deser.BeanDeserializerFactory;
  * process; and is preferable to sub-classing of {@link BeanDeserializerFactory}.
  *<p>
  * Sequence in which callback methods are called is as follows:
- *  <li>updateBuilder is called once all initial pieces for building deserializer
+ *  <li>{@link #updateProperties} is called once all property definitions are
+ *    collected, and initial filtering (by ignorable type and explicit ignoral-by-bean)
+ *    has been performed.
+ *  <li>{@link #updateBuilder} is called once all initial pieces for building deserializer
  *    have been collected
  *   </li>
- *  <li><code>modifyDeserializer</code> is called after deserializer has been built
+ *  <li>{@link #modifyDeserializer} is called after deserializer has been built
  *    by {@link BeanDeserializerBuilder}
  *    but before it is returned to be used
  *   </li>
@@ -26,6 +31,21 @@ import com.fasterxml.jackson.databind.deser.BeanDeserializerFactory;
  */
 public abstract class BeanDeserializerModifier
 {
+    /**
+     * Method called by {@link BeanDeserializerFactory} when it has collected
+     * initial list of {@link BeanPropertyDefinition}s, and done basic by-name
+     * and by-type filtering, but before constructing builder or actual
+     * property handlers; or arranging order.
+     * 
+     * The most common changes to make at this point are to completely remove
+     * specified properties, or rename then: other modifications are easier
+     * to make at later points.
+     */
+    public List<BeanPropertyDefinition> updateProperties(DeserializationConfig config,
+            BeanDescription beanDesc, List<BeanPropertyDefinition> propDefs) {
+        return propDefs;
+    }
+    
     /**
      * Method called by {@link BeanDeserializerFactory} when it has collected
      * basic information such as tentative list of properties to deserialize.

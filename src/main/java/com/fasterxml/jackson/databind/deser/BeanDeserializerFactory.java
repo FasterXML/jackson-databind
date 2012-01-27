@@ -359,7 +359,6 @@ public class BeanDeserializerFactory
             BeanDescription beanDesc, BeanDeserializerBuilder builder)
         throws JsonMappingException
     {
-        List<BeanPropertyDefinition> props = beanDesc.findProperties();
         // Things specified as "ok to ignore"? [JACKSON-77]
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         boolean ignoreAny = false;
@@ -392,14 +391,22 @@ public class BeanDeserializerFactory
                 }
             }
         }
-        HashMap<Class<?>,Boolean> ignoredTypes = new HashMap<Class<?>,Boolean>();
-        
-        // These are all valid setters, but we do need to introspect bit more
-        for (BeanPropertyDefinition property : props) {
-            String name = property.getName();
-            if (ignored.contains(name)) { // explicit ignoral using @JsonIgnoreProperties needs to block entries
-                continue;
+        final boolean useGettersAsSetters = (ctxt.isEnabled(MapperConfig.Feature.USE_GETTERS_AS_SETTERS)
+                && ctxt.isEnabled(MapperConfig.Feature.AUTO_DETECT_GETTERS));
+
+        // Ok: let's then filter out property definitions
+        List<BeanPropertyDefinition> propDefs = filterBeanProps(ctxt,
+                beanDesc, builder, beanDesc.findProperties(), ignored);
+
+        // After which we can let custom code change the set
+        if (_factoryConfig.hasDeserializerModifiers()) {
+            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                propDefs = mod.updateProperties(ctxt.getConfig(), beanDesc, propDefs);
             }
+        }
+        
+        // At which point we really should only have properties with mutators...
+        for (BeanPropertyDefinition property : propDefs) {
             if (property.hasConstructorParameter()) {
                 /* [JACKSON-700] If property as passed via constructor parameter, we must
                  *   handle things in special way. Not sure what is the most optimal way...
@@ -409,66 +416,77 @@ public class BeanDeserializerFactory
                 builder.addCreatorProperty(property);
                 continue;
             }
-            Class<?> rawPropertyType;
-            Type propertyType;
-            AnnotatedMethod setter = property.getSetter();
-            if (setter != null) {
-                rawPropertyType = setter.getRawParameterType(0);
-                propertyType = setter.getGenericParameterType(0);
-            } else {
-                AnnotatedField field = property.getField();
-                if (field != null) {
-                    rawPropertyType = field.getRawType();
-                    propertyType = field.getGenericType();
-                } else {
-                    continue;
-                }
-            }
-            
-            // [JACKSON-429] Some types are declared as ignorable as well
-            if (isIgnorableType(ctxt.getConfig(), beanDesc, rawPropertyType, ignoredTypes)) {
-                // important: make ignorable, to avoid errors if value is actually seen
-                builder.addIgnorable(name);
-            } else {
-                SettableBeanProperty prop = constructSettableProperty(ctxt,
+            SettableBeanProperty prop = null;
+            if (property.hasSetter()) {
+                Type propertyType = property.getSetter().getGenericParameterType(0);
+                prop = constructSettableProperty(ctxt,
                         beanDesc, property, propertyType);
-                if (prop != null) {
-                    builder.addProperty(prop);
+            } else if (property.hasField()) {
+                Type propertyType = property.getField().getGenericType();
+                prop = constructSettableProperty(ctxt, beanDesc, property, propertyType);
+            } else if (useGettersAsSetters && property.hasGetter()) {
+                /* As per [JACKSON-88], may also need to consider getters
+                 * for Map/Collection properties
+                 */
+                /* also, as per [JACKSON-328], should not override fields (or actual setters),
+                 * thus these are added AFTER adding fields
+                 */
+                AnnotatedMethod getter = property.getGetter();
+                // should only consider Collections and Maps, for now?
+                Class<?> rawPropertyType = getter.getRawType();
+                if (Collection.class.isAssignableFrom(rawPropertyType)
+                        || Map.class.isAssignableFrom(rawPropertyType)) {
+                    prop = constructSetterlessProperty(ctxt, beanDesc, property);
                 }
             }
-        }
-
-        /* As per [JACKSON-88], may also need to consider getters
-         * for Map/Collection properties
-         */
-        /* also, as per [JACKSON-328], should not override fields (or actual setters),
-         * thus these are added AFTER adding fields
-         */
-        if (ctxt.isEnabled(MapperConfig.Feature.USE_GETTERS_AS_SETTERS)) {
-            /* Hmmh. We have to assume that 'use getters as setters' also
-             * implies 'yes, do auto-detect these getters'? (if not, we'd
-             * need to add AUTO_DETECT_GETTERS to deser config too, not
-             * just ser config)
-             */
-            for (BeanPropertyDefinition property : props) {
-                if (property.hasGetter()) {
-                    String name = property.getName();
-                    if (builder.hasProperty(name) || ignored.contains(name)) {
-                        continue;
-                    }
-                    AnnotatedMethod getter = property.getGetter();
-                    // should only consider Collections and Maps, for now?
-                    Class<?> rt = getter.getRawType();
-                    if (Collection.class.isAssignableFrom(rt) || Map.class.isAssignableFrom(rt)) {
-                        if (!ignored.contains(name) && !builder.hasProperty(name)) {
-                            builder.addProperty(constructSetterlessProperty(ctxt, beanDesc, name, getter));
-                        }
-                    }
-                }
+            if (prop != null) {
+                builder.addProperty(prop);
             }
         }
     }
 
+    /**
+     * Helper method called to filter out explicit ignored properties,
+     * as well as properties that have "ignorable types".
+     * Note that this will not remove properties that have no
+     * setters.
+     */
+    protected List<BeanPropertyDefinition> filterBeanProps(DeserializationContext ctxt,
+            BeanDescription beanDesc, BeanDeserializerBuilder builder,
+            List<BeanPropertyDefinition> propDefsIn,
+            Set<String> ignored)
+        throws JsonMappingException
+    {
+        ArrayList<BeanPropertyDefinition> result = new ArrayList<BeanPropertyDefinition>(
+                Math.max(4, propDefsIn.size()));
+        HashMap<Class<?>,Boolean> ignoredTypes = new HashMap<Class<?>,Boolean>();
+        // These are all valid setters, but we do need to introspect bit more
+        for (BeanPropertyDefinition property : propDefsIn) {
+            String name = property.getName();
+            if (ignored.contains(name)) { // explicit ignoral using @JsonIgnoreProperties needs to block entries
+                continue;
+            }
+            if (!property.hasConstructorParameter()) { // never skip constructor params
+                Class<?> rawPropertyType = null;
+                if (property.hasSetter()) {
+                    rawPropertyType = property.getSetter().getRawParameterType(0);
+                } else if (property.hasField()) {
+                    rawPropertyType = property.getField().getRawType();
+                }
+
+                // [JACKSON-429] Some types are declared as ignorable as well
+                if ((rawPropertyType != null)
+                        && (isIgnorableType(ctxt.getConfig(), beanDesc, rawPropertyType, ignoredTypes))) {
+                    // important: make ignorable, to avoid errors if value is actually seen
+                    builder.addIgnorable(name);
+                    continue;
+                }
+            }
+            result.add(property);
+        }
+        return result;
+    }
+    
     /**
      * Method that will find if bean has any managed- or back-reference properties,
      * and if so add them to bean, to be linked during resolution phase.
@@ -616,9 +634,11 @@ public class BeanDeserializerFactory
      *    none. Non-null for "setterless" properties.
      */
     protected SettableBeanProperty constructSetterlessProperty(DeserializationContext ctxt,
-            BeanDescription beanDesc, String name, AnnotatedMethod getter)
+            BeanDescription beanDesc, BeanPropertyDefinition propDef)
         throws JsonMappingException
     {
+        final String name = propDef.getName();
+        final AnnotatedMethod getter = propDef.getGetter();
         // need to ensure it is callable now:
         if (ctxt.canOverrideAccessModifiers()) {
             getter.fixAccess();

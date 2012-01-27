@@ -19,6 +19,20 @@ public abstract class BeanPropertyDefinition
 {
     /*
     /*****************************************************
+    /* Fluent factory methods for creating modified copies
+    /*****************************************************
+     */
+
+    /**
+     * Method that can be used to create a definition with
+     * same settings as this one, but with different
+     * (external) name; that is, one for which
+     * {@link #getName()} would return <code>newName</code>.
+     */
+    public abstract BeanPropertyDefinition withName(String newName);
+    
+    /*
+    /*****************************************************
     /* Basic property information, name, type
     /*****************************************************
      */

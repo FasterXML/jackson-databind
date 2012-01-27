@@ -60,10 +60,14 @@ public class POJOPropertyBuilder
         _setters = src._setters;
         _forSerialization = src._forSerialization;
     }
-
-    /**
-     * Method for constructing a renamed instance
+    
+    /*
+    /**********************************************************
+    /* Fluent factory methods
+    /**********************************************************
      */
+
+    @Override
     public POJOPropertyBuilder withName(String newName) {
         return new POJOPropertyBuilder(this, newName);
     }

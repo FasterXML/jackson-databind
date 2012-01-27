@@ -272,8 +272,19 @@ public class POJOPropertyBuilder
     public Class<?>[] getViews()
     {
         if (_annotationIntrospector != null) {
-            AnnotatedMember m = _forSerialization ? getAccessor() : getMutator();
-            return _annotationIntrospector.findViews(m);
+            AnnotatedMember m;
+            if (_forSerialization) {
+                m = getAccessor();
+            } else {
+                m = getMutator();
+                // one kink: may use "getter-as-setter"...
+                if (m == null) {
+                    m = getGetter();
+                }
+            }
+            if (m != null) {
+                return _annotationIntrospector.findViews(m);
+            }
         }
         return null;
     }

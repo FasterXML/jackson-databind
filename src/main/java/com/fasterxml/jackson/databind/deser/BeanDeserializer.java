@@ -54,7 +54,7 @@ public class BeanDeserializer
     
     /*
     /**********************************************************
-    /* Construction configuration
+    /* Configuration for creating value instance
     /**********************************************************
      */
 
@@ -128,6 +128,12 @@ public class BeanDeserializer
     final protected boolean _ignoreAllUnknown;
 
     /**
+     * Flag that indicates that some aspect of deserialization depends
+     * on active view used (if any)
+     */
+    final protected boolean _needViewProcesing;
+    
+    /**
      * We may also have one or more back reference fields (usually
      * zero or one).
      */
@@ -170,20 +176,22 @@ public class BeanDeserializer
             ValueInstantiator valueInstantiator,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
             HashSet<String> ignorableProps, boolean ignoreAllUnknown,
-            SettableAnyProperty anySetter, List<ValueInjector> injectables)
+            SettableAnyProperty anySetter, List<ValueInjector> injectables,
+            boolean hasViews)
     {
         this(beanDesc.getClassInfo(), beanDesc.getType(), property,
                 valueInstantiator,
                 properties, backRefs,
                 ignorableProps, ignoreAllUnknown,
-                anySetter, injectables);
+                anySetter, injectables, hasViews);
     }
     
     protected BeanDeserializer(AnnotatedClass forClass, JavaType type, BeanProperty property,
             ValueInstantiator valueInstantiator,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
             HashSet<String> ignorableProps, boolean ignoreAllUnknown,
-            SettableAnyProperty anySetter, List<ValueInjector> injectables)
+            SettableAnyProperty anySetter, List<ValueInjector> injectables,
+            boolean hasViews)
     {
         super(type);
         _forClass = forClass;
@@ -205,6 +213,8 @@ public class BeanDeserializer
             || valueInstantiator.canCreateFromObjectWith()
             || !valueInstantiator.canCreateUsingDefault()
             ;
+
+        _needViewProcesing = hasViews;    
     }
 
     /**
@@ -237,6 +247,7 @@ public class BeanDeserializer
         
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _needViewProcesing = src._needViewProcesing;
     }
     
     protected BeanDeserializer(BeanDeserializer src, NameTransformer unwrapper)
@@ -270,6 +281,7 @@ public class BeanDeserializer
         } else {
             _beanProperties = src._beanProperties;
         }
+        _needViewProcesing = src._needViewProcesing;
     }
 
     @Override
@@ -305,6 +317,10 @@ public class BeanDeserializer
         return _beanProperties.find(propertyName) != null;
     }
 
+    public boolean hasViews() {
+        return _needViewProcesing;
+    }
+    
     /**
      * Accessor for checking number of deserialized properties.
      */

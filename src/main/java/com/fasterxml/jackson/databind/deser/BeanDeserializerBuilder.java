@@ -4,6 +4,7 @@ import java.util.*;
 
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
 import com.fasterxml.jackson.databind.deser.impl.ValueInjector;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -23,6 +24,8 @@ public class BeanDeserializerBuilder
      */
 
     final protected BeanDescription _beanDesc;
+
+    final protected boolean _defaultViewInclusion;
     
     /*
     /**********************************************************
@@ -33,7 +36,8 @@ public class BeanDeserializerBuilder
     /**
      * Properties to deserialize collected so far.
      */
-    final protected HashMap<String, SettableBeanProperty> _properties = new LinkedHashMap<String, SettableBeanProperty>();
+    final protected Map<String, SettableBeanProperty> _properties
+        = new LinkedHashMap<String, SettableBeanProperty>();
 
     /**
      * Value injectors for deserialization
@@ -75,9 +79,11 @@ public class BeanDeserializerBuilder
     /**********************************************************
      */
     
-    public BeanDeserializerBuilder(BeanDescription beanDesc)
+    public BeanDeserializerBuilder(BeanDescription beanDesc,
+            DeserializationConfig config)
     { 
         _beanDesc = beanDesc;
+        _defaultViewInclusion = config.isEnabled(MapperConfig.Feature.DEFAULT_VIEW_INCLUSION);
     }
 
     /**
@@ -94,8 +100,9 @@ public class BeanDeserializerBuilder
         _properties.putAll(src._properties);
         _backRefProperties = _copy(src._backRefProperties);
         // Hmmh. Should we create defensive copies here? For now, not yet
-        _ignorableProps = src._ignorableProps;
+        _ignorableProps = src._ignorableProps;        
         _valueInstantiator = src._valueInstantiator;
+        _defaultViewInclusion = src._defaultViewInclusion;
     }
 
     private static HashMap<String, SettableBeanProperty> _copy(HashMap<String, SettableBeanProperty> src)
@@ -243,10 +250,26 @@ public class BeanDeserializerBuilder
 
     public JsonDeserializer<?> build(BeanProperty forProperty)
     {
-        BeanPropertyMap propertyMap = new BeanPropertyMap(_properties.values());
+        Collection<SettableBeanProperty> props = _properties.values();
+        BeanPropertyMap propertyMap = new BeanPropertyMap(props);
         propertyMap.assignIndexes();
+
+        // view processing must be enabled if:
+        // (a) fields are not included by default (when deserializing with view), OR
+        // (b) one of properties has view(s) to included in defined
+        boolean anyViews = !_defaultViewInclusion;
+
+        if (!anyViews) {
+            for (SettableBeanProperty prop : props) {
+                if (prop.hasViews()) {
+                    anyViews = true;
+                    break;
+                }
+            }
+        }
+        
         return new BeanDeserializer(_beanDesc, forProperty,
                 _valueInstantiator, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
-                _anySetter, _injectables);
+                _anySetter, _injectables, anyViews);
     }
 }

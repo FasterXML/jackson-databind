@@ -244,7 +244,7 @@ public class BeanDeserializerFactory
                 return new AbstractDeserializer(type);
             }
         }
-        BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(beanDesc);
+        BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, beanDesc);
         builder.setValueInstantiator(valueInstantiator);
          // And then setters for deserializing from JSON Object
         addBeanProps(ctxt, beanDesc, builder);
@@ -277,7 +277,7 @@ public class BeanDeserializerFactory
     {
         final DeserializationConfig config = ctxt.getConfig();
         // first: construct like a regular bean deserializer...
-        BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(beanDesc);
+        BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, beanDesc);
         builder.setValueInstantiator(findValueInstantiator(ctxt, beanDesc));
 
         addBeanProps(ctxt, beanDesc, builder);
@@ -344,8 +344,9 @@ public class BeanDeserializerFactory
      * which is used to accumulate information needed to create deserializer
      * instance.
      */
-    protected BeanDeserializerBuilder constructBeanDeserializerBuilder(BeanDescription beanDesc) {
-        return new BeanDeserializerBuilder(beanDesc);
+    protected BeanDeserializerBuilder constructBeanDeserializerBuilder(DeserializationContext ctxt,
+            BeanDescription beanDesc) {
+        return new BeanDeserializerBuilder(beanDesc, ctxt.getConfig());
     }
     
     /**
@@ -405,41 +406,40 @@ public class BeanDeserializerFactory
             }
         }
         
-        // At which point we really should only have properties with mutators...
-        for (BeanPropertyDefinition property : propDefs) {
-            if (property.hasConstructorParameter()) {
+        // At which point we still have all kinds of properties; not all with mutators:
+        for (BeanPropertyDefinition propDef : propDefs) {
+            if (propDef.hasConstructorParameter()) {
                 /* [JACKSON-700] If property as passed via constructor parameter, we must
                  *   handle things in special way. Not sure what is the most optimal way...
                  *   for now, let's just call a (new) method in builder, which does nothing.
                  */
                 // but let's call a method just to allow custom builders to be aware...
-                builder.addCreatorProperty(property);
+                builder.addCreatorProperty(propDef);
                 continue;
             }
             SettableBeanProperty prop = null;
-            if (property.hasSetter()) {
-                Type propertyType = property.getSetter().getGenericParameterType(0);
+            if (propDef.hasSetter()) {
+                Type propertyType = propDef.getSetter().getGenericParameterType(0);
                 prop = constructSettableProperty(ctxt,
-                        beanDesc, property, propertyType);
-            } else if (property.hasField()) {
-                Type propertyType = property.getField().getGenericType();
-                prop = constructSettableProperty(ctxt, beanDesc, property, propertyType);
-            } else if (useGettersAsSetters && property.hasGetter()) {
+                        beanDesc, propDef, propertyType);
+            } else if (propDef.hasField()) {
+                Type propertyType = propDef.getField().getGenericType();
+                prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
+            } else if (useGettersAsSetters && propDef.hasGetter()) {
                 /* As per [JACKSON-88], may also need to consider getters
-                 * for Map/Collection properties
+                 * for Map/Collection properties; but with lowest precedence
                  */
-                /* also, as per [JACKSON-328], should not override fields (or actual setters),
-                 * thus these are added AFTER adding fields
-                 */
-                AnnotatedMethod getter = property.getGetter();
+                AnnotatedMethod getter = propDef.getGetter();
                 // should only consider Collections and Maps, for now?
                 Class<?> rawPropertyType = getter.getRawType();
                 if (Collection.class.isAssignableFrom(rawPropertyType)
                         || Map.class.isAssignableFrom(rawPropertyType)) {
-                    prop = constructSetterlessProperty(ctxt, beanDesc, property);
+                    prop = constructSetterlessProperty(ctxt, beanDesc, propDef);
                 }
             }
             if (prop != null) {
+                // one more thing before adding to builder: copy any metadata
+                prop.setViews(propDef.getViews());
                 builder.addProperty(prop);
             }
         }

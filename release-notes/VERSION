@@ -30,6 +30,8 @@ Improvements
  (requested by James R)
 * [JACKSON-748]: Add 'registerSubtypes' to 'Module.setupContext' (and SimpleModule)
 * [JACKSON-749]: Make @JsonValue work for Enum deserialization
+* [JACKSON-769]: ObjectNode/ArrayNode: change 'put', 'insert', 'add' to return
+  'this node' (unless already returning something)
 
 New features:
 

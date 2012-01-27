@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * Node class that represents Arrays mapped from Json content.
  */
 public final class ArrayNode
-    extends ContainerNode
+    extends ContainerNode<ArrayNode>
 {
     protected ArrayList<JsonNode> _children;
 
@@ -195,12 +195,18 @@ public final class ArrayNode
         return _set(index, value);
     }
 
-    public void add(JsonNode value)
+    /**
+     * Method for adding specified node at the end of this array.
+     * 
+     * @return This node, to allow chaining
+     */
+    public ArrayNode add(JsonNode value)
     {
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
         _add(value);
+        return this;
     }
 
     /**
@@ -211,7 +217,7 @@ public final class ArrayNode
      * 
      * @return This node (to allow chaining)
      */
-    public JsonNode addAll(ArrayNode other)
+    public ArrayNode addAll(ArrayNode other)
     {
         int len = other.size();
         if (len > 0) {
@@ -230,7 +236,7 @@ public final class ArrayNode
      * 
      * @return This node (to allow chaining)
      */
-    public JsonNode addAll(Collection<JsonNode> nodes)
+    public ArrayNode addAll(Collection<JsonNode> nodes)
     {
         int len = nodes.size();
         if (len > 0) {
@@ -249,13 +255,16 @@ public final class ArrayNode
      * the first element; if >= size(), appended at the end, and otherwise
      * inserted before existing element in specified index.
      * No exceptions are thrown for any index.
+     * 
+     * @return This node (to allow chaining)
      */
-    public void insert(int index, JsonNode value)
+    public ArrayNode insert(int index, JsonNode value)
     {
         if (value == null) {
             value = nullNode();
         }
         _insert(index, value);
+        return this;
     }
 
     /**
@@ -313,139 +322,182 @@ public final class ArrayNode
     /**
      * Method that will construct a POJONode and add it at the end
      * of this array node.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void addPOJO(Object value)
+    public ArrayNode addPOJO(Object value)
     {
         if (value == null) {
             addNull();
         } else {
             _add(POJONode(value));
         }
+        return this;
     }
 
-    public void addNull()
+    /**
+     * Method that will add a null value at the end of this array node.
+     * 
+     * @return This array node, to allow chaining
+     */
+    public ArrayNode addNull()
     {
         _add(nullNode());
+        return this;
     }
 
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method for adding specified number at the end of this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void add(int v) { _add(numberNode(v)); }
+    public ArrayNode add(int v) {
+        _add(numberNode(v));
+        return this;
+    }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void add(Integer value) {
+    public ArrayNode add(Integer value) {
         if (value == null) {
-            addNull();
-        } else {
-            _add(numberNode(value.intValue()));
+            return addNull();
         }
+        return _add(numberNode(value.intValue()));
     }
     
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method for adding specified number at the end of this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void add(long v) { _add(numberNode(v)); }
+    public ArrayNode add(long v) { return _add(numberNode(v)); }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void add(Long value) {
+    public ArrayNode add(Long value) {
         if (value == null) {
-            addNull();
-        } else {
-            _add(numberNode(value.longValue()));
+            return addNull();
         }
+        return _add(numberNode(value.longValue()));
     }
     
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method for adding specified number at the end of this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void add(float v) { _add(numberNode(v)); }
+    public ArrayNode add(float v) {
+        return _add(numberNode(v));
+    }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void add(Float value) {
+    public ArrayNode add(Float value) {
         if (value == null) {
-            addNull();
-        } else {
-            _add(numberNode(value.floatValue()));
+            return addNull();
         }
+        return _add(numberNode(value.floatValue()));
     }
     
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method for adding specified number at the end of this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void add(double v) { _add(numberNode(v)); }
+    public ArrayNode add(double v) {
+        return _add(numberNode(v));
+    }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void add(Double value) {
+    public ArrayNode add(Double value) {
         if (value == null) {
-            addNull();
-        } else {
-            _add(numberNode(value.doubleValue()));
+            return addNull();
         }
+        return _add(numberNode(value.doubleValue()));
     }
     
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method for adding specified number at the end of this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void add(BigDecimal v) {
+    public ArrayNode add(BigDecimal v) {
         if (v == null) {
-            addNull();
-        } else {
-            _add(numberNode(v));
+            return addNull();
         }
+        return _add(numberNode(v));
     }
 
     /**
-     * Method for setting value of a field to specified String value.
+     * Method for adding specified String value at the end of this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void add(String v) {
+    public ArrayNode add(String v) {
         if (v == null) {
-            addNull();
-        } else {
-            _add(textNode(v));
+            return addNull();
         }
+        return _add(textNode(v));
     }
 
     /**
-     * Method for setting value of a field to specified String value.
+     * Method for adding specified boolean value at the end of this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void add(boolean v) { _add(booleanNode(v)); }
+    public ArrayNode add(boolean v) {
+        return _add(booleanNode(v));
+    }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void add(Boolean value) {
+    public ArrayNode add(Boolean value) {
         if (value == null) {
-            addNull();
-        } else {
-            _add(booleanNode(value.booleanValue()));
+            return addNull();
         }
+        return _add(booleanNode(value.booleanValue()));
     }
     
     /**
-     * Method for setting value of a field to specified binary value
+     * Method for adding specified binary value at the end of this array
+     * (note: when serializing as JSON, will be output Base64 encoded)
+     * 
+     * @return This array node, to allow chaining
      */
-    public void add(byte[] v) {
+    public ArrayNode add(byte[] v) {
         if (v == null) {
-            addNull();
-        } else {
-            _add(binaryNode(v));
+            return addNull();
         }
+        return _add(binaryNode(v));
     }
 
+    /**
+     * Method for creating an array node, inserting it at the
+     * specified point in the array,
+     * and returning the <b>newly created array</b>
+     * (note: NOT 'this' array)
+     */
     public ArrayNode insertArray(int index)
     {
         ArrayNode n  = arrayNode();
@@ -454,9 +506,10 @@ public final class ArrayNode
     }
 
     /**
-     * Method that will construct an ObjectNode and add it at the end
-     * of this array node.
-     *
+     * Method for creating an {@link ObjectNode}, appending it at the end
+     * of this array, and returning the <b>newly created node</b>
+     * (note: NOT 'this' array)
+     * 
      * @return Newly constructed ObjectNode
      */
     public ObjectNode insertObject(int index)
@@ -467,139 +520,187 @@ public final class ArrayNode
     }
 
     /**
-     * Method that will construct a POJONode and add it at the end
-     * of this array node.
+     * Method that will construct a POJONode and
+     * insert it at specified position in this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void insertPOJO(int index, Object value)
+    public ArrayNode insertPOJO(int index, Object value)
     {
         if (value == null) {
-            insertNull(index);
-        } else {
-            _insert(index, POJONode(value));
+            return insertNull(index);
         }
-    }
-
-    public void insertNull(int index)
-    {
-        _insert(index, nullNode());
+        return _insert(index, POJONode(value));
     }
 
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method that will insert a null value
+     * at specified position in this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void insert(int index, int v) { _insert(index, numberNode(v)); }
+    public ArrayNode insertNull(int index)
+    {
+        _insert(index, nullNode());
+        return this;
+    }
+
+    /**
+     * Method that will insert specified numeric value
+     * at specified position in this array.
+     * 
+     * @return This array node, to allow chaining
+     */
+    public ArrayNode insert(int index, int v) {
+        _insert(index, numberNode(v));
+        return this;
+    }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void insert(int index, Integer value) {
+    public ArrayNode insert(int index, Integer value) {
         if (value == null) {
             insertNull(index);
         } else {
             _insert(index, numberNode(value.intValue()));
         }
+        return this;
     }
     
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method that will insert specified numeric value
+     * at specified position in this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void insert(int index, long v) { _insert(index, numberNode(v)); }
+    public ArrayNode insert(int index, long v) {
+        return _insert(index, numberNode(v));
+    }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void insert(int index, Long value) {
+    public ArrayNode insert(int index, Long value) {
         if (value == null) {
-            insertNull(index);
-        } else {
-            _insert(index, numberNode(value.longValue()));
+            return insertNull(index);
         }
+        return _insert(index, numberNode(value.longValue()));
     }
     
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method that will insert specified numeric value
+     * at specified position in this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void insert(int index, float v) { _insert(index, numberNode(v)); }
+    public ArrayNode insert(int index, float v) {
+        return _insert(index, numberNode(v));
+    }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void insert(int index, Float value) {
+    public ArrayNode insert(int index, Float value) {
         if (value == null) {
-            insertNull(index);
-        } else {
-            _insert(index, numberNode(value.floatValue()));
+            return insertNull(index);
         }
+        return _insert(index, numberNode(value.floatValue()));
     }
     
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method that will insert specified numeric value
+     * at specified position in this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void insert(int index, double v) { _insert(index, numberNode(v)); }
+    public ArrayNode insert(int index, double v) {
+        return _insert(index, numberNode(v));
+    }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void insert(int index, Double value) {
+    public ArrayNode insert(int index, Double value) {
         if (value == null) {
-            insertNull(index);
-        } else {
-            _insert(index, numberNode(value.doubleValue()));
+            return insertNull(index);
         }
+        return _insert(index, numberNode(value.doubleValue()));
     }
 
     /**
-     * Method for setting value of a field to specified numeric value.
+     * Method that will insert specified numeric value
+     * at specified position in this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void insert(int index, BigDecimal v) {
+    public ArrayNode insert(int index, BigDecimal v) {
         if (v == null) {
-            insertNull(index);
-        } else {
-            _insert(index, numberNode(v));
+            return insertNull(index);
         }
+        return _insert(index, numberNode(v));
     }
 
     /**
-     * Method for setting value of a field to specified String value.
+     * Method that will insert specified String
+     * at specified position in this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void insert(int index, String v) {
+    public ArrayNode insert(int index, String v) {
         if (v == null) {
-            insertNull(index);
-        } else {
-            _insert(index, textNode(v));
+            return insertNull(index);
         }
+        return _insert(index, textNode(v));
     }
 
     /**
-     * Method for setting value of a field to specified String value.
+     * Method that will insert specified String
+     * at specified position in this array.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void insert(int index, boolean v) { _insert(index, booleanNode(v)); }
+    public ArrayNode insert(int index, boolean v) {
+        return _insert(index, booleanNode(v));
+    }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This array node, to allow chaining
      */
-    public void insert(int index, Boolean value) {
+    public ArrayNode insert(int index, Boolean value) {
         if (value == null) {
-            insertNull(index);
-        } else {
-            _insert(index, booleanNode(value.booleanValue()));
+            return insertNull(index);
         }
+        return _insert(index, booleanNode(value.booleanValue()));
     }
     
     /**
-     * Method for setting value of a field to specified binary value
+     * Method that will insert specified binary value
+     * at specified position in this array
+     * (note: when written as JSON, will be Base64 encoded)
+     * 
+     * @return This array node, to allow chaining
      */
-    public void insert(int index, byte[] v) {
+    public ArrayNode insert(int index, byte[] v) {
         if (v == null) {
-            insertNull(index);
-        } else {
-            _insert(index, binaryNode(v));
+            return insertNull(index);
         }
+        return _insert(index, binaryNode(v));
     }
 
     /*
@@ -687,20 +788,21 @@ public final class ArrayNode
         return _children.set(index, value);
     }
 
-    private void _add(JsonNode node)
+    private ArrayNode _add(JsonNode node)
     {
         if (_children == null) {
             _children = new ArrayList<JsonNode>();
         }
         _children.add(node);
+        return this;
     }
 
-    private void _insert(int index, JsonNode node)
+    private ArrayNode _insert(int index, JsonNode node)
     {
         if (_children == null) {
             _children = new ArrayList<JsonNode>();
             _children.add(node);
-            return;
+            return this;
         }
         if (index < 0) {
             _children.add(0, node);
@@ -709,6 +811,7 @@ public final class ArrayNode
         } else {
             _children.add(index, node);
         }
+        return this;
     }
 
     /**

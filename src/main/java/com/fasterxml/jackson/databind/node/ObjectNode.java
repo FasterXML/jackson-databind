@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * Node that maps to JSON Object structures in JSON content.
  */
 public class ObjectNode
-    extends ContainerNode
+    extends ContainerNode<ObjectNode>
 {
     protected LinkedHashMap<String, JsonNode> _children = null;
 
@@ -428,132 +428,156 @@ public class ObjectNode
         return n;
     }
 
-    public void putPOJO(String fieldName, Object pojo)
-    {
+    public ObjectNode putPOJO(String fieldName, Object pojo) {
         _put(fieldName, POJONode(pojo));
+        return this;
     }
 
-    public void putNull(String fieldName)
+    public ObjectNode putNull(String fieldName)
     {
         _put(fieldName, nullNode());
+        return this;
     }
 
     /**
      * Method for setting value of a field to specified numeric value.
      */
-    public void put(String fieldName, int v) { _put(fieldName, numberNode(v)); }
+    public ObjectNode put(String fieldName, int v) {
+        _put(fieldName, numberNode(v));
+        return this;
+    }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
      */
-    public void put(String fieldName, Integer value) {
+    public ObjectNode put(String fieldName, Integer value) {
         if (value == null) {
             _put(fieldName, nullNode());
         } else {
             _put(fieldName, numberNode(value.intValue()));
         }
+        return this;
     }
     
     /**
      * Method for setting value of a field to specified numeric value.
      */
-    public void put(String fieldName, long v) { _put(fieldName, numberNode(v)); }
+    public ObjectNode put(String fieldName, long v) {
+        _put(fieldName, numberNode(v));
+        return this;
+    }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
      */
-    public void put(String fieldName, Long value) {
+    public ObjectNode put(String fieldName, Long value) {
         if (value == null) {
             _put(fieldName, nullNode());
         } else {
             _put(fieldName, numberNode(value.longValue()));
         }
+        return this;
     }
     
     /**
      * Method for setting value of a field to specified numeric value.
      */
-    public void put(String fieldName, float v) { _put(fieldName, numberNode(v)); }
+    public ObjectNode put(String fieldName, float v) {
+        _put(fieldName, numberNode(v));
+        return this;
+    }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
      */
-    public void put(String fieldName, Float value) {
+    public ObjectNode put(String fieldName, Float value) {
         if (value == null) {
             _put(fieldName, nullNode());
         } else {
             _put(fieldName, numberNode(value.floatValue()));
         }
+        return this;
     }
     
     /**
      * Method for setting value of a field to specified numeric value.
      */
-    public void put(String fieldName, double v) { _put(fieldName, numberNode(v)); }
+    public ObjectNode put(String fieldName, double v) {
+        _put(fieldName, numberNode(v));
+        return this;
+    }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
      */
-    public void put(String fieldName, Double value) {
+    public ObjectNode put(String fieldName, Double value) {
         if (value == null) {
             _put(fieldName, nullNode());
         } else {
             _put(fieldName, numberNode(value.doubleValue()));
         }
+        return this;
     }
     
     /**
      * Method for setting value of a field to specified numeric value.
      */
-    public void put(String fieldName, BigDecimal v) {
+    public ObjectNode put(String fieldName, BigDecimal v) {
         if (v == null) {
             putNull(fieldName);
         } else {
             _put(fieldName, numberNode(v));
         }
+        return this;
     }
 
     /**
      * Method for setting value of a field to specified String value.
      */
-    public void put(String fieldName, String v) {
+    public ObjectNode put(String fieldName, String v) {
         if (v == null) {
             putNull(fieldName);
         } else {
             _put(fieldName, textNode(v));
         }
+        return this;
     }
 
     /**
      * Method for setting value of a field to specified String value.
      */
-    public void put(String fieldName, boolean v) { _put(fieldName, booleanNode(v)); }
+    public ObjectNode put(String fieldName, boolean v) {
+        _put(fieldName, booleanNode(v));
+        return this;
+    }
 
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
      */
-    public void put(String fieldName, Boolean value) {
+    public ObjectNode put(String fieldName, Boolean value) {
         if (value == null) {
             _put(fieldName, nullNode());
         } else {
             _put(fieldName, booleanNode(value.booleanValue()));
         }
+        return this;
     }
     
     /**
      * Method for setting value of a field to specified binary value
      */
-    public void put(String fieldName, byte[] v) {
+    public ObjectNode put(String fieldName, byte[] v) {
         if (v == null) {
             _put(fieldName, nullNode());
         } else {
             _put(fieldName, binaryNode(v));
         }
+        return this;
     }
 
     /*

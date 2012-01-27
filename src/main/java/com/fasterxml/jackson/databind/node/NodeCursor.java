@@ -152,7 +152,7 @@ abstract class NodeCursor
         @Override
         public boolean currentHasChildren() {
             // note: ONLY to be called for container nodes
-            return ((ContainerNode) currentNode()).size() > 0;
+            return ((ContainerNode<?>) currentNode()).size() > 0;
         }
     }
 
@@ -216,7 +216,7 @@ abstract class NodeCursor
         @Override
         public boolean currentHasChildren() {
             // note: ONLY to be called for container nodes
-            return ((ContainerNode) currentNode()).size() > 0;
+            return ((ContainerNode<?>) currentNode()).size() > 0;
         }
     }
 }

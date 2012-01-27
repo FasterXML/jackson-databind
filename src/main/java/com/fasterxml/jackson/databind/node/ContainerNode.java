@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.*;
  * This intermediate base class is used for all container nodes,
  * specifically, array and object nodes.
  */
-public abstract class ContainerNode
+public abstract class ContainerNode<T extends ContainerNode<T>>
     extends BaseJsonNode
 {
     /**
@@ -19,7 +19,7 @@ public abstract class ContainerNode
      * that can construct instances of nodes to add to this container
      * node.
      */
-    JsonNodeFactory _nodeFactory;
+    protected final JsonNodeFactory _nodeFactory;
 
     protected ContainerNode(JsonNodeFactory nc)
     {
@@ -120,7 +120,7 @@ public abstract class ContainerNode
      *
      * @return Container node itself (to allow method call chaining)
      */
-    public abstract ContainerNode removeAll();
+    public abstract T removeAll();
 
     /*
     /**********************************************************

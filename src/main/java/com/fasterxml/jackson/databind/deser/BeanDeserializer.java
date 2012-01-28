@@ -1097,8 +1097,11 @@ public class BeanDeserializer
             // Skip field name:
             jp.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
-            
-            if (prop != null) { // normal case
+            if (prop != null) {
+                if (!prop.visibleInView(activeView)) {
+                    jp.skipChildren();
+                    continue;
+                }
                 try {
                     prop.deserializeAndSet(jp, ctxt, bean);
                 } catch (Exception e) {

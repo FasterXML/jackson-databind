@@ -37,6 +37,7 @@ New features:
 
 * [JACKSON-437]: Allow injecting of type id as POJO property, by setting
   new '@JsonTypeInfo.visible' property to true.
+* [JACKSON-608]: Allow use of Json Views for deserialization
 * [JACKSON-669]: Allow prefix/suffix for @JsonUnwrapped properties
  (requested by Aner P)
 * [JACKSON-718]: Added 'JsonNode.canConvertToInt()', 'JsonNode.canConvertToLong()'

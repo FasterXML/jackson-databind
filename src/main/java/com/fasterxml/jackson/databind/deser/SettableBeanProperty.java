@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.ViewMatcher;
 
 /**
  * Base class for settable properties of a bean: contains
@@ -69,11 +70,11 @@ public abstract class SettableBeanProperty
     protected String _managedReferenceName;
 
     /**
-     * If property has associated view information (list of
-     * Views in which property is to be included), this contains
-     * those views; if not, will be null.
+     * Helper object used for checking whether this property is to
+     * be included in the active view, if property is view-specific;
+     * null otherwise.
      */
-    protected Class<?>[] _views;
+    protected ViewMatcher _viewMatcher;
     
     /**
      * Index of property (within all property of a bean); assigned
@@ -107,6 +108,7 @@ public abstract class SettableBeanProperty
         _type = type;
         _contextAnnotations = contextAnnotations;
         _valueTypeDeserializer = typeDeser;
+        _viewMatcher = null;
     }
 
     /**
@@ -122,6 +124,7 @@ public abstract class SettableBeanProperty
         _nullProvider = src._nullProvider;
         _managedReferenceName = src._managedReferenceName;
         _propertyIndex = src._propertyIndex;
+        _viewMatcher = src._viewMatcher;
     }
 
     /**
@@ -143,6 +146,7 @@ public abstract class SettableBeanProperty
             Object nvl = deser.getNullValue();
             _nullProvider = (nvl == null) ? null : new NullProvider(_type, nvl);
         }
+        _viewMatcher = src._viewMatcher;
     }
 
     /**
@@ -158,6 +162,7 @@ public abstract class SettableBeanProperty
         _nullProvider = src._nullProvider;
         _managedReferenceName = src._managedReferenceName;
         _propertyIndex = src._propertyIndex;
+        _viewMatcher = src._viewMatcher;
     }
     
     public abstract SettableBeanProperty withValueDeserializer(JsonDeserializer<Object> deser);
@@ -169,7 +174,11 @@ public abstract class SettableBeanProperty
     }
     
     public void setViews(Class<?>[] views) {
-        _views = views;
+        if (views == null) {
+            _viewMatcher = null;
+        } else {
+            _viewMatcher = ViewMatcher.construct(views);
+        }
     }
     
     /**
@@ -225,9 +234,11 @@ public abstract class SettableBeanProperty
 
     public TypeDeserializer getValueTypeDeserializer() { return _valueTypeDeserializer; }
 
-    public Class<?>[] getViews() { return _views; }
-
-    public boolean hasViews() { return _views != null; }
+    public boolean visibleInView(Class<?> activeView) {
+        return (_viewMatcher == null) || _viewMatcher.isVisibleForView(activeView);
+    }
+    
+    public boolean hasViews() { return _viewMatcher != null; }
     
     /**
      * Method for accessing unique index of this property; indexes are

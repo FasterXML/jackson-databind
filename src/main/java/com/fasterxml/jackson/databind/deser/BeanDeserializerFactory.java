@@ -36,6 +36,8 @@ public class BeanDeserializerFactory
      */
     private final static Class<?>[] INIT_CAUSE_PARAMS = new Class<?>[] { Throwable.class };
 
+    private final static Class<?>[] NO_VIEWS = new Class<?>[0];
+    
     /*
     /**********************************************************
     /* Life-cycle
@@ -438,8 +440,15 @@ public class BeanDeserializerFactory
                 }
             }
             if (prop != null) {
+                Class<?>[] views = propDef.findViews();
+                if (views == null) {
+                    // one more twist: if default inclusion disabled, need to force empty set of views
+                    if (!ctxt.isEnabled(MapperConfig.Feature.DEFAULT_VIEW_INCLUSION)) {
+                        views = NO_VIEWS;
+                    }
+                }
                 // one more thing before adding to builder: copy any metadata
-                prop.setViews(propDef.findViews());
+                prop.setViews(views);
                 builder.addProperty(prop);
             }
         }

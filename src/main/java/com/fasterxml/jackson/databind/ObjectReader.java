@@ -21,11 +21,13 @@ import com.fasterxml.jackson.databind.util.RootNameLookup;
  * Builder object that can be used for per-serialization configuration of
  * deserialization parameters, such as root type to use or object
  * to update (instead of constructing new instance).
- * Uses "fluid" (aka builder) pattern so that instances are immutable
+ *<p>
+ * Uses "fluent" (aka builder) pattern so that instances are immutable
  * (and thus fully thread-safe with no external synchronization);
  * new instances are constructed for different configurations.
  * Instances are initially constructed by {@link ObjectMapper} and can be
- * reused.
+ * reused, shared, cached; both because of thread-safety and because
+ * instances are relatively light-weight.
  */
 public class ObjectReader
     extends ObjectCodec
@@ -344,8 +346,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader withType(TypeReference<?> valueTypeRef)
-    {
+    public ObjectReader withType(TypeReference<?> valueTypeRef) {
         return withType(_config.getTypeFactory().constructType(valueTypeRef.getType()));
     }    
 
@@ -366,7 +367,19 @@ public class ObjectReader
         JavaType t = (_valueType == null) ? _config.constructType(value.getClass()) : _valueType;
         return new ObjectReader(this, _config, t, value,
                 _schema, _injectableValues);
-    }    
+    }
+
+    /**
+     * Method for constructing a new instance with configuration that
+     * uses specified View for filtering.
+     *<p>
+     * Note that the method does NOT change state of this reader, but
+     * rather construct and returns a newly configured instance.
+     */
+    public ObjectReader withView(Class<?> activeView) {
+        DeserializationConfig newConfig = _config.withView(activeView);
+        return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+    }
     
     /*
     /**********************************************************

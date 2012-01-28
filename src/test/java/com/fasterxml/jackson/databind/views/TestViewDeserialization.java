@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.views;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 public class TestViewDeserialization extends BaseMapTest
 {
@@ -32,6 +33,14 @@ public class TestViewDeserialization extends BaseMapTest
         public void setB(int value) { b = value; }
     }
 
+    static class DefaultsBean
+    {
+        public int a;
+
+        @JsonView(ViewA.class)
+        public int b;
+    }
+
     /*
     /************************************************************************ 
     /* Tests
@@ -42,7 +51,15 @@ public class TestViewDeserialization extends BaseMapTest
     
     public void testSimple() throws Exception
     {
-        Bean bean = mapper.readerWithView(ViewAA.class)
+        // by default, should have it all...
+        Bean bean = mapper
+                .readValue("{\"a\":3, \"aa\":\"foo\", \"b\": 9 }", Bean.class);
+        assertEquals(3, bean.a);
+        assertEquals("foo", bean.aa);
+        assertEquals(9, bean.b);
+        
+        // but with different views, different contents
+        bean = mapper.readerWithView(ViewAA.class)
                 .withType(Bean.class)
                 .readValue("{\"a\":3, \"aa\":\"foo\", \"b\": 9 }");
         // should include 'a' and 'aa' (as per view)
@@ -50,5 +67,39 @@ public class TestViewDeserialization extends BaseMapTest
         assertEquals("foo", bean.aa);
         // but not 'b'
         assertEquals(0, bean.b);
+
+        bean = mapper.readerWithView(ViewA.class)
+                .withType(Bean.class)
+                .readValue("{\"a\":1, \"aa\":\"x\", \"b\": 3 }");
+        assertEquals(1, bean.a);
+        assertNull(bean.aa);
+        assertEquals(0, bean.b);
+        
+        bean = mapper.reader(Bean.class)
+                .withView(ViewB.class)
+                .readValue("{\"a\":-3, \"aa\":\"y\", \"b\": 2 }");
+        assertEquals(0, bean.a);
+        assertEquals("y", bean.aa);
+        assertEquals(2, bean.b);
+    }
+
+    public void testWithoutDefaultInclusion() throws Exception
+    {
+        // without active view, all included still:
+        DefaultsBean bean = mapper
+                .readValue("{\"a\":3, \"b\": 9 }", DefaultsBean.class);
+        assertEquals(3, bean.a);
+        assertEquals(9, bean.b);
+
+        ObjectMapper myMapper = new ObjectMapper();
+        myMapper.disable(MapperConfig.Feature.DEFAULT_VIEW_INCLUSION);
+
+        // but with, say, AA, will not get 'b'
+        bean = myMapper.readerWithView(ViewAA.class)
+                .withType(DefaultsBean.class)
+                .readValue("{\"a\":1, \"b\": 2 }");
+        // 'a' not there any more
+        assertEquals(0, bean.a);
+        assertEquals(2, bean.b);
     }
 }

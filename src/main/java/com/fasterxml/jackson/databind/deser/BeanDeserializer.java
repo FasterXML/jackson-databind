@@ -1144,7 +1144,6 @@ public class BeanDeserializer
         if (_propertyBasedCreator != null) {
             return deserializeUsingPropertyBasedWithUnwrapped(jp, ctxt);
         }
-        
         TokenBuffer tokens = new TokenBuffer(jp.getCodec());
         tokens.writeStartObject();
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
@@ -1152,12 +1151,18 @@ public class BeanDeserializer
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
+
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         
         for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
             String propName = jp.getCurrentName();
             jp.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) { // normal case
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    jp.skipChildren();
+                    continue;
+                }
                 try {
                     prop.deserializeAndSet(jp, ctxt, bean);
                 } catch (Exception e) {
@@ -1197,11 +1202,16 @@ public class BeanDeserializer
         }
         TokenBuffer tokens = new TokenBuffer(jp.getCodec());
         tokens.writeStartObject();
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             String propName = jp.getCurrentName();
             SettableBeanProperty prop = _beanProperties.find(propName);
             jp.nextToken();
             if (prop != null) { // normal case
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    jp.skipChildren();
+                    continue;
+                }
                 try {
                     prop.deserializeAndSet(jp, ctxt, bean);
                 } catch (Exception e) {
@@ -1321,12 +1331,17 @@ public class BeanDeserializer
             Object bean)
         throws IOException, JsonProcessingException
     {
+        final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
         for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
             String propName = jp.getCurrentName();
             jp.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) { // normal case
+                if (activeView != null && !prop.visibleInView(activeView)) {
+                    jp.skipChildren();
+                    continue;
+                }
                 try {
                     prop.deserializeAndSet(jp, ctxt, bean);
                 } catch (Exception e) {

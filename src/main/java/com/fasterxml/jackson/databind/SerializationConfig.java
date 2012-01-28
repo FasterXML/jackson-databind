@@ -645,12 +645,6 @@ public final class SerializationConfig
     /**********************************************************
      */
 
-    /**
-     * Method for checking which serialization view is being used,
-     * if any; null if none.
-     */
-    public Class<?> getSerializationView() { return _view; }
-
     public JsonInclude.Include getSerializationInclusion()
     {
         if (_serializationInclusion != null) {

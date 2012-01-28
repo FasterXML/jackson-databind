@@ -22,6 +22,8 @@ public abstract class DeserializationContext
     protected final DeserializationConfig _config;
 
     protected final int _featureFlags;
+
+    protected final Class<?> _view;
     
     /*
     /**********************************************************
@@ -33,6 +35,7 @@ public abstract class DeserializationContext
     {
         _config = config;
         _featureFlags = config.getFeatureFlags();
+        _view = config.getActiveView();
     }
 
     /*
@@ -64,6 +67,10 @@ public abstract class DeserializationContext
 
     public final boolean isEnabled(MapperConfig.Feature feat) {
         return _config.isEnabled(feat);
+    }
+
+    public final Class<?> getActiveView() {
+        return _view;
     }
     
     public final boolean canOverrideAccessModifiers() {

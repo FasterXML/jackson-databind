@@ -337,10 +337,9 @@ public class ObjectWriter
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectWriter withView(Class<?> view)
-    {
-        return (view == _config.getSerializationView()) ? this
-            : new ObjectWriter(this, _config.withView(view));
+    public ObjectWriter withView(Class<?> view) {
+        SerializationConfig newConfig = _config.withView(view);
+        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
     }    
     
     /*

@@ -86,6 +86,12 @@ public class BeanDeserializer
      * values to consider.
      */
     protected boolean _nonStandardCreation;
+
+    /**
+     * Flag that indicates that no "special features" whatsoever
+     * are enabled, so the simplest processing is possible.
+     */
+    protected boolean _vanillaProcessing;
     
     /*
     /**********************************************************
@@ -215,6 +221,11 @@ public class BeanDeserializer
             ;
 
         _needViewProcesing = hasViews;    
+
+        _vanillaProcessing = !_nonStandardCreation
+                && (_injectables == null)
+                && !_needViewProcesing
+                ;
     }
 
     /**
@@ -248,6 +259,8 @@ public class BeanDeserializer
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
+
+        _vanillaProcessing = src._vanillaProcessing;
     }
     
     protected BeanDeserializer(BeanDeserializer src, NameTransformer unwrapper)
@@ -282,6 +295,8 @@ public class BeanDeserializer
             _beanProperties = src._beanProperties;
         }
         _needViewProcesing = src._needViewProcesing;
+        // probably adds a twist, so:
+        _vanillaProcessing = false;        
     }
 
     @Override
@@ -457,6 +472,9 @@ public class BeanDeserializer
         if (unwrapped != null) { // we consider this non-standard, to offline handling
             _nonStandardCreation = true;
         }
+
+        // may need to disable vanilla processing, if unwrapped handling was enabled...
+        _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
     }
 
     /**
@@ -580,7 +598,10 @@ public class BeanDeserializer
         JsonToken t = jp.getCurrentToken();
         // common case first:
         if (t == JsonToken.START_OBJECT) {
-            jp.nextToken();
+            t = jp.nextToken();
+            if (_vanillaProcessing) {
+                return vanillaDeserialize(jp, ctxt, t);
+            }
             return deserializeFromObject(jp, ctxt);
         }
         // and then others, generally requiring use of @JsonCreator
@@ -614,7 +635,7 @@ public class BeanDeserializer
     @Override
     public Object deserialize(JsonParser jp, DeserializationContext ctxt, Object bean)
         throws IOException, JsonProcessingException
-    {
+    {        
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
@@ -623,6 +644,12 @@ public class BeanDeserializer
         }
         if (_externalTypeIdHandler != null) {
             return deserializeWithExternalTypeId(jp, ctxt, bean);
+        }
+        if (_needViewProcesing) {
+            Class<?> view = ctxt.getActiveView();
+            if (view != null) {
+                return deserializeWithView(jp, ctxt, bean, view);
+            }
         }
         JsonToken t = jp.getCurrentToken();
         // 23-Mar-2010, tatu: In some cases, we start with full JSON object too...
@@ -673,7 +700,60 @@ public class BeanDeserializer
     /* Concrete deserialization methods
     /**********************************************************
      */
-    
+
+    /**
+     * Streamlined version that is only used when no "special"
+     * features are enabled.
+     */
+    private final Object vanillaDeserialize(JsonParser jp, DeserializationContext ctxt,
+            JsonToken t)
+        throws IOException, JsonProcessingException
+    {
+        final Object bean = _valueInstantiator.createUsingDefault(ctxt);
+        for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
+            String propName = jp.getCurrentName();
+            // Skip field name:
+            jp.nextToken();
+            SettableBeanProperty prop = _beanProperties.find(propName);
+            if (prop != null) { // normal case
+                try {
+                    prop.deserializeAndSet(jp, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, propName, ctxt);
+                }
+            } else {
+                _vanillaDeserializeHandleUnknown(jp, ctxt, bean, propName);
+            }
+        }
+        return bean;
+    }
+
+    /**
+     * Helper method called for an unknown property, when using "vanilla"
+     * processing.
+     */
+    private final void _vanillaDeserializeHandleUnknown(JsonParser jp, DeserializationContext ctxt,
+            Object bean, String propName)
+        throws IOException, JsonProcessingException
+    {
+        if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            jp.skipChildren();
+        } else if (_anySetter != null) {
+            try {
+                _anySetter.deserializeAndSet(jp, ctxt, bean, propName);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, propName, ctxt);
+            }
+        } else {
+            // Unknown: let's call handler method
+            handleUnknownProperty(jp, ctxt, bean, propName);         
+        }
+    }
+
+    /**
+     * General version used when handling needs more advanced
+     * features.
+     */
     public Object deserializeFromObject(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -686,10 +766,15 @@ public class BeanDeserializer
             }
             return deserializeFromObjectUsingNonDefault(jp, ctxt);
         }
-
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         if (_injectables != null) {
             injectValues(ctxt, bean);
+        }
+        if (_needViewProcesing) {
+            Class<?> view = ctxt.getActiveView();
+            if (view != null) {
+                return deserializeWithView(jp, ctxt, bean, view);
+            }
         }
         for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
             String propName = jp.getCurrentName();
@@ -992,6 +1077,47 @@ public class BeanDeserializer
         // and/or things left to process via main parser?
         if (jp != null) {
             bean = deserialize(jp, ctxt, bean);
+        }
+        return bean;
+    }
+
+    /*
+    /**********************************************************
+    /* Deserializing when we have to consider an active View
+    /**********************************************************
+     */
+    
+    protected final Object deserializeWithView(JsonParser jp, DeserializationContext ctxt,
+            Object bean, Class<?> activeView)
+        throws IOException, JsonProcessingException
+    {
+        JsonToken t = jp.getCurrentToken();
+        for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
+            String propName = jp.getCurrentName();
+            // Skip field name:
+            jp.nextToken();
+            SettableBeanProperty prop = _beanProperties.find(propName);
+            
+            if (prop != null) { // normal case
+                try {
+                    prop.deserializeAndSet(jp, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, propName, ctxt);
+                }
+                continue;
+            }
+            /* As per [JACKSON-313], things marked as ignorable should not be
+             * passed to any setter
+             */
+            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+                jp.skipChildren();
+            } else if (_anySetter != null) {
+                _anySetter.deserializeAndSet(jp, ctxt, bean, propName);
+                continue;
+            } else {
+                // Unknown: let's call handler method
+                handleUnknownProperty(jp, ctxt, bean, propName);
+            }
         }
         return bean;
     }

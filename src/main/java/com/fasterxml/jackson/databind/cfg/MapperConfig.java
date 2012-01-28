@@ -478,27 +478,9 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     
     /*
     /**********************************************************
-    /* Configuration: other
+    /* Configuration: introspection support
     /**********************************************************
      */
-    
-    /**
-     * Method for accessing currently configured (textual) date format
-     * that will be used for reading or writing date values (in case
-     * of writing, only if textual output is configured; not if dates
-     * are to be serialized as time stamps).
-     *<p>
-     * Note that typically {@link DateFormat} instances are <b>not thread-safe</b>
-     * (at least ones provided by JDK):
-     * this means that calling code should clone format instance before
-     * using it.
-     *<p>
-     * This method is usually only called by framework itself, since there
-     * are convenience methods available via
-     * {@link DeserializationContext} and {@link SerializerProvider} that
-     * take care of cloning and thread-safe reuse.
-     */
-    public final DateFormat getDateFormat() { return _base.getDateFormat(); }
 
     /**
      * Accessor for getting bean description that only contains class
@@ -528,7 +510,36 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * not from super types.
      */
     public abstract BeanDescription introspectDirectClassAnnotations(JavaType type);
-        
+
+    /*
+    /**********************************************************
+    /* Configuration: other
+    /**********************************************************
+     */
+    
+    /**
+     * Method for accessing currently configured (textual) date format
+     * that will be used for reading or writing date values (in case
+     * of writing, only if textual output is configured; not if dates
+     * are to be serialized as time stamps).
+     *<p>
+     * Note that typically {@link DateFormat} instances are <b>not thread-safe</b>
+     * (at least ones provided by JDK):
+     * this means that calling code should clone format instance before
+     * using it.
+     *<p>
+     * This method is usually only called by framework itself, since there
+     * are convenience methods available via
+     * {@link DeserializationContext} and {@link SerializerProvider} that
+     * take care of cloning and thread-safe reuse.
+     */
+    public final DateFormat getDateFormat() { return _base.getDateFormat(); }
+
+    /**
+     * Accessor for finding currently active view, if any (null if none)
+     */
+    public abstract Class<?> getActiveView();
+    
     /*
     /**********************************************************
     /* Methods for instantiating handlers

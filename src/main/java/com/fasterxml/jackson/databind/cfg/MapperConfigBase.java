@@ -275,6 +275,10 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public final String getRootName() {
         return _rootName;
     }
+
+    public final Class<?> getActiveView() {
+        return _view;
+    }
     
     /*
     /**********************************************************

@@ -27,6 +27,8 @@ public class ThrowableDeserializer
     public ThrowableDeserializer(BeanDeserializer baseDeserializer)
     {
         super(baseDeserializer);
+        // need to disable this, since we do post-processing
+        _vanillaProcessing = false;
     }
 
     /**

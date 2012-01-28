@@ -40,7 +40,7 @@ public abstract class SerializerProvider
     protected SerializerProvider(SerializationConfig config)
     {
         _config = config;
-        _serializationView = (config == null) ? null : _config.getSerializationView();
+        _serializationView = (config == null) ? null : _config.getActiveView();
     }
 
     /*

@@ -439,7 +439,7 @@ public class BeanDeserializerFactory
             }
             if (prop != null) {
                 // one more thing before adding to builder: copy any metadata
-                prop.setViews(propDef.getViews());
+                prop.setViews(propDef.findViews());
                 builder.addProperty(prop);
             }
         }
@@ -619,7 +619,7 @@ public class BeanDeserializerFactory
             prop = prop.withValueDeserializer(propDeser);
         }
         // [JACKSON-235]: need to retain name of managed forward references:
-        AnnotationIntrospector.ReferenceProperty ref = ctxt.getAnnotationIntrospector().findReferenceType(mutator);
+        AnnotationIntrospector.ReferenceProperty ref = propDef.findReferenceType();
         if (ref != null && ref.isManagedReference()) {
             prop.setManagedReferenceName(ref.getName());
         }

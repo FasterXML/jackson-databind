@@ -32,13 +32,13 @@ public class POJOPropertyBuilder
      */
     protected final String _internalName;
 
-    protected Node<AnnotatedField> _fields;
+    protected Linked<AnnotatedField> _fields;
     
-    protected Node<AnnotatedParameter> _ctorParameters;
+    protected Linked<AnnotatedParameter> _ctorParameters;
     
-    protected Node<AnnotatedMethod> _getters;
+    protected Linked<AnnotatedMethod> _getters;
 
-    protected Node<AnnotatedMethod> _setters;
+    protected Linked<AnnotatedMethod> _setters;
     
     public POJOPropertyBuilder(String internalName, AnnotationIntrospector annotationIntrospector,
             boolean forSerialization)
@@ -134,7 +134,7 @@ public class POJOPropertyBuilder
         }
         // If multiple, verify that they do not conflict...
         AnnotatedMethod getter = _getters.value;
-        Node<AnnotatedMethod> next = _getters.next;
+        Linked<AnnotatedMethod> next = _getters.next;
         for (; next != null; next = next.next) {
             /* [JACKSON-255] Allow masking, i.e. report exception only if
              *   declarations in same class, or there's no inheritance relationship
@@ -166,7 +166,7 @@ public class POJOPropertyBuilder
         }
         // If multiple, verify that they do not conflict...
         AnnotatedMethod setter = _setters.value;
-        Node<AnnotatedMethod> next = _setters.next;
+        Linked<AnnotatedMethod> next = _setters.next;
         for (; next != null; next = next.next) {
             /* [JACKSON-255] Allow masking, i.e. report exception only if
              *   declarations in same class, or there's no inheritance relationship
@@ -198,7 +198,7 @@ public class POJOPropertyBuilder
         }
         // If multiple, verify that they do not conflict...
         AnnotatedField field = _fields.value;
-        Node<AnnotatedField> next = _fields.next;
+        Linked<AnnotatedField> next = _fields.next;
         for (; next != null; next = next.next) {
             AnnotatedField nextField = next.value;
             Class<?> fieldClass = field.getDeclaringClass();
@@ -232,7 +232,7 @@ public class POJOPropertyBuilder
          * if none, first factory method. And don't check for dups, if we must,
          * can start checking for them later on.
          */
-        Node<AnnotatedParameter> curr = _ctorParameters;
+        Linked<AnnotatedParameter> curr = _ctorParameters;
         do {
             if (curr.value.getOwner() instanceof AnnotatedConstructor) {
                 return curr.value;
@@ -269,24 +269,22 @@ public class POJOPropertyBuilder
      * Method that will try to find JSON View inclusion information
      * for this property.
      */
-    public Class<?>[] getViews()
-    {
-        if (_annotationIntrospector != null) {
-            AnnotatedMember m;
-            if (_forSerialization) {
-                m = getAccessor();
-            } else {
-                m = getMutator();
-                // one kink: may use "getter-as-setter"...
-                if (m == null) {
-                    m = getGetter();
-                }
+    @Override
+    public Class<?>[] findViews() {
+        return fromMemberAnnotation(new WithMember<Class<?>[]>() {
+            @Override public Class<?>[] withMember(AnnotatedMember member) {
+                return _annotationIntrospector.findViews(member);
             }
-            if (m != null) {
-                return _annotationIntrospector.findViews(m);
+        });
+    }
+
+    @Override
+    public AnnotationIntrospector.ReferenceProperty findReferenceType() {
+        return fromMemberAnnotation(new WithMember<AnnotationIntrospector.ReferenceProperty>() {
+            @Override public AnnotationIntrospector.ReferenceProperty withMember(AnnotatedMember member) {
+                return _annotationIntrospector.findReferenceType(member);
             }
-        }
-        return null;
+        });
     }
     
     /*
@@ -296,19 +294,19 @@ public class POJOPropertyBuilder
      */
     
     public void addField(AnnotatedField a, String ename, boolean visible, boolean ignored) {
-        _fields = new Node<AnnotatedField>(a, _fields, ename, visible, ignored);
+        _fields = new Linked<AnnotatedField>(a, _fields, ename, visible, ignored);
     }
 
     public void addCtor(AnnotatedParameter a, String ename, boolean visible, boolean ignored) {
-        _ctorParameters = new Node<AnnotatedParameter>(a, _ctorParameters, ename, visible, ignored);
+        _ctorParameters = new Linked<AnnotatedParameter>(a, _ctorParameters, ename, visible, ignored);
     }
 
     public void addGetter(AnnotatedMethod a, String ename, boolean visible, boolean ignored) {
-        _getters = new Node<AnnotatedMethod>(a, _getters, ename, visible, ignored);
+        _getters = new Linked<AnnotatedMethod>(a, _getters, ename, visible, ignored);
     }
 
     public void addSetter(AnnotatedMethod a, String ename, boolean visible, boolean ignored) {
-        _setters = new Node<AnnotatedMethod>(a, _setters, ename, visible, ignored);
+        _setters = new Linked<AnnotatedMethod>(a, _setters, ename, visible, ignored);
     }
 
     /**
@@ -323,7 +321,7 @@ public class POJOPropertyBuilder
         _setters = merge(_setters, src._setters);
     }
 
-    private static <T> Node<T> merge(Node<T> chain1, Node<T> chain2)
+    private static <T> Linked<T> merge(Linked<T> chain1, Linked<T> chain2)
     {
         if (chain1 == null) {
             return chain2;
@@ -407,7 +405,7 @@ public class POJOPropertyBuilder
         }
     }
 
-    private AnnotationMap _mergeAnnotations(int index, Node<? extends AnnotatedMember>... nodes)
+    private AnnotationMap _mergeAnnotations(int index, Linked<? extends AnnotatedMember>... nodes)
     {
         AnnotationMap ann = nodes[index].value.getAllAnnotations();
         ++index;
@@ -419,7 +417,7 @@ public class POJOPropertyBuilder
         return ann;
     }
     
-    private <T> Node<T> _removeIgnored(Node<T> node)
+    private <T> Linked<T> _removeIgnored(Linked<T> node)
     {
         if (node == null) {
             return node;
@@ -427,7 +425,7 @@ public class POJOPropertyBuilder
         return node.withoutIgnored();
     }
 
-    private <T> Node<T> _removeNonVisible(Node<T> node)
+    private <T> Linked<T> _removeNonVisible(Linked<T> node)
     {
         if (node == null) {
             return node;
@@ -435,7 +433,7 @@ public class POJOPropertyBuilder
         return node.withoutNonVisible();
     }
 
-    private <T> Node<T> _trimByVisibility(Node<T> node)
+    private <T> Linked<T> _trimByVisibility(Linked<T> node)
     {
         if (node == null) {
             return node;
@@ -457,7 +455,7 @@ public class POJOPropertyBuilder
                 ;
     }
 
-    private <T> boolean _anyExplicitNames(Node<T> n)
+    private <T> boolean _anyExplicitNames(Linked<T> n)
     {
         for (; n != null; n = n.next) {
             if (n.explicitName != null && n.explicitName.length() > 0) {
@@ -475,7 +473,7 @@ public class POJOPropertyBuilder
         ;
     }
 
-    private <T> boolean _anyVisible(Node<T> n)
+    private <T> boolean _anyVisible(Linked<T> n)
     {
         for (; n != null; n = n.next) {
             if (n.isVisible) {
@@ -493,7 +491,7 @@ public class POJOPropertyBuilder
         ;
     }
 
-    private <T> boolean _anyIgnorals(Node<T> n)
+    private <T> boolean _anyIgnorals(Linked<T> n)
     {
         for (; n != null; n = n.next) {
             if (n.isMarkedIgnored) {
@@ -510,7 +508,7 @@ public class POJOPropertyBuilder
      */
     public String findNewName()
     {
-        Node<? extends AnnotatedMember> renamed = null;
+        Linked<? extends AnnotatedMember> renamed = null;
         renamed = findRenamed(_fields, renamed);
         renamed = findRenamed(_getters, renamed);
         renamed = findRenamed(_setters, renamed);
@@ -518,8 +516,8 @@ public class POJOPropertyBuilder
         return (renamed == null) ? null : renamed.explicitName;
     }
 
-    private Node<? extends AnnotatedMember> findRenamed(Node<? extends AnnotatedMember> node,
-            Node<? extends AnnotatedMember> renamed)
+    private Linked<? extends AnnotatedMember> findRenamed(Linked<? extends AnnotatedMember> node,
+            Linked<? extends AnnotatedMember> renamed)
     {
         for (; node != null; node = node.next) {
             String explName = node.explicitName;
@@ -561,24 +559,61 @@ public class POJOPropertyBuilder
     
     /*
     /**********************************************************
-    /* Helper classes
+    /* Helper methods
     /**********************************************************
      */
 
     /**
+     * Helper method used for finding annotation values
+     */
+    protected <T> T fromMemberAnnotation(WithMember<T> func)
+    {
+        T result = null;
+        if (_annotationIntrospector != null) {
+            if (_forSerialization) {
+                if (_getters != null) {
+                    result = func.withMember(_getters.value);
+                }
+            } else {
+                if (_ctorParameters != null) {
+                    result = func.withMember(_ctorParameters.value);
+                }
+                if (result == null && _setters != null) {
+                    result = func.withMember(_setters.value);
+                }
+            }
+            if (result == null && _fields != null) {
+                result = func.withMember(_fields.value);
+            }
+        }
+        return result;
+    }
+    
+    /*
+    /**********************************************************
+    /* Helper classes
+    /**********************************************************
+     */
+
+    private interface WithMember<T>
+    {
+        public T withMember(AnnotatedMember member);
+    }
+    
+    /**
      * Node used for creating simple linked lists to efficiently store small sets
      * of things.
      */
-    private final static class Node<T>
+    private final static class Linked<T>
     {
         public final T value;
-        public final Node<T> next;
+        public final Linked<T> next;
 
         public final String explicitName;
         public final boolean isVisible;
         public final boolean isMarkedIgnored;
         
-        public Node(T v, Node<T> n,
+        public Linked(T v, Linked<T> n,
                 String explName, boolean visible, boolean ignored)
         {
             value = v;
@@ -593,28 +628,28 @@ public class POJOPropertyBuilder
             isMarkedIgnored = ignored;
         }
 
-        public Node<T> withValue(T newValue)
+        public Linked<T> withValue(T newValue)
         {
             if (newValue == value) {
                 return this;
             }
-            return new Node<T>(newValue, next, explicitName, isVisible, isMarkedIgnored);
+            return new Linked<T>(newValue, next, explicitName, isVisible, isMarkedIgnored);
         }
         
-        public Node<T> withNext(Node<T> newNext) {
+        public Linked<T> withNext(Linked<T> newNext) {
             if (newNext == next) {
                 return this;
             }
-            return new Node<T>(value, newNext, explicitName, isVisible, isMarkedIgnored);
+            return new Linked<T>(value, newNext, explicitName, isVisible, isMarkedIgnored);
         }
         
-        public Node<T> withoutIgnored()
+        public Linked<T> withoutIgnored()
         {
             if (isMarkedIgnored) {
                 return (next == null) ? null : next.withoutIgnored();
             }
             if (next != null) {
-                Node<T> newNext = next.withoutIgnored();
+                Linked<T> newNext = next.withoutIgnored();
                 if (newNext != next) {
                     return withNext(newNext);
                 }
@@ -622,9 +657,9 @@ public class POJOPropertyBuilder
             return this;
         }
         
-        public Node<T> withoutNonVisible()
+        public Linked<T> withoutNonVisible()
         {
-            Node<T> newNext = (next == null) ? null : next.withoutNonVisible();
+            Linked<T> newNext = (next == null) ? null : next.withoutNonVisible();
             return isVisible ? withNext(newNext) : newNext;
         }
 
@@ -632,7 +667,7 @@ public class POJOPropertyBuilder
          * Method called to append given node(s) at the end of this
          * node chain.
          */
-        private Node<T> append(Node<T> appendable) 
+        private Linked<T> append(Linked<T> appendable) 
         {
             if (next == null) {
                 return withNext(appendable);
@@ -640,12 +675,12 @@ public class POJOPropertyBuilder
             return withNext(next.append(appendable));
         }
         
-        public Node<T> trimByVisibility()
+        public Linked<T> trimByVisibility()
         {
             if (next == null) {
                 return this;
             }
-            Node<T> newNext = next.trimByVisibility();
+            Linked<T> newNext = next.trimByVisibility();
             if (explicitName != null) { // this already has highest; how about next one?
                 if (newNext.explicitName == null) { // next one not, drop it
                     return withNext(null);

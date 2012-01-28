@@ -504,7 +504,6 @@ public class BeanSerializerFactory
         throws JsonMappingException
     {
         List<BeanPropertyDefinition> properties = beanDesc.findProperties();
-        AnnotationIntrospector intr = prov.getAnnotationIntrospector();
         final SerializationConfig config = prov.getConfig();
 
         // [JACKSON-429]: ignore specified types
@@ -529,8 +528,8 @@ public class BeanSerializerFactory
         for (BeanPropertyDefinition property : properties) {
             AnnotatedMember accessor = property.getAccessor();
             // [JACKSON-235]: suppress writing of back references
-            AnnotationIntrospector.ReferenceProperty prop = intr.findReferenceType(accessor);
-            if (prop != null && prop.isBackReference()) {
+            AnnotationIntrospector.ReferenceProperty refType = property.findReferenceType();
+            if (refType != null && refType.isBackReference()) {
                 continue;
             }
             if (accessor instanceof AnnotatedMethod) {

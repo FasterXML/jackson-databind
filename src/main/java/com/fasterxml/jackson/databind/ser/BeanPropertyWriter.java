@@ -189,7 +189,7 @@ public class BeanPropertyWriter
         }
         _suppressNulls = suppressNulls;
         _suppressableValue = suppressableValue;
-        _includeInViews = propDef.getViews();
+        _includeInViews = propDef.findViews();
 
         // this will be resolved later on, unless nulls are to be suppressed
         _nullSerializer = null;

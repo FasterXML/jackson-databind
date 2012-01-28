@@ -145,18 +145,4 @@ public class SimpleBeanPropertyDefinition
         }
         return acc;
     }
-
-    /*
-    /*****************************************************
-    /* More refined access to features
-    /*****************************************************
-     */
-
-    /* Hmmh. Should we actually consider defining this in future?
-     * Should either pass views via construction, or pass
-     * <code>AnnotationIntrospector</code>, call dynamically.
-     */
-    public Class<?>[] getViews() {
-        return null;
-    }
 }

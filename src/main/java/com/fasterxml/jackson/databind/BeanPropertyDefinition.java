@@ -96,12 +96,21 @@ public abstract class BeanPropertyDefinition
 
     /*
     /*****************************************************
-    /* More refined access to features
+    /* More refined access to configuration features
+    /* (usually based on annotations)
     /*****************************************************
      */
     
     /**
      * Method used to find View-inclusion definitions for the property.
      */
-    public abstract Class<?>[] getViews();
+    public Class<?>[] findViews() { return null; }
+
+    /**
+     * Method used to find whether property is part of a bi-directional
+     * reference.
+     */
+    public AnnotationIntrospector.ReferenceProperty findReferenceType() {
+        return null;
+    }
 }

@@ -32,6 +32,8 @@ Improvements
 * [JACKSON-749]: Make @JsonValue work for Enum deserialization
 * [JACKSON-769]: ObjectNode/ArrayNode: change 'put', 'insert', 'add' to return
   'this node' (unless already returning something)
+* [JACKSON-770]: Simplify method naming for JsonNode, drop unnecessary 'get' prefix
+  from methods like 'getTextValue()' (becomes 'textValue()')
 
 New features:
 

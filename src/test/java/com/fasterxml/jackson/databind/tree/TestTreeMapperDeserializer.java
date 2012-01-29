@@ -40,8 +40,8 @@ public class TestTreeMapperDeserializer
             assertTrue(result.isObject());
             
             ObjectNode main = (ObjectNode) result;
-            assertEquals("Image", main.getFieldNames().next());
-            JsonNode ob = main.getElements().next();
+            assertEquals("Image", main.fieldNames().next());
+            JsonNode ob = main.elements().next();
             assertType(ob, ObjectNode.class);
             ObjectNode imageMap = (ObjectNode) ob;
             
@@ -49,33 +49,33 @@ public class TestTreeMapperDeserializer
             ob = imageMap.get("Width");
             assertTrue(ob.isIntegralNumber());
             assertFalse(ob.isFloatingPointNumber());
-            assertEquals(SAMPLE_SPEC_VALUE_WIDTH, ob.getIntValue());
+            assertEquals(SAMPLE_SPEC_VALUE_WIDTH, ob.intValue());
             ob = imageMap.get("Height");
             assertTrue(ob.isIntegralNumber());
-            assertEquals(SAMPLE_SPEC_VALUE_HEIGHT, ob.getIntValue());
+            assertEquals(SAMPLE_SPEC_VALUE_HEIGHT, ob.intValue());
             
             ob = imageMap.get("Title");
             assertTrue(ob.isTextual());
-            assertEquals(SAMPLE_SPEC_VALUE_TITLE, ob.getTextValue());
+            assertEquals(SAMPLE_SPEC_VALUE_TITLE, ob.textValue());
             
             ob = imageMap.get("Thumbnail");
             assertType(ob, ObjectNode.class);
             ObjectNode tn = (ObjectNode) ob;
             ob = tn.get("Url");
             assertTrue(ob.isTextual());
-            assertEquals(SAMPLE_SPEC_VALUE_TN_URL, ob.getTextValue());
+            assertEquals(SAMPLE_SPEC_VALUE_TN_URL, ob.textValue());
             ob = tn.get("Height");
             assertTrue(ob.isIntegralNumber());
-            assertEquals(SAMPLE_SPEC_VALUE_TN_HEIGHT, ob.getIntValue());
+            assertEquals(SAMPLE_SPEC_VALUE_TN_HEIGHT, ob.intValue());
             ob = tn.get("Width");
             assertTrue(ob.isTextual());
-            assertEquals(SAMPLE_SPEC_VALUE_TN_WIDTH, ob.getTextValue());
+            assertEquals(SAMPLE_SPEC_VALUE_TN_WIDTH, ob.textValue());
             
             ob = imageMap.get("IDs");
             assertTrue(ob.isArray());
             ArrayNode idList = (ArrayNode) ob;
             assertEquals(4, idList.size());
-            assertEquals(4, calcLength(idList.getElements()));
+            assertEquals(4, calcLength(idList.elements()));
             assertEquals(4, calcLength(idList.iterator()));
             {
                 int[] values = new int[] {
@@ -85,11 +85,11 @@ public class TestTreeMapperDeserializer
                     SAMPLE_SPEC_VALUE_TN_ID4
                 };
                 for (int i = 0; i < values.length; ++i) {
-                    assertEquals(values[i], idList.get(i).getIntValue());
+                    assertEquals(values[i], idList.get(i).intValue());
                 }
                 int i = 0;
                 for (JsonNode n : idList) {
-                    assertEquals(values[i], n.getIntValue());
+                    assertEquals(values[i], n.intValue());
                     ++i;
                 }
             }
@@ -106,7 +106,7 @@ public class TestTreeMapperDeserializer
         assertFalse(result.isTextual());
         assertTrue(result.isBoolean());
         assertType(result, BooleanNode.class);
-        assertTrue(result.getBooleanValue());
+        assertTrue(result.booleanValue());
         assertEquals("true", result.asText());
         assertFalse(result.isMissingNode());
 
@@ -132,10 +132,10 @@ public class TestTreeMapperDeserializer
         assertFalse(result.isTextual());
         assertFalse(result.isMissingNode());
 
-        assertEquals(value, result.getDoubleValue());
-        assertEquals(value, result.getNumberValue().doubleValue());
-        assertEquals((int) value, result.getIntValue());
-        assertEquals((long) value, result.getLongValue());
+        assertEquals(value, result.doubleValue());
+        assertEquals(value, result.numberValue().doubleValue());
+        assertEquals((int) value, result.intValue());
+        assertEquals((long) value, result.longValue());
         assertEquals(String.valueOf(value), result.asText());
 
         // also, equality should work ok
@@ -159,11 +159,11 @@ public class TestTreeMapperDeserializer
         assertFalse(result.isTextual());
         assertFalse(result.isMissingNode());
 
-        assertEquals(value, result.getNumberValue().intValue());
-        assertEquals(value, result.getIntValue());
+        assertEquals(value, result.numberValue().intValue());
+        assertEquals(value, result.intValue());
         assertEquals(String.valueOf(value), result.asText());
-        assertEquals((double) value, result.getDoubleValue());
-        assertEquals((long) value, result.getLongValue());
+        assertEquals((double) value, result.doubleValue());
+        assertEquals((long) value, result.longValue());
 
         // also, equality should work ok
         assertEquals(result, IntNode.valueOf(value));
@@ -187,10 +187,10 @@ public class TestTreeMapperDeserializer
         assertFalse(result.isTextual());
         assertFalse(result.isMissingNode());
 
-        assertEquals(value, result.getNumberValue().longValue());
-        assertEquals(value, result.getLongValue());
+        assertEquals(value, result.numberValue().longValue());
+        assertEquals(value, result.longValue());
         assertEquals(String.valueOf(value), result.asText());
-        assertEquals((double) value, result.getDoubleValue());
+        assertEquals((double) value, result.doubleValue());
 
         // also, equality should work ok
         assertEquals(result, LongNode.valueOf(value));
@@ -233,7 +233,7 @@ public class TestTreeMapperDeserializer
         assertFalse(result.isTextual());
         assertFalse(result.isMissingNode());
 
-        assertEquals(value, result.getNumberValue());
+        assertEquals(value, result.numberValue());
         assertEquals(value.toString(), result.asText());
 
         // also, equality should work ok
@@ -325,13 +325,13 @@ public class TestTreeMapperDeserializer
         assertTrue(result.isIntegralNumber());
         assertTrue(result.isInt());
         assertFalse(result.isTextual());
-        assertEquals(12, result.getIntValue());
+        assertEquals(12, result.intValue());
 
         result = mapper.readTree(jp);
         assertTrue(result.isTextual());
         assertFalse(result.isIntegralNumber());
         assertFalse(result.isInt());
-        assertEquals("string", result.getTextValue());
+        assertEquals("string", result.textValue());
 
         result = mapper.readTree(jp);
         assertTrue(result.isArray());
@@ -369,7 +369,7 @@ public class TestTreeMapperDeserializer
         assertTrue(onode.isObject());
         assertEquals(0, onode.size());
         assertFalse(onode.isMissingNode()); // real node
-        assertNull(onode.getTextValue());
+        assertNull(onode.textValue());
 
         // how about dereferencing?
         assertNull(onode.get(0));

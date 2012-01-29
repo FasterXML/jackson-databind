@@ -22,18 +22,18 @@ public class TestObjectNode
         ObjectNode n = new ObjectNode(JsonNodeFactory.instance);
         assertStandardEquals(n);
 
-        assertFalse(n.getElements().hasNext());
-        assertFalse(n.getFields().hasNext());
-        assertFalse(n.getFieldNames().hasNext());
+        assertFalse(n.elements().hasNext());
+        assertFalse(n.fields().hasNext());
+        assertFalse(n.fieldNames().hasNext());
         assertNull(n.get("a"));
         assertTrue(n.path("a").isMissingNode());
 
         TextNode text = TextNode.valueOf("x");
         n.put("a", text);
         assertEquals(1, n.size());
-        assertTrue(n.getElements().hasNext());
-        assertTrue(n.getFields().hasNext());
-        assertTrue(n.getFieldNames().hasNext());
+        assertTrue(n.elements().hasNext());
+        assertTrue(n.fields().hasNext());
+        assertTrue(n.fieldNames().hasNext());
         assertSame(text, n.get("a"));
         assertSame(text, n.path("a"));
         assertNull(n.get("b"));
@@ -116,7 +116,7 @@ public class TestObjectNode
         assertEquals(3, ob.size());
         assertSame(ob, ob.remove(Arrays.asList("a", "c")));
         assertEquals(1, ob.size());
-        assertEquals("b", ob.get("b").getTextValue());
+        assertEquals("b", ob.get("b").textValue());
     }
 
     public void testRetain()
@@ -129,9 +129,9 @@ public class TestObjectNode
         assertEquals(3, ob.size());
         assertSame(ob, ob.retain("a", "c"));
         assertEquals(2, ob.size());
-        assertEquals("a", ob.get("a").getTextValue());
+        assertEquals("a", ob.get("a").textValue());
         assertNull(ob.get("b"));
-        assertEquals("c", ob.get("c").getTextValue());
+        assertEquals("c", ob.get("c").textValue());
     }
 
     // @since 1.8

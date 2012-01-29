@@ -17,11 +17,16 @@ public abstract class ValueNode
 {
     protected ValueNode() { }
 
-    @Override
-    public boolean isValueNode() { return true; }
+    /**
+     * All current value nodes are immutable, so we can just return
+     * them as is.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends JsonNode> T deepCopy() { return (T) this; }
+    
+    @Override public boolean isValueNode() { return true; }
 
-    @Override
-    public abstract JsonToken asToken();
+    @Override public abstract JsonToken asToken();
 
     @Override
     public void serializeWithType(JsonGenerator jg, SerializerProvider provider,

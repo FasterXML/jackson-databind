@@ -469,6 +469,11 @@ public class ObjectMapper
                 // why do we need the cast here?!?
                 return (C) mapper;
             }
+
+            @Override
+            public TypeFactory getTypeFactory() {
+                return _typeFactory;
+            }
             
             @Override
             public boolean isEnabled(MapperConfig.Feature f) {

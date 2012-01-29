@@ -56,7 +56,7 @@ public final class IntNode
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_INT; }
 
     @Override
-    public JsonParser.NumberType getNumberType() { return JsonParser.NumberType.INT; }
+    public JsonParser.NumberType numberType() { return JsonParser.NumberType.INT; }
 
     /* 
     /**********************************************************
@@ -74,24 +74,24 @@ public final class IntNode
     @Override public boolean canConvertToLong() { return true; }
     
     @Override
-    public Number getNumberValue() {
+    public Number numberValue() {
         return Integer.valueOf(_value);
     }
 
     @Override
-    public int getIntValue() { return _value; }
+    public int intValue() { return _value; }
 
     @Override
-    public long getLongValue() { return (long) _value; }
+    public long longValue() { return (long) _value; }
 
     @Override
-    public double getDoubleValue() { return (double) _value; }
+    public double doubleValue() { return (double) _value; }
 
     @Override
-    public BigDecimal getDecimalValue() { return BigDecimal.valueOf(_value); }
+    public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
 
     @Override
-    public BigInteger getBigIntegerValue() { return BigInteger.valueOf(_value); }
+    public BigInteger bigIntegerValue() { return BigInteger.valueOf(_value); }
 
     @Override
     public String asText() {

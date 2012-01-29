@@ -89,7 +89,7 @@ public abstract class BaseJsonNode
      * value, if (and only if) node is a number node.
      */
     @Override
-    public JsonParser.NumberType getNumberType() {
+    public JsonParser.NumberType numberType() {
         // most types non-numeric, so:
         return null; 
     }

@@ -536,6 +536,20 @@ public final class SerializationConfig
     
     /**
      * Fluent factory method that will construct and return a new configuration
+     * object instance with specified features enabled.
+     */
+    public SerializationConfig withFeatures(Feature... features)
+    {
+        int newSerFeatures = _serFeatures;
+        for (Feature f : features) {
+            newSerFeatures |= f.getMask();
+        }
+        return (newSerFeatures == _serFeatures) ? this
+                : new SerializationConfig(this, _mapperFeatures, newSerFeatures);
+    }
+
+    /**
+     * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
      */
     public SerializationConfig without(Feature feature)
@@ -559,6 +573,20 @@ public final class SerializationConfig
                 : new SerializationConfig(this, _mapperFeatures, newSerFeatures);
     }
 
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified features disabled.
+     */
+    public SerializationConfig withoutFeatures(Feature... features)
+    {
+        int newSerFeatures = _serFeatures;
+        for (Feature f : features) {
+            newSerFeatures &= ~f.getMask();
+        }
+        return (newSerFeatures == _serFeatures) ? this
+                : new SerializationConfig(this, _mapperFeatures, newSerFeatures);
+    }
+    
     public SerializationConfig withFilters(FilterProvider filterProvider) {
         return (filterProvider == _filterProvider) ? this : new SerializationConfig(this, filterProvider);
     }
@@ -572,11 +600,6 @@ public final class SerializationConfig
     /* MapperConfig implementation/overrides
     /**********************************************************
      */
-
-    @Override
-    public final int getFeatureFlags() {
-        return _serFeatures;
-    }
     
     @Override
     public boolean useRootWrapping()
@@ -634,10 +657,6 @@ public final class SerializationConfig
         }
         return vchecker;
     }
-
-    public boolean isEnabled(SerializationConfig.Feature f) {
-        return (_serFeatures & f.getMask()) != 0;
-    }
     
     /*
     /**********************************************************
@@ -645,6 +664,14 @@ public final class SerializationConfig
     /**********************************************************
      */
 
+    public final boolean isEnabled(SerializationConfig.Feature f) {
+        return (_serFeatures & f.getMask()) != 0;
+    }
+    
+    public final int getSerializationFeatures() {
+        return _serFeatures;
+    }
+    
     public JsonInclude.Include getSerializationInclusion()
     {
         if (_serializationInclusion != null) {

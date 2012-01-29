@@ -21,15 +21,15 @@ public class TestArrayNode
     {
         ArrayNode n = new ArrayNode(JsonNodeFactory.instance);
         assertStandardEquals(n);
-        assertFalse(n.getElements().hasNext());
-        assertFalse(n.getFieldNames().hasNext());
+        assertFalse(n.elements().hasNext());
+        assertFalse(n.fieldNames().hasNext());
         TextNode text = TextNode.valueOf("x");
         n.add(text);
         assertEquals(1, n.size());
         assertFalse(0 == n.hashCode());
-        assertTrue(n.getElements().hasNext());
+        assertTrue(n.elements().hasNext());
         // no field names for arrays
-        assertFalse(n.getFieldNames().hasNext());
+        assertFalse(n.fieldNames().hasNext());
         assertNull(n.get("x")); // not used with arrays
         assertTrue(n.path("x").isMissingNode());
         assertSame(text, n.get(0));

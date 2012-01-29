@@ -9,12 +9,14 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.StdDeserializationContext;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
 import com.fasterxml.jackson.databind.type.SimpleType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
@@ -220,6 +222,16 @@ public class ObjectReader
 
     /**
      * Method for constructing a new reader instance that is configured
+     * with specified features enabled.
+     */
+    public ObjectReader withFeatures(DeserializationConfig.Feature... features)
+    {
+        DeserializationConfig newConfig = _config.withFeatures(features);
+        return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+    }    
+    
+    /**
+     * Method for constructing a new reader instance that is configured
      * with specified feature disabled.
      */
     public ObjectReader without(DeserializationConfig.Feature feature) 
@@ -239,6 +251,16 @@ public class ObjectReader
         return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
     }    
 
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified features disabled.
+     */
+    public ObjectReader withoutFeatures(DeserializationConfig.Feature... features)
+    {
+        DeserializationConfig newConfig = _config.withoutFeatures(features);
+        return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+    }    
+    
     /**
      * Method for constructing a new instance with configuration that uses
      * passed {@link InjectableValues} to provide injectable values.
@@ -334,8 +356,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader withType(java.lang.reflect.Type valueType)
-    {
+    public ObjectReader withType(java.lang.reflect.Type valueType) {
         return withType(_config.getTypeFactory().constructType(valueType));
     }    
 
@@ -379,6 +400,33 @@ public class ObjectReader
     public ObjectReader withView(Class<?> activeView) {
         DeserializationConfig newConfig = _config.withView(activeView);
         return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+    }
+
+    /*
+    /**********************************************************
+    /* Simple accessors
+    /**********************************************************
+     */
+    
+    public boolean isEnabled(DeserializationConfig.Feature f) {
+        return _config.isEnabled(f);
+    }
+
+    public boolean isEnabled(MapperConfig.Feature f) {
+        return _config.isEnabled(f);
+    }
+
+    public boolean isEnabled(JsonParser.Feature f) {
+        return _jsonFactory.isEnabled(f);
+    }
+
+    @Override
+    public JsonFactory getJsonFactory() {
+        return _jsonFactory;
+    }
+
+    public TypeFactory getTypeFactory() {
+        return _config.getTypeFactory();
     }
     
     /*

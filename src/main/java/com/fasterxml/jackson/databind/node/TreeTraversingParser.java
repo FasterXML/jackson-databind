@@ -223,10 +223,10 @@ public class TreeTraversingParser extends ParserMinimalBase
         case FIELD_NAME:
             return _nodeCursor.getCurrentName();
         case VALUE_STRING:
-            return currentNode().getTextValue();
+            return currentNode().textValue();
         case VALUE_NUMBER_INT:
         case VALUE_NUMBER_FLOAT:
-            return String.valueOf(currentNode().getNumberValue());
+            return String.valueOf(currentNode().numberValue());
         case VALUE_EMBEDDED_OBJECT:
             JsonNode n = currentNode();
             if (n != null && n.isBinary()) {
@@ -270,43 +270,43 @@ public class TreeTraversingParser extends ParserMinimalBase
     @Override
     public NumberType getNumberType() throws IOException, JsonParseException {
         JsonNode n = currentNumericNode();
-        return (n == null) ? null : n.getNumberType();
+        return (n == null) ? null : n.numberType();
     }
 
     @Override
     public BigInteger getBigIntegerValue() throws IOException, JsonParseException
     {
-        return currentNumericNode().getBigIntegerValue();
+        return currentNumericNode().bigIntegerValue();
     }
 
     @Override
     public BigDecimal getDecimalValue() throws IOException, JsonParseException {
-        return currentNumericNode().getDecimalValue();
+        return currentNumericNode().decimalValue();
     }
 
     @Override
     public double getDoubleValue() throws IOException, JsonParseException {
-        return currentNumericNode().getDoubleValue();
+        return currentNumericNode().doubleValue();
     }
 
     @Override
     public float getFloatValue() throws IOException, JsonParseException {
-        return (float) currentNumericNode().getDoubleValue();
+        return (float) currentNumericNode().doubleValue();
     }
 
     @Override
     public long getLongValue() throws IOException, JsonParseException {
-        return currentNumericNode().getLongValue();
+        return currentNumericNode().longValue();
     }
 
     @Override
     public int getIntValue() throws IOException, JsonParseException {
-        return currentNumericNode().getIntValue();
+        return currentNumericNode().intValue();
     }
 
     @Override
     public Number getNumberValue() throws IOException, JsonParseException {
-        return currentNumericNode().getNumberValue();
+        return currentNumericNode().numberValue();
     }
 
     @Override
@@ -319,7 +319,7 @@ public class TreeTraversingParser extends ParserMinimalBase
                     return ((POJONode) n).getPojo();
                 }
                 if (n.isBinary()) {
-                    return ((BinaryNode) n).getBinaryValue();
+                    return ((BinaryNode) n).binaryValue();
                 }
             }
         }
@@ -339,7 +339,7 @@ public class TreeTraversingParser extends ParserMinimalBase
         // Multiple possibilities...
         JsonNode n = currentNode();
         if (n != null) { // binary node?
-            byte[] data = n.getBinaryValue();
+            byte[] data = n.binaryValue();
             // (or TextNode, which can also convert automatically!)
             if (data != null) {
                 return data;

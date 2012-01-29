@@ -87,9 +87,9 @@ public class TestParserUsingMapper  extends com.fasterxml.jackson.test.BaseTest
             jp.close();
             assertTrue(root.isArray());
             assertEquals(3, root.size());
-            assertEquals(1, root.get(0).getIntValue());
-            assertEquals(2, root.get(1).getIntValue());
-            assertFalse(root.get(2).getBooleanValue());
+            assertEquals(1, root.get(0).intValue());
+            assertEquals(2, root.get(1).intValue());
+            assertFalse(root.get(2).booleanValue());
         }
     }
     

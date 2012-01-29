@@ -34,7 +34,7 @@ public abstract class DeserializationContext
     protected DeserializationContext(DeserializationConfig config)
     {
         _config = config;
-        _featureFlags = config.getFeatureFlags();
+        _featureFlags = config.getDeserializationFeatures();
         _view = config.getActiveView();
     }
 

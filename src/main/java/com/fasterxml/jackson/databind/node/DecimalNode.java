@@ -41,7 +41,7 @@ public final class DecimalNode
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_FLOAT; }
 
     @Override
-    public JsonParser.NumberType getNumberType() { return JsonParser.NumberType.BIG_DECIMAL; }
+    public JsonParser.NumberType numberType() { return JsonParser.NumberType.BIG_DECIMAL; }
 
     /* 
     /**********************************************************
@@ -63,23 +63,23 @@ public final class DecimalNode
     }
     
     @Override
-    public Number getNumberValue() { return _value; }
+    public Number numberValue() { return _value; }
 
     @Override
-    public int getIntValue() { return _value.intValue(); }
+    public int intValue() { return _value.intValue(); }
 
     @Override
-    public long getLongValue() { return _value.longValue(); }
+    public long longValue() { return _value.longValue(); }
 
 
     @Override
-    public BigInteger getBigIntegerValue() { return _value.toBigInteger(); }
+    public BigInteger bigIntegerValue() { return _value.toBigInteger(); }
 
     @Override
-    public double getDoubleValue() { return _value.doubleValue(); }
+    public double doubleValue() { return _value.doubleValue(); }
 
     @Override
-    public BigDecimal getDecimalValue() { return _value; }
+    public BigDecimal decimalValue() { return _value; }
 
     @Override
     public String asText() {

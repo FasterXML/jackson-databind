@@ -35,7 +35,7 @@ public final class BooleanNode
     public boolean isBoolean() { return true; }
 
     @Override
-    public boolean getBooleanValue() {
+    public boolean booleanValue() {
         return (this == TRUE);
     }
 

@@ -73,7 +73,7 @@ public final class BinaryNode
      * it is not a copy but reference to the underlying byte array.
      */
     @Override
-    public byte[] getBinaryValue() { return _data; }
+    public byte[] binaryValue() { return _data; }
 
     /**
      * Hmmh. This is not quite as efficient as using {@link #serialize},

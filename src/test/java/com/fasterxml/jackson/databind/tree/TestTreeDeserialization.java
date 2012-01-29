@@ -38,7 +38,7 @@ public class TestTreeDeserialization
         assertNotNull(n);
         assertEquals(1, n.size());
         ObjectNode on = (ObjectNode) n;
-        assertEquals(3, on.get("a").getIntValue());
+        assertEquals(3, on.get("a").intValue());
     }
 
     /// Verifying [JACKSON-143]

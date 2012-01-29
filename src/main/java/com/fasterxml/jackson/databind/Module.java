@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiators;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.Serializers;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
 
 /**
@@ -102,6 +103,17 @@ public abstract class Module
          */
         public <C extends ObjectCodec> C getOwner();
 
+        /**
+         * Accessor for finding {@link TypeFactory} that is currently configured
+         * by the context.
+         *<p>
+         * NOTE: since it is possible that other modules might change or replace
+         * TypeFactory, use of this method adds order-dependency for registrations.
+         * 
+         * @since 2.0
+         */
+        public TypeFactory getTypeFactory();
+        
         public boolean isEnabled(MapperConfig.Feature f);
         
         public boolean isEnabled(DeserializationConfig.Feature f);

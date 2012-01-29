@@ -31,12 +31,12 @@ public class TestFindMethods
 
         JsonNode node = root.findValue("b");
         assertNotNull(node);
-        assertEquals(3, node.getIntValue());
+        assertEquals(3, node.intValue());
         node = root.findParent("b");
         assertNotNull(node);
         assertTrue(node.isObject());
         assertEquals(1, ((ObjectNode) node).size());
-        assertEquals(3, node.path("b").getIntValue());
+        assertEquals(3, node.path("b").intValue());
     }
 
     public void testMatchingMultiple() throws Exception
@@ -46,16 +46,16 @@ public class TestFindMethods
         List<JsonNode> nodes = root.findValues("value");
         assertEquals(2, nodes.size());
         // here we count on nodes being returned in order; true with Jackson:
-        assertEquals(3, nodes.get(0).getIntValue());
-        assertEquals(42, nodes.get(1).getIntValue());
+        assertEquals(3, nodes.get(0).intValue());
+        assertEquals(42, nodes.get(1).intValue());
 
         nodes = root.findParents("value");
         assertEquals(2, nodes.size());
         // should only return JSON Object nodes:
         assertTrue(nodes.get(0).isObject());
         assertTrue(nodes.get(1).isObject());
-        assertEquals(3, nodes.get(0).path("value").getIntValue());
-        assertEquals(42, nodes.get(1).path("value").getIntValue());
+        assertEquals(3, nodes.get(0).path("value").intValue());
+        assertEquals(42, nodes.get(1).path("value").intValue());
 
         // and finally, convenience conversion method
         List<String> values = root.findValuesAsText("value");

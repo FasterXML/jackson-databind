@@ -37,7 +37,7 @@ public final class DoubleNode
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_FLOAT; }
 
     @Override
-    public JsonParser.NumberType getNumberType() { return JsonParser.NumberType.DOUBLE; }
+    public JsonParser.NumberType numberType() { return JsonParser.NumberType.DOUBLE; }
 
     /* 
     /**********************************************************
@@ -59,25 +59,25 @@ public final class DoubleNode
     }
     
     @Override
-    public Number getNumberValue() {
+    public Number numberValue() {
         return Double.valueOf(_value);
     }
 
     @Override
-        public int getIntValue() { return (int) _value; }
+        public int intValue() { return (int) _value; }
 
     @Override
-        public long getLongValue() { return (long) _value; }
+        public long longValue() { return (long) _value; }
 
     @Override
-        public double getDoubleValue() { return _value; }
+        public double doubleValue() { return _value; }
 
     @Override
-        public BigDecimal getDecimalValue() { return BigDecimal.valueOf(_value); }
+        public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
 
     @Override
-    public BigInteger getBigIntegerValue() {
-        return getDecimalValue().toBigInteger();
+    public BigInteger bigIntegerValue() {
+        return decimalValue().toBigInteger();
     }
 
     @Override

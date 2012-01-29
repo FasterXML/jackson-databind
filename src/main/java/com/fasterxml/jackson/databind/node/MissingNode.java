@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
-
 /**
  * This singleton node class is generated to denote "missing nodes"
  * along paths that do not exist. For example, if a path via
@@ -26,6 +25,10 @@ public final class MissingNode
 
     private MissingNode() { }
 
+    // Immutable: no need to copy
+    @SuppressWarnings("unchecked")
+    public <T extends JsonNode> T deepCopy() { return (T) this; }
+    
     public static MissingNode getInstance() { return instance; }
 
     @Override public JsonToken asToken() { return JsonToken.NOT_AVAILABLE; }

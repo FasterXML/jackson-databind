@@ -9,8 +9,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Builder object that can be used for per-serialization configuration of
@@ -188,7 +190,7 @@ public class ObjectWriter
     {
         SerializationConfig newConfig = _config.with(feature);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
-    }    
+    }
 
     /**
      * Method for constructing a new instance that is configured
@@ -201,6 +203,16 @@ public class ObjectWriter
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }    
 
+    /**
+     * Method for constructing a new instance that is configured
+     * with specified features enabled.
+     */
+    public ObjectWriter withFeatures(SerializationConfig.Feature... features)
+    {
+        SerializationConfig newConfig = _config.withFeatures(features);
+        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+    }    
+    
     /**
      * Method for constructing a new instance that is configured
      * with specified feature enabled.
@@ -222,6 +234,16 @@ public class ObjectWriter
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }    
 
+    /**
+     * Method for constructing a new instance that is configured
+     * with specified features enabled.
+     */
+    public ObjectWriter withoutFeatures(SerializationConfig.Feature... features)
+    {
+        SerializationConfig newConfig = _config.withoutFeatures(features);
+        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+    }    
+    
     /**
      * Fluent factory method that will construct a new writer instance that will
      * use specified date format for serializing dates; or if null passed, one
@@ -341,6 +363,32 @@ public class ObjectWriter
         SerializationConfig newConfig = _config.withView(view);
         return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
     }    
+
+    /*
+    /**********************************************************
+    /* Simple accessors
+    /**********************************************************
+     */
+
+    public boolean isEnabled(SerializationConfig.Feature f) {
+        return _config.isEnabled(f);
+    }
+
+    public boolean isEnabled(MapperConfig.Feature f) {
+        return _config.isEnabled(f);
+    }
+
+    public boolean isEnabled(JsonParser.Feature f) {
+        return _jsonFactory.isEnabled(f);
+    }
+
+    public JsonFactory getJsonFactory() {
+        return _jsonFactory;
+    }
+    
+    public TypeFactory getTypeFactory() {
+        return _config.getTypeFactory();
+    }
     
     /*
     /**********************************************************

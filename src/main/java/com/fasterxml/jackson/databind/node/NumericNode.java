@@ -19,20 +19,14 @@ public abstract class NumericNode
     // // // Let's re-abstract so sub-classes handle them
 
     @Override
-    public abstract JsonParser.NumberType getNumberType();
+    public abstract JsonParser.NumberType numberType();
 
-    @Override
-    public abstract Number getNumberValue();
-    @Override
-    public abstract int getIntValue();
-    @Override
-    public abstract long getLongValue();
-    @Override
-    public abstract double getDoubleValue();
-    @Override
-    public abstract BigDecimal getDecimalValue();
-    @Override
-    public abstract BigInteger getBigIntegerValue();
+    @Override public abstract Number numberValue();
+    @Override public abstract int intValue();
+    @Override public abstract long longValue();
+    @Override public abstract double doubleValue();
+    @Override public abstract BigDecimal decimalValue();
+    @Override public abstract BigInteger bigIntegerValue();
 
     @Override public abstract boolean canConvertToInt();
     @Override public abstract boolean canConvertToLong();
@@ -48,28 +42,28 @@ public abstract class NumericNode
 
     @Override
     public int asInt() {
-        return getIntValue();
+        return intValue();
     }
     @Override
     public int asInt(int defaultValue) {
-        return getIntValue();
+        return intValue();
     }
 
     @Override
     public long asLong() {
-        return getLongValue();
+        return longValue();
     }
     @Override
     public long asLong(long defaultValue) {
-        return getLongValue();
+        return longValue();
     }
     
     @Override
     public double asDouble() {
-        return getDoubleValue();
+        return doubleValue();
     }
     @Override
     public double asDouble(double defaultValue) {
-        return getDoubleValue();
+        return doubleValue();
     }
 }

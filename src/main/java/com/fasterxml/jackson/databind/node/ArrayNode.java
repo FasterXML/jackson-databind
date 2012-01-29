@@ -18,6 +18,26 @@ public final class ArrayNode
 
     public ArrayNode(JsonNodeFactory nc) { super(nc); }
 
+    protected ArrayNode(JsonNodeFactory nc,
+            ArrayList<JsonNode> children) {
+        super(nc);
+        _children = children;
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends JsonNode> T deepCopy() {
+        if (_children == null) {
+            return (T) new ArrayNode(_nodeFactory);
+        }
+        final int len = _children.size();
+        ArrayList<JsonNode> newKids = new ArrayList<JsonNode>(Math.max(4, len));
+        for (int i = 0; i < len; ++i) {
+            newKids.add(_children.get(i).deepCopy());
+        }
+        return (T) new ArrayNode(_nodeFactory, newKids);
+    }
+    
     /*
     /**********************************************************
     /* Implementation of core JsonNode API
@@ -36,7 +56,7 @@ public final class ArrayNode
     }
 
     @Override
-    public Iterator<JsonNode> getElements()
+    public Iterator<JsonNode> elements()
     {
         return (_children == null) ? NoNodesIterator.instance() : _children.iterator();
     }

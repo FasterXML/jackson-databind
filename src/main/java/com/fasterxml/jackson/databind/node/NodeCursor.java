@@ -125,7 +125,7 @@ abstract class NodeCursor
 
         public Array(JsonNode n, NodeCursor p) {
             super(JsonStreamContext.TYPE_ARRAY, p);
-            _contents = n.getElements();
+            _contents = n.elements();
         }
 
         @Override
@@ -170,7 +170,7 @@ abstract class NodeCursor
         public Object(JsonNode n, NodeCursor p)
         {
             super(JsonStreamContext.TYPE_OBJECT, p);
-            _contents = ((ObjectNode) n).getFields();
+            _contents = ((ObjectNode) n).fields();
             _needEntry = true;
         }
 

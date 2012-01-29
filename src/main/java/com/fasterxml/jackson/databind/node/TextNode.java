@@ -52,7 +52,7 @@ public final class TextNode
     public boolean isTextual() { return true; }
 
     @Override
-    public String getTextValue() {
+    public String textValue() {
         return _value;
     }
 
@@ -156,7 +156,7 @@ public final class TextNode
     }
 
     @Override
-    public byte[] getBinaryValue() throws IOException
+    public byte[] binaryValue() throws IOException
     {
         return getBinaryValue(Base64Variants.getDefaultVariant());
     }

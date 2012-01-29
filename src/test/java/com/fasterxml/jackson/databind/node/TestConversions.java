@@ -75,7 +75,7 @@ public class TestConversions extends BaseMapTest
         {
             JsonNode tree = jp.readValueAsTree();
             Leaf leaf = new Leaf();
-            leaf.value = tree.get("value").getIntValue();
+            leaf.value = tree.get("value").intValue();
             return leaf;
         }
     }

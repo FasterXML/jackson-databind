@@ -46,7 +46,7 @@ public class TestTreeMapperMaps
 
         // Ok, then, let's traverse via extended interface
         ObjectNode obNode = (ObjectNode) root;
-        Iterator<Map.Entry<String,JsonNode>> fit = obNode.getFields();
+        Iterator<Map.Entry<String,JsonNode>> fit = obNode.fields();
         // we also know that LinkedHashMap is used, i.e. order preserved
         assertTrue(fit.hasNext());
         Map.Entry<String,JsonNode> en = fit.next();
@@ -72,7 +72,7 @@ public class TestTreeMapperMaps
         JsonNode rnode = root.path("results");
         assertNotNull(rnode);
         assertTrue(rnode.isObject());
-        assertEquals(3, rnode.path("a").getIntValue());
+        assertEquals(3, rnode.path("a").intValue());
     }
 
 }

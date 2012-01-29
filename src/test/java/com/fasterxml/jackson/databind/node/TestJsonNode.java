@@ -29,16 +29,16 @@ public class TestJsonNode
         assertFalse(n.isMissingNode());
 
         // fallback accessors
-        assertFalse(n.getBooleanValue());
-        assertNull(n.getNumberValue());
-        assertEquals(0, n.getIntValue());
-        assertEquals(0L, n.getLongValue());
-        assertEquals(BigDecimal.ZERO, n.getDecimalValue());
-        assertEquals(BigInteger.ZERO, n.getBigIntegerValue());
+        assertFalse(n.booleanValue());
+        assertNull(n.numberValue());
+        assertEquals(0, n.intValue());
+        assertEquals(0L, n.longValue());
+        assertEquals(BigDecimal.ZERO, n.decimalValue());
+        assertEquals(BigInteger.ZERO, n.bigIntegerValue());
 
         assertEquals(0, n.size());
-        assertFalse(n.getElements().hasNext());
-        assertFalse(n.getFieldNames().hasNext());
+        assertFalse(n.elements().hasNext());
+        assertFalse(n.fieldNames().hasNext());
         // path is never null; but does point to missing node
         assertNotNull(n.path("xyz"));
         assertTrue(n.path("xyz").isMissingNode());
@@ -78,7 +78,7 @@ public class TestJsonNode
         assertTrue(f.isBoolean());
         assertSame(f, BooleanNode.valueOf(false));
         assertStandardEquals(f);
-        assertFalse(f.getBooleanValue());
+        assertFalse(f.booleanValue());
         assertEquals("false", f.asText());
         assertEquals(JsonToken.VALUE_FALSE, f.asToken());
 
@@ -88,7 +88,7 @@ public class TestJsonNode
         assertTrue(t.isBoolean());
         assertSame(t, BooleanNode.valueOf(true));
         assertStandardEquals(t);
-        assertTrue(t.getBooleanValue());
+        assertTrue(t.booleanValue());
         assertEquals("true", t.asText());
         assertEquals(JsonToken.VALUE_TRUE, t.asToken());
 

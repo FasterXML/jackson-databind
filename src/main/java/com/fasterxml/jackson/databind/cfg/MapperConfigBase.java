@@ -260,9 +260,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     /* Simple accessors
     /**********************************************************
      */
-
-    public abstract int getFeatureFlags();
-
+    
     /**
      * Accessor for object used for finding out all reachable subtypes
      * for supertypes; needed when a logical type name is used instead

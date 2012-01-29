@@ -49,6 +49,11 @@ public class JSONWrappedObject
         this(prefix, suffix, value, (JavaType) null);
     }
 
+    /**
+     * Constructor that should be used when specific serialization type to use
+     * is important, and needs to be passed instead of just using runtime
+     * (type-erased) type of the value.
+     */
     public JSONWrappedObject(String prefix, String suffix, Object value, JavaType asType)
     {
         _prefix = prefix;

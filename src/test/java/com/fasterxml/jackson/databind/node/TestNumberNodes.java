@@ -21,11 +21,11 @@ public class TestNumberNodes extends BaseMapTest
         assertStandardEquals(n);
         assertTrue(0 != n.hashCode());
         assertEquals(JsonToken.VALUE_NUMBER_INT, n.asToken());
-        assertEquals(JsonParser.NumberType.INT, n.getNumberType());
-        assertEquals(1, n.getIntValue());
-        assertEquals(1L, n.getLongValue());
-        assertEquals(BigDecimal.ONE, n.getDecimalValue());
-        assertEquals(BigInteger.ONE, n.getBigIntegerValue());
+        assertEquals(JsonParser.NumberType.INT, n.numberType());
+        assertEquals(1, n.intValue());
+        assertEquals(1L, n.longValue());
+        assertEquals(BigDecimal.ONE, n.decimalValue());
+        assertEquals(BigInteger.ONE, n.bigIntegerValue());
         assertEquals("1", n.asText());
 
         assertNodeNumbers(n, 1, 1.0);
@@ -45,11 +45,11 @@ public class TestNumberNodes extends BaseMapTest
         assertStandardEquals(n);
         assertTrue(0 != n.hashCode());
         assertEquals(JsonToken.VALUE_NUMBER_INT, n.asToken());
-        assertEquals(JsonParser.NumberType.LONG, n.getNumberType());
-        assertEquals(1, n.getIntValue());
-        assertEquals(1L, n.getLongValue());
-        assertEquals(BigDecimal.ONE, n.getDecimalValue());
-        assertEquals(BigInteger.ONE, n.getBigIntegerValue());
+        assertEquals(JsonParser.NumberType.LONG, n.numberType());
+        assertEquals(1, n.intValue());
+        assertEquals(1L, n.longValue());
+        assertEquals(BigDecimal.ONE, n.decimalValue());
+        assertEquals(BigInteger.ONE, n.bigIntegerValue());
         assertEquals("1", n.asText());
 
         assertNodeNumbers(n, 1, 1.0);
@@ -73,11 +73,11 @@ public class TestNumberNodes extends BaseMapTest
         assertStandardEquals(n);
         assertTrue(0 != n.hashCode());
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, n.asToken());
-        assertEquals(JsonParser.NumberType.DOUBLE, n.getNumberType());
-        assertEquals(0, n.getIntValue());
-        assertEquals(0.25, n.getDoubleValue());
-        assertNotNull(n.getDecimalValue());
-        assertEquals(BigInteger.ZERO, n.getBigIntegerValue());
+        assertEquals(JsonParser.NumberType.DOUBLE, n.numberType());
+        assertEquals(0, n.intValue());
+        assertEquals(0.25, n.doubleValue());
+        assertNotNull(n.decimalValue());
+        assertEquals(BigInteger.ZERO, n.bigIntegerValue());
         assertEquals("0.25", n.asText());
 
         // 1.6:
@@ -100,14 +100,14 @@ public class TestNumberNodes extends BaseMapTest
         assertStandardEquals(n);
         assertTrue(n.equals(new DecimalNode(BigDecimal.ONE)));
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, n.asToken());
-        assertEquals(JsonParser.NumberType.BIG_DECIMAL, n.getNumberType());
+        assertEquals(JsonParser.NumberType.BIG_DECIMAL, n.numberType());
         assertTrue(n.isNumber());
         assertFalse(n.isIntegralNumber());
         assertTrue(n.isBigDecimal());
-        assertEquals(BigDecimal.ONE, n.getNumberValue());
-        assertEquals(1, n.getIntValue());
-        assertEquals(1L, n.getLongValue());
-        assertEquals(BigDecimal.ONE, n.getDecimalValue());
+        assertEquals(BigDecimal.ONE, n.numberValue());
+        assertEquals(1, n.intValue());
+        assertEquals(1L, n.longValue());
+        assertEquals(BigDecimal.ONE, n.decimalValue());
         assertEquals("1", n.asText());
 
         // 1.6:
@@ -130,14 +130,14 @@ public class TestNumberNodes extends BaseMapTest
         assertStandardEquals(n);
         assertTrue(n.equals(new BigIntegerNode(BigInteger.ONE)));
         assertEquals(JsonToken.VALUE_NUMBER_INT, n.asToken());
-        assertEquals(JsonParser.NumberType.BIG_INTEGER, n.getNumberType());
+        assertEquals(JsonParser.NumberType.BIG_INTEGER, n.numberType());
         assertTrue(n.isNumber());
         assertTrue(n.isIntegralNumber());
         assertTrue(n.isBigInteger());
-        assertEquals(BigInteger.ONE, n.getNumberValue());
-        assertEquals(1, n.getIntValue());
-        assertEquals(1L, n.getLongValue());
-        assertEquals(BigInteger.ONE, n.getBigIntegerValue());
+        assertEquals(BigInteger.ONE, n.numberValue());
+        assertEquals(1, n.intValue());
+        assertEquals(1L, n.longValue());
+        assertEquals(BigInteger.ONE, n.bigIntegerValue());
         assertEquals("1", n.asText());
         
         // 1.6:
@@ -146,16 +146,16 @@ public class TestNumberNodes extends BaseMapTest
         BigInteger maxLong = BigInteger.valueOf(Long.MAX_VALUE);
         
         n = BigIntegerNode.valueOf(maxLong);
-        assertEquals(Long.MAX_VALUE, n.getLongValue());
+        assertEquals(Long.MAX_VALUE, n.longValue());
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode n2 = mapper.readTree(maxLong.toString());
-        assertEquals(Long.MAX_VALUE, n2.getLongValue());
+        assertEquals(Long.MAX_VALUE, n2.longValue());
 
         // then over long limit:
         BigInteger beyondLong = maxLong.shiftLeft(2); // 4x max long
         n2 = mapper.readTree(beyondLong.toString());
-        assertEquals(beyondLong, n2.getBigIntegerValue());
+        assertEquals(beyondLong, n2.bigIntegerValue());
 
         assertTrue(BigIntegerNode.valueOf(BigInteger.ZERO).canConvertToInt());
         assertTrue(BigIntegerNode.valueOf(BigInteger.valueOf(Integer.MAX_VALUE)).canConvertToInt());

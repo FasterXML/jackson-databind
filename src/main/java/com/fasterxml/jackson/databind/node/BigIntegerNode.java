@@ -41,7 +41,7 @@ public final class BigIntegerNode
     public JsonToken asToken() { return JsonToken.VALUE_NUMBER_INT; }
 
     @Override
-    public JsonParser.NumberType getNumberType() { return JsonParser.NumberType.BIG_INTEGER; }
+    public JsonParser.NumberType numberType() { return JsonParser.NumberType.BIG_INTEGER; }
 
     @Override
     public boolean isIntegralNumber() { return true; }
@@ -57,24 +57,24 @@ public final class BigIntegerNode
     }
     
     @Override
-    public Number getNumberValue() {
+    public Number numberValue() {
         return _value;
     }
 
     @Override
-    public int getIntValue() { return _value.intValue(); }
+    public int intValue() { return _value.intValue(); }
 
     @Override
-    public long getLongValue() { return _value.longValue(); }
+    public long longValue() { return _value.longValue(); }
 
     @Override
-    public BigInteger getBigIntegerValue() { return _value; }
+    public BigInteger bigIntegerValue() { return _value; }
 
     @Override
-    public double getDoubleValue() { return _value.doubleValue(); }
+    public double doubleValue() { return _value.doubleValue(); }
 
     @Override
-    public BigDecimal getDecimalValue() { return new BigDecimal(_value); }
+    public BigDecimal decimalValue() { return new BigDecimal(_value); }
 
     /* 
     /**********************************************************

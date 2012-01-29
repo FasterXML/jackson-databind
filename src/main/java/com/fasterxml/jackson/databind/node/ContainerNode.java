@@ -26,6 +26,9 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
         _nodeFactory = nc;
     }
 
+    // all containers are mutable: can't define:
+//    @Override public abstract <T extends JsonNode> T deepCopy();
+    
     @Override
     public boolean isContainerNode() { return true; }
 

@@ -18,6 +18,26 @@ public class ObjectNode
     protected LinkedHashMap<String, JsonNode> _children = null;
 
     public ObjectNode(JsonNodeFactory nc) { super(nc); }
+
+    protected ObjectNode(JsonNodeFactory nc, LinkedHashMap<String, JsonNode> children) {
+        super(nc);
+        _children = children;
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends JsonNode> T deepCopy()
+    {
+        if (_children == null) {
+            return (T) new ObjectNode(_nodeFactory);
+        }
+        final int len = _children.size();
+        LinkedHashMap<String, JsonNode> newKids = new LinkedHashMap<String, JsonNode>(Math.max(4, len));
+        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
+            newKids.put(entry.getKey(), entry.getValue().deepCopy());
+        }
+        return (T) new ObjectNode(_nodeFactory, newKids);
+    }
     
     /*
     /**********************************************************
@@ -36,7 +56,7 @@ public class ObjectNode
     }
 
     @Override
-    public Iterator<JsonNode> getElements()
+    public Iterator<JsonNode> elements()
     {
         return (_children == null) ? NoNodesIterator.instance() : _children.values().iterator();
     }
@@ -54,8 +74,7 @@ public class ObjectNode
     }
 
     @Override
-    public Iterator<String> getFieldNames()
-    {
+    public Iterator<String> fieldNames() {
         return (_children == null) ? NoStringsIterator.instance() : _children.keySet().iterator();
     }
 
@@ -82,7 +101,7 @@ public class ObjectNode
      * and values) of this JSON Object.
      */
     @Override
-    public Iterator<Map.Entry<String, JsonNode>> getFields()
+    public Iterator<Map.Entry<String, JsonNode>> fields()
     {
         if (_children == null) {
             return NoFieldsIterator.instance;

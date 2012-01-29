@@ -525,6 +525,20 @@ public final class DeserializationConfig
 
     /**
      * Fluent factory method that will construct and return a new configuration
+     * object instance with specified features enabled.
+     */
+    public DeserializationConfig withFeatures(DeserializationConfig.Feature... features)
+    {
+        int newDeserFeatures = _deserFeatures;
+        for (Feature f : features) {
+            newDeserFeatures |= f.getMask();
+        }
+        return (newDeserFeatures == _deserFeatures) ? this :
+            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures);
+    }
+    
+    /**
+     * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
      */
     public DeserializationConfig without(DeserializationConfig.Feature feature)
@@ -548,17 +562,26 @@ public final class DeserializationConfig
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this, _mapperFeatures, newDeserFeatures);
     }
+
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified features disabled.
+     */
+    public DeserializationConfig withoutFeatures(DeserializationConfig.Feature... features)
+    {
+        int newDeserFeatures = _deserFeatures;
+        for (Feature f : features) {
+            newDeserFeatures &= ~f.getMask();
+        }
+        return (newDeserFeatures == _deserFeatures) ? this :
+            new DeserializationConfig(this, _mapperFeatures, newDeserFeatures);
+    }
     
     /*
     /**********************************************************
     /* MapperConfig implementation
     /**********************************************************
      */
-
-    @Override
-    public final int getFeatureFlags() {
-        return _deserFeatures;
-    }
     
     /**
      * Method for getting {@link AnnotationIntrospector} configured
@@ -630,6 +653,10 @@ public final class DeserializationConfig
     /**********************************************************
      */
 
+    public final int getDeserializationFeatures() {
+        return _deserFeatures;
+    }
+    
     /**
      * Method for getting head of the problem handler chain. May be null,
      * if no handlers have been added.

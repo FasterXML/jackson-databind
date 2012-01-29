@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 /**
  * Unit tests for verifying functionality of {@link JsonNode} methods that
  * convert values to other types
- *
- * @since 1.7
  */
 public class TestConversions extends BaseMapTest
 {

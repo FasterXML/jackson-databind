@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 /**
  * Node class that represents Arrays mapped from Json content.
  */
-public final class ArrayNode
+public class ArrayNode
     extends ContainerNode<ArrayNode>
 {
     protected ArrayList<JsonNode> _children;
@@ -24,18 +24,20 @@ public final class ArrayNode
         _children = children;
     }
     
+    // note: co-variant for type safety
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends JsonNode> T deepCopy() {
+    public ArrayNode deepCopy()
+    {
         if (_children == null) {
-            return (T) new ArrayNode(_nodeFactory);
+            return new ArrayNode(_nodeFactory);
         }
         final int len = _children.size();
         ArrayList<JsonNode> newKids = new ArrayList<JsonNode>(Math.max(4, len));
         for (int i = 0; i < len; ++i) {
             newKids.add(_children.get(i).deepCopy());
         }
-        return (T) new ArrayNode(_nodeFactory, newKids);
+        return new ArrayNode(_nodeFactory, newKids);
     }
     
     /*

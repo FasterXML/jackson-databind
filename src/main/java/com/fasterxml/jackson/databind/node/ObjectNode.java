@@ -24,19 +24,20 @@ public class ObjectNode
         _children = children;
     }
     
+    // note: co-variant for type safety
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends JsonNode> T deepCopy()
+    public ObjectNode deepCopy()
     {
         if (_children == null) {
-            return (T) new ObjectNode(_nodeFactory);
+            return new ObjectNode(_nodeFactory);
         }
         final int len = _children.size();
         LinkedHashMap<String, JsonNode> newKids = new LinkedHashMap<String, JsonNode>(Math.max(4, len));
         for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
             newKids.put(entry.getKey(), entry.getValue().deepCopy());
         }
-        return (T) new ObjectNode(_nodeFactory, newKids);
+        return new ObjectNode(_nodeFactory, newKids);
     }
     
     /*

@@ -287,6 +287,8 @@ public class StdValueInstantiator
                 return _fromStringCreator.call1(value);
             } catch (Exception e) {
                 throw wrapException(e);
+            } catch (ExceptionInInitializerError e) {
+                throw wrapException(e);
             }
         }
         return _createFromStringFallbacks(ctxt, value);
@@ -307,6 +309,8 @@ public class StdValueInstantiator
             }
         } catch (Exception e) {
             throw wrapException(e);
+        } catch (ExceptionInInitializerError e) {
+            throw wrapException(e);
         }
         throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
                 +" from JSON integral number; no single-int-arg constructor/factory method");
@@ -321,6 +325,8 @@ public class StdValueInstantiator
                 return _fromLongCreator.call1(Long.valueOf(value));
             }
         } catch (Exception e) {
+            throw wrapException(e);
+        } catch (ExceptionInInitializerError e) {
             throw wrapException(e);
         }
         throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
@@ -337,6 +343,8 @@ public class StdValueInstantiator
             }
         } catch (Exception e) {
             throw wrapException(e);
+        } catch (ExceptionInInitializerError e) {
+            throw wrapException(e);
         }
         throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
                 +" from JSON floating-point number; no one-double/Double-arg constructor/factory method");
@@ -351,6 +359,8 @@ public class StdValueInstantiator
                 return _fromBooleanCreator.call1(Boolean.valueOf(value));
             }
         } catch (Exception e) {
+            throw wrapException(e);
+        } catch (ExceptionInInitializerError e) {
             throw wrapException(e);
         }
         throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
@@ -413,6 +423,9 @@ public class StdValueInstantiator
     {
         while (t.getCause() != null) {
             t = t.getCause();
+        }
+        if (t instanceof JsonMappingException) {
+            return (JsonMappingException) t;
         }
         return new JsonMappingException("Instantiation of "+getValueTypeDesc()+" value failed: "+t.getMessage(), t);
     }

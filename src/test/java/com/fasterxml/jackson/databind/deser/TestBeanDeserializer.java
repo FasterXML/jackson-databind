@@ -100,7 +100,7 @@ public class TestBeanDeserializer extends BaseMapTest
         public String name, value;
     }
     static class Issue476Deserializer extends BeanDeserializer
-        implements ContextualDeserializer<Object>
+        implements ContextualDeserializer
     {
         protected static int propCount;
 
@@ -109,7 +109,7 @@ public class TestBeanDeserializer extends BaseMapTest
         }
 
         @Override
-        public JsonDeserializer<Object> createContextual(DeserializationContext ctxt,
+        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property) throws JsonMappingException {
             propCount++;
             return this;

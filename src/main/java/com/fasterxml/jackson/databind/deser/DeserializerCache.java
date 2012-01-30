@@ -182,8 +182,8 @@ public final class DeserializerCache
         JsonDeserializer<Object> deser = _findCachedDeserializer(propertyType);
         if (deser != null) {
             // [JACKSON-385]: need to support contextualization:
-            if (deser instanceof ContextualDeserializer<?>) {
-                JsonDeserializer<?> d = ((ContextualDeserializer<?>) deser).createContextual(ctxt, property);
+            if (deser instanceof ContextualDeserializer) {
+                JsonDeserializer<?> d = ((ContextualDeserializer) deser).createContextual(ctxt, property);
                 deser = (JsonDeserializer<Object>) d;
             }
             return deser;
@@ -198,8 +198,8 @@ public final class DeserializerCache
             deser = _handleUnknownValueDeserializer(propertyType);
         }
         // [JACKSON-385]: need to support contextualization:
-        if (deser instanceof ContextualDeserializer<?>) {
-            JsonDeserializer<?> d = ((ContextualDeserializer<?>) deser).createContextual(ctxt, property);
+        if (deser instanceof ContextualDeserializer) {
+            JsonDeserializer<?> d = ((ContextualDeserializer) deser).createContextual(ctxt, property);
             deser = (JsonDeserializer<Object>) d;
         }
         return deser;
@@ -493,8 +493,7 @@ public final class DeserializerCache
     {
         // first: let's check class for the instance itself:
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        Class<?> subclass = intr.findDeserializationType(a, type,
-                (prop == null)? null : prop.getName());
+        Class<?> subclass = intr.findDeserializationType(a, type);
         if (subclass != null) {
             try {
                 type = type.narrowBy(subclass);
@@ -505,8 +504,7 @@ public final class DeserializerCache
 
         // then key class
         if (type.isContainerType()) {
-            Class<?> keyClass = intr.findDeserializationKeyType(a, type.getKeyType(),
-                    (prop == null)? null : prop.getName());
+            Class<?> keyClass = intr.findDeserializationKeyType(a, type.getKeyType());
             if (keyClass != null) {
                 // illegal to use on non-Maps
                 if (!(type instanceof MapLikeType)) {
@@ -535,8 +533,7 @@ public final class DeserializerCache
             }            
             
             // and finally content class; only applicable to structured types
-            Class<?> cc = intr.findDeserializationContentType(a, type.getContentType(),
-                    (prop == null) ? null : prop.getName());
+            Class<?> cc = intr.findDeserializationContentType(a, type.getContentType());
             if (cc != null) {
                 try {
                     type = type.narrowContentsBy(cc);

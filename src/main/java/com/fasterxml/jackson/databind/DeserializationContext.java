@@ -248,8 +248,8 @@ public class DeserializationContext
             ((ResolvableDeserializer) deser).resolve(this);
         }
         // Second: contextualize:
-        if (deser instanceof ContextualDeserializer<?>) {
-            deser = ((ContextualDeserializer<?>) deser).createContextual(this, property);
+        if (deser instanceof ContextualDeserializer) {
+            deser = ((ContextualDeserializer) deser).createContextual(this, property);
         }
         return (JsonDeserializer<Object>) deser;
     }

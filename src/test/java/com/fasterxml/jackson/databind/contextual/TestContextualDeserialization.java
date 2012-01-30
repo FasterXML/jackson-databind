@@ -103,7 +103,7 @@ public class TestContextualDeserialization extends BaseMapTest
     
     static class MyContextualDeserializer
         extends JsonDeserializer<ContextualType>
-        implements ContextualDeserializer<ContextualType>
+        implements ContextualDeserializer
     {
         protected final String _fieldName;
         
@@ -119,7 +119,7 @@ public class TestContextualDeserialization extends BaseMapTest
         }
 
         @Override
-        public JsonDeserializer<ContextualType> createContextual(DeserializationContext ctxt,
+        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
             throws JsonMappingException
         {
@@ -132,7 +132,7 @@ public class TestContextualDeserialization extends BaseMapTest
      */
     static class AnnotatedContextualDeserializer
         extends JsonDeserializer<ContextualType>
-        implements ContextualDeserializer<ContextualType>
+        implements ContextualDeserializer
     {
         protected final String _fieldName;
         
@@ -148,7 +148,7 @@ public class TestContextualDeserialization extends BaseMapTest
         }
     
         @Override
-        public JsonDeserializer<ContextualType> createContextual(DeserializationContext ctxt,
+        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
             throws JsonMappingException
         {

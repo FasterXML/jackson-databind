@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.*;
  * -- resolution via {@link ResolvableDeserializer} occurs first, and contextual
  * resolution (via this interface) later on.
  */
-public interface ContextualDeserializer<T>
+public interface ContextualDeserializer
 {
     /**
      * Method called to see if a different (or differently configured) deserializer
@@ -37,7 +37,7 @@ public interface ContextualDeserializer<T>
      * 
      * @throws JsonMappingException
      */
-    public JsonDeserializer<T> createContextual(DeserializationContext ctxt,
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
         throws JsonMappingException;
 }

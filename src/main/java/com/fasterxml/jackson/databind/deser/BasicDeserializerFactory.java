@@ -1306,8 +1306,7 @@ public abstract class BasicDeserializerFactory
     {
         // first: let's check class for the instance itself:
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        Class<?> subclass = intr.findDeserializationType(a, type,
-                (prop == null) ? null : prop.getName());
+        Class<?> subclass = intr.findDeserializationType(a, type);
         if (subclass != null) {
             try {
                 type = (T) type.narrowBy(subclass);
@@ -1318,8 +1317,7 @@ public abstract class BasicDeserializerFactory
 
         // then key class
         if (type.isContainerType()) {
-            Class<?> keyClass = intr.findDeserializationKeyType(a, type.getKeyType(),
-                    (prop == null) ? null : prop.getName());
+            Class<?> keyClass = intr.findDeserializationKeyType(a, type.getKeyType());
             if (keyClass != null) {
                 // illegal to use on non-Maps
                 if (!(type instanceof MapLikeType)) {
@@ -1346,8 +1344,7 @@ public abstract class BasicDeserializerFactory
             }            
            
            // and finally content class; only applicable to structured types
-           Class<?> cc = intr.findDeserializationContentType(a, type.getContentType(),
-                   (prop == null) ? null : prop.getName());
+           Class<?> cc = intr.findDeserializationContentType(a, type.getContentType());
            if (cc != null) {
                try {
                    type = (T) type.narrowContentsBy(cc);

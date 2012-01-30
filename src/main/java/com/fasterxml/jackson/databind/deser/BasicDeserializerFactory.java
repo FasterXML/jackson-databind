@@ -679,7 +679,7 @@ public abstract class BasicDeserializerFactory
                  *   so let's allow this
                  */
                 JsonDeserializer<?> custom = _findCustomArrayDeserializer(type,
-                        ctxt.getConfig(), beanDesc, property, null, contentDeser);
+                        ctxt.getConfig(), beanDesc, null, contentDeser);
                 if (custom != null) {
                     return custom;
                 }
@@ -698,7 +698,7 @@ public abstract class BasicDeserializerFactory
         }
         // 23-Nov-2010, tatu: Custom array deserializer?
         JsonDeserializer<?> custom = _findCustomArrayDeserializer(type,
-                ctxt.getConfig(), beanDesc, property, elemTypeDeser, contentDeser);
+                ctxt.getConfig(), beanDesc, elemTypeDeser, contentDeser);
         if (custom != null) {
             return custom;
         }
@@ -706,14 +706,13 @@ public abstract class BasicDeserializerFactory
     }
 
     protected JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property,
+            DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
             JsonDeserializer<?> deser = d.findArrayDeserializer(type, config,
-                    beanDesc, property, elementTypeDeserializer, elementDeserializer);
+                    beanDesc, elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
             }
@@ -745,8 +744,7 @@ public abstract class BasicDeserializerFactory
 
         // 23-Nov-2010, tatu: Custom deserializer?
         JsonDeserializer<?> custom = _findCustomCollectionDeserializer(type,
-                ctxt.getConfig(), beanDesc, property,
-                contentTypeDeser, contentDeser);
+                ctxt.getConfig(), beanDesc, contentTypeDeser, contentDeser);
         if (custom != null) {
             return custom;
         }
@@ -804,18 +802,17 @@ public abstract class BasicDeserializerFactory
         if (contentTypeDeser == null) {
             contentTypeDeser = findTypeDeserializer(ctxt.getConfig(), contentType, property);
         }
-        return _findCustomCollectionLikeDeserializer(type, ctxt.getConfig(), beanDesc, property,
+        return _findCustomCollectionLikeDeserializer(type, ctxt.getConfig(), beanDesc,
                 contentTypeDeser, contentDeser);
     }
   
     protected JsonDeserializer<?> _findCustomCollectionDeserializer(CollectionType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property,
+            DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findCollectionDeserializer(type, config, beanDesc, property,
+            JsonDeserializer<?> deser = d.findCollectionDeserializer(type, config, beanDesc,
                     elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -825,13 +822,12 @@ public abstract class BasicDeserializerFactory
     }
 
     protected JsonDeserializer<?> _findCustomCollectionLikeDeserializer(CollectionLikeType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property,
+            DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findCollectionLikeDeserializer(type, config, beanDesc, property,
+            JsonDeserializer<?> deser = d.findCollectionLikeDeserializer(type, config, beanDesc,
                     elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -869,7 +865,7 @@ public abstract class BasicDeserializerFactory
         }
 
         // 23-Nov-2010, tatu: Custom deserializer?
-        JsonDeserializer<?> custom = _findCustomMapDeserializer(type, config, beanDesc, property,
+        JsonDeserializer<?> custom = _findCustomMapDeserializer(type, config, beanDesc,
                 keyDes, contentTypeDeser, contentDeser);
 
         if (custom != null) {
@@ -940,18 +936,17 @@ public abstract class BasicDeserializerFactory
             contentTypeDeser = findTypeDeserializer(ctxt.getConfig(), contentType, property);
         }
         return _findCustomMapLikeDeserializer(type, ctxt.getConfig(),
-                beanDesc, property, keyDes, contentTypeDeser, contentDeser);
+                beanDesc, keyDes, contentTypeDeser, contentDeser);
     }
 
     protected JsonDeserializer<?> _findCustomMapDeserializer(MapType type,
-            DeserializationConfig config, 
-            BeanDescription beanDesc, BeanProperty property,
+            DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findMapDeserializer(type, config, beanDesc, property,
+            JsonDeserializer<?> deser = d.findMapDeserializer(type, config, beanDesc,
                     keyDeserializer, elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -961,14 +956,13 @@ public abstract class BasicDeserializerFactory
     }
 
     protected JsonDeserializer<?> _findCustomMapLikeDeserializer(MapLikeType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property,
+            DeserializationConfig config, BeanDescription beanDesc,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findMapLikeDeserializer(type, config, beanDesc, property,
+            JsonDeserializer<?> deser = d.findMapLikeDeserializer(type, config, beanDesc,
                     keyDeserializer, elementTypeDeserializer, elementDeserializer);
             if (deser != null) {
                 return deser;
@@ -994,7 +988,7 @@ public abstract class BasicDeserializerFactory
         Class<?> enumClass = type.getRawClass();
         // 23-Nov-2010, tatu: Custom deserializer?
         JsonDeserializer<?> custom = _findCustomEnumDeserializer(enumClass,
-                ctxt.getConfig(), beanDesc, property);
+                ctxt.getConfig(), beanDesc);
         if (custom != null) {
             return custom;
         }
@@ -1019,11 +1013,11 @@ public abstract class BasicDeserializerFactory
     }
 
     protected JsonDeserializer<?> _findCustomEnumDeserializer(Class<?> type,
-            DeserializationConfig config, BeanDescription beanDesc, BeanProperty property)
+            DeserializationConfig config, BeanDescription beanDesc)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findEnumDeserializer(type, config, beanDesc, property);
+            JsonDeserializer<?> deser = d.findEnumDeserializer(type, config, beanDesc);
             if (deser != null) {
                 return deser;
             }
@@ -1046,7 +1040,7 @@ public abstract class BasicDeserializerFactory
         Class<? extends JsonNode> nodeClass = (Class<? extends JsonNode>) nodeType.getRawClass();
         // 23-Nov-2010, tatu: Custom deserializer?
         JsonDeserializer<?> custom = _findCustomTreeNodeDeserializer(nodeClass, config,
-                beanDesc, property);
+                beanDesc);
         if (custom != null) {
             return custom;
         }
@@ -1054,12 +1048,11 @@ public abstract class BasicDeserializerFactory
     }
 
     protected JsonDeserializer<?> _findCustomTreeNodeDeserializer(Class<? extends JsonNode> type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property)
+            DeserializationConfig config, BeanDescription beanDesc)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findTreeNodeDeserializer(type, config, beanDesc, property);
+            JsonDeserializer<?> deser = d.findTreeNodeDeserializer(type, config, beanDesc);
             if (deser != null) {
                 return deser;
             }
@@ -1074,8 +1067,8 @@ public abstract class BasicDeserializerFactory
      */
 
     @Override
-    public TypeDeserializer findTypeDeserializer(DeserializationConfig config, JavaType baseType,
-            BeanProperty property)
+    public TypeDeserializer findTypeDeserializer(DeserializationConfig config,
+            JavaType baseType, BeanProperty property)
         throws JsonMappingException
     {
         Class<?> cls = baseType.getRawClass();
@@ -1159,7 +1152,7 @@ public abstract class BasicDeserializerFactory
         }
         Class<?> enumClass = type.getRawClass();
         // 23-Nov-2010, tatu: Custom deserializer?
-        JsonDeserializer<?> custom = _findCustomEnumDeserializer(enumClass, config, beanDesc, property);
+        JsonDeserializer<?> custom = _findCustomEnumDeserializer(enumClass, config, beanDesc);
         if (custom != null) {
             return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, des);
         }

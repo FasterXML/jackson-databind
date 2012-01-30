@@ -94,7 +94,7 @@ public class BeanDeserializerFactory
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findBeanDeserializer(type, config, beanDesc, property);
+            JsonDeserializer<?> deser = d.findBeanDeserializer(type, config, beanDesc);
             if (deser != null) {
                 return (JsonDeserializer<Object>) deser;
             }

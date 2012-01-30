@@ -57,8 +57,7 @@ public class TestTypeModifiers extends BaseMapTest
             context.addDeserializers(new SimpleDeserializers() {
                 @Override
                 public JsonDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type, DeserializationConfig config,
-                        BeanDescription beanDesc, BeanProperty property,
-                        TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
+                        BeanDescription beanDesc, TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
                     throws JsonMappingException
                 {
                     if (CollectionMarker.class.isAssignableFrom(type.getRawClass())) {
@@ -68,8 +67,7 @@ public class TestTypeModifiers extends BaseMapTest
                 }
                 @Override
                 public JsonDeserializer<?> findMapLikeDeserializer(MapLikeType type, DeserializationConfig config,
-                        BeanDescription beanDesc, BeanProperty property,
-                        KeyDeserializer keyDeserializer,
+                        BeanDescription beanDesc, KeyDeserializer keyDeserializer,
                         TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
                     throws JsonMappingException
                 {

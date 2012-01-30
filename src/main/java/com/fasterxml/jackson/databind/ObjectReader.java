@@ -984,7 +984,7 @@ public class ObjectReader
             return deser;
         }
         // Nope: need to ask provider to resolve it
-        deser = ctxt.findTypedValueDeserializer(valueType, null);
+        deser = ctxt.findRootValueDeserializer(valueType);
         if (deser == null) { // can this happen?
             throw new JsonMappingException("Can not find a deserializer for type "+valueType);
         }

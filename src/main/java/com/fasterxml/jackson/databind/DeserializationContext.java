@@ -183,12 +183,12 @@ public class DeserializationContext
     /**
      * Convenience method, functionally same as:
      *<pre>
-     *  getDeserializerProvider().findTypedValueDeserializer(getConfig(), propertyType, property);
+     *  getDeserializerProvider().findRootValueDeserializer(getConfig(), propertyType, property);
      *</pre>
      */
-    public final JsonDeserializer<Object> findTypedValueDeserializer(JavaType type,
-            BeanProperty property) throws JsonMappingException {
-        return _deserCache.findTypedValueDeserializer(this, type, property);
+    public final JsonDeserializer<Object> findRootValueDeserializer(JavaType type)
+            throws JsonMappingException {
+        return _deserCache.findRootValueDeserializer(this, type);
     }
 
     /**

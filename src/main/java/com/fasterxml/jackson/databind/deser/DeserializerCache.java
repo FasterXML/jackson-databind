@@ -206,20 +206,17 @@ public final class DeserializerCache
     }
     
     /**
-     * Method called to locate deserializer for given type, as well as matching
-     * type deserializer (if one is needed); and if type deserializer is needed,
-     * construct a "wrapped" deserializer that can extract and use type information
-     * for calling actual deserializer.
-     *<p>
-     * Since this method is only called for root elements, no referral information
-     * is taken.
+     * Method called to locate deserializer for given type, when it as referenced
+     * from the root context; that is, it is not referenced through a property.
+     * Because there is no referral via property, a type deserializer will be wrapped
+     * around deserializer, if one is needed.
      */
-    public JsonDeserializer<Object> findTypedValueDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanProperty property)
+    public JsonDeserializer<Object> findRootValueDeserializer(DeserializationContext ctxt,
+            JavaType type)
         throws JsonMappingException
     {
-        JsonDeserializer<Object> deser = findValueDeserializer(ctxt, type, property);
-        TypeDeserializer typeDeser = _factory.findTypeDeserializer(ctxt.getConfig(), type, property);
+        JsonDeserializer<Object> deser = findValueDeserializer(ctxt, type, null);
+        TypeDeserializer typeDeser = _factory.findTypeDeserializer(ctxt.getConfig(), type, null);
         if (typeDeser != null) {
             return new WrappedDeserializer(typeDeser, deser);
         }

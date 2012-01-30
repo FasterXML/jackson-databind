@@ -503,8 +503,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Class<?> findDeserializationType(Annotated am, JavaType baseType,
-            String propName)
+    public Class<?> findDeserializationType(Annotated am, JavaType baseType)
     {
         // Primary annotation, JsonDeserialize
         JsonDeserialize ann = am.getAnnotation(JsonDeserialize.class);
@@ -518,8 +517,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType,
-            String propName)
+    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType)
     {
         // Primary annotation, JsonDeserialize
         JsonDeserialize ann = am.getAnnotation(JsonDeserialize.class);
@@ -533,8 +531,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType,
-            String propName)
+    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType)
     {
         // Primary annotation, JsonDeserialize
         JsonDeserialize ann = am.getAnnotation(JsonDeserialize.class);

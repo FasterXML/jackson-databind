@@ -650,13 +650,10 @@ public abstract class AnnotationIntrospector implements Versioned
      * Declared return type of the method is also considered acceptable.
      *
      * @param baseType Assumed type before considering annotations
-     * @param propName Logical property name of the property that uses
-     *    type, if known; null for types not associated with property
      *
      * @return Class to use for deserialization instead of declared type
      */
-    public Class<?> findDeserializationType(Annotated am, JavaType baseType,
-            String propName) {
+    public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
         return null;
     }
 
@@ -666,14 +663,11 @@ public abstract class AnnotationIntrospector implements Versioned
      * It should be only be used with {@link java.util.Map} types.
      * 
      * @param baseKeyType Assumed key type before considering annotations
-     * @param propName Logical property name of the property that uses
-     *    type, if known; null for types not associated with property
      *
      * @return Class specifying more specific type to use instead of
      *   declared type, if annotation found; null if not
      */
-    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType,
-            String propName) {
+    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
         return null;
     }
 
@@ -684,14 +678,11 @@ public abstract class AnnotationIntrospector implements Versioned
      * It should be only be used with Map, Collection and array types.
      * 
      * @param baseContentType Assumed content (value) type before considering annotations
-     * @param propName Logical property name of the property that uses
-     *    type, if known; null for types not associated with property
      *
      * @return Class specifying more specific type to use instead of
      *   declared type, if annotation found; null if not
      */
-    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType,
-            String propName) {
+    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType) {
         return null;
     }
 
@@ -1279,34 +1270,31 @@ public abstract class AnnotationIntrospector implements Versioned
         }
         
         @Override
-        public Class<?> findDeserializationType(Annotated am, JavaType baseType,
-                String propName)
+        public Class<?> findDeserializationType(Annotated am, JavaType baseType)
         {
-            Class<?> result = _primary.findDeserializationType(am, baseType, propName);
+            Class<?> result = _primary.findDeserializationType(am, baseType);
             if (result == null) {
-                result = _secondary.findDeserializationType(am, baseType, propName);
+                result = _secondary.findDeserializationType(am, baseType);
             }
             return result;
         }
 
         @Override
-        public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType,
-                String propName)
+        public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType)
         {
-            Class<?> result = _primary.findDeserializationKeyType(am, baseKeyType, propName);
+            Class<?> result = _primary.findDeserializationKeyType(am, baseKeyType);
             if (result == null) {
-                result = _secondary.findDeserializationKeyType(am, baseKeyType, propName);
+                result = _secondary.findDeserializationKeyType(am, baseKeyType);
             }
             return result;
         }
 
         @Override
-        public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType,
-                String propName)
+        public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType)
         {
-            Class<?> result = _primary.findDeserializationContentType(am, baseContentType, propName);
+            Class<?> result = _primary.findDeserializationContentType(am, baseContentType);
             if (result == null) {
-                result = _secondary.findDeserializationContentType(am, baseContentType, propName);
+                result = _secondary.findDeserializationContentType(am, baseContentType);
             }
             return result;
         }

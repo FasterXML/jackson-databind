@@ -6,41 +6,45 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
- * 
+ * Standard deserializer for {@link EnumSet}s.
  * <p>
  * Note: casting within this class is all messed up -- just could not figure out a way
  * to properly deal with recursive definition of "EnumSet<K extends Enum<K>, V>
- * 
- * @author tsaloranta
  */
 @SuppressWarnings("rawtypes")
 public class EnumSetDeserializer
     extends StdDeserializer<EnumSet<?>>
-    implements ResolvableDeserializer
+    implements ContextualDeserializer
 {
     protected final JavaType _enumType;
-
-    protected final BeanProperty _property;
 
     protected final Class<Enum> _enumClass;
 
     protected JsonDeserializer<Enum<?>> _enumDeserializer;
 
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+    
     @SuppressWarnings("unchecked" )
-    public EnumSetDeserializer(JavaType enumType, BeanProperty prop,
-            JsonDeserializer<?> deser)
+    public EnumSetDeserializer(JavaType enumType, JsonDeserializer<?> deser)
     {
         super(EnumSet.class);
         _enumType = enumType;
-        _property = prop;
         _enumClass = (Class<Enum>) enumType.getRawClass();
         _enumDeserializer = (JsonDeserializer<Enum<?>>) deser;
     }
 
+    public EnumSetDeserializer withDeserializer(JsonDeserializer<?> deser) {
+        return new EnumSetDeserializer(_enumType, deser);
+    }
+    
     /**
      * Because of costs associated with constructing Enum resolvers,
      * let's cache instances by default.
@@ -48,15 +52,21 @@ public class EnumSetDeserializer
     @Override
     public boolean isCachable() { return true; }
     
-    @SuppressWarnings("unchecked")
     @Override
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property) throws JsonMappingException
     {
-        if (_enumDeserializer == null) {
-            _enumDeserializer = (JsonDeserializer<Enum<?>>)(JsonDeserializer<?>)
-                ctxt.findValueDeserializer(_enumType, _property);
+        if (_enumDeserializer != null) {
+            return this;
         }
+        return withDeserializer(ctxt.findValueDeserializer(_enumType, property));
     }
+
+    /*
+    /**********************************************************
+    /* JsonDeserializer API
+    /**********************************************************
+     */
     
     @SuppressWarnings("unchecked") 
     @Override

@@ -71,7 +71,7 @@ public class ObjectArrayDeserializer
      * Overridable fluent-factory method used to create contextual instances
      */
     @SuppressWarnings("unchecked")
-    protected ObjectArrayDeserializer withDeserializer(JsonDeserializer<?> deser) {
+    public ObjectArrayDeserializer withDeserializer(JsonDeserializer<?> deser) {
         return new ObjectArrayDeserializer(_arrayType,
                 (JsonDeserializer<Object>) deser, _elementTypeDeserializer);
     }

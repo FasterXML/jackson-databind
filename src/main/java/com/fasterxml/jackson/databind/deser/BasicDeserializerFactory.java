@@ -755,7 +755,7 @@ public abstract class BasicDeserializerFactory
         if (contentDeser == null) { // not defined by annotation
             // One special type: EnumSet:
             if (EnumSet.class.isAssignableFrom(collectionClass)) {
-                return new EnumSetDeserializer(contentType, property, null);
+                return new EnumSetDeserializer(contentType, null);
             }
         }
         

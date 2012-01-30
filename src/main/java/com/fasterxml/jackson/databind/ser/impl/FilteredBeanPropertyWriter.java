@@ -1,8 +1,9 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.ser.impl;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**

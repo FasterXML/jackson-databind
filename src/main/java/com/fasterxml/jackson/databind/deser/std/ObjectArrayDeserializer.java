@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
@@ -18,20 +18,14 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
 @JacksonStdImpl
 public class ObjectArrayDeserializer
     extends ContainerDeserializerBase<Object[]>
-    implements ResolvableDeserializer
+    implements ContextualDeserializer
 {
     // // Configuration
 
     /**
      * Full generic type of the array being deserialized
      */
-    protected final JavaType _arrayType;
-
-    /**
-     * Bean property for which deserializer was created; null
-     * for root-level deserializers.
-     */
-    protected final BeanProperty _property;
+    protected final ArrayType _arrayType;
     
     /**
      * Flag that indicates whether the component type is Object or not.
@@ -56,18 +50,43 @@ public class ObjectArrayDeserializer
      */
     protected final TypeDeserializer _elementTypeDeserializer;
 
-    public ObjectArrayDeserializer(ArrayType arrayType, BeanProperty prop,
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+    
+    public ObjectArrayDeserializer(ArrayType arrayType,
             JsonDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser)
     {
         super(Object[].class);
         _arrayType = arrayType;
-        _property = prop;
         _elementClass = arrayType.getContentType().getRawClass();
         _untyped = (_elementClass == Object.class);
         _elementDeserializer = elemDeser;
         _elementTypeDeserializer = elemTypeDeser;
     }
 
+    /**
+     * Overridable fluent-factory method used to create contextual instances
+     */
+    @SuppressWarnings("unchecked")
+    protected ObjectArrayDeserializer withDeserializer(JsonDeserializer<?> deser) {
+        return new ObjectArrayDeserializer(_arrayType,
+                (JsonDeserializer<Object>) deser, _elementTypeDeserializer);
+    }
+
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property) throws JsonMappingException
+    {
+        JsonDeserializer<Object> deser = _elementDeserializer;
+        if (deser != null) {
+            return this;
+        }
+        return withDeserializer(ctxt.findValueDeserializer(_arrayType.getContentType(), property));
+    }
+    
     /*
     /**********************************************************
     /* ContainerDeserializerBase API
@@ -143,14 +162,6 @@ public class ObjectArrayDeserializer
          * for now this should be enough:
          */
         return (Object[]) typeDeserializer.deserializeTypedFromArray(jp, ctxt);
-    }
-
-    @Override
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException
-    {
-        if (_elementDeserializer == null) {
-            _elementDeserializer = ctxt.findValueDeserializer(_arrayType.getContentType(), _property);
-        }
     }
     
     /*

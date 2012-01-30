@@ -702,7 +702,7 @@ public abstract class BasicDeserializerFactory
         if (custom != null) {
             return custom;
         }
-        return new ObjectArrayDeserializer(type, property, contentDeser, elemTypeDeser);
+        return new ObjectArrayDeserializer(type, contentDeser, elemTypeDeser);
     }
 
     protected JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type,

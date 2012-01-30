@@ -42,8 +42,8 @@ public interface Deserializers
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
     public JsonDeserializer<?> findArrayDeserializer(ArrayType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property,
+            DeserializationConfig config, BeanDescription beanDesc,
+            BeanProperty property,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException;
 
@@ -70,8 +70,8 @@ public interface Deserializers
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
     public JsonDeserializer<?> findCollectionDeserializer(CollectionType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property,
+            DeserializationConfig config, BeanDescription beanDesc,
+            BeanProperty property,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException;
 
@@ -100,8 +100,8 @@ public interface Deserializers
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
     public JsonDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property,
+            DeserializationConfig config, BeanDescription beanDesc,
+            BeanProperty property,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException;
     
@@ -117,8 +117,8 @@ public interface Deserializers
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
     public JsonDeserializer<?> findEnumDeserializer(Class<?> type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property)
+            DeserializationConfig config, BeanDescription beanDesc,
+            BeanProperty property)
         throws JsonMappingException;
 
     /**
@@ -151,8 +151,8 @@ public interface Deserializers
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
     public JsonDeserializer<?> findMapDeserializer(MapType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property,
+            DeserializationConfig config, BeanDescription beanDesc,
+            BeanProperty property,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException;
@@ -189,8 +189,7 @@ public interface Deserializers
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
     public JsonDeserializer<?> findMapLikeDeserializer(MapLikeType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property,
+            DeserializationConfig config, BeanDescription beanDesc, BeanProperty property,
             KeyDeserializer keyDeserializer,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
         throws JsonMappingException;
@@ -206,8 +205,7 @@ public interface Deserializers
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
     public JsonDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property)
+            DeserializationConfig config, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
     
     /**
@@ -223,8 +221,7 @@ public interface Deserializers
      * @return Deserializer to use for the type; or null if this provider does not know how to construct it
      */
     public JsonDeserializer<?> findBeanDeserializer(JavaType type,
-            DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property)
+            DeserializationConfig config, BeanDescription beanDesc, BeanProperty property)
         throws JsonMappingException;
 
     /*
@@ -244,8 +241,7 @@ public interface Deserializers
     {
         @Override
         public JsonDeserializer<?> findArrayDeserializer(ArrayType type,
-                DeserializationConfig config,
-                BeanDescription beanDesc, BeanProperty property,
+                DeserializationConfig config, BeanDescription beanDesc, BeanProperty property,
                 TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
             throws JsonMappingException
         {
@@ -254,8 +250,7 @@ public interface Deserializers
 
         @Override
         public JsonDeserializer<?> findCollectionDeserializer(CollectionType type,
-                DeserializationConfig config,
-                BeanDescription beanDesc, BeanProperty property,
+                DeserializationConfig config, BeanDescription beanDesc, BeanProperty property,
                 TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
             throws JsonMappingException
         {
@@ -263,8 +258,8 @@ public interface Deserializers
         }
 
         @Override
-        public JsonDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type, DeserializationConfig config,
-                BeanDescription beanDesc, BeanProperty property,
+        public JsonDeserializer<?> findCollectionLikeDeserializer(CollectionLikeType type,
+                DeserializationConfig config, BeanDescription beanDesc, BeanProperty property,
                 TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
             throws JsonMappingException
         {
@@ -272,8 +267,8 @@ public interface Deserializers
         }
 
         @Override
-        public JsonDeserializer<?> findMapDeserializer(MapType type, DeserializationConfig config,
-                BeanDescription beanDesc, BeanProperty property,
+        public JsonDeserializer<?> findMapDeserializer(MapType type,
+                DeserializationConfig config, BeanDescription beanDesc, BeanProperty property,
                 KeyDeserializer keyDeserializer,
                 TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
             throws JsonMappingException
@@ -282,8 +277,8 @@ public interface Deserializers
         }
 
         @Override
-        public JsonDeserializer<?> findMapLikeDeserializer(MapLikeType type, DeserializationConfig config,
-                BeanDescription beanDesc, BeanProperty property,
+        public JsonDeserializer<?> findMapLikeDeserializer(MapLikeType type,
+                DeserializationConfig config, BeanDescription beanDesc, BeanProperty property,
                 KeyDeserializer keyDeserializer,
                 TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
             throws JsonMappingException
@@ -292,9 +287,8 @@ public interface Deserializers
         }
 
         @Override
-        public JsonDeserializer<?> findEnumDeserializer(Class<?> type, DeserializationConfig config,
-                BeanDescription beanDesc,
-                BeanProperty property)
+        public JsonDeserializer<?> findEnumDeserializer(Class<?> type,
+                DeserializationConfig config, BeanDescription beanDesc, BeanProperty property)
             throws JsonMappingException
         {
             return null;
@@ -302,16 +296,15 @@ public interface Deserializers
         
         @Override
         public JsonDeserializer<?> findTreeNodeDeserializer(Class<? extends JsonNode> nodeType,
-                DeserializationConfig config,
-                BeanDescription beanDesc, BeanProperty property)
+                DeserializationConfig config, BeanDescription beanDesc, BeanProperty property)
             throws JsonMappingException
         {
             return null;
         }
 
         @Override
-        public JsonDeserializer<?> findBeanDeserializer(JavaType type, DeserializationConfig config,
-                BeanDescription beanDesc, BeanProperty property)
+        public JsonDeserializer<?> findBeanDeserializer(JavaType type,
+                DeserializationConfig config, BeanDescription beanDesc, BeanProperty property)
             throws JsonMappingException
         {
             return null;

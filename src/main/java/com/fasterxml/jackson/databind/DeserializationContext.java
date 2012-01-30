@@ -1,29 +1,63 @@
 package com.fasterxml.jackson.databind;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 
+import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
+import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.LinkedNode;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
 /**
  * Context for deserialization process. Used to allow passing in configuration
  * settings and reusable temporary objects (scrap arrays, containers).
  */
-public abstract class DeserializationContext
+public class DeserializationContext
 {
+    /**
+     * Let's limit length of error messages, for cases where underlying data
+     * may be very large -- no point in spamming logs with megs of meaningless
+     * data.
+     */
+    final static int MAX_ERROR_STR_LEN = 500;
+
+    // // // Configuration
+    
     protected final DeserializationConfig _config;
 
     protected final int _featureFlags;
 
     protected final Class<?> _view;
+
+    /**
+     * Currently active parser used for deserialization.
+     * May be different from the outermost parser
+     * when content is buffered.
+     */
+    protected JsonParser _parser;
+
+    protected final DeserializerCache _deserCache;
+
+    protected final InjectableValues _injectableValues;
+    
+    // // // Helper object recycling
+
+    protected ArrayBuilders _arrayBuilders;
+
+    protected ObjectBuffer _objectBuffer;
+
+    protected DateFormat _dateFormat;
     
     /*
     /**********************************************************
@@ -31,16 +65,20 @@ public abstract class DeserializationContext
     /**********************************************************
      */
     
-    protected DeserializationContext(DeserializationConfig config)
+    public DeserializationContext(DeserializationConfig config, JsonParser jp,
+            DeserializerCache cache, InjectableValues injectableValues)
     {
         _config = config;
         _featureFlags = config.getDeserializationFeatures();
         _view = config.getActiveView();
+        _parser = jp;
+        _deserCache = cache;
+        _injectableValues = injectableValues;
     }
 
     /*
     /**********************************************************
-    /* Configuration methods
+    /* Public API, accessors
     /**********************************************************
      */
 
@@ -50,10 +88,6 @@ public abstract class DeserializationContext
      */
     public DeserializationConfig getConfig() { return _config; }
 
-    public final AnnotationIntrospector getAnnotationIntrospector() {
-        return _config.getAnnotationIntrospector();
-    }
-    
     /**
      * Convenience method for checking whether specified on/off
      * feature is enabled
@@ -67,6 +101,33 @@ public abstract class DeserializationContext
 
     public final boolean isEnabled(MapperConfig.Feature feat) {
         return _config.isEnabled(feat);
+    }
+    
+    public final AnnotationIntrospector getAnnotationIntrospector() {
+        return _config.getAnnotationIntrospector();
+    }
+    
+    public final DeserializerCache getDeserializerCache() {
+        return _deserCache;
+    }
+
+    /**
+     * Method for accessing the currently active parser.
+     * May be different from the outermost parser
+     * when content is buffered.
+     *<p>
+     * Use of this method is discouraged: if code has direct access
+     * to the active parser, that should be used instead.
+     */
+    public final JsonParser getParser() { return _parser; }
+
+    public final Object findInjectableValue(Object valueId,
+            BeanProperty forProperty, Object beanInstance)
+    {
+        if (_injectableValues == null) {
+            throw new IllegalStateException("No 'injectableValues' configured, can not inject value with id ["+valueId+"]");
+        }
+        return _injectableValues.findInjectableValue(valueId, this, forProperty, beanInstance);
     }
 
     public final Class<?> getActiveView() {
@@ -85,15 +146,9 @@ public abstract class DeserializationContext
      *  getConfig().getBase64Variant();
      *</pre>
      */
-    public Base64Variant getBase64Variant() {
+    public final Base64Variant getBase64Variant() {
         return _config.getBase64Variant();
     }
-
-    /**
-     * Accessor for getting access to the underlying JSON parser used
-     * for deserialization.
-     */
-    public abstract JsonParser getParser();
 
     public final JsonNodeFactory getNodeFactory() {
         return _config.getNodeFactory();
@@ -107,24 +162,22 @@ public abstract class DeserializationContext
         return _config.getTypeFactory();
     }
 
-    public abstract Object findInjectableValue(Object valueId,
-            BeanProperty forProperty, Object beanInstance);
 
     /*
     /**********************************************************
-    /* By-pass methods to DeserializerCache
+    /* Public API, pass-through to DeserializerCache
     /**********************************************************
      */
-
     /**
      * Convenience method, functionally same as:
      *<pre>
      *  getDeserializerProvider().findValueDeserializer(getConfig(), propertyType, property);
      *</pre>
      */
-    public abstract JsonDeserializer<Object> findValueDeserializer(JavaType propertyType,
-            BeanProperty property)
-        throws JsonMappingException;
+    public final JsonDeserializer<Object> findValueDeserializer(JavaType type,
+            BeanProperty property) throws JsonMappingException {
+        return _deserCache.findValueDeserializer(this, type, property);
+    }
     
     /**
      * Convenience method, functionally same as:
@@ -132,9 +185,10 @@ public abstract class DeserializationContext
      *  getDeserializerProvider().findTypedValueDeserializer(getConfig(), propertyType, property);
      *</pre>
      */
-    public abstract JsonDeserializer<Object> findTypedValueDeserializer(JavaType type,
-            BeanProperty property)
-        throws JsonMappingException;
+    public final JsonDeserializer<Object> findTypedValueDeserializer(JavaType type,
+            BeanProperty property) throws JsonMappingException {
+        return _deserCache.findTypedValueDeserializer(this, type, property);
+    }
 
     /**
      * Convenience method, functionally same as:
@@ -142,27 +196,112 @@ public abstract class DeserializationContext
      *  getDeserializerProvider().findKeyDeserializer(getConfig(), propertyType, property);
      *</pre>
      */
-    public abstract KeyDeserializer findKeyDeserializer(JavaType keyType,
-            BeanProperty property)
-        throws JsonMappingException;
-
+    public final KeyDeserializer findKeyDeserializer(JavaType keyType,
+            BeanProperty property) throws JsonMappingException {
+        return _deserCache.findKeyDeserializer(this, keyType, property);
+    }
+    
     /*
     /**********************************************************
     /* Extended API: handler instantiation
     /**********************************************************
      */
 
-    public abstract JsonDeserializer<Object> deserializerInstance(Annotated annotated,
+    @SuppressWarnings("unchecked")
+    public JsonDeserializer<Object> deserializerInstance(Annotated annotated,
             BeanProperty property, Object deserDef)
-        throws JsonMappingException;
+        throws JsonMappingException
+    {
+        if (deserDef == null) {
+            return null;
+        }
+        JsonDeserializer<?> deser;
+        
+        if (deserDef instanceof JsonDeserializer) {
+            deser = (JsonDeserializer<?>) deserDef;
+        } else {
+            /* Alas, there's no way to force return type of "either class
+             * X or Y" -- need to throw an exception after the fact
+             */
+            if (!(deserDef instanceof Class)) {
+                throw new IllegalStateException("AnnotationIntrospector returned deserializer definition of type "+deserDef.getClass().getName()+"; expected type JsonDeserializer or Class<JsonDeserializer> instead");
+            }
+            Class<?> deserClass = (Class<?>)deserDef;
+            // there are some known "no class" markers to consider too:
+            if (deserClass == JsonDeserializer.None.class || deserClass == NoClass.class) {
+                return null;
+            }
+            if (!JsonDeserializer.class.isAssignableFrom(deserClass)) {
+                throw new IllegalStateException("AnnotationIntrospector returned Class "+deserClass.getName()+"; expected Class<JsonDeserializer>");
+            }
+            HandlerInstantiator hi = _config.getHandlerInstantiator();
+            if (hi != null) {
+                deser = hi.deserializerInstance(_config, annotated, deserClass);
+            } else {
+                deser = (JsonDeserializer<?>) ClassUtil.createInstance(deserClass,
+                        _config.canOverrideAccessModifiers());
+            }
+        }
+        // First: need to resolve
+        if (deser instanceof ResolvableDeserializer) {
+            ((ResolvableDeserializer) deser).resolve(this);
+        }
+        // Second: contextualize:
+        if (deser instanceof ContextualDeserializer<?>) {
+            deser = ((ContextualDeserializer<?>) deser).createContextual(this, property);
+        }
+        return (JsonDeserializer<Object>) deser;
+    }
 
-    public abstract KeyDeserializer keyDeserializerInstance(Annotated annotated,
-            BeanProperty property, Object keyDeserClass)
-        throws JsonMappingException;
+    public final KeyDeserializer keyDeserializerInstance(Annotated annotated,
+            BeanProperty property, Object deserDef)
+        throws JsonMappingException
+    {
+        if (deserDef == null) {
+            return null;
+        }
+
+        KeyDeserializer deser;
+        
+        if (deserDef instanceof KeyDeserializer) {
+            deser = (KeyDeserializer) deserDef;
+        } else {
+            if (!(deserDef instanceof Class)) {
+                throw new IllegalStateException("AnnotationIntrospector returned key deserializer definition of type "
+                        +deserDef.getClass().getName()
+                        +"; expected type KeyDeserializer or Class<KeyDeserializer> instead");
+            }
+            Class<?> deserClass = (Class<?>)deserDef;
+            // there are some known "no class" markers to consider too:
+            if (deserClass == KeyDeserializer.None.class || deserClass == NoClass.class) {
+                return null;
+            }
+            if (!KeyDeserializer.class.isAssignableFrom(deserClass)) {
+                throw new IllegalStateException("AnnotationIntrospector returned Class "+deserClass.getName()
+                        +"; expected Class<KeyDeserializer>");
+            }
+            HandlerInstantiator hi = _config.getHandlerInstantiator();
+            if (hi != null) {
+                deser = hi.keyDeserializerInstance(_config, annotated, deserClass);
+            } else {
+                deser = (KeyDeserializer) ClassUtil.createInstance(deserClass,
+                        _config.canOverrideAccessModifiers());
+            }
+        }
+        // First: need to resolve
+        if (deser instanceof ResolvableDeserializer) {
+            ((ResolvableDeserializer) deser).resolve(this);
+        }
+        // Second: contextualize:
+        if (deser instanceof ContextualKeyDeserializer) {
+            deser = ((ContextualKeyDeserializer) deser).createContextual(this, property);
+        }
+        return deser;
+    }
     
     /*
     /**********************************************************
-    /* Methods for accessing reusable/recyclable helper objects
+    /* Public API, helper object recycling
     /**********************************************************
      */
 
@@ -172,7 +311,16 @@ public abstract class DeserializationContext
      * Note that leased buffers should be returned once deserializer
      * is done, to allow for reuse during same round of deserialization.
      */
-    public abstract ObjectBuffer leaseObjectBuffer();
+    public final ObjectBuffer leaseObjectBuffer()
+    {
+        ObjectBuffer buf = _objectBuffer;
+        if (buf == null) {
+            buf = new ObjectBuffer();
+        } else {
+            _objectBuffer = null;
+        }
+        return buf;
+    }
 
     /**
      * Method to call to return object buffer previously leased with
@@ -180,13 +328,28 @@ public abstract class DeserializationContext
      * 
      * @param buf Returned object buffer
      */
-    public abstract void returnObjectBuffer(ObjectBuffer buf);
+    public final void returnObjectBuffer(ObjectBuffer buf)
+    {
+        /* Already have a reusable buffer? Let's retain bigger one
+         * (or if equal, favor newer one, shorter life-cycle)
+         */
+        if (_objectBuffer == null
+            || buf.initialCapacity() >= _objectBuffer.initialCapacity()) {
+            _objectBuffer = buf;
+        }
+    }
 
     /**
      * Method for accessing object useful for building arrays of
      * primitive types (such as int[]).
      */
-    public abstract ArrayBuilders getArrayBuilders();
+    public final ArrayBuilders getArrayBuilders()
+    {
+        if (_arrayBuilders == null) {
+            _arrayBuilders = new ArrayBuilders();
+        }
+        return _arrayBuilders;
+    }
 
     /*
     /**********************************************************
@@ -204,14 +367,29 @@ public abstract class DeserializationContext
      * date format is cloned, and cloned instance will be retained
      * for use during this deserialization round.
      */
-    public abstract java.util.Date parseDate(String dateStr)
-        throws IllegalArgumentException;
+    public Date parseDate(String dateStr)
+        throws IllegalArgumentException
+    {
+        try {
+            return getDateFormat().parse(dateStr);
+        } catch (ParseException pex) {
+            throw new IllegalArgumentException(pex.getMessage());
+        }
+    }
 
     /**
      * Convenience method for constructing Calendar instance set
      * to specified time, to be modified and used by caller.
      */
-    public abstract Calendar constructCalendar(Date d);
+    public Calendar constructCalendar(Date d)
+    {
+        /* 08-Jan-2008, tatu: not optimal, but should work for the
+         *   most part; let's revise as needed.
+         */
+        Calendar c = Calendar.getInstance();
+        c.setTime(d);
+        return c;
+    }
 
     /*
     /**********************************************************
@@ -226,15 +404,47 @@ public abstract class DeserializationContext
      * @return True if there was a configured problem handler that was able to handle the
      *   problem
      */
-    public abstract boolean handleUnknownProperty(JsonParser jp, JsonDeserializer<?> deser, Object instanceOrClass, String propName)
-        throws IOException, JsonProcessingException;
+    /**
+     * Method deserializers can call to inform configured {@link DeserializationProblemHandler}s
+     * of an unrecognized property.
+     */
+    public boolean handleUnknownProperty(JsonParser jp, JsonDeserializer<?> deser, Object instanceOrClass, String propName)
+        throws IOException, JsonProcessingException
+    {
+        LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
+        if (h != null) {
+            /* 04-Jan-2009, tatu: Ugh. Need to mess with currently active parser
+             *   since parser is not explicitly passed to handler... that was a mistake
+             */
+            JsonParser oldParser = _parser;
+            _parser = jp;
+            try {
+                while (h != null) {
+                    // Can bail out if it's handled
+                    if (h.value().handleUnknownProperty(this, deser, instanceOrClass, propName)) {
+                        return true;
+                    }
+                    h = h.next();
+                }
+            } finally {
+                _parser = oldParser;
+            }
+        }
+        return false;
+    }
 
     /**
      * Helper method for constructing generic mapping exception for specified type
      */
-    public abstract JsonMappingException mappingException(Class<?> targetClass);
+    public JsonMappingException mappingException(Class<?> targetClass) {
+        return mappingException(targetClass, _parser.getCurrentToken());
+    }
 
-    public abstract JsonMappingException mappingException(Class<?> targetClass, JsonToken t);
+    public JsonMappingException mappingException(Class<?> targetClass, JsonToken token)
+    {
+        String clsName = _calcName(targetClass);
+        return JsonMappingException.from(_parser, "Can not deserialize instance of "+clsName+" out of "+token+" token");
+    }
     
     /**
      * Helper method for constructing generic mapping exception with specified
@@ -250,34 +460,54 @@ public abstract class DeserializationContext
      * to indicate problem with physically constructing instance of
      * specified class (missing constructor, exception from constructor)
      */
-    public abstract JsonMappingException instantiationException(Class<?> instClass, Throwable t);
+    public JsonMappingException instantiationException(Class<?> instClass, Throwable t)
+    {
+        return JsonMappingException.from(_parser,
+                "Can not construct instance of "+instClass.getName()+", problem: "+t.getMessage(),
+                t);
+    }
 
-    public abstract JsonMappingException instantiationException(Class<?> instClass, String msg);
+    public JsonMappingException instantiationException(Class<?> instClass, String msg)
+    {
+        return JsonMappingException.from(_parser, "Can not construct instance of "+instClass.getName()+", problem: "+msg);
+    }
     
     /**
-     * Helper method for constructing exception to indicate that input JSON
-     * String was not in recognized format for deserializing into given type.
+     * Method that will construct an exception suitable for throwing when
+     * some String values are acceptable, but the one encountered is not.
      */
-    public abstract JsonMappingException weirdStringException(Class<?> instClass, String msg);
+    public JsonMappingException weirdStringException(Class<?> instClass, String msg)
+    {
+        return JsonMappingException.from(_parser, "Can not construct instance of "+instClass.getName()+" from String value '"+_valueDesc()+"': "+msg);
+    }
 
     /**
      * Helper method for constructing exception to indicate that input JSON
      * Number was not suitable for deserializing into given type.
      */
-    public abstract JsonMappingException weirdNumberException(Class<?> instClass, String msg);
+    public JsonMappingException weirdNumberException(Class<?> instClass, String msg)
+    {
+        return JsonMappingException.from(_parser, "Can not construct instance of "+instClass.getName()+" from number value ("+_valueDesc()+"): "+msg);
+    }
 
     /**
      * Helper method for constructing exception to indicate that given JSON
      * Object field name was not in format to be able to deserialize specified
      * key type.
      */
-    public abstract JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue, String msg);
+    public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue, String msg)
+    {
+        return JsonMappingException.from(_parser, "Can not construct Map key of type "+keyClass.getName()+" from String \""+_desc(keyValue)+"\": "+msg);
+    }
 
     /**
      * Helper method for indicating that the current token was expected to be another
      * token.
      */
-    public abstract JsonMappingException wrongTokenException(JsonParser jp, JsonToken expToken, String msg);
+    public JsonMappingException wrongTokenException(JsonParser jp, JsonToken expToken, String msg)
+    {
+        return JsonMappingException.from(jp, "Unexpected token ("+jp.getCurrentToken()+"), expected "+expToken+": "+msg);
+    }
     
     /**
      * Helper method for constructing exception to indicate that JSON Object
@@ -288,11 +518,68 @@ public abstract class DeserializationContext
      *   instantiated), or Class that indicates type that would be (or
      *   have been) instantiated
      */
-    public abstract JsonMappingException unknownFieldException(Object instanceOrClass, String fieldName);
+    public JsonMappingException unknownFieldException(Object instanceOrClass, String fieldName)
+    {
+        return UnrecognizedPropertyException.from(_parser, instanceOrClass, fieldName);
+    }
 
     /**
      * Helper method for constructing exception to indicate that given
      * type id (parsed from JSON) could not be converted to a Java type.
      */
-    public abstract JsonMappingException unknownTypeException(JavaType baseType, String id);
+    public JsonMappingException unknownTypeException(JavaType type, String id)
+    {
+        return JsonMappingException.from(_parser, "Could not resolve type id '"+id+"' into a subtype of "+type);
+    }
+
+    /*
+    /**********************************************************
+    /* Overridable internal methods
+    /**********************************************************
+     */
+
+    protected DateFormat getDateFormat()
+    {
+        if (_dateFormat == null) {
+            // must create a clone since Formats are not thread-safe:
+            _dateFormat = (DateFormat)_config.getDateFormat().clone();
+        }
+        return _dateFormat;
+    }
+
+    protected String determineClassName(Object instance)
+    {
+        return ClassUtil.getClassDescription(instance);
+    }
+    
+    /*
+    /**********************************************************
+    /* Other internal methods
+    /**********************************************************
+     */
+
+    protected String _calcName(Class<?> cls)
+    {
+        if (cls.isArray()) {
+            return _calcName(cls.getComponentType())+"[]";
+        }
+        return cls.getName();
+    }
+    
+    protected String _valueDesc()
+    {
+        try {
+            return _desc(_parser.getText());
+        } catch (Exception e) {
+            return "[N/A]";
+        }
+    }
+    protected String _desc(String desc)
+    {
+        // !!! should we quote it? (in case there are control chars, linefeeds)
+        if (desc.length() > MAX_ERROR_STR_LEN) {
+            desc = desc.substring(0, MAX_ERROR_STR_LEN) + "]...[" + desc.substring(desc.length() - MAX_ERROR_STR_LEN);
+        }
+        return desc;
+    }
 }

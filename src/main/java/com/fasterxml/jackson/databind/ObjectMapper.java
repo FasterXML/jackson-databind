@@ -2625,7 +2625,7 @@ public class ObjectMapper
 
     protected DeserializationContext _createDeserializationContext(JsonParser jp, DeserializationConfig cfg)
     {
-        return new StdDeserializationContext(cfg, jp, _deserializerCache,
+        return new DeserializationContext(cfg, jp, _deserializerCache,
                 _injectableValues);
     }
 }

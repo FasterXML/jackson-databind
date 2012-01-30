@@ -283,7 +283,7 @@ public final class DeserializerCache
     protected JsonDeserializer<Object> _findCachedDeserializer(JavaType type)
     {
         if (type == null) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Null JavaType passed");
         }
         return _cachedDeserializers.get(type);
     }

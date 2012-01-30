@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.DeserializerCache;
-import com.fasterxml.jackson.databind.deser.StdDeserializationContext;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
@@ -995,7 +994,7 @@ public class ObjectReader
     
     protected DeserializationContext _createDeserializationContext(JsonParser jp, DeserializationConfig cfg) {
         // 04-Jan-2010, tatu: we do actually need the provider too... (for polymorphic deser)
-        return new StdDeserializationContext(cfg, jp, _deserializerCache, _injectableValues);
+        return new DeserializationContext(cfg, jp, _deserializerCache, _injectableValues);
     }
 
     protected Object _unwrapAndDeserialize(JsonParser jp, DeserializationContext ctxt,

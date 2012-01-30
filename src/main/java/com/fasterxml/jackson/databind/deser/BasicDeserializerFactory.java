@@ -783,7 +783,7 @@ public abstract class BasicDeserializerFactory
         // 13-Dec-2010, tatu: Can use more optimal deserializer if content type is String, so:
         if (contentType.getRawClass() == String.class) {
             // no value type deserializer because Strings are one of natural/native types:
-            return new StringCollectionDeserializer(type, property, contentDeser, inst);
+            return new StringCollectionDeserializer(type, contentDeser, inst);
         }
         return new CollectionDeserializer(type, property, contentDeser, contentTypeDeser, inst);
     }

@@ -20,8 +20,9 @@ import com.fasterxml.jackson.databind.util.LinkedNode;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
 /**
- * Context for deserialization process. Used to allow passing in configuration
- * settings and reusable temporary objects (scrap arrays, containers).
+ * Context for the process of deserialization a single root-level value.
+ * Used to allow passing in configuration settings and reusable temporary
+ * objects (scrap arrays, containers).
  */
 public class DeserializationContext
 {

@@ -785,7 +785,7 @@ public abstract class BasicDeserializerFactory
             // no value type deserializer because Strings are one of natural/native types:
             return new StringCollectionDeserializer(type, contentDeser, inst);
         }
-        return new CollectionDeserializer(type, property, contentDeser, contentTypeDeser, inst);
+        return new CollectionDeserializer(type, contentDeser, contentTypeDeser, inst);
     }
 
     // Copied almost verbatim from "createCollectionDeserializer" -- should try to share more code

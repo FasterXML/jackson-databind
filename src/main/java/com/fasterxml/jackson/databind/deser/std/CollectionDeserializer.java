@@ -6,10 +6,9 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
-import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -24,18 +23,16 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 @JacksonStdImpl
 public class CollectionDeserializer
     extends ContainerDeserializerBase<Collection<Object>>
-    implements ResolvableDeserializer
+implements ContextualDeserializer
 {
     // // Configuration
 
     protected final JavaType _collectionType;
-
-    protected final BeanProperty _property;
     
     /**
      * Value deserializer.
      */
-    protected JsonDeserializer<Object> _valueDeserializer;
+    protected final JsonDeserializer<Object> _valueDeserializer;
 
     /**
      * If element instances have polymorphic type information, this
@@ -51,7 +48,7 @@ public class CollectionDeserializer
      * Deserializer that is used iff delegate-based creator is
      * to be used for deserializing from JSON Object.
      */
-    protected JsonDeserializer<Object> _delegateDeserializer;
+    protected final JsonDeserializer<Object> _delegateDeserializer;
 
     // NOTE: no PropertyBasedCreator, as JSON Arrays have no properties
 
@@ -60,17 +57,32 @@ public class CollectionDeserializer
     /* Life-cycle
     /**********************************************************
      */
-    
-    public CollectionDeserializer(JavaType collectionType, BeanProperty prop,
+
+    /**
+     * Constructor for context-free instances, where we do not yet know
+     * which property is using this deserializer.
+     */
+    public CollectionDeserializer(JavaType collectionType,
             JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser, ValueInstantiator valueInstantiator)
     {
+        this(collectionType, valueDeser, valueTypeDeser, valueInstantiator, null);
+    }
+
+    /**
+     * Constructor used when creating contextualized instances.
+     */
+    protected CollectionDeserializer(JavaType collectionType,
+            JsonDeserializer<Object> valueDeser, TypeDeserializer valueTypeDeser,
+            ValueInstantiator valueInstantiator,
+            JsonDeserializer<Object> delegateDeser)
+    {
         super(collectionType.getRawClass());
         _collectionType = collectionType;
-        _property = prop;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
         _valueInstantiator = valueInstantiator;
+        _delegateDeserializer = delegateDeser;
     }
 
     /**
@@ -81,7 +93,6 @@ public class CollectionDeserializer
     {
         super(src._valueClass);
         _collectionType = src._collectionType;
-        _property = src._property;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
         _valueInstantiator = src._valueInstantiator;
@@ -96,32 +107,32 @@ public class CollectionDeserializer
 
     /**
      * Method called to finalize setup of this deserializer,
-     * after deserializer itself has been registered. This
-     * is needed to handle recursive and transitive dependencies.
+     * when it is known for which property deserializer is needed
+     * for.
      */
     @Override
-    public void resolve(DeserializationContext ctxt)
-        throws JsonMappingException
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property) throws JsonMappingException
     {
         // May need to resolve types for delegate-based creators:
-        if (_valueInstantiator.canCreateUsingDelegate()) {
+        JsonDeserializer<Object> delegate = null;
+        if ((_valueInstantiator != null) && _valueInstantiator.canCreateUsingDelegate()) {
             JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
             if (delegateType == null) {
                 throw new IllegalArgumentException("Invalid delegate-creator definition for "+_collectionType
                         +": value instantiator ("+_valueInstantiator.getClass().getName()
                         +") returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'");
             }
-            AnnotatedWithParams delegateCreator = _valueInstantiator.getDelegateCreator();
-            // Need to create a temporary property to allow contextual deserializers:
-            // Note: unlike BeanDeserializer, we don't have an AnnotatedClass around; hence no annotations passed
-            BeanProperty.Std property = new BeanProperty.Std(null,
-                    delegateType, null, delegateCreator);
-            _delegateDeserializer = findDeserializer(ctxt, delegateType, property);
+            delegate = findDeserializer(ctxt, delegateType, property);
         }
         // also, often value deserializer is resolved here:
-        if (_valueDeserializer == null) {
-            _valueDeserializer = ctxt.findValueDeserializer(_collectionType.getContentType(), _property);
+        JsonDeserializer<Object> valueDeser = _valueDeserializer;
+        if (valueDeser == null) {
+            valueDeser = (JsonDeserializer<Object>)ctxt.findValueDeserializer(_collectionType.getContentType(), property);
         }
+        return new CollectionDeserializer(_collectionType, valueDeser,
+                _valueTypeDeserializer, _valueInstantiator, delegate);
+                
     }
     
     /*

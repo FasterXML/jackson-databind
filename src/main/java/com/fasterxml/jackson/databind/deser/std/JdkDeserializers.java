@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -240,25 +241,28 @@ public class JdkDeserializers
     
     public static class AtomicReferenceDeserializer
         extends StdScalarDeserializer<AtomicReference<?>>
-        implements ResolvableDeserializer
+        implements ContextualDeserializer
     {
         /**
          * Type of value that we reference
          */
         protected final JavaType _referencedType;
         
-        protected final BeanProperty _property;
-        
-        protected JsonDeserializer<?> _valueDeserializer;
+        protected final JsonDeserializer<?> _valueDeserializer;
         
         /**
          * @param referencedType Parameterization of this reference
          */
-        public AtomicReferenceDeserializer(JavaType referencedType, BeanProperty property)
+        public AtomicReferenceDeserializer(JavaType referencedType) {
+            this(referencedType, null);
+        }
+        
+        public AtomicReferenceDeserializer(JavaType referencedType,
+                JsonDeserializer<?> deser)
         {
             super(AtomicReference.class);
             _referencedType = referencedType;
-            _property = property;
+            _valueDeserializer = deser;
         }
         
         @Override
@@ -269,12 +273,15 @@ public class JdkDeserializers
         }
         
         @Override
-        public void resolve(DeserializationContext ctxt)
-            throws JsonMappingException
+        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property) throws JsonMappingException
         {
-            if (_valueDeserializer == null) {
-                _valueDeserializer = ctxt.findValueDeserializer(_referencedType, _property);
+            JsonDeserializer<?> deser = _valueDeserializer;
+            if (deser != null) {
+                return this;
             }
+            return new AtomicReferenceDeserializer(_referencedType,
+                    ctxt.findValueDeserializer(_referencedType, property));
         }
     }
 

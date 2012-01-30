@@ -188,7 +188,7 @@ public class BeanDeserializerFactory
                 referencedType = params[0];
             }
             
-            JsonDeserializer<?> d2 = new JdkDeserializers.AtomicReferenceDeserializer(referencedType, property);
+            JsonDeserializer<?> d2 = new JdkDeserializers.AtomicReferenceDeserializer(referencedType);
             return (JsonDeserializer<Object>)d2;
         }
         // [JACKSON-386]: External/optional type handlers are handled somewhat differently

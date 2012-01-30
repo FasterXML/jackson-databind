@@ -7,6 +7,8 @@ import java.util.NoSuchElementException;
 
 import com.fasterxml.jackson.core.*;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 /**
  * This intermediate base class is used for all container nodes,
  * specifically, array and object nodes.

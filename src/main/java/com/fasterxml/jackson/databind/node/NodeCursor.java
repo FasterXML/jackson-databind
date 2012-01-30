@@ -4,6 +4,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 /**
  * Helper class used by {@link TreeTraversingParser} to keep track
  * of current location within traversed JSON tree.

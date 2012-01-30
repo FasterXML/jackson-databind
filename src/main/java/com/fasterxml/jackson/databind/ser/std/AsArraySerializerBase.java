@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;

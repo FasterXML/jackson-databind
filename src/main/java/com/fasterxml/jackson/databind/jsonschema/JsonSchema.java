@@ -3,14 +3,14 @@ package com.fasterxml.jackson.databind.jsonschema;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import com.fasterxml.jackson.core.JsonNode;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Container for a logical JSON Schema instance.
  * Internally schema data is stored as a JSON Tree
- * (instance of {@link com.fasterxml.jackson.core.JsonNode} is the root
+ * (instance of {@link JsonNode} is the root
  * of schema document)
  *
  * @author Ryan Heaton

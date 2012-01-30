@@ -5,10 +5,11 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
-import com.fasterxml.jackson.core.JsonNode;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.fasterxml.jackson.test.BaseTest;
 
 public abstract class BaseMapTest

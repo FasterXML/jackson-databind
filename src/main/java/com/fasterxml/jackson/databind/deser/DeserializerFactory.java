@@ -29,7 +29,7 @@ import com.fasterxml.jackson.databind.type.*;
  *   mostly to make it possible to support Scala Maps (which are NOT JDK
  *   Map compatible).
  *  </li>
- * <li>For Tree Model ({@link com.fasterxml.jackson.core.JsonNode}) properties there is
+ * <li>For Tree Model ({@link com.fasterxml.jackson.databind.JsonNode}) properties there is
  *    {@link #createTreeDeserializer}
  * <li>For enumerated types ({@link java.lang.Enum}) there is
  *    {@link #createEnumDeserializer}

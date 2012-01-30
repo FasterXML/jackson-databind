@@ -83,7 +83,7 @@ public class TestParserUsingMapper  extends com.fasterxml.jackson.test.BaseTest
             if (i == 0) {
                 assertToken(JsonToken.START_ARRAY, jp.nextToken());
             }
-            JsonNode root = jp.readValueAsTree();
+            JsonNode root = (JsonNode) jp.readValueAsTree();
             jp.close();
             assertTrue(root.isArray());
             assertEquals(3, root.size());

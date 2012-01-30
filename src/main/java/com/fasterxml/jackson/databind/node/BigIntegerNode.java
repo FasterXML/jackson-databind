@@ -7,7 +7,6 @@ import java.math.BigInteger;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-
 /**
  * Numeric node that contains simple 64-bit integer values.
  */

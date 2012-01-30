@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.StdDeserializationContext;
@@ -508,11 +509,12 @@ public class ObjectReader
      * Note: if an object was specified with {@link #withValueToUpdate}, it
      * will be ignored.
      */
+    @SuppressWarnings("unchecked")
     @Override
-    public JsonNode readTree(JsonParser jp)
+    public <T extends TreeNode> T readTree(JsonParser jp)
         throws IOException, JsonProcessingException
     {
-        return _bindAsTree(jp);
+        return (T) _bindAsTree(jp);
     }
 
     /**
@@ -1052,12 +1054,12 @@ public class ObjectReader
     }
 
     @Override
-    public JsonParser treeAsTokens(JsonNode n) {
-        return new TreeTraversingParser(n, this);
+    public JsonParser treeAsTokens(TreeNode n) {
+        return new TreeTraversingParser((JsonNode) n, this);
     }
 
     @Override
-    public <T> T treeToValue(JsonNode n, Class<T> valueType)
+    public <T> T treeToValue(TreeNode n, Class<T> valueType)
         throws JsonProcessingException
     {
         try {
@@ -1067,15 +1069,6 @@ public class ObjectReader
         } catch (IOException e) { // should not occur, no real i/o...
             throw new IllegalArgumentException(e.getMessage(), e);
         }
-    }
-
-    /**
-     * NOTE: NOT implemented for {@link ObjectReader}.
-     */
-    @Override
-    public void writeTree(JsonGenerator jgen, JsonNode rootNode) throws IOException, JsonProcessingException
-    {
-        throw new UnsupportedOperationException("Not implemented for ObjectReader");
     }
 
     @Override

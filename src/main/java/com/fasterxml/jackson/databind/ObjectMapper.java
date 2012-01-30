@@ -1358,7 +1358,7 @@ public class ObjectMapper
      * value event, not container).
      */
     @Override
-    public JsonNode readTree(JsonParser jp)
+    public <T extends TreeNode> T readTree(JsonParser jp)
         throws IOException, JsonProcessingException
     {
         /* 02-Mar-2009, tatu: One twist; deserialization provider
@@ -1377,7 +1377,12 @@ public class ObjectMapper
             }
         }
         JsonNode n = (JsonNode) _readValue(cfg, jp, JSON_NODE_TYPE);
-        return (n == null) ? getNodeFactory().nullNode() : n;
+        if (n == null) {
+            n = getNodeFactory().nullNode();
+        }
+        @SuppressWarnings("unchecked")
+        T result = (T) n;
+        return result;
     }
 
     /**
@@ -1553,7 +1558,6 @@ public class ObjectMapper
      * Method to serialize given JSON Tree, using generator
      * provided.
      */
-    @Override
     public void writeTree(JsonGenerator jgen, JsonNode rootNode)
         throws IOException, JsonProcessingException
     {
@@ -1601,9 +1605,9 @@ public class ObjectMapper
      * @param n Root node of the tree that resulting parser will read from
      */
     @Override
-    public JsonParser treeAsTokens(JsonNode n)
+    public JsonParser treeAsTokens(TreeNode n)
     {
-        return new TreeTraversingParser(n, this);
+        return new TreeTraversingParser((JsonNode) n, this);
     }
 
     /**
@@ -1616,7 +1620,7 @@ public class ObjectMapper
      *</pre>
      */
     @Override
-    public <T> T treeToValue(JsonNode n, Class<T> valueType)
+    public <T> T treeToValue(TreeNode n, Class<T> valueType)
         throws JsonProcessingException
     {
         try {

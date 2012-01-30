@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import com.fasterxml.jackson.core.JsonNode;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -199,7 +198,8 @@ public interface Deserializers
     /**
      * Method called to locate deserializer for specified JSON tree node type.
      * 
-     * @param nodeType Specific type of JSON tree nodes to deserialize (subtype of {@link com.fasterxml.jackson.core.JsonNode})
+     * @param nodeType Specific type of JSON tree nodes to deserialize
+     *  (subtype of {@link com.fasterxml.jackson.databind.JsonNode})
      * @param config Configuration in effect
      * @param property Property that contains value  (null for root values)
      * 

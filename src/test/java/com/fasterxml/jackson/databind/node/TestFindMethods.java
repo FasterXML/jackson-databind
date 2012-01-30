@@ -2,9 +2,8 @@ package com.fasterxml.jackson.databind.node;
 
 import java.util.*;
 
-
-import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 

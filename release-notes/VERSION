@@ -42,6 +42,8 @@ New features:
 * [JACKSON-608]: Allow use of Json Views for deserialization
 * [JACKSON-669]: Allow prefix/suffix for @JsonUnwrapped properties
  (requested by Aner P)
+* [JACKSON-707]: Add 'JsonNode.deepCopy()', to create safe deep copies
+  of ObjectNodes, ArrayNodes.
 * [JACKSON-718]: Added 'JsonNode.canConvertToInt()', 'JsonNode.canConvertToLong()'
 * [JACKSON-747]: Allow changing of 'SerializationConfig.Feature' for ObjectWriter,
   'DeserializationConfig.Feature' for ObjectReader.

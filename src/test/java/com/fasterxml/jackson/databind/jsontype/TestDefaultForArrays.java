@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-
-import com.fasterxml.jackson.core.JsonNode;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 

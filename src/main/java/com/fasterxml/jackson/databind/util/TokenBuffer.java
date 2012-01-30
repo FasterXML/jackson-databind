@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+
 import com.fasterxml.jackson.databind.DatabindVersion;
 
 /**
@@ -588,7 +589,7 @@ public class TokenBuffer
     }
 
     @Override
-    public void writeTree(JsonNode rootNode)
+    public void writeTree(TreeNode rootNode)
         throws IOException, JsonProcessingException
     {
         /* 31-Dec-2009, tatu: no need to convert trees either is there?

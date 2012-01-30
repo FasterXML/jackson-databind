@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -22,7 +23,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * String serializer.
  */
 @JacksonStdImpl
-
 public class StringCollectionSerializer
     extends StaticListSerializerBase<Collection<String>>
     implements ResolvableSerializer

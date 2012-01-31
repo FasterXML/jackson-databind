@@ -125,11 +125,11 @@ public abstract class DeserializerFactory
      * @param type Type to be deserialized
      */
     public abstract JsonDeserializer<?> createArrayDeserializer(DeserializationContext ctxt,
-            ArrayType type, BeanDescription beanDesc, BeanProperty property)
+            ArrayType type, BeanDescription beanDesc)
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
-            CollectionType type, BeanDescription beanDesc, BeanProperty property)
+            CollectionType type, BeanDescription beanDesc)
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
@@ -141,7 +141,7 @@ public abstract class DeserializerFactory
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
-            MapType type, BeanDescription beanDesc, BeanProperty property)
+            MapType type, BeanDescription beanDesc)
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
@@ -165,7 +165,7 @@ public abstract class DeserializerFactory
      *   (and default key deserializer should be used)
      */
     public abstract KeyDeserializer createKeyDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanProperty property)
+            JavaType type)
         throws JsonMappingException;
     
     /**

@@ -205,20 +205,16 @@ public final class DeserializerCache
      *   finding any serializer
      */
     public KeyDeserializer findKeyDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanProperty property)
+            JavaType type)
         throws JsonMappingException
     {
-        KeyDeserializer kd = _factory.createKeyDeserializer(ctxt, type, property);
+        KeyDeserializer kd = _factory.createKeyDeserializer(ctxt, type);
         if (kd == null) { // if none found, need to use a placeholder that'll fail
             return _handleUnknownKeyDeserializer(type);
         }
         // First: need to resolve?
         if (kd instanceof ResolvableDeserializer) {
             ((ResolvableDeserializer) kd).resolve(ctxt);
-        }
-        // Second: contextualize?
-        if (kd instanceof ContextualKeyDeserializer) {
-            kd = ((ContextualKeyDeserializer) kd).createContextual(ctxt, property);
         }
         return kd;
     }
@@ -395,13 +391,13 @@ public final class DeserializerCache
         if (type.isContainerType()) {
             if (type.isArrayType()) {
                 return (JsonDeserializer<Object>)_factory.createArrayDeserializer(ctxt,
-                        (ArrayType) type, beanDesc, null);
+                        (ArrayType) type, beanDesc);
             }
             if (type.isMapLikeType()) {
                 MapLikeType mlt = (MapLikeType) type;
                 if (mlt.isTrueMapType()) {
                     return (JsonDeserializer<Object>)_factory.createMapDeserializer(ctxt,
-                            (MapType) mlt, beanDesc, null);
+                            (MapType) mlt, beanDesc);
                 }
                 return (JsonDeserializer<Object>)_factory.createMapLikeDeserializer(ctxt,
                         mlt, beanDesc);
@@ -410,7 +406,7 @@ public final class DeserializerCache
                 CollectionLikeType clt = (CollectionLikeType) type;
                 if (clt.isTrueCollectionType()) {
                     return (JsonDeserializer<Object>)_factory.createCollectionDeserializer(ctxt,
-                            (CollectionType) clt, beanDesc, null);
+                            (CollectionType) clt, beanDesc);
                 }
                 return (JsonDeserializer<Object>)_factory.createCollectionLikeDeserializer(ctxt,
                         clt, beanDesc);
@@ -493,7 +489,7 @@ public final class DeserializerCache
             if (keyType != null && keyType.getValueHandler() == null) {
                 Object kdDef = intr.findKeyDeserializer(a);
                 if (kdDef != null) {
-                    KeyDeserializer kd = ctxt.keyDeserializerInstance(a, null, kdDef);
+                    KeyDeserializer kd = ctxt.keyDeserializerInstance(a, kdDef);
                     if (kd != null) {
                         type = ((MapLikeType) type).withKeyValueHandler(kd);
                         keyType = type.getKeyType(); // just in case it's used below

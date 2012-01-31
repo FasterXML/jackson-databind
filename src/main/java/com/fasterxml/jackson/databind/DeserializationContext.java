@@ -223,7 +223,12 @@ public class DeserializationContext
      */
     public final KeyDeserializer findKeyDeserializer(JavaType keyType,
             BeanProperty property) throws JsonMappingException {
-        return _deserCache.findKeyDeserializer(this, keyType, property);
+        KeyDeserializer kd = _deserCache.findKeyDeserializer(this, keyType);
+        // Second: contextualize?
+        if (kd instanceof ContextualKeyDeserializer) {
+            kd = ((ContextualKeyDeserializer) kd).createContextual(this, property);
+        }
+        return kd;
     }
     
     /*
@@ -275,7 +280,7 @@ public class DeserializationContext
     }
 
     public final KeyDeserializer keyDeserializerInstance(Annotated annotated,
-            BeanProperty property, Object deserDef)
+            Object deserDef)
         throws JsonMappingException
     {
         if (deserDef == null) {
@@ -313,10 +318,12 @@ public class DeserializationContext
         if (deser instanceof ResolvableDeserializer) {
             ((ResolvableDeserializer) deser).resolve(this);
         }
+        /*
         // Second: contextualize:
         if (deser instanceof ContextualKeyDeserializer) {
             deser = ((ContextualKeyDeserializer) deser).createContextual(this, property);
         }
+        */
         return deser;
     }
     

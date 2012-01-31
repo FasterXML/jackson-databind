@@ -560,7 +560,7 @@ public class BeanDeserializerFactory
         // we know it's a 2-arg method, second arg is the value
         JavaType type = beanDesc.bindingsForBeanType().resolveType(setter.getGenericParameterType(1));
         BeanProperty.Std property = new BeanProperty.Std(setter.getName(), type, beanDesc.getClassAnnotations(), setter);
-        type = resolveType(ctxt, beanDesc, type, setter, property);
+        type = resolveType(ctxt, beanDesc, type, setter);
 
         /* AnySetter can be annotated with @JsonClass (etc) just like a
          * regular setter... so let's see if those are used.
@@ -574,7 +574,7 @@ public class BeanDeserializerFactory
         /* Otherwise, method may specify more specific (sub-)class for
          * value (no need to check if explicit deser was specified):
          */
-        type = modifyTypeByAnnotation(ctxt, setter, type, property);
+        type = modifyTypeByAnnotation(ctxt, setter, type);
         return new SettableAnyProperty(property, setter, type, null);
     }
 
@@ -604,7 +604,7 @@ public class BeanDeserializerFactory
         JavaType t0 = beanDesc.resolveType(jdkType);
 
         BeanProperty.Std property = new BeanProperty.Std(name, t0, beanDesc.getClassAnnotations(), mutator);
-        JavaType type = resolveType(ctxt, beanDesc, t0, mutator, property);
+        JavaType type = resolveType(ctxt, beanDesc, t0, mutator);
         // did type change?
         if (type != t0) {
             property = property.withType(type);
@@ -614,7 +614,7 @@ public class BeanDeserializerFactory
          * If so, let's use it.
          */
         JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, mutator);
-        type = modifyTypeByAnnotation(ctxt, mutator, type, property);
+        type = modifyTypeByAnnotation(ctxt, mutator, type);
         TypeDeserializer typeDeser = type.getTypeHandler();
         SettableBeanProperty prop;
         if (mutator instanceof AnnotatedMethod) {
@@ -660,10 +660,10 @@ public class BeanDeserializerFactory
         /* First: does the Method specify the deserializer to use?
          * If so, let's use it.
          */
-        BeanProperty.Std property = new BeanProperty.Std(name, type, beanDesc.getClassAnnotations(), getter);
-        // @TODO: create BeanProperty to pass?
+//        BeanProperty.Std property = new BeanProperty.Std(name, type, beanDesc.getClassAnnotations(), getter);
+
         JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, getter);
-        type = modifyTypeByAnnotation(ctxt, getter, type, property);
+        type = modifyTypeByAnnotation(ctxt, getter, type);
         TypeDeserializer typeDeser = type.getTypeHandler();
         SettableBeanProperty prop = new SettableBeanProperty.SetterlessProperty(name, type, typeDeser,
                 beanDesc.getClassAnnotations(), getter);

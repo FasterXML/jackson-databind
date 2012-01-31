@@ -47,8 +47,8 @@ public class SimpleKeyDeserializers implements KeyDeserializers
      */
 
     @Override
-    public KeyDeserializer findKeyDeserializer(JavaType type, DeserializationConfig config, 
-            BeanDescription beanDesc, BeanProperty property)
+    public KeyDeserializer findKeyDeserializer(JavaType type,
+            DeserializationConfig config, BeanDescription beanDesc)
     {
         if (_classMappings == null) {
             return null;

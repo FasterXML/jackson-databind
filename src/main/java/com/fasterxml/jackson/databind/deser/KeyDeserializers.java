@@ -1,12 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.KeyDeserializer;
-
+import com.fasterxml.jackson.databind.*;
 
 /**
  * Interface that defines API for simple extensions that can provide additional deserializers
@@ -19,7 +13,7 @@ import com.fasterxml.jackson.databind.KeyDeserializer;
  */
 public interface KeyDeserializers
 {
-    public KeyDeserializer findKeyDeserializer(JavaType type, DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property)
+    public KeyDeserializer findKeyDeserializer(JavaType type,
+            DeserializationConfig config, BeanDescription beanDesc)
         throws JsonMappingException;
 }

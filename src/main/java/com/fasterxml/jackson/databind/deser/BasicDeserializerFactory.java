@@ -632,14 +632,14 @@ public abstract class BasicDeserializerFactory
         final DeserializationConfig config = ctxt.getConfig();
         JavaType t0 = config.getTypeFactory().constructType(param.getParameterType(), beanDesc.bindingsForBeanType());
         BeanProperty.Std property = new BeanProperty.Std(name, t0, beanDesc.getClassAnnotations(), param);
-        JavaType type = resolveType(ctxt, beanDesc, t0, param, property);
+        JavaType type = resolveType(ctxt, beanDesc, t0, param);
         if (type != t0) {
             property = property.withType(type);
         }
         // Is there an annotation that specifies exact deserializer?
         JsonDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt, param);
         // If yes, we are mostly done:
-        type = modifyTypeByAnnotation(ctxt, param, type, property);
+        type = modifyTypeByAnnotation(ctxt, param, type);
 
         // Type deserializer: either comes from property (and already resolved)
         TypeDeserializer typeDeser = (TypeDeserializer) type.getTypeHandler();
@@ -663,7 +663,7 @@ public abstract class BasicDeserializerFactory
         
     @Override
     public JsonDeserializer<?> createArrayDeserializer(DeserializationContext ctxt,
-            ArrayType type, final BeanDescription beanDesc, BeanProperty property)
+            ArrayType type, final BeanDescription beanDesc)
         throws JsonMappingException
     {
         JavaType elemType = type.getContentType();
@@ -728,7 +728,7 @@ public abstract class BasicDeserializerFactory
     
     @Override
     public JsonDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
-            CollectionType type, BeanDescription beanDesc, BeanProperty property)
+            CollectionType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
         JavaType contentType = type.getContentType();
@@ -844,7 +844,7 @@ public abstract class BasicDeserializerFactory
     
     @Override
     public JsonDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
-            MapType type, BeanDescription beanDesc, BeanProperty property)
+            MapType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
@@ -1108,14 +1108,14 @@ public abstract class BasicDeserializerFactory
     
     @Override
     public KeyDeserializer createKeyDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanProperty property)
+            JavaType type)
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
         if (_factoryConfig.hasKeyDeserializers()) {
             BeanDescription beanDesc = config.introspectClassAnnotations(type.getRawClass());
             for (KeyDeserializers d  : _factoryConfig.keyDeserializers()) {
-                KeyDeserializer deser = d.findKeyDeserializer(type, config, beanDesc, property);
+                KeyDeserializer deser = d.findKeyDeserializer(type, config, beanDesc);
                 if (deser != null) {
                     return deser;
                 }
@@ -1289,7 +1289,7 @@ public abstract class BasicDeserializerFactory
      */
     @SuppressWarnings({ "unchecked" })
     protected <T extends JavaType> T modifyTypeByAnnotation(DeserializationContext ctxt,
-            Annotated a, T type, BeanProperty prop)
+            Annotated a, T type)
         throws JsonMappingException
     {
         // first: let's check class for the instance itself:
@@ -1324,7 +1324,7 @@ public abstract class BasicDeserializerFactory
              */
             if (keyType != null && keyType.getValueHandler() == null) {
                 Object kdDef = intr.findKeyDeserializer(a);
-                KeyDeserializer kd = ctxt.keyDeserializerInstance(a, prop, kdDef);
+                KeyDeserializer kd = ctxt.keyDeserializerInstance(a, kdDef);
                 if (kd != null) {
                     type = (T) ((MapLikeType) type).withKeyValueHandler(kd);
                     keyType = type.getKeyType(); // just in case it's used below
@@ -1361,8 +1361,7 @@ public abstract class BasicDeserializerFactory
      * needed in some cases.
      */
     protected JavaType resolveType(DeserializationContext ctxt,
-            BeanDescription beanDesc, JavaType type, AnnotatedMember member,
-            BeanProperty property)                    
+            BeanDescription beanDesc, JavaType type, AnnotatedMember member)
         throws JsonMappingException
     {
         // [JACKSON-154]: Also need to handle keyUsing, contentUsing
@@ -1371,7 +1370,7 @@ public abstract class BasicDeserializerFactory
             JavaType keyType = type.getKeyType();
             if (keyType != null) {
                 Object kdDef = intr.findKeyDeserializer(member);
-                KeyDeserializer kd = ctxt.keyDeserializerInstance(member, property, kdDef);
+                KeyDeserializer kd = ctxt.keyDeserializerInstance(member, kdDef);
                 if (kd != null) {
                     type = ((MapLikeType) type).withKeyValueHandler(kd);
                     keyType = type.getKeyType(); // just in case it's used below
@@ -1411,8 +1410,8 @@ public abstract class BasicDeserializerFactory
     	return type;
     }
     
-    protected EnumResolver<?> constructEnumResolver(Class<?> enumClass, DeserializationConfig config,
-            AnnotatedMethod jsonValueMethod)
+    protected EnumResolver<?> constructEnumResolver(Class<?> enumClass,
+            DeserializationConfig config, AnnotatedMethod jsonValueMethod)
     {
         if (jsonValueMethod != null) {
             Method accessor = jsonValueMethod.getAnnotated();

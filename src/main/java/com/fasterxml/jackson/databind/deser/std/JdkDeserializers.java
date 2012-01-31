@@ -276,7 +276,7 @@ public class JdkDeserializers
                 return this;
             }
             return new AtomicReferenceDeserializer(_referencedType,
-                    ctxt.findValueDeserializer(_referencedType, property));
+                    ctxt.findContextualValueDeserializer(_referencedType, property));
         }
     }
 

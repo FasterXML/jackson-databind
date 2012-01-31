@@ -94,7 +94,8 @@ public final class StringCollectionDeserializer
         JsonDeserializer<?> valueDeser = _valueDeserializer;
         if (valueDeser == null) {
             // And we may also need to get deserializer for String
-            JsonDeserializer<?> deser = ctxt.findValueDeserializer(_collectionType.getContentType(), property);
+            JsonDeserializer<?> deser = ctxt.findContextualValueDeserializer(
+                    _collectionType.getContentType(), property);
             valueDeser = (JsonDeserializer<String>) deser;
             if (isDefaultDeserializer(valueDeser)) {
                 valueDeser = null;

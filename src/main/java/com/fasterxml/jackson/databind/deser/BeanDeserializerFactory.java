@@ -567,7 +567,7 @@ public class BeanDeserializerFactory
          * Returns null if no annotations, in which case binding will
          * be done at a later point.
          */
-        JsonDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt, setter, property);
+        JsonDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt, setter);
         if (deser != null) {
             return new SettableAnyProperty(property, setter, type, deser);
         }
@@ -613,7 +613,7 @@ public class BeanDeserializerFactory
         /* First: does the Method specify the deserializer to use?
          * If so, let's use it.
          */
-        JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, mutator, property);
+        JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, mutator);
         type = modifyTypeByAnnotation(ctxt, mutator, type, property);
         TypeDeserializer typeDeser = type.getTypeHandler();
         SettableBeanProperty prop;
@@ -662,7 +662,7 @@ public class BeanDeserializerFactory
          */
         BeanProperty.Std property = new BeanProperty.Std(name, type, beanDesc.getClassAnnotations(), getter);
         // @TODO: create BeanProperty to pass?
-        JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, getter, property);
+        JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, getter);
         type = modifyTypeByAnnotation(ctxt, getter, type, property);
         TypeDeserializer typeDeser = type.getTypeHandler();
         SettableBeanProperty prop = new SettableBeanProperty.SetterlessProperty(name, type, typeDeser,

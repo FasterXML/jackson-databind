@@ -71,11 +71,11 @@ public class EnumMapDeserializer
         // quite as clean as it ought to be)
         JsonDeserializer<?> kd = _keyDeserializer;
         if (kd == null) {
-            kd = ctxt.findValueDeserializer(_mapType.getKeyType(), property);
+            kd = ctxt.findContextualValueDeserializer(_mapType.getKeyType(), property);
         }
         JsonDeserializer<?> vd = _valueDeserializer;
         if (vd == null) {
-            vd = ctxt.findValueDeserializer(_mapType.getContentType(), property);
+            vd = ctxt.findContextualValueDeserializer(_mapType.getContentType(), property);
         }
         return withResolved(kd, vd);
     }

@@ -232,7 +232,7 @@ public class MapDeserializer
         }
         JsonDeserializer<Object> vd = _valueDeserializer;
         if (vd == null) {
-            vd = ctxt.findValueDeserializer(_mapType.getContentType(), property);
+            vd = ctxt.findContextualValueDeserializer(_mapType.getContentType(), property);
         }
         TypeDeserializer vtd = _valueTypeDeserializer;
         if (vtd != null) {

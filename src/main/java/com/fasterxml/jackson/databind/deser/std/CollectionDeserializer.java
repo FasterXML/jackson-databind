@@ -141,7 +141,8 @@ implements ContextualDeserializer
         // also, often value deserializer is resolved here:
         JsonDeserializer<Object> valueDeser = _valueDeserializer;
         if (valueDeser == null) {
-            valueDeser = (JsonDeserializer<Object>)ctxt.findValueDeserializer(_collectionType.getContentType(), property);
+            valueDeser = (JsonDeserializer<Object>)ctxt.findContextualValueDeserializer(
+                    _collectionType.getContentType(), property);
         }
         // and finally, type deserializer needs context as well
         TypeDeserializer valueTypeDeser = _valueTypeDeserializer;

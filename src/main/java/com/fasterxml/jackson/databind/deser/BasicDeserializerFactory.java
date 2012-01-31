@@ -637,7 +637,7 @@ public abstract class BasicDeserializerFactory
             property = property.withType(type);
         }
         // Is there an annotation that specifies exact deserializer?
-        JsonDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt, param, property);
+        JsonDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt, param);
         // If yes, we are mostly done:
         type = modifyTypeByAnnotation(ctxt, param, type, property);
 
@@ -1133,7 +1133,7 @@ public abstract class BasicDeserializerFactory
         }
         // And then other one-offs; first, Enum:
         if (type.isEnumType()) {
-            return _createEnumKeyDeserializer(ctxt, type, property);
+            return _createEnumKeyDeserializer(ctxt, type);
         }
         // One more thing: can we find ctor(String) or valueOf(String)?
         kdes = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
@@ -1141,12 +1141,12 @@ public abstract class BasicDeserializerFactory
     }
 
     private KeyDeserializer _createEnumKeyDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanProperty property)
+            JavaType type)
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
         BeanDescription beanDesc = config.introspect(type);
-        JsonDeserializer<?> des = findDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo(), property);
+        JsonDeserializer<?> des = findDeserializerFromAnnotation(ctxt, beanDesc.getClassInfo());
         if (des != null) {
             return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, des);
         }
@@ -1258,14 +1258,14 @@ public abstract class BasicDeserializerFactory
      * Returns null if no such annotation found.
      */
     protected JsonDeserializer<Object> findDeserializerFromAnnotation(DeserializationContext ctxt,
-            Annotated ann, BeanProperty property)
+            Annotated ann)
         throws JsonMappingException
     {
         Object deserDef = ctxt.getAnnotationIntrospector().findDeserializer(ann);
         if (deserDef == null) {
             return null;
         }
-        return ctxt.deserializerInstance(ann, property, deserDef);
+        return ctxt.deserializerInstance(ann, deserDef);
     }
 
     /**
@@ -1344,7 +1344,7 @@ public abstract class BasicDeserializerFactory
            JavaType contentType = type.getContentType();
            if (contentType.getValueHandler() == null) { // as with above, avoid resetting (which would trigger exception)
                Object cdDef = intr.findContentDeserializer(a);
-                JsonDeserializer<?> cd = ctxt.deserializerInstance(a, prop, cdDef);
+                JsonDeserializer<?> cd = ctxt.deserializerInstance(a, cdDef);
                 if (cd != null) {
                     type = (T) type.withContentValueHandler(cd);
                 }
@@ -1379,7 +1379,7 @@ public abstract class BasicDeserializerFactory
             }
             // and all container types have content types...
             Object cdDef = intr.findContentDeserializer(member);
-            JsonDeserializer<?> cd = ctxt.deserializerInstance(member, property, cdDef);
+            JsonDeserializer<?> cd = ctxt.deserializerInstance(member, cdDef);
             if (cd != null) {
                 type = type.withContentValueHandler(cd);
             }

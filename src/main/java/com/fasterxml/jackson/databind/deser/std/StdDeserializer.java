@@ -609,7 +609,7 @@ public abstract class StdDeserializer<T>
             JavaType type, BeanProperty property)
         throws JsonMappingException
     {
-        return ctxt.findValueDeserializer(type, property);
+        return ctxt.findContextualValueDeserializer(type, property);
     }
 
     /*

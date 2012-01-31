@@ -1,16 +1,11 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -70,6 +65,10 @@ public final class DeserializerCache
 
     public DeserializerCache(DeserializerFactory f) {
         _factory = f;
+    }
+
+    public DeserializerFactory getDeserializerFactory() {
+        return _factory;
     }
 
     /*
@@ -163,64 +162,36 @@ public final class DeserializerCache
      *<p>
      * Note: this method is only called for value types; not for keys.
      * Key deserializers can be accessed using {@link #findKeyDeserializer}.
+     *<p>
+     * Note also that deserializer returned is guaranteed to be resolved
+     * (if it is of type {@link ResolvableDeserializer}), but
+     * not contextualized (wrt {@link ContextualDeserializer}): caller
+     * has to handle latter if necessary.
      *
      * @param ctxt Deserialization context
      * @param propertyType Declared type of the value to deserializer (obtained using
      *   'setter' method signature and/or type annotations
-     * @param property Object that represents accessor for property value; field,
-     *    setter method or constructor parameter.
      *
      * @throws JsonMappingException if there are fatal problems with
      *   accessing suitable deserializer; including that of not
      *   finding any serializer
      */
-    @SuppressWarnings("unchecked")
     public JsonDeserializer<Object> findValueDeserializer(DeserializationContext ctxt,
-            JavaType propertyType, BeanProperty property)
+            JavaType propertyType)
         throws JsonMappingException
     {
         JsonDeserializer<Object> deser = _findCachedDeserializer(propertyType);
         if (deser != null) {
-            // [JACKSON-385]: need to support contextualization:
-            if (deser instanceof ContextualDeserializer) {
-                JsonDeserializer<?> d = ((ContextualDeserializer) deser).createContextual(ctxt, property);
-                deser = (JsonDeserializer<Object>) d;
-            }
             return deser;
         }
         // If not, need to request factory to construct (or recycle)
-        deser = _createAndCacheValueDeserializer(ctxt, propertyType, property);
+        deser = _createAndCacheValueDeserializer(ctxt, propertyType);
         if (deser == null) {
             /* Should we let caller handle it? Let's have a helper method
              * decide it; can throw an exception, or return a valid
              * deserializer
              */
             deser = _handleUnknownValueDeserializer(propertyType);
-        }
-        // [JACKSON-385]: need to support contextualization:
-        if (deser instanceof ContextualDeserializer) {
-            JsonDeserializer<?> d = ((ContextualDeserializer) deser).createContextual(ctxt, property);
-            deser = (JsonDeserializer<Object>) d;
-        }
-        return deser;
-    }
-    
-    /**
-     * Method called to locate deserializer for given type, when it as referenced
-     * from the root context; that is, it is not referenced through a property.
-     * Because there is no referral via property, a type deserializer will be wrapped
-     * around deserializer, if one is needed.
-     */
-    public JsonDeserializer<Object> findRootValueDeserializer(DeserializationContext ctxt,
-            JavaType type)
-        throws JsonMappingException
-    {
-        JsonDeserializer<Object> deser = findValueDeserializer(ctxt, type, null);
-        TypeDeserializer typeDeser = _factory.findTypeDeserializer(ctxt.getConfig(), type);
-        if (typeDeser != null) {
-            // important: contextualize
-            typeDeser = typeDeser.forProperty(null);
-            return new WrappedDeserializer(typeDeser, deser);
         }
         return deser;
     }
@@ -265,7 +236,7 @@ public final class DeserializerCache
         JsonDeserializer<Object> deser = _findCachedDeserializer(type);
         if (deser == null) {
             try {
-                deser = _createAndCacheValueDeserializer(ctxt, type, null);
+                deser = _createAndCacheValueDeserializer(ctxt, type);
             } catch (Exception e) {
                 return false;
             }
@@ -296,7 +267,7 @@ public final class DeserializerCache
      * @param property Property (field, setter, ctor arg) to use deserializer for
      */
     protected JsonDeserializer<Object>_createAndCacheValueDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanProperty property)
+            JavaType type)
         throws JsonMappingException
     {
         /* Only one thread to construct deserializers at any given point in time;
@@ -319,7 +290,7 @@ public final class DeserializerCache
             }
             // Nope: need to create and possibly cache
             try {
-                return _createAndCache2(ctxt, type, property);
+                return _createAndCache2(ctxt, type);
             } finally {
                 // also: any deserializers that have been created are complete by now
                 if (count == 0 && _incompleteDeserializers.size() > 0) {
@@ -334,12 +305,12 @@ public final class DeserializerCache
      * intermediate and eventual)
      */
     protected JsonDeserializer<Object> _createAndCache2(DeserializationContext ctxt,
-            JavaType type, BeanProperty property)
+            JavaType type)
         throws JsonMappingException
     {
         JsonDeserializer<Object> deser;
         try {
-            deser = _createDeserializer(ctxt, type, property);
+            deser = _createDeserializer(ctxt, type);
         } catch (IllegalArgumentException iae) {
             /* We better only expose checked exceptions, since those
              * are what caller is expected to handle
@@ -392,7 +363,7 @@ public final class DeserializerCache
      */
     @SuppressWarnings("unchecked")
     protected JsonDeserializer<Object> _createDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanProperty property)
+            JavaType type)
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
@@ -404,13 +375,13 @@ public final class DeserializerCache
         BeanDescription beanDesc = config.introspect(type);
         // Then: does type define explicit deserializer to use, with annotation(s)?
         JsonDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt,
-                beanDesc.getClassInfo(), property);
+                beanDesc.getClassInfo());
         if (deser != null) {
             return deser;
         }
 
         // If not, may have further type-modification annotations to check:
-        JavaType newType = modifyTypeByAnnotation(ctxt, beanDesc.getClassInfo(), type, property);
+        JavaType newType = modifyTypeByAnnotation(ctxt, beanDesc.getClassInfo(), type);
         if (newType != type) {
             type = newType;
             beanDesc = config.introspect(newType);
@@ -424,13 +395,13 @@ public final class DeserializerCache
         if (type.isContainerType()) {
             if (type.isArrayType()) {
                 return (JsonDeserializer<Object>)_factory.createArrayDeserializer(ctxt,
-                        (ArrayType) type, beanDesc, property);
+                        (ArrayType) type, beanDesc, null);
             }
             if (type.isMapLikeType()) {
                 MapLikeType mlt = (MapLikeType) type;
                 if (mlt.isTrueMapType()) {
                     return (JsonDeserializer<Object>)_factory.createMapDeserializer(ctxt,
-                            (MapType) mlt, beanDesc, property);
+                            (MapType) mlt, beanDesc, null);
                 }
                 return (JsonDeserializer<Object>)_factory.createMapLikeDeserializer(ctxt,
                         mlt, beanDesc);
@@ -439,7 +410,7 @@ public final class DeserializerCache
                 CollectionLikeType clt = (CollectionLikeType) type;
                 if (clt.isTrueCollectionType()) {
                     return (JsonDeserializer<Object>)_factory.createCollectionDeserializer(ctxt,
-                            (CollectionType) clt, beanDesc, property);
+                            (CollectionType) clt, beanDesc, null);
                 }
                 return (JsonDeserializer<Object>)_factory.createCollectionLikeDeserializer(ctxt,
                         clt, beanDesc);
@@ -459,14 +430,14 @@ public final class DeserializerCache
      * Returns null if no such annotation found.
      */
     protected JsonDeserializer<Object> findDeserializerFromAnnotation(DeserializationContext ctxt,
-            Annotated ann, BeanProperty property)
+            Annotated ann)
         throws JsonMappingException
     {
         Object deserDef = ctxt.getAnnotationIntrospector().findDeserializer(ann);
         if (deserDef == null) {
             return null;
         }
-        return ctxt.deserializerInstance(ann, property, deserDef);
+        return ctxt.deserializerInstance(ann, deserDef);
     }
 
     /**
@@ -479,7 +450,6 @@ public final class DeserializerCache
      *
      * @param a Method or field that the type is associated with
      * @param type Type derived from the setter argument
-     * @param prop Property that lead to this annotation, if any.
      *
      * @return Original type if no annotations are present; or a more
      *   specific type derived from it if type annotation(s) was found
@@ -487,7 +457,7 @@ public final class DeserializerCache
      * @throws JsonMappingException if invalid annotation is found
      */
     private JavaType modifyTypeByAnnotation(DeserializationContext ctxt,
-            Annotated a, JavaType type, BeanProperty prop)
+            Annotated a, JavaType type)
         throws JsonMappingException
     {
         // first: let's check class for the instance itself:
@@ -523,7 +493,7 @@ public final class DeserializerCache
             if (keyType != null && keyType.getValueHandler() == null) {
                 Object kdDef = intr.findKeyDeserializer(a);
                 if (kdDef != null) {
-                    KeyDeserializer kd = ctxt.keyDeserializerInstance(a, prop, kdDef);
+                    KeyDeserializer kd = ctxt.keyDeserializerInstance(a, null, kdDef);
                     if (kd != null) {
                         type = ((MapLikeType) type).withKeyValueHandler(kd);
                         keyType = type.getKeyType(); // just in case it's used below
@@ -551,7 +521,7 @@ public final class DeserializerCache
                     } else {
                         Class<?> cdClass = _verifyAsClass(cdDef, "findContentDeserializer", JsonDeserializer.None.class);
                         if (cdClass != null) {
-                            cd = ctxt.deserializerInstance(a, prop, cdClass);
+                            cd = ctxt.deserializerInstance(a, cdClass);
                         }
                     }
                     if (cd != null) {
@@ -603,44 +573,4 @@ public final class DeserializerCache
         throw new JsonMappingException("Can not find a (Map) Key deserializer for type "+type);
     }
 
-    /*
-    /**********************************************************
-    /*  Helper classes
-    /**********************************************************
-     */
-
-    /**
-     * Simple deserializer that will call configured type deserializer, passing
-     * in configured data deserializer, and exposing it all as a simple
-     * deserializer.
-     */
-    protected final static class WrappedDeserializer
-        extends JsonDeserializer<Object>
-    {
-        final TypeDeserializer _typeDeserializer;
-        final JsonDeserializer<Object> _deserializer;
-
-        public WrappedDeserializer(TypeDeserializer typeDeser, JsonDeserializer<Object> deser)
-        {
-            super();
-            _typeDeserializer = typeDeser;
-            _deserializer = deser;
-        }
-
-        @Override
-        public Object deserialize(JsonParser jp, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException
-        {
-            return _deserializer.deserializeWithType(jp, ctxt, _typeDeserializer);
-        }
-
-        @Override
-        public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer)
-                throws IOException, JsonProcessingException
-        {
-            // should never happen? (if it can, could call on that object)
-            throw new IllegalStateException("Type-wrapped deserializer's deserializeWithType should never get called");
-        }
-    }
 }

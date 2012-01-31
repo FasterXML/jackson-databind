@@ -10,8 +10,10 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
@@ -50,6 +52,8 @@ public class DeserializationContext
 
     protected final DeserializerCache _deserCache;
 
+    protected final DeserializerFactory _factory;
+    
     protected final InjectableValues _injectableValues;
     
     // // // Helper object recycling
@@ -75,6 +79,7 @@ public class DeserializationContext
         _parser = jp;
         _deserCache = cache;
         _injectableValues = injectableValues;
+        _factory = cache.getDeserializerFactory();
     }
 
     /*
@@ -169,26 +174,45 @@ public class DeserializationContext
     /* Public API, pass-through to DeserializerCache
     /**********************************************************
      */
+
     /**
-     * Convenience method, functionally same as:
-     *<pre>
-     *  getDeserializerProvider().findValueDeserializer(getConfig(), propertyType, property);
-     *</pre>
+     * Method for finding a value deserializer, and creating a contextual
+     * version if necessary, for value reached via specified property.
      */
-    public final JsonDeserializer<Object> findValueDeserializer(JavaType type,
-            BeanProperty property) throws JsonMappingException {
-        return _deserCache.findValueDeserializer(this, type, property);
+    @SuppressWarnings("unchecked")
+    public final JsonDeserializer<Object> findContextualValueDeserializer(JavaType type,
+            BeanProperty property) throws JsonMappingException
+    {
+        JsonDeserializer<Object> deser = _deserCache.findValueDeserializer(this, type);
+        if (deser != null) {
+            if (deser instanceof ContextualDeserializer) {
+                deser = (JsonDeserializer<Object>)((ContextualDeserializer) deser).createContextual(this, property);
+            }
+        }
+        return deser;
     }
     
     /**
-     * Convenience method, functionally same as:
-     *<pre>
-     *  getDeserializerProvider().findRootValueDeserializer(getConfig(), propertyType, property);
-     *</pre>
+     * Method for finding a deserializer for root-level value.
      */
+    @SuppressWarnings("unchecked")
     public final JsonDeserializer<Object> findRootValueDeserializer(JavaType type)
-            throws JsonMappingException {
-        return _deserCache.findRootValueDeserializer(this, type);
+            throws JsonMappingException
+    {
+        JsonDeserializer<Object> deser = _deserCache.findValueDeserializer(this, type);
+        if (deser == null) { // can this occur?
+            return null;
+        }
+        if (deser instanceof ContextualDeserializer) {
+            deser = (JsonDeserializer<Object>)((ContextualDeserializer) deser).createContextual(this, null);
+        }
+        TypeDeserializer typeDeser = _factory.findTypeDeserializer(_config, type);
+        if (typeDeser != null) {
+            // important: contextualize to indicate this is for root value
+            typeDeser = typeDeser.forProperty(null);
+            return new TypeWrappedDeserializer(typeDeser, deser);
+        }
+        return deser;
     }
 
     /**
@@ -210,7 +234,7 @@ public class DeserializationContext
 
     @SuppressWarnings("unchecked")
     public JsonDeserializer<Object> deserializerInstance(Annotated annotated,
-            BeanProperty property, Object deserDef)
+            Object deserDef)
         throws JsonMappingException
     {
         if (deserDef == null) {
@@ -246,10 +270,6 @@ public class DeserializationContext
         // First: need to resolve
         if (deser instanceof ResolvableDeserializer) {
             ((ResolvableDeserializer) deser).resolve(this);
-        }
-        // Second: contextualize:
-        if (deser instanceof ContextualDeserializer) {
-            deser = ((ContextualDeserializer) deser).createContextual(this, property);
         }
         return (JsonDeserializer<Object>) deser;
     }

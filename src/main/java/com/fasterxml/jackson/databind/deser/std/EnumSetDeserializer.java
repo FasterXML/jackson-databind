@@ -59,7 +59,7 @@ public class EnumSetDeserializer
         if (_enumDeserializer != null) {
             return this;
         }
-        return withDeserializer(ctxt.findValueDeserializer(_enumType, property));
+        return withDeserializer(ctxt.findContextualValueDeserializer(_enumType, property));
     }
 
     /*

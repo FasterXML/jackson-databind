@@ -89,8 +89,8 @@ public class ObjectArrayDeserializer
         if (elemTypeDeser != null) {
             elemTypeDeser = elemTypeDeser.forProperty(property);
         }
-        return withDeserializer(ctxt.findValueDeserializer(_arrayType.getContentType(), property),
-                elemTypeDeser);
+        return withDeserializer(ctxt.findContextualValueDeserializer(
+                _arrayType.getContentType(), property), elemTypeDeser);
     }
     
     /*

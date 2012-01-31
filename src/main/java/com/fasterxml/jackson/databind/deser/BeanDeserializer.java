@@ -398,6 +398,14 @@ public class BeanDeserializer
             // May already have deserializer from annotations, if so, skip:
             if (!prop.hasValueDeserializer()) {
                 prop = prop.withValueDeserializer(findDeserializer(ctxt, prop.getType(), prop));
+            } else { // may need contextual version
+                JsonDeserializer<Object> deser = prop.getValueDeserializer();
+                if (deser instanceof ContextualDeserializer) {
+                    JsonDeserializer<?> cd = ((ContextualDeserializer) deser).createContextual(ctxt, prop);
+                    if (cd != deser) {
+                        prop = prop.withValueDeserializer(cd);
+                    }
+                }
             }
             // [JACKSON-235]: need to link managed references with matching back references
             prop = _resolveManagedReferenceProperty(ctxt, prop);
@@ -486,9 +494,10 @@ public class BeanDeserializer
         } else if (valueDeser instanceof ContainerDeserializerBase<?>) {
             JsonDeserializer<?> contentDeser = ((ContainerDeserializerBase<?>) valueDeser).getContentDeserializer();
             if (!(contentDeser instanceof BeanDeserializer)) {
+                String deserName = (contentDeser == null) ? "NULL" : contentDeser.getClass().getName();
                 throw new IllegalArgumentException("Can not handle managed/back reference '"+refName
                         +"': value deserializer is of type ContainerDeserializerBase, but content type is not handled by a BeanDeserializer "
-                        +" (instead it's of type "+contentDeser.getClass().getName()+")");
+                        +" (instead it's of type "+deserName+")");
             }
             backProp = ((BeanDeserializer) contentDeser).findBackReference(refName);
             isContainer = true;

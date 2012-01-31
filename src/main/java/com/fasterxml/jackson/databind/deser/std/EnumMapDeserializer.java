@@ -48,7 +48,11 @@ public class EnumMapDeserializer
     }
 
     public EnumMapDeserializer withResolved(JsonDeserializer<?> keyDeserializer,
-            JsonDeserializer<?> valueDeserializer) {
+            JsonDeserializer<?> valueDeserializer)
+    {
+        if ((keyDeserializer == _keyDeserializer) && valueDeserializer == _valueDeserializer) {
+            return this;
+        }
         return new EnumMapDeserializer(_mapType,
                 keyDeserializer, valueDeserializer);
     }
@@ -61,11 +65,6 @@ public class EnumMapDeserializer
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        // already good as is? No change then
-        if (_keyDeserializer != null && _valueDeserializer != null) {
-            return this;
-        }
-
         // note: instead of finding key deserializer, with enums we actually
         // work with regular deserializers (less code duplication; but not
         // quite as clean as it ought to be)
@@ -76,7 +75,12 @@ public class EnumMapDeserializer
         JsonDeserializer<?> vd = _valueDeserializer;
         if (vd == null) {
             vd = ctxt.findContextualValueDeserializer(_mapType.getContentType(), property);
+        } else { // if directly assigned, probably not yet contextual, so:
+            if (vd instanceof ContextualDeserializer) {
+                vd = ((ContextualDeserializer) vd).createContextual(ctxt, property);
+            }
         }
+
         return withResolved(kd, vd);
     }
     

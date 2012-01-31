@@ -103,12 +103,15 @@ implements ContextualDeserializer
      * Fluent-factory method call to construct contextual instance.
      */
     @SuppressWarnings("unchecked")
-    protected CollectionDeserializer withResolved(JsonDeserializer<?> delegateDeser,
-            JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser)
+    protected CollectionDeserializer withResolved(JsonDeserializer<?> dd,
+            JsonDeserializer<?> vd, TypeDeserializer vtd)
     {
+        if ((dd == _delegateDeserializer) && (vd == _valueDeserializer) && (vtd == _valueTypeDeserializer)) {
+            return this;
+        }
         return new CollectionDeserializer(_collectionType,
-                (JsonDeserializer<Object>) valueDeser, valueTypeDeser,
-                _valueInstantiator, (JsonDeserializer<Object>) delegateDeser);
+                (JsonDeserializer<Object>) vd, vtd,
+                _valueInstantiator, (JsonDeserializer<Object>) dd);
                 
     }
     
@@ -139,10 +142,14 @@ implements ContextualDeserializer
             delegateDeser = findDeserializer(ctxt, delegateType, property);
         }
         // also, often value deserializer is resolved here:
-        JsonDeserializer<Object> valueDeser = _valueDeserializer;
+        JsonDeserializer<?> valueDeser = _valueDeserializer;
         if (valueDeser == null) {
-            valueDeser = (JsonDeserializer<Object>)ctxt.findContextualValueDeserializer(
+            valueDeser = ctxt.findContextualValueDeserializer(
                     _collectionType.getContentType(), property);
+        } else { // if directly assigned, probably not yet contextual, so:
+            if (valueDeser instanceof ContextualDeserializer) {
+                valueDeser = ((ContextualDeserializer) valueDeser).createContextual(ctxt, property);
+            }
         }
         // and finally, type deserializer needs context as well
         TypeDeserializer valueTypeDeser = _valueTypeDeserializer;

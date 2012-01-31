@@ -42,6 +42,9 @@ public class EnumSetDeserializer
     }
 
     public EnumSetDeserializer withDeserializer(JsonDeserializer<?> deser) {
+        if (_enumDeserializer == deser) {
+            return this;
+        }
         return new EnumSetDeserializer(_enumType, deser);
     }
     
@@ -56,10 +59,15 @@ public class EnumSetDeserializer
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        if (_enumDeserializer != null) {
-            return this;
+        JsonDeserializer<?> deser = _enumDeserializer;
+        if (deser == null) {
+            deser = ctxt.findContextualValueDeserializer(_enumType, property);
+        } else { // if directly assigned, probably not yet contextual, so:
+            if (deser instanceof ContextualDeserializer) {
+                deser = ((ContextualDeserializer) deser).createContextual(ctxt, property);
+            }
         }
-        return withDeserializer(ctxt.findContextualValueDeserializer(_enumType, property));
+        return withDeserializer(deser);
     }
 
     /*

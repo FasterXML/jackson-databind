@@ -68,7 +68,7 @@ public class CreatorProperty
         _injectableValueId = src._injectableValueId;
     }
     
-    protected CreatorProperty(CreatorProperty src, JsonDeserializer<Object> deser) {
+    protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser) {
         super(src, deser);
         _annotated = src._annotated;
         _injectableValueId = src._injectableValueId;
@@ -80,7 +80,7 @@ public class CreatorProperty
     }
     
     @Override
-    public CreatorProperty withValueDeserializer(JsonDeserializer<Object> deser) {
+    public CreatorProperty withValueDeserializer(JsonDeserializer<?> deser) {
         return new CreatorProperty(this, deser);
     }
 

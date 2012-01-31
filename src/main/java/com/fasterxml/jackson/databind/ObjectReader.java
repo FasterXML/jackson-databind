@@ -722,7 +722,7 @@ public class ObjectReader
     public <T> MappingIterator<T> readValues(JsonParser jp)
         throws IOException, JsonProcessingException
     {
-        DeserializationContext ctxt = _createDeserializationContext(jp, _config);
+        DeserializationContext ctxt = createDeserializationContext(jp, _config);
         // false -> do not close as caller gave parser instance
         return new MappingIterator<T>(_valueType, jp, ctxt,
                 _findRootDeserializer(ctxt, _valueType),
@@ -739,7 +739,7 @@ public class ObjectReader
         if (_schema != null) {
             jp.setSchema(_schema);
         }
-        DeserializationContext ctxt = _createDeserializationContext(jp, _config);
+        DeserializationContext ctxt = createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt, 
                 _findRootDeserializer(ctxt, _valueType),
                 true, _valueToUpdate);
@@ -755,7 +755,7 @@ public class ObjectReader
         if (_schema != null) {
             jp.setSchema(_schema);
         }
-        DeserializationContext ctxt = _createDeserializationContext(jp, _config);
+        DeserializationContext ctxt = createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
@@ -770,7 +770,7 @@ public class ObjectReader
         if (_schema != null) {
             jp.setSchema(_schema);
         }
-        DeserializationContext ctxt = _createDeserializationContext(jp, _config);
+        DeserializationContext ctxt = createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
@@ -785,7 +785,7 @@ public class ObjectReader
         if (_schema != null) {
             jp.setSchema(_schema);
         }
-        DeserializationContext ctxt = _createDeserializationContext(jp, _config);
+        DeserializationContext ctxt = createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
@@ -805,7 +805,7 @@ public class ObjectReader
         if (_schema != null) {
             jp.setSchema(_schema);
         }
-        DeserializationContext ctxt = _createDeserializationContext(jp, _config);
+        DeserializationContext ctxt = createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
@@ -820,17 +820,34 @@ public class ObjectReader
         if (_schema != null) {
             jp.setSchema(_schema);
         }
-        DeserializationContext ctxt = _createDeserializationContext(jp, _config);
+        DeserializationContext ctxt = createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
     
     /*
     /**********************************************************
-    /* Helper methods
+    /* Helper methods, overridable
     /**********************************************************
      */
 
+    /**
+     * Internal helper method called to create an instance of {@link DeserializationContext}
+     * for deserializing a single root value.
+     * Can be overridden if a custom context is needed.
+     */
+    protected DeserializationContext createDeserializationContext(JsonParser jp,
+            DeserializationConfig cfg) {
+        // 04-Jan-2010, tatu: we do actually need the provider too... (for polymorphic deser)
+        return new DeserializationContext(cfg, jp, _deserializerCache, _injectableValues);
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+    
     /**
      * Actual implementation of value reading+binding operation.
      */
@@ -844,7 +861,7 @@ public class ObjectReader
         JsonToken t = _initForReading(jp);
         if (t == JsonToken.VALUE_NULL) {
             if (_valueToUpdate == null) {
-                DeserializationContext ctxt = _createDeserializationContext(jp, _config);
+                DeserializationContext ctxt = createDeserializationContext(jp, _config);
                 result = _findRootDeserializer(ctxt, _valueType).getNullValue();
             } else {
                 result = _valueToUpdate;
@@ -852,7 +869,7 @@ public class ObjectReader
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = _valueToUpdate;
         } else { // pointing to event other than null
-            DeserializationContext ctxt = _createDeserializationContext(jp, _config);
+            DeserializationContext ctxt = createDeserializationContext(jp, _config);
             JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, _valueType);
             if (_unwrapRoot) {
                 result = _unwrapAndDeserialize(jp, ctxt, _valueType, deser);
@@ -881,7 +898,7 @@ public class ObjectReader
             JsonToken t = _initForReading(jp);
             if (t == JsonToken.VALUE_NULL) {
                 if (_valueToUpdate == null) {
-                    DeserializationContext ctxt = _createDeserializationContext(jp, _config);
+                    DeserializationContext ctxt = createDeserializationContext(jp, _config);
                     result = _findRootDeserializer(ctxt, _valueType).getNullValue();
                 } else {
                     result = _valueToUpdate;
@@ -889,7 +906,7 @@ public class ObjectReader
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = _valueToUpdate;
             } else {
-                DeserializationContext ctxt = _createDeserializationContext(jp, _config);
+                DeserializationContext ctxt = createDeserializationContext(jp, _config);
                 JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, _valueType);
                 if (_unwrapRoot) {
                     result = _unwrapAndDeserialize(jp, ctxt, _valueType, deser);
@@ -918,7 +935,7 @@ public class ObjectReader
         if (t == JsonToken.VALUE_NULL || t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = NullNode.instance;
         } else {
-            DeserializationContext ctxt = _createDeserializationContext(jp, _config);
+            DeserializationContext ctxt = createDeserializationContext(jp, _config);
             JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, JSON_NODE_TYPE);
             if (_unwrapRoot) {
                 result = (JsonNode) _unwrapAndDeserialize(jp, ctxt, JSON_NODE_TYPE, deser);
@@ -990,11 +1007,6 @@ public class ObjectReader
         }
         _rootDeserializers.put(valueType, deser);
         return deser;
-    }
-    
-    protected DeserializationContext _createDeserializationContext(JsonParser jp, DeserializationConfig cfg) {
-        // 04-Jan-2010, tatu: we do actually need the provider too... (for polymorphic deser)
-        return new DeserializationContext(cfg, jp, _deserializerCache, _injectableValues);
     }
 
     protected Object _unwrapAndDeserialize(JsonParser jp, DeserializationContext ctxt,

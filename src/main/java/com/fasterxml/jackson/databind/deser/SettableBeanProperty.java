@@ -135,7 +135,8 @@ public abstract class SettableBeanProperty
     /**
      * Copy-with-deserializer-change constructor for sub-classes to use.
      */
-    protected SettableBeanProperty(SettableBeanProperty src, JsonDeserializer<Object> deser)
+    @SuppressWarnings("unchecked")
+    protected SettableBeanProperty(SettableBeanProperty src, JsonDeserializer<?> deser)
     {
         _propName = src._propName;
         _type = src._type;
@@ -144,7 +145,7 @@ public abstract class SettableBeanProperty
         _managedReferenceName = src._managedReferenceName;
         _propertyIndex = src._propertyIndex;
 
-        _valueDeserializer = deser;
+        _valueDeserializer = (JsonDeserializer<Object>) deser;
         if (deser == null) {
             _nullProvider = null;
         } else {
@@ -170,7 +171,7 @@ public abstract class SettableBeanProperty
         _viewMatcher = src._viewMatcher;
     }
     
-    public abstract SettableBeanProperty withValueDeserializer(JsonDeserializer<Object> deser);
+    public abstract SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser);
 
     public abstract SettableBeanProperty withName(String newName);
     
@@ -379,7 +380,7 @@ public abstract class SettableBeanProperty
             _setter = method.getAnnotated();
         }
 
-        protected MethodProperty(MethodProperty src, JsonDeserializer<Object> deser) {
+        protected MethodProperty(MethodProperty src, JsonDeserializer<?> deser) {
             super(src, deser);
             _annotated = src._annotated;
             _setter = src._setter;
@@ -397,7 +398,7 @@ public abstract class SettableBeanProperty
         }
         
         @Override
-        public MethodProperty withValueDeserializer(JsonDeserializer<Object> deser) {
+        public MethodProperty withValueDeserializer(JsonDeserializer<?> deser) {
             return new MethodProperty(this, deser);
         }
         
@@ -463,7 +464,7 @@ public abstract class SettableBeanProperty
             _getter = method.getAnnotated();
         }
 
-        protected SetterlessProperty(SetterlessProperty src, JsonDeserializer<Object> deser) {
+        protected SetterlessProperty(SetterlessProperty src, JsonDeserializer<?> deser) {
             super(src, deser);
             _annotated = src._annotated;
             _getter = src._getter;
@@ -481,7 +482,7 @@ public abstract class SettableBeanProperty
         }
         
         @Override
-        public SetterlessProperty withValueDeserializer(JsonDeserializer<Object> deser) {
+        public SetterlessProperty withValueDeserializer(JsonDeserializer<?> deser) {
             return new SetterlessProperty(this, deser);
         }
         
@@ -566,7 +567,7 @@ public abstract class SettableBeanProperty
             _field = field.getAnnotated();
         }
 
-        protected FieldProperty(FieldProperty src, JsonDeserializer<Object> deser) {
+        protected FieldProperty(FieldProperty src, JsonDeserializer<?> deser) {
             super(src, deser);
             _annotated = src._annotated;
             _field = src._field;
@@ -584,7 +585,7 @@ public abstract class SettableBeanProperty
         }
         
         @Override
-        public FieldProperty withValueDeserializer(JsonDeserializer<Object> deser) {
+        public FieldProperty withValueDeserializer(JsonDeserializer<?> deser) {
             return new FieldProperty(this, deser);
         }
         
@@ -662,7 +663,7 @@ public abstract class SettableBeanProperty
             _isContainer = isContainer;
         }
 
-        protected ManagedReferenceProperty(ManagedReferenceProperty src, JsonDeserializer<Object> deser)
+        protected ManagedReferenceProperty(ManagedReferenceProperty src, JsonDeserializer<?> deser)
         {
             super(src, deser);
             _referenceName = src._referenceName;
@@ -685,7 +686,7 @@ public abstract class SettableBeanProperty
         }
         
         @Override
-        public ManagedReferenceProperty withValueDeserializer(JsonDeserializer<Object> deser) {
+        public ManagedReferenceProperty withValueDeserializer(JsonDeserializer<?> deser) {
             return new ManagedReferenceProperty(this, deser);
         }
         
@@ -782,7 +783,7 @@ public abstract class SettableBeanProperty
             _creator = ctor;
         }
 
-        protected InnerClassProperty(InnerClassProperty src, JsonDeserializer<Object> deser)
+        protected InnerClassProperty(InnerClassProperty src, JsonDeserializer<?> deser)
         {
             super(src, deser);
             _delegate = src._delegate.withValueDeserializer(deser);
@@ -801,7 +802,7 @@ public abstract class SettableBeanProperty
         }
 
         @Override
-        public InnerClassProperty withValueDeserializer(JsonDeserializer<Object> deser) {
+        public InnerClassProperty withValueDeserializer(JsonDeserializer<?> deser) {
             return new InnerClassProperty(this, deser);
         }
         

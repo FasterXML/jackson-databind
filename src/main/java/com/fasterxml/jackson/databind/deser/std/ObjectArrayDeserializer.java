@@ -71,8 +71,12 @@ public class ObjectArrayDeserializer
      * Overridable fluent-factory method used to create contextual instances
      */
     @SuppressWarnings("unchecked")
-    public ObjectArrayDeserializer withDeserializer(JsonDeserializer<?> elemDeser,
-            TypeDeserializer elemTypeDeser) {
+    public ObjectArrayDeserializer withDeserializer(TypeDeserializer elemTypeDeser,
+            JsonDeserializer<?> elemDeser)
+    {
+        if ((elemDeser == _elementDeserializer) && (elemTypeDeser == _elementTypeDeserializer)) {
+            return this;
+        }
         return new ObjectArrayDeserializer(_arrayType,
                 (JsonDeserializer<Object>) elemDeser, elemTypeDeser);
     }
@@ -81,16 +85,19 @@ public class ObjectArrayDeserializer
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
-        JsonDeserializer<Object> deser = _elementDeserializer;
-        if (deser != null) {
-            return this;
+        JsonDeserializer<?> deser = _elementDeserializer;
+        if (deser == null) {
+            deser = ctxt.findContextualValueDeserializer(_arrayType.getContentType(), property);
+        } else { // if directly assigned, probably not yet contextual, so:
+            if (deser instanceof ContextualDeserializer) {
+                deser = ((ContextualDeserializer) deser).createContextual(ctxt, property);
+            }
         }
         TypeDeserializer elemTypeDeser = _elementTypeDeserializer;
         if (elemTypeDeser != null) {
             elemTypeDeser = elemTypeDeser.forProperty(property);
         }
-        return withDeserializer(ctxt.findContextualValueDeserializer(
-                _arrayType.getContentType(), property), elemTypeDeser);
+        return withDeserializer(elemTypeDeser, deser);
     }
     
     /*

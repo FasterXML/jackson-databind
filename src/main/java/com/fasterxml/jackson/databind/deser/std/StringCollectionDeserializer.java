@@ -52,23 +52,32 @@ public final class StringCollectionDeserializer
     /**********************************************************
      */
     
-    @SuppressWarnings("unchecked")
     public StringCollectionDeserializer(JavaType collectionType,
             JsonDeserializer<?> valueDeser, ValueInstantiator valueInstantiator)
     {
-        this(collectionType, (JsonDeserializer<String>) valueDeser,
-                valueInstantiator, null);
+        this(collectionType, valueInstantiator, null, valueDeser);
     }
 
+    @SuppressWarnings("unchecked")
     protected StringCollectionDeserializer(JavaType collectionType,
-            JsonDeserializer<String> valueDeser, ValueInstantiator valueInstantiator,
-            JsonDeserializer<Object> delegateDeser)
+            ValueInstantiator valueInstantiator, JsonDeserializer<?> delegateDeser,
+            JsonDeserializer<?> valueDeser)
     {
         super(collectionType.getRawClass());
         _collectionType = collectionType;
-        _valueDeserializer = valueDeser;
+        _valueDeserializer = (JsonDeserializer<String>) valueDeser;
         _valueInstantiator = valueInstantiator;
-        _delegateDeserializer = delegateDeser;
+        _delegateDeserializer = (JsonDeserializer<Object>) delegateDeser;
+    }
+
+    protected StringCollectionDeserializer withResolved(JsonDeserializer<?> delegateDeser,
+            JsonDeserializer<?> valueDeser)
+    {
+        if ((_valueDeserializer == valueDeser) && (_delegateDeserializer == delegateDeser)) {
+            return this;
+        }
+        return new StringCollectionDeserializer(_collectionType,
+                _valueInstantiator, delegateDeser, valueDeser);
     }
     
     /*
@@ -97,12 +106,15 @@ public final class StringCollectionDeserializer
             JsonDeserializer<?> deser = ctxt.findContextualValueDeserializer(
                     _collectionType.getContentType(), property);
             valueDeser = (JsonDeserializer<String>) deser;
-            if (isDefaultDeserializer(valueDeser)) {
-                valueDeser = null;
+        } else { // if directly assigned, probably not yet contextual, so:
+            if (valueDeser instanceof ContextualDeserializer) {
+                valueDeser = ((ContextualDeserializer) valueDeser).createContextual(ctxt, property);
             }
+        } 
+        if (isDefaultDeserializer(valueDeser)) {
+            valueDeser = null;
         }
-        return new StringCollectionDeserializer(_collectionType,
-                (JsonDeserializer<String>)valueDeser, _valueInstantiator, delegate);
+        return withResolved(delegate, valueDeser);
     }
     
     /*

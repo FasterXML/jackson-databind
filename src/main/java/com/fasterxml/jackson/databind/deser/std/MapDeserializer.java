@@ -150,9 +150,12 @@ public class MapDeserializer
      * different settings. When sub-classing, MUST be overridden.
      */
     @SuppressWarnings("unchecked")
-    protected MapDeserializer withResolved(KeyDeserializer keyDeser, JsonDeserializer<?> valueDeser,
-            TypeDeserializer valueTypeDeser)
+    protected MapDeserializer withResolved(KeyDeserializer keyDeser,
+            TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser)
     {
+        if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser) && (_valueTypeDeserializer == valueTypeDeser)) {
+            return this;
+        }
         return new MapDeserializer(this,
                 keyDeser, (JsonDeserializer<Object>) valueDeser, valueTypeDeser);
     }
@@ -229,16 +232,24 @@ public class MapDeserializer
         KeyDeserializer kd = _keyDeserializer;
         if (kd == null) {
             kd = ctxt.findKeyDeserializer(_mapType.getKeyType(), property);
+        } else {
+            if (kd instanceof ContextualKeyDeserializer) {
+                kd = ((ContextualKeyDeserializer) kd).createContextual(ctxt, property);
+            }
         }
-        JsonDeserializer<Object> vd = _valueDeserializer;
+        JsonDeserializer<?> vd = _valueDeserializer;
         if (vd == null) {
             vd = ctxt.findContextualValueDeserializer(_mapType.getContentType(), property);
+        } else { // if directly assigned, probably not yet contextual, so:
+            if (vd instanceof ContextualDeserializer) {
+                vd = ((ContextualDeserializer) vd).createContextual(ctxt, property);
+            }
         }
         TypeDeserializer vtd = _valueTypeDeserializer;
         if (vtd != null) {
             vtd = vtd.forProperty(property);
         }
-        return withResolved(kd, vd, vtd);
+        return withResolved(kd, vtd, vd);
     }
     
     /*

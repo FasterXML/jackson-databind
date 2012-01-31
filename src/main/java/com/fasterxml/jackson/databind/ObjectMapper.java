@@ -1404,7 +1404,7 @@ public class ObjectMapper
             throws IOException, JsonProcessingException
     {
         DeserializationConfig config = getDeserializationConfig();
-        DeserializationContext ctxt = _createDeserializationContext(jp, config);
+        DeserializationContext ctxt = createDeserializationContext(jp, config);
         JsonDeserializer<?> deser = _findRootDeserializer(ctxt, valueType);
         // false -> do NOT close JsonParser (since caller passed it)
         return new MappingIterator<T>(valueType, jp, ctxt, deser,
@@ -1695,7 +1695,7 @@ public class ObjectMapper
      */
     public boolean canDeserialize(JavaType type)
     {
-        DeserializationContext ctxt = _createDeserializationContext(null,
+        DeserializationContext ctxt = createDeserializationContext(null,
                 getDeserializationConfig());
         return _deserializerCache.hasValueDeserializerFor(ctxt, type);
     }
@@ -2271,12 +2271,12 @@ public class ObjectMapper
             final DeserializationConfig deserConfig = getDeserializationConfig();
             JsonToken t = _initForReading(jp);
             if (t == JsonToken.VALUE_NULL) {
-                DeserializationContext ctxt = _createDeserializationContext(jp, deserConfig);
+                DeserializationContext ctxt = createDeserializationContext(jp, deserConfig);
                 result = _findRootDeserializer(ctxt, toValueType).getNullValue();
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = null;
             } else { // pointing to event other than null
-                DeserializationContext ctxt = _createDeserializationContext(jp, deserConfig);
+                DeserializationContext ctxt = createDeserializationContext(jp, deserConfig);
                 JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, toValueType);
                 // note: no handling of unwarpping
                 result = deser.deserialize(jp, ctxt);
@@ -2459,6 +2459,18 @@ public class ObjectMapper
     /* Internal methods for deserialization, overridable
     /**********************************************************
      */
+
+    /**
+     * Internal helper method called to create an instance of {@link DeserializationContext}
+     * for deserializing a single root value.
+     * Can be overridden if a custom context is needed.
+     */
+    protected DeserializationContext createDeserializationContext(JsonParser jp,
+            DeserializationConfig cfg)
+    {
+        return new DeserializationContext(cfg, jp, _deserializerCache,
+                _injectableValues);
+    }
     
     /**
      * Actual implementation of value reading+binding operation.
@@ -2474,12 +2486,12 @@ public class ObjectMapper
         JsonToken t = _initForReading(jp);
         if (t == JsonToken.VALUE_NULL) {
             // [JACKSON-643]: Ask JsonDeserializer what 'null value' to use:
-            DeserializationContext ctxt = _createDeserializationContext(jp, cfg);
+            DeserializationContext ctxt = createDeserializationContext(jp, cfg);
             result = _findRootDeserializer(ctxt, valueType).getNullValue();
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
             result = null;
         } else { // pointing to event other than null
-            DeserializationContext ctxt = _createDeserializationContext(jp, cfg);
+            DeserializationContext ctxt = createDeserializationContext(jp, cfg);
             JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
             // ok, let's get the value
             if (cfg.useRootWrapping()) {
@@ -2501,14 +2513,14 @@ public class ObjectMapper
             JsonToken t = _initForReading(jp);
             if (t == JsonToken.VALUE_NULL) {
                 // [JACKSON-643]: Ask JsonDeserializer what 'null value' to use:
-                DeserializationContext ctxt = _createDeserializationContext(jp,
+                DeserializationContext ctxt = createDeserializationContext(jp,
                         getDeserializationConfig());
                 result = _findRootDeserializer(ctxt, valueType).getNullValue();
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
                 result = null;
             } else {
                 DeserializationConfig cfg = getDeserializationConfig();
-                DeserializationContext ctxt = _createDeserializationContext(jp, cfg);
+                DeserializationContext ctxt = createDeserializationContext(jp, cfg);
                 JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, valueType);
                 if (cfg.useRootWrapping()) {
                     result = _unwrapAndDeserialize(jp, ctxt, cfg, valueType, deser);
@@ -2621,11 +2633,5 @@ public class ObjectMapper
         }
         _rootDeserializers.put(valueType, deser);
         return deser;
-    }
-
-    protected DeserializationContext _createDeserializationContext(JsonParser jp, DeserializationConfig cfg)
-    {
-        return new DeserializationContext(cfg, jp, _deserializerCache,
-                _injectableValues);
     }
 }

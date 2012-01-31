@@ -69,7 +69,8 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      *    handle; super type of all types it will be used for.
      */
     public TypeSerializer buildTypeSerializer(SerializationConfig config,
-            JavaType baseType, Collection<NamedType> subtypes, BeanProperty property);
+            JavaType baseType, Collection<NamedType> subtypes,
+            BeanProperty property);            
 
     /**
      * Method for building type deserializer based on current configuration
@@ -79,8 +80,8 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      *    handle; super type of all types it will be used for.
      * @param subtypes Known subtypes of the base type.
      */
-    public TypeDeserializer buildTypeDeserializer( DeserializationConfig config,
-            JavaType baseType, Collection<NamedType> subtypes, BeanProperty property);
+    public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
+            JavaType baseType, Collection<NamedType> subtypes);
     
     /*
     /**********************************************************

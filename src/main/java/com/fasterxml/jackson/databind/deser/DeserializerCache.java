@@ -216,8 +216,10 @@ public final class DeserializerCache
         throws JsonMappingException
     {
         JsonDeserializer<Object> deser = findValueDeserializer(ctxt, type, null);
-        TypeDeserializer typeDeser = _factory.findTypeDeserializer(ctxt.getConfig(), type, null);
+        TypeDeserializer typeDeser = _factory.findTypeDeserializer(ctxt.getConfig(), type);
         if (typeDeser != null) {
+            // important: contextualize
+            typeDeser = typeDeser.forProperty(null);
             return new WrappedDeserializer(typeDeser, deser);
         }
         return deser;
@@ -416,8 +418,8 @@ public final class DeserializerCache
 
         // If not, let's see which factory method to use:
         if (type.isEnumType()) {
-            return (JsonDeserializer<Object>) _factory.createEnumDeserializer(ctxt, type,
-                    beanDesc, property);
+            return (JsonDeserializer<Object>) _factory.createEnumDeserializer(ctxt,
+                    type, beanDesc);
         }
         if (type.isContainerType()) {
             if (type.isArrayType()) {
@@ -431,7 +433,7 @@ public final class DeserializerCache
                             (MapType) mlt, beanDesc, property);
                 }
                 return (JsonDeserializer<Object>)_factory.createMapLikeDeserializer(ctxt,
-                        mlt, beanDesc, property);
+                        mlt, beanDesc);
             }
             if (type.isCollectionLikeType()) {
                 CollectionLikeType clt = (CollectionLikeType) type;
@@ -440,7 +442,7 @@ public final class DeserializerCache
                             (CollectionType) clt, beanDesc, property);
                 }
                 return (JsonDeserializer<Object>)_factory.createCollectionLikeDeserializer(ctxt,
-                        clt, beanDesc, property);
+                        clt, beanDesc);
             }
         }
 

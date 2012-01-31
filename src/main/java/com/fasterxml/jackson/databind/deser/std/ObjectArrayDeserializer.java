@@ -71,9 +71,10 @@ public class ObjectArrayDeserializer
      * Overridable fluent-factory method used to create contextual instances
      */
     @SuppressWarnings("unchecked")
-    public ObjectArrayDeserializer withDeserializer(JsonDeserializer<?> deser) {
+    public ObjectArrayDeserializer withDeserializer(JsonDeserializer<?> elemDeser,
+            TypeDeserializer elemTypeDeser) {
         return new ObjectArrayDeserializer(_arrayType,
-                (JsonDeserializer<Object>) deser, _elementTypeDeserializer);
+                (JsonDeserializer<Object>) elemDeser, elemTypeDeser);
     }
 
     @Override
@@ -84,7 +85,12 @@ public class ObjectArrayDeserializer
         if (deser != null) {
             return this;
         }
-        return withDeserializer(ctxt.findValueDeserializer(_arrayType.getContentType(), property));
+        TypeDeserializer elemTypeDeser = _elementTypeDeserializer;
+        if (elemTypeDeser != null) {
+            elemTypeDeser = elemTypeDeser.forProperty(property);
+        }
+        return withDeserializer(ctxt.findValueDeserializer(_arrayType.getContentType(), property),
+                elemTypeDeser);
     }
     
     /*

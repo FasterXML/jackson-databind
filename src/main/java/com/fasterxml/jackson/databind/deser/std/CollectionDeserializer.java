@@ -99,6 +99,19 @@ implements ContextualDeserializer
         _delegateDeserializer = src._delegateDeserializer;
     }
 
+    /**
+     * Fluent-factory method call to construct contextual instance.
+     */
+    @SuppressWarnings("unchecked")
+    protected CollectionDeserializer withResolved(JsonDeserializer<?> delegateDeser,
+            JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser)
+    {
+        return new CollectionDeserializer(_collectionType,
+                (JsonDeserializer<Object>) valueDeser, valueTypeDeser,
+                _valueInstantiator, (JsonDeserializer<Object>) delegateDeser);
+                
+    }
+    
     /*
     /**********************************************************
     /* Validation, post-processing (ResolvableDeserializer)
@@ -115,7 +128,7 @@ implements ContextualDeserializer
             BeanProperty property) throws JsonMappingException
     {
         // May need to resolve types for delegate-based creators:
-        JsonDeserializer<Object> delegate = null;
+        JsonDeserializer<Object> delegateDeser = null;
         if ((_valueInstantiator != null) && _valueInstantiator.canCreateUsingDelegate()) {
             JavaType delegateType = _valueInstantiator.getDelegateType(ctxt.getConfig());
             if (delegateType == null) {
@@ -123,16 +136,19 @@ implements ContextualDeserializer
                         +": value instantiator ("+_valueInstantiator.getClass().getName()
                         +") returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'");
             }
-            delegate = findDeserializer(ctxt, delegateType, property);
+            delegateDeser = findDeserializer(ctxt, delegateType, property);
         }
         // also, often value deserializer is resolved here:
         JsonDeserializer<Object> valueDeser = _valueDeserializer;
         if (valueDeser == null) {
             valueDeser = (JsonDeserializer<Object>)ctxt.findValueDeserializer(_collectionType.getContentType(), property);
         }
-        return new CollectionDeserializer(_collectionType, valueDeser,
-                _valueTypeDeserializer, _valueInstantiator, delegate);
-                
+        // and finally, type deserializer needs context as well
+        TypeDeserializer valueTypeDeser = _valueTypeDeserializer;
+        if (valueTypeDeser != null) {
+            valueTypeDeser = valueTypeDeser.forProperty(property);
+        }
+        return withResolved(delegateDeser, valueDeser, valueTypeDeser);
     }
     
     /*

@@ -22,6 +22,13 @@ public abstract class TypeDeserializerBase extends TypeDeserializer
     
     protected final JavaType _baseType;
 
+    /**
+     * Property that contains value for which type information
+     * is included; null if value is a root value.
+     * Note that this value is not assigned during construction
+     * but only when {@link #forProperty} is called to create
+     * a copy.
+     */
     protected final BeanProperty _property;
 
     /**
@@ -46,12 +53,17 @@ public abstract class TypeDeserializerBase extends TypeDeserializer
 
     protected JsonDeserializer<Object> _defaultImplDeserializer;
 
-    protected TypeDeserializerBase(JavaType baseType, TypeIdResolver idRes, BeanProperty property,
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+    
+    protected TypeDeserializerBase(JavaType baseType, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl)
     {
         _baseType = baseType;
         _idResolver = idRes;
-        _property = property;
         _typePropertyName = typePropertyName;
         _typeIdVisible = typeIdVisible;
         _deserializers = new HashMap<String,JsonDeserializer<Object>>();
@@ -64,8 +76,32 @@ public abstract class TypeDeserializerBase extends TypeDeserializer
              */
             _defaultImpl = baseType.forcedNarrowBy(defaultImpl);
         }
+
+        _property = null;
     }
 
+    protected TypeDeserializerBase(TypeDeserializerBase src, BeanProperty property)
+    {
+        _baseType = src._baseType;
+        _idResolver = src._idResolver;
+        _typePropertyName = src._typePropertyName;
+        _typeIdVisible = src._typeIdVisible;
+        _deserializers = src._deserializers;
+        _defaultImpl = src._defaultImpl;
+        _defaultImplDeserializer = src._defaultImplDeserializer;
+
+        _property = property;
+    }
+
+    @Override
+    public abstract TypeDeserializer forProperty(BeanProperty prop);
+    
+    /*
+    /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
+    
     @Override
     public abstract JsonTypeInfo.As getTypeInclusion();
 
@@ -99,7 +135,8 @@ public abstract class TypeDeserializerBase extends TypeDeserializer
     /**********************************************************
      */
 
-    protected final JsonDeserializer<Object> _findDeserializer(DeserializationContext ctxt, String typeId)
+    protected final JsonDeserializer<Object> _findDeserializer(DeserializationContext ctxt,
+            String typeId)
         throws IOException, JsonProcessingException
     {
         JsonDeserializer<Object> deser;

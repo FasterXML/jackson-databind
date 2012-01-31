@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -21,6 +22,23 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
  */
 public abstract class TypeDeserializer
 {
+    /*
+    /**********************************************************
+    /* Initialization
+    /**********************************************************
+     */
+
+    /**
+     * Method called to create contextual version, to be used for
+     * values of given property. This may be the type itself
+     * (as is the case for bean properties), or values contained
+     * (for {@link java.util.Collection} or {@link java.util.Map}
+     * valued properties).
+     * 
+     * @since 2.0
+     */
+    public abstract TypeDeserializer forProperty(BeanProperty prop);
+    
     /*
     /**********************************************************
     /* Introspection

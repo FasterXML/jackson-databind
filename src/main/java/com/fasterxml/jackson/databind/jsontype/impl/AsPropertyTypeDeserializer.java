@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -22,12 +23,24 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 {
-    public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes, BeanProperty property,
+    public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl)
     {
-        super(bt, idRes, property, typePropertyName, typeIdVisible, defaultImpl);
+        super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);
     }
 
+    public AsPropertyTypeDeserializer(AsPropertyTypeDeserializer src, BeanProperty property) {
+        super(src, property);
+    }
+    
+    @Override
+    public TypeDeserializer forProperty(BeanProperty prop) {
+        if (prop == _property) { // usually if it's null
+            return this;
+        }
+        return new AsPropertyTypeDeserializer(this, prop);
+    }
+    
     @Override
     public As getTypeInclusion() {
         return As.PROPERTY;

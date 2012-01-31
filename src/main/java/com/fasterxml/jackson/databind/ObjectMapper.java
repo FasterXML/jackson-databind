@@ -133,9 +133,9 @@ public class ObjectMapper
 
         @Override
         public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
-                JavaType baseType, Collection<NamedType> subtypes, BeanProperty property)
+                JavaType baseType, Collection<NamedType> subtypes)
         {
-            return useForType(baseType) ? super.buildTypeDeserializer(config, baseType, subtypes, property) : null;
+            return useForType(baseType) ? super.buildTypeDeserializer(config, baseType, subtypes) : null;
         }
 
         @Override

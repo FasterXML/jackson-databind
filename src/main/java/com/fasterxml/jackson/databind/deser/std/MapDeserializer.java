@@ -127,13 +127,14 @@ public class MapDeserializer
     }
 
     protected MapDeserializer(MapDeserializer src,
-            KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser)
+            KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
+            TypeDeserializer valueTypeDeser)
     {
         super(src._valueClass);
         _mapType = src._mapType;
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
-        _valueTypeDeserializer = src._valueTypeDeserializer;
+        _valueTypeDeserializer = valueTypeDeser;
         _valueInstantiator = src._valueInstantiator;
         _propertyBasedCreator = src._propertyBasedCreator;
         _delegateDeserializer = src._delegateDeserializer;
@@ -149,11 +150,11 @@ public class MapDeserializer
      * different settings. When sub-classing, MUST be overridden.
      */
     @SuppressWarnings("unchecked")
-    protected MapDeserializer withResolved(//JsonDeserializer<Object> delegateDeser, PropertyBasedCreator propBasedCreator,
-            KeyDeserializer keyDeser, JsonDeserializer<?> valueDeser)
+    protected MapDeserializer withResolved(KeyDeserializer keyDeser, JsonDeserializer<?> valueDeser,
+            TypeDeserializer valueTypeDeser)
     {
-        return new MapDeserializer(this, // delegateDeser, propBasedCreator,
-                keyDeser, (JsonDeserializer<Object>) valueDeser);
+        return new MapDeserializer(this,
+                keyDeser, (JsonDeserializer<Object>) valueDeser, valueTypeDeser);
     }
     
     /**
@@ -233,7 +234,11 @@ public class MapDeserializer
         if (vd == null) {
             vd = ctxt.findValueDeserializer(_mapType.getContentType(), property);
         }
-        return withResolved(kd, vd);
+        TypeDeserializer vtd = _valueTypeDeserializer;
+        if (vtd != null) {
+            vtd = vtd.forProperty(property);
+        }
+        return withResolved(kd, vd, vtd);
     }
     
     /*

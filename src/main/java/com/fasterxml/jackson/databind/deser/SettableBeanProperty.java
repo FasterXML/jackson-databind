@@ -107,8 +107,13 @@ public abstract class SettableBeanProperty
         }
         _type = type;
         _contextAnnotations = contextAnnotations;
-        _valueTypeDeserializer = typeDeser;
         _viewMatcher = null;
+
+        // 30-Jan-2012, tatu: Important: contextualize TypeDeserializer now...
+        if (typeDeser != null) {
+            typeDeser = typeDeser.forProperty(this);
+        }
+        _valueTypeDeserializer = typeDeser;
     }
 
     /**

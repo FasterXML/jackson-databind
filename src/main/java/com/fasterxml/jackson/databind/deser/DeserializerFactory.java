@@ -133,11 +133,11 @@ public abstract class DeserializerFactory
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
-            CollectionLikeType type, BeanDescription beanDesc, BeanProperty property)
+            CollectionLikeType type, BeanDescription beanDesc)
         throws JsonMappingException;
     
     public abstract JsonDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc, BeanProperty property)
+            JavaType type, BeanDescription beanDesc)
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
@@ -145,7 +145,7 @@ public abstract class DeserializerFactory
         throws JsonMappingException;
 
     public abstract JsonDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
-            MapLikeType type, BeanDescription beanDesc, BeanProperty property)
+            MapLikeType type, BeanDescription beanDesc)
         throws JsonMappingException;
 
     /**
@@ -182,6 +182,6 @@ public abstract class DeserializerFactory
      * @return Type deserializer to use for given base type, if one is needed; null if not.
      */
     public abstract TypeDeserializer findTypeDeserializer(DeserializationConfig config,
-            JavaType baseType, BeanProperty property)
+            JavaType baseType)
         throws JsonMappingException;
 }

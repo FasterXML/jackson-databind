@@ -645,7 +645,7 @@ public abstract class BasicDeserializerFactory
         TypeDeserializer typeDeser = (TypeDeserializer) type.getTypeHandler();
         // or if not, based on type being referenced:
         if (typeDeser == null) {
-            typeDeser = findTypeDeserializer(config, type, property);
+            typeDeser = findTypeDeserializer(config, type);
         }
         CreatorProperty prop = new CreatorProperty(name, type, typeDeser,
                 beanDesc.getClassAnnotations(), param, index, injectableValueId);
@@ -694,7 +694,7 @@ public abstract class BasicDeserializerFactory
         TypeDeserializer elemTypeDeser = elemType.getTypeHandler();
         // but if not, may still be possible to find:
         if (elemTypeDeser == null) {
-            elemTypeDeser = findTypeDeserializer(ctxt.getConfig(), elemType, property);
+            elemTypeDeser = findTypeDeserializer(ctxt.getConfig(), elemType);
         }
         // 23-Nov-2010, tatu: Custom array deserializer?
         JsonDeserializer<?> custom = _findCustomArrayDeserializer(type,
@@ -739,7 +739,7 @@ public abstract class BasicDeserializerFactory
         TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
         // but if not, may still be possible to find:
         if (contentTypeDeser == null) {
-            contentTypeDeser = findTypeDeserializer(ctxt.getConfig(), contentType, property);
+            contentTypeDeser = findTypeDeserializer(ctxt.getConfig(), contentType);
         }
 
         // 23-Nov-2010, tatu: Custom deserializer?
@@ -789,7 +789,7 @@ public abstract class BasicDeserializerFactory
     // Copied almost verbatim from "createCollectionDeserializer" -- should try to share more code
     @Override
     public JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
-            CollectionLikeType type, final BeanDescription beanDesc, BeanProperty property)
+            CollectionLikeType type, final BeanDescription beanDesc)
         throws JsonMappingException
     {
         JavaType contentType = type.getContentType();
@@ -800,7 +800,7 @@ public abstract class BasicDeserializerFactory
         TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
         // but if not, may still be possible to find:
         if (contentTypeDeser == null) {
-            contentTypeDeser = findTypeDeserializer(ctxt.getConfig(), contentType, property);
+            contentTypeDeser = findTypeDeserializer(ctxt.getConfig(), contentType);
         }
         return _findCustomCollectionLikeDeserializer(type, ctxt.getConfig(), beanDesc,
                 contentTypeDeser, contentDeser);
@@ -861,7 +861,7 @@ public abstract class BasicDeserializerFactory
         TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
         // but if not, may still be possible to find:
         if (contentTypeDeser == null) {
-            contentTypeDeser = findTypeDeserializer(config, contentType, property);
+            contentTypeDeser = findTypeDeserializer(config, contentType);
         }
 
         // 23-Nov-2010, tatu: Custom deserializer?
@@ -912,7 +912,7 @@ public abstract class BasicDeserializerFactory
     // Copied almost verbatim from "createMapDeserializer" -- should try to share more code
     @Override
     public JsonDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
-            MapLikeType type, final BeanDescription beanDesc, BeanProperty property)
+            MapLikeType type, final BeanDescription beanDesc)
         throws JsonMappingException
     {
         JavaType keyType = type.getKeyType();
@@ -933,7 +933,7 @@ public abstract class BasicDeserializerFactory
         TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
         // but if not, may still be possible to find:
         if (contentTypeDeser == null) {
-            contentTypeDeser = findTypeDeserializer(ctxt.getConfig(), contentType, property);
+            contentTypeDeser = findTypeDeserializer(ctxt.getConfig(), contentType);
         }
         return _findCustomMapLikeDeserializer(type, ctxt.getConfig(),
                 beanDesc, keyDes, contentTypeDeser, contentDeser);
@@ -982,7 +982,7 @@ public abstract class BasicDeserializerFactory
      */
     @Override
     public JsonDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc, BeanProperty property)
+            JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
         Class<?> enumClass = type.getRawClass();
@@ -1068,7 +1068,7 @@ public abstract class BasicDeserializerFactory
 
     @Override
     public TypeDeserializer findTypeDeserializer(DeserializationConfig config,
-            JavaType baseType, BeanProperty property)
+            JavaType baseType)
         throws JsonMappingException
     {
         Class<?> cls = baseType.getRawClass();
@@ -1097,7 +1097,7 @@ public abstract class BasicDeserializerFactory
                 b = b.defaultImpl(defaultType.getRawClass());
             }
         }
-        return b.buildTypeDeserializer(config, baseType, subtypes, property);
+        return b.buildTypeDeserializer(config, baseType, subtypes);
     }
 
     /*
@@ -1203,19 +1203,20 @@ public abstract class BasicDeserializerFactory
      * 
      * @return Type deserializer to use for given base type, if one is needed; null if not.
      */
-    public TypeDeserializer findPropertyTypeDeserializer(DeserializationConfig config, JavaType baseType,
-           AnnotatedMember annotated, BeanProperty property)
+    public TypeDeserializer findPropertyTypeDeserializer(DeserializationConfig config,
+            JavaType baseType, AnnotatedMember annotated)
         throws JsonMappingException
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config, annotated, baseType);        
         // Defaulting: if no annotations on member, check value class
         if (b == null) {
-            return findTypeDeserializer(config, baseType, property);
+            return findTypeDeserializer(config, baseType);
         }
         // but if annotations found, may need to resolve subtypes:
-        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(annotated, config, ai);
-        return b.buildTypeDeserializer(config, baseType, subtypes, property);
+        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(annotated,
+                config, ai);
+        return b.buildTypeDeserializer(config, baseType, subtypes);
     }
     
     /**
@@ -1229,8 +1230,8 @@ public abstract class BasicDeserializerFactory
      * @param containerType Type of property; must be a container type
      * @param propertyEntity Field or method that contains container property
      */    
-    public TypeDeserializer findPropertyContentTypeDeserializer(DeserializationConfig config, JavaType containerType,
-            AnnotatedMember propertyEntity, BeanProperty property)
+    public TypeDeserializer findPropertyContentTypeDeserializer(DeserializationConfig config,
+            JavaType containerType, AnnotatedMember propertyEntity)
         throws JsonMappingException
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
@@ -1238,18 +1239,12 @@ public abstract class BasicDeserializerFactory
         JavaType contentType = containerType.getContentType();
         // Defaulting: if no annotations on member, check class
         if (b == null) {
-            return findTypeDeserializer(config, contentType, property);
+            return findTypeDeserializer(config, contentType);
         }
         // but if annotations found, may need to resolve subtypes:
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(propertyEntity, config, ai);
-        return b.buildTypeDeserializer(config, contentType, subtypes, property);
+        return b.buildTypeDeserializer(config, contentType, subtypes);
     }
-    
-    /*
-    /**********************************************************
-    /* Helper methods, factories
-    /**********************************************************
-     */
 
     /*
     /**********************************************************
@@ -1395,7 +1390,7 @@ public abstract class BasicDeserializerFactory
              */
             if (member instanceof AnnotatedMember) {
             	TypeDeserializer contentTypeDeser = findPropertyContentTypeDeserializer(
-            	        ctxt.getConfig(), type, (AnnotatedMember) member, property);            	
+            	        ctxt.getConfig(), type, (AnnotatedMember) member);            	
             	if (contentTypeDeser != null) {
             	    type = type.withContentTypeHandler(contentTypeDeser);
             	}
@@ -1405,10 +1400,10 @@ public abstract class BasicDeserializerFactory
 
         if (member instanceof AnnotatedMember) { // JAXB allows per-property annotations
             valueTypeDeser = findPropertyTypeDeserializer(ctxt.getConfig(),
-                    type, (AnnotatedMember) member, property);
+                    type, (AnnotatedMember) member);
         } else { // classes just have Jackson annotations
             // probably only occurs if 'property' is null anyway
-            valueTypeDeser = findTypeDeserializer(ctxt.getConfig(), type, null);
+            valueTypeDeser = findTypeDeserializer(ctxt.getConfig(), type);
         }
     	if (valueTypeDeser != null) {
             type = type.withTypeHandler(valueTypeDeser);

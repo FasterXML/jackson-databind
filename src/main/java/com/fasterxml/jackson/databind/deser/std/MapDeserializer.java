@@ -7,13 +7,10 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
-import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
-import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 
@@ -29,20 +26,18 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders;
 @JacksonStdImpl
 public class MapDeserializer
     extends ContainerDeserializerBase<Map<Object,Object>>
-    implements ResolvableDeserializer
+    implements ContextualDeserializer, ResolvableDeserializer
 {
     // // Configuration: typing, deserializers
 
     protected final JavaType _mapType;
-
-    protected final BeanProperty _property;
     
     /**
      * Key deserializer to use; either passed via constructor
      * (when indicated by annotations), or resolved when
      * {@link #resolve} is called;
      */
-    protected KeyDeserializer _keyDeserializer;
+    protected final KeyDeserializer _keyDeserializer;
 
     /**
      * Flag set to indicate that the key type is
@@ -56,7 +51,7 @@ public class MapDeserializer
     /**
      * Value deserializer.
      */
-    protected JsonDeserializer<Object> _valueDeserializer;
+    protected final JsonDeserializer<Object> _valueDeserializer;
 
     /**
      * If value instances have polymorphic type information, this
@@ -69,6 +64,12 @@ public class MapDeserializer
     protected final ValueInstantiator _valueInstantiator;
 
     protected final boolean _hasDefaultCreator;
+
+    /**
+     * Deserializer that is used iff delegate-based creator is
+     * to be used for deserializing from JSON Object.
+     */
+    protected JsonDeserializer<Object> _delegateDeserializer;
     
     /**
      * If the Map is to be instantiated using non-default constructor
@@ -77,12 +78,6 @@ public class MapDeserializer
      * this creator is used for instantiation.
      */
     protected PropertyBasedCreator _propertyBasedCreator;    
-    
-    /**
-     * Deserializer that is used iff delegate-based creator is
-     * to be used for deserializing from JSON Object.
-     */
-    protected JsonDeserializer<Object> _delegateDeserializer;
     
     // // Any properties to ignore if seen?
     
@@ -94,19 +89,20 @@ public class MapDeserializer
     /**********************************************************
      */
 
-    public MapDeserializer(JavaType mapType, BeanProperty prop,
-            ValueInstantiator valueInstantiator,
+    public MapDeserializer(JavaType mapType, ValueInstantiator valueInstantiator,
             KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser)
     {
         super(Map.class);
         _mapType = mapType;
-        _property = prop;
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
         _valueInstantiator = valueInstantiator;
         _hasDefaultCreator = valueInstantiator.canCreateUsingDefault();
+        _delegateDeserializer = null;
+        _propertyBasedCreator = null;
+        _standardStringKey = _isStdKeyDeser(mapType, keyDeser);
     }
 
     /**
@@ -117,7 +113,6 @@ public class MapDeserializer
     {
         super(src._valueClass);
         _mapType = src._mapType;
-        _property = src._property;
         _keyDeserializer = src._keyDeserializer;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
@@ -127,8 +122,58 @@ public class MapDeserializer
         _hasDefaultCreator = src._hasDefaultCreator;
         // should we make a copy here?
         _ignorableProperties = src._ignorableProperties;
+
+        _standardStringKey = src._standardStringKey;
     }
 
+    protected MapDeserializer(MapDeserializer src,
+            KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser)
+    {
+        super(src._valueClass);
+        _mapType = src._mapType;
+        _keyDeserializer = keyDeser;
+        _valueDeserializer = valueDeser;
+        _valueTypeDeserializer = src._valueTypeDeserializer;
+        _valueInstantiator = src._valueInstantiator;
+        _propertyBasedCreator = src._propertyBasedCreator;
+        _delegateDeserializer = src._delegateDeserializer;
+        _hasDefaultCreator = src._hasDefaultCreator;
+        // should we make a copy here?
+        _ignorableProperties = src._ignorableProperties;
+
+        _standardStringKey = _isStdKeyDeser(_mapType, keyDeser);
+    }
+
+    /**
+     * Fluent factory method used to create a copy with slightly
+     * different settings. When sub-classing, MUST be overridden.
+     */
+    @SuppressWarnings("unchecked")
+    protected MapDeserializer withResolved(//JsonDeserializer<Object> delegateDeser, PropertyBasedCreator propBasedCreator,
+            KeyDeserializer keyDeser, JsonDeserializer<?> valueDeser)
+    {
+        return new MapDeserializer(this, // delegateDeser, propBasedCreator,
+                keyDeser, (JsonDeserializer<Object>) valueDeser);
+    }
+    
+    /**
+     * Helper method used to check whether we can just use the default key
+     * deserialization, where JSON String becomes Java String.
+     */
+    protected final boolean _isStdKeyDeser(JavaType mapType, KeyDeserializer keyDeser)
+    {
+        if (keyDeser == null) {
+            return true;
+        }
+        JavaType keyType = mapType.getKeyType();
+        if (keyType == null) { // assumed to be Object
+            return true;
+        }
+        Class<?> rawKeyType = keyType.getRawClass();
+        return ((rawKeyType == String.class || rawKeyType == Object.class)
+                && isDefaultKeyDeserializer(keyDeser));
+    }
+    
     public void setIgnorableProperties(String[] ignorable)
     {
         _ignorableProperties = (ignorable == null || ignorable.length == 0) ?
@@ -141,14 +186,9 @@ public class MapDeserializer
     /**********************************************************
      */
 
-    /**
-     * Method called to finalize setup of this deserializer,
-     * after deserializer itself has been registered. This
-     * is needed to handle recursive and transitive dependencies.
-     */
+
     @Override
-    public void resolve(DeserializationContext ctxt)
-        throws JsonMappingException
+    public void resolve(DeserializationContext ctxt) throws JsonMappingException
     {
         // May need to resolve types for delegate- and/or property-based creators:
         if (_valueInstantiator.canCreateUsingDelegate()) {
@@ -158,12 +198,11 @@ public class MapDeserializer
                         +": value instantiator ("+_valueInstantiator.getClass().getName()
                         +") returned true for 'canCreateUsingDelegate()', but null for 'getDelegateType()'");
             }
-            AnnotatedWithParams delegateCreator = _valueInstantiator.getDelegateCreator();
-            // Need to create a temporary property to allow contextual deserializers:
-            // Note: unlike BeanDeserializer, we don't have an AnnotatedClass around; hence no annotations passed
-            BeanProperty.Std property = new BeanProperty.Std(null,
-                    delegateType, null, delegateCreator);
-            _delegateDeserializer = findDeserializer(ctxt, delegateType, property);
+            /* Theoretically should be able to get CreatorProperty for delegate
+             * parameter to pass; but things get tricky because DelegateCreator
+             * may contain injectable values. So, for now, let's pass nothing.
+             */
+            _delegateDeserializer = findDeserializer(ctxt, delegateType, null);
         }
         if (_valueInstantiator.canCreateFromObjectWith()) {
             SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
@@ -175,15 +214,26 @@ public class MapDeserializer
                 }
             }
         }
-        if (_keyDeserializer == null) {
-            _keyDeserializer = ctxt.findKeyDeserializer(_mapType.getKeyType(), _property);
+        _standardStringKey = _isStdKeyDeser(_mapType, _keyDeserializer);
+    }
+
+    /**
+     * Method called to finalize setup of this deserializer,
+     * when it is known for which property deserializer is needed for.
+     */
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property) throws JsonMappingException
+    {
+        KeyDeserializer kd = _keyDeserializer;
+        if (kd == null) {
+            kd = ctxt.findKeyDeserializer(_mapType.getKeyType(), property);
         }
-        Class<?> raw = _mapType.getKeyType().getRawClass();
-        _standardStringKey =  (raw == String.class || raw == Object.class)
-            && isDefaultKeyDeserializer(_keyDeserializer);
-        if (_valueDeserializer == null) {
-            _valueDeserializer = ctxt.findValueDeserializer(_mapType.getContentType(), _property);
+        JsonDeserializer<Object> vd = _valueDeserializer;
+        if (vd == null) {
+            vd = ctxt.findValueDeserializer(_mapType.getContentType(), property);
         }
+        return withResolved(kd, vd);
     }
     
     /*
@@ -441,5 +491,4 @@ public class MapDeserializer
         }
         throw JsonMappingException.wrapWithPath(t, ref, null);
     }
-
 }

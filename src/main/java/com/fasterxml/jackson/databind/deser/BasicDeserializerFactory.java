@@ -904,7 +904,7 @@ public abstract class BasicDeserializerFactory
             beanDesc = config.introspectForCreation(type);
         }
         ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
-        MapDeserializer md = new MapDeserializer(type, property, inst, keyDes, contentDeser, contentTypeDeser);
+        MapDeserializer md = new MapDeserializer(type, inst, keyDes, contentDeser, contentTypeDeser);
         md.setIgnorableProperties(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()));
         return md;
     }

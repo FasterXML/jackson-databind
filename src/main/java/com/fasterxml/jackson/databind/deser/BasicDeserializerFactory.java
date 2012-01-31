@@ -1033,7 +1033,7 @@ public abstract class BasicDeserializerFactory
     
     @Override
     public JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config,
-            JavaType nodeType, BeanDescription beanDesc, BeanProperty property)
+            JavaType nodeType, BeanDescription beanDesc)
         throws JsonMappingException
     {
         @SuppressWarnings("unchecked")

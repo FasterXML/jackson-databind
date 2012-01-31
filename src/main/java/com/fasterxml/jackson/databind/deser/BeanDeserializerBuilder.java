@@ -248,7 +248,7 @@ public class BeanDeserializerBuilder
     /**********************************************************
      */
 
-    public JsonDeserializer<?> build(BeanProperty forProperty)
+    public JsonDeserializer<?> build()
     {
         Collection<SettableBeanProperty> props = _properties.values();
         BeanPropertyMap propertyMap = new BeanPropertyMap(props);
@@ -268,7 +268,7 @@ public class BeanDeserializerBuilder
             }
         }
         
-        return new BeanDeserializer(_beanDesc, forProperty,
+        return new BeanDeserializer(_beanDesc,
                 _valueInstantiator, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
                 _anySetter, _injectables, anyViews);
     }

@@ -114,7 +114,7 @@ public abstract class DeserializerFactory
      * @param type Type to be deserialized
      */
     public abstract JsonDeserializer<Object> createBeanDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc, BeanProperty property)
+            JavaType type, BeanDescription beanDesc)
         throws JsonMappingException;
 
     /**
@@ -153,7 +153,7 @@ public abstract class DeserializerFactory
      * JsonNode(s) from JSON content.
      */
     public abstract JsonDeserializer<?> createTreeDeserializer(DeserializationConfig config,
-            JavaType type, BeanDescription beanDesc, BeanProperty property)
+            JavaType type, BeanDescription beanDesc)
         throws JsonMappingException;
 
     /**

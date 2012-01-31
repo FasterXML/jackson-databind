@@ -446,9 +446,9 @@ public final class DeserializerCache
 
         // 02-Mar-2009, tatu: Let's consider JsonNode to be a type of its own
         if (JsonNode.class.isAssignableFrom(type.getRawClass())) {
-            return (JsonDeserializer<Object>)_factory.createTreeDeserializer(config, type, beanDesc, property);
+            return (JsonDeserializer<Object>)_factory.createTreeDeserializer(config, type, beanDesc);
         }
-        return (JsonDeserializer<Object>)_factory.createBeanDeserializer(ctxt, type, beanDesc, property);
+        return (JsonDeserializer<Object>)_factory.createBeanDeserializer(ctxt, type, beanDesc);
     }
 
     /**

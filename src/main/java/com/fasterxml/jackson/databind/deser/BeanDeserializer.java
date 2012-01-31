@@ -44,13 +44,6 @@ public class BeanDeserializer
      * Declared type of the bean this deserializer handles.
      */
     final protected JavaType _beanType;
-
-    /**
-     * Property that contains value to be deserialized using
-     * deserializer; mostly needed to find contextual annotations
-     * for subtypes.
-     */
-    final protected BeanProperty _property;
     
     /*
     /**********************************************************
@@ -178,21 +171,21 @@ public class BeanDeserializer
     /**********************************************************
      */
 
-    public BeanDeserializer(BeanDescription beanDesc, BeanProperty property,
+    public BeanDeserializer(BeanDescription beanDesc,
             ValueInstantiator valueInstantiator,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
             HashSet<String> ignorableProps, boolean ignoreAllUnknown,
             SettableAnyProperty anySetter, List<ValueInjector> injectables,
             boolean hasViews)
     {
-        this(beanDesc.getClassInfo(), beanDesc.getType(), property,
+        this(beanDesc.getClassInfo(), beanDesc.getType(),
                 valueInstantiator,
                 properties, backRefs,
                 ignorableProps, ignoreAllUnknown,
                 anySetter, injectables, hasViews);
     }
     
-    protected BeanDeserializer(AnnotatedClass forClass, JavaType type, BeanProperty property,
+    protected BeanDeserializer(AnnotatedClass forClass, JavaType type,
             ValueInstantiator valueInstantiator,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
             HashSet<String> ignorableProps, boolean ignoreAllUnknown,
@@ -202,7 +195,6 @@ public class BeanDeserializer
         super(type);
         _forClass = forClass;
         _beanType = type;
-        _property = property;
 
         _valueInstantiator = valueInstantiator;
         
@@ -243,7 +235,6 @@ public class BeanDeserializer
         
         _forClass = src._forClass;
         _beanType = src._beanType;
-        _property = src._property;
         
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
@@ -269,7 +260,6 @@ public class BeanDeserializer
     
         _forClass = src._forClass;
         _beanType = src._beanType;
-        _property = src._property;
         
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
@@ -1531,10 +1521,13 @@ public class BeanDeserializer
         }
         // If not, maybe we can locate one. First, need provider
         JavaType type = ctxt.constructType(bean.getClass());
-        /* 09-Dec-2010, tatu: Would be nice to know which property pointed to this
-         *    bean... but, alas, no such information is retained, so:
+        /* 30-Jan-2012, tatu: Ideally we would be passing referring
+         *   property; which in theory we could keep track of via
+         *   ResolvableDeserializer (if we absolutely must...).
+         *   But for now, let's not bother.
          */
-        subDeser = ctxt.findValueDeserializer(type, _property);
+//        subDeser = ctxt.findValueDeserializer(type, _property);
+        subDeser = ctxt.findRootValueDeserializer(type);
         // Also, need to cache it
         if (subDeser != null) {
             synchronized (this) {

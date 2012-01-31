@@ -89,8 +89,8 @@ public class BeanDeserializerFactory
 
     // Note: NOT overriding, superclass has no matching method
     @SuppressWarnings("unchecked")
-    protected JsonDeserializer<Object> _findCustomBeanDeserializer(JavaType type, DeserializationConfig config,
-            BeanDescription beanDesc, BeanProperty property)
+    protected JsonDeserializer<Object> _findCustomBeanDeserializer(JavaType type,
+            DeserializationConfig config, BeanDescription beanDesc)
         throws JsonMappingException
     {
         for (Deserializers d  : _factoryConfig.deserializers()) {
@@ -115,12 +115,12 @@ public class BeanDeserializerFactory
      */
     @Override
     public JsonDeserializer<Object> createBeanDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc, BeanProperty property)
+            JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
         // We may also have custom overrides:
-        JsonDeserializer<Object> custom = _findCustomBeanDeserializer(type, config, beanDesc, property);
+        JsonDeserializer<Object> custom = _findCustomBeanDeserializer(type, config, beanDesc);
         if (custom != null) {
             return custom;
         }
@@ -129,7 +129,7 @@ public class BeanDeserializerFactory
          * different handling.
          */
         if (type.isThrowable()) {
-            return buildThrowableDeserializer(ctxt, type, beanDesc, property);
+            return buildThrowableDeserializer(ctxt, type, beanDesc);
         }
         /* Or, for abstract types, may have alternate means for resolution
          * (defaulting, materialization)
@@ -142,12 +142,12 @@ public class BeanDeserializerFactory
                  * interface doesn't have constructors, for one)
                  */
                 beanDesc = config.introspect(concreteType);
-                return buildBeanDeserializer(ctxt, concreteType, beanDesc, property);
+                return buildBeanDeserializer(ctxt, concreteType, beanDesc);
             }
         }
 
         // Otherwise, may want to check handlers for standard types, from superclass:
-        JsonDeserializer<Object> deser = findStdBeanDeserializer(config, type, property);
+        JsonDeserializer<Object> deser = findStdBeanDeserializer(config, type);
         if (deser != null) {
             return deser;
         }
@@ -157,7 +157,7 @@ public class BeanDeserializerFactory
             return null;
         }
         // Use generic bean introspection to build deserializer
-        return buildBeanDeserializer(ctxt, type, beanDesc, property);
+        return buildBeanDeserializer(ctxt, type, beanDesc);
     }
     
     /**
@@ -166,7 +166,7 @@ public class BeanDeserializerFactory
      */
     @SuppressWarnings("unchecked")
     protected JsonDeserializer<Object> findStdBeanDeserializer(DeserializationConfig config,
-            JavaType type, BeanProperty property)
+            JavaType type)
         throws JsonMappingException
     {
         Class<?> cls = type.getRawClass();
@@ -233,7 +233,7 @@ public class BeanDeserializerFactory
      */
     @SuppressWarnings("unchecked")
     public JsonDeserializer<Object> buildBeanDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc, BeanProperty property)
+            JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
         // First: check what creators we can use, if any
@@ -260,7 +260,7 @@ public class BeanDeserializerFactory
                 builder = mod.updateBuilder(config, beanDesc, builder);
             }
         }
-        JsonDeserializer<?> deserializer = builder.build(property);
+        JsonDeserializer<?> deserializer = builder.build();
 
         // [JACKSON-440]: may have modifier(s) that wants to modify or replace serializer we just built:
         if (_factoryConfig.hasDeserializerModifiers()) {
@@ -274,7 +274,7 @@ public class BeanDeserializerFactory
 
     @SuppressWarnings("unchecked")
     public JsonDeserializer<Object> buildThrowableDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc, BeanProperty property)
+            JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
@@ -316,7 +316,7 @@ public class BeanDeserializerFactory
                 builder = mod.updateBuilder(config, beanDesc, builder);
             }
         }
-        JsonDeserializer<?> deserializer = builder.build(property);
+        JsonDeserializer<?> deserializer = builder.build();
         
         /* At this point it ought to be a BeanDeserializer; if not, must assume
          * it's some other thing that can handle deserialization ok...

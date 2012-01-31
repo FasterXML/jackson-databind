@@ -5,12 +5,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -25,11 +21,9 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 @SuppressWarnings({ "unchecked", "rawtypes" }) 
 public class EnumMapDeserializer
     extends StdDeserializer<EnumMap<?,?>>
-    implements ResolvableDeserializer
+    implements ContextualDeserializer
 {
     protected final JavaType _mapType;
-    
-    protected final BeanProperty _property;
     
     protected final Class<?> _enumClass;
 
@@ -43,31 +37,47 @@ public class EnumMapDeserializer
     /**********************************************************
      */
     
-    public EnumMapDeserializer(JavaType mapType, BeanProperty prop,
-            JsonDeserializer<?> keyDeserializer, JsonDeserializer<Object> valueDeser)
+    public EnumMapDeserializer(JavaType mapType,
+            JsonDeserializer<?> keyDeserializer, JsonDeserializer<?> valueDeser)
     {
         super(EnumMap.class);
         _mapType = mapType;
-        _property = prop;
         _enumClass = mapType.getKeyType().getRawClass();
         _keyDeserializer = (JsonDeserializer<Enum<?>>) keyDeserializer;
-        _valueDeserializer = valueDeser;
+        _valueDeserializer = (JsonDeserializer<Object>) valueDeser;
     }
 
+    public EnumMapDeserializer withResolved(JsonDeserializer<?> keyDeserializer,
+            JsonDeserializer<?> valueDeserializer) {
+        return new EnumMapDeserializer(_mapType,
+                keyDeserializer, valueDeserializer);
+    }
+    
+    /**
+     * Method called to finalize setup of this deserializer,
+     * when it is known for which property deserializer is needed for.
+     */
     @Override
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property) throws JsonMappingException
     {
-        if (_keyDeserializer == null) {
-            // note: instead of finding key deserializer, with enums we actually
-            // work with regular deserializers (less code duplication; but not
-            // quite as clean as it ought to be)
-            _keyDeserializer = (JsonDeserializer<Enum<?>>)(JsonDeserializer<?>)
-                ctxt.findValueDeserializer(_mapType.getKeyType(), _property);
+        // already good as is? No change then
+        if (_keyDeserializer != null && _valueDeserializer != null) {
+            return this;
         }
-        if (_valueDeserializer == null) {
-            // 'null' -> arrays have no referring fields
-            _valueDeserializer = ctxt.findValueDeserializer(_mapType.getContentType(), _property);
+
+        // note: instead of finding key deserializer, with enums we actually
+        // work with regular deserializers (less code duplication; but not
+        // quite as clean as it ought to be)
+        JsonDeserializer<?> kd = _keyDeserializer;
+        if (kd == null) {
+            kd = ctxt.findValueDeserializer(_mapType.getKeyType(), property);
         }
+        JsonDeserializer<?> vd = _valueDeserializer;
+        if (vd == null) {
+            vd = ctxt.findValueDeserializer(_mapType.getContentType(), property);
+        }
+        return withResolved(kd, vd);
     }
     
     /**

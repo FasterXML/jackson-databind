@@ -12,62 +12,9 @@ public abstract class SerializerFactory
 {
     /*
     /**********************************************************
-    /* Helper class to contain configuration settings
-    /**********************************************************
-     */
-
-    /**
-     * Configuration settings container class for bean serializer factory.
-     */
-    public abstract static class Config
-    {
-        /**
-         * Method for creating a new instance with additional serializer provider.
-         */
-        public abstract Config withAdditionalSerializers(Serializers additional);
-
-        public abstract Config withAdditionalKeySerializers(Serializers additional);
-        
-        /**
-         * Method for creating a new instance with additional bean serializer modifier.
-         */
-        public abstract Config withSerializerModifier(BeanSerializerModifier modifier);
-        
-        public abstract boolean hasSerializers();
-
-        public abstract boolean hasKeySerializers();
-
-        public abstract boolean hasSerializerModifiers();
-        
-        public abstract Iterable<Serializers> serializers();
-
-        public abstract Iterable<Serializers> keySerializers();
-        
-        public abstract Iterable<BeanSerializerModifier> serializerModifiers();
-    }
-    
-    /*
-    /**********************************************************
     /* Additional configuration methods
     /**********************************************************
      */
-
-    /**
-     * Accessor for configuration object.
-     */
-    public abstract Config getConfig();
-    
-    /**
-     * Method used for creating a new instance of this factory, but with different
-     * configuration. Reason for specifying factory method (instead of plain constructor)
-     * is to allow proper sub-classing of factories.
-     *<p>
-     * Note that custom sub-classes generally <b>must override</b> implementation
-     * of this method, as it usually requires instantiating a new instance of
-     * factory type. Check out javadocs for
-     * {@link com.fasterxml.jackson.databind.ser.BeanSerializerFactory} for more details.
-     */
-    public abstract SerializerFactory withConfig(Config config);
 
     /**
      * Convenience method for creating a new factory instance with additional serializer
@@ -76,13 +23,9 @@ public abstract class SerializerFactory
      *   withConfig(getConfig().withAdditionalSerializers(additional));
      *<pre>
      */
-    public final SerializerFactory withAdditionalSerializers(Serializers additional) {
-        return withConfig(getConfig().withAdditionalSerializers(additional));
-    }
+    public abstract SerializerFactory withAdditionalSerializers(Serializers additional);
 
-    public final SerializerFactory withAdditionalKeySerializers(Serializers additional) {
-        return withConfig(getConfig().withAdditionalKeySerializers(additional));
-    }
+    public abstract SerializerFactory withAdditionalKeySerializers(Serializers additional);
     
     /**
      * Convenience method for creating a new factory instance with additional bean
@@ -91,9 +34,7 @@ public abstract class SerializerFactory
      *   withConfig(getConfig().withSerializerModifier(modifier));
      *<pre>
      */
-    public final SerializerFactory withSerializerModifier(BeanSerializerModifier modifier) {
-        return withConfig(getConfig().withSerializerModifier(modifier));
-    }
+    public abstract SerializerFactory withSerializerModifier(BeanSerializerModifier modifier);
     
     /*
     /**********************************************************

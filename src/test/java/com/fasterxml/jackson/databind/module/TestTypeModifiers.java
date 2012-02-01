@@ -33,7 +33,7 @@ public class TestTypeModifiers extends BaseMapTest
             context.addSerializers(new Serializers.Base() {
                 @Override
                 public JsonSerializer<?> findMapLikeSerializer(SerializationConfig config,
-                        MapLikeType type, BeanDescription beanDesc, BeanProperty property,
+                        MapLikeType type, BeanDescription beanDesc,
                         JsonSerializer<Object> keySerializer,
                         TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
                 {
@@ -45,7 +45,7 @@ public class TestTypeModifiers extends BaseMapTest
 
                 @Override
                 public JsonSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
-                        CollectionLikeType type, BeanDescription beanDesc, BeanProperty property,
+                        CollectionLikeType type, BeanDescription beanDesc,
                         TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
                 {
                     if (CollectionMarker.class.isAssignableFrom(type.getRawClass())) {

@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.type.*;
@@ -40,15 +37,15 @@ public interface Serializers
      * specified type; or null if it does not.
      */
     public JsonSerializer<?> findArraySerializer(SerializationConfig config,
-            ArrayType type, BeanDescription beanDesc, BeanProperty property,
+            ArrayType type, BeanDescription beanDesc,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer);
 
     public JsonSerializer<?> findCollectionSerializer(SerializationConfig config,
-            CollectionType type, BeanDescription beanDesc, BeanProperty property,
+            CollectionType type, BeanDescription beanDesc,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer);
 
     public JsonSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
-            CollectionLikeType type, BeanDescription beanDesc, BeanProperty property,
+            CollectionLikeType type, BeanDescription beanDesc,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer);
     
     public JsonSerializer<?> findMapSerializer(SerializationConfig config,
@@ -57,7 +54,7 @@ public interface Serializers
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer);
 
     public JsonSerializer<?> findMapLikeSerializer(SerializationConfig config,
-            MapLikeType type, BeanDescription beanDesc, BeanProperty property,
+            MapLikeType type, BeanDescription beanDesc,
             JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer);
 
@@ -77,7 +74,7 @@ public interface Serializers
         
         @Override
         public JsonSerializer<?> findArraySerializer(SerializationConfig config,
-                ArrayType type, BeanDescription beanDesc, BeanProperty property,
+                ArrayType type, BeanDescription beanDesc,
                 TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
         {
             return null;
@@ -85,7 +82,7 @@ public interface Serializers
 
         @Override
         public JsonSerializer<?> findCollectionSerializer(SerializationConfig config,
-                CollectionType type, BeanDescription beanDesc, BeanProperty property,
+                CollectionType type, BeanDescription beanDesc,
                 TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
         {
             return null;
@@ -93,7 +90,7 @@ public interface Serializers
 
         @Override
         public JsonSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
-                CollectionLikeType type, BeanDescription beanDesc, BeanProperty property,
+                CollectionLikeType type, BeanDescription beanDesc,
                 TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
         {
             return null;
@@ -110,7 +107,7 @@ public interface Serializers
 
         @Override
         public JsonSerializer<?> findMapLikeSerializer(SerializationConfig config,
-                MapLikeType type, BeanDescription beanDesc, BeanProperty property,
+                MapLikeType type, BeanDescription beanDesc,
                 JsonSerializer<Object> keySerializer,
                 TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
         {

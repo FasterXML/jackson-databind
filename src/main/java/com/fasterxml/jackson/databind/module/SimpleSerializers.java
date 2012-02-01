@@ -147,21 +147,21 @@ public class SimpleSerializers extends Serializers.Base
 
     @Override
     public JsonSerializer<?> findArraySerializer(SerializationConfig config,
-            ArrayType type, BeanDescription beanDesc, BeanProperty property,
+            ArrayType type, BeanDescription beanDesc,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) {
         return findSerializer(config, type, beanDesc);
     }
 
     @Override
     public JsonSerializer<?> findCollectionSerializer(SerializationConfig config,
-            CollectionType type, BeanDescription beanDesc, BeanProperty property,
+            CollectionType type, BeanDescription beanDesc,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) {
         return findSerializer(config, type, beanDesc);
     }
 
     @Override
     public JsonSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
-            CollectionLikeType type, BeanDescription beanDesc, BeanProperty property,
+            CollectionLikeType type, BeanDescription beanDesc,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) {
         return findSerializer(config, type, beanDesc);
     }
@@ -176,7 +176,7 @@ public class SimpleSerializers extends Serializers.Base
 
     @Override
     public JsonSerializer<?> findMapLikeSerializer(SerializationConfig config,
-            MapLikeType type, BeanDescription beanDesc, BeanProperty property,
+            MapLikeType type, BeanDescription beanDesc,
             JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) {
         return findSerializer(config, type, beanDesc);

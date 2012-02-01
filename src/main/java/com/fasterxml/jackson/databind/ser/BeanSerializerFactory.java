@@ -52,112 +52,6 @@ public class BeanSerializerFactory
      */
     public final static BeanSerializerFactory instance = new BeanSerializerFactory(null);
 
-    /*
-    /**********************************************************
-    /* Config class implementation
-    /**********************************************************
-     */
-    
-    /**
-     * Configuration settings container class for bean serializer factory
-     */
-    public static class ConfigImpl extends Config
-    {
-        /**
-         * Constant for empty <code>Serializers</code> array (which by definition
-         * is stateless and reusable)
-         */
-        protected final static Serializers[] NO_SERIALIZERS = new Serializers[0];
-
-        protected final static BeanSerializerModifier[] NO_MODIFIERS = new BeanSerializerModifier[0];
-        
-        /**
-         * List of providers for additional serializers, checked before considering default
-         * basic or bean serialializers.
-         */
-        protected final Serializers[] _additionalSerializers;
-
-        /**
-         * List of providers for additional key serializers, checked before considering default
-         * key serialializers.
-         */
-        protected final Serializers[] _additionalKeySerializers;
-        
-        /**
-         * List of modifiers that can change the way {@link BeanSerializer} instances
-         * are configured and constructed.
-         */
-        protected final BeanSerializerModifier[] _modifiers;
-        
-        public ConfigImpl() {
-            this(null, null, null);
-        }
-
-        protected ConfigImpl(Serializers[] allAdditionalSerializers,
-                Serializers[] allAdditionalKeySerializers,
-                BeanSerializerModifier[] modifiers)
-        {
-            _additionalSerializers = (allAdditionalSerializers == null) ?
-                    NO_SERIALIZERS : allAdditionalSerializers;
-            _additionalKeySerializers = (allAdditionalKeySerializers == null) ?
-                    NO_SERIALIZERS : allAdditionalKeySerializers;
-            _modifiers = (modifiers == null) ? NO_MODIFIERS : modifiers;
-        }
-
-        @Override
-        public Config withAdditionalSerializers(Serializers additional)
-        {
-            if (additional == null) {
-                throw new IllegalArgumentException("Can not pass null Serializers");
-            }
-            Serializers[] all = ArrayBuilders.insertInListNoDup(_additionalSerializers, additional);
-            return new ConfigImpl(all, _additionalKeySerializers, _modifiers);
-        }
-
-        @Override
-        public Config withAdditionalKeySerializers(Serializers additional)
-        {
-            if (additional == null) {
-                throw new IllegalArgumentException("Can not pass null Serializers");
-            }
-            Serializers[] all = ArrayBuilders.insertInListNoDup(_additionalKeySerializers, additional);
-            return new ConfigImpl(_additionalSerializers, all, _modifiers);
-        }
-        
-        @Override
-        public Config withSerializerModifier(BeanSerializerModifier modifier)
-        {
-            if (modifier == null) {
-                throw new IllegalArgumentException("Can not pass null modifier");
-            }
-            BeanSerializerModifier[] modifiers = ArrayBuilders.insertInListNoDup(_modifiers, modifier);
-            return new ConfigImpl(_additionalSerializers, _additionalKeySerializers, modifiers);
-        }
-
-        @Override
-        public boolean hasSerializers() { return _additionalSerializers.length > 0; }
-
-        @Override
-        public boolean hasKeySerializers() { return _additionalKeySerializers.length > 0; }
-        
-        @Override
-        public boolean hasSerializerModifiers() { return _modifiers.length > 0; }
-        
-        @Override
-        public Iterable<Serializers> serializers() {
-            return ArrayBuilders.arrayAsIterable(_additionalSerializers);
-        }
-
-        @Override
-        public Iterable<Serializers> keySerializers() {
-            return ArrayBuilders.arrayAsIterable(_additionalKeySerializers);
-        }
-        
-        @Override
-        public Iterable<BeanSerializerModifier> serializerModifiers() {
-            return ArrayBuilders.arrayAsIterable(_modifiers);
-        }
-    }
 
     /*
     /**********************************************************
@@ -170,10 +64,8 @@ public class BeanSerializerFactory
      */
     protected BeanSerializerFactory(Config config)
     {
-        super((config == null) ? new ConfigImpl() : config);
+        super(config);
     }
-
-    @Override public Config getConfig() { return _factoryConfig; }
     
     /**
      * Method used by module registration functionality, to attach additional

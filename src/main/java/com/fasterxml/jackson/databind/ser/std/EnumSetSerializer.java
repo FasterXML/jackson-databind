@@ -5,12 +5,8 @@ import java.util.EnumSet;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 
 public class EnumSetSerializer
     extends AsArraySerializerBase<EnumSet<? extends Enum<?>>>
@@ -20,12 +16,24 @@ public class EnumSetSerializer
         super(EnumSet.class, elemType, true, null, property, null);
     }
 
+    public EnumSetSerializer(EnumSetSerializer src, BeanProperty property,
+            JsonSerializer<?> valueSerializer)
+    {
+        super(src, property, valueSerializer);
+    }
+    
     @Override
-    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
+    public EnumSetSerializer _withValueTypeSerializer(TypeSerializer vts) {
         // no typing for enums (always "hard" type)
         return this;
     }
 
+    @Override
+    public EnumSetSerializer withResolved(BeanProperty property,
+            JsonSerializer<?> elementSerializer) {
+        return new EnumSetSerializer(this, property, elementSerializer);
+    }
+    
     @Override
     public boolean isEmpty(EnumSet<? extends Enum<?>> value) {
         return (value == null) || value.isEmpty();

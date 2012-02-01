@@ -24,10 +24,22 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 public class CollectionSerializer
     extends AsArraySerializerBase<Collection<?>>
 {
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+    
     public CollectionSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
             BeanProperty property, JsonSerializer<Object> valueSerializer)
     {
         super(Collection.class, elemType, staticTyping, vts, property, valueSerializer);
+    }
+
+    public CollectionSerializer(CollectionSerializer src, BeanProperty property,
+            JsonSerializer<?> valueSerializer)
+    {
+        super(src, property, valueSerializer);
     }
     
     @Override
@@ -36,9 +48,21 @@ public class CollectionSerializer
     }
 
     @Override
+    public CollectionSerializer withResolved(BeanProperty property,
+            JsonSerializer<?> elementSerializer) {
+        return new CollectionSerializer(this, property, elementSerializer);
+    }
+    
+    @Override
     public boolean isEmpty(Collection<?> value) {
         return (value == null) || value.isEmpty();
     }
+
+    /*
+    /**********************************************************
+    /* Actual serialization
+    /**********************************************************
+     */
     
     @Override
     public void serializeContents(Collection<?> value, JsonGenerator jgen, SerializerProvider provider)

@@ -1,62 +1,59 @@
-package com.fasterxml.jackson.databind.ser.std;
+package com.fasterxml.jackson.databind.ser.impl;
 
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
+import com.fasterxml.jackson.databind.ser.std.AsArraySerializerBase;
 
 @JacksonStdImpl
-public class IterableSerializer
-    extends AsArraySerializerBase<Iterable<?>>
+public class IteratorSerializer
+    extends AsArraySerializerBase<Iterator<?>>
 {
-    public IterableSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts, BeanProperty property)
+    public IteratorSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
+            BeanProperty property)
     {
-        super(Iterable.class, elemType, staticTyping, vts, property, null);
+        super(Iterator.class, elemType, staticTyping, vts, property, null);
     }
 
-    public IterableSerializer(IterableSerializer src, BeanProperty property,
+    public IteratorSerializer(IteratorSerializer src, BeanProperty property,
             JsonSerializer<?> valueSerializer)
     {
         super(src, property, valueSerializer);
     }
+
+    @Override
+    public boolean isEmpty(Iterator<?> value) {
+        return (value == null) || !value.hasNext();
+    }
     
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-        return new IterableSerializer(_elementType, _staticTyping, vts, _property);
+        return new IteratorSerializer(_elementType, _staticTyping, vts, _property);
     }
 
     @Override
-    public IterableSerializer withResolved(BeanProperty property,
+    public IteratorSerializer withResolved(BeanProperty property,
             JsonSerializer<?> elementSerializer) {
-        return new IterableSerializer(this, property, elementSerializer);
+        return new IteratorSerializer(this, property, elementSerializer);
     }
-    
+
     @Override
-    public boolean isEmpty(Iterable<?> value) {
-        // Not really good way to implement this, but has to do for now:
-        return (value == null) || value.iterator().hasNext();
-    }
-    
-    @Override
-    public void serializeContents(Iterable<?> value, JsonGenerator jgen, SerializerProvider provider)
+    public void serializeContents(Iterator<?> value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
-        Iterator<?> it = value.iterator();
-        if (it.hasNext()) {
+        if (value.hasNext()) {
             final TypeSerializer typeSer = _valueTypeSerializer;
             JsonSerializer<Object> prevSerializer = null;
             Class<?> prevClass = null;
-            
             do {
-                Object elem = it.next();
+                Object elem = value.next();
                 if (elem == null) {
                     provider.defaultSerializeNull(jgen);
                 } else {
@@ -76,7 +73,7 @@ public class IterableSerializer
                         currSerializer.serializeWithType(elem, jgen, provider, typeSer);
                     }
                 }
-            } while (it.hasNext());
+            } while (value.hasNext());
         }
     }
 }

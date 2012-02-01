@@ -7,19 +7,14 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.*;
 
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.type.ArrayType;
 
@@ -28,8 +23,8 @@ import com.fasterxml.jackson.databind.type.ArrayType;
  */
 @JacksonStdImpl
 public class ObjectArraySerializer
-    extends StdArraySerializers.ArraySerializerBase<Object[]>
-    implements ResolvableSerializer
+    extends ArraySerializerBase<Object[]>
+    implements ContextualSerializer
 {
     /**
      * Whether we are using static typing (using declared types, ignoring
@@ -52,24 +47,84 @@ public class ObjectArraySerializer
      * runtime type to serializer is handled using this object
      */
     protected PropertySerializerMap _dynamicSerializers;
-    
+
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
     
     public ObjectArraySerializer(JavaType elemType, boolean staticTyping,
-            TypeSerializer vts, BeanProperty property, JsonSerializer<Object> elementSerializer)
+            TypeSerializer vts, JsonSerializer<Object> elementSerializer)
     {
-        super(Object[].class, vts, property);
+        super(Object[].class, vts, null);
         _elementType = elemType;
         _staticTyping = staticTyping;
         _dynamicSerializers = PropertySerializerMap.emptyMap();
         _elementSerializer = elementSerializer;
     }
 
+    public ObjectArraySerializer(ObjectArraySerializer src, TypeSerializer typeSer)
+    {
+        super(src, typeSer);
+        _elementType = src._elementType;
+        _staticTyping = src._staticTyping;
+        _dynamicSerializers = src._dynamicSerializers;
+        _elementSerializer = src._elementSerializer;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public ObjectArraySerializer(ObjectArraySerializer src,
+            BeanProperty property, JsonSerializer<?> elementSerializer)
+    {
+        super(src, property);
+        _elementType = src._elementType;
+        _staticTyping = src._staticTyping;
+        _dynamicSerializers = src._dynamicSerializers;
+        _elementSerializer = (JsonSerializer<Object>) elementSerializer;
+    }
+    
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts)
     {
-        return new ObjectArraySerializer(_elementType, _staticTyping, vts, _property, _elementSerializer);
+        return new ObjectArraySerializer(_elementType, _staticTyping, vts, _elementSerializer);
     }
 
+    public ObjectArraySerializer withValueSerializer(BeanProperty prop, JsonSerializer<?> ser) {
+        if (_property == prop && ser == _elementSerializer) {
+            return this;
+        }
+        return new ObjectArraySerializer(this, prop, ser);
+    }
+
+    /*
+    /**********************************************************
+    /* Post-processing
+    /**********************************************************
+     */
+
+    @Override
+    public JsonSerializer<?> createContextual(SerializerProvider provider,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        if (_elementSerializer == null) {
+            if (_staticTyping) {
+                return withValueSerializer(property, provider.findValueSerializer(_elementType, property));
+            }
+        } else if (_elementSerializer instanceof ContextualSerializer) {
+            return withValueSerializer(property, ((ContextualSerializer) _elementSerializer)
+                    .createContextual(provider, property));
+        }
+        return this;
+    }
+
+    /*
+    /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
+        
     @Override
     public JavaType getContentType() {
         return _elementType;
@@ -84,6 +139,12 @@ public class ObjectArraySerializer
     public boolean isEmpty(Object[] value) {
         return (value == null) || (value.length == 0);
     }
+
+    /*
+    /**********************************************************
+    /* Actual serialization
+    /**********************************************************
+     */
     
     @Override
     public void serializeContents(Object[] value, JsonGenerator jgen, SerializerProvider provider)
@@ -238,19 +299,6 @@ public class ObjectArraySerializer
         }
         return o;
     }
-
-    /**
-     * Need to get callback to resolve value serializer, if static typing
-     * is used (either being forced, or because value type is final)
-     */
-    @Override
-    public void resolve(SerializerProvider provider)
-        throws JsonMappingException
-    {
-        if (_staticTyping && _elementSerializer == null) {
-            _elementSerializer = provider.findValueSerializer(_elementType, _property);
-        }
-    }        
 
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider) throws JsonMappingException

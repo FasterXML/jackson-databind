@@ -27,53 +27,6 @@ public class StdArraySerializers
     /* Base classes
     /**********************************************************
      */
-    
-    /**
-     * Base class for serializers that will output contents as JSON
-     * arrays.
-     */
-    public abstract static class ArraySerializerBase<T>
-        extends ContainerSerializer<T>
-    {
-         /**
-         * Type serializer used for values, if any.
-         */
-        protected final TypeSerializer _valueTypeSerializer;
-
-        /**
-         * Array-valued property being serialized with this instance
-         */
-        protected final BeanProperty _property;
-        
-        protected ArraySerializerBase(Class<T> cls, TypeSerializer vts, BeanProperty property)
-        {
-            super(cls);
-            _valueTypeSerializer = vts;
-            _property = property;
-        }
-        
-        @Override
-        public final void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
-            jgen.writeStartArray();
-            serializeContents(value, jgen, provider);
-            jgen.writeEndArray();
-        }
-        
-        @Override
-        public final void serializeWithType(T value, JsonGenerator jgen, SerializerProvider provider,
-                TypeSerializer typeSer)
-            throws IOException, JsonGenerationException
-        {
-            typeSer.writeTypePrefixForArray(value, jgen);
-            serializeContents(value, jgen, provider);
-            typeSer.writeTypeSuffixForArray(value, jgen);
-        }
-
-        protected abstract void serializeContents(T value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException;
-    }
 
     /*
      ****************************************************************

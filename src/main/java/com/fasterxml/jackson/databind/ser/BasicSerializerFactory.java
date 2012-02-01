@@ -602,7 +602,7 @@ public abstract class BasicSerializerFactory
             }
         }
         return new ObjectArraySerializer(type.getContentType(), staticTyping, elementTypeSerializer,
-                property, elementValueSerializer);
+                elementValueSerializer);
     }
 
     /*

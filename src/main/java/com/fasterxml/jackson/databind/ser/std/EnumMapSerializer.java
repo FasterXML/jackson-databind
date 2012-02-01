@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.EnumValues;
 
 /**
@@ -27,10 +27,16 @@ import com.fasterxml.jackson.databind.util.EnumValues;
 @JacksonStdImpl
 public class EnumMapSerializer
     extends ContainerSerializer<EnumMap<? extends Enum<?>, ?>>
-    implements ResolvableSerializer
+    implements ContextualSerializer
 {
     protected final boolean _staticTyping;
 
+    /**
+     * Propery for which this serializer is being used, if any;
+     * null for root values.
+     */
+    protected final BeanProperty _property;
+    
     /**
      * If we know enumeration used as key, this will contain
      * value set to use for serialization
@@ -38,40 +44,85 @@ public class EnumMapSerializer
     protected final EnumValues _keyEnums;
 
     protected final JavaType _valueType;
-
-    /**
-     * Property being serialized with this instance
-     */
-    protected final BeanProperty _property;
     
     /**
      * Value serializer to use, if it can be statically determined
      */
-    protected JsonSerializer<Object> _valueSerializer;
+    protected final JsonSerializer<Object> _valueSerializer;
 
     /**
      * Type serializer used for values, if any.
      */
     protected final TypeSerializer _valueTypeSerializer;
 
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+    
     public EnumMapSerializer(JavaType valueType, boolean staticTyping, EnumValues keyEnums,
-            TypeSerializer vts, BeanProperty property, JsonSerializer<Object> valueSerializer)
+            TypeSerializer vts, JsonSerializer<Object> valueSerializer)
     {
         super(EnumMap.class, false);
+        _property = null; // not yet known
         _staticTyping = staticTyping || (valueType != null && valueType.isFinal());
         _valueType = valueType;
         _keyEnums = keyEnums;
         _valueTypeSerializer = vts;
-        _property = property;
         _valueSerializer = valueSerializer;
     }
 
-    @Override
-    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts)
+    /**
+     * Constructor called when a contextual instance is created.
+     */
+    @SuppressWarnings("unchecked")
+    public EnumMapSerializer(EnumMapSerializer src, BeanProperty property,
+            JsonSerializer<?> ser)
     {
-        return new EnumMapSerializer(_valueType, _staticTyping, _keyEnums, vts,  _property, _valueSerializer);
+        super(src);
+        _property = property;
+        _staticTyping = src._staticTyping;
+        _valueType = src._valueType;
+        _keyEnums = src._keyEnums;
+        _valueTypeSerializer = src._valueTypeSerializer;
+        _valueSerializer = (JsonSerializer<Object>) ser;
+    }
+    
+    @Override
+    public EnumMapSerializer _withValueTypeSerializer(TypeSerializer vts) {
+        return new EnumMapSerializer(_valueType, _staticTyping, _keyEnums, vts,  _valueSerializer);
     }
 
+    public EnumMapSerializer withValueSerializer(BeanProperty prop, JsonSerializer<?> ser) {
+        if (_property == prop && ser == _valueSerializer) {
+            return this;
+        }
+        return new EnumMapSerializer(this, prop, ser);
+    }
+    
+    @Override
+    public JsonSerializer<?> createContextual(SerializerProvider provider,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        if (_valueSerializer == null) {
+            if (_staticTyping) {
+                return withValueSerializer(property, provider.findValueSerializer(_valueType, property));
+            }
+        } else if (_valueSerializer instanceof ContextualSerializer) {
+            return withValueSerializer(property, ((ContextualSerializer) _valueSerializer)
+                    .createContextual(provider, property));
+        }
+        return this;
+    }
+    
+    /*
+    /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
+    
     @Override
     public JavaType getContentType() {
         return _valueType;
@@ -86,6 +137,12 @@ public class EnumMapSerializer
     public boolean isEmpty(EnumMap<? extends Enum<?>,?> value) {
         return (value == null) || value.isEmpty();
     }
+
+    /*
+    /**********************************************************
+    /* Serialization
+    /**********************************************************
+     */
     
     @Override
     public void serialize(EnumMap<? extends Enum<?>,?> value, JsonGenerator jgen, SerializerProvider provider)
@@ -183,15 +240,6 @@ public class EnumMapSerializer
                     wrapAndThrow(provider, e, value, entry.getKey().name());
                 }
             }
-        }
-    }
-
-    @Override
-    public void resolve(SerializerProvider provider)
-        throws JsonMappingException
-    {
-        if (_staticTyping && _valueSerializer == null) {
-            _valueSerializer = provider.findValueSerializer(_valueType, _property);
         }
     }
     

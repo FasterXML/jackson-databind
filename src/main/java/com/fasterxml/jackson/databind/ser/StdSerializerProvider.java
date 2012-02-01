@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.FailingSerializer;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
 import com.fasterxml.jackson.databind.ser.impl.SerializerCache;
+import com.fasterxml.jackson.databind.ser.impl.TypeWrappedSerializer;
 import com.fasterxml.jackson.databind.ser.impl.UnknownSerializer;
 import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers;
@@ -412,7 +413,7 @@ public abstract class StdSerializerProvider
         TypeSerializer typeSer = _serializerFactory.createTypeSerializer(_config,
                 _config.constructType(valueType), property);
         if (typeSer != null) {
-            ser = new WrappedSerializer(typeSer, ser);
+            ser = new TypeWrappedSerializer(typeSer, ser);
         }
         if (cache) {
             _serializerCache.addTypedSerializer(valueType, ser);
@@ -440,7 +441,7 @@ public abstract class StdSerializerProvider
         ser = findValueSerializer(valueType, property);
         TypeSerializer typeSer = _serializerFactory.createTypeSerializer(_config, valueType, property);
         if (typeSer != null) {
-            ser = new WrappedSerializer(typeSer, ser);
+            ser = new TypeWrappedSerializer(typeSer, ser);
         }
         if (cache) {
             _serializerCache.addTypedSerializer(valueType, ser);
@@ -872,45 +873,5 @@ public abstract class StdSerializerProvider
             return new Impl(config, this, jsf);
         }
         
-    }
-    
-    /**
-     * Simple serializer that will call configured type serializer, passing
-     * in configured data serializer, and exposing it all as a simple
-     * serializer.
-     */
-    private final static class WrappedSerializer
-        extends JsonSerializer<Object>
-    {
-        final protected TypeSerializer _typeSerializer;
-        final protected JsonSerializer<Object> _serializer;
-
-        public WrappedSerializer(TypeSerializer typeSer, JsonSerializer<Object> ser)
-        {
-            super();
-            _typeSerializer = typeSer;
-            _serializer = ser;
-        }
-
-        @Override
-        public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonProcessingException
-        {
-            _serializer.serializeWithType(value, jgen, provider, _typeSerializer);
-        }
-
-        @Override
-        public void serializeWithType(Object value, JsonGenerator jgen, SerializerProvider provider,
-                TypeSerializer typeSer)
-            throws IOException, JsonProcessingException
-        {
-            /* Is this an erroneous call? For now, let's assume it is not, and
-             * that type serializer is just overridden if so
-             */
-            _serializer.serializeWithType(value, jgen, provider, typeSer);
-        }
-        
-        @Override
-        public Class<Object> handledType() { return Object.class; }
     }
 }

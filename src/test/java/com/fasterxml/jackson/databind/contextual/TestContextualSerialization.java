@@ -144,9 +144,12 @@ public class TestContextualSerialization extends BaseMapTest
                 throws JsonMappingException
         {
             String prefix = "UNKNOWN";
-            Prefix ann = property.getAnnotation(Prefix.class);
-            if (ann == null) {
-                ann = property.getContextAnnotation(Prefix.class);
+            Prefix ann = null;
+            if (property != null) {
+                ann = property.getAnnotation(Prefix.class);
+                if (ann == null) {
+                    ann = property.getContextAnnotation(Prefix.class);
+                }
             }
             if (ann != null) {
                 prefix = ann.value();

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
@@ -57,10 +56,17 @@ public class StringCollectionSerializer
             BeanProperty property)
         throws JsonMappingException
     {
-        JsonSerializer<?> ser = provider.findValueSerializer(String.class, _property);
+        JsonSerializer<?> ser = _serializer;
+        if (ser == null) {
+            ser = provider.findValueSerializer(String.class, _property);
+        } else if (ser instanceof ContextualSerializer) {
+            ser = ((ContextualSerializer) ser).createContextual(provider, property);
+        }
+        // Optimization: default serializer just writes String, so we can avoid a call:
         if (isDefaultSerializer(ser)) {
             ser = null;
         }
+        // note: will never have TypeSerializer, because Strings are "natural" type
         if (ser == _serializer) {
             return this;
         }

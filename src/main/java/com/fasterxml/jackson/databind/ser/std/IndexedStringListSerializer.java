@@ -5,15 +5,10 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
-import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Efficient implement for serializing {@link List}s that contains Strings and are random-accessible.
@@ -25,27 +20,64 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 @JacksonStdImpl
 public final class IndexedStringListSerializer
     extends StaticListSerializerBase<List<String>>
-    implements ResolvableSerializer
+    implements ContextualSerializer
 {
-    protected JsonSerializer<String> _serializer;
+    protected final JsonSerializer<String> _serializer;
+
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
     
-    public IndexedStringListSerializer(BeanProperty property) {
-        super(List.class, property);
+    public IndexedStringListSerializer() {
+        this(null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public IndexedStringListSerializer(JsonSerializer<?> ser) {
+        super(List.class, null);
+        _serializer = (JsonSerializer<String>) ser;
+        
     }
 
     @Override protected JsonNode contentSchema() {
         return createSchemaNode("string", true);
     }
 
-    @SuppressWarnings("unchecked")
+    /*
+    /**********************************************************
+    /* Post-processing
+    /**********************************************************
+     */
+    
     @Override
-    public void resolve(SerializerProvider provider) throws JsonMappingException
+    public JsonSerializer<?> createContextual(SerializerProvider provider,
+            BeanProperty property)
+        throws JsonMappingException
     {
-        JsonSerializer<?> ser = provider.findValueSerializer(String.class, _property);
-        if (!ClassUtil.isJacksonStdImpl(ser)) {
-            _serializer = (JsonSerializer<String>) ser;
+        JsonSerializer<?> ser = _serializer;
+        if (ser == null) {
+            ser = provider.findValueSerializer(String.class, _property);
+        } else if (ser instanceof ContextualSerializer) {
+            ser = ((ContextualSerializer) ser).createContextual(provider, property);
         }
+        // Optimization: default serializer just writes String, so we can avoid a call:
+        if (isDefaultSerializer(ser)) {
+            ser = null;
+        }
+        // note: will never have TypeSerializer, because Strings are "natural" type
+        if (ser == _serializer) {
+            return this;
+        }
+        return new IndexedStringListSerializer(ser);
     }
+
+    /*
+    /**********************************************************
+    /* Actual serialization
+    /**********************************************************
+     */
 
     @Override
     public void serialize(List<String> value, JsonGenerator jgen, SerializerProvider provider)

@@ -464,7 +464,7 @@ public abstract class BasicSerializerFactory
         Class<?> elementRaw = type.getContentType().getRawClass();
         if (isIndexedList(raw)) {
             if (elementRaw == String.class) {
-                return new IndexedStringListSerializer(property);
+                return new IndexedStringListSerializer();
             }
             return StdContainerSerializers.indexedListSerializer(type.getContentType(), staticTyping,
                     elementTypeSerializer, property, elementValueSerializer);
@@ -569,7 +569,7 @@ public abstract class BasicSerializerFactory
             enums = EnumValues.construct(enumClass, config.getAnnotationIntrospector());
         }
         return new EnumMapSerializer(type.getContentType(), staticTyping, enums,
-            elementTypeSerializer, property, elementValueSerializer);
+            elementTypeSerializer, elementValueSerializer);
     }
 
     /*

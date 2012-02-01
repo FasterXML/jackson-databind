@@ -35,6 +35,10 @@ public abstract class ContainerSerializer<T>
         super(t, dummy);
     }
 
+    protected ContainerSerializer(ContainerSerializer<?> src) {
+        super(src._handledType, false);
+    }
+    
     /**
      * Factory(-like) method that can be used to construct a new container
      * serializer that uses specified {@link TypeSerializer} for decorating

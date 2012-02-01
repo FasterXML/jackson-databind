@@ -95,8 +95,8 @@ public class SimpleSerializers extends Serializers.Base
      */
     
     @Override
-    public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type,
-             BeanDescription beanDesc, BeanProperty property)
+    public JsonSerializer<?> findSerializer(SerializationConfig config,
+            JavaType type, BeanDescription beanDesc)
     {
         Class<?> cls = type.getRawClass();
         ClassKey key = new ClassKey(cls);
@@ -149,29 +149,29 @@ public class SimpleSerializers extends Serializers.Base
     public JsonSerializer<?> findArraySerializer(SerializationConfig config,
             ArrayType type, BeanDescription beanDesc, BeanProperty property,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDesc, property);
+        return findSerializer(config, type, beanDesc);
     }
 
     @Override
     public JsonSerializer<?> findCollectionSerializer(SerializationConfig config,
             CollectionType type, BeanDescription beanDesc, BeanProperty property,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDesc, property);
+        return findSerializer(config, type, beanDesc);
     }
 
     @Override
     public JsonSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
             CollectionLikeType type, BeanDescription beanDesc, BeanProperty property,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDesc, property);
+        return findSerializer(config, type, beanDesc);
     }
         
     @Override
     public JsonSerializer<?> findMapSerializer(SerializationConfig config,
-            MapType type, BeanDescription beanDesc, BeanProperty property,
+            MapType type, BeanDescription beanDesc,
             JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDesc, property);
+        return findSerializer(config, type, beanDesc);
     }
 
     @Override
@@ -179,7 +179,7 @@ public class SimpleSerializers extends Serializers.Base
             MapLikeType type, BeanDescription beanDesc, BeanProperty property,
             JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) {
-        return findSerializer(config, type, beanDesc, property);
+        return findSerializer(config, type, beanDesc);
     }
     
     /*

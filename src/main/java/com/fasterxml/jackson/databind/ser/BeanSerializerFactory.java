@@ -249,7 +249,7 @@ public class BeanSerializerFactory
 
         // Modules may provide serializers of all types:
         for (Serializers serializers : _factoryConfig.serializers()) {
-            ser = serializers.findSerializer(config, type, beanDesc, property);
+            ser = serializers.findSerializer(config, type, beanDesc);
             if (ser != null) {
                 return (JsonSerializer<Object>) ser;
             }

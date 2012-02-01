@@ -184,7 +184,7 @@ public abstract class BasicSerializerFactory
         
         // Only thing we have here are module-provided key serializers:
         for (Serializers serializers : _factoryConfig.keySerializers()) {
-            ser = serializers.findSerializer(config, type, beanDesc, property);
+            ser = serializers.findSerializer(config, type, beanDesc);
             if (ser != null) {
                 break;
             }
@@ -397,7 +397,7 @@ public abstract class BasicSerializerFactory
             MapLikeType mlt = (MapLikeType) type;
             JsonSerializer<Object> keySerializer = _findKeySerializer(prov, beanDesc.getClassInfo(), property);
             if (mlt.isTrueMapType()) {
-                return buildMapSerializer(config, (MapType) mlt, beanDesc, property, staticTyping,
+                return buildMapSerializer(config, (MapType) mlt, beanDesc, staticTyping,
                         keySerializer, elementTypeSerializer, elementValueSerializer);
             }
             return buildMapLikeSerializer(config, mlt, beanDesc, property, staticTyping,
@@ -530,22 +530,21 @@ public abstract class BasicSerializerFactory
      * Helper method that handles configuration details when constructing serializers for
      * {@link java.util.Map} types.
      */
-    protected JsonSerializer<?> buildMapSerializer(SerializationConfig config, MapType type,
-            BeanDescription beanDesc, BeanProperty property,
-            boolean staticTyping,
-            JsonSerializer<Object> keySerializer,
+    protected JsonSerializer<?> buildMapSerializer(SerializationConfig config,
+            MapType type, BeanDescription beanDesc,
+            boolean staticTyping, JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
         throws JsonMappingException
     {
         for (Serializers serializers : customSerializers()) {
-            JsonSerializer<?> ser = serializers.findMapSerializer(config, type, beanDesc, property,
+            JsonSerializer<?> ser = serializers.findMapSerializer(config, type, beanDesc,
                     keySerializer, elementTypeSerializer, elementValueSerializer);
             if (ser != null) {
                 return ser;
             }
         }
         if (EnumMap.class.isAssignableFrom(type.getRawClass())) {
-            return buildEnumMapSerializer(config, type, beanDesc, property, staticTyping,
+            return buildEnumMapSerializer(config, type, beanDesc, staticTyping,
                     elementTypeSerializer, elementValueSerializer);
         }
         return MapSerializer.construct(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()),
@@ -557,9 +556,8 @@ public abstract class BasicSerializerFactory
      * Helper method that handles configuration details when constructing serializers for
      * {@link java.util.EnumMap} types.
      */
-    protected JsonSerializer<?> buildEnumMapSerializer(SerializationConfig config, JavaType type,
-            BeanDescription beanDesc, BeanProperty property,
-            boolean staticTyping,
+    protected JsonSerializer<?> buildEnumMapSerializer(SerializationConfig config,
+            JavaType type, BeanDescription beanDesc, boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
         throws JsonMappingException
     {

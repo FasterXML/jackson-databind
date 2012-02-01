@@ -26,13 +26,12 @@ public interface Serializers
      * @param type Fully resolved type of instances to serialize
      * @param config Serialization configuration in use
      * @param beanDesc Additional information about type
-     * @param property Property that contains values to serialize
      *    
      * @return Configured serializer to use for the type; or null if implementation
      *    does not recognize or support type
      */
     public JsonSerializer<?> findSerializer(SerializationConfig config,
-            JavaType type, BeanDescription beanDesc, BeanProperty property);
+            JavaType type, BeanDescription beanDesc);
 
     /**
      * Method called by serialization framework first time a serializer is needed for
@@ -53,7 +52,7 @@ public interface Serializers
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer);
     
     public JsonSerializer<?> findMapSerializer(SerializationConfig config,
-            MapType type, BeanDescription beanDesc, BeanProperty property,
+            MapType type, BeanDescription beanDesc,
             JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer);
 
@@ -71,7 +70,7 @@ public interface Serializers
     {
         @Override
         public JsonSerializer<?> findSerializer(SerializationConfig config,
-                JavaType type, BeanDescription beanDesc, BeanProperty property)
+                JavaType type, BeanDescription beanDesc)
         {
             return null;
         }
@@ -102,7 +101,7 @@ public interface Serializers
             
         @Override
         public JsonSerializer<?> findMapSerializer(SerializationConfig config,
-                MapType type, BeanDescription beanDesc, BeanProperty property,
+                MapType type, BeanDescription beanDesc,
                 JsonSerializer<Object> keySerializer,
                 TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
         {

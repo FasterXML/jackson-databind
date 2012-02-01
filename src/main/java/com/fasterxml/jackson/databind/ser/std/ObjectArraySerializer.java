@@ -90,7 +90,7 @@ public class ObjectArraySerializer
         return new ObjectArraySerializer(_elementType, _staticTyping, vts, _elementSerializer);
     }
 
-    public ObjectArraySerializer withValueSerializer(BeanProperty prop, JsonSerializer<?> ser) {
+    public ObjectArraySerializer withResolved(BeanProperty prop, JsonSerializer<?> ser) {
         if (_property == prop && ser == _elementSerializer) {
             return this;
         }
@@ -110,10 +110,10 @@ public class ObjectArraySerializer
     {
         if (_elementSerializer == null) {
             if (_staticTyping) {
-                return withValueSerializer(property, provider.findValueSerializer(_elementType, property));
+                return withResolved(property, provider.findValueSerializer(_elementType, property));
             }
         } else if (_elementSerializer instanceof ContextualSerializer) {
-            return withValueSerializer(property, ((ContextualSerializer) _elementSerializer)
+            return withResolved(property, ((ContextualSerializer) _elementSerializer)
                     .createContextual(provider, property));
         }
         return this;

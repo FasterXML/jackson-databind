@@ -27,7 +27,7 @@ public class TestContextualKeyTypes extends BaseMapTest
 
     static class ContextualKeySerializer
         extends JsonSerializer<String>
-        implements ContextualSerializer<String>
+        implements ContextualSerializer
     {
         protected final String _prefix;
     
@@ -46,7 +46,7 @@ public class TestContextualKeyTypes extends BaseMapTest
         }
     
         @Override
-        public JsonSerializer<String> createContextual(SerializerProvider prov, BeanProperty property)
+        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
             throws JsonMappingException
         {
             return new ContextualKeySerializer(_prefix+":");

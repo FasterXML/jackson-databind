@@ -13,10 +13,8 @@ import com.fasterxml.jackson.databind.*;
  * resolution -- that is, implements both this interface and {@link ResolvableSerializer}
  * -- resolution via {@link ResolvableSerializer} occurs first, and contextual
  * resolution (via this interface) later on.
- *
- * @param <T> Type of serializer to contextualize
  */
-public interface ContextualSerializer<T>
+public interface ContextualSerializer
 {
     /**
      * Method called to see if a different (or differently configured) serializer
@@ -37,7 +35,7 @@ public interface ContextualSerializer<T>
      * 
      * @throws JsonMappingException
      */
-    public JsonSerializer<T> createContextual(SerializerProvider prov,
+    public JsonSerializer<?> createContextual(SerializerProvider prov,
             BeanProperty property)
         throws JsonMappingException;
 }

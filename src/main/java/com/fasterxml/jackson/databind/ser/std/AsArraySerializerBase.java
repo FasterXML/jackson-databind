@@ -49,6 +49,12 @@ public abstract class AsArraySerializerBase<T>
      */
     protected PropertySerializerMap _dynamicSerializers;
     
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+    
     protected AsArraySerializerBase(Class<?> cls, JavaType et, boolean staticTyping,
             TypeSerializer vts, BeanProperty property, JsonSerializer<Object> elementSerializer)
     {
@@ -63,6 +69,25 @@ public abstract class AsArraySerializerBase<T>
         _dynamicSerializers = PropertySerializerMap.emptyMap();
     }
 
+    /**
+     * Need to get callback to resolve value serializer, if static typing
+     * is used (either being forced, or because value type is final)
+     */
+    @Override
+    public void resolve(SerializerProvider provider)
+        throws JsonMappingException
+    {
+        if (_staticTyping && _elementType != null && _elementSerializer == null) {
+            _elementSerializer = provider.findValueSerializer(_elementType, _property);
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
+    
     @Override
     public JavaType getContentType() {
         return _elementType;
@@ -72,6 +97,12 @@ public abstract class AsArraySerializerBase<T>
     public JsonSerializer<?> getContentSerializer() {
         return _elementSerializer;
     }
+
+    /*
+    /**********************************************************
+    /* Serialization
+    /**********************************************************
+     */
     
     @Override
     public final void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
@@ -136,19 +167,6 @@ public abstract class AsArraySerializerBase<T>
             o.put("items", schemaNode);
         }
         return o;
-    }
-
-    /**
-     * Need to get callback to resolve value serializer, if static typing
-     * is used (either being forced, or because value type is final)
-     */
-    @Override
-    public void resolve(SerializerProvider provider)
-        throws JsonMappingException
-    {
-        if (_staticTyping && _elementType != null && _elementSerializer == null) {
-            _elementSerializer = provider.findValueSerializer(_elementType, _property);
-        }
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,

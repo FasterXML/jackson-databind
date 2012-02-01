@@ -470,7 +470,7 @@ public abstract class BasicSerializerFactory
                     elementTypeSerializer, property, elementValueSerializer);
         }
         if (elementRaw == String.class) {
-            return new StringCollectionSerializer(property);
+            return new StringCollectionSerializer();
         }
         return StdContainerSerializers.collectionSerializer(type.getContentType(), staticTyping,
                 elementTypeSerializer, property, elementValueSerializer);

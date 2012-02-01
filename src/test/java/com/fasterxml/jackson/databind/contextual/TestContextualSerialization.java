@@ -124,7 +124,7 @@ public class TestContextualSerialization extends BaseMapTest
      */
     static class AnnotatedContextualSerializer
         extends JsonSerializer<String>
-        implements ContextualSerializer<String>
+        implements ContextualSerializer
     {
         protected final String _prefix;
         
@@ -140,7 +140,7 @@ public class TestContextualSerialization extends BaseMapTest
         }
 
         @Override
-        public JsonSerializer<String> createContextual(SerializerProvider prov, BeanProperty property)
+        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
                 throws JsonMappingException
         {
             String prefix = "UNKNOWN";
@@ -157,7 +157,7 @@ public class TestContextualSerialization extends BaseMapTest
 
     static class ContextualAndResolvable
         extends JsonSerializer<String>
-        implements ContextualSerializer<String>, ResolvableSerializer
+        implements ContextualSerializer, ResolvableSerializer
     {
         protected int isContextual;
         protected int isResolved;
@@ -177,7 +177,7 @@ public class TestContextualSerialization extends BaseMapTest
         }
 
         @Override
-        public JsonSerializer<String> createContextual(SerializerProvider prov, BeanProperty property)
+        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
                 throws JsonMappingException
         {
             return new ContextualAndResolvable(isResolved, isContextual+1);

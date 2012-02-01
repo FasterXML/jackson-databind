@@ -5,15 +5,11 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
-import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Efficient implement for serializing {@link Collection}s that contain Strings.
@@ -25,28 +21,58 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 @JacksonStdImpl
 public class StringCollectionSerializer
     extends StaticListSerializerBase<Collection<String>>
-    implements ResolvableSerializer
+    implements ContextualSerializer
 {
-    protected JsonSerializer<String> _serializer;
+    protected final JsonSerializer<String> _serializer;
     
-    public StringCollectionSerializer(BeanProperty property) {
-        super(Collection.class, property);
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+    
+    public StringCollectionSerializer() {
+        this(null);
     }
-        
+
+    @SuppressWarnings("unchecked")
+    protected StringCollectionSerializer(JsonSerializer<?> ser)
+    {
+        super(Collection.class, null);
+        _serializer = (JsonSerializer<String>) ser;
+    }        
+    
     @Override protected JsonNode contentSchema() {
         return createSchemaNode("string", true);
     }
 
-    @SuppressWarnings("unchecked")
+    /*
+    /**********************************************************
+    /* Post-processing
+    /**********************************************************
+     */
+    
     @Override
-    public void resolve(SerializerProvider provider) throws JsonMappingException
+    public JsonSerializer<?> createContextual(SerializerProvider provider,
+            BeanProperty property)
+        throws JsonMappingException
     {
         JsonSerializer<?> ser = provider.findValueSerializer(String.class, _property);
-        if (!ClassUtil.isJacksonStdImpl(ser)) {
-            _serializer = (JsonSerializer<String>) ser;
+        if (isDefaultSerializer(ser)) {
+            ser = null;
         }
+        if (ser == _serializer) {
+            return this;
+        }
+        return new StringCollectionSerializer(ser);
     }
 
+    /*
+    /**********************************************************
+    /* Actual serialization
+    /**********************************************************
+     */
+    
     @Override
     public void serialize(Collection<String> value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
@@ -113,5 +139,4 @@ public class StringCollectionSerializer
             }
        }
     }
-
 }

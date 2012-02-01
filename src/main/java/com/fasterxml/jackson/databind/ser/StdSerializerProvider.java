@@ -843,8 +843,8 @@ public abstract class StdSerializerProvider
             BeanProperty property)
         throws JsonMappingException
     {
-        if (ser instanceof ContextualSerializer<?>) {
-            ser = ((ContextualSerializer<?>) ser).createContextual(this, property);
+        if (ser instanceof ContextualSerializer) {
+            ser = ((ContextualSerializer) ser).createContextual(this, property);
         }
         return (JsonSerializer<Object>) ser;
     }

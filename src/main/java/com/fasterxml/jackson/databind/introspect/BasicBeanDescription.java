@@ -65,7 +65,7 @@ public class BasicBeanDescription extends BeanDescription
     
     protected AnnotatedMethod _jsonValueMethod;
 
-    protected AnnotatedMethod _anyGetterMethod;
+    protected AnnotatedMember _anyGetter;
     
     /*
     /**********************************************************
@@ -107,7 +107,7 @@ public class BasicBeanDescription extends BeanDescription
         BasicBeanDescription desc = new BasicBeanDescription(coll.getConfig(),
                 coll.getType(), coll.getClassDef(), coll.getProperties());
         desc._jsonValueMethod = coll.getJsonValueMethod();
-        desc._anyGetterMethod = coll.getAnyGetterMethod();
+        desc._anyGetter = coll.getAnyGetter();
         return desc;
     }
 
@@ -396,18 +396,18 @@ public class BasicBeanDescription extends BeanDescription
      * If more than one are found, an exception is thrown.
      */
     @Override
-    public AnnotatedMethod findAnyGetter() throws IllegalArgumentException
+    public AnnotatedMember findAnyGetter() throws IllegalArgumentException
     {
-        if (_anyGetterMethod != null) {
+        if (_anyGetter != null) {
             /* For now let's require a Map; in future can add support for other
              * types like perhaps Iterable<Map.Entry>?
              */
-            Class<?> type = _anyGetterMethod.getRawReturnType();
+            Class<?> type = _anyGetter.getRawType();
             if (!Map.class.isAssignableFrom(type)) {
-                throw new IllegalArgumentException("Invalid 'any-getter' annotation on method "+_anyGetterMethod.getName()+"(): return type is not instance of java.util.Map");
+                throw new IllegalArgumentException("Invalid 'any-getter' annotation on method "+_anyGetter.getName()+"(): return type is not instance of java.util.Map");
             }
         }
-        return _anyGetterMethod;
+        return _anyGetter;
     }
     
     @Override

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 @JacksonStdImpl
 public class MapSerializer
     extends ContainerSerializer<Map<?,?>>
-    implements ResolvableSerializer
+    implements ContextualSerializer
 {
     protected final static JavaType UNSPECIFIED_TYPE = TypeFactory.unknownType();
     
@@ -76,41 +76,74 @@ public class MapSerializer
      */
     protected PropertySerializerMap _dynamicValueSerializers;
     
-    protected MapSerializer() {
-        this((HashSet<String>)null, null, null, false, null, null, null, null);
-    }
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
     
+    @SuppressWarnings("unchecked")
     protected MapSerializer(HashSet<String> ignoredEntries,
             JavaType keyType, JavaType valueType, boolean valueTypeIsStatic,
             TypeSerializer vts,
-            JsonSerializer<Object> keySerializer, JsonSerializer<Object> valueSerializer, 
-            BeanProperty property)
+            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer)
     {
         super(Map.class, false);
-        _property = property;
         _ignoredEntries = ignoredEntries;
         _keyType = keyType;
         _valueType = valueType;
         _valueTypeIsStatic = valueTypeIsStatic;
         _valueTypeSerializer = vts;
-        _keySerializer = keySerializer;
-        _valueSerializer = valueSerializer;
+        _keySerializer = (JsonSerializer<Object>) keySerializer;
+        _valueSerializer = (JsonSerializer<Object>) valueSerializer;
         _dynamicValueSerializers = PropertySerializerMap.emptyMap();
+        _property = null;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected MapSerializer(MapSerializer src, BeanProperty property,
+            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer)
+    {
+        super(Map.class, false);
+        _ignoredEntries = src._ignoredEntries;
+        _keyType = src._keyType;
+        _valueType = src._valueType;
+        _valueTypeIsStatic = src._valueTypeIsStatic;
+        _valueTypeSerializer = src._valueTypeSerializer;
+        _keySerializer = (JsonSerializer<Object>) keySerializer;
+        _valueSerializer = (JsonSerializer<Object>) valueSerializer;
+        _dynamicValueSerializers = src._dynamicValueSerializers;
+        _property = property;
+    }
+
+    protected MapSerializer(MapSerializer src, TypeSerializer vts)
+    {
+        super(Map.class, false);
+        _ignoredEntries = src._ignoredEntries;
+        _keyType = src._keyType;
+        _valueType = src._valueType;
+        _valueTypeIsStatic = src._valueTypeIsStatic;
+        _valueTypeSerializer = vts;
+        _keySerializer = src._keySerializer;
+        _valueSerializer = src._valueSerializer;
+        _dynamicValueSerializers = src._dynamicValueSerializers;
+        _property = src._property;
     }
     
     @Override
-    public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts)
+    public MapSerializer _withValueTypeSerializer(TypeSerializer vts)
     {
-        MapSerializer ms = new MapSerializer(_ignoredEntries, _keyType, _valueType, _valueTypeIsStatic, vts,
-                _keySerializer, _valueSerializer, _property);
-        if (_valueSerializer != null) {
-            ms._valueSerializer = _valueSerializer;
-        }
-        return ms;
+        return new MapSerializer(this, vts);
+    }
+
+    public MapSerializer withResolved(BeanProperty property,
+            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer)
+    {
+        return new MapSerializer(this, property, keySerializer, valueSerializer);
     }
     
     public static MapSerializer construct(String[] ignoredList, JavaType mapType,
-            boolean staticValueType, TypeSerializer vts, BeanProperty property,
+            boolean staticValueType, TypeSerializer vts,
             JsonSerializer<Object> keySerializer, JsonSerializer<Object> valueSerializer)
     {
         HashSet<String> ignoredEntries = toSet(ignoredList);
@@ -127,7 +160,7 @@ public class MapSerializer
             staticValueType = (valueType != null && valueType.isFinal());
         }
         return new MapSerializer(ignoredEntries, keyType, valueType, staticValueType, vts,
-                keySerializer, valueSerializer, property);
+                keySerializer, valueSerializer);
     }
 
     private static HashSet<String> toSet(String[] ignoredEntries) {
@@ -143,7 +176,42 @@ public class MapSerializer
     
     /*
     /**********************************************************
-    /* JsonSerializer implementation
+    /* Post-processing (contextualization)
+    /**********************************************************
+     */
+
+    @Override
+    public JsonSerializer<?> createContextual(SerializerProvider provider,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<?> ser = _valueSerializer;
+        if (ser == null) {
+            if (_valueTypeIsStatic) {
+                ser = provider.findValueSerializer(_valueType, _property);
+            }
+        } else if (ser instanceof ContextualSerializer) {
+            ser = ((ContextualSerializer) ser).createContextual(provider, property);
+        }
+        /* 10-Dec-2010, tatu: Let's also fetch key serializer; and always assume we'll
+         *   do that just by using static type information
+         */
+        /* 25-Feb-2011, tatu: May need to reconsider this static checking (since it
+         *   differs from value handling)... but for now, it's ok to ensure contextual
+         *   aspects are handled; this is done by provider.
+         */
+        JsonSerializer<?> keySer = _keySerializer;
+        if (keySer == null) {
+            keySer = provider.findKeySerializer(_keyType, _property);
+        } else if (keySer instanceof ContextualSerializer) {
+            keySer = ((ContextualSerializer) keySer).createContextual(provider, property);
+        }
+        return withResolved(property, keySer, ser);
+    }
+
+    /*
+    /**********************************************************
+    /* Accessors
     /**********************************************************
      */
 
@@ -161,6 +229,12 @@ public class MapSerializer
     public boolean isEmpty(Map<?,?> value) {
         return (value == null) || value.isEmpty();
     }
+
+    /*
+    /**********************************************************
+    /* JsonSerializer implementation
+    /**********************************************************
+     */
     
     @Override
     public void serialize(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider)
@@ -354,29 +428,6 @@ public class MapSerializer
         //(ryan) even though it's possible to statically determine the "value" type of the map,
         // there's no way to statically determine the keys, so the "Entries" can't be determined.
         return o;
-    }
-
-    /**
-     * Need to get callback to resolve value serializer, if static typing
-     * is used (either being forced, or because value type is final)
-     */
-    @Override
-    public void resolve(SerializerProvider provider)
-        throws JsonMappingException
-    {
-        if (_valueTypeIsStatic && _valueSerializer == null) {
-            _valueSerializer = provider.findValueSerializer(_valueType, _property);
-        }
-        /* 10-Dec-2010, tatu: Let's also fetch key serializer; and always assume we'll
-         *   do that just by using static type information
-         */
-        /* 25-Feb-2011, tatu: May need to reconsider this static checking (since it
-         *   differs from value handling)... but for now, it's ok to ensure contextual
-         *   aspects are handled; this is done by provider.
-         */
-        if (_keySerializer == null) {
-            _keySerializer = provider.findKeySerializer(_keyType, _property);
-        }
     }
 
     /*

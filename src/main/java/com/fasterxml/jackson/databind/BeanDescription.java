@@ -149,7 +149,7 @@ public abstract class BeanDescription
     /**********************************************************
      */
     
-    public abstract AnnotatedMethod findAnyGetter();
+    public abstract AnnotatedMember findAnyGetter();
 
     /**
      * Method used to locate the method of introspected class that

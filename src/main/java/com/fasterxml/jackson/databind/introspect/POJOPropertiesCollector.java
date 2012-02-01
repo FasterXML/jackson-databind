@@ -58,7 +58,7 @@ public class POJOPropertiesCollector
 
     protected LinkedList<POJOPropertyBuilder> _creatorProperties = null;
     
-    protected LinkedList<AnnotatedMethod> _anyGetters = null;
+    protected LinkedList<AnnotatedMember> _anyGetters = null;
 
     protected LinkedList<AnnotatedMethod> _anySetters = null;
 
@@ -149,7 +149,7 @@ public class POJOPropertiesCollector
         return null;
     }
 
-    public AnnotatedMethod getAnyGetterMethod()
+    public AnnotatedMember getAnyGetter()
     {
         if (_anyGetters != null) {
             if (_anyGetters.size() > 1) {
@@ -414,7 +414,7 @@ public class POJOPropertiesCollector
                 if (ai != null) {
                     if (ai.hasAnyGetterAnnotation(m)) {
                         if (_anyGetters == null) {
-                            _anyGetters = new LinkedList<AnnotatedMethod>();
+                            _anyGetters = new LinkedList<AnnotatedMember>();
                         }
                         _anyGetters.add(m);
                         continue;

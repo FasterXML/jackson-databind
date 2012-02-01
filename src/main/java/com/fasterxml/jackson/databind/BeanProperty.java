@@ -88,7 +88,7 @@ public interface BeanProperty extends Named
             _member = member;
             _contextAnnotations = contextAnnotations;
         }
-
+        
         public Std withType(JavaType type) {
             return new Std(_name, type, _contextAnnotations, _member);
         }

@@ -1,11 +1,10 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 
 /**
@@ -15,32 +14,40 @@ import com.fasterxml.jackson.databind.ser.std.MapSerializer;
  */
 public class AnyGetterWriter
 {
-    protected final Method _anyGetter;
+    protected final BeanProperty _property;
+
+    /**
+     * Method (or field) that represents the "any getter"
+     */
+    protected final AnnotatedMember _accessor;
     
-    protected final MapSerializer _serializer;
+    protected MapSerializer _serializer;
     
-    public AnyGetterWriter(AnnotatedMethod anyGetter, MapSerializer serializer)
+    public AnyGetterWriter(BeanProperty property,
+            AnnotatedMember accessor, MapSerializer serializer)
     {
-        _anyGetter = anyGetter.getAnnotated();
+        _accessor = accessor;
+        _property = property;
         _serializer = serializer;
     }
 
     public void getAndSerialize(Object bean, JsonGenerator jgen, SerializerProvider provider)
         throws Exception
     {
-        Object value = _anyGetter.invoke(bean);
+        Object value = _accessor.getValue(bean);
         if (value == null) {
             return;
         }
         if (!(value instanceof Map<?,?>)) {
-            throw new JsonMappingException("Value returned by 'any-getter' ("+_anyGetter.getName()+"()) not java.util.Map but "
-                    +value.getClass().getName());
+            throw new JsonMappingException("Value returned by 'any-getter' ("
+                    +_accessor.getName()+"()) not java.util.Map but "+value.getClass().getName());
         }
         _serializer.serializeFields((Map<?,?>) value, jgen, provider);
     }
 
+    // Note: NOT part of ResolvableSerializer...
     public void resolve(SerializerProvider provider) throws JsonMappingException
     {
-        _serializer.resolve(provider);
+        _serializer = (MapSerializer) _serializer.createContextual(provider, _property);
     }
 }

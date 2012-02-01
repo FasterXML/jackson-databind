@@ -549,7 +549,7 @@ public abstract class BasicSerializerFactory
                     elementTypeSerializer, elementValueSerializer);
         }
         return MapSerializer.construct(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()),
-                type, staticTyping, elementTypeSerializer, property,
+                type, staticTyping, elementTypeSerializer,
                 keySerializer, elementValueSerializer);
     }
     

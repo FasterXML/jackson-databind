@@ -52,6 +52,12 @@ public class CollectionSerializer
             JsonSerializer<?> elementSerializer) {
         return new CollectionSerializer(this, property, elementSerializer);
     }
+
+    /*
+    /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
     
     @Override
     public boolean isEmpty(Collection<?> value) {

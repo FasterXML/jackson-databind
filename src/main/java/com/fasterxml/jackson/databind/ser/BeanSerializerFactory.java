@@ -407,7 +407,7 @@ public class BeanSerializerFactory
         builder.setProperties(props);
         builder.setFilterId(findFilterId(config, beanDesc));
         
-        AnnotatedMethod anyGetter = beanDesc.findAnyGetter();
+        AnnotatedMember anyGetter = beanDesc.findAnyGetter();
         if (anyGetter != null) { // since 1.6
             if (config.canOverrideAccessModifiers()) {
                 anyGetter.fixAccess();
@@ -419,8 +419,10 @@ public class BeanSerializerFactory
             TypeSerializer typeSer = createTypeSerializer(config, valueType, property);
             // last 2 nulls; don't know key, value serializers (yet)
             MapSerializer mapSer = MapSerializer.construct(/* ignored props*/ null, type, staticTyping,
-                    typeSer, property, null, null);
-            builder.setAnyGetter(new AnyGetterWriter(anyGetter, mapSer));
+                    typeSer, null, null);
+            BeanProperty.Std anyProp = new BeanProperty.Std(anyGetter.getName(), valueType,
+                    beanDesc.getClassAnnotations(), anyGetter);
+            builder.setAnyGetter(new AnyGetterWriter(anyProp, anyGetter, mapSer));
         }
         // One more thing: need to gather view information, if any:
         processViews(config, builder);

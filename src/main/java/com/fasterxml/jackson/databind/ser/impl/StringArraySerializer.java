@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.ArraySerializerBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -21,23 +21,39 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 @JacksonStdImpl
 public class StringArraySerializer
     extends ArraySerializerBase<String[]>
-    implements ResolvableSerializer
+    implements ContextualSerializer
 {
     /* Note: not clean in general, but we are betting against
      * anyone re-defining properties of String.class here...
      */
     private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(String.class);
-        
+
+    public final static StringArraySerializer instance = new StringArraySerializer();
+    
     /**
      * Value serializer to use, if it's not the standard one
      * (if it is we can optimize serialization a lot)
      */
-    protected JsonSerializer<Object> _elementSerializer;
+    protected final JsonSerializer<Object> _elementSerializer;
 
-    public StringArraySerializer(BeanProperty prop) {
-        super(String[].class, null, prop);
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+    
+    protected StringArraySerializer() {
+        super(String[].class, null, null);
+        _elementSerializer = null;
     }
 
+    @SuppressWarnings("unchecked")
+    public StringArraySerializer(StringArraySerializer src,
+            BeanProperty prop, JsonSerializer<?> ser) {
+        super(src, prop);
+        _elementSerializer = (JsonSerializer<Object>) ser;
+    }
+    
     /**
      * Strings never add type info; hence, even if type serializer is suggested,
      * we'll ignore it...
@@ -46,6 +62,40 @@ public class StringArraySerializer
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         return this;
     }
+
+    /*
+    /**********************************************************
+    /* Post-processing
+    /**********************************************************
+     */
+    
+    @Override
+    public JsonSerializer<?> createContextual(SerializerProvider provider,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<?> ser = _elementSerializer;
+        if (ser == null) {
+            ser = provider.findValueSerializer(String.class, _property);
+        } else if (ser instanceof ContextualSerializer) {
+            ser = ((ContextualSerializer) ser).createContextual(provider, property);
+        }
+        // Optimization: default serializer just writes String, so we can avoid a call:
+        if (isDefaultSerializer(ser)) {
+            ser = null;
+        }
+        // note: will never have TypeSerializer, because Strings are "natural" type
+        if (ser == _elementSerializer) {
+            return this;
+        }
+        return new StringArraySerializer(this, property, ser);
+    }
+
+    /*
+    /**********************************************************
+    /* Simple accessors
+    /**********************************************************
+     */
 
     @Override
     public JavaType getContentType() {
@@ -61,6 +111,12 @@ public class StringArraySerializer
     public boolean isEmpty(String[] value) {
         return (value == null) || (value.length == 0);
     }
+
+    /*
+    /**********************************************************
+    /* Actual serialization
+    /**********************************************************
+     */
     
     @Override
     public void serializeContents(String[] value, JsonGenerator jgen, SerializerProvider provider)
@@ -107,21 +163,6 @@ public class StringArraySerializer
         }
     }
 
-    /**
-     * Need to get callback to resolve value serializer, which may
-     * be overridden by custom serializer
-     */
-    @Override
-    public void resolve(SerializerProvider provider)
-        throws JsonMappingException
-    {
-        JsonSerializer<Object> ser = provider.findValueSerializer(String.class, _property);
-        // Retain if not the standard implementation
-        if (ser != null && ser.getClass().getAnnotation(JacksonStdImpl.class) == null) {
-            _elementSerializer = ser;
-        }
-    }        
-    
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {

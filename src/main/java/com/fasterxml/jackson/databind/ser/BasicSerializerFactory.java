@@ -467,13 +467,13 @@ public abstract class BasicSerializerFactory
         Class<?> elementRaw = type.getContentType().getRawClass();
         if (isIndexedList(raw)) {
             if (elementRaw == String.class) {
-                return new IndexedStringListSerializer();
+                return IndexedStringListSerializer.instance;
             }
             return StdContainerSerializers.indexedListSerializer(type.getContentType(), staticTyping,
                     elementTypeSerializer, property, elementValueSerializer);
         }
         if (elementRaw == String.class) {
-            return new StringCollectionSerializer();
+            return StringCollectionSerializer.instance;
         }
         return StdContainerSerializers.collectionSerializer(type.getContentType(), staticTyping,
                 elementTypeSerializer, property, elementValueSerializer);
@@ -595,13 +595,12 @@ public abstract class BasicSerializerFactory
         // Important: do NOT use standard serializers if non-standard element value serializer specified
         if (elementValueSerializer == null || ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
             if (String[].class == raw) {
-                return new StringArraySerializer(property);
-            } else {
-                // other standard types?
-                JsonSerializer<?> ser = _arraySerializers.get(raw.getName());
-                if (ser != null) {
-                    return ser;
-                }
+                return StringArraySerializer.instance;
+            }
+            // other standard types?
+            JsonSerializer<?> ser = _arraySerializers.get(raw.getName());
+            if (ser != null) {
+                return ser;
             }
         }
         return new ObjectArraySerializer(type.getContentType(), staticTyping, elementTypeSerializer,

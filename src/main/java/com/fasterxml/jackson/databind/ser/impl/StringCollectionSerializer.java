@@ -23,6 +23,8 @@ public class StringCollectionSerializer
     extends StaticListSerializerBase<Collection<String>>
     implements ContextualSerializer
 {
+    public final static StringCollectionSerializer instance = new StringCollectionSerializer();
+    
     protected final JsonSerializer<String> _serializer;
     
     /*
@@ -31,7 +33,7 @@ public class StringCollectionSerializer
     /**********************************************************
      */
     
-    public StringCollectionSerializer() {
+    protected StringCollectionSerializer() {
         this(null);
     }
 

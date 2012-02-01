@@ -23,6 +23,8 @@ public final class IndexedStringListSerializer
     extends StaticListSerializerBase<List<String>>
     implements ContextualSerializer
 {
+    public final static IndexedStringListSerializer instance = new IndexedStringListSerializer();
+    
     protected final JsonSerializer<String> _serializer;
 
     /*
@@ -31,7 +33,7 @@ public final class IndexedStringListSerializer
     /**********************************************************
      */
     
-    public IndexedStringListSerializer() {
+    protected IndexedStringListSerializer() {
         this(null);
     }
 

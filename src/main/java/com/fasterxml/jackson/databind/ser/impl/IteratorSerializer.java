@@ -22,10 +22,10 @@ public class IteratorSerializer
         super(Iterator.class, elemType, staticTyping, vts, property, null);
     }
 
-    public IteratorSerializer(IteratorSerializer src, BeanProperty property,
-            JsonSerializer<?> valueSerializer)
+    public IteratorSerializer(IteratorSerializer src,
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer)
     {
-        super(src, property, valueSerializer);
+        super(src, property, vts, valueSerializer);
     }
 
     @Override
@@ -40,8 +40,8 @@ public class IteratorSerializer
 
     @Override
     public IteratorSerializer withResolved(BeanProperty property,
-            JsonSerializer<?> elementSerializer) {
-        return new IteratorSerializer(this, property, elementSerializer);
+            TypeSerializer vts, JsonSerializer<?> elementSerializer) {
+        return new IteratorSerializer(this, property, vts, elementSerializer);
     }
 
     @Override

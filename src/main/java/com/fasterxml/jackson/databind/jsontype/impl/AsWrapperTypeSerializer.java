@@ -27,6 +27,12 @@ public class AsWrapperTypeSerializer
     }
 
     @Override
+    public AsWrapperTypeSerializer forProperty(BeanProperty prop) {
+        if (_property == prop) return this;
+        return new AsWrapperTypeSerializer(this._idResolver, prop);
+    }
+    
+    @Override
     public As getTypeInclusion() { return As.WRAPPER_OBJECT; }
     
     @Override

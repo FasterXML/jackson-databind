@@ -11,31 +11,31 @@ import com.fasterxml.jackson.databind.ser.*;
 public abstract class ArraySerializerBase<T>
     extends ContainerSerializer<T>
 {
-    protected final TypeSerializer _valueTypeSerializer;
-
     protected final BeanProperty _property;
-    
-    protected ArraySerializerBase(Class<T> cls, TypeSerializer vts, BeanProperty property)
+
+    protected ArraySerializerBase(Class<T> cls)
     {
         super(cls);
-        _valueTypeSerializer = vts;
+        _property = null;
+    }
+
+    protected ArraySerializerBase(Class<T> cls, BeanProperty property)
+    {
+        super(cls);
         _property = property;
     }
-    
-    protected ArraySerializerBase(ArraySerializerBase<?> src, TypeSerializer vts)
+
+    protected ArraySerializerBase(ArraySerializerBase<?> src)
     {
         super(src._handledType, false);
-        _valueTypeSerializer = vts;
         _property = src._property;
     }
     
     protected ArraySerializerBase(ArraySerializerBase<?> src, BeanProperty property)
     {
         super(src._handledType, false);
-        _valueTypeSerializer = src._valueTypeSerializer;
         _property = property;
     }
-
     
     @Override
     public final void serialize(T value, JsonGenerator jgen, SerializerProvider provider)

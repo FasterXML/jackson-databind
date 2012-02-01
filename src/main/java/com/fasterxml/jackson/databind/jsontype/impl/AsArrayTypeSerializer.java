@@ -23,6 +23,12 @@ public class AsArrayTypeSerializer
     }
 
     @Override
+    public AsArrayTypeSerializer forProperty(BeanProperty prop) {
+        if (_property == prop) return this;
+        return new AsArrayTypeSerializer(this._idResolver, prop);
+    }
+    
+    @Override
     public As getTypeInclusion() { return As.WRAPPER_ARRAY; }
     
     @Override

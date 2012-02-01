@@ -140,9 +140,9 @@ public class ObjectMapper
 
         @Override
         public TypeSerializer buildTypeSerializer(SerializationConfig config,
-                JavaType baseType, Collection<NamedType> subtypes, BeanProperty property)
+                JavaType baseType, Collection<NamedType> subtypes)
         {
-            return useForType(baseType) ? super.buildTypeSerializer(config, baseType, subtypes, property) : null;            
+            return useForType(baseType) ? super.buildTypeSerializer(config, baseType, subtypes) : null;            
         }
 
         /**

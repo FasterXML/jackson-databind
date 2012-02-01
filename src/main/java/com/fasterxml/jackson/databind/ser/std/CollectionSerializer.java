@@ -36,10 +36,10 @@ public class CollectionSerializer
         super(Collection.class, elemType, staticTyping, vts, property, valueSerializer);
     }
 
-    public CollectionSerializer(CollectionSerializer src, BeanProperty property,
-            JsonSerializer<?> valueSerializer)
+    public CollectionSerializer(CollectionSerializer src,
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer)
     {
-        super(src, property, valueSerializer);
+        super(src, property, vts, valueSerializer);
     }
     
     @Override
@@ -49,8 +49,8 @@ public class CollectionSerializer
 
     @Override
     public CollectionSerializer withResolved(BeanProperty property,
-            JsonSerializer<?> elementSerializer) {
-        return new CollectionSerializer(this, property, elementSerializer);
+            TypeSerializer vts, JsonSerializer<?> elementSerializer) {
+        return new CollectionSerializer(this, property, vts, elementSerializer);
     }
 
     /*

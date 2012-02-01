@@ -32,6 +32,12 @@ public class AsExternalTypeSerializer
    }
 
    @Override
+   public AsExternalTypeSerializer forProperty(BeanProperty prop) {
+       if (_property == prop) return this;
+       return new AsExternalTypeSerializer(this._idResolver, prop, this._typePropertyName);
+   }
+   
+   @Override
    public String getPropertyName() { return _typePropertyName; }
 
    @Override

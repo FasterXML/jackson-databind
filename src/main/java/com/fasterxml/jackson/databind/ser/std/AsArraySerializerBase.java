@@ -71,19 +71,19 @@ public abstract class AsArraySerializerBase<T>
 
     @SuppressWarnings("unchecked")
     protected AsArraySerializerBase(AsArraySerializerBase<?> src,
-            BeanProperty property, JsonSerializer<?> elementSerializer)
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> elementSerializer)
     {
         super(src);
         _elementType = src._elementType;
         _staticTyping = src._staticTyping;
-        _valueTypeSerializer = src._valueTypeSerializer;
+        _valueTypeSerializer = vts;
         _property = src._property;
         _elementSerializer = (JsonSerializer<Object>) elementSerializer;
         _dynamicSerializers = src._dynamicSerializers;
     }
     
     public abstract AsArraySerializerBase<T> withResolved(BeanProperty property,
-            JsonSerializer<?> elementSerializer);
+            TypeSerializer vts, JsonSerializer<?> elementSerializer);
 
     /*
     /**********************************************************
@@ -96,6 +96,10 @@ public abstract class AsArraySerializerBase<T>
             BeanProperty property)
         throws JsonMappingException
     {
+        TypeSerializer typeSer = _valueTypeSerializer;
+        if (typeSer != null) {
+            typeSer = typeSer.forProperty(property);
+        }
         JsonSerializer<?> ser = _elementSerializer;
         if (ser == null) {
             if (_staticTyping && _elementType != null) {
@@ -104,8 +108,8 @@ public abstract class AsArraySerializerBase<T>
         } else if (ser instanceof ContextualSerializer) {
             ser = ((ContextualSerializer) ser).createContextual(provider, property);
         }
-        if ((ser != _elementSerializer) || (property != _property)) {
-            return withResolved(property, ser);
+        if ((ser != _elementSerializer) || (property != _property) || _valueTypeSerializer != typeSer) {
+            return withResolved(property, typeSer, ser);
         }
         return this;
     }

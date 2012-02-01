@@ -22,10 +22,39 @@ public class StdArraySerializers
 
     /*
      ****************************************************************
-    /* Concrete serializers, arrays
+    /* Intermediate base classes
      ****************************************************************
      */
 
+    /**
+     * Intermediate base class used for cases where we may add
+     * type information (excludes boolean/int/double arrays).
+     */
+    protected abstract static class TypedPrimitiveArraySerializer<T>
+        extends ArraySerializerBase<T>
+    {
+        /**
+         * Type serializer to use for values, if any.
+         */
+        protected final TypeSerializer _valueTypeSerializer;
+        
+        protected TypedPrimitiveArraySerializer(Class<T> cls) {
+            super(cls);
+            _valueTypeSerializer = null;
+        }
+
+        protected TypedPrimitiveArraySerializer(TypedPrimitiveArraySerializer<T> src,
+                BeanProperty prop, TypeSerializer vts) {
+            super(src, prop);
+            _valueTypeSerializer = vts;
+        }
+    }
+    
+    /*
+    /****************************************************************
+    /* Concrete serializers, arrays
+    /****************************************************************
+     */
 
     @JacksonStdImpl
     public final static class BooleanArraySerializer
@@ -34,7 +63,7 @@ public class StdArraySerializers
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Boolean.class);
 
-        public BooleanArraySerializer() { super(boolean[].class, null, null); }
+        public BooleanArraySerializer() { super(boolean[].class, null); }
 
         /**
          * Booleans never add type info; hence, even if type serializer is suggested,
@@ -128,17 +157,19 @@ public class StdArraySerializers
 
     @JacksonStdImpl
     public final static class ShortArraySerializer
-        extends ArraySerializerBase<short[]>
+        extends TypedPrimitiveArraySerializer<short[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Short.TYPE);
 
-        public ShortArraySerializer() { this(null); }
-        public ShortArraySerializer(TypeSerializer vts) { super(short[].class, vts, null); }
+        public ShortArraySerializer() { super(short[].class); }
+        public ShortArraySerializer(ShortArraySerializer src, BeanProperty prop, TypeSerializer vts) {
+            super(src, prop, vts);
+        }
 
         @Override
         public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-            return new ShortArraySerializer(vts);
+            return new ShortArraySerializer(this, _property, vts);
         }
 
         @Override
@@ -162,6 +193,14 @@ public class StdArraySerializers
         public void serializeContents(short[] value, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
+            if (_valueTypeSerializer != null) {
+                for (int i = 0, len = value.length; i < len; ++i) {
+                    _valueTypeSerializer.writeTypePrefixForScalar(null, jgen, Short.TYPE);
+                    jgen.writeNumber(value[i]);
+                    _valueTypeSerializer.writeTypeSuffixForScalar(null, jgen);
+                }
+                return;
+            }
             for (int i = 0, len = value.length; i < len; ++i) {
                 jgen.writeNumber((int)value[i]);
             }
@@ -252,7 +291,7 @@ public class StdArraySerializers
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Integer.TYPE);
 
-        public IntArraySerializer() { super(int[].class, null, null); }
+        public IntArraySerializer() { super(int[].class, null); }
 
         /**
          * Ints never add type info; hence, even if type serializer is suggested,
@@ -299,17 +338,20 @@ public class StdArraySerializers
 
     @JacksonStdImpl
     public final static class LongArraySerializer
-        extends ArraySerializerBase<long[]>
+        extends TypedPrimitiveArraySerializer<long[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Long.TYPE);
 
-        public LongArraySerializer() { this(null); }
-        public LongArraySerializer(TypeSerializer vts) { super(long[].class, vts, null); }
+        public LongArraySerializer() { super(long[].class); }
+        public LongArraySerializer(LongArraySerializer src, BeanProperty prop,
+                TypeSerializer vts) {
+            super(src, prop, vts);
+        }
 
         @Override
         public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-            return new LongArraySerializer(vts);
+            return new LongArraySerializer(this, _property, vts);
         }
 
         @Override
@@ -332,6 +374,15 @@ public class StdArraySerializers
         public void serializeContents(long[] value, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
+            if (_valueTypeSerializer != null) {
+                for (int i = 0, len = value.length; i < len; ++i) {
+                    _valueTypeSerializer.writeTypePrefixForScalar(null, jgen, Long.TYPE);
+                    jgen.writeNumber(value[i]);
+                    _valueTypeSerializer.writeTypeSuffixForScalar(null, jgen);
+                }
+                return;
+            }
+            
             for (int i = 0, len = value.length; i < len; ++i) {
                 jgen.writeNumber(value[i]);
             }
@@ -348,17 +399,22 @@ public class StdArraySerializers
 
     @JacksonStdImpl
     public final static class FloatArraySerializer
-        extends ArraySerializerBase<float[]>
+        extends TypedPrimitiveArraySerializer<float[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Float.TYPE);
         
-        public FloatArraySerializer() { this(null); }
-        public FloatArraySerializer(TypeSerializer vts) { super(float[].class, vts, null); }
+        public FloatArraySerializer() {
+            super(float[].class);
+        }
+        public FloatArraySerializer(FloatArraySerializer src, BeanProperty prop,
+                TypeSerializer vts) {
+            super(src, prop, vts);
+        }
 
         @Override
         public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
-            return new FloatArraySerializer(vts);
+            return new FloatArraySerializer(this, _property, vts);
         }
 
         @Override
@@ -381,6 +437,14 @@ public class StdArraySerializers
         public void serializeContents(float[] value, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
+            if (_valueTypeSerializer != null) {
+                for (int i = 0, len = value.length; i < len; ++i) {
+                    _valueTypeSerializer.writeTypePrefixForScalar(null, jgen, Float.TYPE);
+                    jgen.writeNumber(value[i]);
+                    _valueTypeSerializer.writeTypeSuffixForScalar(null, jgen);
+                }
+                return;
+            }
             for (int i = 0, len = value.length; i < len; ++i) {
                 jgen.writeNumber(value[i]);
             }
@@ -402,7 +466,7 @@ public class StdArraySerializers
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Double.TYPE);
 
-        public DoubleArraySerializer() { super(double[].class, null, null); }
+        public DoubleArraySerializer() { super(double[].class, null); }
 
         /**
          * Doubles never add type info; hence, even if type serializer is suggested,

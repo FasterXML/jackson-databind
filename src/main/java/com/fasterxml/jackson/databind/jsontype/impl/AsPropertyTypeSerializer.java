@@ -30,6 +30,12 @@ public class AsPropertyTypeSerializer
     }
 
     @Override
+    public AsPropertyTypeSerializer forProperty(BeanProperty prop) {
+        if (_property == prop) return this;
+        return new AsPropertyTypeSerializer(this._idResolver, prop, this._typePropertyName);
+    }
+    
+    @Override
     public String getPropertyName() { return _typePropertyName; }
 
     @Override

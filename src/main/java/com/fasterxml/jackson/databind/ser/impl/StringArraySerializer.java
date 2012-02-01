@@ -43,7 +43,7 @@ public class StringArraySerializer
      */
     
     protected StringArraySerializer() {
-        super(String[].class, null, null);
+        super(String[].class, null);
         _elementSerializer = null;
     }
 

@@ -28,16 +28,16 @@ public final class IndexedListSerializer
         super(List.class, elemType, staticTyping, vts, property, valueSerializer);
     }
 
-    public IndexedListSerializer(IndexedListSerializer src, BeanProperty property,
-            JsonSerializer<?> valueSerializer)
+    public IndexedListSerializer(IndexedListSerializer src,
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer)
     {
-        super(src, property, valueSerializer);
+        super(src, property, vts, valueSerializer);
     }
 
     @Override
     public IndexedListSerializer withResolved(BeanProperty property,
-            JsonSerializer<?> elementSerializer) {
-        return new IndexedListSerializer(this, property, elementSerializer);
+            TypeSerializer vts, JsonSerializer<?> elementSerializer) {
+        return new IndexedListSerializer(this, property, vts, elementSerializer);
     }
 
     @Override

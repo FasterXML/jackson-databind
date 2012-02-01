@@ -17,15 +17,16 @@ import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 public class IterableSerializer
     extends AsArraySerializerBase<Iterable<?>>
 {
-    public IterableSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts, BeanProperty property)
+    public IterableSerializer(JavaType elemType, boolean staticTyping,
+            TypeSerializer vts, BeanProperty property)
     {
         super(Iterable.class, elemType, staticTyping, vts, property, null);
     }
 
     public IterableSerializer(IterableSerializer src, BeanProperty property,
-            JsonSerializer<?> valueSerializer)
+            TypeSerializer vts, JsonSerializer<?> valueSerializer)
     {
-        super(src, property, valueSerializer);
+        super(src, property, vts, valueSerializer);
     }
     
     @Override
@@ -35,8 +36,8 @@ public class IterableSerializer
 
     @Override
     public IterableSerializer withResolved(BeanProperty property,
-            JsonSerializer<?> elementSerializer) {
-        return new IterableSerializer(this, property, elementSerializer);
+            TypeSerializer vts, JsonSerializer<?> elementSerializer) {
+        return new IterableSerializer(this, property, vts, elementSerializer);
     }
     
     @Override

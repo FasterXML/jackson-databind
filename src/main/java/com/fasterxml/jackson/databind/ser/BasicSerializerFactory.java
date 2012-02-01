@@ -337,7 +337,7 @@ public abstract class BasicSerializerFactory
      */
     @Override
     public TypeSerializer createTypeSerializer(SerializationConfig config,
-            JavaType baseType, BeanProperty property)
+            JavaType baseType)
     {
         BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
         AnnotatedClass ac = bean.getClassInfo();
@@ -352,7 +352,7 @@ public abstract class BasicSerializerFactory
         } else {
             subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(ac, config, ai);
         }
-        return (b == null) ? null : b.buildTypeSerializer(config, baseType, subtypes, property);
+        return (b == null) ? null : b.buildTypeSerializer(config, baseType, subtypes);
     }
     
     /*
@@ -520,7 +520,7 @@ public abstract class BasicSerializerFactory
         // Let's see what we can learn about element/content/value type, type serializer for it:
         JavaType elementType = type.getContentType();
         TypeSerializer elementTypeSerializer = createTypeSerializer(config,
-                elementType, property);
+                elementType);
         
         // if elements have type serializer, can not force static typing:
         if (elementTypeSerializer != null) {
@@ -758,7 +758,7 @@ public abstract class BasicSerializerFactory
         if (valueType == null) {
             valueType = TypeFactory.unknownType();
         }
-        TypeSerializer vts = createTypeSerializer(config, valueType, property);
+        TypeSerializer vts = createTypeSerializer(config, valueType);
         return StdContainerSerializers.iteratorSerializer(valueType,
                 usesStaticTyping(config, beanDesc, vts, property), vts, property);
     }
@@ -773,9 +773,10 @@ public abstract class BasicSerializerFactory
         if (valueType == null) {
             valueType = TypeFactory.unknownType();
         }
-        TypeSerializer vts = createTypeSerializer(config, valueType, property);
+        TypeSerializer vts = createTypeSerializer(config, valueType);
         return StdContainerSerializers.iterableSerializer(valueType,
-                usesStaticTyping(config, beanDesc, vts, property), vts, property);
+                usesStaticTyping(config, beanDesc, vts, property),
+                vts, property);
     }
     
     /*
@@ -887,8 +888,8 @@ public abstract class BasicSerializerFactory
      * (declared types)  should be used for properties.
      * (instead of dynamic runtime types).
      */
-    protected boolean usesStaticTyping(SerializationConfig config, BeanDescription beanDesc,
-            TypeSerializer typeSer, BeanProperty property)
+    protected boolean usesStaticTyping(SerializationConfig config,
+            BeanDescription beanDesc, TypeSerializer typeSer, BeanProperty property)
     {
         /* 16-Aug-2010, tatu: If there is a (value) type serializer, we can not force
          *    static typing; that would make it impossible to handle expected subtypes

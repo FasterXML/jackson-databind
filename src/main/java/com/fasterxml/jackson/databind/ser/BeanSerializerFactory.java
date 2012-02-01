@@ -220,10 +220,10 @@ public class BeanSerializerFactory
         TypeResolverBuilder<?> b = ai.findPropertyTypeResolver(config, accessor, baseType);        
         // Defaulting: if no annotations on member, check value class
         if (b == null) {
-            return createTypeSerializer(config, baseType, property);
+            return createTypeSerializer(config, baseType);
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(accessor, config, ai);
-        return b.buildTypeSerializer(config, baseType, subtypes, property);
+        return b.buildTypeSerializer(config, baseType, subtypes);
     }
 
     /**
@@ -236,8 +236,8 @@ public class BeanSerializerFactory
      * 
      * @return Type serializer to use for property value contents, if one is needed; null if not.
      */    
-    public TypeSerializer findPropertyContentTypeSerializer(JavaType containerType, SerializationConfig config,
-            AnnotatedMember accessor, BeanProperty property)
+    public TypeSerializer findPropertyContentTypeSerializer(JavaType containerType,
+            SerializationConfig config, AnnotatedMember accessor)
         throws JsonMappingException
     {
         JavaType contentType = containerType.getContentType();
@@ -245,10 +245,10 @@ public class BeanSerializerFactory
         TypeResolverBuilder<?> b = ai.findPropertyContentTypeResolver(config, accessor, containerType);        
         // Defaulting: if no annotations on member, check value class
         if (b == null) {
-            return createTypeSerializer(config, contentType, property);
+            return createTypeSerializer(config, contentType);
         }
         Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(accessor, config, ai);
-        return b.buildTypeSerializer(config, contentType, subtypes, property);
+        return b.buildTypeSerializer(config, contentType, subtypes);
     }
     
     /*
@@ -308,7 +308,7 @@ public class BeanSerializerFactory
             // copied from BasicSerializerFactory.buildMapSerializer():
             boolean staticTyping = config.isEnabled(MapperConfig.Feature.USE_STATIC_TYPING);
             JavaType valueType = type.getContentType();
-            TypeSerializer typeSer = createTypeSerializer(config, valueType, property);
+            TypeSerializer typeSer = createTypeSerializer(config, valueType);
             // last 2 nulls; don't know key, value serializers (yet)
             MapSerializer mapSer = MapSerializer.construct(/* ignored props*/ null, type, staticTyping,
                     typeSer, null, null);
@@ -580,7 +580,7 @@ public class BeanSerializerFactory
         // And how about polymorphic typing? First special to cover JAXB per-field settings:
         TypeSerializer contentTypeSer = null;
         if (ClassUtil.isCollectionMapOrArray(type.getRawClass())) {
-            contentTypeSer = findPropertyContentTypeSerializer(type, prov.getConfig(), accessor, property);
+            contentTypeSer = findPropertyContentTypeSerializer(type, prov.getConfig(), accessor);
         }
 
         // and if not JAXB collection/array with annotations, maybe regular type info?

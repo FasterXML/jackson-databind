@@ -16,10 +16,10 @@ public class EnumSetSerializer
         super(EnumSet.class, elemType, true, null, property, null);
     }
 
-    public EnumSetSerializer(EnumSetSerializer src, BeanProperty property,
-            JsonSerializer<?> valueSerializer)
+    public EnumSetSerializer(EnumSetSerializer src,
+            BeanProperty property, TypeSerializer vts, JsonSerializer<?> valueSerializer)
     {
-        super(src, property, valueSerializer);
+        super(src, property, vts, valueSerializer);
     }
     
     @Override
@@ -30,8 +30,8 @@ public class EnumSetSerializer
 
     @Override
     public EnumSetSerializer withResolved(BeanProperty property,
-            JsonSerializer<?> elementSerializer) {
-        return new EnumSetSerializer(this, property, elementSerializer);
+            TypeSerializer vts, JsonSerializer<?> elementSerializer) {
+        return new EnumSetSerializer(this, property, vts, elementSerializer);
     }
     
     @Override

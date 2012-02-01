@@ -70,7 +70,7 @@ public class StdTypeResolverBuilder
     
     @Override
     public TypeSerializer buildTypeSerializer(SerializationConfig config,
-            JavaType baseType, Collection<NamedType> subtypes, BeanProperty property)
+            JavaType baseType, Collection<NamedType> subtypes)
     {
         if (_idType == JsonTypeInfo.Id.NONE) {
             return null;
@@ -78,14 +78,14 @@ public class StdTypeResolverBuilder
         TypeIdResolver idRes = idResolver(config, baseType, subtypes, true, false);
         switch (_includeAs) {
         case WRAPPER_ARRAY:
-            return new AsArrayTypeSerializer(idRes, property);
+            return new AsArrayTypeSerializer(idRes, null);
         case PROPERTY:
-            return new AsPropertyTypeSerializer(idRes, property,
+            return new AsPropertyTypeSerializer(idRes, null,
                     _typeProperty);
         case WRAPPER_OBJECT:
-            return new AsWrapperTypeSerializer(idRes, property);
+            return new AsWrapperTypeSerializer(idRes, null);
         case EXTERNAL_PROPERTY:
-            return new AsExternalTypeSerializer(idRes, property,
+            return new AsExternalTypeSerializer(idRes, null,
                     _typeProperty);
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);

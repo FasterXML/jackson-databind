@@ -62,7 +62,7 @@ public abstract class SerializerFactory
      * @return Type serializer to use for the base type, if one is needed; null if not.
      */
     public abstract TypeSerializer createTypeSerializer(SerializationConfig config,
-            JavaType baseType, BeanProperty property)
+            JavaType baseType)
         throws JsonMappingException;
 
     /**

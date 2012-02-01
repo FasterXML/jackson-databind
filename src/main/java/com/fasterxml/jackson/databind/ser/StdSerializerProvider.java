@@ -393,8 +393,8 @@ public abstract class StdSerializerProvider
      *    a hint 
      */
     @Override
-    public JsonSerializer<Object> findTypedValueSerializer(Class<?> valueType, boolean cache,
-            BeanProperty property)
+    public JsonSerializer<Object> findTypedValueSerializer(Class<?> valueType,
+            boolean cache, BeanProperty property)
         throws JsonMappingException
     {
         // Two-phase lookups; local non-shared cache, then shared:
@@ -411,8 +411,9 @@ public abstract class StdSerializerProvider
         // Well, let's just compose from pieces:
         ser = findValueSerializer(valueType, property);
         TypeSerializer typeSer = _serializerFactory.createTypeSerializer(_config,
-                _config.constructType(valueType), property);
+                _config.constructType(valueType));
         if (typeSer != null) {
+            typeSer = typeSer.forProperty(property);
             ser = new TypeWrappedSerializer(typeSer, ser);
         }
         if (cache) {
@@ -439,8 +440,9 @@ public abstract class StdSerializerProvider
 
         // Well, let's just compose from pieces:
         ser = findValueSerializer(valueType, property);
-        TypeSerializer typeSer = _serializerFactory.createTypeSerializer(_config, valueType, property);
+        TypeSerializer typeSer = _serializerFactory.createTypeSerializer(_config, valueType);
         if (typeSer != null) {
+            typeSer = typeSer.forProperty(property);
             ser = new TypeWrappedSerializer(typeSer, ser);
         }
         if (cache) {

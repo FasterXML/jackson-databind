@@ -284,7 +284,7 @@ public abstract class BasicSerializerFactory
                 ClassUtil.checkAndFixAccess(m);
             }
             JsonSerializer<Object> ser = findSerializerFromAnnotation(prov, valueMethod, property);
-            return new JsonValueSerializer(m, ser, property);
+            return new JsonValueSerializer(m, ser);
         }
         
         // One unfortunate special case, as per [JACKSON-484]

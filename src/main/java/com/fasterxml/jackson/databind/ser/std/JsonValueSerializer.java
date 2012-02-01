@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Serializer class that can serialize Object that have a
@@ -25,18 +25,18 @@ import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
  * <p/>
  * Implementation note: we will post-process resulting serializer
  * (much like what is done with {@link BeanSerializer})
- * to figure out actual serializers for final types. This must be
- * done from {@link #resolve} method, and NOT from constructor;
+ * to figure out actual serializers for final types.
+ *  This must be done from {@link #createContextual} method, and NOT from constructor;
  * otherwise we could end up with an infinite loop.
  */
 @JacksonStdImpl
 public class JsonValueSerializer
     extends StdSerializer<Object>
-    implements ResolvableSerializer, SchemaAware
+    implements ContextualSerializer, SchemaAware
 {
     protected final Method _accessorMethod;
 
-    protected JsonSerializer<Object> _valueSerializer;
+    protected final JsonSerializer<Object> _valueSerializer;
 
     protected final BeanProperty _property;
     
@@ -46,22 +46,100 @@ public class JsonValueSerializer
      * we actually must force type information wrapping, even though
      * one would not normally be added.
      */
-    protected boolean _forceTypeInformation;
+    protected final boolean _forceTypeInformation;
     
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+
     /**
      * @param ser Explicit serializer to use, if caller knows it (which
      *    occurs if and only if the "value method" was annotated with
      *    {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#using}), otherwise
      *    null
      */
-    public JsonValueSerializer(Method valueMethod, JsonSerializer<Object> ser, BeanProperty property)
+    public JsonValueSerializer(Method valueMethod, JsonSerializer<Object> ser)
     {
         super(Object.class);
         _accessorMethod = valueMethod;
         _valueSerializer = ser;
-        _property = property;
+        _property = null;
+        _forceTypeInformation = true; // gets reconsidered when we are contextualized
     }
 
+    @SuppressWarnings("unchecked")
+    public JsonValueSerializer(JsonValueSerializer src, BeanProperty property,
+            JsonSerializer<?> ser, boolean forceTypeInfo)
+    {
+        super(Object.class);
+        _accessorMethod = src._accessorMethod;
+        _valueSerializer = (JsonSerializer<Object>) ser;
+        _property = property;
+        _forceTypeInformation = forceTypeInfo;
+    }
+
+    public JsonValueSerializer withResolved(BeanProperty property,
+            JsonSerializer<?> ser, boolean forceTypeInfo)
+    {
+        if (_property == property && _valueSerializer == ser
+                && forceTypeInfo == _forceTypeInformation) {
+            return this;
+        }
+        return new JsonValueSerializer(this, property, ser, forceTypeInfo);
+    }
+    
+    /*
+    /**********************************************************
+    /* Post-processing
+    /**********************************************************
+     */
+
+    /**
+     * We can try to find the actual serializer for value, if we can
+     * statically figure out what the result type must be.
+     */
+    @Override
+    public JsonSerializer<?> createContextual(SerializerProvider provider,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<?> ser = _valueSerializer;
+        if (ser == null) {
+            /* Can only assign serializer statically if the declared type is final:
+             * if not, we don't really know the actual type until we get the instance.
+             */
+            // 10-Mar-2010, tatu: Except if static typing is to be used
+            if (provider.isEnabled(MapperConfig.Feature.USE_STATIC_TYPING)
+                    || Modifier.isFinal(_accessorMethod.getReturnType().getModifiers())) {
+                JavaType t = provider.constructType(_accessorMethod.getGenericReturnType());
+                // false -> no need to cache
+                /* 10-Mar-2010, tatu: Ideally we would actually separate out type
+                 *   serializer from value serializer; but, alas, there's no access
+                 *   to serializer factory at this point... 
+                 */
+                /* 09-Dec-2010, tatu: Turns out we must add special handling for
+                 *   cases where "native" (aka "natural") type is being serialized,
+                 *   using standard serializer
+                 */
+                ser = provider.findTypedValueSerializer(t, false, _property);
+                boolean forceTypeInformation = isNaturalTypeWithStdHandling(t.getRawClass(), ser);
+                return withResolved(property, ser, forceTypeInformation);
+            }
+        } else if (ser instanceof ContextualSerializer) {
+            ser = ((ContextualSerializer) ser).createContextual(provider, property);
+            return withResolved(property, ser, _forceTypeInformation);
+        }
+        return this;
+    }
+    
+    /*
+    /**********************************************************
+    /* Actual serialization
+    /**********************************************************
+     */
+    
     @Override
     public void serialize(Object bean, JsonGenerator jgen, SerializerProvider prov)
         throws IOException, JsonGenerationException
@@ -160,61 +238,21 @@ public class JsonValueSerializer
                 ((SchemaAware) _valueSerializer).getSchema(provider, null) :
                 JsonSchema.getDefaultSchemaNode();
     }
-    
-    /*
-    /*******************************************************
-    /* ResolvableSerializer impl
-    /*******************************************************
-     */
 
-    /**
-     * We can try to find the actual serializer for value, if we can
-     * statically figure out what the result type must be.
-     */
-    @Override
-    public void resolve(SerializerProvider provider)
-        throws JsonMappingException
+    protected boolean isNaturalTypeWithStdHandling(Class<?> rawType, JsonSerializer<?> ser)
     {
-        if (_valueSerializer == null) {
-            /* Note: we can only assign serializer statically if the
-             * declared type is final -- if not, we don't really know
-             * the actual type until we get the instance.
-             */
-            // 10-Mar-2010, tatu: Except if static typing is to be used
-            if (provider.isEnabled(MapperConfig.Feature.USE_STATIC_TYPING)
-                    || Modifier.isFinal(_accessorMethod.getReturnType().getModifiers())) {
-                JavaType t = provider.constructType(_accessorMethod.getGenericReturnType());
-                // false -> no need to cache
-                /* 10-Mar-2010, tatu: Ideally we would actually separate out type
-                 *   serializer from value serializer; but, alas, there's no access
-                 *   to serializer factory at this point... 
-                 */
-                _valueSerializer = provider.findTypedValueSerializer(t, false, _property);
-                /* 09-Dec-2010, tatu: Turns out we must add special handling for
-                 *   cases where "native" (aka "natural") type is being serialized,
-                 *   using standard serializer
-                 */
-                _forceTypeInformation = isNaturalTypeWithStdHandling(t, _valueSerializer);
-            }
-        }
-    }
-
-    protected boolean isNaturalTypeWithStdHandling(JavaType type, JsonSerializer<?> ser)
-    {
-        Class<?> cls = type.getRawClass();
         // First: do we have a natural type being handled?
-        if (type.isPrimitive()) {
-            if (cls != Integer.TYPE && cls != Boolean.TYPE && cls != Double.TYPE) {
+        if (rawType.isPrimitive()) {
+            if (rawType != Integer.TYPE && rawType != Boolean.TYPE && rawType != Double.TYPE) {
                 return false;
             }
         } else {
-            if (cls != String.class &&
-                    cls != Integer.class && cls != Boolean.class && cls != Double.class) {
+            if (rawType != String.class &&
+                    rawType != Integer.class && rawType != Boolean.class && rawType != Double.class) {
                 return false;
             }
         }
-        // Second: and it's handled with standard serializer?
-        return (ser.getClass().getAnnotation(JacksonStdImpl.class)) != null;
+        return isDefaultSerializer(ser);
     }
     
     /*

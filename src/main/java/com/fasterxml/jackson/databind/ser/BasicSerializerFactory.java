@@ -15,6 +15,9 @@ import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.impl.IndexedStringListSerializer;
+import com.fasterxml.jackson.databind.ser.impl.StringArraySerializer;
+import com.fasterxml.jackson.databind.ser.impl.StringCollectionSerializer;
 import com.fasterxml.jackson.databind.ser.std.*;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -592,7 +595,7 @@ public abstract class BasicSerializerFactory
         // Important: do NOT use standard serializers if non-standard element value serializer specified
         if (elementValueSerializer == null || ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
             if (String[].class == raw) {
-                return new StdArraySerializers.StringArraySerializer(property);
+                return new StringArraySerializer(property);
             } else {
                 // other standard types?
                 JsonSerializer<?> ser = _arraySerializers.get(raw.getName());

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser.std;
+package com.fasterxml.jackson.databind.ser.impl;
 
 import java.io.IOException;
 import java.util.*;
@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
 
 /**
  * Efficient implement for serializing {@link Collection}s that contain Strings.

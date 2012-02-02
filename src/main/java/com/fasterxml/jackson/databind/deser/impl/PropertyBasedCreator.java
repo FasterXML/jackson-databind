@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -43,23 +44,21 @@ public final class PropertyBasedCreator
      */
     protected final SettableBeanProperty[] _propertiesWithInjectables;
     
-    public PropertyBasedCreator(ValueInstantiator valueInstantiator,
-            SettableBeanProperty[] creatorProps)
+    /*
+    /**********************************************************
+    /* Construction, initialization
+    /**********************************************************
+     */
+    
+    protected PropertyBasedCreator(ValueInstantiator valueInstantiator,
+            SettableBeanProperty[] creatorProps, Object[] defaultValues)
     {
         _valueInstantiator = valueInstantiator;
         _properties = new HashMap<String, SettableBeanProperty>();
-        // [JACKSON-372]: primitive types need extra care
-        Object[] defValues = null;
         SettableBeanProperty[] propertiesWithInjectables = null;
         for (int i = 0, len = creatorProps.length; i < len; ++i) {
             SettableBeanProperty prop = creatorProps[i];
             _properties.put(prop.getName(), prop);
-            if (prop.getType().isPrimitive()) {
-                if (defValues == null) {
-                    defValues = new Object[len];
-                }
-                defValues[i] = ClassUtil.defaultValue(prop.getType().getRawClass());
-            }
             Object injectableValueId = prop.getInjectableValueId();
             if (injectableValueId != null) {
                 if (propertiesWithInjectables == null) {
@@ -68,10 +67,55 @@ public final class PropertyBasedCreator
                 propertiesWithInjectables[i] = prop;
             }
         }
-        _defaultValues = defValues;
+        _defaultValues = defaultValues;
         _propertiesWithInjectables = propertiesWithInjectables;        
     }
 
+    /**
+     * Factory method used for building actual instances: resolves deserializers
+     * and checks for "null values".
+     */
+    public static PropertyBasedCreator construct(DeserializationContext ctxt,
+            ValueInstantiator valueInstantiator, SettableBeanProperty[] srcProps)
+        throws JsonMappingException
+    {
+        final int len = srcProps.length;
+        SettableBeanProperty[] creatorProps = new SettableBeanProperty[len];
+        Object[] defaultValues = null;
+        for (int i = 0; i < len; ++i) {
+            SettableBeanProperty prop = srcProps[i];
+            if (!prop.hasValueDeserializer()) {
+                prop = prop.withValueDeserializer(ctxt.findContextualValueDeserializer(prop.getType(), prop));
+            }
+            creatorProps[i] = prop;
+            // [JACKSON-372]: primitive types need extra care
+            // [JACKSON-774]: as do non-default nulls...
+            JsonDeserializer<?> deser = prop.getValueDeserializer();
+            Object nullValue = (deser == null) ? null : deser.getNullValue();
+            if ((nullValue == null) && prop.getType().isPrimitive()) {
+                nullValue = ClassUtil.defaultValue(prop.getType().getRawClass());
+            }
+            if (nullValue != null) {
+                if (defaultValues == null) {
+                    defaultValues = new Object[len];
+                }
+                defaultValues[i] = nullValue;
+            }
+        }
+        return new PropertyBasedCreator(valueInstantiator, creatorProps, defaultValues);
+    }
+    
+    public void assignDeserializer(SettableBeanProperty prop, JsonDeserializer<Object> deser) {
+        prop = prop.withValueDeserializer(deser);
+        _properties.put(prop.getName(), prop);
+    }
+    
+    /*
+    /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
+    
     public Collection<SettableBeanProperty> getCreatorProperties() {
         return _properties.values();
     }
@@ -79,12 +123,13 @@ public final class PropertyBasedCreator
     public SettableBeanProperty findCreatorProperty(String name) {
         return _properties.get(name);
     }
-
-    public void assignDeserializer(SettableBeanProperty prop, JsonDeserializer<Object> deser) {
-        prop = prop.withValueDeserializer(deser);
-        _properties.put(prop.getName(), prop);
-    }
     
+    /*
+    /**********************************************************
+    /* Building process
+    /**********************************************************
+     */
+
     /**
      * Method called when starting to build a bean instance.
      */

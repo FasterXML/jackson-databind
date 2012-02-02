@@ -379,13 +379,7 @@ public class BeanDeserializer
         // if ValueInstantiator can use "creator" approach, need to resolve it here...
         if (_valueInstantiator.canCreateFromObjectWith()) {
             SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
-            _propertyBasedCreator = new PropertyBasedCreator(_valueInstantiator, creatorProps);
-            for (SettableBeanProperty prop : creatorProps) {
-                if (!prop.hasValueDeserializer()) {
-                    _propertyBasedCreator.assignDeserializer(prop,
-                           findDeserializer(ctxt, prop.getType(), prop));
-                }
-            }
+            _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, creatorProps);
         }
 
         Iterator<SettableBeanProperty> it = _beanProperties.allProperties();

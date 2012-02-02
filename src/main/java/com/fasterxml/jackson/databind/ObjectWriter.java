@@ -44,7 +44,7 @@ public class ObjectWriter
      */
     protected final SerializationConfig _config;
    
-    protected final SerializerProvider _provider;
+    protected final SerializerProvider _serializerProvider;
 
     protected final SerializerFactory _serializerFactory;
 
@@ -92,7 +92,7 @@ public class ObjectWriter
     {
         _config = config;
 
-        _provider = mapper._serializerProvider;
+        _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
         _jsonFactory = mapper._jsonFactory;
 
@@ -108,7 +108,7 @@ public class ObjectWriter
     {
         _config = config;
 
-        _provider = mapper._serializerProvider;
+        _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
         _jsonFactory = mapper._jsonFactory;
 
@@ -125,7 +125,7 @@ public class ObjectWriter
     {
         _config = config;
 
-        _provider = mapper._serializerProvider;
+        _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
         _jsonFactory = mapper._jsonFactory;
 
@@ -142,7 +142,7 @@ public class ObjectWriter
     {
         _config = config;
 
-        _provider = base._provider;
+        _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
         _jsonFactory = base._jsonFactory;
         
@@ -158,7 +158,7 @@ public class ObjectWriter
     {
         _config = config;
 
-        _provider = base._provider;
+        _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
         _jsonFactory = base._jsonFactory;
         _schema = base._schema;
@@ -407,9 +407,9 @@ public class ObjectWriter
             _writeCloseableValue(jgen, value, _config);
         } else {
             if (_rootType == null) {
-                _provider.serializeValue(_config, jgen, value, _serializerFactory);
+                _serializerProvider(_config).serializeValue(jgen, value);
             } else {
-                _provider.serializeValue(_config, jgen, value, _rootType, _serializerFactory);
+                _serializerProvider(_config).serializeValue(jgen, value, _rootType);
             }
             if (_config.isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE)) {
                 jgen.flush();
@@ -504,11 +504,24 @@ public class ObjectWriter
     /**********************************************************
      */
 
-    public boolean canSerialize(Class<?> type)
-    {
-        return _provider.hasSerializerFor(_config, type, _serializerFactory);
+    public boolean canSerialize(Class<?> type) {
+        return _serializerProvider(_config).hasSerializerFor(type);
     }
 
+    /*
+    /**********************************************************
+    /* Overridable helper methods
+    /**********************************************************
+     */
+    
+    /**
+     * Overridable helper method used for constructing
+     * {@link SerializerProvider} to use for serialization.
+     */
+    protected SerializerProvider _serializerProvider(SerializationConfig config) {
+        return _serializerProvider.createInstance(config, _serializerFactory);
+    }
+    
     /*
     /**********************************************************
     /* Internal methods
@@ -540,9 +553,9 @@ public class ObjectWriter
         boolean closed = false;
         try {
             if (_rootType == null) {
-                _provider.serializeValue(_config, jgen, value, _serializerFactory);
+                _serializerProvider(_config).serializeValue(jgen, value);
             } else {
-                _provider.serializeValue(_config, jgen, value, _rootType, _serializerFactory);                
+                _serializerProvider(_config).serializeValue(jgen, value, _rootType);                
             }
             closed = true;
             jgen.close();
@@ -568,9 +581,9 @@ public class ObjectWriter
         Closeable toClose = (Closeable) value;
         try {
             if (_rootType == null) {
-                _provider.serializeValue(cfg, jgen, value, _serializerFactory);
+                _serializerProvider(cfg).serializeValue(jgen, value);
             } else {
-                _provider.serializeValue(cfg, jgen, value, _rootType, _serializerFactory);
+                _serializerProvider(cfg).serializeValue(jgen, value);
             }
             // [JACKSON-520]: add support for pass-through schema:
             if (_schema != null) {
@@ -609,9 +622,9 @@ public class ObjectWriter
         Closeable toClose = (Closeable) value;
         try {
             if (_rootType == null) {
-                _provider.serializeValue(cfg, jgen, value, _serializerFactory);
+                _serializerProvider(cfg).serializeValue(jgen, value);
             } else {
-                _provider.serializeValue(cfg, jgen, value, _rootType, _serializerFactory);
+                _serializerProvider(cfg).serializeValue(jgen, value, _rootType);
             }
             if (_config.isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE)) {
                 jgen.flush();

@@ -401,7 +401,7 @@ public class ObjectMapper
                     _subtypeResolver, _mixInAnnotations);
         _deserializationConfig = new DeserializationConfig(DEFAULT_BASE,
                     _subtypeResolver, _mixInAnnotations);
-        _serializerProvider = (sp == null) ? new StdSerializerProvider.Impl() : sp;
+        _serializerProvider = (sp == null) ? new SerializerProvider.Impl() : sp;
         _deserializerCache = (dp == null) ? new DeserializerCache(BeanDeserializerFactory.instance) : dp;
 
         // Default serializer factory is stateless, can just assign
@@ -1547,7 +1547,7 @@ public class ObjectMapper
         if (config.isEnabled(SerializationConfig.Feature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _writeCloseableValue(jgen, value, config);
         } else {
-            _serializerProvider.serializeValue(config, jgen, value, _serializerFactory);
+            _serializerProvider(config).serializeValue(jgen, value);
             if (config.isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE)) {
                 jgen.flush();
             }
@@ -1562,7 +1562,7 @@ public class ObjectMapper
         throws IOException, JsonProcessingException
     {
         SerializationConfig config = getSerializationConfig();
-        _serializerProvider.serializeValue(config, jgen, rootNode, _serializerFactory);
+        _serializerProvider(config).serializeValue(jgen, rootNode);
         if (config.isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE)) {
             jgen.flush();
         }
@@ -1677,10 +1677,8 @@ public class ObjectMapper
      *  given class (potentially serializable), false otherwise (not
      *  serializable)
      */
-    public boolean canSerialize(Class<?> type)
-    {
-        return _serializerProvider.hasSerializerFor(getSerializationConfig(),
-                type, _serializerFactory);
+    public boolean canSerialize(Class<?> type) {
+        return _serializerProvider(getSerializationConfig()).hasSerializerFor(type);
     }
 
     /**
@@ -2262,7 +2260,7 @@ public class ObjectMapper
             // first: disable wrapping when writing
             SerializationConfig config = getSerializationConfig().without(SerializationConfig.Feature.WRAP_ROOT_VALUE);
             // no need to check for closing of TokenBuffer
-            _serializerProvider.serializeValue(config, buf, fromValue, _serializerFactory);
+            _serializerProvider(config).serializeValue(buf, fromValue);
 
             // then matching read, inlined 'readValue' with minor mods:
             final JsonParser jp = buf.asParser();
@@ -2301,24 +2299,8 @@ public class ObjectMapper
      * @param t The class to generate schema for
      * @return Constructed JSON schema.
      */
-    public JsonSchema generateJsonSchema(Class<?> t)
-            throws JsonMappingException
-    {
-        return generateJsonSchema(t, getSerializationConfig());
-    }
-
-    /**
-     * Generate <a href="http://json-schema.org/">Json-schema</a>
-     * instance for specified class, using specific
-     * serialization configuration
-     *
-     * @param t The class to generate schema for
-     * @return Constructed JSON schema.
-     */
-    public JsonSchema generateJsonSchema(Class<?> t, SerializationConfig cfg)
-            throws JsonMappingException
-    {
-        return _serializerProvider.generateJsonSchema(t, cfg, _serializerFactory);
+    public JsonSchema generateJsonSchema(Class<?> t) throws JsonMappingException {
+        return _serializerProvider(getSerializationConfig()).generateJsonSchema(t);
     }
 
     /*
@@ -2327,6 +2309,14 @@ public class ObjectMapper
     /**********************************************************
      */
 
+    /**
+     * Overridable helper method used for constructing
+     * {@link SerializerProvider} to use for serialization.
+     */
+    protected SerializerProvider _serializerProvider(SerializationConfig config) {
+        return _serializerProvider.createInstance(config, _serializerFactory);
+    }
+    
     /**
      * Helper method that should return default pretty-printer to
      * use for generators constructed by this mapper, when instructed
@@ -2355,7 +2345,7 @@ public class ObjectMapper
         }
         boolean closed = false;
         try {
-            _serializerProvider.serializeValue(cfg, jgen, value, _serializerFactory);
+            _serializerProvider(cfg).serializeValue(jgen, value);
             closed = true;
             jgen.close();
         } finally {
@@ -2384,7 +2374,7 @@ public class ObjectMapper
         }
         boolean closed = false;
         try {
-            _serializerProvider.serializeValue(cfg, jgen, value, _serializerFactory);
+            _serializerProvider(cfg).serializeValue(jgen, value);
             closed = true;
             jgen.close();
         } finally {
@@ -2405,7 +2395,7 @@ public class ObjectMapper
     {
         Closeable toClose = (Closeable) value;
         try {
-            _serializerProvider.serializeValue(cfg, jgen, value, _serializerFactory);
+            _serializerProvider(cfg).serializeValue(jgen, value);
             JsonGenerator tmpJgen = jgen;
             jgen = null;
             tmpJgen.close();
@@ -2438,7 +2428,7 @@ public class ObjectMapper
     {
         Closeable toClose = (Closeable) value;
         try {
-            _serializerProvider.serializeValue(cfg, jgen, value, _serializerFactory);
+            _serializerProvider(cfg).serializeValue(jgen, value);
             if (cfg.isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE)) {
                 jgen.flush();
             }

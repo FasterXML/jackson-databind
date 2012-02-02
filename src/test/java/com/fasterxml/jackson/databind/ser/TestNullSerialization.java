@@ -2,10 +2,8 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.io.*;
 
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ser.StdSerializerProvider;
 
 public class TestNullSerialization
     extends BaseMapTest
@@ -28,15 +26,16 @@ public class TestNullSerialization
         public String type = null;
     }
     
-    static class MyNullProvider extends StdSerializerProvider
+    static class MyNullProvider extends SerializerProvider
     {
         public MyNullProvider() { super(); }
-        public MyNullProvider(SerializationConfig config, MyNullProvider base, SerializerFactory jsf) {
-            super(config, base, jsf);
+        public MyNullProvider(MyNullProvider base, SerializationConfig config, SerializerFactory jsf) {
+            super(base, config, jsf);
         }
         
-        protected StdSerializerProvider createInstance(SerializationConfig config, SerializerFactory jsf) {
-            return new MyNullProvider(config, this, jsf);
+        @Override
+        public SerializerProvider createInstance(SerializationConfig config, SerializerFactory jsf) {
+            return new MyNullProvider(this, config, jsf);
         }
         
         @Override
@@ -63,7 +62,7 @@ public class TestNullSerialization
 
     public void testOverriddenDefaultNulls() throws Exception
     {
-        StdSerializerProvider sp = new StdSerializerProvider.Impl();
+        SerializerProvider sp = new SerializerProvider.Impl();
         sp.setNullValueSerializer(new NullSerializer());
         ObjectMapper m = new ObjectMapper();
         m.setSerializerProvider(sp);

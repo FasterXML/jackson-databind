@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
-import com.fasterxml.jackson.databind.ser.StdSerializerProvider;
 
 public class TestSerializerProvider
     extends com.fasterxml.jackson.databind.BaseMapTest
@@ -16,7 +15,7 @@ public class TestSerializerProvider
         ObjectMapper mapper = new ObjectMapper();
         SerializationConfig config = mapper.getSerializationConfig();
         SerializerFactory f = new BeanSerializerFactory(null);
-        StdSerializerProvider prov = new StdSerializerProvider.Impl().createInstance(config, f);
+        SerializerProvider prov = new SerializerProvider.Impl().createInstance(config, f);
 
         // Should have working default key and null key serializers
         assertNotNull(prov.findKeySerializer(null, null));
@@ -25,11 +24,11 @@ public class TestSerializerProvider
         // as well as 'unknown type' one (throws exception)
         assertNotNull(prov.getUnknownTypeSerializer(getClass()));
         
-        assertTrue(prov.hasSerializerFor(config, String.class, f));
+        assertTrue(prov.createInstance(config, f).hasSerializerFor(String.class));
         // call twice to verify it'll be cached (second code path)
-        assertTrue(prov.hasSerializerFor(config, String.class, f));
+        assertTrue(prov.createInstance(config, f).hasSerializerFor(String.class));
 
-        assertTrue(prov.hasSerializerFor(config, MyBean.class, f));
-        assertTrue(prov.hasSerializerFor(config, MyBean.class, f));
+        assertTrue(prov.createInstance(config, f).hasSerializerFor(MyBean.class));
+        assertTrue(prov.createInstance(config, f).hasSerializerFor(MyBean.class));
     }
 }

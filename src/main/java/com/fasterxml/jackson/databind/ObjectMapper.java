@@ -342,7 +342,7 @@ public class ObjectMapper
     /**
      * Default constructor, which will construct the default
      * {@link JsonFactory} as necessary, use
-     * {@link StdSerializerProvider} as its
+     * {@link SerializerProvider} as its
      * {@link SerializerProvider}, and
      * {@link BeanSerializerFactory} as its
      * {@link SerializerFactory}.
@@ -373,7 +373,7 @@ public class ObjectMapper
      * serializers and deserializers.
      * 
      * @param jf JsonFactory to use: if null, a new {@link MappingJsonFactory} will be constructed
-     * @param sp SerializerProvider to use: if null, a {@link StdSerializerProvider} will be constructed
+     * @param sp SerializerProvider to use: if null, a {@link SerializerProvider} will be constructed
      * @param dp DeserializerCache to use
      */
     public ObjectMapper(JsonFactory jf,

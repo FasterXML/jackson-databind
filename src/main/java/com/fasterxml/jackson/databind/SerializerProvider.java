@@ -275,15 +275,58 @@ public abstract class SerializerProvider
      * for serializing given value, using serializers that
      * this provider has access to (via caching and/or creating new serializers
      * as need be).
-     *
-     * @param jsf Underlying factory object used for creating serializers
-     *    as needed
      */
-    public final void serializeValue(JsonGenerator jgen, Object value)
+    public void serializeValue(JsonGenerator jgen, Object value)
         throws IOException, JsonGenerationException
     {
-        // And then we can do actual serialization, through the instance
-        _serializeValue(jgen, value);
+        JsonSerializer<Object> ser;
+        boolean wrap;
+
+        if (value == null) {
+            // no type provided; must just use the default null serializer
+            ser = getDefaultNullValueSerializer();
+            wrap = false; // no name to use for wrapping; can't do!
+        } else {
+            Class<?> cls = value.getClass();
+            // true, since we do want to cache root-level typed serializers (ditto for null property)
+            ser = findTypedValueSerializer(cls, true, null);
+
+            // Ok: should we wrap result in an additional property ("root name")?
+            String rootName = _config.getRootName();
+            if (rootName == null) { // not explicitly specified
+                // [JACKSON-163]
+                wrap = _config.isEnabled(SerializationConfig.Feature.WRAP_ROOT_VALUE);
+                if (wrap) {
+                    jgen.writeStartObject();
+                    jgen.writeFieldName(_rootNames.findRootName(value.getClass(), _config));
+                }
+            } else if (rootName.length() == 0) {
+                wrap = false;
+            } else { // [JACKSON-764]
+                // empty String means explicitly disabled; non-empty that it is enabled
+                wrap = true;
+                jgen.writeStartObject();
+                jgen.writeFieldName(rootName);
+            }
+        }
+        try {
+            ser.serialize(value, jgen, this);
+            if (wrap) {
+                jgen.writeEndObject();
+            }
+        } catch (IOException ioe) {
+            /* As per [JACKSON-99], should not wrap IOException or its
+             * sub-classes (like JsonProcessingException, JsonMappingException)
+             */
+            throw ioe;
+        } catch (Exception e) {
+            // but others are wrapped
+            String msg = e.getMessage();
+            if (msg == null) {
+                msg = "[no message for "+e.getClass().getName()+"]";
+            }
+            throw new JsonMappingException(msg, e);
+        }
     }
 
     /**
@@ -297,15 +340,49 @@ public abstract class SerializerProvider
      * @param rootType Type to use for locating serializer to use, instead of actual
      *    runtime type. Must be actual type, or one of its super types
      */
-    public final void serializeValue(JsonGenerator jgen, Object value,
+    public void serializeValue(JsonGenerator jgen, Object value,
             JavaType rootType)
         throws IOException, JsonGenerationException
     {
-        _serializeValue(jgen, value, rootType);
+        boolean wrap;
+
+        JsonSerializer<Object> ser;
+        if (value == null) {
+            ser = getDefaultNullValueSerializer();
+            wrap = false;
+        } else {
+            // Let's ensure types are compatible at this point
+            if (!rootType.getRawClass().isAssignableFrom(value.getClass())) {
+                _reportIncompatibleRootType(value, rootType);
+            }
+            // root value, not reached via property:
+            ser = findTypedValueSerializer(rootType, true, null);
+            // [JACKSON-163]
+            wrap = _config.isEnabled(SerializationConfig.Feature.WRAP_ROOT_VALUE);
+            if (wrap) {
+                jgen.writeStartObject();
+                jgen.writeFieldName(_rootNames.findRootName(rootType, _config));
+            }
+        }
+        try {
+            ser.serialize(value, jgen, this);
+            if (wrap) {
+                jgen.writeEndObject();
+            }
+        } catch (IOException ioe) { // no wrapping for IO (and derived)
+            throw ioe;
+        } catch (Exception e) { // but others do need to be, to get path etc
+            String msg = e.getMessage();
+            if (msg == null) {
+                msg = "[no message for "+e.getClass().getName()+"]";
+            }
+            throw new JsonMappingException(msg, e);
+        }
     }
 
     /**
-     * Generate <a href="http://json-schema.org/">Json-schema</a> for
+     * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
+     * to generate <a href="http://json-schema.org/">JSON schema</a> for
      * given type.
      *
      * @param type The type for which to generate schema
@@ -954,114 +1031,6 @@ public abstract class SerializerProvider
      */
     public void flushCachedSerializers() {
         _serializerCache.flush();
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods: can be overridden by sub-classes
-    /**********************************************************
-     */
-    
-    /**
-     * Method called on the actual non-blueprint provider instance object,
-     * to kick off the serialization.
-     */
-    protected final void _serializeValue(JsonGenerator jgen, Object value)
-        throws IOException, JsonProcessingException
-    {
-        JsonSerializer<Object> ser;
-        boolean wrap;
-
-        if (value == null) {
-            // no type provided; must just use the default null serializer
-            ser = getDefaultNullValueSerializer();
-            wrap = false; // no name to use for wrapping; can't do!
-        } else {
-            Class<?> cls = value.getClass();
-            // true, since we do want to cache root-level typed serializers (ditto for null property)
-            ser = findTypedValueSerializer(cls, true, null);
-
-            // Ok: should we wrap result in an additional property ("root name")?
-            String rootName = _config.getRootName();
-            if (rootName == null) { // not explicitly specified
-                // [JACKSON-163]
-                wrap = _config.isEnabled(SerializationConfig.Feature.WRAP_ROOT_VALUE);
-                if (wrap) {
-                    jgen.writeStartObject();
-                    jgen.writeFieldName(_rootNames.findRootName(value.getClass(), _config));
-                }
-            } else if (rootName.length() == 0) {
-                wrap = false;
-            } else { // [JACKSON-764]
-                // empty String means explicitly disabled; non-empty that it is enabled
-                wrap = true;
-                jgen.writeStartObject();
-                jgen.writeFieldName(rootName);
-            }
-        }
-        try {
-            ser.serialize(value, jgen, this);
-            if (wrap) {
-                jgen.writeEndObject();
-            }
-        } catch (IOException ioe) {
-            /* As per [JACKSON-99], should not wrap IOException or its
-             * sub-classes (like JsonProcessingException, JsonMappingException)
-             */
-            throw ioe;
-        } catch (Exception e) {
-            // but others are wrapped
-            String msg = e.getMessage();
-            if (msg == null) {
-                msg = "[no message for "+e.getClass().getName()+"]";
-            }
-            throw new JsonMappingException(msg, e);
-        }
-    }
-
-    /**
-     * Method called on the actual non-blueprint provider instance object,
-     * to kick off the serialization, when root type is explicitly
-     * specified and not determined from value.
-     */
-    protected  void _serializeValue(JsonGenerator jgen, Object value, JavaType rootType)
-        throws IOException, JsonProcessingException
-    {
-        // [JACKSON-163]
-        boolean wrap;
-
-        JsonSerializer<Object> ser;
-        if (value == null) {
-            ser = getDefaultNullValueSerializer();
-            wrap = false;
-        } else {
-            // Let's ensure types are compatible at this point
-            if (!rootType.getRawClass().isAssignableFrom(value.getClass())) {
-                _reportIncompatibleRootType(value, rootType);
-            }
-            // root value, not reached via property:
-            ser = findTypedValueSerializer(rootType, true, null);
-            // [JACKSON-163]
-            wrap = _config.isEnabled(SerializationConfig.Feature.WRAP_ROOT_VALUE);
-            if (wrap) {
-                jgen.writeStartObject();
-                jgen.writeFieldName(_rootNames.findRootName(rootType, _config));
-            }
-        }
-        try {
-            ser.serialize(value, jgen, this);
-            if (wrap) {
-                jgen.writeEndObject();
-            }
-        } catch (IOException ioe) { // no wrapping for IO (and derived)
-            throw ioe;
-        } catch (Exception e) { // but others do need to be, to get path etc
-            String msg = e.getMessage();
-            if (msg == null) {
-                msg = "[no message for "+e.getClass().getName()+"]";
-            }
-            throw new JsonMappingException(msg, e);
-        }
     }
 
     protected void _reportIncompatibleRootType(Object value, JavaType rootType)

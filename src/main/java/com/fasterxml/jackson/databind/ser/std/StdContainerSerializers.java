@@ -20,30 +20,30 @@ public class StdContainerSerializers
             boolean staticTyping, TypeSerializer vts, BeanProperty property,
             JsonSerializer<Object> valueSerializer)
     {
-        return new IndexedListSerializer(elemType, staticTyping, vts, property, valueSerializer);
+        return new IndexedListSerializer(elemType, staticTyping, vts, null, valueSerializer);
     }
 
     public static ContainerSerializer<?> collectionSerializer(JavaType elemType,
             boolean staticTyping, TypeSerializer vts, BeanProperty property,
             JsonSerializer<Object> valueSerializer)
     {
-        return new CollectionSerializer(elemType, staticTyping, vts, property, valueSerializer);
+        return new CollectionSerializer(elemType, staticTyping, vts, null, valueSerializer);
     }
 
     public static ContainerSerializer<?> iteratorSerializer(JavaType elemType,
-            boolean staticTyping, TypeSerializer vts, BeanProperty property)
+            boolean staticTyping, TypeSerializer vts)
     {
-        return new IteratorSerializer(elemType, staticTyping, vts, property);
+        return new IteratorSerializer(elemType, staticTyping, vts, null);
     }
 
     public static ContainerSerializer<?> iterableSerializer(JavaType elemType,
-            boolean staticTyping, TypeSerializer vts, BeanProperty property)
+            boolean staticTyping, TypeSerializer vts)
     {
-        return new IterableSerializer(elemType, staticTyping, vts, property);
+        return new IterableSerializer(elemType, staticTyping, vts, null);
     }
 
-    public static JsonSerializer<?> enumSetSerializer(JavaType enumType, BeanProperty property)
+    public static JsonSerializer<?> enumSetSerializer(JavaType enumType)
     {
-        return new EnumSetSerializer(enumType, property);
+        return new EnumSetSerializer(enumType, null);
     }
 }

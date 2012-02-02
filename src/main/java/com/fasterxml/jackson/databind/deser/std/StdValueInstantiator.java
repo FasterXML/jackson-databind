@@ -3,10 +3,11 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -68,14 +69,14 @@ public class StdValueInstantiator
     public StdValueInstantiator(DeserializationConfig config, Class<?> valueType)
     {
         _cfgEmptyStringsAsObjects = (config == null) ? false
-                : config.isEnabled(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+                : config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
         _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.getName();
     }
     
     public StdValueInstantiator(DeserializationConfig config, JavaType valueType)
     {
         _cfgEmptyStringsAsObjects = (config == null) ? false
-                : config.isEnabled(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+                : config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
         _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.toString();
     }
     

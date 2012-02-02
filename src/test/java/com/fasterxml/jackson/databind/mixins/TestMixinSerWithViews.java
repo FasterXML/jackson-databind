@@ -5,7 +5,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 public class TestMixinSerWithViews
     extends BaseMapTest
@@ -175,8 +174,8 @@ public class TestMixinSerWithViews
         ObjectMapper mapper = new ObjectMapper();
         A a = new A("myname", 29, "mysurname");
 
-        // Property SerializationConfig.Feature.DEFAULT_VIEW_INCLUSION set to false
-        mapper.configure(MapperConfig.Feature.DEFAULT_VIEW_INCLUSION, Boolean.FALSE);
+        // Property SerializationConfig.SerializationFeature.DEFAULT_VIEW_INCLUSION set to false
+        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, Boolean.FALSE);
         mapper.addMixInAnnotations(A.class, AMixInAnnotation.class);
         String json = mapper.writerWithView(AView.class).writeValueAsString(a);
 
@@ -192,9 +191,9 @@ public class TestMixinSerWithViews
     private ObjectMapper createObjectMapper( )
     {
       ObjectMapper objectMapper = new ObjectMapper( );
-      objectMapper.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false );
+      objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false );
       objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL );
-      objectMapper.configure(MapperConfig.Feature.DEFAULT_VIEW_INCLUSION, false );
+      objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false );
 
       Map<Class<?>, Class<?>> sourceMixins = new HashMap<Class<?>, Class<?>>( );
       sourceMixins.put( SimpleTestData.class, TestDataJAXBMixin.class );

@@ -10,7 +10,8 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.DatabindVersion;
+import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
@@ -212,7 +213,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified feature enabled.
      */
-    public ObjectReader with(DeserializationConfig.Feature feature) 
+    public ObjectReader with(DeserializationFeature feature) 
     {
         DeserializationConfig newConfig = _config.with(feature);
         return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
@@ -222,8 +223,8 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified features enabled.
      */
-    public ObjectReader with(DeserializationConfig.Feature first,
-            DeserializationConfig.Feature... other)
+    public ObjectReader with(DeserializationFeature first,
+            DeserializationFeature... other)
     {
         DeserializationConfig newConfig = _config.with(first, other);
         return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
@@ -233,7 +234,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified features enabled.
      */
-    public ObjectReader withFeatures(DeserializationConfig.Feature... features)
+    public ObjectReader withFeatures(DeserializationFeature... features)
     {
         DeserializationConfig newConfig = _config.withFeatures(features);
         return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
@@ -243,7 +244,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified feature disabled.
      */
-    public ObjectReader without(DeserializationConfig.Feature feature) 
+    public ObjectReader without(DeserializationFeature feature) 
     {
         DeserializationConfig newConfig = _config.without(feature);
         return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
@@ -253,8 +254,8 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified features disabled.
      */
-    public ObjectReader without(DeserializationConfig.Feature first,
-            DeserializationConfig.Feature... other)
+    public ObjectReader without(DeserializationFeature first,
+            DeserializationFeature... other)
     {
         DeserializationConfig newConfig = _config.without(first, other);
         return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
@@ -264,7 +265,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified features disabled.
      */
-    public ObjectReader withoutFeatures(DeserializationConfig.Feature... features)
+    public ObjectReader withoutFeatures(DeserializationFeature... features)
     {
         DeserializationConfig newConfig = _config.withoutFeatures(features);
         return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
@@ -417,11 +418,11 @@ public class ObjectReader
     /**********************************************************
      */
     
-    public boolean isEnabled(DeserializationConfig.Feature f) {
+    public boolean isEnabled(DeserializationFeature f) {
         return _config.isEnabled(f);
     }
 
-    public boolean isEnabled(MapperConfig.Feature f) {
+    public boolean isEnabled(MapperFeature f) {
         return _config.isEnabled(f);
     }
 

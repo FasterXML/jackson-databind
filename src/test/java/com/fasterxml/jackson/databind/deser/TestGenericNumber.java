@@ -46,7 +46,7 @@ public class TestGenericNumber
          * to BigInteger even if value would fit in Integer
          */
         ObjectMapper m = new ObjectMapper();
-        m.enable(DeserializationConfig.Feature.USE_BIG_INTEGER_FOR_INTS);
+        m.enable(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS);
         BigInteger exp = BigInteger.valueOf(123L);
 
         // first test as any Number
@@ -76,7 +76,7 @@ public class TestGenericNumber
     public void testFpTypeOverrideSimple() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.enable(DeserializationConfig.Feature.USE_BIG_DECIMAL_FOR_FLOATS);
+        m.enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
         BigDecimal dec = new BigDecimal("0.1");
 
         // First test generic stand-alone Number
@@ -95,7 +95,7 @@ public class TestGenericNumber
         ObjectMapper m = new ObjectMapper();
         BigDecimal dec = new BigDecimal("-19.37");
 
-        m.enable(DeserializationConfig.Feature.USE_BIG_DECIMAL_FOR_FLOATS);
+        m.enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS);
 
         // List element types
         @SuppressWarnings("unchecked")

@@ -5,8 +5,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.impl.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.std.JdkDeserializers;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
@@ -395,8 +395,8 @@ public class BeanDeserializerFactory
                 }
             }
         }
-        final boolean useGettersAsSetters = (ctxt.isEnabled(MapperConfig.Feature.USE_GETTERS_AS_SETTERS)
-                && ctxt.isEnabled(MapperConfig.Feature.AUTO_DETECT_GETTERS));
+        final boolean useGettersAsSetters = (ctxt.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS)
+                && ctxt.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
 
         // Ok: let's then filter out property definitions
         List<BeanPropertyDefinition> propDefs = filterBeanProps(ctxt,
@@ -444,7 +444,7 @@ public class BeanDeserializerFactory
                 Class<?>[] views = propDef.findViews();
                 if (views == null) {
                     // one more twist: if default inclusion disabled, need to force empty set of views
-                    if (!ctxt.isEnabled(MapperConfig.Feature.DEFAULT_VIEW_INCLUSION)) {
+                    if (!ctxt.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION)) {
                         views = NO_VIEWS;
                     }
                 }

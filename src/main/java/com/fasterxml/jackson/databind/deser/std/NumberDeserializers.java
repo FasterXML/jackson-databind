@@ -7,8 +7,8 @@ import java.math.BigInteger;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -293,7 +293,7 @@ public class NumberDeserializers
         {
             JsonToken t = jp.getCurrentToken();
             if (t == JsonToken.VALUE_NUMBER_INT) {
-                if (ctxt.isEnabled(DeserializationConfig.Feature.USE_BIG_INTEGER_FOR_INTS)) {
+                if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
                     return jp.getBigIntegerValue();
                 }
                 return jp.getNumberValue();
@@ -301,7 +301,7 @@ public class NumberDeserializers
                 /* [JACKSON-72]: need to allow overriding the behavior
                  * regarding which type to use
                  */
-                if (ctxt.isEnabled(DeserializationConfig.Feature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                     return jp.getDecimalValue();
                 }
                 return Double.valueOf(jp.getDoubleValue());
@@ -315,13 +315,13 @@ public class NumberDeserializers
                 try {
                     if (text.indexOf('.') >= 0) { // floating point
                         // as per [JACKSON-72]:
-                        if (ctxt.isEnabled(DeserializationConfig.Feature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                        if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                             return new BigDecimal(text);
                         }
                         return new Double(text);
                     }
                     // as per [JACKSON-100]:
-                    if (ctxt.isEnabled(DeserializationConfig.Feature.USE_BIG_INTEGER_FOR_INTS)) {
+                    if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
                         return new BigInteger(text);
                     }
                     long value = Long.parseLong(text);

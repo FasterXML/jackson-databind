@@ -7,8 +7,8 @@ import java.math.BigInteger;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
 
-import com.fasterxml.jackson.databind.DatabindVersion;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.cfg.DatabindVersion;
 
 /**
  * Facade over {@link JsonNode} that implements {@link JsonParser} to allow

@@ -287,7 +287,7 @@ public class MapSerializer
         final JsonSerializer<Object> keySerializer = _keySerializer;
         
         final HashSet<String> ignored = _ignoredEntries;
-        final boolean skipNulls = !provider.isEnabled(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES);
+        final boolean skipNulls = !provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
 
         PropertySerializerMap serializers = _dynamicValueSerializers;
 
@@ -343,7 +343,7 @@ public class MapSerializer
         final JsonSerializer<Object> keySerializer = _keySerializer;
         final HashSet<String> ignored = _ignoredEntries;
         final TypeSerializer typeSer = _valueTypeSerializer;
-        final boolean skipNulls = !provider.isEnabled(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES);
+        final boolean skipNulls = !provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
             Object valueElem = entry.getValue();
@@ -381,7 +381,7 @@ public class MapSerializer
         JsonSerializer<Object> prevValueSerializer = null;
         Class<?> prevValueClass = null;
         final HashSet<String> ignored = _ignoredEntries;
-        final boolean skipNulls = !provider.isEnabled(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES);
+        final boolean skipNulls = !provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
     
         for (Map.Entry<?,?> entry : value.entrySet()) {
             Object valueElem = entry.getValue();

@@ -135,7 +135,7 @@ public class TestJdkTypes extends BaseMapTest
         
         // but not when enabled
         final ObjectMapper mapper2 = new ObjectMapper();
-        mapper2.configure(DeserializationConfig.Feature.FAIL_ON_NULL_FOR_PRIMITIVES, true);
+        mapper2.configure(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES, true);
 
         // boolean
         try {
@@ -300,7 +300,7 @@ public class TestJdkTypes extends BaseMapTest
         assertTrue(ob instanceof List<?>);
 
         // but can change to produce Object[]:
-        mapper.configure(DeserializationConfig.Feature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
+        mapper.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
         ob = mapper.readValue("[1]", Object.class);
         assertEquals(Object[].class, ob.getClass());
     }

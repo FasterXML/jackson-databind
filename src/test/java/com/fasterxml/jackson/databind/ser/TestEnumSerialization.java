@@ -180,7 +180,7 @@ public class TestEnumSerialization
     public void testToStringEnum() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationConfig.Feature.WRITE_ENUMS_USING_TO_STRING, true);
+        mapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
         assertEquals("\"b\"", mapper.writeValueAsString(LowerCaseEnum.B));
     }
 
@@ -188,7 +188,7 @@ public class TestEnumSerialization
     public void testToStringEnumWithEnumMap() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationConfig.Feature.WRITE_ENUMS_USING_TO_STRING, true);
+        mapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
         EnumMap<LowerCaseEnum,String> m = new EnumMap<LowerCaseEnum,String>(LowerCaseEnum.class);
         m.put(LowerCaseEnum.C, "value");
         assertEquals("{\"c\":\"value\"}", mapper.writeValueAsString(m));
@@ -208,11 +208,11 @@ public class TestEnumSerialization
     {
         // By default, serialize using name
         ObjectMapper mapper = new ObjectMapper();
-        assertFalse(mapper.isEnabled(SerializationConfig.Feature.WRITE_ENUMS_USING_INDEX));
+        assertFalse(mapper.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX));
         assertEquals(quote("B"), mapper.writeValueAsString(TestEnum.B));
 
         // but we can change (dynamically, too!) it to be number-based
-        mapper.enable(SerializationConfig.Feature.WRITE_ENUMS_USING_INDEX);
+        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
         assertEquals("1", mapper.writeValueAsString(TestEnum.B));
     }
 

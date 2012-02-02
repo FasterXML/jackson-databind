@@ -109,7 +109,7 @@ public class TestCreators2
         }
     }
     
-    // For [JACKSON-541]: should not need @JsonCreator if Feature.AUTO_DETECT_CREATORS is on.
+    // For [JACKSON-541]: should not need @JsonCreator if SerializationFeature.AUTO_DETECT_CREATORS is on.
     static class AutoDetectConstructorBean
     {
     	protected final String foo;

@@ -262,7 +262,7 @@ abstract class BaseNodeDeserializer<N extends JsonNode>
             {
                 JsonParser.NumberType nt = jp.getNumberType();
                 if (nt == JsonParser.NumberType.BIG_INTEGER
-                    || ctxt.isEnabled(DeserializationConfig.Feature.USE_BIG_INTEGER_FOR_INTS)) {
+                    || ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
                     return nodeFactory.numberNode(jp.getBigIntegerValue());
                 }
                 if (nt == JsonParser.NumberType.INT) {
@@ -275,7 +275,7 @@ abstract class BaseNodeDeserializer<N extends JsonNode>
             {
                 JsonParser.NumberType nt = jp.getNumberType();
                 if (nt == JsonParser.NumberType.BIG_DECIMAL
-                    || ctxt.isEnabled(DeserializationConfig.Feature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+                    || ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                     return nodeFactory.numberNode(jp.getDecimalValue());
                 }
                 return nodeFactory.numberNode(jp.getDoubleValue());

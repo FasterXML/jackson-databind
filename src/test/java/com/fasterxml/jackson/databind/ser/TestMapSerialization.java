@@ -76,7 +76,7 @@ public class TestMapSerialization
         // by default, should output null-valued entries:
         assertEquals("{\"a\":null}", m.writeValueAsString(map));
         // but not if explicitly asked not to (note: config value is dynamic here)
-        m.configure(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES, false);
+        m.configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
         assertEquals("{}", m.writeValueAsString(map));
     }
 

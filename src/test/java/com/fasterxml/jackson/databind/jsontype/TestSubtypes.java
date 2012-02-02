@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -143,19 +143,19 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     {
         // First, with annotations
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, true);
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, true);
         String json = mapper.writeValueAsString(new EmptyBean());
         assertEquals("{\"@type\":\"TestSubtypes$EmptyBean\"}", json);
 
         mapper = new ObjectMapper();
-        mapper.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false);
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         json = mapper.writeValueAsString(new EmptyBean());
         assertEquals("{\"@type\":\"TestSubtypes$EmptyBean\"}", json);
 
         // and then with defaults
         mapper = new ObjectMapper();
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-        mapper.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false);
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         json = mapper.writeValueAsString(new EmptyNonFinal());
         assertEquals("[\"com.fasterxml.jackson.databind.jsontype.TestSubtypes$EmptyNonFinal\",{}]", json);
     }

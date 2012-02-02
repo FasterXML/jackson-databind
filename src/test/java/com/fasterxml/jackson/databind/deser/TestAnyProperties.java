@@ -144,14 +144,14 @@ public class TestAnyProperties
     public void testIgnored() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(com.fasterxml.jackson.databind.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, true);
+        mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
         _testIgnorals(mapper);
     }
 
     public void testIgnored383() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(com.fasterxml.jackson.databind.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         _testIgnorals(mapper);
     }
     

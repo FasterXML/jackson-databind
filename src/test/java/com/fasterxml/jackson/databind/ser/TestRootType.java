@@ -6,12 +6,10 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -107,7 +105,7 @@ public class TestRootType
     {
         ObjectMapper mapper = new ObjectMapper();
         // must force static typing, otherwise won't matter a lot
-        mapper.configure(MapperConfig.Feature.USE_STATIC_TYPING, true);
+        mapper.configure(MapperFeature.USE_STATIC_TYPING, true);
         SubType[] ob = new SubType[] { new SubType() };
         String json = mapper.writerWithType(BaseInterface[].class).writeValueAsString(ob);
         // should propagate interface type through due to root declaration; static typing
@@ -160,7 +158,7 @@ public class TestRootType
     public void testRootWrapping() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationConfig.Feature.WRAP_ROOT_VALUE, true);
+        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
         String json = mapper.writeValueAsString(new StringWrapper("abc"));
         assertEquals("{\"StringWrapper\":{\"str\":\"abc\"}}", json);
     }
@@ -182,7 +180,7 @@ public class TestRootType
     public void testRootNameAnnotation() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationConfig.Feature.WRAP_ROOT_VALUE, true);
+        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
         String json = mapper.writeValueAsString(new WithRootName());
         assertEquals("{\"root\":{\"a\":3}}", json);
     }

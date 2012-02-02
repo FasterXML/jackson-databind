@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 
-import com.fasterxml.jackson.databind.DatabindVersion;
+import com.fasterxml.jackson.databind.cfg.DatabindVersion;
 
 /**
  * Utility class used for efficient storage of {@link JsonToken}
@@ -328,7 +328,7 @@ public class TokenBuffer
         return this;
     }
 
-    //public JsonGenerator configure(Feature f, boolean state) { }
+    //public JsonGenerator configure(SerializationFeature f, boolean state) { }
 
     @Override
     public boolean isEnabled(Feature f) {

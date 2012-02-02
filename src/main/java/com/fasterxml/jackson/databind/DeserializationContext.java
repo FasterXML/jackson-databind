@@ -8,7 +8,8 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.annotation.NoClass;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
+import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
@@ -182,14 +183,14 @@ public abstract class DeserializationContext
      * Convenience method for checking whether specified on/off
      * feature is enabled
      */
-    public final boolean isEnabled(DeserializationConfig.Feature feat) {
+    public final boolean isEnabled(DeserializationFeature feat) {
         /* 03-Dec-2010, tatu: minor shortcut; since this is called quite often,
          *   let's use a local copy of feature settings:
          */
         return (_featureFlags & feat.getMask()) != 0;
     }
 
-    public final boolean isEnabled(MapperConfig.Feature feat) {
+    public final boolean isEnabled(MapperFeature feat) {
         return _config.isEnabled(feat);
     }
     

@@ -182,7 +182,7 @@ public class TestTypedSerialization
     public void testEmptyBean() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false);
+        m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         assertEquals("{\"@type\":\"empty\"}", m.writeValueAsString(new Empty()));
     }
 

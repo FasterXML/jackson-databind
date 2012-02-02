@@ -222,7 +222,7 @@ public class TestNamingStrategy extends BaseMapTest
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(new LcStrategy());
-//        mapper.disable(DeserializationConfig.Feature.USE_GETTERS_AS_SETTERS);
+//        mapper.disable(DeserializationConfig.DeserializationFeature.USE_GETTERS_AS_SETTERS);
         RenamedCollectionBean foo = mapper.readValue("{\"thevalues\":[\"a\"]}", RenamedCollectionBean.class);
         assertNotNull(foo.getTheVALUEs());
         assertEquals(1, foo.getTheVALUEs().size());

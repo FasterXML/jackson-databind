@@ -6,22 +6,24 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.Named;
 
-
 /**
  * Bean properties are logical entities that represent data
- * Java objects ("beans", although more accurately POJOs)
- * contain; and that are accessed using some combination
- * of methods (getter, setter), field and constructor
- * parameter.
+ * that Java objects (POJOs (Plain Old Java Objects), sometimes also called "beans")
+ * contain; and that are accessed using accessors (methods like getters
+ * and setters, fields, contstructor parametrers).
  * Instances allow access to annotations directly associated
  * to property (via field or method), as well as contextual
  * annotations (annotations for class that contains properties).
  *<p>
- * Instances are passed during construction of serializers and
- * deserializers, and references can be stored by serializers
- * and deserializers for futher use; mostly to retain access
- * to annotations when dynamically locating handlers for
- * sub-properties or dynamic types.
+ * Instances are not typically passed when constructing serializers
+ * and deserializers, but rather only passed when context
+ * is known when
+ * {@link com.fasterxml.jackson.databind.ser.ContextualSerializer} and
+ * {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer}
+ * resolution occurs (<code>createContextual(...)</code> method is called).
+ * References may (need to) be retained by serializers and deserializers,
+ * especially when further resolving dependant handlers like value
+ * serializers/deserializers or structured types.
  */
 public interface BeanProperty extends Named
 {
@@ -58,11 +60,14 @@ public interface BeanProperty extends Named
     
     /*
     /**********************************************************
-    /* Simple stand-alone implementation, useful as a placeholder
-    /* or base class.
+    /* Helper classes
     /**********************************************************
      */
 
+    /**
+     * Simple stand-alone implementation, useful as a placeholder
+     * or base class for more complex implementations.
+     */
     public static class Std implements BeanProperty
     {
         protected final String _name;

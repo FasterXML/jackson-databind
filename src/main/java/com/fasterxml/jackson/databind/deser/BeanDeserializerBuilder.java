@@ -4,7 +4,7 @@ import java.util.*;
 
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
 import com.fasterxml.jackson.databind.deser.impl.ValueInjector;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -83,7 +83,7 @@ public class BeanDeserializerBuilder
             DeserializationConfig config)
     { 
         _beanDesc = beanDesc;
-        _defaultViewInclusion = config.isEnabled(MapperConfig.Feature.DEFAULT_VIEW_INCLUSION);
+        _defaultViewInclusion = config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
     }
 
     /**

@@ -140,10 +140,10 @@ public class PrimitiveArrayDeserializers
             throws IOException, JsonProcessingException
         {
             // [JACKSON-526]: implicit arrays from single values?
-            if (!ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
+            if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
                 // [JACKSON-620] Empty String can become null...
                 if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
-                        && ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                        && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                     String str = jp.getText();
                     if (str.length() == 0) {
                         return null;
@@ -255,12 +255,12 @@ public class PrimitiveArrayDeserializers
         {
             // [JACKSON-620] Empty String can become null...
             if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
-                    && ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                    && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 if (jp.getText().length() == 0) {
                     return null;
                 }
             }
-            if (!ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
+            if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
                 throw ctxt.mappingException(_valueClass);
             }
             return new boolean[] { _parseBooleanPrimitive(jp, ctxt) };
@@ -329,12 +329,12 @@ public class PrimitiveArrayDeserializers
         {
             // [JACKSON-620] Empty String can become null...
             if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
-                    && ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                    && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 if (jp.getText().length() == 0) {
                     return null;
                 }
             }
-            if (!ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
+            if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
                 throw ctxt.mappingException(_valueClass);
             }
             byte value;
@@ -386,12 +386,12 @@ public class PrimitiveArrayDeserializers
         {
             // [JACKSON-620] Empty String can become null...
             if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
-                    && ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                    && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 if (jp.getText().length() == 0) {
                     return null;
                 }
             }
-            if (!ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
+            if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
                 throw ctxt.mappingException(_valueClass);
             }
             return new short[] { _parseShortPrimitive(jp, ctxt) };
@@ -432,12 +432,12 @@ public class PrimitiveArrayDeserializers
         {
             // [JACKSON-620] Empty String can become null...
             if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
-                    && ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                    && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 if (jp.getText().length() == 0) {
                     return null;
                 }
             }
-            if (!ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
+            if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
                 throw ctxt.mappingException(_valueClass);
             }
             return new int[] { _parseIntPrimitive(jp, ctxt) };
@@ -477,12 +477,12 @@ public class PrimitiveArrayDeserializers
         {
             // [JACKSON-620] Empty String can become null...
             if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
-                    && ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                    && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 if (jp.getText().length() == 0) {
                     return null;
                 }
             }
-            if (!ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
+            if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
                 throw ctxt.mappingException(_valueClass);
             }
             return new long[] { _parseLongPrimitive(jp, ctxt) };
@@ -523,12 +523,12 @@ public class PrimitiveArrayDeserializers
         {
             // [JACKSON-620] Empty String can become null...
             if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
-                    && ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                    && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 if (jp.getText().length() == 0) {
                     return null;
                 }
             }
-            if (!ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
+            if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
                 throw ctxt.mappingException(_valueClass);
             }
             return new float[] { _parseFloatPrimitive(jp, ctxt) };
@@ -568,12 +568,12 @@ public class PrimitiveArrayDeserializers
         {
             // [JACKSON-620] Empty String can become null...
             if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
-                    && ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                    && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                 if (jp.getText().length() == 0) {
                     return null;
                 }
             }
-            if (!ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
+            if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
                 throw ctxt.mappingException(_valueClass);
             }
             return new double[] { _parseDoublePrimitive(jp, ctxt) };

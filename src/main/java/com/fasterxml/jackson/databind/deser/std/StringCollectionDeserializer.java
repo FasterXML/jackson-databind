@@ -212,7 +212,7 @@ public final class StringCollectionDeserializer
         throws IOException, JsonProcessingException
     {
         // [JACKSON-526]: implicit arrays from single values?
-        if (!ctxt.isEnabled(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
+        if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
             throw ctxt.mappingException(_collectionType.getRawClass());
         }
         // Strings are one of "native" (intrinsic) types, so there's never type deserializer involved

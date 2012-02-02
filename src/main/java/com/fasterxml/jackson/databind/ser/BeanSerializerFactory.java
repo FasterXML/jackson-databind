@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.SerializationConfig;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -309,7 +309,7 @@ public class BeanSerializerFactory
             }
             JavaType type = anyGetter.getType(beanDesc.bindingsForBeanType());
             // copied from BasicSerializerFactory.buildMapSerializer():
-            boolean staticTyping = config.isEnabled(MapperConfig.Feature.USE_STATIC_TYPING);
+            boolean staticTyping = config.isEnabled(MapperFeature.USE_STATIC_TYPING);
             JavaType valueType = type.getContentType();
             TypeSerializer typeSer = createTypeSerializer(config, valueType);
             // last 2 nulls; don't know key, value serializers (yet)
@@ -408,7 +408,7 @@ public class BeanSerializerFactory
         removeIgnorableTypes(config, beanDesc, properties);
         
         // and possibly remove ones without matching mutator...
-        if (config.isEnabled(MapperConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS)) {
+        if (config.isEnabled(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS)) {
             removeSetterlessGetters(config, beanDesc, properties);
         }
         
@@ -480,7 +480,7 @@ public class BeanSerializerFactory
     {
         // [JACKSON-232]: whether non-annotated fields are included by default or not is configurable
         List<BeanPropertyWriter> props = builder.getProperties();
-        boolean includeByDefault = config.isEnabled(MapperConfig.Feature.DEFAULT_VIEW_INCLUSION);
+        boolean includeByDefault = config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
         final int propCount = props.size();
         int viewsFound = 0;
         BeanPropertyWriter[] filtered = new BeanPropertyWriter[propCount];

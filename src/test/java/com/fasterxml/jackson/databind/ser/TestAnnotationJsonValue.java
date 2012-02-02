@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 /**
@@ -127,7 +126,7 @@ public class TestAnnotationJsonValue
 
         // then static
         ObjectMapper staticMapper = new ObjectMapper();
-        staticMapper.configure(MapperConfig.Feature.USE_STATIC_TYPING, true);
+        staticMapper.configure(MapperFeature.USE_STATIC_TYPING, true);
         assertEquals("{\"a\":\"a\"}", staticMapper.writeValueAsString(new ValueWrapper()));
     }
 

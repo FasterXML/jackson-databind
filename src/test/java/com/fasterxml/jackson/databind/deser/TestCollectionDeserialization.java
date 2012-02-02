@@ -114,7 +114,7 @@ public class TestCollectionDeserialization
     public void testImplicitArrays() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
         // first with simple scalar types (numbers), with collections
         List<Integer> ints = mapper.readValue("4", List.class);
@@ -146,7 +146,7 @@ public class TestCollectionDeserialization
     public void testFromEmptyString() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        m.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         List<?> result = m.readValue(quote(""), List.class);
         assertNull(result);
     }

@@ -9,7 +9,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.DatabindVersion;
+import com.fasterxml.jackson.databind.cfg.SerializationConfig;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -186,7 +187,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified feature enabled.
      */
-    public ObjectWriter with(SerializationConfig.Feature feature) 
+    public ObjectWriter with(SerializationFeature feature) 
     {
         SerializationConfig newConfig = _config.with(feature);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
@@ -196,8 +197,8 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified features enabled.
      */
-    public ObjectWriter with(SerializationConfig.Feature first,
-            SerializationConfig.Feature... other)
+    public ObjectWriter with(SerializationFeature first,
+            SerializationFeature... other)
     {
         SerializationConfig newConfig = _config.with(first, other);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
@@ -207,7 +208,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified features enabled.
      */
-    public ObjectWriter withFeatures(SerializationConfig.Feature... features)
+    public ObjectWriter withFeatures(SerializationFeature... features)
     {
         SerializationConfig newConfig = _config.withFeatures(features);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
@@ -217,7 +218,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified feature enabled.
      */
-    public ObjectWriter without(SerializationConfig.Feature feature) 
+    public ObjectWriter without(SerializationFeature feature) 
     {
         SerializationConfig newConfig = _config.without(feature);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
@@ -227,8 +228,8 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified features enabled.
      */
-    public ObjectWriter without(SerializationConfig.Feature first,
-            SerializationConfig.Feature... other)
+    public ObjectWriter without(SerializationFeature first,
+            SerializationFeature... other)
     {
         SerializationConfig newConfig = _config.without(first, other);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
@@ -238,7 +239,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified features enabled.
      */
-    public ObjectWriter withoutFeatures(SerializationConfig.Feature... features)
+    public ObjectWriter withoutFeatures(SerializationFeature... features)
     {
         SerializationConfig newConfig = _config.withoutFeatures(features);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
@@ -370,11 +371,11 @@ public class ObjectWriter
     /**********************************************************
      */
 
-    public boolean isEnabled(SerializationConfig.Feature f) {
+    public boolean isEnabled(SerializationFeature f) {
         return _config.isEnabled(f);
     }
 
-    public boolean isEnabled(MapperConfig.Feature f) {
+    public boolean isEnabled(MapperFeature f) {
         return _config.isEnabled(f);
     }
 
@@ -403,7 +404,7 @@ public class ObjectWriter
     public void writeValue(JsonGenerator jgen, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        if (_config.isEnabled(SerializationConfig.Feature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
+        if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _writeCloseableValue(jgen, value, _config);
         } else {
             if (_rootType == null) {
@@ -411,7 +412,7 @@ public class ObjectWriter
             } else {
                 _serializerProvider(_config).serializeValue(jgen, value, _rootType);
             }
-            if (_config.isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE)) {
+            if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                 jgen.flush();
             }
         }
@@ -538,7 +539,7 @@ public class ObjectWriter
         if (_prettyPrinter != null) {
             PrettyPrinter pp = _prettyPrinter;
             jgen.setPrettyPrinter((pp == NULL_PRETTY_PRINTER) ? null : pp);
-        } else if (_config.isEnabled(SerializationConfig.Feature.INDENT_OUTPUT)) {
+        } else if (_config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
             jgen.useDefaultPrettyPrinter();
         }
         // [JACKSON-520]: add support for pass-through schema:
@@ -546,7 +547,7 @@ public class ObjectWriter
             jgen.setSchema(_schema);
         }
         // [JACKSON-282]: consider Closeable
-        if (_config.isEnabled(SerializationConfig.Feature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
+        if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _configAndWriteCloseable(jgen, value, _config);
             return;
         }
@@ -626,7 +627,7 @@ public class ObjectWriter
             } else {
                 _serializerProvider(cfg).serializeValue(jgen, value, _rootType);
             }
-            if (_config.isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE)) {
+            if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                 jgen.flush();
             }
             Closeable tmpToClose = toClose;

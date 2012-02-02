@@ -4,6 +4,7 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.SerializationConfig;
 
 public class TestNullSerialization
     extends BaseMapTest

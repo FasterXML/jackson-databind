@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * This unit test suite tests use of Annotations for
@@ -101,7 +100,7 @@ public class TestAnnotations
         public int getZ() { return 3; }
     }
 
-    // For [JACKSON-666] ("Feature of the Beast!")
+    // For [JACKSON-666] ("SerializationFeature of the Beast!")
     @JsonPropertyOrder(alphabetic=true)
     static class GettersWithoutSetters
     {
@@ -240,14 +239,14 @@ public class TestAnnotations
     {
         ObjectMapper m = new ObjectMapper();
         GettersWithoutSetters bean = new GettersWithoutSetters(123);
-        assertFalse(m.isEnabled(MapperConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS));
+        assertFalse(m.isEnabled(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS));
     
         // by default, all 4 found:
         assertEquals("{\"a\":3,\"b\":4,\"c\":5,\"d\":6}", m.writeValueAsString(bean));
 
         // but 3 if we require mutator:
         m = new ObjectMapper();
-        m.enable(MapperConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS);
+        m.enable(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS);
         assertEquals("{\"a\":3,\"c\":5,\"d\":6}", m.writeValueAsString(bean));
     }
 }

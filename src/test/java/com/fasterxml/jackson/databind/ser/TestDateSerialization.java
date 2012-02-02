@@ -31,7 +31,7 @@ public class TestDateSerialization
         ObjectMapper mapper = new ObjectMapper();
         StringWriter sw = new StringWriter();
         // default is to output time stamps...
-        assertTrue(mapper.getSerializationConfig().isEnabled(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS));
+        assertTrue(mapper.getSerializationConfig().isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
         // shouldn't matter which offset we give...
         mapper.writeValue(sw, new Date(199L));
         assertEquals("199", sw.toString());
@@ -41,7 +41,7 @@ public class TestDateSerialization
     {
         ObjectMapper mapper = new ObjectMapper();
         StringWriter sw = new StringWriter();
-        mapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         // let's hit epoch start
         mapper.writeValue(sw, new Date(0L));
         assertEquals("\"1970-01-01T00:00:00.000+0000\"", sw.toString());
@@ -104,13 +104,13 @@ public class TestDateSerialization
     {
         ObjectMapper mapper = new ObjectMapper();
         Map<Date,Integer> map = new HashMap<Date,Integer>();
-        assertFalse(mapper.isEnabled(SerializationConfig.Feature.WRITE_DATE_KEYS_AS_TIMESTAMPS));
+        assertFalse(mapper.isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS));
         map.put(new Date(0L), Integer.valueOf(1));
         // by default will serialize as ISO-8601 values...
         assertEquals("{\"1970-01-01T00:00:00.000+0000\":1}", mapper.writeValueAsString(map));
         
         // but can change to use timestamps too
-        mapper.configure(SerializationConfig.Feature.WRITE_DATE_KEYS_AS_TIMESTAMPS, true);
+        mapper.configure(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS, true);
         assertEquals("{\"0\":1}", mapper.writeValueAsString(map));
     }
 }

@@ -181,7 +181,7 @@ public class TestArrayDeserialization
     public void testFromEmptyString() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationConfig.Feature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        m.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         assertNull(m.readValue(quote(""), Object[].class));
         assertNull( m.readValue(quote(""), String[].class));
         assertNull( m.readValue(quote(""), int[].class));

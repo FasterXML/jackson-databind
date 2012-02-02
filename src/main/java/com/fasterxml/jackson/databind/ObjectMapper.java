@@ -18,7 +18,11 @@ import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
+import com.fasterxml.jackson.databind.cfg.DatabindVersion;
+import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
+import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.SerializationConfig;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -478,17 +482,17 @@ public class ObjectMapper
             }
             
             @Override
-            public boolean isEnabled(MapperConfig.Feature f) {
+            public boolean isEnabled(MapperFeature f) {
                 return mapper.isEnabled(f);
             }
 
             @Override
-            public boolean isEnabled(DeserializationConfig.Feature f) {
+            public boolean isEnabled(DeserializationFeature f) {
                 return mapper.isEnabled(f);
             }
             
             @Override
-            public boolean isEnabled(SerializationConfig.Feature f) {
+            public boolean isEnabled(SerializationFeature f) {
                 return mapper.isEnabled(f);
             }
 
@@ -1073,7 +1077,7 @@ public class ObjectMapper
      * Method for changing state of an on/off mapper feature for
      * this mapper instance.
      */
-    public ObjectMapper configure(MapperConfig.Feature f, boolean state) {
+    public ObjectMapper configure(MapperFeature f, boolean state) {
         _serializationConfig = state ?
                 _serializationConfig.with(f) : _serializationConfig.without(f);
         _deserializationConfig = state ?
@@ -1085,7 +1089,7 @@ public class ObjectMapper
      * Method for changing state of an on/off serialization feature for
      * this object mapper.
      */
-    public ObjectMapper configure(SerializationConfig.Feature f, boolean state) {
+    public ObjectMapper configure(SerializationFeature f, boolean state) {
         _serializationConfig = state ?
                 _serializationConfig.with(f) : _serializationConfig.without(f);
         return this;
@@ -1095,7 +1099,7 @@ public class ObjectMapper
      * Method for changing state of an on/off deserialization feature for
      * this object mapper.
      */
-    public ObjectMapper configure(DeserializationConfig.Feature f, boolean state) {
+    public ObjectMapper configure(DeserializationFeature f, boolean state) {
         _deserializationConfig = state ?
                 _deserializationConfig.with(f) : _deserializationConfig.without(f);
         return this;
@@ -1133,7 +1137,7 @@ public class ObjectMapper
      * Method for enabling specified {@link MapperConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
-    public ObjectMapper enable(MapperConfig.Feature... f) {
+    public ObjectMapper enable(MapperFeature... f) {
         _deserializationConfig = _deserializationConfig.with(f);
         _serializationConfig = _serializationConfig.with(f);
         return this;
@@ -1143,7 +1147,7 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
-    public ObjectMapper disable(MapperConfig.Feature... f) {
+    public ObjectMapper disable(MapperFeature... f) {
         _deserializationConfig = _deserializationConfig.without(f);
         _serializationConfig = _serializationConfig.without(f);
         return this;
@@ -1153,7 +1157,7 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
-    public ObjectMapper enable(DeserializationConfig.Feature feature) {
+    public ObjectMapper enable(DeserializationFeature feature) {
         _deserializationConfig = _deserializationConfig.with(feature);
         return this;
     }
@@ -1162,8 +1166,8 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
-    public ObjectMapper enable(DeserializationConfig.Feature first,
-            DeserializationConfig.Feature... f) {
+    public ObjectMapper enable(DeserializationFeature first,
+            DeserializationFeature... f) {
         _deserializationConfig = _deserializationConfig.with(first, f);
         return this;
     }
@@ -1172,7 +1176,7 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
-    public ObjectMapper disable(DeserializationConfig.Feature feature) {
+    public ObjectMapper disable(DeserializationFeature feature) {
         _deserializationConfig = _deserializationConfig.without(feature);
         return this;
     }
@@ -1181,8 +1185,8 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
-    public ObjectMapper disable(DeserializationConfig.Feature first,
-            DeserializationConfig.Feature... f) {
+    public ObjectMapper disable(DeserializationFeature first,
+            DeserializationFeature... f) {
         _deserializationConfig = _deserializationConfig.without(first, f);
         return this;
     }
@@ -1191,7 +1195,7 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} feature.
      * Modifies and returns this instance; no new object is created.
      */
-    public ObjectMapper enable(SerializationConfig.Feature f) {
+    public ObjectMapper enable(SerializationFeature f) {
         _serializationConfig = _serializationConfig.with(f);
         return this;
     }
@@ -1200,8 +1204,8 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
-    public ObjectMapper enable(SerializationConfig.Feature first,
-            SerializationConfig.Feature... f) {
+    public ObjectMapper enable(SerializationFeature first,
+            SerializationFeature... f) {
         _serializationConfig = _serializationConfig.with(first, f);
         return this;
     }
@@ -1210,7 +1214,7 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
-    public ObjectMapper disable(SerializationConfig.Feature f) {
+    public ObjectMapper disable(SerializationFeature f) {
         _serializationConfig = _serializationConfig.without(f);
         return this;
     }
@@ -1219,8 +1223,8 @@ public class ObjectMapper
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
-    public ObjectMapper disable(SerializationConfig.Feature first,
-            SerializationConfig.Feature... f) {
+    public ObjectMapper disable(SerializationFeature first,
+            SerializationFeature... f) {
         _serializationConfig = _serializationConfig.without(first, f);
         return this;
     }
@@ -1229,7 +1233,7 @@ public class ObjectMapper
      * Method for checking whether given Mapper
      * feature is enabled.
      */
-    public boolean isEnabled(MapperConfig.Feature f) {
+    public boolean isEnabled(MapperFeature f) {
         // ok to use either one, should be kept in sync
         return _serializationConfig.isEnabled(f);
     }
@@ -1238,7 +1242,7 @@ public class ObjectMapper
      * Method for checking whether given serialization-specific
      * feature is enabled.
      */
-    public boolean isEnabled(SerializationConfig.Feature f) {
+    public boolean isEnabled(SerializationFeature f) {
         return _serializationConfig.isEnabled(f);
     }
     
@@ -1246,7 +1250,7 @@ public class ObjectMapper
      * Method for checking whether given deserialization-specific
      * feature is enabled.
      */
-    public boolean isEnabled(DeserializationConfig.Feature f) {
+    public boolean isEnabled(DeserializationFeature f) {
         return _deserializationConfig.isEnabled(f);
     }
 
@@ -1553,11 +1557,11 @@ public class ObjectMapper
         throws IOException, JsonGenerationException, JsonMappingException
     {
         SerializationConfig config = getSerializationConfig();
-        if (config.isEnabled(SerializationConfig.Feature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
+        if (config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _writeCloseableValue(jgen, value, config);
         } else {
             _serializerProvider(config).serializeValue(jgen, value);
-            if (config.isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE)) {
+            if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                 jgen.flush();
             }
         }
@@ -1572,7 +1576,7 @@ public class ObjectMapper
     {
         SerializationConfig config = getSerializationConfig();
         _serializerProvider(config).serializeValue(jgen, rootNode);
-        if (config.isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE)) {
+        if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
             jgen.flush();
         }
     }
@@ -1979,7 +1983,7 @@ public class ObjectMapper
      * specified feature enabled (compared to settings that this
      * mapper instance has).
      */
-    public ObjectWriter writer(SerializationConfig.Feature feature) {
+    public ObjectWriter writer(SerializationFeature feature) {
         return new ObjectWriter(this, getSerializationConfig().with(feature));
     }
 
@@ -1988,8 +1992,8 @@ public class ObjectMapper
      * specified features enabled (compared to settings that this
      * mapper instance has).
      */
-    public ObjectWriter writer(SerializationConfig.Feature first,
-            SerializationConfig.Feature... other) {
+    public ObjectWriter writer(SerializationFeature first,
+            SerializationFeature... other) {
         return new ObjectWriter(this, getSerializationConfig().with(first, other));
     }
     
@@ -2106,7 +2110,7 @@ public class ObjectMapper
      * Note that the resulting instance is NOT usable as is,
      * without defining expected value type.
      */
-    public ObjectReader reader(DeserializationConfig.Feature feature) {
+    public ObjectReader reader(DeserializationFeature feature) {
         return new ObjectReader(this, getDeserializationConfig().with(feature));
     }
 
@@ -2117,8 +2121,8 @@ public class ObjectMapper
      * Note that the resulting instance is NOT usable as is,
      * without defining expected value type.
      */
-    public ObjectReader reader(DeserializationConfig.Feature first,
-            DeserializationConfig.Feature... other) {
+    public ObjectReader reader(DeserializationFeature first,
+            DeserializationFeature... other) {
         return new ObjectReader(this, getDeserializationConfig().with(first, other));
     }
     
@@ -2266,7 +2270,7 @@ public class ObjectMapper
         try {
             // inlined 'writeValue' with minor changes:
             // first: disable wrapping when writing
-            SerializationConfig config = getSerializationConfig().without(SerializationConfig.Feature.WRAP_ROOT_VALUE);
+            SerializationConfig config = getSerializationConfig().without(SerializationFeature.WRAP_ROOT_VALUE);
             // no need to check for closing of TokenBuffer
             _serializerProvider(config).serializeValue(buf, fromValue);
 
@@ -2343,11 +2347,11 @@ public class ObjectMapper
     {
         SerializationConfig cfg = getSerializationConfig();
         // [JACKSON-96]: allow enabling pretty printing for ObjectMapper directly
-        if (cfg.isEnabled(SerializationConfig.Feature.INDENT_OUTPUT)) {
+        if (cfg.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
             jgen.useDefaultPrettyPrinter();
         }
         // [JACKSON-282]: consider Closeable
-        if (cfg.isEnabled(SerializationConfig.Feature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
+        if (cfg.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _configAndWriteCloseable(jgen, value, cfg);
             return;
         }
@@ -2372,11 +2376,11 @@ public class ObjectMapper
         throws IOException, JsonGenerationException, JsonMappingException
     {
         SerializationConfig cfg = getSerializationConfig().withView(viewClass);
-        if (cfg.isEnabled(SerializationConfig.Feature.INDENT_OUTPUT)) {
+        if (cfg.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
             jgen.useDefaultPrettyPrinter();
         }
         // [JACKSON-282]: consider Closeable
-        if (cfg.isEnabled(SerializationConfig.Feature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
+        if (cfg.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _configAndWriteCloseable(jgen, value, cfg);
             return;
         }
@@ -2437,7 +2441,7 @@ public class ObjectMapper
         Closeable toClose = (Closeable) value;
         try {
             _serializerProvider(cfg).serializeValue(jgen, value);
-            if (cfg.isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE)) {
+            if (cfg.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                 jgen.flush();
             }
             Closeable tmpToClose = toClose;

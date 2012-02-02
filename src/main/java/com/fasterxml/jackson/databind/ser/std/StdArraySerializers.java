@@ -239,7 +239,7 @@ public class StdArraySerializers
             throws IOException, JsonGenerationException
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
-            if (provider.isEnabled(SerializationConfig.Feature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
+            if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
                 jgen.writeStartArray();
                 _writeArrayContents(jgen, value);
                 jgen.writeEndArray();
@@ -254,7 +254,7 @@ public class StdArraySerializers
             throws IOException, JsonGenerationException
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
-            if (provider.isEnabled(SerializationConfig.Feature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
+            if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
                 typeSer.writeTypePrefixForArray(value, jgen);
                 _writeArrayContents(jgen, value);
                 typeSer.writeTypeSuffixForArray(value, jgen);

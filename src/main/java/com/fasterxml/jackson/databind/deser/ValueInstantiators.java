@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 
 /**
  * Interface for providers of {@link ValueInstantiator} instances.

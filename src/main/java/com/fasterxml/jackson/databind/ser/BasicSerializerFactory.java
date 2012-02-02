@@ -9,7 +9,7 @@ import java.util.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.NoClass;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.SerializationConfig;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -750,7 +750,7 @@ public abstract class BasicSerializerFactory
                 return true;
             }
         } else {
-            if (config.isEnabled(MapperConfig.Feature.USE_STATIC_TYPING)) {
+            if (config.isEnabled(MapperFeature.USE_STATIC_TYPING)) {
                 return true;
             }
         }

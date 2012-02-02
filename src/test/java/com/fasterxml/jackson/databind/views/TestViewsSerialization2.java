@@ -5,7 +5,6 @@ import java.io.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 public class TestViewsSerialization2 extends BaseMapTest
 {
@@ -38,10 +37,10 @@ public class TestViewsSerialization2 extends BaseMapTest
   private ObjectMapper createObjectMapper(Class<?> viewClass)
   {
     ObjectMapper objectMapper = new ObjectMapper( );
-    objectMapper.configure( SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false );
+    objectMapper.configure( SerializationFeature.FAIL_ON_EMPTY_BEANS, false );
     objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL );
-    objectMapper.configure(MapperConfig.Feature.DEFAULT_VIEW_INCLUSION, false );
-//    objectMapper.getSerializationConfig( ).disable( SerializationConfig.Feature.DEFAULT_VIEW_INCLUSION );
+    objectMapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false );
+//    objectMapper.getSerializationConfig( ).disable( SerializationConfig.SerializationFeature.DEFAULT_VIEW_INCLUSION );
 //    objectMapper.getSerializationConfig( ).setSerializationView( viewClass );
     return objectMapper;
   }

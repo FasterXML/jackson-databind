@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 
 /**
  * Interface that defines API for simple extensions that can provide additional deserializers

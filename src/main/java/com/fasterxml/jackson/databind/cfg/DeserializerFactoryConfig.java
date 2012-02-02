@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser.impl;
+package com.fasterxml.jackson.databind.cfg;
 
 import com.fasterxml.jackson.databind.AbstractTypeResolver;
 import com.fasterxml.jackson.databind.deser.*;

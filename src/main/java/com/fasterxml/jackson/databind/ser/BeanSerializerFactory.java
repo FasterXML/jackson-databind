@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -62,7 +63,7 @@ public class BeanSerializerFactory
     /**
      * Constructor for creating instances with specified configuration.
      */
-    protected BeanSerializerFactory(Config config)
+    protected BeanSerializerFactory(SerializerFactoryConfig config)
     {
         super(config);
     }
@@ -74,7 +75,7 @@ public class BeanSerializerFactory
      * to ensure thread-safe access.
      */
     @Override
-    public SerializerFactory withConfig(Config config)
+    public SerializerFactory withConfig(SerializerFactoryConfig config)
     {
         if (_factoryConfig == config) {
             return this;

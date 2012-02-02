@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -20,7 +21,6 @@ import com.fasterxml.jackson.databind.ser.impl.StringArraySerializer;
 import com.fasterxml.jackson.databind.ser.impl.StringCollectionSerializer;
 import com.fasterxml.jackson.databind.ser.std.*;
 import com.fasterxml.jackson.databind.type.*;
-import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumValues;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -138,103 +138,12 @@ public abstract class BasicSerializerFactory
     /**********************************************************
      */
     
-    /**
-     * Configuration settings container class for bean serializer factory
-     */
-    final static class Config
-    {
-        /**
-         * Constant for empty <code>Serializers</code> array (which by definition
-         * is stateless and reusable)
-         */
-        protected final static Serializers[] NO_SERIALIZERS = new Serializers[0];
-
-        protected final static BeanSerializerModifier[] NO_MODIFIERS = new BeanSerializerModifier[0];
-        
-        /**
-         * List of providers for additional serializers, checked before considering default
-         * basic or bean serialializers.
-         */
-        protected final Serializers[] _additionalSerializers;
-
-        /**
-         * List of providers for additional key serializers, checked before considering default
-         * key serialializers.
-         */
-        protected final Serializers[] _additionalKeySerializers;
-        
-        /**
-         * List of modifiers that can change the way {@link BeanSerializer} instances
-         * are configured and constructed.
-         */
-        protected final BeanSerializerModifier[] _modifiers;
-        
-        public Config() {
-            this(null, null, null);
-        }
-
-        protected Config(Serializers[] allAdditionalSerializers,
-                Serializers[] allAdditionalKeySerializers,
-                BeanSerializerModifier[] modifiers)
-        {
-            _additionalSerializers = (allAdditionalSerializers == null) ?
-                    NO_SERIALIZERS : allAdditionalSerializers;
-            _additionalKeySerializers = (allAdditionalKeySerializers == null) ?
-                    NO_SERIALIZERS : allAdditionalKeySerializers;
-            _modifiers = (modifiers == null) ? NO_MODIFIERS : modifiers;
-        }
-
-        public Config withAdditionalSerializers(Serializers additional)
-        {
-            if (additional == null) {
-                throw new IllegalArgumentException("Can not pass null Serializers");
-            }
-            Serializers[] all = ArrayBuilders.insertInListNoDup(_additionalSerializers, additional);
-            return new Config(all, _additionalKeySerializers, _modifiers);
-        }
-
-        public Config withAdditionalKeySerializers(Serializers additional)
-        {
-            if (additional == null) {
-                throw new IllegalArgumentException("Can not pass null Serializers");
-            }
-            Serializers[] all = ArrayBuilders.insertInListNoDup(_additionalKeySerializers, additional);
-            return new Config(_additionalSerializers, all, _modifiers);
-        }
-        
-        public Config withSerializerModifier(BeanSerializerModifier modifier)
-        {
-            if (modifier == null) {
-                throw new IllegalArgumentException("Can not pass null modifier");
-            }
-            BeanSerializerModifier[] modifiers = ArrayBuilders.insertInListNoDup(_modifiers, modifier);
-            return new Config(_additionalSerializers, _additionalKeySerializers, modifiers);
-        }
-
-        public boolean hasSerializers() { return _additionalSerializers.length > 0; }
-
-        public boolean hasKeySerializers() { return _additionalKeySerializers.length > 0; }
-        
-        public boolean hasSerializerModifiers() { return _modifiers.length > 0; }
-        
-        public Iterable<Serializers> serializers() {
-            return ArrayBuilders.arrayAsIterable(_additionalSerializers);
-        }
-
-        public Iterable<Serializers> keySerializers() {
-            return ArrayBuilders.arrayAsIterable(_additionalKeySerializers);
-        }
-        
-        public Iterable<BeanSerializerModifier> serializerModifiers() {
-            return ArrayBuilders.arrayAsIterable(_modifiers);
-        }
-    }
     
     /**
      * Configuration settings for this factory; immutable instance (just like this
      * factory), new version created via copy-constructor (fluent-style)
      */
-    protected final Config _factoryConfig;
+    protected final SerializerFactoryConfig _factoryConfig;
     
     /**
      * Helper object used to deal with serializers for optional JDK types (like ones
@@ -253,8 +162,8 @@ public abstract class BasicSerializerFactory
      * but make it protected so that no non-singleton instances of
      * the class will be instantiated.
      */
-    protected BasicSerializerFactory(Config config) {
-        _factoryConfig = (config == null) ? new Config() : config;
+    protected BasicSerializerFactory(SerializerFactoryConfig config) {
+        _factoryConfig = (config == null) ? new SerializerFactoryConfig() : config;
     }
     
     /**
@@ -267,7 +176,7 @@ public abstract class BasicSerializerFactory
      * factory type. Check out javadocs for
      * {@link com.fasterxml.jackson.databind.ser.BeanSerializerFactory} for more details.
      */
-    public abstract SerializerFactory withConfig(Config config);
+    public abstract SerializerFactory withConfig(SerializerFactoryConfig config);
 
     /**
      * Convenience method for creating a new factory instance with an additional

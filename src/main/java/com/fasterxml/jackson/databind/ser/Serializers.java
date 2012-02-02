@@ -40,19 +40,45 @@ public interface Serializers
             ArrayType type, BeanDescription beanDesc,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer);
 
+    /**
+     * Method called by serialization framework first time a serializer is needed for
+     * specified {@link java.util.Collection} type.
+     * Implementation should return a serializer instance if it supports
+     * specified type; or null if it does not.
+     */
     public JsonSerializer<?> findCollectionSerializer(SerializationConfig config,
             CollectionType type, BeanDescription beanDesc,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer);
 
+    /**
+     * Method called by serialization framework first time a serializer is needed for
+     * specified "Collection-like" type (type that acts like {@link java.util.Collection},
+     * but does not implement it).
+     * Implementation should return a serializer instance if it supports
+     * specified type; or null if it does not.
+     */
     public JsonSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
             CollectionLikeType type, BeanDescription beanDesc,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer);
     
+    /**
+     * Method called by serialization framework first time a serializer is needed for
+     * specified {@link java.util.Map} type.
+     * Implementation should return a serializer instance if it supports
+     * specified type; or null if it does not.
+     */
     public JsonSerializer<?> findMapSerializer(SerializationConfig config,
             MapType type, BeanDescription beanDesc,
             JsonSerializer<Object> keySerializer,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer);
 
+    /**
+     * Method called by serialization framework first time a serializer is needed for
+     * specified "Map-like" type (type that acts like {@link java.util.Map},
+     * but does not implement it).
+     * Implementation should return a serializer instance if it supports
+     * specified type; or null if it does not.
+     */
     public JsonSerializer<?> findMapLikeSerializer(SerializationConfig config,
             MapLikeType type, BeanDescription beanDesc,
             JsonSerializer<Object> keySerializer,

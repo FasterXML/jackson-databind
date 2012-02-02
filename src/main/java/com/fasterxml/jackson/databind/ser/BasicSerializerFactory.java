@@ -125,19 +125,9 @@ public abstract class BasicSerializerFactory
 
     /*
     /**********************************************************
-    /* State
+    /* Configuration
     /**********************************************************
      */
-
-    /**
-     * Configuration settings container class for bean serializer factory.
-     */
-    /*
-    /**********************************************************
-    /* Config class implementation
-    /**********************************************************
-     */
-    
     
     /**
      * Configuration settings for this factory; immutable instance (just like this
@@ -285,7 +275,7 @@ public abstract class BasicSerializerFactory
      * see if we know serializer to use for given type.
      */
     protected final JsonSerializer<?> findSerializerByLookup(JavaType type,
-            SerializationConfig config, BeanDescription beanDesc, BeanProperty property,
+            SerializationConfig config, BeanDescription beanDesc,
             boolean staticTyping)
     {
         Class<?> raw = type.getRawClass();
@@ -314,7 +304,7 @@ public abstract class BasicSerializerFactory
      * mostly concrete or abstract base classes.
      */
     protected final JsonSerializer<?> findSerializerByPrimaryType(SerializerProvider prov, 
-            JavaType type, BeanDescription beanDesc, BeanProperty property,
+            JavaType type, BeanDescription beanDesc,
             boolean staticTyping)
         throws JsonMappingException
     {
@@ -331,7 +321,7 @@ public abstract class BasicSerializerFactory
             if (prov.canOverrideAccessModifiers()) {
                 ClassUtil.checkAndFixAccess(m);
             }
-            JsonSerializer<Object> ser = findSerializerFromAnnotation(prov, valueMethod, property);
+            JsonSerializer<Object> ser = findSerializerFromAnnotation(prov, valueMethod);
             return new JsonValueSerializer(m, ser);
         }
         
@@ -375,8 +365,8 @@ public abstract class BasicSerializerFactory
      * bean classes may implement {@link Iterable}, but their main
      * function is usually something else. The reason for
      */
-    protected final JsonSerializer<?> findSerializerByAddonType(SerializationConfig config, JavaType javaType,
-            BeanDescription beanDesc, BeanProperty property,
+    protected final JsonSerializer<?> findSerializerByAddonType(SerializationConfig config,
+            JavaType javaType, BeanDescription beanDesc,
             boolean staticTyping)
         throws JsonMappingException
     {
@@ -384,10 +374,10 @@ public abstract class BasicSerializerFactory
 
         // These need to be in decreasing order of specificity...
         if (Iterator.class.isAssignableFrom(type)) {
-            return buildIteratorSerializer(config, javaType, beanDesc, property, staticTyping);
+            return buildIteratorSerializer(config, javaType, beanDesc, staticTyping);
         }
         if (Iterable.class.isAssignableFrom(type)) {
-            return buildIterableSerializer(config, javaType, beanDesc, property, staticTyping);
+            return buildIterableSerializer(config, javaType, beanDesc,  staticTyping);
         }
         if (CharSequence.class.isAssignableFrom(type)) {
             return ToStringSerializer.instance;
@@ -403,14 +393,14 @@ public abstract class BasicSerializerFactory
      * Returns null if no such annotation found.
      */
     protected JsonSerializer<Object> findSerializerFromAnnotation(SerializerProvider prov,
-            Annotated a, BeanProperty property)
+            Annotated a)
         throws JsonMappingException
     {
         Object serDef = prov.getAnnotationIntrospector().findSerializer(a);
         if (serDef == null) {
             return null;
         }
-        return prov.serializerInstance(a, property, serDef);
+        return prov.serializerInstance(a, serDef);
     }
 
     /*
@@ -428,12 +418,10 @@ public abstract class BasicSerializerFactory
         JavaType elementType = type.getContentType();
         TypeSerializer elementTypeSerializer = createTypeSerializer(config,
                 elementType);
-        
+
         // if elements have type serializer, can not force static typing:
         if (elementTypeSerializer != null) {
             staticTyping = false;
-        } else if (!staticTyping) {
-            staticTyping = usesStaticTyping(config, beanDesc, elementTypeSerializer, property);
         }
         JsonSerializer<Object> elementValueSerializer = _findContentSerializer(prov,
                 beanDesc.getClassInfo(), property);
@@ -445,42 +433,35 @@ public abstract class BasicSerializerFactory
                 return buildMapSerializer(config, (MapType) mlt, beanDesc, staticTyping,
                         keySerializer, elementTypeSerializer, elementValueSerializer);
             }
-            return buildMapLikeSerializer(config, mlt, beanDesc, staticTyping,
-                    keySerializer, elementTypeSerializer, elementValueSerializer);
+            // Only custom serializers may be available:
+            for (Serializers serializers : customSerializers()) {
+                JsonSerializer<?> ser = serializers.findMapLikeSerializer(config,
+                        (MapLikeType) type, beanDesc, keySerializer, elementTypeSerializer, elementValueSerializer);
+                if (ser != null) {
+                    return ser;
+                }
+            }
+            return null;
         }
         if (type.isCollectionLikeType()) {
             CollectionLikeType clt = (CollectionLikeType) type;
-            if (clt.isTrueCollectionType()) {
+            if (clt.isTrueCollectionType()) { // only have custom ones, if any:
                 return buildCollectionSerializer(config, (CollectionType) clt, beanDesc, property, staticTyping,
                         elementTypeSerializer, elementValueSerializer);
             }
-            return buildCollectionLikeSerializer(config, clt, beanDesc, property, staticTyping,
-                    elementTypeSerializer, elementValueSerializer);
+            // Only custom variants for this:
+            for (Serializers serializers : customSerializers()) {
+                JsonSerializer<?> ser = serializers.findCollectionLikeSerializer(config,
+                        (CollectionLikeType) type, beanDesc, elementTypeSerializer, elementValueSerializer);
+                if (ser != null) {
+                    return ser;
+                }
+            }
+            return null;
         }
         if (type.isArrayType()) {
-            return buildArraySerializer(config, (ArrayType) type, beanDesc, property, staticTyping,
+            return buildArraySerializer(config, (ArrayType) type, beanDesc, staticTyping,
                     elementTypeSerializer, elementValueSerializer);
-        }
-        return null;
-    }
-    
-    /**
-     * Helper method that handles configuration details when constructing serializers for
-     * Collection and Collection-like types.
-     */
-    protected JsonSerializer<?> buildCollectionLikeSerializer(SerializationConfig config,
-            CollectionLikeType type,
-            BeanDescription beanDesc, BeanProperty property,
-            boolean staticTyping,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
-        throws JsonMappingException
-    {
-        for (Serializers serializers : customSerializers()) {
-            JsonSerializer<?> ser = serializers.findCollectionLikeSerializer(config,
-                    type, beanDesc, elementTypeSerializer, elementValueSerializer);
-            if (ser != null) {
-                return ser;
-            }
         }
         return null;
     }
@@ -506,8 +487,13 @@ public abstract class BasicSerializerFactory
         }
         Class<?> raw = type.getRawClass();
         if (EnumSet.class.isAssignableFrom(raw)) {
-            return buildEnumSetSerializer(config, type, beanDesc, property, staticTyping,
-                    elementTypeSerializer, elementValueSerializer);
+            // this may or may not be available (Class doesn't; type of field/method does)
+            JavaType enumType = type.getContentType();
+            // and even if nominally there is something, only use if it really is enum
+            if (!enumType.isEnumType()) {
+                enumType = null;
+            }
+            return StdContainerSerializers.enumSetSerializer(enumType);
         }
         Class<?> elementRaw = type.getContentType().getRawClass();
         if (isIndexedList(raw)) {
@@ -523,20 +509,6 @@ public abstract class BasicSerializerFactory
         return StdContainerSerializers.collectionSerializer(type.getContentType(), staticTyping,
                 elementTypeSerializer, property, elementValueSerializer);
     }
-
-    protected JsonSerializer<?> buildEnumSetSerializer(SerializationConfig config, JavaType type,
-            BeanDescription beanDesc, BeanProperty property,
-            boolean staticTyping,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
-    {
-        // this may or may not be available (Class doesn't; type of field/method does)
-        JavaType enumType = type.getContentType();
-        // and even if nominally there is something, only use if it really is enum
-        if (!enumType.isEnumType()) {
-            enumType = null;
-        }
-        return StdContainerSerializers.enumSetSerializer(enumType, property);
-    }
     
     protected boolean isIndexedList(Class<?> cls)
     {
@@ -548,27 +520,6 @@ public abstract class BasicSerializerFactory
     /* Factory methods, for Maps
     /**********************************************************
      */
-    
-    /**
-     * Helper method that handles configuration details when constructing serializers for
-     * all "Map-like" types; both ones that implement {@link java.util.Map} and
-     * ones that do not (but that have been indicated to behave like Maps).
-     */
-    protected JsonSerializer<?> buildMapLikeSerializer(SerializationConfig config, MapLikeType type,
-            BeanDescription beanDesc, boolean staticTyping,
-            JsonSerializer<Object> keySerializer,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
-        throws JsonMappingException
-    {
-        for (Serializers serializers : customSerializers()) {
-            JsonSerializer<?> ser = serializers.findMapLikeSerializer(config,
-                    type, beanDesc, keySerializer, elementTypeSerializer, elementValueSerializer);
-            if (ser != null) {
-                return ser;
-            }
-        }
-        return null;
-    }
     
     /**
      * Helper method that handles configuration details when constructing serializers for
@@ -588,33 +539,20 @@ public abstract class BasicSerializerFactory
             }
         }
         if (EnumMap.class.isAssignableFrom(type.getRawClass())) {
-            return buildEnumMapSerializer(config, type, beanDesc, staticTyping,
-                    elementTypeSerializer, elementValueSerializer);
+            JavaType keyType = type.getKeyType();
+            // Need to find key enum values...
+            EnumValues enums = null;
+            if (keyType.isEnumType()) { // non-enum if we got it as type erased class (from instance)
+                @SuppressWarnings("unchecked")
+                Class<Enum<?>> enumClass = (Class<Enum<?>>) keyType.getRawClass();
+                enums = EnumValues.construct(enumClass, config.getAnnotationIntrospector());
+            }
+            return new EnumMapSerializer(type.getContentType(), staticTyping, enums,
+                elementTypeSerializer, elementValueSerializer);
         }
         return MapSerializer.construct(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()),
                 type, staticTyping, elementTypeSerializer,
                 keySerializer, elementValueSerializer);
-    }
-    
-    /**
-     * Helper method that handles configuration details when constructing serializers for
-     * {@link java.util.EnumMap} types.
-     */
-    protected JsonSerializer<?> buildEnumMapSerializer(SerializationConfig config,
-            JavaType type, BeanDescription beanDesc, boolean staticTyping,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
-        throws JsonMappingException
-    {
-        JavaType keyType = type.getKeyType();
-        // Need to find key enum values...
-        EnumValues enums = null;
-        if (keyType.isEnumType()) { // non-enum if we got it as type erased class (from instance)
-            @SuppressWarnings("unchecked")
-            Class<Enum<?>> enumClass = (Class<Enum<?>>) keyType.getRawClass();
-            enums = EnumValues.construct(enumClass, config.getAnnotationIntrospector());
-        }
-        return new EnumMapSerializer(type.getContentType(), staticTyping, enums,
-            elementTypeSerializer, elementValueSerializer);
     }
 
     /*
@@ -628,7 +566,7 @@ public abstract class BasicSerializerFactory
      * <code>Object[]</code> (and subtypes, except for String).
      */
     protected JsonSerializer<?> buildArraySerializer(SerializationConfig config,
-            ArrayType type, BeanDescription beanDesc, BeanProperty property,
+            ArrayType type, BeanDescription beanDesc,
             boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
         throws JsonMappingException
@@ -656,7 +594,7 @@ public abstract class BasicSerializerFactory
      */
 
     protected JsonSerializer<?> buildIteratorSerializer(SerializationConfig config,
-            JavaType type, BeanDescription beanDesc, BeanProperty property,
+            JavaType type, BeanDescription beanDesc,
             boolean staticTyping)
         throws JsonMappingException
     {
@@ -667,11 +605,11 @@ public abstract class BasicSerializerFactory
         }
         TypeSerializer vts = createTypeSerializer(config, valueType);
         return StdContainerSerializers.iteratorSerializer(valueType,
-                usesStaticTyping(config, beanDesc, vts, property), vts, property);
+                usesStaticTyping(config, beanDesc, vts, null), vts);
     }
     
     protected JsonSerializer<?> buildIterableSerializer(SerializationConfig config,
-            JavaType type, BeanDescription beanDesc, BeanProperty property,
+            JavaType type, BeanDescription beanDesc,
             boolean staticTyping)
         throws JsonMappingException
     {
@@ -682,8 +620,8 @@ public abstract class BasicSerializerFactory
         }
         TypeSerializer vts = createTypeSerializer(config, valueType);
         return StdContainerSerializers.iterableSerializer(valueType,
-                usesStaticTyping(config, beanDesc, vts, property),
-                vts, property);
+                usesStaticTyping(config, beanDesc, vts, null),
+                vts);
     }
     
     /*
@@ -696,7 +634,8 @@ public abstract class BasicSerializerFactory
      * Helper method used to encapsulate details of annotation-based type coercion
      */
     @SuppressWarnings("unchecked")
-    protected <T extends JavaType> T modifyTypeByAnnotation(SerializationConfig config, Annotated a, T type)
+    protected <T extends JavaType> T modifyTypeByAnnotation(SerializationConfig config,
+            Annotated a, T type)
     {
         // first: let's check class for the instance itself:
         Class<?> superclass = config.getAnnotationIntrospector().findSerializationType(a);
@@ -755,13 +694,13 @@ public abstract class BasicSerializerFactory
             if (m != null) {
                 Object serDef = intr.findKeySerializer(m);
                 if (serDef != null) {
-                    return prov.serializerInstance(m, property, serDef);
+                    return prov.serializerInstance(m, serDef);
                 }
             }
         }
         Object serDef = intr.findKeySerializer(a);
         if (serDef != null) {
-            return prov.serializerInstance(a, property, serDef);
+            return prov.serializerInstance(a, serDef);
         }
         return null;
     }
@@ -778,13 +717,13 @@ public abstract class BasicSerializerFactory
             if (m != null) {
                 Object serDef = intr.findContentSerializer(m);
                 if (serDef != null) {
-                    return prov.serializerInstance(m, property, serDef);
+                    return prov.serializerInstance(m, serDef);
                 }
             }
         }
         Object serDef = intr.findContentSerializer(a);
         if (serDef != null) {
-            return prov.serializerInstance(a, property, serDef);
+            return prov.serializerInstance(a, serDef);
         }
         return null;
     }

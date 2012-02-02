@@ -118,27 +118,20 @@ public class BeanSerializerFactory
     @Override
     @SuppressWarnings("unchecked")
     public JsonSerializer<Object> createSerializer(SerializerProvider prov,
-            JavaType origType,
-            BeanProperty property)
+            JavaType origType, BeanProperty property)
         throws JsonMappingException
     {
         // Very first thing, let's check if there is explicit serializer annotation:
         final SerializationConfig config = prov.getConfig();
         BeanDescription beanDesc = config.introspect(origType);
-        JsonSerializer<?> ser = findSerializerFromAnnotation(prov, beanDesc.getClassInfo(), property);
+        JsonSerializer<?> ser = findSerializerFromAnnotation(prov, beanDesc.getClassInfo());
         if (ser != null) {
             return (JsonSerializer<Object>) ser;
         }
-
         // Next: we may have annotations that further define types to use...
         JavaType type = modifyTypeByAnnotation(config, beanDesc.getClassInfo(), origType);
         // and if so, we consider it implicit "force static typing" instruction
         boolean staticTyping = (type != origType);
-        
-        // Container types differ from non-container types:
-        if (origType.isContainerType()) {
-            return (JsonSerializer<Object>) buildContainerSerializer(prov, type, beanDesc, property, staticTyping);
-        }
 
         // Modules may provide serializers of all types:
         for (Serializers serializers : _factoryConfig.serializers()) {
@@ -148,13 +141,22 @@ public class BeanSerializerFactory
             }
         }
 
+        // Container types differ from non-container types:
+        if (origType.isContainerType()) {
+            if (!staticTyping) {
+                staticTyping = usesStaticTyping(config, beanDesc, null, property);
+            }
+            return (JsonSerializer<Object>) buildContainerSerializer(prov,
+                    type, beanDesc, property, staticTyping);
+        }
+        
         /* Otherwise, we will check "primary types"; both marker types that
          * indicate specific handling (JsonSerializable), or main types that have
          * precedence over container types
          */
-        ser = findSerializerByLookup(type, config, beanDesc, property, staticTyping);
+        ser = findSerializerByLookup(type, config, beanDesc, staticTyping);
         if (ser == null) {
-            ser = findSerializerByPrimaryType(prov, type, beanDesc, property, staticTyping);
+            ser = findSerializerByPrimaryType(prov, type, beanDesc, staticTyping);
             if (ser == null) {
                 /* And this is where this class comes in: if type is not a
                  * known "primary JDK type", perhaps it's a bean? We can still
@@ -165,7 +167,7 @@ public class BeanSerializerFactory
                  * implementation of some basic JDK interface?
                  */
                 if (ser == null) {
-                    ser = findSerializerByAddonType(config, type, beanDesc, property, staticTyping);
+                    ser = findSerializerByAddonType(config, type, beanDesc, staticTyping);
                 }
             }
         }
@@ -577,7 +579,7 @@ public class BeanSerializerFactory
         BeanProperty.Std property = new BeanProperty.Std(name, type, pb.getClassAnnotations(), accessor);
 
         // Does member specify a serializer? If so, let's use it.
-        JsonSerializer<Object> annotatedSerializer = findSerializerFromAnnotation(prov, accessor, property);
+        JsonSerializer<Object> annotatedSerializer = findSerializerFromAnnotation(prov, accessor);
         // And how about polymorphic typing? First special to cover JAXB per-field settings:
         TypeSerializer contentTypeSer = null;
         if (ClassUtil.isCollectionMapOrArray(type.getRawClass())) {

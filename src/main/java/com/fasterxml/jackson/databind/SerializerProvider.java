@@ -709,7 +709,7 @@ public abstract class SerializerProvider
             BeanProperty property)
         throws JsonMappingException
     {
-        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(this, keyType, property);
+        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(_config, keyType);
     
         // First things first: maybe there are registered custom implementations
         // if not, use default one:
@@ -1155,6 +1155,16 @@ public abstract class SerializerProvider
         return _handleContextual(ser, property);
     }
 
+    @SuppressWarnings("unchecked")
+    protected JsonSerializer<Object> _handleResolvable(JsonSerializer<?> ser)
+        throws JsonMappingException
+    {
+        if (ser instanceof ResolvableSerializer) {
+            ((ResolvableSerializer) ser).resolve(this);
+        }
+        return (JsonSerializer<Object>) ser;
+    }
+    
     @SuppressWarnings("unchecked")
     protected JsonSerializer<Object> _handleContextual(JsonSerializer<?> ser,
             BeanProperty property)

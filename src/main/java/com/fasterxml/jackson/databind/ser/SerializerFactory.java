@@ -71,12 +71,11 @@ public abstract class SerializerFactory
      * key type, and is for specified property (or, if property is null, as root value)
      * 
      * @param baseType Declared type for Map keys
-     * @param property Property that contains Map being serialized; null when serializing root Map value.
      * 
-     * @return Serializer to use, if factory knows it; null if not (in which case default serializer
-     *   is to be used)
+     * @return Serializer to use, if factory knows it; null if not (in which case default
+     *   serializer is to be used)
      */
-    public abstract JsonSerializer<Object> createKeySerializer(SerializerProvider prov,
-            JavaType baseType, BeanProperty property)
+    public abstract JsonSerializer<Object> createKeySerializer(SerializationConfig config,
+            JavaType baseType)
         throws JsonMappingException;
 }

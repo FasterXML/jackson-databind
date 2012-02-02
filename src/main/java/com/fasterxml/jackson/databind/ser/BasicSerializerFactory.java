@@ -307,15 +307,13 @@ public abstract class BasicSerializerFactory
 
     @Override
     @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> createKeySerializer(SerializerProvider prov,
-            JavaType type, BeanProperty property)
+    public JsonSerializer<Object> createKeySerializer(SerializationConfig config,
+            JavaType type)
     {
         // Minor optimization: to avoid constructing beanDesc, bail out if none registered
         if (!_factoryConfig.hasKeySerializers()) {
             return null;
         }
-
-        final SerializationConfig config = prov.getConfig();
         // We should not need any member method info; at most class annotations for Map type
         BeanDescription beanDesc = config.introspectClassAnnotations(type.getRawClass());
         JsonSerializer<?> ser = null;

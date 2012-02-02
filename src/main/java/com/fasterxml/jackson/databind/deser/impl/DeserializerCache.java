@@ -1,10 +1,13 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.deser.impl;
 
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.deser.DeserializerFactory;
+import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -47,73 +50,11 @@ public final class DeserializerCache
 
     /*
     /**********************************************************
-    /* Configuration
-    /**********************************************************
-     */
-
-    /**
-     * Factory responsible for constructing actual deserializers, if not
-     * one of pre-configured types.
-     */
-    protected final DeserializerFactory _factory;
-
-    /*
-    /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
-    public DeserializerCache(DeserializerFactory f) {
-        _factory = f;
-    }
-
-    public DeserializerFactory getDeserializerFactory() {
-        return _factory;
-    }
-
-    /*
-    /**********************************************************
-    /* Fluent factory methods
-    /**********************************************************
-     */
-    
-    /**
-     * Method that sub-classes need to override, to ensure that fluent-factory
-     * methods will produce proper sub-type.
-     */
-    public DeserializerCache withFactory(DeserializerFactory factory) {
-        return new DeserializerCache(factory);
-    }
-    
-    /**
-     * Method that is to configure {@link DeserializerFactory} that provider has
-     * to use specified deserializer provider, with highest precedence (that is,
-     * additional providers have higher precedence than default one or previously
-     * added ones)
-     */
-    public DeserializerCache withAdditionalDeserializers(Deserializers d) {
-        return withFactory(_factory.withAdditionalDeserializers(d));
-    }
-
-    public DeserializerCache withAdditionalKeyDeserializers(KeyDeserializers d) {
-        return withFactory(_factory.withAdditionalKeyDeserializers(d));
-    }
-    
-    public DeserializerCache withDeserializerModifier(BeanDeserializerModifier modifier) {
-        return withFactory(_factory.withDeserializerModifier(modifier));
-    }
-
-    public DeserializerCache withAbstractTypeResolver(AbstractTypeResolver resolver) {
-        return withFactory(_factory.withAbstractTypeResolver(resolver));
-    }
-
-    /**
-     * Method that will construct a new instance with specified additional value instantiators
-     * (i.e. does NOT replace existing ones)
-     */
-    public DeserializerCache withValueInstantiators(ValueInstantiators instantiators) {
-        return withFactory(_factory.withValueInstantiators(instantiators));
-    }
+    public DeserializerCache() { }
     
     /*
     /**********************************************************
@@ -177,7 +118,7 @@ public final class DeserializerCache
      *   finding any serializer
      */
     public JsonDeserializer<Object> findValueDeserializer(DeserializationContext ctxt,
-            JavaType propertyType)
+            DeserializerFactory factory, JavaType propertyType)
         throws JsonMappingException
     {
         JsonDeserializer<Object> deser = _findCachedDeserializer(propertyType);
@@ -185,7 +126,7 @@ public final class DeserializerCache
             return deser;
         }
         // If not, need to request factory to construct (or recycle)
-        deser = _createAndCacheValueDeserializer(ctxt, propertyType);
+        deser = _createAndCacheValueDeserializer(ctxt, factory, propertyType);
         if (deser == null) {
             /* Should we let caller handle it? Let's have a helper method
              * decide it; can throw an exception, or return a valid
@@ -205,10 +146,10 @@ public final class DeserializerCache
      *   finding any serializer
      */
     public KeyDeserializer findKeyDeserializer(DeserializationContext ctxt,
-            JavaType type)
+            DeserializerFactory factory, JavaType type)
         throws JsonMappingException
     {
-        KeyDeserializer kd = _factory.createKeyDeserializer(ctxt, type);
+        KeyDeserializer kd = factory.createKeyDeserializer(ctxt, type);
         if (kd == null) { // if none found, need to use a placeholder that'll fail
             return _handleUnknownKeyDeserializer(type);
         }
@@ -224,7 +165,8 @@ public final class DeserializerCache
      * a deserializer for given type, using a root reference (i.e. not
      * through fields or membership in an array or collection)
      */
-    public boolean hasValueDeserializerFor(DeserializationContext ctxt, JavaType type)
+    public boolean hasValueDeserializerFor(DeserializationContext ctxt,
+            DeserializerFactory factory, JavaType type)
     {
         /* Note: mostly copied from findValueDeserializer, except for
          * handling of unknown types
@@ -232,7 +174,7 @@ public final class DeserializerCache
         JsonDeserializer<Object> deser = _findCachedDeserializer(type);
         if (deser == null) {
             try {
-                deser = _createAndCacheValueDeserializer(ctxt, type);
+                deser = _createAndCacheValueDeserializer(ctxt, factory, type);
             } catch (Exception e) {
                 return false;
             }
@@ -263,7 +205,7 @@ public final class DeserializerCache
      * @param property Property (field, setter, ctor arg) to use deserializer for
      */
     protected JsonDeserializer<Object>_createAndCacheValueDeserializer(DeserializationContext ctxt,
-            JavaType type)
+            DeserializerFactory factory, JavaType type)
         throws JsonMappingException
     {
         /* Only one thread to construct deserializers at any given point in time;
@@ -286,7 +228,7 @@ public final class DeserializerCache
             }
             // Nope: need to create and possibly cache
             try {
-                return _createAndCache2(ctxt, type);
+                return _createAndCache2(ctxt, factory, type);
             } finally {
                 // also: any deserializers that have been created are complete by now
                 if (count == 0 && _incompleteDeserializers.size() > 0) {
@@ -301,12 +243,12 @@ public final class DeserializerCache
      * intermediate and eventual)
      */
     protected JsonDeserializer<Object> _createAndCache2(DeserializationContext ctxt,
-            JavaType type)
+            DeserializerFactory factory, JavaType type)
         throws JsonMappingException
     {
         JsonDeserializer<Object> deser;
         try {
-            deser = _createDeserializer(ctxt, type);
+            deser = _createDeserializer(ctxt, factory, type);
         } catch (IllegalArgumentException iae) {
             /* We better only expose checked exceptions, since those
              * are what caller is expected to handle
@@ -359,14 +301,14 @@ public final class DeserializerCache
      */
     @SuppressWarnings("unchecked")
     protected JsonDeserializer<Object> _createDeserializer(DeserializationContext ctxt,
-            JavaType type)
+            DeserializerFactory factory, JavaType type)
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
 
         // First things first: do we need to use abstract type mapping?
         if (type.isAbstract() || type.isMapLikeType() || type.isCollectionLikeType()) {
-            type = _factory.mapAbstractType(config, type);
+            type = factory.mapAbstractType(config, type);
         }
         BeanDescription beanDesc = config.introspect(type);
         // Then: does type define explicit deserializer to use, with annotation(s)?
@@ -385,39 +327,39 @@ public final class DeserializerCache
 
         // If not, let's see which factory method to use:
         if (type.isEnumType()) {
-            return (JsonDeserializer<Object>) _factory.createEnumDeserializer(ctxt,
+            return (JsonDeserializer<Object>) factory.createEnumDeserializer(ctxt,
                     type, beanDesc);
         }
         if (type.isContainerType()) {
             if (type.isArrayType()) {
-                return (JsonDeserializer<Object>)_factory.createArrayDeserializer(ctxt,
+                return (JsonDeserializer<Object>) factory.createArrayDeserializer(ctxt,
                         (ArrayType) type, beanDesc);
             }
             if (type.isMapLikeType()) {
                 MapLikeType mlt = (MapLikeType) type;
                 if (mlt.isTrueMapType()) {
-                    return (JsonDeserializer<Object>)_factory.createMapDeserializer(ctxt,
+                    return (JsonDeserializer<Object>) factory.createMapDeserializer(ctxt,
                             (MapType) mlt, beanDesc);
                 }
-                return (JsonDeserializer<Object>)_factory.createMapLikeDeserializer(ctxt,
+                return (JsonDeserializer<Object>) factory.createMapLikeDeserializer(ctxt,
                         mlt, beanDesc);
             }
             if (type.isCollectionLikeType()) {
                 CollectionLikeType clt = (CollectionLikeType) type;
                 if (clt.isTrueCollectionType()) {
-                    return (JsonDeserializer<Object>)_factory.createCollectionDeserializer(ctxt,
+                    return (JsonDeserializer<Object>) factory.createCollectionDeserializer(ctxt,
                             (CollectionType) clt, beanDesc);
                 }
-                return (JsonDeserializer<Object>)_factory.createCollectionLikeDeserializer(ctxt,
+                return (JsonDeserializer<Object>) factory.createCollectionLikeDeserializer(ctxt,
                         clt, beanDesc);
             }
         }
 
         // 02-Mar-2009, tatu: Let's consider JsonNode to be a type of its own
         if (JsonNode.class.isAssignableFrom(type.getRawClass())) {
-            return (JsonDeserializer<Object>)_factory.createTreeDeserializer(config, type, beanDesc);
+            return (JsonDeserializer<Object>) factory.createTreeDeserializer(config, type, beanDesc);
         }
-        return (JsonDeserializer<Object>)_factory.createBeanDeserializer(ctxt, type, beanDesc);
+        return (JsonDeserializer<Object>) factory.createBeanDeserializer(ctxt, type, beanDesc);
     }
 
     /**

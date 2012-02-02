@@ -95,12 +95,12 @@ public class TestObjectMapper extends BaseMapTest
     public void testProviderConfig() throws Exception   
     {
         ObjectMapper mapper = new ObjectMapper();
-        assertEquals(0, mapper._deserializerCache.cachedDeserializersCount());
+        assertEquals(0, mapper._deserializationContext._cache.cachedDeserializersCount());
         // and then should get one constructed for:
         Bean bean = mapper.readValue("{ \"x\" : 3 }", Bean.class);
         assertNotNull(bean);
-        assertEquals(1, mapper._deserializerCache.cachedDeserializersCount());
-        mapper._deserializerCache.flushCachedDeserializers();
-        assertEquals(0, mapper._deserializerCache.cachedDeserializersCount());
+        assertEquals(1, mapper._deserializationContext._cache.cachedDeserializersCount());
+        mapper._deserializationContext._cache.flushCachedDeserializers();
+        assertEquals(0, mapper._deserializationContext._cache.cachedDeserializersCount());
     }
 }

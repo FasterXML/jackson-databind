@@ -295,12 +295,11 @@ public class ObjectMapper
     protected DeserializationConfig _deserializationConfig;
 
     /**
-     * Object that manages access to deserializers used for deserializing
-     * JSON content into Java objects, including caching
-     * of the deserializers. It contains a reference to
-     * {@link DeserializerFactory} to use for constructing acutal deserializers.
+     * Blueprint context object; stored here to allow custom
+     * sub-classes. Contains references to objects needed for
+     * deserialization construction (cache, factory).
      */
-    protected DeserializerCache _deserializerCache;
+    protected DeserializationContext _deserializationContext;
 
     /*
     /**********************************************************
@@ -374,10 +373,12 @@ public class ObjectMapper
      * 
      * @param jf JsonFactory to use: if null, a new {@link MappingJsonFactory} will be constructed
      * @param sp SerializerProvider to use: if null, a {@link SerializerProvider} will be constructed
-     * @param dp DeserializerCache to use
+     * @param dc Blueprint deserialization context instance to use for creating
+     *    actual context objects; if null, will construct standard
+     *    {@link DeserializationContext}
      */
     public ObjectMapper(JsonFactory jf,
-            SerializerProvider sp, DeserializerCache dp)
+            SerializerProvider sp, DeserializationContext dc)
     {
         /* 02-Mar-2009, tatu: Important: we MUST default to using
          *   the mapping factory, otherwise tree serialization will
@@ -402,7 +403,8 @@ public class ObjectMapper
         _deserializationConfig = new DeserializationConfig(DEFAULT_BASE,
                     _subtypeResolver, _mixInAnnotations);
         _serializerProvider = (sp == null) ? new SerializerProvider.Impl() : sp;
-        _deserializerCache = (dp == null) ? new DeserializerCache(BeanDeserializerFactory.instance) : dp;
+        _deserializationContext = (dc == null) ?
+                new DeserializationContext.Std(BeanDeserializerFactory.instance) : dc;
 
         // Default serializer factory is stateless, can just assign
         _serializerFactory = BeanSerializerFactory.instance;
@@ -505,17 +507,27 @@ public class ObjectMapper
                 return mapper.isEnabled(f);
             }
             
-            // // // Methods for registering handlers: deserializers, serializers
+            // // // Methods for registering handlers: deserializers
             
             @Override
             public void addDeserializers(Deserializers d) {
-                mapper._deserializerCache = mapper._deserializerCache.withAdditionalDeserializers(d);
+                DeserializerFactory df = mapper._deserializationContext._factory.withAdditionalDeserializers(d);
+                mapper._deserializationContext = mapper._deserializationContext.with(df);
             }
 
             @Override
             public void addKeyDeserializers(KeyDeserializers d) {
-                mapper._deserializerCache = mapper._deserializerCache.withAdditionalKeyDeserializers(d);
+                DeserializerFactory df = mapper._deserializationContext._factory.withAdditionalKeyDeserializers(d);
+                mapper._deserializationContext = mapper._deserializationContext.with(df);
             }
+
+            @Override
+            public void addBeanDeserializerModifier(BeanDeserializerModifier modifier) {
+                DeserializerFactory df = mapper._deserializationContext._factory.withDeserializerModifier(modifier);
+                mapper._deserializationContext = mapper._deserializationContext.with(df);
+            }
+            
+            // // // Methods for registering handlers: serializers
             
             @Override
             public void addSerializers(Serializers s) {
@@ -532,16 +544,12 @@ public class ObjectMapper
                 mapper._serializerFactory = mapper._serializerFactory.withSerializerModifier(modifier);
             }
 
-            @Override
-            public void addBeanDeserializerModifier(BeanDeserializerModifier modifier) {
-                mapper._deserializerCache = mapper._deserializerCache.withDeserializerModifier(modifier);
-            }
-
             // // // Methods for registering handlers: other
             
             @Override
             public void addAbstractTypeResolver(AbstractTypeResolver resolver) {
-                mapper._deserializerCache = mapper._deserializerCache.withAbstractTypeResolver(resolver);
+                DeserializerFactory df = mapper._deserializationContext._factory.withAbstractTypeResolver(resolver);
+                mapper._deserializationContext = mapper._deserializationContext.with(df);
             }
 
             @Override
@@ -553,7 +561,8 @@ public class ObjectMapper
 
             @Override
             public void addValueInstantiators(ValueInstantiators instantiators) {
-                mapper._deserializerCache = mapper._deserializerCache.withValueInstantiators(instantiators);
+                DeserializerFactory df = mapper._deserializationContext._factory.withValueInstantiators(instantiators);
+                mapper._deserializationContext = mapper._deserializationContext.with(df);
             }
             
             @Override
@@ -1693,9 +1702,8 @@ public class ObjectMapper
      */
     public boolean canDeserialize(JavaType type)
     {
-        DeserializationContext ctxt = createDeserializationContext(null,
-                getDeserializationConfig());
-        return _deserializerCache.hasValueDeserializerFor(ctxt, type);
+        return createDeserializationContext(null,
+                getDeserializationConfig()).hasValueDeserializerFor(type);
     }
 
     /*
@@ -2455,11 +2463,11 @@ public class ObjectMapper
      * for deserializing a single root value.
      * Can be overridden if a custom context is needed.
      */
-    protected DeserializationContext createDeserializationContext(JsonParser jp,
+    protected final DeserializationContext createDeserializationContext(JsonParser jp,
             DeserializationConfig cfg)
     {
-        return new DeserializationContext(cfg, jp, _deserializerCache,
-                _injectableValues);
+        return _deserializationContext.createInstance(cfg,
+                jp, _injectableValues);
     }
     
     /**

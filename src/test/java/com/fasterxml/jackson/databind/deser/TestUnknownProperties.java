@@ -45,11 +45,11 @@ public class TestUnknownProperties
         extends DeserializationProblemHandler
     {
         @Override
-        public boolean handleUnknownProperty(DeserializationContext ctxt, JsonDeserializer<?> deserializer,
-                                             Object bean, String propertyName)
+        public boolean handleUnknownProperty(DeserializationContext ctxt,
+                JsonParser jp, JsonDeserializer<?> deserializer,
+                Object bean, String propertyName)
             throws IOException, JsonProcessingException
         {
-            JsonParser jp = ctxt.getParser();
             // very simple, just to verify that we do see correct token type
             ((TestBean) bean).markUnknown(propertyName+":"+jp.getCurrentToken().toString());
             // Yup, we are good to go; must skip whatever value we'd have:

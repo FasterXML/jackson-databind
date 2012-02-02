@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
-import com.fasterxml.jackson.databind.deser.DeserializerCache;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
@@ -50,26 +49,20 @@ public class ObjectReader
     protected final DeserializationConfig _config;
 
     /**
-     * Flag that indicates whether root values are expected to be unwrapped or not
+     * Blueprint instance of deserialization context; used for creating
+     * actual instance when needed.
      */
-    protected final boolean _unwrapRoot;
-    
-    /**
-     * Root-level cached deserializers
-     */
-    final protected ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _rootDeserializers;
-   
-    protected final DeserializerCache _deserializerCache;
+    protected final DeserializationContext _context;
 
     /**
      * Factory used for constructing {@link JsonGenerator}s
      */
     protected final JsonFactory _jsonFactory;
-
+    
     /**
-     * Cache for root names used when root-wrapping is enabled.
+     * Flag that indicates whether root values are expected to be unwrapped or not
      */
-    protected final RootNameLookup _rootNames;
+    protected final boolean _unwrapRoot;
     
     /*
     /**********************************************************
@@ -107,6 +100,22 @@ public class ObjectReader
      * Values that can be injected during deserialization, if any.
      */
     protected final InjectableValues _injectableValues;
+
+    /*
+    /**********************************************************
+    /* Caching
+    /**********************************************************
+     */
+    
+    /**
+     * Root-level cached deserializers
+     */
+    final protected ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _rootDeserializers;
+
+    /**
+     * Cache for root names used when root-wrapping is enabled.
+     */
+    protected final RootNameLookup _rootNames;
     
     /*
     /**********************************************************
@@ -127,8 +136,8 @@ public class ObjectReader
             InjectableValues injectableValues)
     {
         _config = config;
+        _context = mapper._deserializationContext;
         _rootDeserializers = mapper._rootDeserializers;
-        _deserializerCache = mapper._deserializerCache;
         _jsonFactory = mapper._jsonFactory;
         _rootNames = mapper._rootNames;
         _valueType = valueType;
@@ -149,9 +158,9 @@ public class ObjectReader
             InjectableValues injectableValues)
     {
         _config = config;
+        _context = base._context;
 
         _rootDeserializers = base._rootDeserializers;
-        _deserializerCache = base._deserializerCache;
         _jsonFactory = base._jsonFactory;
         _rootNames = base._rootNames;
 
@@ -171,9 +180,9 @@ public class ObjectReader
     protected ObjectReader(ObjectReader base, DeserializationConfig config)
     {
         _config = config;
+        _context = base._context;
 
         _rootDeserializers = base._rootDeserializers;
-        _deserializerCache = base._deserializerCache;
         _jsonFactory = base._jsonFactory;
         _rootNames = base._rootNames;
 
@@ -827,7 +836,7 @@ public class ObjectReader
     
     /*
     /**********************************************************
-    /* Helper methods, overridable
+    /* Helper methods
     /**********************************************************
      */
 
@@ -836,10 +845,10 @@ public class ObjectReader
      * for deserializing a single root value.
      * Can be overridden if a custom context is needed.
      */
-    protected DeserializationContext createDeserializationContext(JsonParser jp,
+    protected final DeserializationContext createDeserializationContext(JsonParser jp,
             DeserializationConfig cfg) {
         // 04-Jan-2010, tatu: we do actually need the provider too... (for polymorphic deser)
-        return new DeserializationContext(cfg, jp, _deserializerCache, _injectableValues);
+        return _context.createInstance(cfg, jp, _injectableValues);
     }
 
     /*

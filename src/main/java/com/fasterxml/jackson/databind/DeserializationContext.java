@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.deser.impl.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -25,20 +26,56 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
  * Context for the process of deserialization a single root-level value.
  * Used to allow passing in configuration settings and reusable temporary
  * objects (scrap arrays, containers).
+ *<p>
+ * Instance life-cycle is such that an partially configured "blueprint" object
+ * is registered with {@link ObjectMapper} (and {@link ObjectReader},
+ * and when an actual instance is needed for deserialization,
+ * a fully configured instance will
+ * be created using {@link #createInstance}.
+ * Each instance is guaranteed to only be used from single-threaded context;
+ * instances may be reused iff no configuration has changed.
+ *<p>
+ * Defined as abstract class so that implementations must define methods
+ * for reconfiguring blueprints and creating instances.
  */
-public class DeserializationContext
+public abstract class DeserializationContext
 {
     /**
      * Let's limit length of error messages, for cases where underlying data
      * may be very large -- no point in spamming logs with megs of meaningless
      * data.
      */
-    final static int MAX_ERROR_STR_LEN = 500;
+    private final static int MAX_ERROR_STR_LEN = 500;
 
-    // // // Configuration
+    /*
+    /**********************************************************
+    /* Configuration, immutable
+    /**********************************************************
+     */
     
-    protected final DeserializationConfig _config;
+    protected final DeserializerCache _cache;
 
+    /*
+    /**********************************************************
+    /* Configuration, changeable via fluent factories
+    /**********************************************************
+     */
+
+    /**
+     * Read-only factory instance; exposed to let
+     * owners (<code>ObjectMapper</code>, <code>ObjectReader</code>)
+     * access it.
+     */
+    public final DeserializerFactory _factory;
+
+    /*
+    /**********************************************************
+    /* Configuration that gets set for instances (not blueprints)
+    /**********************************************************
+     */
+
+    protected final DeserializationConfig _config;
+    
     protected final int _featureFlags;
 
     protected final Class<?> _view;
@@ -49,14 +86,14 @@ public class DeserializationContext
      * when content is buffered.
      */
     protected JsonParser _parser;
-
-    protected final DeserializerCache _deserCache;
-
-    protected final DeserializerFactory _factory;
     
     protected final InjectableValues _injectableValues;
     
-    // // // Helper object recycling
+    /*
+    /**********************************************************
+    /* Per-operation reusable helper objects (not for blueprints)
+    /**********************************************************
+     */
 
     protected ArrayBuilders _arrayBuilders;
 
@@ -69,19 +106,66 @@ public class DeserializationContext
     /* Life-cycle
     /**********************************************************
      */
+
+    protected DeserializationContext(DeserializerFactory df) {
+        this(df, null);
+    }
     
-    public DeserializationContext(DeserializationConfig config, JsonParser jp,
-            DeserializerCache cache, InjectableValues injectableValues)
+    protected DeserializationContext(DeserializerFactory df,
+            DeserializerCache cache)
     {
+        if (df == null) {
+            throw new IllegalArgumentException("Can not pass null DeserializerFactory");
+        }
+        _factory = df;
+        _cache = (cache == null) ? new DeserializerCache() : cache;
+        
+        _featureFlags = 0;
+        _config = null;
+        _injectableValues = null;
+        _view = null;
+    }
+
+    protected DeserializationContext(DeserializationContext src,
+            DeserializerFactory factory)
+    {
+        _cache = src._cache;
+        _factory = factory;
+        
+        _config = src._config;
+        _featureFlags = src._featureFlags;
+        _view = src._view;
+        _parser = src._parser;
+        _injectableValues = src._injectableValues;
+    }
+    
+    protected DeserializationContext(DeserializationContext src,
+            DeserializationConfig config, JsonParser jp,
+            InjectableValues injectableValues)
+    {
+        _cache = src._cache;
+        _factory = src._factory;
+        
         _config = config;
         _featureFlags = config.getDeserializationFeatures();
         _view = config.getActiveView();
         _parser = jp;
-        _deserCache = cache;
         _injectableValues = injectableValues;
-        _factory = cache.getDeserializerFactory();
     }
 
+    /**
+     * Fluent factory method used for constructing a blueprint instance
+     * with different factory
+     */
+    public abstract DeserializationContext with(DeserializerFactory factory);
+    
+    /**
+     * Method called to create actual usable per-deserialization
+     * context instance.
+     */
+    public abstract DeserializationContext createInstance(DeserializationConfig config,
+            JsonParser jp, InjectableValues values);
+    
     /*
     /**********************************************************
     /* Public API, accessors
@@ -112,10 +196,6 @@ public class DeserializationContext
     public final AnnotationIntrospector getAnnotationIntrospector() {
         return _config.getAnnotationIntrospector();
     }
-    
-    public final DeserializerCache getDeserializerCache() {
-        return _deserCache;
-    }
 
     /**
      * Method for accessing the currently active parser.
@@ -136,10 +216,20 @@ public class DeserializationContext
         return _injectableValues.findInjectableValue(valueId, this, forProperty, beanInstance);
     }
 
+    /**
+     * Accessor for locating currently active view, if any;
+     * returns null if no view has been set.
+     */
     public final Class<?> getActiveView() {
         return _view;
     }
-    
+
+    /**
+     * Convenience method, functionally equivalent to:
+     *<pre>
+     *  getConfig().canOverrideAccessModifiers();
+     * </pre>
+     */
     public final boolean canOverrideAccessModifiers() {
         return _config.canOverrideAccessModifiers();
     }
@@ -156,18 +246,35 @@ public class DeserializationContext
         return _config.getBase64Variant();
     }
 
+    /**
+     * Convenience method, functionally equivalent to:
+     *<pre>
+     *  getConfig().getNodeFactory();
+     * </pre>
+     */
     public final JsonNodeFactory getNodeFactory() {
         return _config.getNodeFactory();
     }
 
+    /**
+     * Convenience method, functionally equivalent to:
+     *<pre>
+     *  getConfig().constructType(cls);
+     * </pre>
+     */
     public final JavaType constructType(Class<?> cls) {
         return _config.constructType(cls);
     }
 
+    /**
+     * Convenience method, functionally equivalent to:
+     *<pre>
+     *  getConfig().getTypeFactory();
+     * </pre>
+     */
     public final TypeFactory getTypeFactory() {
         return _config.getTypeFactory();
     }
-
 
     /*
     /**********************************************************
@@ -176,6 +283,15 @@ public class DeserializationContext
      */
 
     /**
+     * Method for checking whether we could find a deserializer
+     * for given type.
+     */
+    public boolean hasValueDeserializerFor(JavaType type) {
+        return _cache.hasValueDeserializerFor(this, _factory, type);
+    }
+    
+    
+    /**
      * Method for finding a value deserializer, and creating a contextual
      * version if necessary, for value reached via specified property.
      */
@@ -183,7 +299,8 @@ public class DeserializationContext
     public final JsonDeserializer<Object> findContextualValueDeserializer(JavaType type,
             BeanProperty property) throws JsonMappingException
     {
-        JsonDeserializer<Object> deser = _deserCache.findValueDeserializer(this, type);
+        JsonDeserializer<Object> deser = _cache.findValueDeserializer(this,
+                _factory, type);
         if (deser != null) {
             if (deser instanceof ContextualDeserializer) {
                 deser = (JsonDeserializer<Object>)((ContextualDeserializer) deser).createContextual(this, property);
@@ -199,7 +316,8 @@ public class DeserializationContext
     public final JsonDeserializer<Object> findRootValueDeserializer(JavaType type)
             throws JsonMappingException
     {
-        JsonDeserializer<Object> deser = _deserCache.findValueDeserializer(this, type);
+        JsonDeserializer<Object> deser = _cache.findValueDeserializer(this,
+                _factory, type);
         if (deser == null) { // can this occur?
             return null;
         }
@@ -223,7 +341,8 @@ public class DeserializationContext
      */
     public final KeyDeserializer findKeyDeserializer(JavaType keyType,
             BeanProperty property) throws JsonMappingException {
-        KeyDeserializer kd = _deserCache.findKeyDeserializer(this, keyType);
+        KeyDeserializer kd = _cache.findKeyDeserializer(this,
+                _factory, keyType);
         // Second: contextualize?
         if (kd instanceof ContextualKeyDeserializer) {
             kd = ((ContextualKeyDeserializer) kd).createContextual(this, property);
@@ -436,26 +555,18 @@ public class DeserializationContext
      * Method deserializers can call to inform configured {@link DeserializationProblemHandler}s
      * of an unrecognized property.
      */
-    public boolean handleUnknownProperty(JsonParser jp, JsonDeserializer<?> deser, Object instanceOrClass, String propName)
+    public boolean handleUnknownProperty(JsonParser jp, JsonDeserializer<?> deser,
+            Object instanceOrClass, String propName)
         throws IOException, JsonProcessingException
     {
         LinkedNode<DeserializationProblemHandler> h = _config.getProblemHandlers();
         if (h != null) {
-            /* 04-Jan-2009, tatu: Ugh. Need to mess with currently active parser
-             *   since parser is not explicitly passed to handler... that was a mistake
-             */
-            JsonParser oldParser = _parser;
-            _parser = jp;
-            try {
-                while (h != null) {
-                    // Can bail out if it's handled
-                    if (h.value().handleUnknownProperty(this, deser, instanceOrClass, propName)) {
-                        return true;
-                    }
-                    h = h.next();
+            while (h != null) {
+                // Can bail out if it's handled
+                if (h.value().handleUnknownProperty(this, jp, deser, instanceOrClass, propName)) {
+                    return true;
                 }
-            } finally {
-                _parser = oldParser;
+                h = h.next();
             }
         }
         return false;
@@ -609,5 +720,56 @@ public class DeserializationContext
             desc = desc.substring(0, MAX_ERROR_STR_LEN) + "]...[" + desc.substring(desc.length() - MAX_ERROR_STR_LEN);
         }
         return desc;
+    }
+
+    /*
+    /**********************************************************
+    /* Helper classes
+    /**********************************************************
+     */
+
+    /**
+     * Standard implementation, used if no custom context is
+     * implemented.
+     */
+    public final static class Std extends DeserializationContext
+    {
+        /**
+         * Default constructor for a blueprint object, which will use the standard
+         * {@link DeserializerCache}, given factory.
+         */
+        public Std(DeserializerFactory df) {
+            this(df, null);
+        }
+
+        /**
+         * Constructor that will pass specified deserializer factory and
+         * cache: cache may be null (in which case default implementation
+         * will be used), factory can not be null
+         */
+        public Std(DeserializerFactory df, DeserializerCache cache) {
+            super(df, cache);
+        }
+        
+        protected Std(Std src, DeserializationConfig config,
+                JsonParser jp, InjectableValues values) {
+            super(src, config, jp, values);
+        }
+
+        protected Std(Std src, DeserializerFactory factory) {
+            super(src, factory);
+        }
+        
+        @Override
+        public Std createInstance(DeserializationConfig config,
+                JsonParser jp, InjectableValues values) {
+            return new Std(this, config, jp, values);
+        }
+
+        @Override
+        public Std with(DeserializerFactory factory) {
+            return new Std(this, factory);
+        }
+    
     }
 }

@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -47,12 +48,13 @@ public abstract class DeserializationProblemHandler
      *   has been instantiated so far); or Class that indicates type that
      *   will be instantiated (if no instantiation done yet: for example
      *   when bean uses non-default constructors)
+     * @param jp Parser to use for handling problematic content
      * 
      * @return True if the problem was succesfully resolved (and content available
      *    used or skipped); false if listen
      */
-    public boolean handleUnknownProperty(DeserializationContext ctxt, JsonDeserializer<?> deserializer,
-                                         Object beanOrClass, String propertyName)
+    public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp,
+            JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName)
         throws IOException, JsonProcessingException
     {
         return false;

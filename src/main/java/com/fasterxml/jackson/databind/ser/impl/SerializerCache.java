@@ -35,8 +35,7 @@ public final class SerializerCache
      */
     private ReadOnlyClassToSerializerMap _readOnlyMap = null;
 
-    public SerializerCache() {
-    }
+    public SerializerCache() { }
 
     /**
      * Method that can be called to get a read-only instance populated from the

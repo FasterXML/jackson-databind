@@ -816,7 +816,7 @@ public abstract class SerializerProvider
      * @param serDef Serializer definition: either an instance or class
      */
     public JsonSerializer<Object> serializerInstance(Annotated annotated,
-            BeanProperty property, Object serDef)
+            Object serDef)
         throws JsonMappingException
     {
         if (serDef == null) {
@@ -851,7 +851,7 @@ public abstract class SerializerProvider
                         _config.canOverrideAccessModifiers());
             }
         }
-        return (JsonSerializer<Object>) _handleContextualResolvable(ser, property);
+        return (JsonSerializer<Object>) _handleResolvable(ser);
     }
     
     /*

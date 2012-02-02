@@ -343,10 +343,10 @@ public abstract class JsonNode
      */
 
     /**
-     * Method that will return valid String representation of
+     * Method that will return a valid String representation of
      * the container value, if the node is a value node
-     * (method {@link #isValueNode} returns true), otherwise
-     * empty String.
+     * (method {@link #isValueNode} returns true),
+     * otherwise empty String.
      */
     public abstract String asText();
 

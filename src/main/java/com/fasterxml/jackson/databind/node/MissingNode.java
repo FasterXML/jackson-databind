@@ -39,7 +39,7 @@ public final class MissingNode
     public boolean isMissingNode() { return true; }
 
     @Override
-    public String asText() { return null; }
+    public String asText() { return ""; }
     
     @Override
     public int asInt(int defaultValue) {

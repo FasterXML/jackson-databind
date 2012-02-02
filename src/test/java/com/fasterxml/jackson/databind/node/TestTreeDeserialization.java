@@ -1,9 +1,8 @@
-package com.fasterxml.jackson.databind.tree;
+package com.fasterxml.jackson.databind.node;
 
 import java.io.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.node.*;
 
 /**
  * This unit test suite tries to verify that JsonNode-based trees

@@ -143,7 +143,8 @@ public class TestJsonNode
     {
         MissingNode n = MissingNode.getInstance();
         assertEquals(JsonToken.NOT_AVAILABLE, n.asToken());
-        assertNull(n.asText());
+        // as per [JACKSON-775]
+        assertEquals("", n.asText());
         assertStandardEquals(n);
         assertEquals("", n.toString());
 

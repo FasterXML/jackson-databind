@@ -1,14 +1,11 @@
-package com.fasterxml.jackson.databind.tree;
-
+package com.fasterxml.jackson.databind.node;
 
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.*;
 
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.test.BaseTest;
 
 /**

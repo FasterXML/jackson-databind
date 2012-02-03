@@ -54,8 +54,7 @@ public class PropertyBuilder
      *    of container type)
      */
     protected BeanPropertyWriter buildWriter(BeanPropertyDefinition propDef,
-            JavaType declaredType,
-            JsonSerializer<Object> ser,
+            JavaType declaredType, JsonSerializer<?> ser,
             TypeSerializer typeSer, TypeSerializer contentTypeSer,
             AnnotatedMember am, boolean defaultUseStaticTyping)
     {

@@ -162,10 +162,11 @@ public class BeanPropertyWriter
     /**********************************************************
      */
     
+    @SuppressWarnings("unchecked")
     public BeanPropertyWriter(BeanPropertyDefinition propDef,
             AnnotatedMember member, Annotations contextAnnotations,
             JavaType declaredType,
-            JsonSerializer<Object> ser, TypeSerializer typeSer, JavaType serType,
+            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue)
     {
         
@@ -173,7 +174,7 @@ public class BeanPropertyWriter
         _contextAnnotations = contextAnnotations;
         _name = new SerializedString(propDef.getName());
         _declaredType = declaredType;
-        _serializer = ser;
+        _serializer = (JsonSerializer<Object>) ser;
         _dynamicSerializers = (ser == null) ? PropertySerializerMap.emptyMap() : null;
         _typeSerializer = typeSer;
         _cfgSerializationType = serType;

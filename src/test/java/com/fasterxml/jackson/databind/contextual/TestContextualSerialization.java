@@ -197,7 +197,7 @@ public class TestContextualSerialization extends BaseMapTest
     /* Unit tests
     /**********************************************************
      */
-
+    
     // Test to verify that contextual serializer can make use of property
     // (method, field) annotations.
     public void testMethodAnnotations() throws Exception
@@ -270,6 +270,7 @@ public class TestContextualSerialization extends BaseMapTest
         assertEquals("{\"value\":\"prefix->abc\"}", mapper.writeValueAsString(bean));
     }
 
+    /*
     // [JACKSON-647]: is resolve() called for contextual instances?
     public void testResolveOnContextual() throws Exception
     {
@@ -286,4 +287,5 @@ public class TestContextualSerialization extends BaseMapTest
         ContextualArrayElementBean beans = new ContextualArrayElementBean("456");
         assertEquals("{\"beans\":[\"elem->456\"]}", mapper.writeValueAsString(beans));
     }
+    */
 }

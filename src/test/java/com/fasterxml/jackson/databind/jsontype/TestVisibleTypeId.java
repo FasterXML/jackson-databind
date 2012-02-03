@@ -2,10 +2,11 @@ package com.fasterxml.jackson.databind.jsontype;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import com.fasterxml.jackson.databind.*;
 
 /**
- * Tests to verify [JACKSON-437]
+ * Tests to verify [JACKSON-437], [JACKSON-762]
  */
 public class TestVisibleTypeId extends BaseMapTest
 {
@@ -60,6 +61,40 @@ public class TestVisibleTypeId extends BaseMapTest
 
         public void setType(String t) { type = t; }
     }
+
+    // // // [JACKSON-762]: type id from property
+    
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.PROPERTY,
+            property="type")
+    static class TypeIdFromFieldProperty {
+        public int a = 3;
+        public String type = "SomeType";
+    }
+
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.WRAPPER_ARRAY,
+            property="type")
+    static class TypeIdFromFieldArray {
+        public int a = 3;
+        public String type = "SomeType";
+    }
+
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.WRAPPER_OBJECT,
+            property="type")
+    static class TypeIdFromMethodObject {
+        public int a = 3;
+        public String getType() { return "SomeType"; }
+    }
+
+    static class ExternalIdWrapper2 {
+        @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                property="type", visible=true)
+        public ExternalIdBean2 bean = new ExternalIdBean2();
+        public String getType() { return "SomeType"; }
+    }
+
+    static class ExternalIdBean2 {
+        public int a = 2;
+    }
     
     /*
     /**********************************************************
@@ -111,5 +146,32 @@ public class TestVisibleTypeId extends BaseMapTest
         ExternalIdWrapper result = mapper.readValue(json, ExternalIdWrapper.class);
         assertEquals("ExternalType", result.bean.type);
         assertEquals(2, result.bean.a);
+    }
+
+    // [JACKSON-762]
+
+    public void testTypeIdFromProperty() throws Exception
+    {
+        assertEquals("{\"type\":\"SomeType\":\"a\":3}",
+                mapper.writeValueAsString(new TypeIdFromFieldProperty()));
+    }
+
+    public void testTypeIdFromArray() throws Exception
+    {
+        assertEquals("[\"SomeType\",{\"a\":3}]",
+                mapper.writeValueAsString(new TypeIdFromFieldArray()));
+    }
+
+    public void testTypeIdFromObject() throws Exception
+    {
+        assertEquals("{\"SomeType\":{\"a\":3}}",
+                mapper.writeValueAsString(new TypeIdFromMethodObject()));
+    }
+
+    public void testTypeIdFromExternal() throws Exception
+    {
+        assertEquals("{\"type\":\"SomeType\":\"bean\":{\"a\":2}}",
+                mapper.writeValueAsString(new ExternalIdWrapper2()));
+        
     }
 }

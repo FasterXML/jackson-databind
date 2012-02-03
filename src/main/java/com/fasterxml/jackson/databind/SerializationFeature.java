@@ -146,7 +146,8 @@ public enum SerializationFeature implements ConfigFeature
      * serialized as numeric timestamps (true; the default),
      * or as something else (usually textual representation).
      * If textual representation is used, the actual format is
-     * one returned by a call to {@link #getDateFormat}.
+     * one returned by a call to
+     * {@link com.fasterxml.jackson.databind.cfg.SerializationConfig#getDateFormat}.
      *<p>
      * Note: whether this feature affects handling of other date-related
      * types depend on handlers of those types, although ideally they
@@ -188,7 +189,7 @@ public enum SerializationFeature implements ConfigFeature
      * is used; if disabled, return value of <code>Enum.name()</code> is used.
      *<p>
      * Note: this feature should usually have same value
-     * as {@link DeserializationConfig.DeserializationFeature#READ_ENUMS_USING_TO_STRING}.
+     * as {@link DeserializationFeature#READ_ENUMS_USING_TO_STRING}.
      *<p>
      * SerializationFeature is disabled by default.
      */

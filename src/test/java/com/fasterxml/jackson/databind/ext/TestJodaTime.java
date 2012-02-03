@@ -36,7 +36,7 @@ public class TestJodaTime
 
         // but if re-configured, as regular ISO-8601 string
         m = new ObjectMapper();
-        m.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
+        m.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         assertEquals(quote("1970-01-01T00:00:00.000Z"), serializeAsString(m, dt));
     }
 
@@ -100,7 +100,7 @@ public class TestJodaTime
         assertEquals("[2001,5,25]", mapper.writeValueAsString(date));
         // but we can force it to be a String as well (note: here we assume this is
         // dynamically changeable)
-        mapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);        
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);        
         assertEquals(quote("2001-05-25"), mapper.writeValueAsString(date));
     }
 
@@ -138,7 +138,7 @@ public class TestJodaTime
         assertEquals("[2001,5,25]", mapper.writeValueAsString(date));
         // but we can force it to be a String as well (note: here we assume this is
         // dynamically changeable)
-        mapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);        
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);        
         assertEquals(quote("2001-05-25"), mapper.writeValueAsString(date));
     }
 
@@ -177,7 +177,7 @@ public class TestJodaTime
         assertEquals("[2001,5,25,10,15,30,37]", mapper.writeValueAsString(date));
         // but we can force it to be a String as well (note: here we assume this is
         // dynamically changeable)
-        mapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);        
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);        
         assertEquals(quote("2001-05-25T10:15:30.037"), mapper.writeValueAsString(date));
     }
 

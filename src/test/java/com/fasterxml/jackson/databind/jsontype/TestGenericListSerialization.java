@@ -9,7 +9,6 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class TestGenericListSerialization
@@ -66,7 +65,7 @@ public class TestGenericListSerialization
         embedded.add(new Child1());
         embedded.add(new Child2());
         input.setResult(embedded);
-        mapper.configure(MapperConfig.Feature.USE_STATIC_TYPING, true);
+        mapper.configure(MapperFeature.USE_STATIC_TYPING, true);
 
         JavaType rootType = TypeFactory.defaultInstance().constructType(new TypeReference<JSONResponse<List<Parent>>>() { });
         byte[] json = mapper.writerWithType(rootType).writeValueAsBytes(input);

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.io.SerializedString;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.cfg.SerializationConfig;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.util.EnumValues;
@@ -42,7 +43,7 @@ public class EnumSerializer
     {
         // [JACKSON-212]: If toString() is to be used instead, leave EnumValues null
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        EnumValues v = config.isEnabled(SerializationConfig.Feature.WRITE_ENUMS_USING_TO_STRING)
+        EnumValues v = config.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
             ? EnumValues.constructFromToString(enumClass, intr) : EnumValues.constructFromName(enumClass, intr);
         return new EnumSerializer(v);
     }
@@ -52,7 +53,7 @@ public class EnumSerializer
         throws IOException, JsonGenerationException
     {
         // [JACKSON-684]: serialize as index?
-        if (provider.isEnabled(SerializationConfig.Feature.WRITE_ENUMS_USING_INDEX)) {
+        if (provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
             jgen.writeNumber(en.ordinal());
             return;
         }
@@ -63,7 +64,7 @@ public class EnumSerializer
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {
         // [JACKSON-684]: serialize as index?
-        if (provider.isEnabled(SerializationConfig.Feature.WRITE_ENUMS_USING_INDEX)) {
+        if (provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
             return createSchemaNode("integer", true);
         }
         ObjectNode objectNode = createSchemaNode("string", true);

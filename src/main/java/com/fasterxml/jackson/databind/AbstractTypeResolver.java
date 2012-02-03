@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
+
 /**
  * Defines interface for resolvers that can resolve abstract types into concrete
  * ones; either by using static mappings, or possibly by materializing

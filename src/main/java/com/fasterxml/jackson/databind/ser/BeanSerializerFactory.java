@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.SerializationConfig;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -128,8 +128,10 @@ public class BeanSerializerFactory
         if (ser != null) {
             return (JsonSerializer<Object>) ser;
         }
+        
         // Next: we may have annotations that further define types to use...
         JavaType type = modifyTypeByAnnotation(config, beanDesc.getClassInfo(), origType);
+
         // and if so, we consider it implicit "force static typing" instruction
         boolean staticTyping = (type != origType);
 
@@ -309,7 +311,7 @@ public class BeanSerializerFactory
             }
             JavaType type = anyGetter.getType(beanDesc.bindingsForBeanType());
             // copied from BasicSerializerFactory.buildMapSerializer():
-            boolean staticTyping = config.isEnabled(MapperConfig.Feature.USE_STATIC_TYPING);
+            boolean staticTyping = config.isEnabled(MapperFeature.USE_STATIC_TYPING);
             JavaType valueType = type.getContentType();
             TypeSerializer typeSer = createTypeSerializer(config, valueType);
             // last 2 nulls; don't know key, value serializers (yet)
@@ -408,7 +410,7 @@ public class BeanSerializerFactory
         removeIgnorableTypes(config, beanDesc, properties);
         
         // and possibly remove ones without matching mutator...
-        if (config.isEnabled(MapperConfig.Feature.REQUIRE_SETTERS_FOR_GETTERS)) {
+        if (config.isEnabled(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS)) {
             removeSetterlessGetters(config, beanDesc, properties);
         }
         
@@ -431,9 +433,9 @@ public class BeanSerializerFactory
                 continue;
             }
             if (accessor instanceof AnnotatedMethod) {
-                result.add(_constructWriter(property, prov, typeBind, pb, staticTyping, (AnnotatedMethod) accessor));
+                result.add(_constructWriter(prov, property, typeBind, pb, staticTyping, (AnnotatedMethod) accessor));
             } else {
-                result.add(_constructWriter(property, prov, typeBind, pb, staticTyping, (AnnotatedField) accessor));
+                result.add(_constructWriter(prov, property, typeBind, pb, staticTyping, (AnnotatedField) accessor));
             }
         }
         return result;
@@ -480,7 +482,7 @@ public class BeanSerializerFactory
     {
         // [JACKSON-232]: whether non-annotated fields are included by default or not is configurable
         List<BeanPropertyWriter> props = builder.getProperties();
-        boolean includeByDefault = config.isEnabled(MapperConfig.Feature.DEFAULT_VIEW_INCLUSION);
+        boolean includeByDefault = config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
         final int propCount = props.size();
         int viewsFound = 0;
         BeanPropertyWriter[] filtered = new BeanPropertyWriter[propCount];
@@ -566,8 +568,8 @@ public class BeanSerializerFactory
      * Secondary helper method for constructing {@link BeanPropertyWriter} for
      * given member (field or method).
      */
-    protected BeanPropertyWriter _constructWriter(BeanPropertyDefinition propDef,
-            SerializerProvider prov, TypeBindings typeContext,
+    protected BeanPropertyWriter _constructWriter(SerializerProvider prov,
+            BeanPropertyDefinition propDef, TypeBindings typeContext,
             PropertyBuilder pb, boolean staticTyping, AnnotatedMember accessor)
         throws JsonMappingException
     {
@@ -579,7 +581,17 @@ public class BeanSerializerFactory
         BeanProperty.Std property = new BeanProperty.Std(name, type, pb.getClassAnnotations(), accessor);
 
         // Does member specify a serializer? If so, let's use it.
-        JsonSerializer<Object> annotatedSerializer = findSerializerFromAnnotation(prov, accessor);
+        JsonSerializer<?> annotatedSerializer = findSerializerFromAnnotation(prov,
+                accessor);
+        /* 02-Feb-2012, tatu: Unlike most other codepaths, Serializer produced
+         *  here will NOT be resolved or contextualized, unless done here, so:
+         */
+        if (annotatedSerializer instanceof ResolvableSerializer) {
+            ((ResolvableSerializer) annotatedSerializer).resolve(prov);
+        }
+        if (annotatedSerializer instanceof ContextualSerializer) {
+            annotatedSerializer = ((ContextualSerializer) annotatedSerializer).createContextual(prov, property);
+        }
         // And how about polymorphic typing? First special to cover JAXB per-field settings:
         TypeSerializer contentTypeSer = null;
         if (ClassUtil.isCollectionMapOrArray(type.getRawClass())) {

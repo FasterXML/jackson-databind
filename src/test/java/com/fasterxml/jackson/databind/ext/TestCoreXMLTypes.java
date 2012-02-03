@@ -57,7 +57,7 @@ public class TestCoreXMLTypes
         assertEquals(timestamp, calOut.toGregorianCalendar().getTimeInMillis());
         
         // and then textual variant
-        mapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         // this is ALMOST same as default for XMLGregorianCalendar... just need to unify Z/+0000
         String exp = cal.toXMLFormat();
         String act = mapper.writeValueAsString(cal);

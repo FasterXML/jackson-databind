@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class TestAnnotationAnyGetter
     extends BaseMapTest
@@ -63,13 +63,13 @@ public class TestAnnotationAnyGetter
 
         // First, with normal fail settings:
         m = new ObjectMapper();
-        m.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, true);
+        m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, true);
         String json = serializeAsString(m, new AnyOnlyBean());
         assertEquals("{\"a\":3}", json);
 
         // then without fail
         m = new ObjectMapper();
-        m.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false);
+        m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         json = serializeAsString(m, new AnyOnlyBean());
         assertEquals("{\"a\":3}", json);
     }

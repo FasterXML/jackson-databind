@@ -89,7 +89,7 @@ public class JodaSerializers
         public void serialize(DateTime value, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
-            if (provider.isEnabled(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS)) {
+            if (provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
                 jgen.writeNumber(value.getMillis());
             } else {
                 jgen.writeString(value.toString());
@@ -99,7 +99,7 @@ public class JodaSerializers
         @Override
         public JsonNode getSchema(SerializerProvider provider, java.lang.reflect.Type typeHint)
         {
-            return createSchemaNode(provider.isEnabled(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS)
+            return createSchemaNode(provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                     ? "number" : "string", true);
         }
     }
@@ -113,7 +113,7 @@ public class JodaSerializers
         public void serialize(LocalDateTime dt, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
-            if (provider.isEnabled(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS)) {
+            if (provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
                 // Timestamp here actually means an array of values
                 jgen.writeStartArray();
                 jgen.writeNumber(dt.year().get());
@@ -132,7 +132,7 @@ public class JodaSerializers
         @Override
         public JsonNode getSchema(SerializerProvider provider, java.lang.reflect.Type typeHint)
         {
-            return createSchemaNode(provider.isEnabled(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS)
+            return createSchemaNode(provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                     ? "array" : "string", true);
         }
     }
@@ -146,7 +146,7 @@ public class JodaSerializers
         public void serialize(LocalDate dt, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
-            if (provider.isEnabled(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS)) {
+            if (provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
                 // Timestamp here actually means an array of values
                 jgen.writeStartArray();
                 jgen.writeNumber(dt.year().get());
@@ -161,7 +161,7 @@ public class JodaSerializers
         @Override
         public JsonNode getSchema(SerializerProvider provider, java.lang.reflect.Type typeHint)
         {
-            return createSchemaNode(provider.isEnabled(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS)
+            return createSchemaNode(provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                     ? "array" : "string", true);
         }
     }
@@ -175,7 +175,7 @@ public class JodaSerializers
         public void serialize(DateMidnight dt, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
-            if (provider.isEnabled(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS)) {
+            if (provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
                 // same as with other date-only values
                 jgen.writeStartArray();
                 jgen.writeNumber(dt.year().get());
@@ -190,7 +190,7 @@ public class JodaSerializers
         @Override
         public JsonNode getSchema(SerializerProvider provider, java.lang.reflect.Type typeHint)
         {
-            return createSchemaNode(provider.isEnabled(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS)
+            return createSchemaNode(provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                     ? "array" : "string", true);
         }
     }

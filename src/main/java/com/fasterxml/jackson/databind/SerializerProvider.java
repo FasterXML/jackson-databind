@@ -8,7 +8,8 @@ import java.util.Date;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.annotation.NoClass;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
+import com.fasterxml.jackson.databind.cfg.SerializationConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
@@ -295,7 +296,7 @@ public abstract class SerializerProvider
             String rootName = _config.getRootName();
             if (rootName == null) { // not explicitly specified
                 // [JACKSON-163]
-                wrap = _config.isEnabled(SerializationConfig.Feature.WRAP_ROOT_VALUE);
+                wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
                 if (wrap) {
                     jgen.writeStartObject();
                     jgen.writeFieldName(_rootNames.findRootName(value.getClass(), _config));
@@ -358,7 +359,7 @@ public abstract class SerializerProvider
             // root value, not reached via property:
             ser = findTypedValueSerializer(rootType, true, null);
             // [JACKSON-163]
-            wrap = _config.isEnabled(SerializationConfig.Feature.WRAP_ROOT_VALUE);
+            wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
                 jgen.writeStartObject();
                 jgen.writeFieldName(_rootNames.findRootName(rootType, _config));
@@ -437,7 +438,7 @@ public abstract class SerializerProvider
      *  getConfig().isEnabled(feature);
      *</pre>
      */
-    public final boolean isEnabled(MapperConfig.Feature feature) {
+    public final boolean isEnabled(MapperFeature feature) {
         return _config.isEnabled(feature);
     }
 
@@ -449,7 +450,7 @@ public abstract class SerializerProvider
      *  getConfig().isEnabled(feature);
      *</pre>
      */
-    public final boolean isEnabled(SerializationConfig.Feature feature) {
+    public final boolean isEnabled(SerializationFeature feature) {
         return _config.isEnabled(feature);
     }
 
@@ -922,7 +923,7 @@ public abstract class SerializerProvider
         throws IOException, JsonProcessingException
     {
         // [JACKSON-87]: Support both numeric timestamps and textual
-        if (isEnabled(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS)) {
+        if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
             jgen.writeNumber(timestamp);
         } else {
             if (_dateFormat == null) {
@@ -944,7 +945,7 @@ public abstract class SerializerProvider
         throws IOException, JsonProcessingException
     {
         // [JACKSON-87]: Support both numeric timestamps and textual
-        if (isEnabled(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS)) {
+        if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
             jgen.writeNumber(date.getTime());
         } else {
             if (_dateFormat == null) {
@@ -958,13 +959,13 @@ public abstract class SerializerProvider
 
     /**
      * Method that will handle serialization of Dates used as {@link java.util.Map} keys,
-     * based on {@link SerializationConfig.Feature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
+     * based on {@link SerializationFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
      */
     public void defaultSerializeDateKey(long timestamp, JsonGenerator jgen)
         throws IOException, JsonProcessingException
     {
-        if (isEnabled(SerializationConfig.Feature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
+        if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
             jgen.writeFieldName(String.valueOf(timestamp));
         } else {
             if (_dateFormat == null) {
@@ -978,13 +979,13 @@ public abstract class SerializerProvider
 
     /**
      * Method that will handle serialization of Dates used as {@link java.util.Map} keys,
-     * based on {@link SerializationConfig.Feature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
+     * based on {@link SerializationFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
      */
     public void defaultSerializeDateKey(Date date, JsonGenerator jgen)
         throws IOException, JsonProcessingException
     {
-        if (isEnabled(SerializationConfig.Feature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
+        if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
             jgen.writeFieldName(String.valueOf(date.getTime()));
         } else {
             if (_dateFormat == null) {

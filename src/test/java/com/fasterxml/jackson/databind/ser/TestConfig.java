@@ -4,7 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.SerializationConfig;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
@@ -43,22 +43,22 @@ public class TestConfig
         SerializationConfig cfg = m.getSerializationConfig();
 
         // First, defaults:
-        assertTrue(cfg.isEnabled(MapperConfig.Feature.USE_ANNOTATIONS));
-        assertTrue(cfg.isEnabled(MapperConfig.Feature.AUTO_DETECT_GETTERS));
-        assertTrue(cfg.isEnabled(MapperConfig.Feature.CAN_OVERRIDE_ACCESS_MODIFIERS));
+        assertTrue(cfg.isEnabled(MapperFeature.USE_ANNOTATIONS));
+        assertTrue(cfg.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
+        assertTrue(cfg.isEnabled(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS));
 
-        assertTrue(cfg.isEnabled(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS));
+        assertTrue(cfg.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
 
-        assertFalse(cfg.isEnabled(SerializationConfig.Feature.INDENT_OUTPUT));
-        assertFalse(cfg.isEnabled(MapperConfig.Feature.USE_STATIC_TYPING));
+        assertFalse(cfg.isEnabled(SerializationFeature.INDENT_OUTPUT));
+        assertFalse(cfg.isEnabled(MapperFeature.USE_STATIC_TYPING));
 
         // since 1.3:
-        assertTrue(cfg.isEnabled(MapperConfig.Feature.AUTO_DETECT_IS_GETTERS));
+        assertTrue(cfg.isEnabled(MapperFeature.AUTO_DETECT_IS_GETTERS));
         // since 1.4
         
-        assertTrue(cfg.isEnabled(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS));
+        assertTrue(cfg.isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
         // since 1.5
-        assertTrue(cfg.isEnabled(MapperConfig.Feature.DEFAULT_VIEW_INCLUSION));
+        assertTrue(cfg.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION));
 
     }
 
@@ -82,7 +82,7 @@ public class TestConfig
     public void testIndentation() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.configure(SerializationConfig.Feature.INDENT_OUTPUT, true);
+        m.configure(SerializationFeature.INDENT_OUTPUT, true);
         Map<String,Integer> map = new HashMap<String,Integer>();
         map.put("a", Integer.valueOf(2));
         String result = serializeAsString(m, map).trim();
@@ -95,12 +95,12 @@ public class TestConfig
     {
         // first: verify that annotation introspection is enabled by default
         ObjectMapper m = new ObjectMapper();
-        assertTrue(m.isEnabled(MapperConfig.Feature.USE_ANNOTATIONS));
+        assertTrue(m.isEnabled(MapperFeature.USE_ANNOTATIONS));
         Map<String,Object> result = writeAndMap(m, new AnnoBean());
         assertEquals(2, result.size());
 
         m = new ObjectMapper();
-        m.configure(MapperConfig.Feature.USE_ANNOTATIONS, false);
+        m.configure(MapperFeature.USE_ANNOTATIONS, false);
         result = writeAndMap(m, new AnnoBean());
         assertEquals(1, result.size());
     }

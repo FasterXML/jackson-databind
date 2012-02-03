@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion;
+import com.fasterxml.jackson.databind.cfg.SerializationConfig;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.util.*;
@@ -53,8 +54,7 @@ public class PropertyBuilder
      *    of container type)
      */
     protected BeanPropertyWriter buildWriter(BeanPropertyDefinition propDef,
-            JavaType declaredType,
-            JsonSerializer<Object> ser,
+            JavaType declaredType, JsonSerializer<?> ser,
             TypeSerializer typeSer, TypeSerializer contentTypeSer,
             AnnotatedMember am, boolean defaultUseStaticTyping)
     {
@@ -113,7 +113,7 @@ public class PropertyBuilder
             case ALWAYS: // default
                 // we may still want to suppress empty collections, as per [JACKSON-254]:
                 if (declaredType.isContainerType()
-                        && !_config.isEnabled(SerializationConfig.Feature.WRITE_EMPTY_JSON_ARRAYS)) {
+                        && !_config.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS)) {
                     valueToSuppress = BeanPropertyWriter.MARKER_FOR_EMPTY;
                 }
                 break;

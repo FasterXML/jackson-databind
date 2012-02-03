@@ -155,7 +155,7 @@ public class TestWithGenerics extends BaseMapTest
         ObjectMapper om = new ObjectMapper();
         om.enableDefaultTyping( ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT, JsonTypeInfo.As.PROPERTY );
         om.setSerializationInclusion(JsonInclude.Include.NON_NULL );
-        om.enable( SerializationConfig.Feature.INDENT_OUTPUT);
+        om.enable( SerializationFeature.INDENT_OUTPUT);
 
         MyClass mc = new MyClass();
 

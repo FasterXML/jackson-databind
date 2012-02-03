@@ -6,7 +6,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * Unit tests for verifying JSON view functionality: ability to declaratively
@@ -138,7 +137,7 @@ public class TestViewSerialization
 
         // but can also change (but not necessarily on the fly...)
         mapper = new ObjectMapper();
-        mapper.configure(MapperConfig.Feature.DEFAULT_VIEW_INCLUSION, false);
+        mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, false);
         // with this setting, only explicit inclusions count:
         String json = mapper.writerWithView(ViewA.class).writeValueAsString(bean);
         map = mapper.readValue(json, Map.class);

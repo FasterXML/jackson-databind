@@ -7,7 +7,7 @@ import java.util.Date;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 
@@ -40,7 +40,7 @@ public class DateSerializer
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
     {
         //todo: (ryan) add a format for the date in the schema?
-        return createSchemaNode(provider.isEnabled(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS)
+        return createSchemaNode(provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                 ? "number" : "string", true);
     }
 }

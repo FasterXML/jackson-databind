@@ -379,13 +379,7 @@ public class BeanDeserializer
         // if ValueInstantiator can use "creator" approach, need to resolve it here...
         if (_valueInstantiator.canCreateFromObjectWith()) {
             SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
-            _propertyBasedCreator = new PropertyBasedCreator(_valueInstantiator, creatorProps);
-            for (SettableBeanProperty prop : creatorProps) {
-                if (!prop.hasValueDeserializer()) {
-                    _propertyBasedCreator.assignDeserializer(prop,
-                           findDeserializer(ctxt, prop.getType(), prop));
-                }
-            }
+            _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, creatorProps);
         }
 
         Iterator<SettableBeanProperty> it = _beanProperties.allProperties();
@@ -1582,7 +1576,7 @@ public class BeanDeserializer
         if (t instanceof Error) {
             throw (Error) t;
         }
-        boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationConfig.Feature.WRAP_EXCEPTIONS);
+        boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
         // Ditto for IOExceptions; except we may want to wrap mapping exceptions
         if (t instanceof IOException) {
             if (!wrap || !(t instanceof JsonMappingException)) {
@@ -1607,7 +1601,7 @@ public class BeanDeserializer
         if (t instanceof Error) {
             throw (Error) t;
         }
-        boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationConfig.Feature.WRAP_EXCEPTIONS);
+        boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
         // Ditto for IOExceptions; except we may want to wrap mapping exceptions
         if (t instanceof IOException) {
             if (!wrap || !(t instanceof JsonMappingException)) {
@@ -1632,7 +1626,7 @@ public class BeanDeserializer
         if (t instanceof Error) {
             throw (Error) t;
         }
-        boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationConfig.Feature.WRAP_EXCEPTIONS);
+        boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
         if (t instanceof IOException) {
             // Since we have no more information to add, let's not actually wrap..
             throw (IOException) t;

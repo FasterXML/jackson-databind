@@ -310,13 +310,13 @@ public class TestCollectionSerialization
         EmptyListBean list = new EmptyListBean();
         EmptyArrayBean array = new EmptyArrayBean();
         ObjectMapper m = new ObjectMapper();
-        assertTrue(m.getSerializationConfig().isEnabled(SerializationConfig.Feature.WRITE_EMPTY_JSON_ARRAYS));
+        assertTrue(m.getSerializationConfig().isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS));
         assertEquals("{\"empty\":[]}", m.writeValueAsString(list));
         assertEquals("{\"empty\":[]}", m.writeValueAsString(array));
 
         // note: value of setting may be cached when constructing serializer, need a new instance
         m = new ObjectMapper();
-        m.configure(SerializationConfig.Feature.WRITE_EMPTY_JSON_ARRAYS, false);
+        m.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         assertEquals("{}", m.writeValueAsString(list));
         assertEquals("{}", m.writeValueAsString(array));
     }

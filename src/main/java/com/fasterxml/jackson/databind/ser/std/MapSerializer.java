@@ -188,7 +188,7 @@ public class MapSerializer
         JsonSerializer<?> ser = _valueSerializer;
         if (ser == null) {
             if (_valueTypeIsStatic) {
-                ser = provider.findValueSerializer(_valueType, _property);
+                ser = provider.findValueSerializer(_valueType, property);
             }
         } else if (ser instanceof ContextualSerializer) {
             ser = ((ContextualSerializer) ser).createContextual(provider, property);
@@ -202,7 +202,7 @@ public class MapSerializer
          */
         JsonSerializer<?> keySer = _keySerializer;
         if (keySer == null) {
-            keySer = provider.findKeySerializer(_keyType, _property);
+            keySer = provider.findKeySerializer(_keyType, property);
         } else if (keySer instanceof ContextualSerializer) {
             keySer = ((ContextualSerializer) keySer).createContextual(provider, property);
         }
@@ -287,7 +287,7 @@ public class MapSerializer
         final JsonSerializer<Object> keySerializer = _keySerializer;
         
         final HashSet<String> ignored = _ignoredEntries;
-        final boolean skipNulls = !provider.isEnabled(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES);
+        final boolean skipNulls = !provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
 
         PropertySerializerMap serializers = _dynamicValueSerializers;
 
@@ -343,7 +343,7 @@ public class MapSerializer
         final JsonSerializer<Object> keySerializer = _keySerializer;
         final HashSet<String> ignored = _ignoredEntries;
         final TypeSerializer typeSer = _valueTypeSerializer;
-        final boolean skipNulls = !provider.isEnabled(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES);
+        final boolean skipNulls = !provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
             Object valueElem = entry.getValue();
@@ -381,7 +381,7 @@ public class MapSerializer
         JsonSerializer<Object> prevValueSerializer = null;
         Class<?> prevValueClass = null;
         final HashSet<String> ignored = _ignoredEntries;
-        final boolean skipNulls = !provider.isEnabled(SerializationConfig.Feature.WRITE_NULL_MAP_VALUES);
+        final boolean skipNulls = !provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
     
         for (Map.Entry<?,?> entry : value.entrySet()) {
             Object valueElem = entry.getValue();

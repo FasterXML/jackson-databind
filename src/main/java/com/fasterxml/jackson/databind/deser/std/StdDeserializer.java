@@ -660,7 +660,7 @@ public abstract class StdDeserializer<T>
         throws IOException, JsonProcessingException
     {
         // throw exception if that's what we are expected to do
-        if (ctxt.isEnabled(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
             throw ctxt.unknownFieldException(instanceOrClass, fieldName);
         }
         // ... or if not, just ignore

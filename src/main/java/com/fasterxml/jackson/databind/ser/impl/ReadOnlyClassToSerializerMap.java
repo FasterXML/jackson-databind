@@ -5,7 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ser.impl.SerializerCache.TypeKey;
+import com.fasterxml.jackson.databind.ser.SerializerCache.TypeKey;
 
 /**
  * Optimized lookup table for accessing two types of serializers; typed

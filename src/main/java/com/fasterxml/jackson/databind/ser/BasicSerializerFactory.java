@@ -9,7 +9,7 @@ import java.util.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.NoClass;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.cfg.SerializationConfig;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -107,20 +107,6 @@ public abstract class BasicSerializerFactory
         // Jackson-specific type(s)
         // (Q: can this ever be sub-classed?)
         _concreteLazy.put(TokenBuffer.class.getName(), TokenBufferSerializer.class);
-    }
-
-    protected final static HashMap<String, JsonSerializer<?>> _arraySerializers =
-        new HashMap<String, JsonSerializer<?>>();
-    static {
-        // Arrays of various types (including common object types)
-        _arraySerializers.put(boolean[].class.getName(), new StdArraySerializers.BooleanArraySerializer());
-        _arraySerializers.put(byte[].class.getName(), new StdArraySerializers.ByteArraySerializer());
-        _arraySerializers.put(char[].class.getName(), new StdArraySerializers.CharArraySerializer());
-        _arraySerializers.put(short[].class.getName(), new StdArraySerializers.ShortArraySerializer());
-        _arraySerializers.put(int[].class.getName(), new StdArraySerializers.IntArraySerializer());
-        _arraySerializers.put(long[].class.getName(), new StdArraySerializers.LongArraySerializer());
-        _arraySerializers.put(float[].class.getName(), new StdArraySerializers.FloatArraySerializer());
-        _arraySerializers.put(double[].class.getName(), new StdArraySerializers.DoubleArraySerializer());
     }
 
     /*
@@ -578,7 +564,7 @@ public abstract class BasicSerializerFactory
                 return StringArraySerializer.instance;
             }
             // other standard types?
-            JsonSerializer<?> ser = _arraySerializers.get(raw.getName());
+            JsonSerializer<?> ser = StdArraySerializers.findStandardImpl(raw);
             if (ser != null) {
                 return ser;
             }
@@ -750,7 +736,7 @@ public abstract class BasicSerializerFactory
                 return true;
             }
         } else {
-            if (config.isEnabled(MapperConfig.Feature.USE_STATIC_TYPING)) {
+            if (config.isEnabled(MapperFeature.USE_STATIC_TYPING)) {
                 return true;
             }
         }

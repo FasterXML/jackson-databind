@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.deser.KeyDeserializers;
@@ -114,11 +113,11 @@ public abstract class Module
          */
         public TypeFactory getTypeFactory();
         
-        public boolean isEnabled(MapperConfig.Feature f);
+        public boolean isEnabled(MapperFeature f);
         
-        public boolean isEnabled(DeserializationConfig.Feature f);
+        public boolean isEnabled(DeserializationFeature f);
 
-        public boolean isEnabled(SerializationConfig.Feature f);
+        public boolean isEnabled(SerializationFeature f);
 
         public boolean isEnabled(JsonFactory.Feature f);
         

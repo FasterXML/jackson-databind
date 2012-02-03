@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * This unit test suite tests use of @JsonClass Annotation
@@ -192,7 +191,7 @@ public class TestAnnotationJsonSerialize
     public void testStaticTypingWithMap() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.configure(MapperConfig.Feature.USE_STATIC_TYPING, true);
+        m.configure(MapperFeature.USE_STATIC_TYPING, true);
         ValueMap map = new ValueMap();
         map.put("a", new ValueClass());
         assertEquals("{\"a\":{\"x\":3}}", serializeAsString(m, map));
@@ -201,7 +200,7 @@ public class TestAnnotationJsonSerialize
     public void testStaticTypingWithArrayList() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.configure(MapperConfig.Feature.USE_STATIC_TYPING, true);
+        m.configure(MapperFeature.USE_STATIC_TYPING, true);
         ValueList list = new ValueList();
         list.add(new ValueClass());
         assertEquals("[{\"x\":3}]", m.writeValueAsString(list));
@@ -210,7 +209,7 @@ public class TestAnnotationJsonSerialize
     public void testStaticTypingWithLinkedList() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.configure(MapperConfig.Feature.USE_STATIC_TYPING, true);
+        m.configure(MapperFeature.USE_STATIC_TYPING, true);
         ValueLinkedList list = new ValueLinkedList();
         list.add(new ValueClass());
         assertEquals("[{\"x\":3}]", serializeAsString(m, list));
@@ -219,7 +218,7 @@ public class TestAnnotationJsonSerialize
     public void testStaticTypingWithArray() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.configure(MapperConfig.Feature.USE_STATIC_TYPING, true);
+        m.configure(MapperFeature.USE_STATIC_TYPING, true);
         ValueInterface[] array = new ValueInterface[] { new ValueClass() };
         assertEquals("[{\"x\":3}]", serializeAsString(m, array));
     }

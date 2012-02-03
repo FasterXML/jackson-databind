@@ -876,9 +876,9 @@ public abstract class SettableBeanProperty
 
         public Object nullValue(DeserializationContext ctxt) throws JsonProcessingException
         {
-            if (_isPrimitive && ctxt.isEnabled(DeserializationConfig.Feature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
+            if (_isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
                 throw ctxt.mappingException("Can not map JSON null into type "+_rawType.getName()
-                        +" (set DeserializationConfig.Feature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)");
+                        +" (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)");
             }
             return _nullValue;
         }

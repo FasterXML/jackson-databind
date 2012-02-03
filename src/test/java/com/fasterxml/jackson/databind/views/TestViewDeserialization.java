@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.views;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 public class TestViewDeserialization extends BaseMapTest
 {
@@ -92,7 +91,7 @@ public class TestViewDeserialization extends BaseMapTest
         assertEquals(9, bean.b);
 
         ObjectMapper myMapper = new ObjectMapper();
-        myMapper.disable(MapperConfig.Feature.DEFAULT_VIEW_INCLUSION);
+        myMapper.disable(MapperFeature.DEFAULT_VIEW_INCLUSION);
 
         // but with, say, AA, will not get 'b'
         bean = myMapper.readerWithView(ViewAA.class)

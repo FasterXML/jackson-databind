@@ -84,8 +84,8 @@ public class TestEmptyClass
     public void testEmptyWithFeature() throws Exception
     {
         // should be enabled by default
-        assertTrue(mapper.getSerializationConfig().isEnabled(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS));
-        mapper.configure(SerializationConfig.Feature.FAIL_ON_EMPTY_BEANS, false);
+        assertTrue(mapper.getSerializationConfig().isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS));
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         assertEquals("{}", serializeAsString(mapper, new Empty()));
     }
 

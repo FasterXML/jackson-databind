@@ -161,7 +161,7 @@ public class TestEnumDeserialization
     {
         // can't reuse global one due to reconfig
         ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationConfig.Feature.READ_ENUMS_USING_TO_STRING, true);
+        m.configure(DeserializationFeature.READ_ENUMS_USING_TO_STRING, true);
         LowerCaseEnum value = m.readValue("\"c\"", LowerCaseEnum.class);
         assertEquals(LowerCaseEnum.C, value);
     }
@@ -171,7 +171,7 @@ public class TestEnumDeserialization
     {
         // can't reuse global one due to reconfig
         ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationConfig.Feature.READ_ENUMS_USING_TO_STRING, true);
+        m.configure(DeserializationFeature.READ_ENUMS_USING_TO_STRING, true);
         EnumMap<LowerCaseEnum,String> value = m.readValue("{\"a\":\"value\"}",
                 new TypeReference<EnumMap<LowerCaseEnum,String>>() { });
         assertEquals("value", value.get(LowerCaseEnum.A));
@@ -181,13 +181,13 @@ public class TestEnumDeserialization
     public void testNumbersToEnums() throws Exception
     {
         // by default numbers are fine:
-        assertFalse(mapper.getDeserializationConfig().isEnabled(DeserializationConfig.Feature.FAIL_ON_NUMBERS_FOR_ENUMS));
+        assertFalse(mapper.getDeserializationConfig().isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS));
         TestEnum value = mapper.readValue("1", TestEnum.class);
         assertSame(TestEnum.RULES, value);
 
         // but can also be changed to errors:
         ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationConfig.Feature.FAIL_ON_NUMBERS_FOR_ENUMS, true);
+        m.configure(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS, true);
         try {
             value = m.readValue("1", TestEnum.class);
             fail("Expected an error");
@@ -200,7 +200,7 @@ public class TestEnumDeserialization
     public void testEnumsWithIndex() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.enable(SerializationConfig.Feature.WRITE_ENUMS_USING_INDEX);
+        m.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
         String json = m.writeValueAsString(TestEnum.RULES);
         assertEquals(String.valueOf(TestEnum.RULES.ordinal()), json);
         TestEnum result = m.readValue(json, TestEnum.class);

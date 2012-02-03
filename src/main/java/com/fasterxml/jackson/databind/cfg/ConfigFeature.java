@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.cfg;
 
 /**
- * Interface that actual Feature enumerations used by
+ * Interface that actual SerializationFeature enumerations used by
  * {@link MapperConfig} implementations must implement.
  * Necessary since enums can not be extended using normal
  * inheritance, but can implement interfaces

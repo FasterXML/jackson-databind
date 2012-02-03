@@ -1,13 +1,11 @@
-package com.fasterxml.jackson.databind.tree;
+package com.fasterxml.jackson.databind.node;
 
 import static org.junit.Assert.*;
 
 import java.io.*;
 
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.test.BaseTest;
 
 /**

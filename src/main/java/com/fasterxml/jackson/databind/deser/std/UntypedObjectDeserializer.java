@@ -5,8 +5,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
@@ -59,7 +59,7 @@ public class UntypedObjectDeserializer
             /* [JACKSON-100]: caller may want to get all integral values
              * returned as BigInteger, for consistency
              */
-            if (ctxt.isEnabled(DeserializationConfig.Feature.USE_BIG_INTEGER_FOR_INTS)) {
+            if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
                 return jp.getBigIntegerValue(); // should be optimal, whatever it is
             }
             return jp.getNumberValue(); // should be optimal, whatever it is
@@ -68,7 +68,7 @@ public class UntypedObjectDeserializer
             /* [JACKSON-72]: need to allow overriding the behavior regarding
              *   which type to use
              */
-            if (ctxt.isEnabled(DeserializationConfig.Feature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+            if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                 return jp.getDecimalValue();
             }
             return Double.valueOf(jp.getDoubleValue());
@@ -110,14 +110,14 @@ public class UntypedObjectDeserializer
 
         case VALUE_NUMBER_INT:
             // For [JACKSON-100], see above:
-            if (ctxt.isEnabled(DeserializationConfig.Feature.USE_BIG_INTEGER_FOR_INTS)) {
+            if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
                 return jp.getBigIntegerValue();
             }
             return jp.getIntValue();
 
         case VALUE_NUMBER_FLOAT:
             // For [JACKSON-72], see above
-            if (ctxt.isEnabled(DeserializationConfig.Feature.USE_BIG_DECIMAL_FOR_FLOATS)) {
+            if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                 return jp.getDecimalValue();
             }
             return Double.valueOf(jp.getDoubleValue());
@@ -147,7 +147,7 @@ public class UntypedObjectDeserializer
     protected Object mapArray(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
-        if (ctxt.isEnabled(DeserializationConfig.Feature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
+        if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
             return mapArrayToArray(jp, ctxt);
         }
         // Minor optimization to handle small lists (default size for ArrayList is 10)

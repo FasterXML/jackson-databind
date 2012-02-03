@@ -6,7 +6,9 @@ import java.util.concurrent.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
+import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
+import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
 import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
@@ -1421,7 +1423,7 @@ public abstract class BasicDeserializerFactory
             return EnumResolver.constructUnsafeUsingMethod(enumClass, accessor);
         }
         // [JACKSON-212]: may need to use Enum.toString()
-        if (config.isEnabled(DeserializationConfig.Feature.READ_ENUMS_USING_TO_STRING)) {
+        if (config.isEnabled(DeserializationFeature.READ_ENUMS_USING_TO_STRING)) {
             return EnumResolver.constructUnsafeUsingToString(enumClass);
         }
         return EnumResolver.constructUnsafe(enumClass, config.getAnnotationIntrospector());

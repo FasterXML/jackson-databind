@@ -5,7 +5,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * Unit tests for verifying that types that serialize as JSON Arrays
@@ -150,7 +149,7 @@ public class TestTypedArraySerialization
 
         // then with static typing enabled:
         m = new ObjectMapper();
-        m.configure(MapperConfig.Feature.USE_STATIC_TYPING, true);
+        m.configure(MapperFeature.USE_STATIC_TYPING, true);
         assertEquals(EXP, m.writeValueAsString(input));
     }
 }

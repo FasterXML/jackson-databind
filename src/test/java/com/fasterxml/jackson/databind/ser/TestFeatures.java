@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * Unit tests for checking whether JsonSerializerFactory.Feature
@@ -99,7 +98,7 @@ public class TestFeatures
         // Then auto-detection disabled. But note: we MUST create a new
         // mapper, since old version of serializer may be cached by now
         m = new ObjectMapper();
-        m.configure(MapperConfig.Feature.AUTO_DETECT_GETTERS, false);
+        m.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
         result = writeAndMap(m, new GetterClass());
         assertEquals(1, result.size());
         assertTrue(result.containsKey("x"));
@@ -114,7 +113,7 @@ public class TestFeatures
         assertTrue(result.containsKey("x"));
 
         // And then class-level auto-detection enabling, should override defaults
-        m.configure(MapperConfig.Feature.AUTO_DETECT_GETTERS, false);
+        m.configure(MapperFeature.AUTO_DETECT_GETTERS, false);
         result = writeAndMap(m, new EnabledGetterClass());
         assertEquals(2, result.size());
         assertTrue(result.containsKey("x"));
@@ -125,8 +124,8 @@ public class TestFeatures
     {
         ObjectMapper m = new ObjectMapper();
         // class level should override
-        m.configure(MapperConfig.Feature.AUTO_DETECT_GETTERS, true);
-        m.configure(MapperConfig.Feature.AUTO_DETECT_IS_GETTERS, false);
+        m.configure(MapperFeature.AUTO_DETECT_GETTERS, true);
+        m.configure(MapperFeature.AUTO_DETECT_IS_GETTERS, false);
          Map<String,Object> result = writeAndMap(m, new EnabledIsGetterClass());
         assertEquals(1, result.size());
         assertTrue(result.containsKey("ok"));
@@ -137,12 +136,12 @@ public class TestFeatures
     public void testConfigChainability()
     {
         ObjectMapper m = new ObjectMapper();
-        assertTrue(m.isEnabled(MapperConfig.Feature.AUTO_DETECT_SETTERS));
-        assertTrue(m.isEnabled(MapperConfig.Feature.AUTO_DETECT_GETTERS));
-        m.configure(MapperConfig.Feature.AUTO_DETECT_SETTERS, false)
-            .configure(MapperConfig.Feature.AUTO_DETECT_GETTERS, false);
-        assertFalse(m.isEnabled(MapperConfig.Feature.AUTO_DETECT_SETTERS));
-        assertFalse(m.isEnabled(MapperConfig.Feature.AUTO_DETECT_GETTERS));
+        assertTrue(m.isEnabled(MapperFeature.AUTO_DETECT_SETTERS));
+        assertTrue(m.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
+        m.configure(MapperFeature.AUTO_DETECT_SETTERS, false)
+            .configure(MapperFeature.AUTO_DETECT_GETTERS, false);
+        assertFalse(m.isEnabled(MapperFeature.AUTO_DETECT_SETTERS));
+        assertFalse(m.isEnabled(MapperFeature.AUTO_DETECT_GETTERS));
     }
 
     // Test for [JACKSON-282]
@@ -155,7 +154,7 @@ public class TestFeatures
         assertFalse(bean.wasClosed);
 
         // but can enable it:
-        m.configure(SerializationConfig.Feature.CLOSE_CLOSEABLE, true);
+        m.configure(SerializationFeature.CLOSE_CLOSEABLE, true);
         bean = new CloseableBean();
         m.writeValueAsString(bean);
         assertTrue(bean.wasClosed);
@@ -175,7 +174,7 @@ public class TestFeatures
         assertEquals(quote("abc"), m.writeValueAsString(chars));
         
         // new feature: serialize as JSON array:
-        m.configure(SerializationConfig.Feature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS, true);
+        m.configure(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS, true);
         assertEquals("[\"a\",\"b\",\"c\"]", m.writeValueAsString(chars));
     }
 
@@ -183,7 +182,7 @@ public class TestFeatures
     public void testFlushingAutomatic() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
-        assertTrue(mapper.getSerializationConfig().isEnabled(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE));
+        assertTrue(mapper.getSerializationConfig().isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE));
         // default is to flush after writeValue()
         StringWriter sw = new StringWriter();
         JsonGenerator jgen = mapper.getJsonFactory().createJsonGenerator(sw);
@@ -205,7 +204,7 @@ public class TestFeatures
     {
         // but should not occur if configured otherwise
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationConfig.Feature.FLUSH_AFTER_WRITE_VALUE, false);
+        mapper.configure(SerializationFeature.FLUSH_AFTER_WRITE_VALUE, false);
         StringWriter sw = new StringWriter();
         JsonGenerator jgen = mapper.getJsonFactory().createJsonGenerator(sw);
 

@@ -6,7 +6,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.HandlerInstantiator;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
@@ -19,7 +19,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     T extends MapperConfigBase<CFG,T>>
     extends MapperConfig<T>
 {
-    private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperConfig.Feature.class);
+    private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
 
     /*
     /**********************************************************
@@ -204,7 +204,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * Note that when a root name is set to a non-Empty String, this will automatically force use
      * of root element wrapping with given name. If empty String passed, will
      * disable root name wrapping; and if null used, will instead use
-     * <code>Feature</code> to determine if to use wrapping, and annotation
+     * <code>SerializationFeature</code> to determine if to use wrapping, and annotation
      * (or default name) for actual root name to use.
      * 
      * @param rootName to use: if null, means "use default" (clear setting);

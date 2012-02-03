@@ -210,13 +210,7 @@ public class MapDeserializer
         }
         if (_valueInstantiator.canCreateFromObjectWith()) {
             SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
-            _propertyBasedCreator = new PropertyBasedCreator(_valueInstantiator, creatorProps);
-            for (SettableBeanProperty prop : creatorProps) {
-                if (!prop.hasValueDeserializer()) {
-                    _propertyBasedCreator.assignDeserializer(prop,
-                            findDeserializer(ctxt, prop.getType(), prop));
-                }
-            }
+            _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, creatorProps);
         }
         _standardStringKey = _isStdKeyDeser(_mapType, _keyDeserializer);
     }

@@ -2,9 +2,7 @@ package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationConfig;
 
 /**
  * Unit tests dealing with handling of "root element wrapping",
@@ -49,7 +47,7 @@ public class TestRootName extends BaseMapTest
         String jsonUnwrapped = mapper.writeValueAsString(input);
         assertEquals("{\"a\":3}", jsonUnwrapped);
         // secondary: wrapping
-        String jsonWrapped = mapper.writer(SerializationConfig.Feature.WRAP_ROOT_VALUE)
+        String jsonWrapped = mapper.writer(SerializationFeature.WRAP_ROOT_VALUE)
             .writeValueAsString(input);
         assertEquals("{\"rudy\":{\"a\":3}}", jsonWrapped);
 
@@ -57,14 +55,14 @@ public class TestRootName extends BaseMapTest
         Bean result = mapper.readValue(jsonUnwrapped, Bean.class);
         assertNotNull(result);
         try { // must not have extra wrapping
-            result = mapper.reader(Bean.class).with(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE)
+            result = mapper.reader(Bean.class).with(DeserializationFeature.UNWRAP_ROOT_VALUE)
                 .readValue(jsonUnwrapped);
             fail("Should have failed");
         } catch (JsonMappingException e) {
             verifyException(e, "Root name 'a'");
         }
         // except wrapping may be expected:
-        result = mapper.reader(Bean.class).with(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE)
+        result = mapper.reader(Bean.class).with(DeserializationFeature.UNWRAP_ROOT_VALUE)
             .readValue(jsonWrapped);
         assertNotNull(result);
     }
@@ -81,7 +79,7 @@ public class TestRootName extends BaseMapTest
         Bean bean = reader.readValue(json);
         assertNotNull(bean);
 
-        // also: verify that we can override Feature as well:
+        // also: verify that we can override SerializationFeature as well:
         ObjectMapper wrapping = rootMapper();
         json = wrapping.writer().withRootName("something").writeValueAsString(new Bean());
         assertEquals("{\"something\":{\"a\":3}}", json);
@@ -101,8 +99,8 @@ public class TestRootName extends BaseMapTest
     private ObjectMapper rootMapper()
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationConfig.Feature.WRAP_ROOT_VALUE, true);
-        mapper.configure(DeserializationConfig.Feature.UNWRAP_ROOT_VALUE, true);
+        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
+        mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
         return mapper;
     }
 }

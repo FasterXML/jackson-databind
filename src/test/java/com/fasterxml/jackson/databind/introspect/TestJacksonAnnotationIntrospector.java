@@ -155,7 +155,7 @@ public class TestJacksonAnnotationIntrospector
     public void testSerializeDeserializeWithJaxbAnnotations() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationConfig.Feature.INDENT_OUTPUT);
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
         JacksonExample ex = new JacksonExample();
         QName qname = new QName("urn:hi", "hello");
         ex.setQname(qname);

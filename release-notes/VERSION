@@ -34,6 +34,8 @@ Improvements
   'this node' (unless already returning something)
 * [JACKSON-770]: Simplify method naming for JsonNode, drop unnecessary 'get' prefix
   from methods like 'getTextValue()' (becomes 'textValue()')
+* [JACKSON-777]: Rename 'SerializationConfig.Feature' as 'SerializationFeature',
+  'DeserializationConfig.Feature' as 'DeserializationFeature'.
 
 New features:
 

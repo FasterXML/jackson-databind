@@ -76,7 +76,7 @@ public class AsWrapperTypeSerializer
         // and then JSON Array start caller wants
         jgen.writeArrayFieldStart(idFromValueAndType(value, type));
     }
-    
+
     @Override
     public void writeTypePrefixForScalar(Object value, JsonGenerator jgen)
         throws IOException, JsonProcessingException
@@ -122,5 +122,47 @@ public class AsWrapperTypeSerializer
     {
         // just need to close the wrapper object
         jgen.writeEndObject();
-    }    
+    }
+
+    /*
+    /**********************************************************
+    /* Writing with custom type id
+    /**********************************************************
+     */
+    
+    public void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId)
+        throws IOException, JsonProcessingException
+    {
+        jgen.writeStartObject();
+        jgen.writeObjectFieldStart(typeId);
+    }
+    
+    public void writeCustomTypePrefixForArray(Object value, JsonGenerator jgen, String typeId)
+        throws IOException, JsonProcessingException
+    {
+        jgen.writeStartObject();
+        jgen.writeArrayFieldStart(typeId);
+    }
+
+    public void writeCustomTypePrefixForScalar(Object value, JsonGenerator jgen, String typeId)
+        throws IOException, JsonProcessingException
+    {
+        jgen.writeStartObject();
+        jgen.writeFieldName(typeId);
+    }
+
+    public void writeCustomTypeSuffixForObject(Object value, JsonGenerator jgen, String typeId)
+            throws IOException, JsonProcessingException {
+        writeTypeSuffixForObject(value, jgen); // standard impl works fine
+    }
+
+    public void writeCustomTypeSuffixForArray(Object value, JsonGenerator jgen, String typeId)
+            throws IOException, JsonProcessingException {
+        writeTypeSuffixForArray(value, jgen); // standard impl works fine
+    }
+
+    public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator jgen, String typeId)
+            throws IOException, JsonProcessingException {
+        writeTypeSuffixForScalar(value, jgen); // standard impl works fine
+    }
 }

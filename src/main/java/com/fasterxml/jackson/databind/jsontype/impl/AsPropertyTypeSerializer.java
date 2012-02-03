@@ -71,4 +71,24 @@ public class AsPropertyTypeSerializer
 
     //public void writeTypeSuffixForArray(Object value, JsonGenerator jgen)
     //public void writeTypeSuffixForScalar(Object value, JsonGenerator jgen)
+
+
+    /*
+    /**********************************************************
+    /* Writing with custom type id
+    /**********************************************************
+     */
+
+    // Only need to override Object-variants
+    
+    public void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId)
+        throws IOException, JsonProcessingException {
+        jgen.writeStartObject();
+        jgen.writeStringField(_typePropertyName, typeId);
+    }
+
+    public void writeCustomTypeSuffixForObject(Object value, JsonGenerator jgen, String typeId)
+        throws IOException, JsonProcessingException {
+        jgen.writeEndObject();
+    }
 }

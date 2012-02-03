@@ -42,6 +42,12 @@ public class AsExternalTypeSerializer
 
    @Override
    public As getTypeInclusion() { return As.EXTERNAL_PROPERTY; }
+
+   /*
+   /**********************************************************
+   /* Writing prefixes
+   /**********************************************************
+    */
    
    @Override
    public void writeTypePrefixForObject(Object value, JsonGenerator jgen)
@@ -85,6 +91,12 @@ public class AsExternalTypeSerializer
        _writePrefix(value, jgen, type);
    }
 
+   /*
+   /**********************************************************
+   /* Writing suffixes
+   /**********************************************************
+    */
+   
    @Override
    public void writeTypeSuffixForObject(Object value, JsonGenerator jgen)
        throws IOException, JsonProcessingException
@@ -106,6 +118,44 @@ public class AsExternalTypeSerializer
        _writeSuffix(value, jgen);
    }
 
+   /*
+   /**********************************************************
+   /* Writing with custom type id
+   /**********************************************************
+    */
+
+   public void writeCustomTypePrefixForScalar(Object value, JsonGenerator jgen, String typeId)
+       throws IOException, JsonProcessingException
+   {
+       _writePrefix(value, jgen); // here standard works fine
+   }
+   
+   public void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId)
+       throws IOException, JsonProcessingException {
+       _writePrefix(value, jgen); // here standard works fine
+   }
+   
+   public void writeCustomTypePrefixForArray(Object value, JsonGenerator jgen, String typeId)
+       throws IOException, JsonProcessingException
+   {
+       _writePrefix(value, jgen); // here standard works fine
+   }
+
+   public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator jgen, String typeId)
+       throws IOException, JsonProcessingException {
+       _writeSuffix(value, jgen);// here standard works fine
+   }
+
+   public void writeCustomTypeSuffixForObject(Object value, JsonGenerator jgen, String typeId)
+       throws IOException, JsonProcessingException {
+       _writeSuffix(value, jgen);// here standard works fine
+   }
+
+   public void writeCustomTypeSuffixForArray(Object value, JsonGenerator jgen, String typeId)
+           throws IOException, JsonProcessingException {
+       _writeSuffix(value, jgen);// here standard works fine
+   }
+   
    /*
    /**********************************************************
    /* Helper methods

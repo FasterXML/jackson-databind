@@ -31,6 +31,12 @@ public class AsArrayTypeSerializer
     @Override
     public As getTypeInclusion() { return As.WRAPPER_ARRAY; }
     
+    /*
+    /**********************************************************
+    /* Writing prefixes
+    /**********************************************************
+     */
+    
     @Override
     public void writeTypePrefixForObject(Object value, JsonGenerator jgen)
         throws IOException, JsonProcessingException
@@ -87,6 +93,12 @@ public class AsArrayTypeSerializer
         jgen.writeStartArray();
         jgen.writeString(idFromValueAndType(value, type));
     }
+
+    /*
+    /**********************************************************
+    /* Writing suffixes
+    /**********************************************************
+     */
     
     @Override
     public void writeTypeSuffixForObject(Object value, JsonGenerator jgen)
@@ -111,5 +123,46 @@ public class AsArrayTypeSerializer
     {
         // just the wrapper array to close
         jgen.writeEndArray();
+    }
+    
+    /*
+    /**********************************************************
+    /* Writing with custom type id
+    /**********************************************************
+     */
+
+    public void writeCustomTypePrefixForScalar(Object value, JsonGenerator jgen, String typeId)
+        throws IOException, JsonProcessingException
+    {
+        jgen.writeStartArray();
+        jgen.writeString(typeId);
+    }
+    
+    public void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId)
+        throws IOException, JsonProcessingException {
+        jgen.writeStartArray();
+        jgen.writeString(typeId);
+    }
+    
+    public void writeCustomTypePrefixForArray(Object value, JsonGenerator jgen, String typeId)
+        throws IOException, JsonProcessingException
+    {
+        jgen.writeStartArray();
+        jgen.writeString(typeId);
+    }
+
+    public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator jgen, String typeId)
+        throws IOException, JsonProcessingException {
+        writeTypeSuffixForScalar(value, jgen); // standard impl works fine
+    }
+
+    public void writeCustomTypeSuffixForObject(Object value, JsonGenerator jgen, String typeId)
+        throws IOException, JsonProcessingException {
+        writeTypeSuffixForObject(value, jgen); // standard impl works fine
+    }
+
+    public void writeCustomTypeSuffixForArray(Object value, JsonGenerator jgen, String typeId)
+            throws IOException, JsonProcessingException {
+        writeTypeSuffixForArray(value, jgen); // standard impl works fine
     }
 }

@@ -188,7 +188,7 @@ public class MapSerializer
         JsonSerializer<?> ser = _valueSerializer;
         if (ser == null) {
             if (_valueTypeIsStatic) {
-                ser = provider.findValueSerializer(_valueType, _property);
+                ser = provider.findValueSerializer(_valueType, property);
             }
         } else if (ser instanceof ContextualSerializer) {
             ser = ((ContextualSerializer) ser).createContextual(provider, property);
@@ -202,7 +202,7 @@ public class MapSerializer
          */
         JsonSerializer<?> keySer = _keySerializer;
         if (keySer == null) {
-            keySer = provider.findKeySerializer(_keyType, _property);
+            keySer = provider.findKeySerializer(_keyType, property);
         } else if (keySer instanceof ContextualSerializer) {
             keySer = ((ContextualSerializer) keySer).createContextual(provider, property);
         }

@@ -76,7 +76,7 @@ public class StringArraySerializer
     {
         JsonSerializer<?> ser = _elementSerializer;
         if (ser == null) {
-            ser = provider.findValueSerializer(String.class, _property);
+            ser = provider.findValueSerializer(String.class, property);
         } else if (ser instanceof ContextualSerializer) {
             ser = ((ContextualSerializer) ser).createContextual(provider, property);
         }

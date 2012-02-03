@@ -1,9 +1,9 @@
-package com.fasterxml.jackson.databind.ser.impl;
+package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
+import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
 
 /**
  * Simple cache object that allows for doing 2-level lookups: first level is

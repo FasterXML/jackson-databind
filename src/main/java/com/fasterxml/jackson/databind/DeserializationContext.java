@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.*;
-import com.fasterxml.jackson.databind.deser.impl.DeserializerCache;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.introspect.Annotated;

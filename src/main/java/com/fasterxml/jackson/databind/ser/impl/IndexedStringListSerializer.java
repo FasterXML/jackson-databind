@@ -39,7 +39,7 @@ public final class IndexedStringListSerializer
 
     @SuppressWarnings("unchecked")
     public IndexedStringListSerializer(JsonSerializer<?> ser) {
-        super(List.class, null);
+        super(List.class);
         _serializer = (JsonSerializer<String>) ser;
         
     }
@@ -61,7 +61,7 @@ public final class IndexedStringListSerializer
     {
         JsonSerializer<?> ser = _serializer;
         if (ser == null) {
-            ser = provider.findValueSerializer(String.class, _property);
+            ser = provider.findValueSerializer(String.class, property);
         } else if (ser instanceof ContextualSerializer) {
             ser = ((ContextualSerializer) ser).createContextual(provider, property);
         }

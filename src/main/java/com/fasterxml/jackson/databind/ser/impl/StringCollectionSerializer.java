@@ -40,7 +40,7 @@ public class StringCollectionSerializer
     @SuppressWarnings("unchecked")
     protected StringCollectionSerializer(JsonSerializer<?> ser)
     {
-        super(Collection.class, null);
+        super(Collection.class);
         _serializer = (JsonSerializer<String>) ser;
     }        
     
@@ -61,7 +61,7 @@ public class StringCollectionSerializer
     {
         JsonSerializer<?> ser = _serializer;
         if (ser == null) {
-            ser = provider.findValueSerializer(String.class, _property);
+            ser = provider.findValueSerializer(String.class, property);
         } else if (ser instanceof ContextualSerializer) {
             ser = ((ContextualSerializer) ser).createContextual(provider, property);
         }

@@ -128,8 +128,10 @@ public class BeanSerializerFactory
         if (ser != null) {
             return (JsonSerializer<Object>) ser;
         }
+        
         // Next: we may have annotations that further define types to use...
         JavaType type = modifyTypeByAnnotation(config, beanDesc.getClassInfo(), origType);
+
         // and if so, we consider it implicit "force static typing" instruction
         boolean staticTyping = (type != origType);
 

@@ -139,6 +139,16 @@ public class TestObjectNode
         assertEquals("{\"prop\":{}}", mapper.writeValueAsString(root));
     }
 
+    public void testValidWithArray() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode root = mapper.createObjectNode();
+        assertEquals("{}", mapper.writeValueAsString(root));
+        JsonNode child = root.withArray("arr");
+        assertTrue(child instanceof ArrayNode);
+        assertEquals("{\"arr\":[]}", mapper.writeValueAsString(root));
+    }
+
     public void testInvalidWith() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -154,6 +164,27 @@ public class TestObjectNode
         root2.put("prop", 13);
         try { // should not work for non-ObjectNode nodes:
             root2.with("prop");
+            fail("Expected exception");
+        } catch (UnsupportedOperationException e) {
+            verifyException(e, "has value that is not");
+        }
+    }
+
+    public void testInvalidWithArray() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode root = mapper.createArrayNode();
+        try { // should not work for non-ObjectNode nodes:
+            root.withArray("prop");
+            fail("Expected exception");
+        } catch (UnsupportedOperationException e) {
+            verifyException(e, "not of type ObjectNode");
+        }
+        // also: should fail of we already have non-Array property
+        ObjectNode root2 = mapper.createObjectNode();
+        root2.put("prop", 13);
+        try { // should not work for non-ObjectNode nodes:
+            root2.withArray("prop");
             fail("Expected exception");
         } catch (UnsupportedOperationException e) {
             verifyException(e, "has value that is not");

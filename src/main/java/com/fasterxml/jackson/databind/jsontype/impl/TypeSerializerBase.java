@@ -25,4 +25,18 @@ public abstract class TypeSerializerBase extends TypeSerializer
     
     @Override
     public TypeIdResolver getTypeIdResolver() { return _idResolver; }
+
+    /*
+    /**********************************************************
+    /* Helper methods for subclasses
+    /**********************************************************
+     */
+
+    protected String idFromValue(Object value) {
+        return _idResolver.idFromValue(value);
+    }
+
+    protected String idFromValueAndType(Object value, Class<?> type) {
+        return _idResolver.idFromValueAndType(value, type);
+    }
 }

@@ -46,7 +46,7 @@ public class AsPropertyTypeSerializer
         throws IOException, JsonProcessingException
     {
         jgen.writeStartObject();
-        jgen.writeStringField(_typePropertyName, _idResolver.idFromValue(value));
+        jgen.writeStringField(_typePropertyName, idFromValue(value));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class AsPropertyTypeSerializer
         throws IOException, JsonProcessingException
     {
         jgen.writeStartObject();
-        jgen.writeStringField(_typePropertyName, _idResolver.idFromValueAndType(value, type));
+        jgen.writeStringField(_typePropertyName, idFromValueAndType(value, type));
     }
     
     //public void writeTypePrefixForArray(Object value, JsonGenerator jgen)

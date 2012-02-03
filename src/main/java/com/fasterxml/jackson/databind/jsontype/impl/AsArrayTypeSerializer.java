@@ -36,7 +36,7 @@ public class AsArrayTypeSerializer
         throws IOException, JsonProcessingException
     {
         jgen.writeStartArray();
-        jgen.writeString(_idResolver.idFromValue(value));
+        jgen.writeString(idFromValue(value));
         jgen.writeStartObject();
     }
 
@@ -46,7 +46,7 @@ public class AsArrayTypeSerializer
         throws IOException, JsonProcessingException
     {
         jgen.writeStartArray();
-        jgen.writeString(_idResolver.idFromValueAndType(value, type));
+        jgen.writeString(idFromValueAndType(value, type));
         jgen.writeStartObject();
     }
     
@@ -55,7 +55,7 @@ public class AsArrayTypeSerializer
         throws IOException, JsonProcessingException
     {
         jgen.writeStartArray();
-        jgen.writeString(_idResolver.idFromValue(value));
+        jgen.writeString(idFromValue(value));
         jgen.writeStartArray();
     }
 
@@ -65,7 +65,7 @@ public class AsArrayTypeSerializer
         throws IOException, JsonProcessingException
     {
         jgen.writeStartArray();
-        jgen.writeString(_idResolver.idFromValueAndType(value, type));
+        jgen.writeString(idFromValueAndType(value, type));
         jgen.writeStartArray();
     }
     
@@ -75,7 +75,7 @@ public class AsArrayTypeSerializer
     {
         // only need the wrapper array
         jgen.writeStartArray();
-        jgen.writeString(_idResolver.idFromValue(value));
+        jgen.writeString(idFromValue(value));
     }
 
     @Override
@@ -85,7 +85,7 @@ public class AsArrayTypeSerializer
     {
         // only need the wrapper array
         jgen.writeStartArray();
-        jgen.writeString(_idResolver.idFromValueAndType(value, type));
+        jgen.writeString(idFromValueAndType(value, type));
     }
     
     @Override

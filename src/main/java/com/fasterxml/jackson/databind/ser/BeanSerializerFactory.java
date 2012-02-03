@@ -217,8 +217,8 @@ public class BeanSerializerFactory
      * 
      * @return Type serializer to use for property values, if one is needed; null if not.
      */
-    public TypeSerializer findPropertyTypeSerializer(JavaType baseType, SerializationConfig config,
-            AnnotatedMember accessor, BeanProperty property)
+    public TypeSerializer findPropertyTypeSerializer(JavaType baseType,
+            SerializationConfig config, AnnotatedMember accessor, BeanProperty property)
         throws JsonMappingException
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();

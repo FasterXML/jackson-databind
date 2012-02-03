@@ -42,7 +42,7 @@ public class AsWrapperTypeSerializer
         // wrapper
         jgen.writeStartObject();
         // and then JSON Object start caller wants
-        jgen.writeObjectFieldStart(_idResolver.idFromValue(value));
+        jgen.writeObjectFieldStart(idFromValue(value));
     }
 
     @Override
@@ -53,7 +53,7 @@ public class AsWrapperTypeSerializer
         // wrapper
         jgen.writeStartObject();
         // and then JSON Object start caller wants
-        jgen.writeObjectFieldStart(_idResolver.idFromValueAndType(value, type));
+        jgen.writeObjectFieldStart(idFromValueAndType(value, type));
     }
     
     @Override
@@ -63,7 +63,7 @@ public class AsWrapperTypeSerializer
         // can still wrap ok
         jgen.writeStartObject();
         // and then JSON Array start caller wants
-        jgen.writeArrayFieldStart(_idResolver.idFromValue(value));
+        jgen.writeArrayFieldStart(idFromValue(value));
     }
 
     @Override
@@ -74,7 +74,7 @@ public class AsWrapperTypeSerializer
         // can still wrap ok
         jgen.writeStartObject();
         // and then JSON Array start caller wants
-        jgen.writeArrayFieldStart(_idResolver.idFromValueAndType(value, type));
+        jgen.writeArrayFieldStart(idFromValueAndType(value, type));
     }
     
     @Override
@@ -83,7 +83,7 @@ public class AsWrapperTypeSerializer
     {
         // can still wrap ok
         jgen.writeStartObject();
-        jgen.writeFieldName(_idResolver.idFromValue(value));
+        jgen.writeFieldName(idFromValue(value));
     }
 
     @Override
@@ -93,7 +93,7 @@ public class AsWrapperTypeSerializer
     {
         // can still wrap ok
         jgen.writeStartObject();
-        jgen.writeFieldName(_idResolver.idFromValueAndType(value, type));
+        jgen.writeFieldName(idFromValueAndType(value, type));
     }
     
     @Override

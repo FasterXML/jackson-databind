@@ -128,6 +128,6 @@ public class AsExternalTypeSerializer
        throws IOException, JsonProcessingException
    {
        jgen.writeEndObject();
-       jgen.writeStringField(_typePropertyName, _idResolver.idFromValue(value));
+       jgen.writeStringField(_typePropertyName, idFromValue(value));
    }
 }

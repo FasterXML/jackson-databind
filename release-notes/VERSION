@@ -28,6 +28,7 @@ Improvements
 * [JACKSON-732]: Allow 'AnnotationIntrospector.findContentDeserializer()'
   (and similar) to return instance, not just Class<?> for instance
  (requested by James R)
+* [JACKSON-736]: Add (more) access to array, container and map serializers
 * [JACKSON-748]: Add 'registerSubtypes' to 'Module.setupContext' (and SimpleModule)
 * [JACKSON-749]: Make @JsonValue work for Enum deserialization
 * [JACKSON-769]: ObjectNode/ArrayNode: change 'put', 'insert', 'add' to return

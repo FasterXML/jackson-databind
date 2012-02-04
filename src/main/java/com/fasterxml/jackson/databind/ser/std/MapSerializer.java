@@ -232,6 +232,26 @@ public class MapSerializer
 
     /*
     /**********************************************************
+    /* Extended API
+    /**********************************************************
+     */
+
+    /**
+     * Accessor for currently assigned key serializer. Note that
+     * this may return null during construction of <code>MapSerializer</code>:
+     * depedencies are resolved during {@link #createContextual} method
+     * (which can be overridden by custom implementations), but for some
+     * dynamic types, it is possible that serializer is only resolved
+     * during actual serialization.
+     * 
+     * @since 2.0
+     */
+    public JsonSerializer<?> getKeySerializer() {
+        return _keySerializer;
+    }
+    
+    /*
+    /**********************************************************
     /* JsonSerializer implementation
     /**********************************************************
      */

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 
 /**
  * Unit tests for checking handling of DeserializationConfig.

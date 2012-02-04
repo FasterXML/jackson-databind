@@ -1,9 +1,7 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.introspect;
 
-import com.fasterxml.jackson.databind.introspect.AnnotatedField;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
-import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.util.Named;
 
 /**

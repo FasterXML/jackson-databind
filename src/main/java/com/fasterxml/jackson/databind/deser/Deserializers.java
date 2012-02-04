@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.*;
 

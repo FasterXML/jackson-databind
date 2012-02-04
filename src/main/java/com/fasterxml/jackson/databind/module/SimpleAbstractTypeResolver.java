@@ -5,8 +5,8 @@ import java.util.*;
 
 
 import com.fasterxml.jackson.databind.AbstractTypeResolver;
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 import com.fasterxml.jackson.databind.type.ClassKey;
 
 /**

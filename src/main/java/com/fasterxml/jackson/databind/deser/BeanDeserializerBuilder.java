@@ -4,10 +4,10 @@ import java.util.*;
 
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
 import com.fasterxml.jackson.databind.deser.impl.ValueInjector;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.util.Annotations;
 
 /**

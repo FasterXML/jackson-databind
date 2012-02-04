@@ -6,7 +6,6 @@ import java.util.concurrent.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
-import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;

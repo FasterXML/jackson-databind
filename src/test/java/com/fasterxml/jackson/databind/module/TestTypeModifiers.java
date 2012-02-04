@@ -6,8 +6,6 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
-import com.fasterxml.jackson.databind.cfg.SerializationConfig;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.module.SimpleDeserializers;

@@ -74,7 +74,7 @@ public enum DeserializationFeature implements ConfigFeature
      * if disabled, return value of <code>Enum.name()</code> is assumed to have been used.
      *<p>
      * Note: this feature should usually have same value
-     * as {@link SerializationConfig.SerializationFeature#WRITE_ENUMS_USING_TO_STRING}.
+     * as {@link SerializationFeature#WRITE_ENUMS_USING_TO_STRING}.
      *<p>
      * SerializationFeature is disabled by default.
      */
@@ -165,7 +165,7 @@ public enum DeserializationFeature implements ConfigFeature
     
     /**
      * SerializationFeature to allow "unwrapping" root-level JSON value, to match setting of
-     * {@link SerializationConfig.SerializationFeature#WRAP_ROOT_VALUE} used for serialization.
+     * {@link SerializationFeature#WRAP_ROOT_VALUE} used for serialization.
      * Will verify that the root JSON value is a JSON Object, and that it has
      * a single property with expected root name. If not, a
      * {@link JsonMappingException} is thrown; otherwise value of the wrapped property

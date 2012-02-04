@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.BeanPropertyDefinition;
 
 /**
  * Helper class used for aggregating information about a single

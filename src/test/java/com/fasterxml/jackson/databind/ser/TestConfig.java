@@ -4,7 +4,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.SerializationConfig;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**

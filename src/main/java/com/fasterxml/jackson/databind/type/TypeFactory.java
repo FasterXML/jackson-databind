@@ -15,8 +15,8 @@ import com.fasterxml.jackson.databind.util.LRUMap;
  *<p>
  * Instances of this class are accessible using {@link com.fasterxml.jackson.databind.ObjectMapper}
  * as well as many objects it constructs (like
-* {@link com.fasterxml.jackson.databind.cfg.DeserializationConfig} and
- * {@link com.fasterxml.jackson.databind.cfg.SerializationConfig})),
+* {@link com.fasterxml.jackson.databind.DeserializationConfig} and
+ * {@link com.fasterxml.jackson.databind.SerializationConfig})),
  * but usually those objects also 
  * expose convenience methods (<code>constructType</code>).
  * So, you can do for example:

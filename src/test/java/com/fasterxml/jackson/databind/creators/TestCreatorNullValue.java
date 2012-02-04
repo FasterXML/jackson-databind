@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 import com.fasterxml.jackson.databind.deser.*;
 
 // Mostly for [JACSON-774]

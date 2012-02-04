@@ -3,9 +3,9 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerFactory;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 
 /**
  * Abstract class that defines API for objects that can be registered (for {@link BeanDeserializerFactory}

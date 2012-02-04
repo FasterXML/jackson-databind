@@ -8,7 +8,6 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.annotation.NoClass;
-import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.SerializationConfig;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 
 public class TestSerializerProvider

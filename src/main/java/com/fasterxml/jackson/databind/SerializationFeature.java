@@ -147,7 +147,7 @@ public enum SerializationFeature implements ConfigFeature
      * or as something else (usually textual representation).
      * If textual representation is used, the actual format is
      * one returned by a call to
-     * {@link com.fasterxml.jackson.databind.cfg.SerializationConfig#getDateFormat}.
+     * {@link com.fasterxml.jackson.databind.SerializationConfig#getDateFormat}.
      *<p>
      * Note: whether this feature affects handling of other date-related
      * types depend on handlers of those types, although ideally they

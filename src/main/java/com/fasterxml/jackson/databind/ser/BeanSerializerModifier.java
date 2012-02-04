@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.cfg.SerializationConfig;
+import com.fasterxml.jackson.databind.SerializationConfig;
 
 /**
  * Abstract class that defines API for objects that can be registered (for {@link BeanSerializerFactory}

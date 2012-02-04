@@ -4,9 +4,9 @@ import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.cfg.DeserializationConfig;
-import com.fasterxml.jackson.databind.cfg.SerializationConfig;
+import com.fasterxml.jackson.databind.SerializationConfig;
 
 /**
  * Interface that defines builders that are configured based on

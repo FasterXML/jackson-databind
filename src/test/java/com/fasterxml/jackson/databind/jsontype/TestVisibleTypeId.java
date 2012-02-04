@@ -95,13 +95,16 @@ public class TestVisibleTypeId extends BaseMapTest
         @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.EXTERNAL_PROPERTY,
                 property="type", visible=true)
         public ExternalIdBean2 bean = new ExternalIdBean2();
-
-        @JsonTypeId
-        public String getType() { return "SomeType"; }
     }
 
     static class ExternalIdBean2 {
         public int a = 2;
+
+        /* Type id property itself can not be external, as it is conceptually
+         * part of the bean for which info is written:
+         */
+        @JsonTypeId
+        public String getType() { return "SomeType"; }
     }
     
     /*
@@ -112,7 +115,6 @@ public class TestVisibleTypeId extends BaseMapTest
 
     private final ObjectMapper mapper = new ObjectMapper();
     
-    /*
     public void testVisibleWithProperty() throws Exception
     {
         String json = mapper.writeValueAsString(new PropertyBean());
@@ -156,7 +158,6 @@ public class TestVisibleTypeId extends BaseMapTest
         assertEquals("ExternalType", result.bean.type);
         assertEquals(2, result.bean.a);
     }
-*/
 
     // [JACKSON-762]
 
@@ -180,8 +181,9 @@ public class TestVisibleTypeId extends BaseMapTest
 
     public void testTypeIdFromExternal() throws Exception
     {
-        assertEquals("{\"type\":\"SomeType\":\"bean\":{\"a\":2}}",
-                mapper.writeValueAsString(new ExternalIdWrapper2()));
+        String json = mapper.writeValueAsString(new ExternalIdWrapper2());
+        // Implementation detail: type id written AFTER value, due to constraints
+        assertEquals("{\"bean\":{\"a\":2},\"type\":\"SomeType\"}", json);
         
     }
 }

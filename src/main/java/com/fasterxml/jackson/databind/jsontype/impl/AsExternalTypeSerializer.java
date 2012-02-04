@@ -101,21 +101,21 @@ public class AsExternalTypeSerializer
    public void writeTypeSuffixForObject(Object value, JsonGenerator jgen)
        throws IOException, JsonProcessingException
    {
-       _writeSuffix(value, jgen);
+       _writeSuffix(value, jgen, idFromValue(value));
    }
 
    @Override
    public void writeTypeSuffixForArray(Object value, JsonGenerator jgen)
        throws IOException, JsonProcessingException
    {
-       _writeSuffix(value, jgen);
+       _writeSuffix(value, jgen, idFromValue(value));
    }
    
    @Override
    public void writeTypeSuffixForScalar(Object value, JsonGenerator jgen)
        throws IOException, JsonProcessingException
    {
-       _writeSuffix(value, jgen);
+       _writeSuffix(value, jgen, idFromValue(value));
    }
 
    /*
@@ -143,17 +143,17 @@ public class AsExternalTypeSerializer
 
    public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator jgen, String typeId)
        throws IOException, JsonProcessingException {
-       _writeSuffix(value, jgen);// here standard works fine
+       _writeSuffix(value, jgen, typeId);// here standard works fine
    }
 
    public void writeCustomTypeSuffixForObject(Object value, JsonGenerator jgen, String typeId)
        throws IOException, JsonProcessingException {
-       _writeSuffix(value, jgen);// here standard works fine
+       _writeSuffix(value, jgen, typeId);// here standard works fine
    }
 
    public void writeCustomTypeSuffixForArray(Object value, JsonGenerator jgen, String typeId)
            throws IOException, JsonProcessingException {
-       _writeSuffix(value, jgen);// here standard works fine
+       _writeSuffix(value, jgen, typeId);// here standard works fine
    }
    
    /*
@@ -174,10 +174,10 @@ public class AsExternalTypeSerializer
        jgen.writeStartObject();
    }
    
-   protected final void _writeSuffix(Object value, JsonGenerator jgen)
+   protected final void _writeSuffix(Object value, JsonGenerator jgen, String typeId)
        throws IOException, JsonProcessingException
    {
        jgen.writeEndObject();
-       jgen.writeStringField(_typePropertyName, idFromValue(value));
+       jgen.writeStringField(_typePropertyName, typeId);
    }
 }

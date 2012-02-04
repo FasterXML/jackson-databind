@@ -279,7 +279,7 @@ public class BeanSerializerFactory
         BeanSerializerBuilder builder = constructBeanSerializerBuilder(beanDesc);
         
         // First: any detectable (auto-detect, annotations) properties to serialize?
-        List<BeanPropertyWriter> props = findBeanProperties(prov, beanDesc);
+        List<BeanPropertyWriter> props = findBeanProperties(prov, beanDesc, builder);
 
         if (props == null) {
             props = new ArrayList<BeanPropertyWriter>();
@@ -400,7 +400,7 @@ public class BeanSerializerFactory
      * Can be overridden to implement custom detection schemes.
      */
     protected List<BeanPropertyWriter> findBeanProperties(SerializerProvider prov,
-            BeanDescription beanDesc)
+            BeanDescription beanDesc, BeanSerializerBuilder builder)
         throws JsonMappingException
     {
         List<BeanPropertyDefinition> properties = beanDesc.findProperties();
@@ -424,8 +424,19 @@ public class BeanSerializerFactory
 
         ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());
         TypeBindings typeBind = beanDesc.bindingsForBeanType();
-        // [JACKSON-98]: start with field properties, if any
         for (BeanPropertyDefinition property : properties) {
+            // [JACKSON-762]: type id? Requires special handling:
+            if (property.isTypeId()) {
+                AnnotatedMember acc = property.getAccessor();
+                if (acc != null) { // only add if we can access... but otherwise?
+                    if (config.canOverrideAccessModifiers()) {
+                        acc.fixAccess();
+                    }
+                    builder.setTypeId(acc);
+                }
+                continue;
+            }
+            
             AnnotatedMember accessor = property.getAccessor();
             // [JACKSON-235]: suppress writing of back references
             AnnotationIntrospector.ReferenceProperty refType = property.findReferenceType();

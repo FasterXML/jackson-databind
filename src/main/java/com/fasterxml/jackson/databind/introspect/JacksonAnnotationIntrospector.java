@@ -381,6 +381,11 @@ public class JacksonAnnotationIntrospector
         JsonView ann = a.getAnnotation(JsonView.class);
         return (ann == null) ? null : ann.value();
     }
+
+    @Override
+    public Boolean isTypeId(AnnotatedMember member) {
+        return member.hasAnnotation(JsonTypeId.class);
+    }
     
     /*
     /**********************************************************
@@ -406,7 +411,6 @@ public class JacksonAnnotationIntrospector
     /**********************************************************
      */
 
-    @SuppressWarnings("deprecation")
     @Override
     public String findSerializationName(AnnotatedMethod am)
     {

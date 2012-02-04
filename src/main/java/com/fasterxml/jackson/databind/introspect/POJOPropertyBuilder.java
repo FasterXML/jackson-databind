@@ -265,10 +265,12 @@ public class POJOPropertyBuilder
         return m;
     }
 
-    /**
-     * Method that will try to find JSON View inclusion information
-     * for this property.
+    /*
+    /*****************************************************
+    /* Implementations of refinement accessors
+    /*****************************************************
      */
+    
     @Override
     public Class<?>[] findViews() {
         return fromMemberAnnotation(new WithMember<Class<?>[]>() {
@@ -285,6 +287,15 @@ public class POJOPropertyBuilder
                 return _annotationIntrospector.findReferenceType(member);
             }
         });
+    }
+
+    public boolean isTypeId() {
+        Boolean b = fromMemberAnnotation(new WithMember<Boolean>() {
+            @Override public Boolean withMember(AnnotatedMember member) {
+                return _annotationIntrospector.isTypeId(member);
+            }
+        });
+        return (b != null) && b.booleanValue();
     }
     
     /*

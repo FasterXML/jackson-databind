@@ -130,18 +130,12 @@ public class AsArrayTypeSerializer
     /* Writing with custom type id
     /**********************************************************
      */
-
-    public void writeCustomTypePrefixForScalar(Object value, JsonGenerator jgen, String typeId)
-        throws IOException, JsonProcessingException
-    {
-        jgen.writeStartArray();
-        jgen.writeString(typeId);
-    }
     
     public void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId)
         throws IOException, JsonProcessingException {
         jgen.writeStartArray();
         jgen.writeString(typeId);
+        jgen.writeStartObject();
     }
     
     public void writeCustomTypePrefixForArray(Object value, JsonGenerator jgen, String typeId)
@@ -149,11 +143,14 @@ public class AsArrayTypeSerializer
     {
         jgen.writeStartArray();
         jgen.writeString(typeId);
+        jgen.writeStartArray();
     }
 
-    public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator jgen, String typeId)
-        throws IOException, JsonProcessingException {
-        writeTypeSuffixForScalar(value, jgen); // standard impl works fine
+    public void writeCustomTypePrefixForScalar(Object value, JsonGenerator jgen, String typeId)
+        throws IOException, JsonProcessingException
+    {
+        jgen.writeStartArray();
+        jgen.writeString(typeId);
     }
 
     public void writeCustomTypeSuffixForObject(Object value, JsonGenerator jgen, String typeId)
@@ -164,5 +161,10 @@ public class AsArrayTypeSerializer
     public void writeCustomTypeSuffixForArray(Object value, JsonGenerator jgen, String typeId)
             throws IOException, JsonProcessingException {
         writeTypeSuffixForArray(value, jgen); // standard impl works fine
+    }
+
+    public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator jgen, String typeId)
+        throws IOException, JsonProcessingException {
+        writeTypeSuffixForScalar(value, jgen); // standard impl works fine
     }
 }

@@ -5,8 +5,8 @@ import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 
-
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -50,6 +50,12 @@ public abstract class BeanSerializerBase
     final protected AnyGetterWriter _anyGetterWriter;
 
     /**
+     * If using custom type ids (usually via getter, or field), this is the
+     * reference to that member.
+     */
+    final protected AnnotatedMember _typeId;
+    
+    /**
      * Id of the bean property filter to use, if any; null if none.
      */
     final protected Object _propertyFilterId;
@@ -66,26 +72,28 @@ public abstract class BeanSerializerBase
      */
     protected BeanSerializerBase(JavaType type,
             BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties,
-            AnyGetterWriter anyGetterWriter,
+            AnyGetterWriter anyGetterWriter, AnnotatedMember typeId,
             Object filterId)
     {
         super(type);
         _props = properties;
         _filteredProps = filteredProperties;
         _anyGetterWriter = anyGetterWriter;
+        _typeId = typeId;
         _propertyFilterId = filterId;
     }
 
     @SuppressWarnings("unchecked")
     public BeanSerializerBase(Class<?> rawType,
             BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties,
-            AnyGetterWriter anyGetterWriter,
+            AnyGetterWriter anyGetterWriter, AnnotatedMember typeId,
             Object filterId)
     {
         super((Class<Object>) rawType);
         _props = properties;
         _filteredProps = filteredProperties;
         _anyGetterWriter = anyGetterWriter;
+        _typeId = typeId;
         _propertyFilterId = filterId;
     }
 
@@ -95,7 +103,8 @@ public abstract class BeanSerializerBase
      */
     protected BeanSerializerBase(BeanSerializerBase src) {
         this(src._handledType,
-                src._props, src._filteredProps, src._anyGetterWriter, src._propertyFilterId);
+                src._props, src._filteredProps,
+                src._anyGetterWriter, src._typeId, src._propertyFilterId);
     }
 
     /**
@@ -104,9 +113,8 @@ public abstract class BeanSerializerBase
      */
     protected BeanSerializerBase(BeanSerializerBase src, NameTransformer unwrapper) {
         this(src._handledType,
-                rename(src._props, unwrapper),
-                rename(src._filteredProps, unwrapper),
-                src._anyGetterWriter, src._propertyFilterId);
+                rename(src._props, unwrapper), rename(src._filteredProps, unwrapper),
+                src._anyGetterWriter, src._typeId, src._propertyFilterId);
     }
 
     private final static BeanPropertyWriter[] rename(BeanPropertyWriter[] props,
@@ -143,6 +151,10 @@ public abstract class BeanSerializerBase
             TypeSerializer typeSer)
         throws IOException, JsonGenerationException
     {
+        if (_typeId != null) {
+            serializeWithCustomType(bean, jgen, provider, typeSer);
+            return;
+        }
         typeSer.writeTypePrefixForObject(bean, jgen);
         if (_propertyFilterId != null) {
             serializeFieldsFiltered(bean, jgen, provider);
@@ -152,6 +164,27 @@ public abstract class BeanSerializerBase
         typeSer.writeTypeSuffixForObject(bean, jgen);
     }
 
+    private final void serializeWithCustomType(Object bean,
+            JsonGenerator jgen, SerializerProvider provider,
+            TypeSerializer typeSer)
+        throws IOException, JsonGenerationException
+    {
+        final Object typeId = _typeId.getValue(bean);
+        String typeStr;
+        if (typeId == null) {
+            typeStr = "";
+        } else {
+            typeStr = (typeId instanceof String) ? (String) typeId : typeId.toString();
+        }
+        typeSer.writeCustomTypePrefixForObject(bean, jgen, typeStr);
+        if (_propertyFilterId != null) {
+            serializeFieldsFiltered(bean, jgen, provider);
+        } else {
+            serializeFields(bean, jgen, provider);
+        }
+        typeSer.writeCustomTypeSuffixForObject(bean, jgen, typeStr);
+    }
+    
     /*
     /**********************************************************
     /* Field serialization methods

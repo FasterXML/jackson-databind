@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanSerializer;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -37,18 +38,10 @@ public class BeanSerializer
      */
     public BeanSerializer(JavaType type,
             BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties,
-            AnyGetterWriter anyGetterWriter,
+            AnyGetterWriter anyGetterWriter, AnnotatedMember typeId,
             Object filterId)
     {
-        super(type, properties, filteredProperties, anyGetterWriter, filterId);
-    }
-
-    public BeanSerializer(Class<?> rawType,
-            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties,
-            AnyGetterWriter anyGetterWriter,
-            Object filterId)
-    {
-        super(rawType, properties, filteredProperties, anyGetterWriter, filterId);
+        super(type, properties, filteredProperties, anyGetterWriter, typeId, filterId);
     }
 
     /**
@@ -78,9 +71,9 @@ public class BeanSerializer
      * Method for constructing dummy bean deserializer; one that
      * never outputs any properties
      */
-    public static BeanSerializer createDummy(Class<?> forType)
+    public static BeanSerializer createDummy(JavaType forType)
     {
-        return new BeanSerializer(forType, NO_PROPS, null, null, null);
+        return new BeanSerializer(forType, NO_PROPS, null, null, null, null);
     }
 
     @Override

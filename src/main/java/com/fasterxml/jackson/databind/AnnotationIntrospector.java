@@ -407,6 +407,17 @@ public abstract class AnnotationIntrospector implements Versioned
     public Class<?>[] findViews(Annotated a) {
         return null;
     }
+
+    /**
+     * Method for checking whether given accessor claims to represent
+     * type id: if so, its value may be used as an override,
+     * instead of generated type id.
+     * 
+     * @since 2.0
+     */
+    public Boolean isTypeId(AnnotatedMember member) {
+        return null;
+    }
     
     /*
     /**********************************************************
@@ -1154,6 +1165,15 @@ public abstract class AnnotationIntrospector implements Versioned
                 result = _secondary.findViews(a);
             }
             return result;
+        }
+
+        @Override
+        public Boolean isTypeId(AnnotatedMember member) {
+            Boolean b = _primary.isTypeId(member);
+            if (b == null) {
+                b = _secondary.isTypeId(member);
+            }
+            return b;
         }
         
         // // // Serialization: class annotations

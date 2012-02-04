@@ -114,4 +114,13 @@ public abstract class BeanPropertyDefinition
     public AnnotationIntrospector.ReferenceProperty findReferenceType() {
         return null;
     }
+
+    /**
+     * Method used to check whether this logical property has marker(s)
+     * to indicate it should be used as the type id for polymorphic type
+     * handling.
+     */
+    public boolean isTypeId() {
+        return false;
+    }
 }

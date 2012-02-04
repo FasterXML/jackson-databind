@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
  * Builder class used for aggregating deserialization information about
@@ -50,6 +51,12 @@ public class BeanSerializerBuilder
      */
     protected Object _filterId;
 
+    /**
+     * Property that is used for type id (and not serialized as regular
+     * property)
+     */
+    protected AnnotatedMember _typeId;
+    
     /*
     /**********************************************************
     /* Construction and setter methods
@@ -94,6 +101,10 @@ public class BeanSerializerBuilder
     public void setFilterId(Object filterId) {
         _filterId = filterId;
     }
+
+    public void setTypeId(AnnotatedMember idProp) {
+        _typeId = idProp;
+    }
     
     /*
     /**********************************************************
@@ -119,7 +130,8 @@ public class BeanSerializerBuilder
             properties = _properties.toArray(new BeanPropertyWriter[_properties.size()]);
             
         }
-        return new BeanSerializer(_beanDesc.getType(), properties, _filteredProperties, _anyGetter, _filterId);
+        return new BeanSerializer(_beanDesc.getType(), properties, _filteredProperties,
+                _anyGetter, _typeId, _filterId);
     }
     
     /**
@@ -128,7 +140,7 @@ public class BeanSerializerBuilder
      * type information)
      */
     public BeanSerializer createDummy() {
-        return BeanSerializer.createDummy(_beanDesc.getBeanClass());
+        return BeanSerializer.createDummy(_beanDesc.getType());
     }
 }
 

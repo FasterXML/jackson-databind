@@ -337,14 +337,53 @@ public class BeanDeserializer
 
     @Override public JavaType getValueType() { return _beanType; }
 
+    /**
+     * Accessor for iterating over properties this deserializer uses; with
+     * the exception that properties passed via Creator methods
+     * (specifically, "property-based constructor") are not included,
+     * but can be accessed separate by calling
+     * {@link #creatorProperties}
+     */
     public Iterator<SettableBeanProperty> properties()
     {
         if (_beanProperties == null) {
-            throw new IllegalStateException("Can only call before BeanDeserializer has been resolved");
+            throw new IllegalStateException("Can only call after BeanDeserializer has been resolved");
         }
         return _beanProperties.allProperties();
     }
 
+    /**
+     * Accessor for finding properties that represents values to pass
+     * through property-based creator method (constructor or
+     * factory method)
+     * 
+     * @since 2.0
+     */
+    public Iterator<SettableBeanProperty> creatorProperties()
+    {
+        if (_propertyBasedCreator == null) {
+            return Collections.<SettableBeanProperty>emptyList().iterator();
+        }
+        return _propertyBasedCreator.properties().iterator();
+    }
+
+    /**
+     * Accessor for finding the property with given name, if POJO
+     * has one. Name used is the external name, i.e. name used
+     * in external data representation (JSON).
+     * 
+     * @since 2.0
+     */
+    public SettableBeanProperty findProperty(String propertyName)
+    {
+        SettableBeanProperty prop = (_beanProperties == null) ?
+                null : _beanProperties.find(propertyName);
+        if (prop == null && _propertyBasedCreator != null) {
+            prop = _propertyBasedCreator.findCreatorProperty(propertyName);
+        }
+        return prop;
+    }
+    
     /**
      * Method needed by {@link BeanDeserializerFactory} to properly link
      * managed- and back-reference pairs.
@@ -437,7 +476,8 @@ public class BeanDeserializer
 
         // Finally, "any setter" may also need to be resolved now
         if (_anySetter != null && !_anySetter.hasValueDeserializer()) {
-            _anySetter = _anySetter.withValueDeserializer(findDeserializer(ctxt, _anySetter.getType(), _anySetter.getProperty()));
+            _anySetter = _anySetter.withValueDeserializer(findDeserializer(ctxt,
+                    _anySetter.getType(), _anySetter.getProperty()));
         }
 
         // as well as delegate-based constructor:

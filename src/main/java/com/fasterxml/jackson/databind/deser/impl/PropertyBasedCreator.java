@@ -116,7 +116,7 @@ public final class PropertyBasedCreator
     /**********************************************************
      */
     
-    public Collection<SettableBeanProperty> getCreatorProperties() {
+    public Collection<SettableBeanProperty> properties() {
         return _properties.values();
     }
     

@@ -106,6 +106,15 @@ public class TestVisibleTypeId extends BaseMapTest
         @JsonTypeId
         public String getType() { return "SomeType"; }
     }
+
+    // Invalid definition: multiple type ids
+    static class MultipleIds {
+        @JsonTypeId
+        public String type1 = "type1";
+
+        @JsonTypeId
+        public String getType2() { return "type2"; };
+    }
     
     /*
     /**********************************************************
@@ -185,5 +194,17 @@ public class TestVisibleTypeId extends BaseMapTest
         // Implementation detail: type id written AFTER value, due to constraints
         assertEquals("{\"bean\":{\"a\":2},\"type\":\"SomeType\"}", json);
         
+    }
+
+    // Failing cases
+
+    public void testInvalidMultipleTypeIds() throws Exception
+    {
+        try {
+            mapper.writeValueAsString(new MultipleIds());
+            fail("Should have failed");
+        } catch (JsonMappingException e) {
+            verifyException(e, "multiple type ids");
+        }
     }
 }

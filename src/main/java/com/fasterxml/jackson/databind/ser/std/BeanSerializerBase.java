@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
+import com.fasterxml.jackson.databind.ser.impl.ObjectIdHandler;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -50,6 +51,13 @@ public abstract class BeanSerializerBase
     final protected AnyGetterWriter _anyGetterWriter;
 
     /**
+     * If this POJO can be alternatively serialized using just an object id
+     * to denote a reference to previously serialized object,
+     * this Object will handle details.
+     */
+    final protected ObjectIdHandler _objectIdHandler;
+    
+    /**
      * If using custom type ids (usually via getter, or field), this is the
      * reference to that member.
      */
@@ -67,34 +75,53 @@ public abstract class BeanSerializerBase
      */
 
     /**
+     * Constructor used by {@link BeanSerializerBuilder} to create an
+     * instance
+     * 
      * @param type Nominal type of values handled by this serializer
-     * @param properties Property writers used for actual serialization
+     * @param builder Builder for accessing other collected information
      */
-    protected BeanSerializerBase(JavaType type,
-            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties,
-            AnyGetterWriter anyGetterWriter, AnnotatedMember typeId,
-            Object filterId)
+    protected BeanSerializerBase(JavaType type, BeanSerializerBuilder builder,
+            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties)
     {
         super(type);
         _props = properties;
         _filteredProps = filteredProperties;
-        _anyGetterWriter = anyGetterWriter;
-        _typeId = typeId;
-        _propertyFilterId = filterId;
+        if (builder == null) { // mostly for testing
+            _objectIdHandler = null;
+            _typeId = null;
+            _propertyFilterId = null;
+            _anyGetterWriter = null;
+        } else {
+            _anyGetterWriter = builder.getAnyGetter();
+            _typeId = builder.getTypeId();
+            _propertyFilterId = builder.getFilterId();
+            // need to create a property placeholder for object id:
+            AnnotatedMember objectIdAcc = builder.getObjectId();
+            if (objectIdAcc == null) {
+                _objectIdHandler = null;
+            } else {
+                BeanDescription beanDesc = builder.getBeanDescription();
+                AnnotatedMember oidMember = builder.getObjectId();
+                JavaType oidType = beanDesc.resolveType(oidMember.getGenericType());
+                BeanProperty.Std prop = new BeanProperty.Std(oidMember.getName(),
+                        oidType, beanDesc.getClassAnnotations(), oidMember);
+                _objectIdHandler = ObjectIdHandler.construct(prop);
+            }
+        }
     }
 
-    @SuppressWarnings("unchecked")
-    public BeanSerializerBase(Class<?> rawType,
-            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties,
-            AnyGetterWriter anyGetterWriter, AnnotatedMember typeId,
-            Object filterId)
+    public BeanSerializerBase(BeanSerializerBase src,
+            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties)
     {
-        super((Class<Object>) rawType);
+        super(src._handledType);
         _props = properties;
         _filteredProps = filteredProperties;
-        _anyGetterWriter = anyGetterWriter;
-        _typeId = typeId;
-        _propertyFilterId = filterId;
+        
+        _anyGetterWriter = src._anyGetterWriter;
+        _objectIdHandler = src._objectIdHandler;
+        _typeId = src._typeId;
+        _propertyFilterId = src._propertyFilterId;
     }
 
     /**
@@ -102,9 +129,7 @@ public abstract class BeanSerializerBase
      * copy all super-class properties without modifications.
      */
     protected BeanSerializerBase(BeanSerializerBase src) {
-        this(src._handledType,
-                src._props, src._filteredProps,
-                src._anyGetterWriter, src._typeId, src._propertyFilterId);
+        this(src, src._props, src._filteredProps);
     }
 
     /**
@@ -112,9 +137,7 @@ public abstract class BeanSerializerBase
      * (if it's non-empty)
      */
     protected BeanSerializerBase(BeanSerializerBase src, NameTransformer unwrapper) {
-        this(src._handledType,
-                rename(src._props, unwrapper), rename(src._filteredProps, unwrapper),
-                src._anyGetterWriter, src._typeId, src._propertyFilterId);
+        this(src, rename(src._props, unwrapper), rename(src._filteredProps, unwrapper));
     }
 
     private final static BeanPropertyWriter[] rename(BeanPropertyWriter[] props,

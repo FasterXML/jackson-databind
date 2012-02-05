@@ -52,6 +52,11 @@ public class BeanSerializerBuilder
     protected Object _filterId;
 
     /**
+     * Property that is used for object id
+     */
+    protected AnnotatedMember _objectId;
+
+    /**
      * Property that is used for type id (and not serialized as regular
      * property)
      */
@@ -78,10 +83,6 @@ public class BeanSerializerBuilder
         _filterId = src._filterId;
     }
     
-    public BeanDescription getBeanDescription() { return _beanDesc; }
-    public List<BeanPropertyWriter> getProperties() { return _properties; }
-    public BeanPropertyWriter[] getFilteredProperties() { return _filteredProperties; }
-    
     public boolean hasProperties() {
         return (_properties != null) && (_properties.size() > 0);
     }
@@ -102,9 +103,41 @@ public class BeanSerializerBuilder
         _filterId = filterId;
     }
 
+    public void setObjectId(AnnotatedMember idProp) {
+        // Not legal to use multiple ones...
+        if (_objectId != null) {
+            throw new IllegalArgumentException("Multiple object ids specified with "+_objectId+" and "+idProp);
+        }
+        _objectId = idProp;
+    }
+    
     public void setTypeId(AnnotatedMember idProp) {
+        // Not legal to use multiple ones...
+        if (_typeId != null) {
+            throw new IllegalArgumentException("Multiple type ids specified with "+_typeId+" and "+idProp);
+        }
         _typeId = idProp;
     }
+
+    /*
+    /**********************************************************
+    /* Accessors for things BeanSerializer cares about:
+    /* note -- likely to change between minor revisions
+    /*
+    /**********************************************************
+     */
+
+    public BeanDescription getBeanDescription() { return _beanDesc; }
+    public List<BeanPropertyWriter> getProperties() { return _properties; }
+    public BeanPropertyWriter[] getFilteredProperties() { return _filteredProperties; }
+    
+    public AnyGetterWriter getAnyGetter() { return _anyGetter; }
+    
+    public Object getFilterId() { return _filterId; }
+    
+    public AnnotatedMember getObjectId() { return _objectId; }
+
+    public AnnotatedMember getTypeId() { return _typeId; }
     
     /*
     /**********************************************************
@@ -130,8 +163,8 @@ public class BeanSerializerBuilder
             properties = _properties.toArray(new BeanPropertyWriter[_properties.size()]);
             
         }
-        return new BeanSerializer(_beanDesc.getType(), properties, _filteredProperties,
-                _anyGetter, _typeId, _filterId);
+        return new BeanSerializer(_beanDesc.getType(), this,
+                properties, _filteredProperties);
     }
     
     /**

@@ -200,6 +200,6 @@ public final class AnnotatedMethod
     @Override
     public String toString()
     {
-        return "[method "+getName()+", annotations: "+_annotations+"]";
+        return "[method "+getFullName()+"]";
     }
 }

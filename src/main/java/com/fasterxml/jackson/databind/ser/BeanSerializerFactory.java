@@ -424,19 +424,25 @@ public class BeanSerializerFactory
         ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());
         TypeBindings typeBind = beanDesc.bindingsForBeanType();
         for (BeanPropertyDefinition property : properties) {
+            final AnnotatedMember accessor = property.getAccessor();
+
+            // [JACKSON-107]: object id is additional info
+            if (property.isObjectId()) {
+                builder.setObjectId(accessor);
+                // but will also be serialized normally
+            }
+            
             // [JACKSON-762]: type id? Requires special handling:
             if (property.isTypeId()) {
-                AnnotatedMember acc = property.getAccessor();
-                if (acc != null) { // only add if we can access... but otherwise?
+                if (accessor != null) { // only add if we can access... but otherwise?
                     if (config.canOverrideAccessModifiers()) {
-                        acc.fixAccess();
+                        accessor.fixAccess();
                     }
-                    builder.setTypeId(acc);
+                    builder.setTypeId(accessor);
                 }
                 continue;
             }
             
-            AnnotatedMember accessor = property.getAccessor();
             // [JACKSON-235]: suppress writing of back references
             AnnotationIntrospector.ReferenceProperty refType = property.findReferenceType();
             if (refType != null && refType.isBackReference()) {

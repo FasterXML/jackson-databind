@@ -113,7 +113,7 @@ public final class AnnotatedField
     @Override
     public String toString()
     {
-        return "[field "+getName()+", annotations: "+_annotations+"]";
+        return "[field "+getFullName()+"]";
     }
 }
 

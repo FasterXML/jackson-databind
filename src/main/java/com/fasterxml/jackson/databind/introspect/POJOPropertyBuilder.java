@@ -288,10 +288,21 @@ public class POJOPropertyBuilder
         });
     }
 
+    @Override
     public boolean isTypeId() {
         Boolean b = fromMemberAnnotation(new WithMember<Boolean>() {
             @Override public Boolean withMember(AnnotatedMember member) {
                 return _annotationIntrospector.isTypeId(member);
+            }
+        });
+        return (b != null) && b.booleanValue();
+    }
+
+    @Override
+    public boolean isObjectId() {
+        Boolean b = fromMemberAnnotation(new WithMember<Boolean>() {
+            @Override public Boolean withMember(AnnotatedMember member) {
+                return _annotationIntrospector.isObjectId(member);
             }
         });
         return (b != null) && b.booleanValue();

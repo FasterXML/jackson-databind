@@ -97,6 +97,8 @@ public abstract class BeanPropertyDefinition
     /*****************************************************
     /* More refined access to configuration features
     /* (usually based on annotations)
+    /* Since most trivial implementations do not support
+    /* these methods, they are implemented as no-ops.
     /*****************************************************
      */
     
@@ -114,11 +116,21 @@ public abstract class BeanPropertyDefinition
     }
 
     /**
-     * Method used to check whether this logical property has marker(s)
+     * Method used to check whether this logical property has a marker
      * to indicate it should be used as the type id for polymorphic type
      * handling.
      */
     public boolean isTypeId() {
+        return false;
+    }
+
+    /**
+     * Method used to check whether this logical property has a marker
+     * to indicate it represents Object Identity that can be used to
+     * resolve cyclic dependencies (by being used in place of fully
+     * value serialization)
+     */
+    public boolean isObjectId() {
         return false;
     }
 }

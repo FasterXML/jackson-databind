@@ -410,6 +410,22 @@ public abstract class AnnotationIntrospector implements Versioned
 
     /**
      * Method for checking whether given accessor claims to represent
+     * object id: if so, its value may be used to represent value,
+     * in cases where value (along with id, presumably) has been
+     * or will  be serialized in its entirety in some point.
+     * This allows serialization of a POJO value just once, and
+     * afterwards referring to the value using an object id
+     * (which has to be a JSON scalar value, usually String or
+     * integer)
+     * 
+     * @since 2.0
+     */
+    public Boolean isObjectId(AnnotatedMember member) {
+        return null;
+    }
+    
+    /**
+     * Method for checking whether given accessor claims to represent
      * type id: if so, its value may be used as an override,
      * instead of generated type id.
      * 
@@ -1172,6 +1188,15 @@ public abstract class AnnotationIntrospector implements Versioned
             Boolean b = _primary.isTypeId(member);
             if (b == null) {
                 b = _secondary.isTypeId(member);
+            }
+            return b;
+        }
+
+        @Override
+        public Boolean isObjectId(AnnotatedMember member) {
+            Boolean b = _primary.isObjectId(member);
+            if (b == null) {
+                b = _secondary.isObjectId(member);
             }
             return b;
         }

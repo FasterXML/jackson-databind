@@ -386,6 +386,11 @@ public class JacksonAnnotationIntrospector
     public Boolean isTypeId(AnnotatedMember member) {
         return member.hasAnnotation(JsonTypeId.class);
     }
+
+    @Override
+    public Boolean isObjectId(AnnotatedMember member) {
+        return member.hasAnnotation(JsonObjectId.class);
+    }
     
     /*
     /**********************************************************

@@ -30,7 +30,8 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
  * is registered with {@link ObjectMapper} (and {@link ObjectReader},
  * and when an actual instance is needed for deserialization,
  * a fully configured instance will
- * be created using {@link #createInstance}.
+ * be created using a method in excented API of sub-class
+ * ({@link com.fasterxml.jackson.databind.deser.DefaultDeserializationContext#createInstance}).
  * Each instance is guaranteed to only be used from single-threaded context;
  * instances may be reused iff no configuration has changed.
  *<p>
@@ -52,6 +53,9 @@ public abstract class DeserializationContext
     /**********************************************************
      */
     
+    /**
+     * Object that handle details of {@link JsonDeserializer} caching.
+     */
     protected final DeserializerCache _cache;
 
     /*
@@ -70,13 +74,23 @@ public abstract class DeserializationContext
     /*
     /**********************************************************
     /* Configuration that gets set for instances (not blueprints)
+    /* (partly denormalized for performance)
     /**********************************************************
      */
 
+    /**
+     * Generic deserialization processing configuration
+     */
     protected final DeserializationConfig _config;
-    
+
+    /**
+     * Bitmap of {@link DeserializationFeature}s that are enabled
+     */
     protected final int _featureFlags;
 
+    /**
+     * Currently active view, if any.
+     */
     protected final Class<?> _view;
 
     /**
@@ -86,6 +100,10 @@ public abstract class DeserializationContext
      */
     protected JsonParser _parser;
     
+    /**
+     * Object used for resolving references to injectable
+     * values.
+     */
     protected final InjectableValues _injectableValues;
     
     /*
@@ -151,19 +169,6 @@ public abstract class DeserializationContext
         _parser = jp;
         _injectableValues = injectableValues;
     }
-
-    /**
-     * Fluent factory method used for constructing a blueprint instance
-     * with different factory
-     */
-    public abstract DeserializationContext with(DeserializerFactory factory);
-    
-    /**
-     * Method called to create actual usable per-deserialization
-     * context instance.
-     */
-    public abstract DeserializationContext createInstance(DeserializationConfig config,
-            JsonParser jp, InjectableValues values);
     
     /*
     /**********************************************************
@@ -436,12 +441,6 @@ public abstract class DeserializationContext
         if (deser instanceof ResolvableDeserializer) {
             ((ResolvableDeserializer) deser).resolve(this);
         }
-        /*
-        // Second: contextualize:
-        if (deser instanceof ContextualKeyDeserializer) {
-            deser = ((ContextualKeyDeserializer) deser).createContextual(this, property);
-        }
-        */
         return deser;
     }
     
@@ -719,56 +718,5 @@ public abstract class DeserializationContext
             desc = desc.substring(0, MAX_ERROR_STR_LEN) + "]...[" + desc.substring(desc.length() - MAX_ERROR_STR_LEN);
         }
         return desc;
-    }
-
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
-    /**
-     * Standard implementation, used if no custom context is
-     * implemented.
-     */
-    public final static class Std extends DeserializationContext
-    {
-        /**
-         * Default constructor for a blueprint object, which will use the standard
-         * {@link DeserializerCache}, given factory.
-         */
-        public Std(DeserializerFactory df) {
-            this(df, null);
-        }
-
-        /**
-         * Constructor that will pass specified deserializer factory and
-         * cache: cache may be null (in which case default implementation
-         * will be used), factory can not be null
-         */
-        public Std(DeserializerFactory df, DeserializerCache cache) {
-            super(df, cache);
-        }
-        
-        protected Std(Std src, DeserializationConfig config,
-                JsonParser jp, InjectableValues values) {
-            super(src, config, jp, values);
-        }
-
-        protected Std(Std src, DeserializerFactory factory) {
-            super(src, factory);
-        }
-        
-        @Override
-        public Std createInstance(DeserializationConfig config,
-                JsonParser jp, InjectableValues values) {
-            return new Std(this, config, jp, values);
-        }
-
-        @Override
-        public Std with(DeserializerFactory factory) {
-            return new Std(this, factory);
-        }
-    
     }
 }

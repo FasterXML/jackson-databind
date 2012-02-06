@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.cfg.DatabindVersion;
+import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
@@ -52,7 +53,7 @@ public class ObjectReader
      * Blueprint instance of deserialization context; used for creating
      * actual instance when needed.
      */
-    protected final DeserializationContext _context;
+    protected final DefaultDeserializationContext _context;
 
     /**
      * Factory used for constructing {@link JsonGenerator}s
@@ -845,7 +846,7 @@ public class ObjectReader
      * for deserializing a single root value.
      * Can be overridden if a custom context is needed.
      */
-    protected final DeserializationContext createDeserializationContext(JsonParser jp,
+    protected final DefaultDeserializationContext createDeserializationContext(JsonParser jp,
             DeserializationConfig cfg) {
         // 04-Jan-2010, tatu: we do actually need the provider too... (for polymorphic deser)
         return _context.createInstance(cfg, jp, _injectableValues);

@@ -305,7 +305,7 @@ public class ObjectMapper
      * sub-classes. Contains references to objects needed for
      * deserialization construction (cache, factory).
      */
-    protected DeserializationContext _deserializationContext;
+    protected DefaultDeserializationContext _deserializationContext;
 
     /*
     /**********************************************************
@@ -384,7 +384,7 @@ public class ObjectMapper
      *    {@link DeserializationContext}
      */
     public ObjectMapper(JsonFactory jf,
-            DefaultSerializerProvider sp, DeserializationContext dc)
+            DefaultSerializerProvider sp, DefaultDeserializationContext dc)
     {
         /* 02-Mar-2009, tatu: Important: we MUST default to using
          *   the mapping factory, otherwise tree serialization will
@@ -410,7 +410,7 @@ public class ObjectMapper
                     _subtypeResolver, _mixInAnnotations);
         _serializerProvider = (sp == null) ? new DefaultSerializerProvider.Impl() : sp;
         _deserializationContext = (dc == null) ?
-                new DeserializationContext.Std(BeanDeserializerFactory.instance) : dc;
+                new DefaultDeserializationContext.Impl(BeanDeserializerFactory.instance) : dc;
 
         // Default serializer factory is stateless, can just assign
         _serializerFactory = BeanSerializerFactory.instance;
@@ -2469,7 +2469,7 @@ public class ObjectMapper
      * for deserializing a single root value.
      * Can be overridden if a custom context is needed.
      */
-    protected final DeserializationContext createDeserializationContext(JsonParser jp,
+    protected final DefaultDeserializationContext createDeserializationContext(JsonParser jp,
             DeserializationConfig cfg)
     {
         return _deserializationContext.createInstance(cfg,

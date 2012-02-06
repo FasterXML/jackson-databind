@@ -110,7 +110,8 @@ public class TestConfig
     public void testProviderConfig() throws Exception   
     {
         ObjectMapper mapper = new ObjectMapper();
-        assertEquals(0, mapper.getSerializerProvider().cachedSerializersCount());
+        DefaultSerializerProvider prov = (DefaultSerializerProvider) mapper.getSerializerProvider();
+        assertEquals(0, prov.cachedSerializersCount());
         // and then should get one constructed for:
         Map<String,Object> result = this.writeAndMap(mapper, new AnnoBean());
         assertEquals(2, result.size());
@@ -123,12 +124,12 @@ public class TestConfig
         /* 12-Jan-2010, tatus: Actually, probably more, if and when we typing
          *   aspects are considered (depending on what is cached)
          */
-        int count = mapper.getSerializerProvider().cachedSerializersCount();
+        int count = prov.cachedSerializersCount();
         if (count < 2) {
             fail("Should have at least 2 cached serializers, got "+count);
         }
-        mapper.getSerializerProvider().flushCachedSerializers();
-        assertEquals(0, mapper.getSerializerProvider().cachedSerializersCount());
+        prov.flushCachedSerializers();
+        assertEquals(0, prov.cachedSerializersCount());
     }
 
 }

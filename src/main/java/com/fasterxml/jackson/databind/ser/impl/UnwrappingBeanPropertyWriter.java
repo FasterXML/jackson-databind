@@ -68,10 +68,6 @@ public class UnwrappingBeanPropertyWriter
             // can't really unwrap them...
             return;
         }
-        // For non-nulls, first: simple check for direct cycles
-        if (value == bean) {
-            _reportSelfReference(bean);
-        }
         JsonSerializer<Object> ser = _serializer;
         if (ser == null) {
             Class<?> cls = value.getClass();
@@ -89,6 +85,10 @@ public class UnwrappingBeanPropertyWriter
             } else if (_suppressableValue.equals(value)) {
                 return;
             }
+        }
+        // For non-nulls, first: simple check for direct cycles
+        if (value == bean) {
+            _handleSelfReference(bean, ser);
         }
 
         // note: must verify we are using unwrapping serializer; if not, will write field name

@@ -435,10 +435,6 @@ public class BeanPropertyWriter
             }
             return;
         }
-        // For non-nulls, first: simple check for direct cycles
-        if (value == bean) {
-            _reportSelfReference(bean);
-        }
         // then find serializer to use
         JsonSerializer<Object> ser = _serializer;
         if (ser == null) {
@@ -458,6 +454,10 @@ public class BeanPropertyWriter
             } else if (_suppressableValue.equals(value)) {
                 return;
             }
+        }
+        // For non-nulls: simple check for direct cycles
+        if (value == bean) {
+            _handleSelfReference(bean, ser);
         }
         jgen.writeFieldName(_name);
         if (_typeSerializer == null) {
@@ -506,9 +506,15 @@ public class BeanPropertyWriter
         return _field.get(bean);
     }
 
-    protected void _reportSelfReference(Object bean)
+    protected void _handleSelfReference(Object bean, JsonSerializer<?> ser)
         throws JsonMappingException
     {
+        /* 05-Feb-2012, tatu: Usually a problem, but NOT if we are handling
+         *    object id; this may be the case for BeanSerializers at least.
+         */
+        if (ser.usesObjectId()) {
+            return;
+        }
         throw new JsonMappingException("Direct self-reference leading to cycle");
     }
 

@@ -15,7 +15,7 @@ public class TestSerializerProvider
         ObjectMapper mapper = new ObjectMapper();
         SerializationConfig config = mapper.getSerializationConfig();
         SerializerFactory f = new BeanSerializerFactory(null);
-        SerializerProvider prov = new SerializerProvider.Impl().createInstance(config, f);
+        DefaultSerializerProvider prov = new DefaultSerializerProvider.Impl().createInstance(config, f);
 
         // Should have working default key and null key serializers
         assertNotNull(prov.findKeySerializer(null, null));

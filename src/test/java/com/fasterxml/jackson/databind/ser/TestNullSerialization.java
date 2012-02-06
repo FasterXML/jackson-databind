@@ -26,7 +26,7 @@ public class TestNullSerialization
         public String type = null;
     }
     
-    static class MyNullProvider extends SerializerProvider
+    static class MyNullProvider extends DefaultSerializerProvider
     {
         public MyNullProvider() { super(); }
         public MyNullProvider(MyNullProvider base, SerializationConfig config, SerializerFactory jsf) {
@@ -34,7 +34,7 @@ public class TestNullSerialization
         }
         
         @Override
-        public SerializerProvider createInstance(SerializationConfig config, SerializerFactory jsf) {
+        public DefaultSerializerProvider createInstance(SerializationConfig config, SerializerFactory jsf) {
             return new MyNullProvider(this, config, jsf);
         }
         
@@ -62,7 +62,7 @@ public class TestNullSerialization
 
     public void testOverriddenDefaultNulls() throws Exception
     {
-        SerializerProvider sp = new SerializerProvider.Impl();
+        DefaultSerializerProvider sp = new DefaultSerializerProvider.Impl();
         sp.setNullValueSerializer(new NullSerializer());
         ObjectMapper m = new ObjectMapper();
         m.setSerializerProvider(sp);

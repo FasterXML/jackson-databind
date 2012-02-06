@@ -93,6 +93,12 @@ public class BeanSerializer
     public final void serialize(Object bean, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
+        if (_objectIdHandler != null) {
+            // We may want to serialize just a reference (object id):
+            if (_objectIdHandler.handleReference(bean, jgen, provider)) {
+                return;
+            }
+        }
         jgen.writeStartObject();
         if (_propertyFilterId != null) {
             serializeFieldsFiltered(bean, jgen, provider);

@@ -30,7 +30,7 @@ public class TestObjectId extends BaseMapTest
 
     private final ObjectMapper mapper = new ObjectMapper();
     
-    public void testSimpleCyclic() throws Exception
+    public void testSimpleCyclicSerialization() throws Exception
     {
         Identifiable src = new Identifiable("x123", 13);
         src.next = src;
@@ -38,9 +38,13 @@ public class TestObjectId extends BaseMapTest
         // First, serialize:
         String json = mapper.writeValueAsString(src);
         assertEquals("{\"id\":\"x123\",\"value\":13,\"next\":\"x123\"}", json);
+    }
         
-        // then bring bacj...
-        Identifiable result = mapper.readValue(json, Identifiable.class);
+    public void testSimpleCyclicDeserialization() throws Exception
+    {
+        // then bring back...
+        String input = "{\"id\":\"x123\",\"value\":13,\"next\":\"x123\"}";
+        Identifiable result = mapper.readValue(input, Identifiable.class);
         assertEquals(13, result.value);
         assertEquals("x123", result.id);
         assertSame(result, result.next);

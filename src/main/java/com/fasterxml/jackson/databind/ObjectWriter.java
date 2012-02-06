@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 import com.fasterxml.jackson.databind.cfg.DatabindVersion;
+import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -44,7 +45,7 @@ public class ObjectWriter
      */
     protected final SerializationConfig _config;
    
-    protected final SerializerProvider _serializerProvider;
+    protected final DefaultSerializerProvider _serializerProvider;
 
     protected final SerializerFactory _serializerFactory;
 
@@ -518,7 +519,7 @@ public class ObjectWriter
      * Overridable helper method used for constructing
      * {@link SerializerProvider} to use for serialization.
      */
-    protected SerializerProvider _serializerProvider(SerializationConfig config) {
+    protected DefaultSerializerProvider _serializerProvider(SerializationConfig config) {
         return _serializerProvider.createInstance(config, _serializerFactory);
     }
     

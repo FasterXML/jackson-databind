@@ -54,8 +54,11 @@ public abstract class BeanSerializerBase
      * If this POJO can be alternatively serialized using just an object id
      * to denote a reference to previously serialized object,
      * this Object will handle details.
+     *<p>
+     * Note: not final since we need to get contextual instance during
+     * resolutuon.
      */
-    final protected ObjectIdHandler _objectIdHandler;
+    protected ObjectIdHandler _objectIdHandler;
     
     /**
      * If using custom type ids (usually via getter, or field), this is the
@@ -156,13 +159,109 @@ public abstract class BeanSerializerBase
         }
         return result;
     }
-    
+
+    /*
+    /**********************************************************
+    /* ResolvableSerializer impl
+    /**********************************************************
+     */
+
+    /**
+     * We need to implement {@link ResolvableSerializer} to be able to
+     * properly handle cyclic type references.
+     */
+    @Override
+    public void resolve(SerializerProvider provider)
+        throws JsonMappingException
+    {
+        int filteredCount = (_filteredProps == null) ? 0 : _filteredProps.length;
+        for (int i = 0, len = _props.length; i < len; ++i) {
+            BeanPropertyWriter prop = _props[i];
+            // let's start with null serializer resolution actually
+            if (!prop.willSuppressNulls() && !prop.hasNullSerializer()) {
+                JsonSerializer<Object> nullSer = provider.findNullValueSerializer(prop);
+                if (nullSer != null) {
+                    prop.assignNullSerializer(nullSer);
+                    // also: remember to replace filtered property too? (see [JACKSON-364])
+                    if (i < filteredCount) {
+                        BeanPropertyWriter w2 = _filteredProps[i];
+                        if (w2 != null) {
+                            w2.assignNullSerializer(nullSer);
+                        }
+                    }
+                }
+            }
+            
+            if (prop.hasSerializer()) {
+                continue;
+            }
+            // Was the serialization type hard-coded? If so, use it
+            JavaType type = prop.getSerializationType();
+            
+            /* It not, we can use declared return type if and only if
+             * declared type is final -- if not, we don't really know
+             * the actual type until we get the instance.
+             */
+            if (type == null) {
+                type = provider.constructType(prop.getGenericPropertyType());
+                if (!type.isFinal()) {
+                    /* 18-Feb-2010, tatus: But even if it is non-final, we may
+                     *   need to retain some of type information so that we can
+                     *   accurately handle contained types
+                     */
+                    if (type.isContainerType() || type.containedTypeCount() > 0) {
+                        prop.setNonTrivialBaseType(type);
+                    }
+                    continue;
+                }
+            }
+            
+            JsonSerializer<Object> ser = provider.findValueSerializer(type, prop);
+            /* 04-Feb-2010, tatu: We may have stashed type serializer for content types
+             *   too, earlier; if so, it's time to connect the dots here:
+             */
+            if (type.isContainerType()) {
+                TypeSerializer typeSer = type.getContentType().getTypeHandler();
+                if (typeSer != null) {
+                    // for now, can do this only for standard containers...
+                    if (ser instanceof ContainerSerializer<?>) {
+                        // ugly casts... but necessary
+                        @SuppressWarnings("unchecked")
+                        JsonSerializer<Object> ser2 = (JsonSerializer<Object>)((ContainerSerializer<?>) ser).withValueTypeSerializer(typeSer);
+                        ser = ser2;
+                    }
+                }
+            }
+            prop.assignSerializer(ser);
+            // and maybe replace filtered property too? (see [JACKSON-364])
+            if (i < filteredCount) {
+                BeanPropertyWriter w2 = _filteredProps[i];
+                if (w2 != null) {
+                    w2.assignSerializer(ser);
+                }
+            }
+        }
+
+        // also, any-getter may need to be resolved
+        if (_anyGetterWriter != null) {
+            _anyGetterWriter.resolve(provider);
+        }
+        // and ObjectIdHandler resolved, if there is one
+        if (_objectIdHandler != null) {
+            _objectIdHandler = _objectIdHandler.createContextual(provider);
+        }
+    }    
     /*
     /**********************************************************
     /* Partial JsonSerializer implementation
     /**********************************************************
      */
 
+    @Override
+    public boolean usesObjectId() {
+        return (_objectIdHandler != null);
+    }
+    
     // Main serialization method left unimplemented
     @Override
     public abstract void serialize(Object bean, JsonGenerator jgen, SerializerProvider provider)
@@ -344,89 +443,4 @@ public abstract class BeanSerializerBase
         o.put("properties", propertiesNode);
         return o;
     }
-
-    /*
-    /**********************************************************
-    /* ResolvableSerializer impl
-    /**********************************************************
-     */
-
-    @Override
-    public void resolve(SerializerProvider provider)
-        throws JsonMappingException
-    {
-        int filteredCount = (_filteredProps == null) ? 0 : _filteredProps.length;
-        for (int i = 0, len = _props.length; i < len; ++i) {
-            BeanPropertyWriter prop = _props[i];
-            // let's start with null serializer resolution actually
-            if (!prop.willSuppressNulls() && !prop.hasNullSerializer()) {
-                JsonSerializer<Object> nullSer = provider.findNullValueSerializer(prop);
-                if (nullSer != null) {
-                    prop.assignNullSerializer(nullSer);
-                    // also: remember to replace filtered property too? (see [JACKSON-364])
-                    if (i < filteredCount) {
-                        BeanPropertyWriter w2 = _filteredProps[i];
-                        if (w2 != null) {
-                            w2.assignNullSerializer(nullSer);
-                        }
-                    }
-                }
-            }
-            
-            if (prop.hasSerializer()) {
-                continue;
-            }
-            // Was the serialization type hard-coded? If so, use it
-            JavaType type = prop.getSerializationType();
-            
-            /* It not, we can use declared return type if and only if
-             * declared type is final -- if not, we don't really know
-             * the actual type until we get the instance.
-             */
-            if (type == null) {
-                type = provider.constructType(prop.getGenericPropertyType());
-                if (!type.isFinal()) {
-                    /* 18-Feb-2010, tatus: But even if it is non-final, we may
-                     *   need to retain some of type information so that we can
-                     *   accurately handle contained types
-                     */
-                    if (type.isContainerType() || type.containedTypeCount() > 0) {
-                        prop.setNonTrivialBaseType(type);
-                    }
-                    continue;
-                }
-            }
-            
-            JsonSerializer<Object> ser = provider.findValueSerializer(type, prop);
-            /* 04-Feb-2010, tatu: We may have stashed type serializer for content types
-             *   too, earlier; if so, it's time to connect the dots here:
-             */
-            if (type.isContainerType()) {
-                TypeSerializer typeSer = type.getContentType().getTypeHandler();
-                if (typeSer != null) {
-                    // for now, can do this only for standard containers...
-                    if (ser instanceof ContainerSerializer<?>) {
-                        // ugly casts... but necessary
-                        @SuppressWarnings("unchecked")
-                        JsonSerializer<Object> ser2 = (JsonSerializer<Object>)((ContainerSerializer<?>) ser).withValueTypeSerializer(typeSer);
-                        ser = ser2;
-                    }
-                }
-            }
-            prop.assignSerializer(ser);
-            // and maybe replace filtered property too? (see [JACKSON-364])
-            if (i < filteredCount) {
-                BeanPropertyWriter w2 = _filteredProps[i];
-                if (w2 != null) {
-                    w2.assignSerializer(ser);
-                }
-            }
-        }
-
-        // also, any-getter may need to be resolved
-        if (_anyGetterWriter != null) {
-            _anyGetterWriter.resolve(provider);
-        }
-    }
-
 }

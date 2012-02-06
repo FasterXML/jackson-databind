@@ -1,7 +1,10 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
+import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 
 /**
  * Object that knows how to serialize Object Ids.
@@ -45,7 +48,19 @@ public class ObjectIdHandler
     
     /*
     /**********************************************************
-    /* API
+    /* Serialization API
     /**********************************************************
      */
+
+    public boolean handleReference(Object pojo, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException, JsonGenerationException
+    {
+        Object id = provider.findObjectId(pojo, _property.getMember());
+System.err.println("Handle ref for: "+pojo+", id = "+id);        
+        if (id == null) {            
+            return false;
+        }
+        _serializer.serialize(id, jgen, provider);
+        return true;
+    }        
 }

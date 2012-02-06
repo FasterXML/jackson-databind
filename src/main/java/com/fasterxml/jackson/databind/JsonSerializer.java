@@ -153,6 +153,14 @@ public abstract class JsonSerializer<T>
     public boolean isEmpty(T value) {
         return (value == null);
     }
+
+    /**
+     * Method that can be called to see whether this serializer instance
+     * will use Object Id to handle cyclic references.
+     */
+    public boolean usesObjectId() {
+        return false;
+    }
     
     /*
     /**********************************************************

@@ -276,8 +276,12 @@ public class ObjectMapper
      * including caching.
      * It is configured with {@link #_serializerFactory} to allow
      * for constructing custom serializers.
+     *<p>
+     * Note: while serializers are only exposed {@link SerializerProvider},
+     * mappers and readers need to access additional API defined by
+     * {@link DefaultSerializerProvider}
      */
-    protected SerializerProvider _serializerProvider;
+    protected DefaultSerializerProvider _serializerProvider;
 
     /**
      * Serializer factory used for constructing serializers.
@@ -380,7 +384,7 @@ public class ObjectMapper
      *    {@link DeserializationContext}
      */
     public ObjectMapper(JsonFactory jf,
-            SerializerProvider sp, DeserializationContext dc)
+            DefaultSerializerProvider sp, DeserializationContext dc)
     {
         /* 02-Mar-2009, tatu: Important: we MUST default to using
          *   the mapping factory, otherwise tree serialization will
@@ -404,7 +408,7 @@ public class ObjectMapper
                     _subtypeResolver, _mixInAnnotations);
         _deserializationConfig = new DeserializationConfig(DEFAULT_BASE,
                     _subtypeResolver, _mixInAnnotations);
-        _serializerProvider = (sp == null) ? new SerializerProvider.Impl() : sp;
+        _serializerProvider = (sp == null) ? new DefaultSerializerProvider.Impl() : sp;
         _deserializationContext = (dc == null) ?
                 new DeserializationContext.Std(BeanDeserializerFactory.instance) : dc;
 
@@ -645,7 +649,7 @@ public class ObjectMapper
      * Method for setting specific {@link SerializerProvider} to use
      * for handling caching of {@link JsonSerializer} instances.
      */
-    public ObjectMapper setSerializerProvider(SerializerProvider p) {
+    public ObjectMapper setSerializerProvider(DefaultSerializerProvider p) {
         _serializerProvider = p;
         return this;
     }
@@ -2323,7 +2327,7 @@ public class ObjectMapper
      * Overridable helper method used for constructing
      * {@link SerializerProvider} to use for serialization.
      */
-    protected SerializerProvider _serializerProvider(SerializationConfig config) {
+    protected DefaultSerializerProvider _serializerProvider(SerializationConfig config) {
         return _serializerProvider.createInstance(config, _serializerFactory);
     }
     

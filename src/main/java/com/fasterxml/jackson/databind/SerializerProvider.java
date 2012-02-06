@@ -10,16 +10,15 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.*;
 import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.ObjectIdMap;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
@@ -34,7 +33,8 @@ import com.fasterxml.jackson.databind.util.RootNameLookup;
  * Object life-cycle is such that an initial instance ("blueprint") is created
  * and referenced by {@link ObjectMapper} and {@link ObjectWriter} intances;
  * but for actual usage, a configured instance is created by using
- * {@link #createInstance}.
+ * a create method in sub-class
+ * {@link com.fasterxml.jackson.databind.ser.DefaultSerializerProvider}.
  * Only this instance can be used for actual serialization calls; blueprint
  * object is only to be used for creating instances.
  */
@@ -83,7 +83,7 @@ public abstract class SerializerProvider
 
     /*
     /**********************************************************
-    /* Configuration, caching
+    /* Helper objects for caching
     /**********************************************************
      */
     
@@ -97,6 +97,11 @@ public abstract class SerializerProvider
      */
     final protected RootNameLookup _rootNames;
 
+    /**
+     * Container for Object Ids we may need.
+     */
+    protected ObjectIdMap _objectIds;
+    
     /*
     /**********************************************************
     /* Configuration, specialized serializers
@@ -206,13 +211,6 @@ public abstract class SerializerProvider
 
         _serializationView = config.getActiveView();
     }
-
-    /**
-     * Overridable method, used to create a non-blueprint instances from the blueprint.
-     * This is needed to retain state during serialization.
-     */
-    public abstract SerializerProvider createInstance(SerializationConfig config,
-            SerializerFactory jsf);
     
     /*
     /**********************************************************
@@ -262,160 +260,6 @@ public abstract class SerializerProvider
             throw new IllegalArgumentException("Can not pass null JsonSerializer");
         }
         _nullKeySerializer = nks;
-    }
-    
-    /*
-    /**********************************************************
-    /* Methods that ObjectMapper will call
-    /**********************************************************
-     */
-
-    /**
-     * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
-     * for serializing given value, using serializers that
-     * this provider has access to (via caching and/or creating new serializers
-     * as need be).
-     */
-    public void serializeValue(JsonGenerator jgen, Object value)
-        throws IOException, JsonGenerationException
-    {
-        JsonSerializer<Object> ser;
-        boolean wrap;
-
-        if (value == null) {
-            // no type provided; must just use the default null serializer
-            ser = getDefaultNullValueSerializer();
-            wrap = false; // no name to use for wrapping; can't do!
-        } else {
-            Class<?> cls = value.getClass();
-            // true, since we do want to cache root-level typed serializers (ditto for null property)
-            ser = findTypedValueSerializer(cls, true, null);
-
-            // Ok: should we wrap result in an additional property ("root name")?
-            String rootName = _config.getRootName();
-            if (rootName == null) { // not explicitly specified
-                // [JACKSON-163]
-                wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
-                if (wrap) {
-                    jgen.writeStartObject();
-                    jgen.writeFieldName(_rootNames.findRootName(value.getClass(), _config));
-                }
-            } else if (rootName.length() == 0) {
-                wrap = false;
-            } else { // [JACKSON-764]
-                // empty String means explicitly disabled; non-empty that it is enabled
-                wrap = true;
-                jgen.writeStartObject();
-                jgen.writeFieldName(rootName);
-            }
-        }
-        try {
-            ser.serialize(value, jgen, this);
-            if (wrap) {
-                jgen.writeEndObject();
-            }
-        } catch (IOException ioe) {
-            /* As per [JACKSON-99], should not wrap IOException or its
-             * sub-classes (like JsonProcessingException, JsonMappingException)
-             */
-            throw ioe;
-        } catch (Exception e) {
-            // but others are wrapped
-            String msg = e.getMessage();
-            if (msg == null) {
-                msg = "[no message for "+e.getClass().getName()+"]";
-            }
-            throw new JsonMappingException(msg, e);
-        }
-    }
-
-    /**
-     * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
-     * for serializing given value (assumed to be of specified root type,
-     * instead of runtime type of value),
-     * using serializers that
-     * this provider has access to (via caching and/or creating new serializers
-     * as need be),
-     * 
-     * @param rootType Type to use for locating serializer to use, instead of actual
-     *    runtime type. Must be actual type, or one of its super types
-     */
-    public void serializeValue(JsonGenerator jgen, Object value,
-            JavaType rootType)
-        throws IOException, JsonGenerationException
-    {
-        boolean wrap;
-
-        JsonSerializer<Object> ser;
-        if (value == null) {
-            ser = getDefaultNullValueSerializer();
-            wrap = false;
-        } else {
-            // Let's ensure types are compatible at this point
-            if (!rootType.getRawClass().isAssignableFrom(value.getClass())) {
-                _reportIncompatibleRootType(value, rootType);
-            }
-            // root value, not reached via property:
-            ser = findTypedValueSerializer(rootType, true, null);
-            // [JACKSON-163]
-            wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
-            if (wrap) {
-                jgen.writeStartObject();
-                jgen.writeFieldName(_rootNames.findRootName(rootType, _config));
-            }
-        }
-        try {
-            ser.serialize(value, jgen, this);
-            if (wrap) {
-                jgen.writeEndObject();
-            }
-        } catch (IOException ioe) { // no wrapping for IO (and derived)
-            throw ioe;
-        } catch (Exception e) { // but others do need to be, to get path etc
-            String msg = e.getMessage();
-            if (msg == null) {
-                msg = "[no message for "+e.getClass().getName()+"]";
-            }
-            throw new JsonMappingException(msg, e);
-        }
-    }
-
-    /**
-     * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
-     * to generate <a href="http://json-schema.org/">JSON schema</a> for
-     * given type.
-     *
-     * @param type The type for which to generate schema
-     */
-    public JsonSchema generateJsonSchema(Class<?> type)
-        throws JsonMappingException
-    {
-        if (type == null) {
-            throw new IllegalArgumentException("A class must be provided");
-        }
-        /* no need for embedded type information for JSON schema generation (all
-         * type information it needs is accessible via "untyped" serializer)
-         */
-        JsonSerializer<Object> ser = findValueSerializer(type, null);
-        JsonNode schemaNode = (ser instanceof SchemaAware) ?
-                ((SchemaAware) ser).getSchema(this, null) : 
-                JsonSchema.getDefaultSchemaNode();
-        if (!(schemaNode instanceof ObjectNode)) {
-            throw new IllegalArgumentException("Class " + type.getName() +
-                    " would not be serialized as a JSON object and therefore has no schema");
-        }
-        return new JsonSchema((ObjectNode) schemaNode);
-    }
-
-    /**
-     * Method that can be called to see if this serializer provider
-     * can find a serializer for an instance of given class.
-     *<p>
-     * Note that no Exceptions are thrown, including unchecked ones:
-     * implementations are to swallow exceptions if necessary.
-     */
-    public boolean hasSerializerFor(Class<?> cls) {
-        return _findExplicitUntypedSerializer(cls, null) != null;
     }
     
     /*
@@ -490,6 +334,17 @@ public abstract class SerializerProvider
      */
     public final FilterProvider getFilterProvider() {
         return _config.getFilterProvider();
+    }
+
+    /**
+     * Method used to try to find the Object Id for given POJO.
+     */
+    public final Object findObjectId(Object pojo, AnnotatedMember idAccessor)
+    {
+        if (_objectIds == null) {
+            _objectIds = new ObjectIdMap();
+        }
+        return _objectIds.findOrInsertId(pojo, idAccessor);
     }
 
     /**
@@ -1001,38 +856,13 @@ public abstract class SerializerProvider
     {
         getDefaultNullValueSerializer().serialize(null, jgen, this);
     }
-    
+
     /*
     /********************************************************
-    /* Access to caching details
+    /* Helper methods
     /********************************************************
      */
-
-    /**
-     * Method that can be used to determine how many serializers this
-     * provider is caching currently
-     * (if it does caching: default implementation does)
-     * Exact count depends on what kind of serializers get cached;
-     * default implementation caches all serializers, including ones that
-     * are eagerly constructed (for optimal access speed)
-     *<p> 
-     * The main use case for this method is to allow conditional flushing of
-     * serializer cache, if certain number of entries is reached.
-     */
-    public int cachedSerializersCount() {
-        return _serializerCache.size();
-    }
-
-    /**
-     * Method that will drop all serializers currently cached by this provider.
-     * This can be used to remove memory usage (in case some serializers are
-     * only used once or so), or to force re-construction of serializers after
-     * configuration changes for mapper than owns the provider.
-     */
-    public void flushCachedSerializers() {
-        _serializerCache.flush();
-    }
-
+    
     protected void _reportIncompatibleRootType(Object value, JavaType rootType)
         throws IOException, JsonProcessingException
     {
@@ -1174,31 +1004,5 @@ public abstract class SerializerProvider
             ser = ((ContextualSerializer) ser).createContextual(this, property);
         }
         return (JsonSerializer<Object>) ser;
-    }
-    
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
-    /**
-     * Standard implementation used by {@link ObjectMapper}; just implements
-     * <code>createInstance</code> method which is abstract in
-     * {@link SerializerProvider}
-     */
-    public final static class Impl extends SerializerProvider
-    {
-        public Impl() { super(); }
-        private Impl( SerializerProvider src,
-                SerializationConfig config,SerializerFactory f) {
-            super(src, config, f);
-        }
-
-        @Override
-        public Impl createInstance(SerializationConfig config, SerializerFactory jsf) {
-            return new Impl(this, config, jsf);
-        }
-        
     }
 }

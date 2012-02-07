@@ -49,6 +49,11 @@ public class BasicBeanDescription extends BeanDescription
      */
     protected final List<BeanPropertyDefinition> _properties;
 
+    /**
+     * Details of Object Id to include, if any
+     */
+    protected ObjectIdInfo _objectIdInfo;
+    
     // // for deserialization
     
     protected AnnotatedMethod _anySetterMethod;
@@ -73,14 +78,21 @@ public class BasicBeanDescription extends BeanDescription
     /**********************************************************
      */
 
-    protected BasicBeanDescription(MapperConfig<?> config, JavaType type,
-            AnnotatedClass ac, List<BeanPropertyDefinition> properties)
+    protected BasicBeanDescription(MapperConfig<?> config,
+            JavaType type, AnnotatedClass classDef,
+            List<BeanPropertyDefinition> props)
     {
-    	super(type);
-    	_config = config;
-    	_annotationIntrospector = (config == null) ? null : config.getAnnotationIntrospector();
-    	_classInfo = ac;
-    	_properties = properties;
+        super(type);
+        _config = config;
+        _annotationIntrospector = (_config == null) ? null : _config.getAnnotationIntrospector();
+        _classInfo = classDef;
+        _properties = props;
+    }
+    
+    protected BasicBeanDescription(POJOPropertiesCollector coll)
+    {
+        this(coll.getConfig(), coll.getType(), coll.getClassDef(), coll.getProperties());
+    	_objectIdInfo = coll.getObjectIdInfo();
     }
 
     /**
@@ -89,8 +101,7 @@ public class BasicBeanDescription extends BeanDescription
      */
     public static BasicBeanDescription forDeserialization(POJOPropertiesCollector coll)
     {
-        BasicBeanDescription desc = new BasicBeanDescription(coll.getConfig(),
-                coll.getType(), coll.getClassDef(), coll.getProperties());
+        BasicBeanDescription desc = new BasicBeanDescription(coll);
         desc._anySetterMethod = coll.getAnySetterMethod();
         desc._ignoredPropertyNames = coll.getIgnoredPropertyNames();
         desc._injectables = coll.getInjectables();
@@ -104,8 +115,7 @@ public class BasicBeanDescription extends BeanDescription
      */
     public static BasicBeanDescription forSerialization(POJOPropertiesCollector coll)
     {
-        BasicBeanDescription desc = new BasicBeanDescription(coll.getConfig(),
-                coll.getType(), coll.getClassDef(), coll.getProperties());
+        BasicBeanDescription desc = new BasicBeanDescription(coll);
         desc._jsonValueMethod = coll.getJsonValueMethod();
         desc._anyGetter = coll.getAnyGetter();
         return desc;
@@ -131,6 +141,9 @@ public class BasicBeanDescription extends BeanDescription
 
     @Override
     public AnnotatedClass getClassInfo() { return _classInfo; }
+
+    @Override
+    public ObjectIdInfo getObjectIdInfo() { return  _objectIdInfo; }
     
     @Override
     public List<BeanPropertyDefinition> findProperties() {

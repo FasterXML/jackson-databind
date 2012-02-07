@@ -7,12 +7,13 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
-import com.fasterxml.jackson.databind.ser.impl.ObjectIdHandler;
+import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -23,7 +24,8 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  */
 public abstract class BeanSerializerBase
     extends StdSerializer<Object>
-    implements ResolvableSerializer, SchemaAware
+    implements ContextualSerializer, ResolvableSerializer,
+        SchemaAware
 {
     final protected static BeanPropertyWriter[] NO_PROPS = new BeanPropertyWriter[0];
 
@@ -58,7 +60,7 @@ public abstract class BeanSerializerBase
      * Note: not final since we need to get contextual instance during
      * resolutuon.
      */
-    protected ObjectIdHandler _objectIdHandler;
+    protected ObjectIdWriter _objectIdHandler;
     
     /**
      * If using custom type ids (usually via getter, or field), this is the
@@ -99,18 +101,7 @@ public abstract class BeanSerializerBase
             _anyGetterWriter = builder.getAnyGetter();
             _typeId = builder.getTypeId();
             _propertyFilterId = builder.getFilterId();
-            // need to create a property placeholder for object id:
-            AnnotatedMember objectIdAcc = builder.getObjectId();
-            if (objectIdAcc == null) {
-                _objectIdHandler = null;
-            } else {
-                BeanDescription beanDesc = builder.getBeanDescription();
-                AnnotatedMember oidMember = builder.getObjectId();
-                JavaType oidType = beanDesc.resolveType(oidMember.getGenericType());
-                BeanProperty.Std prop = new BeanProperty.Std(oidMember.getName(),
-                        oidType, beanDesc.getClassAnnotations(), oidMember);
-                _objectIdHandler = ObjectIdHandler.construct(prop);
-            }
+            _objectIdHandler = builder.getObjectIdHandler();
         }
     }
 
@@ -125,6 +116,7 @@ public abstract class BeanSerializerBase
         _objectIdHandler = src._objectIdHandler;
         _typeId = src._typeId;
         _propertyFilterId = src._propertyFilterId;
+        _objectIdHandler = src._objectIdHandler;
     }
 
     /**
@@ -162,7 +154,7 @@ public abstract class BeanSerializerBase
 
     /*
     /**********************************************************
-    /* ResolvableSerializer impl
+    /* Post-constriction processing: resolvable, contextual
     /**********************************************************
      */
 
@@ -248,9 +240,33 @@ public abstract class BeanSerializerBase
         }
         // and ObjectIdHandler resolved, if there is one
         if (_objectIdHandler != null) {
-            _objectIdHandler = _objectIdHandler.createContextual(provider);
+            _objectIdHandler = _objectIdHandler.withSerializer(provider);
         }
-    }    
+    }
+
+    @Override
+    public JsonSerializer<?> createContextual(SerializerProvider prov,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        // Can't have any overrides for root values, so:
+        if (property == null) {
+            return this;
+        }
+
+        /* Ok: here we may need to override ObjectIdHandler, if referring
+         * property happens to redefine it.
+         */
+        final AnnotationIntrospector intr = prov.getAnnotationIntrospector();
+        AnnotatedMember accessor = property.getMember();
+        ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
+        if (objectIdInfo != null) {
+            // !!! TODO: copy stuff from BeanSerializerFactory.constructObjectIdHandler(...)
+            // ObjectIdGenerator<?> gen = prov.objectIdGeneratorInstance(property.getMember(), objectIdInfo.getGenerator());
+        }
+        return this;
+    }
+    
     /*
     /**********************************************************
     /* Partial JsonSerializer implementation

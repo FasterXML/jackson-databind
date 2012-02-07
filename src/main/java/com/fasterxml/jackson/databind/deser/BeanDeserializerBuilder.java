@@ -238,8 +238,16 @@ public class BeanDeserializerBuilder
         return _properties.remove(name);
     }
 
+    public SettableAnyProperty getAnySetter() {
+        return _anySetter;
+    }
+    
     public ValueInstantiator getValueInstantiator() {
         return _valueInstantiator;
+    }
+
+    public List<ValueInjector> getInjectables() {
+        return _injectables;
     }
     
     /*
@@ -268,8 +276,8 @@ public class BeanDeserializerBuilder
             }
         }
         
-        return new BeanDeserializer(_beanDesc,
-                _valueInstantiator, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
-                _anySetter, _injectables, anyViews);
+        return new BeanDeserializer(this,
+                _beanDesc, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
+                anyViews);
     }
 }

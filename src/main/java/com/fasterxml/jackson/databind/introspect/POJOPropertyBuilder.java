@@ -299,13 +299,12 @@ public class POJOPropertyBuilder
     }
 
     @Override
-    public boolean isObjectId() {
-        Boolean b = fromMemberAnnotation(new WithMember<Boolean>() {
-            @Override public Boolean withMember(AnnotatedMember member) {
-                return _annotationIntrospector.isObjectId(member);
+    public ObjectIdInfo findObjectIdInfo() {
+        return fromMemberAnnotation(new WithMember<ObjectIdInfo>() {
+            @Override public ObjectIdInfo withMember(AnnotatedMember member) {
+                return _annotationIntrospector.findObjectIdInfo(member);
             }
         });
-        return (b != null) && b.booleanValue();
     }
     
     /*

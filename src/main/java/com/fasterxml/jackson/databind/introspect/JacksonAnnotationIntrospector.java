@@ -388,8 +388,12 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Boolean isObjectId(AnnotatedMember member) {
-        return member.hasAnnotation(JsonObjectId.class);
+    public ObjectIdInfo findObjectIdInfo(Annotated ann) {
+        JsonIdentityInfo info = ann.getAnnotation(JsonIdentityInfo.class);
+        if (info == null) {
+            return null;
+        }
+        return new ObjectIdInfo(info.property(), info.generator());
     }
     
     /*

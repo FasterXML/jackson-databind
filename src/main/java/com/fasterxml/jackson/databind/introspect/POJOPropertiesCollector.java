@@ -176,6 +176,14 @@ public class POJOPropertiesCollector
     public Set<String> getIgnoredPropertyNames() {
         return _ignoredPropertyNames;
     }
+
+    /**
+     * Accessor to find out whether type specified requires inclusion
+     * of Object Identifier.
+     */
+    public ObjectIdInfo getObjectIdInfo() {
+        return _annotationIntrospector.findObjectIdInfo(_classDef);
+    }
     
     // for unit tests:
     protected Map<String, POJOPropertyBuilder> getPropertyMap() {

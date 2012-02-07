@@ -2,19 +2,16 @@ package com.fasterxml.jackson.databind.util;
 
 import java.util.IdentityHashMap;
 
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-
 /**
  * Map used during serialization, to keep track of referable Objects
  * along with lazily evaluated ids.
  */
-public class ObjectIdMap
+@SuppressWarnings("serial")
+public class ObjectIdMap extends IdentityHashMap<Object,Object>
 {
-    public final IdentityHashMap<Object,Entry> _seenObjects;
-    
     public ObjectIdMap()
     {
-        _seenObjects = new IdentityHashMap<Object,Entry>(16);
+        super(16);
     }
 
     /*
@@ -29,34 +26,13 @@ public class ObjectIdMap
      * it up as necessary); if not, we will mark down that we have
      * seen it but return null.
      */
-    public Object findOrInsertId(Object pojo, AnnotatedMember idAccessor)
+    public Object findId(Object pojo)
     {
-        Entry entry = _seenObjects.get(pojo);
-        if (entry == null) { // no, first time: insert, return null
-            _seenObjects.put(pojo, new Entry());
-            return null;
-        }
-        Object id = entry.id;
-        if (id == null) {
-            id = idAccessor.getValue(pojo);
-            entry.id = id;
-        }
-        return id;
+        return get(pojo);
     }
     
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
-    protected final static class Entry
+    public void insertId(Object pojo, Object id)
     {
-        /**
-         * Lazily evaluated object id to use to represent object
-         */
-        public Object id;
-
-        public Entry() { }
+        put(pojo, id);
     }
 }

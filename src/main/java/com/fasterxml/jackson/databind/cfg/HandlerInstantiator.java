@@ -1,10 +1,7 @@
 package com.fasterxml.jackson.databind.cfg;
 
-import com.fasterxml.jackson.databind.DeserializationConfig;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.KeyDeserializer;
-import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -111,6 +108,17 @@ public abstract class HandlerInstantiator
      */
     public ValueInstantiator valueInstantiatorInstance(MapperConfig<?> config,
             Annotated annotated, Class<?> resolverClass) {
+        return null;
+    }
+
+    
+    /**
+     * Method called to construct a ObjectIdHandler instance of specified type.
+     * 
+     * @since 2.0
+     */
+    public ObjectIdGenerator<?> objectIdGeneratorInstance(MapperConfig<?> config,
+            Annotated annotated, Class<?> implClass) {
         return null;
     }
 }

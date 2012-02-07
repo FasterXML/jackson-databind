@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -9,6 +11,7 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
@@ -320,14 +323,19 @@ public class BeanSerializerFactory
                     beanDesc.getClassAnnotations(), anyGetter);
             builder.setAnyGetter(new AnyGetterWriter(anyProp, anyGetter, mapSer));
         }
-        // One more thing: need to gather view information, if any:
+        // Next: need to gather view information, if any:
         processViews(config, builder);
-        // And maybe let interested parties mess with the result bit more...
+
+        // And if Object Id is needed, some preparation for that as well:
+        builder.setObjectIdHandler(constructObjectIdHandler(prov, beanDesc));
+        
+        // Finally: let interested parties mess with the result bit more...
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
                 builder = mod.updateBuilder(config, beanDesc, builder);
             }
         }
+        
         JsonSerializer<Object> ser = (JsonSerializer<Object>) builder.build();
 
         /* However, after all modifications: no properties, no serializer
@@ -343,6 +351,31 @@ public class BeanSerializerFactory
             }
         }
         return ser;
+    }
+
+    protected ObjectIdWriter constructObjectIdHandler(SerializerProvider prov,
+            BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        ObjectIdInfo oidInfo = beanDesc.getObjectIdInfo();
+        if (oidInfo == null) {
+            return null;
+        }
+        ObjectIdGenerator<?> gen;
+        Class<?> implClass = oidInfo.getGenerator();
+        JavaType type = prov.constructType(implClass);
+        // Could require type to be passed explicitly, but we should be able to find it too:
+        JavaType idType = prov.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
+
+        // Just one special case: Property-based generator is trickier
+        if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
+            // !!! TODO
+            gen = null;
+            if (true) throw new IllegalStateException("Not yet implemented!");
+        } else { // other types need to be simpler
+            gen = prov.objectIdGeneratorInstance(beanDesc.getClassInfo(), implClass);
+        }
+        return ObjectIdWriter.construct(idType, oidInfo.getProperty(), gen);
     }
 
     /**
@@ -420,17 +453,11 @@ public class BeanSerializerFactory
         // null is for value type serializer, which we don't have access to from here (ditto for bean prop)
         boolean staticTyping = usesStaticTyping(config, beanDesc, null, null);
         PropertyBuilder pb = constructPropertyBuilder(config, beanDesc);
-
+        
         ArrayList<BeanPropertyWriter> result = new ArrayList<BeanPropertyWriter>(properties.size());
         TypeBindings typeBind = beanDesc.bindingsForBeanType();
         for (BeanPropertyDefinition property : properties) {
             final AnnotatedMember accessor = property.getAccessor();
-
-            // [JACKSON-107]: object id is additional info
-            if (property.isObjectId()) {
-                builder.setObjectId(accessor);
-                // but will also be serialized normally
-            }
             
             // [JACKSON-762]: type id? Requires special handling:
             if (property.isTypeId()) {

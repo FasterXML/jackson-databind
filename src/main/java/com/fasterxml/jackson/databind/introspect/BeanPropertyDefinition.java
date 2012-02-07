@@ -125,12 +125,11 @@ public abstract class BeanPropertyDefinition
     }
 
     /**
-     * Method used to check whether this logical property has a marker
-     * to indicate it represents Object Identity that can be used to
-     * resolve cyclic dependencies (by being used in place of fully
-     * value serialization)
+     * Method used to check whether this logical property indicates that
+     * value POJOs should be written using additional Object Identifier
+     * (or, when multiple references exist, all but first AS Object Identifier).
      */
-    public boolean isObjectId() {
-        return false;
+    public ObjectIdInfo findObjectIdInfo() {
+        return null;
     }
 }

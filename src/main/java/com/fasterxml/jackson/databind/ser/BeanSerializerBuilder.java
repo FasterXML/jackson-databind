@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 
 /**
  * Builder class used for aggregating deserialization information about
@@ -52,15 +53,12 @@ public class BeanSerializerBuilder
     protected Object _filterId;
 
     /**
-     * Property that is used for object id
-     */
-    protected AnnotatedMember _objectId;
-
-    /**
      * Property that is used for type id (and not serialized as regular
      * property)
      */
     protected AnnotatedMember _typeId;
+
+    protected ObjectIdWriter _objectIdHandler;
     
     /*
     /**********************************************************
@@ -82,10 +80,6 @@ public class BeanSerializerBuilder
         _anyGetter = src._anyGetter;
         _filterId = src._filterId;
     }
-    
-    public boolean hasProperties() {
-        return (_properties != null) && (_properties.size() > 0);
-    }
 
     public void setProperties(List<BeanPropertyWriter> properties) {
         _properties = properties;
@@ -102,14 +96,6 @@ public class BeanSerializerBuilder
     public void setFilterId(Object filterId) {
         _filterId = filterId;
     }
-
-    public void setObjectId(AnnotatedMember idProp) {
-        // Not legal to use multiple ones...
-        if (_objectId != null) {
-            throw new IllegalArgumentException("Multiple object ids specified with "+_objectId+" and "+idProp);
-        }
-        _objectId = idProp;
-    }
     
     public void setTypeId(AnnotatedMember idProp) {
         // Not legal to use multiple ones...
@@ -119,6 +105,10 @@ public class BeanSerializerBuilder
         _typeId = idProp;
     }
 
+    public void setObjectIdHandler(ObjectIdWriter h) {
+        _objectIdHandler = h;
+    }
+    
     /*
     /**********************************************************
     /* Accessors for things BeanSerializer cares about:
@@ -129,15 +119,19 @@ public class BeanSerializerBuilder
 
     public BeanDescription getBeanDescription() { return _beanDesc; }
     public List<BeanPropertyWriter> getProperties() { return _properties; }
+    public boolean hasProperties() {
+        return (_properties != null) && (_properties.size() > 0);
+    }
+
     public BeanPropertyWriter[] getFilteredProperties() { return _filteredProperties; }
     
     public AnyGetterWriter getAnyGetter() { return _anyGetter; }
     
     public Object getFilterId() { return _filterId; }
-    
-    public AnnotatedMember getObjectId() { return _objectId; }
 
     public AnnotatedMember getTypeId() { return _typeId; }
+
+    public ObjectIdWriter getObjectIdHandler() { return _objectIdHandler; }
     
     /*
     /**********************************************************

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
 
@@ -62,7 +63,17 @@ public abstract class BeanDescription
 
     public Class<?> getBeanClass() { return _type.getRawClass(); }
 
+    /**
+     * Method for accessing low-level information about Class this
+     * item describes.
+     */
     public abstract AnnotatedClass getClassInfo();
+
+    /**
+     * Accessor for getting information about Object Id expected to
+     * be used for this POJO type, if any.
+     */
+    public abstract ObjectIdInfo getObjectIdInfo();
     
     /**
      * Method for checking whether class being described has any

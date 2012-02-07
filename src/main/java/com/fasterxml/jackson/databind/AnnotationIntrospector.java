@@ -409,18 +409,16 @@ public abstract class AnnotationIntrospector implements Versioned
     }
 
     /**
-     * Method for checking whether given accessor claims to represent
-     * object id: if so, its value may be used to represent value,
-     * in cases where value (along with id, presumably) has been
-     * or will  be serialized in its entirety in some point.
-     * This allows serialization of a POJO value just once, and
-     * afterwards referring to the value using an object id
-     * (which has to be a JSON scalar value, usually String or
-     * integer)
+     * Method for checking whether given annotated thing
+     * (type, or accessor) indicates that values
+     * referenced (values of type of annotated class, or
+     * values referenced by annotated property; latter
+     * having precedence) should include Object Identifier,
+     * and if so, specify details of Object Identity used.
      * 
      * @since 2.0
      */
-    public Boolean isObjectId(AnnotatedMember member) {
+    public ObjectIdInfo findObjectIdInfo(Annotated ann) {
         return null;
     }
     
@@ -840,8 +838,7 @@ public abstract class AnnotationIntrospector implements Versioned
      * An obvious consequence of priority is that it is easy to construct
      * longer chains of introspectors by linking multiple pairs.
      * Currently most likely combination is that of using the default
-     * Jackson provider, along with JAXB annotation introspector (available
-     * since version 1.1).
+     * Jackson provider, along with JAXB annotation introspector.
      */
     public static class Pair
         extends AnnotationIntrospector
@@ -1193,12 +1190,12 @@ public abstract class AnnotationIntrospector implements Versioned
         }
 
         @Override
-        public Boolean isObjectId(AnnotatedMember member) {
-            Boolean b = _primary.isObjectId(member);
-            if (b == null) {
-                b = _secondary.isObjectId(member);
+        public ObjectIdInfo findObjectIdInfo(Annotated ann) {
+            ObjectIdInfo result = _primary.findObjectIdInfo(ann);
+            if (result == null) {
+                result = _secondary.findObjectIdInfo(ann);
             }
-            return b;
+            return result;
         }
         
         // // // Serialization: class annotations

@@ -94,10 +94,8 @@ public class BeanSerializer
         throws IOException, JsonGenerationException
     {
         if (_objectIdHandler != null) {
-            // We may want to serialize just a reference (object id):
-            if (_objectIdHandler.handleReference(bean, jgen, provider)) {
-                return;
-            }
+            serializeWithObjectId(bean, jgen, provider);
+            return;
         }
         jgen.writeStartObject();
         if (_propertyFilterId != null) {
@@ -108,6 +106,24 @@ public class BeanSerializer
         jgen.writeEndObject();
     }
 
+    private final void serializeWithObjectId(Object bean, JsonGenerator jgen, SerializerProvider provider)
+        throws IOException, JsonGenerationException
+    {
+        // Ok: if we have seen this POJO before, just write the reference:
+        if (_objectIdHandler.handleReference(bean, jgen, provider)) {
+            return;
+        }
+        // If not, need to inject the id:
+        jgen.writeStartObject();
+        _objectIdHandler.writeAsProperty(bean, jgen, provider);
+        if (_propertyFilterId != null) {
+            serializeFieldsFiltered(bean, jgen, provider);
+        } else {
+            serializeFields(bean, jgen, provider);
+        }
+        jgen.writeEndObject();
+    }
+    
     /*
     /**********************************************************
     /* Standard methods

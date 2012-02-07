@@ -171,45 +171,35 @@ public class BeanDeserializer
     /**********************************************************
      */
 
-    public BeanDeserializer(BeanDescription beanDesc,
-            ValueInstantiator valueInstantiator,
+    /**
+     * Constructor used by {@link BeanDeserializerBuilder}.
+     */
+    public BeanDeserializer(BeanDeserializerBuilder builder,
+            BeanDescription beanDesc,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
             HashSet<String> ignorableProps, boolean ignoreAllUnknown,
-            SettableAnyProperty anySetter, List<ValueInjector> injectables,
             boolean hasViews)
     {
-        this(beanDesc.getClassInfo(), beanDesc.getType(),
-                valueInstantiator,
-                properties, backRefs,
-                ignorableProps, ignoreAllUnknown,
-                anySetter, injectables, hasViews);
-    }
-    
-    protected BeanDeserializer(AnnotatedClass forClass, JavaType type,
-            ValueInstantiator valueInstantiator,
-            BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
-            HashSet<String> ignorableProps, boolean ignoreAllUnknown,
-            SettableAnyProperty anySetter, List<ValueInjector> injectables,
-            boolean hasViews)
-    {
-        super(type);
-        _forClass = forClass;
-        _beanType = type;
+        super(beanDesc.getType());
+        _forClass = beanDesc.getClassInfo();
+        _beanType = beanDesc.getType();
 
-        _valueInstantiator = valueInstantiator;
+        _valueInstantiator = builder.getValueInstantiator();
         
         _beanProperties = properties;
         _backRefs = backRefs;
         _ignorableProps = ignorableProps;
         _ignoreAllUnknown = ignoreAllUnknown;
-        _anySetter = anySetter;
+
+        _anySetter = builder.getAnySetter();
+        List<ValueInjector> injectables = builder.getInjectables();
         _injectables = (injectables == null || injectables.isEmpty()) ? null
                 : injectables.toArray(new ValueInjector[injectables.size()]);
 
         _nonStandardCreation = (_unwrappedPropertyHandler != null)
-            || valueInstantiator.canCreateUsingDelegate()
-            || valueInstantiator.canCreateFromObjectWith()
-            || !valueInstantiator.canCreateUsingDefault()
+            || _valueInstantiator.canCreateUsingDelegate()
+            || _valueInstantiator.canCreateFromObjectWith()
+            || !_valueInstantiator.canCreateUsingDefault()
             ;
 
         _needViewProcesing = hasViews;    

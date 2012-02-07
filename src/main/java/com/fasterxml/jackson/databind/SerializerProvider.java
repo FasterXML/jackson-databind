@@ -5,12 +5,12 @@ import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.*;
@@ -264,7 +264,7 @@ public abstract class SerializerProvider
     
     /*
     /**********************************************************
-    /* Access to configuration
+    /* Access to general configuration
     /**********************************************************
      */
 
@@ -336,17 +336,12 @@ public abstract class SerializerProvider
         return _config.getFilterProvider();
     }
 
-    /**
-     * Method used to try to find the Object Id for given POJO.
+    /*
+    /**********************************************************
+    /* Access to type handling
+    /**********************************************************
      */
-    public final Object findObjectId(Object pojo, AnnotatedMember idAccessor)
-    {
-        if (_objectIds == null) {
-            _objectIds = new ObjectIdMap();
-        }
-        return _objectIds.findOrInsertId(pojo, idAccessor);
-    }
-
+    
     /**
      * Convenience method for constructing {@link JavaType} for given JDK
      * type (usually {@link java.lang.Class})
@@ -361,6 +356,36 @@ public abstract class SerializerProvider
      */
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
         return _config.constructSpecializedType(baseType, subclass);
+    }
+
+    public TypeFactory getTypeFactory() {
+        return _config.getTypeFactory();
+    }
+
+    /*
+    /**********************************************************
+    /* Access to Object Id aspects
+    /**********************************************************
+     */
+
+    /**
+     * Method used to try to find the Object Id for given POJO; and
+     * if one is not found, to generate id for it.
+     */
+    public final Object findObjectId(Object pojo)
+    {
+        if (_objectIds == null) {
+            return null;
+        }
+        return _objectIds.findId(pojo);
+    }
+
+    public final void addObjectId(Object pojo, Object id)
+    {
+        if (_objectIds == null) {
+            _objectIds = new ObjectIdMap();
+        }
+        _objectIds.insertId(pojo, id);
     }
     
     /*
@@ -707,6 +732,19 @@ public abstract class SerializerProvider
             }
         }
         return (JsonSerializer<Object>) _handleResolvable(ser);
+    }
+
+    public ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
+            Class<?> implClass)
+        throws JsonMappingException
+    {
+        HandlerInstantiator hi = _config.getHandlerInstantiator();
+
+        if (hi != null) {
+            return hi.objectIdGeneratorInstance(_config, annotated, implClass);
+        }
+        return (ObjectIdGenerator<?>) ClassUtil.createInstance(implClass,
+                    _config.canOverrideAccessModifiers());
     }
     
     /*

@@ -182,6 +182,9 @@ public class POJOPropertiesCollector
      * of Object Identifier.
      */
     public ObjectIdInfo getObjectIdInfo() {
+        if (_annotationIntrospector == null) {
+            return null;
+        }
         return _annotationIntrospector.findObjectIdInfo(_classDef);
     }
     

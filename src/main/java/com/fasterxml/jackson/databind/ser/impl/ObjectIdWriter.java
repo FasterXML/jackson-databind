@@ -1,32 +1,30 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
+
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
 
 /**
  * Object that knows how to serialize Object Ids.
  */
-public class ObjectIdWriter
+public final class ObjectIdWriter
 {
-    protected final JavaType _idType;
+    public final JavaType idType;
 
-    protected final String _propertyName;
+    public final SerializedString propertyName;
     
-    protected final ObjectIdGenerator<?> _generator;
-
     /**
-     * Logical property that represents the id.
+     * Blueprint generator instance: actual instance will be
+     * fetched from {@link SerializerProvider} using this as
+     * the key.
      */
-//    protected final BeanProperty _property;
+    public final ObjectIdGenerator<?> generator;
     
     /**
      * Serializer used for serializing id values.
      */
-    protected final JsonSerializer<Object> _serializer;
+    public final JsonSerializer<Object> serializer;
     
     /*
     /**********************************************************
@@ -35,13 +33,13 @@ public class ObjectIdWriter
      */
     
     @SuppressWarnings("unchecked")
-    protected ObjectIdWriter(JavaType idType, String propName, ObjectIdGenerator<?> gen,
+    protected ObjectIdWriter(JavaType t, SerializedString propName, ObjectIdGenerator<?> gen,
             JsonSerializer<?> ser)
     {
-        _idType = idType;
-        _propertyName = propName;
-        _generator = gen;
-        _serializer = (JsonSerializer<Object>) ser;
+        idType = t;
+        propertyName = propName;
+        generator = gen;
+        serializer = (JsonSerializer<Object>) ser;
     }
 
     /**
@@ -49,61 +47,13 @@ public class ObjectIdWriter
      * with the initial information based on standard settings for the type
      * for which serializer is being built.
      */
-    public static ObjectIdWriter construct(JavaType idType, String propertyName,
+    public static ObjectIdWriter construct(JavaType idType, String propName,
             ObjectIdGenerator<?> generator)
     {
-        return new ObjectIdWriter(idType, propertyName, generator, null);
+        return new ObjectIdWriter(idType, new SerializedString(propName), generator, null);
     }
 
-    public ObjectIdWriter withSerializer(SerializerProvider provider)
-        throws JsonMappingException
-    {
-        JsonSerializer<?> ser = provider.findValueSerializer(_idType, null);
-        return new ObjectIdWriter(_idType, _propertyName, _generator, ser);
+    public ObjectIdWriter withSerializer(JsonSerializer<?> ser) {
+        return new ObjectIdWriter(idType, propertyName, generator, ser);
     }
-
-    /*
-    /**********************************************************
-    /* Accessors
-    /**********************************************************
-     */
-
-    public JavaType getType() { return _idType; }
-    public String getPropertyName() { return _propertyName; }
-    
-    /*
-    /**********************************************************
-    /* Serialization API
-    /**********************************************************
-     */
-
-    /**
-     * Method called to see if we could possibly just write a reference to previously
-     * serialized POJO.
-     */
-    public boolean handleReference(Object pojo, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-    {
-        Object id = provider.findObjectId(pojo);
-        // if it has been serialized, just write reference:
-        if (id == null) {
-            return false;
-        }
-        _serializer.serialize(id, jgen, provider);
-        return true;
-    }        
-
-    /**
-     * Method called to write Object Id as regular property, in case where POJO
-     * has not yet been serialized.
-     */
-    public void writeAsProperty(Object pojo, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-    {
-        Object id = _generator.generateId(pojo);
-        provider.addObjectId(pojo, id);
-        // if it has been serialized, just write reference:
-        jgen.writeFieldName(_propertyName);
-        _serializer.serialize(id, jgen, provider);
-    }        
 }

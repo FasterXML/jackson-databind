@@ -58,7 +58,11 @@ public class BeanSerializerBuilder
      */
     protected AnnotatedMember _typeId;
 
-    protected ObjectIdWriter _objectIdHandler;
+    /**
+     * Object responsible for serializing Object Ids for the handled
+     * type, if any.
+     */
+    protected ObjectIdWriter _objectIdWriter;
     
     /*
     /**********************************************************
@@ -105,8 +109,8 @@ public class BeanSerializerBuilder
         _typeId = idProp;
     }
 
-    public void setObjectIdHandler(ObjectIdWriter h) {
-        _objectIdHandler = h;
+    public void setObjectIdWriter(ObjectIdWriter w) {
+        _objectIdWriter = w;
     }
     
     /*
@@ -131,7 +135,7 @@ public class BeanSerializerBuilder
 
     public AnnotatedMember getTypeId() { return _typeId; }
 
-    public ObjectIdWriter getObjectIdHandler() { return _objectIdHandler; }
+    public ObjectIdWriter getObjectIdWriter() { return _objectIdWriter; }
     
     /*
     /**********************************************************

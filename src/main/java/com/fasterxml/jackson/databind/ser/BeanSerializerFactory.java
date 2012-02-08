@@ -327,7 +327,7 @@ public class BeanSerializerFactory
         processViews(config, builder);
 
         // And if Object Id is needed, some preparation for that as well:
-        builder.setObjectIdHandler(constructObjectIdHandler(prov, beanDesc));
+        builder.setObjectIdWriter(constructObjectIdHandler(prov, beanDesc));
         
         // Finally: let interested parties mess with the result bit more...
         if (_factoryConfig.hasSerializerModifiers()) {
@@ -458,17 +458,6 @@ public class BeanSerializerFactory
         TypeBindings typeBind = beanDesc.bindingsForBeanType();
         for (BeanPropertyDefinition property : properties) {
             final AnnotatedMember accessor = property.getAccessor();
-            
-            // [JACKSON-762]: type id? Requires special handling:
-            if (property.isTypeId()) {
-                if (accessor != null) { // only add if we can access... but otherwise?
-                    if (config.canOverrideAccessModifiers()) {
-                        accessor.fixAccess();
-                    }
-                    builder.setTypeId(accessor);
-                }
-                continue;
-            }
             
             // [JACKSON-235]: suppress writing of back references
             AnnotationIntrospector.ReferenceProperty refType = property.findReferenceType();

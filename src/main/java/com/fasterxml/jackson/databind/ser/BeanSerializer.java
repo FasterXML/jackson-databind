@@ -2,9 +2,11 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.io.IOException;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanSerializer;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -40,15 +42,7 @@ public class BeanSerializer
     {
         super(type, builder, properties, filteredProperties);
     }
-
-    /**
-     * Copy-constructor that is useful for sub-classes that just want to
-     * copy all super-class properties without modifications.
-     */
-    protected BeanSerializer(BeanSerializer src) {
-        super(src);
-    }
-
+    
     /**
      * Alternate copy constructor that can be used to construct
      * standard {@link BeanSerializer} passing an instance of
@@ -56,6 +50,10 @@ public class BeanSerializer
      */
     protected BeanSerializer(BeanSerializerBase src) {
         super(src);
+    }
+
+    protected BeanSerializer(BeanSerializerBase src, ObjectIdWriter objectIdWriter) {
+        super(src, objectIdWriter);
     }
     
     /*
@@ -77,6 +75,11 @@ public class BeanSerializer
     public JsonSerializer<Object> unwrappingSerializer(NameTransformer unwrapper) {
         return new UnwrappingBeanSerializer(this, unwrapper);
     }
+
+    @Override
+    protected BeanSerializer withObjectIdWriter(ObjectIdWriter objectIdWriter) {
+        return new BeanSerializer(this, objectIdWriter);
+    }
     
     /*
     /**********************************************************
@@ -93,7 +96,7 @@ public class BeanSerializer
     public final void serialize(Object bean, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
-        if (_objectIdHandler != null) {
+        if (_objectIdWriter != null) {
             serializeWithObjectId(bean, jgen, provider);
             return;
         }
@@ -109,19 +112,25 @@ public class BeanSerializer
     private final void serializeWithObjectId(Object bean, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
+        final ObjectIdWriter w = _objectIdWriter;
         // Ok: if we have seen this POJO before, just write the reference:
-        if (_objectIdHandler.handleReference(bean, jgen, provider)) {
-            return;
+        ObjectIdGenerator<?> gen = provider.objectIdsFor(_objectIdWriter.generator);
+        Object id = gen.findId(bean);
+        if (id == null) { // first time around: must generate
+            id = gen.generateId(bean);
+            // If not, need to inject the id:
+            jgen.writeStartObject();
+            jgen.writeFieldName(w.propertyName);
+            w.serializer.serialize(id, jgen, provider);
+            if (_propertyFilterId != null) {
+                serializeFieldsFiltered(bean, jgen, provider);
+            } else {
+                serializeFields(bean, jgen, provider);
+            }
+            jgen.writeEndObject();
+        } else { // already generated; use one we have
+            w.serializer.serialize(id, jgen, provider);
         }
-        // If not, need to inject the id:
-        jgen.writeStartObject();
-        _objectIdHandler.writeAsProperty(bean, jgen, provider);
-        if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, jgen, provider);
-        } else {
-            serializeFields(bean, jgen, provider);
-        }
-        jgen.writeEndObject();
     }
     
     /*

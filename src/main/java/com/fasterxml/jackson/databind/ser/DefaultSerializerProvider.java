@@ -1,18 +1,14 @@
 package com.fasterxml.jackson.databind.ser;
 
 import java.io.IOException;
+import java.util.*;
+
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -27,6 +23,20 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public abstract class DefaultSerializerProvider extends SerializerProvider
 {
+    /*
+    /**********************************************************
+    /* State, for non-blueprint instances: Object Id handling
+    /**********************************************************
+     */
+
+    protected ArrayList<ObjectIdGenerator<?>> _objectIds;
+    
+    /*
+    /**********************************************************
+    /* Life-cycle
+    /**********************************************************
+     */
+
     protected DefaultSerializerProvider() { super(); }
 
     protected DefaultSerializerProvider( SerializerProvider src,
@@ -34,11 +44,9 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
         super(src, config, f);
     }
 
-//    public abstract SerializerProviderImpl createInstance(...)
-
     /*
     /**********************************************************
-    /* Extends API: methods that ObjectMapper will call
+    /* Extended API: methods that ObjectMapper will call
     /**********************************************************
      */
 
@@ -227,10 +235,35 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
     public void flushCachedSerializers() {
         _serializerCache.flush();
     }
-    
+
     /*
     /**********************************************************
-    /* Life-cycle
+    /* Object Id handling
+    /**********************************************************
+     */
+
+    public final ObjectIdGenerator<?> objectIdsFor(ObjectIdGenerator<?> blueprint)
+    {
+        if (_objectIds != null) {
+            for (int i = 0, len = _objectIds.size(); i < len; ++i) {
+                ObjectIdGenerator<?> gen = _objectIds.get(i);
+                if (gen.canUseFor(blueprint)) {
+                    return gen;
+                }
+            }
+        }
+        // not yet constructed; construct, append
+        if (_objectIds == null) {
+            _objectIds = new ArrayList<ObjectIdGenerator<?>>(8);
+        }
+        ObjectIdGenerator<?> gen = blueprint.newForSerialization();
+        _objectIds.add(gen);
+        return gen;
+    }
+
+    /*
+    /**********************************************************
+    /* Helper classes
     /**********************************************************
      */
 

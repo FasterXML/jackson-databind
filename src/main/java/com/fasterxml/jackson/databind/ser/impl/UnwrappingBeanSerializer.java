@@ -32,6 +32,11 @@ public class UnwrappingBeanSerializer
         _nameTransformer = transformer;
     }
 
+    public UnwrappingBeanSerializer(UnwrappingBeanSerializer src, ObjectIdWriter objectIdWriter) {    
+        super(src, objectIdWriter);
+        _nameTransformer = src._nameTransformer;
+    }
+    
     /*
     /**********************************************************
     /* Life-cycle: factory methods, fluent factories
@@ -47,6 +52,11 @@ public class UnwrappingBeanSerializer
     @Override
     public boolean isUnwrappingSerializer() {
         return true; // sure is
+    }
+
+    @Override
+    protected UnwrappingBeanSerializer withObjectIdWriter(ObjectIdWriter objectIdWriter) {
+        return new UnwrappingBeanSerializer(this, objectIdWriter);
     }
     
     /*

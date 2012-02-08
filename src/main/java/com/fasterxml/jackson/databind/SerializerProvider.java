@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.ObjectIdMap;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
@@ -96,11 +95,6 @@ public abstract class SerializerProvider
      * Helper object for keeping track of introspected root names
      */
     final protected RootNameLookup _rootNames;
-
-    /**
-     * Container for Object Ids we may need.
-     */
-    protected ObjectIdMap _objectIds;
     
     /*
     /**********************************************************
@@ -142,10 +136,10 @@ public abstract class SerializerProvider
 
     /*
     /**********************************************************
-    /* State, for non-blueprint instances
+    /* State, for non-blueprint instances: generic
     /**********************************************************
      */
-
+    
     /**
      * For fast lookups, we will have a local non-shared read-only
      * map that contains serializers previously fetched.
@@ -158,7 +152,7 @@ public abstract class SerializerProvider
      * (not blueprints), so that access need not be thread-safe.
      */
     protected DateFormat _dateFormat;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -369,24 +363,10 @@ public abstract class SerializerProvider
      */
 
     /**
-     * Method used to try to find the Object Id for given POJO; and
-     * if one is not found, to generate id for it.
+     * Method called to find a {@link ObjectIdGenerator} instance to
+     * use when specified kind of generator is needed.
      */
-    public final Object findObjectId(Object pojo)
-    {
-        if (_objectIds == null) {
-            return null;
-        }
-        return _objectIds.findId(pojo);
-    }
-
-    public final void addObjectId(Object pojo, Object id)
-    {
-        if (_objectIds == null) {
-            _objectIds = new ObjectIdMap();
-        }
-        _objectIds.insertId(pojo, id);
-    }
+    public abstract ObjectIdGenerator<?> objectIdsFor(ObjectIdGenerator<?> type);
     
     /*
     /**********************************************************

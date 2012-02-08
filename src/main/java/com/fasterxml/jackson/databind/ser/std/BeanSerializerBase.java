@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -51,17 +53,12 @@ public abstract class BeanSerializerBase
      * annotated properties
      */
     final protected AnyGetterWriter _anyGetterWriter;
-
-    /**
-     * If this POJO can be alternatively serialized using just an object id
-     * to denote a reference to previously serialized object,
-     * this Object will handle details.
-     *<p>
-     * Note: not final since we need to get contextual instance during
-     * resolutuon.
-     */
-    protected ObjectIdWriter _objectIdHandler;
     
+    /**
+     * Id of the bean property filter to use, if any; null if none.
+     */
+    final protected Object _propertyFilterId;
+
     /**
      * If using custom type ids (usually via getter, or field), this is the
      * reference to that member.
@@ -69,9 +66,14 @@ public abstract class BeanSerializerBase
     final protected AnnotatedMember _typeId;
     
     /**
-     * Id of the bean property filter to use, if any; null if none.
+     * If this POJO can be alternatively serialized using just an object id
+     * to denote a reference to previously serialized object,
+     * this Object will handle details.
+     *<p>
+     * Note: not final since we need to get contextual instance during
+     * resolution.
      */
-    final protected Object _propertyFilterId;
+    protected final ObjectIdWriter _objectIdWriter;
     
     /*
     /**********************************************************
@@ -93,15 +95,15 @@ public abstract class BeanSerializerBase
         _props = properties;
         _filteredProps = filteredProperties;
         if (builder == null) { // mostly for testing
-            _objectIdHandler = null;
             _typeId = null;
-            _propertyFilterId = null;
             _anyGetterWriter = null;
+            _propertyFilterId = null;
+            _objectIdWriter = null;
         } else {
-            _anyGetterWriter = builder.getAnyGetter();
             _typeId = builder.getTypeId();
+            _anyGetterWriter = builder.getAnyGetter();
             _propertyFilterId = builder.getFilterId();
-            _objectIdHandler = builder.getObjectIdHandler();
+            _objectIdWriter = builder.getObjectIdWriter();
         }
     }
 
@@ -111,14 +113,31 @@ public abstract class BeanSerializerBase
         super(src._handledType);
         _props = properties;
         _filteredProps = filteredProperties;
-        
-        _anyGetterWriter = src._anyGetterWriter;
-        _objectIdHandler = src._objectIdHandler;
+
         _typeId = src._typeId;
+        _anyGetterWriter = src._anyGetterWriter;
+        _objectIdWriter = src._objectIdWriter;
         _propertyFilterId = src._propertyFilterId;
-        _objectIdHandler = src._objectIdHandler;
     }
 
+    protected BeanSerializerBase(BeanSerializerBase src, ObjectIdWriter objectIdWriter)
+    {
+        super(src._handledType);
+        _props = src._props;
+        _filteredProps = src._filteredProps;
+        
+        _typeId = src._typeId;
+        _anyGetterWriter = src._anyGetterWriter;
+        _objectIdWriter = objectIdWriter;
+        _propertyFilterId = src._propertyFilterId;
+    }
+
+    /**
+     * Fluent factory used for creating a new instance with different
+     * {@link ObjectIdWriter}.
+     */
+    protected abstract BeanSerializerBase withObjectIdWriter(ObjectIdWriter objectIdWriter);
+    
     /**
      * Copy-constructor that is useful for sub-classes that just want to
      * copy all super-class properties without modifications.
@@ -134,7 +153,7 @@ public abstract class BeanSerializerBase
     protected BeanSerializerBase(BeanSerializerBase src, NameTransformer unwrapper) {
         this(src, rename(src._props, unwrapper), rename(src._filteredProps, unwrapper));
     }
-
+    
     private final static BeanPropertyWriter[] rename(BeanPropertyWriter[] props,
             NameTransformer transformer)
     {
@@ -238,31 +257,48 @@ public abstract class BeanSerializerBase
         if (_anyGetterWriter != null) {
             _anyGetterWriter.resolve(provider);
         }
-        // and ObjectIdHandler resolved, if there is one
-        if (_objectIdHandler != null) {
-            _objectIdHandler = _objectIdHandler.withSerializer(provider);
-        }
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov,
+    public JsonSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
         throws JsonMappingException
     {
-        // Can't have any overrides for root values, so:
-        if (property == null) {
-            return this;
-        }
+        ObjectIdWriter oiw = _objectIdWriter;
+        
+        // First: may have an override for Object Id:
+        if (property != null) {
+            final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+            final AnnotatedMember accessor = property.getMember();
+            final ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
+            if (objectIdInfo != null) {
+                /* Ugh: mostly copied from BeanSerializerBase: but can't easily
+                 * change it to be able to move to SerializerProvider (where it
+                 * really belongs)
+                 */
+                ObjectIdGenerator<?> gen;
+                Class<?> implClass = objectIdInfo.getGenerator();
+                JavaType type = provider.constructType(implClass);
+                JavaType idType = provider.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
+                // Property-based generator is trickier
+                if (implClass == ObjectIdGenerators.PropertyGenerator.class) {
+                    // !!! TODO
+                    gen = null;
+                    if (true) throw new IllegalStateException("Not yet implemented!");
+                } else { // other types need to be simpler
+                    gen = provider.objectIdGeneratorInstance(accessor, implClass);
+                }
+                oiw = ObjectIdWriter.construct(idType, objectIdInfo.getProperty(), gen);
 
-        /* Ok: here we may need to override ObjectIdHandler, if referring
-         * property happens to redefine it.
-         */
-        final AnnotationIntrospector intr = prov.getAnnotationIntrospector();
-        AnnotatedMember accessor = property.getMember();
-        ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
-        if (objectIdInfo != null) {
-            // !!! TODO: copy stuff from BeanSerializerFactory.constructObjectIdHandler(...)
-            // ObjectIdGenerator<?> gen = prov.objectIdGeneratorInstance(property.getMember(), objectIdInfo.getGenerator());
+            }
+        }
+        // either way, need to resolve serializer:
+        if (oiw != null) {
+            JsonSerializer<?> ser = provider.findValueSerializer(oiw.idType, property);
+            oiw = oiw.withSerializer(ser);
+            if (oiw != _objectIdWriter) {
+                return withObjectIdWriter(oiw);
+            }
         }
         return this;
     }
@@ -275,7 +311,7 @@ public abstract class BeanSerializerBase
 
     @Override
     public boolean usesObjectId() {
-        return (_objectIdHandler != null);
+        return (_objectIdWriter != null);
     }
     
     // Main serialization method left unimplemented

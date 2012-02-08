@@ -11,9 +11,11 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * {@link SettableBeanProperty} instances.
  *<p>
  * Note that this class is used instead of generic {@link java.util.HashMap}
- * is performance: although default implementation is very good for generic
- * use cases, it can still be streamlined a bit for specific use case
- * we have.
+ * for bit of performance gain (and some memory savings): although default
+ * implementation is very good for generic use cases, it can be streamlined
+ * a bit for specific use case we have. Even relatively small improvements
+ * matter since this is directly on the critical path during deserialization,
+ * as it is done for each and every POJO property deserialized.
  */
 public final class BeanPropertyMap
 {
@@ -37,6 +39,35 @@ public final class BeanPropertyMap
         _buckets = buckets;
     }
 
+    private BeanPropertyMap(Bucket[] buckets, int size)
+    {
+        _buckets = buckets;
+        _size = size;
+        _hashMask = buckets.length-1;
+    }
+    
+    /**
+     * Fluent copy method that creates a new instance that is a copy
+     * of this instance except for one additional property that is
+     * passed as the argument.
+     * Note that method does not modify this instance but constructs
+     * and returns a new one.
+     * 
+     * @since 2.0
+     */
+    public BeanPropertyMap withProperty(SettableBeanProperty newProperty)
+    {
+        int bcount = _buckets.length;
+        // can do a straight copy, since all additions are at the front
+        Bucket[] newBuckets = new Bucket[bcount];
+        System.arraycopy(_buckets, 0, newBuckets, 0, bcount);
+        // and then insert the new property:
+        String key = newProperty.getName();
+        int index = key.hashCode() & _hashMask;
+        newBuckets[index] = new Bucket(newBuckets[index], key, newProperty);
+        return new BeanPropertyMap(newBuckets, _size+1);
+    }
+    
     /**
      * Factory method for constructing a map where all entries use given
      * prefix

@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ClassKey;
+import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -35,10 +36,10 @@ public class BeanDeserializer
      */
 
     /**
-     * Class for which deserializer is built; used for accessing
+     * Annotations from the bean class: used for accessing
      * annotations during resolution phase (see {@link #resolve}).
      */
-    final protected AnnotatedClass _forClass;
+    final protected Annotations _classAnnotations;
     
     /**
      * Declared type of the bean this deserializer handles.
@@ -181,7 +182,9 @@ public class BeanDeserializer
             boolean hasViews)
     {
         super(beanDesc.getType());
-        _forClass = beanDesc.getClassInfo();
+        AnnotatedClass ac = beanDesc.getClassInfo();
+        _classAnnotations = ac.getAnnotations();       
+        
         _beanType = beanDesc.getType();
 
         _valueInstantiator = builder.getValueInstantiator();
@@ -223,7 +226,7 @@ public class BeanDeserializer
     {
         super(src._beanType);
         
-        _forClass = src._forClass;
+        _classAnnotations = src._classAnnotations;
         _beanType = src._beanType;
         
         _valueInstantiator = src._valueInstantiator;
@@ -248,7 +251,7 @@ public class BeanDeserializer
     {
         super(src._beanType);
     
-        _forClass = src._forClass;
+        _classAnnotations = src._classAnnotations;
         _beanType = src._beanType;
         
         _valueInstantiator = src._valueInstantiator;
@@ -481,7 +484,7 @@ public class BeanDeserializer
             AnnotatedWithParams delegateCreator = _valueInstantiator.getDelegateCreator();
             // Need to create a temporary property to allow contextual deserializers:
             BeanProperty.Std property = new BeanProperty.Std(null,
-                    delegateType, _forClass.getAnnotations(), delegateCreator);
+                    delegateType, _classAnnotations, delegateCreator);
             _delegateDeserializer = findDeserializer(ctxt, delegateType, property);
         }
         if (extTypes != null) {
@@ -545,7 +548,7 @@ public class BeanDeserializer
                     +referredType.getRawClass().getName()+")");
         }
         return new SettableBeanProperty.ManagedReferenceProperty(refName, prop, backProp,
-                _forClass.getAnnotations(), isContainer);
+                _classAnnotations, isContainer);
     }
 
     /**

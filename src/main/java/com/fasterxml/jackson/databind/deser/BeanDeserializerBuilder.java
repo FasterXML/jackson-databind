@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
+import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.ValueInjector;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
@@ -60,6 +61,8 @@ public class BeanDeserializerBuilder
      */
     protected ValueInstantiator _valueInstantiator;
 
+    protected ObjectIdReader _objectIdReader;
+    
     /**
      * Fallback setter used for handling any properties that are not
      * mapped to regular setters. If setter is not null, it will be
@@ -210,7 +213,11 @@ public class BeanDeserializerBuilder
     public void setValueInstantiator(ValueInstantiator inst) {
         _valueInstantiator = inst;
     }
-    
+
+    public void setObjectIdReader(ObjectIdReader r) {
+        _objectIdReader = r;
+    }
+
     /*
     /**********************************************************
     /* Public accessors
@@ -248,6 +255,10 @@ public class BeanDeserializerBuilder
 
     public List<ValueInjector> getInjectables() {
         return _injectables;
+    }
+
+    public ObjectIdReader getObjectIdReader() {
+        return _objectIdReader;
     }
     
     /*

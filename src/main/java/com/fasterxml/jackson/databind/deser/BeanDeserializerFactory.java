@@ -4,8 +4,12 @@ import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
+import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.std.JdkDeserializers;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -246,6 +250,7 @@ public class BeanDeserializerFactory
             }
         }
         BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, beanDesc);
+        builder.setObjectIdReader(constructObjectIdReader(ctxt, beanDesc));
         builder.setValueInstantiator(valueInstantiator);
          // And then setters for deserializing from JSON Object
         addBeanProps(ctxt, beanDesc, builder);
@@ -271,6 +276,31 @@ public class BeanDeserializerFactory
         
     }
 
+    protected ObjectIdReader constructObjectIdReader(DeserializationContext ctxt,
+            BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        ObjectIdInfo oidInfo = beanDesc.getObjectIdInfo();
+        if (oidInfo == null) {
+            return null;
+        }
+        ObjectIdGenerator<?> gen;
+        Class<?> implClass = oidInfo.getGenerator();
+        JavaType type = ctxt.constructType(implClass);
+        // Could require type to be passed explicitly, but we should be able to find it too:
+        JavaType idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
+
+        // Just one special case: Property-based generator is trickier
+        if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
+            // !!! TODO
+            gen = null;
+            if (true) throw new IllegalStateException("Not yet implemented!");
+        } else { // other types need to be simpler
+            gen = ctxt.objectIdGeneratorInstance(beanDesc.getClassInfo(), implClass);
+        }
+        return ObjectIdReader.construct(idType, oidInfo.getProperty(), gen);
+    }
+    
     @SuppressWarnings("unchecked")
     public JsonDeserializer<Object> buildThrowableDeserializer(DeserializationContext ctxt,
             JavaType type, BeanDescription beanDesc)

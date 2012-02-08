@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.annotation.NoClass;
@@ -442,6 +443,19 @@ public abstract class DeserializationContext
             ((ResolvableDeserializer) deser).resolve(this);
         }
         return deser;
+    }
+
+    public ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
+            Class<?> implClass)
+        throws JsonMappingException
+    {
+        HandlerInstantiator hi = _config.getHandlerInstantiator();
+
+        if (hi != null) {
+            return hi.objectIdGeneratorInstance(_config, annotated, implClass);
+        }
+        return (ObjectIdGenerator<?>) ClassUtil.createInstance(implClass,
+                    _config.canOverrideAccessModifiers());
     }
     
     /*

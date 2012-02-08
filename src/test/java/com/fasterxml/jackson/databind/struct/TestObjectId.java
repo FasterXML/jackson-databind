@@ -38,6 +38,18 @@ public class TestObjectId extends BaseMapTest
         public ValueNode() { this(0); }
         public ValueNode(int v) { value = v; }
     }
+
+    @JsonIdentityInfo(generator=ObjectIdGenerators.UUIDGenerator.class, property="#")
+    static class UUIDNode
+    {
+        public int value;
+        public UUIDNode parent;
+        public UUIDNode first;
+        public UUIDNode second;
+
+        public UUIDNode() { this(0); }
+        public UUIDNode(int v) { value = v; }
+    }
     
     /*
     /*****************************************************
@@ -71,6 +83,34 @@ public class TestObjectId extends BaseMapTest
         assertSame(result, result.next);
     }
 
+    public void testSimpleUUIDForClassRoundTrip() throws Exception
+    {
+        UUIDNode root = new UUIDNode(1);
+        UUIDNode child1 = new UUIDNode(2);
+        UUIDNode child2 = new UUIDNode(3);
+        root.first = child1;
+        root.second = child2;
+        child1.parent = root;
+        child2.parent = root;
+        child1.first = child2;
+
+        String json = mapper.writeValueAsString(root);
+
+        // and should come back the same too...
+        UUIDNode result = mapper.readValue(json, UUIDNode.class);
+        assertEquals(1, result.value);
+        UUIDNode result2 = result.first;
+        UUIDNode result3 = result.second;
+        assertNotNull(result2);
+        assertNotNull(result3);
+        assertEquals(2, result2.value);
+        assertEquals(3, result3.value);
+
+        assertSame(result, result2.parent);
+        assertSame(result, result3.parent);
+        assertSame(result3, result2.first);
+    }
+    
     /*
     /*****************************************************
     /* Unit tests; simple property annotation

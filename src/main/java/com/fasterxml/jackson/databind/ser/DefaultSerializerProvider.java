@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 
 /**
  * Standard implementation used by {@link ObjectMapper}:
@@ -29,7 +30,9 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
     /**********************************************************
      */
 
-    protected ArrayList<ObjectIdGenerator<?>> _objectIds;
+    protected IdentityHashMap<Object, WritableObjectId> _seenObjectIds;
+    
+    protected ArrayList<ObjectIdGenerator<?>> _objectIdGenerators;
     
     /*
     /**********************************************************
@@ -242,23 +245,38 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
     /**********************************************************
      */
 
-    public final ObjectIdGenerator<?> objectIdsFor(ObjectIdGenerator<?> blueprint)
+    @Override
+    public WritableObjectId findObjectId(Object forPojo,
+            ObjectIdGenerator<?> generatorType)
     {
-        if (_objectIds != null) {
-            for (int i = 0, len = _objectIds.size(); i < len; ++i) {
-                ObjectIdGenerator<?> gen = _objectIds.get(i);
-                if (gen.canUseFor(blueprint)) {
-                    return gen;
+        if (_seenObjectIds == null) {
+            _seenObjectIds = new IdentityHashMap<Object,WritableObjectId>();
+        } else {
+            WritableObjectId oid = _seenObjectIds.get(forPojo);
+            if (oid != null) {
+                return oid;
+            }
+        }
+        // Not seen yet; must add an entry, return it. For that, we need generator
+        ObjectIdGenerator<?> generator = null;
+        
+        if (_objectIdGenerators == null) {
+            _objectIdGenerators = new ArrayList<ObjectIdGenerator<?>>(8);
+        } else {
+            for (int i = 0, len = _objectIdGenerators.size(); i < len; ++i) {
+                ObjectIdGenerator<?> gen = _objectIdGenerators.get(i);
+                if (gen.canUseFor(generatorType)) {
+                    generator = gen;
+                    break;
                 }
             }
         }
-        // not yet constructed; construct, append
-        if (_objectIds == null) {
-            _objectIds = new ArrayList<ObjectIdGenerator<?>>(8);
+        if (generator == null) {
+            generator = generatorType.newForSerialization();
         }
-        ObjectIdGenerator<?> gen = blueprint.newForSerialization();
-        _objectIds.add(gen);
-        return gen;
+        WritableObjectId oid = new WritableObjectId(generator);
+        _seenObjectIds.put(forPojo, oid);
+        return oid;
     }
 
     /*

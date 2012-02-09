@@ -363,10 +363,13 @@ public abstract class SerializerProvider
      */
 
     /**
-     * Method called to find a {@link ObjectIdGenerator} instance to
-     * use when specified kind of generator is needed.
+     * Method called to find the Object Id for given POJO, if one
+     * has been generated. Will always return a non-null Object;
+     * contents vary depending on whether an Object Id already
+     * exists or not.
      */
-    public abstract ObjectIdGenerator<?> objectIdsFor(ObjectIdGenerator<?> type);
+    public abstract WritableObjectId findObjectId(Object forPojo,
+            ObjectIdGenerator<?> generatorType);
     
     /*
     /**********************************************************

@@ -2,12 +2,12 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanSerializer;
+import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -113,24 +113,26 @@ public class BeanSerializer
         throws IOException, JsonGenerationException
     {
         final ObjectIdWriter w = _objectIdWriter;
-        // Ok: if we have seen this POJO before, just write the reference:
-        ObjectIdGenerator<?> gen = provider.objectIdsFor(_objectIdWriter.generator);
-        Object id = gen.findId(bean);
-        if (id == null) { // first time around: must generate
-            id = gen.generateId(bean);
-            // If not, need to inject the id:
-            jgen.writeStartObject();
-            jgen.writeFieldName(w.propertyName);
-            w.serializer.serialize(id, jgen, provider);
-            if (_propertyFilterId != null) {
-                serializeFieldsFiltered(bean, jgen, provider);
-            } else {
-                serializeFields(bean, jgen, provider);
-            }
-            jgen.writeEndObject();
-        } else { // already generated; use one we have
-            w.serializer.serialize(id, jgen, provider);
+        WritableObjectId oid = provider.findObjectId(bean, w.generator);
+        Object id = oid.id;
+        
+        if (id != null) { // have seen before; serialize just id
+            oid.serializer.serialize(id, jgen, provider);
+            return;
         }
+        // if not, bit more work:
+        oid.serializer = w.serializer;
+        oid.id = id = oid.generator.generateId(bean);
+        // If not, need to inject the id:
+        jgen.writeStartObject();
+        jgen.writeFieldName(w.propertyName);
+        w.serializer.serialize(id, jgen, provider);
+        if (_propertyFilterId != null) {
+            serializeFieldsFiltered(bean, jgen, provider);
+        } else {
+            serializeFields(bean, jgen, provider);
+        }
+        jgen.writeEndObject();
     }
     
     /*

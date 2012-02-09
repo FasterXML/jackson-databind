@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
+import com.fasterxml.jackson.databind.deser.impl.ObjectIdProperty;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.ValueInjector;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -285,6 +286,12 @@ public class BeanDeserializerBuilder
                     break;
                 }
             }
+        }
+
+        // one more thing: may need to create virtual ObjectId property:
+        if (_objectIdReader != null) {
+            ObjectIdProperty prop = new ObjectIdProperty(_objectIdReader);
+            propertyMap = propertyMap.withProperty(prop);
         }
         
         return new BeanDeserializer(this,

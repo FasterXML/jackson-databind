@@ -47,12 +47,8 @@ public final class ObjectIdReader
      * for which serializer is being built.
      */
     public static ObjectIdReader construct(JavaType idType, String propName,
-            ObjectIdGenerator<?> generator)
+            ObjectIdGenerator<?> generator, JsonDeserializer<?> deser)
     {
-        return new ObjectIdReader(idType, propName, generator, null);
-    }
-
-    public ObjectIdReader withSerializer(JsonDeserializer<?> ser) {
-        return new ObjectIdReader(idType, propertyName, generator, ser);
+        return new ObjectIdReader(idType, propName, generator, deser);
     }
 }

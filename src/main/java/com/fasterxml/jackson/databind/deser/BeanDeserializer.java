@@ -5,6 +5,9 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
@@ -13,6 +16,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
+import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -27,7 +31,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class BeanDeserializer
     extends StdDeserializer<Object>
-    implements ResolvableDeserializer
+    implements ContextualDeserializer, ResolvableDeserializer
 {
     /*
     /**********************************************************
@@ -165,6 +169,12 @@ public class BeanDeserializer
      * type id.
      */
     protected ExternalTypeHandler _externalTypeIdHandler;
+
+    /**
+     * If an Object Id is to be used for value handled by this
+     * deserializer, this reader is used for handling.
+     */
+    protected final ObjectIdReader _objectIdReader;
     
     /*
     /**********************************************************
@@ -198,7 +208,8 @@ public class BeanDeserializer
         List<ValueInjector> injectables = builder.getInjectables();
         _injectables = (injectables == null || injectables.isEmpty()) ? null
                 : injectables.toArray(new ValueInjector[injectables.size()]);
-
+        _objectIdReader = builder.getObjectIdReader();
+        
         _nonStandardCreation = (_unwrappedPropertyHandler != null)
             || _valueInstantiator.canCreateUsingDelegate()
             || _valueInstantiator.canCreateFromObjectWith()
@@ -239,6 +250,7 @@ public class BeanDeserializer
         _ignoreAllUnknown = ignoreAllUnknown;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
+        _objectIdReader = src._objectIdReader;
         
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
@@ -263,6 +275,7 @@ public class BeanDeserializer
         _ignoreAllUnknown = (unwrapper != null) || src._ignoreAllUnknown;
         _anySetter = src._anySetter;
         _injectables = src._injectables;
+        _objectIdReader = src._objectIdReader;
 
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
@@ -282,6 +295,39 @@ public class BeanDeserializer
         _vanillaProcessing = false;        
     }
 
+    public BeanDeserializer(BeanDeserializer src, ObjectIdReader oir)
+    {
+        super(src._beanType);
+        
+        _classAnnotations = src._classAnnotations;
+        _beanType = src._beanType;
+        
+        _valueInstantiator = src._valueInstantiator;
+        _delegateDeserializer = src._delegateDeserializer;
+        _propertyBasedCreator = src._propertyBasedCreator;
+        
+        _backRefs = src._backRefs;
+        _ignorableProps = src._ignorableProps;
+        _ignoreAllUnknown = src._ignoreAllUnknown;
+        _anySetter = src._anySetter;
+        _injectables = src._injectables;
+        
+        _nonStandardCreation = src._nonStandardCreation;
+        _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _needViewProcesing = src._needViewProcesing;
+
+        _vanillaProcessing = src._vanillaProcessing;
+
+        // then actual changes:
+        _objectIdReader = oir;
+
+        if (oir == null) {
+            _beanProperties = src._beanProperties;
+        } else {
+            _beanProperties = src._beanProperties.withProperty(new ObjectIdProperty(oir));
+        }
+    }
+    
     @Override
     public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
     {
@@ -296,6 +342,10 @@ public class BeanDeserializer
          * and properties for all may be interleaved...
          */
         return new BeanDeserializer(this, unwrapper);
+    }
+
+    public BeanDeserializer withObjectIdReader(ObjectIdReader oir) {
+        return new BeanDeserializer(this, oir);
     }
     
     /*
@@ -467,7 +517,7 @@ public class BeanDeserializer
             }
         }
 
-        // Finally, "any setter" may also need to be resolved now
+        // "any setter" may also need to be resolved now
         if (_anySetter != null && !_anySetter.hasValueDeserializer()) {
             _anySetter = _anySetter.withValueDeserializer(findDeserializer(ctxt,
                     _anySetter.getType(), _anySetter.getProperty()));
@@ -487,6 +537,7 @@ public class BeanDeserializer
                     delegateType, _classAnnotations, delegateCreator);
             _delegateDeserializer = findDeserializer(ctxt, delegateType, property);
         }
+        
         if (extTypes != null) {
             _externalTypeIdHandler = extTypes.build();
             // we consider this non-standard, to offline handling
@@ -502,6 +553,46 @@ public class BeanDeserializer
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
     }
 
+    /**
+     * Although most of post-processing is done in resolve(), we only get
+     * access to referring property's annotations here; and this is needed
+     * to support per-property ObjectIds.
+     */
+    @Override
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+            BeanProperty property) throws JsonMappingException
+    {
+        ObjectIdReader oir = _objectIdReader;
+        
+        // First: may have an override for Object Id:
+        if (property != null) {
+            final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+            final AnnotatedMember accessor = property.getMember();
+            final ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
+            if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
+                ObjectIdGenerator<?> idGen;
+                Class<?> implClass = objectIdInfo.getGenerator();
+                JavaType type = ctxt.constructType(implClass);
+                JavaType idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
+                // Property-based generator is trickier
+                if (implClass == ObjectIdGenerators.PropertyGenerator.class) {
+                    // !!! TODO
+                    idGen = null;
+                    if (true) throw new IllegalStateException("Not yet implemented!");
+                } else { // other types need to be simpler
+                    idGen = ctxt.objectIdGeneratorInstance(accessor, implClass);
+                }
+                JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
+                oir = ObjectIdReader.construct(idType, objectIdInfo.getProperty(), idGen, deser);
+            }
+        }
+        // either way, need to resolve serializer:
+        if (oir != null && oir != _objectIdReader) {
+            return withObjectIdReader(oir);
+        }
+        return this;
+    }
+    
     /**
      * Helper method called to see if given property is part of 'managed' property
      * pair (managed + back reference), and if so, handle resolution details.
@@ -547,7 +638,7 @@ public class BeanDeserializer
                     +backRefType.getRawClass().getName()+") not compatible with managed type ("
                     +referredType.getRawClass().getName()+")");
         }
-        return new SettableBeanProperty.ManagedReferenceProperty(refName, prop, backProp,
+        return new ManagedReferenceProperty(refName, prop, backProp,
                 _classAnnotations, isContainer);
     }
 
@@ -599,7 +690,7 @@ public class BeanDeserializer
                             if (ctxt.getConfig().canOverrideAccessModifiers()) {
                                 ClassUtil.checkAndFixAccess(ctor);
                             }
-                            return new SettableBeanProperty.InnerClassProperty(prop, ctor);
+                            return new InnerClassProperty(prop, ctor);
                         }
                     }
                 }
@@ -856,6 +947,11 @@ public class BeanDeserializer
     public Object deserializeFromString(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
+        // First things first: id Object Id is used, most likely that's it
+        if (_objectIdReader != null) {
+            return deserializeUsingObjectId(jp, ctxt);
+        }
+        
         /* Bit complicated if we have delegating creator; may need to use it,
          * or might not...
          */
@@ -874,6 +970,11 @@ public class BeanDeserializer
     public Object deserializeFromNumber(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
+        // First things first: id Object Id is used, most likely that's it
+        if (_objectIdReader != null) {
+            return deserializeUsingObjectId(jp, ctxt);
+        }
+
         switch (jp.getNumberType()) {
         case INT:
             if (_delegateDeserializer != null) {
@@ -1107,6 +1208,23 @@ public class BeanDeserializer
         return bean;
     }
 
+    /**
+     * Method called in cases where it looks like we got an Object Id
+     * to parse and use as a reference.
+     */
+    protected Object deserializeUsingObjectId(JsonParser jp, DeserializationContext ctxt)
+        throws IOException, JsonProcessingException
+    {
+        Object id = _objectIdReader.deserializer.deserialize(jp, ctxt);
+        ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator);
+        // do we have it resolved?
+        Object pojo = roid.item;
+        if (pojo == null) { // not yet; should wait...
+            throw new IllegalStateException("Could not resolve Object Id ["+id+"]");
+        }
+        return pojo;
+    }
+    
     /*
     /**********************************************************
     /* Deserializing when we have to consider an active View

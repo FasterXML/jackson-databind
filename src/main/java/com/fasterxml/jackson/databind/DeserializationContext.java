@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -354,6 +355,19 @@ public abstract class DeserializationContext
         }
         return kd;
     }
+    
+    /*
+    /**********************************************************
+    /* Public API, ObjectId handling
+    /**********************************************************
+     */
+
+    /**
+     * Method called to find and return entry corresponding to given
+     * Object Id: will add an entry if necessary, and never returns null
+     */
+    public abstract ReadableObjectId findObjectId(Object id,
+            ObjectIdGenerator<?> generator);
     
     /*
     /**********************************************************

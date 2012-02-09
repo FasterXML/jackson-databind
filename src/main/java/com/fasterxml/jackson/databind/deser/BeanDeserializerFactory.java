@@ -289,7 +289,9 @@ public class BeanDeserializerFactory
         JavaType type = ctxt.constructType(implClass);
         // Could require type to be passed explicitly, but we should be able to find it too:
         JavaType idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
-
+        // also: unlike with value deserializers, let's just resolve one we need here
+        JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
+        
         // Just one special case: Property-based generator is trickier
         if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
             // !!! TODO
@@ -298,7 +300,7 @@ public class BeanDeserializerFactory
         } else { // other types need to be simpler
             gen = ctxt.objectIdGeneratorInstance(beanDesc.getClassInfo(), implClass);
         }
-        return ObjectIdReader.construct(idType, oidInfo.getProperty(), gen);
+        return ObjectIdReader.construct(idType, oidInfo.getProperty(), gen, deser);
     }
     
     @SuppressWarnings("unchecked")

@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.util.LinkedHashMap;
+
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 
 /**
  * Default {@link DeserializationContext} implementation that adds
@@ -12,6 +16,8 @@ import com.fasterxml.jackson.databind.*;
 public abstract class DefaultDeserializationContext
     extends DeserializationContext
 {
+    protected LinkedHashMap<ObjectIdGenerator.IdKey, ReadableObjectId> _objectIds;
+    
     /**
      * Constructor that will pass specified deserializer factory and
      * cache: cache may be null (in which case default implementation
@@ -31,6 +37,30 @@ public abstract class DefaultDeserializationContext
         super(src, factory);
     }
 
+    /*
+    /**********************************************************
+    /* Abstract methods impls
+    /**********************************************************
+     */
+
+    @Override
+    public ReadableObjectId findObjectId(Object id,
+            ObjectIdGenerator<?> generator)
+    {
+        final ObjectIdGenerator.IdKey key = generator.key(id);
+        if (_objectIds == null) {
+            _objectIds = new LinkedHashMap<ObjectIdGenerator.IdKey, ReadableObjectId>();
+        } else {
+            ReadableObjectId entry = _objectIds.get(key);
+            if (entry != null) {
+                return entry;
+            }
+        }
+        ReadableObjectId entry = new ReadableObjectId(id);
+        _objectIds.put(key, entry);
+        return entry;
+    }
+    
     /*
     /**********************************************************
     /* Extended API

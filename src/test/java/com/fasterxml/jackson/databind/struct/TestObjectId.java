@@ -61,7 +61,6 @@ public class TestObjectId extends BaseMapTest
     
     private final ObjectMapper mapper = new ObjectMapper();
 
-    /*
     public void testSimpleSerializationClass() throws Exception
     {
         Identifiable src = new Identifiable(13);
@@ -111,7 +110,6 @@ public class TestObjectId extends BaseMapTest
         assertSame(result, result3.parent);
         assertSame(result3, result2.first);
     }
-    */
     
     /*
     /*****************************************************
@@ -122,7 +120,6 @@ public class TestObjectId extends BaseMapTest
     // Bit more complex, due to extra wrapping etc:
     private final static String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"value\":7,\"next\":{\"node\":1}}}";
 
-    /*
     public void testSimpleSerializationProperty() throws Exception
     {
         IdWrapper src = new IdWrapper(7);
@@ -135,7 +132,6 @@ public class TestObjectId extends BaseMapTest
         json = mapper.writeValueAsString(src);
         assertEquals(EXP_SIMPLE_INT_PROP, json);
     }
-    */
         
     public void testSimpleDeserializationProperty() throws Exception
     {

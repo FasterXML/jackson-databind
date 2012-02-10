@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.*;
  */
 public class TestObjectIdDeserialization extends BaseMapTest
 {
+    // // Classes for external id use
+    
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
     static class Identifiable
     {
@@ -23,6 +25,20 @@ public class TestObjectIdDeserialization extends BaseMapTest
         }
     }
 
+    @JsonIdentityInfo(generator=ObjectIdGenerators.UUIDGenerator.class, property="#")
+    static class UUIDNode
+    {
+        public int value;
+        public UUIDNode parent;
+        public UUIDNode first;
+        public UUIDNode second;
+
+        public UUIDNode() { this(0); }
+        public UUIDNode(int v) { value = v; }
+    }
+    
+    // // Classes for external id from property annotations:
+    
     static class IdWrapper
     {
         @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
@@ -42,27 +58,33 @@ public class TestObjectIdDeserialization extends BaseMapTest
         public ValueNode(int v) { value = v; }
     }
 
-    @JsonIdentityInfo(generator=ObjectIdGenerators.UUIDGenerator.class, property="#")
-    static class UUIDNode
+    // // Classes for external id use
+
+    @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="customId")
+    static class IdentifiableCustom
     {
         public int value;
-        public UUIDNode parent;
-        public UUIDNode first;
-        public UUIDNode second;
 
-        public UUIDNode() { this(0); }
-        public UUIDNode(int v) { value = v; }
+        public int customId;
+        
+        public IdentifiableCustom next;
+        
+        public IdentifiableCustom() { this(-1, 0); }
+        public IdentifiableCustom(int i, int v) {
+            customId = i;
+            value = v;
+        }
     }
+
+    private final ObjectMapper mapper = new ObjectMapper();
     
     /*
     /*****************************************************
-    /* Unit tests; simple class annotation
+    /* Unit tests, external id deserialization
     /*****************************************************
      */
 
     private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"value\":13,\"next\":1}";
-    
-    private final ObjectMapper mapper = new ObjectMapper();
 
     public void testSimpleDeserializationClass() throws Exception
     {
@@ -99,12 +121,6 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertSame(result, result3.parent);
         assertSame(result3, result2.first);
     }
-    
-    /*
-    /*****************************************************
-    /* Unit tests; simple property annotation
-    /*****************************************************
-     */
 
     // Bit more complex, due to extra wrapping etc:
     private final static String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"value\":7,\"next\":{\"node\":1}}}";
@@ -116,4 +132,21 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertEquals(7, result.node.value);
         assertSame(result.node, result.node.next.node);
     }
+
+    /*
+    /*****************************************************
+    /* Unit tests, custom (property-based) id deserialization
+    /*****************************************************
+     */
+
+    private final static String EXP_CUSTOM_VIA_CLASS = "{\"customId\":123,\"value\":-900,\"next\":123}";
+
+    public void testCustomDeserializationClass() throws Exception
+    {
+        // then bring back...
+        IdentifiableCustom result = mapper.readValue(EXP_CUSTOM_VIA_CLASS, IdentifiableCustom.class);
+        assertEquals(-900, result.value);
+        assertSame(result, result.next);
+    }
+
 }

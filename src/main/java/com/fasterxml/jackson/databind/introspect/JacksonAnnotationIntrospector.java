@@ -390,10 +390,10 @@ public class JacksonAnnotationIntrospector
     @Override
     public ObjectIdInfo findObjectIdInfo(Annotated ann) {
         JsonIdentityInfo info = ann.getAnnotation(JsonIdentityInfo.class);
-        if (info == null) {
+        if (info == null || info.generator() == ObjectIdGenerators.None.class) {
             return null;
         }
-        return new ObjectIdInfo(info.property(), info.generator());
+        return new ObjectIdInfo(info.property(), info.scope(), info.generator());
     }
     
     /*

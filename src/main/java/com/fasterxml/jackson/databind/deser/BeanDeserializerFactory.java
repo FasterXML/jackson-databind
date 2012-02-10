@@ -300,7 +300,7 @@ public class BeanDeserializerFactory
         } else { // other types need to be simpler
             gen = ctxt.objectIdGeneratorInstance(beanDesc.getClassInfo(), implClass);
         }
-        return ObjectIdReader.construct(idType, oidInfo.getProperty(), gen, deser);
+        return ObjectIdReader.construct(idType, oidInfo.getPropertyName(), gen, deser);
     }
     
     @SuppressWarnings("unchecked")

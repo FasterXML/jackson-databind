@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
+import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
@@ -302,6 +303,12 @@ public class BeanSerializerFactory
                 props = mod.orderProperties(config, beanDesc, props);
             }
         }
+
+        /* And if Object Id is needed, some preparation for that as well: better
+         * do before view handling, mostly for the custom id case which needs
+         * access to a property
+         */
+        builder.setObjectIdWriter(constructObjectIdHandler(prov, beanDesc, props));
         
         builder.setProperties(props);
         builder.setFilterId(findFilterId(config, beanDesc));
@@ -325,9 +332,6 @@ public class BeanSerializerFactory
         }
         // Next: need to gather view information, if any:
         processViews(config, builder);
-
-        // And if Object Id is needed, some preparation for that as well:
-        builder.setObjectIdWriter(constructObjectIdHandler(prov, beanDesc));
         
         // Finally: let interested parties mess with the result bit more...
         if (_factoryConfig.hasSerializerModifiers()) {
@@ -354,7 +358,7 @@ public class BeanSerializerFactory
     }
 
     protected ObjectIdWriter constructObjectIdHandler(SerializerProvider prov,
-            BeanDescription beanDesc)
+            BeanDescription beanDesc, List<BeanPropertyWriter> props)
         throws JsonMappingException
     {
         ObjectIdInfo oidInfo = beanDesc.getObjectIdInfo();
@@ -363,19 +367,32 @@ public class BeanSerializerFactory
         }
         ObjectIdGenerator<?> gen;
         Class<?> implClass = oidInfo.getGenerator();
-        JavaType type = prov.constructType(implClass);
-        // Could require type to be passed explicitly, but we should be able to find it too:
-        JavaType idType = prov.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
+        JavaType idType;
 
         // Just one special case: Property-based generator is trickier
         if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
-            // !!! TODO
-            gen = null;
-            if (true) throw new IllegalStateException("Not yet implemented!");
+            String propName = oidInfo.getPropertyName();
+            BeanPropertyWriter idProp = null;
+            
+            for (BeanPropertyWriter prop : props) {
+                if (propName.equals(prop.getName())) {
+                    idProp = prop;
+                    break;
+                }
+            }
+            if (idProp == null) {
+                throw new IllegalArgumentException("Invalid Object Id definition for "+beanDesc.getBeanClass().getName()
+                        +": can not find property with name '"+propName+"'");
+            }
+            idType = idProp.getType();
+            gen = new PropertyBasedObjectIdGenerator(oidInfo, idProp);
         } else { // other types need to be simpler
+            JavaType type = prov.constructType(implClass);
+            // Could require type to be passed explicitly, but we should be able to find it too:
+            idType = prov.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
             gen = prov.objectIdGeneratorInstance(beanDesc.getClassInfo(), implClass);
         }
-        return ObjectIdWriter.construct(idType, oidInfo.getProperty(), gen);
+        return ObjectIdWriter.construct(idType, oidInfo.getPropertyName(), gen);
     }
 
     /**
@@ -390,7 +407,7 @@ public class BeanSerializerFactory
     }
     
     protected PropertyBuilder constructPropertyBuilder(SerializationConfig config,
-                                                       BeanDescription beanDesc)
+            BeanDescription beanDesc)
     {
         return new PropertyBuilder(config, beanDesc);
     }

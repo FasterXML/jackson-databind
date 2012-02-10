@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import com.fasterxml.jackson.databind.*;
 
-public class TestObjectId extends BaseMapTest
+/**
+ * Unit test to verify handling of Object Id deserialization
+ */
+public class TestObjectIdDeserialization extends BaseMapTest
 {
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
     static class Identifiable
@@ -61,20 +64,6 @@ public class TestObjectId extends BaseMapTest
     
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public void testSimpleSerializationClass() throws Exception
-    {
-        Identifiable src = new Identifiable(13);
-        src.next = src;
-        
-        // First, serialize:
-        String json = mapper.writeValueAsString(src);
-        assertEquals(EXP_SIMPLE_INT_CLASS, json);
-
-        // and ensure that state is cleared in-between as well:
-        json = mapper.writeValueAsString(src);
-        assertEquals(EXP_SIMPLE_INT_CLASS, json);
-    }
-        
     public void testSimpleDeserializationClass() throws Exception
     {
         // then bring back...
@@ -119,19 +108,6 @@ public class TestObjectId extends BaseMapTest
 
     // Bit more complex, due to extra wrapping etc:
     private final static String EXP_SIMPLE_INT_PROP = "{\"node\":{\"@id\":1,\"value\":7,\"next\":{\"node\":1}}}";
-
-    public void testSimpleSerializationProperty() throws Exception
-    {
-        IdWrapper src = new IdWrapper(7);
-        src.node.next = src;
-        
-        // First, serialize:
-        String json = mapper.writeValueAsString(src);
-        assertEquals(EXP_SIMPLE_INT_PROP, json);
-        // and second time too, for a good measure
-        json = mapper.writeValueAsString(src);
-        assertEquals(EXP_SIMPLE_INT_PROP, json);
-    }
         
     public void testSimpleDeserializationProperty() throws Exception
     {

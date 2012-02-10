@@ -583,7 +583,7 @@ public class BeanDeserializer
                     idGen = ctxt.objectIdGeneratorInstance(accessor, implClass);
                 }
                 JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
-                oir = ObjectIdReader.construct(idType, objectIdInfo.getProperty(), idGen, deser);
+                oir = ObjectIdReader.construct(idType, objectIdInfo.getPropertyName(), idGen, deser);
             }
         }
         // either way, need to resolve serializer:

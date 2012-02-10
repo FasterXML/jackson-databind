@@ -288,7 +288,7 @@ public abstract class BeanSerializerBase
                 } else { // other types need to be simpler
                     gen = provider.objectIdGeneratorInstance(accessor, implClass);
                 }
-                oiw = ObjectIdWriter.construct(idType, objectIdInfo.getProperty(), gen);
+                oiw = ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen);
 
             }
         }

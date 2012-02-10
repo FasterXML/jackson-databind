@@ -10,15 +10,18 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator;
  */
 public class ObjectIdInfo
 {
-    protected final String _property;
+    protected final String _propertyName;
     protected final Class<? extends ObjectIdGenerator<?>> _generator;
+    protected final Class<?> _scope;
     
-    public ObjectIdInfo(String prop, Class<? extends ObjectIdGenerator<?>> gen)
+    public ObjectIdInfo(String prop, Class<?> scope, Class<? extends ObjectIdGenerator<?>> gen)
     {
-        _property = prop;
+        _propertyName = prop;
         _generator = gen;
+        _scope = scope;
     }
 
-    public String getProperty() { return _property; }
+    public String getPropertyName() { return _propertyName; }
+    public Class<?> getScope() { return _scope; }
     public Class<? extends ObjectIdGenerator<?>> getGenerator() { return _generator; }
 }

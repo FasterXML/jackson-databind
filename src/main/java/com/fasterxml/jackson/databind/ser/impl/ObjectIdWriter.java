@@ -12,6 +12,11 @@ public final class ObjectIdWriter
 {
     public final JavaType idType;
 
+    /**
+     * Name of id property to write, if not null: if null, should
+     * only write references, but id property is handled by some
+     * other entity.
+     */
     public final SerializedString propertyName;
     
     /**
@@ -31,7 +36,7 @@ public final class ObjectIdWriter
     /* Life-cycle
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     protected ObjectIdWriter(JavaType t, SerializedString propName, ObjectIdGenerator<?> gen,
             JsonSerializer<?> ser)
@@ -50,7 +55,8 @@ public final class ObjectIdWriter
     public static ObjectIdWriter construct(JavaType idType, String propName,
             ObjectIdGenerator<?> generator)
     {
-        return new ObjectIdWriter(idType, new SerializedString(propName), generator, null);
+        SerializedString serName = (propName == null) ? null : new SerializedString(propName);
+        return new ObjectIdWriter(idType, serName, generator, null);
     }
 
     public ObjectIdWriter withSerializer(JsonSerializer<?> ser) {

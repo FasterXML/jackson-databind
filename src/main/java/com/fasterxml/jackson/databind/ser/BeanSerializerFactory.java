@@ -373,25 +373,36 @@ public class BeanSerializerFactory
         if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
             String propName = oidInfo.getPropertyName();
             BeanPropertyWriter idProp = null;
-            
-            for (BeanPropertyWriter prop : props) {
+
+            for (int i = 0, len = props.size() ;; ++i) {
+                if (i == len) {
+                    throw new IllegalArgumentException("Invalid Object Id definition for "+beanDesc.getBeanClass().getName()
+                            +": can not find property with name '"+propName+"'");
+                }
+                BeanPropertyWriter prop = props.get(i);
                 if (propName.equals(prop.getName())) {
                     idProp = prop;
+                    /* Let's force it to be the first property to output
+                     * (although it may still get rearranged etc)
+                     */
+                    if (i > 0) {
+                        props.remove(i);
+                        props.add(0, idProp);
+                    }
                     break;
                 }
             }
-            if (idProp == null) {
-                throw new IllegalArgumentException("Invalid Object Id definition for "+beanDesc.getBeanClass().getName()
-                        +": can not find property with name '"+propName+"'");
-            }
             idType = idProp.getType();
             gen = new PropertyBasedObjectIdGenerator(oidInfo, idProp);
-        } else { // other types need to be simpler
-            JavaType type = prov.constructType(implClass);
-            // Could require type to be passed explicitly, but we should be able to find it too:
-            idType = prov.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
-            gen = prov.objectIdGeneratorInstance(beanDesc.getClassInfo(), implClass);
-        }
+            // one more thing: must ensure that ObjectIdWriter does not actually write the value:
+            return ObjectIdWriter.construct(idType, null, gen);
+            
+        } 
+        // other types are simpler
+        JavaType type = prov.constructType(implClass);
+        // Could require type to be passed explicitly, but we should be able to find it too:
+        idType = prov.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
+        gen = prov.objectIdGeneratorInstance(beanDesc.getClassInfo(), implClass);
         return ObjectIdWriter.construct(idType, oidInfo.getPropertyName(), gen);
     }
 

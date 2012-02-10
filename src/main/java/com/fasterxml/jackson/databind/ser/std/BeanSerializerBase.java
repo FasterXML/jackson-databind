@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
+import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -281,15 +282,40 @@ public abstract class BeanSerializerBase
                 JavaType type = provider.constructType(implClass);
                 JavaType idType = provider.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
                 // Property-based generator is trickier
-                if (implClass == ObjectIdGenerators.PropertyGenerator.class) {
-                    // !!! TODO
-                    gen = null;
-                    if (true) throw new IllegalStateException("Not yet implemented!");
+                if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
+                    String propName = objectIdInfo.getPropertyName();
+                    BeanPropertyWriter idProp = null;
+
+                    for (int i = 0, len = _props.length ;; ++i) {
+                        if (i == len) {
+                            throw new IllegalArgumentException("Invalid Object Id definition for "+_handledType.getName()
+                                    +": can not find property with name '"+propName+"'");
+                        }
+                        BeanPropertyWriter prop = _props[i];
+                        if (propName.equals(prop.getName())) {
+                            idProp = prop;
+                            /* Let's force it to be the first property to output
+                             * (although it may still get rearranged etc)
+                             */
+                            if (i > 0) { // note: must shuffle both regular properties and filtered
+                                System.arraycopy(_props, 0, _props, 1, i);
+                                _props[0] = idProp;
+                                if (_filteredProps != null) {
+                                    BeanPropertyWriter fp = _filteredProps[i];
+                                    System.arraycopy(_filteredProps, 0, _filteredProps, 1, i);
+                                    _filteredProps[0] = fp;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    idType = idProp.getType();
+                    gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
+                    oiw = ObjectIdWriter.construct(idType, null, gen);
                 } else { // other types need to be simpler
                     gen = provider.objectIdGeneratorInstance(accessor, implClass);
+                    oiw = ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen);
                 }
-                oiw = ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen);
-
             }
         }
         // either way, need to resolve serializer:

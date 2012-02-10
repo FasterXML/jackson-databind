@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanSerializer;
@@ -125,8 +126,11 @@ public class BeanSerializer
         oid.id = id = oid.generator.generateId(bean);
         // If not, need to inject the id:
         jgen.writeStartObject();
-        jgen.writeFieldName(w.propertyName);
-        w.serializer.serialize(id, jgen, provider);
+        SerializedString name = w.propertyName;
+        if (name != null) {
+            jgen.writeFieldName(name);
+            w.serializer.serialize(id, jgen, provider);
+        }
         if (_propertyFilterId != null) {
             serializeFieldsFiltered(bean, jgen, provider);
         } else {

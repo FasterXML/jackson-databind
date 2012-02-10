@@ -23,5 +23,5 @@ public class ObjectIdInfo
 
     public String getPropertyName() { return _propertyName; }
     public Class<?> getScope() { return _scope; }
-    public Class<? extends ObjectIdGenerator<?>> getGenerator() { return _generator; }
+    public Class<? extends ObjectIdGenerator<?>> getGeneratorType() { return _generator; }
 }

@@ -9,10 +9,15 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.NoClass;
+import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
+import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Standard implementation used by {@link ObjectMapper}:
@@ -246,6 +251,24 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
      */
 
     @Override
+    public ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
+            ObjectIdInfo objectIdInfo)
+        throws JsonMappingException
+    {
+        Class<?> implClass = objectIdInfo.getGeneratorType();
+        HandlerInstantiator hi = _config.getHandlerInstantiator();
+        ObjectIdGenerator<?> gen;
+
+        if (hi != null) {
+            gen =  hi.objectIdGeneratorInstance(_config, annotated, implClass);
+        } else {
+            gen = (ObjectIdGenerator<?>) ClassUtil.createInstance(implClass,
+                    _config.canOverrideAccessModifiers());
+        }
+        return gen.forScope(objectIdInfo.getScope());
+    }
+    
+    @Override
     public WritableObjectId findObjectId(Object forPojo,
             ObjectIdGenerator<?> generatorType)
     {
@@ -272,13 +295,60 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
             }
         }
         if (generator == null) {
-            generator = generatorType.newForSerialization();
+            generator = generatorType.newForSerialization(this);
         }
         WritableObjectId oid = new WritableObjectId(generator);
         _seenObjectIds.put(forPojo, oid);
         return oid;
     }
 
+    /*
+    /**********************************************************
+    /* Factory method impls
+    /**********************************************************
+     */
+    
+    @Override
+    public JsonSerializer<Object> serializerInstance(Annotated annotated,
+            Object serDef)
+        throws JsonMappingException
+    
+    {
+        if (serDef == null) {
+            return null;
+        }
+        JsonSerializer<?> ser;
+        
+        if (serDef instanceof JsonSerializer) {
+            ser = (JsonSerializer<?>) serDef;
+        } else {
+            /* Alas, there's no way to force return type of "either class
+             * X or Y" -- need to throw an exception after the fact
+             */
+            if (!(serDef instanceof Class)) {
+                throw new IllegalStateException("AnnotationIntrospector returned serializer definition of type "
+                        +serDef.getClass().getName()+"; expected type JsonSerializer or Class<JsonSerializer> instead");
+            }
+            Class<?> serClass = (Class<?>)serDef;
+            // there are some known "no class" markers to consider too:
+            if (serClass == JsonSerializer.None.class || serClass == NoClass.class) {
+                return null;
+            }
+            if (!JsonSerializer.class.isAssignableFrom(serClass)) {
+                throw new IllegalStateException("AnnotationIntrospector returned Class "
+                        +serClass.getName()+"; expected Class<JsonSerializer>");
+            }
+            HandlerInstantiator hi = _config.getHandlerInstantiator();
+            if (hi != null) {
+                ser = hi.serializerInstance(_config, annotated, serClass);
+            } else {
+                ser = (JsonSerializer<?>) ClassUtil.createInstance(serClass,
+                        _config.canOverrideAccessModifiers());
+            }
+        }
+        return (JsonSerializer<Object>) _handleResolvable(ser);
+    }
+    
     /*
     /**********************************************************
     /* Helper classes

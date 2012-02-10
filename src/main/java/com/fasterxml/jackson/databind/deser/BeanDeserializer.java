@@ -571,7 +571,7 @@ public class BeanDeserializer
             final ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
             if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
                 ObjectIdGenerator<?> idGen;
-                Class<?> implClass = objectIdInfo.getGenerator();
+                Class<?> implClass = objectIdInfo.getGeneratorType();
                 JavaType type = ctxt.constructType(implClass);
                 JavaType idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
                 // Property-based generator is trickier
@@ -580,7 +580,7 @@ public class BeanDeserializer
                     idGen = null;
                     if (true) throw new IllegalStateException("Not yet implemented!");
                 } else { // other types need to be simpler
-                    idGen = ctxt.objectIdGeneratorInstance(accessor, implClass);
+                    idGen = ctxt.objectIdGeneratorInstance(accessor, objectIdInfo);
                 }
                 JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
                 oir = ObjectIdReader.construct(idType, objectIdInfo.getPropertyName(), idGen, deser);

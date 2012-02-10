@@ -8,9 +8,8 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.annotation.NoClass;
-import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.*;
@@ -678,57 +677,13 @@ public abstract class SerializerProvider
      * @param annotated Annotated entity that contained definition
      * @param serDef Serializer definition: either an instance or class
      */
-    public JsonSerializer<Object> serializerInstance(Annotated annotated,
+    public abstract JsonSerializer<Object> serializerInstance(Annotated annotated,
             Object serDef)
-        throws JsonMappingException
-    {
-        if (serDef == null) {
-            return null;
-        }
-        JsonSerializer<?> ser;
-        
-        if (serDef instanceof JsonSerializer) {
-            ser = (JsonSerializer<?>) serDef;
-        } else {
-            /* Alas, there's no way to force return type of "either class
-             * X or Y" -- need to throw an exception after the fact
-             */
-            if (!(serDef instanceof Class)) {
-                throw new IllegalStateException("AnnotationIntrospector returned serializer definition of type "
-                        +serDef.getClass().getName()+"; expected type JsonSerializer or Class<JsonSerializer> instead");
-            }
-            Class<?> serClass = (Class<?>)serDef;
-            // there are some known "no class" markers to consider too:
-            if (serClass == JsonSerializer.None.class || serClass == NoClass.class) {
-                return null;
-            }
-            if (!JsonSerializer.class.isAssignableFrom(serClass)) {
-                throw new IllegalStateException("AnnotationIntrospector returned Class "
-                        +serClass.getName()+"; expected Class<JsonSerializer>");
-            }
-            HandlerInstantiator hi = _config.getHandlerInstantiator();
-            if (hi != null) {
-                ser = hi.serializerInstance(_config, annotated, serClass);
-            } else {
-                ser = (JsonSerializer<?>) ClassUtil.createInstance(serClass,
-                        _config.canOverrideAccessModifiers());
-            }
-        }
-        return (JsonSerializer<Object>) _handleResolvable(ser);
-    }
+        throws JsonMappingException;
 
-    public ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
-            Class<?> implClass)
-        throws JsonMappingException
-    {
-        HandlerInstantiator hi = _config.getHandlerInstantiator();
-
-        if (hi != null) {
-            return hi.objectIdGeneratorInstance(_config, annotated, implClass);
-        }
-        return (ObjectIdGenerator<?>) ClassUtil.createInstance(implClass,
-                    _config.canOverrideAccessModifiers());
-    }
+    public abstract ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
+            ObjectIdInfo objectIdInfo)
+        throws JsonMappingException;
     
     /*
     /********************************************************

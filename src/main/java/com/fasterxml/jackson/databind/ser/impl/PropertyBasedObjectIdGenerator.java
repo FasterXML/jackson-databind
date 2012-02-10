@@ -39,7 +39,7 @@ public class PropertyBasedObjectIdGenerator extends ObjectIdGenerators.PropertyG
     }
 
     @Override
-    public ObjectIdGenerator<Object> newForSerialization() {
+    public ObjectIdGenerator<Object> newForSerialization(Object context) {
         // No state, can return this
         return this;
     }

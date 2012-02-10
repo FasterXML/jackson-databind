@@ -361,17 +361,17 @@ public class BeanSerializerFactory
             BeanDescription beanDesc, List<BeanPropertyWriter> props)
         throws JsonMappingException
     {
-        ObjectIdInfo oidInfo = beanDesc.getObjectIdInfo();
-        if (oidInfo == null) {
+        ObjectIdInfo objectIdInfo = beanDesc.getObjectIdInfo();
+        if (objectIdInfo == null) {
             return null;
         }
         ObjectIdGenerator<?> gen;
-        Class<?> implClass = oidInfo.getGenerator();
+        Class<?> implClass = objectIdInfo.getGeneratorType();
         JavaType idType;
 
         // Just one special case: Property-based generator is trickier
         if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
-            String propName = oidInfo.getPropertyName();
+            String propName = objectIdInfo.getPropertyName();
             BeanPropertyWriter idProp = null;
 
             for (int i = 0, len = props.size() ;; ++i) {
@@ -393,7 +393,7 @@ public class BeanSerializerFactory
                 }
             }
             idType = idProp.getType();
-            gen = new PropertyBasedObjectIdGenerator(oidInfo, idProp);
+            gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
             // one more thing: must ensure that ObjectIdWriter does not actually write the value:
             return ObjectIdWriter.construct(idType, null, gen);
             
@@ -402,8 +402,8 @@ public class BeanSerializerFactory
         JavaType type = prov.constructType(implClass);
         // Could require type to be passed explicitly, but we should be able to find it too:
         idType = prov.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
-        gen = prov.objectIdGeneratorInstance(beanDesc.getClassInfo(), implClass);
-        return ObjectIdWriter.construct(idType, oidInfo.getPropertyName(), gen);
+        gen = prov.objectIdGeneratorInstance(beanDesc.getClassInfo(), objectIdInfo);
+        return ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen);
     }
 
     /**

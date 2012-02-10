@@ -8,13 +8,12 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.annotation.NoClass;
-import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -375,102 +374,17 @@ public abstract class DeserializationContext
     /**********************************************************
      */
 
-    @SuppressWarnings("unchecked")
-    public JsonDeserializer<Object> deserializerInstance(Annotated annotated,
+    public abstract JsonDeserializer<Object> deserializerInstance(Annotated annotated,
             Object deserDef)
-        throws JsonMappingException
-    {
-        if (deserDef == null) {
-            return null;
-        }
-        JsonDeserializer<?> deser;
-        
-        if (deserDef instanceof JsonDeserializer) {
-            deser = (JsonDeserializer<?>) deserDef;
-        } else {
-            /* Alas, there's no way to force return type of "either class
-             * X or Y" -- need to throw an exception after the fact
-             */
-            if (!(deserDef instanceof Class)) {
-                throw new IllegalStateException("AnnotationIntrospector returned deserializer definition of type "+deserDef.getClass().getName()+"; expected type JsonDeserializer or Class<JsonDeserializer> instead");
-            }
-            Class<?> deserClass = (Class<?>)deserDef;
-            // there are some known "no class" markers to consider too:
-            if (deserClass == JsonDeserializer.None.class || deserClass == NoClass.class) {
-                return null;
-            }
-            if (!JsonDeserializer.class.isAssignableFrom(deserClass)) {
-                throw new IllegalStateException("AnnotationIntrospector returned Class "+deserClass.getName()+"; expected Class<JsonDeserializer>");
-            }
-            HandlerInstantiator hi = _config.getHandlerInstantiator();
-            if (hi != null) {
-                deser = hi.deserializerInstance(_config, annotated, deserClass);
-            } else {
-                deser = (JsonDeserializer<?>) ClassUtil.createInstance(deserClass,
-                        _config.canOverrideAccessModifiers());
-            }
-        }
-        // First: need to resolve
-        if (deser instanceof ResolvableDeserializer) {
-            ((ResolvableDeserializer) deser).resolve(this);
-        }
-        return (JsonDeserializer<Object>) deser;
-    }
+        throws JsonMappingException;
 
-    public final KeyDeserializer keyDeserializerInstance(Annotated annotated,
+    public abstract KeyDeserializer keyDeserializerInstance(Annotated annotated,
             Object deserDef)
-        throws JsonMappingException
-    {
-        if (deserDef == null) {
-            return null;
-        }
+        throws JsonMappingException;
 
-        KeyDeserializer deser;
-        
-        if (deserDef instanceof KeyDeserializer) {
-            deser = (KeyDeserializer) deserDef;
-        } else {
-            if (!(deserDef instanceof Class)) {
-                throw new IllegalStateException("AnnotationIntrospector returned key deserializer definition of type "
-                        +deserDef.getClass().getName()
-                        +"; expected type KeyDeserializer or Class<KeyDeserializer> instead");
-            }
-            Class<?> deserClass = (Class<?>)deserDef;
-            // there are some known "no class" markers to consider too:
-            if (deserClass == KeyDeserializer.None.class || deserClass == NoClass.class) {
-                return null;
-            }
-            if (!KeyDeserializer.class.isAssignableFrom(deserClass)) {
-                throw new IllegalStateException("AnnotationIntrospector returned Class "+deserClass.getName()
-                        +"; expected Class<KeyDeserializer>");
-            }
-            HandlerInstantiator hi = _config.getHandlerInstantiator();
-            if (hi != null) {
-                deser = hi.keyDeserializerInstance(_config, annotated, deserClass);
-            } else {
-                deser = (KeyDeserializer) ClassUtil.createInstance(deserClass,
-                        _config.canOverrideAccessModifiers());
-            }
-        }
-        // First: need to resolve
-        if (deser instanceof ResolvableDeserializer) {
-            ((ResolvableDeserializer) deser).resolve(this);
-        }
-        return deser;
-    }
-
-    public ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
-            Class<?> implClass)
-        throws JsonMappingException
-    {
-        HandlerInstantiator hi = _config.getHandlerInstantiator();
-
-        if (hi != null) {
-            return hi.objectIdGeneratorInstance(_config, annotated, implClass);
-        }
-        return (ObjectIdGenerator<?>) ClassUtil.createInstance(implClass,
-                    _config.canOverrideAccessModifiers());
-    }
+    public abstract ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
+            ObjectIdInfo objectIdInfo)
+        throws JsonMappingException;
     
     /*
     /**********************************************************

@@ -285,7 +285,7 @@ public class BeanDeserializerFactory
             return null;
         }
         ObjectIdGenerator<?> gen;
-        Class<?> implClass = oidInfo.getGenerator();
+        Class<?> implClass = oidInfo.getGeneratorType();
         JavaType type = ctxt.constructType(implClass);
         // Could require type to be passed explicitly, but we should be able to find it too:
         JavaType idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
@@ -298,7 +298,7 @@ public class BeanDeserializerFactory
             gen = null;
             if (true) throw new IllegalStateException("Not yet implemented!");
         } else { // other types need to be simpler
-            gen = ctxt.objectIdGeneratorInstance(beanDesc.getClassInfo(), implClass);
+            gen = ctxt.objectIdGeneratorInstance(beanDesc.getClassInfo(), oidInfo);
         }
         return ObjectIdReader.construct(idType, oidInfo.getPropertyName(), gen, deser);
     }

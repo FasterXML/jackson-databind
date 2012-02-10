@@ -278,7 +278,7 @@ public abstract class BeanSerializerBase
                  * really belongs)
                  */
                 ObjectIdGenerator<?> gen;
-                Class<?> implClass = objectIdInfo.getGenerator();
+                Class<?> implClass = objectIdInfo.getGeneratorType();
                 JavaType type = provider.constructType(implClass);
                 JavaType idType = provider.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
                 // Property-based generator is trickier
@@ -313,7 +313,7 @@ public abstract class BeanSerializerBase
                     gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
                     oiw = ObjectIdWriter.construct(idType, null, gen);
                 } else { // other types need to be simpler
-                    gen = provider.objectIdGeneratorInstance(accessor, implClass);
+                    gen = provider.objectIdGeneratorInstance(accessor, objectIdInfo);
                     oiw = ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen);
                 }
             }

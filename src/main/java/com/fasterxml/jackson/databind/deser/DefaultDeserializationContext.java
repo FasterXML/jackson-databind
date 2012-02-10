@@ -5,7 +5,12 @@ import java.util.LinkedHashMap;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.NoClass;
+import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
+import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Default {@link DeserializationContext} implementation that adds
@@ -39,7 +44,7 @@ public abstract class DefaultDeserializationContext
 
     /*
     /**********************************************************
-    /* Abstract methods impls
+    /* Abstract methods impls, Object Id
     /**********************************************************
      */
 
@@ -59,6 +64,116 @@ public abstract class DefaultDeserializationContext
         ReadableObjectId entry = new ReadableObjectId(id);
         _objectIds.put(key, entry);
         return entry;
+    }
+
+    @Override
+    public ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
+            ObjectIdInfo objectIdInfo)
+        throws JsonMappingException
+    {
+        Class<?> implClass = objectIdInfo.getGeneratorType();
+        HandlerInstantiator hi = _config.getHandlerInstantiator();
+        ObjectIdGenerator<?> gen;
+
+        if (hi != null) {
+            gen = hi.objectIdGeneratorInstance(_config, annotated, implClass);
+        } else {
+            gen = (ObjectIdGenerator<?>) ClassUtil.createInstance(implClass,
+                    _config.canOverrideAccessModifiers());
+        }
+        return gen.forScope(objectIdInfo.getScope());
+    }
+    
+    /*
+    /**********************************************************
+    /* Abstract methods impls, other factory methods
+    /**********************************************************
+     */
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public JsonDeserializer<Object> deserializerInstance(Annotated annotated,
+            Object deserDef)
+        throws JsonMappingException
+    {
+        if (deserDef == null) {
+            return null;
+        }
+        JsonDeserializer<?> deser;
+        
+        if (deserDef instanceof JsonDeserializer) {
+            deser = (JsonDeserializer<?>) deserDef;
+        } else {
+            /* Alas, there's no way to force return type of "either class
+             * X or Y" -- need to throw an exception after the fact
+             */
+            if (!(deserDef instanceof Class)) {
+                throw new IllegalStateException("AnnotationIntrospector returned deserializer definition of type "+deserDef.getClass().getName()+"; expected type JsonDeserializer or Class<JsonDeserializer> instead");
+            }
+            Class<?> deserClass = (Class<?>)deserDef;
+            // there are some known "no class" markers to consider too:
+            if (deserClass == JsonDeserializer.None.class || deserClass == NoClass.class) {
+                return null;
+            }
+            if (!JsonDeserializer.class.isAssignableFrom(deserClass)) {
+                throw new IllegalStateException("AnnotationIntrospector returned Class "+deserClass.getName()+"; expected Class<JsonDeserializer>");
+            }
+            HandlerInstantiator hi = _config.getHandlerInstantiator();
+            if (hi != null) {
+                deser = hi.deserializerInstance(_config, annotated, deserClass);
+            } else {
+                deser = (JsonDeserializer<?>) ClassUtil.createInstance(deserClass,
+                        _config.canOverrideAccessModifiers());
+            }
+        }
+        // First: need to resolve
+        if (deser instanceof ResolvableDeserializer) {
+            ((ResolvableDeserializer) deser).resolve(this);
+        }
+        return (JsonDeserializer<Object>) deser;
+    }
+
+    @Override
+    public final KeyDeserializer keyDeserializerInstance(Annotated annotated,
+            Object deserDef)
+        throws JsonMappingException
+    {
+        if (deserDef == null) {
+            return null;
+        }
+
+        KeyDeserializer deser;
+        
+        if (deserDef instanceof KeyDeserializer) {
+            deser = (KeyDeserializer) deserDef;
+        } else {
+            if (!(deserDef instanceof Class)) {
+                throw new IllegalStateException("AnnotationIntrospector returned key deserializer definition of type "
+                        +deserDef.getClass().getName()
+                        +"; expected type KeyDeserializer or Class<KeyDeserializer> instead");
+            }
+            Class<?> deserClass = (Class<?>)deserDef;
+            // there are some known "no class" markers to consider too:
+            if (deserClass == KeyDeserializer.None.class || deserClass == NoClass.class) {
+                return null;
+            }
+            if (!KeyDeserializer.class.isAssignableFrom(deserClass)) {
+                throw new IllegalStateException("AnnotationIntrospector returned Class "+deserClass.getName()
+                        +"; expected Class<KeyDeserializer>");
+            }
+            HandlerInstantiator hi = _config.getHandlerInstantiator();
+            if (hi != null) {
+                deser = hi.keyDeserializerInstance(_config, annotated, deserClass);
+            } else {
+                deser = (KeyDeserializer) ClassUtil.createInstance(deserClass,
+                        _config.canOverrideAccessModifiers());
+            }
+        }
+        // First: need to resolve
+        if (deser instanceof ResolvableDeserializer) {
+            ((ResolvableDeserializer) deser).resolve(this);
+        }
+        return deser;
     }
     
     /*

@@ -38,6 +38,8 @@ Improvements
   from methods like 'getTextValue()' (becomes 'textValue()')
 * [JACKSON-777]: Rename 'SerializationConfig.Feature' as 'SerializationFeature',
   'DeserializationConfig.Feature' as 'DeserializationFeature'.
+* [JACKSON-780]: MissingNode, NullNode should return 'defaultValue' from 'asXxx' methods,
+  (not 0 for numbers), as they are not numeric types.
 
 New features:
 

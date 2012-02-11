@@ -31,18 +31,14 @@ public final class NullNode
         return "null";
     }
 
-    @Override
-    public int asInt(int defaultValue) {
-        return 0;
-    }
-    @Override
-    public long asLong(long defaultValue) {
-        return 0L;
-    }
-    @Override
-    public double asDouble(double defaultValue) {
-        return 0.0;
-    }
+    // as with MissingNode, not considered number node; hence defaults are returned if provided
+    
+    /*
+    public int asInt(int defaultValue);
+    public long asLong(long defaultValue);
+    public double asDouble(double defaultValue);
+    public boolean asBoolean(boolean defaultValue);
+    */
     
     @Override
     public final void serialize(JsonGenerator jg, SerializerProvider provider)

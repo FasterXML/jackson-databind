@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Basic tests for {@link JsonNode} implementations that
  * contain numeric values.
  */
-public class TestNumberNodes extends com.fasterxml.jackson.databind.BaseMapTest
+public class TestNumberNodes extends NodeTestBase
 {
     public void testInt()
     {

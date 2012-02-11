@@ -1,9 +1,5 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.math.BigInteger;
-import java.math.BigDecimal;
-
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 
@@ -11,45 +7,8 @@ import com.fasterxml.jackson.databind.*;
  * Basic tests for {@link JsonNode} base class and some features
  * of implementation classes
  */
-public class TestJsonNode
-    extends BaseMapTest
+public class TestJsonNode extends NodeTestBase
 {
-    public void testBasicsWithNullNode() throws Exception
-    {
-        // Let's use something that doesn't add much beyond JsonNode base
-        NullNode n = NullNode.instance;
-
-        // basic properties
-        assertFalse(n.isContainerNode());
-        assertFalse(n.isBigDecimal());
-        assertFalse(n.isBigInteger());
-        assertFalse(n.isBinary());
-        assertFalse(n.isBoolean());
-        assertFalse(n.isPojo());
-        assertFalse(n.isMissingNode());
-
-        // fallback accessors
-        assertFalse(n.booleanValue());
-        assertNull(n.numberValue());
-        assertEquals(0, n.intValue());
-        assertEquals(0L, n.longValue());
-        assertEquals(BigDecimal.ZERO, n.decimalValue());
-        assertEquals(BigInteger.ZERO, n.bigIntegerValue());
-
-        assertEquals(0, n.size());
-        assertFalse(n.elements().hasNext());
-        assertFalse(n.fieldNames().hasNext());
-        // path is never null; but does point to missing node
-        assertNotNull(n.path("xyz"));
-        assertTrue(n.path("xyz").isMissingNode());
-
-        assertFalse(n.has("field"));
-        assertFalse(n.has(3));
-
-        // 1.6:
-        assertNodeNumbers(n, 0, 0.0);
-    }
-
     public void testText()
     {
         assertNull(TextNode.valueOf(null));
@@ -137,18 +96,5 @@ public class TestJsonNode
         assertNodeNumbersForNonNumeric(n);
         // but if wrapping actual number, use it
         assertNodeNumbers(new POJONode(Integer.valueOf(123)), 123, 123.0);
-    }
-
-    public void testMissing()
-    {
-        MissingNode n = MissingNode.getInstance();
-        assertEquals(JsonToken.NOT_AVAILABLE, n.asToken());
-        // as per [JACKSON-775]
-        assertEquals("", n.asText());
-        assertStandardEquals(n);
-        assertEquals("", n.toString());
-
-        // missing acts same as null, so:
-        assertNodeNumbers(n, 0, 0.0);
     }
 }

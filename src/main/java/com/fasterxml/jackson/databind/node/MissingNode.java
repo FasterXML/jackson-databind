@@ -40,19 +40,15 @@ public final class MissingNode
 
     @Override
     public String asText() { return ""; }
+
+    // // Note: not a numeric node, hence default 'asXxx()' are fine:
     
-    @Override
-    public int asInt(int defaultValue) {
-        return 0;
-    }
-    @Override
-    public long asLong(long defaultValue) {
-        return 0L;
-    }
-    @Override
-    public double asDouble(double defaultValue) {
-        return 0.0;
-    }
+    /*
+    public int asInt(int defaultValue);
+    public long asLong(long defaultValue);
+    public double asDouble(double defaultValue);
+    public boolean asBoolean(boolean defaultValue);
+    */
     
     @Override
     public JsonNode path(String fieldName) { return this; }
@@ -66,7 +62,9 @@ public final class MissingNode
     {
         /* Nothing to output... should we signal an error tho?
          * Chances are, this is an erroneous call. For now, let's
-         * not do that.
+         * not do that; serialize as explicit null. Why? Because we
+         * can not just omit a value as JSON Object field name may have
+         * been written out.
          */
         jg.writeNull();
     }

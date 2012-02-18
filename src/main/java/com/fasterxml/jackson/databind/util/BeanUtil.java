@@ -67,19 +67,24 @@ public class BeanUtil
 
     public static String okNameForSetter(AnnotatedMethod am)
     {
-        String name = am.getName();
-        if (name.startsWith("set")) {
-            name = manglePropertyName(name.substring(3));
-            if (name == null) { // plain old "set" is no good...
-                return null;
-            }
-            if ("metaClass".equals(name)) {
-                // 26-Nov-2009 [JACSON-103], need to suppress this internal groovy method
-                if (isGroovyMetaClassSetter(am)) {
-                    return null;
-                }
-            }
-            return name;
+    	String name = okNameForMutator(am, "set");
+    	if (name != null) {
+	        // 26-Nov-2009 [JACSON-103], need to suppress this internal groovy method
+	        if ("metaClass".equals(name)) {
+	            if (isGroovyMetaClassSetter(am)) {
+	                return null;
+	            }
+	        }
+	        return name;
+    	}
+    	return null;
+    }
+
+    public static String okNameForMutator(AnnotatedMethod am, String prefix)
+    {
+	    String name = am.getName();
+        if (name.startsWith(prefix)) {
+        	return manglePropertyName(name.substring(prefix.length()));
         }
         return null;
     }

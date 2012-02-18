@@ -48,15 +48,23 @@ public abstract class ClassIntrospector
      * Factory method that constructs an introspector that has all
      * information needed for serialization purposes.
      */
-    public abstract BeanDescription forSerialization(SerializationConfig cfg, JavaType type,
-            MixInResolver r);
+    public abstract BeanDescription forSerialization(SerializationConfig cfg,
+    		JavaType type, MixInResolver r);
 
     /**
      * Factory method that constructs an introspector that has all
      * information needed for deserialization purposes.
      */
-    public abstract BeanDescription forDeserialization(DeserializationConfig cfg, JavaType type,
-            MixInResolver r);
+    public abstract BeanDescription forDeserialization(DeserializationConfig cfg,
+    		JavaType type, MixInResolver r);
+
+    /**
+     * Factory method that constructs an introspector that has all
+     * information needed for constructing deserializers that use
+     * intermediate Builder objects.
+     */
+    public abstract BeanDescription forDeserializationWithBuilder(DeserializationConfig cfg,
+    		JavaType type, MixInResolver r);
     
     /**
      * Factory method that constructs an introspector that has

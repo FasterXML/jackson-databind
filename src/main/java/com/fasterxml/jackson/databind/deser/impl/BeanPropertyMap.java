@@ -57,15 +57,25 @@ public final class BeanPropertyMap
      */
     public BeanPropertyMap withProperty(SettableBeanProperty newProperty)
     {
-        int bcount = _buckets.length;
-        // can do a straight copy, since all additions are at the front
+    	// first things first: can just copy hash area:
+    	final int bcount = _buckets.length;
         Bucket[] newBuckets = new Bucket[bcount];
         System.arraycopy(_buckets, 0, newBuckets, 0, bcount);
-        // and then insert the new property:
-        String key = newProperty.getName();
-        int index = key.hashCode() & _hashMask;
-        newBuckets[index] = new Bucket(newBuckets[index], key, newProperty);
-        return new BeanPropertyMap(newBuckets, _size+1);
+        final String propName = newProperty.getName();
+        // and then see if it's add or replace:
+    	SettableBeanProperty oldProp = find(newProperty.getName());
+    	if (oldProp == null) { // add
+        	// first things first: add or replace?
+	        // can do a straight copy, since all additions are at the front
+	        // and then insert the new property:
+	        int index = propName.hashCode() & _hashMask;
+	        newBuckets[index] = new Bucket(newBuckets[index], propName, newProperty);
+	        return new BeanPropertyMap(newBuckets, _size+1);
+    	}
+    	// replace: easy, close + replace
+    	BeanPropertyMap newMap = new BeanPropertyMap(newBuckets, bcount);
+    	newMap.replace(newProperty);
+    	return newMap;
     }
     
     /**

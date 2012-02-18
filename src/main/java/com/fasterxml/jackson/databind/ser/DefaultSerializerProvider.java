@@ -296,6 +296,7 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
         }
         if (generator == null) {
             generator = generatorType.newForSerialization(this);
+            _objectIdGenerators.add(generator);
         }
         WritableObjectId oid = new WritableObjectId(generator);
         _seenObjectIds.put(forPojo, oid);

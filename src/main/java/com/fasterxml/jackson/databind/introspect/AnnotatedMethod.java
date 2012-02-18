@@ -24,6 +24,9 @@ public final class AnnotatedMethod
     public AnnotatedMethod(Method method, AnnotationMap classAnn, AnnotationMap[] paramAnnotations)
     {
         super(classAnn, paramAnnotations);
+        if (method == null) {
+        	throw new IllegalArgumentException("Can not construct AnnotatedMethod with null Method");
+        }
         _method = method;
     }
 
@@ -110,7 +113,7 @@ public final class AnnotatedMethod
     public Class<?> getDeclaringClass() { return _method.getDeclaringClass(); }
 
     @Override
-    public Member getMember() { return _method; }
+    public Method getMember() { return _method; }
 
     @Override
     public void setValue(Object pojo, Object value)

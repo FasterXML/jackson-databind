@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.KeyDeserializer;
 @com.fasterxml.jackson.annotation.JacksonAnnotation
 public @interface JsonDeserialize
 {
-    // // // Annotations for explicitly specifying deserializer
+    // // // Annotations for explicitly specifying deserialize/builder
 
     /**
      * Deserializer class to use for deserializing associated value.
@@ -60,6 +60,17 @@ public @interface JsonDeserialize
     public Class<? extends KeyDeserializer> keyUsing()
         default KeyDeserializer.None.class;
 
+    /**
+     * Annotation for specifying if an external Builder class is to
+     * be used for building up deserialized instances of annotated
+     * class. If so, an instance of referenced class is first constructed
+     * (possibly using a Creator method; or if none defined, using default
+     * constructor), and its "with-methods" are used for populating fields;
+     * and finally "build-method" is invoked to complete deserialization.
+     */
+    public Class<?> builder()
+        default NoClass.class;
+    
     // // // Annotations for explicitly specifying deserialization type
     // // // (which is used for choosing deserializer, if not explicitly
     // // // specified

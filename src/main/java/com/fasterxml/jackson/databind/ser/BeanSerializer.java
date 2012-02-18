@@ -110,7 +110,8 @@ public class BeanSerializer
         jgen.writeEndObject();
     }
 
-    private final void serializeWithObjectId(Object bean, JsonGenerator jgen, SerializerProvider provider)
+    private final void serializeWithObjectId(Object bean,
+            JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
         final ObjectIdWriter w = _objectIdWriter;

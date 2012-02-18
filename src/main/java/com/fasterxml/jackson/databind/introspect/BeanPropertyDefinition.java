@@ -132,4 +132,14 @@ public abstract class BeanPropertyDefinition
     public ObjectIdInfo findObjectIdInfo() {
         return null;
     }
+
+    /**
+     * Method used to check if this property is expected to have a value;
+     * and if none found, should either be considered invalid (and most likely
+     * fail deserialization), or handled by other means (by providing default
+     * value)
+     */
+    public boolean isRequired() {
+        return false;
+    }
 }

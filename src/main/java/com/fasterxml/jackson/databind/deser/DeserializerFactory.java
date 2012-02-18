@@ -118,6 +118,17 @@ public abstract class DeserializerFactory
         throws JsonMappingException;
 
     /**
+     * Method called to create a deserializer that will use specified Builder
+     * class for building value instances.
+     * 
+     * @since 2.0
+     */
+    public abstract JsonDeserializer<Object> createBuilderBasedDeserializer(
+    		DeserializationContext ctxt, JavaType type, BeanDescription beanDesc,
+    		Class<?> builderClass)
+        throws JsonMappingException;
+    
+    /**
      * Method called to create (or, for completely immutable deserializers,
      * reuse) a deserializer that can convert JSON content into values of
      * specified Java type.

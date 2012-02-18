@@ -2,23 +2,23 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.AnnotatedField;
+import com.fasterxml.jackson.databind.deser.impl.NullProvider;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ViewMatcher;
 
 /**
- * Base class for settable properties of a bean: contains
+ * Base class for deserilizable properties of a bean: contains
  * both type and name definitions, and reflection-based set functionality.
- * Concrete sub-classes implement details, so that both field- and
- * setter-backed properties can be handled
+ * Concrete sub-classes implement details, so that field- and
+ * setter-backed properties, as well as a few more esoteric variations,
+ * can be handled.
  */
 public abstract class SettableBeanProperty
     implements BeanProperty
@@ -88,8 +88,14 @@ public abstract class SettableBeanProperty
     /**********************************************************
      */
 
-    protected SettableBeanProperty(String propName, JavaType type, TypeDeserializer typeDeser,
-            Annotations contextAnnotations)
+    protected SettableBeanProperty(BeanPropertyDefinition propDef,
+            JavaType type, TypeDeserializer typeDeser, Annotations contextAnnotations)
+    {
+        this(propDef.getName(), type, typeDeser, contextAnnotations);
+    }
+    
+    protected SettableBeanProperty(String propName,
+            JavaType type, TypeDeserializer typeDeser, Annotations contextAnnotations)
     {
         /* 09-Jan-2009, tatu: Intern()ing makes sense since Jackson parsed
          *   field names are (usually) interned too, hence lookups will be faster.
@@ -272,13 +278,39 @@ public abstract class SettableBeanProperty
      * that should be consumed to produce the value (the only value for
      * scalars, multiple for Objects and Arrays).
      */
-    public abstract void deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
-                                           Object instance)
+    public abstract void deserializeAndSet(JsonParser jp,
+    		DeserializationContext ctxt, Object instance)
         throws IOException, JsonProcessingException;
 
+	/**
+	 * Alternative to {@link #deserializeAndSet} that returns
+	 * either return value of setter method called (if one is),
+	 * or null to indicate that no return value is available.
+	 * Mostly used to support Builder style deserialization.
+	 *
+	 * @since 2.0
+	 */
+    public abstract Object deserializeSetAndReturn(JsonParser jp,
+    		DeserializationContext ctxt, Object instance)
+        throws IOException, JsonProcessingException;
+
+    /**
+     * Method called to assign given value to this property, on
+     * specified Object.
+     */
     public abstract void set(Object instance, Object value)
         throws IOException;
 
+    /**
+     * Method called to assign given value to this property, on
+     * specified Object, and return whatever delegating accessor
+     * returned (if anything)
+     * 
+     * @since 2.0
+     */
+    public abstract Object setAndReturn(Object instance, Object value)
+		throws IOException;
+    
     /**
      * This method is needed by some specialized bean deserializers,
      * and also called by some {@link #deserializeAndSet} implementations.
@@ -348,317 +380,4 @@ public abstract class SettableBeanProperty
     }
 
     @Override public String toString() { return "[property '"+getName()+"']"; }
-    
-    /*
-    /**********************************************************
-    /* Implementation classes
-    /**********************************************************
-     */
-
-    /**
-     * This concrete sub-class implements property that is set
-     * using regular "setter" method.
-     */
-    public final static class MethodProperty
-        extends SettableBeanProperty
-    {
-        protected final AnnotatedMethod _annotated;
-        
-        /**
-         * Setter method for modifying property value; used for
-         * "regular" method-accessible properties.
-         */
-        protected final Method _setter;
-
-        public MethodProperty(String name, JavaType type, TypeDeserializer typeDeser,
-                Annotations contextAnnotations, AnnotatedMethod method)
-        {
-            super(name, type, typeDeser, contextAnnotations);
-            _annotated = method;
-            _setter = method.getAnnotated();
-        }
-
-        protected MethodProperty(MethodProperty src, JsonDeserializer<?> deser) {
-            super(src, deser);
-            _annotated = src._annotated;
-            _setter = src._setter;
-        }
-
-        protected MethodProperty(MethodProperty src, String newName) {
-            super(src, newName);
-            _annotated = src._annotated;
-            _setter = src._setter;
-        }
-
-        @Override
-        public MethodProperty withName(String newName) {
-            return new MethodProperty(this, newName);
-        }
-        
-        @Override
-        public MethodProperty withValueDeserializer(JsonDeserializer<?> deser) {
-            return new MethodProperty(this, deser);
-        }
-        
-        /*
-        /**********************************************************
-        /* BeanProperty impl
-        /**********************************************************
-         */
-        
-        @Override
-        public <A extends Annotation> A getAnnotation(Class<A> acls) {
-            return _annotated.getAnnotation(acls);
-        }
-
-        @Override public AnnotatedMember getMember() {  return _annotated; }
-
-        /*
-        /**********************************************************
-        /* Overridden methods
-        /**********************************************************
-         */
-
-        @Override
-        public void deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
-                Object instance)
-            throws IOException, JsonProcessingException
-        {
-            set(instance, deserialize(jp, ctxt));
-        }
-
-        @Override
-        public final void set(Object instance, Object value)
-            throws IOException
-        {
-            try {
-                _setter.invoke(instance, value);
-            } catch (Exception e) {
-                _throwAsIOE(e, value);
-            }
-        }
-    }
-
-    /**
-     * This concrete sub-class implements Collection or Map property that is
-     * indirectly by getting the property value and directly modifying it.
-     */
-    public final static class SetterlessProperty
-        extends SettableBeanProperty
-    {
-        protected final AnnotatedMethod _annotated;
-
-        /**
-         * Get method for accessing property value used to access property
-         * (of Collection or Map type) to modify.
-         */
-        protected final Method _getter;
-
-        public SetterlessProperty(String name, JavaType type, TypeDeserializer typeDeser,
-                Annotations contextAnnotations, AnnotatedMethod method)
-            {
-            super(name, type, typeDeser, contextAnnotations);
-            _annotated = method;
-            _getter = method.getAnnotated();
-        }
-
-        protected SetterlessProperty(SetterlessProperty src, JsonDeserializer<?> deser) {
-            super(src, deser);
-            _annotated = src._annotated;
-            _getter = src._getter;
-        }
-
-        protected SetterlessProperty(SetterlessProperty src, String newName) {
-            super(src, newName);
-            _annotated = src._annotated;
-            _getter = src._getter;
-        }
-
-        @Override
-        public SetterlessProperty withName(String newName) {
-            return new SetterlessProperty(this, newName);
-        }
-        
-        @Override
-        public SetterlessProperty withValueDeserializer(JsonDeserializer<?> deser) {
-            return new SetterlessProperty(this, deser);
-        }
-        
-        /*
-        /**********************************************************
-        /* BeanProperty impl
-        /**********************************************************
-         */
-        
-        @Override
-        public <A extends Annotation> A getAnnotation(Class<A> acls) {
-            return _annotated.getAnnotation(acls);
-        }
-
-        @Override public AnnotatedMember getMember() {  return _annotated; }
-
-        /*
-        /**********************************************************
-        /* Overridden methods
-        /**********************************************************
-         */
-        
-        @Override
-        public final void deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
-                Object instance)
-            throws IOException, JsonProcessingException
-        {
-            JsonToken t = jp.getCurrentToken();
-            if (t == JsonToken.VALUE_NULL) {
-                /* Hmmh. Is this a problem? We won't be setting anything, so it's
-                 * equivalent of empty Collection/Map in this case
-                 */
-                return;
-            }
-
-            // Ok: then, need to fetch Collection/Map to modify:
-            Object toModify;
-            try {
-                toModify = _getter.invoke(instance);
-            } catch (Exception e) {
-                _throwAsIOE(e);
-                return; // never gets here
-            }
-            /* Note: null won't work, since we can't then inject anything
-             * in. At least that's not good in common case. However,
-             * theoretically the case where we get JSON null might
-             * be compatible. If so, implementation could be changed.
-             */
-            if (toModify == null) {
-                throw new JsonMappingException("Problem deserializing 'setterless' property '"+getName()+"': get method returned null");
-            }
-            _valueDeserializer.deserialize(jp, ctxt, toModify);
-        }
-
-        @Override
-        public final void set(Object instance, Object value)
-            throws IOException
-        {
-            throw new UnsupportedOperationException("Should never call 'set' on setterless property");
-        }
-    }
-
-    /**
-     * This concrete sub-class implements property that is set
-     * directly assigning to a Field.
-     */
-    public final static class FieldProperty
-        extends SettableBeanProperty
-    {
-        protected final AnnotatedField _annotated;
-
-        /**
-         * Actual field to set when deserializing this property.
-         */
-        protected final Field _field;
-
-        public FieldProperty(String name, JavaType type, TypeDeserializer typeDeser,
-                Annotations contextAnnotations, AnnotatedField field)
-        {
-            super(name, type, typeDeser, contextAnnotations);
-            _annotated = field;
-            _field = field.getAnnotated();
-        }
-
-        protected FieldProperty(FieldProperty src, JsonDeserializer<?> deser) {
-            super(src, deser);
-            _annotated = src._annotated;
-            _field = src._field;
-        }
-
-        protected FieldProperty(FieldProperty src, String newName) {
-            super(src, newName);
-            _annotated = src._annotated;
-            _field = src._field;
-        }
-
-        @Override
-        public FieldProperty withName(String newName) {
-            return new FieldProperty(this, newName);
-        }
-        
-        @Override
-        public FieldProperty withValueDeserializer(JsonDeserializer<?> deser) {
-            return new FieldProperty(this, deser);
-        }
-        
-        /*
-        /**********************************************************
-        /* BeanProperty impl
-        /**********************************************************
-         */
-        
-        @Override
-        public <A extends Annotation> A getAnnotation(Class<A> acls) {
-            return _annotated.getAnnotation(acls);
-        }
-
-        @Override public AnnotatedMember getMember() {  return _annotated; }
-
-        /*
-        /**********************************************************
-        /* Overridden methods
-        /**********************************************************
-         */
-
-        @Override
-        public void deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
-                                      Object instance)
-            throws IOException, JsonProcessingException
-        {
-            set(instance, deserialize(jp, ctxt));
-        }
-
-        @Override
-        public final void set(Object instance, Object value)
-            throws IOException
-        {
-            try {
-                _field.set(instance, value);
-            } catch (Exception e) {
-                _throwAsIOE(e, value);
-            }
-        }
-    }
-    
-    /*
-    /**********************************************************
-    /* Other helper classes
-    /**********************************************************
-     */
-    
-    /**
-     * To support [JACKSON-420] we need bit more indirection; this is used to produce
-     * artificial failure for primitives that don't accept JSON null as value.
-     */
-    protected final static class NullProvider
-    {
-        private final Object _nullValue;
-
-        private final boolean _isPrimitive;
-        
-        private final Class<?> _rawType;
-        
-        protected NullProvider(JavaType type, Object nullValue)
-        {
-            _nullValue = nullValue;
-            // [JACKSON-420]
-            _isPrimitive = type.isPrimitive();
-            _rawType = type.getRawClass();
-        }
-
-        public Object nullValue(DeserializationContext ctxt) throws JsonProcessingException
-        {
-            if (_isPrimitive && ctxt.isEnabled(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)) {
-                throw ctxt.mappingException("Can not map JSON null into type "+_rawType.getName()
-                        +" (set DeserializationConfig.DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES to 'false' to allow)");
-            }
-            return _nullValue;
-        }
-    }
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.SimpleType;
 
@@ -61,7 +62,8 @@ public class BasicClassIntrospector
         // minor optimization: for JDK types do minimal introspection
         BasicBeanDescription desc = _findCachedDesc(type);
         if (desc == null) {
-            desc = BasicBeanDescription.forSerialization(collectProperties(cfg, type, r, true));
+            desc = BasicBeanDescription.forSerialization(collectProperties(cfg,
+            		type, r, true, "set"));
         }
         return desc;
     }
@@ -73,18 +75,29 @@ public class BasicClassIntrospector
         // minor optimization: for JDK types do minimal introspection
         BasicBeanDescription desc = _findCachedDesc(type);
         if (desc == null) {
-            desc = BasicBeanDescription.forDeserialization(collectProperties(cfg, type, r, false));
+            desc = BasicBeanDescription.forDeserialization(collectProperties(cfg,
+            		type, r, false, "set"));
         }
         return desc;
     }
 
+    @Override
+    public BasicBeanDescription forDeserializationWithBuilder(DeserializationConfig cfg,
+            JavaType type, MixInResolver r)
+    {
+    	// no caching for Builders (no standard JDK builder types):
+    	return BasicBeanDescription.forDeserialization(collectPropertiesWithBuilder(cfg,
+            		type, r, false));
+    }
+    
     @Override
     public BasicBeanDescription forCreation(DeserializationConfig cfg,
             JavaType type, MixInResolver r)
     {
         BasicBeanDescription desc = _findCachedDesc(type);
         if (desc == null) {
-            desc = BasicBeanDescription.forDeserialization(collectProperties(cfg, type, r, false));
+            desc = BasicBeanDescription.forDeserialization(
+            		collectProperties(cfg, type, r, false, "set"));
         }
         return desc;
     }
@@ -117,12 +130,24 @@ public class BasicClassIntrospector
      */
 
     protected POJOPropertiesCollector collectProperties(MapperConfig<?> config,
-            JavaType type, MixInResolver r, boolean forSerialization)
+            JavaType type, MixInResolver r, boolean forSerialization,
+            String mutatorPrefix)
     {
         boolean useAnnotations = config.isAnnotationProcessingEnabled();
         AnnotatedClass ac = AnnotatedClass.construct(type.getRawClass(),
                 (useAnnotations ? config.getAnnotationIntrospector() : null), r);
-        return constructPropertyCollector(config, ac, type, forSerialization).collect();
+        return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix).collect();
+    }
+    
+    protected POJOPropertiesCollector collectPropertiesWithBuilder(MapperConfig<?> config,
+            JavaType type, MixInResolver r, boolean forSerialization)
+    {
+        boolean useAnnotations = config.isAnnotationProcessingEnabled();
+        AnnotationIntrospector ai = useAnnotations ? config.getAnnotationIntrospector() : null;
+        AnnotatedClass ac = AnnotatedClass.construct(type.getRawClass(), ai, r);
+        JsonPOJOBuilder.Value builderConfig = (ai == null) ? null : ai.findPOJOBuilderConfig(ac);
+        String mutatorPrefix = (builderConfig == null) ? "with" : builderConfig.withPrefix;
+        return constructPropertyCollector(config, ac, type, forSerialization, mutatorPrefix).collect();
     }
 
     /**
@@ -131,9 +156,9 @@ public class BasicClassIntrospector
      */
     protected POJOPropertiesCollector constructPropertyCollector(MapperConfig<?> config,
             AnnotatedClass ac, JavaType type,
-            boolean forSerialization)
+            boolean forSerialization, String mutatorPrefix)
     {
-        return new POJOPropertiesCollector(config, forSerialization, type, ac);
+        return new POJOPropertiesCollector(config, forSerialization, type, ac, mutatorPrefix);
     }
     
     /**

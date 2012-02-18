@@ -39,8 +39,8 @@ public class POJOPropertyBuilder
 
     protected Linked<AnnotatedMethod> _setters;
     
-    public POJOPropertyBuilder(String internalName, AnnotationIntrospector annotationIntrospector,
-            boolean forSerialization)
+    public POJOPropertyBuilder(String internalName,
+            AnnotationIntrospector annotationIntrospector, boolean forSerialization)
     {
         _internalName = internalName;
         _name = internalName;
@@ -298,6 +298,16 @@ public class POJOPropertyBuilder
         return (b != null) && b.booleanValue();
     }
 
+    @Override
+    public boolean isRequired() {
+        Boolean b = fromMemberAnnotation(new WithMember<Boolean>() {
+            @Override public Boolean withMember(AnnotatedMember member) {
+                return _annotationIntrospector.hasRequiredMarker(member);
+            }
+        });
+        return (b != null) && b.booleanValue();
+    }
+    
     @Override
     public ObjectIdInfo findObjectIdInfo() {
         return fromMemberAnnotation(new WithMember<ObjectIdInfo>() {

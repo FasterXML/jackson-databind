@@ -33,10 +33,9 @@ public final class ManagedReferenceProperty
 
     protected final SettableBeanProperty _backProperty;
     
-    public ManagedReferenceProperty(String refName,
-            SettableBeanProperty forward, SettableBeanProperty backward,
-            Annotations contextAnnotations,
-            boolean isContainer)
+    public ManagedReferenceProperty(SettableBeanProperty forward,
+            String refName, SettableBeanProperty backward,
+            Annotations contextAnnotations, boolean isContainer)
     {
         super(forward.getName(), forward.getType(), forward.getValueTypeDeserializer(),
                 contextAnnotations);
@@ -101,10 +100,25 @@ public final class ManagedReferenceProperty
     }
 
     @Override
+    public Object deserializeSetAndReturn(JsonParser jp,
+    		DeserializationContext ctxt, Object instance)
+        throws IOException, JsonProcessingException
+    {
+        return setAndReturn(instance, deserialize(jp, ctxt));
+    }
+    
+    @Override
     public final void set(Object instance, Object value)
         throws IOException
     {
-        _managedProperty.set(instance, value);
+    	setAndReturn(instance, value);
+    }
+
+    @Override
+    public Object setAndReturn(Object instance, Object value)
+   		throws IOException
+	{
+    	Object result = _managedProperty.setAndReturn(instance, value);
         /* And then back reference, if (and only if!) we actually have a non-null
          * reference
          */
@@ -136,5 +150,6 @@ public final class ManagedReferenceProperty
                 _backProperty.set(value, instance);
             }
         }
-    }
+    	return result;
+	}
 }

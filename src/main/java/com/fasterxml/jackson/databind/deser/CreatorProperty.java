@@ -137,6 +137,14 @@ public class CreatorProperty
     }
 
     @Override
+    public Object deserializeSetAndReturn(JsonParser jp,
+    		DeserializationContext ctxt, Object instance)
+        throws IOException, JsonProcessingException
+    {
+        return setAndReturn(instance, deserialize(jp, ctxt));
+    }
+    
+    @Override
     public void set(Object instance, Object value)
         throws IOException
     {
@@ -146,6 +154,13 @@ public class CreatorProperty
         //throw new IllegalStateException("Method should never be called on a "+getClass().getName());
     }
 
+    @Override
+    public Object setAndReturn(Object instance, Object value)
+   		throws IOException
+	{
+    	return instance;
+	}
+    
     @Override
     public Object getInjectableValueId() {
         return _injectableValueId;

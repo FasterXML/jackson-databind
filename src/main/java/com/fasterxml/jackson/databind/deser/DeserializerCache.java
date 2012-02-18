@@ -322,6 +322,13 @@ public final class DeserializerCache
             beanDesc = config.introspect(newType);
         }
 
+        // We may also have a Builder type to consider...
+        Class<?> builder = beanDesc.findPOJOBuilder();
+        if (builder != null) {
+            return (JsonDeserializer<Object>) factory.createBuilderBasedDeserializer(
+            		ctxt, type, beanDesc, builder);
+        }
+        
         // If not, let's see which factory method to use:
         if (type.isEnumType()) {
             return (JsonDeserializer<Object>) factory.createEnumDeserializer(ctxt,
@@ -351,8 +358,6 @@ public final class DeserializerCache
                         clt, beanDesc);
             }
         }
-
-        // 02-Mar-2009, tatu: Let's consider JsonNode to be a type of its own
         if (JsonNode.class.isAssignableFrom(type.getRawClass())) {
             return (JsonDeserializer<Object>) factory.createTreeDeserializer(config, type, beanDesc);
         }

@@ -513,6 +513,27 @@ public abstract class DeserializationContext
     }
 
     /**
+     * Helper method for reporting a problem with unhandled unknown exception
+     * 
+     * @param instanceOrClass Either value being populated (if one has been
+     *   instantiated), or Class that indicates type that would be (or
+     *   have been) instantiated
+     */
+    public void reportUnknownProperty(Object instanceOrClass, String fieldName)
+        throws JsonMappingException
+    {
+        if (isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+            throw UnrecognizedPropertyException.from(_parser, instanceOrClass, fieldName);
+        }
+    }
+    
+    /*
+    /**********************************************************
+    /* Methods for constructing exceptions
+    /**********************************************************
+     */
+    
+    /**
      * Helper method for constructing generic mapping exception for specified type
      */
     public JsonMappingException mappingException(Class<?> targetClass) {
@@ -522,15 +543,15 @@ public abstract class DeserializationContext
     public JsonMappingException mappingException(Class<?> targetClass, JsonToken token)
     {
         String clsName = _calcName(targetClass);
-        return JsonMappingException.from(_parser, "Can not deserialize instance of "+clsName+" out of "+token+" token");
+        return JsonMappingException.from(_parser,
+                "Can not deserialize instance of "+clsName+" out of "+token+" token");
     }
     
     /**
      * Helper method for constructing generic mapping exception with specified
      * message and current location information
      */
-    public JsonMappingException mappingException(String message)
-    {
+    public JsonMappingException mappingException(String message) {
         return JsonMappingException.from(getParser(), message);
     }
     
@@ -546,8 +567,7 @@ public abstract class DeserializationContext
                 t);
     }
 
-    public JsonMappingException instantiationException(Class<?> instClass, String msg)
-    {
+    public JsonMappingException instantiationException(Class<?> instClass, String msg) {
         return JsonMappingException.from(_parser, "Can not construct instance of "+instClass.getName()+", problem: "+msg);
     }
     
@@ -555,8 +575,7 @@ public abstract class DeserializationContext
      * Method that will construct an exception suitable for throwing when
      * some String values are acceptable, but the one encountered is not.
      */
-    public JsonMappingException weirdStringException(Class<?> instClass, String msg)
-    {
+    public JsonMappingException weirdStringException(Class<?> instClass, String msg) {
         return JsonMappingException.from(_parser, "Can not construct instance of "+instClass.getName()+" from String value '"+_valueDesc()+"': "+msg);
     }
 
@@ -564,8 +583,7 @@ public abstract class DeserializationContext
      * Helper method for constructing exception to indicate that input JSON
      * Number was not suitable for deserializing into given type.
      */
-    public JsonMappingException weirdNumberException(Class<?> instClass, String msg)
-    {
+    public JsonMappingException weirdNumberException(Class<?> instClass, String msg) {
         return JsonMappingException.from(_parser, "Can not construct instance of "+instClass.getName()+" from number value ("+_valueDesc()+"): "+msg);
     }
 
@@ -586,20 +604,6 @@ public abstract class DeserializationContext
     public JsonMappingException wrongTokenException(JsonParser jp, JsonToken expToken, String msg)
     {
         return JsonMappingException.from(jp, "Unexpected token ("+jp.getCurrentToken()+"), expected "+expToken+": "+msg);
-    }
-    
-    /**
-     * Helper method for constructing exception to indicate that JSON Object
-     * field name did not map to a known property of type being
-     * deserialized.
-     * 
-     * @param instanceOrClass Either value being populated (if one has been
-     *   instantiated), or Class that indicates type that would be (or
-     *   have been) instantiated
-     */
-    public JsonMappingException unknownFieldException(Object instanceOrClass, String fieldName)
-    {
-        return UnrecognizedPropertyException.from(_parser, instanceOrClass, fieldName);
     }
 
     /**

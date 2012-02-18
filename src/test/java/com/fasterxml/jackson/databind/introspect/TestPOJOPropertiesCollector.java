@@ -188,9 +188,12 @@ public class TestPOJOPropertiesCollector
     /**********************************************************
      */
 
+    private final ObjectMapper mapper = new ObjectMapper();
+    
     public void testSimple()
     {
-        POJOPropertiesCollector coll = collector(Simple.class, true);
+        POJOPropertiesCollector coll = collector(mapper,
+        		Simple.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
         POJOPropertyBuilder prop = props.get("value");
@@ -203,7 +206,8 @@ public class TestPOJOPropertiesCollector
     public void testSimpleFieldVisibility()
     {
         // false -> deserialization
-        POJOPropertiesCollector coll = collector(SimpleFieldDeser.class, false);
+        POJOPropertiesCollector coll = collector(mapper,
+        		SimpleFieldDeser.class, false);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
         POJOPropertyBuilder prop = props.get("values");
@@ -215,7 +219,8 @@ public class TestPOJOPropertiesCollector
 
     public void testSimpleGetterVisibility()
     {
-        POJOPropertiesCollector coll = collector(SimpleGetterVisibility.class, true);
+        POJOPropertiesCollector coll = collector(mapper,
+        		SimpleGetterVisibility.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
         POJOPropertyBuilder prop = props.get("a");
@@ -229,7 +234,8 @@ public class TestPOJOPropertiesCollector
     // whole property, unless explicit property marker exists
     public void testEmpty()
     {
-        POJOPropertiesCollector coll = collector(Empty.class, true);
+        POJOPropertiesCollector coll = collector(mapper,
+        		Empty.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(0, props.size());
     }
@@ -239,7 +245,8 @@ public class TestPOJOPropertiesCollector
     // only parts that are ignored are, well, ignored
     public void testPartialIgnore()
     {
-        POJOPropertiesCollector coll = collector(IgnoredSetter.class, true);
+        POJOPropertiesCollector coll = collector(mapper,
+        		IgnoredSetter.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
         POJOPropertyBuilder prop = props.get("value");
@@ -251,7 +258,8 @@ public class TestPOJOPropertiesCollector
 
     public void testSimpleRenamed()
     {
-        POJOPropertiesCollector coll = collector(RenamedProperties.class, true);
+        POJOPropertiesCollector coll = collector(mapper,
+        		RenamedProperties.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
         POJOPropertyBuilder prop = props.get("x");
@@ -263,7 +271,8 @@ public class TestPOJOPropertiesCollector
 
     public void testSimpleRenamed2()
     {
-        POJOPropertiesCollector coll = collector(RenamedProperties2.class, true);
+        POJOPropertiesCollector coll = collector(mapper,
+        		RenamedProperties2.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
         POJOPropertyBuilder prop = props.get("renamed");
@@ -275,7 +284,8 @@ public class TestPOJOPropertiesCollector
 
     public void testMergeWithRename()
     {
-        POJOPropertiesCollector coll = collector(MergedProperties.class, true);
+        POJOPropertiesCollector coll = collector(mapper,
+        		MergedProperties.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
         POJOPropertyBuilder prop = props.get("x");
@@ -287,7 +297,8 @@ public class TestPOJOPropertiesCollector
     
     public void testSimpleIgnoreAndRename()
     {
-        POJOPropertiesCollector coll = collector(IgnoredRenamedSetter.class, true);
+        POJOPropertiesCollector coll = collector(mapper,
+        		IgnoredRenamedSetter.class, true);
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
         POJOPropertyBuilder prop = props.get("y");
@@ -309,8 +320,7 @@ public class TestPOJOPropertiesCollector
 
     public void testCollectionOfIgnored()
     {
-        ObjectMapper m = new ObjectMapper();
-        POJOPropertiesCollector coll = collector(m, ImplicitIgnores.class, false);
+        POJOPropertiesCollector coll = collector(mapper, ImplicitIgnores.class, false);
         // should be 1, due to ignorals
         Map<String, POJOPropertyBuilder> props = coll.getPropertyMap();
         assertEquals(1, props.size());
@@ -323,8 +333,7 @@ public class TestPOJOPropertiesCollector
 
     public void testSimpleOrderingForDeserialization()
     {
-        ObjectMapper m = new ObjectMapper();
-        POJOPropertiesCollector coll = collector(m, SortedProperties.class, false);
+        POJOPropertiesCollector coll = collector(mapper, SortedProperties.class, false);
         List<BeanPropertyDefinition> props = coll.getProperties();
         assertEquals(4, props.size());
         assertEquals("a", props.get(0).getName());
@@ -335,7 +344,6 @@ public class TestPOJOPropertiesCollector
 
     public void testSimpleWithType()
     {
-        ObjectMapper mapper = new ObjectMapper();
         // first for serialization; should base choice on getter
         POJOPropertiesCollector coll = collector(mapper, TypeTestBean.class, true);
         List<BeanPropertyDefinition> props = coll.getProperties();
@@ -358,7 +366,6 @@ public class TestPOJOPropertiesCollector
     // for [JACKSON-701]
     public void testInnerClassWithAnnotationsInCreator() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         BasicBeanDescription beanDesc;
         // first with serialization
         beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(Issue701Bean.class));
@@ -370,6 +377,7 @@ public class TestPOJOPropertiesCollector
 
     public void testJackson703() throws Exception
     {
+    	// note: need a separate mapper, need to reconfigure
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(MapperFeature.USE_ANNOTATIONS, false);
         BasicBeanDescription beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(Jackson703.class));
@@ -382,7 +390,6 @@ public class TestPOJOPropertiesCollector
 
     public void testJackson744() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         BasicBeanDescription beanDesc = mapper.getDeserializationConfig().introspect(mapper.constructType(Issue744Bean.class));
         assertNotNull(beanDesc);
         AnnotatedMethod setter = beanDesc.findAnySetter();
@@ -395,11 +402,6 @@ public class TestPOJOPropertiesCollector
     /**********************************************************
      */
 
-    protected POJOPropertiesCollector collector(Class<?> cls, boolean forSerialization)
-    {
-        return collector(new ObjectMapper(), cls, forSerialization);
-    }
-
     protected POJOPropertiesCollector collector(ObjectMapper mapper,
             Class<?> cls, boolean forSerialization)
     {
@@ -407,9 +409,9 @@ public class TestPOJOPropertiesCollector
         // no real difference between serialization, deserialization, at least here
         if (forSerialization) {
             return bci.collectProperties(mapper.getSerializationConfig(),
-                    mapper.constructType(cls), null, true);
+                    mapper.constructType(cls), null, true, "set");
         }
         return bci.collectProperties(mapper.getDeserializationConfig(),
-                mapper.constructType(cls), null, false);
+                mapper.constructType(cls), null, false, "set");
     }
 }

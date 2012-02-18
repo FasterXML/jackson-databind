@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.impl;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 
 /**
  * Object that knows how to serialize Object Ids.
@@ -24,6 +25,8 @@ public final class ObjectIdReader
      * Serializer used for serializing id values.
      */
     public final JsonDeserializer<Object> deserializer;
+
+    public final SettableBeanProperty idProperty;
     
     /*
     /**********************************************************
@@ -33,12 +36,13 @@ public final class ObjectIdReader
     
     @SuppressWarnings("unchecked")
     protected ObjectIdReader(JavaType t, String propName, ObjectIdGenerator<?> gen,
-            JsonDeserializer<?> deser)
+            JsonDeserializer<?> deser, SettableBeanProperty idProp)
     {
         idType = t;
         propertyName = propName;
         generator = gen;
         deserializer = (JsonDeserializer<Object>) deser;
+        idProperty = idProp;
     }
 
     /**
@@ -47,8 +51,9 @@ public final class ObjectIdReader
      * for which serializer is being built.
      */
     public static ObjectIdReader construct(JavaType idType, String propName,
-            ObjectIdGenerator<?> generator, JsonDeserializer<?> deser)
+            ObjectIdGenerator<?> generator, JsonDeserializer<?> deser,
+            SettableBeanProperty idProp)
     {
-        return new ObjectIdReader(idType, propName, generator, deser);
+        return new ObjectIdReader(idType, propName, generator, deser, idProp);
     }
 }

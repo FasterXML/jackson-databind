@@ -79,7 +79,6 @@ public final class InnerClassProperty
             Object bean)
         throws IOException, JsonProcessingException
     {
-        // mostly copied from super class impl:
         JsonToken t = jp.getCurrentToken();
         Object value;
         if (t == JsonToken.VALUE_NULL) {
@@ -99,8 +98,23 @@ public final class InnerClassProperty
     }
 
     @Override
+    public Object deserializeSetAndReturn(JsonParser jp,
+    		DeserializationContext ctxt, Object instance)
+        throws IOException, JsonProcessingException
+    {
+        return setAndReturn(instance, deserialize(jp, ctxt));
+    }
+    
+    @Override
     public final void set(Object instance, Object value) throws IOException
     {
         _delegate.set(instance, value);
     }
+
+    @Override
+    public Object setAndReturn(Object instance, Object value)
+   		throws IOException
+	{
+    	return _delegate.setAndReturn(instance, value);
+	}
 }

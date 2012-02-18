@@ -4,11 +4,13 @@ import java.util.*;
 
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdProperty;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.ValueInjector;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.util.Annotations;
 
@@ -76,6 +78,17 @@ public class BeanDeserializerBuilder
      * If set, will not throw an exception for unknown properties.
      */
     protected boolean _ignoreAllUnknown;
+
+    /**
+     * When creating Builder-based deserializers, this indicates
+     * method to call on builder to finalize value.
+     */
+    protected AnnotatedMethod _buildMethod;
+
+    /**
+     * In addition, Builder may have additional configuration
+     */
+    protected JsonPOJOBuilder.Value _builderConfig;
     
     /*
     /**********************************************************
@@ -219,6 +232,12 @@ public class BeanDeserializerBuilder
         _objectIdReader = r;
     }
 
+    public void setPOJOBuilder(AnnotatedMethod buildMethod,
+            JsonPOJOBuilder.Value config) {
+    	_buildMethod = buildMethod;
+    	_builderConfig = config;
+    }
+    
     /*
     /**********************************************************
     /* Public accessors
@@ -236,13 +255,16 @@ public class BeanDeserializerBuilder
     public Iterator<SettableBeanProperty> getProperties() {
         return _properties.values().iterator();
     }
-    
-    public boolean hasProperty(String propertyName) {
-        return _properties.containsKey(propertyName);
+
+    public SettableBeanProperty findProperty(String propertyName) {
+    	return _properties.get(propertyName);
     }
     
-    public SettableBeanProperty removeProperty(String name)
-    {
+    public boolean hasProperty(String propertyName) {
+        return findProperty(propertyName) != null;
+    }
+    
+    public SettableBeanProperty removeProperty(String name) {
         return _properties.remove(name);
     }
 
@@ -261,6 +283,14 @@ public class BeanDeserializerBuilder
     public ObjectIdReader getObjectIdReader() {
         return _objectIdReader;
     }
+
+    public AnnotatedMethod getBuildMethod() {
+    	return _buildMethod;
+    }
+
+    public JsonPOJOBuilder.Value getBuilderConfig() {
+        return _builderConfig;
+    }
     
     /*
     /**********************************************************
@@ -268,7 +298,11 @@ public class BeanDeserializerBuilder
     /**********************************************************
      */
 
-    public JsonDeserializer<?> build()
+    /**
+     * Method for constructing a {@link BeanDeserializer}, given all
+     * information collected.
+     */
+    public BeanDeserializer build()
     {
         Collection<SettableBeanProperty> props = _properties.values();
         BeanPropertyMap propertyMap = new BeanPropertyMap(props);
@@ -295,6 +329,51 @@ public class BeanDeserializerBuilder
         }
         
         return new BeanDeserializer(this,
+                _beanDesc, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
+                anyViews);
+    }
+
+    /**
+     * Method for constructing a specialized deserializer that uses
+     * additional external Builder object during data binding.
+     */
+    public JsonDeserializer<?> buildBuilderBased(JavaType valueType,
+    		String expBuildMethodName)
+    {
+    	// First: validation; must have build method that returns compatible type
+    	if (_buildMethod == null) {
+        	throw new IllegalArgumentException("Builder class "+_beanDesc.getBeanClass().getName()
+        			+" does not have build method '"+expBuildMethodName+"()'");
+    	}
+    	// also: type of the method must be compatible
+    	Class<?> rawBuildType = _buildMethod.getRawReturnType();
+    	if (!valueType.getRawClass().isAssignableFrom(rawBuildType)) {
+        	throw new IllegalArgumentException("Build method '"+_buildMethod.getFullName()
+        			+" has bad return type ("+rawBuildType.getName()
+        			+"), not compatible with POJO type ("+valueType.getRawClass().getName()+")");
+    	}
+    	// And if so, we can try building the deserializer
+        Collection<SettableBeanProperty> props = _properties.values();
+        BeanPropertyMap propertyMap = new BeanPropertyMap(props);
+        propertyMap.assignIndexes();
+
+        boolean anyViews = !_defaultViewInclusion;
+
+        if (!anyViews) {
+            for (SettableBeanProperty prop : props) {
+                if (prop.hasViews()) {
+                    anyViews = true;
+                    break;
+                }
+            }
+        }
+
+        if (_objectIdReader != null) {
+            ObjectIdProperty prop = new ObjectIdProperty(_objectIdReader);
+            propertyMap = propertyMap.withProperty(prop);
+        }
+        
+        return new BuilderBasedDeserializer(this,
                 _beanDesc, propertyMap, _backRefProperties, _ignorableProps, _ignoreAllUnknown,
                 anyViews);
     }

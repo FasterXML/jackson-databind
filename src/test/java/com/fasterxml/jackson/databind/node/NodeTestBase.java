@@ -1,7 +1,8 @@
 package com.fasterxml.jackson.databind.node;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonNode;
+
+import com.fasterxml.jackson.databind.BaseMapTest;
 
 abstract class NodeTestBase extends BaseMapTest
 {

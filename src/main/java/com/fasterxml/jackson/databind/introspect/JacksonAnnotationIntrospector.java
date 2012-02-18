@@ -166,6 +166,16 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    public Boolean hasRequiredMarker(AnnotatedMember m)
+    {
+        JsonProperty ann = m.getAnnotation(JsonProperty.class);
+        if (ann != null) {
+            return ann.required();
+        }
+        return null;
+    }
+    
+    @Override
     public Object findInjectableValueId(AnnotatedMember m)
     {
         JacksonInject ann = m.getAnnotation(JacksonInject.class);
@@ -573,6 +583,21 @@ public class JacksonAnnotationIntrospector
         JsonValueInstantiator ann = ac.getAnnotation(JsonValueInstantiator.class);
         // no 'null' marker yet, so:
         return (ann == null) ? null : ann.value();
+    }
+
+    @Override
+    public Class<?> findPOJOBuilder(AnnotatedClass ac)
+    {
+    	JsonDeserialize ann = ac.getAnnotation(JsonDeserialize.class);
+    	return ((ann == null) || (ann.builder() == NoClass.class)) ?
+    			null : ann.builder();
+    }
+
+    @Override
+    public JsonPOJOBuilder.Value findPOJOBuilderConfig(AnnotatedClass ac)
+    {
+        JsonPOJOBuilder ann = ac.getAnnotation(JsonPOJOBuilder.class);
+        return (ann == null) ? null : new JsonPOJOBuilder.Value(ann);
     }
     
     /*

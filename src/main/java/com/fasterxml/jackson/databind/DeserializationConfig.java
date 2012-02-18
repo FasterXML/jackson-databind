@@ -490,4 +490,12 @@ public final class DeserializationConfig
     public <T extends BeanDescription> T introspectForCreation(JavaType type) {
         return (T) getClassIntrospector().forCreation(this, type, this);
     }
+
+    /**
+     * @since 2.0
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends BeanDescription> T introspectForBuilder(JavaType type) {
+        return (T) getClassIntrospector().forDeserializationWithBuilder(this, type, this);
+    }
 }

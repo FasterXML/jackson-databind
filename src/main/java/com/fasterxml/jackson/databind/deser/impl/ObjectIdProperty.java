@@ -15,7 +15,8 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
  * for virtual property that represents Object Id that is used
  * for some POJO types (or properties).
  */
-public class ObjectIdProperty extends SettableBeanProperty
+public final class ObjectIdProperty
+	extends SettableBeanProperty
 {
     protected final ObjectIdReader _objectIdReader;
     
@@ -67,15 +68,41 @@ public class ObjectIdProperty extends SettableBeanProperty
         Object instance)
             throws IOException, JsonProcessingException
     {
+    	deserializeSetAndReturn(jp, ctxt, instance);
+    }
+
+    @Override
+    public Object deserializeSetAndReturn(JsonParser jp,
+    		DeserializationContext ctxt, Object instance)
+        throws IOException, JsonProcessingException
+    {
         // note: no null checks (unlike usually); deserializer should fail if one found
         Object id = _valueDeserializer.deserialize(jp, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator);
         roid.bindItem(instance);
+        // also: may need to set a property value as well
+        SettableBeanProperty idProp = _objectIdReader.idProperty;
+        if (idProp != null) {
+            return idProp.setAndReturn(instance, id);
+        }
+        return instance;
+    }
+    
+    
+    @Override
+    public void set(Object instance, Object value) throws IOException {
+    	setAndReturn(instance, value);
     }
 
     @Override
-    public void set(Object instance, Object value) throws IOException {
-        throw new UnsupportedOperationException("Should not call set() on ObjectIdProperty");
-    }
-
+    public Object setAndReturn(Object instance, Object value)
+   		throws IOException
+	{
+        SettableBeanProperty idProp = _objectIdReader.idProperty;
+        if (idProp == null) {
+        	throw new UnsupportedOperationException(
+        			"Should not call set() on ObjectIdProperty that has no SettableBeanProperty");
+        }
+        return idProp.setAndReturn(instance, value);
+	}
 }

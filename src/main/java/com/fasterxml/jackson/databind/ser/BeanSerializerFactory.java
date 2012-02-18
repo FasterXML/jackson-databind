@@ -367,7 +367,6 @@ public class BeanSerializerFactory
         }
         ObjectIdGenerator<?> gen;
         Class<?> implClass = objectIdInfo.getGeneratorType();
-        JavaType idType;
 
         // Just one special case: Property-based generator is trickier
         if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
@@ -392,7 +391,7 @@ public class BeanSerializerFactory
                     break;
                 }
             }
-            idType = idProp.getType();
+            JavaType idType = idProp.getType();
             gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
             // one more thing: must ensure that ObjectIdWriter does not actually write the value:
             return ObjectIdWriter.construct(idType, null, gen);
@@ -401,7 +400,7 @@ public class BeanSerializerFactory
         // other types are simpler
         JavaType type = prov.constructType(implClass);
         // Could require type to be passed explicitly, but we should be able to find it too:
-        idType = prov.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
+        JavaType idType = prov.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
         gen = prov.objectIdGeneratorInstance(beanDesc.getClassInfo(), objectIdInfo);
         return ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen);
     }

@@ -8,8 +8,13 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
+import com.fasterxml.jackson.databind.deser.impl.FieldProperty;
+import com.fasterxml.jackson.databind.deser.impl.MethodProperty;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
+import com.fasterxml.jackson.databind.deser.impl.PropertyBasedObjectIdGenerator;
+import com.fasterxml.jackson.databind.deser.impl.SetterlessProperty;
 import com.fasterxml.jackson.databind.deser.std.JdkDeserializers;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -150,7 +155,7 @@ public class BeanDeserializerFactory
         }
 
         // Otherwise, may want to check handlers for standard types, from superclass:
-        JsonDeserializer<Object> deser = findStdBeanDeserializer(config, type);
+        JsonDeserializer<Object> deser = findStdDeserializer(config, type);
         if (deser != null) {
             return deser;
         }
@@ -162,13 +167,25 @@ public class BeanDeserializerFactory
         // Use generic bean introspection to build deserializer
         return buildBeanDeserializer(ctxt, type, beanDesc);
     }
+
+    @Override
+    public JsonDeserializer<Object> createBuilderBasedDeserializer(
+    		DeserializationContext ctxt, JavaType valueType, BeanDescription beanDesc,
+    		Class<?> builderClass)
+        throws JsonMappingException
+    {
+    	// First: need a BeanDescription for builder class
+    	JavaType builderType = ctxt.constructType(builderClass);
+    	BeanDescription builderDesc = ctxt.getConfig().introspectForBuilder(builderType);
+    	return buildBuilderBasedDeserializer(ctxt, valueType, builderDesc);
+    }
     
     /**
      * Method called by {@link BeanDeserializerFactory} to see if there might be a standard
      * deserializer registered for given type.
      */
     @SuppressWarnings("unchecked")
-    protected JsonDeserializer<Object> findStdBeanDeserializer(DeserializationConfig config,
+    protected JsonDeserializer<Object> findStdDeserializer(DeserializationConfig config,
             JavaType type)
         throws JsonMappingException
     {
@@ -241,7 +258,6 @@ public class BeanDeserializerFactory
     {
         // First: check what creators we can use, if any
         ValueInstantiator valueInstantiator = findValueInstantiator(ctxt, beanDesc);
-        final DeserializationConfig config = ctxt.getConfig();
         // ... since often we have nothing to go on, if we have abstract type:
         if (type.isAbstract()) {
             if (!valueInstantiator.canInstantiate()) {
@@ -250,14 +266,16 @@ public class BeanDeserializerFactory
             }
         }
         BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, beanDesc);
-        builder.setObjectIdReader(constructObjectIdReader(ctxt, beanDesc));
         builder.setValueInstantiator(valueInstantiator);
          // And then setters for deserializing from JSON Object
         addBeanProps(ctxt, beanDesc, builder);
+        addObjectIdReader(ctxt, beanDesc, builder);
+        
         // managed/back reference fields/setters need special handling... first part
         addReferenceProperties(ctxt, beanDesc, builder);
         addInjectables(ctxt, beanDesc, builder);
 
+        final DeserializationConfig config = ctxt.getConfig();
         // [JACKSON-440]: update builder now that all information is in?
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
@@ -273,34 +291,96 @@ public class BeanDeserializerFactory
             }
         }
         return (JsonDeserializer<Object>) deserializer;
-        
     }
 
-    protected ObjectIdReader constructObjectIdReader(DeserializationContext ctxt,
-            BeanDescription beanDesc)
+    /**
+     * Method for constructing a bean deserializer that uses specified
+     * intermediate Builder for binding data, and construction of the
+     * value instance.
+     * Note that implementation is mostly copied from the regular
+     * BeanDeserializer build method.
+     */
+    @SuppressWarnings("unchecked")
+    protected JsonDeserializer<Object> buildBuilderBasedDeserializer(
+    		DeserializationContext ctxt, JavaType valueType, BeanDescription builderDesc)
         throws JsonMappingException
     {
-        ObjectIdInfo oidInfo = beanDesc.getObjectIdInfo();
-        if (oidInfo == null) {
-            return null;
-        }
-        ObjectIdGenerator<?> gen;
-        Class<?> implClass = oidInfo.getGeneratorType();
-        JavaType type = ctxt.constructType(implClass);
-        // Could require type to be passed explicitly, but we should be able to find it too:
-        JavaType idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
-        // also: unlike with value deserializers, let's just resolve one we need here
-        JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
+    	// Creators, anyone? (to create builder itself)
+        ValueInstantiator valueInstantiator = findValueInstantiator(ctxt, builderDesc);
+        final DeserializationConfig config = ctxt.getConfig();
+        BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, builderDesc);
+        builder.setValueInstantiator(valueInstantiator);
+         // And then "with methods" for deserializing from JSON Object
+        addBeanProps(ctxt, builderDesc, builder);
+        addObjectIdReader(ctxt, builderDesc, builder);
         
+        // managed/back reference fields/setters need special handling... first part
+        addReferenceProperties(ctxt, builderDesc, builder);
+        addInjectables(ctxt, builderDesc, builder);
+
+        JsonPOJOBuilder.Value builderConfig = builderDesc.findPOJOBuilderConfig();
+        final String buildMethodName = (builderConfig == null) ?
+                "build" : builderConfig.buildMethodName;
+        
+        // and lastly, find build method to use:
+        AnnotatedMethod buildMethod = builderDesc.findMethod(buildMethodName, null);
+        if (buildMethod != null) { // note: can't yet throw error; may be given build method
+            if (config.canOverrideAccessModifiers()) {
+            	ClassUtil.checkAndFixAccess(buildMethod.getMember());
+            }
+        }
+        builder.setPOJOBuilder(buildMethod, builderConfig);
+        // this may give us more information...
+        if (_factoryConfig.hasDeserializerModifiers()) {
+            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                builder = mod.updateBuilder(config, builderDesc, builder);
+            }
+        }
+        JsonDeserializer<?> deserializer = builder.buildBuilderBased(
+        		valueType, buildMethodName);
+
+        // [JACKSON-440]: may have modifier(s) that wants to modify or replace serializer we just built:
+        if (_factoryConfig.hasDeserializerModifiers()) {
+            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                deserializer = mod.modifyDeserializer(config, builderDesc, deserializer);
+            }
+        }
+        return (JsonDeserializer<Object>) deserializer;
+    }
+    
+    protected void addObjectIdReader(DeserializationContext ctxt,
+            BeanDescription beanDesc, BeanDeserializerBuilder builder)
+        throws JsonMappingException
+    {
+        ObjectIdInfo objectIdInfo = beanDesc.getObjectIdInfo();
+        if (objectIdInfo == null) {
+            return;
+        }
+        Class<?> implClass = objectIdInfo.getGeneratorType();
+        JavaType idType;
+    	SettableBeanProperty idProp;
+        ObjectIdGenerator<?> gen;
+
         // Just one special case: Property-based generator is trickier
         if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
-            // !!! TODO
-            gen = null;
-            if (true) throw new IllegalStateException("Not yet implemented!");
-        } else { // other types need to be simpler
-            gen = ctxt.objectIdGeneratorInstance(beanDesc.getClassInfo(), oidInfo);
+            String propName = objectIdInfo.getPropertyName();
+        	idProp = builder.findProperty(propName);
+        	if (idProp == null) {
+        		throw new IllegalArgumentException("Invalid Object Id definition for "
+        				+beanDesc.getBeanClass().getName()+": can not find property with name '"+propName+"'");
+        	}
+            idType = idProp.getType();
+            gen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());
+        } else {
+	        JavaType type = ctxt.constructType(implClass);
+	        idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
+	        idProp = null;
+	        gen = ctxt.objectIdGeneratorInstance(beanDesc.getClassInfo(), objectIdInfo);
         }
-        return ObjectIdReader.construct(idType, oidInfo.getPropertyName(), gen, deser);
+        // also: unlike with value deserializers, let's just resolve one we need here
+        JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
+        builder.setObjectIdReader(ObjectIdReader.construct(idType,
+        		objectIdInfo.getPropertyName(), gen, deser, idProp));
     }
     
     @SuppressWarnings("unchecked")
@@ -629,12 +709,10 @@ public class BeanDeserializerFactory
         if (ctxt.canOverrideAccessModifiers()) {
             mutator.fixAccess();
         }
-        final String name = propDef.getName();
-
         // note: this works since we know there's exactly one argument for methods
         JavaType t0 = beanDesc.resolveType(jdkType);
 
-        BeanProperty.Std property = new BeanProperty.Std(name, t0, beanDesc.getClassAnnotations(), mutator);
+        BeanProperty.Std property = new BeanProperty.Std(propDef.getName(), t0, beanDesc.getClassAnnotations(), mutator);
         JavaType type = resolveType(ctxt, beanDesc, t0, mutator);
         // did type change?
         if (type != t0) {
@@ -649,10 +727,10 @@ public class BeanDeserializerFactory
         TypeDeserializer typeDeser = type.getTypeHandler();
         SettableBeanProperty prop;
         if (mutator instanceof AnnotatedMethod) {
-            prop = new SettableBeanProperty.MethodProperty(name, type, typeDeser,
+            prop = new MethodProperty(propDef, type, typeDeser,
                 beanDesc.getClassAnnotations(), (AnnotatedMethod) mutator);
         } else {
-            prop = new SettableBeanProperty.FieldProperty(name, type, typeDeser,
+            prop = new FieldProperty(propDef, type, typeDeser,
                     beanDesc.getClassAnnotations(), (AnnotatedField) mutator);
         }
         if (propDeser != null) {
@@ -677,7 +755,6 @@ public class BeanDeserializerFactory
             BeanDescription beanDesc, BeanPropertyDefinition propDef)
         throws JsonMappingException
     {
-        final String name = propDef.getName();
         final AnnotatedMethod getter = propDef.getGetter();
         // need to ensure it is callable now:
         if (ctxt.canOverrideAccessModifiers()) {
@@ -691,12 +768,10 @@ public class BeanDeserializerFactory
         /* First: does the Method specify the deserializer to use?
          * If so, let's use it.
          */
-//        BeanProperty.Std property = new BeanProperty.Std(name, type, beanDesc.getClassAnnotations(), getter);
-
         JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, getter);
         type = modifyTypeByAnnotation(ctxt, getter, type);
         TypeDeserializer typeDeser = type.getTypeHandler();
-        SettableBeanProperty prop = new SettableBeanProperty.SetterlessProperty(name, type, typeDeser,
+        SettableBeanProperty prop = new SetterlessProperty(propDef, type, typeDeser,
                 beanDesc.getClassAnnotations(), getter);
         if (propDeser != null) {
             prop = prop.withValueDeserializer(propDeser);

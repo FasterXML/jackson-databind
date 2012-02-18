@@ -76,6 +76,32 @@ public class TestObjectIdDeserialization extends BaseMapTest
         }
     }
 
+    static class IdWrapperExt
+    {
+        @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class,
+        		property="customId")
+        public ValueNodeExt node;
+
+        public IdWrapperExt() { }
+        public IdWrapperExt(int v) {
+            node = new ValueNodeExt(v);
+        }
+    }
+
+    static class ValueNodeExt
+    {
+        public int value;
+        private int customId;
+        public IdWrapperExt next;
+        
+        public ValueNodeExt() { this(0); }
+        public ValueNodeExt(int v) { value = v; }
+
+        public void setCustomId(int i) {
+        	customId = i;
+        }
+    }
+    
     private final ObjectMapper mapper = new ObjectMapper();
     
     /*
@@ -127,7 +153,6 @@ public class TestObjectIdDeserialization extends BaseMapTest
         
     public void testSimpleDeserializationProperty() throws Exception
     {
-        // then bring back...
         IdWrapper result = mapper.readValue(EXP_SIMPLE_INT_PROP, IdWrapper.class);
         assertEquals(7, result.node.value);
         assertSame(result.node, result.node.next.node);
@@ -149,4 +174,14 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertSame(result, result.next);
     }
 
+    private final static String EXP_CUSTOM_VIA_PROP = "{\"node\":{\"customId\":3,\"value\":99,\"next\":{\"node\":3}}}";
+    
+    public void testCustomDeserializationProperty() throws Exception
+    {
+        // then bring back...
+    	IdWrapperExt result = mapper.readValue(EXP_CUSTOM_VIA_PROP, IdWrapperExt.class);
+        assertEquals(99, result.node.value);
+        assertSame(result.node, result.node.next.node);
+        assertEquals(3, result.node.customId);
+    }
 }

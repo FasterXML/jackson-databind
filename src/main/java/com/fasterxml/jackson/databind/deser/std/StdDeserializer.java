@@ -636,7 +636,8 @@ public abstract class StdDeserializer<T>
      *   If null, will assume type is what {@link #getValueClass} returns.
      * @param propName Name of the property that can not be mapped
      */
-    protected void handleUnknownProperty(JsonParser jp, DeserializationContext ctxt, Object instanceOrClass, String propName)
+    protected void handleUnknownProperty(JsonParser jp, DeserializationContext ctxt,
+            Object instanceOrClass, String propName)
         throws IOException, JsonProcessingException
     {
         if (instanceOrClass == null) {
@@ -647,22 +648,11 @@ public abstract class StdDeserializer<T>
             return;
         }
         // Nope, not handled. Potentially that's a problem...
-        reportUnknownProperty(ctxt, instanceOrClass, propName);
+        ctxt.reportUnknownProperty(instanceOrClass, propName);
 
-        /* If we get this far, need to skip now; we point to first token of
-         * value (START_xxx for structured, or the value token for others)
+        /* But if we do get this far, need to skip whatever value we
+         * are pointing to now.
          */
         jp.skipChildren();
-    }
-        
-    protected void reportUnknownProperty(DeserializationContext ctxt,
-                                         Object instanceOrClass, String fieldName)
-        throws IOException, JsonProcessingException
-    {
-        // throw exception if that's what we are expected to do
-        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
-            throw ctxt.unknownFieldException(instanceOrClass, fieldName);
-        }
-        // ... or if not, just ignore
     }
 }

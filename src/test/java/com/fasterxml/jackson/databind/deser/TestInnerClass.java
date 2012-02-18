@@ -44,7 +44,6 @@ public class TestInnerClass extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         Dog input = new Dog("Smurf", true);
         String json = mapper.writeValueAsString(input);
-//System.out.println("JSON = "+json);
         Dog output = mapper.readValue(json, Dog.class);
         assertEquals("Smurf", output.name);
         assertNotNull(output.brain);

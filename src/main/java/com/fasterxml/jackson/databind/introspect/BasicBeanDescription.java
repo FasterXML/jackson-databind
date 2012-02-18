@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -84,7 +85,7 @@ public class BasicBeanDescription extends BeanDescription
     {
         super(type);
         _config = config;
-        _annotationIntrospector = (_config == null) ? null : _config.getAnnotationIntrospector();
+        _annotationIntrospector = (config == null) ? null : config.getAnnotationIntrospector();
         _classInfo = classDef;
         _properties = props;
     }
@@ -446,6 +447,20 @@ public class BasicBeanDescription extends BeanDescription
         return result;
     }
 
+    @Override
+    public Class<?> findPOJOBuilder()
+    {
+    	return (_annotationIntrospector == null) ?
+    			null : _annotationIntrospector.findPOJOBuilder(_classInfo);
+    }
+
+    @Override
+    public JsonPOJOBuilder.Value findPOJOBuilderConfig()
+    {
+        return (_annotationIntrospector == null) ?
+                null : _annotationIntrospector.findPOJOBuilderConfig(_classInfo);
+    }
+    
     /*
     /**********************************************************
     /* Helper methods for field introspection

@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.SerializedString;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
+import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -347,42 +349,83 @@ public abstract class BeanSerializerBase
 
     // Type-info-augmented case implemented as it does not usually differ between impls
     @Override
-    public void serializeWithType(Object bean, JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
+    public void serializeWithType(Object bean, JsonGenerator jgen,
+            SerializerProvider provider, TypeSerializer typeSer)
         throws IOException, JsonGenerationException
     {
-        if (_typeId != null) {
-            serializeWithCustomType(bean, jgen, provider, typeSer);
+        if (_objectIdWriter != null) {
+            _serializeWithObjectId(bean, jgen, provider, typeSer);
             return;
         }
-        typeSer.writeTypePrefixForObject(bean, jgen);
+
+        String typeStr = (_typeId == null) ? null :_customTypeId(bean);
+        if (typeStr == null) {
+            typeSer.writeTypePrefixForObject(bean, jgen);
+        } else {
+            typeSer.writeCustomTypePrefixForObject(bean, jgen, typeStr);
+        }
         if (_propertyFilterId != null) {
             serializeFieldsFiltered(bean, jgen, provider);
         } else {
             serializeFields(bean, jgen, provider);
         }
-        typeSer.writeTypeSuffixForObject(bean, jgen);
+        if (typeStr == null) {
+            typeSer.writeTypeSuffixForObject(bean, jgen);
+        } else {
+            typeSer.writeCustomTypeSuffixForObject(bean, jgen, typeStr);
+        }
     }
 
-    private final void serializeWithCustomType(Object bean,
+    private final void _serializeWithObjectId(Object bean,
             JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException, JsonGenerationException
     {
-        final Object typeId = _typeId.getValue(bean);
-        String typeStr;
-        if (typeId == null) {
-            typeStr = "";
-        } else {
-            typeStr = (typeId instanceof String) ? (String) typeId : typeId.toString();
+        final ObjectIdWriter w = _objectIdWriter;
+        WritableObjectId oid = provider.findObjectId(bean, w.generator);
+        Object id = oid.id;
+        
+        if (id != null) { // have seen before; serialize just id
+            oid.serializer.serialize(id, jgen, provider);
+            return;
         }
-        typeSer.writeCustomTypePrefixForObject(bean, jgen, typeStr);
+        // if not, bit more work:
+        oid.serializer = w.serializer;
+        oid.id = id = oid.generator.generateId(bean);
+        
+        String typeStr = (_typeId == null) ? null :_customTypeId(bean);
+        if (typeStr == null) {
+            typeSer.writeTypePrefixForObject(bean, jgen);
+        } else {
+            typeSer.writeCustomTypePrefixForObject(bean, jgen, typeStr);
+        }
+
+        // Very first thing: inject the id property
+        SerializedString name = w.propertyName;
+        if (name != null) {
+            jgen.writeFieldName(name);
+            w.serializer.serialize(id, jgen, provider);
+        }
+
         if (_propertyFilterId != null) {
             serializeFieldsFiltered(bean, jgen, provider);
         } else {
             serializeFields(bean, jgen, provider);
         }
-        typeSer.writeCustomTypeSuffixForObject(bean, jgen, typeStr);
+        if (typeStr == null) {
+            typeSer.writeTypeSuffixForObject(bean, jgen);
+        } else {
+            typeSer.writeCustomTypeSuffixForObject(bean, jgen, typeStr);
+        }
+    }
+    
+    private final String _customTypeId(Object bean)
+    {
+        final Object typeId = _typeId.getValue(bean);
+        if (typeId == null) {
+            return "";
+        }
+        return (typeId instanceof String) ? (String) typeId : typeId.toString();
     }
     
     /*

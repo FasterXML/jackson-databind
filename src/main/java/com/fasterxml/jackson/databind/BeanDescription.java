@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedConstructor;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -99,7 +100,7 @@ public abstract class BeanDescription
      * class has.
      */
     public abstract Annotations getClassAnnotations();
-    
+   
     /*
     /**********************************************************
     /* Basic API for finding properties
@@ -193,6 +194,19 @@ public abstract class BeanDescription
     public abstract Map<Object, AnnotatedMember> findInjectables();
 
     public abstract JsonInclude.Include findSerializationInclusion(JsonInclude.Include defValue);
+
+    /**
+     * Method for checking if the POJO type has annotations to
+     * indicate that a builder is to be used for instantiating
+     * instances and handling data binding, instead of standard
+     * bean deserializer.
+     */
+    public abstract Class<?> findPOJOBuilder();
+
+    /**
+     * Method for finding configuration for POJO Builder class.
+     */
+    public abstract JsonPOJOBuilder.Value findPOJOBuilderConfig();
     
     /**
      * Method called to create a "default instance" of the bean, currently

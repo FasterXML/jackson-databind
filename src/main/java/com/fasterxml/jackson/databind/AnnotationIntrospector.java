@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -240,11 +241,12 @@ public abstract class AnnotationIntrospector implements Versioned
     /**
      * Method for checking if annotations indicate changes to minimum visibility levels
      * needed for auto-detecting property elements (fields, methods, constructors).
-     * A baseline checker is given, and introspector is to either return it as is (if
-     * no annotations are found), or build and return a derived instance (using checker's build
-     * methods).
+     * A baseline checker is given, and introspector is to either return it as is
+     * (if no annotations are found), or build and return a derived instance (using
+     * checker's build methods).
      */
-    public VisibilityChecker<?> findAutoDetectVisibility(AnnotatedClass ac, VisibilityChecker<?> checker) {
+    public VisibilityChecker<?> findAutoDetectVisibility(AnnotatedClass ac,
+            VisibilityChecker<?> checker) {
         return checker;
     }
     
@@ -391,6 +393,17 @@ public abstract class AnnotationIntrospector implements Versioned
         return null;
     }
 
+    /**
+     * Method that can be called to check whether this member has
+     * an annotation that suggests whether value for matching property
+     * is required or not.
+     * 
+     * @since 2.0
+     */
+    public Boolean hasRequiredMarker(AnnotatedMember m) {
+        return null;
+    }
+    
     /**
      * Method for checking if annotated property (represented by a field or
      * getter/setter method) has definitions for views it is to be included in.
@@ -715,7 +728,7 @@ public abstract class AnnotationIntrospector implements Versioned
     /**********************************************************
     /* Deserialization: class annotations
     /**********************************************************
-    */
+     */
 
     /**
      * Method getting {@link ValueInstantiator} to use for given
@@ -723,6 +736,30 @@ public abstract class AnnotationIntrospector implements Versioned
      * instantiator, or class of instantiator to create.
      */
     public Object findValueInstantiator(AnnotatedClass ac) {
+        return null;
+    }
+
+    /**
+     * Method for finding Builder object to use for constructing
+     * value instance and binding data (sort of combining value
+     * instantiators that can construct, and deserializers
+     * that can bind data).
+     *<p>
+     * Note that unlike accessors for some helper Objects, this
+     * method does not allow returning instances: the reason is
+     * that builders have state, and a separate instance needs
+     * to be created for each deserialization call.
+     * 
+     * @since 2.0
+     */
+    public Class<?> findPOJOBuilder(AnnotatedClass ac) {
+    	return null;
+    }
+
+    /**
+     * @since 2.0
+     */
+    public JsonPOJOBuilder.Value findPOJOBuilderConfig(AnnotatedClass ac) {
         return null;
     }
     
@@ -1068,10 +1105,20 @@ public abstract class AnnotationIntrospector implements Versioned
             }
             return value;
         }
-        
+
         @Override
         public boolean hasIgnoreMarker(AnnotatedMember m) {
             return _primary.hasIgnoreMarker(m) || _secondary.hasIgnoreMarker(m);
+        }
+        
+        @Override
+        public Boolean hasRequiredMarker(AnnotatedMember m)
+        {
+            Boolean value = _primary.hasRequiredMarker(m);
+            if (value == null) {
+                value = _secondary.hasRequiredMarker(m);
+            }
+            return value;
         }
         
         // // // Serialization: general annotations
@@ -1353,6 +1400,26 @@ public abstract class AnnotationIntrospector implements Versioned
             return result;
         }
 
+        @Override
+        public Class<?> findPOJOBuilder(AnnotatedClass ac)
+        {
+        	Class<?> result = _primary.findPOJOBuilder(ac);
+        	if (result == null) {
+        		result = _secondary.findPOJOBuilder(ac);
+        	}
+        	return result;
+        }
+
+        @Override
+        public JsonPOJOBuilder.Value findPOJOBuilderConfig(AnnotatedClass ac)
+        {
+            JsonPOJOBuilder.Value result = _primary.findPOJOBuilderConfig(ac);
+            if (result == null) {
+                result = _secondary.findPOJOBuilderConfig(ac);
+            }
+            return result;
+        }
+        
         // // // Deserialization: method annotations
 
         @Override

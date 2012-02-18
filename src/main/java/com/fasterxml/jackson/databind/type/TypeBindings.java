@@ -79,7 +79,8 @@ public class TypeBindings
         return new TypeBindings(_typeFactory, this, _contextClass, _contextType);
     }
 
-    private TypeBindings(TypeFactory tf, TypeBindings parent, Class<?> cc, JavaType type)
+    private TypeBindings(TypeFactory tf, TypeBindings parent,
+            Class<?> cc, JavaType type)
     {
         _typeFactory = tf;
         _parentBindings = parent;
@@ -205,13 +206,10 @@ public class TypeBindings
         if (_contextType != null) {
             int count = _contextType.containedTypeCount();
             if (count > 0) {
-                if (_bindings == null) {
-                    _bindings = new LinkedHashMap<String,JavaType>();
-                }
                 for (int i = 0; i < count; ++i) {
                     String name = _contextType.containedTypeName(i);
                     JavaType type = _contextType.containedType(i);
-                    _bindings.put(name, type);
+                    addBinding(name, type);
                 }
             }
         }

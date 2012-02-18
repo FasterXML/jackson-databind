@@ -13,12 +13,16 @@ public class TestGenericSubTyping extends BaseMapTest
     
     static class Document {}
     static class Row {}
-    static class RowWithDoc<D extends Document> extends Row { @JsonProperty("d") D d; }
-    static class ResultSet<R extends Row> { @JsonProperty("rows") List<R> rows; }
+    static class RowWithDoc<D extends Document> extends Row {
+        @JsonProperty("d") D d;
+    }
+    static class ResultSet<R extends Row> {
+        @JsonProperty("rows") List<R> rows;
+    }
     static class ResultSetWithDoc<D extends Document> extends ResultSet<RowWithDoc<D>> {}
 
     static class MyDoc extends Document {}
-
+    
     /*
     /*******************************************************
     /* Unit tests
@@ -28,9 +32,9 @@ public class TestGenericSubTyping extends BaseMapTest
     public void testIssue778() throws Exception
     {
         String json = "{\"rows\":[{\"d\":{}}]}";
-    
-        ResultSetWithDoc<MyDoc> rs = new ObjectMapper().readValue(json, new TypeReference<ResultSetWithDoc<MyDoc>>() {});
-    
+
+        ResultSetWithDoc<MyDoc> rs = new ObjectMapper().readValue(json,
+                new TypeReference<ResultSetWithDoc<MyDoc>>() {});
         Document d = rs.rows.iterator().next().d;
     
         assertEquals(MyDoc.class, d.getClass()); //expected MyDoc but was Document

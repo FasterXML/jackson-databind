@@ -43,6 +43,8 @@ public class POJOPropertiesCollector
     protected final VisibilityChecker<?> _visibilityChecker;
 
     protected final AnnotationIntrospector _annotationIntrospector;
+
+    protected final String _mutatorPrefix;
     
     /*
     /**********************************************************
@@ -88,12 +90,13 @@ public class POJOPropertiesCollector
      */
     
     protected POJOPropertiesCollector(MapperConfig<?> config, boolean forSerialization,
-            JavaType type, AnnotatedClass classDef)
+            JavaType type, AnnotatedClass classDef, String mutatorPrefix)
     {
         _config = config;
         _forSerialization = forSerialization;
         _type = type;
         _classDef = classDef;
+        _mutatorPrefix = (mutatorPrefix == null) ? "set" : mutatorPrefix;
         _annotationIntrospector = config.isAnnotationProcessingEnabled() ?
                 _config.getAnnotationIntrospector() : null;
         if (_annotationIntrospector == null) {
@@ -186,6 +189,14 @@ public class POJOPropertiesCollector
             return null;
         }
         return _annotationIntrospector.findObjectIdInfo(_classDef);
+    }
+
+    /**
+     * Method for finding Class to use as POJO builder, if any.
+     */
+    public Class<?> findPOJOBuilderClass()
+    {
+    	return _annotationIntrospector.findPOJOBuilder(_classDef);
     }
     
     // for unit tests:
@@ -409,86 +420,16 @@ public class POJOPropertiesCollector
         final AnnotationIntrospector ai = _annotationIntrospector;
         
         for (AnnotatedMethod m : _classDef.memberMethods()) {
-            String explName; // from annotation(s)
-            String implName; // from naming convention
-            
             /* For methods, handling differs between getters and setters; and
              * we will also only consider entries that either follow the bean
              * naming convention or are explicitly marked: just being visible
              * is not enough (unlike with fields)
              */
             int argCount = m.getParameterCount();
-            boolean visible;
-            
             if (argCount == 0) { // getters (including 'any getter')
-                // any getter?
-                if (ai != null) {
-                    if (ai.hasAnyGetterAnnotation(m)) {
-                        if (_anyGetters == null) {
-                            _anyGetters = new LinkedList<AnnotatedMember>();
-                        }
-                        _anyGetters.add(m);
-                        continue;
-                    }
-                    // @JsonValue?
-                    if (ai.hasAsValueAnnotation(m)) {
-                        if (_jsonValueGetters == null) {
-                            _jsonValueGetters = new LinkedList<AnnotatedMethod>();
-                        }
-                        _jsonValueGetters.add(m);
-                        continue;
-                    }
-                }
-                
-                explName = (ai == null) ? null : ai.findSerializationName(m);
-                if (explName == null) { // no explicit name; must follow naming convention
-                    implName = BeanUtil.okNameForRegularGetter(m, m.getName());
-                    if (implName == null) { // if not, must skip
-                        implName = BeanUtil.okNameForIsGetter(m, m.getName());
-                        if (implName == null) {
-                            continue;
-                        }
-                        visible = _visibilityChecker.isIsGetterVisible(m);
-                    } else {
-                        visible = _visibilityChecker.isGetterVisible(m);
-                    }
-                } else { // explicit indication of inclusion, but may be empty
-                    // we still need implicit name to link with other pieces
-                    implName = BeanUtil.okNameForGetter(m);
-                    // if not regular getter name, use method name as is
-                    if (implName == null) {
-                        implName = m.getName();
-                    }
-                    if (explName.length() == 0) {
-                        explName = implName;
-                    }
-                    visible = true;
-                }
-                boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
-                _property(implName).addGetter(m, explName, visible, ignore);
+            	_addGetterMethod(m, ai);
             } else if (argCount == 1) { // setters
-                explName = (ai == null) ? null : ai.findDeserializationName(m);
-                if (explName == null) { // no explicit name; must follow naming convention
-                    implName = BeanUtil.okNameForSetter(m);
-                    if (implName == null) { // if not, must skip
-                        continue;
-                    }
-                    visible = _visibilityChecker.isSetterVisible(m);
-                } else { // explicit indication of inclusion, but may be empty
-                    // we still need implicit name to link with other pieces
-                    implName = BeanUtil.okNameForSetter(m);
-                    // if not regular getter name, use method name as is
-                    if (implName == null) {
-                        implName = m.getName();
-                    }
-                    if (explName.length() == 0) { 
-                        explName = implName;
-                    }
-                    visible = true;
-                }
-                boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
-                _property(implName).addSetter(m, explName, visible, ignore);
-
+            	_addSetterMethod(m, ai);
             } else if (argCount == 2) { // any getter?
                 if (ai != null  && ai.hasAnySetterAnnotation(m)) {
                     if (_anySetters == null) {
@@ -500,6 +441,84 @@ public class POJOPropertiesCollector
         }
     }
 
+    protected void _addGetterMethod(AnnotatedMethod m, AnnotationIntrospector ai)
+    {
+        // any getter?
+        if (ai != null) {
+            if (ai.hasAnyGetterAnnotation(m)) {
+                if (_anyGetters == null) {
+                    _anyGetters = new LinkedList<AnnotatedMember>();
+                }
+                _anyGetters.add(m);
+                return;
+            }
+            // @JsonValue?
+            if (ai.hasAsValueAnnotation(m)) {
+                if (_jsonValueGetters == null) {
+                    _jsonValueGetters = new LinkedList<AnnotatedMethod>();
+                }
+                _jsonValueGetters.add(m);
+                return;
+            }
+        }
+        String implName; // from naming convention
+        boolean visible;
+        
+        String explName = (ai == null) ? null : ai.findSerializationName(m);
+        if (explName == null) { // no explicit name; must follow naming convention
+            implName = BeanUtil.okNameForRegularGetter(m, m.getName());
+            if (implName == null) { // if not, must skip
+                implName = BeanUtil.okNameForIsGetter(m, m.getName());
+                if (implName == null) {
+                    return;
+                }
+                visible = _visibilityChecker.isIsGetterVisible(m);
+            } else {
+                visible = _visibilityChecker.isGetterVisible(m);
+            }
+        } else { // explicit indication of inclusion, but may be empty
+            // we still need implicit name to link with other pieces
+            implName = BeanUtil.okNameForGetter(m);
+            // if not regular getter name, use method name as is
+            if (implName == null) {
+                implName = m.getName();
+            }
+            if (explName.length() == 0) {
+                explName = implName;
+            }
+            visible = true;
+        }
+        boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
+        _property(implName).addGetter(m, explName, visible, ignore);
+    }
+
+    protected void _addSetterMethod(AnnotatedMethod m, AnnotationIntrospector ai)
+    {
+        String implName; // from naming convention
+        boolean visible;
+        String explName = (ai == null) ? null : ai.findDeserializationName(m);
+        if (explName == null) { // no explicit name; must follow naming convention
+            implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+            if (implName == null) { // if not, must skip
+            	return;
+            }
+            visible = _visibilityChecker.isSetterVisible(m);
+        } else { // explicit indication of inclusion, but may be empty
+            // we still need implicit name to link with other pieces
+            implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+            // if not regular getter name, use method name as is
+            if (implName == null) {
+                implName = m.getName();
+            }
+            if (explName.length() == 0) { 
+                explName = implName;
+            }
+            visible = true;
+        }
+        boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
+        _property(implName).addSetter(m, explName, visible, ignore);
+    }
+    
     protected void _addInjectables()
     {
         final AnnotationIntrospector ai = _annotationIntrospector;

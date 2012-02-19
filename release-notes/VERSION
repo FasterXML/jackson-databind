@@ -45,6 +45,8 @@ New features:
 
 * [JACKSON-437]: Allow injecting of type id as POJO property, by setting
   new '@JsonTypeInfo.visible' property to true.
+* [JACKSON-469]: Support "Builder pattern" for deserialiation; that is, allow
+  use of separate Builder object for data binding, creating actual value
 * [JACKSON-608]: Allow use of JSON Views for deserialization
 * [JACKSON-669]: Allow prefix/suffix for @JsonUnwrapped properties
  (requested by Aner P)

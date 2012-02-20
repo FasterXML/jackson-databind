@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.Charset;
 import java.util.Currency;
 import java.util.List;
 import java.util.Locale;
@@ -314,5 +315,12 @@ public class TestJdkTypes extends BaseMapTest
         assertEquals(Boolean.TRUE, b.wrapper);
         assertTrue(b.primitive);
         assertEquals(Boolean.TRUE, b.ctor);
+    }
+
+    // [JACKSON-789]
+    public void testCharset() throws Exception
+    {
+        Charset UTF8 = Charset.forName("UTF-8");
+        assertSame(UTF8, mapper.readValue(quote("UTF-8"), Charset.class));
     }
 }

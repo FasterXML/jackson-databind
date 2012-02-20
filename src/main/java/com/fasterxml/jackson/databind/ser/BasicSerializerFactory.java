@@ -321,6 +321,10 @@ public abstract class BasicSerializerFactory
         if (TimeZone.class.isAssignableFrom(raw)) {
             return TimeZoneSerializer.instance;
         }
+        // and yet one more [JACKSON-789]
+        if (java.nio.charset.Charset.class.isAssignableFrom(raw)) {
+            return ToStringSerializer.instance;
+        }
         
         // Then check for optional/external serializers [JACKSON-386]
         JsonSerializer<?> ser = optionalHandlers.findSerializer(prov.getConfig(), type);

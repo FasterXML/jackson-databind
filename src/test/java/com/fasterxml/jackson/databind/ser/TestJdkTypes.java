@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.io.*;
 import java.net.InetAddress;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -68,4 +69,9 @@ public class TestJdkTypes
         assertEquals(quote("void"), MAPPER.writeValueAsString(Void.TYPE));
     }
 
+    // [JACKSON-789]
+    public void testCharset() throws IOException
+    {
+        assertEquals(quote("UTF-8"), MAPPER.writeValueAsString(Charset.forName("UTF-8")));
+    }
 }

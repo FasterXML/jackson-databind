@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -33,6 +34,7 @@ public class JdkDeserializers
             new PatternDeserializer(),
             new LocaleDeserializer(),
             new InetAddressDeserializer(),
+            new CharsetDeserializer(),
 
             // other types:
 
@@ -228,6 +230,20 @@ public class JdkDeserializers
         }
     }
 
+    // [JACKSON-789]
+    protected static class CharsetDeserializer
+        extends FromStringDeserializer<Charset>
+    {
+        public CharsetDeserializer() { super(Charset.class); }
+    
+        @Override
+        protected Charset _deserialize(String value, DeserializationContext ctxt)
+            throws IOException
+        {
+            return Charset.forName(value);
+        }
+    }
+    
     /*
     /**********************************************************
     /* AtomicXxx types

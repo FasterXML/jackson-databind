@@ -47,7 +47,7 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
 
     protected DefaultSerializerProvider() { super(); }
 
-    protected DefaultSerializerProvider( SerializerProvider src,
+    protected DefaultSerializerProvider(SerializerProvider src,
             SerializationConfig config,SerializerFactory f) {
         super(src, config, f);
     }
@@ -364,7 +364,7 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
     {
         public Impl() { super(); }
 
-        protected Impl( SerializerProvider src,
+        protected Impl(SerializerProvider src,
                 SerializationConfig config,SerializerFactory f) {
             super(src, config, f);
         }

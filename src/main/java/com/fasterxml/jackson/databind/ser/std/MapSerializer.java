@@ -102,10 +102,11 @@ public class MapSerializer
 
     @SuppressWarnings("unchecked")
     protected MapSerializer(MapSerializer src, BeanProperty property,
-            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer)
+            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
+            HashSet<String> ignored)
     {
         super(Map.class, false);
-        _ignoredEntries = src._ignoredEntries;
+        _ignoredEntries = ignored;
         _keyType = src._keyType;
         _valueType = src._valueType;
         _valueTypeIsStatic = src._valueTypeIsStatic;
@@ -137,9 +138,10 @@ public class MapSerializer
     }
 
     public MapSerializer withResolved(BeanProperty property,
-            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer)
+            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
+            HashSet<String> ignored)
     {
-        return new MapSerializer(this, property, keySerializer, valueSerializer);
+        return new MapSerializer(this, property, keySerializer, valueSerializer, ignored);
     }
     
     public static MapSerializer construct(String[] ignoredList, JavaType mapType,
@@ -206,7 +208,18 @@ public class MapSerializer
         } else if (keySer instanceof ContextualSerializer) {
             keySer = ((ContextualSerializer) keySer).createContextual(provider, property);
         }
-        return withResolved(property, keySer, ser);
+        HashSet<String> ignored = this._ignoredEntries;
+        AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+        if (intr != null && property != null) {
+            String[] moreToIgnore = intr.findPropertiesToIgnore(property.getMember());
+            if (moreToIgnore != null) {
+                ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);
+                for (String str : moreToIgnore) {
+                    ignored.add(str);
+                }
+            }
+        }
+        return withResolved(property, keySer, ser, ignored);
     }
 
     /*

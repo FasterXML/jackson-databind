@@ -53,6 +53,15 @@ public class TestIgnorePropsForSerialization
         public int y = 2;
         public int z = 3;
     }
+
+    static class MapWrapper {
+        @JsonIgnoreProperties({"a"})
+        public final HashMap<String,Integer> value = new HashMap<String,Integer>();
+        {
+            value.put("a", 1);
+            value.put("b", 2);
+        }
+    }
     
     /*
     /****************************************************************
@@ -95,6 +104,11 @@ public class TestIgnorePropsForSerialization
                 MAPPER.writeValueAsString(new WrapperWithPropIgnore()));
     }
 
+    public void testIgnoreWithMapProperty() throws Exception
+    {
+        assertEquals("{\"value\":{\"b\":2}}", MAPPER.writeValueAsString(new MapWrapper()));
+    }
+    
     public void testIgnoreViaPropsAndClass() throws Exception
     {
         assertEquals("{\"value\":{\"y\":2}}",

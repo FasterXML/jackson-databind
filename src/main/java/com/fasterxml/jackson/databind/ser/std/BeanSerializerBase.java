@@ -373,7 +373,7 @@ public abstract class BeanSerializerBase
             JsonSerializer<?> ser = provider.findValueSerializer(oiw.idType, property);
             oiw = oiw.withSerializer(ser);
             if (oiw != _objectIdWriter) {
-                contextual = withObjectIdWriter(oiw);
+                contextual = contextual.withObjectIdWriter(oiw);
             }
         }
         // And possibly add more properties to ignore

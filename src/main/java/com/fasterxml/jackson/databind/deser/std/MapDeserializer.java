@@ -128,7 +128,8 @@ public class MapDeserializer
 
     protected MapDeserializer(MapDeserializer src,
             KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
-            TypeDeserializer valueTypeDeser)
+            TypeDeserializer valueTypeDeser,
+            HashSet<String> ignorable)
     {
         super(src._valueClass);
         _mapType = src._mapType;
@@ -139,8 +140,7 @@ public class MapDeserializer
         _propertyBasedCreator = src._propertyBasedCreator;
         _delegateDeserializer = src._delegateDeserializer;
         _hasDefaultCreator = src._hasDefaultCreator;
-        // should we make a copy here?
-        _ignorableProperties = src._ignorableProperties;
+        _ignorableProperties = ignorable;
 
         _standardStringKey = _isStdKeyDeser(_mapType, keyDeser);
     }
@@ -151,13 +151,16 @@ public class MapDeserializer
      */
     @SuppressWarnings("unchecked")
     protected MapDeserializer withResolved(KeyDeserializer keyDeser,
-            TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser)
+            TypeDeserializer valueTypeDeser, JsonDeserializer<?> valueDeser,
+            HashSet<String> ignorable)
     {
-        if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser) && (_valueTypeDeserializer == valueTypeDeser)) {
+        
+        if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser) && (_valueTypeDeserializer == valueTypeDeser)
+                && (_ignorableProperties == ignorable)) {
             return this;
         }
         return new MapDeserializer(this,
-                keyDeser, (JsonDeserializer<Object>) valueDeser, valueTypeDeser);
+                keyDeser, (JsonDeserializer<Object>) valueDeser, valueTypeDeser, ignorable);
     }
     
     /**
@@ -243,7 +246,18 @@ public class MapDeserializer
         if (vtd != null) {
             vtd = vtd.forProperty(property);
         }
-        return withResolved(kd, vtd, vd);
+        HashSet<String> ignored = _ignorableProperties;
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr != null && property != null) {
+            String[] moreToIgnore = intr.findPropertiesToIgnore(property.getMember());
+            if (moreToIgnore != null) {
+                ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);
+                for (String str : moreToIgnore) {
+                    ignored.add(str);
+                }
+            }
+        }
+        return withResolved(kd, vtd, vd, ignored);
     }
     
     /*

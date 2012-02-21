@@ -69,16 +69,15 @@ public class BuilderBasedDeserializer
         super(src, oir);
         _buildMethod = src._buildMethod;
     }
+
+    public BuilderBasedDeserializer(BuilderBasedDeserializer src, HashSet<String> ignorableProps) {
+        super(src, ignorableProps);
+        _buildMethod = src._buildMethod;
+    }
     
     @Override
     public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
     {
-        /* bit kludgy but we don't want to accidentally change type; sub-classes
-         * MUST override this method to support unwrapped properties...
-         */
-        if (getClass() != BuilderBasedDeserializer.class) {
-            return this;
-        }
         /* main thing really is to just enforce ignoring of unknown
          * properties; since there may be multiple unwrapped values
          * and properties for all may be interleaved...
@@ -91,6 +90,11 @@ public class BuilderBasedDeserializer
         return new BuilderBasedDeserializer(this, oir);
     }
 
+    @Override
+    public BuilderBasedDeserializer withIgnorableProperties(HashSet<String> ignorableProps) {
+        return new BuilderBasedDeserializer(this, ignorableProps);
+    }
+    
     /*
     /**********************************************************
     /* JsonDeserializer implementation

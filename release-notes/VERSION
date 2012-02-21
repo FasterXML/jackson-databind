@@ -40,6 +40,7 @@ Improvements
   'DeserializationConfig.Feature' as 'DeserializationFeature'.
 * [JACKSON-780]: MissingNode, NullNode should return 'defaultValue' from 'asXxx' methods,
   (not 0 for numbers), as they are not numeric types.
+* [JACKSON-787]: @JsonIgnoredProperties can be used on properties too.
 
 New features:
 

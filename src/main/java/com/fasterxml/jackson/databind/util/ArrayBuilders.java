@@ -163,6 +163,20 @@ public final class ArrayBuilders
         }
         return result;
     }
+
+    public static <T> HashSet<T> setAndArray(Set<T> set, T[] elements)
+    {
+        HashSet<T> result = new HashSet<T>();
+        if (set != null) {
+            result.addAll(set);
+        }
+        if (elements != null) {
+            for (T value : elements) {
+                result.add(value);
+            }
+        }
+        return result;
+    }
     
     /**
      * Helper method for adding specified element to a List, but also

@@ -40,20 +40,24 @@ public class BeanDeserializer
      * Copy-constructor that can be used by sub-classes to allow
      * copy-on-write styling copying of settings of an existing instance.
      */
-    protected BeanDeserializer(BeanDeserializer src) {
+    protected BeanDeserializer(BeanDeserializerBase src) {
     	super(src, src._ignoreAllUnknown);
     }
 
-    protected BeanDeserializer(BeanDeserializer src, boolean ignoreAllUnknown) {
+    protected BeanDeserializer(BeanDeserializerBase src, boolean ignoreAllUnknown) {
         super(src, ignoreAllUnknown);
     }
     
-    protected BeanDeserializer(BeanDeserializer src, NameTransformer unwrapper) {
+    protected BeanDeserializer(BeanDeserializerBase src, NameTransformer unwrapper) {
     	super(src, unwrapper);
     }
 
-    public BeanDeserializer(BeanDeserializer src, ObjectIdReader oir) {
+    public BeanDeserializer(BeanDeserializerBase src, ObjectIdReader oir) {
     	super(src, oir);
+    }
+
+    public BeanDeserializer(BeanDeserializerBase src, HashSet<String> ignorableProps) {
+        super(src, ignorableProps);
     }
     
     @Override
@@ -72,10 +76,16 @@ public class BeanDeserializer
         return new BeanDeserializer(this, unwrapper);
     }
 
+    @Override
     public BeanDeserializer withObjectIdReader(ObjectIdReader oir) {
         return new BeanDeserializer(this, oir);
     }
 
+    @Override
+    public BeanDeserializer withIgnorableProperties(HashSet<String> ignorableProps) {
+        return new BeanDeserializer(this, ignorableProps);
+    }
+    
     /*
     /**********************************************************
     /* JsonDeserializer implementation

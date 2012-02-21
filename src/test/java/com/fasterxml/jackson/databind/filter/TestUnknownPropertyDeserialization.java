@@ -1,17 +1,19 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.filter;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 
 /**
  * Unit tests for checking handling of unknown properties
  */
-public class TestUnknownProperties
+public class TestUnknownPropertyDeserialization
     extends BaseMapTest
 {
     final static String JSON_UNKNOWN_FIELD = "{ \"a\" : 1, \"foo\" : [ 1, 2, 3], \"b\" : -1 }";
@@ -87,12 +89,40 @@ public class TestUnknownProperties
         public int c;
     }
 
+    // // Ignored as per [JACKSON-787]
+
+    static class XYZWrapper1 {
+        @JsonIgnoreProperties({"x"})
+        public YZ value;
+    }
+
+    static class YZ {
+        public int y, z;
+    }
+
+    static class XYZWrapper2 {
+        @JsonIgnoreProperties({"y"})
+        public X value;
+    }
+
+    @JsonIgnoreProperties({"z"})
+    static class X {
+        public int x;
+    }
+
+    static class MapWithoutX {
+        @JsonIgnoreProperties("x")
+        public Map<String,Integer> values;
+    }
+    
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     /**
      * By default we should just get an exception if an unknown property
      * is encountered
@@ -100,9 +130,8 @@ public class TestUnknownProperties
     public void testUnknownHandlingDefault()
         throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            mapper.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
+            MAPPER.readValue(new StringReader(JSON_UNKNOWN_FIELD), TestBean.class);
         } catch (JsonMappingException jex) {
             verifyException(jex, "Unrecognized field \"foo\"");
         }
@@ -146,11 +175,10 @@ public class TestUnknownProperties
         assertEquals(-1, result._b);
     }
 
-    /// @since 1.4
     public void testWithClassIgnore()
         throws Exception
     {
-        IgnoreSome result = new ObjectMapper().readValue("{ \"a\":1,\"b\":2,\"c\":\"x\",\"d\":\"y\"}",
+        IgnoreSome result = MAPPER.readValue("{ \"a\":1,\"b\":2,\"c\":\"x\",\"d\":\"y\"}",
                 IgnoreSome.class);
         // first: should deserialize 2 of properties normally
         assertEquals(1, result.a);
@@ -164,7 +192,7 @@ public class TestUnknownProperties
     public void testClassIgnoreWithMap() throws Exception
     {
         // Let's actually use incompatible types for "a" and "d"; should not matter when ignored
-        IgnoreMap result = new ObjectMapper().readValue
+        IgnoreMap result = MAPPER.readValue
             ("{ \"a\":[ 1],\n"
                 +"\"b\":2,\n"
                 +"\"c\": \"x\",\n"
@@ -178,10 +206,9 @@ public class TestUnknownProperties
         assertFalse(result.containsKey("d"));
     }
 
-    /// @since 1.4
     public void testClassWithIgnoreUnknown() throws Exception
     {
-        IgnoreUnknown result = new ObjectMapper().readValue
+        IgnoreUnknown result = MAPPER.readValue
             ("{\"b\":3,\"c\":[1,2],\"x\":{ },\"a\":-3}", IgnoreUnknown.class);
         assertEquals(-3, result.a);
     }
@@ -192,17 +219,38 @@ public class TestUnknownProperties
      */
     public void testClassWithUnknownAndIgnore() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         // should be ok: "a" and "b" ignored, "c" mapped:
-        ImplicitIgnores result = m.readValue
+        ImplicitIgnores result = MAPPER.readValue
             ("{\"a\":1,\"b\":2,\"c\":3 }", ImplicitIgnores.class);
         assertEquals(3, result.c);
 
         // but "d" is not defined, so should still error
         try {
-            m.readValue("{\"a\":1,\"b\":2,\"c\":3,\"d\":4 }", ImplicitIgnores.class);            
+            MAPPER.readValue("{\"a\":1,\"b\":2,\"c\":3,\"d\":4 }", ImplicitIgnores.class);            
         } catch (JsonMappingException e) {
             verifyException(e, "Unrecognized field \"d\"");
         }
     }
+
+    public void testPropertyIgnoral() throws Exception
+    {
+        XYZWrapper1 result = MAPPER.readValue("{\"value\":{\"y\":2,\"x\":1,\"z\":3}}", XYZWrapper1.class);
+        assertEquals(2, result.value.y);
+        assertEquals(3, result.value.z);
+    }
+
+    public void testPropertyIgnoralWithClass() throws Exception
+    {
+        XYZWrapper2 result = MAPPER.readValue("{\"value\":{\"y\":2,\"x\":1,\"z\":3}}", XYZWrapper2.class);
+        assertEquals(1, result.value.x);
+    }
+
+    public void testPropertyIgnoralForMap() throws Exception
+    {
+        MapWithoutX result = MAPPER.readValue("{\"values\":{\"x\":1,\"y\":2}}", MapWithoutX.class);
+        assertNotNull(result.values);
+        assertEquals(1, result.values.size());
+        assertEquals(Integer.valueOf(2), result.values.get("y"));
+    }
 }
+

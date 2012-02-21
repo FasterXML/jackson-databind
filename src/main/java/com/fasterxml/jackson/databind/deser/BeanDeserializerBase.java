@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.util.Annotations;
+import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -33,8 +34,8 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * Base class for <code>BeanDeserializer</code>.
  */
 public abstract class BeanDeserializerBase
-	extends StdDeserializer<Object>
-	implements ContextualDeserializer, ResolvableDeserializer
+    extends StdDeserializer<Object>
+    implements ContextualDeserializer, ResolvableDeserializer
 {
     /*
     /**********************************************************
@@ -292,7 +293,7 @@ public abstract class BeanDeserializerBase
         }
         _needViewProcesing = src._needViewProcesing;
         // probably adds a twist, so:
-        _vanillaProcessing = false;        
+        _vanillaProcessing = false;
     }
 
     public BeanDeserializerBase(BeanDeserializerBase src, ObjectIdReader oir)
@@ -324,14 +325,42 @@ public abstract class BeanDeserializerBase
         if (oir == null) {
             _beanProperties = src._beanProperties;
         } else {
-        	_beanProperties = src._beanProperties.withProperty(new ObjectIdProperty(oir));
+            _beanProperties = src._beanProperties.withProperty(new ObjectIdProperty(oir));
         }
     }
 
+    public BeanDeserializerBase(BeanDeserializerBase src, HashSet<String> ignorableProps)
+    {
+        super(src._beanType);
+        
+        _classAnnotations = src._classAnnotations;
+        _beanType = src._beanType;
+        
+        _valueInstantiator = src._valueInstantiator;
+        _delegateDeserializer = src._delegateDeserializer;
+        _propertyBasedCreator = src._propertyBasedCreator;
+        
+        _backRefs = src._backRefs;
+        _ignorableProps = ignorableProps;
+        _ignoreAllUnknown = src._ignoreAllUnknown;
+        _anySetter = src._anySetter;
+        _injectables = src._injectables;
+        
+        _nonStandardCreation = src._nonStandardCreation;
+        _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
+        _needViewProcesing = src._needViewProcesing;
+
+        _vanillaProcessing = src._vanillaProcessing;
+        _objectIdReader = src._objectIdReader;
+        _beanProperties = src._beanProperties;
+    }
+    
     @Override
     public abstract JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper);
 
     public abstract BeanDeserializerBase withObjectIdReader(ObjectIdReader oir);
+
+    public abstract BeanDeserializerBase withIgnorableProperties(HashSet<String> ignorableProps);
     
     /*
     /**********************************************************
@@ -544,11 +573,13 @@ public abstract class BeanDeserializerBase
             BeanProperty property) throws JsonMappingException
     {
         ObjectIdReader oir = _objectIdReader;
+        String[] ignorals = null;
         
         // First: may have an override for Object Id:
-        if (property != null) {
-            final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (property != null && intr != null) {
             final AnnotatedMember accessor = property.getMember();
+            ignorals = intr.findPropertiesToIgnore(accessor);
             final ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
             if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
                 Class<?> implClass = objectIdInfo.getGeneratorType();
@@ -577,10 +608,16 @@ public abstract class BeanDeserializerBase
             }
         }
         // either way, need to resolve serializer:
+        BeanDeserializerBase contextual = this;
         if (oir != null && oir != _objectIdReader) {
-            return withObjectIdReader(oir);
+            contextual = contextual.withObjectIdReader(oir);
         }
-        return this;
+        // And possibly add more properties to ignore
+        if (ignorals != null && ignorals.length != 0) {
+            HashSet<String> newIgnored = ArrayBuilders.setAndArray(contextual._ignorableProps, ignorals);
+            contextual = contextual.withIgnorableProperties(newIgnored);
+        }
+        return contextual;
     }
 
     

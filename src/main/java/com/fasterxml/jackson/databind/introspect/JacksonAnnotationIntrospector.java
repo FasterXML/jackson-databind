@@ -81,7 +81,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public String[] findPropertiesToIgnore(AnnotatedClass ac) {
+    public String[] findPropertiesToIgnore(Annotated ac) {
         JsonIgnoreProperties ignore = ac.getAnnotation(JsonIgnoreProperties.class);
         return (ignore == null) ? null : ignore.value();
     }

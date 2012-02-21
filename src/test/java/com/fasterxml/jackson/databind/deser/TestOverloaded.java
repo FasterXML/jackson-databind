@@ -3,13 +3,13 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
 
 /**
- * Unit tests related to handling of overloaded methods;
- * and specifically addressing problem [JACKSON-189].
- *
- * @since 1.5
+ * Unit tests related to handling of overloaded methods.
+ * and specifically addressing problems [JACKSON-189]
+ * and [JACKSON-739]
  */
 public class TestOverloaded
     extends BaseMapTest
@@ -53,6 +53,18 @@ public class TestOverloaded
     	public void setValue(String str) { value = str; }
     }
 
+    // [JACKSON-739]
+    static class Overloaded739
+    {
+        protected Object _value;
+        
+        @JsonProperty
+        public void setValue(String str) { _value = str; }
+
+        // no annotation, should not be chosen:
+        public void setValue(Object o) { throw new UnsupportedOperationException(); }
+    }
+    
     /**
      * And then a Bean that is conflicting and should not work
      */
@@ -63,10 +75,12 @@ public class TestOverloaded
     
     /*
     /************************************************************
-    /* Unit tests
+    /* Unit tests, valid
     /************************************************************
     */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     /**
      * Unit test related to [JACKSON-189]
      */
@@ -91,7 +105,7 @@ public class TestOverloaded
      */
     public void testSpecialization() throws Exception
     {
-        ArrayListBean bean = new ObjectMapper().readValue
+        ArrayListBean bean = MAPPER.readValue
             ("{\"list\":[\"a\",\"b\",\"c\"]}", ArrayListBean.class);
         assertNotNull(bean.list);
         assertEquals(3, bean.list.size());
@@ -107,21 +121,36 @@ public class TestOverloaded
      */
     public void testOverride() throws Exception
     {
-        WasNumberBean bean = new ObjectMapper().readValue
+        WasNumberBean bean = MAPPER.readValue
             ("{\"value\" : \"abc\"}", WasNumberBean.class);
         assertNotNull(bean);
         assertEquals("abc", bean.value);
     }
 
+    // for [JACKSON-739]
+    public void testConflictResolution() throws Exception
+    {
+        Overloaded739 bean = MAPPER.readValue
+                ("{\"value\":\"abc\"}", Overloaded739.class);
+        assertNotNull(bean);
+        assertEquals("abc", bean._value);
+    }
+    
+    /*
+    /************************************************************
+    /* Unit tests, failures
+    /************************************************************
+    */
+    
     /**
      * For genuine setter conflict, an exception is to be thrown.
      */
     public void testSetterConflict() throws Exception
     {
     	try {    		
-    		new ObjectMapper().readValue("{ }", ConflictBean.class);
+    	MAPPER.readValue("{ }", ConflictBean.class);
     	} catch (Exception e) {
-    		verifyException(e, "Conflicting setter definitions");
+    	    verifyException(e, "Conflicting setter definitions");
     	}
     }
 }

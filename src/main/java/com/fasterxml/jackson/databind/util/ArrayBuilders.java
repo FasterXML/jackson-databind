@@ -153,6 +153,17 @@ public final class ArrayBuilders
         return result;
     }
 
+    public static <T> ArrayList<T> arrayToList(T[] elements)
+    {
+        ArrayList<T> result = new ArrayList<T>();
+        if (elements != null) {
+            for (T elem : elements) {
+                result.add(elem);
+            }
+        }
+        return result;
+    }
+    
     /**
      * Helper method for adding specified element to a List, but also
      * considering case where the List may not have been yet constructed

@@ -37,6 +37,11 @@ public class UnwrappingBeanSerializer
         super(src, objectIdWriter);
         _nameTransformer = src._nameTransformer;
     }
+
+    protected UnwrappingBeanSerializer(UnwrappingBeanSerializer src, String[] toIgnore) {
+        super(src, toIgnore);
+        _nameTransformer = src._nameTransformer;
+    }
     
     /*
     /**********************************************************
@@ -58,6 +63,11 @@ public class UnwrappingBeanSerializer
     @Override
     protected UnwrappingBeanSerializer withObjectIdWriter(ObjectIdWriter objectIdWriter) {
         return new UnwrappingBeanSerializer(this, objectIdWriter);
+    }
+
+    @Override
+    protected UnwrappingBeanSerializer withIgnorals(String[] toIgnore) {
+        return new UnwrappingBeanSerializer(this, toIgnore);
     }
     
     /*

@@ -56,6 +56,10 @@ public class BeanSerializer
     protected BeanSerializer(BeanSerializerBase src, ObjectIdWriter objectIdWriter) {
         super(src, objectIdWriter);
     }
+
+    protected BeanSerializer(BeanSerializerBase src, String[] toIgnore) {
+        super(src, toIgnore);
+    }
     
     /*
     /**********************************************************
@@ -80,6 +84,11 @@ public class BeanSerializer
     @Override
     protected BeanSerializer withObjectIdWriter(ObjectIdWriter objectIdWriter) {
         return new BeanSerializer(this, objectIdWriter);
+    }
+
+    @Override
+    protected BeanSerializer withIgnorals(String[] toIgnore) {
+        return new BeanSerializer(this, toIgnore);
     }
     
     /*

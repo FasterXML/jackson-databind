@@ -195,7 +195,7 @@ public abstract class AnnotationIntrospector implements Versioned
      * after other detection mechanisms, to filter out these specific
      * properties from being serialized and deserialized.
      */
-    public String[] findPropertiesToIgnore(AnnotatedClass ac) {
+    public String[] findPropertiesToIgnore(Annotated ac) {
         return null;
     }
 
@@ -956,7 +956,7 @@ public abstract class AnnotationIntrospector implements Versioned
         }
 
         @Override
-        public String[] findPropertiesToIgnore(AnnotatedClass ac)
+        public String[] findPropertiesToIgnore(Annotated ac)
         {
             String[] result = _primary.findPropertiesToIgnore(ac);
             if (result == null) {

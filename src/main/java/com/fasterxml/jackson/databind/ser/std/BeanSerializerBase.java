@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -19,6 +20,7 @@ import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
+import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -135,11 +137,54 @@ public abstract class BeanSerializerBase
         _propertyFilterId = src._propertyFilterId;
     }
 
+    protected BeanSerializerBase(BeanSerializerBase src, String[] toIgnore)
+    {
+        super(src._handledType);
+
+        // Bit clumsy, but has to do:
+        HashSet<String> ignoredSet = ArrayBuilders.arrayToSet(toIgnore);
+        final BeanPropertyWriter[] propsIn = src._props;
+        final BeanPropertyWriter[] fpropsIn = src._filteredProps;
+        final int len = propsIn.length;
+
+        ArrayList<BeanPropertyWriter> propsOut = new ArrayList<BeanPropertyWriter>(len);
+        ArrayList<BeanPropertyWriter> fpropsOut = (fpropsIn == null) ? null : new ArrayList<BeanPropertyWriter>(len);
+
+        for (int i = 0; i < len; ++i) {
+            BeanPropertyWriter bpw = propsIn[i];
+            // should be ignored?
+            if (ignoredSet.contains(bpw.getName())) {
+                continue;
+            }
+            propsOut.add(bpw);
+            if (fpropsIn != null) {
+                fpropsOut.add(fpropsIn[i]);
+            }
+        }
+        _props = propsOut.toArray(new BeanPropertyWriter[propsOut.size()]);
+        _filteredProps = (fpropsOut == null) ? null : fpropsOut.toArray(new BeanPropertyWriter[fpropsOut.size()]);
+        
+        _typeId = src._typeId;
+        _anyGetterWriter = src._anyGetterWriter;
+        _objectIdWriter = src._objectIdWriter;
+        _propertyFilterId = src._propertyFilterId;
+    }
+    
     /**
      * Fluent factory used for creating a new instance with different
      * {@link ObjectIdWriter}.
+     * 
+     * @since 2.0
      */
     protected abstract BeanSerializerBase withObjectIdWriter(ObjectIdWriter objectIdWriter);
+
+    /**
+     * Fluent factory used for creating a new instance with additional
+     * set of properties to ignore (from properties this instance otherwise has)
+     * 
+     * @since 2.0
+     */
+    protected abstract BeanSerializerBase withIgnorals(String[] toIgnore);
     
     /**
      * Copy-constructor that is useful for sub-classes that just want to
@@ -268,11 +313,13 @@ public abstract class BeanSerializerBase
         throws JsonMappingException
     {
         ObjectIdWriter oiw = _objectIdWriter;
+        String[] ignorals = null;
+        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         
         // First: may have an override for Object Id:
-        if (property != null) {
-            final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+        if (property != null && intr != null) {
             final AnnotatedMember accessor = property.getMember();
+            ignorals = intr.findPropertiesToIgnore(accessor);
             final ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
             if (objectIdInfo != null) {
                 /* Ugh: mostly copied from BeanSerializerBase: but can't easily
@@ -321,14 +368,19 @@ public abstract class BeanSerializerBase
             }
         }
         // either way, need to resolve serializer:
+        BeanSerializerBase contextual = this;
         if (oiw != null) {
             JsonSerializer<?> ser = provider.findValueSerializer(oiw.idType, property);
             oiw = oiw.withSerializer(ser);
             if (oiw != _objectIdWriter) {
-                return withObjectIdWriter(oiw);
+                contextual = withObjectIdWriter(oiw);
             }
         }
-        return this;
+        // And possibly add more properties to ignore
+        if (ignorals != null && ignorals.length != 0) {
+            contextual = contextual.withIgnorals(ignorals);
+        }
+        return contextual;
     }
     
     /*

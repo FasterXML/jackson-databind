@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestGenericSubTyping extends BaseMapTest
@@ -22,7 +23,7 @@ public class TestGenericSubTyping extends BaseMapTest
     static class ResultSetWithDoc<D extends Document> extends ResultSet<RowWithDoc<D>> {}
 
     static class MyDoc extends Document {}
-    
+
     /*
     /*******************************************************
     /* Unit tests
@@ -31,10 +32,13 @@ public class TestGenericSubTyping extends BaseMapTest
     
     public void testIssue778() throws Exception
     {
+        final ObjectMapper mapper = new ObjectMapper();
         String json = "{\"rows\":[{\"d\":{}}]}";
 
-        ResultSetWithDoc<MyDoc> rs = new ObjectMapper().readValue(json,
-                new TypeReference<ResultSetWithDoc<MyDoc>>() {});
+        final TypeReference<?> type = new TypeReference<ResultSetWithDoc<MyDoc>>() {};
+        
+        // type passed is correct, but somehow it gets mangled when passed...
+        ResultSetWithDoc<MyDoc> rs = mapper.readValue(json, type);
         Document d = rs.rows.iterator().next().d;
     
         assertEquals(MyDoc.class, d.getClass()); //expected MyDoc but was Document

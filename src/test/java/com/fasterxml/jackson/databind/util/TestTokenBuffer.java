@@ -139,10 +139,14 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         assertNull(jp.getCurrentName());
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
         assertEquals("num", jp.getCurrentName());
+        // and override should also work:
+        jp.overrideCurrentName("bah");
+        assertEquals("bah", jp.getCurrentName());
+        
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
         assertEquals(1.25, jp.getDoubleValue());
-        // should still have access to name
-        assertEquals("num", jp.getCurrentName());
+        // should still have access to (overridden) name
+        assertEquals("bah", jp.getCurrentName());
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         // but not any more
         assertNull(jp.getCurrentName());

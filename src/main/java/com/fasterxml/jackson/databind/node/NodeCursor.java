@@ -19,6 +19,11 @@ abstract class NodeCursor
      */
     protected final NodeCursor _parent;
 
+    /**
+     * Current field name
+     */
+    protected String _currentName;
+    
     public NodeCursor(int contextType, NodeCursor p)
     {
         super();
@@ -38,8 +43,17 @@ abstract class NodeCursor
     public final NodeCursor getParent() { return _parent; }
 
     @Override
-    public abstract String getCurrentName();
+    public final String getCurrentName() {
+        return _currentName;
+    }
 
+    /**
+     * @since 2.0
+     */
+    public void overrideCurrentName(String name) {
+        _currentName = name;
+    }
+    
     /*
     /**********************************************************
     /* Extended API
@@ -52,7 +66,7 @@ abstract class NodeCursor
 
     public abstract JsonNode currentNode();
     public abstract boolean currentHasChildren();
-
+    
     /**
      * Method called to create a new context for iterating all
      * contents of the current structured value (JSON array or object)
@@ -83,7 +97,7 @@ abstract class NodeCursor
     protected final static class RootValue
         extends NodeCursor
     {
-        JsonNode _node;
+        protected JsonNode _node;
 
         protected boolean _done = false;
 
@@ -93,8 +107,10 @@ abstract class NodeCursor
         }
 
         @Override
-        public String getCurrentName() { return null; }
-
+        public void overrideCurrentName(String name) {
+            
+        }
+        
         @Override
         public JsonToken nextToken() {
             if (!_done) {
@@ -121,17 +137,14 @@ abstract class NodeCursor
     protected final static class Array
         extends NodeCursor
     {
-        Iterator<JsonNode> _contents;
+        protected Iterator<JsonNode> _contents;
 
-        JsonNode _currentNode;
+        protected JsonNode _currentNode;
 
         public Array(JsonNode n, NodeCursor p) {
             super(JsonStreamContext.TYPE_ARRAY, p);
             _contents = n.elements();
         }
-
-        @Override
-        public String getCurrentName() { return null; }
 
         @Override
         public JsonToken nextToken()
@@ -164,10 +177,10 @@ abstract class NodeCursor
     protected final static class Object
         extends NodeCursor
     {
-        Iterator<Map.Entry<String, JsonNode>> _contents;
-        Map.Entry<String, JsonNode> _current;
+        protected Iterator<Map.Entry<String, JsonNode>> _contents;
+        protected Map.Entry<String, JsonNode> _current;
 
-        boolean _needEntry;
+        protected boolean _needEntry;
         
         public Object(JsonNode n, NodeCursor p)
         {
@@ -177,21 +190,18 @@ abstract class NodeCursor
         }
 
         @Override
-        public String getCurrentName() {
-            return (_current == null) ? null : _current.getKey();
-        }
-
-        @Override
         public JsonToken nextToken()
         {
             // Need a new entry?
             if (_needEntry) {
                 if (!_contents.hasNext()) {
+                    _currentName = null;
                     _current = null;
                     return null;
                 }
                 _needEntry = false;
                 _current = _contents.next();
+                _currentName = (_current == null) ? null : _current.getKey();
                 return JsonToken.FIELD_NAME;
             }
             _needEntry = true;

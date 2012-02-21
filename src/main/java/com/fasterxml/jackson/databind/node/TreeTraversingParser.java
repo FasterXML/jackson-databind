@@ -194,6 +194,14 @@ public class TreeTraversingParser extends ParserMinimalBase
     }
 
     @Override
+    public void overrideCurrentName(String name)
+    {
+        if (_nodeCursor != null) {
+            _nodeCursor.overrideCurrentName(name);
+        }
+    }
+    
+    @Override
     public JsonStreamContext getParsingContext() {
         return _nodeCursor;
     }

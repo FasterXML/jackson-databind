@@ -1,13 +1,11 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.text.DateFormat;
 import java.util.Calendar;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 
@@ -18,30 +16,43 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
  */
 @JacksonStdImpl
 public class CalendarSerializer
-    extends StdScalarSerializer<Calendar>
+    extends DateTimeSerializerBase<Calendar>
 {
     public static CalendarSerializer instance = new CalendarSerializer();
 
-    public CalendarSerializer() { super(Calendar.class); }
-    
+    public CalendarSerializer() { this(false, null); }
+
+    public CalendarSerializer(boolean useTimestamp, DateFormat customFormat) {
+        super(Calendar.class, useTimestamp, customFormat);
+    }
+
     @Override
-    public boolean isEmpty(Calendar value) {
-        // let's assume "null date" (timestamp 0) qualifies for empty
-        return (value == null) || (value.getTimeInMillis() == 0L);
+    public CalendarSerializer withFormat(boolean timestamp, DateFormat customFormat)
+    {
+        if (timestamp) {
+            return new CalendarSerializer(true, null);
+        }
+        return new CalendarSerializer(false, customFormat);
+    }
+
+    protected long _timestamp(Calendar value) {
+        return (value == null) ? 0L : value.getTimeInMillis();
     }
 
     @Override
     public void serialize(Calendar value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
-        provider.defaultSerializeDateValue(value.getTimeInMillis(), jgen);
+        if (_useTimestamp) {
+            jgen.writeNumber(_timestamp(value));
+        } else if (_customFormat != null) {
+            // 21-Feb-2011, tatu: not optimal, but better than alternatives:
+            synchronized (_customFormat) {
+                jgen.writeString(_customFormat.format(value));
+            }
+        } else {
+            provider.defaultSerializeDateValue(value.getTime(), jgen);
+        }
     }
 
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-    {
-        //TODO: (ryan) add a format for the date in the schema?
-        return createSchemaNode(provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                ? "number" : "string", true);
-    }
 }

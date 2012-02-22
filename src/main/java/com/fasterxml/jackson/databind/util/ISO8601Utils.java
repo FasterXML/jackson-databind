@@ -19,6 +19,13 @@ public class ISO8601Utils {
     private static final TimeZone TIMEZONE_GMT = TimeZone.getTimeZone(GMT_ID);
 
     /**
+     * Accessor for static GMT timezone instance.
+     */
+    public static TimeZone timeZoneGMT() {
+        return TIMEZONE_GMT;
+    }
+    
+    /**
      * Format a date into 'yyyy-MM-ddThh:mm:ssZ' (GMT timezone, no milliseconds precision)
      *
      * @param date the date to format

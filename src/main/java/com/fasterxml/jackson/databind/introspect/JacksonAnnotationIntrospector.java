@@ -405,7 +405,13 @@ public class JacksonAnnotationIntrospector
         }
         return new ObjectIdInfo(info.property(), info.scope(), info.generator());
     }
-    
+
+    @Override
+    public JsonFormat.Value findFormat(AnnotatedMember member) {
+        JsonFormat ann = member.getAnnotation(JsonFormat.class);
+        return (ann == null)  ? null : new JsonFormat.Value(ann);
+    }
+
     /*
     /**********************************************************
     /* Serialization: class annotations

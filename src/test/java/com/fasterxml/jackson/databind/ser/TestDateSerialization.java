@@ -5,6 +5,7 @@ import java.text.*;
 import java.util.*;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 
 public class TestDateSerialization
@@ -20,31 +21,42 @@ public class TestDateSerialization
         public TimeZone getTz() { return tz; }
     }
 
+    static class DateAsNumberBean {
+        @JsonFormat(shape=JsonFormat.Shape.NUMBER)
+        public Date date;
+        public DateAsNumberBean(long l) { date = new java.util.Date(l); }
+    }
+
+    static class DateAsStringBean {
+        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+        public Date date;
+        public DateAsStringBean(long l) { date = new java.util.Date(l); }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testDateNumeric() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        StringWriter sw = new StringWriter();
         // default is to output time stamps...
-        assertTrue(mapper.getSerializationConfig().isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
+        assertTrue(MAPPER.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS));
         // shouldn't matter which offset we give...
-        mapper.writeValue(sw, new Date(199L));
-        assertEquals("199", sw.toString());
+        String json = MAPPER.writeValueAsString(new Date(199L));
+        assertEquals("199", json);
     }
 
     public void testDateISO8601() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
-        StringWriter sw = new StringWriter();
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         // let's hit epoch start
-        mapper.writeValue(sw, new Date(0L));
-        assertEquals("\"1970-01-01T00:00:00.000+0000\"", sw.toString());
+        String json = mapper.writeValueAsString(new Date(0L));
+        assertEquals("\"1970-01-01T00:00:00.000+0000\"", json);
     }
 
     public void testDateOther() throws IOException
@@ -60,25 +72,22 @@ public class TestDateSerialization
     @SuppressWarnings("deprecation")
     public void testSqlDate() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
         // use date 1999-04-01 (note: months are 0-based, use constant)
         java.sql.Date date = new java.sql.Date(99, Calendar.APRIL, 1);
-        assertEquals(quote("1999-04-01"), serializeAsString(mapper, date));
+        assertEquals(quote("1999-04-01"), MAPPER.writeValueAsString(date));
     }
 
     public void testTimeZone() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
         TimeZone input = TimeZone.getTimeZone("PST");
-        String json = mapper.writeValueAsString(input);
+        String json = MAPPER.writeValueAsString(input);
         assertEquals(quote("PST"), json);
     }
 
     // [JACKSON-663]
     public void testTimeZoneInBean() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(new TimeZoneBean("PST"));
+        String json = MAPPER.writeValueAsString(new TimeZoneBean("PST"));
         assertEquals("{\"tz\":\"PST\"}", json);
     }
     
@@ -87,10 +96,9 @@ public class TestDateSerialization
     {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
         df.setTimeZone(TimeZone.getTimeZone("PST"));
-        ObjectMapper mapper = new ObjectMapper();
         assertEquals(quote("1969-12-31X16:00:00"),
-                mapper.writer(df).writeValueAsString(new Date(0L)));
-        ObjectWriter w = mapper.writer((DateFormat)null);
+                MAPPER.writer(df).writeValueAsString(new Date(0L)));
+        ObjectWriter w = MAPPER.writer((DateFormat)null);
         assertEquals("0", w.writeValueAsString(new Date(0L)));
 
         w = w.withDateFormat(df);
@@ -112,6 +120,23 @@ public class TestDateSerialization
         // but can change to use timestamps too
         mapper.configure(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS, true);
         assertEquals("{\"0\":1}", mapper.writeValueAsString(map));
+    }
+
+    // [JACKSON-435]
+    public void testDateWithJsonFormat() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        String json;
+
+        // first: test overriding writing as timestamp
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        json = mapper.writeValueAsString(new DateAsNumberBean(0L));
+        assertEquals("{\"date\":0}", json);
+
+        // then reverse
+        mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        json = mapper.writeValueAsString(new DateAsStringBean(0L));
+        assertEquals("{\"date\":\"1970-01-01\"}", json);
     }
 }
 

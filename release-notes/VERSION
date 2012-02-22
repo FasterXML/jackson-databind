@@ -53,6 +53,7 @@ New features:
  (requested by Aner P)
 * [JACKSON-707]: Add 'JsonNode.deepCopy()', to create safe deep copies
   of ObjectNodes, ArrayNodes.
+* [JACKSON-714]: Add general-purpose @JsonFormat annotation
 * [JACKSON-718]: Added 'JsonNode.canConvertToInt()', 'JsonNode.canConvertToLong()'
 * [JACKSON-747]: Allow changing of 'SerializationConfig.Feature' for ObjectWriter,
   'DeserializationConfig.Feature' for ObjectReader.

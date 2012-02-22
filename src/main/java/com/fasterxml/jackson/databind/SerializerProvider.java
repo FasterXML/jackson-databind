@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.*;
@@ -17,6 +19,7 @@ import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdKeySerializers;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.ISO8601Utils;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
@@ -61,12 +64,12 @@ public abstract class SerializerProvider
     /**
      * Serialization configuration to use for serialization processing.
      */
-    protected final SerializationConfig _config;
+    final protected SerializationConfig _config;
 
     /**
      * View used for currently active serialization, if any.
      */
-    protected final Class<?> _serializationView;
+    final protected Class<?> _serializationView;
     
     /*
     /**********************************************************
@@ -135,6 +138,23 @@ public abstract class SerializerProvider
 
     /*
     /**********************************************************
+    /* Configuration, other
+    /**********************************************************
+     */
+
+    /**
+     * Locale used for formatting purposes.
+     */
+    protected Locale _locale;
+
+    /**
+     * Timezone to use as the default; if not specified, will
+     * default to GMT
+     */
+    protected TimeZone _timezone;
+    
+    /*
+    /**********************************************************
     /* State, for non-blueprint instances: generic
     /**********************************************************
      */
@@ -196,6 +216,8 @@ public abstract class SerializerProvider
         _nullValueSerializer = src._nullValueSerializer;
         _nullKeySerializer = src._nullKeySerializer;
         _rootNames = src._rootNames;
+        _locale = src._locale;
+        _timezone = src._timezone;
 
         /* Non-blueprint instances do have a read-only map; one that doesn't
          * need synchronization for lookups.
@@ -254,7 +276,21 @@ public abstract class SerializerProvider
         }
         _nullKeySerializer = nks;
     }
+
+    /**
+     * @since 2.0
+     */
+    public void setLocale(Locale l) {
+        _locale = l;
+    }
     
+    /**
+     * @since 2.0
+     */
+    public void setTimeZone(TimeZone tz) {
+        _timezone = tz;
+    }
+        
     /*
     /**********************************************************
     /* Access to general configuration
@@ -329,6 +365,23 @@ public abstract class SerializerProvider
         return _config.getFilterProvider();
     }
 
+    /**
+     * Method for accessing default Locale to use; can be overridden.
+     */
+    public Locale getLocale() {
+        if (_locale != null) {
+            return _locale;
+        }
+        return Locale.getDefault();
+    }
+
+    public TimeZone getTimeZone() {
+        if (_timezone != null) {
+            return _timezone;
+        }
+        return ISO8601Utils.timeZoneGMT();
+    }
+    
     /*
     /**********************************************************
     /* Access to type handling
@@ -729,16 +782,9 @@ public abstract class SerializerProvider
         }
     }
 
-    /**
-     * Method that will handle serialization of Date(-like) values, using
-     * {@link SerializationConfig} settings to determine expected serialization
-     * behavior.
-     * Note: date here means "full" date, that is, date AND time, as per
-     * Java convention (and not date-only values like in SQL)
-     */
     /*
     /**********************************************************
-    /* Abstract method impls, convenience methods
+    /* Convenience methods
     /**********************************************************
      */
 

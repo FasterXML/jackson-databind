@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
@@ -432,6 +433,18 @@ public abstract class AnnotationIntrospector implements Versioned
      * @since 2.0
      */
     public ObjectIdInfo findObjectIdInfo(Annotated ann) {
+        return null;
+    }
+
+    /**
+     * Method for finding format annotations for given member.
+     * Return value is typically used by serializers and/or
+     * deserializers to customize presentation aspects of the
+     * serialized value.
+     * 
+     * @since 2.0
+     */
+    public JsonFormat.Value findFormat(AnnotatedMember member) {
         return null;
     }
     
@@ -1241,6 +1254,15 @@ public abstract class AnnotationIntrospector implements Versioned
             ObjectIdInfo result = _primary.findObjectIdInfo(ann);
             if (result == null) {
                 result = _secondary.findObjectIdInfo(ann);
+            }
+            return result;
+        }
+
+        @Override
+        public JsonFormat.Value findFormat(AnnotatedMember member) {
+            JsonFormat.Value result = _primary.findFormat(member);
+            if (result == null) {
+                result = _secondary.findFormat(member);
             }
             return result;
         }

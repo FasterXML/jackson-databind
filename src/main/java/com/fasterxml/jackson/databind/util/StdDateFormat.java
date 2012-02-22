@@ -19,10 +19,11 @@ import com.fasterxml.jackson.core.io.NumberInput;
 public class StdDateFormat
     extends DateFormat
 {
-    /* TODO !!! 24-Nov-2009, tatu: Need to rewrite this class soon:
+    /* TODO !!! 24-Nov-2009, tatu: Need to rewrite this class:
      * JDK date parsing is awfully brittle, and ISO-8601 is quite
      * permissive. The two don't mix, need to write a better one.
      */
+    // Note: [JACKSON-697] is the issue for rewrite
 
     /**
      * Defines a commonly used date format that conforms

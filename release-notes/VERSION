@@ -44,6 +44,8 @@ Improvements
 
 New features:
 
+* [JACKSON-107]: Add support for Object Identity (to handled cycles, shared refs),
+  with @JsonIdentityInfo.
 * [JACKSON-437]: Allow injecting of type id as POJO property, by setting
   new '@JsonTypeInfo.visible' property to true.
 * [JACKSON-469]: Support "Builder pattern" for deserialiation; that is, allow

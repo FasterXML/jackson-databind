@@ -272,7 +272,15 @@ public class TypeBindings
              */
             TypeVariable<?>[] vars = raw.getTypeParameters();
             if (vars != null && vars.length > 0) {
-                for (TypeVariable<?> var : vars) {
+                JavaType[] typeParams = null;
+
+                if (_contextType != null && raw.isAssignableFrom(_contextType.getRawClass())) {
+                    typeParams = _typeFactory.findTypeParameters(_contextType, raw);
+                }
+
+                for (int i = 0; i < vars.length; i++) {
+                    TypeVariable<?> var = vars[i];
+
                     String name = var.getName();
                     Type varType = var.getBounds()[0];
                     if (varType != null) {
@@ -282,7 +290,12 @@ public class TypeBindings
                             if (_bindings.containsKey(name)) continue;
                         }
                         _addPlaceholder(name); // to prevent infinite loops
-                        _bindings.put(name, _typeFactory._constructType(varType, this));
+
+                        if (typeParams != null) {
+                            _bindings.put(name, typeParams[i]);
+                        } else {
+                            _bindings.put(name, _typeFactory._constructType(varType, this));
+                        }
                     }
                 }
             }

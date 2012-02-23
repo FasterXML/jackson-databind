@@ -6,10 +6,6 @@ import java.util.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-
-/**
- * @since 1.7
- */
 public class TestGenericTypes extends BaseMapTest
 {
     /*

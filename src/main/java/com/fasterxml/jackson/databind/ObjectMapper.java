@@ -1041,10 +1041,11 @@ public class ObjectMapper
      * {@link ObjectWriter}s are thread-safe whereas ObjectMapper itself is only
      * thread-safe when configuring methods (such as this one) are NOT called.
      */
-    public void setDateFormat(DateFormat dateFormat)
+    public ObjectMapper setDateFormat(DateFormat dateFormat)
     {
         _deserializationConfig = _deserializationConfig.withDateFormat(dateFormat);
         _serializationConfig = _serializationConfig.withDateFormat(dateFormat);
+        return this;
     }
 
     /**
@@ -1054,10 +1055,11 @@ public class ObjectMapper
      *
      * @param hi Instantiator to use; if null, use the default implementation
      */
-    public void setHandlerInstantiator(HandlerInstantiator hi)
+    public Object setHandlerInstantiator(HandlerInstantiator hi)
     {
         _deserializationConfig = _deserializationConfig.withHandlerInstantiator(hi);
         _serializationConfig = _serializationConfig.withHandlerInstantiator(hi);
+        return this;
     }
     
     /**
@@ -1066,6 +1068,25 @@ public class ObjectMapper
      */
     public ObjectMapper setInjectableValues(InjectableValues injectableValues) {
         _injectableValues = injectableValues;
+        return this;
+    }
+    
+    /**
+     * Method for overriding default locale (which simply uses
+     * {@link Locale#getDefault()}).
+     */
+    public ObjectMapper setLocale(Locale l) {
+        _deserializationContext.setLocale(l);
+        _serializerProvider.setLocale(l);
+        return this;
+    }
+
+    /**
+     * Method for overriding default TimeZone (GMT)
+     */
+    public ObjectMapper setTimeZone(TimeZone tz) {
+        _deserializationContext.setTimeZone(tz);
+        _serializerProvider.setTimeZone(tz);
         return this;
     }
     

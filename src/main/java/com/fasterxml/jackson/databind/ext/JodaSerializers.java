@@ -193,6 +193,5 @@ public class JodaSerializers
             return createSchemaNode(provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
                     ? "array" : "string", true);
         }
-    }
-    
+    }    
 }

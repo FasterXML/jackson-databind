@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.ISO8601Utils;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
@@ -70,7 +71,24 @@ public abstract class DeserializationContext
      * owners (<code>ObjectMapper</code>, <code>ObjectReader</code>)
      * access it.
      */
-    public final DeserializerFactory _factory;
+    protected final DeserializerFactory _factory;
+
+    /*
+    /**********************************************************
+    /* Configuration, other
+    /**********************************************************
+     */
+
+    /**
+     * Locale used for formatting purposes.
+     */
+    protected Locale _locale;
+
+    /**
+     * Timezone to use as the default; if not specified, will
+     * default to GMT
+     */
+    protected TimeZone _timezone;
 
     /*
     /**********************************************************
@@ -169,6 +187,26 @@ public abstract class DeserializationContext
         _view = config.getActiveView();
         _parser = jp;
         _injectableValues = injectableValues;
+    }
+
+    /*
+    /**********************************************************
+    /* Public API, mutators
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.0
+     */
+    public void setLocale(Locale l) {
+        _locale = l;
+    }
+    
+    /**
+     * @since 2.0
+     */
+    public void setTimeZone(TimeZone tz) {
+        _timezone = tz;
     }
     
     /*
@@ -281,6 +319,23 @@ public abstract class DeserializationContext
         return _config.getTypeFactory();
     }
 
+    /**
+     * Method for accessing default Locale to use; can be overridden.
+     */
+    public Locale getLocale() {
+        if (_locale != null) {
+            return _locale;
+        }
+        return Locale.getDefault();
+    }
+
+    public TimeZone getTimeZone() {
+        if (_timezone != null) {
+            return _timezone;
+        }
+        return ISO8601Utils.timeZoneGMT();
+    }
+    
     /*
     /**********************************************************
     /* Public API, pass-through to DeserializerCache
@@ -459,8 +514,8 @@ public abstract class DeserializationContext
     {
         try {
             return getDateFormat().parse(dateStr);
-        } catch (ParseException pex) {
-            throw new IllegalArgumentException(pex.getMessage());
+        } catch (ParseException e) {
+            throw new IllegalArgumentException("Failed to parse Date value '"+dateStr+"': "+e.getMessage());
         }
     }
 
@@ -473,7 +528,7 @@ public abstract class DeserializationContext
         /* 08-Jan-2008, tatu: not optimal, but should work for the
          *   most part; let's revise as needed.
          */
-        Calendar c = Calendar.getInstance();
+        Calendar c = Calendar.getInstance(getTimeZone());
         c.setTime(d);
         return c;
     }

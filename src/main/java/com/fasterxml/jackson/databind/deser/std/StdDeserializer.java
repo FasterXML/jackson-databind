@@ -549,7 +549,6 @@ public abstract class StdDeserializer<T>
         throw ctxt.mappingException(_valueClass, t);
     }
 
-    
     protected java.util.Date _parseDate(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -562,9 +561,7 @@ public abstract class StdDeserializer<T>
         }
         if (t == JsonToken.VALUE_STRING) {
             try {
-                /* As per [JACKSON-203], take empty Strings to mean
-                 * null
-                 */
+                // As per [JACKSON-203], take empty Strings to mean
                 String str = jp.getText().trim();
                 if (str.length() == 0) {
                     return (Date) getEmptyValue();

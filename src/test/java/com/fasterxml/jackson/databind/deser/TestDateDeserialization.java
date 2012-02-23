@@ -5,21 +5,43 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 
 public class TestDateDeserialization
     extends BaseMapTest
 {
+    // Test for [JACKSON-435]
+    static class DateAsStringBean
+    {
+        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="/yyyy/MM/dd/")
+        public Date date;
+    }
+
+    static class CalendarAsStringBean
+    {
+        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern=";yyyy/MM/dd;")
+        public Calendar cal;
+    }
+    
+    /*
+    /**********************************************************
+    /* Unit tests
+    /**********************************************************
+     */
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testDateUtil() throws Exception
     {
         long now = 123456789L;
         java.util.Date value = new java.util.Date(now);
 
         // First from long
-        assertEquals(value, new ObjectMapper().readValue(""+now, java.util.Date.class));
+        assertEquals(value, MAPPER.readValue(""+now, java.util.Date.class));
 
         String dateStr = serializeDateAsString(value);
-        java.util.Date result = new ObjectMapper().readValue("\""+dateStr+"\"", java.util.Date.class);
+        java.util.Date result = MAPPER.readValue("\""+dateStr+"\"", java.util.Date.class);
 
         assertEquals("Date: expect "+value+" ("+value.getTime()+"), got "+result+" ("+result.getTime()+")", value.getTime(), result.getTime());
     }
@@ -31,7 +53,7 @@ public class TestDateDeserialization
          * as it is plain timestamp (all numbers, 64-bit)
          */
         String json = quote(String.valueOf(now));
-        java.util.Date value = new ObjectMapper().readValue(json, java.util.Date.class);
+        java.util.Date value = MAPPER.readValue(json, java.util.Date.class);
         assertEquals(now, value.getTime());
     }
 
@@ -41,7 +63,7 @@ public class TestDateDeserialization
         // let's use an arbitrary value...
         String inputStr = "Sat, 17 Jan 2009 06:13:58 +0000";
         java.util.Date inputDate = fmt.parse(inputStr);
-        assertEquals(inputDate, new ObjectMapper().readValue("\""+inputStr+"\"", java.util.Date.class));
+        assertEquals(inputDate, MAPPER.readValue("\""+inputStr+"\"", java.util.Date.class));
     }
 
     /**
@@ -52,9 +74,8 @@ public class TestDateDeserialization
         /* let's use simple baseline value, arbitrary date in GMT,
          * using the standard notation
          */
-        ObjectMapper mapper = new ObjectMapper();
         String inputStr = "1972-12-28T00:00:00.000+0000";
-        Date inputDate = mapper.readValue("\""+inputStr+"\"", java.util.Date.class);
+        Date inputDate = MAPPER.readValue("\""+inputStr+"\"", java.util.Date.class);
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         c.setTime(inputDate);
         assertEquals(1972, c.get(Calendar.YEAR));
@@ -63,7 +84,7 @@ public class TestDateDeserialization
 
         // And then the same, but using 'Z' as alias for +0000 (very common)
         inputStr = "1972-12-28T00:00:00.000Z";
-        inputDate = mapper.readValue(quote(inputStr), java.util.Date.class);
+        inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
         c.setTime(inputDate);
         assertEquals(1972, c.get(Calendar.YEAR));
         assertEquals(Calendar.DECEMBER, c.get(Calendar.MONTH));
@@ -71,7 +92,7 @@ public class TestDateDeserialization
 
         // Same but using colon in timezone
         inputStr = "1972-12-28T00:00:00.000+00:00";
-        inputDate = mapper.readValue(quote(inputStr), java.util.Date.class);
+        inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
         c.setTime(inputDate);
         assertEquals(1972, c.get(Calendar.YEAR));
         assertEquals(Calendar.DECEMBER, c.get(Calendar.MONTH));
@@ -79,14 +100,14 @@ public class TestDateDeserialization
 
         // Same but only passing hour difference as timezone
         inputStr = "1972-12-28T00:00:00.000+00";
-        inputDate = mapper.readValue(quote(inputStr), java.util.Date.class);
+        inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
         c.setTime(inputDate);
         assertEquals(1972, c.get(Calendar.YEAR));
         assertEquals(Calendar.DECEMBER, c.get(Calendar.MONTH));
         assertEquals(28, c.get(Calendar.DAY_OF_MONTH));
 
         inputStr = "1984-11-30T00:00:00.000Z";
-        inputDate = mapper.readValue(quote(inputStr), java.util.Date.class);
+        inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
         c.setTime(inputDate);
         assertEquals(1984, c.get(Calendar.YEAR));
         assertEquals(Calendar.NOVEMBER, c.get(Calendar.MONTH));
@@ -95,10 +116,9 @@ public class TestDateDeserialization
 
     public void testDateUtilISO8601NoTimezone() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // Timezone itself is optional as well... 
         String inputStr = "1984-11-13T00:00:09";
-        Date inputDate = mapper.readValue(quote(inputStr), java.util.Date.class);
+        Date inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         c.setTime(inputDate);
         assertEquals(1984, c.get(Calendar.YEAR));
@@ -112,18 +132,15 @@ public class TestDateDeserialization
 
     public void testDateUtilISO8601JustDate() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // Plain date (no time)
         String inputStr = "1972-12-28";
-        Date inputDate = mapper.readValue(quote(inputStr), java.util.Date.class);
+        Date inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         c.setTime(inputDate);
         assertEquals(1972, c.get(Calendar.YEAR));
         assertEquals(Calendar.DECEMBER, c.get(Calendar.MONTH));
         assertEquals(28, c.get(Calendar.DAY_OF_MONTH));
-
     }
-
 
     @SuppressWarnings("deprecation")
     public void testDateSql() throws Exception
@@ -135,14 +152,12 @@ public class TestDateDeserialization
         long now = value.getTime();
 
         // First from long
-        ObjectMapper mapper = new ObjectMapper();
-        assertEquals(value, mapper.readValue(String.valueOf(now), java.sql.Date.class));
+        assertEquals(value, MAPPER.readValue(String.valueOf(now), java.sql.Date.class));
 
         // then from default java.sql.Date String serialization:
         
-        java.sql.Date result = mapper.readValue(quote(value.toString()), java.sql.Date.class);
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        c.setTimeInMillis(result.getTime());
+        java.sql.Date result = MAPPER.readValue(quote(value.toString()), java.sql.Date.class);
+        Calendar c = gmtCalendar(result.getTime());
         assertEquals(1999, c.get(Calendar.YEAR));
         assertEquals(Calendar.APRIL, c.get(Calendar.MONTH));
         assertEquals(19, c.get(Calendar.DAY_OF_MONTH));
@@ -151,7 +166,7 @@ public class TestDateDeserialization
          *   formats as well
          */
         String expStr = "1981-07-13";
-        result = mapper.readValue(quote(expStr), java.sql.Date.class);
+        result = MAPPER.readValue(quote(expStr), java.sql.Date.class);
         c.setTimeInMillis(result.getTime());
         assertEquals(1981, c.get(Calendar.YEAR));
         assertEquals(Calendar.JULY, c.get(Calendar.MONTH));
@@ -162,28 +177,30 @@ public class TestDateDeserialization
          *   that something is funky with timezones (i.e. somewhere local TZ is
          *   being used), but just can't resolve it. Hence, need to comment this:
          */
-        //assertEquals(expStr, result.toString());
+//        assertEquals(expStr, result.toString());
     }
 
     public void testCalendar() throws Exception
     {
         // not ideal, to use (ever-changing) current date, but...
-        java.util.Date now = new Date();
         java.util.Calendar value = Calendar.getInstance();
-        value.setTime(now);
+        value.setTimeZone(TimeZone.getTimeZone("GMT"));
+        long l = 12345678L;
+        value.setTimeInMillis(l);
 
         // First from long
-        assertEquals(value, new ObjectMapper().readValue(""+now.getTime(), Calendar.class));
+        Calendar result = MAPPER.readValue(""+l, Calendar.class);
+        assertEquals(l, result.getTimeInMillis());
 
-        String dateStr = serializeDateAsString(now);
-        Calendar result = new ObjectMapper().readValue("\""+dateStr+"\"", Calendar.class);
+        String dateStr = serializeDateAsString(new Date(l));
+        result = MAPPER.readValue(quote(dateStr), Calendar.class);
 
         assertEquals(value, result);
     }
 
     public void testCustom() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = new ObjectMapper();
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'X'HH:mm:ss");
         df.setTimeZone(TimeZone.getTimeZone("PST"));
         mapper.setDateFormat(df);
@@ -200,24 +217,21 @@ public class TestDateDeserialization
      */
     public void testDatesWithEmptyStrings() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-
-        assertNull(mapper.readValue(quote(""), java.util.Date.class));
-        assertNull(mapper.readValue(quote(""), java.util.Calendar.class));
-        assertNull(mapper.readValue(quote(""), java.sql.Date.class));
+        assertNull(MAPPER.readValue(quote(""), java.util.Date.class));
+        assertNull(MAPPER.readValue(quote(""), java.util.Calendar.class));
+        assertNull(MAPPER.readValue(quote(""), java.sql.Date.class));
     }
 
     // for [JACKSON-334]
     public void test8601DateTimeNoMilliSecs() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // ok, Zebra, no milliseconds
         for (String inputStr : new String[] {
                "2010-06-28T23:34:22Z",
                "2010-06-28T23:34:22+0000",
                "2010-06-28T23:34:22+00",
         }) {
-            Date inputDate = mapper.readValue(quote(inputStr), java.util.Date.class);
+            Date inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
             Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
             c.setTime(inputDate);
             assertEquals(2010, c.get(Calendar.YEAR));
@@ -232,9 +246,37 @@ public class TestDateDeserialization
 
     public void testTimeZone() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        TimeZone result = mapper.readValue(quote("PST"), TimeZone.class);
+        TimeZone result = MAPPER.readValue(quote("PST"), TimeZone.class);
         assertEquals("PST", result.getID());
+    }
+
+    public void testCustomDateWithAnnotation() throws Exception
+    {
+        DateAsStringBean result = MAPPER.readValue("{\"date\":\"/2005/05/25/\"}", DateAsStringBean.class);
+        assertNotNull(result);
+        assertNotNull(result.date);
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        long l = result.date.getTime();
+        if (l == 0L) {
+            fail("Should not get null date");
+        }
+        c.setTimeInMillis(l);
+        assertEquals(2005, c.get(Calendar.YEAR));
+        assertEquals(Calendar.MAY, c.get(Calendar.MONTH));
+        assertEquals(25, c.get(Calendar.DAY_OF_MONTH));
+    }
+
+    public void testCustomCalendarWithAnnotation() throws Exception
+    {
+        CalendarAsStringBean cbean = MAPPER.readValue("{\"cal\":\";2007/07/13;\"}", CalendarAsStringBean.class);
+        assertNotNull(cbean);
+        assertNotNull(cbean.cal);
+        // not sure why this is actually needed but...
+        Calendar c = cbean.cal;
+//        Calendar c = gmtCalendar(cbean.cal.getTimeInMillis());
+        assertEquals(2007, c.get(Calendar.YEAR));
+        assertEquals(Calendar.JULY, c.get(Calendar.MONTH));
+        assertEquals(13, c.get(Calendar.DAY_OF_MONTH));
     }
     
     /*
@@ -243,7 +285,7 @@ public class TestDateDeserialization
     /**********************************************************
      */
 
-    String serializeDateAsString(java.util.Date value)
+    private String serializeDateAsString(java.util.Date value)
     {
         /* Then from String. This is bit tricky, since JDK does not really
          * suggest a 'standard' format. So let's try using something...
@@ -251,4 +293,12 @@ public class TestDateDeserialization
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         return df.format(value);
     }
+
+    private static Calendar gmtCalendar(long time)
+    {
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        c.setTimeInMillis(time);
+        return c;
+    }
+
 }

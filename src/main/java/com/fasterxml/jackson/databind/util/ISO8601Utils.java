@@ -18,12 +18,24 @@ public class ISO8601Utils {
      */
     private static final TimeZone TIMEZONE_GMT = TimeZone.getTimeZone(GMT_ID);
 
+    /*
+    /**********************************************************
+    /* Static factories
+    /**********************************************************
+     */
+    
     /**
      * Accessor for static GMT timezone instance.
      */
     public static TimeZone timeZoneGMT() {
         return TIMEZONE_GMT;
     }
+
+    /*
+    /**********************************************************
+    /* Formatting
+    /**********************************************************
+     */
     
     /**
      * Format a date into 'yyyy-MM-ddThh:mm:ssZ' (GMT timezone, no milliseconds precision)
@@ -95,6 +107,11 @@ public class ISO8601Utils {
         return formatted.toString();
     }
 
+    /*
+    /**********************************************************
+    /* Parsing
+    /**********************************************************
+     */
 
     /**
      * Parse a date from ISO-8601 formatted string. It expects a format yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]

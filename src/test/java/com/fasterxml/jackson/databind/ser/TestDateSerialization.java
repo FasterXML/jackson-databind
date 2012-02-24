@@ -32,6 +32,12 @@ public class TestDateSerialization
         public Date date;
         public DateAsStringBean(long l) { date = new java.util.Date(l); }
     }
+
+    static class DateInCETBean {
+        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd,HH:00", timezone="CET")
+        public Date date;
+        public DateInCETBean(long l) { date = new java.util.Date(l); }
+    }
     
     /*
     /**********************************************************
@@ -137,6 +143,10 @@ public class TestDateSerialization
         mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         json = mapper.writer().with(getUTCTimeZone()).writeValueAsString(new DateAsStringBean(0L));
         assertEquals("{\"date\":\"1970-01-01\"}", json);
+
+        // and with different DateFormat; CET is one hour ahead of GMT
+        json = mapper.writeValueAsString(new DateInCETBean(0L));
+        assertEquals("{\"date\":\"1970-01-01,01:00\"}", json);
     }
 }
 

@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 public abstract class DateTimeSerializerBase<T>
     extends StdScalarSerializer<T>
@@ -45,13 +48,36 @@ public abstract class DateTimeSerializerBase<T>
         if (property != null) {
             JsonFormat.Value format = prov.getAnnotationIntrospector().findFormat(property.getMember());
             if (format != null) {
+                // Simple case first: serialize as numeric timestamp?
                 if (format.getShape().isNumeric()) {
                     return withFormat(true, null);
                 }
+                // If not, do we have a pattern?
+                TimeZone tz = format.getTimeZone();
                 String pattern = format.getPattern();
                 if (pattern.length() > 0){
-                    SimpleDateFormat df = new SimpleDateFormat(pattern, prov.getLocale());
-                    df.setTimeZone(prov.getTimeZone());
+                    Locale loc = format.getLocale();
+                    if (loc == null) {
+                        loc = prov.getLocale();
+                    }
+                    SimpleDateFormat df = new SimpleDateFormat(pattern, loc);
+                    if (tz == null) {
+                        tz = prov.getTimeZone();
+                    }
+                    df.setTimeZone(tz);
+                    return withFormat(false, df);
+                }
+                // If not, do we at least have a custom timezone?
+                if (tz != null) {
+                    DateFormat df = prov.getConfig().getDateFormat();
+                    // one shortcut: with our custom format, can simplify handling a bit
+                    if (df.getClass() == StdDateFormat.class) {
+                        df = StdDateFormat.getISO8601Format(tz);
+                    } else {
+                        // otherwise need to clone, re-set timezone:
+                        df = (DateFormat) df.clone();
+                        df.setTimeZone(tz);
+                    }
                     return withFormat(false, df);
                 }
             }

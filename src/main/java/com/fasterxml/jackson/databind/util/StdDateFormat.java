@@ -90,6 +90,12 @@ public class StdDateFormat
      */
     public final static StdDateFormat instance = new StdDateFormat();
 
+    /**
+     * Caller may want to explicitly override timezone to use; if so,
+     * we will have non-null value here.
+     */
+    protected transient TimeZone _timezone;
+    
     protected transient DateFormat _formatRFC1123;
     protected transient DateFormat _formatISO8601;
     protected transient DateFormat _formatISO8601_z;
@@ -105,9 +111,8 @@ public class StdDateFormat
 
     @Override
     public StdDateFormat clone() {
-        /* Since we always delegate all work to child DateFormat instances,
-         * let's NOT call super.clone(); this is bit unusual, but makes
-         * sense here to avoid unnecessary work.
+        /* Although there is that much state to share, we do need to
+         * orchestrate a bit, mostly since timezones may be changed
          */
         return new StdDateFormat();
     }
@@ -127,9 +132,7 @@ public class StdDateFormat
      * compliant date format.
      */
     public static DateFormat getISO8601Format(TimeZone tz) {
-        DateFormat df = (DateFormat) DATE_FORMAT_ISO8601.clone();
-        df.setTimeZone(tz);
-        return df;
+        return _cloneFormat(DATE_FORMAT_ISO8601, tz);
     }
 
     /**
@@ -147,11 +150,8 @@ public class StdDateFormat
      * that uses specific timezone and can handle RFC-1123
      * compliant date format.
      */
-    public static DateFormat getRFC1123Format(TimeZone tz)
-    {
-        DateFormat df = (DateFormat) DATE_FORMAT_RFC1123.clone();
-        df.setTimeZone(tz);
-        return df;
+    public static DateFormat getRFC1123Format(TimeZone tz) {
+        return _cloneFormat(DATE_FORMAT_RFC1123, tz);
     }
 
     /*
@@ -160,6 +160,21 @@ public class StdDateFormat
     /**********************************************************
      */
 
+    @Override
+    public void setTimeZone(TimeZone tz)
+    {
+        /* DateFormats are timezone-specific (via Calendar contained),
+         * so need to reset instances if timezone changes:
+         */
+        if (tz != _timezone) {
+            _formatRFC1123 = null;
+            _formatISO8601 = null;
+            _formatISO8601_z = null;
+            _formatPlain = null;
+            _timezone = tz;
+        }
+    }
+    
     @Override
     public Date parse(String dateStr) throws ParseException
     {
@@ -210,10 +225,10 @@ public class StdDateFormat
 
     @Override
     public StringBuffer format(Date date, StringBuffer toAppendTo,
-                               FieldPosition fieldPosition)
+            FieldPosition fieldPosition)
     {
         if (_formatISO8601 == null) {
-            _formatISO8601 = (DateFormat) DATE_FORMAT_ISO8601.clone();
+            _formatISO8601 = _cloneFormat(DATE_FORMAT_ISO8601);
         }
         return _formatISO8601.format(date, toAppendTo, fieldPosition);
     }
@@ -258,12 +273,12 @@ public class StdDateFormat
         if (len <= 10 && Character.isDigit(c)) {
            df = _formatPlain;
             if (df == null) {
-                df = _formatPlain = (DateFormat) DATE_FORMAT_PLAIN.clone();
+                df = _formatPlain = _cloneFormat(DATE_FORMAT_PLAIN);
             }
         } else if (c == 'Z') {
             df = _formatISO8601_z;
             if (df == null) {
-                df = _formatISO8601_z = (DateFormat) DATE_FORMAT_ISO8601_Z.clone();
+                df = _formatISO8601_z = _cloneFormat(DATE_FORMAT_ISO8601_Z);
             }
             // [JACKSON-334]: may be missing milliseconds... if so, add
             if (dateStr.charAt(len-4) == ':') {
@@ -296,7 +311,7 @@ public class StdDateFormat
                 
                 df = _formatISO8601;
                 if (_formatISO8601 == null) {
-                    df = _formatISO8601 = (DateFormat) DATE_FORMAT_ISO8601.clone();
+                    df = _formatISO8601 = _cloneFormat(DATE_FORMAT_ISO8601);
                 }
             } else {
                 /* 24-Nov-2009, tatu: Ugh. This is getting pretty
@@ -314,7 +329,7 @@ public class StdDateFormat
                 dateStr = sb.toString();
                 df = _formatISO8601_z;
                 if (df == null) {
-                    df = _formatISO8601_z = (DateFormat) DATE_FORMAT_ISO8601_Z.clone();
+                    df = _formatISO8601_z = _cloneFormat(DATE_FORMAT_ISO8601_Z);
                 }
             }
         }
@@ -324,7 +339,7 @@ public class StdDateFormat
     protected Date parseAsRFC1123(String dateStr, ParsePosition pos)
     {
         if (_formatRFC1123 == null) {
-            _formatRFC1123 = (DateFormat) DATE_FORMAT_RFC1123.clone();
+            _formatRFC1123 = _cloneFormat(DATE_FORMAT_RFC1123);
         }
         return _formatRFC1123.parse(dateStr, pos);
     }
@@ -342,6 +357,19 @@ public class StdDateFormat
             if (c == '+' || c == '-') return true;
         }
         return false;
+    }
+
+    private final DateFormat _cloneFormat(DateFormat df) {
+        return _cloneFormat(df, _timezone);
+    }
+
+    private final static DateFormat _cloneFormat(DateFormat df, TimeZone tz)
+    {
+        df = (DateFormat) df.clone();
+        if (tz != null) {
+            df.setTimeZone(tz);
+        }
+        return df;
     }
 }
 

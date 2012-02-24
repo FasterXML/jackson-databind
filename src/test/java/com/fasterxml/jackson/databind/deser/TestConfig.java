@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 
 /**
  * Unit tests for checking handling of DeserializationConfig.
@@ -53,8 +54,8 @@ public class TestConfig
         ObjectMapper m = new ObjectMapper();
         DeserializationConfig cfg = m.getDeserializationConfig();
         // and finally, ensure we could override introspectors
-        cfg = cfg.withClassIntrospector(null); // no way to verify tho
-        cfg = cfg.withAnnotationIntrospector(null);
+        cfg = cfg.with((ClassIntrospector) null); // no way to verify tho
+        cfg = cfg.with((AnnotationIntrospector) null);
         assertNull(cfg.getAnnotationIntrospector());
     }
         

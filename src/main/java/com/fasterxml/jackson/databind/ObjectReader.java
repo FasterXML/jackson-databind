@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.core.*;
@@ -278,7 +280,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader withInjectableValues(InjectableValues injectableValues)
+    public ObjectReader with(InjectableValues injectableValues)
     {
         if (_injectableValues == injectableValues) {
             return this;
@@ -295,9 +297,9 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader withNodeFactory(JsonNodeFactory f)
+    public ObjectReader with(JsonNodeFactory f)
     {
-        DeserializationConfig newConfig = _config.withNodeFactory(f);
+        DeserializationConfig newConfig = _config.with(f);
         return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
     }
 
@@ -324,7 +326,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader withSchema(FormatSchema schema)
+    public ObjectReader with(FormatSchema schema)
     {
         if (_schema == schema) {
             return this;
@@ -412,6 +414,16 @@ public class ObjectReader
         return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
     }
 
+    public ObjectReader with(Locale l) {
+        DeserializationConfig newConfig = _config.with(l);
+        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    }
+
+    public ObjectReader with(TimeZone tz) {
+        DeserializationConfig newConfig = _config.with(tz);
+        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    }
+    
     /*
     /**********************************************************
     /* Simple accessors

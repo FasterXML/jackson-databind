@@ -163,7 +163,7 @@ public final class SerializationConfig
     }
 
     @Override
-    public SerializationConfig withAnnotationIntrospector(AnnotationIntrospector ai) {
+    public SerializationConfig with(AnnotationIntrospector ai) {
         return _withBase(_base.withAnnotationIntrospector(ai));
     }
 
@@ -178,7 +178,7 @@ public final class SerializationConfig
     }
 
     @Override
-    public SerializationConfig withClassIntrospector(ClassIntrospector ci) {
+    public SerializationConfig with(ClassIntrospector ci) {
         return _withBase(_base.withClassIntrospector(ci));
     }
     
@@ -188,7 +188,7 @@ public final class SerializationConfig
      * (enable if format set as null; disable if non-null)
      */
     @Override
-    public SerializationConfig withDateFormat(DateFormat df) {
+    public SerializationConfig with(DateFormat df) {
         SerializationConfig cfg =  new SerializationConfig(this, _base.withDateFormat(df));
         // Also need to toggle this feature based on existence of date format:
         if (df == null) {
@@ -200,12 +200,12 @@ public final class SerializationConfig
     }
     
     @Override
-    public SerializationConfig withHandlerInstantiator(HandlerInstantiator hi) {
+    public SerializationConfig with(HandlerInstantiator hi) {
         return _withBase(_base.withHandlerInstantiator(hi));
     }
     
     @Override
-    public SerializationConfig withPropertyNamingStrategy(PropertyNamingStrategy pns) {
+    public SerializationConfig with(PropertyNamingStrategy pns) {
         return _withBase(_base.withPropertyNamingStrategy(pns));
     }
 
@@ -222,17 +222,17 @@ public final class SerializationConfig
     }
 
     @Override
-    public SerializationConfig withSubtypeResolver(SubtypeResolver str) {
+    public SerializationConfig with(SubtypeResolver str) {
         return (str == _subtypeResolver)? this : new SerializationConfig(this, str);
     }
 
     @Override
-    public SerializationConfig withTypeFactory(TypeFactory tf) {
+    public SerializationConfig with(TypeFactory tf) {
         return _withBase(_base.withTypeFactory(tf));
     }
 
     @Override
-    public SerializationConfig withTypeResolverBuilder(TypeResolverBuilder<?> trb) {
+    public SerializationConfig with(TypeResolverBuilder<?> trb) {
         return _withBase(_base.withTypeResolverBuilder(trb));
     }
     
@@ -241,13 +241,23 @@ public final class SerializationConfig
     }
 
     @Override
-    public SerializationConfig withVisibilityChecker(VisibilityChecker<?> vc) {
+    public SerializationConfig with(VisibilityChecker<?> vc) {
         return _withBase(_base.withVisibilityChecker(vc));
     }
 
     @Override
     public SerializationConfig withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
         return _withBase(_base.withVisibility(forMethod, visibility));
+    }
+
+    @Override
+    public SerializationConfig with(Locale l) {
+        return _withBase(_base.with(l));
+    }
+
+    @Override
+    public SerializationConfig with(TimeZone tz) {
+        return _withBase(_base.with(tz));
     }
     
     private final SerializationConfig _withBase(BaseSettings newBase) {

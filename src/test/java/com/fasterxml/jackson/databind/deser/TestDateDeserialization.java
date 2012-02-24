@@ -184,7 +184,6 @@ public class TestDateDeserialization
     {
         // not ideal, to use (ever-changing) current date, but...
         java.util.Calendar value = Calendar.getInstance();
-        value.setTimeZone(TimeZone.getTimeZone("GMT"));
         long l = 12345678L;
         value.setTimeInMillis(l);
 

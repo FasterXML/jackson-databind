@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.cfg;
 
 import java.text.DateFormat;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -92,6 +94,19 @@ public final class BaseSettings
      * beyond simply construction of instances; or to use alternative constructors.
      */
     protected final HandlerInstantiator _handlerInstantiator;
+
+    /**
+     * Default {@link java.util.Locale} used with serialization formats.
+     * Default value is {@link Locale#getDefault()}.
+     */
+    protected final Locale _locale;
+
+    /**
+     * Default {@link java.util.TimeZone} used with serialization formats.
+     * Default value is {@link Timezone#getDefault()}, which is typically the
+     * local timezone (unless overridden for JVM).
+     */
+    protected final TimeZone _timeZone;
     
     /*
     /**********************************************************
@@ -101,7 +116,8 @@ public final class BaseSettings
 
     public BaseSettings(ClassIntrospector ci, AnnotationIntrospector ai,
             VisibilityChecker<?> vc, PropertyNamingStrategy pns, TypeFactory tf,
-            TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi)
+            TypeResolverBuilder<?> typer, DateFormat dateFormat, HandlerInstantiator hi,
+            Locale locale, TimeZone tz)
     {
         _classIntrospector = ci;
         _annotationIntrospector = ai;
@@ -111,6 +127,8 @@ public final class BaseSettings
         _typeResolverBuilder = typer;
         _dateFormat = dateFormat;
         _handlerInstantiator = hi;
+        _locale = locale;
+        _timeZone = tz;
     }
 
     /*
@@ -121,12 +139,12 @@ public final class BaseSettings
     
     public BaseSettings withClassIntrospector(ClassIntrospector ci) {
         return new BaseSettings(ci, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator);
+                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale, _timeZone);
     }
     
     public BaseSettings withAnnotationIntrospector(AnnotationIntrospector ai) {
         return new BaseSettings(_classIntrospector, ai, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator);
+                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale, _timeZone);
     }
 
     public BaseSettings withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
@@ -139,39 +157,49 @@ public final class BaseSettings
     
     public BaseSettings withVisibilityChecker(VisibilityChecker<?> vc) {
         return new BaseSettings(_classIntrospector, _annotationIntrospector, vc, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator);
+                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale, _timeZone);
     }
 
     public BaseSettings withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility) {
         return new BaseSettings(_classIntrospector, _annotationIntrospector,
                 _visibilityChecker.withVisibility(forMethod, visibility),
                 _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator);
+                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale, _timeZone);
     }
     
     public BaseSettings withPropertyNamingStrategy(PropertyNamingStrategy pns) {
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _visibilityChecker, pns, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator);
+                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale, _timeZone);
     }
 
     public BaseSettings withTypeFactory(TypeFactory tf) {
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, tf,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator);
+                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale, _timeZone);
     }
 
     public BaseSettings withTypeResolverBuilder(TypeResolverBuilder<?> typer) {
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
-                typer, _dateFormat, _handlerInstantiator);
+                typer, _dateFormat, _handlerInstantiator, _locale, _timeZone);
     }
     
     public BaseSettings withDateFormat(DateFormat df) {
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, df, _handlerInstantiator);
+                _typeResolverBuilder, df, _handlerInstantiator, _locale, _timeZone);
     }
 
     public BaseSettings withHandlerInstantiator(HandlerInstantiator hi) {
         return new BaseSettings(_classIntrospector, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, hi);
+                _typeResolverBuilder, _dateFormat, hi, _locale, _timeZone);
+    }
+
+    public BaseSettings with(Locale l) {
+        return new BaseSettings(_classIntrospector, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
+                _typeResolverBuilder, _dateFormat, _handlerInstantiator, l, _timeZone);
+    }
+
+    public BaseSettings with(TimeZone tz) {
+        return new BaseSettings(_classIntrospector, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
+                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale, tz);
     }
     
     /*
@@ -211,5 +239,13 @@ public final class BaseSettings
 
     public HandlerInstantiator getHandlerInstantiator() {
         return _handlerInstantiator;
+    }
+
+    public Locale getLocale() {
+        return _locale;
+    }
+
+    public TimeZone getTimeZone() {
+        return _timeZone;
     }
 }

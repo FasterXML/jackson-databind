@@ -77,7 +77,7 @@ public class DateDeserializers
             if (property != null) {
                 JsonFormat.Value format = ctxt.getAnnotationIntrospector().findFormat(property.getMember());
                 if (format != null) {
-                    String pattern = format.pattern;
+                    String pattern = format.getPattern();
                     if (pattern.length() > 0){
                         SimpleDateFormat df = new SimpleDateFormat(pattern, ctxt.getLocale());
                         df.setTimeZone(ctxt.getTimeZone());

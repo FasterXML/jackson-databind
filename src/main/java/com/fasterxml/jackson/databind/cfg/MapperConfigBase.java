@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.databind.cfg;
 
 import java.text.DateFormat;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
@@ -143,7 +145,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
      */
-    public abstract T withAnnotationIntrospector(AnnotationIntrospector ai);
+    public abstract T with(AnnotationIntrospector ai);
 
     /**
      * Method for constructing and returning a new instance with additional
@@ -165,7 +167,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
      */
-    public abstract T withClassIntrospector(ClassIntrospector ci);
+    public abstract T with(ClassIntrospector ci);
 
     /**
      * Method for constructing and returning a new instance with different
@@ -175,7 +177,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
      */
-    public abstract T withDateFormat(DateFormat df);
+    public abstract T with(DateFormat df);
 
     /**
      * Method for constructing and returning a new instance with different
@@ -185,7 +187,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
      */
-    public abstract T withHandlerInstantiator(HandlerInstantiator hi);
+    public abstract T with(HandlerInstantiator hi);
     
     /**
      * Method for constructing and returning a new instance with different
@@ -195,7 +197,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
      */
-    public abstract T withPropertyNamingStrategy(PropertyNamingStrategy strategy);
+    public abstract T with(PropertyNamingStrategy strategy);
     
     /**
      * Method for constructing and returning a new instance with different
@@ -221,20 +223,20 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * NOTE: make sure to register new instance with <code>ObjectMapper</code>
      * if directly calling this method.
      */
-    public abstract T withSubtypeResolver(SubtypeResolver str);
+    public abstract T with(SubtypeResolver str);
     
     /**
      * Method for constructing and returning a new instance with different
      * {@link TypeFactory}
      * to use.
      */
-    public abstract T withTypeFactory(TypeFactory typeFactory);
+    public abstract T with(TypeFactory typeFactory);
 
     /**
      * Method for constructing and returning a new instance with different
      * {@link TypeResolverBuilder} to use.
      */
-    public abstract T withTypeResolverBuilder(TypeResolverBuilder<?> trb);
+    public abstract T with(TypeResolverBuilder<?> trb);
 
     /**
      * Method for constructing and returning a new instance with different
@@ -247,13 +249,25 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * {@link VisibilityChecker}
      * to use.
      */
-    public abstract T withVisibilityChecker(VisibilityChecker<?> vc);
+    public abstract T with(VisibilityChecker<?> vc);
 
     /**
      * Method for constructing and returning a new instance with different
      * minimal visibility level for specified property type
      */
     public abstract T withVisibility(PropertyAccessor forMethod, JsonAutoDetect.Visibility visibility);
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * default {@link java.util.Locale} to use for formatting.
+     */
+    public abstract T with(Locale l);
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * default {@link java.util.TimeZone} to use for formatting of date values.
+     */
+    public abstract T with(TimeZone tz);
     
     /*
     /**********************************************************

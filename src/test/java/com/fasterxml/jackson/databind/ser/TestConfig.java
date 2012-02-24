@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 
 /**
  * Unit tests for checking handling of SerializationConfig.
@@ -66,8 +67,8 @@ public class TestConfig
         ObjectMapper m = new ObjectMapper();
         SerializationConfig cfg = m.getSerializationConfig();
         // and finally, ensure we could override introspectors
-        cfg = cfg.withClassIntrospector(null); // no way to verify tho
-        cfg = cfg.withAnnotationIntrospector(null);
+        cfg = cfg.with((ClassIntrospector) null); // no way to verify tho
+        cfg = cfg.with((AnnotationIntrospector) null);
         assertNull(cfg.getAnnotationIntrospector());
     }
 

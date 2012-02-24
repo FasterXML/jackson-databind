@@ -202,7 +202,7 @@ public class ObjectMapper
      */
     protected final static BaseSettings DEFAULT_BASE = new BaseSettings(DEFAULT_INTROSPECTOR,
             DEFAULT_ANNOTATION_INTROSPECTOR, STD_VISIBILITY_CHECKER, null, TypeFactory.defaultInstance(),
-            null, StdDateFormat.instance, null);
+            null, StdDateFormat.instance, null, Locale.getDefault(), TimeZone.getDefault());
     
     /*
     /**********************************************************
@@ -732,8 +732,8 @@ public class ObjectMapper
      * are defined.
      */    
     public void setVisibilityChecker(VisibilityChecker<?> vc) {
-        _deserializationConfig = _deserializationConfig.withVisibilityChecker(vc);
-        _serializationConfig = _serializationConfig.withVisibilityChecker(vc);
+        _deserializationConfig = _deserializationConfig.with(vc);
+        _serializationConfig = _serializationConfig.with(vc);
     }
 
     /**
@@ -779,8 +779,8 @@ public class ObjectMapper
      */
     public ObjectMapper setSubtypeResolver(SubtypeResolver str) {
         _subtypeResolver = str;
-        _deserializationConfig = _deserializationConfig.withSubtypeResolver(str);
-        _serializationConfig = _serializationConfig.withSubtypeResolver(str);
+        _deserializationConfig = _deserializationConfig.with(str);
+        _serializationConfig = _serializationConfig.with(str);
         return this;
     }
 
@@ -789,8 +789,8 @@ public class ObjectMapper
      * mapper instance for both serialization and deserialization
      */
     public ObjectMapper setAnnotationIntrospector(AnnotationIntrospector ai) {
-        _serializationConfig = _serializationConfig.withAnnotationIntrospector(ai);
-        _deserializationConfig = _deserializationConfig.withAnnotationIntrospector(ai);
+        _serializationConfig = _serializationConfig.with(ai);
+        _deserializationConfig = _deserializationConfig.with(ai);
         return this;
     }
     
@@ -798,8 +798,8 @@ public class ObjectMapper
      * Method for setting custom property naming strategy to use.
      */
     public ObjectMapper setPropertyNamingStrategy(PropertyNamingStrategy s) {
-        _serializationConfig = _serializationConfig.withPropertyNamingStrategy(s);
-        _deserializationConfig = _deserializationConfig.withPropertyNamingStrategy(s);
+        _serializationConfig = _serializationConfig.with(s);
+        _deserializationConfig = _deserializationConfig.with(s);
         return this;
     }
 
@@ -894,8 +894,8 @@ public class ObjectMapper
      * @param typer Type information inclusion handler
      */
     public ObjectMapper setDefaultTyping(TypeResolverBuilder<?> typer) {
-        _deserializationConfig = _deserializationConfig.withTypeResolverBuilder(typer);
-        _serializationConfig = _serializationConfig.withTypeResolverBuilder(typer);
+        _deserializationConfig = _deserializationConfig.with(typer);
+        _serializationConfig = _serializationConfig.with(typer);
         return this;
     }
 
@@ -945,8 +945,8 @@ public class ObjectMapper
     public ObjectMapper setTypeFactory(TypeFactory f)
     {
         _typeFactory = f;
-        _deserializationConfig = _deserializationConfig.withTypeFactory(f);
-        _serializationConfig = _serializationConfig.withTypeFactory(f);
+        _deserializationConfig = _deserializationConfig.with(f);
+        _serializationConfig = _serializationConfig.with(f);
         return this;
     }
     
@@ -971,7 +971,7 @@ public class ObjectMapper
      * {@link #createObjectNode}
      */
     public ObjectMapper setNodeFactory(JsonNodeFactory f) {
-        _deserializationConfig = _deserializationConfig.withNodeFactory(f);
+        _deserializationConfig = _deserializationConfig.with(f);
         return this;
     }
 
@@ -1043,8 +1043,8 @@ public class ObjectMapper
      */
     public ObjectMapper setDateFormat(DateFormat dateFormat)
     {
-        _deserializationConfig = _deserializationConfig.withDateFormat(dateFormat);
-        _serializationConfig = _serializationConfig.withDateFormat(dateFormat);
+        _deserializationConfig = _deserializationConfig.with(dateFormat);
+        _serializationConfig = _serializationConfig.with(dateFormat);
         return this;
     }
 
@@ -1057,8 +1057,8 @@ public class ObjectMapper
      */
     public Object setHandlerInstantiator(HandlerInstantiator hi)
     {
-        _deserializationConfig = _deserializationConfig.withHandlerInstantiator(hi);
-        _serializationConfig = _serializationConfig.withHandlerInstantiator(hi);
+        _deserializationConfig = _deserializationConfig.with(hi);
+        _serializationConfig = _serializationConfig.with(hi);
         return this;
     }
     
@@ -1072,21 +1072,22 @@ public class ObjectMapper
     }
     
     /**
-     * Method for overriding default locale (which simply uses
-     * {@link Locale#getDefault()}).
+     * Method for overriding default locale to use for formatting.
+     * Default value used is {@link Locale#getDefault()}.
      */
     public ObjectMapper setLocale(Locale l) {
-        _deserializationContext.setLocale(l);
-        _serializerProvider.setLocale(l);
+        _deserializationConfig = _deserializationConfig.with(l);
+        _serializationConfig = _serializationConfig.with(l);
         return this;
     }
 
     /**
-     * Method for overriding default TimeZone (GMT)
+     * Method for overriding default TimeZone to use for formatting.
+     * Default value used is {@link TimeZone#getDefault()}.
      */
     public ObjectMapper setTimeZone(TimeZone tz) {
-        _deserializationContext.setTimeZone(tz);
-        _serializerProvider.setTimeZone(tz);
+        _deserializationConfig = _deserializationConfig.with(tz);
+        _serializationConfig = _serializationConfig.with(tz);
         return this;
     }
     
@@ -2027,7 +2028,7 @@ public class ObjectMapper
      */
     public ObjectWriter writer(DateFormat df) {
         return new ObjectWriter(this,
-                getSerializationConfig().withDateFormat(df));
+                getSerializationConfig().with(df));
     }
     
     /**
@@ -2123,7 +2124,7 @@ public class ObjectMapper
      */
     public ObjectReader reader() {
         return new ObjectReader(this, getDeserializationConfig())
-            .withInjectableValues(_injectableValues);
+            .with(_injectableValues);
     }
 
     /**
@@ -2200,7 +2201,7 @@ public class ObjectMapper
      */
     public ObjectReader reader(JsonNodeFactory f)
     {
-        return new ObjectReader(this, getDeserializationConfig()).withNodeFactory(f);
+        return new ObjectReader(this, getDeserializationConfig()).with(f);
     }
 
     /**

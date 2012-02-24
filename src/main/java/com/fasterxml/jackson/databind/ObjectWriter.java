@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind;
 
 import java.io.*;
 import java.text.DateFormat;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
@@ -253,9 +255,9 @@ public class ObjectWriter
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectWriter withDateFormat(DateFormat df)
+    public ObjectWriter with(DateFormat df)
     {
-        SerializationConfig newConfig = _config.withDateFormat(df);
+        SerializationConfig newConfig = _config.with(df);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }
 
@@ -265,14 +267,14 @@ public class ObjectWriter
      */
     public ObjectWriter withDefaultPrettyPrinter()
     {
-        return withPrettyPrinter(new DefaultPrettyPrinter());
+        return with(new DefaultPrettyPrinter());
     }
 
     /**
      * Method that will construct a new instance that uses specified
      * provider for resolving filter instances by id.
      */
-    public ObjectWriter withFilters(FilterProvider filterProvider)
+    public ObjectWriter with(FilterProvider filterProvider)
     {
         if (filterProvider == _config.getFilterProvider()) { // no change?
             return this;
@@ -284,7 +286,7 @@ public class ObjectWriter
      * Method that will construct a new instance that will use specified pretty
      * printer (or, if null, will not do any pretty-printing)
      */
-    public ObjectWriter withPrettyPrinter(PrettyPrinter pp)
+    public ObjectWriter with(PrettyPrinter pp)
     {
         if (pp == _prettyPrinter) {
             return this;
@@ -365,6 +367,16 @@ public class ObjectWriter
         return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
     }    
 
+    public ObjectWriter with(Locale l) {
+        SerializationConfig newConfig = _config.with(l);
+        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+    }
+
+    public ObjectWriter with(TimeZone tz) {
+        SerializationConfig newConfig = _config.with(tz);
+        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+    }
+    
     /*
     /**********************************************************
     /* Simple accessors

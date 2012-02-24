@@ -101,9 +101,9 @@ public class TestDateSerialization
         ObjectWriter w = MAPPER.writer((DateFormat)null);
         assertEquals("0", w.writeValueAsString(new Date(0L)));
 
-        w = w.withDateFormat(df);
+        w = w.with(df);
         assertEquals(quote("1969-12-31X16:00:00"), w.writeValueAsString(new Date(0L)));
-        w = w.withDateFormat(null);
+        w = w.with((DateFormat) null);
         assertEquals("0", w.writeValueAsString(new Date(0L)));
     }
 
@@ -135,7 +135,7 @@ public class TestDateSerialization
 
         // then reverse
         mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        json = mapper.writeValueAsString(new DateAsStringBean(0L));
+        json = mapper.writer().with(getUTCTimeZone()).writeValueAsString(new DateAsStringBean(0L));
         assertEquals("{\"date\":\"1970-01-01\"}", json);
     }
 }

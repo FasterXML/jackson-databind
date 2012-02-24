@@ -160,17 +160,17 @@ public final class DeserializationConfig
     }
     
     @Override
-    public DeserializationConfig withClassIntrospector(ClassIntrospector ci) {
+    public DeserializationConfig with(ClassIntrospector ci) {
         return _withBase(_base.withClassIntrospector(ci));
     }
 
     @Override
-    public DeserializationConfig withAnnotationIntrospector(AnnotationIntrospector ai) {
+    public DeserializationConfig with(AnnotationIntrospector ai) {
         return _withBase(_base.withAnnotationIntrospector(ai));
     }
 
     @Override
-    public DeserializationConfig withVisibilityChecker(VisibilityChecker<?> vc) {
+    public DeserializationConfig with(VisibilityChecker<?> vc) {
         return _withBase(_base.withVisibilityChecker(vc));
     }
 
@@ -180,17 +180,17 @@ public final class DeserializationConfig
     }
     
     @Override
-    public DeserializationConfig withTypeResolverBuilder(TypeResolverBuilder<?> trb) {
+    public DeserializationConfig with(TypeResolverBuilder<?> trb) {
         return _withBase(_base.withTypeResolverBuilder(trb));
     }
 
     @Override
-    public DeserializationConfig withSubtypeResolver(SubtypeResolver str) {
+    public DeserializationConfig with(SubtypeResolver str) {
         return (_subtypeResolver == str) ? this : new DeserializationConfig(this, str);
     }
     
     @Override
-    public DeserializationConfig withPropertyNamingStrategy(PropertyNamingStrategy pns) {
+    public DeserializationConfig with(PropertyNamingStrategy pns) {
         return _withBase(_base.withPropertyNamingStrategy(pns));
     }
 
@@ -207,17 +207,17 @@ public final class DeserializationConfig
     }
     
     @Override
-    public DeserializationConfig withTypeFactory(TypeFactory tf) {
+    public DeserializationConfig with(TypeFactory tf) {
         return _withBase( _base.withTypeFactory(tf));
     }
 
     @Override
-    public DeserializationConfig withDateFormat(DateFormat df) {
+    public DeserializationConfig with(DateFormat df) {
         return _withBase(_base.withDateFormat(df));
     }
     
     @Override
-    public DeserializationConfig withHandlerInstantiator(HandlerInstantiator hi) {
+    public DeserializationConfig with(HandlerInstantiator hi) {
         return _withBase(_base.withHandlerInstantiator(hi));
     }
 
@@ -235,6 +235,16 @@ public final class DeserializationConfig
     public DeserializationConfig withView(Class<?> view) {
         return (_view == view) ? this : new DeserializationConfig(this, view);
     }
+
+    @Override
+    public DeserializationConfig with(Locale l) {
+        return _withBase(_base.with(l));
+    }
+
+    @Override
+    public DeserializationConfig with(TimeZone tz) {
+        return _withBase(_base.with(tz));
+    }
     
     private final DeserializationConfig _withBase(BaseSettings newBase) {
         return (_base == newBase) ? this : new DeserializationConfig(this, newBase);
@@ -250,7 +260,7 @@ public final class DeserializationConfig
      * Fluent factory method that will construct a new instance with
      * specified {@link JsonNodeFactory}
      */
-    public DeserializationConfig withNodeFactory(JsonNodeFactory f) {
+    public DeserializationConfig with(JsonNodeFactory f) {
         if (_nodeFactory == f) {
             return this;
         }

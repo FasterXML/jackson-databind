@@ -45,10 +45,10 @@ public abstract class DateTimeSerializerBase<T>
         if (property != null) {
             JsonFormat.Value format = prov.getAnnotationIntrospector().findFormat(property.getMember());
             if (format != null) {
-                if (format.shape.isNumeric()) {
+                if (format.getShape().isNumeric()) {
                     return withFormat(true, null);
                 }
-                String pattern = format.pattern;
+                String pattern = format.getPattern();
                 if (pattern.length() > 0){
                     SimpleDateFormat df = new SimpleDateFormat(pattern, prov.getLocale());
                     df.setTimeZone(prov.getTimeZone());

@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.cfg;
 
 import java.text.DateFormat;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -21,7 +23,7 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * accessors to mode-independent configuration settings
  * and such.
  * In addition, shared features are defined
- * in {@link MapperFeature}
+ * in {@link MapperFeature}.
  *<p>
  * Small part of implementation is included here by aggregating
  * {@link BaseSettings} instance that contains configuration
@@ -295,6 +297,20 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public final DateFormat getDateFormat() { return _base.getDateFormat(); }
 
     /**
+     * Method for accessing the default {@link java.util.Locale} to use
+     * for formatting, unless overridden by local annotations.
+     * Initially set to {@link Locale#getDefault()}.
+     */
+    public final Locale getLocale() { return _base.getLocale(); }
+    
+    /**
+     * Method for accessing the default {@link java.util.TimeZone} to use
+     * for formatting, unless overridden by local annotations.
+     * Initially set to {@link TimeZone#getDefault()}.
+     */
+    public final TimeZone getTimeZone() { return _base.getTimeZone(); }
+    
+    /**
      * Accessor for finding currently active view, if any (null if none)
      */
     public abstract Class<?> getActiveView();
@@ -339,4 +355,3 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         return (TypeIdResolver) ClassUtil.createInstance(resolverClass, canOverrideAccessModifiers());
     }
 }
-

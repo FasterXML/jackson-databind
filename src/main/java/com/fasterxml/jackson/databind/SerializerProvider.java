@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ser.std.StdKeySerializers;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 /**
  * Class that defines API used by {@link ObjectMapper} and
@@ -771,11 +772,7 @@ public abstract class SerializerProvider
         if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
             jgen.writeNumber(timestamp);
         } else {
-            if (_dateFormat == null) {
-                // must create a clone since Formats are not thread-safe:
-                _dateFormat = (DateFormat)_config.getDateFormat().clone();
-            }
-            jgen.writeString(_dateFormat.format(new Date(timestamp)));
+            jgen.writeString(_dateFormat().format(new Date(timestamp)));
         }
     }
 
@@ -793,12 +790,7 @@ public abstract class SerializerProvider
         if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
             jgen.writeNumber(date.getTime());
         } else {
-            if (_dateFormat == null) {
-                DateFormat blueprint = _config.getDateFormat();
-                // must create a clone since Formats are not thread-safe:
-                _dateFormat = (DateFormat)blueprint.clone();
-            }
-            jgen.writeString(_dateFormat.format(date));
+            jgen.writeString(_dateFormat().format(date));
         }
     }
 
@@ -813,12 +805,7 @@ public abstract class SerializerProvider
         if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
             jgen.writeFieldName(String.valueOf(timestamp));
         } else {
-            if (_dateFormat == null) {
-                DateFormat blueprint = _config.getDateFormat();
-                // must create a clone since Formats are not thread-safe:
-                _dateFormat = (DateFormat)blueprint.clone();
-            }
-            jgen.writeFieldName(_dateFormat.format(new Date(timestamp)));
+            jgen.writeFieldName(_dateFormat().format(new Date(timestamp)));
         }
     }
 
@@ -833,12 +820,7 @@ public abstract class SerializerProvider
         if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
             jgen.writeFieldName(String.valueOf(date.getTime()));
         } else {
-            if (_dateFormat == null) {
-                DateFormat blueprint = _config.getDateFormat();
-                // must create a clone since Formats are not thread-safe:
-                _dateFormat = (DateFormat)blueprint.clone();
-            }
-            jgen.writeFieldName(_dateFormat.format(date));
+            jgen.writeFieldName(_dateFormat().format(date));
         }
     }
     
@@ -995,5 +977,31 @@ public abstract class SerializerProvider
             ser = ((ContextualSerializer) ser).createContextual(this, property);
         }
         return (JsonSerializer<Object>) ser;
+    }
+
+    /*
+    /**********************************************************
+    /* Internal methods
+    /**********************************************************
+     */
+
+    protected final DateFormat _dateFormat()
+    {
+        if (_dateFormat != null) {
+            return _dateFormat;
+        }
+        /* 24-Feb-2012, tatu: This is tricky: whether we should force timezone
+         *   on DateFormat? Let's only do that if we have not specified custom
+         *   DateFormat.
+         */
+        DateFormat df = _config.getDateFormat();
+        if (df.getClass() == StdDateFormat.class) {
+            TimeZone tz = _config.getTimeZone();
+            df = ((StdDateFormat) df).withTimeZone(tz);
+        } else {
+            df = (DateFormat) df.clone();
+        }
+        _dateFormat = df;
+        return df;
     }
 }

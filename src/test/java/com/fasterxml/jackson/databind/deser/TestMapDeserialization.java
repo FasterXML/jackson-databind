@@ -328,12 +328,11 @@ public class TestMapDeserialization
 
     public void testCalendarMap() throws Exception
     {
-    	 Calendar c = Calendar.getInstance();
-//    	 c.setTimeZone(TimeZone.getTimeZone("GMT"));
+    	 Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
          c.setTimeInMillis(123456000L);
          DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
     	 String JSON = "{ \""+fmt.format(c.getTime())+"\" : \"\", \""+new Date(0).getTime()+"\" : null }";
-    	 HashMap<Calendar,String> result=  MAPPER.readValue
+    	 HashMap<Calendar,String> result = MAPPER.readValue
     	            (JSON, new TypeReference<HashMap<Calendar,String>>() { });
     	 
     	 assertNotNull(result);

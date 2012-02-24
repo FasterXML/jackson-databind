@@ -59,6 +59,14 @@ public class StdDateFormat
         DATE_FORMAT_STR_PLAIN
     };
 
+    /**
+     * By default we use GMT for everything.
+     */
+    private final static TimeZone DEFAULT_TIMEZONE;
+    static {
+        DEFAULT_TIMEZONE = TimeZone.getTimeZone("GMT");
+    }
+    
     protected final static DateFormat DATE_FORMAT_RFC1123;
 
     protected final static DateFormat DATE_FORMAT_ISO8601;
@@ -74,22 +82,21 @@ public class StdDateFormat
         /* Another important thing: let's force use of GMT for
          * baseline DataFormat objects
          */
-        TimeZone gmt = TimeZone.getTimeZone("GMT");
         DATE_FORMAT_RFC1123 = new SimpleDateFormat(DATE_FORMAT_STR_RFC1123);
-        DATE_FORMAT_RFC1123.setTimeZone(gmt);
+        DATE_FORMAT_RFC1123.setTimeZone(DEFAULT_TIMEZONE);
         DATE_FORMAT_ISO8601 = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601);
-        DATE_FORMAT_ISO8601.setTimeZone(gmt);
+        DATE_FORMAT_ISO8601.setTimeZone(DEFAULT_TIMEZONE);
         DATE_FORMAT_ISO8601_Z = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601_Z);
-        DATE_FORMAT_ISO8601_Z.setTimeZone(gmt);
+        DATE_FORMAT_ISO8601_Z.setTimeZone(DEFAULT_TIMEZONE);
         DATE_FORMAT_PLAIN = new SimpleDateFormat(DATE_FORMAT_STR_PLAIN);
-        DATE_FORMAT_PLAIN.setTimeZone(gmt);
+        DATE_FORMAT_PLAIN.setTimeZone(DEFAULT_TIMEZONE);
     }
-
+    
     /**
      * A singleton instance can be used for cloning purposes.
      */
     public final static StdDateFormat instance = new StdDateFormat();
-
+    
     /**
      * Caller may want to explicitly override timezone to use; if so,
      * we will have non-null value here.
@@ -112,7 +119,18 @@ public class StdDateFormat
         _timezone = tz;
     }
 
+    public static TimeZone getDefaultTimeZone() {
+        return DEFAULT_TIMEZONE;
+    }
+    
+    /**
+     * Method used for creating a new instance with specified timezone;
+     * if no timezone specified, defaults to the default timezone (UTC).
+     */
     public StdDateFormat withTimeZone(TimeZone tz) {
+        if (tz == null) {
+            tz = DEFAULT_TIMEZONE;
+        }
         return new StdDateFormat(tz);
     }
     

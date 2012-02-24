@@ -202,7 +202,11 @@ public class ObjectMapper
      */
     protected final static BaseSettings DEFAULT_BASE = new BaseSettings(DEFAULT_INTROSPECTOR,
             DEFAULT_ANNOTATION_INTROSPECTOR, STD_VISIBILITY_CHECKER, null, TypeFactory.defaultInstance(),
-            null, StdDateFormat.instance, null, Locale.getDefault(), TimeZone.getDefault());
+            null, StdDateFormat.instance, null,
+            Locale.getDefault(),
+//            TimeZone.getDefault()
+            TimeZone.getTimeZone("GMT")
+            );
     
     /*
     /**********************************************************

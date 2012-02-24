@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 /**
  * Context for the process of deserialization a single root-level value.
@@ -643,11 +644,25 @@ public abstract class DeserializationContext
 
     protected DateFormat getDateFormat()
     {
-        if (_dateFormat == null) {
-            // must create a clone since Formats are not thread-safe:
-            _dateFormat = (DateFormat)_config.getDateFormat().clone();
+        if (_dateFormat != null) {
+            return _dateFormat;
         }
-        return _dateFormat;
+        /* 24-Feb-2012, tatu: This is tricky: whether we should force timezone
+         *   on DateFormat? Let's only do that if (and only if) we are using
+         *   the default date format, but not if overridden.
+         */
+        DateFormat df = _config.getDateFormat();
+        if (df.getClass() == StdDateFormat.class) {
+            TimeZone tz = _config.getTimeZone();
+            df = ((StdDateFormat) df).withTimeZone(tz);
+        } else {
+            df = (DateFormat) df.clone();
+            /*
+            df.setTimeZone(tz);
+            */
+        }
+        _dateFormat = df;
+        return df;
     }
 
     protected String determineClassName(Object instance)

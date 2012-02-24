@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 /**
  * Container class for core JDK date/time type deserializers.
@@ -57,18 +59,25 @@ public class DateDeserializers
          */
         protected final DateFormat _customFormat;
 
+        /**
+         * Let's also keep format String for reference, to use for error messages
+         */
+        protected final String _formatString;
+        
         protected DateBasedDeserializer(Class<?> clz) {
             super(clz);
             _customFormat = null;
+            _formatString = null;
         }
 
         protected DateBasedDeserializer(DateBasedDeserializer<T> base,
-                DateFormat format) {
+                DateFormat format, String formatStr) {
             super(base._valueClass);
             _customFormat = format;
+            _formatString = formatStr;
         }
 
-        protected abstract DateBasedDeserializer<T> withDateFormat(DateFormat df);
+        protected abstract DateBasedDeserializer<T> withDateFormat(DateFormat df, String formatStr);
         
         @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
@@ -77,11 +86,33 @@ public class DateDeserializers
             if (property != null) {
                 JsonFormat.Value format = ctxt.getAnnotationIntrospector().findFormat(property.getMember());
                 if (format != null) {
+                    TimeZone tz = format.getTimeZone();
+                    // First: fully custom pattern?
                     String pattern = format.getPattern();
                     if (pattern.length() > 0){
-                        SimpleDateFormat df = new SimpleDateFormat(pattern, ctxt.getLocale());
-                        df.setTimeZone(ctxt.getTimeZone());
-                        return withDateFormat(df);
+                        Locale loc = format.getLocale();
+                        if (loc == null) {
+                            loc = ctxt.getLocale();
+                        }
+                        SimpleDateFormat df = new SimpleDateFormat(pattern, loc);
+                        if (tz == null) {
+                            tz = ctxt.getTimeZone();
+                        }
+                        df.setTimeZone(tz);
+                        return withDateFormat(df, pattern);
+                    }
+                    // But if not, can still override timezone
+                    if (tz != null) {
+                        DateFormat df = ctxt.getConfig().getDateFormat();
+                        // one shortcut: with our custom format, can simplify handling a bit
+                        if (df.getClass() == StdDateFormat.class) {
+                            df = ((StdDateFormat) df).withTimeZone(tz);
+                        } else {
+                            // otherwise need to clone, re-set timezone:
+                            df = (DateFormat) df.clone();
+                            df.setTimeZone(tz);
+                        }
+                        return withDateFormat(df, pattern);
                     }
                 }
             }
@@ -101,7 +132,8 @@ public class DateDeserializers
                     try {
                         return _customFormat.parse(str);
                     } catch (ParseException e) {
-                        throw new IllegalArgumentException("Failed to parse Date value '"+str+"': "+e.getMessage());
+                        throw new IllegalArgumentException("Failed to parse Date value '"+str
+                                +"' (format: \""+_formatString+"\"): "+e.getMessage());
                     }
                 }
             }
@@ -135,14 +167,14 @@ public class DateDeserializers
             _calendarClass = cc;
         }
 
-        public CalendarDeserializer(CalendarDeserializer src, DateFormat df) {
-            super(src, df);
+        public CalendarDeserializer(CalendarDeserializer src, DateFormat df, String formatString) {
+            super(src, df, formatString);
             _calendarClass = src._calendarClass;
         }
 
         @Override
-        protected CalendarDeserializer withDateFormat(DateFormat df) {
-            return new CalendarDeserializer(this, df);
+        protected CalendarDeserializer withDateFormat(DateFormat df, String formatString) {
+            return new CalendarDeserializer(this, df, formatString);
         }
         
         @Override
@@ -177,13 +209,13 @@ public class DateDeserializers
         extends DateBasedDeserializer<Date>
     {
         public DateDeserializer() { super(Date.class); }
-        public DateDeserializer(DateDeserializer base, DateFormat df) {
-            super(base, df);
+        public DateDeserializer(DateDeserializer base, DateFormat df, String formatString) {
+            super(base, df, formatString);
         }
 
         @Override
-        protected DateDeserializer withDateFormat(DateFormat df) {
-            return new DateDeserializer(this, df);
+        protected DateDeserializer withDateFormat(DateFormat df, String formatString) {
+            return new DateDeserializer(this, df, formatString);
         }
         
         @Override
@@ -202,13 +234,13 @@ public class DateDeserializers
         extends DateBasedDeserializer<java.sql.Date>
     {
         public SqlDateDeserializer() { super(java.sql.Date.class); }
-        public SqlDateDeserializer(SqlDateDeserializer src, DateFormat df) {
-            super(src, df);
+        public SqlDateDeserializer(SqlDateDeserializer src, DateFormat df, String formatString) {
+            super(src, df, formatString);
         }
 
         @Override
-        protected SqlDateDeserializer withDateFormat(DateFormat df) {
-            return new SqlDateDeserializer(this, df);
+        protected SqlDateDeserializer withDateFormat(DateFormat df, String formatString) {
+            return new SqlDateDeserializer(this, df, formatString);
         }
         
         @Override
@@ -231,13 +263,13 @@ public class DateDeserializers
         extends DateBasedDeserializer<Timestamp>
     {
         public TimestampDeserializer() { super(Timestamp.class); }
-        public TimestampDeserializer(TimestampDeserializer src, DateFormat df) {
-            super(src, df);
+        public TimestampDeserializer(TimestampDeserializer src, DateFormat df, String formatString) {
+            super(src, df, formatString);
         }
 
         @Override
-        protected TimestampDeserializer withDateFormat(DateFormat df) {
-            return new TimestampDeserializer(this, df);
+        protected TimestampDeserializer withDateFormat(DateFormat df, String formatString) {
+            return new TimestampDeserializer(this, df, formatString);
         }
         
         @Override

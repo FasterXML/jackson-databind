@@ -23,6 +23,11 @@ public class TestDateDeserialization
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern=";yyyy/MM/dd;")
         public Calendar cal;
     }
+
+    static class DateInCETBean {
+        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd,HH", timezone="CET")
+        public Date date;
+    }
     
     /*
     /**********************************************************
@@ -267,17 +272,30 @@ public class TestDateDeserialization
 
     public void testCustomCalendarWithAnnotation() throws Exception
     {
-        CalendarAsStringBean cbean = MAPPER.readValue("{\"cal\":\";2007/07/13;\"}", CalendarAsStringBean.class);
+        CalendarAsStringBean cbean = MAPPER.readValue("{\"cal\":\";2007/07/13;\"}",
+                CalendarAsStringBean.class);
         assertNotNull(cbean);
         assertNotNull(cbean.cal);
-        // not sure why this is actually needed but...
         Calendar c = cbean.cal;
-//        Calendar c = gmtCalendar(cbean.cal.getTimeInMillis());
         assertEquals(2007, c.get(Calendar.YEAR));
         assertEquals(Calendar.JULY, c.get(Calendar.MONTH));
         assertEquals(13, c.get(Calendar.DAY_OF_MONTH));
     }
-    
+
+    public void testCustomCalendarWithTimeZone() throws Exception
+    {
+        // And then with different TimeZone: CET is +01:00 from GMT -- read as CET
+        DateInCETBean cet = MAPPER.readValue("{\"date\":\"2001-01-01,10\"}",
+                DateInCETBean.class);
+        Calendar c = Calendar.getInstance(getUTCTimeZone());
+        c.setTimeInMillis(cet.date.getTime());
+        // so, going to UTC/GMT should reduce hour by one
+        assertEquals(2001, c.get(Calendar.YEAR));
+        assertEquals(Calendar.JANUARY, c.get(Calendar.MONTH));
+        assertEquals(1, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(9, c.get(Calendar.HOUR_OF_DAY));
+    }
+
     /*
     /**********************************************************
     /* Helper methods

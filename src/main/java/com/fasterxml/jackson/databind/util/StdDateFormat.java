@@ -108,7 +108,14 @@ public class StdDateFormat
      */
 
     public StdDateFormat() { }
+    public StdDateFormat(TimeZone tz) {
+        _timezone = tz;
+    }
 
+    public StdDateFormat withTimeZone(TimeZone tz) {
+        return new StdDateFormat(tz);
+    }
+    
     @Override
     public StdDateFormat clone() {
         /* Although there is that much state to share, we do need to

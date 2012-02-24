@@ -45,10 +45,12 @@ public class TestDateDeserialization
         // First from long
         assertEquals(value, MAPPER.readValue(""+now, java.util.Date.class));
 
-        String dateStr = serializeDateAsString(value);
+        // then from String
+        String dateStr = dateToString(value);
         java.util.Date result = MAPPER.readValue("\""+dateStr+"\"", java.util.Date.class);
 
-        assertEquals("Date: expect "+value+" ("+value.getTime()+"), got "+result+" ("+result.getTime()+")", value.getTime(), result.getTime());
+        assertEquals("Date: expect "+value+" ("+value.getTime()+"), got "+result+" ("+result.getTime()+")",
+                value.getTime(), result.getTime());
     }
 
     public void testDateUtilWithStringTimestamp() throws Exception
@@ -196,10 +198,12 @@ public class TestDateDeserialization
         Calendar result = MAPPER.readValue(""+l, Calendar.class);
         assertEquals(l, result.getTimeInMillis());
 
-        String dateStr = serializeDateAsString(new Date(l));
+        // Then from serialized String
+        String dateStr = dateToString(new Date(l));
         result = MAPPER.readValue(quote(dateStr), Calendar.class);
 
-        assertEquals(value, result);
+        // note: representation may differ (wrt timezone etc), but underlying value must remain the same:
+        assertEquals(l, result.getTimeInMillis());
     }
 
     public void testCustom() throws Exception
@@ -302,7 +306,7 @@ public class TestDateDeserialization
     /**********************************************************
      */
 
-    private String serializeDateAsString(java.util.Date value)
+    private String dateToString(java.util.Date value)
     {
         /* Then from String. This is bit tricky, since JDK does not really
          * suggest a 'standard' format. So let's try using something...

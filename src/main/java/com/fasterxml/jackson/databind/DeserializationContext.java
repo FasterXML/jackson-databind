@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.ISO8601Utils;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
@@ -72,23 +71,6 @@ public abstract class DeserializationContext
      * access it.
      */
     protected final DeserializerFactory _factory;
-
-    /*
-    /**********************************************************
-    /* Configuration, other
-    /**********************************************************
-     */
-
-    /**
-     * Locale used for formatting purposes.
-     */
-    protected Locale _locale;
-
-    /**
-     * Timezone to use as the default; if not specified, will
-     * default to GMT
-     */
-    protected TimeZone _timezone;
 
     /*
     /**********************************************************
@@ -187,26 +169,6 @@ public abstract class DeserializationContext
         _view = config.getActiveView();
         _parser = jp;
         _injectableValues = injectableValues;
-    }
-
-    /*
-    /**********************************************************
-    /* Public API, mutators
-    /**********************************************************
-     */
-
-    /**
-     * @since 2.0
-     */
-    public void setLocale(Locale l) {
-        _locale = l;
-    }
-    
-    /**
-     * @since 2.0
-     */
-    public void setTimeZone(TimeZone tz) {
-        _timezone = tz;
     }
     
     /*
@@ -320,20 +282,23 @@ public abstract class DeserializationContext
     }
 
     /**
-     * Method for accessing default Locale to use; can be overridden.
+     * Method for accessing default Locale to use: convenience method for
+     *<pre>
+     *   getConfig().getLocale();
+     *</pre>
      */
     public Locale getLocale() {
-        if (_locale != null) {
-            return _locale;
-        }
-        return Locale.getDefault();
+        return _config.getLocale();
     }
 
+    /**
+     * Method for accessing default TimeZone to use: convenience method for
+     *<pre>
+     *   getConfig().getTimeZone();
+     *</pre>
+     */
     public TimeZone getTimeZone() {
-        if (_timezone != null) {
-            return _timezone;
-        }
-        return ISO8601Utils.timeZoneGMT();
+        return _config.getTimeZone();
     }
     
     /*

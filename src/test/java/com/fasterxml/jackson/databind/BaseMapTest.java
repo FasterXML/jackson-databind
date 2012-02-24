@@ -183,4 +183,8 @@ public abstract class BaseMapTest
         }
         return m.writeValueAsString(map);
     }
+
+    protected TimeZone getUTCTimeZone() {
+        return TimeZone.getTimeZone("GMT");
+    }
 }

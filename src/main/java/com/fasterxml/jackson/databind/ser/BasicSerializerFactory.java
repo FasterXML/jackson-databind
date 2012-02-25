@@ -285,6 +285,45 @@ public abstract class BasicSerializerFactory
     }
 
     /**
+     * Method called to see if one of primary per-class annotations
+     * (or related, like implementing of {@link JsonSerializable})
+     * determines the serializer to use.
+     *<p>
+     * Currently handles things like:
+     *<ul>
+     * <li>If type implements {@link JsonSerializable}, use that
+     *  </li>
+     * <li>If type has {@link JsonValue} annotation (or equivalent), build serializer
+     *    based on that property
+     *  </li>
+     *</ul>
+     *
+     * @since 2.0
+     */
+    protected final JsonSerializer<?> findSerializerByAnnotations(SerializerProvider prov, 
+            JavaType type, BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        Class<?> raw = type.getRawClass();
+        // First: JsonSerializable?
+        if (JsonSerializable.class.isAssignableFrom(raw)) {
+            return SerializableSerializer.instance;
+        }
+        // Second: @JsonValue for any type
+        AnnotatedMethod valueMethod = beanDesc.findJsonValueMethod();
+        if (valueMethod != null) {
+            Method m = valueMethod.getAnnotated();
+            if (prov.canOverrideAccessModifiers()) {
+                ClassUtil.checkAndFixAccess(m);
+            }
+            JsonSerializer<Object> ser = findSerializerFromAnnotation(prov, valueMethod);
+            return new JsonValueSerializer(m, ser);
+        }
+        // No well-known annotations...
+        return null;
+    }
+    
+    /**
      * Method for checking if we can determine serializer to use based on set of
      * known primary types, checking for set of known base types (exact matches
      * having been compared against with <code>findSerializerByLookup</code>).
@@ -297,22 +336,6 @@ public abstract class BasicSerializerFactory
         throws JsonMappingException
     {
         Class<?> raw = type.getRawClass();
-        // First: JsonSerializable and related
-        if (JsonSerializable.class.isAssignableFrom(raw)) {
-            return SerializableSerializer.instance;
-        }
-        // Second: as per [JACKSON-193] consider @JsonValue for any types:
-        AnnotatedMethod valueMethod = beanDesc.findJsonValueMethod();
-        if (valueMethod != null) {
-            // [JACKSON-586]: need to ensure accessibility of method
-            Method m = valueMethod.getAnnotated();
-            if (prov.canOverrideAccessModifiers()) {
-                ClassUtil.checkAndFixAccess(m);
-            }
-            JsonSerializer<Object> ser = findSerializerFromAnnotation(prov, valueMethod);
-            return new JsonValueSerializer(m, ser);
-        }
-        
         // One unfortunate special case, as per [JACKSON-484]
         if (InetAddress.class.isAssignableFrom(raw)) {
             return InetAddressSerializer.instance;

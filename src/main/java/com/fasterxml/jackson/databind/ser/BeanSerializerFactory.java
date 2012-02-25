@@ -146,6 +146,12 @@ public class BeanSerializerFactory
             }
         }
 
+        // Then JsonSerializable, @JsonValue etc:
+        ser = findSerializerByAnnotations(prov, type, beanDesc);
+        if (ser != null) {
+            return (JsonSerializer<Object>) ser;
+        }
+        
         // Container types differ from non-container types:
         if (origType.isContainerType()) {
             if (!staticTyping) {

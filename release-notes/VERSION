@@ -37,10 +37,11 @@ Improvements
 * [JACKSON-770]: Simplify method naming for JsonNode, drop unnecessary 'get' prefix
   from methods like 'getTextValue()' (becomes 'textValue()')
 * [JACKSON-777]: Rename 'SerializationConfig.Feature' as 'SerializationFeature',
-  'DeserializationConfig.Feature' as 'DeserializationFeature'.
+  'DeserializationConfig.Feature' as 'DeserializationFeature'
 * [JACKSON-780]: MissingNode, NullNode should return 'defaultValue' from 'asXxx' methods,
-  (not 0 for numbers), as they are not numeric types.
-* [JACKSON-787]: @JsonIgnoredProperties can be used on properties too.
+  (not 0 for numbers), as they are not numeric types
+* [JACKSON-787]: @JsonIgnoredProperties can be used on properties too
+* [JACKSON-795]: @JsonValue was not working for Maps, Collections
 
 New features:
 

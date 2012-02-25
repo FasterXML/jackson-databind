@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -89,6 +88,20 @@ public class TestAnnotationJsonValue
             return map;
         }
     }
+
+    @SuppressWarnings("serial")
+    static class MapAsNumber extends HashMap<String,String>
+    {
+        @JsonValue
+        public int value() { return 42; }
+    }
+
+    @SuppressWarnings("serial")
+    static class ListAsNumber extends ArrayList<Integer>
+    {
+        @JsonValue
+        public int value() { return 13; }
+    }
     
     /*
     /*********************************************************
@@ -96,17 +109,17 @@ public class TestAnnotationJsonValue
     /*********************************************************
      */
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testSimpleJsonValue() throws Exception
     {
-        String result = mapper.writeValueAsString(new ValueClass<String>("abc"));
+        String result = MAPPER.writeValueAsString(new ValueClass<String>("abc"));
         assertEquals("\"abc\"", result);
     }
 
     public void testJsonValueWithUseSerializer() throws Exception
     {
-        String result = serializeAsString(mapper, new ToStringValueClass<Integer>(Integer.valueOf(123)));
+        String result = serializeAsString(MAPPER, new ToStringValueClass<Integer>(Integer.valueOf(123)));
         assertEquals("\"123\"", result);
     }
 
@@ -115,14 +128,14 @@ public class TestAnnotationJsonValue
      */
     public void testMixedJsonValue() throws Exception
     {
-        String result = serializeAsString(mapper, new ToStringValueClass2("xyz"));
+        String result = serializeAsString(MAPPER, new ToStringValueClass2("xyz"));
         assertEquals("\"xyz\"", result);
     }
 
     public void testValueWithStaticType() throws Exception
     {
         // Ok; first, with dynamic type:
-        assertEquals("{\"a\":\"a\",\"b\":\"b\"}", mapper.writeValueAsString(new ValueWrapper()));
+        assertEquals("{\"a\":\"a\",\"b\":\"b\"}", MAPPER.writeValueAsString(new ValueWrapper()));
 
         // then static
         ObjectMapper staticMapper = new ObjectMapper();
@@ -130,8 +143,16 @@ public class TestAnnotationJsonValue
         assertEquals("{\"a\":\"a\"}", staticMapper.writeValueAsString(new ValueWrapper()));
     }
 
-    public void testMapWithJsonValue() throws Exception
-    {
-        assertEquals("{\"a\":\"1\"}", mapper.writeValueAsString(new MapBean()));
+    public void testMapWithJsonValue() throws Exception {
+        assertEquals("{\"a\":\"1\"}", MAPPER.writeValueAsString(new MapBean()));
+    }
+
+    public void testWithMap() throws Exception {
+        assertEquals("42", MAPPER.writeValueAsString(new MapAsNumber()));
+
+    }
+
+    public void testWithList() throws Exception {
+        assertEquals("13", MAPPER.writeValueAsString(new ListAsNumber()));
     }
 }

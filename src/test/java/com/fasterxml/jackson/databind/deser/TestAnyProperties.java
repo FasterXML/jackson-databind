@@ -99,6 +99,22 @@ public class TestAnyProperties
            return (String) additionalProperties.get("name");
         }
     }
+
+    public class Bean797Base
+    {
+        @JsonAnyGetter
+        public Map<String, JsonNode> getUndefinedProperties() {
+            throw new IllegalStateException("Should not call parent version!");
+        }
+    }
+
+    public class Bean797BaseImpl extends Bean797Base
+    {
+        @Override
+        public Map<String, JsonNode> getUndefinedProperties() {
+            return new HashMap<String, JsonNode>();
+        }
+    }
     
     /*
     /**********************************************************
@@ -106,10 +122,11 @@ public class TestAnyProperties
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testSimpleMapImitation() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        MapImitator mapHolder = m.readValue
+        MapImitator mapHolder = MAPPER.readValue
             ("{ \"a\" : 3, \"b\" : true }", MapImitator.class);
         Map<String,Object> result = mapHolder._map;
         assertEquals(2, result.size());
@@ -119,8 +136,7 @@ public class TestAnyProperties
 
     public void testSimpleTyped() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        MapImitatorWithValue mapHolder = m.readValue
+        MapImitatorWithValue mapHolder = MAPPER.readValue
             ("{ \"a\" : [ 3, -1 ], \"b\" : [ ] }", MapImitatorWithValue.class);
         Map<String,int[]> result = mapHolder._map;
         assertEquals(2, result.size());
@@ -130,10 +146,9 @@ public class TestAnyProperties
 
     public void testBrokenWithDoubleAnnotations() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         try {
             @SuppressWarnings("unused")
-            Broken b = m.readValue("{ \"a\" : 3 }", Broken.class);
+            Broken b = MAPPER.readValue("{ \"a\" : 3 }", Broken.class);
             fail("Should have gotten an exception");
         } catch (JsonMappingException e) {
             verifyException(e, "Multiple 'any-setters'");
@@ -144,17 +159,37 @@ public class TestAnyProperties
     public void testIgnored() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true);
+        mapper.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         _testIgnorals(mapper);
     }
 
     public void testIgnored383() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         _testIgnorals(mapper);
     }
-    
+
+    public void testProblem744() throws Exception
+    {
+        Bean744 bean = MAPPER.readValue("{\"name\":\"Bob\"}", Bean744.class);
+        assertNotNull(bean.additionalProperties);
+        assertEquals(1, bean.additionalProperties.size());
+        assertEquals("Bob", bean.additionalProperties.get("name"));
+    }
+
+    public void testIssue797() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new Bean797BaseImpl());
+        assertEquals("{}", json);
+    }
+
+    /*
+    /**********************************************************
+    /* Private helper methods
+    /**********************************************************
+     */
+
     private void _testIgnorals(ObjectMapper mapper) throws Exception
     {
         Ignored bean = mapper.readValue("{\"name\":\"Bob\", \"bogus\": [ 1, 2, 3], \"dummy\" : 13 }", Ignored.class);
@@ -164,14 +199,4 @@ public class TestAnyProperties
         assertEquals("Bob", bean.map.get("name"));
         assertEquals(2, bean.map.size());
     }
-
-    public void testProblem744() throws Exception
-    {
-        ObjectMapper m = new ObjectMapper();
-        Bean744 bean = m.readValue("{\"name\":\"Bob\"}", Bean744.class);
-        assertNotNull(bean.additionalProperties);
-        assertEquals(1, bean.additionalProperties.size());
-        assertEquals("Bob", bean.additionalProperties.get("name"));
-    }
-
 }

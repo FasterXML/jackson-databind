@@ -219,7 +219,11 @@ abstract class BaseNodeDeserializer<N extends JsonNode>
     {
         ArrayNode node = nodeFactory.arrayNode();
         while (true) {
-            switch (jp.nextToken()) {
+            JsonToken t = jp.nextToken();
+            if (t == null) {
+                throw ctxt.mappingException("Unexpected end-of-input when binding data into ArrayNode");
+            }
+            switch (t) {
             case START_OBJECT:
                 node.add(deserializeObject(jp, ctxt, nodeFactory));
                 break;

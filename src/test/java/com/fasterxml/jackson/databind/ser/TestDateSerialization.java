@@ -148,5 +148,20 @@ public class TestDateSerialization
         json = mapper.writeValueAsString(new DateInCETBean(0L));
         assertEquals("{\"date\":\"1970-01-01,01:00\"}", json);
     }
+
+    /**
+     * Test to ensure that setting a TimeZone _after_ dateformat should enforce
+     * that timezone on format, regardless of TimeZone format had.
+     */
+    public void testWithTimeZoneOverride() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd/HH:mm"));
+        mapper.setTimeZone(TimeZone.getTimeZone("PST"));
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        String json = mapper.writeValueAsString(new Date(0));
+        // pacific time is GMT-8; so midnight becomes 16:00 previous day:
+        assertEquals(quote("1969-12-31/16:00"), json);
+    }
 }
 

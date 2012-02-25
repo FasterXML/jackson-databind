@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 /**
  * Immutable container class used to store simple configuration
@@ -105,6 +106,9 @@ public final class BaseSettings
      * Default {@link java.util.TimeZone} used with serialization formats.
      * Default value is {@link Timezone#getDefault()}, which is typically the
      * local timezone (unless overridden for JVM).
+     *<p>
+     * Note that if a new value is set, timezone is also assigned to
+     * {@link #_dateFormat} of this object.
      */
     protected final TimeZone _timeZone;
     
@@ -197,9 +201,27 @@ public final class BaseSettings
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, l, _timeZone);
     }
 
-    public BaseSettings with(TimeZone tz) {
-        return new BaseSettings(_classIntrospector, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
-                _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale, tz);
+    /**
+     * Fluent factory for constructing a new instance that uses specified TimeZone.
+     * Note that timezone used with also be assigned to configured {@link DateFormat},
+     * changing time formatting defaults.
+     */
+    public BaseSettings with(TimeZone tz)
+    {
+        if (tz == null) {
+            throw new IllegalArgumentException();
+        }
+        DateFormat df = _dateFormat;
+        if (df instanceof StdDateFormat) {
+            df = ((StdDateFormat) df).withTimeZone(tz);
+        } else {
+            // we don't know if original format might be shared; better create a clone:
+            df = (DateFormat) df.clone();
+            df.setTimeZone(tz);
+        }
+        return new BaseSettings(_classIntrospector, _annotationIntrospector,
+                _visibilityChecker, _propertyNamingStrategy, _typeFactory,
+                _typeResolverBuilder, df, _handlerInstantiator, _locale, tz);
     }
     
     /*

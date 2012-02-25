@@ -17,11 +17,7 @@ import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.ArrayBuilders;
-import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.LinkedNode;
-import com.fasterxml.jackson.databind.util.ObjectBuffer;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
+import com.fasterxml.jackson.databind.util.*;
 
 /**
  * Context for the process of deserialization a single root-level value.
@@ -647,21 +643,13 @@ public abstract class DeserializationContext
         if (_dateFormat != null) {
             return _dateFormat;
         }
-        /* 24-Feb-2012, tatu: This is tricky: whether we should force timezone
-         *   on DateFormat? Let's only do that if (and only if) we are using
-         *   the default date format, but not if overridden.
+        /* 24-Feb-2012, tatu: At this point, all timezone configuration
+         *    should have occured, with respect to default dateformat
+         *    and timezone configuration. But we still better clone
+         *    an instance as formatters may be stateful.
          */
         DateFormat df = _config.getDateFormat();
-        if (df.getClass() == StdDateFormat.class) {
-            TimeZone tz = _config.getTimeZone();
-            df = ((StdDateFormat) df).withTimeZone(tz);
-        } else {
-            df = (DateFormat) df.clone();
-            /*
-            df.setTimeZone(tz);
-            */
-        }
-        _dateFormat = df;
+        _dateFormat = df = (DateFormat) df.clone();
         return df;
     }
 

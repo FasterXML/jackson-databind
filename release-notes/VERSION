@@ -67,7 +67,9 @@ New features:
   type id, instead of using separate type id resolver.
 * [JACKSON-764]: Allow specifying "root name" to use for root wrapping
   via ObjectReader, ObjectWriter.
-* [JACKSON-772] Add 'JsonNode.withArray()' to use for traversing Array nodes.
+* [JACKSON-772]: Add 'JsonNode.withArray()' to use for traversing Array nodes.
+* [JACKSON-793]: Add support for configurable Locale, TimeZone to use
+  (via SerializationConfig, DeserializationConfig)
 
 ------------------------------------------------------------------------
 === History: ===

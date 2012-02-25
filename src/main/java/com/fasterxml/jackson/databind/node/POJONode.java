@@ -29,6 +29,20 @@ public final class POJONode
     @Override
     public boolean isPojo() { return true; }
 
+    /**
+     * As it is possible that some implementations embed byte[] as POJONode
+     * (despite optimal being {@link BinaryNode}), let's add support for exposing
+     * binary data here too.
+     */
+    @Override
+    public byte[] binaryValue() throws IOException
+    {
+        if (_value instanceof byte[]) {
+            return (byte[]) _value;
+        }
+        return super.binaryValue();
+    }
+    
     /* 
     /**********************************************************
     /* General type coercions

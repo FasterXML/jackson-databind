@@ -3,10 +3,10 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.node.*;
-
 
 /**
  * Deserializer that can build instances of {@link JsonNode} from any
@@ -253,7 +253,19 @@ abstract class BaseNodeDeserializer<N extends JsonNode>
             return deserializeObject(jp, ctxt, nodeFactory);
 
         case VALUE_EMBEDDED_OBJECT:
-            return nodeFactory.POJONode(jp.getEmbeddedObject());
+            // [JACKSON-796]
+            {
+                Object ob = jp.getEmbeddedObject();
+                if (ob == null) { // should this occur?
+                    return nodeFactory.nullNode();
+                }
+                Class<?> type = ob.getClass();
+                if (type == byte[].class) { // most common special case
+                    return nodeFactory.binaryNode((byte[]) ob);
+                }
+                // any other special handling needed?
+                return nodeFactory.POJONode(ob);
+            }
 
         case VALUE_STRING:
             return nodeFactory.textNode(jp.getText());

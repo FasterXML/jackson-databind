@@ -156,12 +156,12 @@ public class TestDateSerialization
     public void testWithTimeZoneOverride() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd/HH:mm"));
+        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd/HH:mm z"));
         mapper.setTimeZone(TimeZone.getTimeZone("PST"));
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         String json = mapper.writeValueAsString(new Date(0));
         // pacific time is GMT-8; so midnight becomes 16:00 previous day:
-        assertEquals(quote("1969-12-31/16:00"), json);
+        assertEquals(quote("1969-12-31/16:00 PST"), json);
     }
 }
 

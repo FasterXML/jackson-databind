@@ -184,6 +184,25 @@ public abstract class JsonDeserializer<T>
      * is done.
      */
     public boolean isCachable() { return false; }
+
+    /**
+     * Accessor that can be used to check whether this deserializer
+     * is expecting to possibly get an Object Identifier value instead of full value
+     * serialization, and if so, should be able to resolve it to actual
+     * Object instance to return as deserialized value.
+     *<p>
+     * Default implementation returns false, as support can not be implemented
+     * generically. Some standard deserializers (most notably
+     * {@link com.fasterxml.jackson.databind.deser.BeanDeserializer})
+     * do implement this feature, and may return true depending on exact
+     * configuration of instance (which is based on type, and referring property).
+     * 
+     * @return True if this deserializer can be given an Object Identifier
+     *    instead of full value serialization
+     * 
+     * @since 2.0
+     */
+    public boolean canResolveObjectId() { return false; }
     
     /*
     /**********************************************************

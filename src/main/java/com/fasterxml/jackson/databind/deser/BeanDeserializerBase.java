@@ -361,97 +361,6 @@ public abstract class BeanDeserializerBase
     public abstract BeanDeserializerBase withObjectIdReader(ObjectIdReader oir);
 
     public abstract BeanDeserializerBase withIgnorableProperties(HashSet<String> ignorableProps);
-    
-    /*
-    /**********************************************************
-    /* Public accessors
-    /**********************************************************
-     */
-
-    @Override
-    public boolean isCachable() { return true; }
-    
-    public boolean hasProperty(String propertyName) {
-        return _beanProperties.find(propertyName) != null;
-    }
-
-    public boolean hasViews() {
-        return _needViewProcesing;
-    }
-    
-    /**
-     * Accessor for checking number of deserialized properties.
-     */
-    public int getPropertyCount() { 
-        return _beanProperties.size();
-    }
-
-    public final Class<?> getBeanClass() { return _beanType.getRawClass(); }
-
-    @Override public JavaType getValueType() { return _beanType; }
-
-    /**
-     * Accessor for iterating over properties this deserializer uses; with
-     * the exception that properties passed via Creator methods
-     * (specifically, "property-based constructor") are not included,
-     * but can be accessed separate by calling
-     * {@link #creatorProperties}
-     */
-    public Iterator<SettableBeanProperty> properties()
-    {
-        if (_beanProperties == null) {
-            throw new IllegalStateException("Can only call after BeanDeserializer has been resolved");
-        }
-        return _beanProperties.allProperties();
-    }
-
-    /**
-     * Accessor for finding properties that represents values to pass
-     * through property-based creator method (constructor or
-     * factory method)
-     * 
-     * @since 2.0
-     */
-    public Iterator<SettableBeanProperty> creatorProperties()
-    {
-        if (_propertyBasedCreator == null) {
-            return Collections.<SettableBeanProperty>emptyList().iterator();
-        }
-        return _propertyBasedCreator.properties().iterator();
-    }
-
-    /**
-     * Accessor for finding the property with given name, if POJO
-     * has one. Name used is the external name, i.e. name used
-     * in external data representation (JSON).
-     * 
-     * @since 2.0
-     */
-    public SettableBeanProperty findProperty(String propertyName)
-    {
-        SettableBeanProperty prop = (_beanProperties == null) ?
-                null : _beanProperties.find(propertyName);
-        if (prop == null && _propertyBasedCreator != null) {
-            prop = _propertyBasedCreator.findCreatorProperty(propertyName);
-        }
-        return prop;
-    }
-    
-    /**
-     * Method needed by {@link BeanDeserializerFactory} to properly link
-     * managed- and back-reference pairs.
-     */
-    public SettableBeanProperty findBackReference(String logicalName)
-    {
-        if (_backRefs == null) {
-            return null;
-        }
-        return _backRefs.get(logicalName);
-    }
-
-    public ValueInstantiator getValueInstantiator() {
-        return _valueInstantiator;
-    }
 
     /*
     /**********************************************************
@@ -727,6 +636,107 @@ public abstract class BeanDeserializerBase
         return prop;
     }
 
+    /*
+    /**********************************************************
+    /* Public accessors
+    /**********************************************************
+     */
+
+    @Override
+    public boolean isCachable() { return true; }
+
+    /**
+     * Overridden to return tru for those instances that are
+     * handling value for which Object Identity handling is enabled
+     * (either via value type or referring property).
+     */
+    @Override
+    public boolean canResolveObjectId() {
+        return _objectIdReader != null;
+    }
+    
+    public boolean hasProperty(String propertyName) {
+        return _beanProperties.find(propertyName) != null;
+    }
+
+    public boolean hasViews() {
+        return _needViewProcesing;
+    }
+    
+    /**
+     * Accessor for checking number of deserialized properties.
+     */
+    public int getPropertyCount() { 
+        return _beanProperties.size();
+    }
+
+    public final Class<?> getBeanClass() { return _beanType.getRawClass(); }
+
+    @Override public JavaType getValueType() { return _beanType; }
+
+    /**
+     * Accessor for iterating over properties this deserializer uses; with
+     * the exception that properties passed via Creator methods
+     * (specifically, "property-based constructor") are not included,
+     * but can be accessed separate by calling
+     * {@link #creatorProperties}
+     */
+    public Iterator<SettableBeanProperty> properties()
+    {
+        if (_beanProperties == null) {
+            throw new IllegalStateException("Can only call after BeanDeserializer has been resolved");
+        }
+        return _beanProperties.allProperties();
+    }
+
+    /**
+     * Accessor for finding properties that represents values to pass
+     * through property-based creator method (constructor or
+     * factory method)
+     * 
+     * @since 2.0
+     */
+    public Iterator<SettableBeanProperty> creatorProperties()
+    {
+        if (_propertyBasedCreator == null) {
+            return Collections.<SettableBeanProperty>emptyList().iterator();
+        }
+        return _propertyBasedCreator.properties().iterator();
+    }
+
+    /**
+     * Accessor for finding the property with given name, if POJO
+     * has one. Name used is the external name, i.e. name used
+     * in external data representation (JSON).
+     * 
+     * @since 2.0
+     */
+    public SettableBeanProperty findProperty(String propertyName)
+    {
+        SettableBeanProperty prop = (_beanProperties == null) ?
+                null : _beanProperties.find(propertyName);
+        if (prop == null && _propertyBasedCreator != null) {
+            prop = _propertyBasedCreator.findCreatorProperty(propertyName);
+        }
+        return prop;
+    }
+    
+    /**
+     * Method needed by {@link BeanDeserializerFactory} to properly link
+     * managed- and back-reference pairs.
+     */
+    public SettableBeanProperty findBackReference(String logicalName)
+    {
+        if (_backRefs == null) {
+            return null;
+        }
+        return _backRefs.get(logicalName);
+    }
+
+    public ValueInstantiator getValueInstantiator() {
+        return _valueInstantiator;
+    }
+    
     /*
     /**********************************************************
     /* Partial deserializer implementation

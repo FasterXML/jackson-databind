@@ -97,12 +97,12 @@ public final class ObjectIdProperty
     @Override
     public Object setAndReturn(Object instance, Object value)
    		throws IOException
-	{
+    {
         SettableBeanProperty idProp = _objectIdReader.idProperty;
         if (idProp == null) {
         	throw new UnsupportedOperationException(
-        			"Should not call set() on ObjectIdProperty that has no SettableBeanProperty");
+        	        "Should not call set() on ObjectIdProperty that has no SettableBeanProperty");
         }
         return idProp.setAndReturn(instance, value);
-	}
+    }
 }

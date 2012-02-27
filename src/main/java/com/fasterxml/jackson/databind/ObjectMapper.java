@@ -601,6 +601,11 @@ public class ObjectMapper
             public void setMixInAnnotations(Class<?> target, Class<?> mixinSource) {
                 mapper.addMixInAnnotations(target, mixinSource);
             }
+            
+            @Override
+            public void addDeserializationProblemHandler(DeserializationProblemHandler handler) {
+                mapper.addHandler(handler);
+            }
         });
         return this;
     }

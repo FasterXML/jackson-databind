@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
+import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.deser.KeyDeserializers;
 import com.fasterxml.jackson.databind.deser.ValueInstantiators;
@@ -262,5 +263,12 @@ public abstract class Module
          *   be "added" to target's annotations, overriding as necessary
          */
         public void setMixInAnnotations(Class<?> target, Class<?> mixinSource);
+
+        /**
+         * Add a deserialization problem handler
+         *
+         * @param handler The deserialization problem handler
+         */
+        public void addDeserializationProblemHandler(DeserializationProblemHandler handler);
     }
 }

@@ -158,6 +158,15 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertSame(result.node, result.node.next.node);
     }
 
+    // Another test to ensure ordering is not required (i.e. can do front references)
+    public void testSimpleDeserWithForwardRefs() throws Exception
+    {
+        IdWrapper result = mapper.readValue("{\"node\":{\"value\":7,\"next\":{\"node\":1}, \"@id\":1}}"
+                ,IdWrapper.class);
+        assertEquals(7, result.node.value);
+        assertSame(result.node, result.node.next.node);
+    }
+    
     /*
     /*****************************************************
     /* Unit tests, custom (property-based) id deserialization

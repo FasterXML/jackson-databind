@@ -91,7 +91,7 @@ public abstract class JsonDeserializer<T>
                          T intoValue)
         throws IOException, JsonProcessingException
     {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Can not update object of type "+intoValue.getClass().getName());
     }
 
     /**

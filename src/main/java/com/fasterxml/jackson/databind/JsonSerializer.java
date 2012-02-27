@@ -98,16 +98,21 @@ public abstract class JsonSerializer<T>
      * values of type this serializer handles, using specified type serializer
      * for embedding necessary type information.
      *<p>
-     * Default implementation will ignore serialization of type information,
-     * and just calls {@link #serialize}: serializers that can embed
-     * type information should override this to implement actual handling.
-     * Most common such handling is done by something like:
+     * Default implementation will throw {@link UnsupportedOperationException}
+     * to indicate that proper type handling needs to be implemented.
+     *<p>
+     * For simple datatypes written as a single scalar value (JSON String, Number, Boolean),
+     * implementation would look like:
      *<pre>
      *  // note: method to call depends on whether this type is serialized as JSON scalar, object or Array!
      *  typeSer.writeTypePrefixForScalar(value, jgen);
      *  serialize(value, jgen, provider);
      *  typeSer.writeTypeSuffixForScalar(value, jgen);
      *</pre>
+     * and implementations for type serialized as JSON Arrays or Objects would differ slightly,
+     * as <code>START-ARRAY>/<code>END-ARRAY</code> and
+     * <code>START-OBJECT>/<code>END-OBJECT</code> pairs
+     * need to be properly handled with respect to serializing of contents.
      *
      * @param value Value to serialize; can <b>not</b> be null.
      * @param jgen Generator used to output resulting Json content
@@ -119,7 +124,11 @@ public abstract class JsonSerializer<T>
             TypeSerializer typeSer)
         throws IOException, JsonProcessingException
     {
-        serialize(value, jgen, provider);
+        Class<?> clz = handledType();
+        if (clz == null) {
+            clz = value.getClass();
+        }
+        throw new UnsupportedOperationException("Type id handling not implemented for type "+clz.getName());
     }
     
     /*

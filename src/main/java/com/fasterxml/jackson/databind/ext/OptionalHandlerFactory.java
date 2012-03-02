@@ -8,24 +8,21 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.util.Provider;
 
 /**
- * Helper class used for isolating details of handling optional+external types (Joda datetime,
- * javax.xml classes) from standard factories that offer them.
+ * Helper class used for isolating details of handling optional+external types
+ * (javax.xml classes) from standard factories that offer them.
  * 
  * @author tatu
  */
 public class OptionalHandlerFactory
 {
-    /* 1.6.1+ To make 2 main "optional" handler groups (javax.xml.stream, Joda date/time)
+    /* 1.6.1+ To make 2 main "optional" handler groups (javax.xml.stream)
      * more dynamic, we better only figure out handlers completely dynamically, if and
      * when they are needed. To do this we need to assume package prefixes.
      */
 
-    private final static String PACKAGE_PREFIX_JODA_DATETIME = "org.joda.time.";
     private final static String PACKAGE_PREFIX_JAVAX_XML = "javax.xml.";
 
-    private final static String SERIALIZERS_FOR_JODA_DATETIME = "com.fasterxml.jackson.databind.ext.JodaSerializers";
     private final static String SERIALIZERS_FOR_JAVAX_XML = "com.fasterxml.jackson.databind.ext.CoreXMLSerializers";
-    private final static String DESERIALIZERS_FOR_JODA_DATETIME = "com.fasterxml.jackson.databind.ext.JodaDeserializers";
     private final static String DESERIALIZERS_FOR_JAVAX_XML = "com.fasterxml.jackson.databind.ext.CoreXMLDeserializers";
 
     // Plus we also have a single serializer for DOM Node:
@@ -51,9 +48,7 @@ public class OptionalHandlerFactory
         String className = rawType.getName();
         String factoryName;
         
-        if (className.startsWith(PACKAGE_PREFIX_JODA_DATETIME)) {
-            factoryName = SERIALIZERS_FOR_JODA_DATETIME;
-        } else if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
+        if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
                 || hasSupertypeStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
             factoryName = SERIALIZERS_FOR_JAVAX_XML;
         } else if (doesImplement(rawType, CLASS_NAME_DOM_NODE)) {
@@ -92,9 +87,7 @@ public class OptionalHandlerFactory
         String className = rawType.getName();
         String factoryName;
         
-        if (className.startsWith(PACKAGE_PREFIX_JODA_DATETIME)) {
-            factoryName = DESERIALIZERS_FOR_JODA_DATETIME;
-        } else if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
+        if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
                 || hasSupertypeStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
             factoryName = DESERIALIZERS_FOR_JAVAX_XML;
         } else if (doesImplement(rawType, CLASS_NAME_DOM_DOCUMENT)) {

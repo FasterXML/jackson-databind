@@ -64,16 +64,6 @@
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Also: for legacy reasons, we initially keep ref to Joda types;
-         will be moved RSN into joda datatype module
-      -->
-    <dependency>
-      <groupId>joda-time</groupId>
-      <artifactId>joda-time</artifactId>
-      <version>1.5.2</version>
-      <scope>provided</scope>
-    </dependency>
-
     <!-- and for testing, JUnit is needed, as well as quite a few
          libs for which we use reflection for code, but direct dep for testing
       -->
@@ -217,9 +207,6 @@ com.fasterxml.jackson.core.type,
 org.xml.sax,org.w3c.dom, org.w3c.dom.bootstrap, org.w3c.dom.ls,
 javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
 </Import-Package>
-              <DynamicImport-Package>
-org.joda.time, org.joda.time.format
-</DynamicImport-Package>
               <Private-Package>
 </Private-Package>
               <Export-Package>

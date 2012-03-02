@@ -112,6 +112,25 @@ public class TestAnnotationJsonSerialize2
         @JsonSerialize(using=NullSerializer.class)
         public String value = "abc";
     }
+
+    // [JACKSON-799] stuff:
+    
+    public interface Fooable {
+        public int getFoo();
+    }
+
+    // force use of interface
+    @JsonSerialize(as=Fooable.class)
+    public static class FooImpl implements Fooable {
+        public int getFoo() { return 42; }
+        public int getBar() { return 15; }
+    }
+
+    public class Fooables {
+        public FooImpl[] getFoos() {
+            return new FooImpl[] { new FooImpl() };
+        }
+    }
     
     /*
     /**********************************************************
@@ -212,5 +231,16 @@ public class TestAnnotationJsonSerialize2
     {
         String json = MAPPER.writeValueAsString(new NullBean());
         assertEquals("{\"value\":null}", json);
+    }
+
+    // [JACKSON-799]
+    public void testSerializeAsInClass() throws IOException
+    {
+        assertEquals("{\"foo\":42}", MAPPER.writeValueAsString(new FooImpl()));
+    }
+
+    public void testSerializeAsForArrayProp() throws IOException
+    {
+        assertEquals("[{\"foo\":42}]", MAPPER.writeValueAsString(new Fooables()));
     }
 }

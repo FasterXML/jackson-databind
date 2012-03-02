@@ -77,6 +77,15 @@ public class SimpleModule extends Module
     }
 
     /**
+     * Convenience constructor that will use specified Version,
+     * including name from {@link Version#getArtifactId()}
+     */
+    public SimpleModule(Version version) {
+        _name = version.getArtifactId();
+        _version = version;
+    }
+    
+    /**
      * Constructor to use for actual reusable modules.
      * ObjectMapper may use name as identifier to notice attempts
      * for multiple registrations of the same module (although it
@@ -89,7 +98,7 @@ public class SimpleModule extends Module
         _name = name;
         _version = version;
     }
-
+    
     /*
     /**********************************************************
     /* Simple setters to allow overriding

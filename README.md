@@ -12,14 +12,25 @@ parser and generator implementations exist.
 Naming of classes uses word 'JSON' in many places even though there is no
 actual hard dependency to JSON format.
 
+## Differences from Jackson 1.x
+
+Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository
+
+Note that the main differences compared to 1.0 core jar are:
+
+* Maven build instead of Ant
+* Java package is now `com.fasterxml.jackson.databind` (instead of `org.codehaus.jackson.map`)
+
+
 ----
 
 ## Usage, general
 
 ### Maven, Java package
 
-All annotations are in Java package `com.fasterxml.core.annotation`.
-To use annotations, you need to use Maven dependency:
+Functionality of this package is contained in 
+Java package `com.fasterxml.core.databind`.
+To use databinding, you need to use following Maven dependency:
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
@@ -27,7 +38,8 @@ To use annotations, you need to use Maven dependency:
       <version>2.0.0</version>
     </dependency>
 
-or download jars from Maven repository or [Download page](wiki.fasterxml.com/JacksonDownload)
+or download jars from Maven repository or [Download page](wiki.fasterxml.com/JacksonDownload).
+Core jar is a functional OSGi bundle, with proper import/export declarations.
 
 Since package also depends on '''jackson-core''' and '''jackson-databind''' packages, you will need to download these if not using Maven; and you may also want to add them as Maven dependency to ensure that compatible versions are used.
 If so:
@@ -42,7 +54,6 @@ If so:
       <artifactId>jackson-core</artifactId>
       <version>2.0.0</version>
     </dependency>
-
 
 ----
 
@@ -63,13 +74,6 @@ If so:
 (TO BE WRITTEN)
 
 ----
-
-Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository
-
-Note that the main differences compared to 1.0 core jar are:
-
-* Maven build instead of Ant
-* Java package is now `com.fasterxml.jackson.databind` (instead of `org.codehaus.jackson.map`)
 
 # Further reading
 

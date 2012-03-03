@@ -854,3 +854,6 @@ James Roper:
   * Requested [JACKSON-732]: Allow 'AnnotationIntrospector.findContentDeserializer()'
     (and similar) to return instance, not just Class<?> for instance
    [2.0.0]
+  * Suggested [JACKSON-800]: Adding a method for letting modules register
+    DeserializationProblemHandlers
+   [2.0.0]

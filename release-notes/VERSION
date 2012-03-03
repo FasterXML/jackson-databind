@@ -42,6 +42,8 @@ Improvements
   (not 0 for numbers), as they are not numeric types
 * [JACKSON-787]: @JsonIgnoredProperties can be used on properties too
 * [JACKSON-795]: @JsonValue was not working for Maps, Collections
+* [JACKSON-800]: Add 'Module.SetupContext#addDeserializationProblemHandler'
+ (suggested by James R)
 
 New features:
 

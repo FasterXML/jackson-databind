@@ -198,11 +198,10 @@ public abstract class BeanDeserializerBase
             boolean hasViews)
     {
         super(beanDesc.getType());
+
         AnnotatedClass ac = beanDesc.getClassInfo();
         _classAnnotations = ac.getAnnotations();       
-        
         _beanType = beanDesc.getType();
-
         _valueInstantiator = builder.getValueInstantiator();
         
         _beanProperties = properties;
@@ -377,16 +376,28 @@ public abstract class BeanDeserializerBase
     public void resolve(DeserializationContext ctxt)
         throws JsonMappingException
     {
+        ExternalTypeHandler.Builder extTypes = null;
         // if ValueInstantiator can use "creator" approach, need to resolve it here...
         if (_valueInstantiator.canCreateFromObjectWith()) {
             SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+            // also: need to try to resolve 'external' type ids...
+            for (SettableBeanProperty prop : creatorProps) {
+                if (prop.hasValueTypeDeserializer()) {
+                    TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
+                    if (typeDeser.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
+                        if (extTypes == null) {
+                            extTypes = new ExternalTypeHandler.Builder();
+                        }
+                        extTypes.addExternal(prop, typeDeser.getPropertyName());
+                    }
+                }
+            }
             _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, creatorProps);
         }
 
         Iterator<SettableBeanProperty> it = _beanProperties.allProperties();
         UnwrappedPropertyHandler unwrapped = null;
-        ExternalTypeHandler.Builder extTypes = null;
-        
+
         while (it.hasNext()) {
             SettableBeanProperty origProp = it.next();
             SettableBeanProperty prop = origProp;
@@ -483,7 +494,7 @@ public abstract class BeanDeserializerBase
     {
         ObjectIdReader oir = _objectIdReader;
         String[] ignorals = null;
-        
+
         // First: may have an override for Object Id:
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (property != null && intr != null) {

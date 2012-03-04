@@ -145,8 +145,7 @@ public class CreatorProperty
     }
     
     @Override
-    public void set(Object instance, Object value)
-        throws IOException
+    public void set(Object instance, Object value) throws IOException
     {
         /* Hmmmh. Should we return quietly (NOP), or error?
          * For now, let's just bail out without fuss.
@@ -155,11 +154,10 @@ public class CreatorProperty
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value)
-   		throws IOException
-	{
-    	return instance;
-	}
+    public Object setAndReturn(Object instance, Object value) throws IOException
+    {
+        return instance;
+    }
     
     @Override
     public Object getInjectableValueId() {

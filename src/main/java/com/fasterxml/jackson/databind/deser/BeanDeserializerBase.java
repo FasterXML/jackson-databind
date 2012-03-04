@@ -380,8 +380,9 @@ public abstract class BeanDeserializerBase
         // if ValueInstantiator can use "creator" approach, need to resolve it here...
         if (_valueInstantiator.canCreateFromObjectWith()) {
             SettableBeanProperty[] creatorProps = _valueInstantiator.getFromObjectArguments(ctxt.getConfig());
+            _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, creatorProps);
             // also: need to try to resolve 'external' type ids...
-            for (SettableBeanProperty prop : creatorProps) {
+            for (SettableBeanProperty prop : _propertyBasedCreator.properties()) {
                 if (prop.hasValueTypeDeserializer()) {
                     TypeDeserializer typeDeser = prop.getValueTypeDeserializer();
                     if (typeDeser.getTypeInclusion() == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
@@ -392,7 +393,6 @@ public abstract class BeanDeserializerBase
                     }
                 }
             }
-            _propertyBasedCreator = PropertyBasedCreator.construct(ctxt, _valueInstantiator, creatorProps);
         }
 
         Iterator<SettableBeanProperty> it = _beanProperties.allProperties();

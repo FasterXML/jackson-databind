@@ -871,10 +871,9 @@ public class BeanDeserializer
                     wrapAndThrow(e, bean, propName, ctxt);
                 }
                 continue;
-            } else {
-                // Unknown: let's call handler method
-                handleUnknownProperty(jp, ctxt, bean, propName);         
             }
+            // Unknown: let's call handler method
+            handleUnknownProperty(jp, ctxt, bean, propName);         
         }
         // and when we get this far, let's try finalizing the deal:
         return ext.complete(jp, ctxt, bean);
@@ -897,6 +896,10 @@ public class BeanDeserializer
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
+                // first things first: external type-ids are tricky, so:
+                if (ext.handleToken(jp, ctxt, propName, null)) {
+                    continue;
+                }
                 // Last creator property to set?
                 Object value = creatorProp.deserialize(jp, ctxt);
                 if (buffer.assignParameter(creatorProp.getPropertyIndex(), value)) {

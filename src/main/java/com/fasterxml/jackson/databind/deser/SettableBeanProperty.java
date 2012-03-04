@@ -309,7 +309,7 @@ public abstract class SettableBeanProperty
      * @since 2.0
      */
     public abstract Object setAndReturn(Object instance, Object value)
-		throws IOException;
+            throws IOException;
     
     /**
      * This method is needed by some specialized bean deserializers,

@@ -48,7 +48,9 @@ public class ExternalTypeHandler
     }
 
     /**
-     * Method called to ask handler to handle 
+     * Method called to ask handler to handle value of given property;
+     * either by resolving type id it contains (if it matches type
+     * property name), or by buffering the value for further use.
      */
     public boolean handleToken(JsonParser jp, DeserializationContext ctxt,
             String propName, Object bean)

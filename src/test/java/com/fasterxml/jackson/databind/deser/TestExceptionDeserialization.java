@@ -51,12 +51,13 @@ public class TestExceptionDeserialization
     /**********************************************************
      */
 
+    final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testIOException() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
         IOException ioe = new IOException("TEST");
-        String json = mapper.writeValueAsString(ioe);
-        IOException result = mapper.readValue(json, IOException.class);
+        String json = MAPPER.writeValueAsString(ioe);
+        IOException result = MAPPER.readValue(json, IOException.class);
         assertEquals(ioe.getMessage(), result.getMessage());
     }
 
@@ -64,10 +65,9 @@ public class TestExceptionDeserialization
     public void testWithCreator() throws IOException
     {
         final String MSG = "the message";
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(new MyException(MSG, 3));
+        String json = MAPPER.writeValueAsString(new MyException(MSG, 3));
 
-        MyException result = mapper.readValue(json, MyException.class);
+        MyException result = MAPPER.readValue(json, MyException.class);
         assertEquals(MSG, result.getMessage());
         assertEquals(3, result.value);
         assertEquals(1, result.stuff.size());
@@ -77,7 +77,7 @@ public class TestExceptionDeserialization
     // [JACKSON-388]
     public void testWithNullMessage() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         String json = mapper.writeValueAsString(new IOException((String) null));
         IOException result = mapper.readValue(json, IOException.class);
@@ -87,8 +87,14 @@ public class TestExceptionDeserialization
 
     public void testNoArgsException() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        MyNoArgException exc = mapper.readValue("{}", MyNoArgException.class);
+        MyNoArgException exc = MAPPER.readValue("{}", MyNoArgException.class);
+        assertNotNull(exc);
+    }
+
+    // [JACKSON-794]: try simulating JDK 7 behavior
+    public void testJDK7SuppressionProperty() throws IOException
+    {
+        Exception exc = MAPPER.readValue("{\"suppressed\":[]}", IOException.class);
         assertNotNull(exc);
     }
 }

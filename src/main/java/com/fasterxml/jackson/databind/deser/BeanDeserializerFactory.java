@@ -416,6 +416,8 @@ public class BeanDeserializerFactory
 
         // And also need to ignore "localizedMessage"
         builder.addIgnorable("localizedMessage");
+        // [JACKSON-794]: JDK 7 also added "getSuppressed", skip if we have such data:
+        builder.addIgnorable("suppressed");
         /* As well as "message": it will be passed via constructor,
          * as there's no 'setMessage()' method
         */

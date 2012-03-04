@@ -275,6 +275,9 @@ public class MapSerializer
     {
         jgen.writeStartObject();
         if (!value.isEmpty()) {
+            if (provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+                value = _orderEntries(value);
+            }
             if (_valueSerializer != null) {
                 serializeFieldsUsing(value, jgen, provider, _valueSerializer);
             } else {
@@ -291,6 +294,9 @@ public class MapSerializer
     {
         typeSer.writeTypePrefixForObject(value, jgen);
         if (!value.isEmpty()) {
+            if (provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+                value = _orderEntries(value);
+            }
             if (_valueSerializer != null) {
                 serializeFieldsUsing(value, jgen, provider, _valueSerializer);
             } else {
@@ -465,7 +471,7 @@ public class MapSerializer
 
     /*
     /**********************************************************
-    /* Internal methods
+    /* Internal helper methods
     /**********************************************************
      */
     
@@ -490,5 +496,13 @@ public class MapSerializer
         return result.serializer;
     }
 
+    protected Map<?,?> _orderEntries(Map<?,?> input)
+    {
+        // minor optimization: may already be sorted?
+        if (input instanceof SortedMap<?,?>) {
+            return input;
+        }
+        return new TreeMap<Object,Object>(input);
+    }
 }
 

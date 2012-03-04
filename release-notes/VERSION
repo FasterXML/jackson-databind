@@ -55,6 +55,9 @@ New features:
 * [JACKSON-469]: Support "Builder pattern" for deserialiation; that is, allow
   use of separate Builder object for data binding, creating actual value
 * [JACKSON-608]: Allow use of JSON Views for deserialization
+* [JACKSON-636]: Add 'SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS' to allow
+  forced sorting of Maps during serialization
+  (suggested by Joern H)
 * [JACKSON-669]: Allow prefix/suffix for @JsonUnwrapped properties
  (requested by Aner P)
 * [JACKSON-707]: Add 'JsonNode.deepCopy()', to create safe deep copies

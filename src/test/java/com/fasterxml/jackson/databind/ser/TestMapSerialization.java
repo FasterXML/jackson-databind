@@ -111,4 +111,19 @@ public class TestMapSerialization
         map.put("a", "b");
         assertEquals("{\"DEFAULT:a\":\"b\"}", m.writeValueAsString(map));
     }
+
+    // [JACKSON-636]: sort Map entries by key
+    public void testOrderByKey() throws IOException
+    {
+        ObjectMapper m = new ObjectMapper();
+        assertFalse(m.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS));
+        LinkedHashMap<String,Integer> map = new LinkedHashMap<String,Integer>();
+        map.put("b", 3);
+        map.put("a", 6);
+        // by default, no (re)ordering:
+        assertEquals("{\"b\":3,\"a\":6}", m.writeValueAsString(map));
+        // but can be changed
+        assertEquals("{\"a\":6,\"b\":3}", m.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS).writeValueAsString(map));
+    }
+    
 }

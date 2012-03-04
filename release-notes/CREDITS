@@ -850,6 +850,11 @@ Stephan Bailliez:
   * Reported [JACKSON-757] Problems with Enum values, annotations on constructors
    [1.9.4]
 
+Joern Huxhorn:
+  * Suggested [JACKSON-636]: Add 'SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS' to allow
+    forced sorting of Maps during serialization
+   [2.0.0]
+
 James Roper:
   * Requested [JACKSON-732]: Allow 'AnnotationIntrospector.findContentDeserializer()'
     (and similar) to return instance, not just Class<?> for instance

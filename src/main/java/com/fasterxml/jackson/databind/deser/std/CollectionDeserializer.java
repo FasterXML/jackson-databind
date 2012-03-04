@@ -127,7 +127,7 @@ implements ContextualDeserializer
      * for.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+    public CollectionDeserializer createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
         // May need to resolve types for delegate-based creators:

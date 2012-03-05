@@ -860,7 +860,7 @@ public class BeanDeserializer
                 continue;
             }
             // but others are likely to be part of external type id thingy...
-            if (ext.handleToken(jp, ctxt, propName, bean)) {
+            if (ext.handlePropertyValue(jp, ctxt, propName, bean)) {
                 continue;
             }
             // if not, the usual fallback handling:
@@ -896,33 +896,34 @@ public class BeanDeserializer
             // creator property?
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
-                // first things first: external type-ids are tricky, so:
-                if (ext.handleToken(jp, ctxt, propName, null)) {
-                    continue;
-                }
-                // Last creator property to set?
-                Object value = creatorProp.deserialize(jp, ctxt);
-                if (buffer.assignParameter(creatorProp.getPropertyIndex(), value)) {
-                    t = jp.nextToken(); // to move to following FIELD_NAME/END_OBJECT
-                    Object bean;
-                    try {
-                        bean = creator.build(ctxt, buffer);
-                    } catch (Exception e) {
-                        wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
-                        continue; // never gets here
+                // first: let's check to see if this might be part of value with external type id:
+                if (ext.handlePropertyValue(jp, ctxt, propName, buffer)) {
+                    ;
+                } else {
+                    // Last creator property to set?
+                    Object value = creatorProp.deserialize(jp, ctxt);
+                    if (buffer.assignParameter(creatorProp.getPropertyIndex(), value)) {
+                        t = jp.nextToken(); // to move to following FIELD_NAME/END_OBJECT
+                        Object bean;
+                        try {
+                            bean = creator.build(ctxt, buffer);
+                        } catch (Exception e) {
+                            wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
+                            continue; // never gets here
+                        }
+                        // if so, need to copy all remaining tokens into buffer
+                        while (t == JsonToken.FIELD_NAME) {
+                            jp.nextToken(); // to skip name
+                            tokens.copyCurrentStructure(jp);
+                            t = jp.nextToken();
+                        }
+                        if (bean.getClass() != _beanType.getRawClass()) {
+                            // !!! 08-Jul-2011, tatu: Could probably support; but for now
+                            //   it's too complicated, so bail out
+                            throw ctxt.mappingException("Can not create polymorphic instances with unwrapped values");
+                        }
+                        return ext.complete(jp, ctxt, bean);
                     }
-                    // if so, need to copy all remaining tokens into buffer
-                    while (t == JsonToken.FIELD_NAME) {
-                        jp.nextToken(); // to skip name
-                        tokens.copyCurrentStructure(jp);
-                        t = jp.nextToken();
-                    }
-                    if (bean.getClass() != _beanType.getRawClass()) {
-                        // !!! 08-Jul-2011, tatu: Could probably support; but for now
-                        //   it's too complicated, so bail out
-                        throw ctxt.mappingException("Can not create polymorphic instances with unwrapped values");
-                    }
-                    return ext.complete(jp, ctxt, bean);
                 }
                 continue;
             }
@@ -933,7 +934,7 @@ public class BeanDeserializer
                 continue;
             }
             // external type id (or property that depends on it)?
-            if (ext.handleToken(jp, ctxt, propName, null)) {
+            if (ext.handlePropertyValue(jp, ctxt, propName, null)) {
                 continue;
             }
             /* As per [JACKSON-313], things marked as ignorable should not be
@@ -949,14 +950,12 @@ public class BeanDeserializer
             }
         }
 
-        // We hit END_OBJECT, so:
-        Object bean;
+        // We hit END_OBJECT; resolve the pieces:
         try {
-            bean = creator.build(ctxt, buffer);
+            return ext.complete(jp, ctxt, buffer, creator);
         } catch (Exception e) {
             wrapInstantiationProblem(e, ctxt);
             return null; // never gets here
         }
-        return ext.complete(jp, ctxt, bean);
     }
 }

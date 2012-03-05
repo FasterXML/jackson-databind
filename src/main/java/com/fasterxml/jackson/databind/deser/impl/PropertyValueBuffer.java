@@ -15,14 +15,14 @@ import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
  */
 public final class PropertyValueBuffer
 {
-    final JsonParser _parser;
-    final DeserializationContext _context;
+    protected final JsonParser _parser;
+    protected final DeserializationContext _context;
     
     /**
      * Buffer used for storing creator parameters for constructing
      * instance
      */
-    final Object[] _creatorParameters;
+    protected final Object[] _creatorParameters;
     
     /**
      * Number of creator parameters we are still missing.
@@ -79,6 +79,8 @@ public final class PropertyValueBuffer
     }
 
     protected PropertyValue buffered() { return _buffered; }
+
+    public boolean isComplete() { return _paramsNeeded <= 0; }
     
     /**
      * @return True if we have received all creator parameters

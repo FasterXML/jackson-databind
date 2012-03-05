@@ -9,8 +9,10 @@ Description:
 Fixes:
 
 * [JACKSON-711]: Delegating @JsonCreator did not work with Injectable values
+* [JACKSON-798]: Problem with external type id, creators
+  (reported by Casey L)
 
-Improvements
+Improvements:
 
 * [JACKSON-546]: Indicate end-of-input with JsonMappingException instead
   of EOFException, when there is no parsing exception

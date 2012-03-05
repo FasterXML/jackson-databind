@@ -148,9 +148,9 @@ public class CreatorProperty
     public void set(Object instance, Object value) throws IOException
     {
         /* Hmmmh. Should we return quietly (NOP), or error?
-         * For now, let's just bail out without fuss.
+         * Perhaps better to throw an exception, since it's generally an error.
          */
-        //throw new IllegalStateException("Method should never be called on a "+getClass().getName());
+        throw new IllegalStateException("Method should never be called on a "+getClass().getName());
     }
 
     @Override

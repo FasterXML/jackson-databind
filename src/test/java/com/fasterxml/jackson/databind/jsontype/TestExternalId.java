@@ -77,13 +77,84 @@ public class TestExternalId extends BaseMapTest
     static class FunkyExternalBean {
         public int i = 3;
     }
+
+    // [JACKSON-798]: problems with polymorphic types, external prop
+
+    @JsonSubTypes(value= { @JsonSubTypes.Type(value=Derived1.class, name="d1"),
+            @JsonSubTypes.Type(value=Derived2.class, name="d2") })
+    interface Base {
+        String getBaseProperty();
+    }
+  
+    static class Derived1 implements Base {
+        private String derived1Property;
+        private String baseProperty;
+        protected  Derived1() { throw new IllegalStateException("wrong constructor called"); }
+        
+        @JsonCreator
+        public Derived1(@JsonProperty("derived1Property") String d1p,
+                        @JsonProperty("baseProperty") String bp) {
+            derived1Property = d1p;
+            baseProperty = bp;
+        }
+
+        @Override
+        @JsonProperty public String getBaseProperty() {
+            return baseProperty;
+        }
+
+        @JsonProperty public String getDerived1Property() {
+            return derived1Property;
+        }
+    }
+
+    static class Derived2 implements Base {
+        private String derived2Property;
+        private String baseProperty;
+        protected  Derived2() { throw new IllegalStateException("wrong constructor called"); }
+
+        @JsonCreator
+        public Derived2(@JsonProperty("derived2Property") String d2p,
+                        @JsonProperty("baseProperty") String bp) {
+            derived2Property = d2p;
+            baseProperty = bp;
+        }
+
+        @Override
+        @JsonProperty public String getBaseProperty() {
+            return baseProperty;
+        }
+
+        @JsonProperty public String getDerived2Property() {
+            return derived2Property;
+        }
+    }
+    
+    static class BaseContainer {
+        protected final Base base;
+        protected final String baseContainerProperty;
+        protected BaseContainer() { throw new IllegalStateException("wrong constructor called"); }
+
+        @JsonCreator
+        public BaseContainer(@JsonProperty("baseContainerProperty") String bcp, @JsonProperty("base") Base b) {
+            baseContainerProperty = bcp;
+            base = b;
+        }
+
+        @JsonProperty
+        public String getBaseContainerProperty() { return baseContainerProperty; }
+
+        @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.EXTERNAL_PROPERTY, property="type")
+        @JsonProperty
+        public Base getBase() { return base; }
+    }
     
     /*
     /**********************************************************
     /* Unit tests, serialization
     /**********************************************************
      */
-
+    
     public void testSimpleSerialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -111,7 +182,7 @@ public class TestExternalId extends BaseMapTest
     /* Unit tests, deserialization
     /**********************************************************
      */
-    
+
     public void testSimpleDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -123,10 +194,8 @@ public class TestExternalId extends BaseMapTest
         assertEquals(11, vb.value);
     }
 
-    /**
-     * Test for verifying that it's ok to have multiple (say, 3)
-     * externally typed things, mixed with other stuff...
-     */
+    // Test for verifying that it's ok to have multiple (say, 3)
+    // externally typed things, mixed with other stuff...
     public void testMultipleTypeIdsDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -143,9 +212,7 @@ public class TestExternalId extends BaseMapTest
         assertEquals(3, result.foo);
     }
 
-    /**
-     * Also, it should be ok to use @JsonCreator as well...
-     */
+    // Also, it should be ok to use @JsonCreator as well...
     public void testExternalTypeWithCreator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -165,5 +232,26 @@ public class TestExternalId extends BaseMapTest
         FunkyExternalBean result = mapper.readValue("{\"extType\":\"funk\",\"i\":3}", FunkyExternalBean.class);
         assertNotNull(result);
         assertEquals(3, result.i);
+    }
+
+    public void testIssue798() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+
+        Base base = new Derived1("derived1 prop val", "base prop val");
+        BaseContainer baseContainer = new BaseContainer("bc prop val", base);
+        String generatedJson = mapper.writeValueAsString(baseContainer);
+        BaseContainer baseContainer2 = mapper.readValue(generatedJson,BaseContainer.class);
+        assertEquals("bc prop val", baseContainer.getBaseContainerProperty());
+
+        Base b = baseContainer2.getBase();
+        assertNotNull(b);
+        if (b.getClass() != Derived1.class) {
+            fail("Should have type Derived1, was "+b.getClass().getName());
+        }
+
+        Derived1 derived1 = (Derived1) b;
+        assertEquals("base prop val", derived1.getBaseProperty());
+        assertEquals("derived1 prop val", derived1.getDerived1Property());
     }
 }

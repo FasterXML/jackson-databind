@@ -48,11 +48,14 @@ public class ExternalTypeHandler
     }
 
     /**
-     * Method called to ask handler to handle value of given property;
-     * either by resolving type id it contains (if it matches type
+     * Method called to ask handler to handle value of given property,
+     * at point where parser points to the first token of the value.
+     * Handling can mean either resolving type id it contains (if it matches type
      * property name), or by buffering the value for further use.
+     * 
+     * @return True, if the given property was properly handled
      */
-    public boolean handleToken(JsonParser jp, DeserializationContext ctxt,
+    public boolean handlePropertyValue(JsonParser jp, DeserializationContext ctxt,
             String propName, Object bean)
         throws IOException, JsonProcessingException
     {
@@ -77,17 +80,18 @@ public class ExternalTypeHandler
          * we have all pertinent information:
          */
         if (canDeserialize) {
-            _deserialize(jp, ctxt, bean, index);
+            _deserializeAndSet(jp, ctxt, bean, index);
             // clear stored data, to avoid deserializing+setting twice:
             _typeIds[index] = null;
             _tokens[index] = null;
         }
         return true;
     }
-
+    
     public Object complete(JsonParser jp, DeserializationContext ctxt, Object bean)
         throws IOException, JsonProcessingException
     {
+
         for (int i = 0, len = _properties.length; i < len; ++i) {
             if (_typeIds[i] == null) {
                 // let's allow missing both type and property (may already have been set, too)
@@ -100,12 +104,72 @@ public class ExternalTypeHandler
                 SettableBeanProperty prop = _properties[i].getProperty();
                 throw ctxt.mappingException("Missing property '"+prop.getName()+"' for external type id '"+_properties[i].getTypePropertyName());
             }
-            _deserialize(jp, ctxt, bean, i);
+            _deserializeAndSet(jp, ctxt, bean, i);
         }
         return bean;
     }
+
+    /**
+     * Variant called when creation of the POJO involves buffering of creator properties
+     * as well as property-based creator.
+     */
+    public Object complete(JsonParser jp, DeserializationContext ctxt,
+            PropertyValueBuffer buffer, PropertyBasedCreator creator)
+        throws IOException, JsonProcessingException
+    {
+        // first things first: deserialize all data buffered:
+        final int len = _properties.length;
+        Object[] values = new Object[len];
+        for (int i = 0; i < len; ++i) {
+            if (_typeIds[i] == null) {
+                // let's allow missing both type and property (may already have been set, too)
+                if (_tokens[i] == null) {
+                    continue;
+                }
+                // but not just one
+                throw ctxt.mappingException("Missing external type id property '"+_properties[i].getTypePropertyName());
+            } else if (_tokens[i] == null) {
+                SettableBeanProperty prop = _properties[i].getProperty();
+                throw ctxt.mappingException("Missing property '"+prop.getName()+"' for external type id '"+_properties[i].getTypePropertyName());
+            }
+            values[i] = _deserialize(jp, ctxt, i);
+        }
+        // second: fill in creator properties:
+        for (int i = 0; i < len; ++i) {
+            SettableBeanProperty prop = _properties[i].getProperty();
+            if (creator.findCreatorProperty(prop.getName()) != null) {
+                buffer.assignParameter(prop.getPropertyIndex(), values[i]);
+            }
+        }
+        Object bean = creator.build(ctxt, buffer);
+        // third: assign non-creator properties
+        for (int i = 0; i < len; ++i) {
+            SettableBeanProperty prop = _properties[i].getProperty();
+            if (creator.findCreatorProperty(prop.getName()) == null) {
+                prop.set(bean, values[i]);
+            }
+        }
+        return bean;
+    }
+
+    protected final Object _deserialize(JsonParser jp, DeserializationContext ctxt,
+            int index)
+        throws IOException, JsonProcessingException
+    {
+        TokenBuffer merged = new TokenBuffer(jp.getCodec());
+        merged.writeStartArray();
+        merged.writeString(_typeIds[index]);
+        JsonParser p2 = _tokens[index].asParser(jp);
+        p2.nextToken();
+        merged.copyCurrentStructure(p2);
+        merged.writeEndArray();
+        // needs to point to START_OBJECT (or whatever first token is)
+        p2 = merged.asParser(jp);
+        p2.nextToken();
+        return _properties[index].getProperty().deserialize(p2, ctxt);
+    }
     
-    protected final void _deserialize(JsonParser jp, DeserializationContext ctxt, Object bean, int index)
+    protected final void _deserializeAndSet(JsonParser jp, DeserializationContext ctxt, Object bean, int index)
         throws IOException, JsonProcessingException
     {
         /* Ok: time to mix type id, value; and we will actually use "wrapper-array"

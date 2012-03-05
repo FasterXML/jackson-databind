@@ -856,7 +856,7 @@ public class BuilderBasedDeserializer
 
     /*
     /**********************************************************
-    /* Handling for cases where we have property/-ies wth
+    /* Handling for cases where we have property/-ies with
     /* external type id
     /**********************************************************
      */
@@ -898,7 +898,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             // but others are likely to be part of external type id thingy...
-            if (ext.handleToken(jp, ctxt, propName, bean)) {
+            if (ext.handlePropertyValue(jp, ctxt, propName, bean)) {
                 continue;
             }
             // if not, the usual fallback handling:
@@ -922,77 +922,7 @@ public class BuilderBasedDeserializer
     		DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
-        final ExternalTypeHandler ext = _externalTypeIdHandler.start();
-        final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt);
-
-        TokenBuffer tokens = new TokenBuffer(jp.getCodec());
-        tokens.writeStartObject();
-
-        JsonToken t = jp.getCurrentToken();
-        for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
-            String propName = jp.getCurrentName();
-            jp.nextToken(); // to point to value
-            // creator property?
-            SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
-            if (creatorProp != null) {
-                // Last creator property to set?
-                Object value = creatorProp.deserialize(jp, ctxt);
-                if (buffer.assignParameter(creatorProp.getPropertyIndex(), value)) {
-                    t = jp.nextToken(); // to move to following FIELD_NAME/END_OBJECT
-                    Object bean;
-                    try {
-                        bean = creator.build(ctxt, buffer);
-                    } catch (Exception e) {
-                        wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
-                        continue; // never gets here
-                    }
-                    // if so, need to copy all remaining tokens into buffer
-                    while (t == JsonToken.FIELD_NAME) {
-                        jp.nextToken(); // to skip name
-                        tokens.copyCurrentStructure(jp);
-                        t = jp.nextToken();
-                    }
-                    if (bean.getClass() != _beanType.getRawClass()) {
-                        // !!! 08-Jul-2011, tatu: Could probably support; but for now
-                        //   it's too complicated, so bail out
-                        throw ctxt.mappingException("Can not create polymorphic instances with unwrapped values");
-                    }
-                    return ext.complete(jp, ctxt, bean);
-                }
-                continue;
-            }
-            // regular property? needs buffering
-            SettableBeanProperty prop = _beanProperties.find(propName);
-            if (prop != null) {
-                buffer.bufferProperty(prop, prop.deserialize(jp, ctxt));
-                continue;
-            }
-            // external type id (or property that depends on it)?
-            if (ext.handleToken(jp, ctxt, propName, null)) {
-                continue;
-            }
-            /* As per [JACKSON-313], things marked as ignorable should not be
-             * passed to any setter
-             */
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
-                continue;
-            }
-            // "any property"?
-            if (_anySetter != null) {
-                buffer.bufferAnyProperty(_anySetter, propName, _anySetter.deserialize(jp, ctxt));
-            }
-        }
-
-        // We hit END_OBJECT, so:
-        Object bean;
-        try {
-            bean = creator.build(ctxt, buffer);
-        } catch (Exception e) {
-            wrapInstantiationProblem(e, ctxt);
-            return null; // never gets here
-        }
-        return ext.complete(jp, ctxt, bean);
-    }    
+        // !!! 04-Mar-2012, TODO: Need to fix -- will not work as is...
+        throw new IllegalStateException("Deserialization with Builder, External type id, @JsonCreator not yet implemented");
+    }
 }

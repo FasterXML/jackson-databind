@@ -43,6 +43,11 @@ public class BuilderBasedDeserializer
     	super(builder, beanDesc, properties, backRefs,
     			ignorableProps, ignoreAllUnknown, hasViews);
     	_buildMethod = builder.getBuildMethod();
+    	// 05-Mar-2012, tatu: Can not really make Object Ids work with builders, not yet anyway
+    	if (_objectIdReader != null) {
+    	    throw new IllegalArgumentException("Can not use Object Id with Builder-based deserialization (type "
+    	            +beanDesc.getType()+")");
+    	}
     }
 
     /**
@@ -361,7 +366,7 @@ public class BuilderBasedDeserializer
     {
         // First things first: id Object Id is used, most likely that's it
         if (_objectIdReader != null) {
-            return deserializeUsingObjectId(jp, ctxt);
+            return deserializeFromObjectId(jp, ctxt);
         }
         
         /* Bit complicated if we have delegating creator; may need to use it,
@@ -384,7 +389,7 @@ public class BuilderBasedDeserializer
     {
         // First things first: id Object Id is used, most likely that's it
         if (_objectIdReader != null) {
-            return deserializeUsingObjectId(jp, ctxt);
+            return deserializeFromObjectId(jp, ctxt);
         }
 
         switch (jp.getNumberType()) {

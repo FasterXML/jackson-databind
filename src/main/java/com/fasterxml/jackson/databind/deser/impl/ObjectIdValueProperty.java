@@ -15,37 +15,37 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
  * for virtual property that represents Object Id that is used
  * for some POJO types (or properties).
  */
-public final class ObjectIdProperty
+public final class ObjectIdValueProperty
 	extends SettableBeanProperty
 {
     protected final ObjectIdReader _objectIdReader;
     
-    public ObjectIdProperty(ObjectIdReader objectIdReader)
+    public ObjectIdValueProperty(ObjectIdReader objectIdReader)
     {
         super(objectIdReader.propertyName, objectIdReader.idType, null, null);
         _objectIdReader = objectIdReader;
         _valueDeserializer = objectIdReader.deserializer;
     }
 
-    protected ObjectIdProperty(ObjectIdProperty src, JsonDeserializer<?> deser)
+    protected ObjectIdValueProperty(ObjectIdValueProperty src, JsonDeserializer<?> deser)
     {
         super(src, deser);
         _objectIdReader = src._objectIdReader;
     }
 
-    protected ObjectIdProperty(ObjectIdProperty src, String newName) {
+    protected ObjectIdValueProperty(ObjectIdValueProperty src, String newName) {
         super(src, newName);
         _objectIdReader = src._objectIdReader;
     }
 
     @Override
-    public ObjectIdProperty withName(String newName) {
-        return new ObjectIdProperty(this, newName);
+    public ObjectIdValueProperty withName(String newName) {
+        return new ObjectIdValueProperty(this, newName);
     }
 
     @Override
-    public ObjectIdProperty withValueDeserializer(JsonDeserializer<?> deser) {
-        return new ObjectIdProperty(this, deser);
+    public ObjectIdValueProperty withValueDeserializer(JsonDeserializer<?> deser) {
+        return new ObjectIdValueProperty(this, deser);
     }
     
     // // // BeanProperty impl

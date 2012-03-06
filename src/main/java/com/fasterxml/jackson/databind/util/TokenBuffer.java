@@ -163,6 +163,23 @@ public class TokenBuffer
      */
 
     /**
+     * Helper method that will append contents of given buffer into this
+     * buffer.
+     * Not particularly optimized; can be made faster if there is need.
+     * 
+     * @return This buffer
+     */
+    public TokenBuffer append(TokenBuffer other)
+        throws IOException, JsonGenerationException
+    {
+        JsonParser jp = other.asParser();
+        while (jp.nextToken() != null) {
+            this.copyCurrentEvent(jp);
+        }
+        return this;
+    }
+    
+    /**
      * Helper method that will write all contents of this buffer
      * using given {@link JsonGenerator}.
      *<p>
@@ -747,6 +764,16 @@ public class TokenBuffer
             _appendOffset = 1;
         }
     }
+
+    protected final void _appendRaw(int rawType, Object value) {
+        Segment next = _last.appendRaw(_appendOffset, rawType, value);
+        if (next == null) {
+            ++_appendOffset;
+        } else {
+            _last = next;
+            _appendOffset = 1;
+        }
+    }
     
     protected void _reportUnsupportedOperation() {
         throw new UnsupportedOperationException("Called operation not supported for TokenBuffer");
@@ -1184,6 +1211,16 @@ public class TokenBuffer
             int ix = ((int) l) & 0xF;
             return TOKEN_TYPES_BY_INDEX[ix];
         }
+
+        public int rawType(int index)
+        {
+            long l = _tokenTypes;
+            if (index > 0) {
+                l >>= (index << 2);
+            }
+            int ix = ((int) l) & 0xF;
+            return ix;
+        }
         
         public Object get(int index) {
             return _tokens[index];
@@ -1214,13 +1251,24 @@ public class TokenBuffer
             _next.set(0, tokenType, value);
             return _next;
         }
+
+        public Segment appendRaw(int index, int rawTokenType, Object value)
+        {
+            if (index < TOKENS_PER_SEGMENT) {
+                set(index, rawTokenType, value);
+                return null;
+            }
+            _next = new Segment();
+            _next.set(0, rawTokenType, value);
+            return _next;
+        }
         
         public void set(int index, JsonToken tokenType)
         {
-            long typeCode = tokenType.ordinal();
             /* Assumption here is that there are no overwrites, just appends;
-             * and so no masking is needed
+             * and so no masking is needed (nor explicit setting of null)
              */
+            long typeCode = tokenType.ordinal();
             if (index > 0) {
                 typeCode <<= (index << 2);
             }
@@ -1234,6 +1282,16 @@ public class TokenBuffer
             /* Assumption here is that there are no overwrites, just appends;
              * and so no masking is needed
              */
+            if (index > 0) {
+                typeCode <<= (index << 2);
+            }
+            _tokenTypes |= typeCode;
+        }
+
+        private void set(int index, int rawTokenType, Object value)
+        {
+            _tokens[index] = value;
+            long typeCode = (long) rawTokenType;
             if (index > 0) {
                 typeCode <<= (index << 2);
             }

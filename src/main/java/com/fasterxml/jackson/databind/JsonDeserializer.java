@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -191,18 +192,19 @@ public abstract class JsonDeserializer<T>
      * serialization, and if so, should be able to resolve it to actual
      * Object instance to return as deserialized value.
      *<p>
-     * Default implementation returns false, as support can not be implemented
+     * Default implementation returns null, as support can not be implemented
      * generically. Some standard deserializers (most notably
      * {@link com.fasterxml.jackson.databind.deser.BeanDeserializer})
-     * do implement this feature, and may return true depending on exact
+     * do implement this feature, and may return reader instance, depending on exact
      * configuration of instance (which is based on type, and referring property).
      * 
-     * @return True if this deserializer can be given an Object Identifier
-     *    instead of full value serialization
+     * @return ObjectIdReader used for resolving possible Object Identifier
+     *    value, instead of full value serialization, if deserializer can do that;
+     *    null if no Object Id is expected.
      * 
      * @since 2.0
      */
-    public boolean canResolveObjectId() { return false; }
+    public ObjectIdReader getObjectIdReader() { return null; }
     
     /*
     /**********************************************************

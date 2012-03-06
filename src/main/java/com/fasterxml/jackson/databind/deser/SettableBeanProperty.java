@@ -318,6 +318,11 @@ public abstract class SettableBeanProperty
      * Pre-condition is that passed parser must point to the first token
      * that should be consumed to produce the value (the only value for
      * scalars, multiple for Objects and Arrays).
+     *<p> 
+     * Note that this method is final for performance reasons: to override
+     * functionality you must override other methods that call this method;
+     * this method should also not be called directly unless you really know
+     * what you are doing (and probably not even then).
      */
     public final Object deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException

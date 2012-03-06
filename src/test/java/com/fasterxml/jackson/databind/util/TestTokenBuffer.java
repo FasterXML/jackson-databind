@@ -174,6 +174,33 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         verifyJsonSpecSampleDoc(tb.asParser(), true);
     }
 
+    public void testAppend() throws IOException
+    {
+        TokenBuffer buf1 = new TokenBuffer(null);
+        buf1.writeStartObject();
+        buf1.writeFieldName("a");
+        buf1.writeBoolean(true);
+        
+        TokenBuffer buf2 = new TokenBuffer(null);
+        buf2.writeFieldName("b");
+        buf2.writeNumber(13);
+        buf2.writeEndObject();
+        
+        buf1.append(buf2);
+        
+        // and verify that we got it all...
+        JsonParser jp = buf1.asParser();
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("a", jp.getCurrentName());
+        assertToken(JsonToken.VALUE_TRUE, jp.nextToken());
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("b", jp.getCurrentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertEquals(13, jp.getIntValue());
+        assertToken(JsonToken.END_OBJECT, jp.nextToken());
+    }
+    
     /*
     /**********************************************************
     /* Tests to verify interaction of TokenBuffer and JsonParserSequence

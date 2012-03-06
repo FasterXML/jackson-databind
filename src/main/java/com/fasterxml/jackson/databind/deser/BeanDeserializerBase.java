@@ -3,12 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
@@ -24,11 +19,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ClassKey;
-import com.fasterxml.jackson.databind.util.Annotations;
-import com.fasterxml.jackson.databind.util.ArrayBuilders;
-import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.NameTransformer;
-import com.fasterxml.jackson.databind.util.TokenBuffer;
+import com.fasterxml.jackson.databind.util.*;
 
 /**
  * Base class for <code>BeanDeserializer</code>.
@@ -225,6 +216,8 @@ public abstract class BeanDeserializerBase
         _vanillaProcessing = !_nonStandardCreation
                 && (_injectables == null)
                 && !_needViewProcesing
+                // also, may need to reorder stuff if we expect Object Id:
+                && (_objectIdReader != null)
                 ;
     }
 
@@ -324,7 +317,7 @@ public abstract class BeanDeserializerBase
         if (oir == null) {
             _beanProperties = src._beanProperties;
         } else {
-            _beanProperties = src._beanProperties.withProperty(new ObjectIdProperty(oir));
+            _beanProperties = src._beanProperties.withProperty(new ObjectIdValueProperty(oir));
         }
     }
 
@@ -443,6 +436,7 @@ public abstract class BeanDeserializerBase
                     extTypes.addExternal(prop, typeDeser.getPropertyName());
                     // In fact, remove from list of known properties to simplify later handling
                     _beanProperties.remove(prop);
+                    continue;
                 }
             }
         }
@@ -510,10 +504,10 @@ public abstract class BeanDeserializerBase
                 if (implClass == ObjectIdGenerators.PropertyGenerator.class) {
                     String propName = objectIdInfo.getPropertyName();
                     idProp = findProperty(propName);
-                	if (idProp == null) {
-                		throw new IllegalArgumentException("Invalid Object Id definition for "
-                				+getBeanClass().getName()+": can not find property with name '"+propName+"'");
-                	}
+                    if (idProp == null) {
+                        throw new IllegalArgumentException("Invalid Object Id definition for "
+                                +getBeanClass().getName()+": can not find property with name '"+propName+"'");
+                    }
                     idType = idProp.getType();
                     idGen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());
                 } else { // other types need to be simpler
@@ -662,8 +656,8 @@ public abstract class BeanDeserializerBase
      * (either via value type or referring property).
      */
     @Override
-    public boolean canResolveObjectId() {
-        return _objectIdReader != null;
+    public ObjectIdReader getObjectIdReader() {
+        return _objectIdReader;
     }
     
     public boolean hasProperty(String propertyName) {
@@ -766,7 +760,7 @@ public abstract class BeanDeserializerBase
             JsonToken t = jp.getCurrentToken();
             // should be good enough check; we only care about Strings, integral numbers:
             if (t != null && t.isScalarValue()) {
-                return deserializeUsingObjectId(jp, ctxt);
+                return deserializeFromObjectId(jp, ctxt);
             }
         }
         // In future could check current token... for now this should be enough:
@@ -777,7 +771,7 @@ public abstract class BeanDeserializerBase
      * Method called in cases where it looks like we got an Object Id
      * to parse and use as a reference.
      */
-    protected final Object deserializeUsingObjectId(JsonParser jp, DeserializationContext ctxt)
+    protected Object deserializeFromObjectId(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
         Object id = _objectIdReader.deserializer.deserialize(jp, ctxt);
@@ -785,7 +779,7 @@ public abstract class BeanDeserializerBase
         // do we have it resolved?
         Object pojo = roid.item;
         if (pojo == null) { // not yet; should wait...
-            throw new IllegalStateException("Could not resolve Object Id ["+id+"]");
+            throw new IllegalStateException("Could not resolve Object Id ["+id+"] -- illegal forward-reference?");
         }
         return pojo;
     }

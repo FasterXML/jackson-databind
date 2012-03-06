@@ -72,7 +72,11 @@ public final class InnerClassProperty
 
     @Override public AnnotatedMember getMember() {  return _delegate.getMember(); }
 
-    // // //  Overridden methods
+    /*
+    /**********************************************************
+    /* Deserialization methods
+    /**********************************************************
+     */
 
     @Override
     public void deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
@@ -113,8 +117,8 @@ public final class InnerClassProperty
 
     @Override
     public Object setAndReturn(Object instance, Object value)
-   		throws IOException
-	{
+            throws IOException
+    {
     	return _delegate.setAndReturn(instance, value);
-	}
+    }
 }

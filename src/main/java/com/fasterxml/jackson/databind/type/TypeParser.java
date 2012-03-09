@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.type;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Simple recursive-descent parser for parsing canonical {@link JavaType}
@@ -69,12 +70,7 @@ public class TypeParser
     protected Class<?> findClass(String className, MyTokenizer tokens)
     {
         try {
-            /* [JACKSON-350]: Default Class.forName() won't work too well; context class loader
-             *    seems like slightly better choice
-             */
-//          return Class.forName(className);
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            return Class.forName(className, true, loader);
+            return ClassUtil.findClass(className);
         } catch (Exception e) {
             if (e instanceof RuntimeException) {
                 throw (RuntimeException) e;

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 @JacksonStdImpl
 public class ClassDeserializer
@@ -20,23 +21,11 @@ public class ClassDeserializer
         JsonToken curr = jp.getCurrentToken();
         // Currently will only accept if given simple class name
         if (curr == JsonToken.VALUE_STRING) {
-            String className = jp.getText();
-            // [JACKSON-597]: support primitive types (and void)
-            if (className.indexOf('.') < 0) {
-                if ("int".equals(className)) return Integer.TYPE;
-                if ("long".equals(className)) return Long.TYPE;
-                if ("float".equals(className)) return Float.TYPE;
-                if ("double".equals(className)) return Double.TYPE;
-                if ("boolean".equals(className)) return Boolean.TYPE;
-                if ("byte".equals(className)) return Byte.TYPE;
-                if ("char".equals(className)) return Character.TYPE;
-                if ("short".equals(className)) return Short.TYPE;
-                if ("void".equals(className)) return Void.TYPE;
-            }
+            String className = jp.getText().trim();
             try {
-                return Class.forName(jp.getText());
-            } catch (ClassNotFoundException e) {
-                throw ctxt.instantiationException(_valueClass, e);
+                return ctxt.findClass(className);
+            } catch (Exception e) {
+                throw ctxt.instantiationException(_valueClass, ClassUtil.getRootCause(e));
             }
         }
         throw ctxt.mappingException(_valueClass, curr);

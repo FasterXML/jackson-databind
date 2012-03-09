@@ -52,12 +52,7 @@ public class ClassNameIdResolver
             return t;
         }
         try {
-            /* [JACKSON-350]: Default Class.forName() won't work too well; context class loader
-             *    seems like slightly better choice
-             */
-//          Class<?> cls = Class.forName(id);
-            ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            Class<?> cls = Class.forName(id, true, loader);
+            Class<?> cls =  ClassUtil.findClass(id);
             return _typeFactory.constructSpecializedType(_baseType, cls);
         } catch (ClassNotFoundException e) {
             throw new IllegalArgumentException("Invalid type id '"+id+"' (for id type 'Id.class'): no such class found");

@@ -261,16 +261,6 @@ public abstract class DeserializationContext
     /**
      * Convenience method, functionally equivalent to:
      *<pre>
-     *  getConfig().constructType(cls);
-     * </pre>
-     */
-    public final JavaType constructType(Class<?> cls) {
-        return _config.constructType(cls);
-    }
-
-    /**
-     * Convenience method, functionally equivalent to:
-     *<pre>
      *  getConfig().getTypeFactory();
      * </pre>
      */
@@ -384,6 +374,34 @@ public abstract class DeserializationContext
      */
     public abstract ReadableObjectId findObjectId(Object id,
             ObjectIdGenerator<?> generator);
+
+    /*
+    /**********************************************************
+    /* Public API, type handling
+    /**********************************************************
+     */
+    
+    /**
+     * Convenience method, functionally equivalent to:
+     *<pre>
+     *  getConfig().constructType(cls);
+     * </pre>
+     */
+    public final JavaType constructType(Class<?> cls) {
+        return _config.constructType(cls);
+    }
+
+    /**
+     * Helper method to use for locating Class for given name. Should be used
+     * instead of basic <code>Class.forName(className);</code> as it can
+     * try using contextual class loader, or use platform-specific workarounds
+     * (like on Android, GAE).
+     */
+    public Class<?> findClass(String className) throws ClassNotFoundException
+    {
+        // By default, delegate to ClassUtil: can be overridden with custom handling
+        return ClassUtil.findClass(className);
+    }
     
     /*
     /**********************************************************

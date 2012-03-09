@@ -197,6 +197,50 @@ public final class ClassUtil
             (Class<?>) classOrInstance : classOrInstance.getClass();
         return cls.getName();
     }
+
+    /*
+    /**********************************************************
+    /* Class loading
+    /**********************************************************
+     */
+
+    public static Class<?> findClass(String className) throws ClassNotFoundException
+    {
+        // [JACKSON-597]: support primitive types (and void)
+        if (className.indexOf('.') < 0) {
+            if ("int".equals(className)) return Integer.TYPE;
+            if ("long".equals(className)) return Long.TYPE;
+            if ("float".equals(className)) return Float.TYPE;
+            if ("double".equals(className)) return Double.TYPE;
+            if ("boolean".equals(className)) return Boolean.TYPE;
+            if ("byte".equals(className)) return Byte.TYPE;
+            if ("char".equals(className)) return Character.TYPE;
+            if ("short".equals(className)) return Short.TYPE;
+            if ("void".equals(className)) return Void.TYPE;
+        }
+        // Two-phase lookup: first using context ClassLoader; then default
+        Throwable prob = null;
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        
+        if (loader != null) {
+            try {
+                return Class.forName(className, true, loader);
+            } catch (Exception e) {
+                prob = getRootCause(e);
+            }
+        }
+        try {
+            return Class.forName(className);
+        } catch (Exception e) {
+            if (prob == null) {
+                prob = getRootCause(e);
+            }
+        }
+        if (prob instanceof RuntimeException) {
+            throw (RuntimeException) prob;
+        }
+        throw new ClassNotFoundException(prob.getMessage(), prob);
+    }
     
     /*
     /**********************************************************

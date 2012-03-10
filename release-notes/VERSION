@@ -25,7 +25,7 @@ Improvements:
   wrapping/unwrapping settings
 * [JACKSON-730] Split various features (JsonParser, JsonGenerator,
   SerializationConfig, DeserializationConfig) into per-factory
-  features (MapperConfig.Feature, JsonFactory.Feature) an per
+  features (MapperFeature, JsonFactory.Feature) an per
   instance features (existing ones)
 * [JACKSON-732]: Allow 'AnnotationIntrospector.findContentDeserializer()'
   (and similar) to return instance, not just Class<?> for instance
@@ -66,8 +66,8 @@ New features:
   of ObjectNodes, ArrayNodes.
 * [JACKSON-714]: Add general-purpose @JsonFormat annotation
 * [JACKSON-718]: Added 'JsonNode.canConvertToInt()', 'JsonNode.canConvertToLong()'
-* [JACKSON-747]: Allow changing of 'SerializationConfig.Feature' for ObjectWriter,
-  'DeserializationConfig.Feature' for ObjectReader.
+* [JACKSON-747]: Allow changing of 'SerializationFeature' for ObjectWriter,
+  'DeserializationFeature' for ObjectReader.
 * [JACKSON-752]: Add @JsonInclude (replacement of @JsonSerialize.include)
 * [JACKSON-754]: Add @JacksonAnnotationsInside for creating "annotation
   bundles" (also: AnnotationIntrospector.isAnnotationBundle())
@@ -78,6 +78,8 @@ New features:
 * [JACKSON-772]: Add 'JsonNode.withArray()' to use for traversing Array nodes.
 * [JACKSON-793]: Add support for configurable Locale, TimeZone to use
   (via SerializationConfig, DeserializationConfig)
+* [JACKSON-805]: Add 'SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED'
+  to improve interoperability with BadgerFish/Jettison
 
 ------------------------------------------------------------------------
 === History: ===

@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * This unit test suite tests use of @JsonClass Annotation
  * with bean serialization.
  */
-public class TestAnnotationJsonSerialize
+public class TestJsonSerialize
     extends BaseMapTest
 {
     /*

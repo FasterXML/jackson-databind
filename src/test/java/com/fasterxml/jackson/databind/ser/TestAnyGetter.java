@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-public class TestAnnotationAnyGetter
+public class TestAnyGetter
     extends BaseMapTest
 {
     /*

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 
 @SuppressWarnings("serial")
-public class TestAnnotationJsonSerialize2
+public class TestJsonSerialize2
     extends BaseMapTest
 {
     // [JACKSON-480]
@@ -113,25 +113,6 @@ public class TestAnnotationJsonSerialize2
         public String value = "abc";
     }
 
-    // [JACKSON-799] stuff:
-    
-    public interface Fooable {
-        public int getFoo();
-    }
-
-    // force use of interface
-    @JsonSerialize(as=Fooable.class)
-    public static class FooImpl implements Fooable {
-        public int getFoo() { return 42; }
-        public int getBar() { return 15; }
-    }
-
-    public class Fooables {
-        public FooImpl[] getFoos() {
-            return new FooImpl[] { new FooImpl() };
-        }
-    }
-    
     /*
     /**********************************************************
     /* Test methods
@@ -231,16 +212,5 @@ public class TestAnnotationJsonSerialize2
     {
         String json = MAPPER.writeValueAsString(new NullBean());
         assertEquals("{\"value\":null}", json);
-    }
-
-    // [JACKSON-799]
-    public void testSerializeAsInClass() throws IOException
-    {
-        assertEquals("{\"foo\":42}", MAPPER.writeValueAsString(new FooImpl()));
-    }
-
-    public void testSerializeAsForArrayProp() throws IOException
-    {
-        assertEquals("[{\"foo\":42}]", MAPPER.writeValueAsString(new Fooables()));
     }
 }

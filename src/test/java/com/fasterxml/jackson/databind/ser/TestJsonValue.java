@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
  * This unit test suite tests functioning of {@link JsonValue}
  * annotation with bean serialization.
  */
-public class TestAnnotationJsonValue
+public class TestJsonValue
     extends BaseMapTest
 {
     /*

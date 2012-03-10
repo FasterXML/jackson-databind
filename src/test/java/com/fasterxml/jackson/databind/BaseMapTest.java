@@ -16,7 +16,7 @@ public abstract class BaseMapTest
     extends BaseTest
 {
     private final static Object SINGLETON_OBJECT = new Object();
-
+    
     /*
     /**********************************************************
     /* Shared helper classes
@@ -111,6 +111,22 @@ public abstract class BaseMapTest
 
     protected BaseMapTest() { super(); }
 
+    /*
+    /**********************************************************
+    /* Additional assert methods
+    /**********************************************************
+     */
+
+    private final static ObjectMapper SHARED_MAPPER = new ObjectMapper();
+
+    protected ObjectReader objectReader() {
+        return SHARED_MAPPER.reader();
+    }
+
+    protected ObjectWriter objectWriter() {
+        return SHARED_MAPPER.writer();
+    }
+    
     /*
     /**********************************************************
     /* Additional assert methods

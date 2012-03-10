@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * This unit test suite tests functioning of {@link JsonRawValue}
  * annotation with bean serialization.
  */
-public class TestAnnotationJsonRawValue
+public class TestJsonRawValue
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
     /*

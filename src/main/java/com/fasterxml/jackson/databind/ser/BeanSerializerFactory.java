@@ -131,12 +131,18 @@ public class BeanSerializerFactory
         if (ser != null) {
             return (JsonSerializer<Object>) ser;
         }
+        boolean staticTyping;
         
         // Next: we may have annotations that further define types to use...
         JavaType type = modifyTypeByAnnotation(config, beanDesc.getClassInfo(), origType);
-
-        // and if so, we consider it implicit "force static typing" instruction
-        boolean staticTyping = (type != origType);
+        if (type == origType) { // no changes, won't force static typin
+            staticTyping = false;
+        } else { // changes; assume static typing; plus, need to re-introspect if class differs
+            staticTyping = true;
+            if (type.getRawClass() != origType.getRawClass()) {
+                beanDesc = config.introspect(type);
+            }
+        }
 
         // Modules may provide serializers of all types:
         for (Serializers serializers : _factoryConfig.serializers()) {

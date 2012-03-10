@@ -25,6 +25,12 @@ public class TestJsonSerializeAs extends BaseMapTest
             return new FooImpl[] { new FooImpl() };
         }
     }
+
+    public class FooableWrapper {
+        public FooImpl getFoo() {
+            return new FooImpl();
+        }
+    }
     
     /*
     /**********************************************************
@@ -42,7 +48,11 @@ public class TestJsonSerializeAs extends BaseMapTest
 
     public void testSerializeAsForArrayProp() throws IOException
     {
-        assertEquals("[{\"foo\":42}]", WRITER.writeValueAsString(new Fooables()));
+        assertEquals("{\"foos\":[{\"foo\":42}]}", WRITER.writeValueAsString(new Fooables()));
     }
 
+    public void testSerializeAsForSimpleProp() throws IOException
+    {
+        assertEquals("{\"foo\":{\"foo\":42}}", WRITER.writeValueAsString(new FooableWrapper()));
+    }
 }

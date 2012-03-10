@@ -112,6 +112,11 @@ public class StringArraySerializer
         return (value == null) || (value.length == 0);
     }
 
+    @Override
+    public boolean hasSingleElement(String[] value) {
+        return (value.length == 1);
+    }
+    
     /*
     /**********************************************************
     /* Actual serialization

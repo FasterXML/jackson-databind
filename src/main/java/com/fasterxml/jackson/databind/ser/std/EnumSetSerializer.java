@@ -38,6 +38,11 @@ public class EnumSetSerializer
     public boolean isEmpty(EnumSet<? extends Enum<?>> value) {
         return (value == null) || value.isEmpty();
     }
+
+    @Override
+    public boolean hasSingleElement(EnumSet<? extends Enum<?>> value) {
+        return value.size() == 1;
+    }
     
     @Override
     public void serializeContents(EnumSet<? extends Enum<?>> value, JsonGenerator jgen, SerializerProvider provider)

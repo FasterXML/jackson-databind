@@ -45,6 +45,12 @@ public class IterableSerializer
         // Not really good way to implement this, but has to do for now:
         return (value == null) || value.iterator().hasNext();
     }
+
+    @Override
+    public boolean hasSingleElement(Iterable<?> value) {
+        // no really good way to determine (without consuming iterator), so:
+        return false;
+    }
     
     @Override
     public void serializeContents(Iterable<?> value, JsonGenerator jgen, SerializerProvider provider)

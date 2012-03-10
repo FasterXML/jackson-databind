@@ -105,9 +105,7 @@ public abstract class SerializerProvider
      * Serializer that gets called for values of types for which no
      * serializers can be constructed.
      *<p>
-     * The default serializer will simply thrown an exception; a possible
-     * alternative that can be used would be
-     * {@link ToStringSerializer}.
+     * The default serializer will simply thrown an exception.
      */
     protected JsonSerializer<Object> _unknownTypeSerializer = DEFAULT_UNKNOWN_SERIALIZER;
 
@@ -176,8 +174,7 @@ public abstract class SerializerProvider
     }
 
     /**
-     * "Copy-constructor", used from {@link #createInstance} (or by
-     * sub-classes)
+     * "Copy-constructor", used by sub-classes.
      *
      * @param src Blueprint object used as the baseline for this instance
      */

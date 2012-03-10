@@ -11,7 +11,7 @@ basic Java wrapper types (Integer, Boolean, Double),
 Collection types (List, Map), Java Beans,
 Strings and nulls.
 <p>
-Tree mapper builds dynamically typed tree of {@link com.fasterxml.jackson.core.JsonNode}s
+Tree mapper builds dynamically typed tree of {@link com.fasterxml.jackson.databind.JsonNode}s
 from JSON content (and writes such trees as JSON),
 similar to how DOM model works with XML.
 Main benefits over Object mapping are:

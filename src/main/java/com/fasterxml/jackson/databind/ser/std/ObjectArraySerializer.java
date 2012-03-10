@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
@@ -151,6 +150,11 @@ public class ObjectArraySerializer
     @Override
     public boolean isEmpty(Object[] value) {
         return (value == null) || (value.length == 0);
+    }
+
+    @Override
+    public boolean hasSingleElement(Object[] value) {
+        return (value.length == 1);
     }
 
     /*

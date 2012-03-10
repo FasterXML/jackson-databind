@@ -113,6 +113,11 @@ public class StdArraySerializers
         public boolean isEmpty(boolean[] value) {
             return (value == null) || (value.length == 0);
         }
+
+        @Override
+        public boolean hasSingleElement(boolean[] value) {
+            return (value.length == 1);
+        }
         
         @Override
         public void serializeContents(boolean[] value, JsonGenerator jgen, SerializerProvider provider)
@@ -212,6 +217,11 @@ public class StdArraySerializers
             return (value == null) || (value.length == 0);
         }
 
+        @Override
+        public boolean hasSingleElement(short[] value) {
+            return (value.length == 1);
+        }
+        
         @SuppressWarnings("cast")
         @Override
         public void serializeContents(short[] value, JsonGenerator jgen, SerializerProvider provider)
@@ -341,7 +351,12 @@ public class StdArraySerializers
         public boolean isEmpty(int[] value) {
             return (value == null) || (value.length == 0);
         }
-        
+
+        @Override
+        public boolean hasSingleElement(int[] value) {
+            return (value.length == 1);
+        }
+
         @Override
         public void serializeContents(int[] value, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonGenerationException
@@ -392,6 +407,11 @@ public class StdArraySerializers
         @Override
         public boolean isEmpty(long[] value) {
             return (value == null) || (value.length == 0);
+        }
+
+        @Override
+        public boolean hasSingleElement(long[] value) {
+            return (value.length == 1);
         }
         
         @Override
@@ -458,6 +478,11 @@ public class StdArraySerializers
         }
 
         @Override
+        public boolean hasSingleElement(float[] value) {
+            return (value.length == 1);
+        }
+        
+        @Override
         public void serializeContents(float[] value, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
@@ -515,6 +540,11 @@ public class StdArraySerializers
         @Override
         public boolean isEmpty(double[] value) {
             return (value == null) || (value.length == 0);
+        }
+
+        @Override
+        public boolean hasSingleElement(double[] value) {
+            return (value.length == 1);
         }
         
         @Override

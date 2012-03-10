@@ -44,7 +44,12 @@ public final class IndexedListSerializer
     public boolean isEmpty(List<?> value) {
         return (value == null) || value.isEmpty();
     }
-    
+
+    @Override
+    public boolean hasSingleElement(List<?> value) {
+        return (value.size() == 1);
+    }
+
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {
         return new IndexedListSerializer(_elementType, _staticTyping, vts, _property, _elementSerializer);

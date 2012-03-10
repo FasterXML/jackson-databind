@@ -1278,10 +1278,7 @@ public abstract class BasicDeserializerFactory
      * (or, implementing class if original Class instance is an interface).
      *
      * @param a Method or field that the type is associated with
-     * @param type Type derived from the setter argument
-     * @param prop property that refers to type, if any; null
-     *   if no property information available (when modify type declaration
-     *   of a class, for example)
+     * @param type Type of field, or the setter argument
      *
      * @return Original type if no annotations are present; or a more
      *   specific type derived from it if type annotation(s) was found

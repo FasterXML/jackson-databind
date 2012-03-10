@@ -47,7 +47,7 @@ public final class DeserializationConfig
     protected final LinkedNode<DeserializationProblemHandler> _problemHandlers;
     
     /**
-     * Factory used for constructing {@link com.fasterxml.jackson.core.JsonNode} instances.
+     * Factory used for constructing {@link com.fasterxml.jackson.databind.JsonNode} instances.
      */
     protected final JsonNodeFactory _nodeFactory;
     

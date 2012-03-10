@@ -138,6 +138,11 @@ public class EnumMapSerializer
         return (value == null) || value.isEmpty();
     }
 
+    @Override
+    public boolean hasSingleElement(EnumMap<? extends Enum<?>, ?> value) {
+        return value.size() == 1;
+    }
+    
     /*
     /**********************************************************
     /* Serialization

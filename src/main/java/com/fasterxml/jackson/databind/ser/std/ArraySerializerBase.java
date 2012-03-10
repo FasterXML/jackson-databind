@@ -8,6 +8,12 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
 
+/**
+ * Intermediate base class for serializers used for various
+ * Java arrays.
+ * 
+ * @param <T>
+ */
 public abstract class ArraySerializerBase<T>
     extends ContainerSerializer<T>
 {
@@ -41,6 +47,12 @@ public abstract class ArraySerializerBase<T>
     public final void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
+        // [JACKSON-805]
+        if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+                && hasSingleElement(value)) {
+            serializeContents(value, jgen, provider);
+            return;
+        }
         jgen.writeStartArray();
         serializeContents(value, jgen, provider);
         jgen.writeEndArray();
@@ -51,6 +63,7 @@ public abstract class ArraySerializerBase<T>
             TypeSerializer typeSer)
         throws IOException, JsonGenerationException
     {
+        // note: let's NOT consider [JACKSON-805] here; gets too complicated, and probably just won't work
         typeSer.writeTypePrefixForArray(value, jgen);
         serializeContents(value, jgen, provider);
         typeSer.writeTypeSuffixForArray(value, jgen);

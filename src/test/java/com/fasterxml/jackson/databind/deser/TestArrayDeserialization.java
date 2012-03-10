@@ -281,19 +281,23 @@ public class TestArrayDeserialization
         StringBuilder sb = new StringBuilder();
         sb.append('[');
         for (int i = 0; i < LEN; ++i) {
-            if (i > 0) {
-                sb.append(',');
-            }
-            sb.append(i & 0x7F);
+            int value = i - 128;
+            sb.append((value < 256) ? value : (value & 0x7F));
+            sb.append(',');
         }
-        sb.append(']');
+        sb.append("0]");
         byte[] result = MAPPER.readValue(sb.toString(), byte[].class);
         assertNotNull(result);
-        assertEquals(LEN, result.length);
+        assertEquals(LEN+1, result.length);
         for (int i = 0; i < LEN; ++i) {
-            byte exp = (byte) (i & 0x7F);
+            int value = i - 128;
+            byte exp = (byte) ((value < 256) ? value : (value & 0x7F));
+            if (exp != result[i]) {
+                fail("At offset #"+i+" ("+result.length+"), expected "+exp+", got "+result[i]);
+            }
             assertEquals(exp, result[i]);
         }
+        assertEquals(0, result[LEN]);
     }
 
     public void testByteArrayAsBase64() throws Exception

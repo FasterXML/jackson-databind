@@ -243,6 +243,11 @@ public class MapSerializer
         return (value == null) || value.isEmpty();
     }
 
+    @Override
+    public boolean hasSingleElement(Map<?,?> value) {
+        return (value.size() == 1);
+    }
+    
     /*
     /**********************************************************
     /* Extended API

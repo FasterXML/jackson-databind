@@ -234,6 +234,29 @@ public enum SerializationFeature implements ConfigFeature
     WRITE_EMPTY_JSON_ARRAYS(true),
     
     /**
+     * Feature added for interoperability, to work with oddities of
+     * so-called "BadgerFish" convention.
+     * Feature determines handling of single element {@link java.util.Collection}s
+     * and arrays: if enabled, {@link java.util.Collection}s and arrays that contain exactly
+     * one element will be serialized as if that element itself was serialized.
+     *<p>
+     * When enabled, a POJO with array that normally looks like this:
+     *<pre>
+     *  { "arrayProperty" : [ 1 ] }
+     *</pre>
+     * will instead be serialized as
+     *<pre>
+     *  { "arrayProperty" : 1 }
+     *</pre>
+     *<p>
+     * Note that this feature is counterpart to {@link DeserializationFeature#ACCEPT_SINGLE_VALUE_AS_ARRAY}
+     * (that is, usually both are enabled, or neither is).
+     *<p>
+     * Feature is disabled by default, so that no special handling is done.
+     */
+    WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED(false),
+    
+    /**
      * Feature that determines whether {@link java.util.Map} entries are first
      * sorted by key before serialization or not: if enabled, additional sorting
      * step is performed if necessary (not necessary for {@link java.util.SortedMap}s),
@@ -242,7 +265,6 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default.
      */
     ORDER_MAP_ENTRIES_BY_KEYS(false)
-    
         ;
 
     private final boolean _defaultState;

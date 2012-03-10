@@ -90,6 +90,17 @@ public abstract class ContainerSerializer<T>
     public abstract boolean isEmpty(T value);
 
     /**
+     * Method called to determine if the given value (of type handled by
+     * this serializer) contains exactly one element.
+     *<p>
+     * Note: although it might seem sensible to instead define something
+     * like "getElementCount()" method, this would not work well for
+     * containers that do not keep track of size (like linked lists may
+     * not).
+     */
+    public abstract boolean hasSingleElement(T value);
+    
+    /**
      * Method that needs to be implemented to allow construction of a new
      * serializer object with given {@link TypeSerializer}, used when
      * addition type information is to be embedded.

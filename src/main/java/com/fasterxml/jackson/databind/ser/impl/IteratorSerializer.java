@@ -32,6 +32,12 @@ public class IteratorSerializer
     public boolean isEmpty(Iterator<?> value) {
         return (value == null) || !value.hasNext();
     }
+
+    @Override
+    public boolean hasSingleElement(Iterator<?> value) {
+        // no really good way to determine (without consuming iterator), so:
+        return false;
+    }
     
     @Override
     public ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts) {

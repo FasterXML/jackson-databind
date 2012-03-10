@@ -64,6 +64,16 @@ public class CollectionSerializer
         return (value == null) || value.isEmpty();
     }
 
+    @Override
+    public boolean hasSingleElement(Collection<?> value) {
+        Iterator<?> it = value.iterator();
+        if (!it.hasNext()) {
+            return false;
+        }
+        it.next();
+        return !it.hasNext();
+    }
+    
     /*
     /**********************************************************
     /* Actual serialization

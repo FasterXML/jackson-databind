@@ -104,10 +104,10 @@ public final class BaseSettings
 
     /**
      * Default {@link java.util.TimeZone} used with serialization formats.
-     * Default value is {@link Timezone#getDefault()}, which is typically the
-     * local timezone (unless overridden for JVM).
+     * Default value is {@link TimeZone#getDefault()}, which is typically the
+     * local time zone (unless overridden for JVM).
      *<p>
-     * Note that if a new value is set, timezone is also assigned to
+     * Note that if a new value is set, time zone is also assigned to
      * {@link #_dateFormat} of this object.
      */
     protected final TimeZone _timeZone;

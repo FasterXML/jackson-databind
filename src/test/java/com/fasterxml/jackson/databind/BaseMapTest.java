@@ -119,12 +119,12 @@ public abstract class BaseMapTest
 
     private final static ObjectMapper SHARED_MAPPER = new ObjectMapper();
 
-    protected ObjectReader objectReader() {
-        return SHARED_MAPPER.reader();
-    }
-
     protected ObjectWriter objectWriter() {
         return SHARED_MAPPER.writer();
+    }
+
+    protected ObjectReader objectReader(Class<?> cls) {
+        return SHARED_MAPPER.reader(cls);
     }
     
     /*

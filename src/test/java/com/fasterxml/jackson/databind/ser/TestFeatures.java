@@ -226,4 +226,29 @@ public class TestFeatures
         assertEquals("99", sw.toString());
         jgen.close();
     }
+
+    // Test for [JACKSON-805]
+    public void testSingleElementCollections() throws IOException
+    {
+        final ObjectWriter writer = objectWriter().with(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
+
+        // Lists:
+        ArrayList<String> strs = new ArrayList<String>();
+        strs.add("xyz");
+        assertEquals(quote("xyz"), writer.writeValueAsString(strs));
+        ArrayList<Integer> ints = new ArrayList<Integer>();
+        ints.add(13);
+        assertEquals("13", writer.writeValueAsString(ints));
+
+        // other Collections, like Sets:
+        HashSet<Long> longs = new HashSet<Long>();
+        longs.add(42L);
+        assertEquals("42", writer.writeValueAsString(longs));
+
+        // arrays:
+        assertEquals("true", writer.writeValueAsString(new boolean[] { true }));
+        assertEquals("true", writer.writeValueAsString(new Boolean[] { Boolean.TRUE }));
+        assertEquals("3", writer.writeValueAsString(new int[] { 3 }));
+        assertEquals(quote("foo"), writer.writeValueAsString(new String[] { "foo" }));
+    }
 }

@@ -695,9 +695,6 @@ public class BeanDeserializerFactory
      * Method that will construct a regular bean property setter using
      * the given setter method.
      *
-     * @param setter Method to use to set property value; or null if none.
-     *    Null only for "setterless" properties
-     *
      * @return Property constructed, if any; or null to indicate that
      *   there should be no property based on given definitions.
      */
@@ -749,9 +746,6 @@ public class BeanDeserializerFactory
     /**
      * Method that will construct a regular bean property setter using
      * the given setter method.
-     *
-     * @param getter Method to use to get property value to modify, null if
-     *    none. Non-null for "setterless" properties.
      */
     protected SettableBeanProperty constructSetterlessProperty(DeserializationContext ctxt,
             BeanDescription beanDesc, BeanPropertyDefinition propDef)

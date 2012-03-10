@@ -293,7 +293,7 @@ public abstract class BasicSerializerFactory
      *<ul>
      * <li>If type implements {@link JsonSerializable}, use that
      *  </li>
-     * <li>If type has {@link JsonValue} annotation (or equivalent), build serializer
+     * <li>If type has {@link com.fasterxml.jackson.annotation.JsonValue} annotation (or equivalent), build serializer
      *    based on that property
      *  </li>
      *</ul>

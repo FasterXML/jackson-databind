@@ -197,7 +197,6 @@ public final class DeserializerCache
      * Method that will try to create a deserializer for given type,
      * and resolve and cache it if necessary
      * 
-     * @param config Configuration
      * @param type Type of property to deserializer
      * @param property Property (field, setter, ctor arg) to use deserializer for
      */

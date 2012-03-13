@@ -149,7 +149,7 @@ public abstract class AnnotationIntrospector implements Versioned
     
     /*
     /**********************************************************
-    /* Generic annotation properties, lookup
+    /* Meta-annotations (annotations for annotation types)
     /**********************************************************
      */
     
@@ -170,6 +170,26 @@ public abstract class AnnotationIntrospector implements Versioned
      */
     public boolean isAnnotationBundle(Annotation ann) {
         return false;
+    }
+
+    /*
+    /**********************************************************
+    /* General annotations (for classes, properties)
+    /**********************************************************
+     */
+    
+    /**
+     * Method for checking whether given annotated thing
+     * (type, or accessor) indicates that values
+     * referenced (values of type of annotated class, or
+     * values referenced by annotated property; latter
+     * having precedence) should include Object Identifier,
+     * and if so, specify details of Object Identity used.
+     * 
+     * @since 2.0
+     */
+    public ObjectIdInfo findObjectIdInfo(Annotated ann) {
+        return null;
     }
     
     /*
@@ -339,7 +359,7 @@ public abstract class AnnotationIntrospector implements Versioned
     public String findTypeName(AnnotatedClass ac) {
         return null;
     }
-
+    
     /*
     /**********************************************************
     /* General member (field, method/constructor) annotations
@@ -419,20 +439,6 @@ public abstract class AnnotationIntrospector implements Versioned
      *    if null, always included (same as returning array containing <code>Object.class</code>)
      */
     public Class<?>[] findViews(Annotated a) {
-        return null;
-    }
-
-    /**
-     * Method for checking whether given annotated thing
-     * (type, or accessor) indicates that values
-     * referenced (values of type of annotated class, or
-     * values referenced by annotated property; latter
-     * having precedence) should include Object Identifier,
-     * and if so, specify details of Object Identity used.
-     * 
-     * @since 2.0
-     */
-    public ObjectIdInfo findObjectIdInfo(Annotated ann) {
         return null;
     }
 

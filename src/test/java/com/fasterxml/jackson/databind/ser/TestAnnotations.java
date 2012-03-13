@@ -122,6 +122,13 @@ public class TestAnnotations
         // and included, as there is a field
         public int getD() { return 6; }
     }
+
+    // [JACKSON-806]: override 'need-setter' with explicit annotation
+    static class GettersWithoutSetters2
+    {
+        @JsonProperty
+        public int getA() { return 123; }
+    }
     
     /*
     /**********************************************************
@@ -156,10 +163,11 @@ public class TestAnnotations
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testSimpleGetter() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, new SizeClassGetter());
+        Map<String,Object> result = writeAndMap(MAPPER, new SizeClassGetter());
         assertEquals(3, result.size());
         assertEquals(Integer.valueOf(3), result.get("size"));
         assertEquals(Integer.valueOf(-17), result.get("length"));
@@ -168,8 +176,7 @@ public class TestAnnotations
 
     public void testSimpleGetter2() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, new SizeClassGetter2());
+        Map<String,Object> result = writeAndMap(MAPPER, new SizeClassGetter2());
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(3), result.get("x"));
     }
@@ -177,8 +184,7 @@ public class TestAnnotations
     // testing [JACKSON-120], implied getter
     public void testSimpleGetter3() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, new SizeClassGetter3());
+        Map<String,Object> result = writeAndMap(MAPPER, new SizeClassGetter3());
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(8), result.get("y"));
     }
@@ -189,8 +195,7 @@ public class TestAnnotations
      */
     public void testGetterInheritance() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, new SubClassBean());
+        Map<String,Object> result = writeAndMap(MAPPER, new SubClassBean());
         assertEquals(3, result.size());
         assertEquals(Integer.valueOf(1), result.get("x"));
         assertEquals(Integer.valueOf(2), result.get("y"));
@@ -203,9 +208,8 @@ public class TestAnnotations
      */
     public void testClassSerializer() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         StringWriter sw = new StringWriter();
-        m.writeValue(sw, new ClassSerializer());
+        MAPPER.writeValue(sw, new ClassSerializer());
         assertEquals("true", sw.toString());
     }
 
@@ -215,9 +219,8 @@ public class TestAnnotations
      */
     public void testActiveMethodSerializer() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         StringWriter sw = new StringWriter();
-        m.writeValue(sw, new ClassMethodSerializer(13));
+        MAPPER.writeValue(sw, new ClassMethodSerializer(13));
         /* Here we will get wrapped as an object, since we have
          * full object, just override a single property
          */
@@ -226,13 +229,11 @@ public class TestAnnotations
 
     public void testInactiveMethodSerializer() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        StringWriter sw = new StringWriter();
-        m.writeValue(sw, new InactiveClassMethodSerializer(8));
+        String json = MAPPER.writeValueAsString(new InactiveClassMethodSerializer(8));
         /* Here we will get wrapped as an object, since we have
          * full object, just override a single property
          */
-        assertEquals("{\"x\":8}", sw.toString());
+        assertEquals("{\"x\":8}", json);
     }
 
     public void testGettersWithoutSetters() throws Exception
@@ -248,5 +249,13 @@ public class TestAnnotations
         m = new ObjectMapper();
         m.enable(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS);
         assertEquals("{\"a\":3,\"c\":5,\"d\":6}", m.writeValueAsString(bean));
+    }
+
+    public void testGettersWithoutSettersOverride() throws Exception
+    {
+        GettersWithoutSetters2 bean = new GettersWithoutSetters2();
+        ObjectMapper m = new ObjectMapper();
+        m.enable(MapperFeature.REQUIRE_SETTERS_FOR_GETTERS);
+        assertEquals("{\"a\":123}", m.writeValueAsString(bean));
     }
 }

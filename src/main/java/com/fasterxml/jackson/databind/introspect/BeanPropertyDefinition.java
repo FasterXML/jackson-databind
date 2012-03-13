@@ -50,6 +50,17 @@ public abstract class BeanPropertyDefinition
      */
     public abstract String getInternalName();
 
+    /**
+     * Accessor that can be called to check whether property was included
+     * due to an explicit marker (usually annotation), or just by naming
+     * convention.
+     * 
+     * @return True if property was explicitly included (usually by having
+     *   one of components being annotated); false if inclusion was purely
+     *   due to naming or visibility definitions (that is, implicit)
+     */
+    public abstract boolean isExplicitlyIncluded();
+    
     /*
     /*****************************************************
     /* Capabilities

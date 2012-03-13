@@ -583,7 +583,7 @@ public class POJOPropertiesCollector
             // Otherwise, check ignorals
             if (prop.anyIgnorals()) {
                 // first: if one or more ignorals, and no explicit markers, remove the whole thing
-                if (!prop.anyExplicitNames()) {
+                if (!prop.isExplicitlyIncluded()) {
                     it.remove();
                     _addIgnored(prop.getName());
                     continue;

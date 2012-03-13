@@ -107,6 +107,16 @@ public class POJOPropertyBuilder
 
     @Override
     public String getInternalName() { return _internalName; }
+
+    @Override
+    public boolean isExplicitlyIncluded() {
+        return _anyExplicitNames(_fields)
+                || _anyExplicitNames(_getters)
+                || _anyExplicitNames(_setters)
+                || _anyExplicitNames(_ctorParameters)
+                ;
+    }
+
     
     @Override
     public boolean hasGetter() { return _getters != null; }
@@ -476,14 +486,6 @@ public class POJOPropertyBuilder
     /* Accessors for aggregate information
     /**********************************************************
      */
-
-    public boolean anyExplicitNames() {
-        return _anyExplicitNames(_fields)
-                || _anyExplicitNames(_getters)
-                || _anyExplicitNames(_setters)
-                || _anyExplicitNames(_ctorParameters)
-                ;
-    }
 
     private <T> boolean _anyExplicitNames(Linked<T> n)
     {

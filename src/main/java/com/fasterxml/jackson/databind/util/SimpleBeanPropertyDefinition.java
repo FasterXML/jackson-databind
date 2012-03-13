@@ -64,6 +64,10 @@ public class SimpleBeanPropertyDefinition
 
     @Override
     public String getInternalName() { return getName(); }
+
+    // hmmh. what should we claim here?
+    @Override
+    public boolean isExplicitlyIncluded() { return false; }
     
     /*
     /*****************************************************

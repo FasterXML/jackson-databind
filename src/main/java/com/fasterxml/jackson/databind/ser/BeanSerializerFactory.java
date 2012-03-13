@@ -632,7 +632,9 @@ public class BeanSerializerFactory
         Iterator<BeanPropertyDefinition> it = properties.iterator();
         while (it.hasNext()) {
             BeanPropertyDefinition property = it.next();
-            if (!property.couldDeserialize()) {
+            // one caveat: as per [JACKSON-806], only remove implicit properties;
+            // explicitly annotated ones should remain
+            if (!property.couldDeserialize() && !property.isExplicitlyIncluded()) {
                 it.remove();
             }
         }

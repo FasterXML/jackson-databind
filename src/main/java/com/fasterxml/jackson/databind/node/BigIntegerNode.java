@@ -106,7 +106,7 @@ public final class BigIntegerNode
         if (o.getClass() != getClass()) { // final class, can do this
             return false;
         }
-        return ((BigIntegerNode) o)._value == _value;
+        return ((BigIntegerNode) o)._value.equals(_value);
     }
 
     @Override

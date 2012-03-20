@@ -8,6 +8,7 @@ Description:
 
 Fixes:
 
+* [JACKSON-368]: Problems with managed references, abstract types
 * [JACKSON-711]: Delegating @JsonCreator did not work with Injectable values
 * [JACKSON-798]: Problem with external type id, creators
   (reported by Casey L)

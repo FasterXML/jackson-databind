@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
+import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -22,6 +23,8 @@ public class AbstractDeserializer
     protected final JavaType _baseType;
 
     protected final ObjectIdReader _objectIdReader;
+
+    protected final Map<String, SettableBeanProperty> _backRefProperties;
     
     // support for "native" types, which require special care:
     
@@ -30,11 +33,13 @@ public class AbstractDeserializer
     protected final boolean _acceptInt;
     protected final boolean _acceptDouble;
     
-    public AbstractDeserializer(JavaType bt, ObjectIdReader oir)
+    public AbstractDeserializer(BeanDeserializerBuilder builder,
+            BeanDescription beanDesc, Map<String, SettableBeanProperty> backRefProps)
     {
-        _baseType = bt;
-        _objectIdReader = oir;
-        Class<?> cls = bt.getRawClass();
+        _baseType = beanDesc.getType();
+        _objectIdReader = builder.getObjectIdReader();
+        _backRefProperties = backRefProps;
+        Class<?> cls = _baseType.getRawClass();
         _acceptString = cls.isAssignableFrom(String.class);
         _acceptBoolean = (cls == Boolean.TYPE) || cls.isAssignableFrom(Boolean.class);
         _acceptInt = (cls == Integer.TYPE) || cls.isAssignableFrom(Integer.class);
@@ -60,6 +65,15 @@ public class AbstractDeserializer
         return _objectIdReader;
     }
 
+    /**
+     * Method called by <code>BeanDeserializer</code> to resolve back reference
+     * part of managed references.
+     */
+    public SettableBeanProperty findBackReference(String logicalName)
+    {
+        return (_backRefProperties == null) ? null : _backRefProperties.get(logicalName);
+    }
+    
     /*
     /**********************************************************
     /* Deserializer implementation

@@ -342,7 +342,7 @@ public class BeanDeserializerBuilder
      */
     public AbstractDeserializer buildAbstract()
     {
-        return new AbstractDeserializer(_beanDesc.getType(), _objectIdReader);
+        return new AbstractDeserializer(this, _beanDesc, _backRefProperties);
     }
     
     /**

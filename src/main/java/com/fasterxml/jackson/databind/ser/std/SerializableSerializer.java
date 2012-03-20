@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
 
@@ -29,6 +30,9 @@ public class SerializableSerializer
 {
     public final static SerializableSerializer instance = new SerializableSerializer();
 
+    // Ugh. Should NOT need this...
+    private final static AtomicReference<ObjectMapper> _mapperReference = new AtomicReference<ObjectMapper>();
+    
     protected SerializableSerializer() { super(JsonSerializable.class); }
 
     @Override
@@ -59,31 +63,44 @@ public class SerializableSerializer
             if (rawClass.isAnnotationPresent(JsonSerializableSchema.class)) {
                 JsonSerializableSchema schemaInfo = rawClass.getAnnotation(JsonSerializableSchema.class);
                 schemaType = schemaInfo.schemaType();
-                if (!"##irrelevant".equals(schemaInfo.schemaObjectPropertiesDefinition())) {
+                if (!JsonSerializableSchema.NO_VALUE.equals(schemaInfo.schemaObjectPropertiesDefinition())) {
                     objectProperties = schemaInfo.schemaObjectPropertiesDefinition();
                 }
-                if (!"##irrelevant".equals(schemaInfo.schemaItemDefinition())) {
+                if (!JsonSerializableSchema.NO_VALUE.equals(schemaInfo.schemaItemDefinition())) {
                     itemDefinition = schemaInfo.schemaItemDefinition();
                 }
             }
         }
+        /* 19-Mar-2012, tatu: geez, this is butt-ugly abonimation of code...
+         *    really, really should not require back ref to an ObjectMapper.
+         */
         objectNode.put("type", schemaType);
         if (objectProperties != null) {
             try {
-                objectNode.put("properties", new ObjectMapper().readValue(objectProperties, JsonNode.class));
+                objectNode.put("properties", _getObjectMapper().readTree(objectProperties));
             } catch (IOException e) {
-                throw new IllegalStateException(e);
+                throw new JsonMappingException("Failed to parse @JsonSerializableSchema.schemaObjectPropertiesDefinition value");
             }
         }
         if (itemDefinition != null) {
             try {
-                objectNode.put("items", new ObjectMapper().readValue(itemDefinition, JsonNode.class));
+                objectNode.put("items", _getObjectMapper().readTree(itemDefinition));
             } catch (IOException e) {
-                throw new IllegalStateException(e);
+                throw new JsonMappingException("Failed to parse @JsonSerializableSchema.schemaItemDefinition value");
             }
         }
         // always optional, no need to specify:
         //objectNode.put("required", false);
         return objectNode;
+    }
+    
+    private final static synchronized ObjectMapper _getObjectMapper()
+    {
+        ObjectMapper mapper = _mapperReference.get();
+        if (mapper == null) {
+            mapper = new ObjectMapper();
+            _mapperReference.set(mapper);
+        }
+        return mapper;
     }
 }

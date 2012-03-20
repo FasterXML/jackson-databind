@@ -22,6 +22,8 @@ import com.fasterxml.jackson.annotation.JacksonAnnotation;
 @JacksonAnnotation
 public @interface JsonSerializableSchema
 {
+    public final static String NO_VALUE = "##irrelevant";
+    
     /**
      * The schema type for this JsonSerializable instance.
      * Possible values: "string", "number", "boolean", "object", "array", "null", "any"
@@ -31,16 +33,17 @@ public @interface JsonSerializableSchema
     String schemaType() default "any";
 
     /**
-     * If the schema type is "object", the node that defines the properties of the object.
+     * If the schema type is "object", JSON definition of properties of the object as
+     * a String.
      *
      * @return The node representing the schema properties, or "##irrelevant" if irrelevant.
      */
-    String schemaObjectPropertiesDefinition() default "##irrelevant";
+    String schemaObjectPropertiesDefinition() default NO_VALUE;
 
     /**
-     * If the schema type if "array", the node that defines the schema for the items in the array.
+     * If the schema type if "array", JSON definition of the schema for item types contained.
      *
      * @return The schema for the items in the array, or "##irrelevant" if irrelevant.
      */
-    String schemaItemDefinition() default "##irrelevant";
+    String schemaItemDefinition() default NO_VALUE;
 }

@@ -364,23 +364,23 @@ public class BeanDeserializerFactory
         // Just one special case: Property-based generator is trickier
         if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
             String propName = objectIdInfo.getPropertyName();
-        	idProp = builder.findProperty(propName);
-        	if (idProp == null) {
-        		throw new IllegalArgumentException("Invalid Object Id definition for "
-        				+beanDesc.getBeanClass().getName()+": can not find property with name '"+propName+"'");
-        	}
+            idProp = builder.findProperty(propName);
+            if (idProp == null) {
+                throw new IllegalArgumentException("Invalid Object Id definition for "
+                        +beanDesc.getBeanClass().getName()+": can not find property with name '"+propName+"'");
+            }
             idType = idProp.getType();
             gen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());
         } else {
-	        JavaType type = ctxt.constructType(implClass);
-	        idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
-	        idProp = null;
-	        gen = ctxt.objectIdGeneratorInstance(beanDesc.getClassInfo(), objectIdInfo);
+            JavaType type = ctxt.constructType(implClass);
+            idType = ctxt.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
+            idProp = null;
+            gen = ctxt.objectIdGeneratorInstance(beanDesc.getClassInfo(), objectIdInfo);
         }
         // also: unlike with value deserializers, let's just resolve one we need here
         JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
         builder.setObjectIdReader(ObjectIdReader.construct(idType,
-        		objectIdInfo.getPropertyName(), gen, deser, idProp));
+                objectIdInfo.getPropertyName(), gen, deser, idProp));
     }
     
     @SuppressWarnings("unchecked")

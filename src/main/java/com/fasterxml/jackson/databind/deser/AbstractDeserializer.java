@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
+import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -19,6 +21,8 @@ public class AbstractDeserializer
 {
     protected final JavaType _baseType;
 
+    protected final ObjectIdReader _objectIdReader;
+    
     // support for "native" types, which require special care:
     
     protected final boolean _acceptString;
@@ -26,9 +30,10 @@ public class AbstractDeserializer
     protected final boolean _acceptInt;
     protected final boolean _acceptDouble;
     
-    public AbstractDeserializer(JavaType bt)
+    public AbstractDeserializer(JavaType bt, ObjectIdReader oir)
     {
         _baseType = bt;
+        _objectIdReader = oir;
         Class<?> cls = bt.getRawClass();
         _acceptString = cls.isAssignableFrom(String.class);
         _acceptBoolean = (cls == Boolean.TYPE) || cls.isAssignableFrom(Boolean.class);
@@ -36,11 +41,47 @@ public class AbstractDeserializer
         _acceptDouble = (cls == Double.TYPE) || cls.isAssignableFrom(Double.class);
     }
 
+    /*
+    /**********************************************************
+    /* Public accessors
+    /**********************************************************
+     */
+
+    @Override
+    public boolean isCachable() { return true; }
+    
+    /**
+     * Overridden to return true for those instances that are
+     * handling value for which Object Identity handling is enabled
+     * (either via value type or referring property).
+     */
+    @Override
+    public ObjectIdReader getObjectIdReader() {
+        return _objectIdReader;
+    }
+
+    /*
+    /**********************************************************
+    /* Deserializer implementation
+    /**********************************************************
+     */
+    
     @Override
     public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws IOException, JsonProcessingException
     {
+        // Hmmh. One tricky question; for scalar, is it an Object Id, or "Natural" type?
+
+        // for now, prefer Object Id:
+        if (_objectIdReader != null) {
+            JsonToken t = jp.getCurrentToken();
+            // should be good enough check; we only care about Strings, integral numbers:
+            if (t != null && t.isScalarValue()) {
+                return _deserializeFromObjectId(jp, ctxt);
+            }
+        }
+        
         // First: support "natural" values (which are always serialized without type info!)
         Object result = _deserializeIfNatural(jp, ctxt);
         if (result != null) {
@@ -58,6 +99,12 @@ public class AbstractDeserializer
                 "abstract types either need to be mapped to concrete types, have custom deserializer, or be instantiated with additional type information");
     }
 
+    /*
+    /**********************************************************
+    /* Internal methods
+    /**********************************************************
+     */
+    
     protected Object _deserializeIfNatural(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -96,6 +143,23 @@ public class AbstractDeserializer
             break;
         }
         return null;
+    }
+
+    /**
+     * Method called in cases where it looks like we got an Object Id
+     * to parse and use as a reference.
+     */
+    protected Object _deserializeFromObjectId(JsonParser jp, DeserializationContext ctxt)
+        throws IOException, JsonProcessingException
+    {
+        Object id = _objectIdReader.deserializer.deserialize(jp, ctxt);
+        ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator);
+        // do we have it resolved?
+        Object pojo = roid.item;
+        if (pojo == null) { // not yet; should wait...
+            throw new IllegalStateException("Could not resolve Object Id ["+id+"] -- unresolved forward-reference?");
+        }
+        return pojo;
     }
 }
 

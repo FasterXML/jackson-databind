@@ -334,6 +334,18 @@ public class BeanDeserializerBuilder
     }
 
     /**
+     * Alternate build method used when we must be using some form of
+     * abstract resolution, usually by using addition Type Id
+     * ("polymorphic deserialization")
+     * 
+     * @since 2.0
+     */
+    public AbstractDeserializer buildAbstract()
+    {
+        return new AbstractDeserializer(_beanDesc.getType(), _objectIdReader);
+    }
+    
+    /**
      * Method for constructing a specialized deserializer that uses
      * additional external Builder object during data binding.
      */

@@ -786,7 +786,7 @@ public abstract class BeanDeserializerBase
         // do we have it resolved?
         Object pojo = roid.item;
         if (pojo == null) { // not yet; should wait...
-            throw new IllegalStateException("Could not resolve Object Id ["+id+"] -- illegal forward-reference?");
+            throw new IllegalStateException("Could not resolve Object Id ["+id+"] -- unresolved forward-reference?");
         }
         return pojo;
     }

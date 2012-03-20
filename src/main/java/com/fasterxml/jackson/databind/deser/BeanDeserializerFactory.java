@@ -258,13 +258,6 @@ public class BeanDeserializerFactory
     {
         // First: check what creators we can use, if any
         ValueInstantiator valueInstantiator = findValueInstantiator(ctxt, beanDesc);
-        // ... since often we have nothing to go on, if we have abstract type:
-        if (type.isAbstract()) {
-            if (!valueInstantiator.canInstantiate()) {
-                // and if so, need placeholder deserializer
-                return new AbstractDeserializer(type);
-            }
-        }
         BeanDeserializerBuilder builder = constructBeanDeserializerBuilder(ctxt, beanDesc);
         builder.setValueInstantiator(valueInstantiator);
          // And then setters for deserializing from JSON Object
@@ -274,7 +267,7 @@ public class BeanDeserializerFactory
         // managed/back reference fields/setters need special handling... first part
         addReferenceProperties(ctxt, beanDesc, builder);
         addInjectables(ctxt, beanDesc, builder);
-
+        
         final DeserializationConfig config = ctxt.getConfig();
         // [JACKSON-440]: update builder now that all information is in?
         if (_factoryConfig.hasDeserializerModifiers()) {
@@ -282,7 +275,16 @@ public class BeanDeserializerFactory
                 builder = mod.updateBuilder(config, beanDesc, builder);
             }
         }
-        JsonDeserializer<?> deserializer = builder.build();
+        JsonDeserializer<?> deserializer;
+
+        /* 19-Mar-2012, tatu: This check used to be done earlier; but we have to defer
+         *   it a bit to collect information on ObjectIdReader, for example.
+         */
+        if (type.isAbstract() && !valueInstantiator.canInstantiate()) {
+            deserializer = builder.buildAbstract();
+        } else {
+            deserializer = builder.build();
+        }
 
         // [JACKSON-440]: may have modifier(s) that wants to modify or replace serializer we just built:
         if (_factoryConfig.hasDeserializerModifiers()) {
@@ -292,7 +294,7 @@ public class BeanDeserializerFactory
         }
         return (JsonDeserializer<Object>) deserializer;
     }
-
+    
     /**
      * Method for constructing a bean deserializer that uses specified
      * intermediate Builder for binding data, and construction of the

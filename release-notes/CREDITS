@@ -870,3 +870,5 @@ Casey Lucas:
 Tammo van Lessen:
   * Reported [JACKSON-811]: Problems with @JsonIdentityInfo, abstract types
    [2.0.0]
+  * Reported [JACKSON-814]: Parsing RFC822/RFC1123 dates failes on non-US locales
+   [2.0.0]

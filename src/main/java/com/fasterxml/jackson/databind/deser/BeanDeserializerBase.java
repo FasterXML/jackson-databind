@@ -649,7 +649,7 @@ public abstract class BeanDeserializerBase
     public boolean isCachable() { return true; }
 
     /**
-     * Overridden to return tru for those instances that are
+     * Overridden to return true for those instances that are
      * handling value for which Object Identity handling is enabled
      * (either via value type or referring property).
      */

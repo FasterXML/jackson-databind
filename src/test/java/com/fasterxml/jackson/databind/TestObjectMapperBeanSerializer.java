@@ -31,7 +31,6 @@ public class TestObjectMapperBeanSerializer
         JsonGenerator aGen = new JsonFactory().createJsonGenerator(aWriter);
         aMapper.writeValue(aGen, aTestObj);
         aGen.close();
-
         JsonParser jp = new JsonFactory().createJsonParser(new StringReader(aWriter.toString()));
 
         assertEquals(JsonToken.START_OBJECT, jp.nextToken());
@@ -110,6 +109,10 @@ public class TestObjectMapperBeanSerializer
                                 assertTrue("Probably run away loop in test. StackTrack Array was not properly closed.",false);
                             }
                         }
+                    } else if (name.equals("suppressed")) {
+                        // JDK 7 has introduced a new property 'suppressed' to Throwable; skip if seen
+                        assertEquals(JsonToken.START_ARRAY,jp.nextToken());
+                        assertEquals(JsonToken.END_ARRAY,jp.nextToken());
                     } else {
                         fail("Unexpected field name '"+name+"'");
                     }

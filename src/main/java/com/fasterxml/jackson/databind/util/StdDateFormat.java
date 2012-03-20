@@ -45,7 +45,7 @@ public class StdDateFormat
 
     /**
      * This constant defines the date format specified by
-     * RFC 1123.
+     * RFC 1123 / RFC 822.
      */
     protected final static String DATE_FORMAT_STR_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
 
@@ -82,7 +82,7 @@ public class StdDateFormat
         /* Another important thing: let's force use of GMT for
          * baseline DataFormat objects
          */
-        DATE_FORMAT_RFC1123 = new SimpleDateFormat(DATE_FORMAT_STR_RFC1123);
+        DATE_FORMAT_RFC1123 = new SimpleDateFormat(DATE_FORMAT_STR_RFC1123, Locale.US);
         DATE_FORMAT_RFC1123.setTimeZone(DEFAULT_TIMEZONE);
         DATE_FORMAT_ISO8601 = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601);
         DATE_FORMAT_ISO8601.setTimeZone(DEFAULT_TIMEZONE);

@@ -66,11 +66,23 @@ public class TestDateDeserialization
 
     public void testDateUtilRFC1123() throws Exception
     {
-        DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+        DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
         // let's use an arbitrary value...
         String inputStr = "Sat, 17 Jan 2009 06:13:58 +0000";
         java.util.Date inputDate = fmt.parse(inputStr);
         assertEquals(inputDate, MAPPER.readValue("\""+inputStr+"\"", java.util.Date.class));
+    }
+
+    public void testDateUtilRFC1123OnNonUSLocales() throws Exception
+    {
+        Locale old = Locale.getDefault();
+        Locale.setDefault(Locale.GERMAN);
+        DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+        // let's use an arbitrary value...
+        String inputStr = "Sat, 17 Jan 2009 06:13:58 +0000";
+        java.util.Date inputDate = fmt.parse(inputStr);
+        assertEquals(inputDate, MAPPER.readValue("\""+inputStr+"\"", java.util.Date.class));
+        Locale.setDefault(old);
     }
 
     /**

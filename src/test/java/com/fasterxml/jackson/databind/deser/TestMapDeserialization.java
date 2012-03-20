@@ -303,7 +303,7 @@ public class TestMapDeserialization
     public void testDateMap() throws Exception
     {
     	 Date date1=new Date(123456000L);
-    	 DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+    	 DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
          
     	 String JSON = "{ \""+  fmt.format(date1)+"\" : \"\", \""+new Date(0).getTime()+"\" : null }";
     	 HashMap<Date,String> result=  MAPPER.readValue
@@ -330,7 +330,7 @@ public class TestMapDeserialization
     {
     	 Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
          c.setTimeInMillis(123456000L);
-         DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+         DateFormat fmt = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
     	 String JSON = "{ \""+fmt.format(c.getTime())+"\" : \"\", \""+new Date(0).getTime()+"\" : null }";
     	 HashMap<Calendar,String> result = MAPPER.readValue
     	            (JSON, new TypeReference<HashMap<Calendar,String>>() { });

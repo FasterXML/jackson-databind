@@ -553,13 +553,20 @@ public abstract class DeserializationContext
      * @param instanceOrClass Either value being populated (if one has been
      *   instantiated), or Class that indicates type that would be (or
      *   have been) instantiated
+     * @param deser Deserializer that had the problem, if called by deserializer
+     *   (or on behalf of one)
      */
-    public void reportUnknownProperty(Object instanceOrClass, String fieldName)
+    public void reportUnknownProperty(Object instanceOrClass, String fieldName,
+            JsonDeserializer<?> deser)
         throws JsonMappingException
     {
-        if (isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
-            throw UnrecognizedPropertyException.from(_parser, instanceOrClass, fieldName);
+        if (!isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)) {
+            return;
         }
+        // Do we know properties that are expected instead?
+        Collection<Object> propIds = (deser == null) ? null : deser.getKnownPropertyNames();
+        throw UnrecognizedPropertyException.from(_parser,
+                instanceOrClass, fieldName, propIds);
     }
     
     /*

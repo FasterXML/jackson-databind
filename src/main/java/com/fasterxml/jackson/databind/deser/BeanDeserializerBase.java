@@ -388,11 +388,9 @@ public abstract class BeanDeserializerBase
             }
         }
 
-        Iterator<SettableBeanProperty> it = _beanProperties.allProperties();
         UnwrappedPropertyHandler unwrapped = null;
 
-        while (it.hasNext()) {
-            SettableBeanProperty origProp = it.next();
+        for (SettableBeanProperty origProp : _beanProperties) {
             SettableBeanProperty prop = origProp;
             // May already have deserializer from annotations, if so, skip:
             if (!prop.hasValueDeserializer()) {
@@ -675,6 +673,15 @@ public abstract class BeanDeserializerBase
         return _beanProperties.size();
     }
 
+    @Override
+    public Collection<Object> getKnownPropertyNames() {
+        ArrayList<Object> names = new ArrayList<Object>();
+        for (SettableBeanProperty prop : _beanProperties) {
+            names.add(prop.getName());
+        }
+        return names;
+    }
+    
     public final Class<?> getBeanClass() { return _beanType.getRawClass(); }
 
     @Override public JavaType getValueType() { return _beanType; }
@@ -691,7 +698,7 @@ public abstract class BeanDeserializerBase
         if (_beanProperties == null) {
             throw new IllegalStateException("Can only call after BeanDeserializer has been resolved");
         }
-        return _beanProperties.allProperties();
+        return _beanProperties.iterator();
     }
 
     /**

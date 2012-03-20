@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * as it is done for each and every POJO property deserialized.
  */
 public final class BeanPropertyMap
+    implements Iterable<SettableBeanProperty>
 {
     private final Bucket[] _buckets;
     
@@ -87,7 +88,7 @@ public final class BeanPropertyMap
         if (transformer == null || (transformer == NameTransformer.NOP)) {
             return this;
         }
-        Iterator<SettableBeanProperty> it = allProperties();
+        Iterator<SettableBeanProperty> it = iterator();
         ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>();
         while (it.hasNext()) {
             SettableBeanProperty prop = it.next();
@@ -131,6 +132,20 @@ public final class BeanPropertyMap
         }
         return result;
     }
+
+    /*
+    /**********************************************************
+    /* Iterable, for convenient iterating over all properties
+    /**********************************************************
+     */
+    
+    /**
+     * Accessor for traversing over all contained properties.
+     */
+    @Override
+    public Iterator<SettableBeanProperty> iterator() {
+        return new IteratorImpl(_buckets);
+    }
     
     /*
     /**********************************************************
@@ -139,13 +154,6 @@ public final class BeanPropertyMap
      */
 
     public int size() { return _size; }
-
-    /**
-     * Accessor for traversing over all contained properties.
-     */
-    public Iterator<SettableBeanProperty> allProperties() {
-        return new IteratorImpl(_buckets);
-    }
     
     public SettableBeanProperty find(String key)
     {

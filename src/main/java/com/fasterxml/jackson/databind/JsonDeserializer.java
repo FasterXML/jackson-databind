@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
@@ -170,6 +171,22 @@ public abstract class JsonDeserializer<T>
      */
     public T getEmptyValue() { return getNullValue(); }
 
+    /**
+     * Method that will
+     * either return null to indicate that type being deserializers
+     * has no concept of properties; or a collection of identifiers
+     * for which <code>toString</code> will give external property
+     * name.
+     * This is only to be used for error reporting and diagnostics
+     * purposes (most commonly, to accompany "unknown property"
+     * exception).
+     * 
+     * @since 2.0
+     */
+    public Collection<Object> getKnownPropertyNames() {
+        return null;
+    }
+    
     /**
      * Method called to see if deserializer instance is cachable and
      * usable for other properties of same type (type for which instance

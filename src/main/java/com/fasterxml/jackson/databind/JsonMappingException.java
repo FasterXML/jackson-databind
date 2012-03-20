@@ -227,6 +227,10 @@ public class JsonMappingException
     /**********************************************************
      */
 
+    /**
+     * Method for accessing full structural path within type hierarchy
+     * down to problematic property.
+     */
     public List<Reference> getPath()
     {
         if (_path == null) {
@@ -235,6 +239,21 @@ public class JsonMappingException
         return Collections.unmodifiableList(_path);
     }
 
+    /**
+     * Method for accesing description of path that lead to the
+     * problem that triggered this exception
+     */
+    public String getPathReference()
+    {
+        return getPathReference(new StringBuilder()).toString();
+    }
+
+    public StringBuilder getPathReference(StringBuilder sb)
+    {
+        _appendPathDesc(sb);
+        return sb;
+    }
+    
     /**
      * Method called to prepend a reference information in front of
      * current path
@@ -267,19 +286,28 @@ public class JsonMappingException
             _path.addFirst(r);
         }
     }
-
+    
     /*
     /**********************************************************
     /* Overridden methods
     /**********************************************************
      */
 
+    @Override
+    public String getLocalizedMessage() {
+        return _buildMessage();
+    }
+    
     /**
      * Method is overridden so that we can properly inject description
      * of problem path, if such is defined.
      */
     @Override
-    public String getMessage()
+    public String getMessage() {
+        return _buildMessage();
+    }
+
+    protected String _buildMessage()
     {
         /* First: if we have no path info, let's just use parent's
          * definition as is
@@ -288,10 +316,6 @@ public class JsonMappingException
         if (_path == null) {
             return msg;
         }
-        /* 19-Feb-2009, tatu: Null and empty messages are not very
-         *   useful (plus nulls would lead to NPEs), so let's
-         *   use something else
-         */
         StringBuilder sb = (msg == null) ? new StringBuilder() : new StringBuilder(msg);
         /* 18-Feb-2009, tatu: initially there was a linefeed between
          *    message and path reference; but unfortunately many systems
@@ -299,7 +323,7 @@ public class JsonMappingException
          *   separate stack trace.
          */
         sb.append(" (through reference chain: ");
-        _appendPathDesc(sb);
+        sb = getPathReference(sb);
         sb.append(')');
         return sb.toString();
     }

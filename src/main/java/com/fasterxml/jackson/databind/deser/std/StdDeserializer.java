@@ -646,7 +646,7 @@ public abstract class StdDeserializer<T>
             return;
         }
         // Nope, not handled. Potentially that's a problem...
-        ctxt.reportUnknownProperty(instanceOrClass, propName);
+        ctxt.reportUnknownProperty(instanceOrClass, propName, this);
 
         /* But if we do get this far, need to skip whatever value we
          * are pointing to now.

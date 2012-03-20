@@ -16,28 +16,34 @@ public class TestExceptionHandling
     extends BaseMapTest
 {
     static class Bean {
-        String x;
+        public String propX;
     }
 
-    /**
-     * Verification of [JACKSON-301]
-     */
-    public void testHandlingOfUnrecognized() throws Exception
-    {
-        try {
-            new ObjectMapper().readValue("{\"bar\":3}", Bean.class);
-            fail("Should have failed binding");
-        } catch (UnrecognizedPropertyException e) {
-            assertEquals("bar", e.getUnrecognizedPropertyName());
-            assertEquals(Bean.class, e.getReferringClass());
-        }
-    }
-    
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
+    
+    /**
+     * Verification of [JACKSON-301]
+     */
+    public void testHandlingOfUnrecognized() throws Exception
+    {
+        UnrecognizedPropertyException exc = null;
+        try {
+            new ObjectMapper().readValue("{\"bar\":3}", Bean.class);
+        } catch (UnrecognizedPropertyException e) {
+            exc = e;
+        }
+        if (exc == null) {
+            fail("Should have failed binding");
+        }
+        assertEquals("bar", exc.getUnrecognizedPropertyName());
+        assertEquals(Bean.class, exc.getReferringClass());
+        // also: should get list of known properties
+        verifyException(exc, "propX");
+    }
 
     /**
      * Simple test to check behavior when end-of-stream is encountered

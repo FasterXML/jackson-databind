@@ -78,8 +78,13 @@ public class TestJdkTypes extends BaseMapTest
     {
         // Not portable etc... has to do:
         File src = new File("/test").getAbsoluteFile();
-        File result = mapper.readValue("\""+src.getAbsolutePath()+"\"", File.class);
-        assertEquals(src.getAbsolutePath(), result.getAbsolutePath());
+        String abs = src.getAbsolutePath();
+
+        // escape backslashes (for portability with windows)
+        String json = mapper.writeValueAsString(abs);
+        
+        File result = mapper.readValue(json, File.class);
+        assertEquals(abs, result.getAbsolutePath());
     }
 
     public void testRegexps() throws IOException

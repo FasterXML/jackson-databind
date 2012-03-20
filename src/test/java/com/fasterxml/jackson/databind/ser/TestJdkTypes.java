@@ -22,12 +22,12 @@ public class TestJdkTypes
      */
     public void testFile() throws IOException
     {
-        /* Not sure if this gets translated differently on Windows, Mac?
-         * It'd be hard to make truly portable test tho...
-         */
-        File f = new File("/tmp/foo.txt");
-        String str = serializeAsString(MAPPER, f);
-        assertEquals("\""+f.getAbsolutePath()+"\"", str);
+        // this may get translated to different representation on Windows, maybe Mac:
+        File f = new File(new File("/tmp"), "foo.text");
+        String str = MAPPER.writeValueAsString(f);
+        // escape backslashes (for portability with windows)
+        String escapedAbsPath = f.getAbsolutePath().replaceAll("\\\\", "\\\\\\\\"); 
+        assertEquals(quote(escapedAbsPath), str);
     }
 
     public void testRegexps() throws IOException

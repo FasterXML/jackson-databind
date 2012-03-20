@@ -15,12 +15,12 @@ public class TestJacksonTypes
 {
     public void testLocation() throws IOException
     {
-        JsonLocation loc = new JsonLocation(new File("/tmp/test.json"),
-                                            -1, 100, 13);
+        File f = new File("/tmp/test.json");
+        JsonLocation loc = new JsonLocation(f, -1, 100, 13);
         ObjectMapper mapper = new ObjectMapper();
         Map<String,Object> result = writeAndMap(mapper, loc);
         assertEquals(5, result.size());
-        assertEquals("/tmp/test.json", result.get("sourceRef"));
+        assertEquals(f.getAbsolutePath(), result.get("sourceRef"));
         assertEquals(Integer.valueOf(-1), result.get("charOffset"));
         assertEquals(Integer.valueOf(-1), result.get("byteOffset"));
         assertEquals(Integer.valueOf(100), result.get("lineNr"));
@@ -31,8 +31,6 @@ public class TestJacksonTypes
     /**
      * Verify that {@link TokenBuffer} can be properly serialized
      * automatically, using the "standard" JSON sample document
-     *
-     * @since 1.5
      */
     public void testTokenBuffer() throws Exception
     {

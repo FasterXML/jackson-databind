@@ -25,7 +25,10 @@ public class TestObjectWriter
 
         // and then with standard
         writer = writer.withDefaultPrettyPrinter();
-        assertEquals("{\n  \"a\" : 1\n}", writer.writeValueAsString(data));
+
+        // pretty printer uses system-specific line feeds, so we do that as well.
+        String lf = System.getProperty("line.separator");
+        assertEquals("{" + lf + "  \"a\" : 1" + lf + "}", writer.writeValueAsString(data));
 
         // and finally, again without indentation
         writer = writer.with((PrettyPrinter) null);

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 
 import com.fasterxml.jackson.databind.*;
 
@@ -161,6 +162,24 @@ public class TestParentChildReferences
         public void setParent(Parent parent) { this.parent = parent; }
     }    
 
+    // [JACKSON-368]
+
+    @JsonTypeInfo(use=Id.NAME)
+    @JsonSubTypes({@JsonSubTypes.Type(ConcreteNode.class)})
+    static abstract class AbstractNode
+    {
+        public String id;
+        
+        @JsonManagedReference public AbstractNode next;
+        @JsonBackReference public AbstractNode prev;
+    }
+
+    @JsonTypeName("concrete")
+    static class ConcreteNode extends AbstractNode {
+        public ConcreteNode() { }
+        public ConcreteNode(String id) { this.id = id; }
+    }
+    
     // [JACKSON-708]
     static class Model708 { }
     
@@ -308,6 +327,29 @@ public class TestParentChildReferences
         assertSame(result, kids.get("b2").parent);
     }
 
+    // for [JACKSON-368]
+    public void testAbstract368() throws Exception
+    {
+        AbstractNode parent = new ConcreteNode("p");
+        AbstractNode child = new ConcreteNode("c");
+        parent.next = child;
+        child.prev = parent;
+
+        // serialization ought to be ok
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(parent);
+
+        AbstractNode root = mapper.readValue(json, AbstractNode.class);
+
+        assertEquals(ConcreteNode.class, root.getClass());
+        assertEquals("p", root.id);
+        assertNull(root.prev);
+        AbstractNode leaf = root.next;
+        assertNotNull(leaf);
+        assertEquals("c", leaf.id);
+        assertSame(root, leaf.prev);
+    }
+    
     public void testIssue693() throws Exception
     {
         Parent parent = new Parent();

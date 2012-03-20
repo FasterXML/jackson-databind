@@ -867,3 +867,6 @@ Casey Lucas:
   * Reported [JACKSON-798]: Problem with external type id, creators
    [2.0.0]
 
+Tammo van Lessen:
+  * Reported [JACKSON-811]: Problems with @JsonIdentityInfo, abstract types
+   [2.0.0]

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
+import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -591,6 +592,15 @@ public abstract class BeanSerializerBase
         throws JsonMappingException
     {
         ObjectNode o = createSchemaNode("object", true);
+        // [JACKSON-813]: Add optional JSON Schema id attribute, if found
+        // NOTE: not optimal, does NOT go through AnnotationIntrospector etc:
+        JsonSerializableSchema ann = _handledType.getAnnotation(JsonSerializableSchema.class);
+        if (ann != null) {
+            String id = ann.id();
+            if (id != null && id.length() > 0) {
+                o.put("id", id);
+            }
+        }        
         //todo: should the classname go in the title?
         //o.put("title", _className);
         ObjectNode propertiesNode = o.objectNode();

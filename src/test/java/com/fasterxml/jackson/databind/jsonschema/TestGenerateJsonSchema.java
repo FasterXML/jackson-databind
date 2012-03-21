@@ -70,6 +70,11 @@ public class TestGenerateJsonSchema
     public class TrivialBean {
         public String name;
     }
+
+    @JsonSerializableSchema(id="myType")
+    public class BeanWithId {
+        public String value;
+    }
     
     /*
     /**********************************************************
@@ -77,14 +82,15 @@ public class TestGenerateJsonSchema
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     /**
      * tests generating json-schema stuff.
      */
     public void testGeneratingJsonSchema()
         throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonSchema jsonSchema = mapper.generateJsonSchema(SimpleBean.class);
+        JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
         assertNotNull(jsonSchema);
 
         // test basic equality, and that equals() handles null, other obs
@@ -124,15 +130,12 @@ public class TestGenerateJsonSchema
     /**
      * Additional unit test for verifying that schema object itself
      * can be properly serialized
-     *
-     * @since 1.2
      */
     public void testSchemaSerialization()
             throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonSchema jsonSchema = mapper.generateJsonSchema(SimpleBean.class);
-	Map<String,Object> result = writeAndMap(mapper, jsonSchema);
+        JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
+	Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
 	assertNotNull(result);
 	// no need to check out full structure, just basics...
 	assertEquals("object", result.get("type"));
@@ -144,11 +147,13 @@ public class TestGenerateJsonSchema
     public void testInvalidCall()
         throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // not ok to pass null
         try {
-            mapper.generateJsonSchema(null);
-        } catch (IllegalArgumentException iae) { }
+            MAPPER.generateJsonSchema(null);
+            fail("Should have failed");
+        } catch (IllegalArgumentException iae) {
+            verifyException(iae, "class must be provided");
+        }
     }
 
     /**
@@ -156,12 +161,19 @@ public class TestGenerateJsonSchema
      */
     public void testThatObjectsHaveNoItems() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonSchema jsonSchema = mapper.generateJsonSchema(TrivialBean.class);
+        JsonSchema jsonSchema = MAPPER.generateJsonSchema(TrivialBean.class);
         String json = jsonSchema.toString().replaceAll("\"", "'");
         // can we count on ordering being stable? I think this is true with current ObjectNode impl
         // as perh [JACKSON-563]; 'required' is only included if true
         assertEquals("{'type':'object','properties':{'name':{'type':'string'}}}",
+                json);
+    }
+
+    public void testSchemaId() throws Exception
+    {
+        JsonSchema jsonSchema = MAPPER.generateJsonSchema(BeanWithId.class);
+        String json = jsonSchema.toString().replaceAll("\"", "'");
+        assertEquals("{'type':'object','id':'myType','properties':{'value':{'type':'string'}}}",
                 json);
     }
 }

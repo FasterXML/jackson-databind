@@ -132,6 +132,61 @@ But let's look at a simple teaser to whet your appetite:
 
 (TO BE COMPLETED)
 
+## 5 minute tutorial: customizations
+
+There are two entry-level configuration mechanisms you are likely to use:
+[Features](jackson-databind/wiki/JacksonFeatures) and [Annotations](jackson-annotations).
+
+As with all features so far, these use cases are meant to get you started; for more in-detail coverage, check out 
+[Jackson Features](jackson-databind/wiki/JacksonFeatures) and [Jackson Annotations](jackson-annotations) pages.
+
+### Most commonly used Features
+
+Here are examples of configuration features that most users need first.
+
+Let's start with higher-level data-binding configuration:
+
+    // SerializationFeature for changing how JSON is written
+
+    // to enable standard indentation ("pretty-printing"):
+    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+    // to allow "empty" POJOs (no properties to serialize), prevent exception:
+    mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+    // to write java.util.Date, Calendar as number (timestamp):
+    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+    // DeserializationFeature for changing how JSON is read as POJOs:
+
+    // to prevent exception when encountering unknown property:
+    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    // to allow coercion of JSON empty String ("") to null Object value:
+    mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+
+In addition, you may need to change some of low-level JSON parsing, generation details:
+
+    // JsonParser.Feature for configuring parsing settings:
+ 
+    // to allow C/C++ style comments in JSON (non-standard, disabled by default)
+    mapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
+    // to allow (non-standard) unquoted field names in JSON:
+    mapper.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+    // to allow use of apostrophes (single quotes), non standard
+    mapper.enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
+
+    // JsonGenerator.Feature for configuring low-level JSON generation:
+
+    // to force escaping of non-ASCII characters:
+    mapper.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+
+### Changing property names
+
+(TO BE COMPLETED)
+
+### Ignoring properties
+
+(TO BE COMPLETED)
+
+
 ----
 
 # Further reading

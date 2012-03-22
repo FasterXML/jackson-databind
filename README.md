@@ -14,8 +14,7 @@ actual hard dependency to JSON format.
 ### Differences from Jackson 1.x
 
 Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository
-
-Note that the main differences compared to 1.0 core jar are:
+Main differences compared to 1.0 "mapper" jar are:
 
 * Maven build instead of Ant
 * Java package is now `com.fasterxml.jackson.databind` (instead of `org.codehaus.jackson.map`)

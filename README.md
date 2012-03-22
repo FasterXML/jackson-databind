@@ -79,12 +79,12 @@ The most common usage is to take piece of JSON, and construct a Plain Old Java O
 followed by the reverse; taking a value, and writing it out as JSON:
 
     mapper.writeValue(new File("result.json"), myResultObject);
-
     // or:
     byte[] jsonBytes = mapper.writeValueAsBytes(myResultObject);
-
     // or:
     String jsonString = mapper.writeValueAsString(myResultObject);
+
+So far so good:
 
 ## 2 minute tutorial: Generic collections, Tree Model
 
@@ -101,6 +101,7 @@ as long as JSON structure matches, and types are simple. If you have POJO values
     Map<String, ResultValue> results = mapper.readValue(jsonSource,
        new TypeReference<String, ResultValue>() { } );
     // why extra work? Java Type Erasure will prevent type detection otherwise
+    // note: no extra effort needed for serialization
 
 But wait! There is more!
 
@@ -125,7 +126,32 @@ This is where Jackson's [Tree model](jackson-databind/wiki/JacksonTreeModel) can
     //   {
     // }
 
-## 3 minute tutorial: Streaming parser, generator
+## 3 minute tutorial: conversions, other
+
+One useful (but not very widely known) feature of Jackson is its ability
+to do arbitrary POJO-to-POJO conversions. Conceptually you can think of conversions as sequence of 2 steps: first, writing a POJO as JSON, and second, binding that JSON into another kind of POJO. Implementation just skips actual generation of JSON, and uses more efficient intermediate representation.
+
+Conversations work between any compatible types, and invocation is as simple as:
+
+    ResultType result = mapper.convertValue(sourceObject, ResultType.class);
+
+and as long as source and result types are compatible -- that is, if to-JSON, from-JSON sequence would succeed -- things will "just work".
+But here are couple of potentially useful use cases:
+
+    // Convert from int[] to List<Integer>
+    List<Integer> sourceList = ...;
+    int[] ints = mapper.convertValue(sourceList, int[].class);
+    // Convert a POJO into Map!
+    Map<String,Object> propertyMap = mapper.convertValue(pojoValue, Map.class);
+    // ... and back
+    PojoType pojo = mapper.convertValue(propertyMap, PojoType.class);
+    // decode Base64! (default byte[] representation is base64-encoded String)
+    String base64 = "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz";
+    byte[] binary = mapper.convertValue(base64, byte[].class);
+
+Basically, Jackson can work as a replacement for many Apache Commons components, for tasks like base64 encoding/decoding, and handling of "dyna beans" (Maps to/from POJOs).
+
+## 4 minute tutorial: Streaming parser, generator
 
 As convenient as data-binding (to/from POJOs) can be; and as flexible as Tree model can be, there is one more canonical processing model available: incremental (aka "streaming") model.
 It is the underlying processing model that data-binding and Tree Model both build upon, but it is also exposed to users who want ultimate performance and/or control over parsing or generation details.
@@ -135,22 +161,24 @@ But let's look at a simple teaser to whet your appetite:
 
 (TO BE COMPLETED)
 
-## 5 minute tutorial: customizations
+
+## 5 minute tutorial: configuration
 
 There are two entry-level configuration mechanisms you are likely to use:
 [Features](jackson-databind/wiki/JacksonFeatures) and [Annotations](jackson-annotations).
 
 ### Most commonly used Features
 
-Here are examples of configuration features that most users need first.
+Here are examples of configuration features that you are most likely to need to know about.
 
-Let's start with higher-level data-binding configuration:
+Let's start with higher-level data-binding configuration.
 
     // SerializationFeature for changing how JSON is written
 
     // to enable standard indentation ("pretty-printing"):
     mapper.enable(SerializationFeature.INDENT_OUTPUT);
-    // to allow "empty" POJOs (no properties to serialize), prevent exception:
+    // to allow serialization of "empty" POJOs (no properties to serialize)
+    // (without this setting, an exception is thrown in those cases)
     mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
     // to write java.util.Date, Calendar as number (timestamp):
     mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -180,7 +208,7 @@ In addition, you may need to change some of low-level JSON parsing, generation d
 
 Full set of features are explained on [Jackson Features](jackson-databind/wiki/JacksonFeatures) page.
 
-### Changing property names
+### Annotations: changing property names
 
 The simplest annotation-based approach is to use `@JsonProperty` annotation like so:
 
@@ -200,7 +228,7 @@ There are other mechanisms to use for systematic naming changes: see [Custom Nam
 
 Note, too, that you can use [Mix-in Annotations](jackson-databind/wiki/JacksonMixinAnnotations) to associate all annotations.
 
-### Ignoring properties
+### Annotations: Ignoring properties
 
 There are two main annotations that can be used to to ignore properties: `@JsonIgnore` for individual properties; and `@JsonIgnoreProperties` for per-class definition
 

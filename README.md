@@ -1,10 +1,9 @@
 # What is it?
 
 This project contains the general-purpose data-binding functionality
-and tree-model for Jackson. It builds on the
-[core streaming parser/generator](/FasterXML/jackson-core) package,
-and uses [Jackson Annotations](/FasterXML/jackson-annotations) for
-configuration
+and tree-model for [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome)
+It builds on [core streaming parser/generator](/FasterXML/jackson-core) package,
+and uses [Jackson Annotations](/FasterXML/jackson-annotations) for configuration
 
 While the original use case for Jackson was JSON data-binding,
 it can now be used for other data formats as well, as long as
@@ -64,9 +63,14 @@ But here is a little sampler of usage.
 
 ## 1 minute tutorial: POJOs to JSON and back
 
-The most common usage is to take piece of JSON, and construct a Plain Old Java Object ("POJO") out of it. Like so:
+All data binding starts with a `com.fasterxml.jackson.databind.ObjectMapper` instance, so let's construct one:
 
     ObjectMapper mapper = new ObjectMapper(); // create once, reuse
+
+The default instance is fine for our use -- we will learn later on how to configure mapper instance if necessary.
+
+The most common usage is to take piece of JSON, and construct a Plain Old Java Object ("POJO") out of it.
+
     MyValue value = mapper.readValue(new File("data.json"), MyValue.class);
     // or:
     value = mapper.readValue(new URL("http://some.com/api/entry.json"), MyValue.class);

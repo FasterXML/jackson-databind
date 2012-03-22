@@ -81,6 +81,8 @@ New features:
   (via SerializationConfig, DeserializationConfig)
 * [JACKSON-805]: Add 'SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED'
   to improve interoperability with BadgerFish/Jettison
+* [JACKSON-813]: Add '@JsonSerializableSchema.id' attribute, to indicate
+  'id' value to add to generated JSON Schemas.
 
 ------------------------------------------------------------------------
 === History: ===

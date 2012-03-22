@@ -73,7 +73,7 @@ public class TestTreeTraversingParser
 
         assertToken(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
         assertNull(jp.getCurrentName());
-        assertEquals(12.25, jp.getDoubleValue());
+        assertEquals(12.25, jp.getDoubleValue(), 0);
         assertEquals("12.25", jp.getText());
 
         assertToken(JsonToken.VALUE_NULL, jp.nextToken());

@@ -214,7 +214,7 @@ public class TestTreeMapperSerializer
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
         assertEquals(FIELD1, getAndVerifyText(jp));
         assertEquals(JsonToken.VALUE_NUMBER_FLOAT, jp.nextToken());
-        assertEquals(DOUBLE_VALUE, jp.getDoubleValue());
+        assertEquals(DOUBLE_VALUE, jp.getDoubleValue(), 0);
         
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());
         

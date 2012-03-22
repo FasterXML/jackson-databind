@@ -57,18 +57,17 @@ Databind jar is also a functional OSGi bundle, with proper import/export declara
 
 # Use It!
 
-First things first: for a more in-depth coverage, read the [15 minute tutorial](jackson-databind/wiki/Jackson15MinuteTutorial).
-But here is a little sampler of usage.
+While wiki contains more documentation, here are brief introductionary tutorials, in recommended order of reading.
 
 ## 1 minute tutorial: POJOs to JSON and back
+
+The most common usage is to take piece of JSON, and construct a Plain Old Java Object ("POJO") out of it. So let's start there.
 
 All data binding starts with a `com.fasterxml.jackson.databind.ObjectMapper` instance, so let's construct one:
 
     ObjectMapper mapper = new ObjectMapper(); // create once, reuse
 
-The default instance is fine for our use -- we will learn later on how to configure mapper instance if necessary.
-
-The most common usage is to take piece of JSON, and construct a Plain Old Java Object ("POJO") out of it.
+The default instance is fine for our use -- we will learn later on how to configure mapper instance if necessary. Usage is simple:
 
     MyValue value = mapper.readValue(new File("data.json"), MyValue.class);
     // or:
@@ -76,7 +75,7 @@ The most common usage is to take piece of JSON, and construct a Plain Old Java O
     // or:
     value = mapper.readValue("{\"name\":\"Bob\", \"age\":13}", MyValue.class);
 
-followed by the reverse; taking a value, and writing it out as JSON:
+And if we want to write JSON, we do the reverse:
 
     mapper.writeValue(new File("result.json"), myResultObject);
     // or:
@@ -84,11 +83,11 @@ followed by the reverse; taking a value, and writing it out as JSON:
     // or:
     String jsonString = mapper.writeValueAsString(myResultObject);
 
-So far so good:
+So far so good?
 
 ## 3 minute tutorial: Generic collections, Tree Model
 
-But beyond dealing with simple Bean-style pojos, you can also handle JDK `List`s, `Map`s:
+Beyond dealing with simple Bean-style POJOs, you can also handle JDK `List`s, `Map`s:
 
     Map<String, Integer> scoreByName = mapper.readValue(jsonSource, Map.class);
     List<String> names = mapper.readValue(jsonSource, List.class);
@@ -96,12 +95,14 @@ But beyond dealing with simple Bean-style pojos, you can also handle JDK `List`s
     // and can obviously write out as well
     mapper.writeValue(new File("names.json"), names);
 
-as long as JSON structure matches, and types are simple. If you have POJO values, you need to indicate actual type (note: this is NOT needed for POJO properties with `List` etc types):
+as long as JSON structure matches, and types are simple.
+If you have POJO values, you need to indicate actual type (note: this is NOT needed for POJO properties with `List` etc types):
 
     Map<String, ResultValue> results = mapper.readValue(jsonSource,
        new TypeReference<String, ResultValue>() { } );
     // why extra work? Java Type Erasure will prevent type detection otherwise
-    // note: no extra effort needed for serialization
+
+(note: no extra effort needed for serialization, regardless of generic types)
 
 But wait! There is more!
 
@@ -125,6 +126,8 @@ This is where Jackson's [Tree model](jackson-databind/wiki/JacksonTreeModel) can
     //      "type" : "student"
     //   {
     // }
+
+Tree Model can be more convenient than data-binding, especially in cases where structure is highly dynamic, or does not map nicely to Java classes.
 
 ## 5 minute tutorial: Streaming parser, generator
 
@@ -240,6 +243,44 @@ in this case, no "name" property would be written out (since 'getter' is ignored
 
 For a more complete explanation of all possible ways of ignoring properties when writing out JSON, check ["Filtering properties"](http://www.cowtowncoder.com/blog/archives/2011/02/entry_443.html) article.
 
+### Annotations: using custom constructor
+
+Unlike many other data-binding packages, Jackson does not require you to define "default constructor" (constructor that does not take arguments).
+While it will use one if nothing else is available, you can easily define that an argument-taking constructor is used:
+
+    public class CtorBean
+    {
+      public final String name;
+      public final int age;
+
+      @JsonCreator // constructor can be public, private, whatever
+      private CtorBean(@JsonProperty("name") String name,
+        @JsonProperty("age") int age)
+      {
+          this.name = name;
+          this.age = age;
+      }
+    }
+
+Constructors are especially useful in supporting use of
+[Immutable objects](http://www.cowtowncoder.com/blog/archives/2010/08/entry_409.html).
+
+Alternatively, you can also define "factory methods":
+
+    public class FactoryBean
+    {
+        // fields etc omitted for brewity
+
+        @JsonCreator
+        public static FactoryBean create(@JsonProperty("name") String name) {
+          // construct and return an instance
+        }
+    }
+
+Note that use of a "creator method" does not preclude use of setters: you
+can mix and match properties from constructor/factory method with ones that
+are set via setters or directly using fields.
+
 ## Tutorial: fancier stuff, conversions
 
 One useful (but not very widely known) feature of Jackson is its ability
@@ -265,7 +306,7 @@ But here are couple of potentially useful use cases:
 
 Basically, Jackson can work as a replacement for many Apache Commons components, for tasks like base64 encoding/decoding, and handling of "dyna beans" (Maps to/from POJOs).
 
-----
+-----
 
 # Further reading
 

@@ -86,7 +86,7 @@ followed by the reverse; taking a value, and writing it out as JSON:
 
 So far so good:
 
-## 2 minute tutorial: Generic collections, Tree Model
+## 3 minute tutorial: Generic collections, Tree Model
 
 But beyond dealing with simple Bean-style pojos, you can also handle JDK `List`s, `Map`s:
 
@@ -126,32 +126,7 @@ This is where Jackson's [Tree model](jackson-databind/wiki/JacksonTreeModel) can
     //   {
     // }
 
-## 3 minute tutorial: conversions, other
-
-One useful (but not very widely known) feature of Jackson is its ability
-to do arbitrary POJO-to-POJO conversions. Conceptually you can think of conversions as sequence of 2 steps: first, writing a POJO as JSON, and second, binding that JSON into another kind of POJO. Implementation just skips actual generation of JSON, and uses more efficient intermediate representation.
-
-Conversations work between any compatible types, and invocation is as simple as:
-
-    ResultType result = mapper.convertValue(sourceObject, ResultType.class);
-
-and as long as source and result types are compatible -- that is, if to-JSON, from-JSON sequence would succeed -- things will "just work".
-But here are couple of potentially useful use cases:
-
-    // Convert from int[] to List<Integer>
-    List<Integer> sourceList = ...;
-    int[] ints = mapper.convertValue(sourceList, int[].class);
-    // Convert a POJO into Map!
-    Map<String,Object> propertyMap = mapper.convertValue(pojoValue, Map.class);
-    // ... and back
-    PojoType pojo = mapper.convertValue(propertyMap, PojoType.class);
-    // decode Base64! (default byte[] representation is base64-encoded String)
-    String base64 = "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz";
-    byte[] binary = mapper.convertValue(base64, byte[].class);
-
-Basically, Jackson can work as a replacement for many Apache Commons components, for tasks like base64 encoding/decoding, and handling of "dyna beans" (Maps to/from POJOs).
-
-## 4 minute tutorial: Streaming parser, generator
+## 5 minute tutorial: Streaming parser, generator
 
 As convenient as data-binding (to/from POJOs) can be; and as flexible as Tree model can be, there is one more canonical processing model available: incremental (aka "streaming") model.
 It is the underlying processing model that data-binding and Tree Model both build upon, but it is also exposed to users who want ultimate performance and/or control over parsing or generation details.
@@ -162,12 +137,12 @@ But let's look at a simple teaser to whet your appetite:
 (TO BE COMPLETED)
 
 
-## 5 minute tutorial: configuration
+## 10 minute tutorial: configuration
 
 There are two entry-level configuration mechanisms you are likely to use:
 [Features](jackson-databind/wiki/JacksonFeatures) and [Annotations](jackson-annotations).
 
-### Most commonly used Features
+### Commonly used Features
 
 Here are examples of configuration features that you are most likely to need to know about.
 
@@ -264,6 +239,31 @@ But it is also possible to use "split" annotations, to for example:
 in this case, no "name" property would be written out (since 'getter' is ignored); but if "name" property was found from JSON, it would be assigned to POJO property!
 
 For a more complete explanation of all possible ways of ignoring properties when writing out JSON, check ["Filtering properties"](http://www.cowtowncoder.com/blog/archives/2011/02/entry_443.html) article.
+
+## Tutorial: fancier stuff, conversions
+
+One useful (but not very widely known) feature of Jackson is its ability
+to do arbitrary POJO-to-POJO conversions. Conceptually you can think of conversions as sequence of 2 steps: first, writing a POJO as JSON, and second, binding that JSON into another kind of POJO. Implementation just skips actual generation of JSON, and uses more efficient intermediate representation.
+
+Conversations work between any compatible types, and invocation is as simple as:
+
+    ResultType result = mapper.convertValue(sourceObject, ResultType.class);
+
+and as long as source and result types are compatible -- that is, if to-JSON, from-JSON sequence would succeed -- things will "just work".
+But here are couple of potentially useful use cases:
+
+    // Convert from int[] to List<Integer>
+    List<Integer> sourceList = ...;
+    int[] ints = mapper.convertValue(sourceList, int[].class);
+    // Convert a POJO into Map!
+    Map<String,Object> propertyMap = mapper.convertValue(pojoValue, Map.class);
+    // ... and back
+    PojoType pojo = mapper.convertValue(propertyMap, PojoType.class);
+    // decode Base64! (default byte[] representation is base64-encoded String)
+    String base64 = "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz";
+    byte[] binary = mapper.convertValue(base64, byte[].class);
+
+Basically, Jackson can work as a replacement for many Apache Commons components, for tasks like base64 encoding/decoding, and handling of "dyna beans" (Maps to/from POJOs).
 
 ----
 

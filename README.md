@@ -122,10 +122,13 @@ This is where Jackson's [Tree model](jackson-databind/wiki/JacksonTreeModel) can
     //   {
     // }
 
-## 5 minute tutorial: Streaming parser, generator
+## 3 minute tutorial: Streaming parser, generator
 
 As convenient as data-binding (to/from POJOs) can be; and as flexible as Tree model can be, there is one more canonical processing model available: incremental (aka "streaming") model.
 It is the underlying processing model that data-binding and Tree Model both build upon, but it is also exposed to users who want ultimate performance and/or control over parsing or generation details.
+
+For in-depth explanation, look at [Jackson Core component](jackson-core).
+But let's look at a simple teaser to whet your appetite:
 
 (TO BE COMPLETED)
 

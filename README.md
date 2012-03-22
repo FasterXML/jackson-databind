@@ -25,7 +25,7 @@ Main differences compared to 1.0 "mapper" jar are:
 
 ## Maven
 
-Functionality of this package is contained in Java package `com.fasterxml.core.databind`, and can be used using following Maven dependency:
+Functionality of this package is contained in Java package `com.fasterxml.jackson.databind`, and can be used using following Maven dependency:
 
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>

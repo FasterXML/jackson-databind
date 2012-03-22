@@ -76,8 +76,10 @@ The most common usage is to take piece of JSON, and construct a Plain Old Java O
 followed by the reverse; taking a value, and writing it out as JSON:
 
     mapper.writeValue(new File("result.json"), myResultObject);
+
     // or:
     byte[] jsonBytes = mapper.writeValueAsBytes(myResultObject);
+
     // or:
     String jsonString = mapper.writeValueAsString(myResultObject);
 
@@ -87,6 +89,7 @@ But beyond dealing with simple Bean-style pojos, you can also handle JDK `List`s
 
     Map<String, Integer> scoreByName = mapper.readValue(jsonSource, Map.class);
     List<String> names = mapper.readValue(jsonSource, List.class);
+
     // and can obviously write out as well
     mapper.writeValue(new File("names.json"), names);
 
@@ -106,10 +109,12 @@ This is where Jackson's [Tree model](jackson-databind/wiki/JacksonTreeModel) can
     ObjectNode root = mapper.readTree("stuff.json");
     String name = root.get("name").asText();
     int age = root.get("age").asInt();
+
     // can modify as well: this adds child Object as property 'other', set property 'type'
     root.with("other").put("type", "student");
     String json = mapper.writeValueAsString(root);
-    // and might end up with something like:
+
+    // with above, we end up with something like as 'json' String:
     // {
     //   "name" : "Bob", "age" : 13,
     //   "other" : {

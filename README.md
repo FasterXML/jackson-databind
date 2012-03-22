@@ -137,9 +137,6 @@ But let's look at a simple teaser to whet your appetite:
 There are two entry-level configuration mechanisms you are likely to use:
 [Features](jackson-databind/wiki/JacksonFeatures) and [Annotations](jackson-annotations).
 
-As with all features so far, these use cases are meant to get you started; for more in-detail coverage, check out 
-[Jackson Features](jackson-databind/wiki/JacksonFeatures) and [Jackson Annotations](jackson-annotations) pages.
-
 ### Most commonly used Features
 
 Here are examples of configuration features that most users need first.
@@ -178,14 +175,64 @@ In addition, you may need to change some of low-level JSON parsing, generation d
     // to force escaping of non-ASCII characters:
     mapper.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
 
+Full set of features are explained on [Jackson Features](jackson-databind/wiki/JacksonFeatures) page.
+
 ### Changing property names
 
-(TO BE COMPLETED)
+The simplest annotation-based approach is to use `@JsonProperty` annotation like so:
+
+    public class MyBean {
+       private String _name;
+
+       // without annotation, we'd get "theName", but we want "name":
+       @JsonProperty("name")
+       public String getTheName() { return _name; }
+
+       // note: it is enough to add annotation on just getter OR setter;
+       // so we can omit it here
+       public void setTheName(String n) { _name = n; }
+    }
+
+There are other mechanisms to use for systematic naming changes: see [Custom Naming Convention](jackson-databind/wiki/JacksonCustomNamingConvention) for details.
+
+Note, too, that you can use [Mix-in Annotations](jackson-databind/wiki/JacksonMixinAnnotations) to associate all annotations.
 
 ### Ignoring properties
 
-(TO BE COMPLETED)
+There are two main annotations that can be used to to ignore properties: `@JsonIgnore` for individual properties; and `@JsonIgnoreProperties` for per-class definition
 
+    // means that if we see "foo" or "bar" in JSON, they will be quietly skipped
+    // regardless of whether POJO has such properties
+    @JsonIgnoreProperties({ "foo", "bar" })
+    public class MyBean
+    {
+       // will not be written as JSON; nor assigned from JSON:
+       @JsonIgnore
+       public String internal;
+
+       // no annotation, public field is read/written normally
+       public String external;
+
+       @JsonIgnore
+       public void setCode(int c) { _code = c; }
+
+       // note: will also be ignored because setter has annotation!
+       public int getCode() { return _code; }
+       
+    }
+
+As with renaming, note that annotations are "shared" between matching fields, getters and setters: if only one has `@JsonIgnore`, it affects others.
+But it is also possible to use "split" annotations, to for example:
+
+    public class ReadButDontWriteProps {
+       private String _name;
+       @JsonProperty public void setName(String n) { _name = n; }
+       @JsonIgnore public String getName() { return _name; }
+    }
+
+in this case, no "name" property would be written out (since 'getter' is ignored); but if "name" property was found from JSON, it would be assigned to POJO property!
+
+For a more complete explanation of all possible ways of ignoring properties when writing out JSON, check ["Filtering properties"](http://www.cowtowncoder.com/blog/archives/2011/02/entry_443.html) article.
 
 ----
 

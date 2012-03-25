@@ -110,7 +110,15 @@ public class EnumMapDeserializer
         while ((jp.nextToken()) != JsonToken.END_OBJECT) {
             Enum<?> key = _keyDeserializer.deserialize(jp, ctxt);
             if (key == null) {
-                throw ctxt.weirdStringException(_enumClass, "value not one of declared Enum instance names");
+                if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+                    throw ctxt.weirdStringException(_enumClass, "value not one of declared Enum instance names");
+                }
+                /* 24-Mar-2012, tatu: Null won't work as a key anyway, so let's
+                 *  just skip the entry then. But we must skip the value then.
+                 */
+                jp.nextToken();
+                jp.skipChildren();
+                continue;
             }
             // And then the value...
             JsonToken t = jp.nextToken();

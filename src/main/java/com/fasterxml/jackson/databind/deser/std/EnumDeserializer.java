@@ -71,7 +71,7 @@ public class EnumDeserializer
         if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
             String name = jp.getText();
             Enum<?> result = _resolver.findEnum(name);
-            if (result == null) {
+            if (result == null  && !ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                 throw ctxt.weirdStringException(_resolver.getEnumClass(), "value not one of declared Enum instance names");
             }
             return result;
@@ -87,7 +87,7 @@ public class EnumDeserializer
             
             int index = jp.getIntValue();
             Enum<?> result = _resolver.getEnum(index);
-            if (result == null) {
+            if (result == null && !ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                 throw ctxt.weirdNumberException(_resolver.getEnumClass(), "index value outside legal index range [0.."+_resolver.lastValidIndex()+"]");
             }
             return result;

@@ -38,6 +38,9 @@ public abstract class StdKeyDeserializer
         } catch (Exception re) {
             throw ctxt.weirdKeyException(_keyClass, key, "not a valid representation: "+re.getMessage());
         }
+        if (_keyClass.isEnum() && ctxt.getConfig().isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+        	return null;
+        }
         throw ctxt.weirdKeyException(_keyClass, key, "not a valid representation");
     }
 
@@ -292,7 +295,7 @@ public abstract class StdKeyDeserializer
                 }
             }
             Enum<?> e = _resolver.findEnum(key);
-            if (e == null) {
+            if (e == null && !ctxt.getConfig().isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                 throw ctxt.weirdKeyException(_keyClass, key, "not one of values for Enum class");
             }
             return e;

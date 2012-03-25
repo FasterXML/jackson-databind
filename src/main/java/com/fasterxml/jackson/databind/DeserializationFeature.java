@@ -22,7 +22,7 @@ public enum DeserializationFeature implements ConfigFeature
      */
 
     /**
-     * SerializationFeature that determines whether JSON floating point numbers
+     * Feature that determines whether JSON floating point numbers
      * are to be deserialized into {@link java.math.BigDecimal}s
      * if only generic type description (either {@link Object} or
      * {@link Number}, or within untyped {@link java.util.Map}
@@ -30,7 +30,7 @@ public enum DeserializationFeature implements ConfigFeature
      * If enabled such values will be deserialized as {@link java.math.BigDecimal}s;
      * if disabled, will be deserialized as {@link Double}s.
      * <p>
-     * SerializationFeature is disabled by default, meaning that "untyped" floating
+     * Feature is disabled by default, meaning that "untyped" floating
      * point numbers will by default be deserialized as {@link Double}s
      * (choice is for performance reason -- BigDecimals are slower than
      * Doubles).
@@ -38,7 +38,7 @@ public enum DeserializationFeature implements ConfigFeature
     USE_BIG_DECIMAL_FOR_FLOATS(false),
 
     /**
-     * SerializationFeature that determines whether JSON integral (non-floating-point)
+     * Feature that determines whether JSON integral (non-floating-point)
      * numbers are to be deserialized into {@link java.math.BigInteger}s
      * if only generic type description (either {@link Object} or
      * {@link Number}, or within untyped {@link java.util.Map}
@@ -49,7 +49,7 @@ public enum DeserializationFeature implements ConfigFeature
      * which is either {@link Integer}, {@link Long} or
      * {@link java.math.BigInteger}, depending on number of digits.
      * <p>
-     * SerializationFeature is disabled by default, meaning that "untyped" floating
+     * Feature is disabled by default, meaning that "untyped" floating
      * point numbers will by default be deserialized using whatever
      * is the most compact integral type, to optimize efficiency.
      */
@@ -57,18 +57,18 @@ public enum DeserializationFeature implements ConfigFeature
 
     // [JACKSON-652]
     /**
-     * SerializationFeature that determines whether JSON Array is mapped to
+     * Feature that determines whether JSON Array is mapped to
      * <code>Object[]</code> or <code>List&lt;Object></code> when binding
      * "untyped" objects (ones with nominal type of <code>java.lang.Object</code>).
      * If true, binds as <code>Object[]</code>; if false, as <code>List&lt;Object></code>.
      *<p>
-     * SerializationFeature is disabled by default, meaning that JSON arrays are bound as
+     * Feature is disabled by default, meaning that JSON arrays are bound as
      * {@link java.util.List}s.
      */
     USE_JAVA_ARRAY_FOR_JSON_ARRAY(false),
     
     /**
-     * SerializationFeature that determines standard deserialization mechanism used for
+     * Feature that determines standard deserialization mechanism used for
      * Enum values: if enabled, Enums are assumed to have been serialized  using
      * return value of <code>Enum.toString()</code>;
      * if disabled, return value of <code>Enum.name()</code> is assumed to have been used.
@@ -76,7 +76,7 @@ public enum DeserializationFeature implements ConfigFeature
      * Note: this feature should usually have same value
      * as {@link SerializationFeature#WRITE_ENUMS_USING_TO_STRING}.
      *<p>
-     * SerializationFeature is disabled by default.
+     * Feature is disabled by default.
      */
     READ_ENUMS_USING_TO_STRING(false),
     
@@ -87,7 +87,7 @@ public enum DeserializationFeature implements ConfigFeature
      */
 
     /**
-     * SerializationFeature that determines whether encountering of unknown
+     * Feature that determines whether encountering of unknown
      * properties (ones that do not map to a property, and there is
      * no "any setter" or handler that can handle it)
      * should result in a failure (by throwing a
@@ -96,25 +96,25 @@ public enum DeserializationFeature implements ConfigFeature
      * methods for unknown properties have been tried, and
      * property remains unhandled.
      *<p>
-     * SerializationFeature is enabled by default (meaning that a
+     * Feature is enabled by default (meaning that a
      * {@link JsonMappingException} will be thrown if an unknown property
      * is encountered).
      */
     FAIL_ON_UNKNOWN_PROPERTIES(true),
 
     /**
-     * SerializationFeature that determines whether encountering of JSON null
+     * Feature that determines whether encountering of JSON null
      * is an error when deserializing into Java primitive types
      * (like 'int' or 'double'). If it is, a JsonProcessingException
      * is thrown to indicate this; if not, default value is used
      * (0 for 'int', 0.0 for double, same defaulting as what JVM uses).
      *<p>
-     * SerializationFeature is disabled by default.
+     * Feature is disabled by default.
      */
     FAIL_ON_NULL_FOR_PRIMITIVES(false),
 
     /**
-     * SerializationFeature that determines whether JSON integer numbers are valid
+     * Feature that determines whether JSON integer numbers are valid
      * values to be used for deserializing Java enum values.
      * If set to 'false' numbers are acceptable and are used to map to
      * ordinal() of matching enumeration value; if 'true', numbers are
@@ -123,12 +123,12 @@ public enum DeserializationFeature implements ConfigFeature
      * mapping from integer values to enums might happen (and when enums
      * are always serialized as JSON Strings)
      *<p>
-     * SerializationFeature is disabled by default.
+     * Feature is disabled by default.
      */
     FAIL_ON_NUMBERS_FOR_ENUMS(false),
 
     /**
-     * SerializationFeature that determines whether Jackson code should catch
+     * Feature that determines whether Jackson code should catch
      * and wrap {@link Exception}s (but never {@link Error}s!)
      * to add additional information about
      * location (within input) of problem or not. If enabled,
@@ -140,7 +140,7 @@ public enum DeserializationFeature implements ConfigFeature
      * However, sometimes calling application may just want "raw"
      * unchecked exceptions passed as is.
      *<p>
-     * SerializationFeature is enabled by default.
+     * Feature is enabled by default.
      */
     WRAP_EXCEPTIONS(true),
     
@@ -151,7 +151,7 @@ public enum DeserializationFeature implements ConfigFeature
      */
 
     /**
-     * SerializationFeature that determines whether it is acceptable to coerce non-array
+     * Feature that determines whether it is acceptable to coerce non-array
      * (in JSON) values to work with Java collection (arrays, java.util.Collection)
      * types. If enabled, collection deserializers will try to handle non-array
      * values as if they had "implicit" surrounding JSON array.
@@ -159,19 +159,19 @@ public enum DeserializationFeature implements ConfigFeature
      * to work with packages (such as XML-to-JSON converters) that leave out JSON
      * array in cases where there is just a single element in array.
      *<p>
-     * SerializationFeature is disabled by default.
+     * Feature is disabled by default.
      */
     ACCEPT_SINGLE_VALUE_AS_ARRAY(false),
     
     /**
-     * SerializationFeature to allow "unwrapping" root-level JSON value, to match setting of
+     * Feature to allow "unwrapping" root-level JSON value, to match setting of
      * {@link SerializationFeature#WRAP_ROOT_VALUE} used for serialization.
      * Will verify that the root JSON value is a JSON Object, and that it has
      * a single property with expected root name. If not, a
      * {@link JsonMappingException} is thrown; otherwise value of the wrapped property
      * will be deserialized as if it was the root value.
      *<p>
-     * SerializationFeature is disabled by default.
+     * Feature is disabled by default.
      */
     UNWRAP_ROOT_VALUE(false),
 
@@ -182,7 +182,7 @@ public enum DeserializationFeature implements ConfigFeature
      */
     
     /**
-     * SerializationFeature that can be enabled to allow JSON empty String
+     * Feature that can be enabled to allow JSON empty String
      * value ("") to be bound to POJOs as null.
      * If disabled, standard POJOs can only be bound from JSON null or
      * JSON Object (standard meaning that no custom deserializers or
@@ -190,10 +190,24 @@ public enum DeserializationFeature implements ConfigFeature
      * kinds of JSON values); if enable, empty JSON String can be taken
      * to be equivalent of JSON null.
      *<p>
-     * SerializationFeature is enabled by default.
+     * Feature is enabled by default.
      */
-    ACCEPT_EMPTY_STRING_AS_NULL_OBJECT(false)
+    ACCEPT_EMPTY_STRING_AS_NULL_OBJECT(false),
     
+    /**
+     * Feature that allows unknown Enum values to be parsed as null values. 
+     * If disabled, unknown Enum values will throw exceptions.
+     *<p>
+     * Note that in some cases this will basically ignore unknown Enum values;
+     * this is the keys for keys of {@link java.util.EnumMap} and values
+     * of {@link java.util.EnumSet} (because nulls are not accepted in these
+     * cases).
+     *<p>
+     * Feature is disabled by default.
+     * 
+     * @since 2.0
+     */
+    READ_UNKNOWN_ENUM_VALUES_AS_NULL(false)
     ;
 
     private final boolean _defaultState;

@@ -98,7 +98,12 @@ public class EnumSetDeserializer
                 throw ctxt.mappingException(_enumClass);
             }
             Enum<?> value = _enumDeserializer.deserialize(jp, ctxt);
-            result.add(value);
+            /* 24-Mar-2012, tatu: As per [JACKSON-810], may actually get nulls;
+             *    but EnumSets don't allow nulls so need to skip.
+             */
+            if (value != null) { 
+                result.add(value);
+            }
         }
         return result;
     }

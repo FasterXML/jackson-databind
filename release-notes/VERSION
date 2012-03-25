@@ -81,6 +81,9 @@ New features:
   (via SerializationConfig, DeserializationConfig)
 * [JACKSON-805]: Add 'SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED'
   to improve interoperability with BadgerFish/Jettison
+* [JACKSON-810]: Deserialization Feature: Allow unknown Enum values via
+  'DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL'
+  (suggested by Raymond R)
 * [JACKSON-813]: Add '@JsonSerializableSchema.id' attribute, to indicate
   'id' value to add to generated JSON Schemas.
 

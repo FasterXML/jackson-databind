@@ -872,3 +872,9 @@ Tammo van Lessen:
    [2.0.0]
   * Reported [JACKSON-814]: Parsing RFC822/RFC1123 dates failes on non-US locales
    [2.0.0]
+
+Raymond Myers
+* Suggested [JACKSON-810]: Deserialization Feature: Allow unknown Enum values via
+  'DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL'
+  [2.0.0]
+

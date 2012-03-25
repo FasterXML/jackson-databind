@@ -5,6 +5,8 @@ import java.io.StringWriter;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
 
 public class TestGeneratorUsingMapper extends BaseMapTest
 {
@@ -48,4 +50,31 @@ public class TestGeneratorUsingMapper extends BaseMapTest
         }
     }
 
+    public void testIssue820() throws IOException
+    {
+        StringBuffer sb = new StringBuffer();
+        while (sb.length() <= 5000) {
+            sb.append("Yet another line of text...\n");
+        }
+        String sampleText = sb.toString();
+        assertTrue(
+                "Sanity check so I don't mess up the sample text later.",
+                sampleText.contains("\n"));
+
+        final ObjectMapper mapper = new ObjectMapper();
+        final CharacterEscapes defaultCharacterEscapes = new CharacterEscapes() {
+            public int[] getEscapeCodesForAscii() {
+                return standardAsciiEscapesForJSON();
+            }
+
+            public SerializableString getEscapeSequence(final int ch) {
+                return null;
+            }
+        };
+
+        mapper.getJsonFactory().setCharacterEscapes(defaultCharacterEscapes);
+        String jacksonJson = mapper.writeValueAsString(sampleText);
+        boolean hasLFs = jacksonJson.indexOf('\n') > 0;
+        assertFalse("Should NOT contain linefeeds, should have been escaped", hasLFs);
+    }    
 }

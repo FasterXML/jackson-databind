@@ -1,10 +1,10 @@
 Version: 2.0.0
 
 Release date:
-  xx-Feb-2012
+  25-Feb-2012
 
 Description:
-  The son of Jackson! Behold...
+  The official 2.0 release of Jackson.
 
 Fixes:
 
@@ -12,6 +12,7 @@ Fixes:
 * [JACKSON-711]: Delegating @JsonCreator did not work with Injectable values
 * [JACKSON-798]: Problem with external type id, creators
   (reported by Casey L)
+(and all fixes up until and including 1.9.6)
 
 Improvements:
 
@@ -43,7 +44,6 @@ Improvements:
   'DeserializationConfig.Feature' as 'DeserializationFeature'
 * [JACKSON-780]: MissingNode, NullNode should return 'defaultValue' from 'asXxx' methods,
   (not 0 for numbers), as they are not numeric types
-* [JACKSON-787]: @JsonIgnoredProperties can be used on properties too
 * [JACKSON-795]: @JsonValue was not working for Maps, Collections
 * [JACKSON-800]: Add 'Module.SetupContext#addDeserializationProblemHandler'
  (suggested by James R)
@@ -51,7 +51,7 @@ Improvements:
 New features:
 
 * [JACKSON-107]: Add support for Object Identity (to handled cycles, shared refs),
-  with @JsonIdentityInfo.
+  with @JsonIdentityInfo
 * [JACKSON-435]: Allow per-property Date formatting using @JsonFormat.
 * [JACKSON-437]: Allow injecting of type id as POJO property, by setting
   new '@JsonTypeInfo.visible' property to true.

@@ -55,13 +55,13 @@
     <!-- Builds on core streaming API; also needs core annotations -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>2.0.0-RC4-SNAPSHOT</version>
+      <artifactId>jackson-annotations</artifactId>
+      <version>2.0.0</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-      <version>2.0.0-RC4-SNAPSHOT</version>
+      <artifactId>jackson-core</artifactId>
+      <version>2.0.0</version>
     </dependency>
 
     <!-- and for testing, JUnit is needed, as well as quite a few

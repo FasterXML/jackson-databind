@@ -131,7 +131,7 @@ Tree Model can be more convenient than data-binding, especially in cases where s
 
 ## Brief detour: Javadocs!
 
-At this point you may want to have a peek at databinding [Javadocs](http://fasterxml.github.com/jackson-annotations/javadoc/2.0.0/).
+At this point you may want to have a peek at databinding [Javadocs](http://fasterxml.github.com/jackson-databind/javadoc/2.0.0/).
 
 ## 5 minute tutorial: Streaming parser, generator
 
@@ -316,7 +316,7 @@ Basically, Jackson can work as a replacement for many Apache Commons components,
 
 Project-specific documentation:
 
-* [Javadocs](http://fasterxml.github.com/jackson-annotations/javadoc/2.0.0/)
+* [Javadocs](http://fasterxml.github.com/jackson-databind/javadoc/2.0.0/)
 * [Documentation](jackson-annotations/wiki/Documentation)
 
 Related:

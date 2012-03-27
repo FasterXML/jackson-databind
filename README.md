@@ -1,4 +1,4 @@
-# What is it?
+# Overview
 
 This project contains the general-purpose data-binding functionality
 and tree-model for [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome)
@@ -128,6 +128,10 @@ This is where Jackson's [Tree model](jackson-databind/wiki/JacksonTreeModel) can
     // }
 
 Tree Model can be more convenient than data-binding, especially in cases where structure is highly dynamic, or does not map nicely to Java classes.
+
+## Brief detour: Javadocs!
+
+At this point you may want to have a peek at databinding [Javadocs](http://fasterxml.github.com/jackson-annotations/javadoc/2.0.0/).
 
 ## 5 minute tutorial: Streaming parser, generator
 
@@ -310,8 +314,14 @@ Basically, Jackson can work as a replacement for many Apache Commons components,
 
 # Further reading
 
-* [Jackson Project Home](http://wiki.fasterxml.com/JacksonHome)
-* [Documentation](http://wiki.fasterxml.com/JacksonDocumentation)
- * [JavaDocs](http://wiki.fasterxml.com/JacksonJavaDocs)
-* [Downloads](http://wiki.fasterxml.com/JacksonDownload)
+Project-specific documentation:
+
+* [Javadocs](http://fasterxml.github.com/jackson-annotations/javadoc/2.0.0/)
+* [Documentation](jackson-annotations/wiki/Documentation)
+
+Related:
+
+* [Core annotations](https://github.com/FasterXML/jackson-annotations) package defines annotations commonly used for configuring databinding details
+* [Core parser/generator](https://github.com/FasterXML/jackson-core) package defines low-level incremental/streaming parsers, generators
+* [Jackson Project Home](http://wiki.fasterxml.com/JacksonHome) has additional documentation (although much of it for Jackson 1.x)
 

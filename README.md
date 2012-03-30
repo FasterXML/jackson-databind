@@ -318,7 +318,7 @@ Basically, Jackson can work as a replacement for many Apache Commons components,
 Project-specific documentation:
 
 * [Javadocs](http://fasterxml.github.com/jackson-databind/javadoc/2.0.0/)
-* [Documentation](jackson-annotations/wiki/Documentation)
+* [Documentation](jackson-databind/wiki/Documentation)
 
 Related:
 

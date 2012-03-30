@@ -3,7 +3,8 @@
 This project contains the general-purpose data-binding functionality
 and tree-model for [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome)
 It builds on [core streaming parser/generator](/FasterXML/jackson-core) package,
-and uses [Jackson Annotations](/FasterXML/jackson-annotations) for configuration
+and uses [Jackson Annotations](/FasterXML/jackson-annotations) for configuration.
+More low-level details can be found from [Javadocs](http://fasterxml.github.com/jackson-databind/javadoc/2.0.0/).
 
 While the original use case for Jackson was JSON data-binding,
 it can now be used for other data formats as well, as long as

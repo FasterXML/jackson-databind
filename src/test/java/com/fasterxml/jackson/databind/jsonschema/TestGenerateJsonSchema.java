@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.jsonschema;
 
 import java.util.*;
 
+import javax.xml.bind.annotation.XmlElement;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
@@ -25,7 +27,9 @@ public class TestGenerateJsonSchema
         private String property2;
         private String[] property3;
         private Collection<Float> property4;
-
+        @XmlElement(required=true)
+        private String property5;
+        
         public int getProperty1()
         {
             return property1;
@@ -65,6 +69,16 @@ public class TestGenerateJsonSchema
         {
             this.property4 = property4;
         }
+        
+        public String getProperty5()
+        {
+            return property5;
+        }
+
+        public void setProperty5(String property5)
+        {
+            this.property5 = property5;
+        }
     }
 
     public class TrivialBean {
@@ -91,6 +105,7 @@ public class TestGenerateJsonSchema
         throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
+        
         assertNotNull(jsonSchema);
 
         // test basic equality, and that equals() handles null, other obs
@@ -125,6 +140,10 @@ public class TestGenerateJsonSchema
         assertEquals("array", property4Schema.get("type").asText());
         assertEquals(false, property4Schema.path("required").booleanValue());
         assertEquals("number", property4Schema.get("items").get("type").asText());
+        JsonNode property5Schema = propertiesSchema.get("property5");
+        assertNotNull(property5Schema);
+        assertEquals("string", property5Schema.get("type").asText());
+        assertEquals(true, property5Schema.path("required").booleanValue());
     }
 
     /**

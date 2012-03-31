@@ -205,7 +205,7 @@ com.fasterxml.jackson.core.io,
 com.fasterxml.jackson.core.util,
 com.fasterxml.jackson.core.type,
 org.xml.sax,org.w3c.dom, org.w3c.dom.bootstrap, org.w3c.dom.ls,
-javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
+javax.xml.datatype, javax.xml.namespace, javax.xml.parsers, javax.xml.bind.annotation
 </Import-Package>
               <Private-Package>
 </Private-Package>

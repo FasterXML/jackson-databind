@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 
+import javax.xml.bind.annotation.XmlElement;
+
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.core.*;
@@ -600,13 +602,17 @@ public abstract class BeanSerializerBase
             if (id != null && id.length() > 0) {
                 o.put("id", id);
             }
-        }        
+        }
+ 
         //todo: should the classname go in the title?
         //o.put("title", _className);
         ObjectNode propertiesNode = o.objectNode();
         for (int i = 0; i < _props.length; i++) {
             BeanPropertyWriter prop = _props[i];
             JavaType propType = prop.getSerializationType();
+            
+            boolean isOptional = isPropertyRequired(prop);
+               
             // 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas it doesn't...
             Type hint = (propType == null) ? prop.getGenericPropertyType() : propType.getRawClass();
             // Maybe it already has annotated/statically configured serializer?
@@ -619,11 +625,26 @@ public abstract class BeanSerializerBase
                 ser = provider.findValueSerializer(serType, prop);
             }
             JsonNode schemaNode = (ser instanceof SchemaAware) ?
-                    ((SchemaAware) ser).getSchema(provider, hint) : 
+                    ((SchemaAware) ser).getSchema(provider, hint, isOptional) : 
                     JsonSchema.getDefaultSchemaNode();
             propertiesNode.put(prop.getName(), schemaNode);
         }
         o.put("properties", propertiesNode);
         return o;
     }
+
+    /**
+     * Determines if a bean property is required. Currently this looks for any XmlElement annotations
+     * that have a require attribute.
+     * @param prop the bean property.
+     * @return true if the property is optional, false otherwise.
+     */
+	private boolean isPropertyRequired(final BeanPropertyWriter prop) {
+		XmlElement annotation = prop.getAnnotation(XmlElement.class);
+		boolean isOptional = true;
+		if (annotation != null) {
+			isOptional = !annotation.required();
+		}
+		return isOptional;
+	}
 }

@@ -14,11 +14,15 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
  * Helper class used to contain simple/well-known key deserializers.
  * Following kinds of Objects can be handled currently:
  *<ul>
- * <li>Primitive wrappers</li>
+ * <li>Primitive wrappers (Boolean, Byte, Char, Short, Integer, Float, Long, Double)</li>
  * <li>Enums (usually not needed, since EnumMap doesn't call us)</li>
+ * <li>{@link java.util.Date}</li>
+ * <li>{@link java.util.Calendar}</li>
+ * <li>{@link java.util.UUID}</li>
+ * <li>{@link java.util.Locale}</li>
  * <li>Anything with constructor that takes a single String arg
  *   (if not explicitly @JsonIgnore'd)</li>
- * <li>Anything with 'static T valueOf(String)' factory method
+ * <li>Anything with {@code static T valueOf(String)} factory method
  *   (if not explicitly @JsonIgnore'd)</li>
  *</ul>
  */
@@ -39,6 +43,7 @@ public class StdKeyDeserializers
         add(new StdKeyDeserializer.DateKD());
         add(new StdKeyDeserializer.CalendarKD());
         add(new StdKeyDeserializer.UuidKD());
+        add(new StdKeyDeserializer.LocaleKD());
     }
 
     private void add(StdKeyDeserializer kdeser)

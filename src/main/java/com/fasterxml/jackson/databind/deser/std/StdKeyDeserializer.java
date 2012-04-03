@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.Locale;
 import java.util.UUID;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -224,6 +225,22 @@ public abstract class StdKeyDeserializer
              *   here, so let's not bother even trying...
              */
             return Float.valueOf((float) _parseDouble(key));
+        }
+    }
+
+    @JacksonStdImpl
+    final static class LocaleKD extends StdKeyDeserializer {
+        protected JdkDeserializers.LocaleDeserializer _localeDeserializer;
+
+        LocaleKD() { super(Locale.class); _localeDeserializer = new JdkDeserializers.LocaleDeserializer();}
+
+        @Override
+        protected Locale _parse(String key, DeserializationContext ctxt) throws JsonMappingException {
+            try {
+                return _localeDeserializer._deserialize(key,ctxt);
+            } catch (IOException e) {
+                throw ctxt.weirdKeyException(_keyClass, key, "unable to parse key as locale");
+            }
         }
     }
 

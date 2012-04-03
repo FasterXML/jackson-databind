@@ -1,10 +1,24 @@
-Version: 2.0.0
+Version: 2.0.1
 
 Release date:
   25-Feb-2012
 
 Description:
-  The official 2.0 release of Jackson.
+  The first patch release for 2.0.0
+
+Fixes:
+
+Improvements:
+
+* [Issue-5]: Add support for maps with java.util.Locale keys to the set of
+  StdKeyDeserializers
+ (contributed by Ryan G)
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.0.0 [25-Feb-2012]
 
 Fixes:
 
@@ -86,9 +100,5 @@ New features:
   (suggested by Raymond R)
 * [JACKSON-813]: Add '@JsonSerializableSchema.id' attribute, to indicate
   'id' value to add to generated JSON Schemas.
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 [entries for versions 1.x and earlier not retained; refer to earlier releases)

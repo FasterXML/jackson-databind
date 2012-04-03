@@ -873,8 +873,12 @@ Tammo van Lessen:
   * Reported [JACKSON-814]: Parsing RFC822/RFC1123 dates failes on non-US locales
    [2.0.0]
 
-Raymond Myers
-* Suggested [JACKSON-810]: Deserialization Feature: Allow unknown Enum values via
-  'DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL'
+Raymond Myers:
+  * Suggested [JACKSON-810]: Deserialization Feature: Allow unknown Enum values via
+    'DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL'
   [2.0.0]
 
+Ryan Gardner:
+  * Contributed [pull-5] -- Add support for maps with java.util.Locale keys
+    to the set of StdKeyDeserializers
+  [2.0.1]

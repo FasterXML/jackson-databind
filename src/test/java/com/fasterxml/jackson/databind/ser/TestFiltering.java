@@ -7,10 +7,8 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.*;
 
 /**
- * Tests for verifying that bean property filtering (new with 1.7)
+ * Tests for verifying that bean property filtering using JsonFilter
  * works as expected.
- * 
- * @since 1.7
  */
 public class TestFiltering extends BaseMapTest
 {

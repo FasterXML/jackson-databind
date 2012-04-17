@@ -24,8 +24,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * new instances are constructed for different configurations.
  * Instances are initially constructed by {@link ObjectMapper} and can be
  * reused in completely thread-safe manner with no explicit synchronization
- * 
- * @author tatu
  */
 public class ObjectWriter
     implements Versioned
@@ -174,7 +172,7 @@ public class ObjectWriter
      * Method that will return version information stored in and read from jar
      * that contains this class.
      */
-    @Override
+//  @Override
     public Version version() {
         return DatabindVersion.instance.version();
     }

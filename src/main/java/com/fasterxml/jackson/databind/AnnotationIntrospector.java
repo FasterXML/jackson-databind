@@ -144,7 +144,7 @@ public abstract class AnnotationIntrospector implements Versioned
     /**********************************************************
      */
 
-    @Override
+//  @Override
     public abstract Version version();
     
     /*

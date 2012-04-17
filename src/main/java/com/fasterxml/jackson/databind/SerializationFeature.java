@@ -272,10 +272,10 @@ public enum SerializationFeature implements ConfigFeature
     private SerializationFeature(boolean defaultState) {
         _defaultState = defaultState;
     }
-    
-    @Override
+
+//    @Override
     public boolean enabledByDefault() { return _defaultState; }
 
-    @Override
+//    @Override
     public int getMask() { return (1 << ordinal()); }
 }

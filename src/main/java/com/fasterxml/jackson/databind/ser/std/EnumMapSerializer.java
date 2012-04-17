@@ -101,7 +101,7 @@ public class EnumMapSerializer
         return new EnumMapSerializer(this, prop, ser);
     }
     
-    @Override
+//  @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
         throws JsonMappingException

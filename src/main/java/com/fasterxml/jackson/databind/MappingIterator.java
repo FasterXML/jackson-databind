@@ -86,7 +86,7 @@ public class MappingIterator<T> implements Iterator<T>
     /**********************************************************
      */
 
-    @Override
+//  @Override
     public boolean hasNext()
     {
         try {
@@ -98,7 +98,7 @@ public class MappingIterator<T> implements Iterator<T>
         }
     }
 
-    @Override
+//  @Override
     public T next()
     {
         try {
@@ -110,7 +110,8 @@ public class MappingIterator<T> implements Iterator<T>
         }
     }
 
-    @Override public void remove() {
+//  @Override
+    public void remove() {
         throw new UnsupportedOperationException();
     }
 

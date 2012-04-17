@@ -365,7 +365,7 @@ public abstract class BeanDeserializerBase
      * after deserializer itself has been registered.
      * This is needed to handle recursive and transitive dependencies.
      */
-    @Override
+//  @Override
     public void resolve(DeserializationContext ctxt)
         throws JsonMappingException
     {
@@ -480,7 +480,7 @@ public abstract class BeanDeserializerBase
      * access to referring property's annotations here; and this is needed
      * to support per-property ObjectIds.
      */
-    @Override
+//  @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {

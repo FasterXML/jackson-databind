@@ -200,7 +200,7 @@ public class ObjectReader
      * Method that will return version information stored in and read from jar
      * that contains this class.
      */
-    @Override
+//  @Override
     public Version version() {
         return DatabindVersion.instance.version();
     }

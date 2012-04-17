@@ -39,8 +39,8 @@ public class TestCglibUsage
         Enhancer enh = new Enhancer();
         enh.setInterfaces(new Class[] { BeanInterface.class });
         enh.setCallback(new MethodInterceptor() {
-            @Override
-                public Object intercept(Object obj, Method method,
+//          @Override
+            public Object intercept(Object obj, Method method,
                                         Object[] args, MethodProxy proxy)
                     throws Throwable
                 {

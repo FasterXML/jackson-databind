@@ -45,7 +45,7 @@ public class CoreXMLSerializers
         _serializers.put(QName.class, tss);
     }
     
-    @Override
+//    @Override
     public Collection<Map.Entry<Class<?>,JsonSerializer<?>>> provide() {
         return _serializers.entrySet();
     }

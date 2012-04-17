@@ -68,7 +68,7 @@ public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
             _propertiesToInclude = properties;
         }
         
-        @Override
+//      @Override
         public void serializeAsField(Object bean, JsonGenerator jgen,
                 SerializerProvider provider, BeanPropertyWriter writer)
             throws Exception
@@ -95,7 +95,7 @@ public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
             _propertiesToExclude = properties;
         }
         
-        @Override
+//      @Override
         public void serializeAsField(Object bean, JsonGenerator jgen,
                 SerializerProvider provider, BeanPropertyWriter writer)
             throws Exception

@@ -288,11 +288,12 @@ public final class ArrayBuilders
             _index = 0;
         }
         
-        @Override public boolean hasNext() {
+//      @Override
+        public boolean hasNext() {
             return _index < _array.length;
         }
 
-        @Override
+//      @Override
         public T next()
         {
             if (_index >= _array.length) {
@@ -301,11 +302,12 @@ public final class ArrayBuilders
             return _array[_index++];
         }
 
-        @Override public void remove() {
+//      @Override
+        public void remove() {
             throw new UnsupportedOperationException();
         }
 
-        @Override
+//      @Override
         public Iterator<T> iterator() {
             return this;
         }

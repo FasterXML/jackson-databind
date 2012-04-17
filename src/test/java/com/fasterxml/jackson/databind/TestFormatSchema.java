@@ -24,7 +24,7 @@ public class TestFormatSchema extends BaseMapTest
      */
 
     static class MySchema implements FormatSchema {
-        @Override
+//      @Override
         public String getSchemaType() { return "test"; }
     }
     

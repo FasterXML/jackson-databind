@@ -54,7 +54,7 @@ public class StringCollectionSerializer
     /**********************************************************
      */
     
-    @Override
+//  @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
         throws JsonMappingException

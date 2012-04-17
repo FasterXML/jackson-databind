@@ -230,7 +230,7 @@ public abstract class BeanSerializerBase
      * We need to implement {@link ResolvableSerializer} to be able to
      * properly handle cyclic type references.
      */
-    @Override
+//  @Override
     public void resolve(SerializerProvider provider)
         throws JsonMappingException
     {
@@ -308,7 +308,7 @@ public abstract class BeanSerializerBase
         }
     }
 
-    @Override
+//  @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
         throws JsonMappingException

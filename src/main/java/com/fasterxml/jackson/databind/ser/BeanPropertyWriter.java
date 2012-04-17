@@ -287,27 +287,27 @@ public class BeanPropertyWriter
     /**********************************************************
      */
     
-    @Override
+//    @Override
     public String getName() {
         return _name.getValue();
     }
 
-    @Override
+//    @Override
     public JavaType getType() {
         return _declaredType;
     }
 
-    @Override
+//  @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
         return _member.getAnnotation(acls);
     }
 
-    @Override
+//  @Override
     public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
         return _contextAnnotations.get(acls);
     }
-    
-    @Override
+
+//    @Override
     public AnnotatedMember getMember() {
         return _member;
     }

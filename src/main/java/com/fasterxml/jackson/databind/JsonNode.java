@@ -622,7 +622,7 @@ public abstract class JsonNode
      * convenience "for-each" loop can be used for looping over elements
      * of JSON Array constructs.
      */
-    @Override
+//  @Override
     public final Iterator<JsonNode> iterator() { return elements(); }
 
     /**

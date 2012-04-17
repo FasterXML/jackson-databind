@@ -39,7 +39,7 @@ public abstract class BeanPropertyDefinition
     /**
      * Accessor for name used for external representation (in JSON).
      */
-    @Override // from Named
+//  @Override // from Named
     public abstract String getName();
 
     /**

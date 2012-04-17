@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 /**
  * Unit tests for verifying functioning of [JACKSON-195], ability to
  * force specific root type for serialization (super type of value)
- * 
- * @author tatu
  */
 public class TestRootType
     extends BaseMapTest
@@ -36,7 +34,6 @@ public class TestRootType
     {
         public String a = "a";
 
-        @Override
         public int getB() { return 3; }
     }
 

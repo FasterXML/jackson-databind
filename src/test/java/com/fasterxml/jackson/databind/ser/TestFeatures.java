@@ -74,7 +74,7 @@ public class TestFeatures
 
         protected boolean wasClosed = false;
         
-        @Override
+//      @Override
         public void close() throws IOException {
             wasClosed = true;
         }

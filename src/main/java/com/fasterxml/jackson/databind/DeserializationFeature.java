@@ -216,9 +216,9 @@ public enum DeserializationFeature implements ConfigFeature
         _defaultState = defaultState;
     }
 
-    @Override
+//  @Override
     public boolean enabledByDefault() { return _defaultState; }
 
-    @Override
+//  @Override
     public int getMask() { return (1 << ordinal()); }
 }

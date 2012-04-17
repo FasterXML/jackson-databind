@@ -91,7 +91,7 @@ public abstract class AsArraySerializerBase<T>
     /**********************************************************
      */
     
-    @Override
+//  @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
         throws JsonMappingException

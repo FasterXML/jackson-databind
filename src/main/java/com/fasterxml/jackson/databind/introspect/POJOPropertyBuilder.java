@@ -79,7 +79,7 @@ public class POJOPropertyBuilder
     /**********************************************************
      */
 
-    @Override
+//    @Override
     public int compareTo(POJOPropertyBuilder other)
     {
         // first, if one has ctor params, that should come first:
@@ -283,7 +283,7 @@ public class POJOPropertyBuilder
     @Override
     public Class<?>[] findViews() {
         return fromMemberAnnotation(new WithMember<Class<?>[]>() {
-            @Override public Class<?>[] withMember(AnnotatedMember member) {
+            public Class<?>[] withMember(AnnotatedMember member) {
                 return _annotationIntrospector.findViews(member);
             }
         });
@@ -292,7 +292,7 @@ public class POJOPropertyBuilder
     @Override
     public AnnotationIntrospector.ReferenceProperty findReferenceType() {
         return fromMemberAnnotation(new WithMember<AnnotationIntrospector.ReferenceProperty>() {
-            @Override public AnnotationIntrospector.ReferenceProperty withMember(AnnotatedMember member) {
+            public AnnotationIntrospector.ReferenceProperty withMember(AnnotatedMember member) {
                 return _annotationIntrospector.findReferenceType(member);
             }
         });
@@ -301,7 +301,7 @@ public class POJOPropertyBuilder
     @Override
     public boolean isTypeId() {
         Boolean b = fromMemberAnnotation(new WithMember<Boolean>() {
-            @Override public Boolean withMember(AnnotatedMember member) {
+            public Boolean withMember(AnnotatedMember member) {
                 return _annotationIntrospector.isTypeId(member);
             }
         });
@@ -311,7 +311,7 @@ public class POJOPropertyBuilder
     @Override
     public boolean isRequired() {
         Boolean b = fromMemberAnnotation(new WithMember<Boolean>() {
-            @Override public Boolean withMember(AnnotatedMember member) {
+            public Boolean withMember(AnnotatedMember member) {
                 return _annotationIntrospector.hasRequiredMarker(member);
             }
         });
@@ -321,7 +321,7 @@ public class POJOPropertyBuilder
     @Override
     public ObjectIdInfo findObjectIdInfo() {
         return fromMemberAnnotation(new WithMember<ObjectIdInfo>() {
-            @Override public ObjectIdInfo withMember(AnnotatedMember member) {
+            public ObjectIdInfo withMember(AnnotatedMember member) {
                 return _annotationIntrospector.findObjectIdInfo(member);
             }
         });

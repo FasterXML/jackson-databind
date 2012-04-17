@@ -193,8 +193,7 @@ public class MapDeserializer
     /**********************************************************
      */
 
-
-    @Override
+//    @Override
     public void resolve(DeserializationContext ctxt) throws JsonMappingException
     {
         // May need to resolve types for delegate- and/or property-based creators:
@@ -222,7 +221,7 @@ public class MapDeserializer
      * Method called to finalize setup of this deserializer,
      * when it is known for which property deserializer is needed for.
      */
-    @Override
+//    @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {

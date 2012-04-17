@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 /**
  * Unit tests for checking how combination of interfaces, implementation
  * classes are handled, with respect to type names.
- * 
- * @since 1.8
  */
 public class TestAbstractTypeNames  extends BaseMapTest
 {
@@ -44,7 +42,7 @@ public class TestAbstractTypeNames  extends BaseMapTest
             _employer = employer;
         }
 
-        @Override
+//      @Override
         public String getEmployer() {
             return _employer;
         }
@@ -67,11 +65,11 @@ public class TestAbstractTypeNames  extends BaseMapTest
             _friends = friends;
         }
 
-        @Override public String getName() {
+        public String getName() {
             return _name;
         }
 
-        @Override public List<User> getFriends() {
+        public List<User> getFriends() {
             return _friends;
         }
     }

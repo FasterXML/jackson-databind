@@ -4,6 +4,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /* Tests mostly for [JACKSON-754]: ability to create "annotation bundles"
@@ -27,6 +28,20 @@ public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapT
         @MyRename
         public int renamed = 13;
     }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @JsonAutoDetect(fieldVisibility=Visibility.NONE,
+            getterVisibility=Visibility.NONE, isGetterVisibility=Visibility.NONE)
+    @JacksonAnnotationsInside
+    public @interface JsonAutoDetectOff {}
+
+    @JsonAutoDetectOff
+    public class NoAutoDetect {
+      public int getA() { return 13; }
+      
+      @JsonProperty
+      public int getB() { return 5; }
+    }
     
     /*
     /**********************************************************
@@ -34,10 +49,16 @@ public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapT
     /**********************************************************
      */
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testBundledIgnore() throws Exception
     {
-        assertEquals("{\"foobar\":13}", mapper.writeValueAsString(new Bean()));
+        assertEquals("{\"foobar\":13}", MAPPER.writeValueAsString(new Bean()));
     }
+
+    public void testVisibilityBundle() throws Exception
+    {
+        assertEquals("{\"b\":5}", MAPPER.writeValueAsString(new NoAutoDetect()));
+    }
+    
 }

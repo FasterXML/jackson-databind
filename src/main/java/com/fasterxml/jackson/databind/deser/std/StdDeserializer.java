@@ -582,8 +582,9 @@ public abstract class StdDeserializer<T>
     protected final static double parseDouble(String numStr) throws NumberFormatException
     {
         // [JACKSON-486]: avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?
+        // for now, MIN_VALUE, since MIN_NORMAL is JDK 1.6
         if (NumberInput.NASTY_SMALL_DOUBLE.equals(numStr)) {
-            return Double.MIN_NORMAL;
+            return Double.MIN_VALUE;
         }
         return Double.parseDouble(numStr);
     }

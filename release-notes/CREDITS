@@ -856,6 +856,9 @@ Joern Huxhorn:
    [2.0.0]
 
 James Roper:
+  * Reported [JACKSON-829] Custom serializers not working for List<String>
+    properties, @JsonSerialize(contentUsing)
+   [1.9.7]
   * Requested [JACKSON-732]: Allow 'AnnotationIntrospector.findContentDeserializer()'
     (and similar) to return instance, not just Class<?> for instance
    [2.0.0]

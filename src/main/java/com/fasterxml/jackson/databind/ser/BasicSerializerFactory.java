@@ -513,13 +513,19 @@ public abstract class BasicSerializerFactory
         Class<?> elementRaw = type.getContentType().getRawClass();
         if (isIndexedList(raw)) {
             if (elementRaw == String.class) {
-                return IndexedStringListSerializer.instance;
+                // [JACKSON-829] Must NOT use if we have custom serializer
+                if (elementValueSerializer == null || ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
+                    return IndexedStringListSerializer.instance;
+                }
             }
             return StdContainerSerializers.indexedListSerializer(type.getContentType(), staticTyping,
                     elementTypeSerializer, property, elementValueSerializer);
         }
         if (elementRaw == String.class) {
-            return StringCollectionSerializer.instance;
+            // [JACKSON-829] Must NOT use if we have custom serializer
+            if (elementValueSerializer == null || ClassUtil.isJacksonStdImpl(elementValueSerializer)) {
+                return StringCollectionSerializer.instance;
+            }
         }
         return StdContainerSerializers.collectionSerializer(type.getContentType(), staticTyping,
                 elementTypeSerializer, property, elementValueSerializer);

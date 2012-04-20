@@ -8,6 +8,10 @@ Description:
 
 Fixes:
 
+* [JACKSON-829] Custom serializers not working for List<String> properties,
+  @JsonSerialize(contentUsing)
+ (reported by James R)
+
 Improvements:
 
 * [Issue-5]: Add support for maps with java.util.Locale keys to the set of

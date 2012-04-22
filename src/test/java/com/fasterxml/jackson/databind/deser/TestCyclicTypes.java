@@ -1,7 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-import javax.xml.bind.annotation.*;
-
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -29,17 +27,6 @@ public class TestCyclicTypes
         public void setNext(Bean b) { _next = b; }
         public void setName(String n) { _name = n; }
 
-    }
-
-    // Also another one to ensure JAXB annotation introspector has no problems
-    @XmlAccessorType(XmlAccessType.FIELD)
-    static class JaxbBean
-    {
-        @XmlElement(required = true)
-        protected int id;
-
-        @XmlElement(required = false)
-        protected JaxbBean circular;
     }
 
     static class LinkA {

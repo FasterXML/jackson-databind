@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.jsontype;
 
 import java.util.concurrent.TimeUnit;
 
-
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -34,13 +33,13 @@ public class TestDefaultForEnums
     public void testSimpleEnumBean() throws Exception
     {
         TimeUnitBean bean = new TimeUnitBean();
-        bean.timeUnit = TimeUnit.HOURS;
+        bean.timeUnit = TimeUnit.SECONDS;
         
         // First, without type info
         ObjectMapper m = new ObjectMapper();
         String json = m.writeValueAsString(bean);
         TimeUnitBean result = m.readValue(json, TimeUnitBean.class);
-        assertEquals(TimeUnit.HOURS, result.timeUnit);
+        assertEquals(TimeUnit.SECONDS, result.timeUnit);
         
         // then with type info
         m = new ObjectMapper();
@@ -48,7 +47,7 @@ public class TestDefaultForEnums
         json = m.writeValueAsString(bean);
         result = m.readValue(json, TimeUnitBean.class);
 
-        assertEquals(TimeUnit.HOURS, result.timeUnit);
+        assertEquals(TimeUnit.SECONDS, result.timeUnit);
     }
     
     public void testSimpleEnumsInObjectArray() throws Exception

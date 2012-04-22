@@ -55,18 +55,16 @@ public final class ArrayType
         return new ArrayType(_componentType, _emptyArray, _valueHandler, h);
     }
 
-    // Since 1.7:
     @Override
     public ArrayType withContentTypeHandler(Object h)
     {
-        if (h == _componentType.getTypeHandler()) {
+        if (h == _componentType.<Object>getTypeHandler()) {
             return this;
         }
         return new ArrayType(_componentType.withTypeHandler(h), _emptyArray,
                 _valueHandler, _typeHandler);
     }
 
-    // Since 1.9:
     @Override
     public ArrayType withValueHandler(Object h) {
         if (h == _valueHandler) {
@@ -75,10 +73,9 @@ public final class ArrayType
         return new ArrayType(_componentType, _emptyArray, h, _typeHandler);
     }
 
-    // Since 1.9:
     @Override
     public ArrayType withContentValueHandler(Object h) {
-        if (h == _componentType.getValueHandler()) {
+        if (h == _componentType.<Object>getValueHandler()) {
             return this;
         }
         return new ArrayType(_componentType.withValueHandler(h), _emptyArray,

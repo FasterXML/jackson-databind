@@ -128,10 +128,10 @@ public abstract class JavaType
         JavaType result = _narrow(subclass);
 
         // TODO: these checks should NOT actually be needed; above should suffice:
-        if (_valueHandler != result.getValueHandler()) {
+        if (_valueHandler != result.<Object>getValueHandler()) {
             result = result.withValueHandler(_valueHandler);
         }
-        if (_typeHandler != result.getTypeHandler()) {
+        if (_typeHandler != result.<Object>getTypeHandler()) {
             result = result.withTypeHandler(_typeHandler);
         }
         return result;
@@ -149,10 +149,10 @@ public abstract class JavaType
         }
         JavaType result = _narrow(subclass);
         // TODO: these checks should NOT actually be needed; above should suffice:
-        if (_valueHandler != result.getValueHandler()) {
+        if (_valueHandler != result.<Object>getValueHandler()) {
             result = result.withValueHandler(_valueHandler);
         }
-        if (_typeHandler != result.getTypeHandler()) {
+        if (_typeHandler != result.<Object>getTypeHandler()) {
             result = result.withTypeHandler(_typeHandler);
         }
         return result;

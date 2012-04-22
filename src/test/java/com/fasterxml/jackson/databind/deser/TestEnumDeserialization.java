@@ -123,10 +123,10 @@ public class TestEnumDeserialization
      */
     public void testComplexEnum() throws Exception
     {
-        String json = MAPPER.writeValueAsString(TimeUnit.HOURS);
-        assertEquals(quote("HOURS"), json);
+        String json = MAPPER.writeValueAsString(TimeUnit.SECONDS);
+        assertEquals(quote("SECONDS"), json);
         TimeUnit result = MAPPER.readValue(json, TimeUnit.class);
-        assertSame(TimeUnit.HOURS, result);
+        assertSame(TimeUnit.SECONDS, result);
     }
     
     /**

@@ -115,7 +115,7 @@ public class TestConversions extends BaseMapTest
                 try {
                     data = n.getBinaryValue(variant);
                 } catch (Exception e) {
-                    throw new IOException("Failed (variant "+variant+", data length "+len+"): "+e.getMessage(), e);
+                    throw new IOException("Failed (variant "+variant+", data length "+len+"): "+e.getMessage());
                 }
                 assertNotNull(data);
                 assertArrayEquals(data, input);

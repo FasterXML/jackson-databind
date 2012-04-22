@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 
 public class TestAutoDetect
     extends BaseMapTest
@@ -37,8 +38,10 @@ public class TestAutoDetect
 
         // then by increasing visibility requirement:
         m = new ObjectMapper();
-        m.setVisibilityChecker(m.getVisibilityChecker().withCreatorVisibility
-                (JsonAutoDetect.Visibility.PUBLIC_ONLY));
+        // note: clumsy code, but needed for Eclipse/JDK1.5 compilation (not for 1.6)
+        VisibilityChecker<?> vc = m.getVisibilityChecker();
+        vc = vc.withCreatorVisibility(JsonAutoDetect.Visibility.PUBLIC_ONLY);
+        m.setVisibilityChecker(vc);
         try {
             m.readValue("\"abc\"", PrivateBean.class);
             fail("Expected exception for missing constructor");

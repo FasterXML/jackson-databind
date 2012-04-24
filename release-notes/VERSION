@@ -1,10 +1,18 @@
-Version: 2.0.1
+Version: 2.0.2
 
 Release date:
   23-Apr-2012
 
 Description:
-  The first patch release for 2.0.0
+  The second patch release for 2.0.0
+
+Fixes:
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.0.1 [23-Apr-2012]
 
 Fixes:
 
@@ -19,10 +27,6 @@ Improvements:
 * [Issue-5]: Add support for maps with java.util.Locale keys to the set of
   StdKeyDeserializers
  (contributed by Ryan G)
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.0.0 [25-Mar-2012]
 

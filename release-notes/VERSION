@@ -1,13 +1,15 @@
 Version: 2.0.1
 
 Release date:
-  25-Feb-2012
+  23-Apr-2012
 
 Description:
   The first patch release for 2.0.0
 
 Fixes:
 
+* [JACKSON-827] Ensure core packages work on JDK 1.5
+ (reported by Pascal g)
 * [JACKSON-829] Custom serializers not working for List<String> properties,
   @JsonSerialize(contentUsing)
  (reported by James R)
@@ -22,7 +24,7 @@ Improvements:
 === History: ===
 ------------------------------------------------------------------------
 
-2.0.0 [25-Feb-2012]
+2.0.0 [25-Mar-2012]
 
 Fixes:
 

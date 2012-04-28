@@ -25,9 +25,11 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * (either directly, or through {@link ObjectWriter}.
  *<p>
  * Note that instances are considered immutable and as such no copies
- * should need to be created (there are some implementation details
- * with respect to mix-in annotations; where this is guaranteed as
- * long as caller follow "copy-then-use" pattern)
+ * should need to be created for sharing; all copying is done with
+ * "fluent factory" methods.
+ * Note also that unlike with Jackson 1, these instances can not be
+ * assigned to {@link ObjectMapper}; in fact, application code should
+ * rarely interact directly with these instance (unlike core Jackson code)
  */
 public final class SerializationConfig
     extends MapperConfigBase<SerializationFeature, SerializationConfig>

@@ -523,7 +523,7 @@ public final class ClassUtil
      * Code is needed to work around design flaw in JDK.
      */
     public static Class<? extends Enum<?>> findEnumType(EnumSet<?> s)
-	{
+    {
     	// First things first: if not empty, easy to determine
     	if (!s.isEmpty()) {
     		return findEnumType(s.iterator().next());
@@ -556,12 +556,12 @@ public final class ClassUtil
     @SuppressWarnings("unchecked")
 	public static Class<? extends Enum<?>> findEnumType(Enum<?> en)
     {
-		// enums with "body" are sub-classes of the formal type
+        // enums with "body" are sub-classes of the formal type
     	Class<?> ec = en.getClass();
-		if (ec.getSuperclass() != Enum.class) {
-			ec = ec.getSuperclass();
-		}
-		return (Class<? extends Enum<?>>) ec;
+    	if (ec.getSuperclass() != Enum.class) {
+    	    ec = ec.getSuperclass();
+    	}
+    	return (Class<? extends Enum<?>>) ec;
     }
 
     /**
@@ -573,11 +573,11 @@ public final class ClassUtil
     @SuppressWarnings("unchecked")
     public static Class<? extends Enum<?>> findEnumType(Class<?> cls)
     {
-		// enums with "body" are sub-classes of the formal type
-		if (cls.getSuperclass() != Enum.class) {
-			cls = cls.getSuperclass();
-		}
-		return (Class<? extends Enum<?>>) cls;
+        // enums with "body" are sub-classes of the formal type
+        if (cls.getSuperclass() != Enum.class) {
+            cls = cls.getSuperclass();
+        }
+        return (Class<? extends Enum<?>>) cls;
     }
 
     /*
@@ -619,68 +619,67 @@ public final class ClassUtil
     	private final Field enumMapTypeField;
     	
     	private EnumTypeLocator() {
-			/* JDK uses following fields to store information about actual Enumeration
-			 * type for EnumSets, EnumMaps...
-			 */
-			enumSetTypeField = locateField(EnumSet.class, "elementType", Class.class);
-			enumMapTypeField = locateField(EnumMap.class, "elementType", Class.class);
+    	    /* JDK uses following fields to store information about actual Enumeration
+    	     * type for EnumSets, EnumMaps...
+    	     */
+    	    enumSetTypeField = locateField(EnumSet.class, "elementType", Class.class);
+    	    enumMapTypeField = locateField(EnumMap.class, "elementType", Class.class);
     	}
 
     	@SuppressWarnings("unchecked")
     	public Class<? extends Enum<?>> enumTypeFor(EnumSet<?> set)
     	{
-    		if (enumSetTypeField != null) {
-    			return (Class<? extends Enum<?>>) get(set, enumSetTypeField);
-    		}
-    		throw new IllegalStateException("Can not figure out type for EnumSet (odd JDK platform?)");
-		}
+    	    if (enumSetTypeField != null) {
+    	        return (Class<? extends Enum<?>>) get(set, enumSetTypeField);
+    	    }
+    	    throw new IllegalStateException("Can not figure out type for EnumSet (odd JDK platform?)");
+    	}
 
     	@SuppressWarnings("unchecked")
     	public Class<? extends Enum<?>> enumTypeFor(EnumMap<?,?> set)
-		        {
-    		if (enumMapTypeField != null) {
-    			return (Class<? extends Enum<?>>) get(set, enumMapTypeField);
-    		}
-    		throw new IllegalStateException("Can not figure out type for EnumMap (odd JDK platform?)");
-		        
+        {
+    	    if (enumMapTypeField != null) {
+    	        return (Class<? extends Enum<?>>) get(set, enumMapTypeField);
+    	    }
+    	    throw new IllegalStateException("Can not figure out type for EnumMap (odd JDK platform?)");
         }
     	
     	private Object get(Object bean, Field field)
     	{
-    		try {
-    			return field.get(bean);
-    		} catch (Exception e) {
-    			throw new IllegalArgumentException(e);
-    		}
+    	    try {
+    	        return field.get(bean);
+    	    } catch (Exception e) {
+    	        throw new IllegalArgumentException(e);
+    	    }
     	}
     	
     	private static Field locateField(Class<?> fromClass, String expectedName, Class<?> type)
     	{
-    		Field found = null;
-    		// First: let's see if we can find exact match:
-    		Field[] fields = fromClass.getDeclaredFields();
-    		for (Field f : fields) {
-    			if (expectedName.equals(f.getName()) && f.getType() == type) {
-    				found = f;
-    				break;
-    			}
-    		}
-    		// And if not, if there is just one field with the type, that field
-    		if (found == null) {
-	    		for (Field f : fields) {
-	    			if (f.getType() == type) {
-	    				// If more than one, can't choose
-	    				if (found != null) return null;
-	    				found = f;
-	    			}
-	    		}
-    		}
-    		if (found != null) { // it's non-public, need to force accessible
-    			try {
-    				found.setAccessible(true);
-    			} catch (Throwable t) { }
-    		}
-    		return found;
+    	    Field found = null;
+    	    // First: let's see if we can find exact match:
+    	    Field[] fields = fromClass.getDeclaredFields();
+    	    for (Field f : fields) {
+    	        if (expectedName.equals(f.getName()) && f.getType() == type) {
+    	            found = f;
+    	            break;
+    	        }
+    	    }
+    	    // And if not, if there is just one field with the type, that field
+    	    if (found == null) {
+    	        for (Field f : fields) {
+    	            if (f.getType() == type) {
+    	                // If more than one, can't choose
+    	                if (found != null) return null;
+    	                found = f;
+    	            }
+    	        }
+    	    }
+    	    if (found != null) { // it's non-public, need to force accessible
+    	        try {
+    	            found.setAccessible(true);
+    	        } catch (Throwable t) { }
+    	    }
+    	    return found;
     	}
     }
 }

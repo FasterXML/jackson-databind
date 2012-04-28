@@ -420,7 +420,7 @@ public final class AnnotatedClass
 
         // and then augment these with annotations from super-types:
         for (Class<?> cls : _superTypes) {
-            Class<?> mixin = (_mixInResolver == null) ? null : _mixInResolver.findMixInClassFor(cls);
+            Class<?> mixin = (_mixInResolver == null) ? null : _mixInResolver.findMixInClassFor(cls);         
             _addMemberMethods(cls, _memberMethods, mixin, mixins);
         }
         // Special case: mix-ins for Object.class? (to apply to ALL classes)

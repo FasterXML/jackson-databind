@@ -26,12 +26,46 @@ public class TestMixinInheritance
         public int ido;
     }
 
-    public void testMixinInheritance() throws IOException
+    static class Beano2 {
+        public int getIdo() { return 13; }
+        public String getNameo() { return "Bill"; }
+    }
+
+    static abstract class BeanoMixinSuper2 extends Beano2 {
+        @Override
+        @JsonProperty("name")
+        public abstract String getNameo();
+    }
+
+    static abstract class BeanoMixinSub2 extends BeanoMixinSuper2 {
+        @Override
+        @JsonProperty("id")
+        public abstract int getIdo();
+    }
+    
+    /*
+    /**********************************************************
+    /* Unit tests
+    /**********************************************************
+     */
+    
+    public void testMixinFieldInheritance() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.addMixInAnnotations(Beano.class, BeanoMixinSub.class);
         Map<String,Object> result;
         result = writeAndMap(mapper, new Beano());
+        assertEquals(2, result.size());
+        assertTrue(result.containsKey("id"));
+        assertTrue(result.containsKey("name"));
+    }
+
+    public void testMixinMethodInheritance() throws IOException
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.addMixInAnnotations(Beano2.class, BeanoMixinSub2.class);
+        Map<String,Object> result;
+        result = writeAndMap(mapper, new Beano2());
         assertEquals(2, result.size());
         assertTrue(result.containsKey("id"));
         assertTrue(result.containsKey("name"));

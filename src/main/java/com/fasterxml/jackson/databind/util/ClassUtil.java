@@ -29,7 +29,7 @@ public final class ClassUtil
     {
         return findSuperTypes(cls, endBefore, new ArrayList<Class<?>>(8));
     }
-
+    
     public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore, List<Class<?>> result)
     {
         _addSuperTypes(cls, endBefore, result, false);

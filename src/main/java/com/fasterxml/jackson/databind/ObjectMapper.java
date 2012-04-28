@@ -1665,11 +1665,16 @@ public class ObjectMapper
      *   objectMapper.convertValue(n, valueClass);
      *</pre>
      */
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T treeToValue(TreeNode n, Class<T> valueType)
         throws JsonProcessingException
     {
         try {
+            // [Issue-11]: Simple cast when we just want to cast to, say, ObjectNode
+            if (n.getClass().isAssignableFrom(valueType)) {
+                return (T) n;
+            }
             return readValue(treeAsTokens(n), valueType);
         } catch (JsonProcessingException e) {
             throw e;
@@ -2266,20 +2271,31 @@ public class ObjectMapper
     public <T> T convertValue(Object fromValue, Class<T> toValueType)
         throws IllegalArgumentException
     {
+        // sanity check for null first:
+        if (fromValue == null) return null;
+        // also, as per [Issue-11], consider case for simple cast
+        if (fromValue.getClass().isAssignableFrom(toValueType)) {
+            return (T) fromValue;
+        }
         return (T) _convert(fromValue, _typeFactory.constructType(toValueType));
     } 
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    public <T> T convertValue(Object fromValue, TypeReference toValueTypeRef)
+    public <T> T convertValue(Object fromValue, TypeReference<?> toValueTypeRef)
         throws IllegalArgumentException
     {
-        return (T) _convert(fromValue, _typeFactory.constructType(toValueTypeRef));
+        return convertValue(fromValue, _typeFactory.constructType(toValueTypeRef));
     } 
 
     @SuppressWarnings("unchecked")
     public <T> T convertValue(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
     {
+        // sanity check for null first:
+        if (fromValue == null) return null;
+        // also, as per [Issue-11], consider case for simple cast
+        if (fromValue.getClass().isAssignableFrom(toValueType.getRawClass())) {
+            return (T) fromValue;
+        }
         return (T) _convert(fromValue, toValueType);
     } 
 
@@ -2293,9 +2309,7 @@ public class ObjectMapper
      */
     protected Object _convert(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
-    {
-        // sanity check for null first:
-        if (fromValue == null) return null;
+    {        
         /* Then use TokenBuffer, which is a JsonGenerator:
          * (see [JACKSON-175])
          */

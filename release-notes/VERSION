@@ -8,6 +8,11 @@ Description:
 
 Fixes:
 
+Improvements:
+
+* [Issue-11]: Improve ObjectMapper.convertValue()/.treeToValue() to use
+  cast if possible
+
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------

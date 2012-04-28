@@ -9,13 +9,13 @@ import com.fasterxml.jackson.databind.*;
 public class TestStringConversions
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
-    final ObjectMapper mapper = new ObjectMapper();
+    final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testSimple()
     {
-        assertEquals(Boolean.TRUE, mapper.convertValue("true", Boolean.class));
-        assertEquals(Integer.valueOf(-3), mapper.convertValue("  -3 ", Integer.class));
-        assertEquals(Long.valueOf(77), mapper.convertValue("77", Long.class));
+        assertEquals(Boolean.TRUE, MAPPER.convertValue("true", Boolean.class));
+        assertEquals(Integer.valueOf(-3), MAPPER.convertValue("  -3 ", Integer.class));
+        assertEquals(Long.valueOf(77), MAPPER.convertValue("77", Long.class));
 
         int[] ints = { 1, 2, 3 };
         List<Integer> Ints = new ArrayList<Integer>();
@@ -23,38 +23,32 @@ public class TestStringConversions
         Ints.add(2);
         Ints.add(3);
         
-        assertArrayEquals(ints, mapper.convertValue(Ints, int[].class));
+        assertArrayEquals(ints, MAPPER.convertValue(Ints, int[].class));
     }
 
     public void testStringsToInts()
     {
         // let's verify our "neat trick" actually works...
         assertArrayEquals(new int[] { 1, 2, 3, 4, -1, 0 },
-                          mapper.convertValue("1  2 3    4  -1 0".split("\\s+"), int[].class));
+                          MAPPER.convertValue("1  2 3    4  -1 0".split("\\s+"), int[].class));
     }
 
-    /**
-     * @since 1.6
-     */
     public void testBytesToBase64AndBack() throws Exception
     {
         byte[] input = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
-        String encoded = mapper.convertValue(input, String.class);
+        String encoded = MAPPER.convertValue(input, String.class);
         assertNotNull(encoded);
-        byte[] result = mapper.convertValue(encoded, byte[].class);
+        byte[] result = MAPPER.convertValue(encoded, byte[].class);
         assertArrayEquals(input, result);
     }
     
-    /**
-     * @since 1.7.3
-     */
     public void testBytestoCharArray() throws Exception
     {
         byte[] input = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
         // first, do baseline encoding
-        char[] expEncoded = mapper.convertValue(input, String.class).toCharArray();
+        char[] expEncoded = MAPPER.convertValue(input, String.class).toCharArray();
         // then compare
-        char[] actEncoded = mapper.convertValue(input, char[].class);
+        char[] actEncoded = MAPPER.convertValue(input, char[].class);
         assertArrayEquals(expEncoded, actEncoded);
     }
 }

@@ -2,12 +2,14 @@ package com.fasterxml.jackson.databind.convert;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class TestBeanConversions
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
-    final ObjectMapper mapper = new ObjectMapper();
+    final ObjectMapper MAPPER = new ObjectMapper();
 
     static class Point {
         public int x, y;
@@ -61,7 +63,7 @@ public class TestBeanConversions
     {
         // should have no problems convert between compatible beans...
         PointStrings input = new PointStrings("37", "-9");
-        Point point = mapper.convertValue(input, Point.class);
+        Point point = MAPPER.convertValue(input, Point.class);
         assertEquals(37, point.x);
         assertEquals(-9, point.y);
         // z not included in input, will be whatever default constructor provides
@@ -75,14 +77,14 @@ public class TestBeanConversions
         //String json = "{\"boolProp\":\"oops\"}";
         // First: unknown property
         try {
-            mapper.readValue("{\"unknownProp\":true}", BooleanBean.class);
+            MAPPER.readValue("{\"unknownProp\":true}", BooleanBean.class);
         } catch (JsonProcessingException e) {
             verifyException(e, "unknownProp");
         }
 
         // then bad conversion
         try {
-            mapper.readValue("{\"boolProp\":\"foobar\"}", BooleanBean.class);
+            MAPPER.readValue("{\"boolProp\":\"foobar\"}", BooleanBean.class);
         } catch (JsonProcessingException e) {
             verifyException(e, "boolProp");
         }
@@ -92,8 +94,8 @@ public class TestBeanConversions
     {
         ObjectWrapper a = new ObjectWrapper("foo");
         ObjectWrapper b = new ObjectWrapper(a);
-        ObjectWrapper b2 = mapper.convertValue(b, ObjectWrapper.class);
-        ObjectWrapper a2 = mapper.convertValue(b2.getData(), ObjectWrapper.class);
+        ObjectWrapper b2 = MAPPER.convertValue(b, ObjectWrapper.class);
+        ObjectWrapper a2 = MAPPER.convertValue(b2.getData(), ObjectWrapper.class);
         assertEquals("foo", a2.getData());
     }
 
@@ -120,6 +122,26 @@ public class TestBeanConversions
         _convertAndVerifyPoint(wrappingMapper);
     }
 
+    // [Issue-11]: simple cast, for POJOs etc
+    public void testConvertUsingCast() throws Exception
+    {
+        String str = new String("foo");
+        CharSequence seq = str;
+        String result = MAPPER.convertValue(seq, String.class);
+        // should just cast...
+        assertSame(str, result);
+    }
+    
+    // [Issue-11]: simple cast, for Tree
+    public void testNodeConvert() throws Exception
+    {
+        ObjectNode src = (ObjectNode) MAPPER.readTree("{}");
+        TreeNode node = src;
+        ObjectNode result = MAPPER.treeToValue(node, ObjectNode.class);
+        // should just cast...
+        assertSame(src, result);
+    }
+    
     private void _convertAndVerifyPoint(ObjectMapper m)
     {
         final Point input = new Point(1, 2, 3);

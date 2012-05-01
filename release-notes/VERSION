@@ -1,7 +1,7 @@
 Version: 2.0.2
 
 Release date:
-  23-Apr-2012
+  xx-May-2012
 
 Description:
   The second patch release for 2.0.0
@@ -16,6 +16,8 @@ Improvements:
 
 * [Issue-11]: Improve ObjectMapper.convertValue()/.treeToValue() to use
   cast if possible
+
+And all fixes from 1.9.7
 
 ------------------------------------------------------------------------
 === History: ===

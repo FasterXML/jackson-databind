@@ -11,6 +11,9 @@ Fixes:
 * [Issue-14]: Annotations were not included from parent classes of
   mix-in classes
  (reported by @guillaup)
+* [JACKSON-824]: Combination of JSON Views, ObjectMapper.readerForUpdating()
+  was not working
+ (reported by Nir S)
 
 Improvements:
 

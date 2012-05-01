@@ -121,6 +121,7 @@ public class ObjectArraySerializer
             vts = vts.forProperty(property);
         }
         JsonSerializer<?> ser = _elementSerializer;
+
         if (ser == null) {
             if (_staticTyping) {
                 ser = provider.findValueSerializer(_elementType, property);

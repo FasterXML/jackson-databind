@@ -135,7 +135,7 @@ public class BeanSerializerFactory
         
         // Next: we may have annotations that further define types to use...
         JavaType type = modifyTypeByAnnotation(config, beanDesc.getClassInfo(), origType);
-        if (type == origType) { // no changes, won't force static typin
+        if (type == origType) { // no changes, won't force static typing
             staticTyping = false;
         } else { // changes; assume static typing; plus, need to re-introspect if class differs
             staticTyping = true;

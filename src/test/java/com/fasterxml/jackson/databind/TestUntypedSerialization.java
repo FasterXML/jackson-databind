@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -10,10 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * This unit test suite tries verify simplest aspects of
  * "Native" java type mapper; basically that is can properly serialize
  * core JDK objects to JSON.
- *
- * @author Tatu Saloranta
  */
-public class TestFromJavaType
+public class TestUntypedSerialization
     extends BaseMapTest
 {
     public void testFromArray()
@@ -101,18 +98,5 @@ public class TestFromJavaType
 
             assertNull(jp.nextToken());
         }
-    }
-
-    /**
-     * Unit test to catch bug [JACKSON-8].
-     */
-    public void testBigDecimal()
-        throws Exception
-    {
-        Map<String, Object> map = new HashMap<String, Object>();
-        String PI_STR = "3.14159265";
-        map.put("pi", new BigDecimal(PI_STR));
-        String str = new ObjectMapper().writeValueAsString(map);
-        assertEquals("{\"pi\":3.14159265}", str);
     }
 }

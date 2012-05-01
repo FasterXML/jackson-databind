@@ -7,14 +7,14 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Unit tests for verifying "old" data binding from Json to JDK objects;
+ * Unit tests for verifying "old" data binding from JSON to JDK objects;
  * one that only uses core JDK types; wrappers, Maps and Lists.
  */
-public class TestToJavaType
+public class TestUntypedDeserialization
     extends com.fasterxml.jackson.test.BaseTest
 {
     @SuppressWarnings("unchecked")
-	public void testSampleDoc()
+    public void testSampleDoc()
         throws Exception
     {
         final String JSON = SAMPLE_DOC_JSON_SPEC;

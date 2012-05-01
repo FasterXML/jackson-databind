@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -16,6 +17,19 @@ public class TestJdkTypes
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
     private final ObjectMapper MAPPER = new ObjectMapper();
+    
+    /**
+     * Unit test to catch bug [JACKSON-8].
+     */
+    public void testBigDecimal()
+        throws Exception
+    {
+        Map<String, Object> map = new HashMap<String, Object>();
+        String PI_STR = "3.14159265";
+        map.put("pi", new BigDecimal(PI_STR));
+        String str = MAPPER.writeValueAsString(map);
+        assertEquals("{\"pi\":3.14159265}", str);
+    }
     
     /**
      * Unit test related to [JACKSON-155]

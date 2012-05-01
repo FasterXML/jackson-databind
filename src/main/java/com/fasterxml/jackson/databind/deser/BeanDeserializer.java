@@ -148,7 +148,7 @@ public class BeanDeserializer
     @Override
     public Object deserialize(JsonParser jp, DeserializationContext ctxt, Object bean)
         throws IOException, JsonProcessingException
-    {        
+    {
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
@@ -158,16 +158,16 @@ public class BeanDeserializer
         if (_externalTypeIdHandler != null) {
             return deserializeWithExternalTypeId(jp, ctxt, bean);
         }
+        JsonToken t = jp.getCurrentToken();
+        // 23-Mar-2010, tatu: In some cases, we start with full JSON object too...
+        if (t == JsonToken.START_OBJECT) {
+            t = jp.nextToken();
+        }
         if (_needViewProcesing) {
             Class<?> view = ctxt.getActiveView();
             if (view != null) {
                 return deserializeWithView(jp, ctxt, bean, view);
             }
-        }
-        JsonToken t = jp.getCurrentToken();
-        // 23-Mar-2010, tatu: In some cases, we start with full JSON object too...
-        if (t == JsonToken.START_OBJECT) {
-            t = jp.nextToken();
         }
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             String propName = jp.getCurrentName();

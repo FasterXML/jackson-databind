@@ -48,6 +48,38 @@ public class ExternalTypeHandler
     }
 
     /**
+     * Method called to see if given property/value pair is an external type
+     * id; and if so handle it. This is <b>only</b> to be called in case
+     * containing POJO has similarly named property as the external type id;
+     * otherwise {@link #handlePropertyValue} should be called instead.
+     */
+    public boolean handleTypePropertyValue(JsonParser jp, DeserializationContext ctxt,
+            String propName, Object bean)
+        throws IOException, JsonProcessingException
+    {
+        Integer I = _nameToPropertyIndex.get(propName);
+        if (I == null) {
+            return false;
+        }
+        int index = I.intValue();
+        ExtTypedProperty prop = _properties[index];
+        if (!prop.hasTypePropertyName(propName)) {
+            return false;
+        }
+        _typeIds[index] = jp.getText();
+        // note: can NOT skip child values (should always be String anyway)
+        boolean canDeserialize = (bean != null) && (_tokens[index] != null);
+        // Minor optimization: deserialize properties as soon as we have all we need:
+        if (canDeserialize) {
+            _deserializeAndSet(jp, ctxt, bean, index);
+            // clear stored data, to avoid deserializing+setting twice:
+            _typeIds[index] = null;
+            _tokens[index] = null;
+        }
+        return true;
+    }
+    
+    /**
      * Method called to ask handler to handle value of given property,
      * at point where parser points to the first token of the value.
      * Handling can mean either resolving type id it contains (if it matches type
@@ -91,7 +123,6 @@ public class ExternalTypeHandler
     public Object complete(JsonParser jp, DeserializationContext ctxt, Object bean)
         throws IOException, JsonProcessingException
     {
-
         for (int i = 0, len = _properties.length; i < len; ++i) {
             if (_typeIds[i] == null) {
                 // let's allow missing both type and property (may already have been set, too)

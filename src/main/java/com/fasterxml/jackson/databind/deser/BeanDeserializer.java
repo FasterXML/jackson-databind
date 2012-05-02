@@ -903,6 +903,10 @@ public class BeanDeserializer
             jp.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) { // normal case
+                // [JACKSON-831]: may have property AND be used as external type id:
+                if (jp.getCurrentToken().isScalarValue()) {
+                    ext.handleTypePropertyValue(jp, ctxt, propName, bean);
+                }
                 if (activeView != null && !prop.visibleInView(activeView)) {
                     jp.skipChildren();
                     continue;

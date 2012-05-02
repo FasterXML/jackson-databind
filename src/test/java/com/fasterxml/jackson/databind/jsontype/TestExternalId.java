@@ -149,7 +149,7 @@ public class TestExternalId extends BaseMapTest
         public Base getBase() { return base; }
     }
 
-    // [JACKSON-831]
+    // [JACKSON-831]: should allow a property to map id to as well
     
     interface Pet {}
 
@@ -158,7 +158,7 @@ public class TestExternalId extends BaseMapTest
     }
 
     static class House831 {
-        private String petType;
+        protected String petType;
 
         @JsonTypeInfo(use = Id.NAME, include = As.EXTERNAL_PROPERTY, property = "petType")
         @JsonSubTypes({@JsonSubTypes.Type(name = "dog", value = Dog.class)})
@@ -289,5 +289,6 @@ public class TestExternalId extends BaseMapTest
         assertNotNull(result);
         assertNotNull(result.pet);
         assertSame(Dog.class, result.pet.getClass());
+        assertEquals("dog", result.petType);
     }
 }

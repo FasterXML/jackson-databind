@@ -76,7 +76,26 @@ public class TestEnumDeserialization
     static class ClassWithEnumMapKey {
     	@JsonProperty Map<TestEnum, String> map;
     }
-    
+
+    // [JACKSON-834]
+    protected enum TestEnumFor834
+    {
+        ENUM_A(1), ENUM_B(2), ENUM_C(3);
+        
+        private final int id;
+        
+        private TestEnumFor834(int id) {
+            this.id = id;
+        }
+        
+        @JsonCreator public static TestEnumFor834 fromId(int id) {
+            for (TestEnumFor834 e: values()) {
+                if (e.id == id) return e;
+            }
+            return null;
+        }
+    }
+
     /*
     /**********************************************************
     /* Tests
@@ -295,4 +314,11 @@ public class TestEnumDeserialization
          }
     }
 
+    // [JACKSON-834]
+    public void testEnumsFromInts() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        TestEnumFor834 res = mapper.readValue("1 ", TestEnumFor834.class);
+        assertSame(TestEnumFor834.ENUM_A, res);
+    }
 }

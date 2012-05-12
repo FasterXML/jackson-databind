@@ -43,7 +43,7 @@ public class IterableSerializer
     @Override
     public boolean isEmpty(Iterable<?> value) {
         // Not really good way to implement this, but has to do for now:
-        return (value == null) || value.iterator().hasNext();
+        return (value == null) || !value.iterator().hasNext();
     }
 
     @Override

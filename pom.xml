@@ -56,12 +56,12 @@
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.0.1</version>
+      <version>2.0.2</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.0.1</version>
+      <version>2.0.2</version>
     </dependency>
 
     <!-- and for testing, JUnit is needed, as well as quite a few
@@ -172,8 +172,8 @@
                     <maxmemory>512m</maxmemory>
                     <links>
                         <link>http://docs.oracle.com/javase/6/docs/api/</link>
-                        <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.0.0/</link>
-                        <link>http://fasterxml.github.com/jackson-core/javadoc/2.0.0/</link>
+                        <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.0.2/</link>
+                        <link>http://fasterxml.github.com/jackson-core/javadoc/2.0.2/</link>
                     </links>
                 </configuration>
                 <executions>

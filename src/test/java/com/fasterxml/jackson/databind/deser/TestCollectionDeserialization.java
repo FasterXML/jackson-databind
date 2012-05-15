@@ -165,7 +165,6 @@ public class TestCollectionDeserialization
     }
 
     // [JACKSON-822]: ensure that type can be coerced
-    /*
     public void testTypedLists() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -187,5 +186,4 @@ public class TestCollectionDeserialization
         assertEquals("[{\"a\":3}]", mapper.writerWithType(Issue822Interface[].class).writeValueAsString(
                 new Issue822Interface[] { new Issue822Impl() }));
     }
-    */
 }

@@ -1,3 +1,4 @@
+
 Version: 2.1.0
 
 Release date:
@@ -85,6 +86,7 @@ Improvements:
   'DeserializationConfig.Feature' as 'DeserializationFeature'
 * [JACKSON-780]: MissingNode, NullNode should return 'defaultValue' from 'asXxx' methods,
   (not 0 for numbers), as they are not numeric types
+* [JACKSON-787]: Allow use of @JsonIgnoreProperties for properties (fields, getters, setters)
 * [JACKSON-795]: @JsonValue was not working for Maps, Collections
 * [JACKSON-800]: Add 'Module.SetupContext#addDeserializationProblemHandler'
  (suggested by James R)

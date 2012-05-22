@@ -61,7 +61,7 @@ public class SimpleSerializers extends Serializers.Base
         if (cls == null || cls == Object.class) {
             throw new IllegalArgumentException("JsonSerializer of type "+ser.getClass().getName()
                     +" does not define valid handledType() -- must either register with method that takes type argument "
-                    +" or make serializer extend 'com.fasterxml.jackson.databind.ser.std.SerializerBase'"); 
+                    +" or make serializer extend 'com.fasterxml.jackson.databind.ser.std.StdSerializer'"); 
         }
         _addSerializer(cls, ser);
     }

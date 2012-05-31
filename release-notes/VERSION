@@ -13,6 +13,7 @@ Improvements:
 * [JACKSON-839]: Allow "upgrade" of integer number types for
   UntypedObjectDeserializer, even with default typing enabled.
 * [Issue-9]: Implement 'required' JSON Schema attribute for bean properties
+* [Issue-19]: Change OSGi bundle name to be fully-qualified
 
 ------------------------------------------------------------------------
 === History: ===

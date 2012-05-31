@@ -195,7 +195,7 @@
           <extensions>true</extensions>
           <configuration>
             <instructions>
-              <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+              <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
               <Bundle-Vendor>fasterml.com</Bundle-Vendor>
               <Import-Package>
 com.fasterxml.jackson.annotation,

@@ -1,10 +1,13 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.deser;
 
 import java.io.*;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 
 /**
  * Unit tests for verifying "old" data binding from JSON to JDK objects;
@@ -68,5 +71,24 @@ public class TestUntypedDeserialization
         assertEquals(Integer.valueOf(SAMPLE_SPEC_VALUE_TN_ID4), ids.get(3));
 
         // and that's all folks!
+    }
+
+    // [JACKSON-839]: allow 'upgrade' of big integers into Long, BigInteger
+    public void testObjectSerializeWithLong() throws IOException
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enableDefaultTyping(DefaultTyping.JAVA_LANG_OBJECT, As.PROPERTY);
+        final long VALUE = 1337800584532L;
+
+        String serialized = "{\"timestamp\":"+VALUE+"}";
+        // works fine as node
+        JsonNode deserialized = mapper.readTree(serialized);
+        assertEquals(VALUE, deserialized.get("timestamp").asLong());
+        // and actually should work in Maps too
+        Map<?,?> deserMap = mapper.readValue(serialized, Map.class);
+        Number n = (Number) deserMap.get("timestamp");
+        assertNotNull(n);
+        assertSame(Long.class, n.getClass());
+        assertEquals(Long.valueOf(VALUE), n);
     }
 }

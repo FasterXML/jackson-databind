@@ -1,4 +1,3 @@
-
 Version: 2.1.0
 
 Release date:
@@ -8,6 +7,12 @@ Description:
   New minor version for 2.x.
 
 Fixes:
+
+Improvements:
+
+* [JACKSON-839]: Allow "upgrade" of integer number types for
+  UntypedObjectDeserializer, even with default typing enabled.
+* [Issue-9]: Implement 'required' JSON Schema attribute for bean properties
 
 ------------------------------------------------------------------------
 === History: ===

@@ -1,10 +1,11 @@
 package com.fasterxml.jackson.databind.jsonschema;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -25,7 +26,9 @@ public class TestGenerateJsonSchema
         private String property2;
         private String[] property3;
         private Collection<Float> property4;
-
+        @JsonProperty(required=true)
+        private String property5;
+        
         public int getProperty1()
         {
             return property1;
@@ -65,6 +68,16 @@ public class TestGenerateJsonSchema
         {
             this.property4 = property4;
         }
+        
+        public String getProperty5()
+        {
+            return property5;
+        }
+
+        public void setProperty5(String property5)
+        {
+            this.property5 = property5;
+        }
     }
 
     public class TrivialBean {
@@ -91,6 +104,7 @@ public class TestGenerateJsonSchema
         throws Exception
     {
         JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
+        
         assertNotNull(jsonSchema);
 
         // test basic equality, and that equals() handles null, other obs

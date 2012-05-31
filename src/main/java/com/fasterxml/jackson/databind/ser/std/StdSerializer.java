@@ -86,6 +86,21 @@ public abstract class StdSerializer<T>
         return createSchemaNode("string");
     }
     
+    /**
+     * Default implementation simply claims type is "string"; usually
+     * overriden by custom serializers.
+     */
+    @Override
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint, boolean isOptional)
+        throws JsonMappingException
+    {
+    	ObjectNode schema = (ObjectNode) getSchema(provider, typeHint);
+    	if (!isOptional) {
+    		schema.put("required", !isOptional);
+    	}
+        return schema;
+    }
+    
     protected ObjectNode createObjectNode() {
         return JsonNodeFactory.instance.objectNode();
     }

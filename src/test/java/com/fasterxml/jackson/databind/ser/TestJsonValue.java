@@ -102,6 +102,27 @@ public class TestJsonValue
         @JsonValue
         public int value() { return 13; }
     }
+
+    static class IntExtBean {
+        public List<Internal> values = new ArrayList<Internal>();
+        
+        public void add(int v) { values.add(new Internal(v)); }
+    }
+    
+    static class Internal {
+        public int value;
+        
+        public Internal(int v) { value = v; }
+        
+        @JsonValue
+        public External asExternal() { return new External(this); }
+    }
+    
+    static class External {
+        public int i;
+        
+        External(Internal e) { i = e.value; }
+    }
     
     /*
     /*********************************************************
@@ -154,5 +175,13 @@ public class TestJsonValue
 
     public void testWithList() throws Exception {
         assertEquals("13", MAPPER.writeValueAsString(new ListAsNumber()));
+    }
+
+    public void testInList() throws Exception {
+        IntExtBean bean = new IntExtBean();
+        bean.add(1);
+        bean.add(2);
+        String json = MAPPER.writeValueAsString(bean);
+        assertEquals(json, "{\"values\":[{\"i\":1},{\"i\":2}]}");
     }
 }

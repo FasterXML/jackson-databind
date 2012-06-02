@@ -56,17 +56,17 @@ public class TestCollectionDeserialization
     /* Test methods
     /**********************************************************
      */
+
+    private final static ObjectMapper MAPPER = new ObjectMapper();
     
     public void testUntypedList() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // to get "untyped" default List, pass Object.class
         String JSON = "[ \"text!\", true, null, 23 ]";
 
-        /* Not a guaranteed cast theoretically, but will work:
-         * (since we know that Jackson will construct an ArrayList here...)
-         */
-        Object value = mapper.readValue(JSON, Object.class);
+        // Not a guaranteed cast theoretically, but will work:
+        // (since we know that Jackson will construct an ArrayList here...)
+        Object value = MAPPER.readValue(JSON, Object.class);
         assertNotNull(value);
         assertTrue(value instanceof ArrayList<?>);
         List<?> result = (List<?>) value;
@@ -81,10 +81,9 @@ public class TestCollectionDeserialization
 
     public void testExactStringCollection() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // to get typing, must use type reference
         String JSON = "[ \"a\", \"b\" ]";
-        List<String> result = mapper.readValue(JSON, new TypeReference<ArrayList<String>>() { });
+        List<String> result = MAPPER.readValue(JSON, new TypeReference<ArrayList<String>>() { });
 
         assertNotNull(result);
         assertEquals(ArrayList.class, result.getClass());
@@ -96,10 +95,9 @@ public class TestCollectionDeserialization
 
     public void testHashSet() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         String JSON = "[ \"KEY1\", \"KEY2\" ]";
 
-        EnumSet<Key> result = mapper.readValue(JSON, new TypeReference<EnumSet<Key>>() { });
+        EnumSet<Key> result = MAPPER.readValue(JSON, new TypeReference<EnumSet<Key>>() { });
         assertNotNull(result);
         assertTrue(EnumSet.class.isAssignableFrom(result.getClass()));
         assertEquals(2, result.size());
@@ -109,23 +107,20 @@ public class TestCollectionDeserialization
         assertFalse(result.contains(Key.WHATEVER));
     }
 
-    /**
-     * Test to verify that @JsonDeserialize.using works as expected
-     */
+    /// Test to verify that @JsonDeserialize.using works as expected
     public void testCustomDeserializer() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        CustomList result = mapper.readValue(quote("abc"), CustomList.class);
+        CustomList result = MAPPER.readValue(quote("abc"), CustomList.class);
         assertEquals(1, result.size());
         assertEquals("abc", result.get(0));
     }
 
-    /* Testing [JACKSON-526], "implicit JSON array" for single-element arrays,
-     * mostly produced by Jettison, Badgerfish conversions (from XML)
-     */
+    // Testing [JACKSON-526], "implicit JSON array" for single-element arrays,
+    // mostly produced by Jettison, Badgerfish conversions (from XML)
     @SuppressWarnings("unchecked")
     public void testImplicitArrays() throws Exception
     {
+        // can't share mapper, custom configs (could create ObjectWriter tho)
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
@@ -158,23 +153,21 @@ public class TestCollectionDeserialization
     // [JACKSON-620]: allow "" to mean 'null' for Maps
     public void testFromEmptyString() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-        List<?> result = m.readValue(quote(""), List.class);
+        ObjectReader r = MAPPER.reader(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+        List<?> result = r.withType(List.class).readValue(quote(""));
         assertNull(result);
     }
 
     // [JACKSON-822]: ensure that type can be coerced
     public void testTypedLists() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         List<Issue822Interface> list = new ArrayList<Issue822Interface>();
-        String singleJson = mapper.writerWithType(Issue822Interface.class).writeValueAsString(new Issue822Impl());
+        String singleJson = MAPPER.writerWithType(Issue822Interface.class).writeValueAsString(new Issue822Impl());
         // start with specific value case:
         assertEquals("{\"a\":3}", singleJson);
         // then lists
         list.add(new Issue822Impl());
-        String listJson = mapper.writerWithType(new TypeReference<List<Issue822Interface>>(){})
+        String listJson = MAPPER.writerWithType(new TypeReference<List<Issue822Interface>>(){})
                 .writeValueAsString(list);
         assertEquals("[{\"a\":3}]", listJson);
     }
@@ -182,8 +175,7 @@ public class TestCollectionDeserialization
     // [JACKSON-822]: ensure that type can be coerced
     public void testTypedArrays() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        assertEquals("[{\"a\":3}]", mapper.writerWithType(Issue822Interface[].class).writeValueAsString(
+        assertEquals("[{\"a\":3}]", MAPPER.writerWithType(Issue822Interface[].class).writeValueAsString(
                 new Issue822Interface[] { new Issue822Impl() }));
     }
 }

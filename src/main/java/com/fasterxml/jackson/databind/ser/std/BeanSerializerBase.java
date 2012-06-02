@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 
-import javax.xml.bind.annotation.XmlElement;
-
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.core.*;
@@ -634,13 +632,16 @@ public abstract class BeanSerializerBase
     }
 
     /**
-     * Determines if a bean property is required. Currently this looks for any XmlElement annotations
-     * that have a require attribute.
+     * Determines if a bean property is required, as determined by
+     * {@link com.fasterxml.jackson.databind.AnnotationIntrospector#hasRequiredMarker}.
+     *<p>
+     * 
+     * 
      * @param prop the bean property.
      * @return true if the property is optional, false otherwise.
      */
-	private boolean isPropertyRequired(final BeanPropertyWriter prop, final SerializerProvider provider) {
-		Boolean value = provider.getAnnotationIntrospector().hasRequiredMarker(prop.getMember());
-		return value == null ? false : value.booleanValue();
-	}
+    private boolean isPropertyRequired(final BeanPropertyWriter prop, final SerializerProvider provider) {
+        Boolean value = provider.getAnnotationIntrospector().hasRequiredMarker(prop.getMember());
+        return (value == null) ? false : value.booleanValue();
+    }
 }

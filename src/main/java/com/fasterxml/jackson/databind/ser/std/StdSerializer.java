@@ -90,7 +90,7 @@ public abstract class StdSerializer<T>
      * Default implementation simply claims type is "string"; usually
      * overriden by custom serializers.
      */
-    @Override
+//    @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint, boolean isOptional)
         throws JsonMappingException
     {

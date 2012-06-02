@@ -37,19 +37,6 @@ public class TestCollectionDeserialization
     static class XBean {
         public int x;
     }
-
-    // [JACKSON-822]
-    static interface Issue822Interface {
-        public int getA();
-    }
-
-    // If this annotation is added, things will work:
-    //@com.fasterxml.jackson.databind.annotation.JsonSerialize(as=Issue822Interface.class)
-    // but it should not be necessary when root type is passed
-    static class Issue822Impl implements Issue822Interface {
-        public int getA() { return 3; }
-        public int getB() { return 9; }
-    }
     
     /*
     /**********************************************************
@@ -156,26 +143,5 @@ public class TestCollectionDeserialization
         ObjectReader r = MAPPER.reader(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
         List<?> result = r.withType(List.class).readValue(quote(""));
         assertNull(result);
-    }
-
-    // [JACKSON-822]: ensure that type can be coerced
-    public void testTypedLists() throws Exception
-    {
-        List<Issue822Interface> list = new ArrayList<Issue822Interface>();
-        String singleJson = MAPPER.writerWithType(Issue822Interface.class).writeValueAsString(new Issue822Impl());
-        // start with specific value case:
-        assertEquals("{\"a\":3}", singleJson);
-        // then lists
-        list.add(new Issue822Impl());
-        String listJson = MAPPER.writerWithType(new TypeReference<List<Issue822Interface>>(){})
-                .writeValueAsString(list);
-        assertEquals("[{\"a\":3}]", listJson);
-    }
-
-    // [JACKSON-822]: ensure that type can be coerced
-    public void testTypedArrays() throws Exception
-    {
-        assertEquals("[{\"a\":3}]", MAPPER.writerWithType(Issue822Interface[].class).writeValueAsString(
-                new Issue822Interface[] { new Issue822Impl() }));
     }
 }

@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -101,6 +102,19 @@ public class TestCollectionSerialization
 
         public Iterable<String> getValues() { return values; }
     }
+
+    // [JACKSON-822]
+    static interface Issue822Interface {
+        public int getA();
+    }
+
+    // If this annotation is added, things will work:
+    //@com.fasterxml.jackson.databind.annotation.JsonSerialize(as=Issue822Interface.class)
+    // but it should not be necessary when root type is passed
+    static class Issue822Impl implements Issue822Interface {
+        public int getA() { return 3; }
+        public int getB() { return 9; }
+    }
     
     /*
     /**********************************************************
@@ -108,12 +122,13 @@ public class TestCollectionSerialization
     /**********************************************************
      */
 
+    private final static ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testCollections()
         throws IOException
     {
         // Let's try different collections, arrays etc
         final int entryLen = 98;
-        ObjectMapper mapper = new ObjectMapper();
 
         for (int type = 0; type < 4; ++type) {
             Object value;
@@ -143,11 +158,10 @@ public class TestCollectionSerialization
                 }
                 value = c;
             }
-            StringWriter sw = new StringWriter();
-            mapper.writeValue(sw, value);
+            String json = MAPPER.writeValueAsString(value);
             
             // and then need to verify:
-            JsonParser jp = new JsonFactory().createJsonParser(sw.toString());
+            JsonParser jp = new JsonFactory().createJsonParser(json);
             assertToken(JsonToken.START_ARRAY, jp.nextToken());
             for (int i = 0; i < entryLen; ++i) {
                 assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
@@ -165,27 +179,26 @@ public class TestCollectionSerialization
         for (int i = 0; i <= COUNT; ++i) {
             value.add(i);
         }
-        ObjectMapper mapper = new ObjectMapper();
         // Let's test using 3 main variants...
         for (int mode = 0; mode < 3; ++mode) {
             JsonParser jp = null;
             switch (mode) {
             case 0:
                 {
-                    byte[] data = mapper.writeValueAsBytes(value);
+                    byte[] data = MAPPER.writeValueAsBytes(value);
                     jp = new JsonFactory().createJsonParser(data);
                 }
                 break;
             case 1:
                 {
                     StringWriter sw = new StringWriter(value.size());
-                    mapper.writeValue(sw, value);
+                    MAPPER.writeValue(sw, value);
                     jp = createParserUsingReader(sw.toString());
                 }
                 break;
             case 2:
                 {
-                    String str = mapper.writeValueAsString(value);
+                    String str = MAPPER.writeValueAsString(value);
                     jp = createParserUsingReader(str);
                 }
                 break;
@@ -205,35 +218,31 @@ public class TestCollectionSerialization
     public void testEnumMap()
         throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        StringWriter sw = new StringWriter();
         EnumMap<Key,String> map = new EnumMap<Key,String>(Key.class);
         map.put(Key.B, "xyz");
         map.put(Key.C, "abc");
         // assuming EnumMap uses enum entry order, which I think is true...
-        mapper.writeValue(sw, map);
-        assertEquals("{\"B\":\"xyz\",\"C\":\"abc\"}", sw.toString().trim());
+        String json = MAPPER.writeValueAsString(map);
+        assertEquals("{\"B\":\"xyz\",\"C\":\"abc\"}",json.trim());
     }
 
     public void testIterator()
         throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
         StringWriter sw = new StringWriter();
         ArrayList<Integer> l = new ArrayList<Integer>();
         l.add(1);
         l.add(-9);
         l.add(0);
-        mapper.writeValue(sw, l.iterator());
+        MAPPER.writeValue(sw, l.iterator());
         assertEquals("[1,-9,0]", sw.toString().trim());
     }
 
     public void testIterable()
         throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
         StringWriter sw = new StringWriter();
-        mapper.writeValue(sw, new IterableWrapper(new int[] { 1, 2, 3 }));
+        MAPPER.writeValue(sw, new IterableWrapper(new int[] { 1, 2, 3 }));
         assertEquals("[1,2,3]", sw.toString().trim());
     }
 
@@ -246,8 +255,7 @@ public class TestCollectionSerialization
         Collection<Object> x = new ArrayList<Object>();
         x.add("foobar");
         CollectionBean cb = new CollectionBean(x);
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, cb);
+        Map<String,Object> result = writeAndMap(MAPPER, cb);
         assertEquals(1, result.size());
         assertTrue(result.containsKey("values"));
         Collection<Object> x2 = (Collection<Object>) result.get("values");
@@ -259,8 +267,7 @@ public class TestCollectionSerialization
         throws IOException
     {
         CollectionBean cb = new CollectionBean(null);
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, cb);
+        Map<String,Object> result = writeAndMap(MAPPER, cb);
         assertEquals(1, result.size());
         assertTrue(result.containsKey("values"));
         assertNull(result.get("values"));
@@ -272,8 +279,7 @@ public class TestCollectionSerialization
     {
         EnumMap<Key,String> map = new EnumMap<Key,String>(Key.class);
         EnumMapBean b = new EnumMapBean(map);
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, b);
+        Map<String,Object> result = writeAndMap(MAPPER, b);
 
         assertEquals(1, result.size());
         assertTrue(result.containsKey("map"));
@@ -288,8 +294,7 @@ public class TestCollectionSerialization
         throws IOException
     {
         EnumMapBean b = new EnumMapBean(null);
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, b);
+        Map<String,Object> result = writeAndMap(MAPPER, b);
 
         assertEquals(1, result.size());
         assertTrue(result.containsKey("map"));
@@ -299,8 +304,8 @@ public class TestCollectionSerialization
     // Test [JACKSON-220]
     public void testListSerializer() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        assertEquals("\"[ab, cd, ef]\"", m.writeValueAsString(new PseudoList("ab", "cd", "ef")));
+        assertEquals("\"[ab, cd, ef]\"",
+                MAPPER.writeValueAsString(new PseudoList("ab", "cd", "ef")));
     }
 
     // [JACKSON-254]
@@ -309,13 +314,12 @@ public class TestCollectionSerialization
         // by default, empty lists serialized normally
         EmptyListBean list = new EmptyListBean();
         EmptyArrayBean array = new EmptyArrayBean();
-        ObjectMapper m = new ObjectMapper();
-        assertTrue(m.getSerializationConfig().isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS));
-        assertEquals("{\"empty\":[]}", m.writeValueAsString(list));
-        assertEquals("{\"empty\":[]}", m.writeValueAsString(array));
+        assertTrue(MAPPER.isEnabled(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS));
+        assertEquals("{\"empty\":[]}", MAPPER.writeValueAsString(list));
+        assertEquals("{\"empty\":[]}", MAPPER.writeValueAsString(array));
 
         // note: value of setting may be cached when constructing serializer, need a new instance
-        m = new ObjectMapper();
+        ObjectMapper m = new ObjectMapper();
         m.configure(SerializationFeature.WRITE_EMPTY_JSON_ARRAYS, false);
         assertEquals("{}", m.writeValueAsString(list));
         assertEquals("{}", m.writeValueAsString(array));
@@ -324,7 +328,31 @@ public class TestCollectionSerialization
     // [JACKSON-689]
     public void testWithIterable() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        assertEquals("{\"values\":[\"value\"]}", m.writeValueAsString(new BeanWithIterable()));
+        assertEquals("{\"values\":[\"value\"]}",
+                MAPPER.writeValueAsString(new BeanWithIterable()));
+    }
+    
+    // [JACKSON-822]: ensure that type can be coerced
+    public void testTypedArrays() throws Exception
+    {
+        assertEquals("[{\"a\":3}]", MAPPER.writerWithType(Issue822Interface[].class).writeValueAsString(
+                new Issue822Interface[] { new Issue822Impl() }));
+    }
+    
+    // [JACKSON-822]: ensure that type can be coerced
+    public void testTypedLists() throws Exception
+    {
+        /*
+        String singleJson = MAPPER.writerWithType(Issue822Interface.class).writeValueAsString(new Issue822Impl());
+        // start with specific value case:
+        assertEquals("{\"a\":3}", singleJson);
+        */
+
+        // then lists
+        List<Issue822Interface> list = new ArrayList<Issue822Interface>();
+        list.add(new Issue822Impl());
+        String listJson = MAPPER.writerWithType(new TypeReference<List<Issue822Interface>>(){})
+                .writeValueAsString(list);
+        assertEquals("[{\"a\":3}]", listJson);
     }
 }

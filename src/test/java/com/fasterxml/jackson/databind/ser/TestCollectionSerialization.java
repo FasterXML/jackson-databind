@@ -6,7 +6,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -102,19 +101,6 @@ public class TestCollectionSerialization
 
         public Iterable<String> getValues() { return values; }
     }
-
-    // [JACKSON-822]
-    static interface Issue822Interface {
-        public int getA();
-    }
-
-    // If this annotation is added, things will work:
-    //@com.fasterxml.jackson.databind.annotation.JsonSerialize(as=Issue822Interface.class)
-    // but it should not be necessary when root type is passed
-    static class Issue822Impl implements Issue822Interface {
-        public int getA() { return 3; }
-        public int getB() { return 9; }
-    }
     
     /*
     /**********************************************************
@@ -123,7 +109,7 @@ public class TestCollectionSerialization
      */
 
     private final static ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testCollections()
         throws IOException
     {
@@ -330,29 +316,5 @@ public class TestCollectionSerialization
     {
         assertEquals("{\"values\":[\"value\"]}",
                 MAPPER.writeValueAsString(new BeanWithIterable()));
-    }
-    
-    // [JACKSON-822]: ensure that type can be coerced
-    public void testTypedArrays() throws Exception
-    {
-        assertEquals("[{\"a\":3}]", MAPPER.writerWithType(Issue822Interface[].class).writeValueAsString(
-                new Issue822Interface[] { new Issue822Impl() }));
-    }
-    
-    // [JACKSON-822]: ensure that type can be coerced
-    public void testTypedLists() throws Exception
-    {
-        /*
-        String singleJson = MAPPER.writerWithType(Issue822Interface.class).writeValueAsString(new Issue822Impl());
-        // start with specific value case:
-        assertEquals("{\"a\":3}", singleJson);
-        */
-
-        // then lists
-        List<Issue822Interface> list = new ArrayList<Issue822Interface>();
-        list.add(new Issue822Impl());
-        String listJson = MAPPER.writerWithType(new TypeReference<List<Issue822Interface>>(){})
-                .writeValueAsString(list);
-        assertEquals("[{\"a\":3}]", listJson);
     }
 }

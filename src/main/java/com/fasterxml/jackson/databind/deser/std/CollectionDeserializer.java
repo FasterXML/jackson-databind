@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 @JacksonStdImpl
 public class CollectionDeserializer
     extends ContainerDeserializerBase<Collection<Object>>
-implements ContextualDeserializer
+    implements ContextualDeserializer
 {
     // // Configuration
 

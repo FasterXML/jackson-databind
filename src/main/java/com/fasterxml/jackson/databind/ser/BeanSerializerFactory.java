@@ -162,6 +162,17 @@ public class BeanSerializerFactory
         if (origType.isContainerType()) {
             if (!staticTyping) {
                 staticTyping = usesStaticTyping(config, beanDesc, null, property);
+                
+                // [JACKSON-822]: Need to figure out how to force passed parameterization
+                //  to stick...
+                /*
+                if (property == null) {
+                    JavaType t = origType.getContentType();
+                    if (t != null && !t.hasRawClass(Object.class)) {
+                        staticTyping = true;
+                    }
+                }
+                */
             }
             return (JsonSerializer<Object>) buildContainerSerializer(prov,
                     type, beanDesc, property, staticTyping);

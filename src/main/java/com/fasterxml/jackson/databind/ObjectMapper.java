@@ -619,9 +619,10 @@ public class ObjectMapper
     /**
      * Method that returns the shared default {@link SerializationConfig}
      * object that defines configuration settings for serialization.
-     * Returned object is "live" meaning that changes will be used
-     * for future serialization operations for this mapper when using
-     * mapper's default configuration
+     *<p>
+     * Note that since instances are immutable, you can NOT change settings
+     * by accessing an instance and calling methods: this will simply create
+     * new instance of config object.
      */
     public SerializationConfig getSerializationConfig() {
         return _serializationConfig;
@@ -631,9 +632,10 @@ public class ObjectMapper
      * Method that returns
      * the shared default {@link DeserializationConfig} object
      * that defines configuration settings for deserialization.
-     * Returned object is "live" meaning that changes will be used
-     * for future deserialization operations for this mapper when using
-     * mapper's default configuration
+     *<p>
+     * Note that since instances are immutable, you can NOT change settings
+     * by accessing an instance and calling methods: this will simply create
+     * new instance of config object.
      */
     public DeserializationConfig getDeserializationConfig() {
         return _deserializationConfig;
@@ -800,6 +802,26 @@ public class ObjectMapper
     public ObjectMapper setAnnotationIntrospector(AnnotationIntrospector ai) {
         _serializationConfig = _serializationConfig.with(ai);
         _deserializationConfig = _deserializationConfig.with(ai);
+        return this;
+    }
+
+    /**
+     * Method for changing {@link AnnotationIntrospector} instances used
+     * by this mapper instance for serialization and deserialization,
+     * specifying them separately so that different introspection can be
+     * used for different aspects
+     * 
+     * @since 2.1
+     * 
+     * @param serializerAI {@link AnnotationIntrospector} to use for configuring
+     *    serialization
+     * @param deserializerAI {@link AnnotationIntrospector} to use for configuring
+     *    deserialization
+     */
+    public ObjectMapper setAnnotationIntrospectors(AnnotationIntrospector serializerAI,
+            AnnotationIntrospector deserializerAI) {
+        _serializationConfig = _serializationConfig.with(serializerAI);
+        _deserializationConfig = _deserializationConfig.with(deserializerAI);
         return this;
     }
     

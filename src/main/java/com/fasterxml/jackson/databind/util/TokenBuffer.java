@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.util;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -636,6 +637,17 @@ public class TokenBuffer
         writeObject(copy);
     }
 
+    /**
+     * Although we could support this method, it does not necessarily make
+     * sense: we can not make good use of streaming because buffer must
+     * hold all the data. Because of this, currently this will simply
+     * throw {@link UnsupportedOperationException}
+     */
+    @Override
+    public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) {
+        throw new UnsupportedOperationException();
+    }
+    
     /*
     /**********************************************************
     /* JsonGenerator implementation; pass-through copy

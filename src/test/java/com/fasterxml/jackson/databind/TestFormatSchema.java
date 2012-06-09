@@ -203,30 +203,20 @@ public class TestFormatSchema extends BaseMapTest
         public void writeUTF8String(byte[] text, int offset, int length) { }
 
         @Override
-        public void writeStartArray() throws IOException,
-                JsonGenerationException {
-            // TODO Auto-generated method stub
-            
-        }
+        public void writeStartArray() { }
 
         @Override
-        public void writeEndArray() throws IOException, JsonGenerationException {
-            // TODO Auto-generated method stub
-            
-        }
+        public void writeEndArray() throws IOException, JsonGenerationException { }
 
         @Override
-        public void writeStartObject() throws IOException,
-                JsonGenerationException {
-            // TODO Auto-generated method stub
-            
-        }
+        public void writeStartObject() { }
 
         @Override
-        public void writeEndObject() throws IOException,
-                JsonGenerationException {
-            // TODO Auto-generated method stub
-            
+        public void writeEndObject() { }
+
+        @Override
+        public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) {
+            return -1;
         }
     }
     

@@ -144,25 +144,17 @@ public class BeanSerializerFactory
             }
         }
 
-        // Modules may provide serializers of all types:
-        for (Serializers serializers : _factoryConfig.serializers()) {
-            ser = serializers.findSerializer(config, type, beanDesc);
-            if (ser != null) {
-                return (JsonSerializer<Object>) ser;
-            }
-        }
-
         // Then JsonSerializable, @JsonValue etc:
         ser = findSerializerByAnnotations(prov, type, beanDesc);
         if (ser != null) {
             return (JsonSerializer<Object>) ser;
         }
         
-        // Container types differ from non-container types:
+        // Container types differ from non-container types
+        // (note: called method checks for module-provided serializers)
         if (origType.isContainerType()) {
             if (!staticTyping) {
                 staticTyping = usesStaticTyping(config, beanDesc, null, property);
-                
                 // [JACKSON-822]: Need to figure out how to force passed parameterization
                 //  to stick...
                 /*
@@ -176,6 +168,14 @@ public class BeanSerializerFactory
             }
             return (JsonSerializer<Object>) buildContainerSerializer(prov,
                     type, beanDesc, property, staticTyping);
+        }
+
+        // Modules may provide serializers of POJO types:
+        for (Serializers serializers : customSerializers()) {
+            ser = serializers.findSerializer(config, type, beanDesc);
+            if (ser != null) {
+                return (JsonSerializer<Object>) ser;
+            }
         }
         
         /* Otherwise, we will check "primary types"; both marker types that

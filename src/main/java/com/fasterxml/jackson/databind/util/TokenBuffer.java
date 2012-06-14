@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -1147,6 +1148,17 @@ public class TokenBuffer
             return builder.toByteArray();
         }
 
+        @Override
+        public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException, JsonParseException
+        {
+            byte[] data = getBinaryValue(b64variant);
+            if (data != null) {
+                out.write(data, 0, data.length);
+                return data.length;
+            }
+            return 0;
+        }
+        
         /*
         /**********************************************************
         /* Internal methods

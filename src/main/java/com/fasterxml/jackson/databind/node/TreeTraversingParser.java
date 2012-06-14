@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -364,6 +365,19 @@ public class TreeTraversingParser extends ParserMinimalBase
         }
         // otherwise return null to mark we have no binary content
         return null;
+    }
+
+
+    @Override
+    public int readBinaryValue(Base64Variant b64variant, OutputStream out)
+            throws IOException, JsonParseException
+    {
+        byte[] data = getBinaryValue(b64variant);
+        if (data != null) {
+            out.write(data, 0, data.length);
+            return data.length;
+        }
+        return 0;
     }
 
     /*

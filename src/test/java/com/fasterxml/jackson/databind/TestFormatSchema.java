@@ -121,6 +121,11 @@ public class TestFormatSchema extends BaseMapTest
         @Override
         protected void _closeInput() throws IOException {
         }
+
+        @Override
+        public int readBinaryValue(Base64Variant b64variant, OutputStream out) {
+            return 0;
+        }
     }
 
     static class GeneratorWithSchema extends GeneratorBase

@@ -592,6 +592,14 @@ public abstract class BasicSerializerFactory
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
         throws JsonMappingException
     {
+         // Module-provided custom collection serializers?
+         for (Serializers serializers : customSerializers()) {
+             JsonSerializer<?> ser = serializers.findArraySerializer(config,
+                     type, beanDesc, elementTypeSerializer, elementValueSerializer);
+             if (ser != null) {
+                 return ser;
+             }
+         }
         Class<?> raw = type.getRawClass();
         // Important: do NOT use standard serializers if non-standard element value serializer specified
         if (elementValueSerializer == null || ClassUtil.isJacksonStdImpl(elementValueSerializer)) {

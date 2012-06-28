@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.util.RootNameLookup;
  * deserialization parameters, such as root type to use or object
  * to update (instead of constructing new instance).
  *<p>
- * Uses "fluent" (aka builder) pattern so that instances are immutable
+ * Uses "fluent" (or, kind of, builder) pattern so that instances are immutable
  * (and thus fully thread-safe with no external synchronization);
  * new instances are constructed for different configurations.
  * Instances are initially constructed by {@link ObjectMapper} and can be

@@ -159,14 +159,14 @@ public class ObjectMapper
         {
             switch (_appliesFor) {
             case NON_CONCRETE_AND_ARRAYS:
-                if (t.isArrayType()) {
+                while (t.isArrayType()) {
                     t = t.getContentType();
                 }
                 // fall through
             case OBJECT_AND_NON_CONCRETE:
                 return (t.getRawClass() == Object.class) || !t.isConcrete();
             case NON_FINAL:
-                if (t.isArrayType()) {
+                while (t.isArrayType()) {
                     t = t.getContentType();
                 }
                 return !t.isFinal(); // includes Object.class

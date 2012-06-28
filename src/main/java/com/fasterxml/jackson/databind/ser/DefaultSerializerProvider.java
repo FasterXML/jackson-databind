@@ -25,7 +25,11 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * as well as constructors.
  *<p>
  * Note that class is abstract just because it does not
- * define
+ * define {@link #createInstance} method.
+ *<p>
+ * Also note that all custom {@link SerializerProvider}
+ * implementations must sub-class this class: {@link ObjectMapper}
+ * requires this type, not basic provider type.
  */
 public abstract class DefaultSerializerProvider extends SerializerProvider
 {
@@ -35,6 +39,10 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
     /**********************************************************
      */
 
+    /**
+     * Per-serialization map Object Ids that have seen so far, iff
+     * Object Id handling is enabled.
+     */
     protected IdentityHashMap<Object, WritableObjectId> _seenObjectIds;
     
     protected ArrayList<ObjectIdGenerator<?>> _objectIdGenerators;
@@ -75,10 +83,9 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
         throws IOException, JsonGenerationException
     {
         JsonSerializer<Object> ser;
-        boolean wrap;
+        final boolean wrap;
 
-        if (value == null) {
-            // no type provided; must just use the default null serializer
+        if (value == null) { // no type provided; must just use the default null serializer
             ser = getDefaultNullValueSerializer();
             wrap = false; // no name to use for wrapping; can't do!
         } else {
@@ -109,13 +116,9 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
             if (wrap) {
                 jgen.writeEndObject();
             }
-        } catch (IOException ioe) {
-            /* As per [JACKSON-99], should not wrap IOException or its
-             * sub-classes (like JsonProcessingException, JsonMappingException)
-             */
+        } catch (IOException ioe) { // As per [JACKSON-99], pass IOException and subtypes as-is
             throw ioe;
-        } catch (Exception e) {
-            // but others are wrapped
+        } catch (Exception e) { // but wrap RuntimeExceptions, to get path information
             String msg = e.getMessage();
             if (msg == null) {
                 msg = "[no message for "+e.getClass().getName()+"]";
@@ -135,11 +138,10 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
      * @param rootType Type to use for locating serializer to use, instead of actual
      *    runtime type. Must be actual type, or one of its super types
      */
-    public void serializeValue(JsonGenerator jgen, Object value,
-            JavaType rootType)
+    public void serializeValue(JsonGenerator jgen, Object value, JavaType rootType)
         throws IOException, JsonGenerationException
     {
-        boolean wrap;
+        final boolean wrap;
 
         JsonSerializer<Object> ser;
         if (value == null) {
@@ -175,6 +177,60 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
         }
     }
 
+    /**
+     * The method to be called by {@link ObjectWriter}
+     * for serializing given value (assumed to be of specified root type,
+     * instead of runtime type of value), when it may know specific
+     * {@link JsonSerializer} to use.
+     * 
+     * @param rootType Type to use for locating serializer to use, instead of actual
+     *    runtime type, if no serializer is passed
+     * @param ser Root Serializer to use, if not null
+     * 
+     * @since 2.1
+     */
+    public void serializeValue(JsonGenerator jgen, Object value, JavaType rootType,
+            JsonSerializer<Object> ser)
+        throws IOException, JsonGenerationException
+    {
+        final boolean wrap;
+
+        if (value == null) {
+            ser = getDefaultNullValueSerializer();
+            wrap = false;
+        } else {
+            // Let's ensure types are compatible at this point
+            if (rootType != null) {
+                if (!rootType.getRawClass().isAssignableFrom(value.getClass())) {
+                    _reportIncompatibleRootType(value, rootType);
+                }
+            }
+            // root value, not reached via property:
+            if (ser == null) {
+                ser = findTypedValueSerializer(rootType, true, null);
+            }
+            wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
+            if (wrap) {
+                jgen.writeStartObject();
+                jgen.writeFieldName(_rootNames.findRootName(rootType, _config));
+            }
+        }
+        try {
+            ser.serialize(value, jgen, this);
+            if (wrap) {
+                jgen.writeEndObject();
+            }
+        } catch (IOException ioe) { // no wrapping for IO (and derived)
+            throw ioe;
+        } catch (Exception e) { // but others do need to be, to get path etc
+            String msg = e.getMessage();
+            if (msg == null) {
+                msg = "[no message for "+e.getClass().getName()+"]";
+            }
+            throw new JsonMappingException(msg, e);
+        }
+    }
+    
     /**
      * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
      * to generate <a href="http://json-schema.org/">JSON schema</a> for

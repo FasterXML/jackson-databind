@@ -67,6 +67,16 @@ public class ObjectWriter
     protected final JavaType _rootType;
 
     /**
+     * We may pre-fetch serializer if {@link #_rootType}
+     * is known, and if so, reuse it afterwards.
+     * This allows avoiding further serializer lookups and increases
+     * performance a bit on cases where readers are reused.
+     * 
+     * @since 2.1
+     */
+    protected final JsonSerializer<Object> _rootSerializer;
+    
+    /**
      * To allow for dynamic enabling/disabling of pretty printing,
      * pretty printer can be optionally configured for writer
      * as well
@@ -100,10 +110,12 @@ public class ObjectWriter
         _rootType = rootType;
         _prettyPrinter = pp;
         _schema = null;
+
+        _rootSerializer = _prefetchRootSerializer(config, rootType);
     }
 
     /**
-     * Alternative constructor for initial instantiation.
+     * Alternative constructor for initial instantiation by {@link ObjectMapper}
      */
     protected ObjectWriter(ObjectMapper mapper, SerializationConfig config)
     {
@@ -114,12 +126,13 @@ public class ObjectWriter
         _jsonFactory = mapper._jsonFactory;
 
         _rootType = null;
+        _rootSerializer = null;
         _prettyPrinter = null;
         _schema = null;
     }
 
     /**
-     * Alternative constructor for initial instantiation.
+     * Alternative constructor for initial instantiation by {@link ObjectMapper}
      */
     protected ObjectWriter(ObjectMapper mapper, SerializationConfig config,
             FormatSchema s)
@@ -131,6 +144,7 @@ public class ObjectWriter
         _jsonFactory = mapper._jsonFactory;
 
         _rootType = null;
+        _rootSerializer = null;
         _prettyPrinter = null;
         _schema = s;
     }
@@ -139,7 +153,8 @@ public class ObjectWriter
      * Copy constructor used for building variations.
      */
     protected ObjectWriter(ObjectWriter base, SerializationConfig config,
-            JavaType rootType, PrettyPrinter pp, FormatSchema s)
+            JavaType rootType, JsonSerializer<Object> rootSer,
+            PrettyPrinter pp, FormatSchema s)
     {
         _config = config;
 
@@ -148,6 +163,7 @@ public class ObjectWriter
         _jsonFactory = base._jsonFactory;
         
         _rootType = rootType;
+        _rootSerializer = rootSer;
         _prettyPrinter = pp;
         _schema = s;
     }
@@ -165,6 +181,7 @@ public class ObjectWriter
         _schema = base._schema;
         
         _rootType = base._rootType;
+        _rootSerializer = base._rootSerializer;
         _prettyPrinter = base._prettyPrinter;
     }
     
@@ -293,7 +310,7 @@ public class ObjectWriter
         if (pp == null) {
             pp = NULL_PRETTY_PRINTER;
         }
-        return new ObjectWriter(this, _config, _rootType, pp, _schema);
+        return new ObjectWriter(this, _config, _rootType, _rootSerializer, pp, _schema);
     }
 
     /**
@@ -321,7 +338,7 @@ public class ObjectWriter
     public ObjectWriter withSchema(FormatSchema schema)
     {
         return (_schema == schema) ? this :
-            new ObjectWriter(this, _config, _rootType, _prettyPrinter, schema);
+            new ObjectWriter(this, _config, _rootType, _rootSerializer, _prettyPrinter, schema);
     }
     
     /**
@@ -334,9 +351,10 @@ public class ObjectWriter
      */
     public ObjectWriter withType(JavaType rootType)
     {
+        JsonSerializer<Object> rootSer = _prefetchRootSerializer(_config, rootType);
         return (rootType == _rootType) ? this
         // type is stored here, no need to make a copy of config
-            : new ObjectWriter(this, _config, rootType, _prettyPrinter, _schema);
+            : new ObjectWriter(this, _config, rootType, rootSer, _prettyPrinter, _schema);
     }    
 
     /**
@@ -420,7 +438,7 @@ public class ObjectWriter
             if (_rootType == null) {
                 _serializerProvider(_config).serializeValue(jgen, value);
             } else {
-                _serializerProvider(_config).serializeValue(jgen, value, _rootType);
+                _serializerProvider(_config).serializeValue(jgen, value, _rootType, _rootSerializer);
             }
             if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                 jgen.flush();
@@ -566,7 +584,7 @@ public class ObjectWriter
             if (_rootType == null) {
                 _serializerProvider(_config).serializeValue(jgen, value);
             } else {
-                _serializerProvider(_config).serializeValue(jgen, value, _rootType);                
+                _serializerProvider(_config).serializeValue(jgen, value, _rootType, _rootSerializer);
             }
             closed = true;
             jgen.close();
@@ -594,7 +612,7 @@ public class ObjectWriter
             if (_rootType == null) {
                 _serializerProvider(cfg).serializeValue(jgen, value);
             } else {
-                _serializerProvider(cfg).serializeValue(jgen, value);
+                _serializerProvider(cfg).serializeValue(jgen, value, _rootType, _rootSerializer);
             }
             // [JACKSON-520]: add support for pass-through schema:
             if (_schema != null) {
@@ -635,7 +653,7 @@ public class ObjectWriter
             if (_rootType == null) {
                 _serializerProvider(cfg).serializeValue(jgen, value);
             } else {
-                _serializerProvider(cfg).serializeValue(jgen, value, _rootType);
+                _serializerProvider(cfg).serializeValue(jgen, value, _rootType, _rootSerializer);
             }
             if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                 jgen.flush();
@@ -649,6 +667,25 @@ public class ObjectWriter
                     toClose.close();
                 } catch (IOException ioe) { }
             }
+        }
+    }
+
+    /**
+     * Method called to locate (root) serializer ahead of time, if permitted
+     * by configuration. Method also is NOT to throw an exception if
+     * access fails.
+     */
+    protected final JsonSerializer<Object> _prefetchRootSerializer(
+            SerializationConfig config, JavaType valueType)
+    {
+        if (valueType == null || !_config.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
+            return null;
+        }
+        try {
+            return _serializerProvider(config).findTypedValueSerializer(valueType, true, null);
+        } catch (JsonProcessingException e) {
+            // need to swallow?
+            return null;
         }
     }
 }

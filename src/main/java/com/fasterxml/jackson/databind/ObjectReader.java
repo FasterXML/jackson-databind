@@ -84,9 +84,10 @@ public class ObjectReader
     protected final JavaType _valueType;
 
     /**
-     * We will find and (re)use deserializer as soon as {@link #_valueType}
-     * is known; this allows avoiding further deserializer lookups
-     * when readers are reused.
+     * We may pre-fetch deserializer as soon as {@link #_valueType}
+     * is known, and if so, reuse it afterwards.
+     * This allows avoiding further deserializer lookups and increases
+     * performance a bit on cases where readers are reused.
      * 
      * @since 2.1
      */

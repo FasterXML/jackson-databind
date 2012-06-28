@@ -2,27 +2,25 @@ package perf;
 
 import com.fasterxml.jackson.databind.*;
 
-/**
- * Simple manually run micro-benchmark for checking effects of (de)serializer
- * pre-fetching
- */
-public class ManualObjectReaderPerf
+public class ManualObjectWriterPerf
 {
     protected int hash;
     
     private <T> void test(ObjectMapper mapper, T inputValue, Class<T> inputClass)
         throws Exception
     {
-        final byte[] input = mapper.writeValueAsBytes(inputValue);
-        
-        // Let's try to guestimate suitable size... to get to N megs to process
-        final int REPS = (int) ((double) (8 * 1000 * 1000) / (double) input.length);
+        final int REPS;
+        {
+            final byte[] input = mapper.writeValueAsBytes(inputValue);
+            
+            // Let's try to guestimate suitable size, N megs of output
+            REPS = (int) ((double) (9 * 1000 * 1000) / (double) input.length);
+            System.out.println("Read "+input.length+" bytes to hash; will do "+REPS+" repetitions");
+        }
 
-        System.out.println("Read "+input.length+" bytes to hash; will do "+REPS+" repetitions");
-
-        final ObjectReader cachingReader = mapper.reader(inputClass);
-        final ObjectReader nonCachingReader = mapper.reader()
-                .without(DeserializationFeature.EAGER_DESERIALIZER_FETCH)
+        final ObjectWriter prefetching = mapper.writerWithType(inputClass);
+        final ObjectWriter nonPrefetching = mapper.writer()
+                .without(SerializationFeature.EAGER_SERIALIZER_FETCH)
                 .withType(inputClass);
         
         int i = 0;
@@ -31,8 +29,9 @@ public class ManualObjectReaderPerf
         final int WARMUP_ROUNDS = 5;
 
         final long[] times = new long[TYPES];
-        
+
         while (true) {
+            final NopOutputStream out = new NopOutputStream();
             try {  Thread.sleep(100L); } catch (InterruptedException ie) { }
             int round = (i++ % TYPES);
 
@@ -40,19 +39,22 @@ public class ManualObjectReaderPerf
             boolean lf = (round == 0);
 
             long msecs;
+            ObjectWriter writer;
             
             switch (round) {
             case 0:
                 msg = "Pre-fetch";
-                msecs = testDeser(REPS, input, cachingReader);
+                writer = prefetching;
                 break;
             case 1:
                 msg = "NO pre-fetch";
-                msecs = testDeser(REPS, input, nonCachingReader);
+                writer = nonPrefetching;
                 break;
             default:
                 throw new Error();
             }
+            msecs = testSer(REPS, inputValue, writer, out);
+
             // skip first 5 rounds to let results stabilize
             if (roundsDone >= WARMUP_ROUNDS) {
                 times[round] += msecs;
@@ -79,14 +81,13 @@ public class ManualObjectReaderPerf
         }
     }
 
-    private final long testDeser(int REPS, byte[] input, ObjectReader reader) throws Exception
+    private final long testSer(int REPS, Object value, ObjectWriter writer, NopOutputStream out) throws Exception
     {
         long start = System.currentTimeMillis();
-        Object result = null;
         while (--REPS >= 0) {
-            result = reader.readValue(input);
+            writer.writeValue(out, value);
         }
-        hash = result.hashCode();
+        hash = out.size();
         return System.currentTimeMillis() - start;
     }
 
@@ -98,6 +99,6 @@ public class ManualObjectReaderPerf
         }
         Record input = new Record(44, "BillyBob", "Bumbler", 'm', true);
         ObjectMapper m = new ObjectMapper();
-        new ManualObjectReaderPerf().test(m, input, Record.class);
+        new ManualObjectWriterPerf().test(m, input, Record.class);
     }
 }

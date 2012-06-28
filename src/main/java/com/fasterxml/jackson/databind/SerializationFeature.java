@@ -136,7 +136,7 @@ public enum SerializationFeature implements ConfigFeature
      
     /*
     /******************************************************
-    /* Data type - specific serialization configuration
+    /* Datatype-specific serialization configuration
     /******************************************************
      */
 
@@ -264,8 +264,30 @@ public enum SerializationFeature implements ConfigFeature
      *<p>
      * Feature is disabled by default.
      */
-    ORDER_MAP_ENTRIES_BY_KEYS(false)
-        ;
+    ORDER_MAP_ENTRIES_BY_KEYS(false),
+
+    /*
+    /******************************************************
+    /* Other
+    /******************************************************
+     */
+
+    /**
+     * Feature that determines whether {@link ObjectWriter} should
+     * try to eagerly fetch necessary {@link JsonSerializer} when
+     * possible. This improves performance in cases where similarly
+     * configured {@link ObjectWriter} instance is used multiple
+     * times; and should not significantly affect single-use cases.
+     *<p>
+     * Note that there should not be any need to normally disable this
+     * feature: only consider that if there are actual perceived problems.
+     *<p>
+     * Feature is enabled by default.
+     * 
+     * @since 2.1
+     */
+    EAGER_SERIALIZER_FETCH(true)    
+    ;
 
     private final boolean _defaultState;
     

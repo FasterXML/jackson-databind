@@ -8,14 +8,17 @@ Description:
 
 Fixes:
 
+* [JACKSON-830]/[Issue-19]: Change OSGi bundle name to be fully-qualified
+
 Improvements:
 
 * [JACKSON-839]: Allow "upgrade" of integer number types for
   UntypedObjectDeserializer, even with default typing enabled.
 * [Issue-9]: Implement 'required' JSON Schema attribute for bean properties
-* [Issue-19]: Change OSGi bundle name to be fully-qualified
 * [Issue-22]: Add 'ObjectMapper.setAnnotationIntrospectors()' which allows
   defining different introspectors for serialization, deserialization
+* ObjectReader now pre-fetches root deserializer if possible; minor performance
+  improvement (2% for small POJOs).
 
 ------------------------------------------------------------------------
 === History: ===

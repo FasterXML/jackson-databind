@@ -146,7 +146,7 @@ public enum DeserializationFeature implements ConfigFeature
     
     /*
     /******************************************************
-     *  Structural conversion features
+    /* Structural conversion features
     /******************************************************
      */
 
@@ -207,7 +207,30 @@ public enum DeserializationFeature implements ConfigFeature
      * 
      * @since 2.0
      */
-    READ_UNKNOWN_ENUM_VALUES_AS_NULL(false)
+    READ_UNKNOWN_ENUM_VALUES_AS_NULL(false),
+
+    /*
+    /******************************************************
+    /* Other
+    /******************************************************
+     */
+
+    /**
+     * Feature that determines whether {@link ObjectReader} should
+     * try to eagerly fetch necessary {@link JsonDeserializer} when
+     * possible. This improves performance in cases where similarly
+     * configured {@link ObjectReader} instance is used multiple
+     * times; and should not significantly affect single-use cases.
+     *<p>
+     * Note that there should not be any need to normally disable this
+     * feature: only consider that if there are actual perceived problems.
+     *<p>
+     * Feature is enabled by default.
+     * 
+     * @since 2.1
+     */
+    EAGER_DESERIALIZER_FETCH(true)
+    
     ;
 
     private final boolean _defaultState;

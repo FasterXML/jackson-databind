@@ -13,10 +13,13 @@ import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
- * Default {@link DeserializationContext} implementation that adds
+ * Complete {@link DeserializationContext} implementation that adds
  * extended API for {@link ObjectMapper} (and {@link ObjectReader})
  * to call, as well as implements certain parts that base class
  * has left abstract.
+ * The remaining abstract methods ({@link #createInstance}, {@link #with})
+ * are left so that custom implementations will properly implement them
+ * to return intended subtype.
  */
 public abstract class DefaultDeserializationContext
     extends DeserializationContext
@@ -201,6 +204,9 @@ public abstract class DefaultDeserializationContext
     /**********************************************************
      */
 
+    /**
+     * Actual full concrete implementation
+     */
     public final static class Impl extends DefaultDeserializationContext
     {
         /**

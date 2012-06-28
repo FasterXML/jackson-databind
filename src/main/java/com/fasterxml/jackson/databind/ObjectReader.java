@@ -84,6 +84,15 @@ public class ObjectReader
     protected final JavaType _valueType;
 
     /**
+     * We will find and (re)use deserializer as soon as {@link #_valueType}
+     * is known; this allows avoiding further deserializer lookups
+     * when readers are reused.
+     * 
+     * @since 2.1
+     */
+    protected final JsonDeserializer<Object> _rootDeserializer;
+    
+    /**
      * Instance to update with data binding; if any. If null,
      * a new instance is created, if non-null, properties of
      * this value object will be updated instead.
@@ -134,9 +143,13 @@ public class ObjectReader
         this(mapper, config, null, null, null, null);
     }
 
+    /**
+     * Constructor called when a root deserializer should be fetched based
+     * on other configuration.
+     */
     protected ObjectReader(ObjectMapper mapper, DeserializationConfig config,
-            JavaType valueType, Object valueToUpdate, FormatSchema schema,
-            InjectableValues injectableValues)
+            JavaType valueType, Object valueToUpdate,
+            FormatSchema schema, InjectableValues injectableValues)
     {
         _config = config;
         _context = mapper._deserializationContext;
@@ -151,14 +164,16 @@ public class ObjectReader
         _schema = schema;
         _injectableValues = injectableValues;
         _unwrapRoot = config.useRootWrapping();
+
+        _rootDeserializer = _prefetchRootDeserializer(config, valueType);
     }
     
     /**
      * Copy constructor used for building variations.
      */
     protected ObjectReader(ObjectReader base, DeserializationConfig config,
-            JavaType valueType, Object valueToUpdate, FormatSchema schema,
-            InjectableValues injectableValues)
+            JavaType valueType, JsonDeserializer<Object> rootDeser, Object valueToUpdate,
+            FormatSchema schema, InjectableValues injectableValues)
     {
         _config = config;
         _context = base._context;
@@ -168,6 +183,7 @@ public class ObjectReader
         _rootNames = base._rootNames;
 
         _valueType = valueType;
+        _rootDeserializer = rootDeser;
         _valueToUpdate = valueToUpdate;
         if (valueToUpdate != null && valueType.isArrayType()) {
             throw new IllegalArgumentException("Can not update an array value");
@@ -190,12 +206,13 @@ public class ObjectReader
         _rootNames = base._rootNames;
 
         _valueType = base._valueType;
+        _rootDeserializer = base._rootDeserializer;
         _valueToUpdate = base._valueToUpdate;
         _schema = base._schema;
         _injectableValues = base._injectableValues;
         _unwrapRoot = config.useRootWrapping();
     }
-    
+
     /**
      * Method that will return version information stored in and read from jar
      * that contains this class.
@@ -285,7 +302,8 @@ public class ObjectReader
         if (_injectableValues == injectableValues) {
             return this;
         }
-        return new ObjectReader(this, _config, _valueType, _valueToUpdate,
+        return new ObjectReader(this, _config,
+                _valueType, _rootDeserializer, _valueToUpdate,
                 _schema, injectableValues);
     }
 
@@ -331,7 +349,8 @@ public class ObjectReader
         if (_schema == schema) {
             return this;
         }
-        return new ObjectReader(this, _config, _valueType, _valueToUpdate,
+        return new ObjectReader(this, _config,
+                _valueType, _rootDeserializer, _valueToUpdate,
                 schema, _injectableValues);
     }
     
@@ -345,8 +364,10 @@ public class ObjectReader
     public ObjectReader withType(JavaType valueType)
     {
         if (valueType != null && valueType.equals(_valueType)) return this;
+        JsonDeserializer<Object> rootDeser = _prefetchRootDeserializer(_config, valueType);
         // type is stored here, no need to make a copy of config
-        return new ObjectReader(this, _config, valueType, _valueToUpdate,
+        return new ObjectReader(this, _config,
+                valueType, rootDeser, _valueToUpdate,
                 _schema, _injectableValues);
     }    
 
@@ -397,8 +418,18 @@ public class ObjectReader
         if (value == null) {
             throw new IllegalArgumentException("cat not update null value");
         }
-        JavaType t = (_valueType == null) ? _config.constructType(value.getClass()) : _valueType;
-        return new ObjectReader(this, _config, t, value,
+        JavaType t;
+        
+        /* no real benefit from pre-fetching, as updating readers are much
+         * less likely to be reused, and value type may also be forced
+         * with a later chained call...
+         */
+        if (_valueType == null) {
+            t = _config.constructType(value.getClass());
+        } else {
+            t = _valueType;
+        }
+        return new ObjectReader(this, _config, t, _rootDeserializer, value,
                 _schema, _injectableValues);
     }
 
@@ -1005,13 +1036,25 @@ public class ObjectReader
         return t;
     }
 
+    
+static int col = 0;
+
     /**
      * Method called to locate deserializer for the passed root-level value.
      */
-    protected JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt,
+    protected final JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt,
             JavaType valueType)
         throws JsonMappingException
     {
+        /*
+if (++col > 76) { col = 0; System.out.println(); }
+System.out.print((_rootDeserializer == null) ? '0' : '1');
+*/
+        
+        if (_rootDeserializer != null) {
+            return _rootDeserializer;
+        }
+
         // Sanity check: must have actual type...
         if (valueType == null) {
             throw new JsonMappingException("No value type configured for ObjectReader");
@@ -1031,6 +1074,36 @@ public class ObjectReader
         return deser;
     }
 
+    /**
+     * Method called to locate deserializer ahead of time, if permitted
+     * by configuration. Method also is NOT to throw an exception if
+     * access fails.
+     */
+    protected final JsonDeserializer<Object> _prefetchRootDeserializer(
+            DeserializationConfig config, JavaType valueType)
+    {
+        if (valueType == null || !_config.isEnabled(DeserializationFeature.EAGER_DESERIALIZER_FETCH)) {
+            return null;
+        }
+        // already cached?
+        JsonDeserializer<Object> deser = _rootDeserializers.get(valueType);
+        if (deser == null) {
+            try {
+                // If not, need to resolve; for which we need a temporary context as well:
+                DeserializationContext ctxt = createDeserializationContext(null, _config);
+                deser = ctxt.findRootValueDeserializer(valueType);
+                if (deser != null) {
+                    _rootDeserializers.put(valueType, deser);
+                }
+                return deser;
+                
+            } catch (JsonProcessingException e) {
+                // need to swallow?
+            }
+        }
+        return deser;
+    }
+    
     protected Object _unwrapAndDeserialize(JsonParser jp, DeserializationContext ctxt,
             JavaType rootType, JsonDeserializer<Object> deser)
         throws IOException, JsonParseException, JsonMappingException

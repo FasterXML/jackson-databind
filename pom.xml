@@ -195,6 +195,9 @@
           <extensions>true</extensions>
           <configuration>
             <instructions>
+              <!-- 28-Jun-2012, tatu: Before 2.1, symbolic name was unqualified; changed for
+                    2.1 as per [https://github.com/FasterXML/jackson-databind/issues/19] 
+               -->
               <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
               <Bundle-Vendor>fasterml.com</Bundle-Vendor>
               <Import-Package>

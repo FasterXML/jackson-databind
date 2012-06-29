@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.core.*;
@@ -177,7 +178,7 @@ public abstract class BeanSerializerBase
      * 
      * @since 2.0
      */
-    protected abstract BeanSerializerBase withObjectIdWriter(ObjectIdWriter objectIdWriter);
+    public abstract BeanSerializerBase withObjectIdWriter(ObjectIdWriter objectIdWriter);
 
     /**
      * Fluent factory used for creating a new instance with additional
@@ -186,6 +187,15 @@ public abstract class BeanSerializerBase
      * @since 2.0
      */
     protected abstract BeanSerializerBase withIgnorals(String[] toIgnore);
+
+    /**
+     * Fluent factory for creating a variant that output POJO as a
+     * JSON Array. Implementations may ignore this request if output
+     * as array is not possible (either at all, or reliably).
+     * 
+     * @since 2.1
+     */
+    protected abstract BeanSerializerBase asArraySerializer();
     
     /**
      * Copy-constructor that is useful for sub-classes that just want to
@@ -316,10 +326,11 @@ public abstract class BeanSerializerBase
         ObjectIdWriter oiw = _objectIdWriter;
         String[] ignorals = null;
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+        final AnnotatedMember accessor = (property == null || intr == null)
+                ? null : property.getMember();
         
         // First: may have an override for Object Id:
         if (property != null && intr != null) {
-            final AnnotatedMember accessor = property.getMember();
             ignorals = intr.findPropertiesToIgnore(accessor);
             final ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
             if (objectIdInfo != null) {
@@ -380,6 +391,16 @@ public abstract class BeanSerializerBase
         // And possibly add more properties to ignore
         if (ignorals != null && ignorals.length != 0) {
             contextual = contextual.withIgnorals(ignorals);
+        }
+        // One more thing: are we asked to serialize POJO as array?
+        if (accessor != null) {
+            JsonFormat.Value format = intr.findFormat(accessor);
+
+            if (format != null) {
+                if (format.getShape() == JsonFormat.Shape.ARRAY) {
+                    contextual = contextual.asArraySerializer();
+                }
+            }
         }
         return contextual;
     }
@@ -486,7 +507,7 @@ public abstract class BeanSerializerBase
     /* Field serialization methods
     /**********************************************************
      */
-    
+
     protected void serializeFields(Object bean, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {

@@ -61,13 +61,22 @@ public class UnwrappingBeanSerializer
     }
 
     @Override
-    protected UnwrappingBeanSerializer withObjectIdWriter(ObjectIdWriter objectIdWriter) {
+    public UnwrappingBeanSerializer withObjectIdWriter(ObjectIdWriter objectIdWriter) {
         return new UnwrappingBeanSerializer(this, objectIdWriter);
     }
 
     @Override
     protected UnwrappingBeanSerializer withIgnorals(String[] toIgnore) {
         return new UnwrappingBeanSerializer(this, toIgnore);
+    }
+
+    /**
+     * JSON Array output can not be done if unwrapping operation is
+     * requested; so implementation will simply return 'this'.
+     */
+    @Override
+    protected BeanSerializerBase asArraySerializer() {
+        return this;
     }
     
     /*

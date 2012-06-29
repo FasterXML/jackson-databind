@@ -1,16 +1,30 @@
-Version: 2.0.4
+Version: 2.0.5
 
 Release date:
-  xx-Jun-2012
+  xx-Jul-2012
 
 Description:
   Anoter patch release for 2.0.
 
 Fixes:
 
+* [JACKSON-845]: Problems with Object[][] deserialization, default typing
+
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
+
+2.0.4 (26-Jun-2012)
+
+* [Issue-6]: element count for PrettyPrinter, endObject wrong
+   (reported by "thebluemountain")
+* [JACKSON-838]: Utf8StreamParser._reportInvalidToken() skips letters
+    from reported token name
+   (reported by Lóránt Pintér)
+* [JACKSON-841] Data is doubled in SegmentedStringWriter output
+   (reported by Scott S)
+* [JACKSON-842] ArrayIndexOutOfBoundsException when skipping C-style comments
+   (reported by Sebastien R)
 
 (no version 2.0.3 released -- only used for extension modules)
 

@@ -2302,10 +2302,11 @@ public class ObjectMapper
         return (T) _convert(fromValue, _typeFactory.constructType(toValueType));
     } 
 
+    @SuppressWarnings("unchecked")
     public <T> T convertValue(Object fromValue, TypeReference<?> toValueTypeRef)
         throws IllegalArgumentException
     {
-        return convertValue(fromValue, _typeFactory.constructType(toValueTypeRef));
+        return (T) convertValue(fromValue, _typeFactory.constructType(toValueTypeRef));
     } 
 
     @SuppressWarnings("unchecked")

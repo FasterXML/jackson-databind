@@ -878,7 +878,7 @@ public class BeanDeserializer
 
     /*
     /**********************************************************
-    /* Handling for cases where we have property/-ies wth
+    /* Handling for cases where we have property/-ies with
     /* external type id
     /**********************************************************
      */

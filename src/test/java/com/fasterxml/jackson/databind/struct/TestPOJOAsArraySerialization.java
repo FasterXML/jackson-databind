@@ -34,23 +34,6 @@ public class TestPOJOAsArraySerialization extends BaseMapTest
             this.complete = c;
         }
     }
-
-    @JsonPropertyOrder(alphabetic=true)
-    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
-    static class FlatPojo
-    {
-        public int x, y;
-        public String name;
-        public boolean complete;
-
-        public FlatPojo() { }
-        public FlatPojo(String name, int x, int y, boolean c) {
-            this.name = name;
-            this.x = x;
-            this.y = y;
-            this.complete = c;
-        }
-    }
     
     /*
     /*****************************************************
@@ -69,15 +52,4 @@ public class TestPOJOAsArraySerialization extends BaseMapTest
         // will have wrapper POJO, then POJO-as-array..
         assertEquals("{\"value\":[true,\"Foobar\",42,13]}", json);
     }
-
-    /**
-     * Test that verifies that Class annotation works
-     */
-    public void testSimpleRootValue() throws Exception
-    {
-        String json = MAPPER.writeValueAsString(new FlatPojo("Bubba", 1, 2, false));
-        // will have wrapper POJO, then POJO-as-array..
-        assertEquals("[false,\"Bubba\",1,2]", json);
-    }
-    
 }

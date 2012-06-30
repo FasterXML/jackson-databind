@@ -467,6 +467,54 @@ public class BeanPropertyWriter
         }
     }
 
+    /**
+     * Alternative to {@link #serializeAsField} that is used when a POJO
+     * is serialized as JSON Array; the difference is that no field names
+     * are written.
+     * 
+     * @since 2.1
+     */
+    public void serializeAsColumn(Object bean, JsonGenerator jgen, SerializerProvider prov)
+        throws Exception
+    {
+        Object value = get(bean);
+        if (value == null) { // nulls need specialized handling
+            if (_nullSerializer != null) {
+                _nullSerializer.serialize(null, jgen, prov);
+            }
+            return;
+        }
+        // otherwise find serializer to use
+        JsonSerializer<Object> ser = _serializer;
+        if (ser == null) {
+            Class<?> cls = value.getClass();
+            PropertySerializerMap map = _dynamicSerializers;
+            ser = map.serializerFor(cls);
+            if (ser == null) {
+                ser = _findAndAddDynamic(map, cls, prov);
+            }
+        }
+        // and then see if we must suppress certain values (default, empty)
+        if (_suppressableValue != null) {
+            if (MARKER_FOR_EMPTY == _suppressableValue) {
+                if (ser.isEmpty(value)) {
+                    return;
+                }
+            } else if (_suppressableValue.equals(value)) {
+                return;
+            }
+        }
+        // For non-nulls: simple check for direct cycles
+        if (value == bean) {
+            _handleSelfReference(bean, ser);
+        }
+        if (_typeSerializer == null) {
+            ser.serialize(value, jgen, prov);
+        } else {
+            ser.serializeWithType(value, jgen, prov, _typeSerializer);
+        }
+    }
+    
     /*
     /**********************************************************
     /* Helper methods

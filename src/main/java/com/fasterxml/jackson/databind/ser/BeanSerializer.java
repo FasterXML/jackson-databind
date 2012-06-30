@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ser.impl.BeanAsArraySerializer;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanSerializer;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
@@ -82,13 +83,38 @@ public class BeanSerializer
     }
 
     @Override
-    protected BeanSerializer withObjectIdWriter(ObjectIdWriter objectIdWriter) {
+    public BeanSerializer withObjectIdWriter(ObjectIdWriter objectIdWriter) {
         return new BeanSerializer(this, objectIdWriter);
     }
 
     @Override
     protected BeanSerializer withIgnorals(String[] toIgnore) {
         return new BeanSerializer(this, toIgnore);
+    }
+
+    /**
+     * Implementation has to check whether as-array serialization
+     * is possible reliably; if (and only if) so, will construct
+     * a {@link BeanAsArraySerializer}, otherwise will return this
+     * serializer as is.
+     */
+    @Override
+    protected BeanSerializerBase asArraySerializer()
+    {
+        /* Can not:
+         * 
+         * - have Object Id (may be allowed in future)
+         * - have any getter
+         * 
+         */
+        if ((_objectIdWriter == null)
+                && (_anyGetterWriter == null)
+                && (_propertyFilterId == null)
+                ) {
+            return new BeanAsArraySerializer(this);
+        }
+        // already is one, so:
+        return this;
     }
     
     /*

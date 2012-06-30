@@ -144,27 +144,4 @@ public class TestCollectionDeserialization
         List<?> result = r.withType(List.class).readValue(quote(""));
         assertNull(result);
     }
-
-    // [JACKSON-822]: ensure that type can be coerced
-    public void testTypedLists() throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        List<Issue822Interface> list = new ArrayList<Issue822Interface>();
-        String singleJson = mapper.writerWithType(Issue822Interface.class).writeValueAsString(new Issue822Impl());
-        // start with specific value case:
-        assertEquals("{\"a\":3}", singleJson);
-        // then lists
-        list.add(new Issue822Impl());
-        String listJson = mapper.writerWithType(new TypeReference<List<Issue822Interface>>(){})
-                .writeValueAsString(list);
-        assertEquals("[{\"a\":3}]", listJson);
-    }
-
-    // [JACKSON-822]: ensure that type can be coerced
-    public void testTypedArrays() throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        assertEquals("[{\"a\":3}]", mapper.writerWithType(Issue822Interface[].class).writeValueAsString(
-                new Issue822Interface[] { new Issue822Impl() }));
-    }
 }

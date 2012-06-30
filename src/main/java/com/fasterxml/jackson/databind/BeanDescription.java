@@ -22,8 +22,6 @@ import com.fasterxml.jackson.databind.util.Annotations;
  * Note that the main implementation type is
  * {@link com.fasterxml.jackson.databind.introspect.BasicBeanDescription},
  * meaning that it is safe to upcast to this type.
- * 
- * @author tatu
  */
 public abstract class BeanDescription
 {

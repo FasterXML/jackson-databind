@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 /**
@@ -84,7 +85,7 @@ public class DateDeserializers
            throws JsonMappingException
         {
             if (property != null) {
-                JsonFormat.Value format = ctxt.getAnnotationIntrospector().findFormat(property.getMember());
+                JsonFormat.Value format = ctxt.getAnnotationIntrospector().findFormat((Annotated) property.getMember());
                 if (format != null) {
                     TimeZone tz = format.getTimeZone();
                     // First: fully custom pattern?

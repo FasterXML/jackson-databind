@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
@@ -46,7 +47,7 @@ public abstract class DateTimeSerializerBase<T>
             BeanProperty property) throws JsonMappingException
     {
         if (property != null) {
-            JsonFormat.Value format = prov.getAnnotationIntrospector().findFormat(property.getMember());
+            JsonFormat.Value format = prov.getAnnotationIntrospector().findFormat((Annotated)property.getMember());
             if (format != null) {
                 // Simple case first: serialize as numeric timestamp?
                 if (format.getShape().isNumeric()) {

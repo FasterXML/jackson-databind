@@ -20,6 +20,11 @@ Improvements:
 * ObjectReader and ObjectWriter now try to pre-fetch root (de)serializer if
   possible; minor performance improvement (2% for small POJOs).
 
+Other changes:
+
+* New variant of AnnotationIntrospector.getFormat(), to support class
+  annotations
+
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------

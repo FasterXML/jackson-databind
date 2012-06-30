@@ -11,6 +11,8 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
@@ -80,7 +82,12 @@ public abstract class BeanSerializerBase
      * Note: not final since we need to get contextual instance during
      * resolution.
      */
-    protected final ObjectIdWriter _objectIdWriter;
+    final protected ObjectIdWriter _objectIdWriter;
+
+    /**
+     * Requested shape from bean class annotations.
+     */
+    final protected JsonFormat.Shape _serializationShape;
     
     /*
     /**********************************************************
@@ -106,11 +113,16 @@ public abstract class BeanSerializerBase
             _anyGetterWriter = null;
             _propertyFilterId = null;
             _objectIdWriter = null;
+            _serializationShape = null;
         } else {
             _typeId = builder.getTypeId();
             _anyGetterWriter = builder.getAnyGetter();
             _propertyFilterId = builder.getFilterId();
             _objectIdWriter = builder.getObjectIdWriter();
+            AnnotationIntrospector ai = builder.getConfig().getAnnotationIntrospector();
+            AnnotatedClass ac = builder.getClassInfo();
+            JsonFormat.Value format = (ai == null) ? null : ai.findFormat(ac);
+            _serializationShape = (format == null) ? null : format.getShape();
         }
     }
 
@@ -125,6 +137,7 @@ public abstract class BeanSerializerBase
         _anyGetterWriter = src._anyGetterWriter;
         _objectIdWriter = src._objectIdWriter;
         _propertyFilterId = src._propertyFilterId;
+        _serializationShape = src._serializationShape;
     }
 
     protected BeanSerializerBase(BeanSerializerBase src, ObjectIdWriter objectIdWriter)
@@ -137,6 +150,7 @@ public abstract class BeanSerializerBase
         _anyGetterWriter = src._anyGetterWriter;
         _objectIdWriter = objectIdWriter;
         _propertyFilterId = src._propertyFilterId;
+        _serializationShape = src._serializationShape;
     }
 
     protected BeanSerializerBase(BeanSerializerBase src, String[] toIgnore)
@@ -170,6 +184,7 @@ public abstract class BeanSerializerBase
         _anyGetterWriter = src._anyGetterWriter;
         _objectIdWriter = src._objectIdWriter;
         _propertyFilterId = src._propertyFilterId;
+        _serializationShape = src._serializationShape;
     }
     
     /**
@@ -393,14 +408,19 @@ public abstract class BeanSerializerBase
             contextual = contextual.withIgnorals(ignorals);
         }
         // One more thing: are we asked to serialize POJO as array?
+        JsonFormat.Shape shape = null;
         if (accessor != null) {
-            JsonFormat.Value format = intr.findFormat(accessor);
+            JsonFormat.Value format = intr.findFormat((Annotated) accessor);
 
             if (format != null) {
-                if (format.getShape() == JsonFormat.Shape.ARRAY) {
-                    contextual = contextual.asArraySerializer();
-                }
+                shape = format.getShape();
             }
+        }
+        if (shape == null) {
+            shape = _serializationShape;
+        }
+        if (shape == JsonFormat.Shape.ARRAY) {
+            contextual = contextual.asArraySerializer();
         }
         return contextual;
     }

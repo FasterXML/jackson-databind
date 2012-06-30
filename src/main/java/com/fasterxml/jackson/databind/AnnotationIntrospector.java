@@ -449,8 +449,26 @@ public abstract class AnnotationIntrospector implements Versioned
      * serialized value.
      * 
      * @since 2.0
+     * 
+     * @deprecated Since 2.1, use {@link #findFormat(Annotated)} instead.
      */
+    @Deprecated
     public JsonFormat.Value findFormat(AnnotatedMember member) {
+        return null;
+    }
+
+    /**
+     * Method for finding format annotations for property or class.
+     * Return value is typically used by serializers and/or
+     * deserializers to customize presentation aspects of the
+     * serialized value.
+     * 
+     * @since 2.1
+     */
+    public JsonFormat.Value findFormat(Annotated memberOrClass) {
+        if (memberOrClass instanceof AnnotatedMember) {
+            return findFormat((AnnotatedMember) memberOrClass);
+        }
         return null;
     }
     
@@ -1265,10 +1283,10 @@ public abstract class AnnotationIntrospector implements Versioned
         }
 
         @Override
-        public JsonFormat.Value findFormat(AnnotatedMember member) {
-            JsonFormat.Value result = _primary.findFormat(member);
+        public JsonFormat.Value findFormat(Annotated ann) {
+            JsonFormat.Value result = _primary.findFormat(ann);
             if (result == null) {
-                result = _secondary.findFormat(member);
+                result = _secondary.findFormat(ann);
             }
             return result;
         }

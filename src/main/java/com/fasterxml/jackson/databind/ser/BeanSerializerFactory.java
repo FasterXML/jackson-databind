@@ -300,13 +300,12 @@ public class BeanSerializerFactory
         if (beanDesc.getBeanClass() == Object.class) {
             throw new IllegalArgumentException("Can not create bean serializer for Object.class");
         }
-
         final SerializationConfig config = prov.getConfig();
         BeanSerializerBuilder builder = constructBeanSerializerBuilder(beanDesc);
+        builder.setConfig(config);
         
         // First: any detectable (auto-detect, annotations) properties to serialize?
         List<BeanPropertyWriter> props = findBeanProperties(prov, beanDesc, builder);
-
         if (props == null) {
             props = new ArrayList<BeanPropertyWriter>();
         }

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 
@@ -19,12 +20,14 @@ public class BeanSerializerBuilder
 
     /*
     /**********************************************************
-    /* General information about POJO
+    /* Basic configuration we start with
     /**********************************************************
      */
 
     final protected BeanDescription _beanDesc;
 
+    protected SerializationConfig _config;
+    
     /*
     /**********************************************************
     /* Accumulated information about properties
@@ -85,6 +88,19 @@ public class BeanSerializerBuilder
         _filterId = src._filterId;
     }
 
+    /**
+     * Initialization method called right after construction, to specify
+     * configuration to use.
+     *<p>
+     * Note: ideally should be passed in constructor, but for backwards
+     * compatibility, needed to add a setter instead
+     * 
+     * @since 2.1
+     */
+    protected void setConfig(SerializationConfig config) {
+        _config = config;
+    }
+    
     public void setProperties(List<BeanPropertyWriter> properties) {
         _properties = properties;
     }
@@ -117,11 +133,19 @@ public class BeanSerializerBuilder
     /**********************************************************
     /* Accessors for things BeanSerializer cares about:
     /* note -- likely to change between minor revisions
-    /*
+    /* by new methods getting added.
     /**********************************************************
      */
 
+    /**
+     * @since 2.1
+     */
+    public SerializationConfig getConfig() { return _config; }
+
+    public AnnotatedClass getClassInfo() { return _beanDesc.getClassInfo(); }
+    
     public BeanDescription getBeanDescription() { return _beanDesc; }
+
     public List<BeanPropertyWriter> getProperties() { return _properties; }
     public boolean hasProperties() {
         return (_properties != null) && (_properties.size() > 0);

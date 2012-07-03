@@ -457,7 +457,7 @@ public class ObjectReader
         return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
     }
 
-    public ObjectReader addHandler(DeserializationProblemHandler h) {
+    public ObjectReader withHandler(DeserializationProblemHandler h) {
         DeserializationConfig newConfig = _config.withHandler(h);
         return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
     }

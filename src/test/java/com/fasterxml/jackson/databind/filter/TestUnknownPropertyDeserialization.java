@@ -163,7 +163,7 @@ public class TestUnknownPropertyDeserialization
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.clearProblemHandlers();
-        TestBean result = mapper.reader(TestBean.class).addHandler(new MyHandler()).readValue(new StringReader(JSON_UNKNOWN_FIELD));
+        TestBean result = mapper.reader(TestBean.class).withHandler(new MyHandler()).readValue(new StringReader(JSON_UNKNOWN_FIELD));
         assertNotNull(result);
         assertEquals(1, result._a);
         assertEquals(-1, result._b);

@@ -155,6 +155,22 @@ public class TestUnknownPropertyDeserialization
     }
 
     /**
+     * Test that verifies that it is possible to ignore unknown properties using
+     * {@link DeserializationProblemHandler} and an ObjectReader.
+     */
+    public void testUnknownHandlingIgnoreWithHandlerAndObjectReader()
+        throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.clearProblemHandlers();
+        TestBean result = mapper.reader(TestBean.class).withHandler(new MyHandler()).readValue(new StringReader(JSON_UNKNOWN_FIELD));
+        assertNotNull(result);
+        assertEquals(1, result._a);
+        assertEquals(-1, result._b);
+        assertEquals("foo:START_ARRAY", result._unknown);
+    }
+
+    /**
      * Test for checking that it is also possible to simply suppress
      * error reporting for unknown properties.
      */

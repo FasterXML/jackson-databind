@@ -19,6 +19,9 @@ Improvements:
   defining different introspectors for serialization, deserialization
 * ObjectReader and ObjectWriter now try to pre-fetch root (de)serializer if
   possible; minor performance improvement (2% for small POJOs).
+* Added 'ObjectReader#withHandler' to allow for reconfiguring deserialization
+  problem handler
+ (suggested by 'electricmonk')
 
 Other changes:
 

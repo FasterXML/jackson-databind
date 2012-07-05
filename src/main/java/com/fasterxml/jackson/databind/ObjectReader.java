@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.cfg.DatabindVersion;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
+import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.TreeTraversingParser;
@@ -453,6 +454,11 @@ public class ObjectReader
 
     public ObjectReader with(TimeZone tz) {
         DeserializationConfig newConfig = _config.with(tz);
+        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    }
+
+    public ObjectReader withHandler(DeserializationProblemHandler h) {
+        DeserializationConfig newConfig = _config.withHandler(h);
         return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
     }
     

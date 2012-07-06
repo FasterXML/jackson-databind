@@ -1672,7 +1672,7 @@ public class ObjectMapper
     {
         try {
             // [Issue-11]: Simple cast when we just want to cast to, say, ObjectNode
-            if (n.getClass().isAssignableFrom(valueType)) {
+            if (valueType != Object.class && valueType.isAssignableFrom(n.getClass())) {
                 return (T) n;
             }
             return readValue(treeAsTokens(n), valueType);
@@ -2274,7 +2274,7 @@ public class ObjectMapper
         // sanity check for null first:
         if (fromValue == null) return null;
         // also, as per [Issue-11], consider case for simple cast
-        if (fromValue.getClass().isAssignableFrom(toValueType)) {
+        if (toValueType != Object.class && toValueType.isAssignableFrom(fromValue.getClass())) {
             return (T) fromValue;
         }
         return (T) _convert(fromValue, _typeFactory.constructType(toValueType));
@@ -2293,7 +2293,10 @@ public class ObjectMapper
         // sanity check for null first:
         if (fromValue == null) return null;
         // also, as per [Issue-11], consider case for simple cast
-        if (fromValue.getClass().isAssignableFrom(toValueType.getRawClass())) {
+        Class<?> targetType = toValueType.getRawClass();
+        if (targetType != Object.class
+                && !toValueType.hasGenericTypes()
+                && targetType.isAssignableFrom(fromValue.getClass())) {
             return (T) fromValue;
         }
         return (T) _convert(fromValue, toValueType);

@@ -1694,7 +1694,8 @@ public class ObjectMapper
     {
         try {
             // [Issue-11]: Simple cast when we just want to cast to, say, ObjectNode
-            if (n.getClass().isAssignableFrom(valueType)) {
+            // ... one caveat; while everything is Object.class, let's not take shortcut
+            if (valueType != Object.class && valueType.isAssignableFrom(n.getClass())) {
                 return (T) n;
             }
             return readValue(treeAsTokens(n), valueType);
@@ -2296,7 +2297,8 @@ public class ObjectMapper
         // sanity check for null first:
         if (fromValue == null) return null;
         // also, as per [Issue-11], consider case for simple cast
-        if (fromValue.getClass().isAssignableFrom(toValueType)) {
+        // ... one caveat; while everything is Object.class, let's not take shortcut
+        if (toValueType != Object.class && toValueType.isAssignableFrom(fromValue.getClass())) {
             return (T) fromValue;
         }
         return (T) _convert(fromValue, _typeFactory.constructType(toValueType));
@@ -2316,7 +2318,14 @@ public class ObjectMapper
         // sanity check for null first:
         if (fromValue == null) return null;
         // also, as per [Issue-11], consider case for simple cast
-        if (fromValue.getClass().isAssignableFrom(toValueType.getRawClass())) {
+        /* But with caveats: one is that while everything is Object.class, we don't
+         * want to "optimize" that out; and the other is that we also do not want
+         * to lose conversions of generic types.
+         */
+        Class<?> targetType = toValueType.getRawClass();
+        if (targetType != Object.class
+                && !toValueType.hasGenericTypes()
+                && targetType.isAssignableFrom(fromValue.getClass())) {
             return (T) fromValue;
         }
         return (T) _convert(fromValue, toValueType);

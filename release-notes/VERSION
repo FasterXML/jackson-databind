@@ -9,6 +9,7 @@ Description:
 Fixes:
 
 * [JACKSON-830]/[Issue-19]: Change OSGi bundle name to be fully-qualified
+* Minor fix wrt [Issue-11], coercion needed extra checks
 
 Improvements:
 

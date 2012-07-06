@@ -297,8 +297,10 @@ public class BeanSerializerFactory
         throws JsonMappingException
     {
         // 13-Oct-2010, tatu: quick sanity check: never try to create bean serializer for plain Object
+        // 05-Jul-2012, tatu: ... but we should be able to just return "unknown type" serializer, right?
         if (beanDesc.getBeanClass() == Object.class) {
-            throw new IllegalArgumentException("Can not create bean serializer for Object.class");
+            return prov.getUnknownTypeSerializer(Object.class);
+//            throw new IllegalArgumentException("Can not create bean serializer for Object.class");
         }
         final SerializationConfig config = prov.getConfig();
         BeanSerializerBuilder builder = constructBeanSerializerBuilder(beanDesc);

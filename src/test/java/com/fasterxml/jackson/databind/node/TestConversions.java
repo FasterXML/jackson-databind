@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -194,42 +192,6 @@ public class TestConversions extends BaseMapTest
         JsonNode n = node.get("pojo");
         assertTrue(n.isPojo());
         assertSame(MARKER, ((POJONode) n).getPojo());
-    }
-
-    /**
-     * Need to test "shortcuts" introduced by [Issue-11]
-     */
-    public void testIssue11() throws Exception
-    {
-        // First the expected use case, Node specification
-        ObjectNode root = MAPPER.createObjectNode();
-        JsonNode n = root;
-        ObjectNode ob2 = MAPPER.convertValue(n, ObjectNode.class);
-        assertSame(root, ob2);
-
-        JsonNode n2 = MAPPER.convertValue(n, JsonNode.class);
-        assertSame(root, n2);
-        
-        // then some other no-op conversions
-        String STR = "test";
-        CharSequence seq = MAPPER.convertValue(STR, CharSequence.class);
-        assertSame(STR, seq);
-
-        // and then something that should NOT use short-cut
-        Leaf l = new Leaf(13);
-        Map<?,?> m = MAPPER.convertValue(l, Map.class);
-        assertNotNull(m);
-        assertEquals(1, m.size());
-        assertEquals(Integer.valueOf(13), m.get("value"));
-
-        // and reverse too
-        Leaf l2 = MAPPER.convertValue(m, Leaf.class);
-        assertEquals(13, l2.value);
-
-        // also; ok to use "untyped" (Object):
-        Object ob = MAPPER.convertValue(l, Object.class);
-        assertNotNull(ob);
-        assertEquals(LinkedHashMap.class, ob.getClass());
     }
 }
 

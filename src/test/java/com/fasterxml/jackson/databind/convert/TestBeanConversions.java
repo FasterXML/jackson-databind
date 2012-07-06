@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.convert;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
@@ -53,6 +55,13 @@ public class TestBeanConversions
         public void setData(Object data) { this.data = data; }
     }
 
+    static class Leaf {
+        public int value;
+
+        public Leaf() { }
+        public Leaf(int v) { value = v; }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -149,5 +158,63 @@ public class TestBeanConversions
         assertEquals(1, output.x);
         assertEquals(2, output.y);
         assertEquals(3, output.z);
+    }
+
+    /**
+     * Need to test "shortcuts" introduced by [Issue-11]
+     */
+    public void testIssue11() throws Exception
+    {
+        // First the expected use case, Node specification
+        ObjectNode root = MAPPER.createObjectNode();
+        JsonNode n = root;
+        ObjectNode ob2 = MAPPER.convertValue(n, ObjectNode.class);
+        assertSame(root, ob2);
+
+        JsonNode n2 = MAPPER.convertValue(n, JsonNode.class);
+        assertSame(root, n2);
+        
+        // then some other no-op conversions
+        String STR = "test";
+        CharSequence seq = MAPPER.convertValue(STR, CharSequence.class);
+        assertSame(STR, seq);
+
+        // and then something that should NOT use short-cut
+        Leaf l = new Leaf(13);
+        Map<?,?> m = MAPPER.convertValue(l, Map.class);
+        assertNotNull(m);
+        assertEquals(1, m.size());
+        assertEquals(Integer.valueOf(13), m.get("value"));
+
+        // and reverse too
+        Leaf l2 = MAPPER.convertValue(m, Leaf.class);
+        assertEquals(13, l2.value);
+
+        // also; ok to use "untyped" (Object):
+        Object ob = MAPPER.convertValue(l, Object.class);
+        assertNotNull(ob);
+        assertEquals(LinkedHashMap.class, ob.getClass());
+
+        // And one more: this time with a minor twist
+        final Object plaino = new Object();
+        // first, a failed attempt:
+        try {
+            m = MAPPER.convertValue(plaino, Map.class);
+            fail("Conversion should have failed");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "no properties discovered");
+        }
+        
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        try {
+            assertEquals("{}", mapper.writeValueAsString(plaino));
+        } catch (Exception e) {
+            throw (Exception) e.getCause();
+        }
+        // should now work, via serialization/deserialization:
+        m = mapper.convertValue(plaino, Map.class);
+        assertNotNull(m);
+        assertEquals(0, m.size());
     }
 }

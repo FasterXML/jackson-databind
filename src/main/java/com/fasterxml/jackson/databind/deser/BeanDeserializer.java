@@ -38,7 +38,7 @@ public class BeanDeserializer
 
     /**
      * Copy-constructor that can be used by sub-classes to allow
-     * copy-on-write styling copying of settings of an existing instance.
+     * copy-on-write style copying of settings of an existing instance.
      */
     protected BeanDeserializer(BeanDeserializerBase src) {
     	super(src, src._ignoreAllUnknown);

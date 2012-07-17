@@ -117,7 +117,7 @@ public class BeanAsArraySerializer
             SerializerProvider provider, TypeSerializer typeSer)
         throws IOException, JsonGenerationException
     {
-        /* Should not even get here; but let's be nice and re-routed
+        /* Should not even get here; but let's be nice and re-route
          * if need be.
          */
         _defaultSerializer.serializeWithType(bean, jgen, provider, typeSer);

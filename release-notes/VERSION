@@ -18,8 +18,8 @@ Improvements:
 * [Issue-9]: Implement 'required' JSON Schema attribute for bean properties
 * [Issue-22]: Add 'ObjectMapper.setAnnotationIntrospectors()' which allows
   defining different introspectors for serialization, deserialization
-* ObjectReader and ObjectWriter now try to pre-fetch root (de)serializer if
-  possible; minor performance improvement (2% for small POJOs).
+* [Issue-30] ObjectReader and ObjectWriter now try to pre-fetch root (de)serializer
+  if possible; minor performance improvement (2% for small POJOs).
 * Added 'ObjectReader#withHandler' to allow for reconfiguring deserialization
   problem handler
  (suggested by 'electricmonk')

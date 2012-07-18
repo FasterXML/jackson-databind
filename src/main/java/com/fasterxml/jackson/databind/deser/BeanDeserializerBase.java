@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -38,13 +39,18 @@ public abstract class BeanDeserializerBase
      * Annotations from the bean class: used for accessing
      * annotations during resolution phase (see {@link #resolve}).
      */
-    final protected Annotations _classAnnotations;
+    final private Annotations _classAnnotations;
     
     /**
      * Declared type of the bean this deserializer handles.
      */
     final protected JavaType _beanType;
 
+    /**
+     * Requested shape from bean class annotations.
+     */
+    final protected JsonFormat.Shape _serializationShape;
+    
     /*
     /**********************************************************
     /* Configuration for creating value instance
@@ -211,8 +217,11 @@ public abstract class BeanDeserializerBase
             || !_valueInstantiator.canCreateUsingDefault()
             ;
 
-        _needViewProcesing = hasViews;    
-
+        // Any transformation we may need to apply?
+        JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+        _serializationShape = (format == null) ? null : format.getShape();
+        
+        _needViewProcesing = hasViews;
         _vanillaProcessing = !_nonStandardCreation
                 && (_injectables == null)
                 && !_needViewProcesing
@@ -248,6 +257,7 @@ public abstract class BeanDeserializerBase
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
+        _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;
     }
@@ -284,6 +294,8 @@ public abstract class BeanDeserializerBase
             _beanProperties = src._beanProperties;
         }
         _needViewProcesing = src._needViewProcesing;
+        _serializationShape = src._serializationShape;
+
         // probably adds a twist, so:
         _vanillaProcessing = false;
     }
@@ -308,6 +320,7 @@ public abstract class BeanDeserializerBase
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
+        _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;
 
@@ -341,6 +354,7 @@ public abstract class BeanDeserializerBase
         _nonStandardCreation = src._nonStandardCreation;
         _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
         _needViewProcesing = src._needViewProcesing;
+        _serializationShape = src._serializationShape;
 
         _vanillaProcessing = src._vanillaProcessing;
         _objectIdReader = src._objectIdReader;
@@ -354,6 +368,15 @@ public abstract class BeanDeserializerBase
 
     public abstract BeanDeserializerBase withIgnorableProperties(HashSet<String> ignorableProps);
 
+    /**
+     * Fluent factory for creating a variant that can handle
+     * POJO output as a JSON Array. Implementations may ignore this request
+     * if no such input is possible.
+     * 
+     * @since 2.1
+     */
+    protected abstract BeanDeserializerBase asArrayDeserializer();
+    
     /*
     /**********************************************************
     /* Validation, post-processing
@@ -479,6 +502,8 @@ public abstract class BeanDeserializerBase
      * Although most of post-processing is done in resolve(), we only get
      * access to referring property's annotations here; and this is needed
      * to support per-property ObjectIds.
+     * We will also consider Shape transformations (read from Array) at this
+     * point, since it may come from either Class definition or property.
      */
 //  @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
@@ -489,8 +514,9 @@ public abstract class BeanDeserializerBase
 
         // First: may have an override for Object Id:
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        final AnnotatedMember accessor = (property == null || intr == null)
+                ? null : property.getMember();
         if (property != null && intr != null) {
-            final AnnotatedMember accessor = property.getMember();
             ignorals = intr.findPropertiesToIgnore(accessor);
             final ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
             if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
@@ -528,6 +554,22 @@ public abstract class BeanDeserializerBase
         if (ignorals != null && ignorals.length != 0) {
             HashSet<String> newIgnored = ArrayBuilders.setAndArray(contextual._ignorableProps, ignorals);
             contextual = contextual.withIgnorableProperties(newIgnored);
+        }
+
+        // One more thing: are we asked to serialize POJO as array?
+        JsonFormat.Shape shape = null;
+        if (accessor != null) {
+            JsonFormat.Value format = intr.findFormat((Annotated) accessor);
+
+            if (format != null) {
+                shape = format.getShape();
+            }
+        }
+        if (shape == null) {
+            shape = _serializationShape;
+        }
+        if (shape == JsonFormat.Shape.ARRAY) {
+            contextual = contextual.asArrayDeserializer();
         }
         return contextual;
     }

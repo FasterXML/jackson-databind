@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.util.Annotations;
 /**
  * Builder class used for aggregating deserialization information about
  * a POJO, in order to build a {@link JsonDeserializer} for deserializing
- * intances.
+ * instances.
  */
 public class BeanDeserializerBuilder
 {

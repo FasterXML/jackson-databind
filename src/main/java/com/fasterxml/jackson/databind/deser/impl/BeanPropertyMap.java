@@ -25,7 +25,16 @@ public final class BeanPropertyMap
     private final int _hashMask;
 
     private final int _size;
-    
+
+    /**
+     * Counter we use to keep track of insertion order of properties
+     * (to be able to recreate insertion order when needed).
+     *<p>
+     * Note: is kept up-to-date with additions, but can NOT handle
+     * removals (i.e. "holes" may be left)
+     */
+    private int _nextBucketIndex = 0;
+
     public BeanPropertyMap(Collection<SettableBeanProperty> properties)
     {
         _size = properties.size();
@@ -35,16 +44,17 @@ public final class BeanPropertyMap
         for (SettableBeanProperty property : properties) {
             String key = property.getName();
             int index = key.hashCode() & _hashMask;
-            buckets[index] = new Bucket(buckets[index], key, property);
+            buckets[index] = new Bucket(buckets[index], key, property, _nextBucketIndex++);
         }
         _buckets = buckets;
     }
 
-    private BeanPropertyMap(Bucket[] buckets, int size)
+    private BeanPropertyMap(Bucket[] buckets, int size, int index)
     {
         _buckets = buckets;
         _size = size;
         _hashMask = buckets.length-1;
+        _nextBucketIndex = index;
     }
     
     /**
@@ -66,15 +76,16 @@ public final class BeanPropertyMap
         // and then see if it's add or replace:
     	SettableBeanProperty oldProp = find(newProperty.getName());
     	if (oldProp == null) { // add
-        	// first things first: add or replace?
-	        // can do a straight copy, since all additions are at the front
-	        // and then insert the new property:
-	        int index = propName.hashCode() & _hashMask;
-	        newBuckets[index] = new Bucket(newBuckets[index], propName, newProperty);
-	        return new BeanPropertyMap(newBuckets, _size+1);
+    	    // first things first: add or replace?
+    	    // can do a straight copy, since all additions are at the front
+    	    // and then insert the new property:
+    	    int index = propName.hashCode() & _hashMask;
+    	    newBuckets[index] = new Bucket(newBuckets[index],
+    	            propName, newProperty, _nextBucketIndex++);
+    	    return new BeanPropertyMap(newBuckets, _size+1, _nextBucketIndex);
     	}
     	// replace: easy, close + replace
-    	BeanPropertyMap newMap = new BeanPropertyMap(newBuckets, bcount);
+    	BeanPropertyMap newMap = new BeanPropertyMap(newBuckets, bcount, _nextBucketIndex);
     	newMap.replace(newProperty);
     	return newMap;
     }
@@ -147,6 +158,26 @@ public final class BeanPropertyMap
         return new IteratorImpl(_buckets);
     }
     
+    /**
+     * Method that will re-create initial insertion-ordering of
+     * properties contained in this map. Note that if properties
+     * have been removed, array may contain nulls; otherwise
+     * it should be consecutive.
+     * 
+     * @since 2.1
+     */
+    public SettableBeanProperty[] getPropertiesInInsertionOrder()
+    {
+        int len = _nextBucketIndex;
+        SettableBeanProperty[] result = new SettableBeanProperty[len];
+        for (Bucket root : _buckets) {
+            for (Bucket bucket = root; bucket != null; bucket = bucket.next) {
+                result[bucket.index] = bucket.value;
+            }
+        }
+        return result;
+    }
+
     /*
     /**********************************************************
     /* Public API
@@ -190,25 +221,24 @@ public final class BeanPropertyMap
          * are immutable, so we need to recreate the chain. Fine.
          */
         Bucket tail = null;
-        boolean found = false;
-
+        int foundIndex = -1;
         
         for (Bucket bucket = _buckets[index]; bucket != null; bucket = bucket.next) {
             // match to remove?
-            if (!found && bucket.key.equals(name)) {
-                found = true;
+            if (foundIndex < 0 && bucket.key.equals(name)) {
+                foundIndex = bucket.index;
             } else {
-                tail = new Bucket(tail, bucket.key, bucket.value);
+                tail = new Bucket(tail, bucket.key, bucket.value, bucket.index);
             }
         }
         // Not finding specified entry is error, so:
-        if (!found) {
+        if (foundIndex < 0) {
             throw new NoSuchElementException("No entry '"+property+"' found, can't replace");
         }
         /* So let's attach replacement in front: useful also because
          * it allows replacement even when iterating over entries
          */
-        _buckets[index] = new Bucket(tail, name, property);
+        _buckets[index] = new Bucket(tail, name, property, foundIndex);
     }
 
     /**
@@ -228,7 +258,7 @@ public final class BeanPropertyMap
             if (!found && bucket.key.equals(name)) {
                 found = true;
             } else {
-                tail = new Bucket(tail, bucket.key, bucket.value);
+                tail = new Bucket(tail, bucket.key, bucket.value, bucket.index);
             }
         }
         if (!found) { // must be found
@@ -266,12 +296,18 @@ public final class BeanPropertyMap
         public final Bucket next;
         public final String key;
         public final SettableBeanProperty value;
+
+        /**
+         * Index that indicates insertion order of the bucket
+         */
+        public final int index;
         
-        public Bucket(Bucket next, String key, SettableBeanProperty value)
+        public Bucket(Bucket next, String key, SettableBeanProperty value, int index)
         {
             this.next = next;
             this.key = key;
             this.value = value;
+            this.index = index;
         }
     }
 

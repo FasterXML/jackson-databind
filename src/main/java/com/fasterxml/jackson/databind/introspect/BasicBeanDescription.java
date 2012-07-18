@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -262,6 +263,24 @@ public class BasicBeanDescription extends BeanDescription
 
     /*
     /**********************************************************
+    /* General per-class annotation introspection
+    /**********************************************************
+     */
+
+    @Override
+    public JsonFormat.Value findExpectedFormat(JsonFormat.Value defValue)
+    {
+        if (_annotationIntrospector != null) {
+            JsonFormat.Value v = _annotationIntrospector.findFormat(_classInfo);
+            if (v != null) {
+                return v;
+            }
+        }
+        return defValue;
+    }
+    
+    /*
+    /**********************************************************
     /* Introspection for serialization, factories
     /**********************************************************
      */
@@ -402,7 +421,7 @@ public class BasicBeanDescription extends BeanDescription
         }
         return _annotationIntrospector.findSerializationInclusion(_classInfo, defValue);
     }
-
+    
     /**
      * Method used to locate the method of introspected class that
      * implements {@link com.fasterxml.jackson.annotation.JsonAnyGetter}.

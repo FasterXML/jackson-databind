@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.io.SerializedString;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
@@ -119,9 +118,7 @@ public abstract class BeanSerializerBase
             _anyGetterWriter = builder.getAnyGetter();
             _propertyFilterId = builder.getFilterId();
             _objectIdWriter = builder.getObjectIdWriter();
-            AnnotationIntrospector ai = builder.getConfig().getAnnotationIntrospector();
-            AnnotatedClass ac = builder.getClassInfo();
-            JsonFormat.Value format = (ai == null) ? null : ai.findFormat(ac);
+            JsonFormat.Value format = builder.getBeanDescription().findExpectedFormat(null);
             _serializationShape = (format == null) ? null : format.getShape();
         }
     }

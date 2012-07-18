@@ -48,7 +48,7 @@ public class POJOPropertiesCollector
     
     /*
     /**********************************************************
-    /* Collected information
+    /* Collected property information
     /**********************************************************
      */
 

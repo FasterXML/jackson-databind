@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * refactor this in future.
  */
 public class BuilderBasedDeserializer
-	extends BeanDeserializerBase
+    extends BeanDeserializerBase
 {
     protected final AnnotatedMethod _buildMethod;
 	
@@ -98,6 +98,15 @@ public class BuilderBasedDeserializer
     @Override
     public BuilderBasedDeserializer withIgnorableProperties(HashSet<String> ignorableProps) {
         return new BuilderBasedDeserializer(this, ignorableProps);
+    }
+
+    @Override
+    protected BuilderBasedDeserializer asArrayDeserializer() {
+        /* 17-Jul-2012, tatu: Should be doable, but for now let's just not
+         *   support this combination, and instead wait for an RFE to see
+         *   if anyone cares.
+         */
+        throw new UnsupportedOperationException("Can not combine serialization-as-Array with Builder style construction");
     }
     
     /*

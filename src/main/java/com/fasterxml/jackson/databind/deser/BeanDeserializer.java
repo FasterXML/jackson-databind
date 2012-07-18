@@ -85,6 +85,12 @@ public class BeanDeserializer
     public BeanDeserializer withIgnorableProperties(HashSet<String> ignorableProps) {
         return new BeanDeserializer(this, ignorableProps);
     }
+
+    @Override
+    protected BeanDeserializerBase asArrayDeserializer() {
+        SettableBeanProperty[] props = _beanProperties.getPropertiesInInsertionOrder();
+        return new BeanAsArrayDeserializer(this, props);
+    }
     
     /*
     /**********************************************************

@@ -295,6 +295,10 @@ public abstract class SettableBeanProperty
     /**
      * Method called to assign given value to this property, on
      * specified Object.
+     *<p>
+     * Note: this is an optional operation, not supported by all
+     * implementations, creator-backed properties for example do not
+     * support this method.
      */
     public abstract void set(Object instance, Object value)
         throws IOException;
@@ -303,6 +307,10 @@ public abstract class SettableBeanProperty
      * Method called to assign given value to this property, on
      * specified Object, and return whatever delegating accessor
      * returned (if anything)
+     *<p>
+     * Note: this is an optional operation, not supported by all
+     * implementations, creator-backed properties for example do not
+     * support this method.
      * 
      * @since 2.0
      */

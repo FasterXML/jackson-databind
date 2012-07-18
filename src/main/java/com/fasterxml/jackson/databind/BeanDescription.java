@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
@@ -185,14 +186,29 @@ public abstract class BeanDescription
     
     /*
     /**********************************************************
+    /* Basic API, class configuration
+    /**********************************************************
+     */
+
+    public abstract JsonInclude.Include findSerializationInclusion(JsonInclude.Include defValue);
+
+    /**
+     * Method for checking what is the expected format for POJO, as
+     * defined by defaults and possible annotations.
+     * Note that this may be further refined by per-property annotations.
+     * 
+     * @since 2.1s
+     */
+    public abstract JsonFormat.Value findExpectedFormat(JsonFormat.Value defValue);
+    
+    /*
+    /**********************************************************
     /* Basic API, other
     /**********************************************************
      */
 
     public abstract Map<Object, AnnotatedMember> findInjectables();
-
-    public abstract JsonInclude.Include findSerializationInclusion(JsonInclude.Include defValue);
-
+    
     /**
      * Method for checking if the POJO type has annotations to
      * indicate that a builder is to be used for instantiating

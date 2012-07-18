@@ -137,11 +137,6 @@ public class BeanSerializerBuilder
     /**********************************************************
      */
 
-    /**
-     * @since 2.1
-     */
-    public SerializationConfig getConfig() { return _config; }
-
     public AnnotatedClass getClassInfo() { return _beanDesc.getClassInfo(); }
     
     public BeanDescription getBeanDescription() { return _beanDesc; }

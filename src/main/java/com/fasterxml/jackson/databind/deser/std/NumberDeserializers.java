@@ -330,7 +330,7 @@ public class NumberDeserializers
                     }
                     return Long.valueOf(value);
                 } catch (IllegalArgumentException iae) {
-                    throw ctxt.weirdStringException(_valueClass, "not a valid number");
+                    throw ctxt.weirdStringException(text, _valueClass, "not a valid number");
                 }
             }
             // Otherwise, no can do:
@@ -405,7 +405,7 @@ public class NumberDeserializers
             try {
                 return new BigInteger(text);
             } catch (IllegalArgumentException iae) {
-                throw ctxt.weirdStringException(_valueClass, "not a valid representation");
+                throw ctxt.weirdStringException(text, _valueClass, "not a valid representation");
             }
         }
     }
@@ -433,7 +433,7 @@ public class NumberDeserializers
                 try {
                     return new BigDecimal(text);
                 } catch (IllegalArgumentException iae) {
-                    throw ctxt.weirdStringException(_valueClass, "not a valid representation");
+                    throw ctxt.weirdStringException(text, _valueClass, "not a valid representation");
                 }
             }
             // Otherwise, no can do:

@@ -42,7 +42,7 @@ public abstract class FromStringDeserializer<T>
             } catch (IllegalArgumentException iae) {
                 // nothing to do here, yet? We'll fail anyway
             }
-            throw ctxt.weirdStringException(_valueClass, "not a valid textual representation");
+            throw ctxt.weirdStringException(text, _valueClass, "not a valid textual representation");
         }
         if (jp.getCurrentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
             // Trivial cases; null to null, instance of type itself returned as is

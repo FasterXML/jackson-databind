@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 public class TestDateDeserialization
     extends BaseMapTest
@@ -312,6 +313,27 @@ public class TestDateDeserialization
         assertEquals(9, c.get(Calendar.HOUR_OF_DAY));
     }
 
+    /*
+    /**********************************************************
+    /* Tests to verify failing cases
+    /**********************************************************
+     */
+
+    public void testInvalidFormat() throws Exception
+    {
+        try {
+            MAPPER.readValue(quote("foobar"), Date.class);
+            fail("Should have failed with an exception");
+        } catch (InvalidFormatException e) {
+            verifyException(e, "Can not construct instance");
+            assertEquals("foobar", e.getValue());
+            assertEquals(Date.class, e.getTargetType());
+        } catch (Exception e) {
+            fail("Wrong type of exception ("+e.getClass().getName()+"), should get "
+                    +InvalidFormatException.class.getName());
+        }
+    }
+    
     /*
     /**********************************************************
     /* Helper methods

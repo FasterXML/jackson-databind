@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
@@ -616,19 +617,50 @@ public abstract class DeserializationContext
     /**
      * Method that will construct an exception suitable for throwing when
      * some String values are acceptable, but the one encountered is not.
+     * 
+     * 
+     * @deprecated Since 2.1 should use variant that takes value
      */
+    @Deprecated
     public JsonMappingException weirdStringException(Class<?> instClass, String msg) {
-        return JsonMappingException.from(_parser, "Can not construct instance of "+instClass.getName()+" from String value '"+_valueDesc()+"': "+msg);
+        return weirdStringException(null, instClass, msg);
+    }
+
+    /**
+     * Method that will construct an exception suitable for throwing when
+     * some String values are acceptable, but the one encountered is not.
+     * 
+     * @param value String value from input being deserialized
+     * @param instClass Type that String should be deserialized into
+     * @param msg Message that describes specific problem
+     * 
+     * @since 2.1
+     */
+    public JsonMappingException weirdStringException(String value, Class<?> instClass, String msg) {
+        return InvalidFormatException.from(_parser,
+                "Can not construct instance of "+instClass.getName()+" from String value '"+_valueDesc()+"': "+msg,
+                value, instClass);
     }
 
     /**
      * Helper method for constructing exception to indicate that input JSON
      * Number was not suitable for deserializing into given type.
      */
+    @Deprecated
     public JsonMappingException weirdNumberException(Class<?> instClass, String msg) {
-        return JsonMappingException.from(_parser, "Can not construct instance of "+instClass.getName()+" from number value ("+_valueDesc()+"): "+msg);
+        return weirdStringException(null, instClass, msg);
     }
 
+    /**
+     * Helper method for constructing exception to indicate that input JSON
+     * Number was not suitable for deserializing into given target type.
+     */
+    public JsonMappingException weirdNumberException(Number value, Class<?> instClass, String msg) {
+        return InvalidFormatException.from(_parser,
+                "Can not construct instance of "+instClass.getName()+" from number value ("+_valueDesc()+"): "+msg,
+                null, instClass);
+    }
+    
     /**
      * Helper method for constructing exception to indicate that given JSON
      * Object field name was not in format to be able to deserialize specified
@@ -636,7 +668,9 @@ public abstract class DeserializationContext
      */
     public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue, String msg)
     {
-        return JsonMappingException.from(_parser, "Can not construct Map key of type "+keyClass.getName()+" from String \""+_desc(keyValue)+"\": "+msg);
+        return InvalidFormatException.from(_parser,
+                "Can not construct Map key of type "+keyClass.getName()+" from String \""+_desc(keyValue)+"\": "+msg,
+                keyValue, keyClass);
     }
 
     /**

@@ -16,6 +16,9 @@ Improvements:
 * [JACKSON-839]: Allow "upgrade" of integer number types for
   UntypedObjectDeserializer, even with default typing enabled.
 * [Issue-9]: Implement 'required' JSON Schema attribute for bean properties
+* [Issue-20]: Add new exception type, InvalidFormatException (sub-type of
+  JsonMappingException) to indicate data format problems
+ (suggested by HolySamosa@github)
 * [Issue-22]: Add 'ObjectMapper.setAnnotationIntrospectors()' which allows
   defining different introspectors for serialization, deserialization
 * [Issue-30] ObjectReader and ObjectWriter now try to pre-fetch root (de)serializer

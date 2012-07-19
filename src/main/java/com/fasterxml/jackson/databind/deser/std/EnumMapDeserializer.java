@@ -111,7 +111,13 @@ public class EnumMapDeserializer
             Enum<?> key = _keyDeserializer.deserialize(jp, ctxt);
             if (key == null) {
                 if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                    throw ctxt.weirdStringException(_enumClass, "value not one of declared Enum instance names");
+                    String value = null;
+                    try { // bit ugly, but will have to do; works with usual scalars
+                        if (jp.hasCurrentToken()) {
+                            value = jp.getText();
+                        }
+                    } catch (Exception e) { }
+                    throw ctxt.weirdStringException(value, _enumClass, "value not one of declared Enum instance names");
                 }
                 /* 24-Mar-2012, tatu: Null won't work as a key anyway, so let's
                  *  just skip the entry then. But we must skip the value then.

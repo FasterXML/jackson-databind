@@ -164,7 +164,7 @@ public class JsonMappingException
     }
 
     public static JsonMappingException from(JsonParser jp, String msg,
-                                            Throwable problem)
+            Throwable problem)
     {
         return new JsonMappingException(msg, jp.getTokenLocation(), problem);
     }

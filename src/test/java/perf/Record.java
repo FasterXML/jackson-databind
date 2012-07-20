@@ -3,20 +3,12 @@ package perf;
 /**
  * Simple test class 
  */
-final class Record
+final class Record extends RecordBase
 {
-    public int age;
-    public String firstName, lastName;
-    public char gender;
-    public boolean insured;
-
-    public Record() { }
+    protected Record() { super(); }
+    
     public Record(int a, String fn, String ln, char g, boolean ins)
     {
-        age = a;
-        firstName = fn;
-        lastName = ln;
-        gender = g;
-        insured = ins;
+        super(a, fn, ln, g, ins);
     }
 }

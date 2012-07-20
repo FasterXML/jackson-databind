@@ -10,20 +10,25 @@ public class ManualObjectReaderPerf
 {
     protected int hash;
     
-    private <T> void test(ObjectMapper mapper, T inputValue, Class<T> inputClass)
+    private <T1, T2> void test(ObjectMapper mapper,
+            T1 inputValue1, Class<T1> inputClass1,
+            T2 inputValue2, Class<T2> inputClass2)
         throws Exception
     {
-        final byte[] input = mapper.writeValueAsBytes(inputValue);
+        final byte[] jsonInput = mapper.writeValueAsBytes(inputValue1);
+        final byte[] arrayInput = mapper.writeValueAsBytes(inputValue2);
         
         // Let's try to guestimate suitable size... to get to N megs to process
-        final int REPS = (int) ((double) (8 * 1000 * 1000) / (double) input.length);
+        final int REPS = (int) ((double) (8 * 1000 * 1000) / (double) jsonInput.length);
 
-        System.out.println("Read "+input.length+" bytes to hash; will do "+REPS+" repetitions");
+        System.out.printf("Read %d bytes to bind (%d as array); will do %d repetitions\n",
+                jsonInput.length, arrayInput.length, REPS);
 
-        final ObjectReader cachingReader = mapper.reader(inputClass);
-        final ObjectReader nonCachingReader = mapper.reader()
-                .without(DeserializationFeature.EAGER_DESERIALIZER_FETCH)
-                .withType(inputClass);
+        final ObjectReader reader0 = mapper.reader()
+                .with(DeserializationFeature.EAGER_DESERIALIZER_FETCH);
+
+        final ObjectReader jsonReader = reader0.withType(inputClass1);
+        final ObjectReader arrayReader = reader0.withType(inputClass2);
         
         int i = 0;
         int roundsDone = 0;
@@ -43,12 +48,12 @@ public class ManualObjectReaderPerf
             
             switch (round) {
             case 0:
-                msg = "Pre-fetch";
-                msecs = testDeser(REPS, input, cachingReader);
+                msg = "JSON-as-Object";
+                msecs = testDeser(REPS, jsonInput, jsonReader);
                 break;
             case 1:
-                msg = "NO pre-fetch";
-                msecs = testDeser(REPS, input, nonCachingReader);
+                msg = "JSON-as-Array";
+                msecs = testDeser(REPS, arrayInput, arrayReader);
                 break;
             default:
                 throw new Error();
@@ -63,7 +68,7 @@ public class ManualObjectReaderPerf
                 ++roundsDone;
                 if ((roundsDone % 3) == 0 && roundsDone > WARMUP_ROUNDS) {
                     double den = (double) (roundsDone - WARMUP_ROUNDS);
-                    System.out.printf("Averages after %d rounds (pre / no): %.1f / %.1f msecs\n",
+                    System.out.printf("Averages after %d rounds (Object / Array): %.1f / %.1f msecs\n",
                             (int) den,
                             times[0] / den, times[1] / den);
                             
@@ -97,7 +102,10 @@ public class ManualObjectReaderPerf
             System.exit(1);
         }
         Record input = new Record(44, "BillyBob", "Bumbler", 'm', true);
+        RecordAsArray input2 = new RecordAsArray(44, "BillyBob", "Bumbler", 'm', true);
         ObjectMapper m = new ObjectMapper();
-        new ManualObjectReaderPerf().test(m, input, Record.class);
+        new ManualObjectReaderPerf().test(m,
+                input, Record.class,
+                input2, RecordAsArray.class);
     }
 }

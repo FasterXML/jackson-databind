@@ -15,7 +15,7 @@ public class ManualReadPerfWithMedia extends ObjectReaderBase
             System.exit(1);
         }
         MediaItem.Content content = new MediaItem.Content();
-        content.setTitle("content");
+        content.setTitle("Performance micro-benchmark, to be run manually");
         content.addPerson("William");
         content.addPerson("Robert");
         content.setWidth(900);
@@ -24,10 +24,11 @@ public class ManualReadPerfWithMedia extends ObjectReaderBase
         content.setDuration(3600 * 1000L);
         content.setCopyright("none");
         content.setPlayer(MediaItem.Player.FLASH);
+        content.setUri("http://whatever.biz");
 
         MediaItem input = new MediaItem(content);
-        input.addPhoto(new MediaItem.Photo("http://a", "title1", 200, 100, MediaItem.Size.LARGE));
-        input.addPhoto(new MediaItem.Photo("http://b", "title2", 640, 480, MediaItem.Size.SMALL));
+        input.addPhoto(new MediaItem.Photo("http://a.com", "title1", 200, 100, MediaItem.Size.LARGE));
+        input.addPhoto(new MediaItem.Photo("http://b.org", "title2", 640, 480, MediaItem.Size.SMALL));
 
         ObjectMapper m1 = new ObjectMapper();
         m1.setAnnotationIntrospector(new NoFormatIntrospector());

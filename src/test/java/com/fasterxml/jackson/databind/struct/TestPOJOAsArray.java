@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 public class TestPOJOAsArray extends BaseMapTest
 {
@@ -52,6 +54,23 @@ public class TestPOJOAsArray extends BaseMapTest
         }
     }
 
+    static class ForceArraysIntrospector extends JacksonAnnotationIntrospector
+    {
+        public JsonFormat.Value findFormat(Annotated a) {
+            return new JsonFormat.Value().withShape(JsonFormat.Shape.ARRAY);
+        }
+    }
+
+    static class A {
+        public B value = new B();
+    }
+    
+    @JsonPropertyOrder(alphabetic=true)
+    static class B {
+        public int x = 1;
+        public int y = 2;
+    }
+    
     /*
     /*****************************************************
     /* Basic tests
@@ -113,4 +132,14 @@ public class TestPOJOAsArray extends BaseMapTest
     /*****************************************************
      */
 
+    public void testAnnotationOverride() throws Exception
+    {
+        // by default, POJOs become JSON Objects;
+        assertEquals("{\"value\":{\"x\":1,\"y\":2}}", MAPPER.writeValueAsString(new A()));
+
+        // but override should change it:
+        ObjectMapper mapper2 = new ObjectMapper();
+        mapper2.setAnnotationIntrospector(new ForceArraysIntrospector());
+        assertEquals("[[1,2]]", mapper2.writeValueAsString(new A()));
+    }
 }

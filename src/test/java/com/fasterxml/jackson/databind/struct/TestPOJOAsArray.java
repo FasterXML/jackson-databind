@@ -2,11 +2,10 @@ package com.fasterxml.jackson.databind.struct;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestPojoAsArrayDeserialization extends BaseMapTest
+public class TestPOJOAsArray extends BaseMapTest
 {
     static class Pojo
     {
@@ -52,10 +51,10 @@ public class TestPojoAsArrayDeserialization extends BaseMapTest
             this.complete = c;
         }
     }
-    
+
     /*
     /*****************************************************
-    /* Unit tests
+    /* Basic tests
     /*****************************************************
      */
 
@@ -64,7 +63,7 @@ public class TestPojoAsArrayDeserialization extends BaseMapTest
     /**
      * Test that verifies that property annotation works
      */
-    public void testSimplePropertyValue() throws Exception
+    public void testReadSimplePropertyValue() throws Exception
     {
         String json = "{\"value\":[true,\"Foobar\",42,13]}";
         Pojo p = MAPPER.readValue(json, Pojo.class);
@@ -78,7 +77,7 @@ public class TestPojoAsArrayDeserialization extends BaseMapTest
     /**
      * Test that verifies that Class annotation works
      */
-    public void testSimpleRootValue() throws Exception
+    public void testReadSimpleRootValue() throws Exception
     {
         String json = "[false,\"Bubba\",1,2]";
         FlatPojo p = MAPPER.readValue(json, FlatPojo.class);
@@ -88,4 +87,30 @@ public class TestPojoAsArrayDeserialization extends BaseMapTest
         assertEquals(2, p.y);
     }
     
+    /**
+     * Test that verifies that property annotation works
+     */
+    public void testWriteSimplePropertyValue() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new Pojo("Foobar", 42, 13, true));
+        // will have wrapper POJO, then POJO-as-array..
+        assertEquals("{\"value\":[true,\"Foobar\",42,13]}", json);
+    }
+
+    /**
+     * Test that verifies that Class annotation works
+     */
+    public void testWriteSimpleRootValue() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new FlatPojo("Bubba", 1, 2, false));
+        // will have wrapper POJO, then POJO-as-array..
+        assertEquals("[false,\"Bubba\",1,2]", json);
+    }    
+
+    /*
+    /*****************************************************
+    /* Round-trip tests
+    /*****************************************************
+     */
+
 }

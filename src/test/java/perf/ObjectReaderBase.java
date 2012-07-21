@@ -2,33 +2,41 @@ package perf;
 
 import com.fasterxml.jackson.databind.*;
 
-/**
- * Simple manually run micro-benchmark for checking effects of (de)serializer
- * pre-fetching
- */
-public class ManualObjectReaderPerf
+abstract class ObjectReaderBase
 {
     protected int hash;
-    
-    private <T1, T2> void test(ObjectMapper mapper,
+
+    protected <T1, T2> void test(ObjectMapper mapper1, String desc1,
             T1 inputValue1, Class<T1> inputClass1,
+            ObjectMapper mapper2, String desc2,
             T2 inputValue2, Class<T2> inputClass2)
         throws Exception
     {
-        final byte[] jsonInput = mapper.writeValueAsBytes(inputValue1);
-        final byte[] arrayInput = mapper.writeValueAsBytes(inputValue2);
-        
+        final byte[] byteInput1 = mapper1.writeValueAsBytes(inputValue1);
+        final byte[] byteInput2 = mapper2.writeValueAsBytes(inputValue2);
+
+        desc1 = String.format("%s (%d bytes)", desc1, byteInput1.length);
+        desc2 = String.format("%s (%d bytes)", desc2, byteInput2.length);
+
+        // sanity check:
+        {
+            /*T1 back1 =*/ mapper1.readValue(byteInput1, inputClass1);
+            /*T2 back2 =*/ mapper2.readValue(byteInput2, inputClass2);
+            System.out.println("Input successfully round-tripped for both styles...");
+        }
+
         // Let's try to guestimate suitable size... to get to N megs to process
-        final int REPS = (int) ((double) (8 * 1000 * 1000) / (double) jsonInput.length);
+        final int REPS = (int) ((double) (8 * 1000 * 1000) / (double) byteInput1.length);
 
         System.out.printf("Read %d bytes to bind (%d as array); will do %d repetitions\n",
-                jsonInput.length, arrayInput.length, REPS);
+                byteInput1.length, byteInput2.length, REPS);
 
-        final ObjectReader reader0 = mapper.reader()
-                .with(DeserializationFeature.EAGER_DESERIALIZER_FETCH);
-
-        final ObjectReader jsonReader = reader0.withType(inputClass1);
-        final ObjectReader arrayReader = reader0.withType(inputClass2);
+        final ObjectReader jsonReader = mapper1.reader()
+                .with(DeserializationFeature.EAGER_DESERIALIZER_FETCH)
+                .withType(inputClass1);
+        final ObjectReader arrayReader = mapper2.reader()
+                .with(DeserializationFeature.EAGER_DESERIALIZER_FETCH)
+                .withType(inputClass2);
         
         int i = 0;
         int roundsDone = 0;
@@ -48,16 +56,17 @@ public class ManualObjectReaderPerf
             
             switch (round) {
             case 0:
-                msg = "JSON-as-Object";
-                msecs = testDeser(REPS, jsonInput, jsonReader);
+                msg = desc1;
+                msecs = testDeser(REPS, byteInput1, jsonReader);
                 break;
             case 1:
-                msg = "JSON-as-Array";
-                msecs = testDeser(REPS, arrayInput, arrayReader);
+                msg = desc2;
+                msecs = testDeser(REPS, byteInput2, arrayReader);
                 break;
             default:
                 throw new Error();
             }
+
             // skip first 5 rounds to let results stabilize
             if (roundsDone >= WARMUP_ROUNDS) {
                 times[round] += msecs;
@@ -93,19 +102,5 @@ public class ManualObjectReaderPerf
         }
         hash = result.hashCode();
         return System.currentTimeMillis() - start;
-    }
-
-    public static void main(String[] args) throws Exception
-    {
-        if (args.length != 0) {
-            System.err.println("Usage: java ...");
-            System.exit(1);
-        }
-        Record input = new Record(44, "BillyBob", "Bumbler", 'm', true);
-        RecordAsArray input2 = new RecordAsArray(44, "BillyBob", "Bumbler", 'm', true);
-        ObjectMapper m = new ObjectMapper();
-        new ManualObjectReaderPerf().test(m,
-                input, Record.class,
-                input2, RecordAsArray.class);
     }
 }

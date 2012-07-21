@@ -1455,6 +1455,13 @@ public class ObjectMapper
 
     /**
      * Method for reading sequence of Objects from parser stream.
+     * Sequence can be either root-level "unwrapped" sequence (without surrounding
+     * JSON array), or a sequence contained in a JSON Array.
+     * In either case {@link JsonParser} must point to the first token of
+     * the first element, OR not point to any token (in which case it is advanced
+     * to the next token). This means, specifically, that for wrapped sequences,
+     * parser MUST NOT point to the surrounding <code>START_ARRAY</code> but rather
+     * to the token following it.
      *<p>
      * Note that {@link ObjectReader} has more complete set of variants.
      */
@@ -1480,7 +1487,7 @@ public class ObjectMapper
     }
 
     /**
-     * Method for reading sequence of Objects from parser stream.
+     * Type-safe overloaded method, basically alias for {@link #readValues(JsonParser, ResolvedType)}.
      */
     @Override
     public <T> MappingIterator<T> readValues(JsonParser jp, Class<T> valueType)

@@ -613,7 +613,10 @@ public class ObjectReader
     }
 
     /**
-     * Type-safe overloaded method, basically alias for {@link #readValues(JsonParser, ResolvedType)}.
+     * Convenience method that is equivalent to:
+     *<pre>
+     *   withType(valueType).readValues(jp);
+     *</pre>
      */
     public <T> Iterator<T> readValues(JsonParser jp, JavaType valueType)
         throws IOException, JsonProcessingException {
@@ -778,6 +781,14 @@ public class ObjectReader
     
     /**
      * Method for reading sequence of Objects from parser stream.
+     *<p>
+     * Sequence can be either root-level "unwrapped" sequence (without surrounding
+     * JSON array), or a sequence contained in a JSON Array.
+     * In either case {@link JsonParser} must point to the first token of
+     * the first element, OR not point to any token (in which case it is advanced
+     * to the next token). This means, specifically, that for wrapped sequences,
+     * parser MUST NOT point to the surrounding <code>START_ARRAY</code> but rather
+     * to the token following it.
      */
     public <T> MappingIterator<T> readValues(JsonParser jp)
         throws IOException, JsonProcessingException
@@ -791,6 +802,23 @@ public class ObjectReader
     
     /**
      * Method for reading sequence of Objects from parser stream.
+     *<p>
+     * Sequence can be either wrapped or unwrapped root-level sequence:
+     * wrapped means that the elements are enclosed in JSON Array;
+     * and unwrapped that elements are directly accessed at main level.
+     * Assumption is that iff the first token of the document is
+     * <code>START_ARRAY</code>, we have a wrapped sequence; otherwise
+     * unwrapped. For wrapped sequences, leading <code>START_ARRAY</code>
+     * is skipped, so that for both cases, underlying {@link JsonParser}
+     * will point to what is expected to be the first token of the first
+     * element.
+     *<p>
+     * Note that the wrapped vs unwrapped logic means that it is NOT
+     * possible to use this method for reading an unwrapped sequence
+     * of elements written as JSON Arrays: to read such sequences, one
+     * has to use {@link #readValues(JsonParser)}, making sure parser
+     * points to the first token of the first element (i.e. the second
+     * <code>START_ARRAY</code> which is part of the first element).
      */
     public <T> MappingIterator<T> readValues(InputStream src)
         throws IOException, JsonProcessingException
@@ -807,7 +835,7 @@ public class ObjectReader
     }
 
     /**
-     * Method for reading sequence of Objects from parser stream.
+     * Overloaded version of {@link #readValue(InputStream)}.
      */
     public <T> MappingIterator<T> readValues(Reader src)
         throws IOException, JsonProcessingException
@@ -823,7 +851,9 @@ public class ObjectReader
     }
     
     /**
-     * Method for reading sequence of Objects from parser stream.
+     * Overloaded version of {@link #readValue(InputStream)}.
+     * 
+     * @param json String that contains JSON content to parse
      */
     public <T> MappingIterator<T> readValues(String json)
         throws IOException, JsonProcessingException
@@ -839,7 +869,7 @@ public class ObjectReader
     }
 
     /**
-     * Method for reading sequence of Objects from parser stream.
+     * Overloaded version of {@link #readValue(InputStream)}.
      */
     public <T> MappingIterator<T> readValues(byte[] src, int offset, int length)
         throws IOException, JsonProcessingException
@@ -854,13 +884,16 @@ public class ObjectReader
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
 
+    /**
+     * Overloaded version of {@link #readValue(InputStream)}.
+     */
     public final <T> MappingIterator<T> readValues(byte[] src)
             throws IOException, JsonProcessingException {
         return readValues(src, 0, src.length);
     }
     
     /**
-     * Method for reading sequence of Objects from parser stream.
+     * Overloaded version of {@link #readValue(InputStream)}.
      */
     public <T> MappingIterator<T> readValues(File src)
         throws IOException, JsonProcessingException
@@ -876,7 +909,9 @@ public class ObjectReader
     }
 
     /**
-     * Method for reading sequence of Objects from parser stream.
+     * Overloaded version of {@link #readValue(InputStream)}.
+     * 
+     * @param src URL to read to access JSON content to parse.
      */
     public <T> MappingIterator<T> readValues(URL src)
         throws IOException, JsonProcessingException

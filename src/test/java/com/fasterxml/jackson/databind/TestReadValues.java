@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestReadValues extends BaseMapTest
@@ -23,11 +24,12 @@ public class TestReadValues extends BaseMapTest
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testRootBeans() throws Exception
     {
         final String JSON = "{\"a\":3}{\"a\":27}  ";
-        ObjectMapper mapper = new ObjectMapper();
-        Iterator<Bean> it = mapper.reader(Bean.class).readValues(JSON);
+        Iterator<Bean> it = MAPPER.reader(Bean.class).readValues(JSON);
 
         assertTrue(it.hasNext());
         Bean b = it.next();
@@ -41,8 +43,7 @@ public class TestReadValues extends BaseMapTest
     public void testRootMaps() throws Exception
     {
         final String JSON = "{\"a\":3}{\"a\":27}  ";
-        ObjectMapper mapper = new ObjectMapper();
-        Iterator<Map<?,?>> it = mapper.reader(Map.class).readValues(JSON);
+        Iterator<Map<?,?>> it = MAPPER.reader(Map.class).readValues(JSON);
 
         assertTrue(it.hasNext());
         Map<?,?> map = it.next();
@@ -52,23 +53,6 @@ public class TestReadValues extends BaseMapTest
         map = it.next();
         assertEquals(1, map.size());
         assertEquals(Integer.valueOf(27), map.get("a"));
-        assertFalse(it.hasNext());
-    }
-
-    public void testRootArrays() throws Exception
-    {
-        final String JSON = "[1][3]";
-        ObjectMapper mapper = new ObjectMapper();
-        Iterator<int[]> it = mapper.reader(int[].class).readValues(JSON);
-
-        assertTrue(it.hasNext());
-        int[] array = it.next();
-        assertEquals(1, array.length);
-        assertEquals(1, array[0]);
-        assertTrue(it.hasNext());
-        array = it.next();
-        assertEquals(1, array.length);
-        assertEquals(3, array[0]);
         assertFalse(it.hasNext());
     }
 
@@ -81,8 +65,7 @@ public class TestReadValues extends BaseMapTest
     public void testRootBeansWithParser() throws Exception
     {
         final String JSON = "{\"a\":3}{\"a\":27}  ";
-        ObjectMapper mapper = new ObjectMapper();
-        JsonParser jp = mapper.getJsonFactory().createJsonParser(JSON);
+        JsonParser jp = MAPPER.getJsonFactory().createJsonParser(JSON);
         
         Iterator<Bean> it = jp.readValuesAs(Bean.class);
 
@@ -92,6 +75,27 @@ public class TestReadValues extends BaseMapTest
         assertTrue(it.hasNext());
         b = it.next();
         assertEquals(27, b.a);
+        assertFalse(it.hasNext());
+    }
+
+    public void testRootArraysWithParser() throws Exception
+    {
+        final String JSON = "[1][3]";
+        JsonParser jp = MAPPER.getJsonFactory().createJsonParser(JSON);
+
+        // NOTE: We must point JsonParser to the first element; if we tried to
+        // use "managed" accessor, it would try to advance past START_ARRAY.
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        
+        Iterator<int[]> it = MAPPER.reader(int[].class).readValues(jp);
+        assertTrue(it.hasNext());
+        int[] array = it.next();
+        assertEquals(1, array.length);
+        assertEquals(1, array[0]);
+        assertTrue(it.hasNext());
+        array = it.next();
+        assertEquals(1, array.length);
+        assertEquals(3, array[0]);
         assertFalse(it.hasNext());
     }
     
@@ -104,13 +108,16 @@ public class TestReadValues extends BaseMapTest
     public void testNonRootBeans() throws Exception
     {
         final String JSON = "{\"leaf\":[{\"a\":3},{\"a\":27}]}";
-        ObjectMapper mapper = new ObjectMapper();
-        JsonParser jp = mapper.getJsonFactory().createJsonParser(JSON);
+        JsonParser jp = MAPPER.getJsonFactory().createJsonParser(JSON);
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        // can either advance to first START_OBJECT, or clear current token;
+        // explicitly passed JsonParser MUST point to the first token of
+        // the first element
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
         
-        Iterator<Bean> it = mapper.reader(Bean.class).readValues(jp);
+        Iterator<Bean> it = MAPPER.reader(Bean.class).readValues(jp);
 
         assertTrue(it.hasNext());
         Bean b = it.next();
@@ -122,13 +129,18 @@ public class TestReadValues extends BaseMapTest
         jp.close();
     }
 
-    public void testNonRootMaps() throws Exception
+    public void testNonRootMapsWithParser() throws Exception
     {
         final String JSON = "[{\"a\":3},{\"a\":27}]";
-        ObjectMapper mapper = new ObjectMapper();
-        JsonParser jp = mapper.getJsonFactory().createJsonParser(JSON);
+        JsonParser jp = MAPPER.getJsonFactory().createJsonParser(JSON);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        Iterator<Map<?,?>> it = mapper.reader(Map.class).readValues(jp);
+
+        // can either advance to first START_OBJECT, or clear current token;
+        // explicitly passed JsonParser MUST point to the first token of
+        // the first element
+        jp.clearCurrentToken();
+        
+        Iterator<Map<?,?>> it = MAPPER.reader(Map.class).readValues(jp);
 
         assertTrue(it.hasNext());
         Map<?,?> map = it.next();
@@ -142,13 +154,37 @@ public class TestReadValues extends BaseMapTest
         jp.close();
     }
 
-    public void testNonRootArrays() throws Exception
+    public void testNonRootMapsWithObjectReader() throws Exception
+    {
+        String JSON = "[{ \"hi\": \"ho\", \"neighbor\": \"Joe\" },\n"
+            +"{\"boy\": \"howdy\", \"huh\": \"what\"}]";
+        final MappingIterator<Map<String, Object>> iterator = MAPPER
+                .reader()
+                .withType(new TypeReference<Map<String, Object>>(){})
+                .readValues(JSON);
+
+        Map<String,Object> map;
+        assertTrue(iterator.hasNext());
+        map = iterator.nextValue();
+        assertEquals(2, map.size());
+        assertTrue(iterator.hasNext());
+        map = iterator.nextValue();
+        assertEquals(2, map.size());
+        assertFalse(iterator.hasNext());
+    }
+    
+    public void testNonRootArraysUsingParser() throws Exception
     {
         final String JSON = "[[1],[3]]";
-        ObjectMapper mapper = new ObjectMapper();
-        JsonParser jp = mapper.getJsonFactory().createJsonParser(JSON);
+        JsonParser jp = MAPPER.getJsonFactory().createJsonParser(JSON);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
-        Iterator<int[]> it = mapper.readValues(jp, int[].class);
+        
+        // Important: as of 2.1, START_ARRAY can only be skipped if the
+        // target type is NOT a Collection or array Java type.
+        // So we have to explicitly skip it in this particular case.
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        
+        Iterator<int[]> it = MAPPER.readValues(jp, int[].class);
 
         assertTrue(it.hasNext());
         int[] array = it.next();

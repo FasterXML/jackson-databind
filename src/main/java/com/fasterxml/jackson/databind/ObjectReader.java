@@ -799,6 +799,7 @@ public class ObjectReader
         if (_schema != null) {
             jp.setSchema(_schema);
         }
+        jp.nextToken();
         DeserializationContext ctxt = createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt, 
                 _findRootDeserializer(ctxt, _valueType),
@@ -815,6 +816,7 @@ public class ObjectReader
         if (_schema != null) {
             jp.setSchema(_schema);
         }
+        jp.nextToken();
         DeserializationContext ctxt = createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
@@ -830,6 +832,7 @@ public class ObjectReader
         if (_schema != null) {
             jp.setSchema(_schema);
         }
+        jp.nextToken();
         DeserializationContext ctxt = createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
@@ -845,6 +848,7 @@ public class ObjectReader
         if (_schema != null) {
             jp.setSchema(_schema);
         }
+        jp.nextToken();
         DeserializationContext ctxt = createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
@@ -865,6 +869,7 @@ public class ObjectReader
         if (_schema != null) {
             jp.setSchema(_schema);
         }
+        jp.nextToken();
         DeserializationContext ctxt = createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
@@ -880,6 +885,7 @@ public class ObjectReader
         if (_schema != null) {
             jp.setSchema(_schema);
         }
+        jp.nextToken();
         DeserializationContext ctxt = createDeserializationContext(jp, _config);
         return new MappingIterator<T>(_valueType, jp, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);

@@ -23,6 +23,8 @@ Improvements:
   defining different introspectors for serialization, deserialization
 * [Issue-30] ObjectReader and ObjectWriter now try to pre-fetch root (de)serializer
   if possible; minor performance improvement (2% for small POJOs).
+* [Issue-33] Simplified/clarified definition of 'ObjectReader.readValues()';
+  minor change in behavior for JSON Array "wrapped" sequences
 * Added 'ObjectReader#withHandler' to allow for reconfiguring deserialization
   problem handler
  (suggested by 'electricmonk')
@@ -34,9 +36,30 @@ Other changes:
 * It is now possible to serialize instances of plain old Object, iff
   'FAIL_ON_EMPTY_BEANS' is disabled.
 
+INCOMPATIBILITIES: (rats!)
+
+* Note that [Issue-33] (see above) is, technically speaking, backwards
+  imcompatible change. It is estimated that it should NOT affect most
+  users, as changes are to edge cases (and undocumented ones at that).
+  However, it can potentially cause problems with upgrade.
+
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
+
+2.0.4 (26-Jun-2012)
+
+* [Issue-6]: element count for PrettyPrinter, endObject wrong
+   (reported by "thebluemountain")
+* [JACKSON-838]: Utf8StreamParser._reportInvalidToken() skips letters
+    from reported token name
+   (reported by Lóránt Pintér)
+* [JACKSON-841] Data is doubled in SegmentedStringWriter output
+   (reported by Scott S)
+* [JACKSON-842] ArrayIndexOutOfBoundsException when skipping C-style comments
+   (reported by Sebastien R)
+
+2.0.3: no version 2.0.3 released -- only used for extension modules
 
 2.0.2 [14-May-2012]
 

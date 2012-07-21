@@ -105,10 +105,11 @@ public class TestBasicAnnotations
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testSimpleSetter() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        SizeClassSetter result = m.readValue
+        SizeClassSetter result = MAPPER.readValue
             ("{ \"other\":3, \"size\" : 2, \"length\" : -999 }",
              SizeClassSetter.class);
                                              
@@ -120,9 +121,7 @@ public class TestBasicAnnotations
     // Test for checking [JACKSON-64]
     public void testSimpleSetter2() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        SizeClassSetter2 result = m.readValue
-            ("{ \"x\": -3 }",
+        SizeClassSetter2 result = MAPPER.readValue("{ \"x\": -3 }",
              SizeClassSetter2.class);
         assertEquals(-3, result._x);
     }
@@ -130,8 +129,7 @@ public class TestBasicAnnotations
     // Checking parts of [JACKSON-120]
     public void testSimpleSetter3() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        SizeClassSetter3 result = m.readValue
+        SizeClassSetter3 result = MAPPER.readValue
             ("{ \"x\": 128 }",
              SizeClassSetter3.class);
         assertEquals(128, result._x);
@@ -143,8 +141,7 @@ public class TestBasicAnnotations
      */
     public void testSetterInheritance() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        BeanSubClass result = m.readValue
+        BeanSubClass result = MAPPER.readValue
             ("{ \"x\":1, \"z\" : 3, \"y\" : 2 }",
              BeanSubClass.class);
         assertEquals(1, result._x);
@@ -154,8 +151,7 @@ public class TestBasicAnnotations
 
     public void testImpliedProperty() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        BeanWithDeserialize bean = m.readValue("{\"a\":3}", BeanWithDeserialize.class);
+        BeanWithDeserialize bean = MAPPER.readValue("{\"a\":3}", BeanWithDeserialize.class);
         assertNotNull(bean);
         assertEquals(3, bean.a);
     }

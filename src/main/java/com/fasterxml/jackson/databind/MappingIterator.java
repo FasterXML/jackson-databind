@@ -42,36 +42,50 @@ public class MappingIterator<T> implements Iterator<T>
      */
     protected final T _updatedValue;
 
+    /**
+     * @deprecated Since 2.1, to be removed
+     */
+    @Deprecated
     protected MappingIterator(JavaType type, JsonParser jp, DeserializationContext ctxt,
             JsonDeserializer<?> deser)
     {
         this(type, jp, ctxt, deser, true, null);
     }
-    
+
+    /**
+     * @param managedParser Whether we "own" the {@link JsonParser} passed or not:
+     *   if true, it was created by {@link ObjectReader} and code here needs to
+     *   close it; if false, it was passed by calling code and should not be
+     *   closed by iterator.
+     */
     @SuppressWarnings("unchecked")
-    protected MappingIterator(JavaType type, JsonParser jp, DeserializationContext ctxt, JsonDeserializer<?> deser,
-            boolean closeParser, Object valueToUpdate)
+    protected MappingIterator(JavaType type, JsonParser jp, DeserializationContext ctxt,
+            JsonDeserializer<?> deser,
+            boolean managedParser, Object valueToUpdate)
     {
         _type = type;
         _parser = jp;
         _context = ctxt;
         _deserializer = (JsonDeserializer<T>) deser;
-
-        /* One more thing: if we are at START_ARRAY (but NOT root-level
-         * one!), advance to next token (to allow matching END_ARRAY)
-         */
-        if (jp != null && jp.getCurrentToken() == JsonToken.START_ARRAY) {
-            JsonStreamContext sc = jp.getParsingContext();
-            // safest way to skip current token is to clear it (so we'll advance soon)
-            if (!sc.inRoot()) {
-                jp.clearCurrentToken();
-            }
-        }
-        _closeParser = closeParser;
+        _closeParser = managedParser;
         if (valueToUpdate == null) {
             _updatedValue = null;
         } else {
             _updatedValue = (T) valueToUpdate;
+        }
+
+        /* Ok: one more thing; we may have to skip START_ARRAY, assuming
+         * "wrapped" sequence; but this is ONLY done for 'managed' parsers
+         * and never if JsonParser was directly passed by caller (if it
+         * was, caller must have either positioned it over first token of
+         * the first element, or cleared the START_ARRAY token explicitly).
+         * Note, however, that we do not try to guess whether this could be
+         * an unwrapped sequence of arrays/Lists: we just assume it is wrapped;
+         * and if not, caller needs to hand us JsonParser instead, pointing to
+         * the first token of the first element.
+         */
+        if (managedParser && jp != null && jp.getCurrentToken() == JsonToken.START_ARRAY) {
+            jp.clearCurrentToken();
         }
     }
 

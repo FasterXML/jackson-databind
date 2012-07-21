@@ -22,13 +22,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * not having a registered listener at all. This allows for
  * only implemented handler methods one is interested in, without
  * handling other cases.
- * 
- * @author tatu
  */
 public abstract class DeserializationProblemHandler
 {
     /**
-     * Method called when a Json Map ("Object") entry with an unrecognized
+     * Method called when a JSON Map ("Object") entry with an unrecognized
      * name is encountered.
      * Content (supposedly) matching the property are accessible via
      * parser that can be obtained from passed deserialization context.
@@ -50,8 +48,10 @@ public abstract class DeserializationProblemHandler
      *   when bean uses non-default constructors)
      * @param jp Parser to use for handling problematic content
      * 
-     * @return True if the problem was succesfully resolved (and content available
-     *    used or skipped); false if listen
+     * @return True if the problem is resolved (and content available used or skipped);
+     *  false if the handler did not anything and the problem is unresolved. Note that in
+     *  latter case caller will either throw an exception or explicitly skip the content,
+     *  depending on configuration.
      */
     public boolean handleUnknownProperty(DeserializationContext ctxt, JsonParser jp,
             JsonDeserializer<?> deserializer, Object beanOrClass, String propertyName)

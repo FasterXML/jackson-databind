@@ -1409,7 +1409,7 @@ public class ObjectMapper
     }
 
     /**
-     * Type-safe overloaded method, basically alias for {@link #readValues(JsonParser, ResolvedType)}.
+     * Type-safe overloaded method, basically alias for {@link #readValue(JsonParser, ResolvedType)}.
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser jp, JavaType valueType)

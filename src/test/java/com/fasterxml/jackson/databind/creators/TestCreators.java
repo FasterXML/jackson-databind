@@ -158,6 +158,17 @@ public class TestCreators
         @JsonCreator public MultiBean(String v) { value = v; }
         @JsonCreator public MultiBean(boolean v) { value = v; }
     }
+
+    // for [JACKSON-850]
+    static class NoArgFactoryBean {
+        public int x;
+        public int y;
+        
+        public NoArgFactoryBean(int value) { x = value; }
+        
+        @JsonCreator
+        public static NoArgFactoryBean create() { return new NoArgFactoryBean(123); }
+    }
     
     /*
     /**********************************************************
@@ -228,9 +239,9 @@ public class TestCreators
     }
 
     /*
-    //////////////////////////////////////////////
-    // Annotated helper classes for Maps
-    //////////////////////////////////////////////
+    /**********************************************************
+    /* Annotated helper classes for Maps
+    /**********************************************************
      */
 
     @SuppressWarnings("serial")
@@ -267,63 +278,66 @@ public class TestCreators
     }
 
     /*
-    /////////////////////////////////////////////////////
-    // Test methods, valid cases, non-deferred, no-mixins
-    /////////////////////////////////////////////////////
+    /**********************************************************
+    /* Test methods, valid cases, non-deferred, no-mixins
+    /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testSimpleConstructor() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        ConstructorBean bean = m.readValue("{ \"x\" : 42 }", ConstructorBean.class);
+        ConstructorBean bean = MAPPER.readValue("{ \"x\" : 42 }", ConstructorBean.class);
         assertEquals(42, bean.x);
     }
 
+    // [JACKSON-850]
+    public void testNoArgsFactory() throws Exception
+    {
+        NoArgFactoryBean value = MAPPER.readValue("{\"y\":13}", NoArgFactoryBean.class);
+        assertEquals(13, value.y);
+        assertEquals(123, value.x);
+    }
+    
     public void testSimpleDoubleConstructor() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         Double exp = new Double("0.25");
-        DoubleConstructorBean bean = m.readValue(exp.toString(), DoubleConstructorBean.class);
+        DoubleConstructorBean bean = MAPPER.readValue(exp.toString(), DoubleConstructorBean.class);
         assertEquals(exp, bean.d);
     }
 
     public void testSimpleBooleanConstructor() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        BooleanConstructorBean bean = m.readValue(" true ", BooleanConstructorBean.class);
+        BooleanConstructorBean bean = MAPPER.readValue(" true ", BooleanConstructorBean.class);
         assertEquals(Boolean.TRUE, bean.b);
 
-        BooleanConstructorBean2 bean2 = m.readValue(" true ", BooleanConstructorBean2.class);
+        BooleanConstructorBean2 bean2 = MAPPER.readValue(" true ", BooleanConstructorBean2.class);
         assertTrue(bean2.b);
     }
 
     public void testSimpleFactory() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        FactoryBean bean = m.readValue("{ \"f\" : 0.25 }", FactoryBean.class);
+        FactoryBean bean = MAPPER.readValue("{ \"f\" : 0.25 }", FactoryBean.class);
         assertEquals(0.25, bean.d);
     }
 
     public void testLongFactory() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         long VALUE = 123456789000L;
-        LongFactoryBean bean = m.readValue(String.valueOf(VALUE), LongFactoryBean.class);
+        LongFactoryBean bean = MAPPER.readValue(String.valueOf(VALUE), LongFactoryBean.class);
         assertEquals(VALUE, bean.value);
     }
 
     public void testStringFactory() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         String str = "abc";
-        StringFactoryBean bean = m.readValue(quote(str), StringFactoryBean.class);
+        StringFactoryBean bean = MAPPER.readValue(quote(str), StringFactoryBean.class);
         assertEquals(str, bean.value);
     }
 
     public void testConstructorCreator() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        CreatorBean bean = m.readValue
+        CreatorBean bean = MAPPER.readValue
             ("{ \"a\" : \"xyz\", \"x\" : 12 }", CreatorBean.class);
         assertEquals(13, bean.x);
         assertEquals("ctor:xyz", bean.a);
@@ -331,8 +345,7 @@ public class TestCreators
 
     public void testConstructorAndProps() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        ConstructorAndPropsBean bean = m.readValue
+        ConstructorAndPropsBean bean = MAPPER.readValue
             ("{ \"a\" : \"1\", \"b\": 2, \"c\" : true }", ConstructorAndPropsBean.class);
         assertEquals(1, bean.a);
         assertEquals(2, bean.b);
@@ -341,8 +354,7 @@ public class TestCreators
 
     public void testFactoryAndProps() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        FactoryAndPropsBean bean = m.readValue
+        FactoryAndPropsBean bean = MAPPER.readValue
             ("{ \"a\" : [ false, true, false ], \"b\": 2, \"c\" : -1 }", FactoryAndPropsBean.class);
         assertEquals(2, bean.arg2);
         assertEquals(-1, bean.arg3);
@@ -360,12 +372,11 @@ public class TestCreators
      */
     public void testMultipleCreators() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        MultiBean bean = m.readValue("123", MultiBean.class);
+        MultiBean bean = MAPPER.readValue("123", MultiBean.class);
         assertEquals(Integer.valueOf(123), bean.value);
-        bean = m.readValue(quote("abc"), MultiBean.class);
+        bean = MAPPER.readValue(quote("abc"), MultiBean.class);
         assertEquals("abc", bean.value);
-        bean = m.readValue("0.25", MultiBean.class);
+        bean = MAPPER.readValue("0.25", MultiBean.class);
         assertEquals(Double.valueOf(0.25), bean.value);
     }
 
@@ -377,8 +388,7 @@ public class TestCreators
 
     public void testDeferredConstructorAndProps() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        DeferredConstructorAndPropsBean bean = m.readValue
+        DeferredConstructorAndPropsBean bean = MAPPER.readValue
             ("{ \"propB\" : \"...\", \"createA\" : [ 1 ], \"propA\" : null }",
              DeferredConstructorAndPropsBean.class);
 
@@ -391,17 +401,16 @@ public class TestCreators
 
     public void testDeferredFactoryAndProps() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        DeferredFactoryAndPropsBean bean = m.readValue
+        DeferredFactoryAndPropsBean bean = MAPPER.readValue
             ("{ \"prop\" : \"1\", \"ctor\" : \"2\" }", DeferredFactoryAndPropsBean.class);
         assertEquals("1", bean.prop);
         assertEquals("2", bean.ctor);
     }
 
     /*
-    /////////////////////////////////////////////////////
-    // Test methods, valid cases, mixins
-    /////////////////////////////////////////////////////
+    /**********************************************************
+    /* Test methods, valid cases, mixins
+    /**********************************************************
      */
 
     public void testFactoryCreatorWithMixin() throws Exception
@@ -424,15 +433,15 @@ public class TestCreators
     }
 
     /*
-    /////////////////////////////////////////////////////
-    // Test methods, valid cases, Map with creator
-    // (to test [JACKSON-153])
-    /////////////////////////////////////////////////////
+    /**********************************************************
+    /* Test methods, valid cases, Map with creator
+    /* (to test [JACKSON-153])
+    /**********************************************************
      */
 
     public void testMapWithConstructor() throws Exception
     {
-        MapWithCtor result = new ObjectMapper().readValue
+        MapWithCtor result = MAPPER.readValue
             ("{\"text\":\"abc\", \"entry\":true, \"number\":123, \"xy\":\"yx\"}",
              MapWithCtor.class);
         // regular Map entries:
@@ -446,7 +455,7 @@ public class TestCreators
 
     public void testMapWithFactory() throws Exception
     {
-        MapWithFactory result = new ObjectMapper().readValue
+        MapWithFactory result = MAPPER.readValue
             ("{\"x\":\"...\",\"b\":true  }",
              MapWithFactory.class);
         assertEquals("...", result.get("x"));
@@ -455,16 +464,15 @@ public class TestCreators
     }
 
     /*
-    //////////////////////////////////////////////
-    // Test methods, invalid/broken cases
-    //////////////////////////////////////////////
+    /**********************************************************
+    /* Test methods, invalid/broken cases
+    /**********************************************************
      */
 
     public void testBrokenConstructor() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         try {
-            /*BrokenBean bean =*/ m.readValue("{ \"x\" : 42 }", BrokenBean.class);
+            /*BrokenBean bean =*/ MAPPER.readValue("{ \"x\" : 42 }", BrokenBean.class);
         } catch (JsonMappingException je) {
             verifyException(je, "has no property name");
         }

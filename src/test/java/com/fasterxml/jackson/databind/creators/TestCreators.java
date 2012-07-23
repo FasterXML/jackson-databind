@@ -158,17 +158,6 @@ public class TestCreators
         @JsonCreator public MultiBean(String v) { value = v; }
         @JsonCreator public MultiBean(boolean v) { value = v; }
     }
-
-    // for [JACKSON-850]
-    static class NoArgFactoryBean {
-        public int x;
-        public int y;
-        
-        public NoArgFactoryBean(int value) { x = value; }
-        
-        @JsonCreator
-        public static NoArgFactoryBean create() { return new NoArgFactoryBean(123); }
-    }
     
     /*
     /**********************************************************
@@ -289,14 +278,6 @@ public class TestCreators
     {
         ConstructorBean bean = MAPPER.readValue("{ \"x\" : 42 }", ConstructorBean.class);
         assertEquals(42, bean.x);
-    }
-
-    // [JACKSON-850]
-    public void testNoArgsFactory() throws Exception
-    {
-        NoArgFactoryBean value = MAPPER.readValue("{\"y\":13}", NoArgFactoryBean.class);
-        assertEquals(13, value.y);
-        assertEquals(123, value.x);
     }
     
     public void testSimpleDoubleConstructor() throws Exception

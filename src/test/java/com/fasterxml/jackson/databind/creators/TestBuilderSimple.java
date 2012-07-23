@@ -9,18 +9,18 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 public class TestBuilderSimple extends BaseMapTest
 {
-	// // Simple 2-property value class, builder with standard naming
+    // // Simple 2-property value class, builder with standard naming
 	
-	@JsonDeserialize(builder=SimpleBuilderXY.class)
-	static class ValueClassXY
-	{
-		final int _x, _y;
+    @JsonDeserialize(builder=SimpleBuilderXY.class)
+    static class ValueClassXY
+    {
+        final int _x, _y;
 
-		protected ValueClassXY(int x, int y) {
-			_x = x+1;
-			_y = y+1;
-		}
-	}
+        protected ValueClassXY(int x, int y) {
+            _x = x+1;
+            _y = y+1;
+        }
+    }
 
     static class SimpleBuilderXY
     {

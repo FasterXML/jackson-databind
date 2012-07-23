@@ -15,6 +15,8 @@ Improvements:
 
 * [JACKSON-839]: Allow "upgrade" of integer number types for
   UntypedObjectDeserializer, even with default typing enabled.
+* [JACKSON-850]: Allow use of zero-arg factory methods as "default creator"
+  (suggested by Razvan D)
 * [Issue-9]: Implement 'required' JSON Schema attribute for bean properties
 * [Issue-20]: Add new exception type, InvalidFormatException (sub-type of
   JsonMappingException) to indicate data format problems

@@ -374,11 +374,8 @@ public final class AnnotatedClass
             if (!Modifier.isStatic(m.getModifiers())) {
                 continue;
             }
-            int argCount = m.getParameterTypes().length;
-            // factory methods take at least one arg:
-            if (argCount < 1) {
-                continue;
-            }
+            // all factory methods are fine, as per [JACKSON-850]
+            //int argCount = m.getParameterTypes().length;
             if (creatorMethods == null) {
                 creatorMethods = new ArrayList<AnnotatedMethod>(8);
             }

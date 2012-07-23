@@ -21,11 +21,17 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class CreatorCollector
 {
     /// Type of bean being created
-    final BeanDescription _beanDesc;
+    final protected BeanDescription _beanDesc;
 
-    final boolean _canFixAccess;
+    final protected boolean _canFixAccess;
 
-    protected AnnotatedConstructor _defaultConstructor;
+    /**
+     * Reference to the default creator (constructor or factory method).
+     *<p>
+     * Note: name is a misnomer, after resolving of [JACKSON-850], since this
+     * can also point to factory method.
+     */
+    protected AnnotatedWithParams _defaultConstructor;
     
     protected AnnotatedWithParams _stringCreator, _intCreator, _longCreator;
     protected AnnotatedWithParams _doubleCreator, _booleanCreator;
@@ -89,8 +95,31 @@ public class CreatorCollector
     /**********************************************************
      */
 
+    /**
+     * @deprecated since 2.1, use {@link #setDefaultCreator} instead.
+     */
     public void setDefaultConstructor(AnnotatedConstructor ctor) {
-        _defaultConstructor = ctor;
+        _defaultConstructor = _fixAccess(ctor);
+    }
+    
+    /**
+     * Method called to indicate the default creator: no-arguments
+     * constructor or factory method that is called to instantiate
+     * a value before populating it with data. Default creator is
+     * only used if no other creators are indicated.
+     * 
+     * @param creator Creator method; no-arguments constructor or static
+     *   factory method.
+     */
+    public void setDefaultCreator(AnnotatedWithParams creator)
+    {
+        // !!! TODO: 23-Jul-2012, tatu: Should change to directly change things
+        //    here in future; but for backwards compatibility, can't do that yet
+        if (creator instanceof AnnotatedConstructor) {
+            setDefaultConstructor((AnnotatedConstructor) creator);
+            return;
+        }
+        _defaultConstructor = _fixAccess(creator);
     }
     
     public void addStringCreator(AnnotatedWithParams creator) {
@@ -141,9 +170,30 @@ public class CreatorCollector
 
     /*
     /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.1
+     */
+    public boolean hasDefaultCreator() {
+        return _defaultConstructor != null;
+    }
+    
+    /*
+    /**********************************************************
     /* Helper methods
     /**********************************************************
      */
+
+    private <T extends AnnotatedMember> T _fixAccess(T member)
+    {
+        if (member != null && _canFixAccess) {
+            ClassUtil.checkAndFixAccess((Member) member.getAnnotated());
+        }
+        return member;
+    }
 
     protected AnnotatedWithParams verifyNonDup(AnnotatedWithParams newOne, AnnotatedWithParams oldOne,
             String type)
@@ -154,9 +204,6 @@ public class CreatorCollector
                 throw new IllegalArgumentException("Conflicting "+type+" creators: already had "+oldOne+", encountered "+newOne);
             }
         }
-        if (_canFixAccess) {
-            ClassUtil.checkAndFixAccess((Member) newOne.getAnnotated());
-        }
-        return newOne;
+        return _fixAccess(newOne);
     }
 }

@@ -328,29 +328,19 @@ public abstract class BasicDeserializerFactory
         CreatorCollector creators =  new CreatorCollector(beanDesc, fixAccess);
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         
-        // First, let's figure out constructor/factory-based instantiation
-        // 23-Jan-2010, tatus: but only for concrete types
-        if (beanDesc.getType().isConcrete()) {
-            AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
-            if (defaultCtor != null) {
-                if (fixAccess) {
-                    ClassUtil.checkAndFixAccess(defaultCtor.getAnnotated());
-                }
-                creators.setDefaultConstructor(defaultCtor);
-            }
-        }
-
         // need to construct suitable visibility checker:
         final DeserializationConfig config = ctxt.getConfig();
         VisibilityChecker<?> vchecker = config.getDefaultVisibilityChecker();
-        vchecker = config.getAnnotationIntrospector().findAutoDetectVisibility(beanDesc.getClassInfo(), vchecker);
+        vchecker = intr.findAutoDetectVisibility(beanDesc.getClassInfo(), vchecker);
 
         /* Important: first add factory methods; then constructors, so
          * latter can override former!
          */
         _addDeserializerFactoryMethods(ctxt, beanDesc, vchecker, intr, creators);
-        _addDeserializerConstructors(ctxt, beanDesc, vchecker, intr, creators);
-
+        // constructors only usable on concrete types:
+        if (beanDesc.getType().isConcrete()) {
+            _addDeserializerConstructors(ctxt, beanDesc, vchecker, intr, creators);
+        }
         return creators.constructValueInstantiator(config);
     }
 
@@ -397,11 +387,19 @@ public abstract class BasicDeserializerFactory
          AnnotationIntrospector intr, CreatorCollector creators)
         throws JsonMappingException
     {
+        /* First things first: the "default constructor" (zero-arg
+         * constructor; whether implicit or explicit) is NOT included
+         * in list of constructors, so needs to be handled separately.
+         */
+        AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
+        if (defaultCtor != null) {
+            if (!creators.hasDefaultCreator() || intr.hasCreatorAnnotation(defaultCtor)) {
+                creators.setDefaultCreator(defaultCtor);
+            }
+        }
+        
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             int argCount = ctor.getParameterCount();
-            if (argCount < 1) {
-                continue;
-            }
             boolean isCreator = intr.hasCreatorAnnotation(ctor);
             boolean isVisible =  vchecker.isCreatorVisible(ctor);
             // some single-arg constructors (String, number) are auto-detected
@@ -514,11 +512,15 @@ public abstract class BasicDeserializerFactory
     {
         final DeserializationConfig config = ctxt.getConfig();
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
+            boolean isCreator = intr.hasCreatorAnnotation(factory);
             int argCount = factory.getParameterCount();
-            if (argCount < 1) {
+            // zero-arg methods must be annotated; if so, are "default creators" [JACKSON-850]
+            if (argCount == 0) {
+                if (isCreator) {
+                    creators.setDefaultCreator(factory);
+                }
                 continue;
             }
-            boolean isCreator = intr.hasCreatorAnnotation(factory);
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
                 AnnotatedParameter param = factory.getParameter(0);

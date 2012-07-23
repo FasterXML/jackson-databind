@@ -856,32 +856,36 @@ Joern Huxhorn:
    [2.0.0]
 
 James Roper:
-  * Reported [JACKSON-829] Custom serializers not working for List<String>
+ * Reported [JACKSON-829] Custom serializers not working for List<String>
     properties, @JsonSerialize(contentUsing)
-   [1.9.7]
-  * Requested [JACKSON-732]: Allow 'AnnotationIntrospector.findContentDeserializer()'
+  (1.9.7)
+ * Requested [JACKSON-732]: Allow 'AnnotationIntrospector.findContentDeserializer()'
     (and similar) to return instance, not just Class<?> for instance
-   [2.0.0]
-  * Suggested [JACKSON-800]: Adding a method for letting modules register
+  (2.0.0)
+ * Suggested [JACKSON-800]: Adding a method for letting modules register
     DeserializationProblemHandlers
-   [2.0.0]
+  (2.0.0)
 
 Casey Lucas:
-  * Reported [JACKSON-798]: Problem with external type id, creators
-   [2.0.0]
+ * Reported [JACKSON-798]: Problem with external type id, creators
+  (2.0.0)
 
 Tammo van Lessen:
-  * Reported [JACKSON-811]: Problems with @JsonIdentityInfo, abstract types
-   [2.0.0]
-  * Reported [JACKSON-814]: Parsing RFC822/RFC1123 dates failes on non-US locales
-   [2.0.0]
+ * Reported [JACKSON-811]: Problems with @JsonIdentityInfo, abstract types
+  (2.0.0)
+ * Reported [JACKSON-814]: Parsing RFC822/RFC1123 dates failes on non-US locales
+  (2.0.0)
 
 Raymond Myers:
-  * Suggested [JACKSON-810]: Deserialization Feature: Allow unknown Enum values via
+ * Suggested [JACKSON-810]: Deserialization Feature: Allow unknown Enum values via
     'DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL'
-  [2.0.0]
+  (2.0.0)
 
 Ryan Gardner:
-  * Contributed [pull-5] -- Add support for maps with java.util.Locale keys
+ * Contributed [pull-5] -- Add support for maps with java.util.Locale keys
     to the set of StdKeyDeserializers
-  [2.0.1]
+  (2.0.1)
+
+Razvan Dragut:
+ * Suggested [JACKSON-850]: Allow use of zero-arg factory methods as "default creator"
+  (2.1.0)

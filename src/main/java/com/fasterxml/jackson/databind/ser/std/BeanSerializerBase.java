@@ -643,8 +643,19 @@ public abstract class BeanSerializerBase
         //todo: should the classname go in the title?
         //o.put("title", _className);
         ObjectNode propertiesNode = o.objectNode();
+        final BeanPropertyFilter filter;
+        if (_propertyFilterId != null) {
+        	filter = findFilter(provider);
+        } else {
+        	filter = null;
+        }
+        		
         for (int i = 0; i < _props.length; i++) {
             BeanPropertyWriter prop = _props[i];
+            if (filter != null) {
+            	filter.depositSchemaProperty(prop, propertiesNode, provider);
+            	 continue;
+            }
             JavaType propType = prop.getSerializationType();
 
             // 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas it doesn't...
@@ -678,8 +689,9 @@ public abstract class BeanSerializerBase
      * @param prop the bean property.
      * @return true if the property is optional, false otherwise.
      */
-    private boolean isPropertyRequired(final BeanPropertyWriter prop, final SerializerProvider provider) {
+    public static boolean isPropertyRequired(final BeanPropertyWriter prop, final SerializerProvider provider) {
         Boolean value = provider.getAnnotationIntrospector().hasRequiredMarker(prop.getMember());
         return (value == null) ? false : value.booleanValue();
     }
+    
 }

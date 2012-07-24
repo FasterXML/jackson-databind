@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Interface that defines API for filter objects use (as configured
@@ -25,4 +26,6 @@ public interface BeanPropertyFilter
     public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov,
             BeanPropertyWriter writer)
         throws Exception;
+    
+    public void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode, SerializerProvider provider);
 }

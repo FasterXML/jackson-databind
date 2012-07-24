@@ -64,6 +64,18 @@ public abstract class FilteredBeanPropertyWriter
                 _delegate.serializeAsField(bean, jgen, prov);
             }
         }
+
+        @Override
+        public void serializeAsColumn(Object bean, JsonGenerator jgen, SerializerProvider prov)
+            throws Exception
+        {
+            Class<?> activeView = prov.getSerializationView();
+            if (activeView == null || _view.isAssignableFrom(activeView)) {
+                _delegate.serializeAsColumn(bean, jgen, prov);
+            } else {
+                _delegate.serializeAsPlaceholder(bean, jgen, prov);
+            }
+        }
     }
 
     private final static class MultiView
@@ -110,6 +122,25 @@ public abstract class FilteredBeanPropertyWriter
                 }
             }
             _delegate.serializeAsField(bean, jgen, prov);
+        }
+
+        @Override
+        public void serializeAsColumn(Object bean, JsonGenerator jgen, SerializerProvider prov)
+            throws Exception
+        {
+            final Class<?> activeView = prov.getSerializationView();
+            if (activeView != null) {
+                int i = 0, len = _views.length;
+                for (; i < len; ++i) {
+                    if (_views[i].isAssignableFrom(activeView)) break;
+                }
+                // not included, bail out:
+                if (i == len) {
+                    _delegate.serializeAsPlaceholder(bean, jgen, prov);
+                    return;
+                }
+            }
+            _delegate.serializeAsColumn(bean, jgen, prov);
         }
     }
 }

@@ -263,7 +263,7 @@ public class BeanDeserializerFactory
          // And then setters for deserializing from JSON Object
         addBeanProps(ctxt, beanDesc, builder);
         addObjectIdReader(ctxt, beanDesc, builder);
-        
+
         // managed/back reference fields/setters need special handling... first part
         addReferenceProperties(ctxt, beanDesc, builder);
         addInjectables(ctxt, beanDesc, builder);
@@ -477,6 +477,9 @@ public class BeanDeserializerFactory
             BeanDescription beanDesc, BeanDeserializerBuilder builder)
         throws JsonMappingException
     {
+        final SettableBeanProperty[] creatorProps =
+                builder.getValueInstantiator().getFromObjectArguments(ctxt.getConfig());
+        
         // Things specified as "ok to ignore"? [JACKSON-77]
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         boolean ignoreAny = false;
@@ -525,16 +528,26 @@ public class BeanDeserializerFactory
         
         // At which point we still have all kinds of properties; not all with mutators:
         for (BeanPropertyDefinition propDef : propDefs) {
+            SettableBeanProperty prop = null;
             if (propDef.hasConstructorParameter()) {
-                /* [JACKSON-700] If property as passed via constructor parameter, we must
+                /* [JACKSON-700] If property is passed via constructor parameter, we must
                  *   handle things in special way. Not sure what is the most optimal way...
                  *   for now, let's just call a (new) method in builder, which does nothing.
                  */
                 // but let's call a method just to allow custom builders to be aware...
-                builder.addCreatorProperty(propDef);
+                final String name = propDef.getName();
+                for (SettableBeanProperty cp : creatorProps) {
+                    if (name.equals(cp.getName())) {
+                        prop = cp;
+                        break;
+                    }
+                }
+                if (prop == null) {
+                    throw ctxt.mappingException("Could not find creator property with name '"+name+"'");
+                }
+                builder.addCreatorProperty(prop);
                 continue;
             }
-            SettableBeanProperty prop = null;
             if (propDef.hasSetter()) {
                 Type propertyType = propDef.getSetter().getGenericParameterType(0);
                 prop = constructSettableProperty(ctxt,
@@ -568,7 +581,7 @@ public class BeanDeserializerFactory
             }
         }
     }
-
+    
     /**
      * Helper method called to filter out explicit ignored properties,
      * as well as properties that have "ignorable types".

@@ -258,6 +258,14 @@ public abstract class SettableBeanProperty
     public int getPropertyIndex() { return _propertyIndex; }
 
     /**
+     * Method for accessing index of the creator property: for other
+     * types of properties will simply return -1.
+     * 
+     * @since 2.1
+     */
+    public int getCreatorIndex() { return -1; }
+    
+    /**
      * Accessor for id of injectable value, if this bean property supports
      * value injection.
      */

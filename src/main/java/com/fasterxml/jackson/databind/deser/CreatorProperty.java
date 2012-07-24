@@ -40,6 +40,11 @@ public class CreatorProperty
      * (in addition to, or instead of, regular deserialization).
      */
     protected final Object _injectableValueId;
+
+    /**
+     * @since 2.1
+     */
+    protected final int _creatorIndex;
     
     /**
      * @param name Name of the logical property
@@ -51,6 +56,7 @@ public class CreatorProperty
      *    this property)
      * @param param Representation of property, constructor or factory
      *    method parameter; used for accessing annotations of the property
+     * @param index Index of this property within creator invocatino
      */
     public CreatorProperty(String name, JavaType type, TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
@@ -58,19 +64,21 @@ public class CreatorProperty
     {
         super(name, type, typeDeser, contextAnnotations);
         _annotated = param;
-        _propertyIndex = index;
+        _creatorIndex = index;
         _injectableValueId = injectableValueId;
     }
 
     protected CreatorProperty(CreatorProperty src, String newName) {
         super(src, newName);
         _annotated = src._annotated;
+        _creatorIndex = src._creatorIndex;
         _injectableValueId = src._injectableValueId;
     }
     
     protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser) {
         super(src, deser);
         _annotated = src._annotated;
+        _creatorIndex = src._creatorIndex;
         _injectableValueId = src._injectableValueId;
     }
 
@@ -121,6 +129,10 @@ public class CreatorProperty
     }
 
     @Override public AnnotatedMember getMember() {  return _annotated; }
+
+    @Override public int getCreatorIndex() {
+        return _creatorIndex;
+    }
     
     /*
     /**********************************************************

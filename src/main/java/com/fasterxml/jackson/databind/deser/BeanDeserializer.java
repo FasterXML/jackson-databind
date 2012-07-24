@@ -544,7 +544,7 @@ public class BeanDeserializer
             if (creatorProp != null) {
                 // Last creator property to set?
                 Object value = creatorProp.deserialize(jp, ctxt);
-                if (buffer.assignParameter(creatorProp.getPropertyIndex(), value)) {
+                if (buffer.assignParameter(creatorProp.getCreatorIndex(), value)) {
                     jp.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
                     try {
@@ -825,7 +825,7 @@ public class BeanDeserializer
             if (creatorProp != null) {
                 // Last creator property to set?
                 Object value = creatorProp.deserialize(jp, ctxt);
-                if (buffer.assignParameter(creatorProp.getPropertyIndex(), value)) {
+                if (buffer.assignParameter(creatorProp.getCreatorIndex(), value)) {
                     t = jp.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                     Object bean;
                     try {
@@ -972,7 +972,7 @@ public class BeanDeserializer
                 } else {
                     // Last creator property to set?
                     Object value = creatorProp.deserialize(jp, ctxt);
-                    if (buffer.assignParameter(creatorProp.getPropertyIndex(), value)) {
+                    if (buffer.assignParameter(creatorProp.getCreatorIndex(), value)) {
                         t = jp.nextToken(); // to move to following FIELD_NAME/END_OBJECT
                         Object bean;
                         try {

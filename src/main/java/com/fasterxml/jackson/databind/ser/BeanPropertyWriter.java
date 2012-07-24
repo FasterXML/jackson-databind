@@ -481,8 +481,9 @@ public class BeanPropertyWriter
         if (value == null) { // nulls need specialized handling
             if (_nullSerializer != null) {
                 _nullSerializer.serialize(null, jgen, prov);
+            } else { // can NOT suppress entries in tabular output
+                jgen.writeNull();
             }
-            return;
         }
         // otherwise find serializer to use
         JsonSerializer<Object> ser = _serializer;
@@ -497,10 +498,12 @@ public class BeanPropertyWriter
         // and then see if we must suppress certain values (default, empty)
         if (_suppressableValue != null) {
             if (MARKER_FOR_EMPTY == _suppressableValue) {
-                if (ser.isEmpty(value)) {
+                if (ser.isEmpty(value)) { // can NOT suppress entries in tabular output
+                    serializeAsPlaceholder(bean, jgen, prov);
                     return;
                 }
-            } else if (_suppressableValue.equals(value)) {
+            } else if (_suppressableValue.equals(value)) { // can NOT suppress entries in tabular output
+                serializeAsPlaceholder(bean, jgen, prov);
                 return;
             }
         }
@@ -512,6 +515,24 @@ public class BeanPropertyWriter
             ser.serialize(value, jgen, prov);
         } else {
             ser.serializeWithType(value, jgen, prov, _typeSerializer);
+        }
+    }
+
+    /**
+     * Method called to serialize a placeholder used in tabular output when
+     * real value is not to be included (is filtered out), but when we need
+     * an entry so that field indexes will not be off. Typically this should
+     * output null or empty String, depending on datatype.
+     * 
+     * @since 2.1
+     */
+    public void serializeAsPlaceholder(Object bean, JsonGenerator jgen, SerializerProvider prov)
+        throws Exception
+    {
+        if (_nullSerializer != null) {
+            _nullSerializer.serialize(null, jgen, prov);
+        } else {
+            jgen.writeNull();
         }
     }
     

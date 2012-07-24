@@ -9,9 +9,7 @@ import com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdValueProperty;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.deser.impl.ValueInjector;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.util.Annotations;
 
 /**
@@ -42,7 +40,7 @@ public class BeanDeserializerBuilder
      */
     final protected Map<String, SettableBeanProperty> _properties
         = new LinkedHashMap<String, SettableBeanProperty>();
-
+    
     /**
      * Value injectors for deserialization
      */
@@ -172,6 +170,8 @@ public class BeanDeserializerBuilder
         if (_properties != null) {
             _properties.remove(prop.getName());
         }
+        // ??? 23-Jul-2012, tatu: Should it be included in list of all properties?
+        //   For now, won't add, since it is inferred, not explicit...
     }
 
     public void addInjectable(String propertyName, JavaType propertyType,
@@ -207,6 +207,15 @@ public class BeanDeserializerBuilder
      * For now, however, we just have to ensure that we don't try to resolve
      * types that masked setter/field has (see [JACKSON-700] for details).
      */
+    public void addCreatorProperty(SettableBeanProperty prop)
+    {
+        addProperty(prop);
+    }
+
+    /**
+     * @deprecated since 2.1, override {@link #addCreatorProperty(SettableBeanProperty)} instead.
+     */
+    @Deprecated
     public void addCreatorProperty(BeanPropertyDefinition propDef)
     {
         // do nothing

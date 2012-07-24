@@ -58,7 +58,7 @@ public class TestViewSerialization
      */
     static class ImplicitBean {
     	@SuppressWarnings("unused")
-		@JsonView(ViewA.class)
+    	@JsonView(ViewA.class)
     	private int a = 1;
     }
 

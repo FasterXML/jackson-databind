@@ -459,7 +459,7 @@ public class MapDeserializer
             if (prop != null) {
                 // Last property to set?
                 Object value = prop.deserialize(jp, ctxt);
-                if (buffer.assignParameter(prop.getPropertyIndex(), value)) {
+                if (buffer.assignParameter(prop.getCreatorIndex(), value)) {
                     jp.nextToken();
                     Map<Object,Object> result;
                     try {

@@ -156,6 +156,7 @@ public class BeanAsArraySerializer
         } else {
             props = _props;
         }
+
         int i = 0;
         try {
             for (final int len = props.length; i < len; ++i) {

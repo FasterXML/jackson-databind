@@ -27,5 +27,17 @@ public interface BeanPropertyFilter
             BeanPropertyWriter writer)
         throws Exception;
     
-    public void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode, SerializerProvider provider);
+    /**
+     * Method called by {@link BeanSerializer} to let the filter determine whether, and in what
+     * form the given property exist within the parent, or root, schema. Filters can omit
+     * adding the property to the node, or choose the form of the schema value for the property
+     * 
+     * @param writer Bean property serializer to use to create schema value
+     * @param propertiesNode Node which the given property would exist within
+     * @param provider Provider that can be used for accessing dynamic aspects of serialization
+     * 	processing
+     *
+     */
+    public void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode,
+    		SerializerProvider provider);
 }

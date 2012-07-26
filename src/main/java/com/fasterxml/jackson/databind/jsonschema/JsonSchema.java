@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.databind.jsonschema;
 
+import java.math.BigDecimal;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -82,5 +85,5 @@ public class JsonSchema
         //objectNode.put("required", false);
         return objectNode;
     }
-
+    
 }

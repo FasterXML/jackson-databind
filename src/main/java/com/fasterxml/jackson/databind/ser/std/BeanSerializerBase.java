@@ -14,9 +14,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsonschema.types.Schema;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
@@ -658,7 +658,7 @@ public abstract class BeanSerializerBase
             }
             JavaType propType = prop.getSerializationType();
 
-            depositSchemaProperty(prop, propertiesNode, provider);
+            Schema.depositSchemaProperty(prop, propertiesNode, provider);
 
         }
         o.put("properties", propertiesNode);
@@ -678,46 +678,5 @@ public abstract class BeanSerializerBase
         Boolean value = provider.getAnnotationIntrospector().hasRequiredMarker(prop.getMember());
         return (value == null) ? false : value.booleanValue();
     }
-    
-    /**
-     * 	Attempt to add the output of the given {@link BeanPropertyWriter} in the given {@link ObjectNode}.
-     * 	Otherwise, add the default schema {@link JsonNode} in place of the writer's output
-     * 
-     * @param writer Bean property serializer to use to create schema value
-     * @param propertiesNode Node which the given property would exist within
-     * @param provider Provider that can be used for accessing dynamic aspects of serialization
-     * 	processing
-     * 	
-     *  {@link BeanPropertyFilter#depositSchemaProperty(BeanPropertyWriter, ObjectNode, SerializerProvider)}
-     */
-    public static void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode, SerializerProvider provider) {
-		JavaType propType = writer.getSerializationType();
-
-		// 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas it doesn't...
-		Type hint = (propType == null) ? writer.getGenericPropertyType() : propType.getRawClass();
-		JsonNode schemaNode;
-		// Maybe it already has annotated/statically configured serializer?
-		JsonSerializer<Object> ser = writer.getSerializer();
-
-		try {
-			if (ser == null) { // nope
-				Class<?> serType = writer.getRawSerializationType();
-				if (serType == null) {
-					serType = writer.getPropertyType();
-				}
-				ser = provider.findValueSerializer(serType, writer);
-			}
-			boolean isOptional = !BeanSerializerBase.isPropertyRequired(writer, provider);
-			if (ser instanceof SchemaAware) {
-				schemaNode =  ((SchemaAware) ser).getSchema(provider, hint, isOptional) ;
-			} else {  
-				schemaNode = JsonSchema.getDefaultSchemaNode(); 
-			}
-		} catch (JsonMappingException e) {
-			schemaNode = JsonSchema.getDefaultSchemaNode(); 
-			//TODO: log error
-		}
-		propertiesNode.put(writer.getName(), schemaNode);
-	}
     
 }

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.ser.*;
 
 public class PropertyBasedObjectIdGenerator
-	extends ObjectIdGenerators.PropertyGenerator
+    extends ObjectIdGenerators.PropertyGenerator
 {
     protected final BeanPropertyWriter _property;
     
@@ -20,6 +20,27 @@ public class PropertyBasedObjectIdGenerator
     {
         super(scope);
         _property = prop;
+    }
+
+    /**
+     * We must override this method, to prevent errors when scopes are the same,
+     * but underlying class (on which to access property) is different.
+     */
+    @Override
+    public boolean canUseFor(ObjectIdGenerator<?> gen) {
+        if (gen.getClass() == getClass()) {
+            PropertyBasedObjectIdGenerator other = (PropertyBasedObjectIdGenerator) gen;
+            if (other.getScope() == _scope) {
+                /* 26-Jul-2012, tatu: This is actually not enough, because the property
+                 *   accessor within BeanPropertyWriter won't work for other property fields
+                 *  (see [https://github.com/FasterXML/jackson-module-jaxb-annotations/issues/9]
+                 *  for details).
+                 *  So we need to verify that underlying property is actually the same.
+                 */
+                return (other._property == _property);
+            }
+        }
+        return false;
     }
     
     @Override

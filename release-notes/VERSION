@@ -10,6 +10,8 @@ Fixes:
 
 * [JACKSON-845]: Problems with Object[][] deserialization, default typing
 * Minor improvement to [Issue-11], for correct checking
+* A fix to PropertyBasedObjectIdGenerator problem related to serializing
+  multiple property-based Object Ids that use same scope.
 
 ------------------------------------------------------------------------
 === History: ===

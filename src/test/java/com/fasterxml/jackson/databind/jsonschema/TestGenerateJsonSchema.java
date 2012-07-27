@@ -3,10 +3,14 @@ package com.fasterxml.jackson.databind.jsonschema;
 import java.util.Collection;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 /**
  * @author Ryan Heaton
@@ -139,6 +143,34 @@ public class TestGenerateJsonSchema
         assertEquals("array", property4Schema.get("type").asText());
         assertEquals(false, property4Schema.path("required").booleanValue());
         assertEquals("number", property4Schema.get("items").get("type").asText());
+    }
+    
+    @JsonFilter("filteredBean")
+    private static class FilteredBean {
+    	
+    	@JsonProperty
+    	private String secret = "secret";
+    	
+    	@JsonProperty
+    	private String obvious = "obvious";
+    	
+    	public String getSecret() { return secret; }
+    	public void setSecret(String s) { secret = s; }
+    	
+    	public String getObvious() { return obvious; }
+    	public void setObvious(String s) {obvious = s; }
+    }
+    
+    public static FilterProvider secretFilterProvider = new SimpleFilterProvider()
+    .addFilter("filteredBean", SimpleBeanPropertyFilter.filterOutAllExcept(new String[]{"obvious"}));
+    /** */
+    public void testGeneratingJsonSchemaWithFilters() throws Exception {
+    	ObjectMapper mapper = new ObjectMapper();
+    	mapper.setFilters(secretFilterProvider);
+    	JsonSchema schema = mapper.generateJsonSchema(FilteredBean.class);
+    	JsonNode node = schema.getSchemaNode().get("properties");
+    	assertTrue(node.has("obvious"));
+    	assertFalse(node.has("secret"));
     }
 
     /**

@@ -656,8 +656,6 @@ public abstract class BeanSerializerBase
             	filter.depositSchemaProperty(prop, propertiesNode, provider);
             	 continue;
             }
-            JavaType propType = prop.getSerializationType();
-
             depositSchemaProperty(prop, propertiesNode, provider);
 
         }
@@ -690,34 +688,34 @@ public abstract class BeanSerializerBase
      * 	
      *  {@link BeanPropertyFilter#depositSchemaProperty(BeanPropertyWriter, ObjectNode, SerializerProvider)}
      */
-    public static void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode, SerializerProvider provider) {
-		JavaType propType = writer.getSerializationType();
+    public static void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode, SerializerProvider provider)
+    {
+        JavaType propType = writer.getSerializationType();
 
-		// 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas it doesn't...
-		Type hint = (propType == null) ? writer.getGenericPropertyType() : propType.getRawClass();
-		JsonNode schemaNode;
-		// Maybe it already has annotated/statically configured serializer?
-		JsonSerializer<Object> ser = writer.getSerializer();
+        // 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas it doesn't...
+        Type hint = (propType == null) ? writer.getGenericPropertyType() : propType.getRawClass();
+        JsonNode schemaNode;
+        // Maybe it already has annotated/statically configured serializer?
+        JsonSerializer<Object> ser = writer.getSerializer();
 
-		try {
-			if (ser == null) { // nope
-				Class<?> serType = writer.getRawSerializationType();
-				if (serType == null) {
-					serType = writer.getPropertyType();
-				}
-				ser = provider.findValueSerializer(serType, writer);
-			}
-			boolean isOptional = !BeanSerializerBase.isPropertyRequired(writer, provider);
-			if (ser instanceof SchemaAware) {
-				schemaNode =  ((SchemaAware) ser).getSchema(provider, hint, isOptional) ;
-			} else {  
-				schemaNode = JsonSchema.getDefaultSchemaNode(); 
-			}
-		} catch (JsonMappingException e) {
-			schemaNode = JsonSchema.getDefaultSchemaNode(); 
-			//TODO: log error
-		}
-		propertiesNode.put(writer.getName(), schemaNode);
-	}
-    
+        try {
+            if (ser == null) { // nope
+                Class<?> serType = writer.getRawSerializationType();
+                if (serType == null) {
+                    serType = writer.getPropertyType();
+                }
+                ser = provider.findValueSerializer(serType, writer);
+            }
+            boolean isOptional = !BeanSerializerBase.isPropertyRequired(writer, provider);
+            if (ser instanceof SchemaAware) {
+                schemaNode =  ((SchemaAware) ser).getSchema(provider, hint, isOptional) ;
+            } else {  
+                schemaNode = JsonSchema.getDefaultSchemaNode(); 
+            }
+        } catch (JsonMappingException e) {
+            schemaNode = JsonSchema.getDefaultSchemaNode(); 
+            // TODO: handle in better way (why not throw?)
+        }
+        propertiesNode.put(writer.getName(), schemaNode);
+    }
 }

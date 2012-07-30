@@ -8,6 +8,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
@@ -169,10 +171,8 @@ public class StringArraySerializer
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
-        ObjectNode o = createSchemaNode("array", true);
-        o.put("items", createSchemaNode("string"));
-        return o;
+    	visitor.arrayFormat(null).itemsFormat(SchemaType.STRING);
     }
 }

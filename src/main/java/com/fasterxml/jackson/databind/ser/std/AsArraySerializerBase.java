@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonArrayFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
@@ -166,24 +168,25 @@ public abstract class AsArraySerializerBase<T>
         throws IOException, JsonGenerationException;
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
         /* 15-Jan-2010, tatu: This should probably be rewritten, given that
          *    more information about content type is actually being explicitly
          *    passed. So there should be less need to try to re-process that
          *    information.
          */
-        ObjectNode o = createSchemaNode("array", true);
+        //ObjectNode o = createSchemaNode("array", true);
+        JsonArrayFormatVisitor arrayVisitor = 
+        		visitor.arrayFormat(typeHint == null ? _elementType.getClass() : typeHint);
         JavaType contentType = null;
         if (typeHint != null) {
-            JavaType javaType = provider.constructType(typeHint);
+            JavaType javaType = visitor.getProvider().constructType(typeHint);
             contentType = javaType.getContentType();
             if (contentType == null) { // could still be parametrized (Iterators)
                 if (typeHint instanceof ParameterizedType) {
                     Type[] typeArgs = ((ParameterizedType) typeHint).getActualTypeArguments();
                     if (typeArgs.length == 1) {
-                        contentType = provider.constructType(typeArgs[0]);
+                        contentType = visitor.getProvider().constructType(typeArgs[0]);
                     }
                 }
             }
@@ -193,19 +196,8 @@ public abstract class AsArraySerializerBase<T>
         }
         if (contentType != null) {
             JsonNode schemaNode = null;
-            // 15-Oct-2010, tatu: We can't serialize plain Object.class; but what should it produce here? Untyped?
-            if (contentType.getRawClass() != Object.class) {
-                JsonSerializer<Object> ser = provider.findValueSerializer(contentType, _property);
-                if (ser instanceof SchemaAware) {
-                    schemaNode = ((SchemaAware) ser).getSchema(provider, null);
-                }
-            }
-            if (schemaNode == null) {
-                schemaNode = JsonSchema.getDefaultSchemaNode();
-            }
-            o.put("items", schemaNode);
+            arrayVisitor.itemsFormat(contentType);
         }
-        return o;
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -76,52 +77,14 @@ public abstract class StdSerializer<T>
      */
     
     /**
-     * Default implementation simply claims type is "string"; usually
+     * Default implementation specifies no format. This behavior is usually
      * overriden by custom serializers.
      */
 //  @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
-    {
-        return createSchemaNode("string");
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint) { 
+    	visitor.anyFormat();
     }
-    
-    /**
-     * Default implementation simply claims type is "string"; usually
-     * overriden by custom serializers.
-     */
-//    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint, boolean isOptional)
-        throws JsonMappingException
-    {
-    	ObjectNode schema = (ObjectNode) getSchema(provider, typeHint);
-    	if (!isOptional) {
-    		schema.put("required", !isOptional);
-    	}
-        return schema;
-    }
-    
-    protected ObjectNode createObjectNode() {
-        return JsonNodeFactory.instance.objectNode();
-    }
-    
-    protected ObjectNode createSchemaNode(String type)
-    {
-        ObjectNode schema = createObjectNode();
-        schema.put("type", type);
-        return schema;
-    }
-    
-    protected ObjectNode createSchemaNode(String type, boolean isOptional)
-    {
-        ObjectNode schema = createSchemaNode(type);
-        // as per [JACKSON-563]. Note that 'required' defaults to false
-        if (!isOptional) {
-            schema.put("required", !isOptional);
-        }
-        return schema;
-    }
-    
+            
     /*
     /**********************************************************
     /* Helper methods for exception handling

@@ -5,6 +5,9 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonArrayFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -24,11 +27,9 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     }
     
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
-        ObjectNode o = createSchemaNode("array", true);
-        o.put("items", contentSchema());
-        return o;
+    	acceptContentVisitor(visitor.arrayFormat(typeHint));
     }
 
     /*
@@ -37,5 +38,5 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     /**********************************************************
      */
 
-    protected abstract JsonNode contentSchema();    
+    protected abstract void acceptContentVisitor(JsonArrayFormatVisitor visitor);    
 }

@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonschema.types.JsonValueFormat;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 
 /**
  * Compared to regular {@link java.util.Date} serialization, we do use String
@@ -29,9 +31,8 @@ public class SqlDateSerializer
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
-        //todo: (ryan) add a format for the date in the schema?
-        return createSchemaNode("string", true);
+    	visitor.stringFormat().format(JsonValueFormat.DATE_TIME);
     }
 }

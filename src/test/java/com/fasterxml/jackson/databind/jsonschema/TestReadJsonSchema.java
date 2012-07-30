@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
+import com.fasterxml.jackson.databind.jsonschema.types.Schema;
 
 /**
  * Trivial test to ensure {@link JsonSchema} can be also deserialized
@@ -50,7 +51,7 @@ public class TestReadJsonSchema
     public void testDeserializeSimple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        JsonSchema schema = mapper.generateJsonSchema(Schemable.class);
+        Schema schema = mapper.generateJsonSchema(Schemable.class);
         assertNotNull(schema);
 
         String schemaStr = mapper.writeValueAsString(schema);

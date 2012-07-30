@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
@@ -42,8 +43,8 @@ public class UnknownSerializer
     }
     
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
-        return null;
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint) { 
+    	visitor.anyFormat();
     }
 
     protected void failForEmpty(Object value) throws JsonMappingException

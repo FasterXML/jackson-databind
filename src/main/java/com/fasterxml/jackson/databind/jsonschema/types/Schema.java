@@ -1,20 +1,10 @@
 package com.fasterxml.jackson.databind.jsonschema.types;
 
-import java.lang.reflect.Type;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 /**
  * <a href="http://tools.ietf.org/id/draft-zyp-json-schema-03.txt"> Json Schema Draft </a>
@@ -81,60 +71,35 @@ import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
  * @author jphelan
  */
 public abstract class Schema { 
-	 public JsonNode asJson() {
-		 
-		 return null;
-	 }
+	
+	public final SchemaType type = null;
+	
+	public SchemaType getType() {
+		return this.type;
+	}
 	
 	/**
-	 * 	Attempt to add the output of the given {@link BeanPropertyWriter} in the given {@link ObjectNode}.
-	 * 	Otherwise, add the default schema {@link JsonNode} in place of the writer's output
-	 * 
-	 * @param writer Bean property serializer to use to create schema value
-	 * @param propertiesNode Node which the given property would exist within
-	 * @param provider Provider that can be used for accessing dynamic aspects of serialization
-	 * 	processing
-	 * 	
-	 *  {@link BeanPropertyFilter#depositSchemaProperty(BeanPropertyWriter, ObjectNode, SerializerProvider)}
-	 */
-	public static void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode, SerializerProvider provider) {
-		JavaType propType = writer.getSerializationType();
-	
-		// 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas it doesn't...
-		Type hint = (propType == null) ? writer.getGenericPropertyType() : propType.getRawClass();
-		JsonNode schemaNode;
-		// Maybe it already has annotated/statically configured serializer?
-		JsonSerializer<Object> ser = writer.getSerializer();
-	
-		try {
-			if (ser == null) { // nope
-				Class<?> serType = writer.getRawSerializationType();
-				if (serType == null) {
-					serType = writer.getPropertyType();
-				}
-				ser = provider.findValueSerializer(serType, writer);
-			}
-			boolean isOptional = !BeanSerializerBase.isPropertyRequired(writer, provider);
-			if (ser instanceof SchemaAware) {
-				schemaNode =  ((SchemaAware) ser).getSchema(provider, hint, isOptional) ;
-			} else {  
-				schemaNode = JsonSchema.getDefaultSchemaNode(); 
-			}
-		} catch (JsonMappingException e) {
-			schemaNode = JsonSchema.getDefaultSchemaNode(); 
-			//TODO: log error
-		}
-		propertiesNode.put(writer.getName(), schemaNode);
-	}
-
-	/*
 	 * This attribute indicates if the instance must have a value, and not
 	   be undefined.  This is false by default, making the instance
 	   optional.
 	 */
-	private BooleanNode required = BooleanNode.FALSE;// default = false;
-	
-	/*
+	@JsonProperty
+	private Boolean required = false;// default = false;
+	/**
+	 * {@link Schema#required}
+	 * @param required the required to set
+	 */
+	public void setRequired(Boolean required) {
+		this.required = required;
+	}
+	/**
+	 * {@link Schema#required}
+	 * @return the required
+	 */
+	public Boolean getRequired() {
+		return required;
+	}
+	/**
 	 *  This attribute defines the current URI of this schema (this attribute
 	   is effectively a "self" link).  This URI MAY be relative or absolute.
 	   If the URI is relative it is resolved against the current URI of the
@@ -145,9 +110,23 @@ public abstract class Schema {
 	   The current URI of the schema is also used to construct relative
 	   references such as for $ref.
 	 */
-	private TextNode id;
-	
-	/*
+	@JsonProperty
+	private String id;
+	/**
+	 * {@link Schema#id}
+	 * @param id the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
+	/**
+	 * {@link Schema#id}
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+	/**
 	 * This attribute defines a URI of a schema that contains the full
 	   representation of this schema.  When a validator encounters this
 	   attribute, it SHOULD replace the current schema with the schema
@@ -156,9 +135,23 @@ public abstract class Schema {
 	   relative URIs SHOULD be resolved against the URI of the current
 	   schema.
 	 */
-	private TextNode $ref; 
-	
-	/*
+	@JsonProperty
+	private String $ref; 
+	/**
+	 * {@link Schema#$ref}
+	 * @param $ref the $ref to set
+	 */
+	public void set$ref(String $ref) {
+		this.$ref = $ref;
+	}
+	/**
+	 * {@link Schema#$ref}
+	 * @return the $ref
+	 */
+	public String get$ref() {
+		return $ref;
+	}
+	/**
 	 * This attribute defines a URI of a JSON Schema that is the schema of
 	   the current schema.  When this attribute is defined, a validator
 	   SHOULD use the schema referenced by the value's URI (if known and
@@ -173,9 +166,23 @@ public abstract class Schema {
 	   changes.
 
 	 */
-	private TextNode $schema;
-	
-	/*
+	@JsonProperty
+	private String $schema;
+	/**
+	 * {@link Schema#$schema}
+	 * @param $schema the $schema to set
+	 */
+	public void set$schema(String $schema) {
+		this.$schema = $schema;
+	}
+	/**
+	 * {@link Schema#$schema}
+	 * @return the $schema
+	 */
+	public String get$schema() {
+		return $schema;
+	}
+	/**
 	 * The value of this property MUST be another schema which will provide
 	   a base schema which the current schema will inherit from.  The
 	   inheritance rules are such that any instance that is valid according
@@ -202,14 +209,108 @@ public abstract class Schema {
 	     "extends":"http://json-schema.org/draft-03/schema"
 	   }
 	 */
+	@JsonIgnore
 	private Schema[] extendsextends;
-
-	/*
+	/**
+	 * {@link Schema#extendsextends}
+	 * @param extendsextends the extendsextends to set
+	 */
+	@JsonSetter("extends")	
+	public void setExtends(Schema[] extendsextends) {
+		this.extendsextends = extendsextends;
+	}
+	/**
+	 * {@link Schema#extendsextends}
+	 * @return the extendsextends
+	 */
+	@JsonGetter("extends")
+	public Schema[] getExtends() {
+		return extendsextends;
+	}
+	/**
 	 * This attribute takes the same values as the "type" attribute, however
 	   if the instance matches the type or if this value is an array and the
 	   instance matches any type or schema in the array, then this instance
 	   is not valid.
 	 */
+	@JsonProperty
 	private Schema[] disallow;
+	
+	/**
+	 * {@link Schema#disallow}
+	 * @param disallow the disallow to set
+	 */
+	public void setDisallow(Schema[] disallow) {
+		this.disallow = disallow;
+	}
+	/**
+	 * {@link Schema#disallow}
+	 * @return the disallow
+	 */
+	public Schema[] getDisallow() {
+		return disallow;
+	}
+
+	//subtype oracles
+	
+	public boolean isUnionTypeSchema() { return false; }
+	
+	public boolean isSimpleTypeSchema() { return false; }
+
+	public boolean isNullSchema() { return false; }
+	public boolean isAnySchema() { return false; }
+	
+	public boolean isContainerTypeSchema() { return false; }
+	public boolean isArraySchema() { return false; }
+	public boolean isObjectSchema() { return false; }
+	
+	public boolean isValueTypeSchema() { return false; }
+	public boolean isBooleanSchema() { return false; }
+	public boolean isIntegerSchema() { return false; }
+	public boolean isNumberSchema() { return false; }
+	public boolean isStringSchema() { return false; }
+	
+	// subtype retrievers:
+	
+	public UnionTypeSchema asUnionTypeSchema() { return null; }
+	
+	public SimpleTypeSchema asSimpleTypeSchema() { return null; }
+	
+	public NullSchema asNullSchema() { return null; }
+	public AnySchema asAnySchema() { return null; }
+	
+	public ContainerTypeSchema asContainerSchema() { return null; }
+	public ArraySchema asArraySchema() { return null; }
+	public ObjectSchema asObjectSchema() { return null; }
+	
+	public ValueTypeSchema asValueSchemaSchema() { return null; }
+	public BooleanSchema asBooleanSchema() { return null; }
+	public IntegerSchema asIntegerSchema() { return null; }
+	public NumberSchema asNumberSchema() { return null; }
+	public StringSchema asStringSchema() { return null; }
+	
+	
+
+	public static Schema minimalForFormat(SchemaType format) {
+		switch (format) {
+		case ARRAY:
+			return new ArraySchema();
+		case OBJECT:
+			return new ObjectSchema();
+		case BOOLEAN:
+			return new BooleanSchema();
+		case INTEGER:
+			return new IntegerSchema();
+		case NUMBER:
+			return new NumberSchema();
+		case STRING:
+			return new StringSchema();			
+		case NULL:
+			return new NullSchema();
+
+		default:
+			return new AnySchema();
+		}
+	}
 
 }

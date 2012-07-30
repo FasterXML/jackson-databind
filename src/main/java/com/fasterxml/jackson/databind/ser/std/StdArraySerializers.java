@@ -8,6 +8,8 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
@@ -129,11 +131,9 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
-            ObjectNode o = createSchemaNode("array", true);
-            o.put("items", createSchemaNode("boolean"));
-            return o;
+        	visitor.arrayFormat(typeHint == null ? _handledType : typeHint).itemsFormat(SchemaType.BOOLEAN);
         }
     }
 
@@ -175,12 +175,9 @@ public class StdArraySerializers
         }
         
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
-            ObjectNode o = createSchemaNode("array", true);
-            ObjectNode itemSchema = createSchemaNode("string"); //binary values written as strings?
-            o.put("items", itemSchema);
-            return o;
+        	visitor.arrayFormat(typeHint == null ? _handledType : typeHint).itemsFormat(SchemaType.STRING);
         }
     }
 
@@ -241,12 +238,9 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
-            //no "short" type defined by json
-            ObjectNode o = createSchemaNode("array", true);
-            o.put("items", createSchemaNode("integer"));
-            return o;
+        	visitor.arrayFormat(typeHint == null ? _handledType : typeHint).itemsFormat(SchemaType.INTEGER);
         }
     }
 
@@ -308,13 +302,9 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
-            ObjectNode o = createSchemaNode("array", true);
-            ObjectNode itemSchema = createSchemaNode("string");
-            itemSchema.put("type", "string");
-            o.put("items", itemSchema);
-            return o;
+        	visitor.arrayFormat(typeHint == null ? _handledType : typeHint).itemsFormat(SchemaType.STRING);
         }
     }
 
@@ -367,11 +357,9 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
-            ObjectNode o = createSchemaNode("array", true);
-            o.put("items", createSchemaNode("integer"));
-            return o;
+        	visitor.arrayFormat(typeHint == null ? _handledType : typeHint).itemsFormat(SchemaType.INTEGER);
         }
     }
 
@@ -433,11 +421,9 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
-            ObjectNode o = createSchemaNode("array", true);
-            o.put("items", createSchemaNode("number", true));
-            return o;
+        	visitor.arrayFormat(typeHint == null ? _handledType : typeHint).itemsFormat(SchemaType.NUMBER);
         }
     }
 
@@ -500,11 +486,9 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
-            ObjectNode o = createSchemaNode("array", true);
-            o.put("items", createSchemaNode("number"));
-            return o;
+        	visitor.arrayFormat(typeHint == null ? _handledType : typeHint).itemsFormat(SchemaType.NUMBER);
         }
     }
 
@@ -557,11 +541,9 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
-            ObjectNode o = createSchemaNode("array", true);
-            o.put("items", createSchemaNode("number"));
-            return o;
+        	visitor.arrayFormat(typeHint == null ? _handledType : typeHint).itemsFormat(SchemaType.NUMBER);
         }
     }
 }

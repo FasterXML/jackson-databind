@@ -1,39 +1,81 @@
 package com.fasterxml.jackson.databind.jsonschema.types;
 
-import java.util.Set;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
 
 public abstract class SimpleTypeSchema extends Schema {
 	
 
-	/*
-	 * This provides an enumeration of all possible values that are valid
-	   for the instance property.  This MUST be an array, and each item in
-	   the array represents a possible value for the instance value.  If
-	   this attribute is defined, the instance value MUST be one of the
-	   values in the array in order for the schema to be valid.  Comparison
-	   of enum values uses the same algorithm as defined in "uniqueItems"
-	   (Section 5.15).
-	 */
-	private Set<JsonNode> enumenum;
-	
-	/*
+	/**
 	 * This attribute defines the default value of the instance when the
 		instance is undefined.
 	 */
-	private JsonNode defaultdefault;
+	@JsonIgnore
+	private String defaultdefault;
+	/**
+	 * {@link SimpleTypeSchema#defaultdefault}
+	 * @param defaultdefault the defaultdefault to set
+	 */
+	@JsonSetter("default")
+	public void setDefault(String defaultdefault) {
+		this.defaultdefault = defaultdefault;
+	}
+	/**
+	 * {@link SimpleTypeSchema#defaultdefault}
+	 * @return the defaultdefault
+	 */
+	@JsonGetter("default")
+	public String getDefault() {
+		return defaultdefault;
+	}
 	
-	/*
+	/**
 	 * This attribute is a string that provides a short description of the
 		instance property.
 	 */
-	private TextNode title;
+	@JsonProperty
+	private String title;
+	/**
+	 * {@link SimpleTypeSchema#title}
+	 * @param title the title to set
+	 */
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	/**
+	 * {@link SimpleTypeSchema#title}
+	 * @return the title
+	 */
+	public String getTitle() {
+		return title;
+	}
 	
-	/*
+	/**
 	 * This attribute is a string that provides a full description of the of
 		purpose the instance property.
 	 */
-	private TextNode description;
+	@JsonProperty
+	private String description;
+	/**
+	 * {@link SimpleTypeSchema#description}
+	 * @param description the description to set
+	 */
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	/**
+	 * {@link SimpleTypeSchema#description}
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
+	}
+	
+	@Override
+	public boolean isSimpleTypeSchema() { return true; }
+	
+	@Override
+	public SimpleTypeSchema asSimpleTypeSchema() { return this; }
 }

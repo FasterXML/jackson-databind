@@ -1,28 +1,29 @@
 package com.fasterxml.jackson.databind.jsonschema.types;
 
-import com.fasterxml.jackson.databind.jsonschema.types.HyperSchema.LinkDescriptionObject;
-import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class HyperSchema extends Schema {
 	
 	
-	/*
+	/**
 	 * This attribute indicates that the instance property SHOULD NOT be
 	   changed.  Attempts by a user agent to modify the value of this
 	   property are expected to be rejected by a server.
 	 */
-	private TextNode readOnly;
+	@JsonProperty
+	private String readOnly;
 	
-	/*
+	/**
 	 * If the instance property value is a string, this attribute defines
 	   that the string SHOULD be interpreted as binary data and decoded
 	   using the encoding named by this schema property.  RFC 2045, Sec 6.1
 	   [RFC2045] lists the possible values for this property.
 	 */
-	private TextNode contentEncoding;
+	@JsonProperty
+	private String contentEncoding;
 	
 	
-	/*
+	/**
 	 * This attribute is a URI that defines what the instance's URI MUST
 	   start with in order to validate.  The value of the "pathStart"
 	   attribute MUST be resolved as per RFC 3986, Sec 5 [RFC3986], and is
@@ -38,15 +39,17 @@ public class HyperSchema extends Schema {
 	   not have a pathStart attribute SHOULD be considered applicable to all
 	   the instances for which it is referenced.
 	 */
-	private TextNode pathStart;
+	@JsonProperty
+	private String pathStart;
 	
-	/*
+	/**
 	 * This attribute defines the media type of the instance representations
 		that this schema is defining.
 	 */
-	private TextNode mediaType;
+	@JsonProperty
+	private String mediaType;
 	
-	/*
+	/**
 	 * This property indicates the fragment resolution protocol to use for
 	   resolving fragment identifiers in URIs within the instance
 	   representations.  This applies to the instance object URIs and all
@@ -59,8 +62,9 @@ public class HyperSchema extends Schema {
 	   defines the mechanism for resolving references to entities within a
 	   document.
 	 */
-	private TextNode fragmentResolution;
-	/*
+	@JsonProperty
+	private String fragmentResolution;
+	/**
 	 * 6.2.1.  slash-delimited fragment resolution
 
 		   With the slash-delimited fragment resolution protocol, the fragment
@@ -122,9 +126,10 @@ public class HyperSchema extends Schema {
 		   value of the foo propery.
 	*/
 	
+	@JsonProperty
 	private LinkDescriptionObject[] links;
 	
-	/*
+	/**
 	 *  A link description object is used to describe link relations.  In the
 	   context of a schema, it defines the link relations of the instances
 	   of the schema, and can be parameterized by the instance values.  The
@@ -135,7 +140,7 @@ public class HyperSchema extends Schema {
 	 */
 	public class LinkDescriptionObject {
 		
-		/*
+		/**
 		 * The value of the "href" link description property indicates the
 		   target URI of the related resource.  The value of the instance
 		   property SHOULD be resolved as a URI-Reference per RFC 3986 [RFC3986]
@@ -169,9 +174,10 @@ public class HyperSchema extends Schema {
 		   number), and not for objects or arrays.
 
 		 */
-		private TextNode href;
+		@JsonProperty
+		private String href;
 		
-		/*
+		/**
 		 * The value of the "rel" property indicates the name of the relation to
 		   the target resource.  The relation to the target SHOULD be
 		   interpreted as specifically from the instance object that the schema
@@ -261,24 +267,27 @@ public class HyperSchema extends Schema {
 		   "/Resource/parent".  The "children" collection would be located at
 		   "/Resource/?upId=thing".
 		 */
-		private TextNode rel;
+		@JsonProperty
+		private String rel;
 		
-		/*
+		/**
 		 * This property value is a schema that defines the expected structure
 			of the JSON representation of the target of the link.
 		 */
+		@JsonProperty
 		private Schema targetSchema;
 		
-		/*
+		/**
 		 * This attribute defines which method can be used to access the target
 		   resource.  In an HTTP environment, this would be "GET" or "POST"
 		   (other HTTP methods such as "PUT" and "DELETE" have semantics that
 		   are clearly implied by accessed resources, and do not need to be
 		   defined here).  This defaults to "GET".
 		 */
-		private TextNode method;
+		@JsonProperty
+		private String method;
 		
-		/*
+		/**
 		 *  If present, this property indicates a query media type format that
 		   the server supports for querying or posting to the collection of
 		   instances at the target resource.  The query can be suffixed to the
@@ -308,14 +317,16 @@ public class HyperSchema extends Schema {
 		   by the href property is defined.  If the method is POST,
 		   "application/json" is the default media type.
 		 */
-		private TextNode enctype;
+		@JsonProperty
+		private String enctype;
 		
-		/*
+		/**
 		 * This attribute contains a schema which defines the acceptable
 		   structure of the submitted request (for a GET request, this schema
 		   would define the properties for the query string and for a POST
 		   request, this would define the body).
 		 */
+		@JsonProperty
 		private Schema schema;
 		
 	}

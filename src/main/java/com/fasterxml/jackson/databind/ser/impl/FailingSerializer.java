@@ -5,9 +5,8 @@ import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 /**
@@ -35,9 +34,8 @@ public final class FailingSerializer
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
-        return null;
+        ;
     }
 }

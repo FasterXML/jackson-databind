@@ -27,6 +27,8 @@ import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
+import com.fasterxml.jackson.databind.jsonschema.factories.SchemaFactory;
+import com.fasterxml.jackson.databind.jsonschema.types.Schema;
 import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
@@ -2397,8 +2399,10 @@ public class ObjectMapper
      * @param t The class to generate schema for
      * @return Constructed JSON schema.
      */
-    public JsonSchema generateJsonSchema(Class<?> t) throws JsonMappingException {
-        return _serializerProvider(getSerializationConfig()).generateJsonSchema(t);
+    public Schema generateJsonSchema(Class<?> t) throws JsonMappingException {
+    	SchemaFactory visitor = new SchemaFactory(this);
+        _serializerProvider(getSerializationConfig()).acceptJsonFormatVisitor(t, visitor);
+        return visitor.finalSchema();
     }
 
     /*

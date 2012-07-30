@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
@@ -230,12 +231,13 @@ public class JsonValueSerializer
     }
     
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
-        return (_valueSerializer instanceof SchemaAware) ?
-                ((SchemaAware) _valueSerializer).getSchema(provider, null) :
-                JsonSchema.getDefaultSchemaNode();
+    	if (_valueSerializer instanceof SchemaAware) {
+    		((SchemaAware) _valueSerializer).acceptJsonFormatVisitor(visitor, null); 
+    	} else {
+    		visitor.anyFormat();
+    	}
     }
 
     protected boolean isNaturalTypeWithStdHandling(Class<?> rawType, JsonSerializer<?> ser)

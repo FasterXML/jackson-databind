@@ -16,13 +16,15 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
-import com.fasterxml.jackson.databind.jsonschema.types.Schema;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -625,27 +627,28 @@ public abstract class BeanSerializerBase
         return filter;
     }
     
-    @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
-        ObjectNode o = createSchemaNode("object", true);
+    	JsonObjectFormatVisitor objectVisitor = visitor.objectFormat(typeHint == null ? _handledType : typeHint);
         // [JACKSON-813]: Add optional JSON Schema id attribute, if found
         // NOTE: not optimal, does NOT go through AnnotationIntrospector etc:
-        JsonSerializableSchema ann = _handledType.getAnnotation(JsonSerializableSchema.class);
-        if (ann != null) {
-            String id = ann.id();
-            if (id != null && id.length() > 0) {
-                o.put("id", id);
-            }
-        }
+//        JsonSerializableSchema ann = _handledType.getAnnotation(JsonSerializableSchema.class);
+//        if (ann != null) {
+//            String id = ann.id();
+//            if (id != null && id.length() > 0) {
+//                //o.put("id", id); what is this?
+//                //objectVisitor.expect??
+//            }
+//        }
  
-        //todo: should the classname go in the title?
-        //o.put("title", _className);
-        ObjectNode propertiesNode = o.objectNode();
-        final BeanPropertyFilter filter;
+        BeanPropertyFilter filter;
         if (_propertyFilterId != null) {
-        	filter = findFilter(provider);
+        	try {
+				filter = findFilter(visitor.getProvider());
+			} catch (JsonMappingException e) {
+				// TODO Auto-generated catch block
+				filter = null;
+			}
         } else {
         	filter = null;
         }
@@ -653,19 +656,30 @@ public abstract class BeanSerializerBase
         for (int i = 0; i < _props.length; i++) {
             BeanPropertyWriter prop = _props[i];
             if (filter != null) {
-            	filter.depositSchemaProperty(prop, propertiesNode, provider);
+            	filter.depositSchemaProperty(prop, objectVisitor, visitor.getProvider());
             	 continue;
             }
             JavaType propType = prop.getSerializationType();
-
-            Schema.depositSchemaProperty(prop, propertiesNode, provider);
-
+            BeanSerializerBase.depositSchemaProperty(prop, objectVisitor);
         }
-        o.put("properties", propertiesNode);
-        return o;
     }
 
     /**
+	 * 	Attempt to add the output of the given {@link BeanPropertyWriter} in the given {@link ObjectNode}.
+	 * 	Otherwise, add the default schema {@link JsonNode} in place of the writer's output
+	 * 
+	 * @param writer Bean property serializer to use to create schema value
+     * @param propertiesNode Node which the given property would exist within
+	 */
+	public static void depositSchemaProperty(BeanPropertyWriter writer, JsonObjectFormatVisitor objectVisitor) {
+		if (isPropertyRequired(writer, objectVisitor.getProvider())) {
+			objectVisitor.property(writer); 
+		} else {
+			objectVisitor.optionalProperty(writer);
+		}
+	}
+
+	/**
      * Determines if a bean property is required, as determined by
      * {@link com.fasterxml.jackson.databind.AnnotationIntrospector#hasRequiredMarker}.
      *<p>

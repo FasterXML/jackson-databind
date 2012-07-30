@@ -14,6 +14,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
+import com.fasterxml.jackson.databind.jsonschema.types.Schema;
+import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -51,47 +55,49 @@ public class SerializableSerializer
     }
     
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
-        ObjectNode objectNode = createObjectNode();
-        String schemaType = "any";
-        String objectProperties = null;
-        String itemDefinition = null;
-        if (typeHint != null) {
+        if (typeHint == null) {
+        	visitor.anyFormat();
+        } else  {
             Class<?> rawClass = TypeFactory.rawClass(typeHint);
             if (rawClass.isAnnotationPresent(JsonSerializableSchema.class)) {
                 JsonSerializableSchema schemaInfo = rawClass.getAnnotation(JsonSerializableSchema.class);
-                schemaType = schemaInfo.schemaType();
+                
                 if (!JsonSerializableSchema.NO_VALUE.equals(schemaInfo.schemaObjectPropertiesDefinition())) {
-                    objectProperties = schemaInfo.schemaObjectPropertiesDefinition();
-                }
+                	visitor.objectFormat(rawClass);
+                    //objectProperties = schemaInfo.schemaObjectPropertiesDefinition();
+                } else 
                 if (!JsonSerializableSchema.NO_VALUE.equals(schemaInfo.schemaItemDefinition())) {
-                    itemDefinition = schemaInfo.schemaItemDefinition();
+                    visitor.arrayFormat(rawClass);
+                	//itemDefinition = schemaInfo.schemaItemDefinition();
+                } else {
+                	visitor.anyFormat();
+                	//visitor.forFormat(SchemaType.valueOf(schemaInfo.schemaType()));
                 }
+            } else {
+            	visitor.anyFormat();
             }
-        }
+        } 
         /* 19-Mar-2012, tatu: geez, this is butt-ugly abonimation of code...
          *    really, really should not require back ref to an ObjectMapper.
          */
-        objectNode.put("type", schemaType);
-        if (objectProperties != null) {
-            try {
-                objectNode.put("properties", _getObjectMapper().readTree(objectProperties));
-            } catch (IOException e) {
-                throw new JsonMappingException("Failed to parse @JsonSerializableSchema.schemaObjectPropertiesDefinition value");
-            }
-        }
-        if (itemDefinition != null) {
-            try {
-                objectNode.put("items", _getObjectMapper().readTree(itemDefinition));
-            } catch (IOException e) {
-                throw new JsonMappingException("Failed to parse @JsonSerializableSchema.schemaItemDefinition value");
-            }
-        }
-        // always optional, no need to specify:
-        //objectNode.put("required", false);
-        return objectNode;
+//        objectNode.put("type", schemaType);
+//        if (objectProperties != null) {
+//            try {
+//                objectNode.put("properties", _getObjectMapper().readTree(objectProperties));
+//            } catch (IOException e) {
+//                throw new JsonMappingException("Failed to parse @JsonSerializableSchema.schemaObjectPropertiesDefinition value");
+//            }
+//        }
+//        if (itemDefinition != null) {
+//            try {
+//                objectNode.put("items", _getObjectMapper().readTree(itemDefinition));
+//            } catch (IOException e) {
+//                throw new JsonMappingException("Failed to parse @JsonSerializableSchema.schemaItemDefinition value");
+//            }
+//        }
+
     }
     
     private final static synchronized ObjectMapper _getObjectMapper()

@@ -8,6 +8,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.module.SimpleDeserializers;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.module.SimpleSerializers;
@@ -52,8 +53,8 @@ public class TestSimpleModule extends BaseMapTest
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
-            return null;
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint) {
+            visitor.anyFormat();
         }
     }
     
@@ -86,8 +87,8 @@ public class TestSimpleModule extends BaseMapTest
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
-            return null;
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint) {
+            visitor.anyFormat();
         }
     }
 

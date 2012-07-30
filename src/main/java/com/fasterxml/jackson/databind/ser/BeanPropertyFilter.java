@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -38,6 +39,6 @@ public interface BeanPropertyFilter
      * 	processing
      *
      */
-    public void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode,
+    public void depositSchemaProperty(BeanPropertyWriter writer, JsonObjectFormatVisitor objectVisitor,
     		SerializerProvider provider);
 }

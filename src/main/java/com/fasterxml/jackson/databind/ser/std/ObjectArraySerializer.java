@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonArrayFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
@@ -295,27 +297,9 @@ public class ObjectArraySerializer
     }
     
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
-        ObjectNode o = createSchemaNode("array", true);
-        if (typeHint != null) {
-            JavaType javaType = provider.constructType(typeHint);
-            if (javaType.isArrayType()) {
-                Class<?> componentType = ((ArrayType) javaType).getContentType().getRawClass();
-                // 15-Oct-2010, tatu: We can't serialize plain Object.class; but what should it produce here? Untyped?
-                if (componentType == Object.class) {
-                    o.put("items", JsonSchema.getDefaultSchemaNode());
-                } else {
-                    JsonSerializer<Object> ser = provider.findValueSerializer(componentType, _property);
-                    JsonNode schemaNode = (ser instanceof SchemaAware) ?
-                            ((SchemaAware) ser).getSchema(provider, null) :
-                            JsonSchema.getDefaultSchemaNode();
-                    o.put("items", schemaNode);
-                }
-            }
-        }
-        return o;
+    	visitor.arrayFormat(typeHint == null ? _property.getType().getRawClass() : typeHint).itemsFormat(_elementType);
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,

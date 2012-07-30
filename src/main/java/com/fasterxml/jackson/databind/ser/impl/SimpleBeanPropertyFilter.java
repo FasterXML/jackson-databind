@@ -8,10 +8,11 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
-import com.fasterxml.jackson.databind.jsonschema.types.Schema;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 
 /**
  * Simple {@link BeanPropertyFilter} implementation that only uses property name
@@ -82,9 +83,9 @@ public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
 		}
 		
 		public void depositSchemaProperty(BeanPropertyWriter writer,
-				ObjectNode propertiesNode, SerializerProvider provider) {
+				JsonObjectFormatVisitor objectVisitor, SerializerProvider provider) {
 			if (_propertiesToInclude.contains(writer.getName())) {
-				Schema.depositSchemaProperty(writer, propertiesNode, provider);
+				BeanSerializerBase.depositSchemaProperty(writer, objectVisitor);
 			}
 		}
 	}
@@ -114,9 +115,9 @@ public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
 		}
 
 		public void depositSchemaProperty(BeanPropertyWriter writer,
-				ObjectNode propertiesNode, SerializerProvider provider) {
+				JsonObjectFormatVisitor objectVisitor, SerializerProvider provider) {
 			if (!_propertiesToExclude.contains(writer.getName())) {
-				Schema.depositSchemaProperty(writer, propertiesNode, provider);
+				BeanSerializerBase.depositSchemaProperty(writer, objectVisitor);
 			}
 		}
 	}

@@ -5,9 +5,9 @@ import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 
 /**
  * This is the special serializer for regular {@link java.lang.String}s.
@@ -37,8 +37,8 @@ public final class StringSerializer
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
-        return createSchemaNode("string", true);
+    	visitor.stringFormat();
     }
 }

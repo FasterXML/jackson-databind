@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonschema.types.JsonValueFormat;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 
 @JacksonStdImpl
 public class SqlTimeSerializer
@@ -24,8 +26,8 @@ public class SqlTimeSerializer
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
-        return createSchemaNode("string", true);
+    	visitor.stringFormat().format(JsonValueFormat.DATE_TIME);
     }
 }

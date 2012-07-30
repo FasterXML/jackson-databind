@@ -108,7 +108,7 @@ public class TestGenerateJsonSchema
     public void testGeneratingJsonSchema()
         throws Exception
     {
-        Schema jsonSchema = new ObjectMapper().generateJsonSchema(SimpleBean.class);
+        Schema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
         
         assertNotNull(jsonSchema);
 

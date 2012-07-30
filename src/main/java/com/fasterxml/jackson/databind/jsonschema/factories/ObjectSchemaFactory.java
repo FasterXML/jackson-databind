@@ -44,19 +44,19 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 		return null;
 	}	
 	
-	private Type writerType(BeanPropertyWriter writer) {
+	private Class<?> writerType(BeanPropertyWriter writer) {
 		
 		//TODO:Will these ever return different types?
 		
 		//JavaType propType = writer.getSerializationType();
 		//Type hint = (propType == null) ? writer.getGenericPropertyType() : propType.getRawClass();
-		return writer.getRawSerializationType();
+		return writer.getPropertyType();
 	}
 	
 	protected Schema propertySchema(BeanPropertyWriter writer) {
 		SchemaFactory visitor = new SchemaFactory(mapper);
-		Type serType = writerType(writer);
-		JsonSerializer<Object> ser = getSer(writer, serType.getClass());
+		Class<?> serType = writerType(writer);
+		JsonSerializer<Object> ser = getSer(writer, serType);
 		if (ser != null && ser instanceof SchemaAware) {
 			((SchemaAware)ser).acceptJsonFormatVisitor(visitor, serType);
 		} else {

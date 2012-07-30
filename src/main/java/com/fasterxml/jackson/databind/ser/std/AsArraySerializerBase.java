@@ -177,7 +177,7 @@ public abstract class AsArraySerializerBase<T>
          */
         //ObjectNode o = createSchemaNode("array", true);
         JsonArrayFormatVisitor arrayVisitor = 
-        		visitor.arrayFormat(typeHint == null ? _elementType.getClass() : typeHint);
+        		visitor.arrayFormat(typeHint == null ? _elementType.getRawClass() : typeHint);
         JavaType contentType = null;
         if (typeHint != null) {
             JavaType javaType = visitor.getProvider().constructType(typeHint);

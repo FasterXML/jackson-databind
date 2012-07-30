@@ -672,11 +672,11 @@ public abstract class BeanSerializerBase
      * @param propertiesNode Node which the given property would exist within
 	 */
 	public static void depositSchemaProperty(BeanPropertyWriter writer, JsonObjectFormatVisitor objectVisitor) {
-		if (isPropertyRequired(writer, objectVisitor.getProvider())) {
+		//if (isPropertyRequired(writer, objectVisitor.getProvider())) {
 			objectVisitor.property(writer); 
-		} else {
-			objectVisitor.optionalProperty(writer);
-		}
+		//} else {
+			//objectVisitor.optionalProperty(writer);
+		//}
 	}
 
 	/**

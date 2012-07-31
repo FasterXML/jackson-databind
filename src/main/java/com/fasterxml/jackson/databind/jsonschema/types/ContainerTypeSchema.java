@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.jsonschema.types;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.JsonNode;
 
 
 public abstract class ContainerTypeSchema extends SimpleTypeSchema {
@@ -17,7 +17,27 @@ public abstract class ContainerTypeSchema extends SimpleTypeSchema {
 	   (Section 5.15).
 	 */
 	@JsonProperty(required = true)
-	private Set<JsonNode> enums;
+	private Set<String> enums;
+	
+	//instance initializer block 
+	{
+		enums = new HashSet<String>();
+	}
+	
+	/**
+	 * {@link ContainerTypeSchema#enums}
+	 * @param enums the enums to set
+	 */
+	public void setEnums(Set<String> enums) {
+		this.enums = enums;
+	}
+	/**
+	 * {@link ContainerTypeSchema#enums}
+	 * @return the enums
+	 */
+	public Set<String> getEnums() {
+		return enums;
+	}
 	
 	@Override
 	public boolean isContainerTypeSchema() { return true; }

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsonschema.types.Schema;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
@@ -108,7 +109,10 @@ public class TestGenerateJsonSchema
     public void testGeneratingJsonSchema()
         throws Exception
     {
-        Schema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
+    	DefaultSerializerProvider sp = new DefaultSerializerProvider.Impl();
+        ObjectMapper m = new ObjectMapper();
+        m.setSerializerProvider(sp);
+        Schema jsonSchema = m.generateJsonSchema(SimpleBean.class);
         
         assertNotNull(jsonSchema);
 

@@ -2400,8 +2400,9 @@ public class ObjectMapper
      * @return Constructed JSON schema.
      */
     public Schema generateJsonSchema(Class<?> t) throws JsonMappingException {
-    	SchemaFactory visitor = new SchemaFactory(this);
-        _serializerProvider(getSerializationConfig()).acceptJsonFormatVisitor(t, visitor);
+    	DefaultSerializerProvider provider = _serializerProvider(getSerializationConfig());
+    	SchemaFactory visitor = new SchemaFactory(provider);
+        provider.acceptJsonFormatVisitor(t, visitor);
         return visitor.finalSchema();
     }
 

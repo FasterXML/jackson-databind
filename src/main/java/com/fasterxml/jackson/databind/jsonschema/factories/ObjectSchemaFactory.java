@@ -2,10 +2,8 @@ package com.fasterxml.jackson.databind.jsonschema.factories;
 
 import java.lang.reflect.Type;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsonschema.types.ObjectSchema;
 import com.fasterxml.jackson.databind.jsonschema.types.Schema;
@@ -19,7 +17,7 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 	protected ObjectSchema objectSchema;
 	
 	public ObjectSchemaFactory(SchemaFactory parent) {
-		super(parent.mapper);
+		super(parent.provider);
 		this.parent = parent;
 		objectSchema = new ObjectSchema();
 	}
@@ -41,7 +39,7 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 				// TODO: log error
 			}
 		}
-		return null;
+		return ser;
 	}	
 	
 	private Class<?> writerType(BeanPropertyWriter writer) {
@@ -54,7 +52,7 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 	}
 	
 	protected Schema propertySchema(BeanPropertyWriter writer) {
-		SchemaFactory visitor = new SchemaFactory(mapper);
+		SchemaFactory visitor = new SchemaFactory(provider);
 		Class<?> serType = writerType(writer);
 		JsonSerializer<Object> ser = getSer(writer, serType);
 		if (ser != null && ser instanceof SchemaAware) {
@@ -66,7 +64,7 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 	}
 	
 	protected Schema propertySchema(SchemaAware handler, Type propertyTypeHint) {
-		SchemaFactory visitor = new SchemaFactory(mapper);
+		SchemaFactory visitor = new SchemaFactory(provider);
 		handler.acceptJsonFormatVisitor(visitor, propertyTypeHint);
 		return visitor.finalSchema();
 	}

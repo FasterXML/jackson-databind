@@ -10,45 +10,20 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public class ArraySchema extends ContainerTypeSchema {
 	
-	@JsonProperty(required = true)
-	public final SchemaType type = SchemaType.ARRAY;
-	
-	/**This attribute defines the minimum number of values in an array*/
 	@JsonProperty
-	private int minItems;
-	/**
-	 * {@link ArraySchema#minItems}
-	 * @param minItems the minItems to set
-	 */
-	public void setMinItems(int minItems) {
-		this.minItems = minItems;
-	}
-	/**
-	 * {@link ArraySchema#minItems}
-	 * @return the minItems
-	 */
-	public int getMinItems() {
-		return minItems;
-	}
+	private ArraySchema.AdditionalItems additionalItems;
 	
+	@JsonProperty
+	private ArraySchema.Items items;
 	/**This attribute defines the maximum number of values in an array*/
 	@JsonProperty
 	private int maxItems;
-	/**
-	 * {@link ArraySchema#maxItems}
-	 * @param maxItems the maxItems to set
-	 */
-	public void setMaxItems(int maxItems) {
-		this.maxItems = maxItems;
-	}
-	/**
-	 * {@link ArraySchema#maxItems}
-	 * @return the maxItems
-	 */
-	public int getMaxItems() {
-		return maxItems;
-	}
+	/**This attribute defines the minimum number of values in an array*/
+	@JsonProperty
+	private int minItems;
 	
+	@JsonProperty(required = true)
+	public final SchemaType type = SchemaType.ARRAY;
 	/**
 	 * This attribute indicates that all items in an array instance MUST be
 	   unique (contains no two identical values).
@@ -68,53 +43,10 @@ public class ArraySchema extends ContainerTypeSchema {
 	 */
 	@JsonProperty
 	private Boolean uniqueItems;
+		
+	@Override
+	public ArraySchema asArraySchema() { return this; }
 	
-	/**
-	 * {@link ArraySchema#uniqueItems}
-	 * @param uniqueItems the uniqueItems to set
-	 */
-	public void setUniqueItems(Boolean uniqueItems) {
-		this.uniqueItems = uniqueItems;
-	}
-	/**
-	 * {@link ArraySchema#uniqueItems}
-	 * @return the uniqueItems
-	 */
-	public Boolean getUniqueItems() {
-		return uniqueItems;
-	}
-
-	
-	@JsonProperty
-	private ArraySchema.Items items;
-	/**
-	 * {@link ArraySchema#items}
-	 * @param items the items to set
-	 */
-	public void setItems(ArraySchema.Items items) {
-		this.items = items;
-	}
-	/**
-	 * {@link ArraySchema#items}
-	 * @return the items
-	 */
-	public ArraySchema.Items getItems() {
-		return items;
-	}
-	
-	public void setItemsSchema(Schema schema) {
-		items = new SingleItems(schema);
-	}
-	
-	@JsonProperty
-	private ArraySchema.AdditionalItems additionalItems;
-	/**
-	 * {@link ArraySchema#additionalItems}
-	 * @param additionalItems the additionalItems to set
-	 */
-	public void setAdditionalItems(ArraySchema.AdditionalItems additionalItems) {
-		this.additionalItems = additionalItems;
-	}
 	/**
 	 * {@link ArraySchema#additionalItems}
 	 * @return the additionalItems
@@ -124,24 +56,85 @@ public class ArraySchema extends ContainerTypeSchema {
 	}
 	
 	/**
-	 * This attribute defines the allowed items in an instance array, and
-	   MUST be a schema or an array of schemas.  The default value is an
-	   empty schema which allows any value for items in the instance array.
+	 * {@link ArraySchema#items}
+	 * @return the items
 	 */
-	public static abstract class Items {}
+	public ArraySchema.Items getItems() {
+		return items;
+	}
+	/**
+	 * {@link ArraySchema#maxItems}
+	 * @return the maxItems
+	 */
+	public int getMaxItems() {
+		return maxItems;
+	}
+
 	
 	/**
-	 * When this attribute value is a schema and the instance value is an
-	   array, then all the items in the array MUST be valid according to the
-	   schema.
+	 * {@link ArraySchema#minItems}
+	 * @return the minItems
 	 */
-	public static class SingleItems extends ArraySchema.Items {
-		@JsonProperty
-		private Schema schema;
-		public SingleItems(Schema schema) {
-			this.schema = schema;
-		}
+	public int getMinItems() {
+		return minItems;
 	}
+	/**
+	 * {@link ArraySchema#uniqueItems}
+	 * @return the uniqueItems
+	 */
+	public Boolean getUniqueItems() {
+		return uniqueItems;
+	}
+	@Override
+	public boolean isArraySchema() { return true; }
+	
+	/**
+	 * {@link ArraySchema#additionalItems}
+	 * @param additionalItems the additionalItems to set
+	 */
+	public void setAdditionalItems(ArraySchema.AdditionalItems additionalItems) {
+		this.additionalItems = additionalItems;
+	}
+	
+	/**
+	 * {@link ArraySchema#items}
+	 * @param items the items to set
+	 */
+	public void setItems(ArraySchema.Items items) {
+		this.items = items;
+	}
+	public void setItemsSchema(Schema schema) {
+		items = new SingleItems(schema);
+	}
+	/**
+	 * {@link ArraySchema#maxItems}
+	 * @param maxItems the maxItems to set
+	 */
+	public void setMaxItems(int maxItems) {
+		this.maxItems = maxItems;
+	}
+	
+	/**
+	 * {@link ArraySchema#minItems}
+	 * @param minItems the minItems to set
+	 */
+	public void setMinItems(int minItems) {
+		this.minItems = minItems;
+	}
+	
+	/**
+	 * {@link ArraySchema#uniqueItems}
+	 * @param uniqueItems the uniqueItems to set
+	 */
+	public void setUniqueItems(Boolean uniqueItems) {
+		this.uniqueItems = uniqueItems;
+	}
+	
+	/**
+	 * This provides a definition for additional items in an array instance
+   when tuple definitions of the items is provided.
+	 */
+	public static abstract class AdditionalItems {}
 	
 	/**
 	 * When this attribute value is an array of schemas and the instance
@@ -156,10 +149,11 @@ public class ArraySchema extends ContainerTypeSchema {
 	}
 	
 	/**
-	 * This provides a definition for additional items in an array instance
-   when tuple definitions of the items is provided.
+	 * This attribute defines the allowed items in an instance array, and
+	   MUST be a schema or an array of schemas.  The default value is an
+	   empty schema which allows any value for items in the instance array.
 	 */
-	public static abstract class AdditionalItems {}
+	public static abstract class Items {}
 	
 	/**
 	 *  This can be false
@@ -180,9 +174,16 @@ public class ArraySchema extends ContainerTypeSchema {
 		private Schema schema;
 	}
 	
-	@Override
-	public boolean isArraySchema() { return true; }
-	
-	@Override
-	public ArraySchema asArraySchema() { return this; }
+	/**
+	 * When this attribute value is a schema and the instance value is an
+	   array, then all the items in the array MUST be valid according to the
+	   schema.
+	 */
+	public static class SingleItems extends ArraySchema.Items {
+		@JsonProperty
+		private Schema schema;
+		public SingleItems(Schema schema) {
+			this.schema = schema;
+		}
+	}
  }

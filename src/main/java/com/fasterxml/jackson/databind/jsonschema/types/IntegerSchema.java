@@ -14,6 +14,21 @@ public class IntegerSchema extends NumberSchema {
 	 */
 	@JsonProperty
 	private Integer divisibleBy;
+	
+	/**
+	 * {@link IntegerSchema#divisibleBy}
+	 * @param divisibleBy the divisibleBy to set
+	 */
+	public void setDivisibleBy(Integer divisibleBy) {
+		this.divisibleBy = divisibleBy;
+	}
+	/**
+	 * {@link IntegerSchema#divisibleBy}
+	 * @return the divisibleBy
+	 */
+	public Integer getDivisibleBy() {
+		return divisibleBy;
+	}
 
 	@Override
 	public boolean isIntegerSchema() { return true; }

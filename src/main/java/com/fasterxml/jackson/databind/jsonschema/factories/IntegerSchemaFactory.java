@@ -11,7 +11,7 @@ public class IntegerSchemaFactory extends ValueTypeSchemaFactory implements
 	protected IntegerSchema integerSchema;
 	
 	public IntegerSchemaFactory(SchemaFactory parent) {
-		super(parent.mapper);
+		super(parent.provider);
 		this.parent = parent;
 		integerSchema = new IntegerSchema();
 	}

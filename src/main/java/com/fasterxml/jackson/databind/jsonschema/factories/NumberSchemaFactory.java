@@ -11,7 +11,7 @@ public class NumberSchemaFactory extends ValueTypeSchemaFactory implements
 	protected NumberSchema numberSchema;
 	
 	public NumberSchemaFactory(SchemaFactory parent) {
-		super(parent.mapper);
+		super(parent.provider);
 		this.parent = parent;
 		numberSchema = new NumberSchema();
 	}

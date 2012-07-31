@@ -1,14 +1,12 @@
 package com.fasterxml.jackson.databind.jsonschema.types;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 public class AnySchema extends SimpleTypeSchema {
-	
-	@JsonProperty(required = true)
-	public final SchemaType type = SchemaType.ANY;
 	
 	/**
 	 * This provides an enumeration of all possible values that are valid
@@ -22,13 +20,21 @@ public class AnySchema extends SimpleTypeSchema {
 	@JsonProperty
 	private Set<String> enums;
 	
-	public void setEnums(Set<String> enums) {
-		this.enums = enums;
+	@JsonProperty(required = true)
+	public final SchemaType type = SchemaType.ANY;
+	
+	//instance initializer block
+	{
+		enums = new HashSet<String>();
 	}
+	
+	@Override
+	public AnySchema asAnySchema() { return this; }
 	
 	@Override
 	public boolean isAnySchema() { return true; }
 	
-	@Override
-	public AnySchema asAnySchema() { return this; }
+	public void setEnums(Set<String> enums) {
+		this.enums = enums;
+	}
 }

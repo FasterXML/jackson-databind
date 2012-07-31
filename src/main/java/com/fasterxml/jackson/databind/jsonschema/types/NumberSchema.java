@@ -4,18 +4,56 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NumberSchema extends ValueTypeSchema {
 	
-	@JsonProperty(required = true)
-	public final SchemaType type = SchemaType.NUMBER;
+	/**
+	 * This attribute indicates if the value of the instance (if the
+	   instance is a number) can not equal the number defined by the
+	   "maximum" attribute.
+	 */
+	@JsonProperty
+	private Boolean exclusiveMaximum;
+	
+	/**
+	 * This attribute indicates if the value of the instance (if the
+	   instance is a number) can not equal the number defined by the
+	   "minimum" attribute.
+	 */
+	@JsonProperty
+	private Boolean exclusiveMinimum;
+	
+	/**This attribute defines the maximum value of the instance property*/
+	@JsonProperty
+	private Double maximum;
 	
 	/**This attribute defines the minimum value of the instance property*/
 	@JsonProperty
 	private Double minimum;
+	
+	@JsonProperty(required = true)
+	public final SchemaType type = SchemaType.NUMBER;
+	
+	@Override
+	public NumberSchema asNumberSchema() { return this; }
 	/**
-	 * {@link NumberSchema#minimum}
-	 * @param minimum the minimum to set
+	 * {@link NumberSchema#exclusiveMaximum}
+	 * @return the exclusiveMaximum
 	 */
-	public void setMinimum(Double minimum) {
-		this.minimum = minimum;
+	public Boolean getExclusiveMaximum() {
+		return exclusiveMaximum;
+	}
+	
+	/**
+	 * {@link NumberSchema#exclusiveMinimum}
+	 * @return the exclusiveMinimum
+	 */
+	public Boolean getExclusiveMinimum() {
+		return exclusiveMinimum;
+	}
+	/**
+	 * {@link NumberSchema#maximum}
+	 * @return the maximum
+	 */
+	public Double getMaximum() {
+		return maximum;
 	}
 	/**
 	 * {@link NumberSchema#minimum}
@@ -25,54 +63,8 @@ public class NumberSchema extends ValueTypeSchema {
 		return minimum;
 	}
 	
-	
-	/**This attribute defines the maximum value of the instance property*/
-	@JsonProperty
-	private Double maximum;
-	/**
-	 * {@link NumberSchema#maximum}
-	 * @param maximum the maximum to set
-	 */
-	public void setMaximum(Double maximum) {
-		this.maximum = maximum;
-	}
-	/**
-	 * {@link NumberSchema#maximum}
-	 * @return the maximum
-	 */
-	public Double getMaximum() {
-		return maximum;
-	}
-	
-	/**
-	 * This attribute indicates if the value of the instance (if the
-	   instance is a number) can not equal the number defined by the
-	   "minimum" attribute.
-	 */
-	@JsonProperty
-	private Boolean exclusiveMinimum;
-	/**
-	 * {@link NumberSchema#exclusiveMinimum}
-	 * @param exclusiveMinimum the exclusiveMinimum to set
-	 */
-	public void setExclusiveMinimum(Boolean exclusiveMinimum) {
-		this.exclusiveMinimum = exclusiveMinimum;
-	}
-	/**
-	 * {@link NumberSchema#exclusiveMinimum}
-	 * @return the exclusiveMinimum
-	 */
-	public Boolean getExclusiveMinimum() {
-		return exclusiveMinimum;
-	}
-	
-	/**
-	 * This attribute indicates if the value of the instance (if the
-	   instance is a number) can not equal the number defined by the
-	   "maximum" attribute.
-	 */
-	@JsonProperty
-	private Boolean exclusiveMaximum;
+	@Override
+	public boolean isNumberSchema() { return true; }
 	/**
 	 * {@link NumberSchema#exclusiveMaximum}
 	 * @param exclusiveMaximum the exclusiveMaximum to set
@@ -81,16 +73,26 @@ public class NumberSchema extends ValueTypeSchema {
 		this.exclusiveMaximum = exclusiveMaximum;
 	}
 	/**
-	 * {@link NumberSchema#exclusiveMaximum}
-	 * @return the exclusiveMaximum
+	 * {@link NumberSchema#exclusiveMinimum}
+	 * @param exclusiveMinimum the exclusiveMinimum to set
 	 */
-	public Boolean getExclusiveMaximum() {
-		return exclusiveMaximum;
+	public void setExclusiveMinimum(Boolean exclusiveMinimum) {
+		this.exclusiveMinimum = exclusiveMinimum;
 	}
 
-	@Override
-	public boolean isNumberSchema() { return true; }
+	/**
+	 * {@link NumberSchema#maximum}
+	 * @param maximum the maximum to set
+	 */
+	public void setMaximum(Double maximum) {
+		this.maximum = maximum;
+	}
 	
-	@Override
-	public NumberSchema asNumberSchema() { return this; }
+	/**
+	 * {@link NumberSchema#minimum}
+	 * @param minimum the minimum to set
+	 */
+	public void setMinimum(Double minimum) {
+		this.minimum = minimum;
+	}
 }

@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.jsonschema.factories;
 
 import java.lang.reflect.Type;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonschema.types.Schema;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonAnyFormatVisitor;
@@ -17,37 +16,27 @@ import com.fasterxml.jackson.databind.jsonschema.visitors.JsonStringFormatVisito
 
 public class SchemaFactory implements JsonFormatVisitor {
 
-	protected ObjectMapper mapper;
 	private SchemaFactoryDelegate delegate;
-	
-	public SerializerProvider getProvider() {
-		return mapper.getSerializerProvider();
+	protected SerializerProvider provider;
+
+	public SchemaFactory(SerializerProvider mapper) {
+		this.provider = mapper;
 	}
 
-	public SchemaFactory(ObjectMapper mapper) {
-		this.mapper = mapper;
-	}
-	
-	public JsonObjectFormatVisitor objectFormat(Type type) {
-		//BasicClassIntrospector.instance.
-		delegate = new ObjectSchemaFactory(this);
-		return (JsonObjectFormatVisitor) delegate;
+	public JsonAnyFormatVisitor anyFormat() {
+		delegate = new AnySchemaFactory(this);
+		return (JsonAnyFormatVisitor) delegate;
 	}
 
 	public JsonArrayFormatVisitor arrayFormat(Type elementType) {
 		delegate = new ArraySchemaFactory(this);
 		return (JsonArrayFormatVisitor) delegate;
 	}
-	
-	public JsonStringFormatVisitor stringFormat() { 
-		delegate = new StringSchemaFactory(this);
-		return (JsonStringFormatVisitor) delegate;
+
+	public JsonBooleanFormatVisitor booleanFormat() {
+		delegate = new BooleanSchemaFactory(this);
+		return (JsonBooleanFormatVisitor) delegate;
 	}
-	public JsonNumberFormatVisitor numberFormat() { return new NumberSchemaFactory(this); }
-	public JsonIntegerFormatVisitor integerFormat() { return new IntegerSchemaFactory(this); }
-	public JsonBooleanFormatVisitor booleanFormat() { return new BooleanSchemaFactory(this); }
-	public JsonNullFormatVisitor nullFormat() { return new NullSchemaFactory(this); }
-	public JsonAnyFormatVisitor anyFormat() { return new AnySchemaFactory(this); }
 
 	public Schema finalSchema() {
 		assert delegate != null : "SchemaFactory must envoke a delegate method before it can return a Schema.";
@@ -56,7 +45,37 @@ public class SchemaFactory implements JsonFormatVisitor {
 		} else {
 			return delegate.getSchema();
 		}
-		
+
 	}
-	
+
+	public SerializerProvider getProvider() {
+		return provider;
+	}
+
+	public JsonIntegerFormatVisitor integerFormat() {
+		delegate = new IntegerSchemaFactory(this);
+		return (JsonIntegerFormatVisitor) delegate;
+	}
+
+	public JsonNullFormatVisitor nullFormat() {
+		delegate = new NullSchemaFactory(this);
+		return (JsonNullFormatVisitor) delegate;
+	}
+
+	public JsonNumberFormatVisitor numberFormat() {
+		delegate = new NumberSchemaFactory(this);
+		return (JsonNumberFormatVisitor) delegate;
+	}
+
+	public JsonObjectFormatVisitor objectFormat(Type type) {
+		// BasicClassIntrospector.instance.
+		delegate = new ObjectSchemaFactory(this);
+		return (JsonObjectFormatVisitor) delegate;
+	}
+
+	public JsonStringFormatVisitor stringFormat() {
+		delegate = new StringSchemaFactory(this);
+		return (JsonStringFormatVisitor) delegate;
+	}
+
 }

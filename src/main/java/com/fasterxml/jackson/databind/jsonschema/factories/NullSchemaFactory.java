@@ -11,7 +11,7 @@ public class NullSchemaFactory extends SchemaFactory implements
 	protected NullSchema nullSchema;
 	
 	public NullSchemaFactory(SchemaFactory parent) {
-		super(parent.mapper);
+		super(parent.provider);
 		this.parent = parent;
 		nullSchema = new NullSchema();
 	}

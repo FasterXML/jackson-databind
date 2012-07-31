@@ -11,7 +11,7 @@ public class AnySchemaFactory extends SchemaFactory implements
 	protected AnySchema anySchema;
 	
 	public AnySchemaFactory(SchemaFactory parent) {
-		super(parent.mapper);
+		super(parent.provider);
 		this.parent = parent;
 		anySchema = new AnySchema();
 	}

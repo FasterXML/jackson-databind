@@ -11,7 +11,7 @@ public class BooleanSchemaFactory extends ValueTypeSchemaFactory implements
 	protected BooleanSchema booleanSchema;
 	
 	public BooleanSchemaFactory(SchemaFactory parent) {
-		super(parent.mapper);
+		super(parent.provider);
 		this.parent = parent;
 		booleanSchema = new BooleanSchema();
 	}

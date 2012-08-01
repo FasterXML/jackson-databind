@@ -1,10 +1,20 @@
-Version: 2.0.5
+Version: 2.0.6
 
 Release date:
-  27-Jul-2012
+  xx-Aug-2012
 
 Description:
   Anoter patch release for 2.0.
+
+Fixes:
+
+* [JACKSON-855] Implement [JACKSON-855], add StackOverflowError as root	cause
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.0.5 (27-Jul-2012)
 
 Fixes:
 
@@ -12,10 +22,6 @@ Fixes:
 * Minor improvement to [Issue-11], for correct checking
 * A fix to PropertyBasedObjectIdGenerator problem related to serializing
   multiple property-based Object Ids that use same scope.
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.0.4 (26-Jun-2012)
 

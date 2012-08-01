@@ -320,6 +320,8 @@ public class ObjectNode
      * Method for removing field entry from this ObjectNode.
      * Will return value of the field, if such field existed;
      * null if not.
+     * 
+     * @return Value of specified field, if it existed; null if not
      */
     public JsonNode remove(String fieldName)
     {
@@ -350,6 +352,8 @@ public class ObjectNode
     /**
      * Method for removing all field properties, such that this
      * ObjectNode will contain no properties after call.
+     * 
+     * @return This ObjectNode after removing all entries
      */
     @Override
     public ObjectNode removeAll()
@@ -445,6 +449,10 @@ public class ObjectNode
     /**
      * Method that will construct an ArrayNode and add it as a
      * field of this ObjectNode, replacing old value, if any.
+     *<p>
+     * <b>NOTE</b>: Unlike all <b>put(...)</b> methods, return value
+     * is <b>NOT</b> this <code>ObjectNode</code>, but the
+     * <b>newly created</b> <code>ArrayNode</code> instance.
      *
      * @return Newly constructed ArrayNode (NOT the old value,
      *   which could be of any type)
@@ -459,6 +467,10 @@ public class ObjectNode
     /**
      * Method that will construct an ObjectNode and add it as a
      * field of this ObjectNode, replacing old value, if any.
+     *<p>
+     * <b>NOTE</b>: Unlike all <b>put(...)</b> methods, return value
+     * is <b>NOT</b> this <code>ObjectNode</code>, but the
+     * <b>newly created</b> <code>ObjectNode</code> instance.
      *
      * @return Newly constructed ObjectNode (NOT the old value,
      *   which could be of any type)
@@ -470,11 +482,17 @@ public class ObjectNode
         return n;
     }
 
+    /**
+     * @return This <code>ObjectNode</code>
+     */
     public ObjectNode putPOJO(String fieldName, Object pojo) {
         _put(fieldName, POJONode(pojo));
         return this;
     }
 
+    /**
+     * @return This <code>ObjectNode</code>
+     */
     public ObjectNode putNull(String fieldName)
     {
         _put(fieldName, nullNode());
@@ -483,6 +501,8 @@ public class ObjectNode
 
     /**
      * Method for setting value of a field to specified numeric value.
+     * 
+     * @return This <code>ObjectNode</code>
      */
     public ObjectNode put(String fieldName, int v) {
         _put(fieldName, numberNode(v));
@@ -492,6 +512,8 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This <code>ObjectNode</code>
      */
     public ObjectNode put(String fieldName, Integer value) {
         if (value == null) {
@@ -504,6 +526,8 @@ public class ObjectNode
     
     /**
      * Method for setting value of a field to specified numeric value.
+     * 
+     * @return This <code>ObjectNode</code>
      */
     public ObjectNode put(String fieldName, long v) {
         _put(fieldName, numberNode(v));
@@ -513,6 +537,8 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This <code>ObjectNode</code>
      */
     public ObjectNode put(String fieldName, Long value) {
         if (value == null) {
@@ -525,6 +551,8 @@ public class ObjectNode
     
     /**
      * Method for setting value of a field to specified numeric value.
+     * 
+     * @return This <code>ObjectNode</code>
      */
     public ObjectNode put(String fieldName, float v) {
         _put(fieldName, numberNode(v));
@@ -534,6 +562,8 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This <code>ObjectNode</code>
      */
     public ObjectNode put(String fieldName, Float value) {
         if (value == null) {
@@ -546,6 +576,8 @@ public class ObjectNode
     
     /**
      * Method for setting value of a field to specified numeric value.
+     * 
+     * @return This <code>ObjectNode</code>
      */
     public ObjectNode put(String fieldName, double v) {
         _put(fieldName, numberNode(v));
@@ -555,6 +587,8 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This <code>ObjectNode</code>
      */
     public ObjectNode put(String fieldName, Double value) {
         if (value == null) {
@@ -567,6 +601,8 @@ public class ObjectNode
     
     /**
      * Method for setting value of a field to specified numeric value.
+     * 
+     * @return This <code>ObjectNode</code>
      */
     public ObjectNode put(String fieldName, BigDecimal v) {
         if (v == null) {
@@ -579,6 +615,8 @@ public class ObjectNode
 
     /**
      * Method for setting value of a field to specified String value.
+     * 
+     * @return This <code>ObjectNode</code>
      */
     public ObjectNode put(String fieldName, String v) {
         if (v == null) {
@@ -591,6 +629,8 @@ public class ObjectNode
 
     /**
      * Method for setting value of a field to specified String value.
+     * 
+     * @return This <code>ObjectNode</code>
      */
     public ObjectNode put(String fieldName, boolean v) {
         _put(fieldName, booleanNode(v));
@@ -600,6 +640,8 @@ public class ObjectNode
     /**
      * Alternative method that we need to avoid bumping into NPE issues
      * with auto-unboxing.
+     * 
+     * @return This <code>ObjectNode</code>
      */
     public ObjectNode put(String fieldName, Boolean value) {
         if (value == null) {
@@ -612,6 +654,8 @@ public class ObjectNode
     
     /**
      * Method for setting value of a field to specified binary value
+     * 
+     * @return This <code>ObjectNode</code>
      */
     public ObjectNode put(String fieldName, byte[] v) {
         if (v == null) {

@@ -403,7 +403,8 @@ public class JacksonAnnotationIntrospector
         if (info == null || info.generator() == ObjectIdGenerators.None.class) {
             return null;
         }
-        return new ObjectIdInfo(info.property(), info.scope(), info.generator());
+        return new ObjectIdInfo(info.property(), info.scope(), info.generator(),
+                info.firstAsId());
     }
 
     @Override

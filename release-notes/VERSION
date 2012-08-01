@@ -31,6 +31,13 @@ Improvements:
   problem handler
  (suggested by 'electricmonk')
 
+New features:
+
+* [Issue-29]: Allow serializing, deserializing POJOs as JSON Arrays
+  by using `@JsonFormat(shape=Shape.ARRAY)`
+* (issue #4 of jackson-annotations): Add `@JsonIdentityInfo(firstAsId=true)`
+  to force ALL references to an object written as Object Id, even the first one.
+
 Other changes:
 
 * New variant of AnnotationIntrospector.getFormat(), to support class

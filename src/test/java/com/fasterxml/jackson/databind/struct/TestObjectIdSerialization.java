@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.struct;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import com.fasterxml.jackson.databind.*;
@@ -88,6 +89,33 @@ public class TestObjectIdSerialization extends BaseMapTest
         }
     }
 
+    // For [https://github.com/FasterXML/jackson-annotations/issues/4]
+    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class,
+            property="id", firstAsId=true)
+    static class AlwaysAsId
+    {
+        public int value;
+        
+        public AlwaysAsId() { this(0); }
+        public AlwaysAsId(int v) {
+            value = v;
+        }
+    }
+
+    @JsonPropertyOrder(alphabetic=true)
+    static class AlwaysContainer
+    {
+        public AlwaysAsId a = new AlwaysAsId(13);
+        
+        @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class,
+                property="id", firstAsId=true)
+        public Value b = new Value();
+    }
+
+    static class Value {
+        public int x = 3;
+    }
+    
     // // Let's also have one 'broken' test
 
     // no "id" property
@@ -106,7 +134,7 @@ public class TestObjectIdSerialization extends BaseMapTest
 
     private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"value\":13,\"next\":1}";
     
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testSimpleSerializationClass() throws Exception
     {
@@ -114,11 +142,11 @@ public class TestObjectIdSerialization extends BaseMapTest
         src.next = src;
         
         // First, serialize:
-        String json = mapper.writeValueAsString(src);
+        String json = MAPPER.writeValueAsString(src);
         assertEquals(EXP_SIMPLE_INT_CLASS, json);
 
         // and ensure that state is cleared in-between as well:
-        json = mapper.writeValueAsString(src);
+        json = MAPPER.writeValueAsString(src);
         assertEquals(EXP_SIMPLE_INT_CLASS, json);
     }
     
@@ -131,10 +159,10 @@ public class TestObjectIdSerialization extends BaseMapTest
         src.node.next = src;
         
         // First, serialize:
-        String json = mapper.writeValueAsString(src);
+        String json = MAPPER.writeValueAsString(src);
         assertEquals(EXP_SIMPLE_INT_PROP, json);
         // and second time too, for a good measure
-        json = mapper.writeValueAsString(src);
+        json = MAPPER.writeValueAsString(src);
         assertEquals(EXP_SIMPLE_INT_PROP, json);
     }
 
@@ -152,11 +180,11 @@ public class TestObjectIdSerialization extends BaseMapTest
         src.next = src;
         
         // First, serialize:
-        String json = mapper.writeValueAsString(src);
+        String json = MAPPER.writeValueAsString(src);
         assertEquals(EXP_CUSTOM_PROP, json);
 
         // and ensure that state is cleared in-between as well:
-        json = mapper.writeValueAsString(src);
+        json = MAPPER.writeValueAsString(src);
         assertEquals(EXP_CUSTOM_PROP, json);
     }
 
@@ -168,13 +196,19 @@ public class TestObjectIdSerialization extends BaseMapTest
         src.node.next = src;
         
         // First, serialize:
-        String json = mapper.writeValueAsString(src);
+        String json = MAPPER.writeValueAsString(src);
         assertEquals(EXP_CUSTOM_PROP_VIA_REF, json);
         // and second time too, for a good measure
-        json = mapper.writeValueAsString(src);
+        json = MAPPER.writeValueAsString(src);
         assertEquals(EXP_CUSTOM_PROP_VIA_REF, json);
     }
 
+    public void testAlwaysAsId() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new AlwaysContainer());
+        assertEquals(json, "{\"a\":1,\"b\":2}");
+    }
+    
     /*
     /*****************************************************
     /* Unit tests, error handling
@@ -184,7 +218,7 @@ public class TestObjectIdSerialization extends BaseMapTest
     public void testInvalidProp() throws Exception
     {
         try {
-            mapper.writeValueAsString(new Broken());
+            MAPPER.writeValueAsString(new Broken());
             fail("Should have thrown an exception");
         } catch (JsonMappingException e) {
             verifyException(e, "can not find property with name 'id'");

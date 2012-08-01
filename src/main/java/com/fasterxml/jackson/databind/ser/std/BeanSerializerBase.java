@@ -384,10 +384,11 @@ public abstract class BeanSerializerBase
                     }
                     idType = idProp.getType();
                     gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
-                    oiw = ObjectIdWriter.construct(idType, null, gen);
+                    oiw = ObjectIdWriter.construct(idType, null, gen, objectIdInfo.getFirstAsId());
                 } else { // other types need to be simpler
                     gen = provider.objectIdGeneratorInstance(accessor, objectIdInfo);
-                    oiw = ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen);
+                    oiw = ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen,
+                            objectIdInfo.getFirstAsId());
                 }
             }
         }

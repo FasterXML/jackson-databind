@@ -30,6 +30,15 @@ public final class ObjectIdWriter
      * Serializer used for serializing id values.
      */
     public final JsonSerializer<Object> serializer;
+
+    /**
+     * Marker that indicates what the first reference is to be
+     * serialized as full POJO, or as Object Id (other references
+     * will always be serialized as Object Id)
+     * 
+     * @since 2.1
+     */
+    public final boolean firstAsId;
     
     /*
     /**********************************************************
@@ -38,13 +47,14 @@ public final class ObjectIdWriter
      */
 
     @SuppressWarnings("unchecked")
-    protected ObjectIdWriter(JavaType t, SerializedString propName, ObjectIdGenerator<?> gen,
-            JsonSerializer<?> ser)
+    protected ObjectIdWriter(JavaType t, SerializedString propName,
+            ObjectIdGenerator<?> gen, JsonSerializer<?> ser, boolean firstAsId)
     {
         idType = t;
         propertyName = propName;
         generator = gen;
         serializer = (JsonSerializer<Object>) ser;
+        this.firstAsId = firstAsId;
     }
 
     /**
@@ -53,13 +63,13 @@ public final class ObjectIdWriter
      * for which serializer is being built.
      */
     public static ObjectIdWriter construct(JavaType idType, String propName,
-            ObjectIdGenerator<?> generator)
+            ObjectIdGenerator<?> generator, boolean firstAsId)
     {
         SerializedString serName = (propName == null) ? null : new SerializedString(propName);
-        return new ObjectIdWriter(idType, serName, generator, null);
+        return new ObjectIdWriter(idType, serName, generator, null, firstAsId);
     }
 
     public ObjectIdWriter withSerializer(JsonSerializer<?> ser) {
-        return new ObjectIdWriter(idType, propertyName, generator, ser);
+        return new ObjectIdWriter(idType, propertyName, generator, ser, firstAsId);
     }
 }

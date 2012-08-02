@@ -889,3 +889,7 @@ Ryan Gardner:
 Razvan Dragut:
  * Suggested [JACKSON-850]: Allow use of zero-arg factory methods as "default creator"
   (2.1.0)
+
+Duncan Atkinson:
+ * Reported [JACKSON-851]: State corruption with ObjectWriter, DefaultPrettyPrinter
+  (2.1.0)

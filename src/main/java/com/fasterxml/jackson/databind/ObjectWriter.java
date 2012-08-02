@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.Instantiatable;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 import com.fasterxml.jackson.databind.cfg.DatabindVersion;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
@@ -582,7 +583,17 @@ public class ObjectWriter
     {
         if (_prettyPrinter != null) {
             PrettyPrinter pp = _prettyPrinter;
-            jgen.setPrettyPrinter((pp == NULL_PRETTY_PRINTER) ? null : pp);
+            if (pp == NULL_PRETTY_PRINTER) {
+                jgen.setPrettyPrinter(null);
+            } else {
+                /* [JACKSON-851]: Better take care of stateful PrettyPrinters...
+                 *   like the DefaultPrettyPrinter.
+                 */
+                if (pp instanceof Instantiatable<?>) {
+                    pp = (PrettyPrinter) ((Instantiatable<?>) pp).createInstance();
+                }
+                jgen.setPrettyPrinter(pp);
+            }
         } else if (_config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
             jgen.useDefaultPrettyPrinter();
         }

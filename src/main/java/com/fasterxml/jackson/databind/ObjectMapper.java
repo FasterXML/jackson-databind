@@ -196,6 +196,8 @@ public class ObjectMapper
 
     protected final static VisibilityChecker<?> STD_VISIBILITY_CHECKER = VisibilityChecker.Std.defaultInstance();
 
+    protected final static PrettyPrinter _defaultPrettyPrinter = new DefaultPrettyPrinter();
+    
     /**
      * Base settings contain defaults used for all {@link ObjectMapper}
      * instances.
@@ -2437,7 +2439,7 @@ public class ObjectMapper
      * to use default pretty printer.
      */
     protected PrettyPrinter _defaultPrettyPrinter() {
-        return new DefaultPrettyPrinter();
+        return _defaultPrettyPrinter;
     }
     
     /**

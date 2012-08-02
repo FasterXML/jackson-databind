@@ -13,6 +13,9 @@ Fixes:
 
 Improvements:
 
+* [JACKSON-758]: Remove 'IOException' from throws clauses of "writeValueAsString"
+  and "writeValueAsBytes" of ObjectMapper/ObjectWriter
+ (suggested by G-T Chen)
 * [JACKSON-839]: Allow "upgrade" of integer number types for
   UntypedObjectDeserializer, even with default typing enabled.
 * [JACKSON-850]: Allow use of zero-arg factory methods as "default creator"

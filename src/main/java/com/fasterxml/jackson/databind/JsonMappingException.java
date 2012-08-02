@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
@@ -170,6 +171,19 @@ public class JsonMappingException
     }
 
     /**
+     * Factory method used when "upgrading" an {@link IOException} into
+     * {@link JsonMappingException}: usually only needed to comply with
+     * a signature.
+     * 
+     * @since 2.1
+     */
+    public static JsonMappingException fromUnexpectedIOE(IOException src)
+    {
+        return new JsonMappingException("Unexpected IOException (of type "
+                +src.getClass().getName()+"): "+src.getMessage(), (JsonLocation)null, src);
+    }
+    
+    /**
      * Method that can be called to either create a new JsonMappingException
      * (if underlying exception is not a JsonMappingException), or augment
      * given exception with given path/reference information.
@@ -220,7 +234,7 @@ public class JsonMappingException
         jme.prependPath(ref);
         return jme;
     }
-
+    
     /*
     /**********************************************************
     /* Accessors/mutators

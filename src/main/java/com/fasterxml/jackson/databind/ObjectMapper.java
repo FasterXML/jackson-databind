@@ -2004,13 +2004,21 @@ public class ObjectMapper
      * a String. Functionally equivalent to calling
      * {@link #writeValue(Writer,Object)} with {@link java.io.StringWriter}
      * and constructing String, but more efficient.
+     *<p>
+     * Note: prior to version 2.1, throws clause included {@link IOException}; 2.1 removed it.
      */
     public String writeValueAsString(Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws JsonProcessingException
     {        
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
-        _configAndWriteValue(_jsonFactory.createJsonGenerator(sw), value);
+        try {
+            _configAndWriteValue(_jsonFactory.createJsonGenerator(sw), value);
+        } catch (JsonProcessingException e) { // to support [JACKSON-758]
+            throw e;
+        } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
+            throw JsonMappingException.fromUnexpectedIOE(e);
+        }
         return sw.getAndClear();
     }
     
@@ -2020,12 +2028,20 @@ public class ObjectMapper
      * {@link #writeValue(Writer,Object)} with {@link java.io.ByteArrayOutputStream}
      * and getting bytes, but more efficient.
      * Encoding used will be UTF-8.
+     *<p>
+     * Note: prior to version 2.1, throws clause included {@link IOException}; 2.1 removed it.
      */
     public byte[] writeValueAsBytes(Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
-    {        
+        throws JsonProcessingException
+    {
         ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler());
-        _configAndWriteValue(_jsonFactory.createJsonGenerator(bb, JsonEncoding.UTF8), value);
+        try {
+            _configAndWriteValue(_jsonFactory.createJsonGenerator(bb, JsonEncoding.UTF8), value);
+        } catch (JsonProcessingException e) { // to support [JACKSON-758]
+            throw e;
+        } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
+            throw JsonMappingException.fromUnexpectedIOE(e);
+        }
         byte[] result = bb.toByteArray();
         bb.release();
         return result;

@@ -146,6 +146,18 @@ public class ArraySchema extends ContainerTypeSchema {
 	public static class ArrayItems extends ArraySchema.Items {
 		@JsonProperty
 		private Schema[] schemas;
+		
+		/* (non-Javadoc)
+		 * @see com.fasterxml.jackson.databind.jsonschema.types.ArraySchema.Items#isArrayItems()
+		 */
+		@Override
+		public boolean isArrayItems() { return true; }
+		
+		/* (non-Javadoc)
+		 * @see com.fasterxml.jackson.databind.jsonschema.types.ArraySchema.Items#asArrayItems()
+		 */
+		@Override
+		public ArrayItems asArrayItems() { return this; }
 	}
 	
 	/**
@@ -153,7 +165,13 @@ public class ArraySchema extends ContainerTypeSchema {
 	   MUST be a schema or an array of schemas.  The default value is an
 	   empty schema which allows any value for items in the instance array.
 	 */
-	public static abstract class Items {}
+	public static abstract class Items {
+		public boolean isSingleItems() { return false; }
+		public boolean isArrayItems() { return false; }
+		
+		public SingleItems asSingleItems() { return null; }
+		public ArrayItems asArrayItems() { return null; }
+	}
 	
 	/**
 	 *  This can be false
@@ -182,8 +200,37 @@ public class ArraySchema extends ContainerTypeSchema {
 	public static class SingleItems extends ArraySchema.Items {
 		@JsonProperty
 		private Schema schema;
+			
 		public SingleItems(Schema schema) {
 			this.schema = schema;
 		}
+		
+		/**
+		 * {@link ArraySchema.SingleItems#schema}
+		 * @return the schema
+		 */
+		public Schema getSchema() {
+			return schema;
+		}
+		
+		/**
+		 * {@link ArraySchema.SingleItems#schema}
+		 * @param schema the schema to set
+		 */
+		public void setSchema(Schema schema) {
+			this.schema = schema;
+		}
+		
+		/* (non-Javadoc)
+		 * @see com.fasterxml.jackson.databind.jsonschema.types.ArraySchema.Items#isSingleItems()
+		 */
+		@Override
+		public boolean isSingleItems() { return true; }
+		
+		/* (non-Javadoc)
+		 * @see com.fasterxml.jackson.databind.jsonschema.types.ArraySchema.Items#asSingleItems()
+		 */
+		@Override
+		public SingleItems asSingleItems() { return this; }
 	}
  }

@@ -7,7 +7,9 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsonschema.types.ObjectSchema;
 import com.fasterxml.jackson.databind.jsonschema.types.Schema;
+import com.fasterxml.jackson.databind.jsonschema.types.ArraySchema.Items;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -32,7 +34,7 @@ public class TestGenerateJsonSchema
         private String property2;
         private String[] property3;
         private Collection<Float> property4;
-        @JsonProperty(required=true)
+        @JsonProperty(required = true)
         private String property5;
         
         public int getProperty1()
@@ -90,7 +92,7 @@ public class TestGenerateJsonSchema
         public String name;
     }
 
-    @JsonSerializableSchema(id="myType")
+    //@JsonSerializableSchema(id="myType")
     public class BeanWithId {
         public String value;
     }
@@ -112,34 +114,56 @@ public class TestGenerateJsonSchema
     	DefaultSerializerProvider sp = new DefaultSerializerProvider.Impl();
         ObjectMapper m = new ObjectMapper();
         m.setSerializerProvider(sp);
-        Schema jsonSchema = m.generateJsonSchema(SimpleBean.class);
+        Schema schema = m.generateJsonSchema(SimpleBean.class);
         
-        assertNotNull(jsonSchema);
+        assertNotNull(schema);
 
         // test basic equality, and that equals() handles null, other obs
-        assertTrue(jsonSchema.equals(jsonSchema));
-        assertFalse(jsonSchema.equals(null));
-        assertFalse(jsonSchema.equals("foo"));
+        assertTrue(schema.equals(schema));
+        assertFalse(schema.equals(null));
+        assertFalse(schema.equals("foo"));
 
-        // other basic things
-        assertNotNull(jsonSchema.toString());
-        assertNotNull(JsonSchema.getDefaultSchemaNode());
+        assertTrue(schema.isObjectSchema());
+        ObjectSchema object = schema.asObjectSchema();
+        assertNotNull(object);
+        Map<String,Schema> properties = object.getProperties();
+        assertNotNull(properties);
+        Schema prop1 = properties.get("property1");
+        assertNotNull(prop1);
+        assertTrue(prop1.isIntegerSchema());
+        assertFalse(prop1.getRequired());
+        
+        Schema prop2 = properties.get("property2");
+        assertNotNull(prop2);
+        assertTrue(prop2.isStringSchema());
+        assertFalse(prop2.getRequired());
+        
+        Schema prop3 = properties.get("property3");
+        assertNotNull(prop3);
+        assertTrue(prop3.isArraySchema());
+        assertFalse(prop3.getRequired());
+        Items items = prop3.asArraySchema().getItems();
+        assertTrue(items.isSingleItems());
+        Schema itemType = items.asSingleItems().getSchema();
+        assertNotNull(itemType);
+        assertTrue(itemType.isStringSchema());
+        
+        Schema prop4 = properties.get("property4");
+        assertNotNull(prop4);
+        assertTrue(prop4.isArraySchema());
+        assertFalse(prop4.getRequired());
+        items = prop4.asArraySchema().getItems();
+        assertTrue(items.isSingleItems());
+        itemType = items.asSingleItems().getSchema();
+        assertNotNull(itemType);
+        assertTrue(itemType.isNumberSchema());
+        
+        Schema prop5 = properties.get("property5");
+        assertNotNull(prop5);
+        assertTrue(prop5.getRequired());
+        
+        
 
-//	ObjectNode root = jsonSchema.getSchemaNode();
-//        assertEquals("object", root.get("type").asText());
-//        assertEquals(false, root.path("required").booleanValue());
-//        JsonNode propertiesSchema = root.get("properties");
-//        assertNotNull(propertiesSchema);
-//        JsonNode property1Schema = propertiesSchema.get("property1");
-//        assertNotNull(property1Schema);
-//        assertEquals("integer", property1Schema.get("type").asText());
-//        assertEquals(false, property1Schema.path("required").booleanValue());
-//        JsonNode property2Schema = propertiesSchema.get("property2");
-//        assertNotNull(property2Schema);
-//        assertEquals("string", property2Schema.get("type").asText());
-//        assertEquals(false, property2Schema.path("required").booleanValue());
-//        JsonNode property3Schema = propertiesSchema.get("property3");
-//        assertNotNull(property3Schema);
 //        assertEquals("array", property3Schema.get("type").asText());
 //        assertEquals(false, property3Schema.path("required").booleanValue());
 //        assertEquals("string", property3Schema.get("items").get("type").asText());

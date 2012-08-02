@@ -13,13 +13,8 @@ import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
-import com.fasterxml.jackson.databind.jsonschema.factories.SchemaFactory;
-import com.fasterxml.jackson.databind.jsonschema.types.Schema;
-import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 

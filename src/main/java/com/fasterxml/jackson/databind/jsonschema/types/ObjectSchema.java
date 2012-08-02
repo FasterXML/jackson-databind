@@ -122,7 +122,8 @@ public class ObjectSchema extends ContainerTypeSchema {
 	}
 
 	public void putOptionalProperty(String name, Schema schema) {
-		// just don't put anything in the property list
+		schema.setRequired(false);
+		properties.put(name, schema);
 	}
 
 	public Schema putPatternProperty(String regex, Schema value) {
@@ -130,6 +131,7 @@ public class ObjectSchema extends ContainerTypeSchema {
 	}
 
 	public Schema putProperty(String name, Schema value) {
+		value.setRequired(true);
 		return properties.put(name, value);
 	}
 

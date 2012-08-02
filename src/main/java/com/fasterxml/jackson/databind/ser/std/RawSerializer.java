@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 
@@ -45,7 +44,7 @@ public class RawSerializer<T>
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
     {
         visitor.stringFormat();
     }

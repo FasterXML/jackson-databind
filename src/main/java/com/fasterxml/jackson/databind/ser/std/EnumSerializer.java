@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -65,7 +64,7 @@ public class EnumSerializer
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
     {
         // [JACKSON-684]: serialize as index?
     	if (visitor.getProvider().isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
@@ -73,8 +72,7 @@ public class EnumSerializer
     	} else {
     		JsonStringFormatVisitor stringVisitor = visitor.stringFormat();
     		if (typeHint != null) {
-    			JavaType type = visitor.getProvider().constructType(typeHint);
-    			if (type.isEnumType()) {
+    			if (typeHint.isEnumType()) {
     				Set<String> enums = new HashSet<String>();
     				for (SerializedString value : _values.values()) {
     					enums.add(value.getValue());

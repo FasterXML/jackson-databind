@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.EnumValues;
 
 /**
@@ -252,7 +253,7 @@ public class EnumMapSerializer
     
     @SuppressWarnings("unchecked")
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
     {
     	JsonObjectFormatVisitor objectVisitor = visitor.objectFormat(typeHint);
         if (typeHint instanceof ParameterizedType) {
@@ -268,7 +269,7 @@ public class EnumMapSerializer
                 	try {
                 		ser = visitor.getProvider().findValueSerializer(valueType.getRawClass(), _property);
                 		if (ser instanceof SchemaAware)  {
-                			objectVisitor.property(name, (SchemaAware) ser, typeArgs[1]);
+                			objectVisitor.property(name, (SchemaAware) ser, TypeFactory.defaultInstance().constructType(typeArgs[1]));
                 		} 
                 		continue;
                 	} catch (JsonMappingException e) {

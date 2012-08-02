@@ -168,7 +168,7 @@ public abstract class AsArraySerializerBase<T>
         throws IOException, JsonGenerationException;
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
     {
         /* 15-Jan-2010, tatu: This should probably be rewritten, given that
          *    more information about content type is actually being explicitly
@@ -177,11 +177,10 @@ public abstract class AsArraySerializerBase<T>
          */
         //ObjectNode o = createSchemaNode("array", true);
         JsonArrayFormatVisitor arrayVisitor = 
-        		visitor.arrayFormat(typeHint == null ? _elementType.getRawClass() : typeHint);
+        		visitor.arrayFormat(typeHint);
         JavaType contentType = null;
         if (typeHint != null) {
-            JavaType javaType = visitor.getProvider().constructType(typeHint);
-            contentType = javaType.getContentType();
+            contentType = typeHint.getContentType();
             if (contentType == null) { // could still be parametrized (Iterators)
                 if (typeHint instanceof ParameterizedType) {
                     Type[] typeArgs = ((ParameterizedType) typeHint).getActualTypeArguments();

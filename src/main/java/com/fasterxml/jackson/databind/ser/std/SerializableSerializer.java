@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
 
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializable;
@@ -55,21 +55,21 @@ public class SerializableSerializer
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
     {
         if (typeHint == null) {
         	visitor.anyFormat();
         } else  {
-            Class<?> rawClass = TypeFactory.rawClass(typeHint);
+            Class<?> rawClass = typeHint.getRawClass();
             if (rawClass.isAnnotationPresent(JsonSerializableSchema.class)) {
                 JsonSerializableSchema schemaInfo = rawClass.getAnnotation(JsonSerializableSchema.class);
                 
                 if (!JsonSerializableSchema.NO_VALUE.equals(schemaInfo.schemaObjectPropertiesDefinition())) {
-                	visitor.objectFormat(rawClass);
+                	visitor.objectFormat(typeHint);
                     //objectProperties = schemaInfo.schemaObjectPropertiesDefinition();
                 } else 
                 if (!JsonSerializableSchema.NO_VALUE.equals(schemaInfo.schemaItemDefinition())) {
-                    visitor.arrayFormat(rawClass);
+                    visitor.arrayFormat(typeHint);
                 	//itemDefinition = schemaInfo.schemaItemDefinition();
                 } else {
                 	visitor.anyFormat();

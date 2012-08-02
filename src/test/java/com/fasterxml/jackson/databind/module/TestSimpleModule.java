@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.module;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.*;
 
 
@@ -53,7 +52,7 @@ public class TestSimpleModule extends BaseMapTest
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint) {
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint) {
             visitor.anyFormat();
         }
     }
@@ -87,7 +86,7 @@ public class TestSimpleModule extends BaseMapTest
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint) {
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint) {
             visitor.anyFormat();
         }
     }

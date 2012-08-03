@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.jsonschema.factories;
 
+import java.lang.reflect.Type;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonschema.types.Schema;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonAnyFormatVisitor;
@@ -28,7 +28,7 @@ public class SchemaFactory implements JsonFormatVisitor {
 		return (JsonAnyFormatVisitor) delegate;
 	}
 
-	public JsonArrayFormatVisitor arrayFormat(JavaType elementType) {
+	public JsonArrayFormatVisitor arrayFormat(Type elementType) {
 		delegate = new ArraySchemaFactory(this);
 		return (JsonArrayFormatVisitor) delegate;
 	}
@@ -67,7 +67,7 @@ public class SchemaFactory implements JsonFormatVisitor {
 		return (JsonNumberFormatVisitor) delegate;
 	}
 
-	public JsonObjectFormatVisitor objectFormat(JavaType type) {
+	public JsonObjectFormatVisitor objectFormat(Type type) {
 		// BasicClassIntrospector.instance.
 		delegate = new ObjectSchemaFactory(this);
 		return (JsonObjectFormatVisitor) delegate;

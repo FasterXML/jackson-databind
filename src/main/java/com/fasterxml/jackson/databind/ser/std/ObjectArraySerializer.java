@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 
@@ -296,9 +297,9 @@ public class ObjectArraySerializer
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
-    	visitor.arrayFormat(typeHint).itemsFormat(_elementType);
+    	visitor.arrayFormat(typeHint == null ? _property.getType().getRawClass() : typeHint).itemsFormat(_elementType);
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,

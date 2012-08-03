@@ -236,7 +236,7 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
      *
      * @param type The type for which to generate schema
      */
-    public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitor visitor)
+    public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitor visitor)
         throws JsonMappingException
     {
         if (type == null) {

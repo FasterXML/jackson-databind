@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Map;
@@ -71,7 +72,7 @@ public class NumberSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
         	visitor.integerFormat();
         }
@@ -98,7 +99,7 @@ public class NumberSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
         	visitor.integerFormat();
         }
@@ -120,7 +121,7 @@ public class NumberSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
         	visitor.numberFormat();
         }
@@ -142,7 +143,7 @@ public class NumberSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
         	visitor.numberFormat();
         }
@@ -171,7 +172,7 @@ public class NumberSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
         	visitor.numberFormat();
         }
@@ -219,7 +220,7 @@ public class NumberSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
         	visitor.numberFormat();
         }

@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
@@ -37,7 +37,7 @@ public final class StringSerializer
     }
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
     	visitor.stringFormat();
     }

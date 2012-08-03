@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -101,7 +102,7 @@ public abstract class DateTimeSerializerBase<T>
 
     protected abstract long _timestamp(T value);
     
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
         //todo: (ryan) add a format for the date in the schema?
         boolean asNumber = _useTimestamp;

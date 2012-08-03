@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 
@@ -42,7 +43,7 @@ public class UnknownSerializer
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint) { 
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint) { 
     	visitor.anyFormat();
     }
 

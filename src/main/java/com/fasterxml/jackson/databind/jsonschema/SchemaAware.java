@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.jsonschema;
 
+import java.lang.reflect.Type;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 
 /**
@@ -15,5 +15,5 @@ public interface SchemaAware
      *
      * @return <a href="http://json-schema.org/">Json-schema</a> for this serializer.
      */
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint);
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint);
 }

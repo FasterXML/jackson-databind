@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.ser.std;
 
+import java.lang.reflect.Type;
 import java.util.*;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
@@ -27,7 +27,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
     	acceptContentVisitor(visitor.arrayFormat(typeHint));
     }

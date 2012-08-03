@@ -2402,7 +2402,7 @@ public class ObjectMapper
     public Schema generateJsonSchema(Class<?> t) throws JsonMappingException {
     	DefaultSerializerProvider provider = _serializerProvider(getSerializationConfig());
     	SchemaFactory visitor = new SchemaFactory(provider);
-        provider.acceptJsonFormatVisitor(constructType(t), visitor);
+        provider.acceptJsonFormatVisitor(t, visitor);
         return visitor.finalSchema();
     }
 

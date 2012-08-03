@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -626,9 +627,9 @@ public abstract class BeanSerializerBase
         return filter;
     }
     
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
-    	JsonObjectFormatVisitor objectVisitor = visitor.objectFormat(typeHint);
+    	JsonObjectFormatVisitor objectVisitor = visitor.objectFormat(typeHint == null ? _handledType : typeHint);
         // [JACKSON-813]: Add optional JSON Schema id attribute, if found
         // NOTE: not optimal, does NOT go through AnnotationIntrospector etc:
 //        JsonSerializableSchema ann = _handledType.getAnnotation(JsonSerializableSchema.class);
@@ -658,6 +659,7 @@ public abstract class BeanSerializerBase
             	filter.depositSchemaProperty(prop, objectVisitor, visitor.getProvider());
             	 continue;
             }
+            JavaType propType = prop.getSerializationType();
             BeanSerializerBase.depositSchemaProperty(prop, objectVisitor);
         }
     }

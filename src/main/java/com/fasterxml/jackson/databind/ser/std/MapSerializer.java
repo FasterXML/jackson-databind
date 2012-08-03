@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -466,7 +467,7 @@ public class MapSerializer
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
     {
     	visitor.objectFormat(null);
     }

@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.jsonschema.factories;
 
+import java.lang.reflect.Type;
 
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.jsonschema.types.Schema;
 import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectFormatVisitor, SchemaFactoryDelegate {
 
@@ -24,14 +23,16 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 	}
 	
 	public Schema getSchema() {
+		// TODO Auto-generated method stub
 		return objectSchema;
 	}
 
-	private JsonSerializer<Object> getSer(BeanPropertyWriter writer) {
+	private JsonSerializer<Object> getSer(BeanPropertyWriter writer, Class<?> serType) {
 		JsonSerializer<Object> ser = writer.getSerializer();
 		if (ser == null) { // nope
-			
-			JavaType serType = writer.getSerializationType();
+			if (serType == null) {
+				serType = writer.getPropertyType();
+			}
 			try {
 				return getProvider().findValueSerializer(serType, writer);
 			} catch (JsonMappingException e) {
@@ -41,28 +42,28 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 		return ser;
 	}	
 	
-//	private Class<?> writerType(BeanPropertyWriter writer) {
-//		
-//		//TODO:Will these ever return different types?
-//		
-//		JavaType propType = writer.getSerializationType();
-//		TypeFactory.defaultInstance().
-//		Type hint = (propType == null) ? writer.getGenericPropertyType() : propType.getRawClass();
-//		return writer.getPropertyType();
-//	}
+	private Class<?> writerType(BeanPropertyWriter writer) {
+		
+		//TODO:Will these ever return different types?
+		
+		//JavaType propType = writer.getSerializationType();
+		//Type hint = (propType == null) ? writer.getGenericPropertyType() : propType.getRawClass();
+		return writer.getPropertyType();
+	}
 	
 	protected Schema propertySchema(BeanPropertyWriter writer) {
 		SchemaFactory visitor = new SchemaFactory(provider);
-		JsonSerializer<Object> ser = getSer(writer);
+		Class<?> serType = writerType(writer);
+		JsonSerializer<Object> ser = getSer(writer, serType);
 		if (ser != null && ser instanceof SchemaAware) {
-			((SchemaAware)ser).acceptJsonFormatVisitor(visitor, writer.getSerializationType());
+			((SchemaAware)ser).acceptJsonFormatVisitor(visitor, serType);
 		} else {
 			visitor.anyFormat();
 		}
 		return visitor.finalSchema();
 	}
 	
-	protected Schema propertySchema(SchemaAware handler, JavaType propertyTypeHint) {
+	protected Schema propertySchema(SchemaAware handler, Type propertyTypeHint) {
 		SchemaFactory visitor = new SchemaFactory(provider);
 		handler.acceptJsonFormatVisitor(visitor, propertyTypeHint);
 		return visitor.finalSchema();
@@ -76,11 +77,11 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 		objectSchema.putOptionalProperty(writer.getName(), propertySchema(writer));
 	}
 	
-	public void property(String name, SchemaAware handler, JavaType propertyTypeHint) {
+	public void property(String name, SchemaAware handler, Type propertyTypeHint) {
 		objectSchema.putProperty(name, propertySchema(handler, propertyTypeHint));
 	}
 	
-	public void optionalProperty(String name, SchemaAware handler, JavaType propertyTypeHint) {
+	public void optionalProperty(String name, SchemaAware handler, Type propertyTypeHint) {
 		objectSchema.putOptionalProperty(name, propertySchema(handler, propertyTypeHint));
 	}
 	

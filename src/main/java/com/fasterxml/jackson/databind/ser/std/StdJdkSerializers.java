@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.*;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
@@ -77,7 +78,7 @@ public class StdJdkSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
         	visitor.booleanFormat();
         }
@@ -96,7 +97,7 @@ public class StdJdkSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
         	visitor.integerFormat();
         }
@@ -115,7 +116,7 @@ public class StdJdkSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
         	visitor.integerFormat();
         }
@@ -134,7 +135,7 @@ public class StdJdkSerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
         	visitor.anyFormat();
         }
@@ -163,7 +164,7 @@ public class StdJdkSerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
         	visitor.stringFormat();
         }
@@ -186,7 +187,7 @@ public class StdJdkSerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
         {
         	visitor.stringFormat();
         }

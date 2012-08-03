@@ -57,7 +57,7 @@ public class ObjectSchema extends ContainerTypeSchema {
 	private Map<String, Schema> properties;
 
 	@JsonProperty(required = true)
-	public final SchemaType type = SchemaType.OBJECT;
+	private final SchemaType type = SchemaType.OBJECT;
 
 	// instance initializer block
 	{
@@ -116,13 +116,20 @@ public class ObjectSchema extends ContainerTypeSchema {
 		return properties;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.Schema#getType()
+	 */
+	@Override
+	public SchemaType getType() {
+		return type;
+	}
+	
 	@Override
 	public boolean isObjectSchema() {
 		return true;
 	}
 
 	public void putOptionalProperty(String name, Schema schema) {
-		schema.setRequired(false);
 		properties.put(name, schema);
 	}
 

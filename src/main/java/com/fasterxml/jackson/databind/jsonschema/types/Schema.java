@@ -2,8 +2,11 @@ package com.fasterxml.jackson.databind.jsonschema.types;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * <a href="http://tools.ietf.org/id/draft-zyp-json-schema-03.txt"> Json Schema
@@ -64,6 +67,7 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  * 
  * @author jphelan
  */
+@JsonInclude(Include.NON_EMPTY)
 public abstract class Schema {
 
 	/**
@@ -138,10 +142,7 @@ public abstract class Schema {
 	 * undefined. This is false by default, making the instance optional.
 	 */
 	@JsonProperty
-	private Boolean required = false;// default = false;
-
-	@JsonProperty(required = true)
-	public final SchemaType type = null;
+	private Boolean required = null;
 
 	public AnySchema asAnySchema() {
 		return null;
@@ -246,54 +247,64 @@ public abstract class Schema {
 		return required;
 	}
 
-	public SchemaType getType() {
-		return this.type;
-	}
+	public abstract SchemaType getType();
 
+	@JsonIgnore
 	public boolean isAnySchema() {
 		return false;
 	}
 
+	@JsonIgnore
 	public boolean isArraySchema() {
 		return false;
 	}
 
+	@JsonIgnore
 	public boolean isBooleanSchema() {
 		return false;
 	}
 
+	@JsonIgnore
 	public boolean isContainerTypeSchema() {
 		return false;
 	}
 
+	@JsonIgnore
 	public boolean isIntegerSchema() {
 		return false;
 	}
 
+	@JsonIgnore
 	public boolean isNullSchema() {
 		return false;
 	}
 
+	@JsonIgnore
 	public boolean isNumberSchema() {
 		return false;
 	}
 
+	@JsonIgnore
 	public boolean isObjectSchema() {
 		return false;
 	}
 
+	@JsonIgnore
 	public boolean isSimpleTypeSchema() {
 		return false;
 	}
 
+	@JsonIgnore
 	public boolean isStringSchema() {
 		return false;
 	}
 
+	@JsonIgnore
 	public boolean isUnionTypeSchema() {
 		return false;
 	}
 
+	@JsonIgnore
 	public boolean isValueTypeSchema() {
 		return false;
 	}

@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.jsonschema.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /*
@@ -17,13 +19,13 @@ public class ArraySchema extends ContainerTypeSchema {
 	private ArraySchema.Items items;
 	/**This attribute defines the maximum number of values in an array*/
 	@JsonProperty
-	private int maxItems;
+	private Integer maxItems;
 	/**This attribute defines the minimum number of values in an array*/
 	@JsonProperty
-	private int minItems;
+	private Integer minItems;
 	
 	@JsonProperty(required = true)
-	public final SchemaType type = SchemaType.ARRAY;
+	private final SchemaType type = SchemaType.ARRAY;
 	/**
 	 * This attribute indicates that all items in an array instance MUST be
 	   unique (contains no two identical values).
@@ -42,7 +44,7 @@ public class ArraySchema extends ContainerTypeSchema {
 	      object.
 	 */
 	@JsonProperty
-	private Boolean uniqueItems;
+	private Boolean uniqueItems = null;
 		
 	@Override
 	public ArraySchema asArraySchema() { return this; }
@@ -66,7 +68,7 @@ public class ArraySchema extends ContainerTypeSchema {
 	 * {@link ArraySchema#maxItems}
 	 * @return the maxItems
 	 */
-	public int getMaxItems() {
+	public Integer getMaxItems() {
 		return maxItems;
 	}
 
@@ -75,9 +77,18 @@ public class ArraySchema extends ContainerTypeSchema {
 	 * {@link ArraySchema#minItems}
 	 * @return the minItems
 	 */
-	public int getMinItems() {
+	public Integer getMinItems() {
 		return minItems;
 	}
+	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.Schema#getType()
+	 */
+	@Override
+	public SchemaType getType() {
+		return type;
+	}
+	
 	/**
 	 * {@link ArraySchema#uniqueItems}
 	 * @return the uniqueItems
@@ -110,7 +121,7 @@ public class ArraySchema extends ContainerTypeSchema {
 	 * {@link ArraySchema#maxItems}
 	 * @param maxItems the maxItems to set
 	 */
-	public void setMaxItems(int maxItems) {
+	public void setMaxItems(Integer maxItems) {
 		this.maxItems = maxItems;
 	}
 	
@@ -118,7 +129,7 @@ public class ArraySchema extends ContainerTypeSchema {
 	 * {@link ArraySchema#minItems}
 	 * @param minItems the minItems to set
 	 */
-	public void setMinItems(int minItems) {
+	public void setMinItems(Integer minItems) {
 		this.minItems = minItems;
 	}
 	
@@ -166,7 +177,11 @@ public class ArraySchema extends ContainerTypeSchema {
 	   empty schema which allows any value for items in the instance array.
 	 */
 	public static abstract class Items {
+		
+		@JsonIgnore
 		public boolean isSingleItems() { return false; }
+		
+		@JsonIgnore
 		public boolean isArrayItems() { return false; }
 		
 		public SingleItems asSingleItems() { return null; }
@@ -188,7 +203,7 @@ public class ArraySchema extends ContainerTypeSchema {
 	 */
 	public static class SchemaAdditionalItems {
 		
-		@JsonProperty(required = true)
+		@JsonUnwrapped
 		private Schema schema;
 	}
 	
@@ -198,7 +213,7 @@ public class ArraySchema extends ContainerTypeSchema {
 	   schema.
 	 */
 	public static class SingleItems extends ArraySchema.Items {
-		@JsonProperty
+		@JsonUnwrapped
 		private Schema schema;
 			
 		public SingleItems(Schema schema) {
@@ -233,4 +248,5 @@ public class ArraySchema extends ContainerTypeSchema {
 		@Override
 		public SingleItems asSingleItems() { return this; }
 	}
+
  }

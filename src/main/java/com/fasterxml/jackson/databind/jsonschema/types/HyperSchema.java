@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.jsonschema.types;
+ package com.fasterxml.jackson.databind.jsonschema.types;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -329,5 +329,14 @@ public class HyperSchema extends Schema {
 		@JsonProperty
 		private Schema schema;
 		
+	}
+
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.Schema#getType()
+	 */
+	@Override
+	public SchemaType getType() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

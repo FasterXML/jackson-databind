@@ -20,7 +20,7 @@ public class StringSchema extends ValueTypeSchema {
 	private String pattern;
 	
 	@JsonProperty(required = true)
-	public final SchemaType type = SchemaType.STRING;
+	private final SchemaType type = SchemaType.STRING;
 
 	@Override
 	public StringSchema asStringSchema() {
@@ -52,6 +52,14 @@ public class StringSchema extends ValueTypeSchema {
 	 */
 	public String getPattern() {
 		return pattern;
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.Schema#getType()
+	 */
+	@Override
+	public SchemaType getType() {
+		return type;
 	}
 
 	@Override

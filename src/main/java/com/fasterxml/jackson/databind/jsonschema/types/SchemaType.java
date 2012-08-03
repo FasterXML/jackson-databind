@@ -1,37 +1,27 @@
 package com.fasterxml.jackson.databind.jsonschema.types;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum SchemaType {
-	STRING {
-		@Override
-		public String toString() { return "string"; }
-	},
-	NUMBER {
-		@Override
-		public String toString() { return "number"; }
-	},
-	INTEGER {
-		@Override
-		public String toString() { return "integer"; }
-	},
-	BOOLEAN {
-		@Override
-		public String toString() { return "boolean"; }
-	},
-	OBJECT {
-		@Override
-		public String toString() { return "object"; }
-	},
-	ARRAY {
-		@Override
-		public String toString() { return "array"; }
-	},
-	NULL {
-		@Override
-		public String toString() { return "null"; }
-	},
-	ANY {
-		@Override
-		public String toString() { return "any"; }
+	
+	STRING,
+	NUMBER,
+	INTEGER,
+	BOOLEAN,
+	OBJECT,
+	ARRAY,
+	NULL,
+	ANY;
+	
+	
+	@JsonValue
+	public String value() {
+		return this.name().toLowerCase();
 	}
 	
+	@JsonCreator
+	public static SchemaType forValue(String s) {
+		return valueOf(s.toUpperCase());
+	}
 }

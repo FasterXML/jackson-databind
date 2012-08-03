@@ -22,14 +22,14 @@ public class NumberSchema extends ValueTypeSchema {
 	
 	/**This attribute defines the maximum value of the instance property*/
 	@JsonProperty
-	private Double maximum;
+	private Double maximum = null;
 	
 	/**This attribute defines the minimum value of the instance property*/
 	@JsonProperty
-	private Double minimum;
+	private Double minimum = null;
 	
 	@JsonProperty(required = true)
-	public final SchemaType type = SchemaType.NUMBER;
+	private final SchemaType type = SchemaType.NUMBER;
 	
 	@Override
 	public NumberSchema asNumberSchema() { return this; }
@@ -61,6 +61,14 @@ public class NumberSchema extends ValueTypeSchema {
 	 */
 	public Double getMinimum() {
 		return minimum;
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.Schema#getType()
+	 */
+	@Override
+	public SchemaType getType() {
+		return type;
 	}
 	
 	@Override

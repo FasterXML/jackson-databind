@@ -21,6 +21,14 @@ public class UnionTypeSchema extends Schema {
 		return elements;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.Schema#getType()
+	 */
+	@Override
+	public SchemaType getType() {
+		return null;
+	}
+	
 	@Override
 	public boolean isUnionTypeSchema() {
 		return true;

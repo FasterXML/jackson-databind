@@ -631,14 +631,14 @@ public abstract class BeanSerializerBase
     	JsonObjectFormatVisitor objectVisitor = visitor.objectFormat(typeHint);
         // [JACKSON-813]: Add optional JSON Schema id attribute, if found
         // NOTE: not optimal, does NOT go through AnnotationIntrospector etc:
-//        JsonSerializableSchema ann = _handledType.getAnnotation(JsonSerializableSchema.class);
-//        if (ann != null) {
-//            String id = ann.id();
-//            if (id != null && id.length() > 0) {
-//                //o.put("id", id); what is this?
-//                //objectVisitor.expect??
-//            }
-//        }
+        JsonSerializableSchema ann = _handledType.getAnnotation(JsonSerializableSchema.class);
+        if (ann != null) {
+            String id = ann.id();
+            if (id != null && id.length() > 0) {
+                //o.put("id", id); what is this?
+                //objectVisitor.expect??
+            }
+        }
  
         BeanPropertyFilter filter;
         if (_propertyFilterId != null) {

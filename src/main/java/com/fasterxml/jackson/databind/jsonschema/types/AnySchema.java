@@ -21,7 +21,7 @@ public class AnySchema extends SimpleTypeSchema {
 	private Set<String> enums;
 	
 	@JsonProperty(required = true)
-	public final SchemaType type = SchemaType.ANY;
+	private final SchemaType type = SchemaType.ANY;
 	
 	//instance initializer block
 	{
@@ -33,6 +33,14 @@ public class AnySchema extends SimpleTypeSchema {
 	
 	@Override
 	public boolean isAnySchema() { return true; }
+	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.Schema#getType()
+	 */
+	@Override
+	public SchemaType getType() {
+		return type;
+	}
 	
 	public void setEnums(Set<String> enums) {
 		this.enums = enums;

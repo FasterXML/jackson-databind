@@ -8,7 +8,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class NullSchema extends SimpleTypeSchema {
 	
 	@JsonProperty(required = true)
-	public final SchemaType type = SchemaType.NULL;
+	private final SchemaType type = SchemaType.NULL;
+	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.Schema#getType()
+	 */
+	@Override
+	public SchemaType getType() {
+		return type;
+	}
 	
 	@Override
 	public boolean isNullSchema() { return true; }

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -171,7 +170,7 @@ public class StringArraySerializer
     }
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
     {
     	visitor.arrayFormat(null).itemsFormat(SchemaType.STRING);
     }

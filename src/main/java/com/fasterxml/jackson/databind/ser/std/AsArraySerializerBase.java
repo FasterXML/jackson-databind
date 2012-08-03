@@ -7,12 +7,9 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
@@ -168,7 +165,7 @@ public abstract class AsArraySerializerBase<T>
         throws IOException, JsonGenerationException;
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
     {
         /* 15-Jan-2010, tatu: This should probably be rewritten, given that
          *    more information about content type is actually being explicitly
@@ -177,11 +174,10 @@ public abstract class AsArraySerializerBase<T>
          */
         //ObjectNode o = createSchemaNode("array", true);
         JsonArrayFormatVisitor arrayVisitor = 
-        		visitor.arrayFormat(typeHint == null ? _elementType.getRawClass() : typeHint);
+        		visitor.arrayFormat(typeHint);
         JavaType contentType = null;
         if (typeHint != null) {
-            JavaType javaType = visitor.getProvider().constructType(typeHint);
-            contentType = javaType.getContentType();
+            contentType = typeHint.getContentType();
             if (contentType == null) { // could still be parametrized (Iterators)
                 if (typeHint instanceof ParameterizedType) {
                     Type[] typeArgs = ((ParameterizedType) typeHint).getActualTypeArguments();

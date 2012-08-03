@@ -252,7 +252,7 @@ public class EnumMapSerializer
     
     @SuppressWarnings("unchecked")
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
     {
     	JsonObjectFormatVisitor objectVisitor = visitor.objectFormat(typeHint);
         if (typeHint instanceof ParameterizedType) {
@@ -268,7 +268,7 @@ public class EnumMapSerializer
                 	try {
                 		ser = visitor.getProvider().findValueSerializer(valueType.getRawClass(), _property);
                 		if (ser instanceof SchemaAware)  {
-                			objectVisitor.property(name, (SchemaAware) ser, typeArgs[1]);
+                			objectVisitor.property(name, (SchemaAware) ser, valueType);
                 		} 
                 		continue;
                 	} catch (JsonMappingException e) {

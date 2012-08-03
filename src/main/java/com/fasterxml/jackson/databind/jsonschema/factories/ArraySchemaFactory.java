@@ -35,7 +35,7 @@ public class ArraySchemaFactory extends SchemaFactory implements JsonArrayFormat
 				ser = getProvider().findValueSerializer(contentType, _property);
 				if (ser instanceof SchemaAware) {
 	            	SchemaFactory visitor = new SchemaFactory(provider);
-	                ((SchemaAware) ser).acceptJsonFormatVisitor(visitor, null);
+	                ((SchemaAware) ser).acceptJsonFormatVisitor(visitor, contentType);
 	                arraySchema.setItemsSchema(visitor.finalSchema());
 	            }
 			} catch (JsonMappingException e) {

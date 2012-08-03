@@ -247,7 +247,7 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
          */
         JsonSerializer<Object> ser = findValueSerializer(type, null);
         if (ser instanceof SchemaAware) {
-        	((SchemaAware) ser).acceptJsonFormatVisitor(visitor, type);
+        	((SchemaAware) ser).acceptJsonFormatVisitor(visitor, constructType(type));
         } else {
         	visitor.anyFormat();
         }

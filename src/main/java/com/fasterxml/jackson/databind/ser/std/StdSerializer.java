@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -81,7 +80,7 @@ public abstract class StdSerializer<T>
      * overriden by custom serializers.
      */
 //  @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, Type typeHint) { 
+    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint) { 
     	visitor.anyFormat();
     }
             

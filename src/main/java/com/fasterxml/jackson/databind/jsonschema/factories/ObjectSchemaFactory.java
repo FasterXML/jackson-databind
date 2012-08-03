@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.jsonschema.factories;
 
-import java.lang.reflect.Type;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
@@ -56,14 +56,14 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 		Class<?> serType = writerType(writer);
 		JsonSerializer<Object> ser = getSer(writer, serType);
 		if (ser != null && ser instanceof SchemaAware) {
-			((SchemaAware)ser).acceptJsonFormatVisitor(visitor, serType);
+			((SchemaAware)ser).acceptJsonFormatVisitor(visitor, writer.getType());
 		} else {
 			visitor.anyFormat();
 		}
 		return visitor.finalSchema();
 	}
 	
-	protected Schema propertySchema(SchemaAware handler, Type propertyTypeHint) {
+	protected Schema propertySchema(SchemaAware handler, JavaType propertyTypeHint) {
 		SchemaFactory visitor = new SchemaFactory(provider);
 		handler.acceptJsonFormatVisitor(visitor, propertyTypeHint);
 		return visitor.finalSchema();
@@ -77,11 +77,11 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 		objectSchema.putOptionalProperty(writer.getName(), propertySchema(writer));
 	}
 	
-	public void property(String name, SchemaAware handler, Type propertyTypeHint) {
+	public void property(String name, SchemaAware handler, JavaType propertyTypeHint) {
 		objectSchema.putProperty(name, propertySchema(handler, propertyTypeHint));
 	}
 	
-	public void optionalProperty(String name, SchemaAware handler, Type propertyTypeHint) {
+	public void optionalProperty(String name, SchemaAware handler, JavaType propertyTypeHint) {
 		objectSchema.putOptionalProperty(name, propertySchema(handler, propertyTypeHint));
 	}
 	

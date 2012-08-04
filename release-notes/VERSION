@@ -26,22 +26,27 @@ Improvements:
 * [Issue-20]: Add new exception type, InvalidFormatException (sub-type of
   JsonMappingException) to indicate data format problems
  (suggested by HolySamosa@github)
-* [Issue-22]: Add 'ObjectMapper.setAnnotationIntrospectors()' which allows
-  defining different introspectors for serialization, deserialization
-* [Issue-30] ObjectReader and ObjectWriter now try to pre-fetch root (de)serializer
-  if possible; minor performance improvement (2% for small POJOs).
+* [Issue-30] ObjectReader and ObjectWriter now try to pre-fetch root
+  (de)serializer if possible; minor performance improvement (2% for small POJOs).
 * [Issue-33] Simplified/clarified definition of 'ObjectReader.readValues()';
   minor change in behavior for JSON Array "wrapped" sequences
-* Added 'ObjectReader#withHandler' to allow for reconfiguring deserialization
-  problem handler
- (suggested by 'electricmonk')
 
 New features:
 
+* [Issue-22]: Add 'ObjectMapper.setAnnotationIntrospectors()' which allows
+  defining different introspectors for serialization, deserialization
+* [Issue-24]: Allow serialization of Enums as JSON Objects
+ (suggested by rveloso@github)
 * [Issue-29]: Allow serializing, deserializing POJOs as JSON Arrays
   by using `@JsonFormat(shape=Shape.ARRAY)`
+* [Issue-40]: Allow serialization of Collections as JSON Objects
+  (and deserialization from)
+ (suggested by rveloso@github)
 * (issue #4 of jackson-annotations): Add `@JsonIdentityInfo(firstAsId=true)`
   to force ALL references to an object written as Object Id, even the first one.
+* Added 'ObjectReader#withHandler' to allow for reconfiguring deserialization
+  problem handler
+ (suggested by 'electricmonk')
 
 Other changes:
 

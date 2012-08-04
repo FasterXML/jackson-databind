@@ -6,6 +6,7 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.annotation.NoClass;
@@ -239,7 +240,7 @@ public abstract class BasicSerializerFactory
         }
         return b.buildTypeSerializer(config, baseType, subtypes);
     }
-    
+
     /*
     /**********************************************************
     /* Additional API for other core classes
@@ -359,9 +360,20 @@ public abstract class BasicSerializerFactory
             return NumberSerializers.NumberSerializer.instance;
         }
         if (Enum.class.isAssignableFrom(raw)) {
-            @SuppressWarnings("unchecked")
-            Class<Enum<?>> enumClass = (Class<Enum<?>>) raw;
-            return EnumSerializer.construct(enumClass, prov.getConfig(), beanDesc);
+            /* As per [Issue#24], may want to use alternate shape, serialize as JSON Object.
+             * Challenge here is that EnumSerializer does not know how to produce
+             * POJO style serialization, so we must handle that special case separately;
+             * otherwise pass it to EnumSerializer.
+             */
+            JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+            if (format != null && format.getShape() == JsonFormat.Shape.OBJECT) {
+                // one special case: suppress serialization of "getDeclaringClass()"...
+                ((BasicBeanDescription) beanDesc).removeProperty("declaringClass");
+            } else {
+                @SuppressWarnings("unchecked")
+                Class<Enum<?>> enumClass = (Class<Enum<?>>) raw;
+                return EnumSerializer.construct(enumClass, prov.getConfig(), beanDesc, format);
+            }
         }
         if (Calendar.class.isAssignableFrom(raw)) {
             return CalendarSerializer.instance;
@@ -461,18 +473,38 @@ public abstract class BasicSerializerFactory
         if (type.isCollectionLikeType()) {
             CollectionLikeType clt = (CollectionLikeType) type;
             if (clt.isTrueCollectionType()) { // only have custom ones, if any:
-                return buildCollectionSerializer(config, (CollectionType) clt, beanDesc, property, staticTyping,
-                        elementTypeSerializer, elementValueSerializer);
-            }
-            // Only custom variants for this:
-            for (Serializers serializers : customSerializers()) {
-                JsonSerializer<?> ser = serializers.findCollectionLikeSerializer(config,
-                        (CollectionLikeType) type, beanDesc, elementTypeSerializer, elementValueSerializer);
-                if (ser != null) {
-                    return ser;
+                CollectionType trueCT = (CollectionType) clt;
+                // Module-provided custom collection serializers?
+                for (Serializers serializers : customSerializers()) {
+                    JsonSerializer<?> ser = serializers.findCollectionSerializer(config,
+                            trueCT, beanDesc, elementTypeSerializer, elementValueSerializer);
+                    if (ser != null) {
+                        return ser;
+                    }
                 }
+
+                // As per [Issue#24], may want to use alternate shape, serialize as JSON Object.
+                // Challenge here is that EnumSerializer does not know how to produce
+                // POJO style serialization, so we must handle that special case separately;
+                // otherwise pass it to EnumSerializer.
+                JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+
+                if (format == null || format.getShape() != JsonFormat.Shape.OBJECT) {
+                    return buildCollectionSerializer(config, trueCT, beanDesc, property, staticTyping,
+                            elementTypeSerializer, elementValueSerializer);
+                }
+            } else {
+                // Only custom variants for this:
+                for (Serializers serializers : customSerializers()) {
+                    JsonSerializer<?> ser = serializers.findCollectionLikeSerializer(config,
+                            (CollectionLikeType) type, beanDesc, elementTypeSerializer, elementValueSerializer);
+                    if (ser != null) {
+                        return ser;
+                    }
+                }
+                // fall through either way (whether shape dictates serialization as POJO or not)
+                return null;
             }
-            return null;
         }
         if (type.isArrayType()) {
             return buildArraySerializer(config, (ArrayType) type, beanDesc, staticTyping,
@@ -492,14 +524,6 @@ public abstract class BasicSerializerFactory
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
         throws JsonMappingException
     {
-        // Module-provided custom collection serializers?
-        for (Serializers serializers : customSerializers()) {
-            JsonSerializer<?> ser = serializers.findCollectionSerializer(config,
-                    type, beanDesc, elementTypeSerializer, elementValueSerializer);
-            if (ser != null) {
-                return ser;
-            }
-        }
         Class<?> raw = type.getRawClass();
         if (EnumSet.class.isAssignableFrom(raw)) {
             // this may or may not be available (Class doesn't; type of field/method does)

@@ -51,6 +51,16 @@ public class MappingJsonFactory
     @Override
     public final ObjectMapper getCodec() { return (ObjectMapper) _objectCodec; }
 
+    // @since 2.1
+    public JsonFactory copy()
+    {
+        if (getClass() != MappingJsonFactory.class) {
+            throw new IllegalStateException("Can not copy(): "+getClass().getName()+" does not override method; it has to");
+        }
+        // note: as with base class, must NOT copy mapper reference
+        return new MappingJsonFactory(null);
+    }
+    
     /*
     /**********************************************************
     /* Format detection functionality (since 1.8)

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.struct;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
@@ -21,9 +22,16 @@ public class TestFormatForCollections extends BaseMapTest
         @JsonProperty("size")
         public int foo() { return size(); }
         
-        public String[] getValues() {
-            return toArray(new String[size()]);
+        public List<String> getValues() {
+            return new ArrayList<String>(this);
         }
+
+        public void setValues(List<String> v) {
+            addAll(v);
+        }
+        
+        // bogus setter to handle "size" property
+        public void setSize(int i) { }
     }
 
     /*

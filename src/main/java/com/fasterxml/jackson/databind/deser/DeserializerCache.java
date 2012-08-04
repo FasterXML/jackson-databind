@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -348,13 +349,21 @@ public final class DeserializerCache
                         mlt, beanDesc);
             }
             if (type.isCollectionLikeType()) {
-                CollectionLikeType clt = (CollectionLikeType) type;
-                if (clt.isTrueCollectionType()) {
-                    return (JsonDeserializer<Object>) factory.createCollectionDeserializer(ctxt,
-                            (CollectionType) clt, beanDesc);
+                /* 03-Aug-2012, tatu: As per [Issue#40], one exception is if shape
+                 *   is to be Shape.OBJECT. Ideally we'd determine it bit later on
+                 *   (to allow custom handler checks), but that won't work for other
+                 *   reasons. So do it here.
+                 */
+                JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+                if (format == null || format.getShape() != JsonFormat.Shape.OBJECT) {
+                    CollectionLikeType clt = (CollectionLikeType) type;
+                    if (clt.isTrueCollectionType()) {
+                        return (JsonDeserializer<Object>) factory.createCollectionDeserializer(ctxt,
+                                (CollectionType) clt, beanDesc);
+                    }
+                    return (JsonDeserializer<Object>) factory.createCollectionLikeDeserializer(ctxt,
+                            clt, beanDesc);
                 }
-                return (JsonDeserializer<Object>) factory.createCollectionLikeDeserializer(ctxt,
-                        clt, beanDesc);
             }
         }
         if (JsonNode.class.isAssignableFrom(type.getRawClass())) {

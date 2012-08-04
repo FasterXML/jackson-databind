@@ -1,31 +1,45 @@
 package com.fasterxml.jackson.databind.jsonschema.types;
 
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.jsonschema.factories.SchemaFactory;
 
 /*
  * This attribute defines the allowed items in an instance array, and
-   MUST be a schema or an array of schemas.  The default value is an
-   empty schema which allows any value for items in the instance array.
+   MUST be a jsonSchema or an array of jsonSchemas.  The default value is an
+   empty jsonSchema which allows any value for items in the instance array.
  */
 public class ArraySchema extends ContainerTypeSchema {
 	
+	
+	/**
+	 * see {@link AdditionalItems}
+	 */
 	@JsonProperty
 	private ArraySchema.AdditionalItems additionalItems;
 	
+	/**
+	 * see {@link Items}
+	 */
 	@JsonProperty
 	private ArraySchema.Items items;
+	
 	/**This attribute defines the maximum number of values in an array*/
 	@JsonProperty
 	private Integer maxItems;
+	
 	/**This attribute defines the minimum number of values in an array*/
 	@JsonProperty
 	private Integer minItems;
 	
-	@JsonProperty(required = true)
+	@JsonIgnore
 	private final SchemaType type = SchemaType.ARRAY;
+	
 	/**
 	 * This attribute indicates that all items in an array instance MUST be
 	   unique (contains no two identical values).
@@ -46,8 +60,34 @@ public class ArraySchema extends ContainerTypeSchema {
 	@JsonProperty
 	private Boolean uniqueItems = null;
 		
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#asArraySchema()
+	 */
 	@Override
 	public ArraySchema asArraySchema() { return this; }
+	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ArraySchema) {
+			ArraySchema that = (ArraySchema) obj;
+			return getAdditionalItems() == null ? that.getAdditionalItems() == null : 
+						getAdditionalItems().equals(that.getAdditionalItems()) &&
+					getItems() == null ? that.getItems() == null : 
+						getItems().equals(that.getItems()) &&
+					getMaxItems() == null ? that.getMaxItems() == null :
+						getMaxItems().equals(that.getMaxItems()) &&
+					getMinItems() == null ? that.getMinItems() == null :
+						getMinItems().equals(that.getMinItems()) &&
+					getUniqueItems() == null ? that.getUniqueItems() == null :
+						getUniqueItems().equals(that.getUniqueItems()) &&
+					super.equals(obj);
+		} else {
+			return false;
+		}
+	}
 	
 	/**
 	 * {@link ArraySchema#additionalItems}
@@ -82,7 +122,7 @@ public class ArraySchema extends ContainerTypeSchema {
 	}
 	
 	/* (non-Javadoc)
-	 * @see com.fasterxml.jackson.databind.jsonschema.types.Schema#getType()
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#getType()
 	 */
 	@Override
 	public SchemaType getType() {
@@ -96,6 +136,10 @@ public class ArraySchema extends ContainerTypeSchema {
 	public Boolean getUniqueItems() {
 		return uniqueItems;
 	}
+	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#isArraySchema()
+	 */
 	@Override
 	public boolean isArraySchema() { return true; }
 	
@@ -114,8 +158,14 @@ public class ArraySchema extends ContainerTypeSchema {
 	public void setItems(ArraySchema.Items items) {
 		this.items = items;
 	}
-	public void setItemsSchema(Schema schema) {
-		items = new SingleItems(schema);
+	
+	/**
+	 * Convenience method to set the json schema for the {@link ArraySchema#items}
+	 * field
+	 * @param jsonSchema
+	 */
+	public void setItemsSchema(JsonSchema jsonSchema) {
+		items = new SingleItems(jsonSchema);
 	}
 	/**
 	 * {@link ArraySchema#maxItems}
@@ -145,18 +195,54 @@ public class ArraySchema extends ContainerTypeSchema {
 	 * This provides a definition for additional items in an array instance
    when tuple definitions of the items is provided.
 	 */
-	public static abstract class AdditionalItems {}
+	public static abstract class AdditionalItems {
+		
+		@JsonCreator
+		public static Items jsonCreator(Map<String,Object> props) {
+			// not implemented for jsonSchema
+			return null;
+			//KNOWN ISSUE: pending https://github.com/FasterXML/jackson-databind/issues/43
+		}
+	}
 	
 	/**
-	 * When this attribute value is an array of schemas and the instance
+	 * When this attribute value is an array of jsonSchemas and the instance
 	   value is an array, each position in the instance array MUST conform
-	   to the schema in the corresponding position for this array.  This
+	   to the jsonSchema in the corresponding position for this array.  This
 	   called tuple typing.  When tuple typing is used, additional items are
 	   allowed, disallowed, or constrained by the "additionalItems"
 	 */
 	public static class ArrayItems extends ArraySchema.Items {
 		@JsonProperty
-		private Schema[] schemas;
+		private JsonSchema[] jsonSchemas;
+		
+		/* (non-Javadoc)
+		 * @see com.fasterxml.jackson.databind.jsonschema.types.ArraySchema.Items#asArrayItems()
+		 */
+		@Override
+		public ArrayItems asArrayItems() { return this; }
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Items) {
+				ArrayItems that = (ArrayItems) obj;
+				return getJsonSchemas() == null ? that.getJsonSchemas() == null :
+					getJsonSchemas().equals(that.getJsonSchemas());
+			} else {
+				return false;
+			}
+		}
+		
+		/**
+		 * {@link ArraySchema.ArrayItems#jsonSchemas}
+		 * @return the jsonSchemas
+		 */
+		public JsonSchema[] getJsonSchemas() {
+			return jsonSchemas;
+		}
 		
 		/* (non-Javadoc)
 		 * @see com.fasterxml.jackson.databind.jsonschema.types.ArraySchema.Items#isArrayItems()
@@ -164,17 +250,12 @@ public class ArraySchema extends ContainerTypeSchema {
 		@Override
 		public boolean isArrayItems() { return true; }
 		
-		/* (non-Javadoc)
-		 * @see com.fasterxml.jackson.databind.jsonschema.types.ArraySchema.Items#asArrayItems()
-		 */
-		@Override
-		public ArrayItems asArrayItems() { return this; }
 	}
 	
 	/**
 	 * This attribute defines the allowed items in an instance array, and
-	   MUST be a schema or an array of schemas.  The default value is an
-	   empty schema which allows any value for items in the instance array.
+	   MUST be a jsonSchema or an array of jsonSchemas.  The default value is an
+	   empty jsonSchema which allows any value for items in the instance array.
 	 */
 	public static abstract class Items {
 		
@@ -186,54 +267,107 @@ public class ArraySchema extends ContainerTypeSchema {
 		
 		public SingleItems asSingleItems() { return null; }
 		public ArrayItems asArrayItems() { return null; }
+		
+		@JsonCreator
+		public static Items jsonCreator(Map<String,Object> props) {
+			//for now only support deserialization of singleItems
+			Object typeFound = props.get("type");
+			if (typeFound == null || ! (typeFound instanceof String)) {
+				return null;
+			}
+			String type = (String) typeFound;
+			JsonSchema schema = JsonSchema.minimalForFormat(SchemaType.forValue(type));
+			//KNOWN ISSUE: pending https://github.com/FasterXML/jackson-databind/issues/43
+			//only deserialize items as minimal schema for type
+			return new SingleItems(schema);
+		}
+		
 	}
 	
 	/**
 	 *  This can be false
    		to indicate additional items in the array are not allowed
 	 */
-	public static class NoAdditionalItems {
+	public static class NoAdditionalItems extends AdditionalItems {
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof NoAdditionalItems;
+		}
 		@JsonValue
 		public Boolean value() { return false; }
 	}
 	
 	/**
 	 * or it can
-   		be a schema that defines the schema of the additional items.
+   		be a jsonSchema that defines the jsonSchema of the additional items.
 	 */
-	public static class SchemaAdditionalItems {
+	public static class SchemaAdditionalItems extends AdditionalItems {
 		
-		@JsonUnwrapped
-		private Schema schema;
+		@JsonIgnore
+		private JsonSchema jsonSchema;
+		
+		public SchemaAdditionalItems(JsonSchema schema) {
+			jsonSchema = schema;
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof SchemaAdditionalItems &&
+					getJsonSchema() == null ? ((SchemaAdditionalItems)obj).getJsonSchema() == null :
+						getJsonSchema().equals(((SchemaAdditionalItems)obj).getJsonSchema());
+		}
+		
+		@JsonValue
+		public JsonSchema getJsonSchema() {
+			return jsonSchema;
+		}
 	}
 	
 	/**
-	 * When this attribute value is a schema and the instance value is an
+	 * When this attribute value is a jsonSchema and the instance value is an
 	   array, then all the items in the array MUST be valid according to the
-	   schema.
+	   jsonSchema.
 	 */
 	public static class SingleItems extends ArraySchema.Items {
-		@JsonUnwrapped
-		private Schema schema;
+		@JsonIgnore
+		private JsonSchema jsonSchema;
 			
-		public SingleItems(Schema schema) {
-			this.schema = schema;
+		public SingleItems(JsonSchema jsonSchema) {
+			this.jsonSchema = jsonSchema;
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Object#equals(java.lang.Object)
+		 */
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof SingleItems &&
+					getSchema() == null ? ((SingleItems)obj).getSchema() == null :
+						getSchema().equals(((SingleItems)obj).getSchema());
 		}
 		
 		/**
-		 * {@link ArraySchema.SingleItems#schema}
-		 * @return the schema
+		 * {@link ArraySchema.SingleItems#jsonSchema}
+		 * @return the jsonSchema
 		 */
-		public Schema getSchema() {
-			return schema;
+		@JsonValue
+		public JsonSchema getSchema() {
+			return jsonSchema;
 		}
 		
 		/**
-		 * {@link ArraySchema.SingleItems#schema}
-		 * @param schema the schema to set
+		 * {@link ArraySchema.SingleItems#jsonSchema}
+		 * @param jsonSchema the jsonSchema to set
 		 */
-		public void setSchema(Schema schema) {
-			this.schema = schema;
+		public void setSchema(JsonSchema jsonSchema) {
+			this.jsonSchema = jsonSchema;
 		}
 		
 		/* (non-Javadoc)

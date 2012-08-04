@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 /**
  * Marker interface for schema-aware serializers.
  */
-public interface SchemaAware
+public interface JsonFormatVisitorAware
 {
     /**
      * Get the representation of the schema to which this serializer will conform.

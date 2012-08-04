@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.jsonschema.factories;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsonschema.types.Schema;
+import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonAnyFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonBooleanFormatVisitor;
@@ -37,8 +37,8 @@ public class SchemaFactory implements JsonFormatVisitor {
 		return (JsonBooleanFormatVisitor) delegate;
 	}
 
-	public Schema finalSchema() {
-		assert delegate != null : "SchemaFactory must envoke a delegate method before it can return a Schema.";
+	public JsonSchema finalSchema() {
+		assert delegate != null : "SchemaFactory must envoke a delegate method before it can return a JsonSchema.";
 		if (delegate == null) {
 			return null;
 		} else {

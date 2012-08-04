@@ -5,7 +5,12 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
+/**
+ * This class encapsulates the functionality of container type {@link JsonSchema}
+ * Array and Object
+ * @author jphelan
+ *
+ */
 public abstract class ContainerTypeSchema extends SimpleTypeSchema {
 	/**
 	 * This provides an enumeration of all possible values that are valid
@@ -24,13 +29,27 @@ public abstract class ContainerTypeSchema extends SimpleTypeSchema {
 		enums = new HashSet<String>();
 	}
 	
-	/**
-	 * {@link ContainerTypeSchema#enums}
-	 * @param enums the enums to set
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#asContainerSchema()
 	 */
-	public void setEnums(Set<String> enums) {
-		this.enums = enums;
-	}
+	@Override
+	public ContainerTypeSchema asContainerSchema() { return this; }
+	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.SimpleTypeSchema#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ContainerTypeSchema) {
+			ContainerTypeSchema that = (ContainerTypeSchema)obj;
+			return getEnums() == null ? that.getEnums() == null :
+				getEnums().equals(that.getEnums()) &&
+				super.equals(obj);
+		} else {
+			return false;
+		}
+	} 
+	
 	/**
 	 * {@link ContainerTypeSchema#enums}
 	 * @return the enums
@@ -39,9 +58,17 @@ public abstract class ContainerTypeSchema extends SimpleTypeSchema {
 		return enums;
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#isContainerTypeSchema()
+	 */
 	@Override
 	public boolean isContainerTypeSchema() { return true; }
 	
-	@Override
-	public ContainerTypeSchema asContainerSchema() { return this; }
+	/**
+	 * {@link ContainerTypeSchema#enums}
+	 * @param enums the enums to set
+	 */
+	public void setEnums(Set<String> enums) {
+		this.enums = enums;
+	}
 }

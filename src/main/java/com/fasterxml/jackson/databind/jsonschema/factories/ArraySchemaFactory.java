@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsonschema.JsonFormatVisitorAware;
 import com.fasterxml.jackson.databind.jsonschema.types.ArraySchema;
-import com.fasterxml.jackson.databind.jsonschema.types.Schema;
+import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonArrayFormatVisitor;
 
@@ -33,9 +33,9 @@ public class ArraySchemaFactory extends SchemaFactory implements JsonArrayFormat
             JsonSerializer<Object> ser;
 			try {
 				ser = getProvider().findValueSerializer(contentType, _property);
-				if (ser instanceof SchemaAware) {
+				if (ser instanceof JsonFormatVisitorAware) {
 	            	SchemaFactory visitor = new SchemaFactory(provider);
-	                ((SchemaAware) ser).acceptJsonFormatVisitor(visitor, contentType);
+	                ((JsonFormatVisitorAware) ser).acceptJsonFormatVisitor(visitor, contentType);
 	                arraySchema.setItemsSchema(visitor.finalSchema());
 	            }
 			} catch (JsonMappingException e) {
@@ -44,13 +44,13 @@ public class ArraySchemaFactory extends SchemaFactory implements JsonArrayFormat
         }
 	}
 	
-	public void itemsFormat(SchemaAware toVisit) {}
+	public void itemsFormat(JsonFormatVisitorAware toVisit) {}
 	
 	public void itemsFormat(SchemaType format) {
-		arraySchema.setItemsSchema(Schema.minimalForFormat(format));
+		arraySchema.setItemsSchema(JsonSchema.minimalForFormat(format));
 	}
 
-	public Schema getSchema() {
+	public JsonSchema getSchema() {
 		return arraySchema;
 	}
 	

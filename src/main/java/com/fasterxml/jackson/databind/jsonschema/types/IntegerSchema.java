@@ -2,10 +2,12 @@ package com.fasterxml.jackson.databind.jsonschema.types;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * This class represents a {@link JsonSchema} as an integer type
+ * @author jphelan
+ *
+ */
 public class IntegerSchema extends NumberSchema {
-	
-	@JsonProperty(required = true)
-	public final SchemaType type = SchemaType.INTEGER;
 	
 	/**
 	 * This attribute defines what value the number instance must be
@@ -15,13 +17,28 @@ public class IntegerSchema extends NumberSchema {
 	@JsonProperty
 	private Integer divisibleBy;
 	
-	/**
-	 * {@link IntegerSchema#divisibleBy}
-	 * @param divisibleBy the divisibleBy to set
+	@JsonProperty(required = true)
+	public final SchemaType type = SchemaType.INTEGER;
+	
+	@Override
+	public IntegerSchema asIntegerSchema() { return this; }
+	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.NumberSchema#equals(java.lang.Object)
 	 */
-	public void setDivisibleBy(Integer divisibleBy) {
-		this.divisibleBy = divisibleBy;
-	}
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof IntegerSchema) {
+			IntegerSchema that = (IntegerSchema)obj;
+			return getDivisibleBy() == null ? that.getDivisibleBy() == null :
+				getDivisibleBy().equals(that.getDivisibleBy()) &&
+				super.equals(obj);
+		} else {
+			return false;
+		}
+	} 
+	
+	
 	/**
 	 * {@link IntegerSchema#divisibleBy}
 	 * @return the divisibleBy
@@ -33,6 +50,11 @@ public class IntegerSchema extends NumberSchema {
 	@Override
 	public boolean isIntegerSchema() { return true; }
 	
-	@Override
-	public IntegerSchema asIntegerSchema() { return this; }
+	/**
+	 * {@link IntegerSchema#divisibleBy}
+	 * @param divisibleBy the divisibleBy to set
+	 */
+	public void setDivisibleBy(Integer divisibleBy) {
+		this.divisibleBy = divisibleBy;
+	}
 }

@@ -26,9 +26,8 @@ import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.factories.SchemaFactory;
-import com.fasterxml.jackson.databind.jsonschema.types.Schema;
+import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
@@ -2150,7 +2149,7 @@ public class ObjectMapper
      * pass specific schema object to {@link JsonGenerator} used for
      * writing content.
      * 
-     * @param schema Schema to pass to generator
+     * @param schema JsonSchema to pass to generator
      */
     public ObjectWriter writer(FormatSchema schema) {
         return new ObjectWriter(this, getSerializationConfig(), schema);
@@ -2255,7 +2254,7 @@ public class ObjectMapper
      * pass specific schema object to {@link JsonParser} used for
      * reading content.
      * 
-     * @param schema Schema to pass to parser
+     * @param schema JsonSchema to pass to parser
      */
     public ObjectReader reader(FormatSchema schema) {
         return new ObjectReader(this, getDeserializationConfig(), null, null,
@@ -2388,7 +2387,7 @@ public class ObjectMapper
 
     /*
     /**********************************************************
-    /* Extended Public API: JSON Schema generation
+    /* Extended Public API: JSON JsonSchema generation
     /**********************************************************
      */
 
@@ -2399,7 +2398,7 @@ public class ObjectMapper
      * @param t The class to generate schema for
      * @return Constructed JSON schema.
      */
-    public Schema generateJsonSchema(Class<?> t) throws JsonMappingException {
+    public JsonSchema generateJsonSchema(Class<?> t) throws JsonMappingException {
     	DefaultSerializerProvider provider = _serializerProvider(getSerializationConfig());
     	SchemaFactory visitor = new SchemaFactory(provider);
         provider.acceptJsonFormatVisitor(t, visitor);

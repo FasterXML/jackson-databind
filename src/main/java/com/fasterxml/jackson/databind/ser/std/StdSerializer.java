@@ -6,7 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsonschema.JsonFormatVisitorAware;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -15,11 +15,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Base class used by all standard serializers, and can also
  * be used for custom serializers (in fact, this is the recommended
  * base class to use).
- * Provides convenience methods for implementing {@link SchemaAware}
+ * Provides convenience methods for implementing {@link JsonFormatVisitorAware}
  */
 public abstract class StdSerializer<T>
     extends JsonSerializer<T>
-    implements SchemaAware
+    implements JsonFormatVisitorAware
 {
     /**
      * Nominal type supported, usually declared type of
@@ -71,7 +71,7 @@ public abstract class StdSerializer<T>
 
     /*
     /**********************************************************
-    /* Helper methods for JSON Schema generation
+    /* Helper methods for JSON JsonSchema generation
     /**********************************************************
      */
     

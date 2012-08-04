@@ -1,7 +1,13 @@
 package com.fasterxml.jackson.databind.jsonschema.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * This class represents a {@link JsonSchema} as a number type
+ * @author jphelan
+ *
+ */
 public class NumberSchema extends ValueTypeSchema {
 	
 	/**
@@ -28,11 +34,34 @@ public class NumberSchema extends ValueTypeSchema {
 	@JsonProperty
 	private Double minimum = null;
 	
-	@JsonProperty(required = true)
+	@JsonIgnore
 	private final SchemaType type = SchemaType.NUMBER;
 	
 	@Override
 	public NumberSchema asNumberSchema() { return this; }
+	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.ValueTypeSchema#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof NumberSchema) {
+			NumberSchema that = (NumberSchema)obj;
+			return getExclusiveMaximum() == null ? that.getExclusiveMaximum() == null :
+				getExclusiveMaximum().equals(that.getExclusiveMaximum()) &&
+				getExclusiveMinimum() == null ? that.getExclusiveMinimum() == null :
+					getExclusiveMinimum().equals(that.getExclusiveMinimum()) &&
+				getMaximum() == null ? that.getMaximum() == null :
+					getMaximum().equals(that.getMaximum()) &&
+				getMinimum() == null ? that.getMinimum() == null :
+					getMinimum().equals(that.getMinimum()) &&
+				super.equals(obj);
+		} else {
+			return false;
+		}
+	} 
+	
+	
 	/**
 	 * {@link NumberSchema#exclusiveMaximum}
 	 * @return the exclusiveMaximum
@@ -64,7 +93,7 @@ public class NumberSchema extends ValueTypeSchema {
 	}
 	
 	/* (non-Javadoc)
-	 * @see com.fasterxml.jackson.databind.jsonschema.types.Schema#getType()
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#getType()
 	 */
 	@Override
 	public SchemaType getType() {

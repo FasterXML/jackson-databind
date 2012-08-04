@@ -3,9 +3,14 @@ package com.fasterxml.jackson.databind.jsonschema.types;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
+/**
+ * This class represents a {@link JsonSchema} of type any
+ * @author jphelan
+ *
+ */
 public class AnySchema extends SimpleTypeSchema {
 	
 	/**
@@ -20,7 +25,7 @@ public class AnySchema extends SimpleTypeSchema {
 	@JsonProperty
 	private Set<String> enums;
 	
-	@JsonProperty(required = true)
+	@JsonIgnore
 	private final SchemaType type = SchemaType.ANY;
 	
 	//instance initializer block
@@ -28,14 +33,34 @@ public class AnySchema extends SimpleTypeSchema {
 		enums = new HashSet<String>();
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#asAnySchema()
+	 */
 	@Override
 	public AnySchema asAnySchema() { return this; }
 	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof AnySchema) {
+			AnySchema that = ((AnySchema)obj);
+			return super.equals(obj) && 
+					enums == null ? that.enums == null : enums.equals(that.enums);
+		} else {
+			return false;
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#isAnySchema()
+	 */
 	@Override
 	public boolean isAnySchema() { return true; }
 	
 	/* (non-Javadoc)
-	 * @see com.fasterxml.jackson.databind.jsonschema.types.Schema#getType()
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#getType()
 	 */
 	@Override
 	public SchemaType getType() {

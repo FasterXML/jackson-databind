@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.jsonschema.factories;
 
 import com.fasterxml.jackson.databind.jsonschema.types.AnySchema;
-import com.fasterxml.jackson.databind.jsonschema.types.Schema;
+import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonAnyFormatVisitor;
 
 public class AnySchemaFactory extends SchemaFactory implements
@@ -16,7 +16,7 @@ public class AnySchemaFactory extends SchemaFactory implements
 		anySchema = new AnySchema();
 	}
 
-	public Schema getSchema() {
+	public JsonSchema getSchema() {
 		return anySchema;
 	}
 	

@@ -13,8 +13,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
-import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsonschema.JsonFormatVisitorAware;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -36,7 +35,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public abstract class BeanSerializerBase
     extends StdSerializer<Object>
     implements ContextualSerializer, ResolvableSerializer,
-        SchemaAware
+        JsonFormatVisitorAware
 {
     final protected static BeanPropertyWriter[] NO_PROPS = new BeanPropertyWriter[0];
 
@@ -629,16 +628,6 @@ public abstract class BeanSerializerBase
     public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
     {
     	JsonObjectFormatVisitor objectVisitor = visitor.objectFormat(typeHint);
-        // [JACKSON-813]: Add optional JSON Schema id attribute, if found
-        // NOTE: not optimal, does NOT go through AnnotationIntrospector etc:
-        JsonSerializableSchema ann = _handledType.getAnnotation(JsonSerializableSchema.class);
-        if (ann != null) {
-            String id = ann.id();
-            if (id != null && id.length() > 0) {
-                //o.put("id", id); what is this?
-                //objectVisitor.expect??
-            }
-        }
  
         BeanPropertyFilter filter;
         if (_propertyFilterId != null) {

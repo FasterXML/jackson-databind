@@ -5,7 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
-public abstract class SimpleTypeSchema extends Schema {
+/**
+ * This class encapsulates the functionality of {@link JsonSchema} simple types
+ * @author jphelan
+ *
+ */
+public abstract class SimpleTypeSchema extends JsonSchema {
 
 	/**
 	 * This attribute defines the default value of the instance when the
@@ -26,11 +31,34 @@ public abstract class SimpleTypeSchema extends Schema {
 	@JsonProperty
 	private String title;
 
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#asSimpleTypeSchema()
+	 */
 	@Override
 	public SimpleTypeSchema asSimpleTypeSchema() {
 		return this;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof SimpleTypeSchema) {
+			SimpleTypeSchema that = (SimpleTypeSchema)obj;
+			return getDefault() == null ? that.getDefault() == null :
+				getDefault().equals(that.getDefault()) &&
+				getDescription() == null ? that.getDescription() == null :
+					getDescription().equals(that.getDescription()) &&
+				getTitle() == null ? that.getTitle() == null :
+					getTitle().equals(that.getTitle()) &&
+				super.equals(obj);
+		} else {
+			return false;
+		}
+	} 
+	
+	
 	/**
 	 * {@link SimpleTypeSchema#defaultdefault}
 	 * 
@@ -59,6 +87,9 @@ public abstract class SimpleTypeSchema extends Schema {
 		return title;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#isSimpleTypeSchema()
+	 */
 	@Override
 	public boolean isSimpleTypeSchema() {
 		return true;

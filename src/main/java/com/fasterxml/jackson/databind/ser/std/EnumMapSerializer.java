@@ -10,8 +10,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsonschema.JsonFormatVisitorAware;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -267,8 +266,8 @@ public class EnumMapSerializer
                 	String name = visitor.getProvider().getConfig().getAnnotationIntrospector().findEnumValue((Enum<?>)enumValue);
                 	try {
                 		ser = visitor.getProvider().findValueSerializer(valueType.getRawClass(), _property);
-                		if (ser instanceof SchemaAware)  {
-                			objectVisitor.property(name, (SchemaAware) ser, valueType);
+                		if (ser instanceof JsonFormatVisitorAware)  {
+                			objectVisitor.property(name, (JsonFormatVisitorAware) ser, valueType);
                 		} 
                 		continue;
                 	} catch (JsonMappingException e) {

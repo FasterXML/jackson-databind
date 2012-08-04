@@ -4,7 +4,7 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonschema.types.JsonValueFormat;
-import com.fasterxml.jackson.databind.jsonschema.types.Schema;
+import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.types.ValueTypeSchema;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonValueFormatVisitor;
 
@@ -15,7 +15,7 @@ public abstract class ValueTypeSchemaFactory extends SchemaFactory implements
 		super(provider);
 	}
 
-	public Schema getSchema() {
+	public JsonSchema getSchema() {
 		return getValueSchema();
 	}
 	protected abstract ValueTypeSchema getValueSchema();

@@ -4,9 +4,9 @@ package com.fasterxml.jackson.databind.jsonschema.factories;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsonschema.JsonFormatVisitorAware;
 import com.fasterxml.jackson.databind.jsonschema.types.ObjectSchema;
-import com.fasterxml.jackson.databind.jsonschema.types.Schema;
+import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -22,17 +22,14 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 		objectSchema = new ObjectSchema();
 	}
 	
-	public Schema getSchema() {
-		// TODO Auto-generated method stub
+	public JsonSchema getSchema() {
 		return objectSchema;
 	}
 
-	private JsonSerializer<Object> getSer(BeanPropertyWriter writer, Class<?> serType) {
+	private JsonSerializer<Object> getSer(BeanPropertyWriter writer) {
 		JsonSerializer<Object> ser = writer.getSerializer();
-		if (ser == null) { // nope
-			if (serType == null) {
-				serType = writer.getPropertyType();
-			}
+		if (ser == null) {
+			Class<?>	serType = writer.getPropertyType();
 			try {
 				return getProvider().findValueSerializer(serType, writer);
 			} catch (JsonMappingException e) {
@@ -42,28 +39,18 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 		return ser;
 	}	
 	
-	private Class<?> writerType(BeanPropertyWriter writer) {
-		
-		//TODO:Will these ever return different types?
-		
-		//JavaType propType = writer.getSerializationType();
-		//Type hint = (propType == null) ? writer.getGenericPropertyType() : propType.getRawClass();
-		return writer.getPropertyType();
-	}
-	
-	protected Schema propertySchema(BeanPropertyWriter writer) {
+	protected JsonSchema propertySchema(BeanPropertyWriter writer) {
 		SchemaFactory visitor = new SchemaFactory(provider);
-		Class<?> serType = writerType(writer);
-		JsonSerializer<Object> ser = getSer(writer, serType);
-		if (ser != null && ser instanceof SchemaAware) {
-			((SchemaAware)ser).acceptJsonFormatVisitor(visitor, writer.getType());
+		JsonSerializer<Object> ser = getSer(writer);
+		if (ser != null && ser instanceof JsonFormatVisitorAware) {
+			((JsonFormatVisitorAware)ser).acceptJsonFormatVisitor(visitor, writer.getType());
 		} else {
 			visitor.anyFormat();
 		}
 		return visitor.finalSchema();
 	}
 	
-	protected Schema propertySchema(SchemaAware handler, JavaType propertyTypeHint) {
+	protected JsonSchema propertySchema(JsonFormatVisitorAware handler, JavaType propertyTypeHint) {
 		SchemaFactory visitor = new SchemaFactory(provider);
 		handler.acceptJsonFormatVisitor(visitor, propertyTypeHint);
 		return visitor.finalSchema();
@@ -77,20 +64,20 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 		objectSchema.putOptionalProperty(writer.getName(), propertySchema(writer));
 	}
 	
-	public void property(String name, SchemaAware handler, JavaType propertyTypeHint) {
+	public void property(String name, JsonFormatVisitorAware handler, JavaType propertyTypeHint) {
 		objectSchema.putProperty(name, propertySchema(handler, propertyTypeHint));
 	}
 	
-	public void optionalProperty(String name, SchemaAware handler, JavaType propertyTypeHint) {
+	public void optionalProperty(String name, JsonFormatVisitorAware handler, JavaType propertyTypeHint) {
 		objectSchema.putOptionalProperty(name, propertySchema(handler, propertyTypeHint));
 	}
 	
 	public void property(String name) {
-		objectSchema.putProperty(name, Schema.minimalForFormat(SchemaType.ANY));
+		objectSchema.putProperty(name, JsonSchema.minimalForFormat(SchemaType.ANY));
 	}
 	
 	public void optionalProperty(String name) {
-		objectSchema.putOptionalProperty(name, Schema.minimalForFormat(SchemaType.ANY));
+		objectSchema.putOptionalProperty(name, JsonSchema.minimalForFormat(SchemaType.ANY));
 	}
 
 }

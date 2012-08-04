@@ -1,15 +1,11 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonObjectFormatVisitor;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;

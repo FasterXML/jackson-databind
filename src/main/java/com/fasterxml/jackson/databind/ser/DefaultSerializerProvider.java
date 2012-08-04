@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsonschema.JsonFormatVisitorAware;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -246,8 +246,8 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
          * type information it needs is accessible via "untyped" serializer)
          */
         JsonSerializer<Object> ser = findValueSerializer(type, null);
-        if (ser instanceof SchemaAware) {
-        	((SchemaAware) ser).acceptJsonFormatVisitor(visitor, constructType(type));
+        if (ser instanceof JsonFormatVisitorAware) {
+        	((JsonFormatVisitorAware) ser).acceptJsonFormatVisitor(visitor, constructType(type));
         } else {
         	visitor.anyFormat();
         }

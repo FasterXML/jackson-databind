@@ -6,8 +6,9 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
-* A primitive type. 
-*/
+ * This class represents a {@link JsonSchema} 
+ * A primitive type. 
+ */
 public abstract class ValueTypeSchema extends SimpleTypeSchema {
 			
 	/**
@@ -42,9 +43,27 @@ public abstract class ValueTypeSchema extends SimpleTypeSchema {
 		enums = new HashSet<String>();
 	}
 	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#asValueSchemaSchema()
+	 */
 	@Override
 	public ValueTypeSchema asValueSchemaSchema() { return this; }
 
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ValueTypeSchema) {
+			ValueTypeSchema that = (ValueTypeSchema) obj;
+			return getEnums() == null ? that.getEnums() == null :
+						getEnums().equals(that.getEnums()) &&
+					getFormat() == null ? that.getFormat() == null :
+						getFormat().equals(that.getFormat()) &&
+					super.equals(obj);
+		}	
+		return false;
+	}
 	
 	/**
 	 * {@link ValueTypeSchema#enums}
@@ -60,6 +79,10 @@ public abstract class ValueTypeSchema extends SimpleTypeSchema {
 	public JsonValueFormat getFormat() {
 		return format;
 	}
+	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#isValueTypeSchema()
+	 */
 	@Override
 	public boolean isValueTypeSchema() { return true; }
 	

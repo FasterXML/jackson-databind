@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsonschema.types.ObjectSchema;
-import com.fasterxml.jackson.databind.jsonschema.types.Schema;
+import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.types.ArraySchema.Items;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -113,41 +113,41 @@ public class TestGenerateJsonSchema
     	DefaultSerializerProvider sp = new DefaultSerializerProvider.Impl();
         ObjectMapper m = new ObjectMapper();
         m.setSerializerProvider(sp);
-        Schema schema = m.generateJsonSchema(SimpleBean.class);
+        JsonSchema jsonSchema = m.generateJsonSchema(SimpleBean.class);
         
-        assertNotNull(schema);
+        assertNotNull(jsonSchema);
 
         // test basic equality, and that equals() handles null, other obs
-        assertTrue(schema.equals(schema));
-        assertFalse(schema.equals(null));
-        assertFalse(schema.equals("foo"));
+        assertTrue(jsonSchema.equals(jsonSchema));
+        assertFalse(jsonSchema.equals(null));
+        assertFalse(jsonSchema.equals("foo"));
 
-        assertTrue(schema.isObjectSchema());
-        ObjectSchema object = schema.asObjectSchema();
+        assertTrue(jsonSchema.isObjectSchema());
+        ObjectSchema object = jsonSchema.asObjectSchema();
         assertNotNull(object);
-        Map<String,Schema> properties = object.getProperties();
+        Map<String,JsonSchema> properties = object.getProperties();
         assertNotNull(properties);
-        Schema prop1 = properties.get("property1");
+        JsonSchema prop1 = properties.get("property1");
         assertNotNull(prop1);
         assertTrue(prop1.isIntegerSchema());
         assertNull(prop1.getRequired());
         
-        Schema prop2 = properties.get("property2");
+        JsonSchema prop2 = properties.get("property2");
         assertNotNull(prop2);
         assertTrue(prop2.isStringSchema());
         assertNull(prop2.getRequired());
         
-        Schema prop3 = properties.get("property3");
+        JsonSchema prop3 = properties.get("property3");
         assertNotNull(prop3);
         assertTrue(prop3.isArraySchema());
         assertNull(prop3.getRequired());
         Items items = prop3.asArraySchema().getItems();
         assertTrue(items.isSingleItems());
-        Schema itemType = items.asSingleItems().getSchema();
+        JsonSchema itemType = items.asSingleItems().getSchema();
         assertNotNull(itemType);
         assertTrue(itemType.isStringSchema());
         
-        Schema prop4 = properties.get("property4");
+        JsonSchema prop4 = properties.get("property4");
         assertNotNull(prop4);
         assertTrue(prop4.isArraySchema());
         assertNull(prop4.getRequired());
@@ -157,7 +157,7 @@ public class TestGenerateJsonSchema
         assertNotNull(itemType);
         assertTrue(itemType.isNumberSchema());
         
-        Schema prop5 = properties.get("property5");
+        JsonSchema prop5 = properties.get("property5");
         assertNotNull(prop5);
         assertTrue(prop5.getRequired());
       
@@ -185,14 +185,14 @@ public class TestGenerateJsonSchema
     public void testGeneratingJsonSchemaWithFilters() throws Exception {
     	ObjectMapper mapper = new ObjectMapper();
     	mapper.setFilters(secretFilterProvider);
-    	Schema schema = mapper.generateJsonSchema(FilteredBean.class);
-    	assertNotNull(schema);
-    	assertTrue(schema.isObjectSchema());
-    	ObjectSchema object = schema.asObjectSchema();
+    	JsonSchema jsonSchema = mapper.generateJsonSchema(FilteredBean.class);
+    	assertNotNull(jsonSchema);
+    	assertTrue(jsonSchema.isObjectSchema());
+    	ObjectSchema object = jsonSchema.asObjectSchema();
     	assertNotNull(object);
-    	Map<String, Schema> properties = object.getProperties();
+    	Map<String, JsonSchema> properties = object.getProperties();
     	assertNotNull(properties);
-    	Schema obvious = properties.get("obvious");
+    	JsonSchema obvious = properties.get("obvious");
     	assertNotNull(obvious);
     	assertTrue(obvious.isStringSchema());
     	assertNull(properties.get("secret"));
@@ -205,7 +205,7 @@ public class TestGenerateJsonSchema
     public void testSchemaSerialization()
             throws Exception
     {
-        Schema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
+        JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
         Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
         assertNotNull(result);
         // no need to check out full structure, just basics...
@@ -232,7 +232,7 @@ public class TestGenerateJsonSchema
      */
     public void testThatObjectsHaveNoItems() throws Exception
     {
-        Schema jsonSchema = MAPPER.generateJsonSchema(TrivialBean.class);
+        JsonSchema jsonSchema = MAPPER.generateJsonSchema(TrivialBean.class);
         Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
         // can we count on ordering being stable? I think this is true with current ObjectNode impl
         // as perh [JACKSON-563]; 'required' is only included if true
@@ -240,14 +240,15 @@ public class TestGenerateJsonSchema
 
     }
 
-    public void testSchemaId() throws Exception
+    @SuppressWarnings({ "unchecked", "rawtypes", "serial" })
+	public void testSchemaId() throws Exception
     {
-        Schema jsonSchema = MAPPER.generateJsonSchema(BeanWithId.class);
+        JsonSchema jsonSchema = MAPPER.generateJsonSchema(BeanWithId.class);
         Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
         
         assertEquals(new HashMap() {{ 
         	put("type", "object");
-        	put("id", "myType");
+        	//put("id", "myType"); /* This is not a correct use of id. see "http://tools.ietf.org/html/draft-zyp-json-schema-03#section-5.27" */
         	put("properties", 
         			new HashMap(){{ put("value", 
         					new HashMap() {{ put("type", "string");}}

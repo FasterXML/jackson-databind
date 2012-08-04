@@ -2,7 +2,13 @@
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class HyperSchema extends Schema {
+/**
+ * This class represents the HyperSchema portion of a {@link JsonSchema}
+ * It is a skeleton intended as a starting point for customization.
+ * @author jphelan
+ *
+ */
+public class HyperSchema extends JsonSchema {
 	
 	
 	/**
@@ -16,7 +22,7 @@ public class HyperSchema extends Schema {
 	/**
 	 * If the instance property value is a string, this attribute defines
 	   that the string SHOULD be interpreted as binary data and decoded
-	   using the encoding named by this schema property.  RFC 2045, Sec 6.1
+	   using the encoding named by this jsonSchema property.  RFC 2045, Sec 6.1
 	   [RFC2045] lists the possible values for this property.
 	 */
 	@JsonProperty
@@ -30,12 +36,12 @@ public class HyperSchema extends Schema {
 	   relative to the instance's URI.
 	
 	   When multiple schemas have been referenced for an instance, the user
-	   agent can determine if this schema is applicable for a particular
+	   agent can determine if this jsonSchema is applicable for a particular
 	   instance by determining if the URI of the instance begins with the
 	   the value of the "pathStart" attribute.  If the URI of the instance
-	   does not start with this URI, or if another schema specifies a
+	   does not start with this URI, or if another jsonSchema specifies a
 	   starting URI that is longer and also matches the instance, this
-	   schema SHOULD NOT be applied to the instance.  Any schema that does
+	   jsonSchema SHOULD NOT be applied to the instance.  Any jsonSchema that does
 	   not have a pathStart attribute SHOULD be considered applicable to all
 	   the instances for which it is referenced.
 	 */
@@ -44,7 +50,7 @@ public class HyperSchema extends Schema {
 	
 	/**
 	 * This attribute defines the media type of the instance representations
-		that this schema is defining.
+		that this jsonSchema is defining.
 	 */
 	@JsonProperty
 	private String mediaType;
@@ -131,11 +137,11 @@ public class HyperSchema extends Schema {
 	
 	/**
 	 *  A link description object is used to describe link relations.  In the
-	   context of a schema, it defines the link relations of the instances
-	   of the schema, and can be parameterized by the instance values.  The
-	   link description format can be used on its own in regular (non-schema
+	   context of a jsonSchema, it defines the link relations of the instances
+	   of the jsonSchema, and can be parameterized by the instance values.  The
+	   link description format can be used on its own in regular (non-jsonSchema
 	   documents), and use of this format can be declared by referencing the
-	   normative link description schema as the the schema for the data
+	   normative link description jsonSchema as the the jsonSchema for the data
 	   structure that uses the links.
 	 */
 	public class LinkDescriptionObject {
@@ -146,8 +152,8 @@ public class HyperSchema extends Schema {
 		   property SHOULD be resolved as a URI-Reference per RFC 3986 [RFC3986]
 		   and MAY be a relative URI.  The base URI to be used for relative
 		   resolution SHOULD be the URI used to retrieve the instance object
-		   (not the schema) when used within a schema.  Also, when links are
-		   used within a schema, the URI SHOULD be parametrized by the property
+		   (not the jsonSchema) when used within a jsonSchema.  Also, when links are
+		   used within a jsonSchema, the URI SHOULD be parametrized by the property
 		   values of the instance object, if property values exist for the
 		   corresponding variables in the template (otherwise they MAY be
 		   provided from alternate sources, like user input).
@@ -180,19 +186,19 @@ public class HyperSchema extends Schema {
 		/**
 		 * The value of the "rel" property indicates the name of the relation to
 		   the target resource.  The relation to the target SHOULD be
-		   interpreted as specifically from the instance object that the schema
-		   (or sub-schema) applies to, not just the top level resource that
+		   interpreted as specifically from the instance object that the jsonSchema
+		   (or sub-jsonSchema) applies to, not just the top level resource that
 		   contains the object within its hierarchy.  If a resource JSON
 		   representation contains a sub object with a property interpreted as a
 		   link, that sub-object holds the relation with the target.  A relation
 		   to target from the top level resource MUST be indicated with the
-		   schema describing the top level JSON representation.
+		   jsonSchema describing the top level JSON representation.
 		
 		   Relationship definitions SHOULD NOT be media type dependent, and
 		   users are encouraged to utilize existing accepted relation
 		   definitions, including those in existing relation registries (see RFC
 		   4287 [RFC4287]).  However, we define these relations here for clarity
-		   of normative interpretation within the context of JSON hyper schema
+		   of normative interpretation within the context of JSON hyper jsonSchema
 		   defined relations:
 		
 		   self  If the relation value is "self", when this property is
@@ -205,7 +211,7 @@ public class HyperSchema extends Schema {
 		      representation for the instance object.  The object that contains
 		      this link possibly may not be the full representation.
 		
-		   describedby  This indicates the target of the link is the schema for
+		   describedby  This indicates the target of the link is the jsonSchema for
 		      the instance object.  This MAY be used to specifically denote the
 		      schemas of objects within a JSON object hierarchy, facilitating
 		      polymorphic type data structures.
@@ -216,17 +222,17 @@ public class HyperSchema extends Schema {
 		      other properties of the instance objects can be regarded as meta-
 		       data descriptions for the data.
 
-		   The following relations are applicable for schemas (the schema as the
+		   The following relations are applicable for schemas (the jsonSchema as the
 		   "from" resource in the relation):
 		
 		   instances  This indicates the target resource that represents
-		      collection of instances of a schema.
+		      collection of instances of a jsonSchema.
 		
 		   create  This indicates a target to use for creating new instances of
-		      a schema.  This link definition SHOULD be a submission link with a
+		      a jsonSchema.  This link definition SHOULD be a submission link with a
 		      non-safe method (like POST).
 		
-		   For example, if a schema is defined:
+		   For example, if a jsonSchema is defined:
 		
 		   {
 		     "links": [
@@ -271,11 +277,11 @@ public class HyperSchema extends Schema {
 		private String rel;
 		
 		/**
-		 * This property value is a schema that defines the expected structure
+		 * This property value is a jsonSchema that defines the expected structure
 			of the JSON representation of the target of the link.
 		 */
 		@JsonProperty
-		private Schema targetSchema;
+		private JsonSchema targetSchema;
 		
 		/**
 		 * This attribute defines which method can be used to access the target
@@ -294,7 +300,7 @@ public class HyperSchema extends Schema {
 		   target URI to query the collection with property-based constraints on
 		   the resources that SHOULD be returned from the server or used to post
 		   data to the resource (depending on the method).  For example, with
-		   the following schema:
+		   the following jsonSchema:
 		
 		   {
 		    "links":[
@@ -321,22 +327,21 @@ public class HyperSchema extends Schema {
 		private String enctype;
 		
 		/**
-		 * This attribute contains a schema which defines the acceptable
-		   structure of the submitted request (for a GET request, this schema
+		 * This attribute contains a jsonSchema which defines the acceptable
+		   structure of the submitted request (for a GET request, this jsonSchema
 		   would define the properties for the query string and for a POST
 		   request, this would define the body).
 		 */
 		@JsonProperty
-		private Schema schema;
+		private JsonSchema jsonSchema;
 		
 	}
 
 	/* (non-Javadoc)
-	 * @see com.fasterxml.jackson.databind.jsonschema.types.Schema#getType()
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#getType()
 	 */
 	@Override
 	public SchemaType getType() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

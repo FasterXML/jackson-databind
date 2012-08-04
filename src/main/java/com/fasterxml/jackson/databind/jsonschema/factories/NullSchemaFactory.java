@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.jsonschema.factories;
 
 import com.fasterxml.jackson.databind.jsonschema.types.NullSchema;
-import com.fasterxml.jackson.databind.jsonschema.types.Schema;
+import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonNullFormatVisitor;
 
 public class NullSchemaFactory extends SchemaFactory implements
@@ -16,7 +16,7 @@ public class NullSchemaFactory extends SchemaFactory implements
 		nullSchema = new NullSchema();
 	}
 
-	public Schema getSchema() {
+	public JsonSchema getSchema() {
 		return nullSchema;
 	}
 

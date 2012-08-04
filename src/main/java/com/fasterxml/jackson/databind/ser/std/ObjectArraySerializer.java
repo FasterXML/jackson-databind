@@ -7,16 +7,11 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
-import com.fasterxml.jackson.databind.type.ArrayType;
 
 /**
  * Generic serializer for Object arrays (<code>Object[]</code>).

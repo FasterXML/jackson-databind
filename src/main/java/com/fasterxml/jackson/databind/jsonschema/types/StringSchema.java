@@ -1,7 +1,13 @@
 package com.fasterxml.jackson.databind.jsonschema.types;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * This represents a {@link JsonSchema} as a String
+ * @author jphelan
+ *
+ */
 public class StringSchema extends ValueTypeSchema {
 
 	/** this defines the maximum length of the string. */
@@ -19,13 +25,36 @@ public class StringSchema extends ValueTypeSchema {
 	@JsonProperty
 	private String pattern;
 	
-	@JsonProperty(required = true)
+	@JsonIgnore
 	private final SchemaType type = SchemaType.STRING;
 
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#asStringSchema()
+	 */
 	@Override
 	public StringSchema asStringSchema() {
 		return this;
 	}
+	
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.ValueTypeSchema#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof StringSchema) {
+			StringSchema that = (StringSchema)obj;
+			return getMaxLength() == null ? that.getMaxLength() == null :
+				getMaxLength().equals(that.getMaxLength()) &&
+				getMinLength() == null ? that.getMinLength() == null :
+					getMinLength().equals(that.getMinLength()) &&
+				getPattern() == null ? that.getPattern() == null :
+					getPattern().equals(that.getPattern()) &&
+				super.equals(obj);
+		} else {
+			return false;
+		}
+	} 
+	
 
 	/**
 	 * {@link StringSchema#maxLength}
@@ -55,13 +84,16 @@ public class StringSchema extends ValueTypeSchema {
 	}
 	
 	/* (non-Javadoc)
-	 * @see com.fasterxml.jackson.databind.jsonschema.types.Schema#getType()
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#getType()
 	 */
 	@Override
 	public SchemaType getType() {
 		return type;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.fasterxml.jackson.databind.jsonschema.types.JsonSchema#isStringSchema()
+	 */
 	@Override
 	public boolean isStringSchema() {
 		return true;

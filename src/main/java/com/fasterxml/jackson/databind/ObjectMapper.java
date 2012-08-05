@@ -461,7 +461,20 @@ public class ObjectMapper
      */
     public ObjectMapper copy()
     {
+        _checkInvalidCopy(ObjectMapper.class);
         return new ObjectMapper(this);
+    }
+
+    /**
+     * @since 2.1
+     * @param exp
+     */
+    protected void _checkInvalidCopy(Class<?> exp)
+    {
+        if (getClass() != exp) {
+            throw new IllegalStateException("Failed copy(): "+getClass().getName()
+                    +" (version: "+version()+") does not override copy(); it has to");
+        }
     }
     
     /*

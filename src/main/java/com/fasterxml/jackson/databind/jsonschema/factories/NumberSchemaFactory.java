@@ -7,11 +7,10 @@ import com.fasterxml.jackson.databind.jsonschema.visitors.JsonNumberFormatVisito
 public class NumberSchemaFactory extends ValueTypeSchemaFactory implements
 		JsonNumberFormatVisitor, SchemaFactoryDelegate {
 
-	protected SchemaFactory parent;
 	protected NumberSchema numberSchema;
 	
 	public NumberSchemaFactory(SchemaFactory parent) {
-		super(parent.provider);
+		super(parent);
 		this.parent = parent;
 		numberSchema = new NumberSchema();
 	}

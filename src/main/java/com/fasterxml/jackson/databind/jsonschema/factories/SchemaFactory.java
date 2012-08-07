@@ -18,8 +18,7 @@ public class SchemaFactory implements JsonFormatVisitor {
 	private SchemaFactoryDelegate delegate;
 	protected SerializerProvider provider;
 
-	public SchemaFactory(SerializerProvider mapper) {
-		this.provider = mapper;
+	public SchemaFactory() {
 	}
 
 	public JsonAnyFormatVisitor anyFormat() {
@@ -47,6 +46,14 @@ public class SchemaFactory implements JsonFormatVisitor {
 
 	}
 
+	/**
+	 * {@link SchemaFactory#provider}
+	 * @param provider the provider to set
+	 */
+	public void setProvider(SerializerProvider provider) {
+		this.provider = provider;
+	}
+	
 	public SerializerProvider getProvider() {
 		return provider;
 	}

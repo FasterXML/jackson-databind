@@ -7,12 +7,10 @@ import com.fasterxml.jackson.databind.jsonschema.visitors.JsonBooleanFormatVisit
 public class BooleanSchemaFactory extends ValueTypeSchemaFactory implements
 		SchemaFactoryDelegate, JsonBooleanFormatVisitor {
 
-	protected SchemaFactory parent;
 	protected BooleanSchema booleanSchema;
 	
 	public BooleanSchemaFactory(SchemaFactory parent) {
-		super(parent.provider);
-		this.parent = parent;
+		super(parent);
 		booleanSchema = new BooleanSchema();
 	}
 

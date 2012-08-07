@@ -17,8 +17,8 @@ public class ArraySchemaFactory extends SchemaFactory implements JsonArrayFormat
 	protected BeanProperty _property;
 	
 	public ArraySchemaFactory(SchemaFactory parent, BeanProperty property) {
-		super(parent.provider);
 		this.parent = parent;
+		setProvider(parent.getProvider());
 		arraySchema = new ArraySchema();
 	}
 
@@ -34,7 +34,8 @@ public class ArraySchemaFactory extends SchemaFactory implements JsonArrayFormat
 			try {
 				ser = getProvider().findValueSerializer(contentType, _property);
 				if (ser instanceof JsonFormatVisitorAware) {
-	            	SchemaFactory visitor = new SchemaFactory(provider);
+	            	SchemaFactory visitor = new SchemaFactory();
+	            	visitor.setProvider(provider);
 	                ((JsonFormatVisitorAware) ser).acceptJsonFormatVisitor(visitor, contentType);
 	                arraySchema.setItemsSchema(visitor.finalSchema());
 	            }

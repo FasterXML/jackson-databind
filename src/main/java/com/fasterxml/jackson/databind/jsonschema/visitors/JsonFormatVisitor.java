@@ -15,5 +15,6 @@ public interface JsonFormatVisitor {
 	public JsonAnyFormatVisitor anyFormat();
 	
 	public SerializerProvider getProvider();
+	public abstract void setProvider(SerializerProvider provider);
 
 }

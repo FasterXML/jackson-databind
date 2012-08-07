@@ -7,10 +7,10 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsonschema.factories.SchemaFactory;
 import com.fasterxml.jackson.databind.jsonschema.types.ObjectSchema;
 import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.types.ArraySchema.Items;
-import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
@@ -110,10 +110,10 @@ public class TestGenerateJsonSchema
     public void testGeneratingJsonSchema()
         throws Exception
     {
-    	DefaultSerializerProvider sp = new DefaultSerializerProvider.Impl();
         ObjectMapper m = new ObjectMapper();
-        m.setSerializerProvider(sp);
-        JsonSchema jsonSchema = m.generateJsonSchema(SimpleBean.class);
+        SchemaFactory visitor = new SchemaFactory();
+        m.acceptJsonFormatVisitor(SimpleBean.class, visitor);
+        JsonSchema jsonSchema = visitor.finalSchema();
         
         assertNotNull(jsonSchema);
 
@@ -185,7 +185,9 @@ public class TestGenerateJsonSchema
     public void testGeneratingJsonSchemaWithFilters() throws Exception {
     	ObjectMapper mapper = new ObjectMapper();
     	mapper.setFilters(secretFilterProvider);
-    	JsonSchema jsonSchema = mapper.generateJsonSchema(FilteredBean.class);
+    	SchemaFactory visitor = new SchemaFactory();
+        mapper.acceptJsonFormatVisitor(FilteredBean.class, visitor);
+        JsonSchema jsonSchema = visitor.finalSchema();
     	assertNotNull(jsonSchema);
     	assertTrue(jsonSchema.isObjectSchema());
     	ObjectSchema object = jsonSchema.asObjectSchema();
@@ -205,7 +207,9 @@ public class TestGenerateJsonSchema
     public void testSchemaSerialization()
             throws Exception
     {
-        JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
+    	SchemaFactory visitor = new SchemaFactory();
+        MAPPER.acceptJsonFormatVisitor(SimpleBean.class, visitor);
+        JsonSchema jsonSchema = visitor.finalSchema();
         Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
         assertNotNull(result);
         // no need to check out full structure, just basics...
@@ -220,7 +224,9 @@ public class TestGenerateJsonSchema
     {
         // not ok to pass null
         try {
-            MAPPER.generateJsonSchema(null);
+        	SchemaFactory visitor = new SchemaFactory();
+            MAPPER.acceptJsonFormatVisitor(null, visitor);
+            JsonSchema jsonSchema = visitor.finalSchema();
             fail("Should have failed");
         } catch (IllegalArgumentException iae) {
             verifyException(iae, "class must be provided");
@@ -232,7 +238,9 @@ public class TestGenerateJsonSchema
      */
     public void testThatObjectsHaveNoItems() throws Exception
     {
-        JsonSchema jsonSchema = MAPPER.generateJsonSchema(TrivialBean.class);
+    	SchemaFactory visitor = new SchemaFactory();
+        MAPPER.acceptJsonFormatVisitor(TrivialBean.class, visitor);
+        JsonSchema jsonSchema = visitor.finalSchema();
         Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
         // can we count on ordering being stable? I think this is true with current ObjectNode impl
         // as perh [JACKSON-563]; 'required' is only included if true
@@ -243,18 +251,17 @@ public class TestGenerateJsonSchema
     @SuppressWarnings({ "unchecked", "rawtypes", "serial" })
 	public void testSchemaId() throws Exception
     {
-        JsonSchema jsonSchema = MAPPER.generateJsonSchema(BeanWithId.class);
+    	SchemaFactory visitor = new SchemaFactory();
+        MAPPER.acceptJsonFormatVisitor(BeanWithId.class, visitor);
+        JsonSchema jsonSchema = visitor.finalSchema();
         Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
         
         assertEquals(new HashMap() {{ 
         	put("type", "object");
-        	//put("id", "myType"); /* This is not a correct use of id. see "http://tools.ietf.org/html/draft-zyp-json-schema-03#section-5.27" */
         	put("properties", 
         			new HashMap(){{ put("value", 
         					new HashMap() {{ put("type", "string");}}
         			);}}
         	);}}, result);
-        //assertEquals("{'type':'object','id':'myType','properties':{'value':{'type':'string'}}}",
-          //      json);
     }
 }

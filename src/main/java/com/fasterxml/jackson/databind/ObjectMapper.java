@@ -26,8 +26,7 @@ import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
-import com.fasterxml.jackson.databind.jsonschema.factories.SchemaFactory;
-import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
@@ -2396,13 +2395,18 @@ public class ObjectMapper
      * instance for specified class.
      *
      * @param t The class to generate schema for
-     * @return Constructed JSON schema.
      */
-    public JsonSchema generateJsonSchema(Class<?> t) throws JsonMappingException {
+    public void acceptJsonFormatVisitor(Class<?> t, JsonFormatVisitor visitor) throws JsonMappingException {
+    	if (t == null) {
+    		throw new IllegalArgumentException("class must be provided");
+    	}
+    	
+    	if (visitor == null) {
+    		return;
+    	}
     	DefaultSerializerProvider provider = _serializerProvider(getSerializationConfig());
-    	SchemaFactory visitor = new SchemaFactory(provider);
-        provider.acceptJsonFormatVisitor(t, visitor);
-        return visitor.finalSchema();
+        visitor.setProvider(provider);
+    	provider.acceptJsonFormatVisitor(t, visitor);
     }
 
     /*

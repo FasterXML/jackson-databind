@@ -8,11 +8,9 @@ public class StringSchemaFactory extends ValueTypeSchemaFactory implements JsonS
 		SchemaFactoryDelegate {
 
 	protected StringSchema stringSchema;
-	protected SchemaFactory parent;
 	
 	public StringSchemaFactory(SchemaFactory parent) {
-		super(parent.provider);
-		this.parent = parent;
+		super(parent);
 		stringSchema = new StringSchema();
 	}
 

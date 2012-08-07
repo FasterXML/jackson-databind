@@ -17,8 +17,8 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 	protected ObjectSchema objectSchema;
 	
 	public ObjectSchemaFactory(SchemaFactory parent) {
-		super(parent.provider);
 		this.parent = parent;
+		setProvider(parent.getProvider());
 		objectSchema = new ObjectSchema();
 	}
 	
@@ -40,7 +40,8 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 	}	
 	
 	protected JsonSchema propertySchema(BeanPropertyWriter writer) {
-		SchemaFactory visitor = new SchemaFactory(provider);
+		SchemaFactory visitor = new SchemaFactory();
+		visitor.setProvider(provider);
 		JsonSerializer<Object> ser = getSer(writer);
 		if (ser != null && ser instanceof JsonFormatVisitorAware) {
 			((JsonFormatVisitorAware)ser).acceptJsonFormatVisitor(visitor, writer.getType());
@@ -51,7 +52,8 @@ public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectForm
 	}
 	
 	protected JsonSchema propertySchema(JsonFormatVisitorAware handler, JavaType propertyTypeHint) {
-		SchemaFactory visitor = new SchemaFactory(provider);
+		SchemaFactory visitor = new SchemaFactory();
+		visitor.setProvider(provider);
 		handler.acceptJsonFormatVisitor(visitor, propertyTypeHint);
 		return visitor.finalSchema();
 	}

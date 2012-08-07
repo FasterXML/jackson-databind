@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.jsonschema;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.jsonschema.factories.SchemaFactory;
 import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 
 /**
@@ -50,7 +51,9 @@ public class TestReadJsonSchema
     public void testDeserializeSimple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        JsonSchema jsonSchema = mapper.generateJsonSchema(Schemable.class);
+        SchemaFactory visitor = new SchemaFactory();
+        mapper.acceptJsonFormatVisitor(Schemable.class, visitor);
+        JsonSchema jsonSchema = visitor.finalSchema();
         assertNotNull(jsonSchema);
 
         String schemaStr = mapper.writeValueAsString(jsonSchema);

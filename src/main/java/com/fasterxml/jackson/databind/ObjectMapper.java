@@ -2148,7 +2148,7 @@ public class ObjectMapper
      * pass specific schema object to {@link JsonGenerator} used for
      * writing content.
      * 
-     * @param schema JsonSchema to pass to generator
+     * @param schema Schema to pass to generator
      */
     public ObjectWriter writer(FormatSchema schema) {
         return new ObjectWriter(this, getSerializationConfig(), schema);

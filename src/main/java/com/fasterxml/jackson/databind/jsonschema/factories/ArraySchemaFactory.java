@@ -57,8 +57,6 @@ public class ArraySchemaFactory extends SchemaFactory
         }
 	}
 	
-	public void itemsFormat(JsonFormatVisitorAware toVisit) {}
-	
 	public void itemsFormat(SchemaType format) {
 		arraySchema.setItemsSchema(JsonSchema.minimalForFormat(format));
 	}

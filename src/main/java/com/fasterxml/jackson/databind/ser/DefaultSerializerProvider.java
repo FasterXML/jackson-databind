@@ -249,7 +249,7 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
         if (ser instanceof JsonFormatVisitorAware) {
         	((JsonFormatVisitorAware) ser).acceptJsonFormatVisitor(visitor, constructType(type));
         } else {
-        	visitor.anyFormat();
+        	visitor.anyFormat(constructType(type));
         }
     }
     /**

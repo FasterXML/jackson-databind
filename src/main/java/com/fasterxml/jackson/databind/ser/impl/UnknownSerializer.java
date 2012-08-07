@@ -43,7 +43,7 @@ public class UnknownSerializer
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint) { 
-    	visitor.anyFormat();
+    	visitor.anyFormat(typeHint);
     }
 
     protected void failForEmpty(Object value) throws JsonMappingException

@@ -2,9 +2,10 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.*;
-
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 
@@ -33,6 +34,6 @@ public class NullSerializer
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
     {
-    	visitor.nullFormat();
+    	visitor.nullFormat(typeHint);
     }
 }

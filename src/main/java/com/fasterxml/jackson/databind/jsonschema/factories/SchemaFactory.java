@@ -21,17 +21,17 @@ public class SchemaFactory implements JsonFormatVisitor {
 	public SchemaFactory() {
 	}
 
-	public JsonAnyFormatVisitor anyFormat() {
+	public JsonAnyFormatVisitor anyFormat(JavaType convertedType) {
 		delegate = new AnySchemaFactory(this);
 		return (JsonAnyFormatVisitor) delegate;
 	}
 
-	public JsonArrayFormatVisitor arrayFormat(JavaType elementType) {
+	public JsonArrayFormatVisitor arrayFormat(JavaType convertedType) {
 		delegate = new ArraySchemaFactory(this);
 		return (JsonArrayFormatVisitor) delegate;
 	}
 
-	public JsonBooleanFormatVisitor booleanFormat() {
+	public JsonBooleanFormatVisitor booleanFormat(JavaType convertedType) {
 		delegate = new BooleanSchemaFactory(this);
 		return (JsonBooleanFormatVisitor) delegate;
 	}
@@ -58,28 +58,28 @@ public class SchemaFactory implements JsonFormatVisitor {
 		return provider;
 	}
 
-	public JsonIntegerFormatVisitor integerFormat() {
+	public JsonIntegerFormatVisitor integerFormat(JavaType convertedType) {
 		delegate = new IntegerSchemaFactory(this);
 		return (JsonIntegerFormatVisitor) delegate;
 	}
 
-	public JsonNullFormatVisitor nullFormat() {
+	public JsonNullFormatVisitor nullFormat(JavaType convertedType) {
 		delegate = new NullSchemaFactory(this);
 		return (JsonNullFormatVisitor) delegate;
 	}
 
-	public JsonNumberFormatVisitor numberFormat() {
+	public JsonNumberFormatVisitor numberFormat(JavaType convertedType) {
 		delegate = new NumberSchemaFactory(this);
 		return (JsonNumberFormatVisitor) delegate;
 	}
 
-	public JsonObjectFormatVisitor objectFormat(JavaType type) {
+	public JsonObjectFormatVisitor objectFormat(JavaType convertedType) {
 		// BasicClassIntrospector.instance.
 		delegate = new ObjectSchemaFactory(this);
 		return (JsonObjectFormatVisitor) delegate;
 	}
 
-	public JsonStringFormatVisitor stringFormat() {
+	public JsonStringFormatVisitor stringFormat(JavaType convertedType) {
 		delegate = new StringSchemaFactory(this);
 		return (JsonStringFormatVisitor) delegate;
 	}

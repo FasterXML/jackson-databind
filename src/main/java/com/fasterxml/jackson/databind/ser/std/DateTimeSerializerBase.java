@@ -9,7 +9,12 @@ import java.util.TimeZone;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonschema.types.JsonValueFormat;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
@@ -111,9 +116,9 @@ public abstract class DateTimeSerializerBase<T>
             }
         }
         if (asNumber) {
-        	visitor.numberFormat().format(JsonValueFormat.UTC_MILLISEC);
+        	visitor.numberFormat(typeHint).format(JsonValueFormat.UTC_MILLISEC);
         } else {
-        	visitor.stringFormat().format(JsonValueFormat.DATE_TIME);
+        	visitor.stringFormat(typeHint).format(JsonValueFormat.DATE_TIME);
         }
     }
 

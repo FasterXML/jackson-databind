@@ -5,14 +5,14 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 public interface JsonFormatVisitor {
 
-	public JsonObjectFormatVisitor objectFormat(JavaType type);
-	public JsonArrayFormatVisitor arrayFormat(JavaType elementType);
-	public JsonStringFormatVisitor stringFormat();
-	public JsonNumberFormatVisitor numberFormat();
-	public JsonIntegerFormatVisitor integerFormat();
-	public JsonBooleanFormatVisitor booleanFormat();
-	public JsonNullFormatVisitor nullFormat();
-	public JsonAnyFormatVisitor anyFormat();
+	public JsonObjectFormatVisitor objectFormat(JavaType convertedType);
+	public JsonArrayFormatVisitor arrayFormat(JavaType convertedType);
+	public JsonStringFormatVisitor stringFormat(JavaType convertedType);
+	public JsonNumberFormatVisitor numberFormat(JavaType convertedType);
+	public JsonIntegerFormatVisitor integerFormat(JavaType convertedType);
+	public JsonBooleanFormatVisitor booleanFormat(JavaType convertedType);
+	public JsonNullFormatVisitor nullFormat(JavaType convertedType);
+	public JsonAnyFormatVisitor anyFormat(JavaType convertedType);
 	
 	public SerializerProvider getProvider();
 	public abstract void setProvider(SerializerProvider provider);

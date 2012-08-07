@@ -3,9 +3,8 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.core.*;
-
-
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,6 +48,6 @@ public class SerializableSerializer
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
     {
-    	visitor.anyFormat();
+    	visitor.anyFormat(typeHint);
     }
     }

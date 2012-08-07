@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.jsonschema.factories;
 
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.jsonschema.types.JsonValueFormat;
 import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
+import com.fasterxml.jackson.databind.jsonschema.types.JsonValueFormat;
 import com.fasterxml.jackson.databind.jsonschema.types.ValueTypeSchema;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonValueFormatVisitor;
 

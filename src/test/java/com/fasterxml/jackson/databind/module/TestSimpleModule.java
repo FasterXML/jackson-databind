@@ -53,7 +53,7 @@ public class TestSimpleModule extends BaseMapTest
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint) {
-            visitor.anyFormat();
+            visitor.anyFormat(typeHint);
         }
     }
     
@@ -87,7 +87,7 @@ public class TestSimpleModule extends BaseMapTest
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint) {
-            visitor.anyFormat();
+            visitor.anyFormat(typeHint);
         }
     }
 

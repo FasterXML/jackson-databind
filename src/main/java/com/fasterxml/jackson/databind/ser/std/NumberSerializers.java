@@ -5,8 +5,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
 
@@ -73,7 +76,7 @@ public class NumberSerializers
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
         {
-        	visitor.integerFormat();
+        	visitor.integerFormat(typeHint);
         }
     }
 
@@ -100,7 +103,7 @@ public class NumberSerializers
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
         {
-        	visitor.integerFormat();
+        	visitor.integerFormat(typeHint);
         }
     }
 
@@ -122,7 +125,7 @@ public class NumberSerializers
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
         {
-        	visitor.numberFormat();
+        	visitor.numberFormat(typeHint);
         }
     }
     
@@ -144,7 +147,7 @@ public class NumberSerializers
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
         {
-        	visitor.numberFormat();
+        	visitor.numberFormat(typeHint);
         }
     }
 
@@ -173,7 +176,7 @@ public class NumberSerializers
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
         {
-        	visitor.numberFormat();
+        	visitor.numberFormat(typeHint);
         }
     }
     
@@ -221,7 +224,7 @@ public class NumberSerializers
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
         {
-        	visitor.numberFormat();
+        	visitor.numberFormat(typeHint);
         }
     }
 }

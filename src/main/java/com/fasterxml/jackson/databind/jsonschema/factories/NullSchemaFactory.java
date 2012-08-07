@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.jsonschema.types.NullSchema;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonNullFormatVisitor;
 
 public class NullSchemaFactory extends SchemaFactory implements
-		JsonNullFormatVisitor, SchemaFactoryDelegate {
+		JsonNullFormatVisitor {
 
 	protected SchemaFactory parent;
 	protected NullSchema nullSchema;

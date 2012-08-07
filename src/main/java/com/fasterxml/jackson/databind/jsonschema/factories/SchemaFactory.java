@@ -1,15 +1,12 @@
 package com.fasterxml.jackson.databind.jsonschema.factories;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 
 public abstract class SchemaFactory {
 
 	
 	protected SerializerProvider provider;
-
-	public SchemaFactory() {
-	}
-
 	
 
 	/**
@@ -24,5 +21,6 @@ public abstract class SchemaFactory {
 		return provider;
 	}
 
+	public abstract JsonSchema getSchema();
 	
 }

@@ -13,7 +13,8 @@ import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 
-public class ObjectSchemaFactory extends SchemaFactory implements JsonObjectFormatVisitor, SchemaFactoryDelegate {
+public class ObjectSchemaFactory extends SchemaFactory 
+	implements JsonObjectFormatVisitor {
 
 	protected SchemaFactory parent;
 	protected ObjectSchema objectSchema;

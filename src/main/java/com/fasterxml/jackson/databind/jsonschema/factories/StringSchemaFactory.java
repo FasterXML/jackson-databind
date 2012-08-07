@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.jsonschema.types.StringSchema;
 import com.fasterxml.jackson.databind.jsonschema.types.ValueTypeSchema;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonStringFormatVisitor;
 
-public class StringSchemaFactory extends ValueTypeSchemaFactory implements JsonStringFormatVisitor,
-		SchemaFactoryDelegate {
+public class StringSchemaFactory extends ValueTypeSchemaFactory 
+	implements JsonStringFormatVisitor{
 
 	protected StringSchema stringSchema;
 	

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonAnyFormatVisitor;
 
 public class AnySchemaFactory extends SchemaFactory implements
-		JsonAnyFormatVisitor, SchemaFactoryDelegate {
+		JsonAnyFormatVisitor {
 
 	protected SchemaFactory parent;
 	protected AnySchema anySchema;

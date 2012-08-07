@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.jsonschema.types.ValueTypeSchema;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonValueFormatVisitor;
 
 public abstract class ValueTypeSchemaFactory extends SchemaFactory implements
-		SchemaFactoryDelegate, JsonValueFormatVisitor {
+	JsonValueFormatVisitor {
 
 	protected SchemaFactory parent; 
 	

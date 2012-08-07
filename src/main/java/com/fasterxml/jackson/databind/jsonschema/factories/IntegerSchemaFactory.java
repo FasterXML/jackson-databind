@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.jsonschema.types.ValueTypeSchema;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonIntegerFormatVisitor;
 
 public class IntegerSchemaFactory extends ValueTypeSchemaFactory implements
-		JsonIntegerFormatVisitor, SchemaFactoryDelegate {
+		JsonIntegerFormatVisitor {
 
 	protected IntegerSchema integerSchema;
 	

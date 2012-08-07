@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.jsonschema.types.ValueTypeSchema;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonBooleanFormatVisitor;
 
 public class BooleanSchemaFactory extends ValueTypeSchemaFactory implements
-		SchemaFactoryDelegate, JsonBooleanFormatVisitor {
+	JsonBooleanFormatVisitor {
 
 	protected BooleanSchema booleanSchema;
 	

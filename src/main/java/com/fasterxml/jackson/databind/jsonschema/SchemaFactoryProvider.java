@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.jsonschema.visitors.JsonStringFormatVisito
 public class SchemaFactoryProvider implements JsonFormatVisitorWrapper{
 
 	protected SerializerProvider provider;
-	private SchemaFactoryDelegate delegate;
+	private SchemaFactory delegate;
 	
 	/**
 	 * {@link SchemaFactory#provider}

@@ -12,7 +12,8 @@ import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonArrayFormatVisitor;
 
-public class ArraySchemaFactory extends SchemaFactory implements JsonArrayFormatVisitor, SchemaFactoryDelegate {
+public class ArraySchemaFactory extends SchemaFactory 
+	implements JsonArrayFormatVisitor {
 
 	protected SchemaFactory parent; 
 	protected ArraySchema arraySchema;

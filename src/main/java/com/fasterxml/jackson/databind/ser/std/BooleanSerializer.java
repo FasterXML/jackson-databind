@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 
 /**
  * Serializer used for primitive boolean, as well as java.util.Boolean
@@ -40,8 +40,8 @@ public final class BooleanSerializer
     }
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-        visitor.booleanFormat(typeHint);
+        visitor.expectBooleanFormat(typeHint);
     }
 }

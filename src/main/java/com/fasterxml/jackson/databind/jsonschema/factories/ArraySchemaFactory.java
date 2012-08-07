@@ -4,7 +4,9 @@ import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonschema.JsonFormatVisitorAware;
+import com.fasterxml.jackson.databind.jsonschema.SchemaFactoryProvider;
 import com.fasterxml.jackson.databind.jsonschema.types.ArraySchema;
 import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
@@ -26,6 +28,15 @@ public class ArraySchemaFactory extends SchemaFactory implements JsonArrayFormat
 		this(schemaFactory, null);
 	}
 
+	/**
+	 * @param provider
+	 */
+	public ArraySchemaFactory(SerializerProvider provider) {
+		parent = null;
+		setProvider(provider);
+		arraySchema = new ArraySchema();
+	}
+
 	public void itemsFormat(JavaType contentType) {
 		// An array of object matches any values, thus we leave the schema empty.
         if (contentType.getRawClass() != Object.class) {
@@ -34,7 +45,7 @@ public class ArraySchemaFactory extends SchemaFactory implements JsonArrayFormat
 			try {
 				ser = getProvider().findValueSerializer(contentType, _property);
 				if (ser instanceof JsonFormatVisitorAware) {
-	            	SchemaFactory visitor = new SchemaFactory();
+	            	SchemaFactoryProvider visitor = new SchemaFactoryProvider();
 	            	visitor.setProvider(provider);
 	                ((JsonFormatVisitorAware) ser).acceptJsonFormatVisitor(visitor, contentType);
 	                arraySchema.setItemsSchema(visitor.finalSchema());

@@ -7,7 +7,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.module.SimpleDeserializers;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.module.SimpleSerializers;
@@ -52,8 +52,8 @@ public class TestSimpleModule extends BaseMapTest
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint) {
-            visitor.anyFormat(typeHint);
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
+            visitor.expectAnyFormat(typeHint);
         }
     }
     
@@ -86,8 +86,8 @@ public class TestSimpleModule extends BaseMapTest
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint) {
-            visitor.anyFormat(typeHint);
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
+            visitor.expectAnyFormat(typeHint);
         }
     }
 

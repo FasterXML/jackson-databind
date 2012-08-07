@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonschema.JsonFormatVisitorAware;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -638,9 +638,10 @@ public abstract class BeanSerializerBase
         return filter;
     }
     
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-    	JsonObjectFormatVisitor objectVisitor = visitor.objectFormat(typeHint);
+    	//deposit your output format 
+    	JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
  
         if (_propertyFilterId != null) {
         	try {

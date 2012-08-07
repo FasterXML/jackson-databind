@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsonschema.JsonFormatVisitorAware;
 import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
 
-public interface JsonArrayFormatVisitor {
+public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializerProvider {
 
 	void itemsFormat(JavaType contentType);
 

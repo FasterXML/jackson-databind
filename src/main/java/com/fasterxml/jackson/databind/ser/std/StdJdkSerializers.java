@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.BasicSerializerFactory;
 import com.fasterxml.jackson.databind.util.Provider;
 
@@ -87,9 +87,9 @@ public class StdJdkSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.booleanFormat(typeHint);
+        	visitor.expectBooleanFormat(typeHint);
         }
     }
     
@@ -106,9 +106,9 @@ public class StdJdkSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.integerFormat(typeHint);
+        	visitor.expectIntegerFormat(typeHint);
         }
     }
 
@@ -125,9 +125,9 @@ public class StdJdkSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.integerFormat(typeHint);
+        	visitor.expectIntegerFormat(typeHint);
         }
     }
     
@@ -144,9 +144,9 @@ public class StdJdkSerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.anyFormat(typeHint);
+        	visitor.expectAnyFormat(typeHint);
         }
     }
     
@@ -173,9 +173,9 @@ public class StdJdkSerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.stringFormat(typeHint);
+        	visitor.expectStringFormat(typeHint);
         }
     }
 
@@ -196,9 +196,9 @@ public class StdJdkSerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.stringFormat(typeHint);
+        	visitor.expectStringFormat(typeHint);
         }
     }
 }

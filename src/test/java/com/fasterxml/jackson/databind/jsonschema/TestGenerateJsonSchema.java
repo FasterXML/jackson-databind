@@ -111,7 +111,7 @@ public class TestGenerateJsonSchema
         throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        SchemaFactory visitor = new SchemaFactory();
+        SchemaFactoryProvider visitor = new SchemaFactoryProvider();
         m.acceptJsonFormatVisitor(SimpleBean.class, visitor);
         JsonSchema jsonSchema = visitor.finalSchema();
         
@@ -185,7 +185,7 @@ public class TestGenerateJsonSchema
     public void testGeneratingJsonSchemaWithFilters() throws Exception {
     	ObjectMapper mapper = new ObjectMapper();
     	mapper.setFilters(secretFilterProvider);
-    	SchemaFactory visitor = new SchemaFactory();
+    	SchemaFactoryProvider visitor = new SchemaFactoryProvider();
         mapper.acceptJsonFormatVisitor(FilteredBean.class, visitor);
         JsonSchema jsonSchema = visitor.finalSchema();
     	assertNotNull(jsonSchema);
@@ -207,7 +207,7 @@ public class TestGenerateJsonSchema
     public void testSchemaSerialization()
             throws Exception
     {
-    	SchemaFactory visitor = new SchemaFactory();
+    	SchemaFactoryProvider visitor = new SchemaFactoryProvider();
         MAPPER.acceptJsonFormatVisitor(SimpleBean.class, visitor);
         JsonSchema jsonSchema = visitor.finalSchema();
         Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
@@ -224,7 +224,7 @@ public class TestGenerateJsonSchema
     {
         // not ok to pass null
         try {
-        	SchemaFactory visitor = new SchemaFactory();
+        	SchemaFactoryProvider visitor = new SchemaFactoryProvider();
             MAPPER.acceptJsonFormatVisitor(null, visitor);
             JsonSchema jsonSchema = visitor.finalSchema();
             fail("Should have failed");
@@ -238,7 +238,7 @@ public class TestGenerateJsonSchema
      */
     public void testThatObjectsHaveNoItems() throws Exception
     {
-    	SchemaFactory visitor = new SchemaFactory();
+    	SchemaFactoryProvider visitor = new SchemaFactoryProvider();
         MAPPER.acceptJsonFormatVisitor(TrivialBean.class, visitor);
         JsonSchema jsonSchema = visitor.finalSchema();
         Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
@@ -251,7 +251,7 @@ public class TestGenerateJsonSchema
     @SuppressWarnings({ "unchecked", "rawtypes", "serial" })
 	public void testSchemaId() throws Exception
     {
-    	SchemaFactory visitor = new SchemaFactory();
+    	SchemaFactoryProvider visitor = new SchemaFactoryProvider();
         MAPPER.acceptJsonFormatVisitor(BeanWithId.class, visitor);
         JsonSchema jsonSchema = visitor.finalSchema();
         Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);

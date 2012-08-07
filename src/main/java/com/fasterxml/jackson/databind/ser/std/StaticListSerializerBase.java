@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonArrayFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 
 /**
  * Intermediate base class for Lists, Collections and Arrays
@@ -23,9 +23,9 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-    	acceptContentVisitor(visitor.arrayFormat(typeHint));
+    	acceptContentVisitor(visitor.expectArrayFormat(typeHint));
     }
 
     /*

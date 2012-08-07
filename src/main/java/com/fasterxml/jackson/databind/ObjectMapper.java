@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
@@ -2396,7 +2396,7 @@ public class ObjectMapper
      *
      * @param t The class to generate schema for
      */
-    public void acceptJsonFormatVisitor(Class<?> t, JsonFormatVisitor visitor) throws JsonMappingException {
+    public void acceptJsonFormatVisitor(Class<?> t, JsonFormatVisitorWrapper visitor) throws JsonMappingException {
     	if (t == null) {
     		throw new IllegalArgumentException("class must be provided");
     	}

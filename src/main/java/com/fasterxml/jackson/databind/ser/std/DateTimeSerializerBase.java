@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonschema.types.JsonValueFormat;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
@@ -106,7 +106,7 @@ public abstract class DateTimeSerializerBase<T>
 
     protected abstract long _timestamp(T value);
     
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
         //todo: (ryan) add a format for the date in the schema?
         boolean asNumber = _useTimestamp;
@@ -116,9 +116,9 @@ public abstract class DateTimeSerializerBase<T>
             }
         }
         if (asNumber) {
-        	visitor.numberFormat(typeHint).format(JsonValueFormat.UTC_MILLISEC);
+        	visitor.expectNumberFormat(typeHint).format(JsonValueFormat.UTC_MILLISEC);
         } else {
-        	visitor.stringFormat(typeHint).format(JsonValueFormat.DATE_TIME);
+        	visitor.expectStringFormat(typeHint).format(JsonValueFormat.DATE_TIME);
         }
     }
 

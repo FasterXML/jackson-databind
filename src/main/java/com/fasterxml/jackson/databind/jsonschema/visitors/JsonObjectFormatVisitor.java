@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsonschema.JsonFormatVisitorAware;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 
-public interface JsonObjectFormatVisitor extends JsonFormatVisitor {
+public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializerProvider {
 
 	public void property(BeanPropertyWriter writer);
 

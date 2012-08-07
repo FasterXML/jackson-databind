@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -133,9 +133,9 @@ public class StdArraySerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.arrayFormat(typeHint).itemsFormat(SchemaType.BOOLEAN);
+        	visitor.expectArrayFormat(typeHint).itemsFormat(SchemaType.BOOLEAN);
         }
     }
 
@@ -177,9 +177,9 @@ public class StdArraySerializers
         }
         
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.arrayFormat(typeHint).itemsFormat(SchemaType.STRING);
+        	visitor.expectArrayFormat(typeHint).itemsFormat(SchemaType.STRING);
         }
     }
 
@@ -240,9 +240,9 @@ public class StdArraySerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.arrayFormat(typeHint).itemsFormat(SchemaType.INTEGER);
+        	visitor.expectArrayFormat(typeHint).itemsFormat(SchemaType.INTEGER);
         }
     }
 
@@ -304,9 +304,9 @@ public class StdArraySerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.arrayFormat(typeHint).itemsFormat(SchemaType.STRING);
+        	visitor.expectArrayFormat(typeHint).itemsFormat(SchemaType.STRING);
         }
     }
 
@@ -359,9 +359,9 @@ public class StdArraySerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.arrayFormat(typeHint).itemsFormat(SchemaType.INTEGER);
+        	visitor.expectArrayFormat(typeHint).itemsFormat(SchemaType.INTEGER);
         }
     }
 
@@ -423,9 +423,9 @@ public class StdArraySerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.arrayFormat(typeHint).itemsFormat(SchemaType.NUMBER);
+        	visitor.expectArrayFormat(typeHint).itemsFormat(SchemaType.NUMBER);
         }
     }
 
@@ -488,9 +488,9 @@ public class StdArraySerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.arrayFormat(typeHint).itemsFormat(SchemaType.NUMBER);
+        	visitor.expectArrayFormat(typeHint).itemsFormat(SchemaType.NUMBER);
         }
     }
 
@@ -543,9 +543,9 @@ public class StdArraySerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.arrayFormat(typeHint).itemsFormat(SchemaType.NUMBER);
+        	visitor.expectArrayFormat(typeHint).itemsFormat(SchemaType.NUMBER);
         }
     }
 }

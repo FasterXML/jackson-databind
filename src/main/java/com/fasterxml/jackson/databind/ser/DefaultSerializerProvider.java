@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonschema.JsonFormatVisitorAware;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -236,7 +236,7 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
      *
      * @param type The type for which to generate schema
      */
-    public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitor visitor)
+    public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitorWrapper visitor)
         throws JsonMappingException
     {
         if (type == null) {
@@ -249,7 +249,7 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
         if (ser instanceof JsonFormatVisitorAware) {
         	((JsonFormatVisitorAware) ser).acceptJsonFormatVisitor(visitor, constructType(type));
         } else {
-        	visitor.anyFormat(constructType(type));
+        	visitor.expectAnyFormat(constructType(type));
         }
     }
     /**

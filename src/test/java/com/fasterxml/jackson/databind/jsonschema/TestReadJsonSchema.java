@@ -51,7 +51,7 @@ public class TestReadJsonSchema
     public void testDeserializeSimple() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        SchemaFactory visitor = new SchemaFactory();
+        SchemaFactoryProvider visitor = new SchemaFactoryProvider();
         mapper.acceptJsonFormatVisitor(Schemable.class, visitor);
         JsonSchema jsonSchema = visitor.finalSchema();
         assertNotNull(jsonSchema);

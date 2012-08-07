@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.JsonFormatVisitorAware;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -255,9 +255,9 @@ public class EnumMapSerializer
     
     @SuppressWarnings("unchecked")
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-    	JsonObjectFormatVisitor objectVisitor = visitor.objectFormat(typeHint);
+    	JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
         if (typeHint instanceof ParameterizedType) {
             Type[] typeArgs = ((ParameterizedType) typeHint).getActualTypeArguments();
             if (typeArgs.length == 2) {

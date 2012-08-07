@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.JsonFormatVisitorAware;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 
 /**
  * Base class used by all standard serializers, and can also
@@ -83,8 +83,8 @@ public abstract class StdSerializer<T>
      * overriden by custom serializers.
      */
 //  @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint) { 
-    	visitor.anyFormat(typeHint);
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) { 
+    	visitor.expectAnyFormat(typeHint);
     }
             
     /*

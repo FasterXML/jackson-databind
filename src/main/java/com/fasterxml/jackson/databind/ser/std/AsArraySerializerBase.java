@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonschema.visitors.JsonArrayFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
@@ -171,7 +171,7 @@ public abstract class AsArraySerializerBase<T>
         throws IOException, JsonGenerationException;
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
         /* 15-Jan-2010, tatu: This should probably be rewritten, given that
          *    more information about content type is actually being explicitly
@@ -180,7 +180,7 @@ public abstract class AsArraySerializerBase<T>
          */
         //ObjectNode o = createSchemaNode("array", true);
         JsonArrayFormatVisitor arrayVisitor = 
-        		visitor.arrayFormat(typeHint);
+        		visitor.expectArrayFormat(typeHint);
         JavaType contentType = null;
         if (typeHint != null) {
             contentType = typeHint.getContentType();

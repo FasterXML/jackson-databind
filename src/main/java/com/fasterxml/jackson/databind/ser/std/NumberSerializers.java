@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 
 /**
  * Container class for serializers used for handling standard JDK-provided types.
@@ -74,9 +74,9 @@ public class NumberSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.integerFormat(typeHint);
+        	visitor.expectIntegerFormat(typeHint);
         }
     }
 
@@ -101,9 +101,9 @@ public class NumberSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.integerFormat(typeHint);
+        	visitor.expectIntegerFormat(typeHint);
         }
     }
 
@@ -123,9 +123,9 @@ public class NumberSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.numberFormat(typeHint);
+        	visitor.expectNumberFormat(typeHint);
         }
     }
     
@@ -145,9 +145,9 @@ public class NumberSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.numberFormat(typeHint);
+        	visitor.expectNumberFormat(typeHint);
         }
     }
 
@@ -174,9 +174,9 @@ public class NumberSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.numberFormat(typeHint);
+        	visitor.expectNumberFormat(typeHint);
         }
     }
     
@@ -222,9 +222,9 @@ public class NumberSerializers
         }
     
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
-        	visitor.numberFormat(typeHint);
+        	visitor.expectNumberFormat(typeHint);
         }
     }
 }

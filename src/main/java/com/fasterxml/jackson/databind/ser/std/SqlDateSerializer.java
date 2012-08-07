@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonschema.types.JsonValueFormat;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 
 /**
  * Compared to regular {@link java.util.Date} serialization, we do use String
@@ -29,8 +29,8 @@ public class SqlDateSerializer
     }
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitor visitor, JavaType typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-    	visitor.stringFormat(typeHint).format(JsonValueFormat.DATE_TIME);
+    	visitor.expectStringFormat(typeHint).format(JsonValueFormat.DATE_TIME);
     }
 }

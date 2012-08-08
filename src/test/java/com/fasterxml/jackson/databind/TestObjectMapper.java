@@ -15,6 +15,14 @@ public class TestObjectMapper extends BaseMapTest
         
         public void setX(int v) { value = v; }
     }
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+    
+    final static ObjectMapper MAPPER = new ObjectMapper();
     
     public void testProps()
     {
@@ -28,23 +36,20 @@ public class TestObjectMapper extends BaseMapTest
 
     public void testSupport()
     {
-        ObjectMapper m = new ObjectMapper();
-        assertTrue(m.canSerialize(String.class));
-
-        assertTrue(m.canDeserialize(TypeFactory.defaultInstance().constructType(String.class)));
+        assertTrue(MAPPER.canSerialize(String.class));
+        assertTrue(MAPPER.canDeserialize(TypeFactory.defaultInstance().constructType(String.class)));
     }
 
     public void testTreeRead() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         String JSON = "{ }";
-        JsonNode n = m.readTree(JSON);
+        JsonNode n = MAPPER.readTree(JSON);
         assertTrue(n instanceof ObjectNode);
 
-        n = m.readTree(new StringReader(JSON));
+        n = MAPPER.readTree(new StringReader(JSON));
         assertTrue(n instanceof ObjectNode);
 
-        n = m.readTree(new ByteArrayInputStream(JSON.getBytes("UTF-8")));
+        n = MAPPER.readTree(new ByteArrayInputStream(JSON.getBytes("UTF-8")));
         assertTrue(n instanceof ObjectNode);
     }
 
@@ -76,12 +81,11 @@ public class TestObjectMapper extends BaseMapTest
     public void testJsonFactoryLinkage()
     {
         // first, implicit factory, giving implicit linkage
-        ObjectMapper m = new ObjectMapper();
-        assertSame(m, m.getJsonFactory().getCodec());
+        assertSame(MAPPER, MAPPER.getJsonFactory().getCodec());
 
         // and then explicit factory, which should also be implicitly linked
         JsonFactory f = new JsonFactory();
-        m = new ObjectMapper(f);
+        ObjectMapper m = new ObjectMapper(f);
         assertSame(f, m.getJsonFactory());
         assertSame(m, f.getCodec());
     }
@@ -91,13 +95,45 @@ public class TestObjectMapper extends BaseMapTest
      */
     public void testProviderConfig() throws Exception   
     {
-        ObjectMapper mapper = new ObjectMapper();
-        assertEquals(0, mapper._deserializationContext._cache.cachedDeserializersCount());
+        ObjectMapper m = new ObjectMapper();
+
+        assertEquals(0, m._deserializationContext._cache.cachedDeserializersCount());
         // and then should get one constructed for:
-        Bean bean = mapper.readValue("{ \"x\" : 3 }", Bean.class);
+        Bean bean = m.readValue("{ \"x\" : 3 }", Bean.class);
         assertNotNull(bean);
-        assertEquals(1, mapper._deserializationContext._cache.cachedDeserializersCount());
-        mapper._deserializationContext._cache.flushCachedDeserializers();
-        assertEquals(0, mapper._deserializationContext._cache.cachedDeserializersCount());
+        assertEquals(1, m._deserializationContext._cache.cachedDeserializersCount());
+        m._deserializationContext._cache.flushCachedDeserializers();
+        assertEquals(0, m._deserializationContext._cache.cachedDeserializersCount());
+    }
+    
+    // [Issue#28]: ObjectMapper.copy()
+    public void testCopy() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        assertTrue(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+        m.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        assertFalse(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+
+        // // First: verify that handling of features is decoupled:
+        
+        ObjectMapper m2 = m.copy();
+        assertFalse(m2.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+        m2.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        assertTrue(m2.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+        // but should NOT change the original
+        assertFalse(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+
+        // nor vice versa:
+        assertFalse(m.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
+        assertFalse(m2.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
+        m.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
+        assertTrue(m.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
+        assertFalse(m2.isEnabled(DeserializationFeature.UNWRAP_ROOT_VALUE));
+
+        // // Also, underlying JsonFactory instances should be distinct
+        
+        assertNotSame(m.getJsonFactory(), m2.getJsonFactory());
+
+        // ... anything else? (probably should do more tests, add as needed)
     }
 }

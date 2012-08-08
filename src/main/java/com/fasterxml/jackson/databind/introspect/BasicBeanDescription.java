@@ -134,6 +134,32 @@ public class BasicBeanDescription extends BeanDescription
         return new BasicBeanDescription(config, type,
                 ac, Collections.<BeanPropertyDefinition>emptyList());
     }
+
+    /*
+    /**********************************************************
+    /* Limited modifications by core databind functionality
+    /**********************************************************
+     */
+
+    /**
+     * Method that can be used to prune unwanted properties, during
+     * construction of serializers and deserializers.
+     * Use with utmost care, if at all...
+     * 
+     * @since 2.1
+     */
+    public boolean removeProperty(String propName)
+    {
+        Iterator<BeanPropertyDefinition> it = _properties.iterator();
+        while (it.hasNext()) {
+            BeanPropertyDefinition prop = it.next();
+            if (prop.getName().equals(propName)) {
+                it.remove();
+                return true;
+            }
+        }
+        return false;
+    }
     
     /*
     /**********************************************************

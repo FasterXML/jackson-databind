@@ -22,26 +22,33 @@ Improvements:
   UntypedObjectDeserializer, even with default typing enabled.
 * [JACKSON-850]: Allow use of zero-arg factory methods as "default creator"
   (suggested by Razvan D)
-* [Issue-9]: Implement 'required' JSON Schema attribute for bean properties
-* [Issue-20]: Add new exception type, InvalidFormatException (sub-type of
+* [Issue#9]: Implement 'required' JSON Schema attribute for bean properties
+* [Issue#20]: Add new exception type, InvalidFormatException (sub-type of
   JsonMappingException) to indicate data format problems
  (suggested by HolySamosa@github)
-* [Issue-22]: Add 'ObjectMapper.setAnnotationIntrospectors()' which allows
-  defining different introspectors for serialization, deserialization
-* [Issue-30] ObjectReader and ObjectWriter now try to pre-fetch root (de)serializer
-  if possible; minor performance improvement (2% for small POJOs).
-* [Issue-33] Simplified/clarified definition of 'ObjectReader.readValues()';
+* [Issue#30] ObjectReader and ObjectWriter now try to pre-fetch root
+  (de)serializer if possible; minor performance improvement (2% for small POJOs).
+* [Issue#33] Simplified/clarified definition of 'ObjectReader.readValues()';
   minor change in behavior for JSON Array "wrapped" sequences
-* Added 'ObjectReader#withHandler' to allow for reconfiguring deserialization
-  problem handler
- (suggested by 'electricmonk')
 
 New features:
 
-* [Issue-29]: Allow serializing, deserializing POJOs as JSON Arrays
+* [Issue#22]: Add 'ObjectMapper.setAnnotationIntrospectors()' which allows
+  defining different introspectors for serialization, deserialization
+* [Issue#24]: Allow serialization of Enums as JSON Objects
+ (suggested by rveloso@github)
+* [Issue#28]: Add 'ObjectMapper.copy()', to create non-linked copy of
+  mapper, with same configuration settings
+* [Issue#29]: Allow serializing, deserializing POJOs as JSON Arrays
   by using `@JsonFormat(shape=Shape.ARRAY)`
+* [Issue#40]: Allow serialization of Collections as JSON Objects
+  (and deserialization from)
+ (suggested by rveloso@github)
 * (issue #4 of jackson-annotations): Add `@JsonIdentityInfo(firstAsId=true)`
   to force ALL references to an object written as Object Id, even the first one.
+* Added 'ObjectReader#withHandler' to allow for reconfiguring deserialization
+  problem handler
+ (suggested by 'electricmonk')
 
 Other changes:
 
@@ -52,7 +59,7 @@ Other changes:
 
 INCOMPATIBILITIES: (rats!)
 
-* Note that [Issue-33] (see above) is, technically speaking, backwards
+* Note that [Issue#33] (see above) is, technically speaking, backwards
   imcompatible change. It is estimated that it should NOT affect most
   users, as changes are to edge cases (and undocumented ones at that).
   However, it can potentially cause problems with upgrade.
@@ -63,7 +70,7 @@ INCOMPATIBILITIES: (rats!)
 
 2.0.4 (26-Jun-2012)
 
-* [Issue-6]: element count for PrettyPrinter, endObject wrong
+* [Issue#6]: element count for PrettyPrinter, endObject wrong
    (reported by "thebluemountain")
 * [JACKSON-838]: Utf8StreamParser._reportInvalidToken() skips letters
     from reported token name
@@ -79,7 +86,7 @@ INCOMPATIBILITIES: (rats!)
 
 Fixes:
 
-* [Issue-14]: Annotations were not included from parent classes of
+* [Issue#14]: Annotations were not included from parent classes of
   mix-in classes
  (reported by @guillaup)
 * [JACKSON-824]: Combination of JSON Views, ObjectMapper.readerForUpdating()
@@ -89,7 +96,7 @@ Fixes:
 
 Improvements:
 
-* [Issue-11]: Improve ObjectMapper.convertValue()/.treeToValue() to use
+* [Issue#11]: Improve ObjectMapper.convertValue()/.treeToValue() to use
   cast if possible
 
 2.0.1 [23-Apr-2012]
@@ -104,7 +111,7 @@ Fixes:
 
 Improvements:
 
-* [Issue-5]: Add support for maps with java.util.Locale keys to the set of
+* [Issue#5]: Add support for maps with java.util.Locale keys to the set of
   StdKeyDeserializers
  (contributed by Ryan G)
 

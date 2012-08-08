@@ -9,6 +9,8 @@ Description:
 Fixes:
 
 * [JACKSON-855] Implement [JACKSON-855], add StackOverflowError as root	cause
+* [Issue#46]: findRootName() only accepts null to mean 'default root name',
+  not empty String
 
 ------------------------------------------------------------------------
 === History: ===

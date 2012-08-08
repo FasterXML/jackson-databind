@@ -42,7 +42,7 @@ public class RootNameLookup
         AnnotatedClass ac = beanDesc.getClassInfo();
         String nameStr = intr.findRootName(ac);
         // No answer so far? Let's just default to using simple class name
-        if (nameStr == null) {
+        if (nameStr == null || nameStr.length() == 0) {
             // Should we strip out enclosing class tho? For now, nope:
             nameStr = rootType.getSimpleName();
         }

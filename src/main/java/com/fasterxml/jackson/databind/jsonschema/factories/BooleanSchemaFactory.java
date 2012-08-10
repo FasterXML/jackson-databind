@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.jsonschema.factories;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonBooleanFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.types.BooleanSchema;
 import com.fasterxml.jackson.databind.jsonschema.types.ValueTypeSchema;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonBooleanFormatVisitor;
 
 public class BooleanSchemaFactory extends ValueTypeSchemaFactory implements
 	JsonBooleanFormatVisitor {

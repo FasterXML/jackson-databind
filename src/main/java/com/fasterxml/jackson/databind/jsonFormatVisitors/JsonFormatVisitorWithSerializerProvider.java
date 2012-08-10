@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.fasterxml.jackson.databind.jsonschema.visitors;
+package com.fasterxml.jackson.databind.jsonFormatVisitors;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
 

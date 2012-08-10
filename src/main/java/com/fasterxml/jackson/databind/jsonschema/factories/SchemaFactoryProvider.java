@@ -1,18 +1,18 @@
-package com.fasterxml.jackson.databind.jsonschema;
+package com.fasterxml.jackson.databind.jsonschema.factories;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonAnyFormatVisitor;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonBooleanFormatVisitor;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNullFormatVisitor;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.factories.*;
 import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonAnyFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonArrayFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonBooleanFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonIntegerFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonNullFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonNumberFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonObjectFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonStringFormatVisitor;
 
 /**
  * @author jphelan

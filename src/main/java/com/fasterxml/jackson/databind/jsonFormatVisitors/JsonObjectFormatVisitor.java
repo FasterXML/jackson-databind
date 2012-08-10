@@ -1,8 +1,7 @@
-package com.fasterxml.jackson.databind.jsonschema.visitors;
+package com.fasterxml.jackson.databind.jsonFormatVisitors;
 
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.jsonschema.JsonFormatVisitorAware;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 
 public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializerProvider {

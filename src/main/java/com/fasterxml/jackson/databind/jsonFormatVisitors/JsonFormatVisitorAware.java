@@ -1,8 +1,7 @@
-package com.fasterxml.jackson.databind.jsonschema;
+package com.fasterxml.jackson.databind.jsonFormatVisitors;
 
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
 
 /**
  * Marker interface for schema-aware serializers.

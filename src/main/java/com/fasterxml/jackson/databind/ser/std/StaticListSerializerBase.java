@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.util.Collection;
 
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonArrayFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 
 /**
  * Intermediate base class for Lists, Collections and Arrays

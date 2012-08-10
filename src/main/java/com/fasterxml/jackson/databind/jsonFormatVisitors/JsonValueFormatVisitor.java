@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.jsonschema.visitors;
+package com.fasterxml.jackson.databind.jsonFormatVisitors;
 
 import java.util.Set;
 

@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonschema.factories.SchemaFactory;
+import com.fasterxml.jackson.databind.jsonschema.factories.SchemaFactoryProvider;
 import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
 
 /**

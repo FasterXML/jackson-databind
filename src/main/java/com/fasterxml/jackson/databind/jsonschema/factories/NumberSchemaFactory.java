@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.jsonschema.factories;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.types.NumberSchema;
 import com.fasterxml.jackson.databind.jsonschema.types.ValueTypeSchema;
-import com.fasterxml.jackson.databind.jsonschema.visitors.JsonNumberFormatVisitor;
 
 public class NumberSchemaFactory extends ValueTypeSchemaFactory implements
 		JsonNumberFormatVisitor {

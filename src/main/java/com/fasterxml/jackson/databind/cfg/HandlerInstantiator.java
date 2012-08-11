@@ -121,4 +121,15 @@ public abstract class HandlerInstantiator
             Annotated annotated, Class<?> implClass) {
         return null;
     }
+
+    /**
+     * Method called to construct a NamingStrategy instance used for specified
+     * class.
+     * 
+     * @since 2.1
+     */
+    public PropertyNamingStrategy namingStrategyInstance(MapperConfig<?> config,
+            Annotated annotated, Class<?> implClass) {
+        return null;
+    }
 }

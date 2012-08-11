@@ -893,3 +893,8 @@ Razvan Dragut:
 Duncan Atkinson:
  * Reported [JACKSON-851]: State corruption with ObjectWriter, DefaultPrettyPrinter
   (2.1.0)
+
+Mark Wolfe:
+ * Suggested [Issue#45]: Add `@JsonNaming()` for per-class naming strategy overrides
+  (2.1.0)
+

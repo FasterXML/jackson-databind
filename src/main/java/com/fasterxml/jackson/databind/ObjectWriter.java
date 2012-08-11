@@ -649,7 +649,8 @@ public class ObjectWriter
     }
     
     /**
-     * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
+     * Helper method used when value to serialize is {@link java.util.Closeable}
+     * and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
     private final void _writeCloseableValue(JsonGenerator jgen, Object value, SerializationConfig cfg)

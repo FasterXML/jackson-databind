@@ -7,10 +7,7 @@ import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -22,20 +19,14 @@ import com.fasterxml.jackson.databind.cfg.DatabindVersion;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.*;
-import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.ser.*;
-import com.fasterxml.jackson.databind.type.ClassKey;
-import com.fasterxml.jackson.databind.type.SimpleType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.type.TypeModifier;
+import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -1676,6 +1667,10 @@ public class ObjectMapper
         throws IOException, JsonGenerationException, JsonMappingException
     {
         SerializationConfig config = getSerializationConfig();
+        // 10-Aug-2012, tatu: as per [Issue#12], must handle indentation:
+        if (config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
+            jgen.useDefaultPrettyPrinter();
+        }
         if (config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _writeCloseableValue(jgen, value, config);
         } else {

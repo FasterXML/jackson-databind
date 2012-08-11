@@ -156,7 +156,10 @@ public abstract class AnnotationIntrospector implements Versioned
     /**
      * Method called by framework to determine whether given annotation
      * is handled by this introspector.
+     *
+     * @deprecated Not used since 2.0; deprecated sicne 2.1
      */
+    @Deprecated
     public boolean isHandled(Annotation ann) {
         return false;
     }
@@ -962,6 +965,7 @@ public abstract class AnnotationIntrospector implements Versioned
         
         // // // Generic annotation properties, lookup
         
+        @Deprecated
         @Override
         public boolean isHandled(Annotation ann) {
             return _primary.isHandled(ann) || _secondary.isHandled(ann);

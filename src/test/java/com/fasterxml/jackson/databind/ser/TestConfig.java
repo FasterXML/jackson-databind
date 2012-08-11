@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.databind.ser;
 
+import java.io.StringWriter;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -31,16 +33,21 @@ public class TestConfig
         private int getY() { return 2; }
     }
 
+    static class Indentable {
+        public int a = 3;
+    }
+    
     /*
     /**********************************************************
     /* Main tests
     /**********************************************************
      */
 
+    final static ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testDefaults()
     {
-        ObjectMapper m = new ObjectMapper();
-        SerializationConfig cfg = m.getSerializationConfig();
+        SerializationConfig cfg = MAPPER.getSerializationConfig();
 
         // First, defaults:
         assertTrue(cfg.isEnabled(MapperFeature.USE_ANNOTATIONS));
@@ -64,8 +71,7 @@ public class TestConfig
 
     public void testOverrideIntrospectors()
     {
-        ObjectMapper m = new ObjectMapper();
-        SerializationConfig cfg = m.getSerializationConfig();
+        SerializationConfig cfg = MAPPER.getSerializationConfig();
         // and finally, ensure we could override introspectors
         cfg = cfg.with((ClassIntrospector) null); // no way to verify tho
         cfg = cfg.with((AnnotationIntrospector) null);
@@ -81,27 +87,25 @@ public class TestConfig
 
     public void testIndentation() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        m.configure(SerializationFeature.INDENT_OUTPUT, true);
         Map<String,Integer> map = new HashMap<String,Integer>();
         map.put("a", Integer.valueOf(2));
-        String result = serializeAsString(m, map).trim();
+        String result = MAPPER.writer().with(SerializationFeature.INDENT_OUTPUT)
+                .writeValueAsString(map);
         // 02-Jun-2009, tatu: not really a clean way but...
-        String lf = System.getProperty("line.separator");
+        String lf = getLF();
         assertEquals("{"+lf+"  \"a\" : 2"+lf+"}", result);
     }
 
     public void testAnnotationsDisabled() throws Exception
     {
         // first: verify that annotation introspection is enabled by default
-        ObjectMapper m = new ObjectMapper();
-        assertTrue(m.isEnabled(MapperFeature.USE_ANNOTATIONS));
-        Map<String,Object> result = writeAndMap(m, new AnnoBean());
+        assertTrue(MAPPER.isEnabled(MapperFeature.USE_ANNOTATIONS));
+        Map<String,Object> result = writeAndMap(MAPPER, new AnnoBean());
         assertEquals(2, result.size());
 
-        m = new ObjectMapper();
-        m.configure(MapperFeature.USE_ANNOTATIONS, false);
-        result = writeAndMap(m, new AnnoBean());
+        ObjectMapper m2 = new ObjectMapper();
+        m2.configure(MapperFeature.USE_ANNOTATIONS, false);
+        result = writeAndMap(m2, new AnnoBean());
         assertEquals(1, result.size());
     }
 
@@ -133,4 +137,34 @@ public class TestConfig
         assertEquals(0, prov.cachedSerializersCount());
     }
 
+    // Test for [Issue#12]
+    public void testIndentWithPassedGenerator() throws Exception
+    {
+        Indentable input = new Indentable();
+        assertEquals("{\"a\":3}", MAPPER.writeValueAsString(input));
+        String LF = getLF();
+        String INDENTED = "{"+LF+"  \"a\" : 3"+LF+"}";
+        final ObjectWriter indentWriter = MAPPER.writer().with(SerializationFeature.INDENT_OUTPUT);
+        assertEquals(INDENTED, indentWriter.writeValueAsString(input));
+
+        // [Issue#12]
+        StringWriter sw = new StringWriter();
+        JsonGenerator jgen = MAPPER.getJsonFactory().createJsonGenerator(sw);
+        indentWriter.writeValue(jgen, input);
+        jgen.close();
+        assertEquals(INDENTED, sw.toString());
+
+        // and also with ObjectMapper itself
+        sw = new StringWriter();
+        ObjectMapper m2 = new ObjectMapper();
+        m2.enable(SerializationFeature.INDENT_OUTPUT);
+        jgen = m2.getJsonFactory().createJsonGenerator(sw);
+        m2.writeValue(jgen, input);
+        jgen.close();
+        assertEquals(INDENTED, sw.toString());
+    }
+
+    private final static String getLF() {
+        return System.getProperty("line.separator");
+    }
 }

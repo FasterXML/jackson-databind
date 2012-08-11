@@ -72,7 +72,7 @@ public class ObjectWriter
      * as well
      */
     protected final PrettyPrinter _prettyPrinter;
-
+    
     /**
      * When using data format that uses a schema, schema is passed
      * to generator.
@@ -414,7 +414,10 @@ public class ObjectWriter
     public void writeValue(JsonGenerator jgen, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
+        // 10-Aug-2012, tatu: As per [Issue#12], may need to force PrettyPrinter settings, so:
+        _configureJsonGenerator(jgen);
+        if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
+                && (value instanceof Closeable)) {
             _writeCloseableValue(jgen, value, _config);
         } else {
             if (_rootType == null) {
@@ -427,7 +430,7 @@ public class ObjectWriter
             }
         }
     }
-
+    
     /*
     /**********************************************************
     /* Serialization methods, others
@@ -558,7 +561,7 @@ public class ObjectWriter
         }
         // [JACKSON-282]: consider Closeable
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
-            _configAndWriteCloseable(jgen, value, _config);
+            _writeCloseable(jgen, value, _config);
             return;
         }
         boolean closed = false;
@@ -586,7 +589,7 @@ public class ObjectWriter
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _configAndWriteCloseable(JsonGenerator jgen, Object value, SerializationConfig cfg)
+    private final void _writeCloseable(JsonGenerator jgen, Object value, SerializationConfig cfg)
         throws IOException, JsonGenerationException, JsonMappingException
     {
         Closeable toClose = (Closeable) value;
@@ -595,10 +598,6 @@ public class ObjectWriter
                 _serializerProvider(cfg).serializeValue(jgen, value);
             } else {
                 _serializerProvider(cfg).serializeValue(jgen, value);
-            }
-            // [JACKSON-520]: add support for pass-through schema:
-            if (_schema != null) {
-                jgen.setSchema(_schema);
             }
             JsonGenerator tmpJgen = jgen;
             jgen = null;
@@ -649,6 +648,30 @@ public class ObjectWriter
                     toClose.close();
                 } catch (IOException ioe) { }
             }
+        }
+    }
+    
+    /**
+     * Helper method called to set or override settings of passed-in
+     * {@link JsonGenerator}
+     * 
+     * @since 2.1
+     */
+    private final void _configureJsonGenerator(JsonGenerator jgen)
+    {
+        if (_prettyPrinter != null) {
+            PrettyPrinter pp = _prettyPrinter;
+            if (pp == NULL_PRETTY_PRINTER) {
+                jgen.setPrettyPrinter(null);
+            } else {
+                jgen.setPrettyPrinter(pp);
+            }
+        } else if (_config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
+            jgen.useDefaultPrettyPrinter();
+        }
+        // [JACKSON-520]: add support for pass-through schema:
+        if (_schema != null) {
+            jgen.setSchema(_schema);
         }
     }
 }

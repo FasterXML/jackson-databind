@@ -1,13 +1,14 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
@@ -169,10 +170,8 @@ public class StringArraySerializer
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-        ObjectNode o = createSchemaNode("array", true);
-        o.put("items", createSchemaNode("string"));
-        return o;
+    	visitor.expectArrayFormat(null).itemsFormat(SchemaType.STRING);
     }
 }

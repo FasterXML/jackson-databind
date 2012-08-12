@@ -1,19 +1,27 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SerializedString;
-
-
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.EnumValues;
 
@@ -141,23 +149,23 @@ public class EnumSerializer
     }
     
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
         // [JACKSON-684]: serialize as index?
-        if (_serializeAsIndex(provider)) {
-            return createSchemaNode("integer", true);
-        }
-        ObjectNode objectNode = createSchemaNode("string", true);
-        if (typeHint != null) {
-            JavaType type = provider.constructType(typeHint);
-            if (type.isEnumType()) {
-                ArrayNode enumNode = objectNode.putArray("enum");
-                for (SerializedString value : _values.values()) {
-                    enumNode.add(value.getValue());
-                }
-            }
-        }
-        return objectNode;
+    	if (visitor.getProvider().isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
+    		visitor.expectIntegerFormat(typeHint);
+    	} else {
+    		JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
+    		if (typeHint != null) {
+    			if (typeHint.isEnumType()) {
+    				Set<String> enums = new HashSet<String>();
+    				for (SerializedString value : _values.values()) {
+    					enums.add(value.getValue());
+    				}
+    				stringVisitor.enumTypes(enums);
+    			}
+    		}
+    	}
     }
 
     /*

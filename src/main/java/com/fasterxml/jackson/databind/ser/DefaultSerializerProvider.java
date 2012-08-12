@@ -13,9 +13,8 @@ import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
-import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorAware;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -233,12 +232,11 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
     
     /**
      * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
-     * to generate <a href="http://json-schema.org/">JSON schema</a> for
-     * given type.
+		TODO:fillme
      *
      * @param type The type for which to generate schema
      */
-    public JsonSchema generateJsonSchema(Class<?> type)
+    public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitorWrapper visitor)
         throws JsonMappingException
     {
         if (type == null) {
@@ -248,16 +246,12 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
          * type information it needs is accessible via "untyped" serializer)
          */
         JsonSerializer<Object> ser = findValueSerializer(type, null);
-        JsonNode schemaNode = (ser instanceof SchemaAware) ?
-                ((SchemaAware) ser).getSchema(this, null) : 
-                JsonSchema.getDefaultSchemaNode();
-        if (!(schemaNode instanceof ObjectNode)) {
-            throw new IllegalArgumentException("Class " + type.getName() +
-                    " would not be serialized as a JSON object and therefore has no schema");
+        if (ser instanceof JsonFormatVisitorAware) {
+        	((JsonFormatVisitorAware) ser).acceptJsonFormatVisitor(visitor, constructType(type));
+        } else {
+        	visitor.expectAnyFormat(constructType(type));
         }
-        return new JsonSchema((ObjectNode) schemaNode);
     }
-
     /**
      * Method that can be called to see if this serializer provider
      * can find a serializer for an instance of given class.

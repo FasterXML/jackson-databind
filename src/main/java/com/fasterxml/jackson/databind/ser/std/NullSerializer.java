@@ -1,12 +1,13 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.lang.reflect.Type;
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.*;
-
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 
 /**
  * This is a simple dummy serializer that will just output literal
@@ -31,9 +32,8 @@ public class NullSerializer
     }
     
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-        return createSchemaNode("null");
+    	visitor.expectNullFormat(typeHint);
     }
 }

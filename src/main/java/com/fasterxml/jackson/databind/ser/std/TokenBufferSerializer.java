@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
-import com.fasterxml.jackson.core.*;
-
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -53,12 +53,12 @@ public class TokenBufferSerializer
     }
     
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
         /* 01-Jan-2010, tatu: Not 100% sure what we should say here:
          *   type is basically not known. This seems closest
          *   approximation
          */
-        return createSchemaNode("any", true);
+    	visitor.expectAnyFormat(typeHint);
     }
 }    

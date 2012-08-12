@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
-import com.fasterxml.jackson.core.*;
-
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 
 /**
  * This is the special serializer for regular {@link java.lang.String}s.
@@ -37,8 +37,8 @@ public final class StringSerializer
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-        return createSchemaNode("string", true);
+    	visitor.expectStringFormat(typeHint);
     }
 }

@@ -92,7 +92,7 @@ public class TestCollectionSerialization
         public String[] empty = new String[0];
     }
 
-    // [JACKSIN-689]
+    // [JACKSON-689]
     static class BeanWithIterable {
         private final ArrayList<String> values = new ArrayList<String>();
         {
@@ -101,7 +101,7 @@ public class TestCollectionSerialization
 
         public Iterable<String> getValues() { return values; }
     }
-    
+
     /*
     /**********************************************************
     /* Test methods

@@ -397,10 +397,11 @@ public abstract class BeanSerializerBase
                     }
                     idType = idProp.getType();
                     gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
-                    oiw = ObjectIdWriter.construct(idType, null, gen);
+                    oiw = ObjectIdWriter.construct(idType, null, gen, objectIdInfo.getFirstAsId());
                 } else { // other types need to be simpler
                     gen = provider.objectIdGeneratorInstance(accessor, objectIdInfo);
-                    oiw = ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen);
+                    oiw = ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen,
+                            objectIdInfo.getFirstAsId());
                 }
             }
         }
@@ -566,7 +567,7 @@ public abstract class BeanSerializerBase
              *   have many stack frames to spare... just one or two; can't
              *   make many calls.
              */
-            JsonMappingException mapE = new JsonMappingException("Infinite recursion (StackOverflowError)");
+            JsonMappingException mapE = new JsonMappingException("Infinite recursion (StackOverflowError)", e);
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();
             mapE.prependPath(new JsonMappingException.Reference(bean, name));
             throw mapE;
@@ -613,7 +614,7 @@ public abstract class BeanSerializerBase
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();
             wrapAndThrow(provider, e, bean, name);
         } catch (StackOverflowError e) {
-            JsonMappingException mapE = new JsonMappingException("Infinite recursion (StackOverflowError)");
+            JsonMappingException mapE = new JsonMappingException("Infinite recursion (StackOverflowError)", e);
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();
             mapE.prependPath(new JsonMappingException.Reference(bean, name));
             throw mapE;
@@ -694,4 +695,5 @@ public abstract class BeanSerializerBase
         return (value == null) ? false : value.booleanValue();
     }
     
+
 }

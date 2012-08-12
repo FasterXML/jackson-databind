@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
+import com.fasterxml.jackson.core.util.Instantiatable;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 import com.fasterxml.jackson.databind.cfg.DatabindVersion;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
@@ -82,7 +83,7 @@ public class ObjectWriter
      * as well
      */
     protected final PrettyPrinter _prettyPrinter;
-
+    
     /**
      * When using data format that uses a schema, schema is passed
      * to generator.
@@ -432,7 +433,10 @@ public class ObjectWriter
     public void writeValue(JsonGenerator jgen, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
+        // 10-Aug-2012, tatu: As per [Issue#12], may need to force PrettyPrinter settings, so:
+        _configureJsonGenerator(jgen);
+        if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
+                && (value instanceof Closeable)) {
             _writeCloseableValue(jgen, value, _config);
         } else {
             if (_rootType == null) {
@@ -445,7 +449,7 @@ public class ObjectWriter
             }
         }
     }
-
+    
     /*
     /**********************************************************
     /* Serialization methods, others
@@ -500,13 +504,21 @@ public class ObjectWriter
      * a String. Functionally equivalent to calling
      * {@link #writeValue(Writer,Object)} with {@link java.io.StringWriter}
      * and constructing String, but more efficient.
+     *<p>
+     * Note: prior to version 2.1, throws clause included {@link IOException}; 2.1 removed it.
      */
     public String writeValueAsString(Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws JsonProcessingException
     {        
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
-        _configAndWriteValue(_jsonFactory.createJsonGenerator(sw), value);
+        try {
+            _configAndWriteValue(_jsonFactory.createJsonGenerator(sw), value);
+        } catch (JsonProcessingException e) { // to support [JACKSON-758]
+            throw e;
+        } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
+            throw JsonMappingException.fromUnexpectedIOE(e);
+        }
         return sw.getAndClear();
     }
     
@@ -516,12 +528,20 @@ public class ObjectWriter
      * {@link #writeValue(Writer,Object)} with {@link java.io.ByteArrayOutputStream}
      * and getting bytes, but more efficient.
      * Encoding used will be UTF-8.
+     *<p>
+     * Note: prior to version 2.1, throws clause included {@link IOException}; 2.1 removed it.
      */
     public byte[] writeValueAsBytes(Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
-    {        
+        throws JsonProcessingException
+    {
         ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler());
-        _configAndWriteValue(_jsonFactory.createJsonGenerator(bb, JsonEncoding.UTF8), value);
+        try {
+            _configAndWriteValue(_jsonFactory.createJsonGenerator(bb, JsonEncoding.UTF8), value);
+        } catch (JsonProcessingException e) { // to support [JACKSON-758]
+            throw e;
+        } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
+            throw JsonMappingException.fromUnexpectedIOE(e);
+        }
         byte[] result = bb.toByteArray();
         bb.release();
         return result;
@@ -564,19 +584,10 @@ public class ObjectWriter
     protected final void _configAndWriteValue(JsonGenerator jgen, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        if (_prettyPrinter != null) {
-            PrettyPrinter pp = _prettyPrinter;
-            jgen.setPrettyPrinter((pp == NULL_PRETTY_PRINTER) ? null : pp);
-        } else if (_config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
-            jgen.useDefaultPrettyPrinter();
-        }
-        // [JACKSON-520]: add support for pass-through schema:
-        if (_schema != null) {
-            jgen.setSchema(_schema);
-        }
+        _configureJsonGenerator(jgen);
         // [JACKSON-282]: consider Closeable
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
-            _configAndWriteCloseable(jgen, value, _config);
+            _writeCloseable(jgen, value, _config);
             return;
         }
         boolean closed = false;
@@ -604,7 +615,7 @@ public class ObjectWriter
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _configAndWriteCloseable(JsonGenerator jgen, Object value, SerializationConfig cfg)
+    private final void _writeCloseable(JsonGenerator jgen, Object value, SerializationConfig cfg)
         throws IOException, JsonGenerationException, JsonMappingException
     {
         Closeable toClose = (Closeable) value;
@@ -613,10 +624,6 @@ public class ObjectWriter
                 _serializerProvider(cfg).serializeValue(jgen, value);
             } else {
                 _serializerProvider(cfg).serializeValue(jgen, value, _rootType, _rootSerializer);
-            }
-            // [JACKSON-520]: add support for pass-through schema:
-            if (_schema != null) {
-                jgen.setSchema(_schema);
             }
             JsonGenerator tmpJgen = jgen;
             jgen = null;
@@ -642,7 +649,8 @@ public class ObjectWriter
     }
     
     /**
-     * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
+     * Helper method used when value to serialize is {@link java.util.Closeable}
+     * and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
     private final void _writeCloseableValue(JsonGenerator jgen, Object value, SerializationConfig cfg)
@@ -686,6 +694,36 @@ public class ObjectWriter
         } catch (JsonProcessingException e) {
             // need to swallow?
             return null;
+        }
+    }
+    
+    /**
+     * Helper method called to set or override settings of passed-in
+     * {@link JsonGenerator}
+     * 
+     * @since 2.1
+     */
+    private final void _configureJsonGenerator(JsonGenerator jgen)
+    {
+        if (_prettyPrinter != null) {
+            PrettyPrinter pp = _prettyPrinter;
+            if (pp == NULL_PRETTY_PRINTER) {
+                jgen.setPrettyPrinter(null);
+            } else {
+                /* [JACKSON-851]: Better take care of stateful PrettyPrinters...
+                 *   like the DefaultPrettyPrinter.
+                 */
+                if (pp instanceof Instantiatable<?>) {
+                    pp = (PrettyPrinter) ((Instantiatable<?>) pp).createInstance();
+                }
+                jgen.setPrettyPrinter(pp);
+            }
+        } else if (_config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
+            jgen.useDefaultPrettyPrinter();
+        }
+        // [JACKSON-520]: add support for pass-through schema:
+        if (_schema != null) {
+            jgen.setSchema(_schema);
         }
     }
 }

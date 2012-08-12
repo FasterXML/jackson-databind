@@ -132,6 +132,17 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
     }
+
+    /**
+     * @since 2.1
+     */
+    protected DeserializationConfig(DeserializationConfig src, Map<ClassKey,Class<?>> mixins)
+    {
+        super(src, mixins);
+        _deserFeatures = src._deserFeatures;
+        _problemHandlers = src._problemHandlers;
+        _nodeFactory = src._nodeFactory;
+    }
     
     /*
     /**********************************************************

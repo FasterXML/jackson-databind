@@ -7,10 +7,7 @@ import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -27,15 +24,13 @@ import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.ser.*;
-import com.fasterxml.jackson.databind.type.ClassKey;
-import com.fasterxml.jackson.databind.type.SimpleType;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.type.TypeModifier;
+import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -196,6 +191,8 @@ public class ObjectMapper
 
     protected final static VisibilityChecker<?> STD_VISIBILITY_CHECKER = VisibilityChecker.Std.defaultInstance();
 
+    protected final static PrettyPrinter _defaultPrettyPrinter = new DefaultPrettyPrinter();
+    
     /**
      * Base settings contain defaults used for all {@link ObjectMapper}
      * instances.
@@ -376,6 +373,28 @@ public class ObjectMapper
     }
 
     /**
+     * Copy-constructor, mostly used to support {@link #copy}.
+     * 
+     * @since 2.1
+     */
+    protected ObjectMapper(ObjectMapper src)
+    {
+        _jsonFactory = src._jsonFactory.copy();
+        _jsonFactory.setCodec(this);
+        _subtypeResolver = src._subtypeResolver;
+        _rootNames = new RootNameLookup();
+        _typeFactory = src._typeFactory;
+        _serializationConfig = src._serializationConfig;
+        _serializationConfig = new SerializationConfig(src._serializationConfig, _mixInAnnotations);
+        _deserializationConfig = new DeserializationConfig(src._deserializationConfig, _mixInAnnotations);
+        _serializerProvider = src._serializerProvider;
+        _deserializationContext = src._deserializationContext;
+
+        // Default serializer factory is stateless, can just assign
+        _serializerFactory = src._serializerFactory;
+    }
+    
+    /**
      * Constructs instance that uses specified {@link JsonFactory}
      * for constructing necessary {@link JsonParser}s and/or
      * {@link JsonGenerator}s, and uses given providers for accessing
@@ -418,6 +437,39 @@ public class ObjectMapper
 
         // Default serializer factory is stateless, can just assign
         _serializerFactory = BeanSerializerFactory.instance;
+    }
+
+    /**
+     * Method for creating a new {@link ObjectMapper} instance that
+     * has same initial configuration as this instance. Note that this
+     * also requires making a copy of the underlying {@link JsonFactory}
+     * instance.
+     *<p>
+     * Method is typically
+     * used when multiple, differently configured mappers are needed.
+     * Although configuration is shared, cached serializers and deserializers
+     * are NOT shared, which means that the new instance may be re-configured
+     * before use; meaning that it behaves the same way as if an instance
+     * was constructed from scratch.
+     * 
+     * @since 2.1
+     */
+    public ObjectMapper copy()
+    {
+        _checkInvalidCopy(ObjectMapper.class);
+        return new ObjectMapper(this);
+    }
+
+    /**
+     * @since 2.1
+     * @param exp
+     */
+    protected void _checkInvalidCopy(Class<?> exp)
+    {
+        if (getClass() != exp) {
+            throw new IllegalStateException("Failed copy(): "+getClass().getName()
+                    +" (version: "+version()+") does not override copy(); it has to");
+        }
     }
     
     /*
@@ -1619,6 +1671,10 @@ public class ObjectMapper
         throws IOException, JsonGenerationException, JsonMappingException
     {
         SerializationConfig config = getSerializationConfig();
+        // 10-Aug-2012, tatu: as per [Issue#12], must handle indentation:
+        if (config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
+            jgen.useDefaultPrettyPrinter();
+        }
         if (config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _writeCloseableValue(jgen, value, config);
         } else {
@@ -2004,13 +2060,21 @@ public class ObjectMapper
      * a String. Functionally equivalent to calling
      * {@link #writeValue(Writer,Object)} with {@link java.io.StringWriter}
      * and constructing String, but more efficient.
+     *<p>
+     * Note: prior to version 2.1, throws clause included {@link IOException}; 2.1 removed it.
      */
     public String writeValueAsString(Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws JsonProcessingException
     {        
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
-        _configAndWriteValue(_jsonFactory.createJsonGenerator(sw), value);
+        try {
+            _configAndWriteValue(_jsonFactory.createJsonGenerator(sw), value);
+        } catch (JsonProcessingException e) { // to support [JACKSON-758]
+            throw e;
+        } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
+            throw JsonMappingException.fromUnexpectedIOE(e);
+        }
         return sw.getAndClear();
     }
     
@@ -2020,12 +2084,20 @@ public class ObjectMapper
      * {@link #writeValue(Writer,Object)} with {@link java.io.ByteArrayOutputStream}
      * and getting bytes, but more efficient.
      * Encoding used will be UTF-8.
+     *<p>
+     * Note: prior to version 2.1, throws clause included {@link IOException}; 2.1 removed it.
      */
     public byte[] writeValueAsBytes(Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
-    {        
+        throws JsonProcessingException
+    {
         ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler());
-        _configAndWriteValue(_jsonFactory.createJsonGenerator(bb, JsonEncoding.UTF8), value);
+        try {
+            _configAndWriteValue(_jsonFactory.createJsonGenerator(bb, JsonEncoding.UTF8), value);
+        } catch (JsonProcessingException e) { // to support [JACKSON-758]
+            throw e;
+        } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
+            throw JsonMappingException.fromUnexpectedIOE(e);
+        }
         byte[] result = bb.toByteArray();
         bb.release();
         return result;
@@ -2429,7 +2501,7 @@ public class ObjectMapper
      * to use default pretty printer.
      */
     protected PrettyPrinter _defaultPrettyPrinter() {
-        return new DefaultPrettyPrinter();
+        return _defaultPrettyPrinter;
     }
     
     /**

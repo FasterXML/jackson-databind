@@ -160,6 +160,11 @@ public class BeanSerializer
         // if not, bit more work:
         oid.serializer = w.serializer;
         oid.id = id = oid.generator.generateId(bean);
+        // possibly. Or maybe not:
+        if (w.firstAsId) { 
+            oid.serializer.serialize(id, jgen, provider);
+            return;
+        }
         // If not, need to inject the id:
         jgen.writeStartObject();
         SerializedString name = w.propertyName;

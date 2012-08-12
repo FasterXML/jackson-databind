@@ -22,8 +22,8 @@ import com.fasterxml.jackson.core.format.MatchStrength;
 
 /**
  * Sub-class of {@link JsonFactory} that will create a proper
- * {@link ObjectCodec} to allow seamless conversions between
- * Json content and Java objects (POJOs).
+ * {@link ObjectCodec} to allow seam-less conversions between
+ * JSON content and Java objects (POJOs).
  * The only addition to regular {@link JsonFactory} currently
  * is that {@link ObjectMapper} is constructed and passed as
  * the codec to use.
@@ -51,6 +51,15 @@ public class MappingJsonFactory
     @Override
     public final ObjectMapper getCodec() { return (ObjectMapper) _objectCodec; }
 
+    // @since 2.1
+    @Override
+    public JsonFactory copy()
+    {
+        _checkInvalidCopy(MappingJsonFactory.class);
+        // note: as with base class, must NOT copy mapper reference
+        return new MappingJsonFactory(null);
+    }
+    
     /*
     /**********************************************************
     /* Format detection functionality (since 1.8)
@@ -75,6 +84,9 @@ public class MappingJsonFactory
     @Override
     public MatchStrength hasFormat(InputAccessor acc) throws IOException
     {
-        return hasJSONFormat(acc);
+        if (getClass() == MappingJsonFactory.class) {
+            return hasJSONFormat(acc);
+        }
+        return null;
     }
 }

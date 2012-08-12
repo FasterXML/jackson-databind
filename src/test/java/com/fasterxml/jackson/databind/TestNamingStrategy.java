@@ -7,13 +7,13 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 
 /**
- * Unit tests to verify functioning of {@link PropertyNamingStrategy} which
- * was added in Jackson 1.8, as per [JACKSON-178].
+ * Unit tests to verify functioning of {@link PropertyNamingStrategy}.
  */
 public class TestNamingStrategy extends BaseMapTest
 {
@@ -153,6 +153,16 @@ public class TestNamingStrategy extends BaseMapTest
         // intentionally odd name, to be renamed by naming strategy
         public List<String> getTheVALUEs() { return THEvalues; }
     }
+
+    // [Issue#45]: Support @JsonNaming
+    @JsonNaming(PrefixStrategy.class)
+    static class BeanWithPrefixNames
+    {
+        protected int a = 3;
+        
+        public int getA() { return a; }
+        public void setA(int value) { a = value; }
+    }
     
     /*
     /**********************************************************************
@@ -227,5 +237,19 @@ public class TestNamingStrategy extends BaseMapTest
         assertNotNull(foo.getTheVALUEs());
         assertEquals(1, foo.getTheVALUEs().size());
         assertEquals("a", foo.getTheVALUEs().get(0));
+    }
+
+    // @JsonNaming / [Issue#45]
+    public void testPerClassAnnotation() throws Exception
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.setPropertyNamingStrategy(new LcStrategy());
+        BeanWithPrefixNames input = new BeanWithPrefixNames();
+        String json = mapper.writeValueAsString(input);
+        assertEquals("{\"Get-a\":3}", json);
+
+        BeanWithPrefixNames output = mapper.readValue("{\"Set-a\":7}",
+                BeanWithPrefixNames.class);
+        assertEquals(7, output.a);
     }
 }

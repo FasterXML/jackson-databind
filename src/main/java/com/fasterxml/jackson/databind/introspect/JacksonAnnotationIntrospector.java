@@ -111,6 +111,13 @@ public class JacksonAnnotationIntrospector
         }
         return null;
     }
+
+    @Override
+    public Object findNamingStrategy(AnnotatedClass ac)
+    {
+        JsonNaming ann = ac.getAnnotation(JsonNaming.class);
+        return (ann == null) ? null : ann.value();
+    }
     
     /*
     /**********************************************************
@@ -403,7 +410,8 @@ public class JacksonAnnotationIntrospector
         if (info == null || info.generator() == ObjectIdGenerators.None.class) {
             return null;
         }
-        return new ObjectIdInfo(info.property(), info.scope(), info.generator());
+        return new ObjectIdInfo(info.property(), info.scope(), info.generator(),
+                info.firstAsId());
     }
 
     @Override

@@ -15,6 +15,11 @@ public class TestRootName extends BaseMapTest
         public int a = 3;
     }
     
+    @JsonRootName("")
+    static class RootBeanWithEmpty {
+        public int a = 2;
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -28,6 +33,13 @@ public class TestRootName extends BaseMapTest
         assertEquals("{\"rudy\":{\"a\":3}}", json);
         Bean bean = mapper.readValue(json, Bean.class);
         assertNotNull(bean);
+
+        // also same with explicitly "not defined"...
+        json = mapper.writeValueAsString(new RootBeanWithEmpty());
+        assertEquals("{\"RootBeanWithEmpty\":{\"a\":2}}", json);
+        RootBeanWithEmpty bean2 = mapper.readValue(json, RootBeanWithEmpty.class);
+        assertNotNull(bean2);
+        assertEquals(2, bean2.a);
     }
 
     public void testRootViaWriterAndReader() throws Exception

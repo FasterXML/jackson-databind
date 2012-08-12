@@ -165,7 +165,7 @@ public class TestGenerateJsonSchema
     }
     
     @JsonFilter("filteredBean")
-    private static class FilteredBean {
+    protected static class FilteredBean {
     	
     	@JsonProperty
     	private String secret = "secret";
@@ -181,8 +181,8 @@ public class TestGenerateJsonSchema
     }
     
     public static FilterProvider secretFilterProvider = new SimpleFilterProvider()
-    .addFilter("filteredBean", SimpleBeanPropertyFilter.filterOutAllExcept(new String[]{"obvious"}));
-    /** */
+        .addFilter("filteredBean", SimpleBeanPropertyFilter.filterOutAllExcept(new String[]{"obvious"}));
+
     public void testGeneratingJsonSchemaWithFilters() throws Exception {
     	ObjectMapper mapper = new ObjectMapper();
     	mapper.setFilters(secretFilterProvider);

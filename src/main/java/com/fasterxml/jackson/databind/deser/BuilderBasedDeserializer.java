@@ -101,12 +101,9 @@ public class BuilderBasedDeserializer
     }
 
     @Override
-    protected BuilderBasedDeserializer asArrayDeserializer() {
-        /* 17-Jul-2012, tatu: Should be doable, but for now let's just not
-         *   support this combination, and instead wait for an RFE to see
-         *   if anyone cares.
-         */
-        throw new UnsupportedOperationException("Can not combine serialization-as-Array with Builder style construction");
+    protected BeanAsArrayBuilderDeserializer asArrayDeserializer() {
+        SettableBeanProperty[] props = _beanProperties.getPropertiesInInsertionOrder();
+        return new BeanAsArrayBuilderDeserializer(this, props, _buildMethod);
     }
     
     /*
@@ -116,14 +113,14 @@ public class BuilderBasedDeserializer
      */
     
     protected final Object finishBuild(DeserializationContext ctxt, Object builder)
-    		throws IOException
+            throws IOException
     {
         try {
-    		return _buildMethod.getMember().invoke(builder);
+            return _buildMethod.getMember().invoke(builder);
     	} catch (Exception e) {
-    		wrapInstantiationProblem(e, ctxt);
-    		return null;
-		}
+    	    wrapInstantiationProblem(e, ctxt);
+    	    return null;
+    	}
     }
     
     /**
@@ -163,7 +160,7 @@ public class BuilderBasedDeserializer
         case FIELD_NAME:
         case END_OBJECT: // added to resolve [JACKSON-319], possible related issues
             return finishBuild(ctxt, deserializeFromObject(jp, ctxt));
-		}
+        }
         throw ctxt.mappingException(getBeanClass());
     }
 
@@ -537,14 +534,14 @@ public class BuilderBasedDeserializer
                         continue; // never gets here
                     }
                     //  polymorphic?
-        		    if (bean.getClass() != _beanType.getRawClass()) {
-        		        return handlePolymorphic(jp, ctxt, bean, unknown);
-        		    }
-        		    if (unknown != null) { // nope, just extra unknown stuff...
-        		        bean = handleUnknownProperties(ctxt, bean, unknown);
-        		    }
-        		    // or just clean?
-        		    return _deserialize(jp, ctxt, bean);
+                    if (bean.getClass() != _beanType.getRawClass()) {
+                        return handlePolymorphic(jp, ctxt, bean, unknown);
+                    }
+                    if (unknown != null) { // nope, just extra unknown stuff...
+                        bean = handleUnknownProperties(ctxt, bean, unknown);
+                    }
+                    // or just clean?
+                    return _deserialize(jp, ctxt, bean);
                 }
                 continue;
             }
@@ -577,7 +574,7 @@ public class BuilderBasedDeserializer
         // We hit END_OBJECT, so:
         Object bean;
         try {
-            bean =  creator.build(ctxt, buffer);
+            bean = creator.build(ctxt, buffer);
         } catch (Exception e) {
             wrapInstantiationProblem(e, ctxt);
             return null; // never gets here

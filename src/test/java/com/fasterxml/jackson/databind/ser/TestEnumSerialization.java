@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -111,6 +113,32 @@ public class TestEnumSerialization
         V1("v1");
         protected String key;
         OK(String key) { this.key = key; }
+    }
+    
+    // Types for [https://github.com/FasterXML/jackson-databind/issues/24]
+    // (Enums as JSON Objects)
+
+    @JsonFormat(shape=JsonFormat.Shape.OBJECT)
+    static enum PoNUM {
+        A("a1"), B("b2");
+
+        @JsonProperty
+        protected final String value;
+        
+        private PoNUM(String v) { value = v; }
+
+        public String getValue() { return value; }
+    }
+
+    static class PoNUMContainer {
+        @JsonFormat(shape=Shape.NUMBER)
+        public OK text = OK.V1;
+    }
+    
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY) // not supported as of now
+    static enum BrokenPoNum
+    {
+        A, B;
     }
     
     /*
@@ -222,6 +250,26 @@ public class TestEnumSerialization
         assertEquals(quote("V1"), mapper.writeValueAsString(OK.V1));
         assertEquals(quote("V1"), mapper.writeValueAsString(NOT_OK.V1));
         assertEquals(quote("V2"), mapper.writeValueAsString(NOT_OK2.V2));
+    }
+
+    // Tests for [issue#24]
+
+    public void testEnumAsObjectValid() throws Exception {
+        assertEquals("{\"value\":\"a1\"}", mapper.writeValueAsString(PoNUM.A));
+    }
+
+    public void testEnumAsIndexViaAnnotations() throws Exception {
+        assertEquals("{\"text\":0}", mapper.writeValueAsString(new PoNUMContainer()));
+    }
+    
+    public void testEnumAsObjectBroken() throws Exception
+    {
+        try {
+            String json = mapper.writeValueAsString(BrokenPoNum.A);
+            fail("Should not have succeeded, produced: "+json);
+        } catch (JsonMappingException e) {
+            verifyException(e, "Unsupported serialization shape");
+        }
     }
 }
 

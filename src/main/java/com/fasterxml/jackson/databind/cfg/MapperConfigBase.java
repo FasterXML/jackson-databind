@@ -131,6 +131,18 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = view;
     }
+
+    /**
+     * @since 2.1
+     */
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, Map<ClassKey,Class<?>> mixins)
+    {
+        super(src);
+        _mixInAnnotations = mixins;
+        _subtypeResolver = src._subtypeResolver;
+        _rootName = src._rootName;
+        _view = src._view;
+    }
     
     /*
     /**********************************************************

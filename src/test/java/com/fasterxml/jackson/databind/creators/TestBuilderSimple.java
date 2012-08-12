@@ -41,19 +41,19 @@ public class TestBuilderSimple extends BaseMapTest
     	}
     }
 
-	// // 3-property value, with more varied builder
+    // // 3-property value, with more varied builder
 	
-	@JsonDeserialize(builder=BuildABC.class)
-	static class ValueClassABC
-	{
-		final int a, b, c;
+    @JsonDeserialize(builder=BuildABC.class)
+    static class ValueClassABC
+    {
+        final int a, b, c;
 
-		protected ValueClassABC(int a, int b, int c) {
-			this.a = a;
-			this.b = b;
-			this.c = c;
-		}
-	}
+        protected ValueClassABC(int a, int b, int c) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+        }
+    }
 
     static class BuildABC
     {
@@ -103,14 +103,14 @@ public class TestBuilderSimple extends BaseMapTest
     
     // And then with custom naming:
 
-	@JsonDeserialize(builder=BuildFoo.class)
-	static class ValueFoo
-	{
-		final int value;
-		protected ValueFoo(int v) { value = v; }
-	}
+    @JsonDeserialize(builder=BuildFoo.class)
+    static class ValueFoo
+    {
+        final int value;
+        protected ValueFoo(int v) { value = v; }
+    }
 
-	@JsonPOJOBuilder(withPrefix="foo", buildMethodName="construct")
+    @JsonPOJOBuilder(withPrefix="foo", buildMethodName="construct")
     static class BuildFoo {
         private int value;
         

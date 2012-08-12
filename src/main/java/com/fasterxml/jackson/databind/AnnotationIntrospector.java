@@ -156,7 +156,10 @@ public abstract class AnnotationIntrospector implements Versioned
     /**
      * Method called by framework to determine whether given annotation
      * is handled by this introspector.
+     *
+     * @deprecated Not used since 2.0; deprecated sicne 2.1
      */
+    @Deprecated
     public boolean isHandled(Annotation ann) {
         return false;
     }
@@ -250,6 +253,21 @@ public abstract class AnnotationIntrospector implements Versioned
      *    class, if any; or null if none found.
      */
     public Object findFilterId(AnnotatedClass ac) {
+        return null;
+    }
+    
+    /**
+     * Method for finding {@link PropertyNamingStrategy} for given
+     * class, if any specified by annotations; and if so, either return
+     * a {@link PropertyNamingStrategy} instance, or Class to use for
+     * creating instance
+     * 
+     * @return Sub-class or instance of {@link PropertyNamingStrategy}, if one
+     *   is specified for given class; null if not.
+     * 
+     * @since 2.1
+     */
+    public Object findNamingStrategy(AnnotatedClass ac) {
         return null;
     }
     
@@ -962,6 +980,7 @@ public abstract class AnnotationIntrospector implements Versioned
         
         // // // Generic annotation properties, lookup
         
+        @Deprecated
         @Override
         public boolean isHandled(Annotation ann) {
             return _primary.isHandled(ann) || _secondary.isHandled(ann);
@@ -1030,6 +1049,16 @@ public abstract class AnnotationIntrospector implements Versioned
                 id = _secondary.findFilterId(ac);
             }
             return id;
+        }
+
+        @Override
+        public Object findNamingStrategy(AnnotatedClass ac)
+        {
+            Object str = _primary.findNamingStrategy(ac);
+            if (str == null) {
+                str = _secondary.findNamingStrategy(ac);
+            }
+            return str;
         }
         
         /*

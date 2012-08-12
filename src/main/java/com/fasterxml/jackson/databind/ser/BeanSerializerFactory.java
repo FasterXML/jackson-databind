@@ -166,15 +166,18 @@ public class BeanSerializerFactory
                 }
                 */
             }
-            return (JsonSerializer<Object>) buildContainerSerializer(prov,
-                    type, beanDesc, property, staticTyping);
-        }
-
-        // Modules may provide serializers of POJO types:
-        for (Serializers serializers : customSerializers()) {
-            ser = serializers.findSerializer(config, type, beanDesc);
+            // 03-Aug-2012, tatu: As per [Issue#40], may require POJO serializer...
+            ser =  buildContainerSerializer(prov, type, beanDesc, property, staticTyping);
             if (ser != null) {
                 return (JsonSerializer<Object>) ser;
+            }
+        } else {
+            // Modules may provide serializers of POJO types:
+            for (Serializers serializers : customSerializers()) {
+                ser = serializers.findSerializer(config, type, beanDesc);
+                if (ser != null) {
+                    return (JsonSerializer<Object>) ser;
+                }
             }
         }
         
@@ -220,7 +223,11 @@ public class BeanSerializerFactory
     {
         // First things first: we know some types are not beans...
         if (!isPotentialBeanType(type.getRawClass())) {
-            return null;
+            // 03-Aug-2012, tatu: Except we do need to allow serializers for Enums,
+            //   as per [Issue#24]
+            if (!type.isEnumType()) {
+                return null;
+            }
         }
         JsonSerializer<Object> serializer = constructBeanSerializer(prov, beanDesc, property);
         // [JACKSON-440] Need to allow overriding actual serializer, as well...
@@ -418,7 +425,7 @@ public class BeanSerializerFactory
             JavaType idType = idProp.getType();
             gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
             // one more thing: must ensure that ObjectIdWriter does not actually write the value:
-            return ObjectIdWriter.construct(idType, null, gen);
+            return ObjectIdWriter.construct(idType, null, gen, objectIdInfo.getFirstAsId());
             
         } 
         // other types are simpler
@@ -426,7 +433,8 @@ public class BeanSerializerFactory
         // Could require type to be passed explicitly, but we should be able to find it too:
         JavaType idType = prov.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
         gen = prov.objectIdGeneratorInstance(beanDesc.getClassInfo(), objectIdInfo);
-        return ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen);
+        return ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen,
+                objectIdInfo.getFirstAsId());
     }
 
     /**

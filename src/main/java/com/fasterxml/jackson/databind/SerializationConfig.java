@@ -127,6 +127,17 @@ public final class SerializationConfig
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
     }
+
+    /**
+     * @since 2.1
+     */
+    protected SerializationConfig(SerializationConfig src, Map<ClassKey,Class<?>> mixins)
+    {
+        super(src, mixins);
+        _serFeatures = src._serFeatures;
+        _serializationInclusion = src._serializationInclusion;
+        _filterProvider = src._filterProvider;
+    }
     
     /*
     /**********************************************************

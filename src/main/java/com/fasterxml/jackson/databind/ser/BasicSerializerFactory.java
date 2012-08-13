@@ -735,6 +735,12 @@ public abstract class BasicSerializerFactory
         return type;
     }
 
+    /**
+     * Helper method called to try to find whether there is an annotation that
+     * specifies key serializer to use: either attached to property (higher priority)
+     * or class of key type (lower priority).
+     * If so, will try to instantiate key serializer and return it; otherwise returns null.
+     */
     protected JsonSerializer<Object> _findKeySerializer(SerializerProvider prov,
             Annotated a, BeanProperty property)
         throws JsonMappingException

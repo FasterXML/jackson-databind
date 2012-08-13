@@ -60,11 +60,12 @@ public class TestMapSerialization
     /**********************************************************
      */
 
+    final ObjectMapper MAPPER = new ObjectMapper();
+    
     // Test [JACKSON-220]
     public void testMapSerializer() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
-        assertEquals("\"{a=b, c=d}\"", m.writeValueAsString(new PseudoMap("a", "b", "c", "d")));
+        assertEquals("\"{a=b, c=d}\"", MAPPER.writeValueAsString(new PseudoMap("a", "b", "c", "d")));
     }
 
     // Test [JACKSON-314]
@@ -83,23 +84,22 @@ public class TestMapSerialization
     // [JACKSON-499], problems with map entries, values
     public void testMapKeyValueSerialization() throws IOException
     {
-        ObjectMapper m = new ObjectMapper();
         Map<String,String> map = new HashMap<String,String>();
         map.put("a", "b");
-        assertEquals("[\"a\"]", m.writeValueAsString(map.keySet()));
-        assertEquals("[\"b\"]", m.writeValueAsString(map.values()));
+        assertEquals("[\"a\"]", MAPPER.writeValueAsString(map.keySet()));
+        assertEquals("[\"b\"]", MAPPER.writeValueAsString(map.values()));
 
         // TreeMap has similar inner class(es):
         map = new TreeMap<String,String>();
         map.put("c", "d");
-        assertEquals("[\"c\"]", m.writeValueAsString(map.keySet()));
-        assertEquals("[\"d\"]", m.writeValueAsString(map.values()));
+        assertEquals("[\"c\"]", MAPPER.writeValueAsString(map.keySet()));
+        assertEquals("[\"d\"]", MAPPER.writeValueAsString(map.values()));
 
         // and for [JACKSON-533], same for concurrent maps
         map = new ConcurrentHashMap<String,String>();
         map.put("e", "f");
-        assertEquals("[\"e\"]", m.writeValueAsString(map.keySet()));
-        assertEquals("[\"f\"]", m.writeValueAsString(map.values()));
+        assertEquals("[\"e\"]", MAPPER.writeValueAsString(map.keySet()));
+        assertEquals("[\"f\"]", MAPPER.writeValueAsString(map.values()));
     }
 
     // For [JACKSON-574]
@@ -125,5 +125,4 @@ public class TestMapSerialization
         // but can be changed
         assertEquals("{\"a\":6,\"b\":3}", m.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS).writeValueAsString(map));
     }
-    
 }

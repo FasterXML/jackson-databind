@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -47,6 +48,19 @@ public class TestMapDeserialization
             CustomMap result = new CustomMap();
             result.put("x", jp.getText());
             return result;
+        }
+    }
+
+    static class KeyType {
+        protected String value;
+        
+        private KeyType(String v, boolean bogus) {
+            value = v;
+        }
+
+        @JsonCreator
+        public static KeyType create(String v) {
+            return new KeyType(v, true);
         }
     }
     
@@ -373,6 +387,18 @@ public class TestMapDeserialization
         assertEquals(key, ob);
     }
 
+    // Test confirming that @JsonCreator may be used with Map Key types
+    public void testKeyWithCreator() throws Exception
+    {
+        // first, key should deserialize normally:
+        KeyType key = MAPPER.readValue(quote("abc"), KeyType.class);
+        assertEquals("abc", key.value);
+
+        Map<KeyType,Integer> map = MAPPER.readValue("{\"foo\":3}", new TypeReference<Map<KeyType,Integer>>() {} );
+        assertEquals(1, map.size());
+        key = map.keySet().iterator().next();
+        assertEquals("foo", key.value);
+    }
     
     /*
     /**********************************************************

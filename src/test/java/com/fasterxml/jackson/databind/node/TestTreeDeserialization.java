@@ -65,12 +65,12 @@ public class TestTreeDeserialization
         assertTrue(n1.equals(n2));
         assertTrue(n2.equals(n1));
 
-        n1.put("x", TextNode.valueOf("Test"));
+        n1.set("x", TextNode.valueOf("Test"));
 
         assertFalse(n1.equals(n2));
         assertFalse(n2.equals(n1));
 
-        n2.put("x", TextNode.valueOf("Test"));
+        n2.set("x", TextNode.valueOf("Test"));
 
         assertTrue(n1.equals(n2));
         assertTrue(n2.equals(n1));

@@ -33,6 +33,9 @@ Improvements:
 
 New features:
 
+* [Issue#21]: Add 'ObjectNode.set(...)' method (and related) to improve
+  chaining, semantic consistency of Tree Model API
+ (suggested by fge@Github)
 * [Issue#22]: Add 'ObjectMapper.setAnnotationIntrospectors()' which allows
   defining different introspectors for serialization, deserialization
 * [Issue#24]: Allow serialization of Enums as JSON Objects

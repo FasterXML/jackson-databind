@@ -295,6 +295,8 @@ public class ArrayNode
      * Method for removing an entry from this ArrayNode.
      * Will return value of the entry at specified index, if entry existed;
      * null if not.
+     * 
+     * @return Node removed, if any; null if none
      */
     public JsonNode remove(int index)
     {
@@ -304,6 +306,12 @@ public class ArrayNode
         return null;
     }
 
+    /**
+     * Method for removing all elements of this array, leaving the
+     * array empty.
+     * 
+     * @return This node (to allow chaining)
+     */
     @Override
     public ArrayNode removeAll()
     {

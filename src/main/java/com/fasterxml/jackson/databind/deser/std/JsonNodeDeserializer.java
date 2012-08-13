@@ -205,7 +205,7 @@ abstract class BaseNodeDeserializer<N extends JsonNode>
             default:
                 value = deserializeAny(jp, ctxt, nodeFactory);
             }
-            JsonNode old = node.put(fieldName, value);
+            JsonNode old = node.replace(fieldName, value);
             if (old != null) {
                 _handleDuplicateField(fieldName, node, old, value);
             }

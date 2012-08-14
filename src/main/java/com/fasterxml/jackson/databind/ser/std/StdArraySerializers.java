@@ -161,7 +161,8 @@ public class StdArraySerializers
         public void serialize(byte[] value, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
-            jgen.writeBinary(value);
+            jgen.writeBinary(provider.getConfig().getBase64Variant(),
+                    value, 0, value.length);
         }
 
         @Override
@@ -170,7 +171,8 @@ public class StdArraySerializers
             throws IOException, JsonGenerationException
         {
             typeSer.writeTypePrefixForScalar(value, jgen);
-            jgen.writeBinary(value);
+            jgen.writeBinary(provider.getConfig().getBase64Variant(),
+                    value, 0, value.length);
             typeSer.writeTypeSuffixForScalar(value, jgen);
         }
         

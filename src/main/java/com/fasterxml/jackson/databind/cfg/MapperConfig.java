@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -314,6 +315,17 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * Accessor for finding currently active view, if any (null if none)
      */
     public abstract Class<?> getActiveView();
+
+    /**
+     * Method called during deserialization if Base64 encoded content
+     * needs to be decoded. Default version just returns default Jackson
+     * uses, which is modified-mime which does not add linefeeds (because
+     * those would have to be escaped in JSON strings); but this can
+     * be configured on {@link ObjectWriter}.
+     */
+    public Base64Variant getBase64Variant() {
+        return _base.getBase64Variant();
+    }
     
     /*
     /**********************************************************

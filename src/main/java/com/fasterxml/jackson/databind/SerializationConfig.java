@@ -5,6 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfigBase;
@@ -271,6 +272,11 @@ public final class SerializationConfig
     @Override
     public SerializationConfig with(TimeZone tz) {
         return _withBase(_base.with(tz));
+    }
+
+    @Override
+    public SerializationConfig with(Base64Variant base64) {
+        return _withBase(_base.with(base64));
     }
     
     private final SerializationConfig _withBase(BaseSettings newBase) {

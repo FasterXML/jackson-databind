@@ -198,7 +198,8 @@ public class ObjectMapper
             null, StdDateFormat.instance, null,
             Locale.getDefault(),
 //            TimeZone.getDefault()
-            TimeZone.getTimeZone("GMT")
+            TimeZone.getTimeZone("GMT"),
+            Base64Variants.getDefaultVariant() // 2.1
             );
     
     /*
@@ -884,16 +885,12 @@ public class ObjectMapper
 
     /**
      * Method for setting defalt POJO property inclusion strategy for serialization.
-     * Equivalent to:
-     *<pre>
-     *  mapper.setSerializationConfig(mapper.getSerializationConfig().withSerializationInclusion(incl));
-     *</pre>
      */
     public ObjectMapper setSerializationInclusion(JsonInclude.Include incl) {
         _serializationConfig = _serializationConfig.withSerializationInclusion(incl);
         return this;
     }
-   
+    
     /*
     /**********************************************************
     /* Type information configuration (1.5+)
@@ -2221,6 +2218,16 @@ public class ObjectMapper
     public ObjectWriter writer(FormatSchema schema) {
         return new ObjectWriter(this, getSerializationConfig(), schema);
     }
+
+    /**
+     * Factory method for constructing {@link ObjectWriter} that will
+     * use specified Base64 encoding variant for Base64-encoded binary data.
+     * 
+     * @since 2.1
+     */
+    public ObjectWriter writer(Base64Variant defaultBase64) {
+        return new ObjectWriter(this, getSerializationConfig().with(defaultBase64));
+    }
     
     /*
     /**********************************************************
@@ -2345,6 +2352,16 @@ public class ObjectMapper
      */
     public ObjectReader readerWithView(Class<?> view) {
         return new ObjectReader(this, getDeserializationConfig().withView(view));
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} that will
+     * use specified Base64 encoding variant for Base64-encoded binary data.
+     * 
+     * @since 2.1
+     */
+    public ObjectReader reader(Base64Variant defaultBase64) {
+        return new ObjectReader(this, getDeserializationConfig().with(defaultBase64));
     }
     
     /*

@@ -46,7 +46,10 @@ New features:
   by using `@JsonFormat(shape=Shape.ARRAY)`
 * [Issue#40]: Allow serialization of Collections as JSON Objects
   (and deserialization from)
- (suggested by rveloso@github)
+ (suggested by 'rveloso@github')
+* [Issue#42]: Allow specifying Base64 variant to use for Base64-encoded data
+  using ObjectReader.with(Base64Variant), ObjectWriter.with(Base64Variant).
+ (suggested by 'mpfau@github')
 * [Issue#45]: Add '@JsonNaming' annotation to define per-class PropertyNamingStrategy
  (suggested by Mark W)
 * (issue #4 of jackson-annotations): Add `@JsonIdentityInfo(firstAsId=true)`

@@ -258,6 +258,11 @@ public final class DeserializationConfig
     public DeserializationConfig with(TimeZone tz) {
         return _withBase(_base.with(tz));
     }
+
+    @Override
+    public DeserializationConfig with(Base64Variant base64) {
+        return _withBase(_base.with(base64));
+    }
     
     private final DeserializationConfig _withBase(BaseSettings newBase) {
         return (_base == newBase) ? this : new DeserializationConfig(this, newBase);
@@ -472,16 +477,6 @@ public final class DeserializationConfig
      */
     public LinkedNode<DeserializationProblemHandler> getProblemHandlers() {
         return _problemHandlers;
-    }
-    
-    /**
-     * Method called during deserialization if Base64 encoded content
-     * needs to be decoded. Default version just returns default Jackson
-     * uses, which is modified-mime which does not add linefeeds (because
-     * those would have to be escaped in JSON strings).
-     */
-    public Base64Variant getBase64Variant() {
-        return Base64Variants.getDefaultVariant();
     }
 
     public final JsonNodeFactory getNodeFactory() {

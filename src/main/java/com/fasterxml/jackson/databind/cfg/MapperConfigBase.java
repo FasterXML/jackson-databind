@@ -7,6 +7,7 @@ import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
@@ -42,7 +43,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     protected final SubtypeResolver _subtypeResolver;
 
     /**
-     * Explicitly definite root name to use, if any; if empty
+     * Explicitly defined root name to use, if any; if empty
      * String, will disable root-name wrapping; if null, will
      * use defaults
      */
@@ -280,6 +281,12 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * default {@link java.util.TimeZone} to use for formatting of date values.
      */
     public abstract T with(TimeZone tz);
+
+    /**
+     * Method for constructing and returning a new instance with different
+     * default {@link Base64Variant} to use with base64-encoded binary values.
+     */
+    public abstract T with(Base64Variant base64);
     
     /*
     /**********************************************************

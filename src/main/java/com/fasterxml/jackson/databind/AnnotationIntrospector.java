@@ -255,7 +255,22 @@ public abstract class AnnotationIntrospector implements Versioned
     public Object findFilterId(AnnotatedClass ac) {
         return null;
     }
-    
+
+    /**
+     * Method for finding {@link PropertyNamingStrategy} for given
+     * class, if any specified by annotations; and if so, either return
+     * a {@link PropertyNamingStrategy} instance, or Class to use for
+     * creating instance
+     * 
+     * @return Sub-class or instance of {@link PropertyNamingStrategy}, if one
+     *   is specified for given class; null if not.
+     * 
+     * @since 2.1
+     */
+    public Object findNamingStrategy(AnnotatedClass ac) {
+        return null;
+    }    
+
     /*
     /**********************************************************
     /* Property auto-detection
@@ -1035,7 +1050,17 @@ public abstract class AnnotationIntrospector implements Versioned
             }
             return id;
         }
-        
+
+        @Override
+        public Object findNamingStrategy(AnnotatedClass ac)
+        {
+            Object str = _primary.findNamingStrategy(ac);
+            if (str == null) {
+                str = _secondary.findNamingStrategy(ac);
+            }
+            return str;
+        }
+
         /*
         /******************************************************
         /* Property auto-detection

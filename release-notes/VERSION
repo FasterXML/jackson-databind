@@ -46,7 +46,12 @@ New features:
   by using `@JsonFormat(shape=Shape.ARRAY)`
 * [Issue#40]: Allow serialization of Collections as JSON Objects
   (and deserialization from)
- (suggested by rveloso@github)
+ (suggested by 'rveloso@github')
+* [Issue#42]: Allow specifying Base64 variant to use for Base64-encoded data
+  using ObjectReader.with(Base64Variant), ObjectWriter.with(Base64Variant).
+ (suggested by 'mpfau@github')
+* [Issue#45]: Add '@JsonNaming' annotation to define per-class PropertyNamingStrategy
+ (suggested by Mark W)
 * (issue #4 of jackson-annotations): Add `@JsonIdentityInfo(firstAsId=true)`
   to force ALL references to an object written as Object Id, even the first one.
 * Added 'ObjectReader#withHandler' to allow for reconfiguring deserialization
@@ -77,7 +82,7 @@ INCOMPATIBILITIES: (rats!)
    (reported by "thebluemountain")
 * [JACKSON-838]: Utf8StreamParser._reportInvalidToken() skips letters
     from reported token name
-   (reported by LÛr·nt PintÈr)
+   (reported by L√≥r√°nt Pint√©r)
 * [JACKSON-841] Data is doubled in SegmentedStringWriter output
    (reported by Scott S)
 * [JACKSON-842] ArrayIndexOutOfBoundsException when skipping C-style comments

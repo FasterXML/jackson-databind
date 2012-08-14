@@ -2,10 +2,11 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.util.*;
 
-
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.util.BeanUtil;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Helper class used for aggregating information about all possible
@@ -230,7 +231,7 @@ public class POJOPropertiesCollector
         // Rename remaining properties
         _renameProperties();
         // And use custom naming strategy, if applicable...
-        PropertyNamingStrategy naming = _config.getPropertyNamingStrategy();
+        PropertyNamingStrategy naming = _findNamingStrategy();
         if (naming != null) {
             _renameUsing(naming);
         }
@@ -708,5 +709,35 @@ public class POJOPropertiesCollector
             _properties.put(implName, prop);
         }
         return prop;
+    }
+
+    private PropertyNamingStrategy _findNamingStrategy()
+    {
+        Object namingDef = (_annotationIntrospector == null)? null
+                : _annotationIntrospector.findNamingStrategy(_classDef);
+        if (namingDef == null) {
+            return _config.getPropertyNamingStrategy();
+        }
+        if (namingDef instanceof PropertyNamingStrategy) {
+            return (PropertyNamingStrategy) namingDef;
+        }
+        /* Alas, there's no way to force return type of "either class
+         * X or Y" -- need to throw an exception after the fact
+         */
+        if (!(namingDef instanceof Class)) {
+            throw new IllegalStateException("AnnotationIntrospector returned PropertyNamingStrategy definition of type "
+                    +namingDef.getClass().getName()+"; expected type PropertyNamingStrategy or Class<PropertyNamingStrategy> instead");
+        }
+        Class<?> namingClass = (Class<?>)namingDef;
+        if (!PropertyNamingStrategy.class.isAssignableFrom(namingClass)) {
+            throw new IllegalStateException("AnnotationIntrospector returned Class "
+                    +namingClass.getName()+"; expected Class<PropertyNamingStrategy>");
+        }
+        HandlerInstantiator hi = _config.getHandlerInstantiator();
+        if (hi != null) {
+            return hi.namingStrategyInstance(_config, _classDef, namingClass);
+        }
+        return (PropertyNamingStrategy) ClassUtil.createInstance(namingClass,
+                    _config.canOverrideAccessModifiers());
     }
 }

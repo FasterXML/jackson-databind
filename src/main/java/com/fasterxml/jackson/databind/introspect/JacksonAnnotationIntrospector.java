@@ -111,7 +111,14 @@ public class JacksonAnnotationIntrospector
         }
         return null;
     }
-    
+
+    @Override
+    public Object findNamingStrategy(AnnotatedClass ac)
+    {
+        JsonNaming ann = ac.getAnnotation(JsonNaming.class);
+        return (ann == null) ? null : ann.value();
+    } 
+
     /*
     /**********************************************************
     /* Property auto-detection

@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorAware;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
@@ -40,7 +40,7 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 @JacksonStdImpl
 public class JsonValueSerializer
     extends StdSerializer<Object>
-    implements ContextualSerializer, JsonFormatVisitorAware, SchemaAware
+    implements ContextualSerializer, JsonFormatVisitable, SchemaAware
 {
     protected final Method _accessorMethod;
 
@@ -250,8 +250,8 @@ public class JsonValueSerializer
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-    	if (_valueSerializer instanceof JsonFormatVisitorAware) {
-    		((JsonFormatVisitorAware) _valueSerializer).acceptJsonFormatVisitor(visitor, null); 
+    	if (_valueSerializer instanceof JsonFormatVisitable) {
+    		((JsonFormatVisitable) _valueSerializer).acceptJsonFormatVisitor(visitor, null); 
     	} else {
     		visitor.expectAnyFormat(typeHint);
     	}

@@ -897,4 +897,3 @@ Duncan Atkinson:
 Mark Wolfe:
  * Suggested [Issue#45]: Add `@JsonNaming()` for per-class naming strategy overrides
   (2.1.0)
-

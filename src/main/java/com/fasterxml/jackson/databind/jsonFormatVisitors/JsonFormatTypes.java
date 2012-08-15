@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.jsonFormatVisitors;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum SchemaType {
+public enum JsonFormatTypes {
 	
 	STRING,
 	NUMBER,
@@ -21,7 +21,7 @@ public enum SchemaType {
 	}
 	
 	@JsonCreator
-	public static SchemaType forValue(String s) {
+	public static JsonFormatTypes forValue(String s) {
 		return valueOf(s.toUpperCase());
 	}
 }

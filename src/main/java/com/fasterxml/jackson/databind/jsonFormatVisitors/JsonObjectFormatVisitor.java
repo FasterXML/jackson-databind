@@ -10,9 +10,9 @@ public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializer
 
 	public void optionalProperty(BeanPropertyWriter writer);
 
-	public void property(String name, JsonFormatVisitorAware handler, JavaType propertyTypeHint);
+	public void property(String name, JsonFormatVisitable handler, JavaType propertyTypeHint);
 
-	public void optionalProperty(String name, JsonFormatVisitorAware handler,
+	public void optionalProperty(String name, JsonFormatVisitable handler,
 			JavaType propertyTypeHint);
 
 	public void property(String name);

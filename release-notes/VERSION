@@ -52,14 +52,6 @@ New features:
  (suggested by 'mpfau@github')
 * [Issue#45]: Add '@JsonNaming' annotation to define per-class PropertyNamingStrategy
  (suggested by Mark W)
-* [Issue#45]: Add '@JsonNaming' annotation to define per-class PropertyNamingStrategy
- (suggested by Mark W)
- (suggested by 'rveloso@github')
-* [Issue#42]: Allow specifying Base64 variant to use for Base64-encoded data
-  using ObjectReader.with(Base64Variant), ObjectWriter.with(Base64Variant).
- (suggested by 'mpfau@github')
-* [Issue#45]: Add '@JsonNaming' annotation to define per-class PropertyNamingStrategy
- (suggested by Mark W)
 * (issue #4 of jackson-annotations): Add `@JsonIdentityInfo(firstAsId=true)`
   to force ALL references to an object written as Object Id, even the first one.
 * Added 'ObjectReader#withHandler' to allow for reconfiguring deserialization

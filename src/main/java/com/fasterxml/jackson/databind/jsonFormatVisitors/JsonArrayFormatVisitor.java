@@ -6,6 +6,6 @@ public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializerP
 
 	void itemsFormat(JavaType contentType);
 
-	void itemsFormat(SchemaType format);
+	void itemsFormat(JsonFormatTypes format);
 
 }

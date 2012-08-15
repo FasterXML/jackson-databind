@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.lang.reflect.Type;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
@@ -23,6 +23,9 @@ import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorAware;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
+import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
+import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.AnyGetterWriter;
@@ -48,7 +51,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public abstract class BeanSerializerBase
     extends StdSerializer<Object>
     implements ContextualSerializer, ResolvableSerializer,
-        JsonFormatVisitorAware
+        JsonFormatVisitorAware, SchemaAware
 {
     final protected static BeanPropertyWriter[] NO_PROPS = new BeanPropertyWriter[0];
 
@@ -639,6 +642,44 @@ public abstract class BeanSerializerBase
         return filter;
     }
     
+    @Override
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        throws JsonMappingException
+    {
+        ObjectNode o = createSchemaNode("object", true);
+        // [JACKSON-813]: Add optional JSON Schema id attribute, if found
+        // NOTE: not optimal, does NOT go through AnnotationIntrospector etc:
+        JsonSerializableSchema ann = _handledType.getAnnotation(JsonSerializableSchema.class);
+        if (ann != null) {
+            String id = ann.id();
+            if (id != null && id.length() > 0) {
+                o.put("id", id);
+            }
+        }
+ 
+        //todo: should the classname go in the title?
+        //o.put("title", _className);
+        ObjectNode propertiesNode = o.objectNode();
+        final BeanPropertyFilter filter;
+        if (_propertyFilterId != null) {
+        	filter = findFilter(provider);
+        } else {
+        	filter = null;
+        }
+        		
+        for (int i = 0; i < _props.length; i++) {
+            BeanPropertyWriter prop = _props[i];
+            if (filter != null) {
+            	filter.depositSchemaProperty(prop, propertiesNode, provider);
+            	 continue;
+            }
+            depositSchemaProperty(prop, propertiesNode, provider);
+
+        }
+        o.put("properties", propertiesNode);
+        return o;
+    }
+    
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
     	//deposit your output format 
@@ -666,12 +707,55 @@ public abstract class BeanSerializerBase
         }
     }
 
+    
     /**
-	 * 	Attempt to add the output of the given {@link BeanPropertyWriter} in the given {@link ObjectNode}.
-	 * 	Otherwise, add the default schema {@link JsonNode} in place of the writer's output
+     * 	Attempt to add the output of the given {@link BeanPropertyWriter} in the given {@link ObjectNode}.
+     * 	Otherwise, add the default schema {@link JsonNode} in place of the writer's output
+     * 
+     * @param writer Bean property serializer to use to create schema value
+     * @param propertiesNode Node which the given property would exist within
+     * @param provider Provider that can be used for accessing dynamic aspects of serialization
+     * 	processing
+     * 	
+     *  {@link BeanPropertyFilter#depositSchemaProperty(BeanPropertyWriter, ObjectNode, SerializerProvider)}
+     */
+    public static void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode, SerializerProvider provider)
+    {
+        JavaType propType = writer.getSerializationType();
+
+        // 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas it doesn't...
+        Type hint = (propType == null) ? writer.getGenericPropertyType() : propType.getRawClass();
+        JsonNode schemaNode;
+        // Maybe it already has annotated/statically configured serializer?
+        JsonSerializer<Object> ser = writer.getSerializer();
+
+        try {
+            if (ser == null) { // nope
+                Class<?> serType = writer.getRawSerializationType();
+                if (serType == null) {
+                    serType = writer.getPropertyType();
+                }
+                ser = provider.findValueSerializer(serType, writer);
+            }
+            boolean isOptional = !BeanSerializerBase.isPropertyRequired(writer, provider);
+            if (ser instanceof SchemaAware) {
+                schemaNode =  ((SchemaAware) ser).getSchema(provider, hint, isOptional) ;
+            } else {  
+                schemaNode = JsonSchema.getDefaultSchemaNode(); 
+            }
+        } catch (JsonMappingException e) {
+            schemaNode = JsonSchema.getDefaultSchemaNode(); 
+            // TODO: handle in better way (why not throw?)
+        }
+        propertiesNode.put(writer.getName(), schemaNode);
+    }
+    
+    /**
+	 * 	Attempt to add the output of the given {@link BeanPropertyWriter} in the 
+	 *  given {@link JsonObjectFormatVisitor}.
 	 * 
 	 * @param writer Bean property serializer to use to create schema value
-     * @param propertiesNode Node which the given property would exist within
+     * @param visitor ObjectVisitor which cab receive the propert
 	 */
 	public static void depositSchemaProperty(BeanPropertyWriter writer, JsonObjectFormatVisitor objectVisitor) {
 		if (isPropertyRequired(writer, objectVisitor.getProvider())) {

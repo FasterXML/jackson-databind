@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -12,12 +13,13 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonschema.types.JsonValueFormat;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
@@ -105,6 +107,19 @@ public abstract class DateTimeSerializerBase<T>
     }
 
     protected abstract long _timestamp(T value);
+    
+    @Override
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    {
+        //todo: (ryan) add a format for the date in the schema?
+        boolean asNumber = _useTimestamp;
+        if (!asNumber) {
+            if (_customFormat == null) {
+                asNumber = provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            }
+        }
+        return createSchemaNode(asNumber ? "number" : "string", true);
+    }
     
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {

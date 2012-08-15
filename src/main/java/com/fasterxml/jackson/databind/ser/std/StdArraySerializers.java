@@ -1,19 +1,22 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.SchemaType;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -133,6 +136,14 @@ public class StdArraySerializers
         }
 
         @Override
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        {
+            ObjectNode o = createSchemaNode("array", true);
+            o.put("items", createSchemaNode("boolean"));
+            return o;
+        }
+        
+        @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
         	visitor.expectArrayFormat(typeHint).itemsFormat(SchemaType.BOOLEAN);
@@ -163,7 +174,8 @@ public class StdArraySerializers
         public void serialize(byte[] value, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
-            jgen.writeBinary(value);
+            jgen.writeBinary(provider.getConfig().getBase64Variant(),
+                    value, 0, value.length);
         }
 
         @Override
@@ -172,8 +184,18 @@ public class StdArraySerializers
             throws IOException, JsonGenerationException
         {
             typeSer.writeTypePrefixForScalar(value, jgen);
-            jgen.writeBinary(value);
+            jgen.writeBinary(provider.getConfig().getBase64Variant(),
+                    value, 0, value.length);
             typeSer.writeTypeSuffixForScalar(value, jgen);
+        }
+        
+        @Override
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        {
+            ObjectNode o = createSchemaNode("array", true);
+            ObjectNode itemSchema = createSchemaNode("string"); //binary values written as strings?
+            o.put("items", itemSchema);
+            return o;
         }
         
         @Override
@@ -240,6 +262,15 @@ public class StdArraySerializers
         }
 
         @Override
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        {
+            //no "short" type defined by json
+            ObjectNode o = createSchemaNode("array", true);
+            o.put("items", createSchemaNode("integer"));
+            return o;
+        }
+        
+        @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
         	visitor.expectArrayFormat(typeHint).itemsFormat(SchemaType.INTEGER);
@@ -304,6 +335,16 @@ public class StdArraySerializers
         }
 
         @Override
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        {
+            ObjectNode o = createSchemaNode("array", true);
+            ObjectNode itemSchema = createSchemaNode("string");
+            itemSchema.put("type", "string");
+            o.put("items", itemSchema);
+            return o;
+        }
+        
+        @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
         	visitor.expectArrayFormat(typeHint).itemsFormat(SchemaType.STRING);
@@ -358,6 +399,14 @@ public class StdArraySerializers
             }
         }
 
+        @Override
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        {
+            ObjectNode o = createSchemaNode("array", true);
+            o.put("items", createSchemaNode("integer"));
+            return o;
+        }
+        
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
@@ -420,6 +469,14 @@ public class StdArraySerializers
             for (int i = 0, len = value.length; i < len; ++i) {
                 jgen.writeNumber(value[i]);
             }
+        }
+
+        @Override
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        {
+            ObjectNode o = createSchemaNode("array", true);
+            o.put("items", createSchemaNode("number", true));
+            return o;
         }
 
         @Override
@@ -488,6 +545,14 @@ public class StdArraySerializers
         }
 
         @Override
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        {
+            ObjectNode o = createSchemaNode("array", true);
+            o.put("items", createSchemaNode("number"));
+            return o;
+        }
+        
+        @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {
         	visitor.expectArrayFormat(typeHint).itemsFormat(SchemaType.NUMBER);
@@ -542,6 +607,14 @@ public class StdArraySerializers
             }
         }
 
+        @Override
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        {
+            ObjectNode o = createSchemaNode("array", true);
+            o.put("items", createSchemaNode("number"));
+            return o;
+        }
+        
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         {

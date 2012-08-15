@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.databind.module;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.*;
 
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.module.SimpleDeserializers;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.module.SimpleSerializers;
@@ -52,8 +52,8 @@ public class TestSimpleModule extends BaseMapTest
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
-            visitor.expectAnyFormat(typeHint);
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
+            return null;
         }
     }
     
@@ -86,8 +86,8 @@ public class TestSimpleModule extends BaseMapTest
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
-            visitor.expectAnyFormat(typeHint);
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
+            return null;
         }
     }
 

@@ -1,12 +1,11 @@
 package com.fasterxml.jackson.databind.ser.std;
 
+import java.lang.reflect.Type;
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.core.*;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -43,6 +42,13 @@ public class RawSerializer<T>
         typeSer.writeTypePrefixForScalar(value, jgen);
         serialize(value, jgen, provider);
         typeSer.writeTypeSuffixForScalar(value, jgen);
+    }
+    
+    @Override
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    {
+        // type not really known, but since it is a JSON string:
+        return createSchemaNode("string", true);
     }
     
     @Override

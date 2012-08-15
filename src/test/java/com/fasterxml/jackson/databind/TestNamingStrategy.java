@@ -13,7 +13,8 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 
 /**
- * Unit tests to verify functioning of {@link PropertyNamingStrategy}.
+ * Unit tests to verify functioning of {@link PropertyNamingStrategy} which
+ * was added in Jackson 1.8, as per [JACKSON-178].
  */
 public class TestNamingStrategy extends BaseMapTest
 {

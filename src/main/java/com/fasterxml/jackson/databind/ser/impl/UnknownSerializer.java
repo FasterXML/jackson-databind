@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
 
@@ -39,6 +40,11 @@ public class UnknownSerializer
         }
         typeSer.writeTypePrefixForObject(value, jgen);
         typeSer.writeTypeSuffixForObject(value, jgen);
+    }
+    
+    @Override
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
+        return null;
     }
     
     @Override

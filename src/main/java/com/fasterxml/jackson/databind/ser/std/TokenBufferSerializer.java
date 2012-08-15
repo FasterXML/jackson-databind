@@ -1,10 +1,12 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -50,6 +52,16 @@ public class TokenBufferSerializer
         typeSer.writeTypePrefixForScalar(value, jgen);
         serialize(value, jgen, provider);
         typeSer.writeTypeSuffixForScalar(value, jgen);
+    }
+    
+    @Override
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    {
+        /* 01-Jan-2010, tatu: Not 100% sure what we should say here:
+         *   type is basically not known. This seems closest
+         *   approximation
+         */
+        return createSchemaNode("any", true);
     }
     
     @Override

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.SortedMap;
@@ -12,12 +13,14 @@ import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
@@ -470,6 +473,15 @@ public class MapSerializer
                 }
             }
         }
+    }
+    
+    @Override
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    {
+        ObjectNode o = createSchemaNode("object", true);
+        //(ryan) even though it's possible to statically determine the "value" type of the map,
+        // there's no way to statically determine the keys, so the "Entries" can't be determined.
+        return o;
     }
     
     @Override

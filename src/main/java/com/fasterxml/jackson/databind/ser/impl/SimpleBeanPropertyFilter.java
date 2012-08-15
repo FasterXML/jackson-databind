@@ -5,6 +5,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -79,6 +80,13 @@ public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
 		}
 		
 		public void depositSchemaProperty(BeanPropertyWriter writer,
+				ObjectNode propertiesNode, SerializerProvider provider) {
+			if (_propertiesToInclude.contains(writer.getName())) {
+				BeanSerializerBase.depositSchemaProperty(writer, propertiesNode, provider);
+			}
+		}
+		
+		public void depositSchemaProperty(BeanPropertyWriter writer,
 				JsonObjectFormatVisitor objectVisitor, SerializerProvider provider) {
 			if (_propertiesToInclude.contains(writer.getName())) {
 				BeanSerializerBase.depositSchemaProperty(writer, objectVisitor);
@@ -110,6 +118,13 @@ public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
 			}
 		}
 
+		public void depositSchemaProperty(BeanPropertyWriter writer,
+				ObjectNode propertiesNode, SerializerProvider provider) {
+			if (!_propertiesToExclude.contains(writer.getName())) {
+				BeanSerializerBase.depositSchemaProperty(writer, propertiesNode, provider);
+			}
+		}
+		
 		public void depositSchemaProperty(BeanPropertyWriter writer,
 				JsonObjectFormatVisitor objectVisitor, SerializerProvider provider) {
 			if (!_propertiesToExclude.contains(writer.getName())) {

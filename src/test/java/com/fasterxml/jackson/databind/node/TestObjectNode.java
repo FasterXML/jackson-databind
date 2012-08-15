@@ -23,7 +23,7 @@ public class TestObjectNode
         assertTrue(n.path("a").isMissingNode());
 
         TextNode text = TextNode.valueOf("x");
-        n.put("a", text);
+        n.set("a", text);
         assertEquals(1, n.size());
         assertTrue(n.elements().hasNext());
         assertTrue(n.fields().hasNext());
@@ -40,9 +40,9 @@ public class TestObjectNode
         ObjectNode n2 = new ObjectNode(JsonNodeFactory.instance);
         n2.put("b", 13);
         assertFalse(n.equals(n2));
-        n.putAll(n2);
+        n.setAll(n2);
         assertEquals(2, n.size());
-        n.put("null", (JsonNode)null);
+        n.set("null", (JsonNode)null);
         assertEquals(3, n.size());
         // should replace, not add
         n.put("null", "notReallNull");
@@ -52,7 +52,7 @@ public class TestObjectNode
 
         Map<String,JsonNode> nodes = new HashMap<String,JsonNode>();
         nodes.put("d", text);
-        n.putAll(nodes);
+        n.setAll(nodes);
         assertEquals(3, n.size());
 
         n.removeAll();
@@ -67,12 +67,12 @@ public class TestObjectNode
         ObjectNode o1 = JsonNodeFactory.instance.objectNode();
         ObjectNode o2 = JsonNodeFactory.instance.objectNode();
         // used to throw NPE before fix:
-        o1.putAll(o2);
+        o1.setAll(o2);
         assertEquals(0, o1.size());
         assertEquals(0, o2.size());
 
         // also: nulls should be converted to NullNodes...
-        o1.put("x", (ObjectNode) null);
+        o1.set("x", null);
         JsonNode n = o1.get("x");
         assertNotNull(n);
         assertSame(n, NullNode.instance);
@@ -97,7 +97,7 @@ public class TestObjectNode
         ObjectNode src = mapper.createObjectNode();
         ObjectNode dest = mapper.createObjectNode();
         src.put("a", "b");
-        dest.putAll(src);
+        dest.setAll(src);
     }
 
     public void testRemove()
@@ -108,7 +108,7 @@ public class TestObjectNode
         ob.put("b", "b");
         ob.put("c", "c");
         assertEquals(3, ob.size());
-        assertSame(ob, ob.remove(Arrays.asList("a", "c")));
+        assertSame(ob, ob.without(Arrays.asList("a", "c")));
         assertEquals(1, ob.size());
         assertEquals("b", ob.get("b").textValue());
     }

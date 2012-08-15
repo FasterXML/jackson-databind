@@ -255,7 +255,7 @@ public abstract class AnnotationIntrospector implements Versioned
     public Object findFilterId(AnnotatedClass ac) {
         return null;
     }
-    
+
     /**
      * Method for finding {@link PropertyNamingStrategy} for given
      * class, if any specified by annotations; and if so, either return
@@ -269,8 +269,8 @@ public abstract class AnnotationIntrospector implements Versioned
      */
     public Object findNamingStrategy(AnnotatedClass ac) {
         return null;
-    }
-    
+    }    
+
     /*
     /**********************************************************
     /* Property auto-detection
@@ -1060,7 +1060,7 @@ public abstract class AnnotationIntrospector implements Versioned
             }
             return str;
         }
-        
+
         /*
         /******************************************************
         /* Property auto-detection

@@ -42,8 +42,8 @@ public class TokenBuffer
 
     /**
      * Object codec to use for stream-based object
-     *   conversion through parser/generator interfaces. If null,
-     *   such methods can not be used.
+     * conversion through parser/generator interfaces. If null,
+     * such methods can not be used.
      */
     protected ObjectCodec _objectCodec;
 

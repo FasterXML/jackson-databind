@@ -1,10 +1,14 @@
 package com.fasterxml.jackson.databind.ser.std;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Intermediate base class for Lists, Collections and Arrays
@@ -23,6 +27,14 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     }
     
     @Override
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+    {
+        ObjectNode o = createSchemaNode("array", true);
+        o.put("items", contentSchema());
+        return o;
+    }
+    
+    @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
     	acceptContentVisitor(visitor.expectArrayFormat(typeHint));
@@ -34,5 +46,7 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     /**********************************************************
      */
 
+    protected abstract JsonNode contentSchema();
+    
     protected abstract void acceptContentVisitor(JsonArrayFormatVisitor visitor);    
 }

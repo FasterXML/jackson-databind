@@ -230,7 +230,6 @@ public class POJOPropertiesCollector
 
         // Rename remaining properties
         _renameProperties();
-
         // And use custom naming strategy, if applicable...
         PropertyNamingStrategy naming = _findNamingStrategy();
         if (naming != null) {

@@ -15,6 +15,9 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorAware;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
+import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -232,9 +235,37 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
     
     /**
      * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
-		TODO:fillme
+     * to generate <a href="http://json-schema.org/">JSON schema</a> for
+     * given type.
      *
      * @param type The type for which to generate schema
+     */
+    public JsonSchema generateJsonSchema(Class<?> type)
+            throws JsonMappingException
+        {
+            if (type == null) {
+                throw new IllegalArgumentException("A class must be provided");
+            }
+            /* no need for embedded type information for JSON schema generation (all
+             * type information it needs is accessible via "untyped" serializer)
+             */
+            JsonSerializer<Object> ser = findValueSerializer(type, null);
+            JsonNode schemaNode = (ser instanceof SchemaAware) ?
+                    ((SchemaAware) ser).getSchema(this, null) : 
+                    JsonSchema.getDefaultSchemaNode();
+            if (!(schemaNode instanceof ObjectNode)) {
+                throw new IllegalArgumentException("Class " + type.getName() +
+                        " would not be serialized as a JSON object and therefore has no schema");
+            }
+            return new JsonSchema((ObjectNode) schemaNode);
+        }
+    
+    /**
+     * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
+     * to to expose the format of the given to to the given visitor
+     *
+     * @param type The type for which to generate format
+     * @param visitor the visitor to accept the format
      */
     public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitorWrapper visitor)
         throws JsonMappingException

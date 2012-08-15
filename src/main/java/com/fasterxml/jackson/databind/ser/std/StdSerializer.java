@@ -2,17 +2,22 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorAware;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Base class used by all standard serializers, and can also
@@ -22,7 +27,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
  */
 public abstract class StdSerializer<T>
     extends JsonSerializer<T>
-    implements JsonFormatVisitorAware
+    implements JsonFormatVisitorAware, SchemaAware
 {
     /**
      * Nominal type supported, usually declared type of
@@ -74,9 +79,56 @@ public abstract class StdSerializer<T>
 
     /*
     /**********************************************************
-    /* Helper methods for JSON JsonSchema generation
+    /* Helper methods for JSON Schema generation
     /**********************************************************
      */
+    
+    /**
+     * Default implementation simply claims type is "string"; usually
+     * overriden by custom serializers.
+     */
+//  @Override
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        throws JsonMappingException
+    {
+        return createSchemaNode("string");
+    }
+    
+    /**
+     * Default implementation simply claims type is "string"; usually
+     * overriden by custom serializers.
+     */
+//    @Override
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint, boolean isOptional)
+        throws JsonMappingException
+    {
+    	ObjectNode schema = (ObjectNode) getSchema(provider, typeHint);
+    	if (!isOptional) {
+    		schema.put("required", !isOptional);
+    	}
+        return schema;
+    }
+    
+    protected ObjectNode createObjectNode() {
+        return JsonNodeFactory.instance.objectNode();
+    }
+    
+    protected ObjectNode createSchemaNode(String type)
+    {
+        ObjectNode schema = createObjectNode();
+        schema.put("type", type);
+        return schema;
+    }
+    
+    protected ObjectNode createSchemaNode(String type, boolean isOptional)
+    {
+        ObjectNode schema = createSchemaNode(type);
+        // as per [JACKSON-563]. Note that 'required' defaults to false
+        if (!isOptional) {
+            schema.put("required", !isOptional);
+        }
+        return schema;
+    }
     
     /**
      * Default implementation specifies no format. This behavior is usually

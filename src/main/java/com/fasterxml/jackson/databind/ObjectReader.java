@@ -234,10 +234,8 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified feature enabled.
      */
-    public ObjectReader with(DeserializationFeature feature) 
-    {
-        DeserializationConfig newConfig = _config.with(feature);
-        return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+    public ObjectReader with(DeserializationFeature feature) {
+        return _with(_config.with(feature));
     }    
 
     /**
@@ -247,28 +245,23 @@ public class ObjectReader
     public ObjectReader with(DeserializationFeature first,
             DeserializationFeature... other)
     {
-        DeserializationConfig newConfig = _config.with(first, other);
-        return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+        return _with(_config.with(first, other));
     }    
 
     /**
      * Method for constructing a new reader instance that is configured
      * with specified features enabled.
      */
-    public ObjectReader withFeatures(DeserializationFeature... features)
-    {
-        DeserializationConfig newConfig = _config.withFeatures(features);
-        return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+    public ObjectReader withFeatures(DeserializationFeature... features) {
+        return _with(_config.withFeatures(features));
     }    
     
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature disabled.
      */
-    public ObjectReader without(DeserializationFeature feature) 
-    {
-        DeserializationConfig newConfig = _config.without(feature);
-        return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+    public ObjectReader without(DeserializationFeature feature) {
+        return _with(_config.without(feature)); 
     }    
 
     /**
@@ -278,18 +271,15 @@ public class ObjectReader
     public ObjectReader without(DeserializationFeature first,
             DeserializationFeature... other)
     {
-        DeserializationConfig newConfig = _config.without(first, other);
-        return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+        return _with(_config.without(first, other));
     }    
 
     /**
      * Method for constructing a new reader instance that is configured
      * with specified features disabled.
      */
-    public ObjectReader withoutFeatures(DeserializationFeature... features)
-    {
-        DeserializationConfig newConfig = _config.withoutFeatures(features);
-        return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+    public ObjectReader withoutFeatures(DeserializationFeature... features) {
+        return _with(_config.withoutFeatures(features));
     }    
     
     /**
@@ -317,10 +307,8 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader with(JsonNodeFactory f)
-    {
-        DeserializationConfig newConfig = _config.with(f);
-        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    public ObjectReader with(JsonNodeFactory f) {
+        return _with(_config.with(f));
     }
 
     /**
@@ -332,10 +320,8 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader withRootName(String rootName)
-    {
-        DeserializationConfig newConfig = _config.withRootName(rootName);
-        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    public ObjectReader withRootName(String rootName) {
+        return _with(_config.withRootName(rootName));
     }
     
     /**
@@ -443,23 +429,28 @@ public class ObjectReader
      * rather construct and returns a newly configured instance.
      */
     public ObjectReader withView(Class<?> activeView) {
-        DeserializationConfig newConfig = _config.withView(activeView);
-        return (newConfig == _config) ? this : new ObjectReader(this, newConfig);
+        return _with(_config.withView(activeView));
     }
 
     public ObjectReader with(Locale l) {
-        DeserializationConfig newConfig = _config.with(l);
-        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+        return _with(_config.with(l));
     }
 
     public ObjectReader with(TimeZone tz) {
-        DeserializationConfig newConfig = _config.with(tz);
-        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+        return _with(_config.with(tz));
     }
 
     public ObjectReader withHandler(DeserializationProblemHandler h) {
-        DeserializationConfig newConfig = _config.withHandler(h);
-        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+        return _with(_config.withHandler(h));
+    }
+
+    public ObjectReader with(Base64Variant defaultBase64) {
+        return _with(_config.with(defaultBase64));
+    }
+
+    protected ObjectReader _with(DeserializationConfig newConfig) {
+        if (newConfig == _config) return this;
+        return new ObjectReader(this, newConfig);
     }
     
     /*
@@ -1084,8 +1075,7 @@ public class ObjectReader
         return t;
     }
 
-    
-static int col = 0;
+//static int col = 0;
 
     /**
      * Method called to locate deserializer for the passed root-level value.

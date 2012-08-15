@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.jsonschema.types;
+package com.fasterxml.jackson.databind.jsonFormatVisitors;
 
 /**
  * This enum represents the encoded format for a jsonSchema value type

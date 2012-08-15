@@ -33,6 +33,9 @@ Improvements:
 
 New features:
 
+* [Issue#21]: Add 'ObjectNode.set(...)' method (and related) to improve
+  chaining, semantic consistency of Tree Model API
+ (suggested by fge@Github)
 * [Issue#22]: Add 'ObjectMapper.setAnnotationIntrospectors()' which allows
   defining different introspectors for serialization, deserialization
 * [Issue#24]: Allow serialization of Enums as JSON Objects
@@ -43,7 +46,18 @@ New features:
   by using `@JsonFormat(shape=Shape.ARRAY)`
 * [Issue#40]: Allow serialization of Collections as JSON Objects
   (and deserialization from)
- (suggested by rveloso@github)
+ (suggested by 'rveloso@github')
+* [Issue#42]: Allow specifying Base64 variant to use for Base64-encoded data
+  using ObjectReader.with(Base64Variant), ObjectWriter.with(Base64Variant).
+ (suggested by 'mpfau@github')
+* [Issue#45]: Add '@JsonNaming' annotation to define per-class PropertyNamingStrategy
+ (suggested by Mark W)
+* [Issue#45]: Add '@JsonNaming' annotation to define per-class PropertyNamingStrategy
+ (suggested by Mark W)
+ (suggested by 'rveloso@github')
+* [Issue#42]: Allow specifying Base64 variant to use for Base64-encoded data
+  using ObjectReader.with(Base64Variant), ObjectWriter.with(Base64Variant).
+ (suggested by 'mpfau@github')
 * [Issue#45]: Add '@JsonNaming' annotation to define per-class PropertyNamingStrategy
  (suggested by Mark W)
 * (issue #4 of jackson-annotations): Add `@JsonIdentityInfo(firstAsId=true)`
@@ -76,7 +90,7 @@ INCOMPATIBILITIES: (rats!)
    (reported by "thebluemountain")
 * [JACKSON-838]: Utf8StreamParser._reportInvalidToken() skips letters
     from reported token name
-   (reported by LÛr·nt PintÈr)
+   (reported by L√≥r√°nt Pint√©r)
 * [JACKSON-841] Data is doubled in SegmentedStringWriter output
    (reported by Scott S)
 * [JACKSON-842] ArrayIndexOutOfBoundsException when skipping C-style comments

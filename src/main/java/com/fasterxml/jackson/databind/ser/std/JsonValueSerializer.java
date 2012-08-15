@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -11,12 +12,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorAware;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
+import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
@@ -36,7 +40,7 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 @JacksonStdImpl
 public class JsonValueSerializer
     extends StdSerializer<Object>
-    implements ContextualSerializer, JsonFormatVisitorAware
+    implements ContextualSerializer, JsonFormatVisitorAware, SchemaAware
 {
     protected final Method _accessorMethod;
 
@@ -232,6 +236,15 @@ public class JsonValueSerializer
             // let's try to indicate the path best we can...
             throw JsonMappingException.wrapWithPath(t, bean, _accessorMethod.getName() + "()");
         }
+    }
+    
+    @Override
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        throws JsonMappingException
+    {
+        return (_valueSerializer instanceof SchemaAware) ?
+                ((SchemaAware) _valueSerializer).getSchema(provider, null) :
+                JsonSchema.getDefaultSchemaNode();
     }
     
     @Override

@@ -1,17 +1,13 @@
 package com.fasterxml.jackson.databind.jsonschema;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsonschema.factories.SchemaFactory;
-import com.fasterxml.jackson.databind.jsonschema.factories.SchemaFactoryProvider;
-import com.fasterxml.jackson.databind.jsonschema.types.ObjectSchema;
-import com.fasterxml.jackson.databind.jsonschema.types.JsonSchema;
-import com.fasterxml.jackson.databind.jsonschema.types.ArraySchema.Items;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
@@ -34,7 +30,7 @@ public class TestGenerateJsonSchema
         private String property2;
         private String[] property3;
         private Collection<Float> property4;
-        @JsonProperty(required = true)
+        @JsonProperty(required=true)
         private String property5;
         
         public int getProperty1()
@@ -92,7 +88,7 @@ public class TestGenerateJsonSchema
         public String name;
     }
 
-    //@JsonSerializableSchema(id="myType")
+    @JsonSerializableSchema(id="myType")
     public class BeanWithId {
         public String value;
     }
@@ -111,10 +107,7 @@ public class TestGenerateJsonSchema
     public void testGeneratingJsonSchema()
         throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        SchemaFactoryProvider visitor = new SchemaFactoryProvider();
-        m.acceptJsonFormatVisitor(SimpleBean.class, visitor);
-        JsonSchema jsonSchema = visitor.finalSchema();
+        JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
         
         assertNotNull(jsonSchema);
 
@@ -123,45 +116,33 @@ public class TestGenerateJsonSchema
         assertFalse(jsonSchema.equals(null));
         assertFalse(jsonSchema.equals("foo"));
 
-        assertTrue(jsonSchema.isObjectSchema());
-        ObjectSchema object = jsonSchema.asObjectSchema();
-        assertNotNull(object);
-        Map<String,JsonSchema> properties = object.getProperties();
-        assertNotNull(properties);
-        JsonSchema prop1 = properties.get("property1");
-        assertNotNull(prop1);
-        assertTrue(prop1.isIntegerSchema());
-        assertNull(prop1.getRequired());
-        
-        JsonSchema prop2 = properties.get("property2");
-        assertNotNull(prop2);
-        assertTrue(prop2.isStringSchema());
-        assertNull(prop2.getRequired());
-        
-        JsonSchema prop3 = properties.get("property3");
-        assertNotNull(prop3);
-        assertTrue(prop3.isArraySchema());
-        assertNull(prop3.getRequired());
-        Items items = prop3.asArraySchema().getItems();
-        assertTrue(items.isSingleItems());
-        JsonSchema itemType = items.asSingleItems().getSchema();
-        assertNotNull(itemType);
-        assertTrue(itemType.isStringSchema());
-        
-        JsonSchema prop4 = properties.get("property4");
-        assertNotNull(prop4);
-        assertTrue(prop4.isArraySchema());
-        assertNull(prop4.getRequired());
-        items = prop4.asArraySchema().getItems();
-        assertTrue(items.isSingleItems());
-        itemType = items.asSingleItems().getSchema();
-        assertNotNull(itemType);
-        assertTrue(itemType.isNumberSchema());
-        
-        JsonSchema prop5 = properties.get("property5");
-        assertNotNull(prop5);
-        assertTrue(prop5.getRequired());
-      
+        // other basic things
+        assertNotNull(jsonSchema.toString());
+        assertNotNull(JsonSchema.getDefaultSchemaNode());
+
+	ObjectNode root = jsonSchema.getSchemaNode();
+        assertEquals("object", root.get("type").asText());
+        assertEquals(false, root.path("required").booleanValue());
+        JsonNode propertiesSchema = root.get("properties");
+        assertNotNull(propertiesSchema);
+        JsonNode property1Schema = propertiesSchema.get("property1");
+        assertNotNull(property1Schema);
+        assertEquals("integer", property1Schema.get("type").asText());
+        assertEquals(false, property1Schema.path("required").booleanValue());
+        JsonNode property2Schema = propertiesSchema.get("property2");
+        assertNotNull(property2Schema);
+        assertEquals("string", property2Schema.get("type").asText());
+        assertEquals(false, property2Schema.path("required").booleanValue());
+        JsonNode property3Schema = propertiesSchema.get("property3");
+        assertNotNull(property3Schema);
+        assertEquals("array", property3Schema.get("type").asText());
+        assertEquals(false, property3Schema.path("required").booleanValue());
+        assertEquals("string", property3Schema.get("items").get("type").asText());
+        JsonNode property4Schema = propertiesSchema.get("property4");
+        assertNotNull(property4Schema);
+        assertEquals("array", property4Schema.get("type").asText());
+        assertEquals(false, property4Schema.path("required").booleanValue());
+        assertEquals("number", property4Schema.get("items").get("type").asText());
     }
     
     @JsonFilter("filteredBean")
@@ -186,19 +167,10 @@ public class TestGenerateJsonSchema
     public void testGeneratingJsonSchemaWithFilters() throws Exception {
     	ObjectMapper mapper = new ObjectMapper();
     	mapper.setFilters(secretFilterProvider);
-    	SchemaFactoryProvider visitor = new SchemaFactoryProvider();
-        mapper.acceptJsonFormatVisitor(FilteredBean.class, visitor);
-        JsonSchema jsonSchema = visitor.finalSchema();
-    	assertNotNull(jsonSchema);
-    	assertTrue(jsonSchema.isObjectSchema());
-    	ObjectSchema object = jsonSchema.asObjectSchema();
-    	assertNotNull(object);
-    	Map<String, JsonSchema> properties = object.getProperties();
-    	assertNotNull(properties);
-    	JsonSchema obvious = properties.get("obvious");
-    	assertNotNull(obvious);
-    	assertTrue(obvious.isStringSchema());
-    	assertNull(properties.get("secret"));
+    	JsonSchema schema = mapper.generateJsonSchema(FilteredBean.class);
+    	JsonNode node = schema.getSchemaNode().get("properties");
+    	assertTrue(node.has("obvious"));
+    	assertFalse(node.has("secret"));
     }
 
     /**
@@ -208,16 +180,14 @@ public class TestGenerateJsonSchema
     public void testSchemaSerialization()
             throws Exception
     {
-    	SchemaFactoryProvider visitor = new SchemaFactoryProvider();
-        MAPPER.acceptJsonFormatVisitor(SimpleBean.class, visitor);
-        JsonSchema jsonSchema = visitor.finalSchema();
-        Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
-        assertNotNull(result);
-        // no need to check out full structure, just basics...
-        assertEquals("object", result.get("type"));
-        // only add 'required' if it is true...
-        assertNull(result.get("required"));
-        assertNotNull(result.get("properties"));
+        JsonSchema jsonSchema = MAPPER.generateJsonSchema(SimpleBean.class);
+	Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
+	assertNotNull(result);
+	// no need to check out full structure, just basics...
+	assertEquals("object", result.get("type"));
+	// only add 'required' if it is true...
+	assertNull(result.get("required"));
+	assertNotNull(result.get("properties"));
     }
 
     public void testInvalidCall()
@@ -225,9 +195,7 @@ public class TestGenerateJsonSchema
     {
         // not ok to pass null
         try {
-        	SchemaFactoryProvider visitor = new SchemaFactoryProvider();
-            MAPPER.acceptJsonFormatVisitor(null, visitor);
-            JsonSchema jsonSchema = visitor.finalSchema();
+            MAPPER.generateJsonSchema(null);
             fail("Should have failed");
         } catch (IllegalArgumentException iae) {
             verifyException(iae, "class must be provided");
@@ -239,30 +207,19 @@ public class TestGenerateJsonSchema
      */
     public void testThatObjectsHaveNoItems() throws Exception
     {
-    	SchemaFactoryProvider visitor = new SchemaFactoryProvider();
-        MAPPER.acceptJsonFormatVisitor(TrivialBean.class, visitor);
-        JsonSchema jsonSchema = visitor.finalSchema();
-        Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
+        JsonSchema jsonSchema = MAPPER.generateJsonSchema(TrivialBean.class);
+        String json = jsonSchema.toString().replaceAll("\"", "'");
         // can we count on ordering being stable? I think this is true with current ObjectNode impl
         // as perh [JACKSON-563]; 'required' is only included if true
-        assertFalse(result.containsKey("items"));
-
+        assertEquals("{'type':'object','properties':{'name':{'type':'string'}}}",
+                json);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes", "serial" })
-	public void testSchemaId() throws Exception
+    public void testSchemaId() throws Exception
     {
-    	SchemaFactoryProvider visitor = new SchemaFactoryProvider();
-        MAPPER.acceptJsonFormatVisitor(BeanWithId.class, visitor);
-        JsonSchema jsonSchema = visitor.finalSchema();
-        Map<String,Object> result = writeAndMap(MAPPER, jsonSchema);
-        
-        assertEquals(new HashMap() {{ 
-        	put("type", "object");
-        	put("properties", 
-        			new HashMap(){{ put("value", 
-        					new HashMap() {{ put("type", "string");}}
-        			);}}
-        	);}}, result);
+        JsonSchema jsonSchema = MAPPER.generateJsonSchema(BeanWithId.class);
+        String json = jsonSchema.toString().replaceAll("\"", "'");
+        assertEquals("{'type':'object','id':'myType','properties':{'value':{'type':'string'}}}",
+                json);
     }
 }

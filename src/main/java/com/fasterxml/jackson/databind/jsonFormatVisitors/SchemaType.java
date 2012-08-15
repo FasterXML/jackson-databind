@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.jsonschema.types;
+package com.fasterxml.jackson.databind.jsonFormatVisitors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

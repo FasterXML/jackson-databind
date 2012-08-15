@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
-import com.fasterxml.jackson.databind.jsonschema.types.SchemaType;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.SchemaType;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
@@ -44,6 +44,10 @@ public final class IndexedStringListSerializer
         super(List.class);
         _serializer = (JsonSerializer<String>) ser;
         
+    }
+    
+    @Override protected JsonNode contentSchema() {
+        return createSchemaNode("string", true);
     }
 
 	@Override
@@ -151,5 +155,4 @@ public final class IndexedStringListSerializer
             wrapAndThrow(provider, e, value, i);
         }
     }
-
 }

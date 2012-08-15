@@ -11,12 +11,15 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorAware;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
+import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -251,6 +254,32 @@ public class EnumMapSerializer
                 }
             }
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        throws JsonMappingException
+    {
+        ObjectNode o = createSchemaNode("object", true);
+        if (typeHint instanceof ParameterizedType) {
+            Type[] typeArgs = ((ParameterizedType) typeHint).getActualTypeArguments();
+            if (typeArgs.length == 2) {
+                JavaType enumType = provider.constructType(typeArgs[0]);
+                JavaType valueType = provider.constructType(typeArgs[1]);
+                ObjectNode propsNode = JsonNodeFactory.instance.objectNode();
+                Class<Enum<?>> enumClass = (Class<Enum<?>>) enumType.getRawClass();
+                for (Enum<?> enumValue : enumClass.getEnumConstants()) {
+                    JsonSerializer<Object> ser = provider.findValueSerializer(valueType.getRawClass(), _property);
+                    JsonNode schemaNode = (ser instanceof SchemaAware) ?
+                            ((SchemaAware) ser).getSchema(provider, null) :
+                            JsonSchema.getDefaultSchemaNode();
+                    propsNode.put(provider.getConfig().getAnnotationIntrospector().findEnumValue((Enum<?>)enumValue), schemaNode);
+                }
+                o.put("properties", propsNode);
+            }
+        }
+        return o;
     }
     
     @SuppressWarnings("unchecked")

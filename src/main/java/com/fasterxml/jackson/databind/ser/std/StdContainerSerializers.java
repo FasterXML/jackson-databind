@@ -1,12 +1,11 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.impl.IndexedListSerializer;
 import com.fasterxml.jackson.databind.ser.impl.IteratorSerializer;
+import com.fasterxml.jackson.databind.ser.std.CollectionSerializer;
 
 /**
  * Dummy container class to group standard container serializers: serializers

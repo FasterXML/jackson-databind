@@ -115,6 +115,7 @@ public abstract class DateTimeSerializerBase<T>
         return createSchemaNode(asNumber ? "number" : "string", true);
     }
     
+    @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
         //todo: (ryan) add a format for the date in the schema?

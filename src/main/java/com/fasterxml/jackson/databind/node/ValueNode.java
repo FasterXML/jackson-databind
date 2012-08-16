@@ -23,6 +23,7 @@ public abstract class ValueNode
      * them as is.
      */
     @SuppressWarnings("unchecked")
+    @Override
     public <T extends JsonNode> T deepCopy() { return (T) this; }
     
     @Override public boolean isValueNode() { return true; }

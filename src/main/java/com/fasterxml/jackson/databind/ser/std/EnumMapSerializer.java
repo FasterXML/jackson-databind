@@ -287,7 +287,7 @@ public class EnumMapSerializer
             if (typeArgs.length == 2) {
                 JavaType enumType = visitor.getProvider().constructType(typeArgs[0]);
                 JavaType valueType = visitor.getProvider().constructType(typeArgs[1]);
-                ObjectNode propsNode = JsonNodeFactory.instance.objectNode();
+//                ObjectNode propsNode = JsonNodeFactory.instance.objectNode();
                 Class<Enum<?>> enumClass = (Class<Enum<?>>) enumType.getRawClass();
                 for (Enum<?> enumValue : enumClass.getEnumConstants()) {
                 	JsonSerializer<Object> ser;

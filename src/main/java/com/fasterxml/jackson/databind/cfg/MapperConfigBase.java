@@ -299,6 +299,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * for supertypes; needed when a logical type name is used instead
      * of class name (or custom scheme).
      */
+    @Override
     public final SubtypeResolver getSubtypeResolver() {
         return _subtypeResolver;
     }
@@ -307,6 +308,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         return _rootName;
     }
 
+    @Override
     public final Class<?> getActiveView() {
         return _view;
     }

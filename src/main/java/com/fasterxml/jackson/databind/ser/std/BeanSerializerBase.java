@@ -681,6 +681,7 @@ public abstract class BeanSerializerBase
         return (value == null) ? false : value.booleanValue();
     }
     
+    @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
     	//deposit your output format 
@@ -702,8 +703,7 @@ public abstract class BeanSerializerBase
         		
         for (int i = 0; i < _props.length; i++) {
             BeanPropertyWriter prop = _props[i];
-
-            JavaType propType = prop.getSerializationType();
+//            JavaType propType = prop.getSerializationType();
             BeanSerializerBase.depositSchemaProperty(prop, objectVisitor);
         }
     }

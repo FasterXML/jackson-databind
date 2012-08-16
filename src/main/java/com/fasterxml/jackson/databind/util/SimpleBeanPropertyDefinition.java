@@ -95,6 +95,7 @@ public class SimpleBeanPropertyDefinition
         return (_member instanceof AnnotatedParameter);
     }
     
+    @Override
     public AnnotatedMethod getGetter() {
         if ((_member instanceof AnnotatedMethod)
                 && ((AnnotatedMethod) _member).getParameterCount() == 0) {
@@ -103,6 +104,7 @@ public class SimpleBeanPropertyDefinition
         return null;
     }
         
+    @Override
     public AnnotatedMethod getSetter() {
         if ((_member instanceof AnnotatedMethod)
                 && ((AnnotatedMethod) _member).getParameterCount() == 1) {
@@ -110,12 +112,14 @@ public class SimpleBeanPropertyDefinition
         }
         return null;
     }
-        
+
+    @Override
     public AnnotatedField getField() {
         return (_member instanceof AnnotatedField) ?
                 (AnnotatedField) _member : null;
     }
 
+    @Override
     public AnnotatedParameter getConstructorParameter() {
         return (_member instanceof AnnotatedParameter) ?
                 (AnnotatedParameter) _member : null;
@@ -126,6 +130,7 @@ public class SimpleBeanPropertyDefinition
      * value of the property.
      * Null if no such member exists.
      */
+    @Override
     public AnnotatedMember getAccessor() {
         AnnotatedMember acc = getGetter();
         if (acc == null) {
@@ -139,6 +144,7 @@ public class SimpleBeanPropertyDefinition
      * changing value of the property.
      * Null if no such member exists.
      */
+    @Override
     public AnnotatedMember getMutator() {
         AnnotatedMember acc = getConstructorParameter();
         if (acc == null) {

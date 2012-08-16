@@ -63,10 +63,12 @@ public class TestGeneratorUsingMapper extends BaseMapTest
 
         final ObjectMapper mapper = new ObjectMapper();
         final CharacterEscapes defaultCharacterEscapes = new CharacterEscapes() {
+            @Override
             public int[] getEscapeCodesForAscii() {
                 return standardAsciiEscapesForJSON();
             }
 
+            @Override
             public SerializableString getEscapeSequence(final int ch) {
                 return null;
             }

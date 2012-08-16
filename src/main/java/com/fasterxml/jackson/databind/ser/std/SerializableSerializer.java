@@ -53,6 +53,7 @@ public class SerializableSerializer
     }
     
     @Override
+    @SuppressWarnings("deprecation")
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException
     {
@@ -106,9 +107,9 @@ public class SerializableSerializer
         return mapper;
     }
 
-	@Override
-	public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-	{
-		visitor.expectAnyFormat(typeHint);
-	}
+    @Override
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+    {
+        visitor.expectAnyFormat(typeHint);
+    }
 }

@@ -50,13 +50,21 @@ public @interface JsonSerializableSchema
      * a String.
      *
      * @return The node representing the schema properties, or "##irrelevant" if irrelevant.
+     * 
+     * @deprecated (since 2.1) -- support will be dropped in future, since JSON-as-String is
+     *   fundamentally bad way for customizing anything. No direct replacements offered.
      */
+    @Deprecated
     public String schemaObjectPropertiesDefinition() default NO_VALUE;
 
     /**
      * If the schema type if "array", JSON definition of the schema for item types contained.
      *
      * @return The schema for the items in the array, or "##irrelevant" if irrelevant.
+     * 
+     * @deprecated (since 2.1) -- support will be dropped in future, since JSON-as-String is
+     *   fundamentally bad way for customizing anything. No direct replacements offered.
      */
+    @Deprecated
     public String schemaItemDefinition() default NO_VALUE;
 }

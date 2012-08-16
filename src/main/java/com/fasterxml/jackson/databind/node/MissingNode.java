@@ -29,6 +29,7 @@ public final class MissingNode
 
     // Immutable: no need to copy
     @SuppressWarnings("unchecked")
+    @Override
     public <T extends JsonNode> T deepCopy() { return (T) this; }
     
     public static MissingNode getInstance() { return instance; }

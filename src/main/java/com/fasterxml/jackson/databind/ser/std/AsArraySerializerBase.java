@@ -237,7 +237,7 @@ public abstract class AsArraySerializerBase<T>
             contentType = _elementType;
         }
         if (contentType != null) {
-            JsonNode schemaNode = null;
+//            JsonNode schemaNode = null;
             arrayVisitor.itemsFormat(contentType);
         }
     }

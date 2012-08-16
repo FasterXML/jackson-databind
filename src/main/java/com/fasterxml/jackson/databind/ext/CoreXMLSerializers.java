@@ -69,6 +69,7 @@ public class CoreXMLSerializers
             return CalendarSerializer.instance.getSchema(provider, typeHint);
         }
 
+        @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
             CalendarSerializer.instance.acceptJsonFormatVisitor(visitor, null);
         }

@@ -81,12 +81,14 @@ public class AsPropertyTypeSerializer
 
     // Only need to override Object-variants
     
+    @Override
     public void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId)
         throws IOException, JsonProcessingException {
         jgen.writeStartObject();
         jgen.writeStringField(_typePropertyName, typeId);
     }
 
+    @Override
     public void writeCustomTypeSuffixForObject(Object value, JsonGenerator jgen, String typeId)
         throws IOException, JsonProcessingException {
         jgen.writeEndObject();

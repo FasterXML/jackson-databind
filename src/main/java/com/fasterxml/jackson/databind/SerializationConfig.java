@@ -250,6 +250,7 @@ public final class SerializationConfig
         return _withBase(_base.withTypeResolverBuilder(trb));
     }
     
+    @Override
     public SerializationConfig withView(Class<?> view) {
         return (_view == view) ? this : new SerializationConfig(this, view);
     }

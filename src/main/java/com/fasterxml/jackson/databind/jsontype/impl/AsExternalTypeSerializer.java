@@ -124,33 +124,39 @@ public class AsExternalTypeSerializer
    /**********************************************************
     */
 
+   @Override
    public void writeCustomTypePrefixForScalar(Object value, JsonGenerator jgen, String typeId)
        throws IOException, JsonProcessingException
    {
        _writePrefix(value, jgen); // here standard works fine
    }
    
+   @Override
    public void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId)
        throws IOException, JsonProcessingException {
        _writePrefix(value, jgen); // here standard works fine
    }
    
+   @Override
    public void writeCustomTypePrefixForArray(Object value, JsonGenerator jgen, String typeId)
        throws IOException, JsonProcessingException
    {
        _writePrefix(value, jgen); // here standard works fine
    }
 
+   @Override
    public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator jgen, String typeId)
        throws IOException, JsonProcessingException {
        _writeSuffix(value, jgen, typeId);// here standard works fine
    }
 
+   @Override
    public void writeCustomTypeSuffixForObject(Object value, JsonGenerator jgen, String typeId)
        throws IOException, JsonProcessingException {
        _writeSuffix(value, jgen, typeId);// here standard works fine
    }
 
+   @Override
    public void writeCustomTypeSuffixForArray(Object value, JsonGenerator jgen, String typeId)
            throws IOException, JsonProcessingException {
        _writeSuffix(value, jgen, typeId);// here standard works fine

@@ -176,6 +176,7 @@ public abstract class BasicDeserializerFactory
      * Convenience method for creating a new factory instance with additional deserializer
      * provider.
      */
+    @Override
     public final DeserializerFactory withAdditionalDeserializers(Deserializers additional) {
         return withConfig(_factoryConfig.withAdditionalDeserializers(additional));
     }
@@ -184,6 +185,7 @@ public abstract class BasicDeserializerFactory
      * Convenience method for creating a new factory instance with additional
      * {@link KeyDeserializers}.
      */
+    @Override
     public final DeserializerFactory withAdditionalKeyDeserializers(KeyDeserializers additional) {
         return withConfig(_factoryConfig.withAdditionalKeyDeserializers(additional));
     }
@@ -192,6 +194,7 @@ public abstract class BasicDeserializerFactory
      * Convenience method for creating a new factory instance with additional
      * {@link BeanDeserializerModifier}.
      */
+    @Override
     public final DeserializerFactory withDeserializerModifier(BeanDeserializerModifier modifier) {
         return withConfig(_factoryConfig.withDeserializerModifier(modifier));
     }
@@ -200,6 +203,7 @@ public abstract class BasicDeserializerFactory
      * Convenience method for creating a new factory instance with additional
      * {@link AbstractTypeResolver}.
      */
+    @Override
     public final DeserializerFactory withAbstractTypeResolver(AbstractTypeResolver resolver) {
         return withConfig(_factoryConfig.withAbstractTypeResolver(resolver));
     }
@@ -208,6 +212,7 @@ public abstract class BasicDeserializerFactory
      * Convenience method for creating a new factory instance with additional
      * {@link ValueInstantiators}.
      */
+    @Override
     public final DeserializerFactory withValueInstantiators(ValueInstantiators instantiators) {
         return withConfig(_factoryConfig.withValueInstantiators(instantiators));
     }
@@ -218,6 +223,7 @@ public abstract class BasicDeserializerFactory
     /**********************************************************
      */
 
+    @Override
     public JavaType mapAbstractType(DeserializationConfig config, JavaType type)
         throws JsonMappingException
     {

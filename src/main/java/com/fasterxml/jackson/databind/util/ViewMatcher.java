@@ -30,6 +30,7 @@ public abstract class ViewMatcher
 
     private final static class Empty extends ViewMatcher {
         final static Empty instance = new Empty();
+        @Override
         public boolean isVisibleForView(Class<?> activeView) {
             return false;
         }
@@ -38,6 +39,7 @@ public abstract class ViewMatcher
     private final static class Single extends ViewMatcher {
         private final Class<?> _view;
         public Single(Class<?> v) { _view = v; }
+        @Override
         public boolean isVisibleForView(Class<?> activeView) {
             return (activeView == _view) || _view.isAssignableFrom(activeView);
         }
@@ -48,6 +50,7 @@ public abstract class ViewMatcher
 
         public Multi(Class<?>[] v) { _views = v; }
 
+        @Override
         public boolean isVisibleForView(Class<?> activeView)
         {
             for (int i = 0, len = _views.length; i < len; ++i) {

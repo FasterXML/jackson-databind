@@ -158,6 +158,7 @@ public abstract class BasicSerializerFactory
      * Convenience method for creating a new factory instance with an additional
      * serializer provider.
      */
+    @Override
     public final SerializerFactory withAdditionalSerializers(Serializers additional) {
         return withConfig(_factoryConfig.withAdditionalSerializers(additional));
     }
@@ -166,6 +167,7 @@ public abstract class BasicSerializerFactory
      * Convenience method for creating a new factory instance with an additional
      * key serializer provider.
      */
+    @Override
     public final SerializerFactory withAdditionalKeySerializers(Serializers additional) {
         return withConfig(_factoryConfig.withAdditionalKeySerializers(additional));
     }
@@ -174,6 +176,7 @@ public abstract class BasicSerializerFactory
      * Convenience method for creating a new factory instance with additional bean
      * serializer modifier.
      */
+    @Override
     public final SerializerFactory withSerializerModifier(BeanSerializerModifier modifier) {
         return withConfig(_factoryConfig.withSerializerModifier(modifier));
     }

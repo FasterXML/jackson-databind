@@ -1,14 +1,14 @@
 package com.fasterxml.jackson.databind.jsonFormatVisitors;
 
 
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 
 public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializerProvider {
 
-	public void property(BeanPropertyWriter writer);
+	public void property(BeanProperty writer);
 
-	public void optionalProperty(BeanPropertyWriter writer);
+	public void optionalProperty(BeanProperty writer);
 
 	public void property(String name, JsonFormatVisitable handler, JavaType propertyTypeHint);
 

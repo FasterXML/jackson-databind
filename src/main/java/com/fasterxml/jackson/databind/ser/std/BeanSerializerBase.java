@@ -7,16 +7,10 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
@@ -28,14 +22,7 @@ import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.ser.AnyGetterWriter;
-import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.ser.BeanSerializerBuilder;
-import com.fasterxml.jackson.databind.ser.ContainerSerializer;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
+import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
@@ -679,6 +666,20 @@ public abstract class BeanSerializerBase
         o.put("properties", propertiesNode);
         return o;
     }
+
+    /**
+     * Determines if a bean property is required, as determined by
+     * {@link com.fasterxml.jackson.databind.AnnotationIntrospector#hasRequiredMarker}.
+     *<p>
+     * 
+     * 
+     * @param prop the bean property.
+     * @return true if the property is optional, false otherwise.
+     */
+    public static boolean isPropertyRequired(final BeanPropertyWriter prop, final SerializerProvider provider) {
+        Boolean value = provider.getAnnotationIntrospector().hasRequiredMarker(prop.getMember());
+        return (value == null) ? false : value.booleanValue();
+    }
     
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
@@ -764,20 +765,6 @@ public abstract class BeanSerializerBase
 			objectVisitor.optionalProperty(writer);
 		}
 	}
-
-	/**
-     * Determines if a bean property is required, as determined by
-     * {@link com.fasterxml.jackson.databind.AnnotationIntrospector#hasRequiredMarker}.
-     *<p>
-     * 
-     * 
-     * @param prop the bean property.
-     * @return true if the property is optional, false otherwise.
-     */
-    public static boolean isPropertyRequired(final BeanPropertyWriter prop, final SerializerProvider provider) {
-        Boolean value = provider.getAnnotationIntrospector().hasRequiredMarker(prop.getMember());
-        return (value == null) ? false : value.booleanValue();
-    }
-    
+   
 
 }

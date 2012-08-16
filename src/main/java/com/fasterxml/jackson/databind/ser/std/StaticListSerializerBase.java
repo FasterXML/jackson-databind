@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonNode;

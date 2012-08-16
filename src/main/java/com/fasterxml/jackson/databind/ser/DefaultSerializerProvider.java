@@ -283,6 +283,7 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
         	visitor.expectAnyFormat(constructType(type));
         }
     }
+    
     /**
      * Method that can be called to see if this serializer provider
      * can find a serializer for an instance of given class.

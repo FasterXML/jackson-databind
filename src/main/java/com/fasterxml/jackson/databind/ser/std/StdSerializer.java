@@ -4,14 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -23,7 +17,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Base class used by all standard serializers, and can also
  * be used for custom serializers (in fact, this is the recommended
  * base class to use).
- * Provides convenience methods for implementing {@link JsonFormatVisitable}
+ * Provides convenience methods for implementing {@link SchemaAware}
  */
 public abstract class StdSerializer<T>
     extends JsonSerializer<T>

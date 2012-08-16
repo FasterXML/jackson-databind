@@ -45,7 +45,7 @@ public final class IndexedStringListSerializer
         _serializer = (JsonSerializer<String>) ser;
         
     }
-    
+
     @Override protected JsonNode contentSchema() {
         return createSchemaNode("string", true);
     }

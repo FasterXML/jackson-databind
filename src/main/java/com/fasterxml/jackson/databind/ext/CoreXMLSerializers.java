@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ext;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,6 +62,11 @@ public class CoreXMLSerializers
         public void serialize(XMLGregorianCalendar value, JsonGenerator jgen, SerializerProvider provider)
                 throws IOException, JsonGenerationException {
             CalendarSerializer.instance.serialize(value.toGregorianCalendar(), jgen, provider);
+        }
+        
+        @Override
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
+            return CalendarSerializer.instance.getSchema(provider, typeHint);
         }
 
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {

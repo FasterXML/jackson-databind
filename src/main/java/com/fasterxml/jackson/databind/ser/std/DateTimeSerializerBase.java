@@ -12,6 +12,8 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
@@ -111,6 +113,22 @@ public abstract class DateTimeSerializerBase<T>
             }
         }
         return createSchemaNode(asNumber ? "number" : "string", true);
+    }
+    
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+    {
+        //todo: (ryan) add a format for the date in the schema?
+        boolean asNumber = _useTimestamp;
+        if (!asNumber) {
+            if (_customFormat == null) {
+                asNumber = visitor.getProvider().isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            }
+        }
+        if (asNumber) {
+        	visitor.expectNumberFormat(typeHint).format(JsonValueFormat.UTC_MILLISEC);
+        } else {
+        	visitor.expectStringFormat(typeHint).format(JsonValueFormat.DATE_TIME);
+        }
     }
 
     /*

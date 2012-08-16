@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -39,5 +40,20 @@ public interface BeanPropertyFilter
      *
      */
     public void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode,
+    		SerializerProvider provider);
+    
+    /**
+     * Method called by {@link BeanSerializer} to let the filter determine whether, and in what
+     * form the given property exist within the parent, or root, schema. Filters can omit
+     * adding the property to the node, or choose the form of the schema value for the property
+     * 
+     * @param writer Bean property serializer to use to create schema value
+     * @param objectVisitor JsonObjectFormatVisitor which should be aware of 
+     * the property's existence
+     * @param provider Provider that can be used for accessing dynamic aspects of serialization
+     * 	processing
+     * 
+     */
+    public void depositSchemaProperty(BeanPropertyWriter writer, JsonObjectFormatVisitor objectVisitor,
     		SerializerProvider provider);
 }

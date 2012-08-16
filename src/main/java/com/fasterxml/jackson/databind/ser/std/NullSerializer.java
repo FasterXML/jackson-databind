@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 
 /**
  * This is a simple dummy serializer that will just output literal
@@ -35,5 +36,11 @@ public class NullSerializer
         throws JsonMappingException
     {
         return createSchemaNode("null");
+    }
+    
+    @Override
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+    {
+    	visitor.expectNullFormat(typeHint);
     }
 }

@@ -10,6 +10,9 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -272,5 +275,35 @@ public class EnumMapSerializer
             }
         }
         return o;
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+    {
+    	JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
+        if (typeHint instanceof ParameterizedType) {
+            Type[] typeArgs = ((ParameterizedType) typeHint).getActualTypeArguments();
+            if (typeArgs.length == 2) {
+                JavaType enumType = visitor.getProvider().constructType(typeArgs[0]);
+                JavaType valueType = visitor.getProvider().constructType(typeArgs[1]);
+                ObjectNode propsNode = JsonNodeFactory.instance.objectNode();
+                Class<Enum<?>> enumClass = (Class<Enum<?>>) enumType.getRawClass();
+                for (Enum<?> enumValue : enumClass.getEnumConstants()) {
+                	JsonSerializer<Object> ser;
+                	String name = visitor.getProvider().getConfig().getAnnotationIntrospector().findEnumValue((Enum<?>)enumValue);
+                	try {
+                		ser = visitor.getProvider().findValueSerializer(valueType.getRawClass(), _property);
+                		if (ser instanceof JsonFormatVisitable)  {
+                			objectVisitor.property(name, (JsonFormatVisitable) ser, valueType);
+                		} 
+                		continue;
+                	} catch (JsonMappingException e) {
+                		//TODO: log error
+                	}
+                	objectVisitor.property(name);
+                }
+            }
+        }
     }
 }

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -316,6 +317,12 @@ public class ObjectArraySerializer
             }
         }
         return o;
+    }
+    
+    @Override
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+    {
+    	visitor.expectArrayFormat(typeHint).itemsFormat(_elementType);
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,

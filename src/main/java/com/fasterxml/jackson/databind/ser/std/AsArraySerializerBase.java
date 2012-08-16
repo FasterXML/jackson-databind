@@ -7,6 +7,8 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -206,6 +208,38 @@ public abstract class AsArraySerializerBase<T>
             o.put("items", schemaNode);
         }
         return o;
+    }
+    
+    @Override
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+    {
+        /* 15-Jan-2010, tatu: This should probably be rewritten, given that
+         *    more information about content type is actually being explicitly
+         *    passed. So there should be less need to try to re-process that
+         *    information.
+         */
+        //ObjectNode o = createSchemaNode("array", true);
+        JsonArrayFormatVisitor arrayVisitor = 
+        		visitor.expectArrayFormat(typeHint);
+        JavaType contentType = null;
+        if (typeHint != null) {
+            contentType = typeHint.getContentType();
+            if (contentType == null) { // could still be parametrized (Iterators)
+                if (typeHint instanceof ParameterizedType) {
+                    Type[] typeArgs = ((ParameterizedType) typeHint).getActualTypeArguments();
+                    if (typeArgs.length == 1) {
+                        contentType = visitor.getProvider().constructType(typeArgs[0]);
+                    }
+                }
+            }
+        }
+        if (contentType == null && _elementType != null) {
+            contentType = _elementType;
+        }
+        if (contentType != null) {
+            JsonNode schemaNode = null;
+            arrayVisitor.itemsFormat(contentType);
+        }
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,

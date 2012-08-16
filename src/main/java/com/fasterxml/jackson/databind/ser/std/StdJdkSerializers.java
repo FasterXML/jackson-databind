@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.*;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.BasicSerializerFactory;
 import com.fasterxml.jackson.databind.util.Provider;
 
@@ -81,6 +82,12 @@ public class StdJdkSerializers
         {
             return createSchemaNode("boolean", true);
         }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectBooleanFormat(typeHint);
+        }
     }
     
     public final static class AtomicIntegerSerializer
@@ -99,6 +106,12 @@ public class StdJdkSerializers
         public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         {
             return createSchemaNode("integer", true);
+        }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectIntegerFormat(typeHint);
         }
     }
 
@@ -119,6 +132,12 @@ public class StdJdkSerializers
         {
             return createSchemaNode("integer", true);
         }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectIntegerFormat(typeHint);
+        }
     }
     
     public final static class AtomicReferenceSerializer
@@ -137,6 +156,12 @@ public class StdJdkSerializers
         public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         {
             return createSchemaNode("any", true);
+        }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectAnyFormat(typeHint);
         }
     }
     
@@ -167,6 +192,12 @@ public class StdJdkSerializers
         {
             return createSchemaNode("string", true);
         }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectStringFormat(typeHint);
+        }
     }
 
     /**
@@ -189,6 +220,12 @@ public class StdJdkSerializers
         public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         {
             return createSchemaNode("string", true);
+        }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectStringFormat(typeHint);
         }
     }
 }

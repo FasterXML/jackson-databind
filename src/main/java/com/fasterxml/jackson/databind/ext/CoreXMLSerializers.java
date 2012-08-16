@@ -12,10 +12,12 @@ import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.core.*;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.std.CalendarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
@@ -61,10 +63,14 @@ public class CoreXMLSerializers
                 throws IOException, JsonGenerationException {
             CalendarSerializer.instance.serialize(value.toGregorianCalendar(), jgen, provider);
         }
-
+        
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
             return CalendarSerializer.instance.getSchema(provider, typeHint);
+        }
+
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
+            CalendarSerializer.instance.acceptJsonFormatVisitor(visitor, null);
         }
     }
 }

@@ -7,6 +7,8 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -19,7 +21,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 public abstract class StdSerializer<T>
     extends JsonSerializer<T>
-    implements SchemaAware
+    implements JsonFormatVisitable, SchemaAware
 {
     /**
      * Nominal type supported, usually declared type of
@@ -122,6 +124,15 @@ public abstract class StdSerializer<T>
         return schema;
     }
     
+    /**
+     * Default implementation specifies no format. This behavior is usually
+     * overriden by custom serializers.
+     */
+//  @Override
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) { 
+    	visitor.expectAnyFormat(typeHint);
+    }
+            
     /*
     /**********************************************************
     /* Helper methods for exception handling

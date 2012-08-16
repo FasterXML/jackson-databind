@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.*;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
@@ -2484,6 +2486,25 @@ public class ObjectMapper
      */
     public JsonSchema generateJsonSchema(Class<?> t) throws JsonMappingException {
         return _serializerProvider(getSerializationConfig()).generateJsonSchema(t);
+    }
+    
+    /**
+     * Generate <a href="http://json-schema.org/">Json-schema</a>
+     * instance for specified class.
+     *
+     * @param t The class to generate schema for
+     */
+    public void acceptJsonFormatVisitor(Class<?> t, JsonFormatVisitorWrapper visitor) throws JsonMappingException {
+    	if (t == null) {
+    		throw new IllegalArgumentException("class must be provided");
+    	}
+    	
+    	if (visitor == null) {
+    		return;
+    	}
+    	DefaultSerializerProvider provider = _serializerProvider(getSerializationConfig());
+        visitor.setProvider(provider);
+    	provider.acceptJsonFormatVisitor(t, visitor);
     }
 
     /*

@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
@@ -12,6 +14,8 @@ import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
@@ -158,6 +162,26 @@ public class EnumSerializer
             }
         }
         return objectNode;
+    }
+    
+    @Override
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+    {
+        // [JACKSON-684]: serialize as index?
+    	if (visitor.getProvider().isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
+    		visitor.expectIntegerFormat(typeHint);
+    	} else {
+    		JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
+    		if (typeHint != null) {
+    			if (typeHint.isEnumType()) {
+    				Set<String> enums = new HashSet<String>();
+    				for (SerializedString value : _values.values()) {
+    					enums.add(value.getValue());
+    				}
+    				stringVisitor.enumTypes(enums);
+    			}
+    		}
+    	}
     }
 
     /*

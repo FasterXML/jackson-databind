@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -239,6 +241,33 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
      * @param type The type for which to generate schema
      */
     public JsonSchema generateJsonSchema(Class<?> type)
+            throws JsonMappingException
+        {
+            if (type == null) {
+                throw new IllegalArgumentException("A class must be provided");
+            }
+            /* no need for embedded type information for JSON schema generation (all
+             * type information it needs is accessible via "untyped" serializer)
+             */
+            JsonSerializer<Object> ser = findValueSerializer(type, null);
+            JsonNode schemaNode = (ser instanceof SchemaAware) ?
+                    ((SchemaAware) ser).getSchema(this, null) : 
+                    JsonSchema.getDefaultSchemaNode();
+            if (!(schemaNode instanceof ObjectNode)) {
+                throw new IllegalArgumentException("Class " + type.getName() +
+                        " would not be serialized as a JSON object and therefore has no schema");
+            }
+            return new JsonSchema((ObjectNode) schemaNode);
+        }
+    
+    /**
+     * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
+     * to to expose the format of the given to to the given visitor
+     *
+     * @param type The type for which to generate format
+     * @param visitor the visitor to accept the format
+     */
+    public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitorWrapper visitor)
         throws JsonMappingException
     {
         if (type == null) {
@@ -248,16 +277,13 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
          * type information it needs is accessible via "untyped" serializer)
          */
         JsonSerializer<Object> ser = findValueSerializer(type, null);
-        JsonNode schemaNode = (ser instanceof SchemaAware) ?
-                ((SchemaAware) ser).getSchema(this, null) : 
-                JsonSchema.getDefaultSchemaNode();
-        if (!(schemaNode instanceof ObjectNode)) {
-            throw new IllegalArgumentException("Class " + type.getName() +
-                    " would not be serialized as a JSON object and therefore has no schema");
+        if (ser instanceof JsonFormatVisitable) {
+        	((JsonFormatVisitable) ser).acceptJsonFormatVisitor(visitor, constructType(type));
+        } else {
+        	visitor.expectAnyFormat(constructType(type));
         }
-        return new JsonSchema((ObjectNode) schemaNode);
     }
-
+    
     /**
      * Method that can be called to see if this serializer provider
      * can find a serializer for an instance of given class.

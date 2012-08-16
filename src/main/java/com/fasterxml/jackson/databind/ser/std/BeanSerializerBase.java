@@ -14,6 +14,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
@@ -35,7 +38,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public abstract class BeanSerializerBase
     extends StdSerializer<Object>
     implements ContextualSerializer, ResolvableSerializer,
-        SchemaAware
+        JsonFormatVisitable, SchemaAware
 {
     final protected static BeanPropertyWriter[] NO_PROPS = new BeanPropertyWriter[0];
 
@@ -678,6 +681,34 @@ public abstract class BeanSerializerBase
         return (value == null) ? false : value.booleanValue();
     }
     
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+    {
+    	//deposit your output format 
+    	JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
+ 
+        if (_propertyFilterId != null) {
+        	try {
+        		BeanPropertyFilter filter = findFilter(visitor.getProvider());
+				for (int i = 0; i < _props.length; i++) {
+		            BeanPropertyWriter prop = _props[i];
+		            filter.depositSchemaProperty(prop, objectVisitor, visitor.getProvider());
+		        }
+				return;
+			} catch (JsonMappingException e) {
+				// TODO Auto-generated catch block
+
+			}
+        } 
+        		
+        for (int i = 0; i < _props.length; i++) {
+            BeanPropertyWriter prop = _props[i];
+
+            JavaType propType = prop.getSerializationType();
+            BeanSerializerBase.depositSchemaProperty(prop, objectVisitor);
+        }
+    }
+
+    
     /**
      * 	Attempt to add the output of the given {@link BeanPropertyWriter} in the given {@link ObjectNode}.
      * 	Otherwise, add the default schema {@link JsonNode} in place of the writer's output
@@ -719,4 +750,21 @@ public abstract class BeanSerializerBase
         }
         propertiesNode.put(writer.getName(), schemaNode);
     }
+    
+    /**
+	 * 	Attempt to add the output of the given {@link BeanPropertyWriter} in the 
+	 *  given {@link JsonObjectFormatVisitor}.
+	 * 
+	 * @param writer Bean property serializer to use to create schema value
+     * @param visitor ObjectVisitor which cab receive the propert
+	 */
+	public static void depositSchemaProperty(BeanPropertyWriter writer, JsonObjectFormatVisitor objectVisitor) {
+		if (isPropertyRequired(writer, objectVisitor.getProvider())) {
+			objectVisitor.property(writer); 
+		} else {
+			objectVisitor.optionalProperty(writer);
+		}
+	}
+   
+
 }

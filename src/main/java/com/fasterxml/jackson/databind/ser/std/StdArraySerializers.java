@@ -8,6 +8,8 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
@@ -135,6 +137,12 @@ public class StdArraySerializers
             o.put("items", createSchemaNode("boolean"));
             return o;
         }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.BOOLEAN);
+        }
     }
 
     /**
@@ -183,6 +191,12 @@ public class StdArraySerializers
             ObjectNode itemSchema = createSchemaNode("string"); //binary values written as strings?
             o.put("items", itemSchema);
             return o;
+        }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.STRING);
         }
     }
 
@@ -249,6 +263,12 @@ public class StdArraySerializers
             ObjectNode o = createSchemaNode("array", true);
             o.put("items", createSchemaNode("integer"));
             return o;
+        }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.INTEGER);
         }
     }
 
@@ -318,6 +338,12 @@ public class StdArraySerializers
             o.put("items", itemSchema);
             return o;
         }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.STRING);
+        }
     }
 
     @JacksonStdImpl
@@ -374,6 +400,12 @@ public class StdArraySerializers
             ObjectNode o = createSchemaNode("array", true);
             o.put("items", createSchemaNode("integer"));
             return o;
+        }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.INTEGER);
         }
     }
 
@@ -440,6 +472,12 @@ public class StdArraySerializers
             ObjectNode o = createSchemaNode("array", true);
             o.put("items", createSchemaNode("number", true));
             return o;
+        }
+
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.NUMBER);
         }
     }
 
@@ -508,6 +546,12 @@ public class StdArraySerializers
             o.put("items", createSchemaNode("number"));
             return o;
         }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.NUMBER);
+        }
     }
 
     @JacksonStdImpl
@@ -564,6 +608,12 @@ public class StdArraySerializers
             ObjectNode o = createSchemaNode("array", true);
             o.put("items", createSchemaNode("number"));
             return o;
+        }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.NUMBER);
         }
     }
 }

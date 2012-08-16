@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -31,7 +33,7 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 @JacksonStdImpl
 public class JsonValueSerializer
     extends StdSerializer<Object>
-    implements ContextualSerializer, SchemaAware
+    implements ContextualSerializer, JsonFormatVisitable, SchemaAware
 {
     protected final Method _accessorMethod;
 
@@ -236,6 +238,16 @@ public class JsonValueSerializer
         return (_valueSerializer instanceof SchemaAware) ?
                 ((SchemaAware) _valueSerializer).getSchema(provider, null) :
                 JsonSchema.getDefaultSchemaNode();
+    }
+    
+    @Override
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+    {
+    	if (_valueSerializer instanceof JsonFormatVisitable) {
+    		((JsonFormatVisitable) _valueSerializer).acceptJsonFormatVisitor(visitor, null); 
+    	} else {
+    		visitor.expectAnyFormat(typeHint);
+    	}
     }
 
     protected boolean isNaturalTypeWithStdHandling(Class<?> rawType, JsonSerializer<?> ser)

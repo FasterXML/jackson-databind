@@ -9,6 +9,7 @@ import java.util.Map;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 
 /**
  * Container class for serializers used for handling standard JDK-provided types.
@@ -75,6 +76,12 @@ public class NumberSerializers
         {
             return createSchemaNode("integer", true);
         }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectIntegerFormat(typeHint);
+        }
     }
 
     /**
@@ -102,6 +109,12 @@ public class NumberSerializers
         {
             return createSchemaNode("integer", true);
         }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectIntegerFormat(typeHint);
+        }
     }
 
     @JacksonStdImpl
@@ -124,6 +137,12 @@ public class NumberSerializers
         {
             return createSchemaNode("number", true);
         }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectNumberFormat(typeHint);
+        }
     }
     
     @JacksonStdImpl
@@ -145,6 +164,12 @@ public class NumberSerializers
         public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         {
             return createSchemaNode("number", true);
+        }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectNumberFormat(typeHint);
         }
     }
 
@@ -174,6 +199,12 @@ public class NumberSerializers
         public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         {
             return createSchemaNode("number", true);
+        }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectNumberFormat(typeHint);
         }
     }
     
@@ -222,6 +253,12 @@ public class NumberSerializers
         public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         {
             return createSchemaNode("number", true);
+        }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        {
+        	visitor.expectNumberFormat(typeHint);
         }
     }
 }

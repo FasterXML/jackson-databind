@@ -1106,6 +1106,7 @@ public class ObjectMapper
      * @return {@link JsonFactory} that this mapper uses when it needs to
      *   construct Json parser and generators
      */
+    @Override
     public JsonFactory getJsonFactory() { return _jsonFactory; }
     
     /**

@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -43,20 +44,35 @@ public class StdSubtypeResolver extends SubtypeResolver
         }
         registerSubtypes(types);
     }
+
+    /**
+     * @deprecated Since 2.1
+     */
+    @Deprecated
+    @Override
+    public Collection<NamedType> collectAndResolveSubtypes(AnnotatedMember property,
+        MapperConfig<?> config, AnnotationIntrospector ai)
+    {
+        return collectAndResolveSubtypes(property, config, ai, null);
+    }
     
     /**
      * 
      * @param property Base member to use for type resolution: either annotated type (class),
      *    or property (field, getter/setter)
+     *    
+     * @since 2.1
      */
     @Override
     public Collection<NamedType> collectAndResolveSubtypes(AnnotatedMember property,
-        MapperConfig<?> config, AnnotationIntrospector ai)
+        MapperConfig<?> config, AnnotationIntrospector ai, JavaType baseType)
     {
+        // for backwards compatibility, must allow null here:
+        Class<?> rawBase = (baseType == null) ? property.getRawType() : baseType.getRawClass();
+        
         HashMap<NamedType, NamedType> collected = new HashMap<NamedType, NamedType>();
         // start with registered subtypes (which have precedence)
         if (_registeredSubtypes != null) {
-            Class<?> rawBase = property.getRawType();
             for (NamedType subtype : _registeredSubtypes) {
                 // is it a subtype of root type?
                 if (rawBase.isAssignableFrom(subtype.getType())) { // yes
@@ -65,7 +81,7 @@ public class StdSubtypeResolver extends SubtypeResolver
                 }
             }
         }
-
+        
         // then annotated types for property itself
         Collection<NamedType> st = ai.findSubtypes(property);
         if (st != null) {
@@ -74,8 +90,9 @@ public class StdSubtypeResolver extends SubtypeResolver
                 _collectAndResolve(ac, nt, config, ai, collected);
             }            
         }
-        NamedType rootType = new NamedType(property.getRawType(), null);
-        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(property.getRawType(), ai, config);
+        
+        NamedType rootType = new NamedType(rawBase, null);
+        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(rawBase, ai, config);
             
         // and finally subtypes via annotations from base type (recursively)
         _collectAndResolve(ac, rootType, config, ai, collected);
@@ -114,7 +131,8 @@ public class StdSubtypeResolver extends SubtypeResolver
      * Method called to find subtypes for a specific type (class)
      */
     protected void _collectAndResolve(AnnotatedClass annotatedType, NamedType namedType,
-            MapperConfig<?> config, AnnotationIntrospector ai, HashMap<NamedType, NamedType> collectedSubtypes)
+            MapperConfig<?> config, AnnotationIntrospector ai,
+            HashMap<NamedType, NamedType> collectedSubtypes)
     {
         if (!namedType.hasName()) {
             String name = ai.findTypeName(annotatedType);

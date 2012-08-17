@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.jsontype;
 import java.util.Collection;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -23,12 +24,25 @@ public abstract class SubtypeResolver
     public abstract void registerSubtypes(Class<?>... classes);
     
     /**
-     * Method for finding out all reachable subtypes for a property specified
-     * by given element (method or field)
+     * @deprecated Since 2.1: use variant that takes in property type.
      */
+    @Deprecated
     public abstract Collection<NamedType> collectAndResolveSubtypes(AnnotatedMember property,
             MapperConfig<?> config, AnnotationIntrospector ai);
 
+    /**
+     * Method for finding out all reachable subtypes for a property specified
+     * by given element (method or field)
+     * 
+     * @param baseType Effective property base type to use; may differ from
+     *    actual type of property; for structured types it is content (value) type and NOT
+     *    structured type.
+     * 
+     * @since 2.1
+     */
+    public abstract Collection<NamedType> collectAndResolveSubtypes(AnnotatedMember property,
+            MapperConfig<?> config, AnnotationIntrospector ai, JavaType baseType);
+    
     /**
      * Method for finding out all reachable subtypes for given type.
      */

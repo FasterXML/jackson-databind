@@ -1223,8 +1223,8 @@ public abstract class BasicDeserializerFactory
             return findTypeDeserializer(config, baseType);
         }
         // but if annotations found, may need to resolve subtypes:
-        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(annotated,
-                config, ai);
+        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(
+                annotated, config, ai, baseType);
         return b.buildTypeDeserializer(config, baseType, subtypes);
     }
     
@@ -1251,7 +1251,8 @@ public abstract class BasicDeserializerFactory
             return findTypeDeserializer(config, contentType);
         }
         // but if annotations found, may need to resolve subtypes:
-        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(propertyEntity, config, ai);
+        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(
+                propertyEntity, config, ai, contentType);
         return b.buildTypeDeserializer(config, contentType, subtypes);
     }
 

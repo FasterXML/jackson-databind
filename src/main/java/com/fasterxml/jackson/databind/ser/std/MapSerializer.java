@@ -478,7 +478,8 @@ public class MapSerializer
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-    	visitor.expectObjectFormat(null);
+    	//jackphel Aug 17 2012 : this can definitely more more exact. 
+    	visitor.expectObjectFormat(typeHint);
     }
 
     /*

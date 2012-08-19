@@ -207,6 +207,7 @@ public class TestExternalizable extends BaseMapTest
         // then read back!
         ObjectInputStream ins = new ObjectInputStream(new ByteArrayInputStream(ser));
         MyPojo output = (MyPojo) ins.readObject();
+        ins.close();
         assertNotNull(output);
         
         assertEquals(input, output);

@@ -267,20 +267,20 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
      * @param type The type for which to generate format
      * @param visitor the visitor to accept the format
      */
-    public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitorWrapper visitor)
+    public void acceptJsonFormatVisitor(JavaType javaType, JsonFormatVisitorWrapper visitor)
         throws JsonMappingException
     {
-        if (type == null) {
+        if (javaType == null) {
             throw new IllegalArgumentException("A class must be provided");
         }
         /* no need for embedded type information for JSON schema generation (all
          * type information it needs is accessible via "untyped" serializer)
          */
-        JsonSerializer<Object> ser = findValueSerializer(type, null);
+        JsonSerializer<Object> ser = findValueSerializer(javaType, null);
         if (ser instanceof JsonFormatVisitable) {
-        	((JsonFormatVisitable) ser).acceptJsonFormatVisitor(visitor, constructType(type));
+        	((JsonFormatVisitable) ser).acceptJsonFormatVisitor(visitor, javaType);
         } else {
-        	visitor.expectAnyFormat(constructType(type));
+        	visitor.expectAnyFormat(javaType);
         }
     }
     

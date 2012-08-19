@@ -2495,7 +2495,7 @@ public class ObjectMapper
      * @param t The class to generate schema for
      */
     public void acceptJsonFormatVisitor(JavaType javaType, JsonFormatVisitorWrapper visitor) throws JsonMappingException {
-    	if (t == null) {
+    	if (javaType == null) {
     		throw new IllegalArgumentException("class must be provided");
     	}
     	

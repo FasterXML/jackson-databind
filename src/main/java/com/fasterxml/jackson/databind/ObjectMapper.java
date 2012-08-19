@@ -2494,8 +2494,8 @@ public class ObjectMapper
      *
      * @param t The class to generate schema for
      */
-    public void acceptJsonFormatVisitor(Class<?> t, JsonFormatVisitorWrapper visitor) throws JsonMappingException {
-    	if (t == null) {
+    public void acceptJsonFormatVisitor(JavaType javaType, JsonFormatVisitorWrapper visitor) throws JsonMappingException {
+    	if (javaType == null) {
     		throw new IllegalArgumentException("class must be provided");
     	}
     	
@@ -2504,7 +2504,7 @@ public class ObjectMapper
     	}
     	DefaultSerializerProvider provider = _serializerProvider(getSerializationConfig());
         visitor.setProvider(provider);
-    	provider.acceptJsonFormatVisitor(t, visitor);
+    	provider.acceptJsonFormatVisitor(javaType, visitor);
     }
 
     /*

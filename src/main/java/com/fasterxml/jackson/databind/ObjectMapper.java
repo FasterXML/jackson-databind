@@ -1107,8 +1107,15 @@ public class ObjectMapper
      *   construct Json parser and generators
      */
     @Override
-    public JsonFactory getJsonFactory() { return _jsonFactory; }
+    public JsonFactory getFactory() { return _jsonFactory; }
     
+    /**
+     * @deprecated Since 2.1: Use {@link #getFactory} instead
+     */
+    @Deprecated
+    @Override
+    public JsonFactory getJsonFactory() { return _jsonFactory; }
+
     /**
      * Method for configuring the default {@link DateFormat} to use when serializing time
      * values as Strings, and deserializing from JSON Strings.

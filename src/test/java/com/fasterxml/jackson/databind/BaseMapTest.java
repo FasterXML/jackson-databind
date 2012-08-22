@@ -123,10 +123,14 @@ public abstract class BaseMapTest
         return SHARED_MAPPER.writer();
     }
 
+    protected ObjectReader objectReader() {
+        return SHARED_MAPPER.reader();
+    }
+    
     protected ObjectReader objectReader(Class<?> cls) {
         return SHARED_MAPPER.reader(cls);
     }
-    
+
     /*
     /**********************************************************
     /* Additional assert methods
@@ -202,5 +206,13 @@ public abstract class BaseMapTest
 
     protected TimeZone getUTCTimeZone() {
         return TimeZone.getTimeZone("GMT");
+    }
+
+    protected byte[] utf8Bytes(String str) {
+        try {
+            return str.getBytes("UTF-8");
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 }

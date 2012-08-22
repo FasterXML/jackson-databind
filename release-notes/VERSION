@@ -33,6 +33,8 @@ Improvements:
 
 New features:
 
+* [Issue#15]: Support data format auto-detection via ObjectReader (added
+  'withFormatDetection(...)' fluent factories)
 * [Issue#21]: Add 'ObjectNode.set(...)' method (and related) to improve
   chaining, semantic consistency of Tree Model API
  (suggested by fge@Github)

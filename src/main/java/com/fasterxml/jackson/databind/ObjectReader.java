@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.format.DataFormatDetector;
+import com.fasterxml.jackson.core.format.DataFormatMatcher;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -527,6 +528,15 @@ public class ObjectReader
         return _jsonFactory.isEnabled(f);
     }
 
+    @Override
+    public JsonFactory getFactory() {
+        return _jsonFactory;
+    }
+    
+    /**
+     * @deprecated Since 2.1: Use {@link #getFactory} instead
+     */
+    @Deprecated
     @Override
     public JsonFactory getJsonFactory() {
         return _jsonFactory;
@@ -1323,32 +1333,57 @@ public class ObjectReader
 
     /*
     /**********************************************************
-    /* Internal methods, format auto-detection
+    /* Internal methods, format auto-detection (since 2.1)
     /**********************************************************
      */
     
-    protected JsonParser _detect(InputStream in) throws IOException
-    {
-        // !!! TODO
-        throw new UnsupportedOperationException();
+    protected JsonParser _detect(InputStream in) throws IOException {
+        return _detectAndCreateParser(_dataFormatDetector.findFormat(in), false);
     }
 
-    protected JsonParser _detect(File src) throws IOException
-    {
-        // !!! TODO
-        throw new UnsupportedOperationException();
+    protected JsonParser _detect(File src) throws IOException {
+        InputStream in = new FileInputStream(src);
+        return _detectAndCreateParser(_dataFormatDetector.findFormat(in), true);
     }
 
-    protected JsonParser _detect(URL src) throws IOException
-    {
-        // !!! TODO
-        throw new UnsupportedOperationException();
+    protected JsonParser _detect(URL src) throws IOException {
+        InputStream in = src.openStream();
+        return _detectAndCreateParser(_dataFormatDetector.findFormat(in), true);
     }
     
     protected JsonParser _detect(byte[] src, int offset, int length) throws IOException
     {
-        // !!! TODO
-        throw new UnsupportedOperationException();
+        DataFormatMatcher matcher = _dataFormatDetector.findFormat(src, offset, length);
+        if (!matcher.hasMatch()) {
+            _reportUnkownFormat(_dataFormatDetector, matcher);
+        }
+        return matcher.createParserWithMatch();
+    }
+
+    protected JsonParser _detectAndCreateParser(DataFormatMatcher matcher, boolean forceClosing)
+        throws IOException
+    {
+        if (!matcher.hasMatch()) {
+            _reportUnkownFormat(_dataFormatDetector, matcher);
+        }
+        JsonParser jp = matcher.createParserWithMatch();
+        // One more thing: we Own the input stream now; and while it's 
+        // not super clean way to do it, we must ensure closure so:
+        if (forceClosing) {
+            jp.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+        }
+        return jp;
+    }
+    
+    /**
+     * Method called to indicate that format detection failed to detect format
+     * of given input
+     */
+    protected void _reportUnkownFormat(DataFormatDetector detector, DataFormatMatcher match) throws JsonProcessingException
+    {
+        throw new JsonParseException("Can not detect format from input, does not look like any of detectable formats "
+                +detector.toString(),
+                JsonLocation.NA);
     }
     
     /*

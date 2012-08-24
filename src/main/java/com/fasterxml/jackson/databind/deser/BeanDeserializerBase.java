@@ -518,8 +518,11 @@ public abstract class BeanDeserializerBase
                 ? null : property.getMember();
         if (property != null && intr != null) {
             ignorals = intr.findPropertiesToIgnore(accessor);
-            final ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
+            ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
             if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
+                // 2.1: allow modifications by "id ref" annotations as well:
+                objectIdInfo = intr.findObjectReferenceInfo(accessor, objectIdInfo);
+                
                 Class<?> implClass = objectIdInfo.getGeneratorType();
                 // Property-based generator is trickier
                 JavaType idType;

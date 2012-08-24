@@ -13,27 +13,38 @@ public class ObjectIdInfo
     protected final String _propertyName;
     protected final Class<? extends ObjectIdGenerator<?>> _generator;
     protected final Class<?> _scope;
-    protected final boolean _firstAsId;
+    protected final boolean _alwaysAsId;
 
-    /**
-     * @deprecated Since 2.1 use the constructor that takes 4 arguments.
-     */
-    @Deprecated
     public ObjectIdInfo(String prop, Class<?> scope, Class<? extends ObjectIdGenerator<?>> gen) {
         this(prop, scope, gen, false);
     }
-    
-    public ObjectIdInfo(String prop, Class<?> scope, Class<? extends ObjectIdGenerator<?>> gen,
-            boolean firstAsId)
+
+    protected ObjectIdInfo(String prop, Class<?> scope, Class<? extends ObjectIdGenerator<?>> gen,
+            boolean alwaysAsId)
     {
         _propertyName = prop;
-        _generator = gen;
         _scope = scope;
-        _firstAsId = firstAsId;
+        _generator = gen;
+        _alwaysAsId = alwaysAsId;
     }
 
+    public ObjectIdInfo withAlwaysAsId(boolean state) {
+        if (_alwaysAsId == state) {
+            return this;
+        }
+        return new ObjectIdInfo(_propertyName, _scope, _generator, state);
+    }
+    
     public String getPropertyName() { return _propertyName; }
     public Class<?> getScope() { return _scope; }
     public Class<? extends ObjectIdGenerator<?>> getGeneratorType() { return _generator; }
-    public boolean getFirstAsId() { return _firstAsId; }
+    public boolean getAlwaysAsId() { return _alwaysAsId; }
+
+    @Override
+    public String toString() {
+        return "ObjectIdInfo: propName="+_propertyName
+                +", scope="+(_scope == null ? "null" : _scope.getName())
+                +", generatorType="+(_generator == null ? "null" : _generator.getName())
+                +", alwaysAsId="+_alwaysAsId;
+    }
 }

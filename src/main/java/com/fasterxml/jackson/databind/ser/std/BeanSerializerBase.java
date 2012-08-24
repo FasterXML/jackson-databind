@@ -80,9 +80,6 @@ public abstract class BeanSerializerBase
      * If this POJO can be alternatively serialized using just an object id
      * to denote a reference to previously serialized object,
      * this Object will handle details.
-     *<p>
-     * Note: not final since we need to get contextual instance during
-     * resolution.
      */
     final protected ObjectIdWriter _objectIdWriter;
 
@@ -345,14 +342,23 @@ public abstract class BeanSerializerBase
                 ? null : property.getMember();
         
         // First: may have an override for Object Id:
-        if (property != null && intr != null) {
+        if (accessor != null) {
             ignorals = intr.findPropertiesToIgnore(accessor);
-            final ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
-            if (objectIdInfo != null) {
+            ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
+            if (objectIdInfo == null) {
+                // no ObjectId override, but maybe ObjectIdRef?
+                if (oiw != null) {
+                    objectIdInfo = intr.findObjectReferenceInfo(accessor, new ObjectIdInfo("", null, null));
+                    oiw = _objectIdWriter.withAlwaysAsId(objectIdInfo.getAlwaysAsId());
+                }
+            } else {
                 /* Ugh: mostly copied from BeanSerializerBase: but can't easily
                  * change it to be able to move to SerializerProvider (where it
                  * really belongs)
                  */
+                
+                // 2.1: allow modifications by "id ref" annotations as well:
+                objectIdInfo = intr.findObjectReferenceInfo(accessor, objectIdInfo);
                 ObjectIdGenerator<?> gen;
                 Class<?> implClass = objectIdInfo.getGeneratorType();
                 JavaType type = provider.constructType(implClass);
@@ -387,11 +393,11 @@ public abstract class BeanSerializerBase
                     }
                     idType = idProp.getType();
                     gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
-                    oiw = ObjectIdWriter.construct(idType, null, gen, objectIdInfo.getFirstAsId());
+                    oiw = ObjectIdWriter.construct(idType, null, gen, objectIdInfo.getAlwaysAsId());
                 } else { // other types need to be simpler
                     gen = provider.objectIdGeneratorInstance(accessor, objectIdInfo);
                     oiw = ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen,
-                            objectIdInfo.getFirstAsId());
+                            objectIdInfo.getAlwaysAsId());
                 }
             }
         }

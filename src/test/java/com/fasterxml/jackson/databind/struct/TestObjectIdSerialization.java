@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.struct;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
@@ -89,9 +90,7 @@ public class TestObjectIdSerialization extends BaseMapTest
         }
     }
 
-    // For [https://github.com/FasterXML/jackson-annotations/issues/4]
-    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class,
-            property="id", firstAsId=true)
+    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
     static class AlwaysAsId
     {
         public int value;
@@ -102,20 +101,42 @@ public class TestObjectIdSerialization extends BaseMapTest
         }
     }
 
+    // For [https://github.com/FasterXML/jackson-annotations/issues/4]
     @JsonPropertyOrder(alphabetic=true)
     static class AlwaysContainer
     {
+        @JsonIdentityReference(alwaysAsId=true)
         public AlwaysAsId a = new AlwaysAsId(13);
         
-        @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class,
-                property="id", firstAsId=true)
+        @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
+        @JsonIdentityReference(alwaysAsId=true)
         public Value b = new Value();
     }
 
     static class Value {
         public int x = 3;
     }
-    
+
+    @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+    static class TreeNode
+    {
+        public int id;
+        public String name;
+
+        @JsonIdentityReference(alwaysAsId=true)
+        public TreeNode parent;
+
+        // children serialized with ids if need be
+        public TreeNode child;
+
+        public TreeNode() { }
+        public TreeNode(TreeNode p, int id, String name) {
+            parent = p;
+            this.id = id;
+            this.name = name;
+        }
+    }
+
     // // Let's also have one 'broken' test
 
     // no "id" property
@@ -206,7 +227,20 @@ public class TestObjectIdSerialization extends BaseMapTest
     public void testAlwaysAsId() throws Exception
     {
         String json = MAPPER.writeValueAsString(new AlwaysContainer());
-        assertEquals(json, "{\"a\":1,\"b\":2}");
+        assertEquals("{\"a\":1,\"b\":2}", json);
+    }
+
+    public void testAlwaysIdForTree() throws Exception
+    {
+        TreeNode root = new TreeNode(null, 1, "root");     
+        TreeNode leaf = new TreeNode(root, 2, "leaf");
+        root.child = leaf;
+        String json = MAPPER.writeValueAsString(root);
+        System.out.println(json);
+        assertEquals("{\"id\":1,\"name\":\"root\",\"parent\":null,\"child\":"
+                +"{\"id\":2,\"name\":\"leaf\",\"parent\":1,\"child\":null}}",
+                json);
+        		
     }
     
     /*

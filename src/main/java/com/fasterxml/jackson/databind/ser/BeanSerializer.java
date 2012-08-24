@@ -161,7 +161,7 @@ public class BeanSerializer
         oid.serializer = w.serializer;
         oid.id = id = oid.generator.generateId(bean);
         // possibly. Or maybe not:
-        if (w.firstAsId) { 
+        if (w.alwaysAsId) { 
             oid.serializer.serialize(id, jgen, provider);
             return;
         }

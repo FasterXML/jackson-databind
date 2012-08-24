@@ -189,7 +189,11 @@ public class POJOPropertiesCollector
         if (_annotationIntrospector == null) {
             return null;
         }
-        return _annotationIntrospector.findObjectIdInfo(_classDef);
+        ObjectIdInfo info = _annotationIntrospector.findObjectIdInfo(_classDef);
+        if (info != null) { // 2.1: may also have different defaults for refs:
+            info = _annotationIntrospector.findObjectReferenceInfo(_classDef, info);
+        }
+        return info;
     }
 
     /**

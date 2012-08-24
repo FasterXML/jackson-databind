@@ -322,7 +322,11 @@ public class POJOPropertyBuilder
     public ObjectIdInfo findObjectIdInfo() {
         return fromMemberAnnotation(new WithMember<ObjectIdInfo>() {
             public ObjectIdInfo withMember(AnnotatedMember member) {
-                return _annotationIntrospector.findObjectIdInfo(member);
+                ObjectIdInfo info = _annotationIntrospector.findObjectIdInfo(member);
+                if (info != null) {
+                    info = _annotationIntrospector.findObjectReferenceInfo(member, info);
+                }
+                return info;
             }
         });
     }

@@ -38,7 +38,7 @@ public final class ObjectIdWriter
      * 
      * @since 2.1
      */
-    public final boolean firstAsId;
+    public final boolean alwaysAsId;
     
     /*
     /**********************************************************
@@ -48,13 +48,13 @@ public final class ObjectIdWriter
 
     @SuppressWarnings("unchecked")
     protected ObjectIdWriter(JavaType t, SerializedString propName,
-            ObjectIdGenerator<?> gen, JsonSerializer<?> ser, boolean firstAsId)
+            ObjectIdGenerator<?> gen, JsonSerializer<?> ser, boolean alwaysAsId)
     {
         idType = t;
         propertyName = propName;
         generator = gen;
         serializer = (JsonSerializer<Object>) ser;
-        this.firstAsId = firstAsId;
+        this.alwaysAsId = alwaysAsId;
     }
 
     /**
@@ -63,13 +63,23 @@ public final class ObjectIdWriter
      * for which serializer is being built.
      */
     public static ObjectIdWriter construct(JavaType idType, String propName,
-            ObjectIdGenerator<?> generator, boolean firstAsId)
+            ObjectIdGenerator<?> generator, boolean alwaysAsId)
     {
         SerializedString serName = (propName == null) ? null : new SerializedString(propName);
-        return new ObjectIdWriter(idType, serName, generator, null, firstAsId);
+        return new ObjectIdWriter(idType, serName, generator, null, alwaysAsId);
     }
 
     public ObjectIdWriter withSerializer(JsonSerializer<?> ser) {
-        return new ObjectIdWriter(idType, propertyName, generator, ser, firstAsId);
+        return new ObjectIdWriter(idType, propertyName, generator, ser, alwaysAsId);
+    }
+
+    /**
+     * @since 2.1
+     */
+    public ObjectIdWriter withAlwaysAsId(boolean newState) {
+        if (newState == alwaysAsId) {
+            return this;
+        }
+        return new ObjectIdWriter(idType, propertyName, generator, serializer, newState);
     }
 }

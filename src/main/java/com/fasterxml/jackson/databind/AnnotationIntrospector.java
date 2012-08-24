@@ -194,6 +194,15 @@ public abstract class AnnotationIntrospector implements Versioned
     public ObjectIdInfo findObjectIdInfo(Annotated ann) {
         return null;
     }
+
+    /**
+     * Method for figuring out additional properties of an Object Identity reference
+     * 
+     * @since 2.1
+     */
+    public ObjectIdInfo findObjectReferenceInfo(Annotated ann, ObjectIdInfo objectIdInfo) {
+        return objectIdInfo;
+    }
     
     /*
     /**********************************************************
@@ -1311,6 +1320,14 @@ public abstract class AnnotationIntrospector implements Versioned
             return result;
         }
 
+        @Override
+        public ObjectIdInfo findObjectReferenceInfo(Annotated ann, ObjectIdInfo objectIdInfo) {
+            // to give precedence for primary, must start with secondary:
+            objectIdInfo = _secondary.findObjectReferenceInfo(ann, objectIdInfo);
+            objectIdInfo = _primary.findObjectReferenceInfo(ann, objectIdInfo);
+            return objectIdInfo;
+        }
+        
         @Override
         public JsonFormat.Value findFormat(Annotated ann) {
             JsonFormat.Value result = _primary.findFormat(ann);

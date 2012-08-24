@@ -410,10 +410,18 @@ public class JacksonAnnotationIntrospector
         if (info == null || info.generator() == ObjectIdGenerators.None.class) {
             return null;
         }
-        return new ObjectIdInfo(info.property(), info.scope(), info.generator(),
-                info.firstAsId());
+        return new ObjectIdInfo(info.property(), info.scope(), info.generator());
     }
 
+    @Override
+    public ObjectIdInfo findObjectReferenceInfo(Annotated ann, ObjectIdInfo objectIdInfo) {
+        JsonIdentityReference ref = ann.getAnnotation(JsonIdentityReference.class);
+        if (ref != null) {
+            objectIdInfo = objectIdInfo.withAlwaysAsId(ref.alwaysAsId());
+        }
+        return objectIdInfo;
+    }
+    
     @Override
     public JsonFormat.Value findFormat(AnnotatedMember member) {
         return findFormat(member);

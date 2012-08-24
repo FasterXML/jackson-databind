@@ -109,7 +109,7 @@ public class TestEnumDeserialization
         // First "good" case with Strings
         String JSON = "\"OK\" \"RULES\"  null";
         // multiple main-level mappings, need explicit parser:
-        JsonParser jp = MAPPER.getJsonFactory().createJsonParser(JSON);
+        JsonParser jp = MAPPER.getFactory().createJsonParser(JSON);
 
         assertEquals(TestEnum.OK, MAPPER.readValue(jp, TestEnum.class));
         assertEquals(TestEnum.RULES, MAPPER.readValue(jp, TestEnum.class));

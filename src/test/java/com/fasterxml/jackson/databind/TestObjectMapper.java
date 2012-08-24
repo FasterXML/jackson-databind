@@ -81,12 +81,12 @@ public class TestObjectMapper extends BaseMapTest
     public void testJsonFactoryLinkage()
     {
         // first, implicit factory, giving implicit linkage
-        assertSame(MAPPER, MAPPER.getJsonFactory().getCodec());
+        assertSame(MAPPER, MAPPER.getFactory().getCodec());
 
         // and then explicit factory, which should also be implicitly linked
         JsonFactory f = new JsonFactory();
         ObjectMapper m = new ObjectMapper(f);
-        assertSame(f, m.getJsonFactory());
+        assertSame(f, m.getFactory());
         assertSame(m, f.getCodec());
     }
     
@@ -132,7 +132,7 @@ public class TestObjectMapper extends BaseMapTest
 
         // // Also, underlying JsonFactory instances should be distinct
         
-        assertNotSame(m.getJsonFactory(), m2.getJsonFactory());
+        assertNotSame(m.getFactory(), m2.getFactory());
 
         // ... anything else? (probably should do more tests, add as needed)
     }

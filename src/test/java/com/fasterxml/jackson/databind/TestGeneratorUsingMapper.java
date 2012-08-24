@@ -74,7 +74,7 @@ public class TestGeneratorUsingMapper extends BaseMapTest
             }
         };
 
-        mapper.getJsonFactory().setCharacterEscapes(defaultCharacterEscapes);
+        mapper.getFactory().setCharacterEscapes(defaultCharacterEscapes);
         String jacksonJson = mapper.writeValueAsString(sampleText);
         boolean hasLFs = jacksonJson.indexOf('\n') > 0;
         assertFalse("Should NOT contain linefeeds, should have been escaped", hasLFs);

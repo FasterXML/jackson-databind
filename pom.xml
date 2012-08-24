@@ -1,55 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ |  Copyright 2012 FasterXML.com
+ |
+ |  Licensed under the Apache License, Version 2.0 (the "License");
+ |  you may not use this file except in compliance with the License.
+ |  You may obtain a copy of the License at
+ |
+ |  http://www.apache.org/licenses/LICENSE-2.0
+ |
+ |  Unless required by applicable law or agreed to in writing, software
+ |  distributed under the License is distributed on an "AS IS" BASIS,
+ |  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ |  See the License for the specific language governing permissions and
+ |  limitations under the License.
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion> 
+
   <parent>
-    <groupId>org.sonatype.oss</groupId>
+    <groupId>com.fasterxml</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>7</version>
+    <version>3</version>
   </parent>
+
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <name>jackson-databind</name>
   <version>2.1.0-SNAPSHOT</version>
-  <packaging>bundle</packaging>
-  <description>General data-binding functionality for Jackson: works on core streaming API
-  </description>
+
+  <name>jackson-databind</name>
+  <description>General data-binding functionality for Jackson: works on core streaming API</description>
   <url>http://wiki.fasterxml.com/JacksonHome</url>
+
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
     <url>http://github.com/FasterXML/jackson-databind</url>    
   </scm>
-  <developers>
-        <developer>
-            <id>tatu</id>
-            <name>Tatu Saloranta</name>
-            <email>tatu@fasterxml.com</email>
-        </developer>
-  </developers>
 
-  <prerequisites>
-    <maven>2.2.1</maven>
-  </prerequisites>
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <osgi.export>
+com.fasterxml.jackson.databind,
+com.fasterxml.jackson.databind.annotation,
+com.fasterxml.jackson.databind.cfg,
+com.fasterxml.jackson.databind.deser,
+com.fasterxml.jackson.databind.deser.impl,
+com.fasterxml.jackson.databind.deser.std,
+com.fasterxml.jackson.databind.exc,
+com.fasterxml.jackson.databind.ext,
+com.fasterxml.jackson.databind.introspect,
+com.fasterxml.jackson.databind.jsonschema,
+com.fasterxml.jackson.databind.jsonFormatVisitors,
+com.fasterxml.jackson.databind.jsontype,
+com.fasterxml.jackson.databind.jsontype.impl,
+com.fasterxml.jackson.databind.module,
+com.fasterxml.jackson.databind.node,
+com.fasterxml.jackson.databind.ser,
+com.fasterxml.jackson.databind.ser.impl,
+com.fasterxml.jackson.databind.ser.std,
+com.fasterxml.jackson.databind.type,
+com.fasterxml.jackson.databind.util
+    </osgi.export>
+    <osgi.import>
+com.fasterxml.jackson.annotation,
+com.fasterxml.jackson.core,
+com.fasterxml.jackson.core.base,
+com.fasterxml.jackson.core.format,
+com.fasterxml.jackson.core.json,
+com.fasterxml.jackson.core.io,
+com.fasterxml.jackson.core.util,
+com.fasterxml.jackson.core.type,
+org.xml.sax,org.w3c.dom, org.w3c.dom.bootstrap, org.w3c.dom.ls,
+javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
+</osgi.import>
   </properties>
-
-  <!-- Licensing -->
-  <licenses>
-    <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-      <distribution>repo</distribution>
-    </license>
-    <license>
-      <name>Lesser Gnu Public License (LGPL), Version 2.1</name>
-      <url>http://www.gnu.org/licenses/lgpl-2.1.html</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-  <organization>
-    <name>fasterxml.com</name>
-    <url>http://fasterxml.com</url>
-  </organization>
 
   <dependencies>
     <!-- Builds on core streaming API; also needs core annotations -->
@@ -70,7 +93,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.8.2</version>
+      <version>4.10</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -97,155 +120,38 @@
     <!--  need to enable filtering to add version info -->
     <resources>
       <resource>
-        <directory>src/main/resources</directory>
+        <directory>${basedir}/src/main/resources</directory>
         <filtering>true</filtering>
-      </resource>  
+      </resource>
     </resources>
+
     <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3.2</version>
-        <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.1</version>
-        <configuration>
-          <mavenExecutorId>forked-path</mavenExecutorId>
-        </configuration>
-      </plugin>
-      <plugin><!-- plug-in to attach source bundle in repo -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>2.1.2</version>
-        <executions>
-            <execution>
-              <id>attach-sources</id>
-              <goals>
-                <goal>jar</goal>
-              </goals>
-            </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.12</version>
+        <version>${surefire.version}</version>
         <configuration>
           <excludes>
             <exclude>com/fasterxml/jackson/failing/*.java</exclude>
           </excludes>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>2.12</version>
-        <executions>
-          <execution>
-            <phase>test</phase>
-            <goals>
-              <goal>report-only</goal>
-            </goals>
-          </execution>
-        </executions>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${surefire.version}</version>
+        <configuration>
+          <links>
+            <link>http://docs.oracle.com/javase/6/docs/api/</link>
+            <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.0.2/</link>
+            <link>http://fasterxml.github.com/jackson-core/javadoc/2.0.2/</link>
+          </links>
+        </configuration>
       </plugin>
-
-      <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.8.1</version>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                    <encoding>UTF-8</encoding>
-                    <maxmemory>512m</maxmemory>
-                    <links>
-                        <link>http://docs.oracle.com/javase/6/docs/api/</link>
-                        <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.0.2/</link>
-                        <link>http://fasterxml.github.com/jackson-core/javadoc/2.0.2/</link>
-                    </links>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-        </plugin>
-
-        <!-- Plus, let's make jars OSGi bundles as well  -->
-        <plugin>
-          <groupId>org.apache.felix</groupId>
-          <artifactId>maven-bundle-plugin</artifactId>
-          <version>2.3.7</version>
-          <extensions>true</extensions>
-          <configuration>
-            <instructions>
-              <!-- 28-Jun-2012, tatu: Before 2.1, symbolic name was unqualified; changed for
-                    2.1 as per [https://github.com/FasterXML/jackson-databind/issues/19] 
-               -->
-              <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-              <Bundle-Vendor>fasterml.com</Bundle-Vendor>
-              <Import-Package>
-com.fasterxml.jackson.annotation,
-com.fasterxml.jackson.core,
-com.fasterxml.jackson.core.base,
-com.fasterxml.jackson.core.format,
-com.fasterxml.jackson.core.json,
-com.fasterxml.jackson.core.io,
-com.fasterxml.jackson.core.util,
-com.fasterxml.jackson.core.type,
-org.xml.sax,org.w3c.dom, org.w3c.dom.bootstrap, org.w3c.dom.ls,
-javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
-</Import-Package>
-              <Private-Package>
-</Private-Package>
-              <Export-Package>
-com.fasterxml.jackson.databind,
-com.fasterxml.jackson.databind.annotation,
-com.fasterxml.jackson.databind.cfg,
-com.fasterxml.jackson.databind.deser,
-com.fasterxml.jackson.databind.deser.impl,
-com.fasterxml.jackson.databind.deser.std,
-com.fasterxml.jackson.databind.exc,
-com.fasterxml.jackson.databind.ext,
-com.fasterxml.jackson.databind.introspect,
-com.fasterxml.jackson.databind.jsonschema,
-com.fasterxml.jackson.databind.jsonFormatVisitors,
-com.fasterxml.jackson.databind.jsontype,
-com.fasterxml.jackson.databind.jsontype.impl,
-com.fasterxml.jackson.databind.module,
-com.fasterxml.jackson.databind.node,
-com.fasterxml.jackson.databind.ser,
-com.fasterxml.jackson.databind.ser.impl,
-com.fasterxml.jackson.databind.ser.std,
-com.fasterxml.jackson.databind.type,
-com.fasterxml.jackson.databind.util,
-</Export-Package>
-            </instructions>
-          </configuration>
-        </plugin>
     </plugins>
   </build>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>2.11</version>
-      </plugin>
-    </plugins>
-  </reporting>
-  
   <profiles>
     <profile>
       <id>release</id>
@@ -253,36 +159,7 @@ com.fasterxml.jackson.databind.util,
         <maven.test.skip>true</maven.test.skip>
         <skipTests>true</skipTests>
       </properties>
-    </profile> 
-
-        <profile>
-            <id>release-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.1</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
+    </profile>
   </profiles>
-  <!-- NOTE: repositories from parent POM -->
 
 </project>

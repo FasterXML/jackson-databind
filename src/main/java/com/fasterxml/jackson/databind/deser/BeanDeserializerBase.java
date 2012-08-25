@@ -793,7 +793,31 @@ public abstract class BeanDeserializerBase
     public ValueInstantiator getValueInstantiator() {
         return _valueInstantiator;
     }
-    
+
+    /*
+    /**********************************************************
+    /* Mutators
+    /**********************************************************
+     */
+
+    /**
+     * Method that can be used to replace an existing property with
+     * a modified one.
+     *<p>
+     * NOTE: only ever use this method if you know what you are doing;
+     * incorrect usage can break deserializer.
+     *
+     * @param original Property to replace
+     * @param replacement Property to replace it with
+     * 
+     * @since 2.1
+     */
+    public void replaceProperty(SettableBeanProperty original,
+            SettableBeanProperty replacement)
+    {
+        _beanProperties.replace(replacement);
+    }
+
     /*
     /**********************************************************
     /* Partial deserializer implementation

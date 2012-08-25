@@ -550,8 +550,7 @@ public class BeanDeserializerFactory
             }
             if (propDef.hasSetter()) {
                 Type propertyType = propDef.getSetter().getGenericParameterType(0);
-                prop = constructSettableProperty(ctxt,
-                        beanDesc, propDef, propertyType);
+                prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
             } else if (propDef.hasField()) {
                 Type propertyType = propDef.getField().getGenericType();
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);

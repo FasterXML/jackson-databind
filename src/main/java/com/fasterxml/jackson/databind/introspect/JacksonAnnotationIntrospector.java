@@ -38,7 +38,9 @@ public class JacksonAnnotationIntrospector
     /**********************************************************
      */
 
+    // TODO: remove in 2.2
     @Override
+    @Deprecated
     public boolean isHandled(Annotation ann)
     {
         Class<? extends Annotation> acls = ann.annotationType();

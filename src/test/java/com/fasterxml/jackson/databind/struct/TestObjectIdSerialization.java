@@ -236,7 +236,7 @@ public class TestObjectIdSerialization extends BaseMapTest
         TreeNode leaf = new TreeNode(root, 2, "leaf");
         root.child = leaf;
         String json = MAPPER.writeValueAsString(root);
-        System.out.println(json);
+//        System.out.println(json);
         assertEquals("{\"id\":1,\"name\":\"root\",\"parent\":null,\"child\":"
                 +"{\"id\":2,\"name\":\"leaf\",\"parent\":1,\"child\":null}}",
                 json);

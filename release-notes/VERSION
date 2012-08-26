@@ -13,6 +13,7 @@ Fixes:
   'ObjectWriter.writeValue(JsonGenerator, Object)' handle pretty printer
 * [Issue#46]: findRootName() only accepts null to mean 'default root name',
   not empty String
+* [Issue#57]: Make JDK Proxy type serializable
 
 ------------------------------------------------------------------------
 === History: ===

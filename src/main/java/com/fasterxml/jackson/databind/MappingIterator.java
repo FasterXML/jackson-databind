@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.*;
 
@@ -10,7 +11,7 @@ import com.fasterxml.jackson.core.*;
  * objects. Extension is done to allow more convenient exposing of
  * {@link IOException} (which basic {@link Iterator} does not expose)
  */
-public class MappingIterator<T> implements Iterator<T>
+public class MappingIterator<T> implements Iterator<T>, Closeable
 {
     protected final static MappingIterator<?> EMPTY_ITERATOR =
         new MappingIterator<Object>(null, null, null, null, false, null);
@@ -127,6 +128,12 @@ public class MappingIterator<T> implements Iterator<T>
 //  @Override
     public void remove() {
         throw new UnsupportedOperationException();
+    }
+    
+    public void close() throws IOException{
+        if(_parser != null) {
+            _parser.close();
+        }
     }
 
     /*

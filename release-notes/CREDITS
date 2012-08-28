@@ -640,11 +640,13 @@ Pascal Glinas:
   * Reported [JACKSON-693] @JsonBackReference not used during deserialization
    if it's annotated on a getter method.
    [1.9.1]
+  * Contributed fixes to 'MappingIterator' handling (Pull#58 and Pull#59)
+   (2.1.0)
 
 Maik Jorra:
   * Reported [JACKSON-540] Side-effects with ObjectMapper.canSerialize(),
     canDeserialize()
-   [1.7.5]
+   (1.7.5)
 
 Suchema Oyetey:
   * Reported [JACKSON-530] Default SerializationInclusion value not properly
@@ -679,115 +681,115 @@ Gregor Ottman:
 
 Bryce McKinlay:
   * Suggested [JACKSON-358]: Allow parsing numbers with leading zeroes
-   [1.8.0]
+   (1.8.0)
 
 Sven Jacobs:
   * Suggested [JACKSON-527]: Add 'HandlerInstantiator' abstraction, which can be implemented
     and registered with ObjectMapper to get more control over how handlers (serializers,
     deserializers, type id resolver) are constructed.
-   [1.8.0]
+   (1.8.0)
 
 Ruben Errejon Garcia:
   * Reported [JACKSON-560] Mix-in annotations ignored when used with views
-    [1.8.0]
+   (1.8.0)
 
 Young Jin Park:
   * Failure to serialize certain Unicode Strings
-   [1.8.1]
+   (1.8.1)
 
 Oleg Estekhin:
   * Reported [JACKSON-563] JSON Schema uses "required" (not "optional")
-   [1.8.1]
+   (1.8.1)
 
 Jamie Reilly:
   * Reported [JACKSON-570] Caching of MapSerializer not thread-safe
-   [1.8.1]
+   (1.8.1)
 
 Pierre-Alexandre Meyer:
   * Reported [JACKSON-586]: Problems with @JsonValue, method visibility
-   [1.8.2]
+   (1.8.2)
 
 Chris Pruett:
   * Reported [JACKSON-587] TextNode.getValueAsLong() failing with values
     beyond int range.
-   [1.8.3]
+   (1.8.3)
 
 Tom Leccese:
   * reported [JACKSON-591] JodaDeserializers not throwing wrongTokenException
-   [1.8.3]
+   (1.8.3)
 
 Lawrence Chang:
   * Reported [JACKSON-627] WriterBasedGenerator failure for long Strings,
     custom character escaping, unit test, suggested fix.
-   [1.8.4]
+   (1.8.4)
 
 Maxxan:
   * Reported [JACKSON-629] Fix a buffer boundary problem with SmileParser,
     5-7 character names
-   [1.8.4]
+   (1.8.4)
 
 Tim Bond:
   * Reported [JACKSON-631] Problems decoding Base64Variants.MODIFIED_FOR_URL
-   [1.8.4]
+   (1.8.4)
 
 Edward Alexandrov:
   * Reported [JACKSON-632] Handling of UTF-8 BOM incorrect, causing
     "Internal Error"
-   [1.8.4]
+   (1.8.4)
 
 Paul Marynchev:
   * Reported [JACKSON-637] NumberSerializer was missing proper handling of
     Integer, Long
-   [1.8.5]
+   (1.8.5)
 
 Ransom Briggs:
   * Reported [JACKSON-668] Problems with 'JsonParser.getDecimalValue'
     not clearing earlier state
-   [1.8.6]
+   (1.8.6)
 
 William Burns:
   * Reported [JACKSON-677], suggested fix for: Inner generic type references
     not working properly
-   [1.8.6]
+   (1.8.6)
 
 Tom Boettcher:
   * Reported [JACKSON-709] Problems converting base64-encoded Strings
     between JsonNode, POJOs
-   [1.8.7]
+   (1.8.7)
 
 Ryan Kennedy:
   * Reported [JACKSON-462] (REGRESSION?) Buffer overflow in
    Utf8Generator#writeFieldName(String)
-   [1.8.7]
+   (1.8.7)
 
 Jacques-Olivier Goussard:
   * Reported [JACKSON-733] Smile-based mapper could not properly bind
    byte[] values
-   [1.8.7]
+   (1.8.7)
 
 Alex Temnokhod:
   * Reported [JACKSON-738] Parsing fails for Unicode 1Fxxx symbols when
     skipping
-   [1.8.7]
+   (1.8.7)
 
 Lloyd Smith:
   * Reported [JACKSON-701] ArrayIndexOutOfBoundsException when trying to serialize
     non-static inner classes with annotations on last ctor param
-   [1.8.8]
+   (1.8.8)
 
 Anand Hatrwalne:
   * Requested [JACKSON-558] Add 'DeserializationConfig.Feature.UNWRAP_ROOT_VALUE' as
     matching counterpart for 'SerializationConfig.Feature.WRAP_ROOT_VALUE'
-   [1.9.0]
+   (1.9.0)
 
 Earl Baugh:
   * Suggested [JACKSON-584] Serialize type info for non-static anonymous inner classes
     as that of declared (static) type
-   [1.9.0]
+   (1.9.0)
 
 Matt Goldspink:
   * Suggested [JACKSON-578] Allow use of @JsonView on JAX-RS resource, with JacksonJsonProvider
-   [1.9.0]
+   (1.9.0)
 
 "Programmer Bruce":
   * Suggested these for 1.8.x:
@@ -806,54 +808,53 @@ Matt Goldspink:
 
 Ed Anuff:
   * Suggested [JACKSON-602] Add 'JsonSerialize.Inclusion.NON_EMPTY' option
-   [1.9.0]
-
+   (1.9.0)
    
 Lukasz Strzelecki:
   * Requested [JACKSON-630] Add @JsonRootName annotation for specifying name of root-level wrapper
-   [1.9.0]
+   (1.9.0)
 
 Simone Bordet:
   * Requested [JACKSON-652] Add 'DeserializationConfig.Feature.USE_JAVA_ARRAY_FOR_JSON_ARRAY' to
     allow mapping JSON Array to Object[]
-   [1.9.0]
+   (1.9.0)
 
 David Phillips:
   * Requested [JACKSON-671] Add convenience constructor for 'MinimalPrettyPrinter'
-   [1.9.0]
+   (1.9.0)
 
 Kirill Sukhanov:
   * Suggested [JACKSON-650] Allow dealing with missing filter ids, by adding
     'SimpleFilterProvider.setFailOnUnknownId()' to specify if exception is thrown or not.
-   [1.9.0]
+   (1.9.0)
 
 Ben Hale:
   * Reported [JACKSON-700] Type problems with properties that have different
     types for constructor property, setter and/or field
-   [1.9.1]
+   (1.9.1)
 
 Andreas Knoepfle, Tobias Schmid:
   * Contributed implementation for [JACKSON-657], key deserializers for
     java.util.Date and java.util.Calendar types
-   [1.9.3]
+   (1.9.3)
 
 Steve Loeppky:
   * Reported [JACKSON-746] Problems with JsonTypeInfo.Id.NONE, default typing
-   [1.9.4]
+   (1.9.4)
 
 Sebastian Thelen:
   * Reported [JACKSON-753] JsonParserDelegate missing delegation of getBooleanValue(),
     getEmbeddedObject()
-   [1.9.4]
+   (1.9.4)
 
 Stephan Bailliez:
   * Reported [JACKSON-757] Problems with Enum values, annotations on constructors
-   [1.9.4]
+   (1.9.4)
 
 Joern Huxhorn:
   * Suggested [JACKSON-636]: Add 'SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS' to allow
     forced sorting of Maps during serialization
-   [2.0.0]
+   (2.0.0)
 
 James Roper:
  * Reported [JACKSON-829] Custom serializers not working for List<String>

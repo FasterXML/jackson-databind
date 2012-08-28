@@ -130,7 +130,7 @@ public abstract class SerializerProvider
      * can be defined.
      */
     protected JsonSerializer<Object> _nullKeySerializer = DEFAULT_NULL_KEY_SERIALIZER;
-    
+
     /*
     /**********************************************************
     /* State, for non-blueprint instances: generic

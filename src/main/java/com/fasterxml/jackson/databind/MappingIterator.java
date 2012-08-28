@@ -156,19 +156,13 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
             _hasNextChecked = true;
             if (t == null) { // un-initialized or cleared; find next
                 t = _parser.nextToken();
-                // If EOF, no more
-                if (t == null) {
+                // If EOF, no more, or if we hit END_ARRAY (although we don't clear the token).
+                if (t == null || t == JsonToken.END_ARRAY) {
                     JsonParser jp = _parser;
                     _parser = null;
                     if (_closeParser) {
                         jp.close();
                     }
-                    return false;
-                }
-                /* And similarly if we hit END_ARRAY; except that we won't close parser
-                 * (because it's not a root-level iterator)
-                 */
-                if (t == JsonToken.END_ARRAY) {
                     return false;
                 }
             }

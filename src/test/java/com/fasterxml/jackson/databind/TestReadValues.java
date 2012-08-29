@@ -99,6 +99,40 @@ public class TestReadValues extends BaseMapTest
         assertFalse(it.hasNext());
     }
     
+    public void testHasNextWithEndArray() throws Exception {
+        final String JSON = "[1,3]";
+        JsonParser jp = MAPPER.getFactory().createJsonParser(JSON);
+
+        // NOTE: We must point JsonParser to the first element; if we tried to
+        // use "managed" accessor, it would try to advance past START_ARRAY.
+        assertToken(JsonToken.START_ARRAY, jp.nextToken());
+        jp.nextToken();
+        
+        Iterator<Integer> it = MAPPER.reader(Integer.class).readValues(jp);
+        assertTrue(it.hasNext());
+        int value = it.next();
+        assertEquals(1, value);
+        assertTrue(it.hasNext());
+        value = it.next();
+        assertEquals(3, value);
+        assertFalse(it.hasNext());
+        assertFalse(it.hasNext());
+    }
+    
+    public void testHasNextWithEndArrayManagedParser() throws Exception {
+        final String JSON = "[1,3]";
+
+        Iterator<Integer> it = MAPPER.reader(Integer.class).readValues(JSON);
+        assertTrue(it.hasNext());
+        int value = it.next();
+        assertEquals(1, value);
+        assertTrue(it.hasNext());
+        value = it.next();
+        assertEquals(3, value);
+        assertFalse(it.hasNext());
+        assertFalse(it.hasNext());
+    }
+    
     /*
     /**********************************************************
     /* Unit tests; non-root arrays

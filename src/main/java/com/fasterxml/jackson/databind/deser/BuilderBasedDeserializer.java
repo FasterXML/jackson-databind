@@ -510,7 +510,7 @@ public class BuilderBasedDeserializer
         throws IOException, JsonProcessingException
     { 
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt);
+        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt, _objectIdReader);
 
         // 04-Jan-2010, tatu: May need to collect unknown properties for polymorphic cases
         TokenBuffer unknown = null;
@@ -543,6 +543,10 @@ public class BuilderBasedDeserializer
                     // or just clean?
                     return _deserialize(jp, ctxt, bean);
                 }
+                continue;
+            }
+            // Object Id property?
+            if (buffer.readIdProperty(propName)) {
                 continue;
             }
             // regular property? needs buffering
@@ -793,7 +797,7 @@ public class BuilderBasedDeserializer
         throws IOException, JsonProcessingException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt);
+        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt, _objectIdReader);
 
         TokenBuffer tokens = new TokenBuffer(jp.getCodec());
         tokens.writeStartObject();
@@ -830,6 +834,10 @@ public class BuilderBasedDeserializer
                     }
                     return _unwrappedPropertyHandler.processUnwrapped(jp, ctxt, bean, tokens);
                 }
+                continue;
+            }
+            // Object Id property?
+            if (buffer.readIdProperty(propName)) {
                 continue;
             }
             // regular property? needs buffering

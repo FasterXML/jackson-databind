@@ -439,7 +439,8 @@ public class MapDeserializer
         throws IOException, JsonProcessingException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt);
+        // null -> no ObjectIdReader for Maps (yet?)
+        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt, null);
 
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.START_OBJECT) {

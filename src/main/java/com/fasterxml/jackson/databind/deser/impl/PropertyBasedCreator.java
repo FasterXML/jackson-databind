@@ -131,7 +131,7 @@ public final class PropertyBasedCreator
     public SettableBeanProperty findCreatorProperty(String name) {
         return _properties.get(name);
     }
-    
+
     /*
     /**********************************************************
     /* Building process
@@ -140,19 +140,25 @@ public final class PropertyBasedCreator
 
     /**
      * Method called when starting to build a bean instance.
+     * 
+     * @since 2.1 (added ObjectIdReader parameter -- existed in previous versions without)
      */
-    public PropertyValueBuffer startBuilding(JsonParser jp, DeserializationContext ctxt)
+    public PropertyValueBuffer startBuilding(JsonParser jp, DeserializationContext ctxt,
+            ObjectIdReader oir)
     {
-        PropertyValueBuffer buffer = new PropertyValueBuffer(jp, ctxt, _propertyCount);
+        PropertyValueBuffer buffer = new PropertyValueBuffer(jp, ctxt, _propertyCount, oir);
         if (_propertiesWithInjectables != null) {
             buffer.inject(_propertiesWithInjectables);
         }
         return buffer;
     }
-    
+
     public Object build(DeserializationContext ctxt, PropertyValueBuffer buffer) throws IOException
     {
         Object bean = _valueInstantiator.createFromObjectWith(ctxt, buffer.getParameters(_defaultValues));
+        // Object Id to handle?
+        bean = buffer.handleIdValue(ctxt, bean);
+        
         // Anything buffered?
         for (PropertyValue pv = buffer.buffered(); pv != null; pv = pv.next) {
             pv.assign(bean);

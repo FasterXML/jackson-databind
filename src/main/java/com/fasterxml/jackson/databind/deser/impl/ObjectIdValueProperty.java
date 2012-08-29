@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
  * for some POJO types (or properties).
  */
 public final class ObjectIdValueProperty
-	extends SettableBeanProperty
+    extends SettableBeanProperty
 {
     protected final ObjectIdReader _objectIdReader;
     
@@ -65,8 +65,8 @@ public final class ObjectIdValueProperty
 
     @Override
     public void deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
-        Object instance)
-            throws IOException, JsonProcessingException
+            Object instance)
+        throws IOException, JsonProcessingException
     {
     	deserializeSetAndReturn(jp, ctxt, instance);
     }
@@ -96,12 +96,12 @@ public final class ObjectIdValueProperty
 
     @Override
     public Object setAndReturn(Object instance, Object value)
-   		throws IOException
+        throws IOException
     {
         SettableBeanProperty idProp = _objectIdReader.idProperty;
         if (idProp == null) {
-        	throw new UnsupportedOperationException(
-        	        "Should not call set() on ObjectIdProperty that has no SettableBeanProperty");
+            throw new UnsupportedOperationException(
+                    "Should not call set() on ObjectIdProperty that has no SettableBeanProperty");
         }
         return idProp.setAndReturn(instance, value);
     }

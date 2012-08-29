@@ -530,8 +530,8 @@ public class BeanDeserializer
         throws IOException, JsonProcessingException
     { 
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt);
-
+        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt, _objectIdReader);
+        
         // 04-Jan-2010, tatu: May need to collect unknown properties for polymorphic cases
         TokenBuffer unknown = null;
 
@@ -551,7 +551,7 @@ public class BeanDeserializer
                         bean = creator.build(ctxt, buffer);
                     } catch (Exception e) {
                         wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
-                        continue; // never gets here
+                        bean = null; // never gets here
                     }
                     //  polymorphic?
 		    if (bean.getClass() != _beanType.getRawClass()) {
@@ -563,6 +563,10 @@ public class BeanDeserializer
 		    // or just clean?
                     return deserialize(jp, ctxt, bean);
                 }
+                continue;
+            }
+            // Object Id property?
+            if (buffer.readIdProperty(propName)) {
                 continue;
             }
             // regular property? needs buffering
@@ -597,7 +601,7 @@ public class BeanDeserializer
             bean =  creator.build(ctxt, buffer);
         } catch (Exception e) {
             wrapInstantiationProblem(e, ctxt);
-            return null; // never gets here
+            bean = null; // never gets here
         }
         if (unknown != null) {
             // polymorphic?
@@ -609,7 +613,7 @@ public class BeanDeserializer
         }
         return bean;
     }
-
+    
     /**
      * Method called in cases where we may have polymorphic deserialization
      * case: that is, type of Creator-constructed bean is not the type
@@ -811,7 +815,7 @@ public class BeanDeserializer
         throws IOException, JsonProcessingException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt);
+        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt, _objectIdReader);
 
         TokenBuffer tokens = new TokenBuffer(jp.getCodec());
         tokens.writeStartObject();
@@ -848,6 +852,10 @@ public class BeanDeserializer
                     }
                     return _unwrappedPropertyHandler.processUnwrapped(jp, ctxt, bean, tokens);
                 }
+                continue;
+            }
+            // Object Id property?
+            if (buffer.readIdProperty(propName)) {
                 continue;
             }
             // regular property? needs buffering
@@ -954,7 +962,7 @@ public class BeanDeserializer
     {
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt);
+        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt, _objectIdReader);
 
         TokenBuffer tokens = new TokenBuffer(jp.getCodec());
         tokens.writeStartObject();
@@ -995,6 +1003,10 @@ public class BeanDeserializer
                         return ext.complete(jp, ctxt, bean);
                     }
                 }
+                continue;
+            }
+            // Object Id property?
+            if (buffer.readIdProperty(propName)) {
                 continue;
             }
             // regular property? needs buffering

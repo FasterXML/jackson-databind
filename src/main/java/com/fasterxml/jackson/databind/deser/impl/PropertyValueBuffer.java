@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
+import java.io.IOException;
+
 import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -23,6 +25,8 @@ public final class PropertyValueBuffer
      * instance
      */
     protected final Object[] _creatorParameters;
+
+    protected final ObjectIdReader _objectIdReader;
     
     /**
      * Number of creator parameters we are still missing.
@@ -37,12 +41,20 @@ public final class PropertyValueBuffer
      * is just a simple linked list
      */
     private PropertyValue _buffered;
+
+    /**
+     * In case there is an Object Id property to handle, this is the value
+     * we have for it.
+     */
+    private Object _idValue;
     
-    public PropertyValueBuffer(JsonParser jp, DeserializationContext ctxt, int paramCount)
+    public PropertyValueBuffer(JsonParser jp, DeserializationContext ctxt, int paramCount,
+            ObjectIdReader oir)
     {
         _parser = jp;
         _context = ctxt;
         _paramsNeeded = paramCount;
+        _objectIdReader = oir;
         _creatorParameters = new Object[paramCount];
     }
 
@@ -78,6 +90,44 @@ public final class PropertyValueBuffer
         return _creatorParameters;
     }
 
+
+    /**
+     * Helper method called to see if given non-creator property is the "id property";
+     * and if so, handle appropriately.
+     * 
+     * @since 2.1
+     */
+    public boolean readIdProperty(String propName) throws IOException
+    {
+        if ((_objectIdReader != null) && propName.equals(_objectIdReader.propertyName)) {
+            _idValue = _objectIdReader.deserializer.deserialize(_parser, _context);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Helper method called to handle Object Id value collected earlier, if any
+     */
+    public Object handleIdValue(final DeserializationContext ctxt, Object bean)
+        throws IOException
+    {
+        if (_objectIdReader != null) {
+            if (_idValue != null) {
+                ReadableObjectId roid = ctxt.findObjectId(_idValue, _objectIdReader.generator);
+                roid.bindItem(bean);
+                // also: may need to set a property value as well
+                SettableBeanProperty idProp = _objectIdReader.idProperty;
+                if (idProp != null) {
+                    return idProp.setAndReturn(bean, _idValue);
+                }
+            } else {
+                // TODO: is this an error case?
+            }
+        }
+        return bean;
+    }
+    
     protected PropertyValue buffered() { return _buffered; }
 
     public boolean isComplete() { return _paramsNeeded <= 0; }

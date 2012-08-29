@@ -22,7 +22,7 @@ public final class ObjectIdReader
     public final ObjectIdGenerator<?> generator;
     
     /**
-     * Serializer used for serializing id values.
+     * Deserializer used for deserializing id values.
      */
     public final JsonDeserializer<Object> deserializer;
 

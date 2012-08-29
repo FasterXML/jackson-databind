@@ -7,6 +7,11 @@ import com.fasterxml.jackson.databind.*;
 // related to [JACKSON-847]
 public class TestObjectId extends BaseMapTest
 {
+    @JsonPropertyOrder({"a", "b"})
+    static class Wrapper {
+        public ColumnMetadata a, b;
+    }
+    
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
     static class ColumnMetadata {
       private final String name;
@@ -48,15 +53,23 @@ public class TestObjectId extends BaseMapTest
     
     private final ObjectMapper MAPPER = new ObjectMapper();
     
-    public void testColumnMetadata() throws Exception {
-        ColumnMetadata columnMetadata = new ColumnMetadata("Billy", "employee", "comment");
-        String serialized = MAPPER.writeValueAsString(columnMetadata);
-        System.out.println(serialized);
-        ColumnMetadata deserialized = MAPPER.readValue(serialized, ColumnMetadata.class);
-        assertNotNull(deserialized);
-        assertEquals("Billy", deserialized.getName());
-        assertEquals("employee", deserialized.getType());
-        assertEquals("comment", deserialized.getComment());
+    public void testColumnMetadata() throws Exception
+    {
+        ColumnMetadata col = new ColumnMetadata("Billy", "employee", "comment");
+        Wrapper w = new Wrapper();
+        w.a = col;
+        w.b = col;
+        String json = MAPPER.writeValueAsString(w);
         
+        Wrapper deserialized = MAPPER.readValue(json, Wrapper.class);
+        assertNotNull(deserialized);
+        assertNotNull(deserialized.a);
+        assertNotNull(deserialized.b);
+        
+        assertEquals("Billy", deserialized.a.getName());
+        assertEquals("employee", deserialized.a.getType());
+        assertEquals("comment", deserialized.a.getComment());
+
+        assertSame(deserialized.a, deserialized.b);
     }
 }

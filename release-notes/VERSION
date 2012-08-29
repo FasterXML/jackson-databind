@@ -9,6 +9,7 @@ Description:
 Fixes:
 
 * [JACKSON-830]/[Issue#19]: Change OSGi bundle name to be fully-qualified
+* ]JACKSON-847]: Make @JsonIdentityInfo work with property-based creator
 * [JACKSON-851]: State corruption with ObjectWriter, DefaultPrettyPrinter
  (reported by Duncan A)
 * Minor fix wrt [Issue#11], coercion needed extra checks

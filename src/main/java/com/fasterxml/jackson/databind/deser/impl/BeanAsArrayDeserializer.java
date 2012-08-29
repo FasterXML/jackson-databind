@@ -259,7 +259,7 @@ public class BeanAsArrayDeserializer
         throws IOException, JsonProcessingException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt);
+        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt, _objectIdReader);
 
         final SettableBeanProperty[] props = _orderedProperties;
         final int propCount = props.length;
@@ -306,11 +306,15 @@ public class BeanAsArrayDeserializer
                 }
                 continue;
             }
+            // Object Id property?
+            if (buffer.readIdProperty(propName)) {
+                continue;
+            }
             // regular property? needs buffering
             buffer.bufferProperty(prop, prop.deserialize(jp, ctxt));
         }
 
-        // In case we didn't quite get all the creator properties, we may have to do this:P
+        // In case we didn't quite get all the creator properties, we may have to do this:
         if (bean == null) {
             try {
                 bean = creator.build(ctxt, buffer);

@@ -108,13 +108,13 @@ public final class FieldProperty
 
     @Override
     public Object setAndReturn(Object instance, Object value)
-		throws IOException
-	{
+        throws IOException
+    {
         try {
             _field.set(instance, value);
         } catch (Exception e) {
             _throwAsIOE(e, value);
         }
         return instance;
-	}
+    }
 }

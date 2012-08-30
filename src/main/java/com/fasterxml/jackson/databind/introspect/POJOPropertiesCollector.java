@@ -45,6 +45,10 @@ public class POJOPropertiesCollector
 
     protected final AnnotationIntrospector _annotationIntrospector;
 
+    /**
+     * Prefix used by auto-detected mutators ("setters"): usually "set",
+     * but differs for builder objects ("with" by default).
+     */
     protected final String _mutatorPrefix;
     
     /*

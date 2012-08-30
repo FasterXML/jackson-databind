@@ -758,19 +758,17 @@ public abstract class BeanSerializerBase
     }
     
     /**
-	 * 	Attempt to add the output of the given {@link BeanPropertyWriter} in the 
-	 *  given {@link JsonObjectFormatVisitor}.
-	 * 
-	 * @param writer Bean property serializer to use to create schema value
-     * @param visitor ObjectVisitor which cab receive the propert
-	 */
-	public static void depositSchemaProperty(BeanPropertyWriter writer, JsonObjectFormatVisitor objectVisitor) {
-		if (isPropertyRequired(writer, objectVisitor.getProvider())) {
-			objectVisitor.property(writer); 
-		} else {
-			objectVisitor.optionalProperty(writer);
-		}
-	}
-   
-
+     * 	Attempt to add the output of the given {@link BeanPropertyWriter} in the 
+     *  given {@link JsonObjectFormatVisitor}.
+     * 
+     * @param writer Bean property serializer to use to create schema value
+     * @param objectVisitor ObjectVisitor which cab receive the property
+     */
+    public static void depositSchemaProperty(BeanPropertyWriter writer, JsonObjectFormatVisitor objectVisitor) {
+        if (isPropertyRequired(writer, objectVisitor.getProvider())) {
+            objectVisitor.property(writer); 
+        } else {
+            objectVisitor.optionalProperty(writer);
+        }
+    }
 }

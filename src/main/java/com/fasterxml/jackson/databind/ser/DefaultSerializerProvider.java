@@ -264,7 +264,7 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
      * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
      * to to expose the format of the given to to the given visitor
      *
-     * @param type The type for which to generate format
+     * @param javaType The type for which to generate format
      * @param visitor the visitor to accept the format
      */
     public void acceptJsonFormatVisitor(JavaType javaType, JsonFormatVisitorWrapper visitor)

@@ -2499,7 +2499,7 @@ public class ObjectMapper
      * Generate <a href="http://json-schema.org/">Json-schema</a>
      * instance for specified class.
      *
-     * @param t The class to generate schema for
+     * @param javaType The class to generate schema for
      */
     public void acceptJsonFormatVisitor(JavaType javaType, JsonFormatVisitorWrapper visitor) throws JsonMappingException {
     	if (javaType == null) {

@@ -34,8 +34,11 @@ public class TestObjectNode
         assertNull(n.get(0)); // not used with objects
 
         assertFalse(n.has(0));
+        assertFalse(n.hasNonNull(0));
         assertTrue(n.has("a"));
+        assertTrue(n.hasNonNull("a"));
         assertFalse(n.has("b"));
+        assertFalse(n.hasNonNull("b"));
 
         ObjectNode n2 = new ObjectNode(JsonNodeFactory.instance);
         n2.put("b", 13);
@@ -44,6 +47,9 @@ public class TestObjectNode
         assertEquals(2, n.size());
         n.set("null", (JsonNode)null);
         assertEquals(3, n.size());
+        // may be non-intuitive, but explicit nulls do exist in tree:
+        assertTrue(n.has("null"));
+        assertFalse(n.hasNonNull("null"));
         // should replace, not add
         n.put("null", "notReallNull");
         assertEquals(3, n.size());

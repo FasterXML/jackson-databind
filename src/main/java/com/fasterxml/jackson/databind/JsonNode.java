@@ -317,6 +317,11 @@ public abstract class JsonNode
      * If index is less than 0, or equal-or-greater than
      * <code>node.size()</code>, null is returned; no exception is
      * thrown for any index.
+     *<p>
+     * NOTE: if the element value has been explicitly set as <code>null</code>
+     * (which is different from removal!),
+     * a {@link com.fasterxml.jackson.databind.node.NullNode} will be returned,
+     * not null.
      *
      * @return Node that represent value of the specified element,
      *   if this node is an array and has specified element.
@@ -329,6 +334,11 @@ public abstract class JsonNode
      * an object node. If this node is not an object (or it
      * does not have a value for specified field name), or
      * if there is no field with such name, null is returned.
+     *<p>
+     * NOTE: if the property value has been explicitly set as <code>null</code>
+     * (which is different from removal!),
+     * a {@link com.fasterxml.jackson.databind.node.NullNode} will be returned,
+     * not null.
      *
      * @return Node that represent value of the specified field,
      *   if this node is an object and has value for the specified
@@ -479,6 +489,9 @@ public abstract class JsonNode
      *   node.get(fieldName) != null
      *</pre>
      * (since return value of get() is node, not value node contains)
+     *<p>
+     * NOTE: when explicit <code>null</code> values are added, this
+     * method will return <code>true</code> for such properties.
      *
      * @param fieldName Name of element to check
      * 
@@ -502,6 +515,9 @@ public abstract class JsonNode
      *<pre>
      *   node.get(index) != null
      *</pre>
+     *<p>
+     * NOTE: this method will return <code>true</code> for explicitly added
+     * null values.
      *
      * @param index Index to check
      * 
@@ -512,6 +528,38 @@ public abstract class JsonNode
         return get(index) != null;
     }
 
+    /**
+     * Method that is similar to {@link #has(String)}, but that will
+     * return <code>false</code> for explicitly added nulls.
+     *<p>
+     * This method is functionally equivalent to:
+     *<pre>
+     *   node.get(fieldName) != null && !node.get(fieldName).isNull()
+     *</pre>
+     * 
+     * @since 2.1
+     */
+    public boolean hasNonNull(String fieldName) {
+        JsonNode n = get(fieldName);
+        return (n != null) && !n.isNull();
+    }
+
+    /**
+     * Method that is similar to {@link #has(int)}, but that will
+     * return <code>false</code> for explicitly added nulls.
+     *<p>
+     * This method is equivalent to:
+     *<pre>
+     *   node.get(index) != null && !node.get(index).isNull()
+     *</pre>
+     * 
+     * @since 2.1
+     */
+    public boolean hasNonNull(int index) {
+        JsonNode n = get(index);
+        return (n != null) && !n.isNull();
+    }
+    
     /**
      * Method for finding a JSON Object field with specified name in this
      * node or its child nodes, and returning value it has.

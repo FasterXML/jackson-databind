@@ -36,13 +36,18 @@ public class TestArrayNode
 
         // single element, so:
         assertFalse(n.has("field"));
+        assertFalse(n.hasNonNull("field"));
         assertTrue(n.has(0));
+        assertTrue(n.hasNonNull(0));
         assertFalse(n.has(1));
+        assertFalse(n.hasNonNull(1));
         
         // add null node too
         n.add((JsonNode) null);
         assertEquals(2, n.size());
         assertTrue(n.get(1).isNull());
+        assertTrue(n.has(1));
+        assertFalse(n.hasNonNull(1));
         // change to text
         n.set(1, text);
         assertSame(text, n.get(1));

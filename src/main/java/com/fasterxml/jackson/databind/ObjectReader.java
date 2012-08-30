@@ -8,13 +8,12 @@ import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.format.DataFormatDetector;
-import com.fasterxml.jackson.core.format.DataFormatMatcher;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.cfg.DatabindVersion;
+import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -129,7 +128,7 @@ public class ObjectReader
      * 
      * @since 2.1
      */
-    protected final DataFormatDetector _dataFormatDetector;
+    protected final DataFormatReaders _dataFormatReaders;
     
     /*
     /**********************************************************
@@ -184,7 +183,7 @@ public class ObjectReader
         _unwrapRoot = config.useRootWrapping();
 
         _rootDeserializer = _prefetchRootDeserializer(config, valueType);
-        _dataFormatDetector = null;        
+        _dataFormatReaders = null;        
     }
     
     /**
@@ -193,7 +192,7 @@ public class ObjectReader
     protected ObjectReader(ObjectReader base, DeserializationConfig config,
             JavaType valueType, JsonDeserializer<Object> rootDeser, Object valueToUpdate,
             FormatSchema schema, InjectableValues injectableValues,
-            DataFormatDetector dataFormatDetector)
+            DataFormatReaders dataFormatReaders)
     {
         _config = config;
         _context = base._context;
@@ -211,7 +210,7 @@ public class ObjectReader
         _schema = schema;
         _injectableValues = injectableValues;
         _unwrapRoot = config.useRootWrapping();
-        _dataFormatDetector = dataFormatDetector;
+        _dataFormatReaders = dataFormatReaders;
     }
 
     /**
@@ -232,7 +231,7 @@ public class ObjectReader
         _schema = base._schema;
         _injectableValues = base._injectableValues;
         _unwrapRoot = config.useRootWrapping();
-        _dataFormatDetector = base._dataFormatDetector;
+        _dataFormatReaders = base._dataFormatReaders;
     }
 
     protected ObjectReader(ObjectReader base, JsonFactory f)
@@ -250,7 +249,7 @@ public class ObjectReader
         _schema = base._schema;
         _injectableValues = base._injectableValues;
         _unwrapRoot = base._unwrapRoot;
-        _dataFormatDetector = base._dataFormatDetector;
+        _dataFormatReaders = base._dataFormatReaders;
     }
     
     /**
@@ -268,6 +267,10 @@ public class ObjectReader
     /**********************************************************
      */
 
+    public ObjectReader with(DeserializationConfig config) {
+        return _with(config);
+    }    
+    
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature enabled.
@@ -334,7 +337,7 @@ public class ObjectReader
         }
         return new ObjectReader(this, _config,
                 _valueType, _rootDeserializer, _valueToUpdate,
-                _schema, injectableValues, _dataFormatDetector);
+                _schema, injectableValues, _dataFormatReaders);
     }
 
     /**
@@ -399,9 +402,9 @@ public class ObjectReader
             return this;
         }
         return new ObjectReader(this, _config, _valueType, _rootDeserializer, _valueToUpdate,
-                schema, _injectableValues, _dataFormatDetector);
+                schema, _injectableValues, _dataFormatReaders);
     }
-    
+
     /**
      * Method for constructing a new reader instance that is configured
      * to data bind into specified type.
@@ -411,11 +414,17 @@ public class ObjectReader
      */
     public ObjectReader withType(JavaType valueType)
     {
-        if (valueType != null && valueType.equals(_valueType)) return this;
+        if (valueType != null && valueType.equals(_valueType)) {
+            return this;
+        }
         JsonDeserializer<Object> rootDeser = _prefetchRootDeserializer(_config, valueType);
         // type is stored here, no need to make a copy of config
-        return new ObjectReader(this, _config, valueType, rootDeser, _valueToUpdate,
-                _schema, _injectableValues, _dataFormatDetector);
+        DataFormatReaders det = _dataFormatReaders;
+        if (det != null) {
+            det = det.withType(valueType);
+        }
+        return new ObjectReader(this, _config, valueType, rootDeser,
+                _valueToUpdate, _schema, _injectableValues, det);
     }    
 
     /**
@@ -477,7 +486,7 @@ public class ObjectReader
             t = _valueType;
         }
         return new ObjectReader(this, _config, t, _rootDeserializer, value,
-                _schema, _injectableValues, _dataFormatDetector);
+                _schema, _injectableValues, _dataFormatReaders);
     }
 
     /**
@@ -510,45 +519,49 @@ public class ObjectReader
     /**
      * Fluent factory method for constructing a reader that will try to
      * auto-detect underlying data format, using specified list of
-     * {@link JsonFactory} instances, and default {@link DataFormatDetector} settings
-     * (for customized {@link DataFormatDetector}, you can construct instance yourself).
+     * {@link JsonFactory} instances, and default {@link DataFormatReaders} settings
+     * (for customized {@link DataFormatReaders}, you can construct instance yourself).
      * to construct appropriate {@link JsonParser} for actual parsing.
      *<p>
-     * NOTE: since format detection only works with byte sources, it is possible to
+     * Note: since format detection only works with byte sources, it is possible to
      * get a failure from some 'readValue()' methods. Also, if input can not be reliably
      * (enough) detected as one of specified types, an exception will be thrown.
+     *<p>
+     * Note: not all {@link JsonFactory} types can be passed: specifically, ones that
+     * require "custom codec" (like XML factory) will not work. Instead, use
+     * method that takes {@link ObjectReader} instances instead of factories.
      * 
-     * @param factories Data formats accepted, in decreasing order of priority (that is,
+     * @param readers Data formats accepted, in decreasing order of priority (that is,
      *   matches checked in listed order, first match wins)
      * 
      * @return Newly configured writer instance
      * 
      * @since 2.1
      */
-    public ObjectReader withFormatDetection(JsonFactory... factories)
+    public ObjectReader withFormatDetection(ObjectReader... readers)
     {
-        return withFormatDetection(new DataFormatDetector(factories));
+        return withFormatDetection(new DataFormatReaders(readers));
     }
 
     /**
      * Fluent factory method for constructing a reader that will try to
      * auto-detect underlying data format, using specified
-     * {@link DataFormatDetector}.
+     * {@link DataFormatReaders}.
      *<p>
      * NOTE: since format detection only works with byte sources, it is possible to
      * get a failure from some 'readValue()' methods. Also, if input can not be reliably
      * (enough) detected as one of specified types, an exception will be thrown.
      * 
-     * @param detector DataFormatDetector to use for detecting underlying format.
+     * @param readers DataFormatReaders to use for detecting underlying format.
      * 
      * @return Newly configured writer instance
      * 
      * @since 2.1
      */
-    public ObjectReader withFormatDetection(DataFormatDetector detector)
+    public ObjectReader withFormatDetection(DataFormatReaders readers)
     {
         return new ObjectReader(this, _config, _valueType, _rootDeserializer, _valueToUpdate,
-                _schema, _injectableValues, detector);
+                _schema, _injectableValues, readers);
     }
     
     /*
@@ -607,7 +620,7 @@ public class ObjectReader
     public <T> T readValue(JsonParser jp)
         throws IOException, JsonProcessingException
     {
-        return (T) _bind(jp);
+        return (T) _bind(jp, _valueToUpdate);
     }
 
     /**
@@ -767,10 +780,10 @@ public class ObjectReader
     public <T> T readValue(InputStream src)
         throws IOException, JsonProcessingException
     {
-        if (_dataFormatDetector != null) {
-            return (T) _bindAndClose(_detect(src));
+        if (_dataFormatReaders != null) {
+            return (T) _detectBindAndClose(_dataFormatReaders.findFormat(src), false);
         }
-        return (T) _bindAndClose(_jsonFactory.createJsonParser(src));
+        return (T) _bindAndClose(_jsonFactory.createJsonParser(src), _valueToUpdate);
     }
 
     /**
@@ -783,10 +796,10 @@ public class ObjectReader
     public <T> T readValue(Reader src)
         throws IOException, JsonProcessingException
     {
-        if (_dataFormatDetector != null) {
+        if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        return (T) _bindAndClose(_jsonFactory.createJsonParser(src));
+        return (T) _bindAndClose(_jsonFactory.createJsonParser(src), _valueToUpdate);
     }
     
     /**
@@ -799,10 +812,10 @@ public class ObjectReader
     public <T> T readValue(String src)
         throws IOException, JsonProcessingException
     {
-        if (_dataFormatDetector != null) {
+        if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        return (T) _bindAndClose(_jsonFactory.createJsonParser(src));
+        return (T) _bindAndClose(_jsonFactory.createJsonParser(src), _valueToUpdate);
     }
 
     /**
@@ -815,9 +828,10 @@ public class ObjectReader
     public <T> T readValue(byte[] src)
         throws IOException, JsonProcessingException
     {
-        JsonParser p = (_dataFormatDetector == null) ?
-                _jsonFactory.createJsonParser(src) : _detect(src, 0, src.length);
-        return (T) _bindAndClose(p);
+        if (_dataFormatReaders != null) {
+            return (T) _detectBindAndClose(src, 0, src.length);
+        }
+        return (T) _bindAndClose(_jsonFactory.createJsonParser(src), _valueToUpdate);
     }
 
     /**
@@ -830,18 +844,20 @@ public class ObjectReader
     public <T> T readValue(byte[] src, int offset, int length)
         throws IOException, JsonProcessingException
     {
-        JsonParser p = (_dataFormatDetector == null) ?
-                _jsonFactory.createJsonParser(src, offset, length) : _detect(src, offset, length);
-        return (T) _bindAndClose(p);
+        if (_dataFormatReaders != null) {
+            return (T) _detectBindAndClose(src, offset, length);
+        }
+        return (T) _bindAndClose(_jsonFactory.createJsonParser(src, offset, length), _valueToUpdate);
     }
     
     @SuppressWarnings("unchecked")
     public <T> T readValue(File src)
         throws IOException, JsonProcessingException
     {
-        JsonParser p = (_dataFormatDetector == null) ?
-                _jsonFactory.createJsonParser(src) : _detect(src);
-        return (T) _bindAndClose(p);
+        if (_dataFormatReaders != null) {
+            return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
+        }
+        return (T) _bindAndClose(_jsonFactory.createJsonParser(src), _valueToUpdate);
     }
 
     /**
@@ -854,9 +870,10 @@ public class ObjectReader
     public <T> T readValue(URL src)
         throws IOException, JsonProcessingException
     {
-        JsonParser p = (_dataFormatDetector == null) ?
-                _jsonFactory.createJsonParser(src) : _detect(src);
-        return (T) _bindAndClose(p);
+        if (_dataFormatReaders != null) {
+            return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
+        }
+        return (T) _bindAndClose(_jsonFactory.createJsonParser(src), _valueToUpdate);
     }
 
     /**
@@ -870,10 +887,10 @@ public class ObjectReader
     public <T> T readValue(JsonNode src)
         throws IOException, JsonProcessingException
     {
-        if (_dataFormatDetector != null) {
+        if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        return (T) _bindAndClose(treeAsTokens(src));
+        return (T) _bindAndClose(treeAsTokens(src), _valueToUpdate);
     }
     
     /**
@@ -888,9 +905,10 @@ public class ObjectReader
     public JsonNode readTree(InputStream in)
         throws IOException, JsonProcessingException
     {
-        JsonParser p = (_dataFormatDetector == null) ?
-                _jsonFactory.createJsonParser(in) : _detect(in);
-        return _bindAndCloseAsTree(p);
+        if (_dataFormatReaders != null) {
+            return _detectBindAndCloseAsTree(in);
+        }
+        return _bindAndCloseAsTree(_jsonFactory.createJsonParser(in));
     }
     
     /**
@@ -905,7 +923,7 @@ public class ObjectReader
     public JsonNode readTree(Reader r)
         throws IOException, JsonProcessingException
     {
-        if (_dataFormatDetector != null) {
+        if (_dataFormatReaders != null) {
             _reportUndetectableSource(r);
         }
         return _bindAndCloseAsTree(_jsonFactory.createJsonParser(r));
@@ -923,7 +941,7 @@ public class ObjectReader
     public JsonNode readTree(String json)
         throws IOException, JsonProcessingException
     {
-        if (_dataFormatDetector != null) {
+        if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
         return _bindAndCloseAsTree(_jsonFactory.createJsonParser(json));
@@ -979,25 +997,19 @@ public class ObjectReader
     public <T> MappingIterator<T> readValues(InputStream src)
         throws IOException, JsonProcessingException
     {
-        JsonParser jp = (_dataFormatDetector == null) ?
-                _jsonFactory.createJsonParser(src) : _detect(src);
-        if (_schema != null) {
-            jp.setSchema(_schema);
+        if (_dataFormatReaders != null) {
+            return _detectBindAndReadValues(_dataFormatReaders.findFormat(src), false);
         }
-        jp.nextToken();
-        DeserializationContext ctxt = createDeserializationContext(jp, _config);
-        return new MappingIterator<T>(_valueType, jp, ctxt, 
-                _findRootDeserializer(ctxt, _valueType),
-                true, _valueToUpdate);
+        return _bindAndReadValues(_jsonFactory.createJsonParser(src), _valueToUpdate);
     }
-
+    
     /**
      * Overloaded version of {@link #readValue(InputStream)}.
      */
     public <T> MappingIterator<T> readValues(Reader src)
         throws IOException, JsonProcessingException
     {
-        if (_dataFormatDetector != null) {
+        if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
         JsonParser jp = _jsonFactory.createJsonParser(src);
@@ -1018,7 +1030,7 @@ public class ObjectReader
     public <T> MappingIterator<T> readValues(String json)
         throws IOException, JsonProcessingException
     {
-        if (_dataFormatDetector != null) {
+        if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
         JsonParser jp = _jsonFactory.createJsonParser(json);
@@ -1037,15 +1049,10 @@ public class ObjectReader
     public <T> MappingIterator<T> readValues(byte[] src, int offset, int length)
         throws IOException, JsonProcessingException
     {
-        JsonParser jp = (_dataFormatDetector == null) ?
-                _jsonFactory.createJsonParser(src, offset, length) : _detect(src, offset, length);
-        if (_schema != null) {
-            jp.setSchema(_schema);
+        if (_dataFormatReaders != null) {
+            return _detectBindAndReadValues(_dataFormatReaders.findFormat(src, offset, length), false);
         }
-        jp.nextToken();
-        DeserializationContext ctxt = createDeserializationContext(jp, _config);
-        return new MappingIterator<T>(_valueType, jp, ctxt,
-                _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
+        return _bindAndReadValues(_jsonFactory.createJsonParser(src), _valueToUpdate);
     }
 
     /**
@@ -1062,15 +1069,11 @@ public class ObjectReader
     public <T> MappingIterator<T> readValues(File src)
         throws IOException, JsonProcessingException
     {
-        JsonParser jp = (_dataFormatDetector == null) ?
-                _jsonFactory.createJsonParser(src) : _detect(src);
-        if (_schema != null) {
-            jp.setSchema(_schema);
+        if (_dataFormatReaders != null) {
+            return _detectBindAndReadValues(
+                    _dataFormatReaders.findFormat(_inputStream(src)), false);
         }
-        jp.nextToken();
-        DeserializationContext ctxt = createDeserializationContext(jp, _config);
-        return new MappingIterator<T>(_valueType, jp, ctxt,
-                _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
+        return _bindAndReadValues(_jsonFactory.createJsonParser(src), _valueToUpdate);
     }
 
     /**
@@ -1081,15 +1084,11 @@ public class ObjectReader
     public <T> MappingIterator<T> readValues(URL src)
         throws IOException, JsonProcessingException
     {
-        JsonParser jp = (_dataFormatDetector == null) ?
-                _jsonFactory.createJsonParser(src) : _detect(src);
-        if (_schema != null) {
-            jp.setSchema(_schema);
+        if (_dataFormatReaders != null) {
+            return _detectBindAndReadValues(
+                    _dataFormatReaders.findFormat(_inputStream(src)), true);
         }
-        jp.nextToken();
-        DeserializationContext ctxt = createDeserializationContext(jp, _config);
-        return new MappingIterator<T>(_valueType, jp, ctxt,
-                _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
+        return _bindAndReadValues(_jsonFactory.createJsonParser(src), _valueToUpdate);
     }
 
     /*
@@ -1141,7 +1140,7 @@ public class ObjectReader
     /**
      * Actual implementation of value reading+binding operation.
      */
-    protected Object _bind(JsonParser jp)
+    protected Object _bind(JsonParser jp, Object valueToUpdate)
         throws IOException, JsonParseException, JsonMappingException
     {
         /* First: may need to read the next token, to initialize state (either
@@ -1150,25 +1149,25 @@ public class ObjectReader
         Object result;
         JsonToken t = _initForReading(jp);
         if (t == JsonToken.VALUE_NULL) {
-            if (_valueToUpdate == null) {
+            if (valueToUpdate == null) {
                 DeserializationContext ctxt = createDeserializationContext(jp, _config);
                 result = _findRootDeserializer(ctxt, _valueType).getNullValue();
             } else {
-                result = _valueToUpdate;
+                result = valueToUpdate;
             }
         } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
-            result = _valueToUpdate;
+            result = valueToUpdate;
         } else { // pointing to event other than null
             DeserializationContext ctxt = createDeserializationContext(jp, _config);
             JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, _valueType);
             if (_unwrapRoot) {
                 result = _unwrapAndDeserialize(jp, ctxt, _valueType, deser);
             } else {
-                if (_valueToUpdate == null) {
+                if (valueToUpdate == null) {
                     result = deser.deserialize(jp, ctxt);
                 } else {
-                    deser.deserialize(jp, ctxt, _valueToUpdate);
-                    result = _valueToUpdate;
+                    deser.deserialize(jp, ctxt, valueToUpdate);
+                    result = valueToUpdate;
                 }
             }
         }
@@ -1177,7 +1176,7 @@ public class ObjectReader
         return result;
     }
     
-    protected Object _bindAndClose(JsonParser jp)
+    protected Object _bindAndClose(JsonParser jp, Object valueToUpdate)
         throws IOException, JsonParseException, JsonMappingException
     {
         if (_schema != null) {
@@ -1187,25 +1186,25 @@ public class ObjectReader
             Object result;
             JsonToken t = _initForReading(jp);
             if (t == JsonToken.VALUE_NULL) {
-                if (_valueToUpdate == null) {
+                if (valueToUpdate == null) {
                     DeserializationContext ctxt = createDeserializationContext(jp, _config);
                     result = _findRootDeserializer(ctxt, _valueType).getNullValue();
                 } else {
-                    result = _valueToUpdate;
+                    result = valueToUpdate;
                 }
             } else if (t == JsonToken.END_ARRAY || t == JsonToken.END_OBJECT) {
-                result = _valueToUpdate;
+                result = valueToUpdate;
             } else {
                 DeserializationContext ctxt = createDeserializationContext(jp, _config);
                 JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, _valueType);
                 if (_unwrapRoot) {
                     result = _unwrapAndDeserialize(jp, ctxt, _valueType, deser);
                 } else {
-                    if (_valueToUpdate == null) {
+                    if (valueToUpdate == null) {
                         result = deser.deserialize(jp, ctxt);
                     } else {
-                        deser.deserialize(jp, ctxt, _valueToUpdate);
-                        result = _valueToUpdate;                    
+                        deser.deserialize(jp, ctxt, valueToUpdate);
+                        result = valueToUpdate;                    
                     }
                 }
             }
@@ -1251,6 +1250,23 @@ public class ObjectReader
                 jp.close();
             } catch (IOException ioe) { }
         }
+    }
+    
+    /**
+     * @since 2.1
+     */
+    protected <T> MappingIterator<T> _bindAndReadValues(JsonParser p,
+            Object valueToUpdate)
+        throws IOException, JsonProcessingException
+    {
+        if (_schema != null) {
+            p.setSchema(_schema);
+        }
+        p.nextToken();
+        DeserializationContext ctxt = createDeserializationContext(p, _config);
+        return new MappingIterator<T>(_valueType, p, ctxt, 
+                _findRootDeserializer(ctxt, _valueType),
+                true, _valueToUpdate);
     }
     
     protected static JsonToken _initForReading(JsonParser jp)
@@ -1378,49 +1394,64 @@ public class ObjectReader
     /**********************************************************
      */
     
-    protected JsonParser _detect(InputStream in) throws IOException {
-        return _detectAndCreateParser(_dataFormatDetector.findFormat(in), false);
-    }
-
-    protected JsonParser _detect(File src) throws IOException {
-        InputStream in = new FileInputStream(src);
-        return _detectAndCreateParser(_dataFormatDetector.findFormat(in), true);
-    }
-
-    protected JsonParser _detect(URL src) throws IOException {
-        InputStream in = src.openStream();
-        return _detectAndCreateParser(_dataFormatDetector.findFormat(in), true);
-    }
-    
-    protected JsonParser _detect(byte[] src, int offset, int length) throws IOException
+    protected Object _detectBindAndClose(byte[] src, int offset, int length) throws IOException
     {
-        DataFormatMatcher matcher = _dataFormatDetector.findFormat(src, offset, length);
-        if (!matcher.hasMatch()) {
-            _reportUnkownFormat(_dataFormatDetector, matcher);
+        DataFormatReaders.Match match = _dataFormatReaders.findFormat(src, offset, length);
+        if (!match.hasMatch()) {
+            _reportUnkownFormat(_dataFormatReaders, match);
         }
-        return matcher.createParserWithMatch();
+        JsonParser jp = match.createParserWithMatch();
+        return match.getReader()._bindAndClose(jp, _valueToUpdate);
     }
 
-    protected JsonParser _detectAndCreateParser(DataFormatMatcher matcher, boolean forceClosing)
+    protected Object _detectBindAndClose(DataFormatReaders.Match match, boolean forceClosing)
         throws IOException
     {
-        if (!matcher.hasMatch()) {
-            _reportUnkownFormat(_dataFormatDetector, matcher);
+        if (!match.hasMatch()) {
+            _reportUnkownFormat(_dataFormatReaders, match);
         }
-        JsonParser jp = matcher.createParserWithMatch();
+        JsonParser p = match.createParserWithMatch();
         // One more thing: we Own the input stream now; and while it's 
         // not super clean way to do it, we must ensure closure so:
         if (forceClosing) {
-            jp.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+            p.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
         }
-        return jp;
+        // important: use matching ObjectReader (may not be 'this')
+        return match.getReader()._bindAndClose(p, _valueToUpdate);
+    }
+
+    protected <T> MappingIterator<T> _detectBindAndReadValues(DataFormatReaders.Match match, boolean forceClosing)
+        throws IOException, JsonProcessingException
+    {
+        if (!match.hasMatch()) {
+            _reportUnkownFormat(_dataFormatReaders, match);
+        }
+        JsonParser p = match.createParserWithMatch();
+        // One more thing: we Own the input stream now; and while it's 
+        // not super clean way to do it, we must ensure closure so:
+        if (forceClosing) {
+            p.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+        }
+        // important: use matching ObjectReader (may not be 'this')
+        return match.getReader()._bindAndReadValues(p, _valueToUpdate);
+    }
+    
+    protected JsonNode _detectBindAndCloseAsTree(InputStream in) throws IOException
+    {
+        DataFormatReaders.Match match = _dataFormatReaders.findFormat(in);
+        if (!match.hasMatch()) {
+            _reportUnkownFormat(_dataFormatReaders, match);
+        }
+        JsonParser p = match.createParserWithMatch();
+        p.enable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+        return match.getReader()._bindAndCloseAsTree(p);
     }
     
     /**
      * Method called to indicate that format detection failed to detect format
      * of given input
      */
-    protected void _reportUnkownFormat(DataFormatDetector detector, DataFormatMatcher match) throws JsonProcessingException
+    protected void _reportUnkownFormat(DataFormatReaders detector, DataFormatReaders.Match match) throws JsonProcessingException
     {
         throw new JsonParseException("Can not detect format from input, does not look like any of detectable formats "
                 +detector.toString(),
@@ -1445,7 +1476,13 @@ public class ObjectReader
     }
     
     protected ObjectReader _with(DeserializationConfig newConfig) {
-        if (newConfig == _config) return this;
+        if (newConfig == _config) {
+            return this;
+        }
+        if (_dataFormatReaders != null) {
+            return new ObjectReader(this, newConfig)
+                .withFormatDetection(_dataFormatReaders.with(newConfig));
+        }
         return new ObjectReader(this, newConfig);
     }
 
@@ -1454,5 +1491,13 @@ public class ObjectReader
         throw new JsonParseException("Can not use source of type "
                 +src.getClass().getName()+" with format auto-detection: must be byte- not char-based",
                 JsonLocation.NA);
+    }
+
+    protected InputStream _inputStream(URL src) throws IOException {
+        return src.openStream();
+    }
+
+    protected InputStream _inputStream(File f) throws IOException {
+        return new FileInputStream(f);
     }
 }

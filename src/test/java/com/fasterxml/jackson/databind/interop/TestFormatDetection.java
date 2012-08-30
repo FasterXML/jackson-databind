@@ -1,14 +1,12 @@
 package com.fasterxml.jackson.databind.interop;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.*;
 
 public class TestFormatDetection extends BaseMapTest
 {
     private final ObjectReader READER = objectReader();
-
-    private final JsonFactory JSON_FACTORY = new JsonFactory();
 
     static class POJO {
         public int x, y;
@@ -28,7 +26,8 @@ public class TestFormatDetection extends BaseMapTest
     
     public void testSimpleWithJSON() throws Exception
     {
-        ObjectReader detecting = READER.withType(POJO.class).withFormatDetection(JSON_FACTORY);
+        ObjectReader detecting = READER.withType(POJO.class);
+        detecting = detecting.withFormatDetection(detecting);
         POJO pojo = detecting.readValue(utf8Bytes("{\"x\":1}"));
         assertNotNull(pojo);
         assertEquals(1, pojo.x);
@@ -36,7 +35,8 @@ public class TestFormatDetection extends BaseMapTest
 
     public void testInvalid() throws Exception
     {
-        ObjectReader detecting = READER.withType(POJO.class).withFormatDetection(JSON_FACTORY);
+        ObjectReader detecting = READER.withType(POJO.class);
+        detecting = detecting.withFormatDetection(detecting);
         try {
             detecting.readValue(utf8Bytes("<POJO><x>1</x></POJO>"));
             fail("Should have failed");

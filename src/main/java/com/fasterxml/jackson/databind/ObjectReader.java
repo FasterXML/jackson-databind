@@ -235,6 +235,24 @@ public class ObjectReader
         _dataFormatDetector = base._dataFormatDetector;
     }
 
+    protected ObjectReader(ObjectReader base, JsonFactory f)
+    {
+        _config = base._config;
+        _context = base._context;
+
+        _rootDeserializers = base._rootDeserializers;
+        _jsonFactory = f;
+        _rootNames = base._rootNames;
+
+        _valueType = base._valueType;
+        _rootDeserializer = base._rootDeserializer;
+        _valueToUpdate = base._valueToUpdate;
+        _schema = base._schema;
+        _injectableValues = base._injectableValues;
+        _unwrapRoot = base._unwrapRoot;
+        _dataFormatDetector = base._dataFormatDetector;
+    }
+    
     /**
      * Method that will return version information stored in and read from jar
      * that contains this class.
@@ -331,6 +349,29 @@ public class ObjectReader
         return _with(_config.with(f));
     }
 
+    /**
+     * Method for constructing a new reader instance with configuration that uses
+     * passed {@link JsonFactory} for constructing underlying Readers.
+     *<p>
+     * NOTE: only factories that <b>DO NOT REQUIRE SPECIAL MAPPERS</b>
+     * (that is, ones that return <code>false</code> for
+     * {@link JsonFactory#requiresCustomCodec()}) can be used: trying
+     * to use one that requires custom codec will throw exception
+     * 
+     * @since 2.1
+     */
+    public ObjectReader with(JsonFactory f) {
+        if (f == _jsonFactory) {
+            return this;
+        }
+        ObjectReader r = new ObjectReader(this, f);
+        // Also, try re-linking, if possible...
+        if (f.getCodec() == null) {
+            f.setCodec(r);
+        }
+        return r;
+    }
+    
     /**
      * Method for constructing a new instance with configuration that
      * specifies what root name to expect for "root name unwrapping".

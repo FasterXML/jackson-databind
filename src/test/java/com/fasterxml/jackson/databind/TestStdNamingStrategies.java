@@ -1,8 +1,5 @@
 package com.fasterxml.jackson.databind;
 
-import static com.fasterxml.jackson.databind.PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES;
-import static com.fasterxml.jackson.databind.PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -157,7 +154,7 @@ public class TestStdNamingStrategies extends BaseMapTest
     {
         super.setUp();
         mapper = new ObjectMapper();
-        mapper.setPropertyNamingStrategy(CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
     }
     
     /*
@@ -240,7 +237,7 @@ public class TestStdNamingStrategies extends BaseMapTest
     
     /*
     /**********************************************************
-    /* Test methods for PASCAL_CASE_TO_CAMEL_CASE
+    /* Test methods for PASCAL_CASE_TO_CAMEL_CASE (added in 2.1)
     /**********************************************************
      */
 
@@ -254,8 +251,19 @@ public class TestStdNamingStrategies extends BaseMapTest
     @Test
     public void testPascalCaseStandAlone()
     {
-    	String translatedJavaName = PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE.nameForField(null, null,
-                "userName");
+    	String translatedJavaName = PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE.nameForField
+    	        (null, null, "userName");
         assertEquals("UserName", translatedJavaName);
+
+        translatedJavaName = PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE.nameForField
+                (null, null, "User");
+        assertEquals("User", translatedJavaName);
+
+        translatedJavaName = PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE.nameForField
+                (null, null, "user");
+        assertEquals("User", translatedJavaName);
+        translatedJavaName = PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE.nameForField
+                (null, null, "x");
+        assertEquals("X", translatedJavaName);
     }
 }

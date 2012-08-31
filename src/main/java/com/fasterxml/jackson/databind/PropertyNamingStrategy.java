@@ -249,6 +249,8 @@ public abstract class PropertyNamingStrategy
     
     /**
      * See {@link PascalCaseStrategy} for details.
+     * 
+     * @since 2.1
      */
     public static final PropertyNamingStrategy PASCAL_CASE_TO_CAMEL_CASE =
         new PascalCaseStrategy();
@@ -265,6 +267,8 @@ public abstract class PropertyNamingStrategy
      * This rules result in the following example translation from 
      * Java property names to JSON element names.
      * <ul><li>&quot;userName&quot; is translated to &quot;UserName&quot;</li></ul>
+     * 
+     * @since 2.1
      */
     public static class PascalCaseStrategy extends PropertyNamingStrategyBase
     {
@@ -279,12 +283,17 @@ public abstract class PropertyNamingStrategy
     	 */
     	@Override
     	public String translate(String input) {
-    		if (input == null){
-    			return input; // garbage in, garbage out
-    		}else{
-    			// Replace first lower-case letter with upper-case equivalent
-    			return input.substring(0, 1).toUpperCase() + input.substring(1);
-    		}
+    	    if (input == null || input.length() == 0){
+    	        return input; // garbage in, garbage out
+    	    }
+    	    // Replace first lower-case letter with upper-case equivalent
+    	    char c = input.charAt(0);
+    	    if (Character.isUpperCase(c)) {
+    	        return input;
+    	    }
+    	    StringBuilder sb = new StringBuilder(input);
+    	    sb.setCharAt(0, Character.toUpperCase(c));
+    	    return sb.toString();
     	}	
     }
 }

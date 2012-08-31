@@ -33,6 +33,9 @@ Improvements:
   minor change in behavior for JSON Array "wrapped" sequences
 * [Issue#60]: Add 'JsonNode.hasNonNull(...)' method(s)
  (suggested by Jeff S on mailing list) 
+* [Issue#64]: Add new "standard" PropertyNamingStrategy, PascalCaseStrategy
+  (PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE)
+ (contributed by Sean B)
 
 New features:
 

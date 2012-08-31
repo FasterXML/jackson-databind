@@ -246,4 +246,45 @@ public abstract class PropertyNamingStrategy
             return resultLength > 0 ? result.toString() : input;
         }
     }
+    
+    /**
+     * See {@link PascalCaseStrategy} for details.
+     */
+    public static final PropertyNamingStrategy PASCAL_CASE_TO_CAMEL_CASE =
+        new PascalCaseStrategy();
+    
+    /**
+     * A {@link PropertyNamingStrategy} that translates typical camelCase Java 
+     * property names to PascalCase JSON element names (i.e., with a capital
+     * first letter).  In particular, the following translations are applied by 
+     * this PropertyNamingStrategy.
+     * 
+     * <ul><li>The first lower-case letter in the Java property name is translated 
+     * into its equivalent upper-case representation.</li></ul>
+     * 
+     * This rules result in the following example translation from 
+     * Java property names to JSON element names.
+     * <ul><li>&quot;userName&quot; is translated to &quot;UserName&quot;</li></ul>
+     */
+    public static class PascalCaseStrategy extends PropertyNamingStrategyBase
+    {
+    	/**
+    	 * Converts camelCase to PascalCase
+    	 * 
+    	 * For example, "userName" would be converted to
+    	 * "UserName".
+      	 * 
+    	 * @param input formatted as camelCase string
+    	 * @return input converted to PascalCase format
+    	 */
+    	@Override
+    	public String translate(String input) {
+    		if (input == null){
+    			return input; // garbage in, garbage out
+    		}else{
+    			// Replace first lower-case letter with upper-case equivalent
+    			return input.substring(0, 1).toUpperCase() + input.substring(1);
+    		}
+    	}	
+    }
 }

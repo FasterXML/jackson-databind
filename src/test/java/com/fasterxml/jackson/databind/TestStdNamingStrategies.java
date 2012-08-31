@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import static com.fasterxml.jackson.databind.PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES;
+import static com.fasterxml.jackson.databind.PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +20,15 @@ import com.fasterxml.jackson.databind.TestNamingStrategy.PersonBean;
  * CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES was added in Jackson 1.9, 
  * as per [JACKSON-598].
  * 
- * @since 1.9
+ * and
+ * 
+ * Unit test to verify translations of 
+ * {@link PropertyNamingStrategy#PASCAL_CASE_TO_CAMEL_CASE } 
+ * outside the context of an ObjectMapper.
+ * PASCAL_CASE_TO_CAMEL_CASE was added in Jackson 2.1.0, 
+ * as per [JACKSON-63].
+ * 
+ * @since 2.1.0
  */
 public class TestStdNamingStrategies extends BaseMapTest
 {
@@ -227,5 +236,26 @@ public class TestStdNamingStrategies extends BaseMapTest
         assertEquals("from$user", result.from$user);
         assertEquals("from7user", result.from7user);
         assertEquals("_", result._);
+    }
+    
+    /*
+    /**********************************************************
+    /* Test methods for PASCAL_CASE_TO_CAMEL_CASE
+    /**********************************************************
+     */
+
+    /**
+     * Unit test to verify translations of 
+     * {@link PropertyNamingStrategy#PASCAL_CASE_TO_CAMEL_CASE } 
+     * outside the context of an ObjectMapper.
+     * PASCAL_CASE_TO_CAMEL_CASE was added in Jackson 2.1.0, 
+     * as per [JACKSON-63].
+     */
+    @Test
+    public void testPascalCaseStandAlone()
+    {
+    	String translatedJavaName = PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE.nameForField(null, null,
+                "userName");
+        assertEquals("UserName", translatedJavaName);
     }
 }

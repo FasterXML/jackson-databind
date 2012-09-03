@@ -176,6 +176,13 @@ public abstract class DeserializationContext
      */
 
     /**
+     * Method for getting current {@link DeserializerFactory}.
+     */
+    public DeserializerFactory getFactory() {
+        return _factory;
+    }
+
+    /**
      * Method for accessing configuration setting object for
      * currently active deserialization.
      */

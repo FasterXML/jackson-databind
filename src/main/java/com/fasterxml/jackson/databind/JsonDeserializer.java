@@ -136,6 +136,19 @@ public abstract class JsonDeserializer<T>
     public JsonDeserializer<T> unwrappingDeserializer(NameTransformer unwrapper) {
         return this;
     }
+
+    /**
+     * Method that can be called to try to replace deserializer this deserializer
+     * delegates calls to. If not supported (either this deserializer does not
+     * delegate anything; or it does not want any changes), should either
+     * throw {@link UnsupportedOperationException} (if operation does not
+     * make sense or is not allowed); or return this deserializer as is.
+     * 
+     * @since 2.1
+     */
+    public JsonDeserializer<T> replaceDelegatee(JsonDeserializer<?> delegatee) {
+        throw new UnsupportedOperationException();
+    }
     
     /*
     /**********************************************************
@@ -222,6 +235,21 @@ public abstract class JsonDeserializer<T>
      * @since 2.0
      */
     public ObjectIdReader getObjectIdReader() { return null; }
+
+    /**
+     * Accessor that can be used to determine if this deserializer uses
+     * another deserializer for actual deserialization, by delegating
+     * calls. If so, will return immediate delegate (which itself may
+     * delegate to further deserializers); otherwise will return null.
+     * 
+     * @return Deserializer this deserializer delegates calls to, if null;
+     *   null otherwise.
+     * 
+     * @since 2.1
+     */
+    public JsonDeserializer<?> getDelegatee() {
+        return null;
+    }
     
     /*
     /**********************************************************

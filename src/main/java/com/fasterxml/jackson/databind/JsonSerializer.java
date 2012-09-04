@@ -66,13 +66,16 @@ public abstract class JsonSerializer<T>
     }
 
     /**
-     * Accessor for checking whether this serializer is an
-     * "unwrapping" serializer; this is necessary to know since
-     * it may also require caller to suppress writing of the
-     * leading property name.
+     * Method that can be called to try to replace serializer this serializer
+     * delegates calls to. If not supported (either this serializer does not
+     * delegate anything; or it does not want any changes), should either
+     * throw {@link UnsupportedOperationException} (if operation does not
+     * make sense or is not allowed); or return this serializer as is.
+     * 
+     * @since 2.1
      */
-    public boolean isUnwrappingSerializer() {
-        return false;
+    public JsonSerializer<T> replaceDelegatee(JsonSerializer<?> delegatee) {
+        throw new UnsupportedOperationException();
     }
     
     /*
@@ -133,7 +136,7 @@ public abstract class JsonSerializer<T>
     
     /*
     /**********************************************************
-    /* Introspection methods needed for type handling 
+    /* Other accessors
     /**********************************************************
      */
     
@@ -169,6 +172,31 @@ public abstract class JsonSerializer<T>
      */
     public boolean usesObjectId() {
         return false;
+    }
+
+    /**
+     * Accessor for checking whether this serializer is an
+     * "unwrapping" serializer; this is necessary to know since
+     * it may also require caller to suppress writing of the
+     * leading property name.
+     */
+    public boolean isUnwrappingSerializer() {
+        return false;
+    }
+    
+    /**
+     * Accessor that can be used to determine if this serializer uses
+     * another serializer for actual serialization, by delegating
+     * calls. If so, will return immediate delegate (which itself may
+     * delegate to further serializers); otherwise will return null.
+     * 
+     * @return Serializer this serializer delegates calls to, if null;
+     *   null otherwise.
+     * 
+     * @since 2.1
+     */
+    public JsonSerializer<?> getDelegatee() {
+        return null;
     }
     
     /*

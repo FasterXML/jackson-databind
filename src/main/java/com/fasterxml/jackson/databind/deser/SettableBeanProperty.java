@@ -174,9 +174,29 @@ public abstract class SettableBeanProperty
         _propertyIndex = src._propertyIndex;
         _viewMatcher = src._viewMatcher;
     }
-    
+
+    /**
+     * Fluent factory method for constructing and returning a new instance
+     * with specified value deserializer.
+     * Note that this method should NOT change configuration of this instance.
+     * 
+     * @param deser Deserializer to assign to the new property instance
+     * 
+     * @return Newly constructed instance, if value deserializer differs from the
+     *   one used for this instance; or 'this' if not.
+     */
     public abstract SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser);
 
+    /**
+     * Fluent factory method for constructing and returning a new instance
+     * with specified propert name.
+     * Note that this method should NOT change configuration of this instance.
+     * 
+     * @param newName Name to use for the new instance.
+     * 
+     * @return Newly constructed instance, if property name differs from the
+     *   one used for this instance; or 'this' if not.
+     */
     public abstract SettableBeanProperty withName(String newName);
     
     public void setManagedReferenceName(String n) {

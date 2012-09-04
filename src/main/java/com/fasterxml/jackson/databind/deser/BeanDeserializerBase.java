@@ -37,10 +37,12 @@ public abstract class BeanDeserializerBase
 
     /**
      * Annotations from the bean class: used for accessing
-     * annotations during resolution phase (see {@link #resolve}).
+     * annotations during resolution
+     * (see {@link #resolve}) and
+     * contextualization (see {@link #createContextual}).
      */
     final private Annotations _classAnnotations;
-    
+
     /**
      * Declared type of the bean this deserializer handles.
      */

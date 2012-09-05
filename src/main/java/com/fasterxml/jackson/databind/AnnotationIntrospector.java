@@ -100,7 +100,7 @@ public abstract class AnnotationIntrospector implements Versioned
     }
 
     public static AnnotationIntrospector pair(AnnotationIntrospector a1, AnnotationIntrospector a2) {
-        return new Pair(a1, a2);
+        return new AnnotationIntrospectorPair(a1, a2);
     }
 
     /*
@@ -1001,14 +1001,13 @@ public abstract class AnnotationIntrospector implements Versioned
     /**
      * Old version of {@link AnnotationIntrospectorPair}.
      * 
-     * @deprecated Starting with 2.1, use
-     * {@link AnnotationIntrospectorPair}
-     * instead.
+     * @deprecated Starting with 2.1, use {@link AnnotationIntrospectorPair} instead.
      */
     @Deprecated
     public static class Pair
         extends AnnotationIntrospectorPair
     {
+        @Deprecated
         public Pair(AnnotationIntrospector p, AnnotationIntrospector s) {
             super(p, s);
         }

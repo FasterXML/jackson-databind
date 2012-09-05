@@ -40,11 +40,14 @@ public class RootNameLookup
         BeanDescription beanDesc = config.introspectClassAnnotations(rootType);
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
         AnnotatedClass ac = beanDesc.getClassInfo();
-        String nameStr = intr.findRootName(ac);
+        PropertyName pname = intr.findRootName(ac);
+        String nameStr;
         // No answer so far? Let's just default to using simple class name
-        if (nameStr == null || nameStr.length() == 0) {
+        if (pname == null || !pname.hasSimpleName()) {
             // Should we strip out enclosing class tho? For now, nope:
             nameStr = rootType.getSimpleName();
+        } else {
+            nameStr = pname.getSimpleName();
         }
         SerializedString name = new SerializedString(nameStr);
         _rootNames.put(key, name);

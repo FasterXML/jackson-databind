@@ -33,7 +33,7 @@ public class PropertyName
 
     public PropertyName(String simpleName, String namespace)
     {
-        _simpleName = simpleName;
+        _simpleName = (simpleName == null) ? "" : simpleName;
         _namespace = namespace;
     }
 
@@ -48,9 +48,17 @@ public class PropertyName
     }
 
     public String getNamespace() {
-        return null;
+        return _namespace;
     }
 
+    public boolean hasSimpleName() {
+        return _simpleName.length() > 0;
+    }
+
+    public boolean hasNamespace() {
+        return _namespace != null;
+    }
+    
     /*
     /**********************************************************
     /* Std method overrides

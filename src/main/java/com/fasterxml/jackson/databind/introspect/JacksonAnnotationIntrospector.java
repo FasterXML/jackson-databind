@@ -76,10 +76,13 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public String findRootName(AnnotatedClass ac)
+    public PropertyName findRootName(AnnotatedClass ac)
     {
         JsonRootName ann = ac.getAnnotation(JsonRootName.class);
-        return (ann == null) ? null : ann.value();
+        if (ann == null) {
+            return null;
+        }
+        return new PropertyName(ann.value());
     }
 
     @Override

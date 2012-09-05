@@ -93,16 +93,17 @@ public class AnnotationIntrospectorPair extends AnnotationIntrospector
      */
 
     @Override
-    public String findRootName(AnnotatedClass ac)
+    public PropertyName findRootName(AnnotatedClass ac)
     {
-        String name1 = _primary.findRootName(ac);
+        PropertyName name1 = _primary.findRootName(ac);
         if (name1 == null) {
             return _secondary.findRootName(ac);
-        } else if (name1.length() > 0) {
+        }
+        if (name1.hasSimpleName()) {
             return name1;
         }
         // name1 is empty; how about secondary?
-        String name2 = _secondary.findRootName(ac);
+        PropertyName name2 = _secondary.findRootName(ac);
         return (name2 == null) ? name1 : name2;
     }
 

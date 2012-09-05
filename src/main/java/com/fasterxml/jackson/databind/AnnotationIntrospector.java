@@ -217,8 +217,11 @@ public abstract class AnnotationIntrospector implements Versioned
      * for XML compatibility purposes) for given class, if one
      * is defined. Returns null if no declaration found; can return
      * explicit empty String, which is usually ignored as well as null.
+     *<p> 
+     * NOTE: method signature changed in 2.1, to return {@link PropertyName}
+     * instead of String.
      */
-    public String findRootName(AnnotatedClass ac) {
+    public PropertyName findRootName(AnnotatedClass ac) {
         return null;
     }
 

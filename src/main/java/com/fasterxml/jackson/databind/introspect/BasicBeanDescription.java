@@ -410,14 +410,17 @@ public class BasicBeanDescription extends BeanDescription
             for (AnnotatedWithParams creator : l) {
                 int argCount = creator.getParameterCount();
                 if (argCount < 1) continue;
-                String name = _annotationIntrospector.findDeserializationName(creator.getParameter(0));
-                if (name == null) continue;
+                PropertyName name = _annotationIntrospector.findNameForDeserialization(creator.getParameter(0));
+                if (name == null) {
+                    continue;
+                }
                 if (names == null) {
                     names = new ArrayList<String>();
                 }
-                names.add(name);
+                names.add(name.getSimpleName());
                 for (int p = 1; p < argCount; ++p) {
-                    names.add(_annotationIntrospector.findDeserializationName(creator.getParameter(p)));
+                    name = _annotationIntrospector.findNameForDeserialization(creator.getParameter(p));
+                    names.add((name == null) ? null : name.getSimpleName());
                 }
             }
         }

@@ -362,7 +362,8 @@ public class POJOPropertiesCollector
                 PropertyName pn = ai.findNameForSerialization(f);
                 explName = (pn == null) ? null : pn.getSimpleName();
             } else {
-                explName = ai.findDeserializationName(f);
+                PropertyName pn = ai.findNameForDeserialization(f);
+                explName = (pn == null) ? null : pn.getSimpleName();
             }
             if ("".equals(explName)) { // empty String meaning "use default name", here just means "same as field name"
                 explName = implName;
@@ -394,7 +395,8 @@ public class POJOPropertiesCollector
             }
             for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
                 AnnotatedParameter param = ctor.getParameter(i);
-                String name = ai.findDeserializationName(param);
+                PropertyName pn = ai.findNameForDeserialization(param);
+                String name = (pn == null) ? null : pn.getSimpleName();
                 // is it legal not to have name?
                 if (name != null) {
                     // shouldn't need to worry about @JsonIgnore (no real point, so)
@@ -410,7 +412,8 @@ public class POJOPropertiesCollector
             }
             for (int i = 0, len = factory.getParameterCount(); i < len; ++i) {
                 AnnotatedParameter param = factory.getParameter(i);
-                String name = ai.findDeserializationName(param);
+                PropertyName pn = ai.findNameForDeserialization(param);
+                String name = (pn == null) ? null : pn.getSimpleName();
                 // is it legal not to have name?
                 if (name != null) {
                     // shouldn't need to worry about @JsonIgnore (no real point, so)
@@ -507,7 +510,8 @@ public class POJOPropertiesCollector
     {
         String implName; // from naming convention
         boolean visible;
-        String explName = (ai == null) ? null : ai.findDeserializationName(m);
+        PropertyName pn = (ai == null) ? null : ai.findNameForDeserialization(m);
+        String explName = (pn == null) ? null : pn.getSimpleName();
         if (explName == null) { // no explicit name; must follow naming convention
             implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
             if (implName == null) { // if not, must skip

@@ -847,10 +847,28 @@ public abstract class AnnotationIntrospector implements Versioned
     
     /*
     /**********************************************************
-    /* Deserialization: method annotations
+    /* Deserialization: property annotations
     /**********************************************************
      */
 
+    /**
+     * Method for checking whether given property accessors (method,
+     * field) has an annotation that suggests property name to use
+     * for deserialization (reading JSON into POJOs).
+     * Should return null if no annotation
+     * is found; otherwise a non-null name (possibly
+     * {@link PropertyName#USE_DEFAULT}, which means "use default heuristics").
+     * 
+     * @param a Property accessor to check
+     * 
+     * @return Name to use if found; null if not.
+     * 
+     * @since 2.1
+     */
+    public PropertyName findNameForDeserialization(Annotated a) {
+        return null;
+    }
+    
     /**
      * Method for checking whether given method has an annotation
      * that suggests property name associated with method that
@@ -860,11 +878,44 @@ public abstract class AnnotationIntrospector implements Versioned
      * name, except for empty String ("") which is taken to mean
      * "use standard bean name detection if applicable;
      * method name if not".
+     * 
+     * @deprecated Since 2.1 should use {@link #findNameForDeserialization} instead
      */
+    @Deprecated
     public String findDeserializationName(AnnotatedMethod am) {
         return null;
     }
 
+    /**
+     * Method for checking whether given member field represent
+     * a deserializable logical property; and if so, returns the
+     * name of that property.
+     * Should return null if no annotation is found (indicating it
+     * is not a deserializable field); otherwise a non-null String.
+     * If non-null value is returned, it is used as the property
+     * name, except for empty String ("") which is taken to mean
+     * "use the field name as is".
+     * 
+     * @deprecated Since 2.1 should use {@link #findNameForDeserialization} instead
+     */
+    @Deprecated
+    public String findDeserializationName(AnnotatedField af) {
+        return null;
+    }
+
+    /**
+     * Method for checking whether given set of annotations indicates
+     * property name for associated parameter.
+     * No actual parameter object can be passed since JDK offers no
+     * representation; just annotations.
+     * 
+     * @deprecated Since 2.1 should use {@link #findNameForDeserialization} instead
+     */
+    @Deprecated
+    public String findDeserializationName(AnnotatedParameter param) {
+        return null;
+    }
+    
     /**
      * Method for checking whether given method has an annotation
      * that suggests that the method is to serve as "any setter";
@@ -903,43 +954,6 @@ public abstract class AnnotationIntrospector implements Versioned
      */
     public boolean hasCreatorAnnotation(Annotated a) {
         return false;
-    }
-
-    /*
-    /**********************************************************
-    /* Deserialization: field annotations
-    /**********************************************************
-     */
-
-    /**
-     * Method for checking whether given member field represent
-     * a deserializable logical property; and if so, returns the
-     * name of that property.
-     * Should return null if no annotation is found (indicating it
-     * is not a deserializable field); otherwise a non-null String.
-     * If non-null value is returned, it is used as the property
-     * name, except for empty String ("") which is taken to mean
-     * "use the field name as is".
-     */
-    public String findDeserializationName(AnnotatedField af) {
-        return null;
-    }
-
-    /*
-    /**********************************************************
-    /* Deserialization: parameter annotations (for
-    /* creator method parameters)
-    /**********************************************************
-     */
-
-    /**
-     * Method for checking whether given set of annotations indicates
-     * property name for associated parameter.
-     * No actual parameter object can be passed since JDK offers no
-     * representation; just annotations.
-     */
-    public String findDeserializationName(AnnotatedParameter param) {
-        return null;
     }
 
     /*
@@ -1538,6 +1552,16 @@ public abstract class AnnotationIntrospector implements Versioned
         }
         
         // // // Deserialization: method annotations
+
+        @Override
+        public PropertyName findNameForDeserialization(Annotated a)
+        {
+            PropertyName n = _primary.findNameForDeserialization(a);
+            if (n != null) {
+                n = _secondary.findNameForDeserialization(a);
+            }
+            return n;
+        }
 
         @Override
         public String findDeserializationName(AnnotatedMethod am)

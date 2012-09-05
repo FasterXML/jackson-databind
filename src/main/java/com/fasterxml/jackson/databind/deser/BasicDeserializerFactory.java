@@ -429,7 +429,8 @@ public abstract class BasicDeserializerFactory
             CreatorProperty[] properties = new CreatorProperty[argCount];
             for (int i = 0; i < argCount; ++i) {
                 AnnotatedParameter param = ctor.getParameter(i);
-                String name = (param == null) ? null : intr.findDeserializationName(param);
+                PropertyName pn = (param == null) ? null : intr.findNameForDeserialization(param);
+                String name = (pn == null) ? null : pn.getSimpleName();
                 Object injectId = intr.findInjectableValueId(param);
                 if (name != null && name.length() > 0) {
                     ++namedCount;
@@ -465,7 +466,8 @@ public abstract class BasicDeserializerFactory
     {
         // note: if we do have parameter name, it'll be "property constructor":
         AnnotatedParameter param = ctor.getParameter(0);
-        String name = intr.findDeserializationName(param);
+        PropertyName pn = (param == null) ? null : intr.findNameForDeserialization(param);
+        String name = (pn == null) ? null : pn.getSimpleName();
         Object injectId = intr.findInjectableValueId(param);
     
         if ((injectId != null) || (name != null && name.length() > 0)) { // property-based
@@ -530,7 +532,8 @@ public abstract class BasicDeserializerFactory
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
                 AnnotatedParameter param = factory.getParameter(0);
-                String name = intr.findDeserializationName(param);
+                PropertyName pn = (param == null) ? null : intr.findNameForDeserialization(param);
+                String name = (pn == null) ? null : pn.getSimpleName();
                 Object injectId = intr.findInjectableValueId(param);
 
                 if ((injectId == null) && (name == null || name.length() == 0)) { // not property based
@@ -553,7 +556,8 @@ public abstract class BasicDeserializerFactory
             int injectCount = 0;            
             for (int i = 0; i < argCount; ++i) {
                 AnnotatedParameter param = factory.getParameter(i);
-                String name = intr.findDeserializationName(param);
+                PropertyName pn = (param == null) ? null : intr.findNameForDeserialization(param);
+                String name = (pn == null) ? null : pn.getSimpleName();
                 Object injectId = intr.findInjectableValueId(param);
                 if (name != null && name.length() > 0) {
                     ++namedCount;

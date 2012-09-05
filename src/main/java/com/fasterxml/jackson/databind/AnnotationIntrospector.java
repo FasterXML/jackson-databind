@@ -658,6 +658,22 @@ public abstract class AnnotationIntrospector implements Versioned
      */
     public PropertyName findNameForSerialization(Annotated a)
     {
+        // [Issue#69], need bit of delegation 
+        // !!! TODO: in 2.2, remove old methods?
+        String name;
+        if (a instanceof AnnotatedField) {
+            name = findSerializationName((AnnotatedField) a);
+        } else if (a instanceof AnnotatedMethod) {
+            name = findSerializationName((AnnotatedMethod) a);
+        } else {
+            name = null;
+        }
+        if (name != null) {
+            if (name.length() == 0) { // empty String means 'default'
+                return PropertyName.USE_DEFAULT;
+            }
+            return new PropertyName(name);
+        }
         return null;
     }
     
@@ -865,7 +881,26 @@ public abstract class AnnotationIntrospector implements Versioned
      * 
      * @since 2.1
      */
-    public PropertyName findNameForDeserialization(Annotated a) {
+    public PropertyName findNameForDeserialization(Annotated a)
+    {
+        // [Issue#69], need bit of delegation 
+        // !!! TODO: in 2.2, remove old methods?
+        String name;
+        if (a instanceof AnnotatedField) {
+            name = findDeserializationName((AnnotatedField) a);
+        } else if (a instanceof AnnotatedMethod) {
+            name = findDeserializationName((AnnotatedMethod) a);
+        } else if (a instanceof AnnotatedParameter) {
+            name = findDeserializationName((AnnotatedParameter) a);
+        } else {
+            name = null;
+        }
+        if (name != null) {
+            if (name.length() == 0) { // empty String means 'default'
+                return PropertyName.USE_DEFAULT;
+            }
+            return new PropertyName(name);
+        }
         return null;
     }
     
@@ -1399,8 +1434,14 @@ public abstract class AnnotationIntrospector implements Versioned
         @Override
         public PropertyName findNameForSerialization(Annotated a) {
             PropertyName n = _primary.findNameForSerialization(a);
-            if (n != null) {
+            // note: "use default" should not block explicit answer, so:
+            if (n == null) {
                 n = _secondary.findNameForSerialization(a);
+            } else if (n == PropertyName.USE_DEFAULT) {
+                PropertyName n2 = _secondary.findNameForSerialization(a);
+                if (n2 != null) {
+                    n = n2;
+                }
             }
             return n;
         }
@@ -1556,13 +1597,19 @@ public abstract class AnnotationIntrospector implements Versioned
         @Override
         public PropertyName findNameForDeserialization(Annotated a)
         {
+            // note: "use default" should not block explicit answer, so:
             PropertyName n = _primary.findNameForDeserialization(a);
             if (n != null) {
                 n = _secondary.findNameForDeserialization(a);
+            } else if (n == PropertyName.USE_DEFAULT) {
+                PropertyName n2 = _secondary.findNameForDeserialization(a);
+                if (n2 != null) {
+                    n = n2;
+                }
             }
             return n;
         }
-
+        
         @Override
         public String findDeserializationName(AnnotatedMethod am)
         {

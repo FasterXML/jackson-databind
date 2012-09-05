@@ -18,7 +18,7 @@ public class TestGenericCollectionDeser
     static class ListSubClass extends ArrayList<StringWrapper> { }
 
     /**
-     * Map class that should behave like {@link MapSubClass}, but by
+     * Map class that should behave like {@link ListSubClass}, but by
      * using annotations.
      */
     @JsonDeserialize(contentAs=StringWrapper.class)

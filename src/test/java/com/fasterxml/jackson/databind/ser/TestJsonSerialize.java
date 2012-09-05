@@ -69,7 +69,7 @@ public class TestJsonSerialize
     }
 
     /**
-     * Test bean that has an invalid {@link JsonClass} annotation.
+     * Test bean that has an invalid {@link JsonSerialize} annotation.
      */
     static class BrokenClass
     {

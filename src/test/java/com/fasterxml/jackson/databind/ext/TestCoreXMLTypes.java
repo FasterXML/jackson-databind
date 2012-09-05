@@ -84,6 +84,7 @@ public class TestCoreXMLTypes
      */
     
     // First things first: must be able to load the deserializers...
+    @SuppressWarnings("unused")
     public void testDeserializerLoading()
     {
         new CoreXMLDeserializers.DurationDeserializer();

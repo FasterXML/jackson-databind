@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
@@ -171,11 +172,11 @@ public final class BaseSettings
     }
 
     public BaseSettings withInsertedAnnotationIntrospector(AnnotationIntrospector ai) {
-        return withAnnotationIntrospector(AnnotationIntrospector.Pair.create(ai, _annotationIntrospector));
+        return withAnnotationIntrospector(AnnotationIntrospectorPair.create(ai, _annotationIntrospector));
     }
 
     public BaseSettings withAppendedAnnotationIntrospector(AnnotationIntrospector ai) {
-        return withAnnotationIntrospector(AnnotationIntrospector.Pair.create(_annotationIntrospector, ai));
+        return withAnnotationIntrospector(AnnotationIntrospectorPair.create(_annotationIntrospector, ai));
     }
     
     public BaseSettings withVisibilityChecker(VisibilityChecker<?> vc) {

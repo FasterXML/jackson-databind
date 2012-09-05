@@ -1,0 +1,96 @@
+package com.fasterxml.jackson.databind;
+
+/**
+ * Simple value class used for containing names of properties as defined
+ * by annotations (and possibly other configuration sources).
+ * 
+ * @since 2.1
+ */
+public class PropertyName
+{
+    /**
+     * Special placeholder value that indicates that name to use should be
+     * based on the standard heuristics. This can be different from returning
+     * null, as null means "no information available, whereas this value
+     * indicates explicit defaulting.
+     */
+    public final static PropertyName USE_DEFAULT = new PropertyName(new String(""), null);
+    
+    /**
+     * Basic name of the property.
+     */
+    protected final String _simpleName;
+
+    /**
+     * Additional namespace, for formats that have such concept (JSON
+     * does not, XML does, for example).
+     */
+    protected final String _namespace;
+
+    public PropertyName(String simpleName) {
+        this(simpleName, null);
+    }
+
+    public PropertyName(String simpleName, String namespace)
+    {
+        _simpleName = simpleName;
+        _namespace = namespace;
+    }
+
+    /*
+    /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
+    
+    public String getSimpleName() {
+        return _simpleName;
+    }
+
+    public String getNamespace() {
+        return null;
+    }
+
+    /*
+    /**********************************************************
+    /* Std method overrides
+    /**********************************************************
+     */
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (o == this) return true;
+        if (o == null) return false;
+        if (o.getClass() != PropertyName.class) return false;
+        if (USE_DEFAULT == o) {
+            return this == USE_DEFAULT;
+        }
+        PropertyName other = (PropertyName) this;
+        if (_simpleName == null) {
+            if (other._simpleName != null) return false;
+        } else if (!_simpleName.equals(other._simpleName)) {
+            return false;
+        }
+        if (_namespace == null) {
+            return (null == other._namespace);
+        }
+        return _namespace.equals(other._namespace);
+    }
+    
+    @Override
+    public int hashCode() {
+        if (_namespace == null) {
+            return _simpleName.hashCode();
+        }
+        return _namespace.hashCode() ^  _simpleName.hashCode();
+    }
+    
+    @Override
+    public String toString() {
+        if (_namespace == null) {
+            return _simpleName;
+        }
+        return _namespace + ":" + _simpleName;
+    }
+}

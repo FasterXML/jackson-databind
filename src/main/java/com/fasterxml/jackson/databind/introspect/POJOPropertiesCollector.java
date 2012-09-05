@@ -359,7 +359,8 @@ public class POJOPropertiesCollector
                  *   fields, and similarly for deserialize-only annotations... so
                  *   no fallbacks in this particular case.
                  */
-                explName = ai.findSerializationName(f);
+                PropertyName pn = ai.findNameForSerialization(f);
+                explName = (pn == null) ? null : pn.getSimpleName();
             } else {
                 explName = ai.findDeserializationName(f);
             }
@@ -473,7 +474,8 @@ public class POJOPropertiesCollector
         String implName; // from naming convention
         boolean visible;
         
-        String explName = (ai == null) ? null : ai.findSerializationName(m);
+        PropertyName pn = (ai == null) ? null : ai.findNameForSerialization(m);
+        String explName = (pn == null) ? null : pn.getSimpleName();
         if (explName == null) { // no explicit name; must follow naming convention
             implName = BeanUtil.okNameForRegularGetter(m, m.getName());
             if (implName == null) { // if not, must skip

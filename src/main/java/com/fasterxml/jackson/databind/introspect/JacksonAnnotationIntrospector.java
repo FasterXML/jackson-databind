@@ -455,10 +455,47 @@ public class JacksonAnnotationIntrospector
 
     /*
     /**********************************************************
-    /* Serialization: method annotations
+    /* Serialization: property annotations
     /**********************************************************
      */
 
+    @Override
+    public PropertyName findNameForSerialization(Annotated a)
+    {
+        // [Issue#69], need bit of delegation 
+        // !!! TODO: in 2.2, remove old methods?
+        String name;
+        if (a instanceof AnnotatedField) {
+            name = findSerializationName((AnnotatedField) a);
+        } else if (a instanceof AnnotatedMethod) {
+            name = findSerializationName((AnnotatedMethod) a);
+        } else {
+            name = null;
+        }
+        if (name != null) {
+            if (name.length() == 0) { // empty String means 'default'
+                return PropertyName.USE_DEFAULT;
+            }
+            return new PropertyName(name);
+        }
+        return null;
+    }
+
+    @Override
+    public String findSerializationName(AnnotatedField af)
+    {
+        JsonProperty pann = af.getAnnotation(JsonProperty.class);
+        if (pann != null) {
+            return pann.value();
+        }
+        // Also: having JsonSerialize implies it is such a property
+        // 09-Apr-2010, tatu: Ditto for JsonView
+        if (af.hasAnnotation(JsonSerialize.class) || af.hasAnnotation(JsonView.class)) {
+            return "";
+        }
+        return null;
+    }
+    
     @Override
     public String findSerializationName(AnnotatedMethod am)
     {
@@ -487,27 +524,6 @@ public class JacksonAnnotationIntrospector
         JsonValue ann = am.getAnnotation(JsonValue.class);
         // value of 'false' means disabled...
         return (ann != null && ann.value());
-    }
-
-    /*
-    /**********************************************************
-    /* Serialization: field annotations
-    /**********************************************************
-    */
-
-    @Override
-    public String findSerializationName(AnnotatedField af)
-    {
-        JsonProperty pann = af.getAnnotation(JsonProperty.class);
-        if (pann != null) {
-            return pann.value();
-        }
-        // Also: having JsonSerialize implies it is such a property
-        // 09-Apr-2010, tatu: Ditto for JsonView
-        if (af.hasAnnotation(JsonSerialize.class) || af.hasAnnotation(JsonView.class)) {
-            return "";
-        }
-        return null;
     }
 
     /*

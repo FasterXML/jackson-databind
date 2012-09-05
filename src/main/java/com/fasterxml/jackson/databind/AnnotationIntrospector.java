@@ -638,10 +638,29 @@ public abstract class AnnotationIntrospector implements Versioned
     
     /*
     /**********************************************************
-    /* Serialization: method annotations
+    /* Serialization: property annotations
     /**********************************************************
      */
 
+    /**
+     * Method for checking whether given property accessors (method,
+     * field) has an annotation that suggests property name to use
+     * for serialization.
+     * Should return null if no annotation
+     * is found; otherwise a non-null name (possibly
+     * {@link PropertyName#USE_DEFAULT}, which means "use default heuristics").
+     * 
+     * @param a Property accessor to check
+     * 
+     * @return Name to use if found; null if not.
+     * 
+     * @since 2.1
+     */
+    public PropertyName findNameForSerialization(Annotated a)
+    {
+        return null;
+    }
+    
     /**
      * Method for checking whether given method has an annotation
      * that suggests property name associated with method that
@@ -651,11 +670,31 @@ public abstract class AnnotationIntrospector implements Versioned
      * name, except for empty String ("") which is taken to mean
      * "use standard bean name detection if applicable;
      * method name if not".
+     * 
+     * @deprecated Since 2.1 should use {@link #findNameForSerialization} instead
      */
+    @Deprecated
     public String findSerializationName(AnnotatedMethod am) {
         return null;
     }
 
+    /**
+     * Method for checking whether given member field represent
+     * a serializable logical property; and if so, returns the
+     * name of that property.
+     * Should return null if no annotation is found (indicating it
+     * is not a serializable field); otherwise a non-null String.
+     * If non-null value is returned, it is used as the property
+     * name, except for empty String ("") which is taken to mean
+     * "use the field name as is".
+     * 
+     * @deprecated Since 2.1 should use {@link #findNameForSerialization} instead
+     */
+    @Deprecated
+    public String findSerializationName(AnnotatedField af) {
+        return null;
+    }
+    
     /**
      * Method for checking whether given method has an annotation
      * that suggests that the return value of annotated method
@@ -668,7 +707,7 @@ public abstract class AnnotationIntrospector implements Versioned
     public boolean hasAsValueAnnotation(AnnotatedMethod am) {
         return false;
     }
-
+    
     /**
      * Method for determining the String value to use for serializing
      * given enumeration entry; used when serializing enumerations
@@ -679,27 +718,6 @@ public abstract class AnnotationIntrospector implements Versioned
     public String findEnumValue(Enum<?> value) {
         return null;
     }
-
-    /*
-    /**********************************************************
-    /* Serialization: field annotations
-    /**********************************************************
-     */
-
-    /**
-     * Method for checking whether given member field represent
-     * a serializable logical property; and if so, returns the
-     * name of that property.
-     * Should return null if no annotation is found (indicating it
-     * is not a serializable field); otherwise a non-null String.
-     * If non-null value is returned, it is used as the property
-     * name, except for empty String ("") which is taken to mean
-     * "use the field name as is".
-     */
-    public String findSerializationName(AnnotatedField af) {
-        return null;
-    }
-
     /*
     /**********************************************************
     /* Deserialization: general annotations
@@ -1362,7 +1380,16 @@ public abstract class AnnotationIntrospector implements Versioned
             return result;            
         }
 
-        // // // Serialization: method annotations
+        // // // Serialization: property annotations
+        
+        @Override
+        public PropertyName findNameForSerialization(Annotated a) {
+            PropertyName n = _primary.findNameForSerialization(a);
+            if (n != null) {
+                n = _secondary.findNameForSerialization(a);
+            }
+            return n;
+        }
         
         @Override
         public String findSerializationName(AnnotatedMethod am)
@@ -1375,6 +1402,24 @@ public abstract class AnnotationIntrospector implements Versioned
                  * more explicit answer from secondary entry
                  */
                 String str2 = _secondary.findSerializationName(am);
+                if (str2 != null) {
+                    result = str2;
+                }
+            }
+            return result;
+        }
+
+        @Override
+        public String findSerializationName(AnnotatedField af)
+        {
+            String result = _primary.findSerializationName(af);
+            if (result == null) {
+                result = _secondary.findSerializationName(af);
+            } else if (result.length() == 0) {
+                /* Empty String is a default; can be overridden by
+                 * more explicit answer from secondary entry
+                 */
+                String str2 = _secondary.findSerializationName(af);
                 if (str2 != null) {
                     result = str2;
                 }
@@ -1397,26 +1442,6 @@ public abstract class AnnotationIntrospector implements Versioned
             }
             return result;
         }        
-
-        // // // Serialization: field annotations
-
-        @Override
-        public String findSerializationName(AnnotatedField af)
-        {
-            String result = _primary.findSerializationName(af);
-            if (result == null) {
-                result = _secondary.findSerializationName(af);
-            } else if (result.length() == 0) {
-                /* Empty String is a default; can be overridden by
-                 * more explicit answer from secondary entry
-                 */
-                String str2 = _secondary.findSerializationName(af);
-                if (str2 != null) {
-                    result = str2;
-                }
-            }
-            return result;
-        }
 
         // // // Deserialization: general annotations
 

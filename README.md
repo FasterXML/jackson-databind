@@ -4,7 +4,7 @@ This project contains the general-purpose data-binding functionality
 and tree-model for [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome)
 It builds on [core streaming parser/generator](/FasterXML/jackson-core) package,
 and uses [Jackson Annotations](/FasterXML/jackson-annotations) for configuration.
-More low-level details can be found from [Javadocs](http://fasterxml.github.com/jackson-databind/javadoc/2.0.5/).
+More low-level details can be found from [Javadocs](http://fasterxml.github.com/jackson-databind/javadoc/2.0.6/).
 
 While the original use case for Jackson was JSON data-binding,
 it can now be used for other data formats as well, as long as
@@ -31,7 +31,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.0.0</version>
+      <version>2.0.6</version>
     </dependency>
 
 Since package also depends on '''jackson-core''' and '''jackson-databind''' packages, you will need to download these if not using Maven; and you may also want to add them as Maven dependency to ensure that compatible versions are used.
@@ -40,12 +40,12 @@ If so, also add:
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.0.0</version>
+      <version>2.0.6</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.0.0</version>
+      <version>2.0.6</version>
     </dependency>
 
 ## Non-Maven
@@ -313,7 +313,7 @@ Basically, Jackson can work as a replacement for many Apache Commons components,
 
 Project-specific documentation:
 
-* [Javadocs](http://fasterxml.github.com/jackson-databind/javadoc/2.0.5/)
+* [Javadocs](http://fasterxml.github.com/jackson-databind/javadoc/2.0.6/)
 * [Documentation](jackson-databind/wiki/Documentation)
 
 Related:

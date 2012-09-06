@@ -37,6 +37,47 @@ public class PropertyName
         _namespace = namespace;
     }
 
+    public static PropertyName construct(String simpleName, String ns)
+    {
+        if (simpleName == null) {
+            simpleName = "";
+        }
+        if (ns == null && simpleName.length() == 0) {
+            return USE_DEFAULT;
+        }
+        return new PropertyName(simpleName, ns);
+    }
+    
+    /**
+     * Fluent factory method for constructing an instance with different
+     * simple name.
+     */
+    public PropertyName withSimpleName(String simpleName)
+    {
+        if (simpleName == null) {
+            simpleName = "";
+        }
+        if (simpleName.equals(_simpleName)) {
+            return this;
+        }
+        return new PropertyName(simpleName, _namespace);
+    }
+    
+    /**
+     * Fluent factory method for constructing an instance with different
+     * namespace.
+     */
+    public PropertyName withNamespace(String ns) {
+        if (ns == null) {
+            if (_namespace == null) {
+                return this;
+            }
+        } else if (ns.equals(_namespace)) {
+            return this;
+        }
+        return new PropertyName(_simpleName, ns);
+    }
+    
     /*
     /**********************************************************
     /* Accessors

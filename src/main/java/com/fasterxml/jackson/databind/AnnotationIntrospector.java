@@ -513,6 +513,22 @@ public abstract class AnnotationIntrospector implements Versioned
     public Boolean isTypeId(AnnotatedMember member) {
         return null;
     }
+
+
+    /**
+     * Method used to check if specified property has annotation that indicates
+     * that it should be wrapped in an element; and if so, name to use.
+     * Note that not all serializers and deserializers support use this method:
+     * currently (2.1) it is only used by XML-backed handlers.
+     * 
+     * @return Wrapper name to use, if any, or {@link PropertyName#USE_DEFAULT}
+     *   to indicate that no wrapper element should be used.
+     * 
+     * @since 2.1
+     */
+    public PropertyName findWrapperName(Annotated ann) {
+        return null;
+    }
     
     /*
     /**********************************************************

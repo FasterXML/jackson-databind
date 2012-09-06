@@ -423,6 +423,15 @@ public class AnnotationIntrospectorPair extends AnnotationIntrospector
         }
         return result;
     }
+
+    @Override
+    public PropertyName findWrapperName(Annotated ann) {
+        PropertyName name = _primary.findWrapperName(ann);
+        if (name == null) {
+            name = _secondary.findWrapperName(ann);
+        }
+        return name;
+    }
     
     // // // Serialization: class annotations
 

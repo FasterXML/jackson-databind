@@ -691,6 +691,17 @@ public class ObjectMapper
         return _deserializationConfig;
     }
     
+    /**
+     * Method for getting current {@link DeserializationContext}.
+      *<p>
+     * Note that since instances are immutable, you can NOT change settings
+     * by accessing an instance and calling methods: this will simply create
+     * new instance of context object.
+    */
+    public DeserializationContext getDeserializationContext() {
+        return _deserializationContext;
+    }
+
     /*
     /**********************************************************
     /* Configuration: ser/deser factory, provider access
@@ -704,6 +715,17 @@ public class ObjectMapper
     public ObjectMapper setSerializerFactory(SerializerFactory f) {
         _serializerFactory = f;
         return this;
+    }
+
+    /**
+     * Method for getting current {@link SerializerFactory}.
+      *<p>
+     * Note that since instances are immutable, you can NOT change settings
+     * by accessing an instance and calling methods: this will simply create
+     * new instance of factory object.
+     */
+    public SerializerFactory getSerializerFactory() {
+        return _serializerFactory;
     }
 
     /**

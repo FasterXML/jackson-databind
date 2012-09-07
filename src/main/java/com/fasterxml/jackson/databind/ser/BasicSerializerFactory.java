@@ -143,6 +143,17 @@ public abstract class BasicSerializerFactory
     }
     
     /**
+     * Method for getting current {@link SerializerFactoryConfig}.
+      *<p>
+     * Note that since instances are immutable, you can NOT change settings
+     * by accessing an instance and calling methods: this will simply create
+     * new instance of config object.
+     */
+    public SerializerFactoryConfig getFactoryConfig() {
+        return _factoryConfig;
+    }
+
+    /**
      * Method used for creating a new instance of this factory, but with different
      * configuration. Reason for specifying factory method (instead of plain constructor)
      * is to allow proper sub-classing of factories.

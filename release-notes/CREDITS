@@ -898,3 +898,9 @@ Duncan Atkinson:
 Mark Wolfe:
  * Suggested [Issue#45]: Add `@JsonNaming()` for per-class naming strategy overrides
   (2.1.0)
+
+Dmitry Katsubo:
+ * Contributed patch for [Issue#65]: Add getters to `ObjectMapper`, DeserializationContext,
+   DeserializationFactory.
+  (2.1.0)
+

@@ -36,6 +36,8 @@ Improvements:
 * [Issue#64]: Add new "standard" PropertyNamingStrategy, PascalCaseStrategy
   (PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE)
  (contributed by Sean B)
+* [Issue#65]: Add getters to `ObjectMapper`, DeserializationContext/-Factory.
+ (contributed by Dmitry K)
 * [Issue#69]: Add `PropertyName` abstraction, new methods in AnnotationIntrospector
 
 New features:

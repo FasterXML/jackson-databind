@@ -163,7 +163,18 @@ public abstract class BasicDeserializerFactory
     protected BasicDeserializerFactory(DeserializerFactoryConfig config) {
         _factoryConfig = config;
     }
-    
+
+    /**
+     * Method for getting current {@link DeserializerFactoryConfig}.
+      *<p>
+     * Note that since instances are immutable, you can NOT change settings
+     * by accessing an instance and calling methods: this will simply create
+     * new instance of config object.
+     */
+    public DeserializerFactoryConfig getFactoryConfig() {
+        return _factoryConfig;
+    }
+
     protected abstract DeserializerFactory withConfig(DeserializerFactoryConfig config);
     
     /*

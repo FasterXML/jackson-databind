@@ -14,7 +14,14 @@ public class PropertyName
      * null, as null means "no information available, whereas this value
      * indicates explicit defaulting.
      */
-    public final static PropertyName USE_DEFAULT = new PropertyName(new String(""), null);
+    public final static PropertyName USE_DEFAULT = new PropertyName("", null);
+
+    /**
+     * Special placeholder value that indicates that name returned should
+     * indicate "do not use" (or "disabled") mode. Exact semantics to use (if any)
+     * depend on actual annotation in use.
+     */
+    public final static PropertyName DISABLED = new PropertyName(new String("#disabled"), null);
     
     /**
      * Basic name of the property.
@@ -140,6 +147,6 @@ public class PropertyName
         if (_namespace == null) {
             return _simpleName;
         }
-        return _namespace + ":" + _simpleName;
+        return "{"+_namespace + "}" + _simpleName;
     }
 }

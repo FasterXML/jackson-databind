@@ -146,7 +146,7 @@ public abstract class JsonDeserializer<T>
      * 
      * @since 2.1
      */
-    public JsonDeserializer<T> replaceDelegatee(JsonDeserializer<?> delegatee) {
+    public JsonDeserializer<?> replaceDelegatee(JsonDeserializer<?> delegatee) {
         throw new UnsupportedOperationException();
     }
     

@@ -17,11 +17,11 @@ public class PropertyName
     public final static PropertyName USE_DEFAULT = new PropertyName("", null);
 
     /**
-     * Special placeholder value that indicates that name returned should
-     * indicate "do not use" (or "disabled") mode. Exact semantics to use (if any)
-     * depend on actual annotation in use.
+     * Special placeholder value that indicates that there is no name associated.
+     * Exact semantics to use (if any) depend on actual annotation in use, but
+     * commonly this value disables behavior for which name would be needed.
      */
-    public final static PropertyName DISABLED = new PropertyName(new String("#disabled"), null);
+    public final static PropertyName NO_NAME = new PropertyName(new String("#disabled"), null);
     
     /**
      * Basic name of the property.

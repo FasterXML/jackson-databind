@@ -432,7 +432,7 @@ public class AnnotationIntrospectorPair extends AnnotationIntrospector
         } else if (name == PropertyName.USE_DEFAULT) {
             // does the other introspector have a better idea?
             PropertyName name2 = _secondary.findWrapperName(ann);
-            if (name2 != name) {
+            if (name2 != null) {
                 name = name2;
             }
         }

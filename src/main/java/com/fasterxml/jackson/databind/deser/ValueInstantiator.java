@@ -212,31 +212,31 @@ public abstract class ValueInstantiator
     public Object createFromString(DeserializationContext ctxt, String value)
             throws IOException, JsonProcessingException {
         throw new JsonMappingException("Can not instantiate value of type "
-                +getValueTypeDesc()+" from JSON String");
+                +getValueTypeDesc()+" from String value");
     }
     
     public Object createFromInt(DeserializationContext ctxt, int value)
             throws IOException, JsonProcessingException {
         throw new JsonMappingException("Can not instantiate value of type "
-                +getValueTypeDesc()+" from JSON int number");
+                +getValueTypeDesc()+" from Integer number (int)");
     }
 
     public Object createFromLong(DeserializationContext ctxt, long value)
             throws IOException, JsonProcessingException {
         throw new JsonMappingException("Can not instantiate value of type "
-                +getValueTypeDesc()+" from JSON long number");
+                +getValueTypeDesc()+" from Integer number (long)");
     }
 
     public Object createFromDouble(DeserializationContext ctxt, double value)
             throws IOException, JsonProcessingException {
         throw new JsonMappingException("Can not instantiate value of type "
-                +getValueTypeDesc()+" from JSON floating-point number");
+                +getValueTypeDesc()+" from Floating-point number (double)");
     }
     
     public Object createFromBoolean(DeserializationContext ctxt, boolean value)
             throws IOException, JsonProcessingException {
         throw new JsonMappingException("Can not instantiate value of type "
-                +getValueTypeDesc()+" from JSON boolean value");
+                +getValueTypeDesc()+" from Boolean value");
     }
 
     /*

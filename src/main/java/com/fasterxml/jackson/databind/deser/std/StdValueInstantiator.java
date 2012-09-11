@@ -314,7 +314,7 @@ public class StdValueInstantiator
             throw wrapException(e);
         }
         throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
-                +" from JSON integral number; no single-int-arg constructor/factory method");
+                +" from Integral number; no single-int-arg constructor/factory method");
     }
 
     @Override
@@ -331,7 +331,7 @@ public class StdValueInstantiator
             throw wrapException(e);
         }
         throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
-                +" from JSON long integral number; no single-long-arg constructor/factory method");
+                +" from Long integral number; no single-long-arg constructor/factory method");
     }
 
     @Override
@@ -348,7 +348,7 @@ public class StdValueInstantiator
             throw wrapException(e);
         }
         throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
-                +" from JSON floating-point number; no one-double/Double-arg constructor/factory method");
+                +" from Floating-point number; no one-double/Double-arg constructor/factory method");
     }
 
     @Override
@@ -365,7 +365,7 @@ public class StdValueInstantiator
             throw wrapException(e);
         }
         throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
-                +" from JSON boolean value; no single-boolean/Boolean-arg constructor/factory method");
+                +" from Boolean value; no single-boolean/Boolean-arg constructor/factory method");
     }
     
     /*
@@ -417,7 +417,7 @@ public class StdValueInstantiator
             return null;
         }
         throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
-                +" from JSON String; no single-String constructor/factory method");
+                +" from String value; no single-String constructor/factory method");
     }
     
     protected JsonMappingException wrapException(Throwable t)

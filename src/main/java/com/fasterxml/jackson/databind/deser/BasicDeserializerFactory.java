@@ -105,12 +105,13 @@ public abstract class BasicDeserializerFactory
          */
         _mapFallbacks.put("java.util.NavigableMap", TreeMap.class);
         try {
-            Class<?> key = Class.forName("java.util.ConcurrentNavigableMap");
-            Class<?> value = Class.forName("java.util.ConcurrentSkipListMap");
+            Class<?> key = Class.forName("java.util.concurrent.ConcurrentNavigableMap");
+            Class<?> value = Class.forName("java.util.concurrent.ConcurrentSkipListMap");
             @SuppressWarnings("unchecked")
                 Class<? extends Map<?,?>> mapValue = (Class<? extends Map<?,?>>) value;
             _mapFallbacks.put(key.getName(), mapValue);
         } catch (ClassNotFoundException cnfe) { // occurs on 1.5
+        } catch (SecurityException se) { // might occur in applets, see stackoverflow.com/questions/12345068
         }
     }
 

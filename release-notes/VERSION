@@ -8,16 +8,24 @@ Description:
 
 Fixes:
 
+* [Issue#71]: Incorrect class name prevent deserialization of
+  ConcurrentNavigableMap, ConcurrentSkipListMap
+ (reported by 'twoi@GitHub')
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.0.6 (05-Sep-2012)
+
+Fixes:
+
 * [JACKSON-855] Implement [JACKSON-855], add StackOverflowError as root	cause
 * [Issue#12]: Make 'ObjectMapper.writeValue(JsonGenerator, Object)' and
   'ObjectWriter.writeValue(JsonGenerator, Object)' handle pretty printer
 * [Issue#46]: findRootName() only accepts null to mean 'default root name',
   not empty String
 * [Issue#57]: Make JDK Proxy type serializable
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.0.5 (27-Jul-2012)
 

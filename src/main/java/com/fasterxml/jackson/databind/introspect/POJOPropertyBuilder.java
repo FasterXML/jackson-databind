@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.PropertyName;
 
 /**
  * Helper class used for aggregating information about a single
@@ -330,6 +331,19 @@ public class POJOPropertyBuilder
             }
         });
     }
+
+    @Override
+    public PropertyName findWrapperName() {
+        return fromMemberAnnotation(new WithMember<PropertyName>() {
+            public PropertyName withMember(AnnotatedMember member) {
+                PropertyName name = _annotationIntrospector.findWrapperName(member);
+                if (name != null) {
+                    name = _annotationIntrospector.findWrapperName(member);
+                }
+                return name;
+            }
+        });
+    }
     
     /*
     /**********************************************************
@@ -577,7 +591,7 @@ public class POJOPropertyBuilder
         }
         return renamed;
     }
-
+    
     // For trouble-shooting
     @Override
     public String toString()

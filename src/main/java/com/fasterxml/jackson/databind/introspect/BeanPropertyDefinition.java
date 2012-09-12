@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.util.Named;
 
 /**
@@ -144,6 +145,14 @@ public abstract class BeanPropertyDefinition
         return null;
     }
 
+    /**
+     * Method used to find possible wrapper name this logical property
+     * may have.
+     */
+    public PropertyName findWrapperName() {
+        return null;
+    }
+    
     /**
      * Method used to check if this property is expected to have a value;
      * and if none found, should either be considered invalid (and most likely

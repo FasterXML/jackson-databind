@@ -243,6 +243,10 @@ public class POJOPropertiesCollector
         if (naming != null) {
             _renameUsing(naming);
         }
+        // and, if required, apply wrapper name
+        if (_config.isEnabled(MapperFeature.USE_WRAPPER_NAME_AS_PROPERTY_NAME)) {
+            _renameWithWrappers();
+        }
 
         /* Sort by visibility (explicit over implicit); drop all but first
          * of member type (getter, setter etc) if there is visibility
@@ -252,11 +256,11 @@ public class POJOPropertiesCollector
             property.trimByVisibility();
         }
 
-        // and then the final step, "merge" annotations
+        // and then "merge" annotations
         for (POJOPropertyBuilder property : _properties.values()) {
             property.mergeAnnotations(_forSerialization);
         }
-
+        
         // well, almost last: there's still ordering...
         _sortProperties();
         return this;
@@ -703,6 +707,45 @@ public class POJOPropertiesCollector
             }
         }
     }
+
+    protected void _renameWithWrappers()
+    {
+        /* 11-Sep-2012, tatu: To support 'MapperFeature.USE_WRAPPER_NAME_AS_PROPERTY_NAME',
+         *   need another round of renaming...
+         */
+        Iterator<Map.Entry<String,POJOPropertyBuilder>> it = _properties.entrySet().iterator();
+        LinkedList<POJOPropertyBuilder> renamed = null;
+        while (it.hasNext()) {
+            Map.Entry<String, POJOPropertyBuilder> entry = it.next();
+            POJOPropertyBuilder prop = entry.getValue();
+            PropertyName wrapperName = prop.findWrapperName();
+            if (wrapperName == null || !wrapperName.hasSimpleName()) {
+                continue;
+            }
+            String name = wrapperName.getSimpleName();
+            if (!name.equals(prop.getName())) {
+                if (renamed == null) {
+                    renamed = new LinkedList<POJOPropertyBuilder>();
+                }
+                prop = prop.withName(name);
+                renamed.add(prop);
+                it.remove();
+            }
+        }
+        // and if any were renamed, merge back in...
+        if (renamed != null) {
+            for (POJOPropertyBuilder prop : renamed) {
+                String name = prop.getName();
+                POJOPropertyBuilder old = _properties.get(name);
+                if (old == null) {
+                    _properties.put(name, prop);
+                } else {
+                    old.addAll(prop);
+                }
+            }
+        }
+    }
+    
     
     /*
     /**********************************************************

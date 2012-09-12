@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.PropertyName;
 
 /**
  * Helper class used for aggregating information about a single
@@ -274,16 +273,24 @@ public class POJOPropertyBuilder
         }
         return m;
     }
+    
+    @Override
+    public AnnotatedMember getPrimaryMember() {
+        if (_forSerialization) {
+            return getAccessor();
+        }
+        return getMutator();
+    }
 
     /*
-    /*****************************************************
+    /**********************************************************
     /* Implementations of refinement accessors
-    /*****************************************************
+    /**********************************************************
      */
     
     @Override
     public Class<?>[] findViews() {
-        return fromMemberAnnotation(new WithMember<Class<?>[]>() {
+        return fromMemberAnnotations(new WithMember<Class<?>[]>() {
             public Class<?>[] withMember(AnnotatedMember member) {
                 return _annotationIntrospector.findViews(member);
             }
@@ -292,7 +299,7 @@ public class POJOPropertyBuilder
 
     @Override
     public AnnotationIntrospector.ReferenceProperty findReferenceType() {
-        return fromMemberAnnotation(new WithMember<AnnotationIntrospector.ReferenceProperty>() {
+        return fromMemberAnnotations(new WithMember<AnnotationIntrospector.ReferenceProperty>() {
             public AnnotationIntrospector.ReferenceProperty withMember(AnnotatedMember member) {
                 return _annotationIntrospector.findReferenceType(member);
             }
@@ -301,7 +308,7 @@ public class POJOPropertyBuilder
 
     @Override
     public boolean isTypeId() {
-        Boolean b = fromMemberAnnotation(new WithMember<Boolean>() {
+        Boolean b = fromMemberAnnotations(new WithMember<Boolean>() {
             public Boolean withMember(AnnotatedMember member) {
                 return _annotationIntrospector.isTypeId(member);
             }
@@ -311,7 +318,7 @@ public class POJOPropertyBuilder
 
     @Override
     public boolean isRequired() {
-        Boolean b = fromMemberAnnotation(new WithMember<Boolean>() {
+        Boolean b = fromMemberAnnotations(new WithMember<Boolean>() {
             public Boolean withMember(AnnotatedMember member) {
                 return _annotationIntrospector.hasRequiredMarker(member);
             }
@@ -321,26 +328,13 @@ public class POJOPropertyBuilder
     
     @Override
     public ObjectIdInfo findObjectIdInfo() {
-        return fromMemberAnnotation(new WithMember<ObjectIdInfo>() {
+        return fromMemberAnnotations(new WithMember<ObjectIdInfo>() {
             public ObjectIdInfo withMember(AnnotatedMember member) {
                 ObjectIdInfo info = _annotationIntrospector.findObjectIdInfo(member);
                 if (info != null) {
                     info = _annotationIntrospector.findObjectReferenceInfo(member, info);
                 }
                 return info;
-            }
-        });
-    }
-
-    @Override
-    public PropertyName findWrapperName() {
-        return fromMemberAnnotation(new WithMember<PropertyName>() {
-            public PropertyName withMember(AnnotatedMember member) {
-                PropertyName name = _annotationIntrospector.findWrapperName(member);
-                if (name != null) {
-                    name = _annotationIntrospector.findWrapperName(member);
-                }
-                return name;
             }
         });
     }
@@ -614,9 +608,10 @@ public class POJOPropertyBuilder
      */
 
     /**
-     * Helper method used for finding annotation values
+     * Helper method used for finding annotation values, from accessors
+     * relevant to current usage (deserialization, serialization)
      */
-    protected <T> T fromMemberAnnotation(WithMember<T> func)
+    protected <T> T fromMemberAnnotations(WithMember<T> func)
     {
         T result = null;
         if (_annotationIntrospector != null) {

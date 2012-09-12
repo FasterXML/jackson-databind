@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.util.Named;
 
 /**
@@ -18,9 +17,9 @@ public abstract class BeanPropertyDefinition
     implements Named
 {
     /*
-    /*****************************************************
+    /**********************************************************
     /* Fluent factory methods for creating modified copies
-    /*****************************************************
+    /**********************************************************
      */
 
     /**
@@ -32,9 +31,9 @@ public abstract class BeanPropertyDefinition
     public abstract BeanPropertyDefinition withName(String newName);
     
     /*
-    /*****************************************************
+    /**********************************************************
     /* Basic property information, name, type
-    /*****************************************************
+    /**********************************************************
      */
 
     /**
@@ -63,9 +62,9 @@ public abstract class BeanPropertyDefinition
     public abstract boolean isExplicitlyIncluded();
     
     /*
-    /*****************************************************
+    /**********************************************************
     /* Capabilities
-    /*****************************************************
+    /**********************************************************
      */
 
     public boolean couldDeserialize() {
@@ -76,9 +75,9 @@ public abstract class BeanPropertyDefinition
     }
     
     /*
-    /*****************************************************
+    /**********************************************************
     /* Access to accessors (fields, methods etc)
-    /*****************************************************
+    /**********************************************************
      */
     
     public abstract boolean hasGetter();
@@ -105,13 +104,24 @@ public abstract class BeanPropertyDefinition
      */
     public abstract AnnotatedMember getMutator();
 
+    /**
+     * Method used to find the property member (getter, setter, field) that has
+     * the highest precedence in current context (getter method when serializing,
+     * if available, and so forth), if any.
+     * 
+     * @since 2.1
+     */
+    public AnnotatedMember getPrimaryMember() {
+        return null;
+    }
+    
     /*
-    /*****************************************************
+    /**********************************************************
     /* More refined access to configuration features
     /* (usually based on annotations)
     /* Since most trivial implementations do not support
     /* these methods, they are implemented as no-ops.
-    /*****************************************************
+    /**********************************************************
      */
     
     /**
@@ -142,14 +152,6 @@ public abstract class BeanPropertyDefinition
      * (or, when multiple references exist, all but first AS Object Identifier).
      */
     public ObjectIdInfo findObjectIdInfo() {
-        return null;
-    }
-
-    /**
-     * Method used to find possible wrapper name this logical property
-     * may have.
-     */
-    public PropertyName findWrapperName() {
         return null;
     }
     

@@ -54,9 +54,9 @@ public class SimpleBeanPropertyDefinition
     }
     
     /*
-    /*****************************************************
+    /**********************************************************
     /* Basic property information, name, type
-    /*****************************************************
+    /**********************************************************
      */
 
     @Override
@@ -70,9 +70,9 @@ public class SimpleBeanPropertyDefinition
     public boolean isExplicitlyIncluded() { return false; }
     
     /*
-    /*****************************************************
+    /**********************************************************
     /* Access to accessors (fields, methods etc)
-    /*****************************************************
+    /**********************************************************
      */
 
     @Override
@@ -154,5 +154,10 @@ public class SimpleBeanPropertyDefinition
             }
         }
         return acc;
+    }
+
+    @Override
+    public AnnotatedMember getPrimaryMember() {
+        return _member;
     }
 }

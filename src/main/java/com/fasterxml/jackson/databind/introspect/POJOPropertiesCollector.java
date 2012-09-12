@@ -243,10 +243,6 @@ public class POJOPropertiesCollector
         if (naming != null) {
             _renameUsing(naming);
         }
-        // and, if required, apply wrapper name
-        if (_config.isEnabled(MapperFeature.USE_WRAPPER_NAME_AS_PROPERTY_NAME)) {
-            _renameWithWrappers();
-        }
 
         /* Sort by visibility (explicit over implicit); drop all but first
          * of member type (getter, setter etc) if there is visibility
@@ -259,6 +255,13 @@ public class POJOPropertiesCollector
         // and then "merge" annotations
         for (POJOPropertyBuilder property : _properties.values()) {
             property.mergeAnnotations(_forSerialization);
+        }
+
+        /* and, if required, apply wrapper name: note, MUST be done after
+         * annotations are merged.
+         */
+        if (_config.isEnabled(MapperFeature.USE_WRAPPER_NAME_AS_PROPERTY_NAME)) {
+            _renameWithWrappers();
         }
         
         // well, almost last: there's still ordering...
@@ -718,7 +721,11 @@ public class POJOPropertiesCollector
         while (it.hasNext()) {
             Map.Entry<String, POJOPropertyBuilder> entry = it.next();
             POJOPropertyBuilder prop = entry.getValue();
-            PropertyName wrapperName = prop.findWrapperName();
+            AnnotatedMember member = prop.getPrimaryMember();
+            if (member == null) {
+                continue;
+            }
+            PropertyName wrapperName = _annotationIntrospector.findWrapperName(member);
             if (wrapperName == null || !wrapperName.hasSimpleName()) {
                 continue;
             }

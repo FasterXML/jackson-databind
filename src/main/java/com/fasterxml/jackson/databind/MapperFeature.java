@@ -162,7 +162,7 @@ public enum MapperFeature implements ConfigFeature
      */
 
     /**
-     * SerializationFeature that determines whether the type detection for
+     * Feature that determines whether the type detection for
      * serialization should be using actual dynamic runtime type,
      * or declared static type.
      * Note that deserialization always uses declared static types
@@ -185,7 +185,7 @@ public enum MapperFeature implements ConfigFeature
      */
     
     /**
-     * SerializationFeature that determines whether properties that have no view
+     * Feature that determines whether properties that have no view
      * annotations are included in JSON serialization views (see
      * {@link com.fasterxml.jackson.annotation.JsonView} for more
      * details on JSON Views).
@@ -209,7 +209,7 @@ public enum MapperFeature implements ConfigFeature
      */
 
     /**
-     * SerializationFeature that defines default property serialization order used
+     * Feature that defines default property serialization order used
      * for POJO fields (note: does <b>not</b> apply to {@link java.util.Map}
      * serialization!):
      * if enabled, default ordering is alphabetic (similar to
@@ -222,8 +222,28 @@ public enum MapperFeature implements ConfigFeature
      *<p>
      * Feature is disabled by default.
      */
-    SORT_PROPERTIES_ALPHABETICALLY(false)
+    SORT_PROPERTIES_ALPHABETICALLY(false),
 
+    /*
+    /******************************************************
+    /* Name-related features
+    /******************************************************
+     */
+
+    /**
+     * Feature that can be enabled to make property names be
+     * overridden by wrapper name (usually detected with annotations
+     * as defined by {@link AnnotationIntrospector#findWrapperName}.
+     * If enabled, all properties that have associated non-empty Wrapper
+     * name will use that wrapper name instead of property name.
+     * If disabled, wrapper name is only used for wrapping (if anything).
+     *<p>
+     * Feature is disabled by default.
+     * 
+     * @since 2.1
+     */
+    USE_WRAPPER_NAME_AS_PROPERTY_NAME(false)
+    
     ;
 
     private final boolean _defaultState;

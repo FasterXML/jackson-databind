@@ -698,6 +698,12 @@ public abstract class DeserializationContext
         return JsonMappingException.from(_parser, "Could not resolve type id '"+id+"' into a subtype of "+type);
     }
 
+    public JsonMappingException endOfInputException(Class<?> instClass)
+    {
+        return JsonMappingException.from(_parser, "Unexpected end-of-input when trying to deserialize a "
+                +instClass.getName());
+    }
+    
     /*
     /**********************************************************
     /* Overridable internal methods

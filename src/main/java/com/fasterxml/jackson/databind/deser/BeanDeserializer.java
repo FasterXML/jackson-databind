@@ -117,6 +117,9 @@ public class BeanDeserializer
             }
             return deserializeFromObject(jp, ctxt);
         }
+        if (t == null) {
+            return _missingToken(jp, ctxt);
+        }
         // and then others, generally requiring use of @JsonCreator
         switch (t) {
         case VALUE_STRING:
@@ -146,6 +149,12 @@ public class BeanDeserializer
         throw ctxt.mappingException(getBeanClass());
     }
 
+    private Object _missingToken(JsonParser jp, DeserializationContext ctxt)
+        throws JsonProcessingException
+    {
+        throw ctxt.endOfInputException(getBeanClass());
+    }
+    
     /**
      * Secondary deserialization method, called in cases where POJO
      * instance is created as part of deserialization, potentially

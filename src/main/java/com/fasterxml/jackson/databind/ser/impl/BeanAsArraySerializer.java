@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -132,6 +133,12 @@ public class BeanAsArraySerializer
     public final void serialize(Object bean, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
+        // [JACKSON-805]
+        if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
+                && hasSingleElement(provider)) {
+            serializeAsArray(bean, jgen, provider);
+            return;
+        }
         /* note: it is assumed here that limitations (type id, object id,
          * any getter, filtering) have already been checked; so code here
          * is trivial.
@@ -146,6 +153,15 @@ public class BeanAsArraySerializer
     /* Field serialization methods
     /**********************************************************
      */
+    private boolean hasSingleElement(SerializerProvider provider) {
+        final BeanPropertyWriter[] props;
+        if (_filteredProps != null && provider.getSerializationView() != null) {
+            props = _filteredProps;
+        } else {
+            props = _props;
+        }
+        return props.length == 1;
+    }
 
     protected final void serializeAsArray(Object bean, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException

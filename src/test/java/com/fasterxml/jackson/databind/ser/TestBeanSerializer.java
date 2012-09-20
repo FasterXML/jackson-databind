@@ -4,9 +4,11 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.POJOPropertyBuilder;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -151,6 +153,12 @@ public class TestBeanSerializer extends BaseMapTest
         public String name = "foo";
     }
     
+    // for [JACKSON-805]
+    @JsonFormat(shape=Shape.ARRAY)
+    static class SingleBean {
+        public String name ="foo";
+    }
+    
     static class EmptyBeanModifier extends BeanSerializerModifier
     {
         @Override
@@ -231,6 +239,14 @@ public class TestBeanSerializer extends BaseMapTest
         });
         String json = mapper.writeValueAsString(new EmptyBean());
         assertEquals("{\"bogus\":\"foo\"}", json);
+    }
+    
+    // for [JACKSON-805]
+    public void testBeanAsArrayWithSingleProperty() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
+        String json = mapper.writeValueAsString(new SingleBean());
+        assertEquals("\"foo\"", json);
     }
 
     /*

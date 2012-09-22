@@ -276,7 +276,7 @@ public final class TypeFactory
                 int len = actualTypes.length;
                 for (int i = 0; i < len; ++i) {
                     String name = vars[i].getName();
-                    JavaType type = instance._constructType(actualTypes[i], bindings);
+                    JavaType type = _constructType(actualTypes[i], bindings);
                     newBindings.addBinding(name, type);
                 }
             }

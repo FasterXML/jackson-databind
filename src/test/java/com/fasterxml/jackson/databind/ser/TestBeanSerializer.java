@@ -153,12 +153,6 @@ public class TestBeanSerializer extends BaseMapTest
         public String name = "foo";
     }
     
-    // for [JACKSON-805]
-    @JsonFormat(shape=Shape.ARRAY)
-    static class SingleBean {
-        public String name ="foo";
-    }
-    
     static class EmptyBeanModifier extends BeanSerializerModifier
     {
         @Override
@@ -239,14 +233,6 @@ public class TestBeanSerializer extends BaseMapTest
         });
         String json = mapper.writeValueAsString(new EmptyBean());
         assertEquals("{\"bogus\":\"foo\"}", json);
-    }
-    
-    // for [JACKSON-805]
-    public void testBeanAsArrayWithSingleProperty() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
-        String json = mapper.writeValueAsString(new SingleBean());
-        assertEquals("\"foo\"", json);
     }
 
     /*

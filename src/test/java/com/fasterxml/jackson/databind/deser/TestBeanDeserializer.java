@@ -139,11 +139,6 @@ public class TestBeanDeserializer extends BaseMapTest
         }        
     }
     
-    @JsonFormat(shape=Shape.ARRAY)
-    class SingleBean {
-        public String name;
-    }
-    
     /*
     /********************************************************
     /* Unit tests
@@ -198,13 +193,5 @@ public class TestBeanDeserializer extends BaseMapTest
         mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         Bean result = mapper.readValue(quote(""), Bean.class);
         assertNull(result);
-    }
-    
-    public void testBeanAsArrayUnwrapped() throws Exception {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-        SingleBean result = mapper.readValue(quote("foo"), SingleBean.class);
-        assertNotNull(result);
-        assertEquals("foo", result.name);
     }
 }

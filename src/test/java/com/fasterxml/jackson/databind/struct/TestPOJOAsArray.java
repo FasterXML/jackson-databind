@@ -2,8 +2,12 @@ package com.fasterxml.jackson.databind.struct;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
@@ -71,6 +75,12 @@ public class TestPOJOAsArray extends BaseMapTest
         public int x = 1;
         public int y = 2;
     }
+
+    // for [JACKSON-805]
+    @JsonFormat(shape=Shape.ARRAY)
+    static class SingleBean {
+        public String name = "foo";
+    }
     
     /*
     /*****************************************************
@@ -127,6 +137,29 @@ public class TestPOJOAsArray extends BaseMapTest
         assertEquals("[false,\"Bubba\",1,2]", json);
     }    
 
+    /*
+    /*****************************************************
+    /* Compatibility with "single-elem as array" feature
+    /*****************************************************
+     */
+    
+    // for [JACKSON-805]
+    public void testSerializeAsArrayWithSingleProperty() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
+        String json = mapper.writeValueAsString(new SingleBean());
+        assertEquals("\"foo\"", json);
+    }
+    
+    public void testBeanAsArrayUnwrapped() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
+        SingleBean result = mapper.readValue(quote("foobar"), SingleBean.class);
+        assertNotNull(result);
+        assertEquals("foobar", result.name);
+    }
+    
     /*
     /*****************************************************
     /* Round-trip tests

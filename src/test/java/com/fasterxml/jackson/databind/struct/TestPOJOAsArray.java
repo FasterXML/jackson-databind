@@ -151,6 +151,7 @@ public class TestPOJOAsArray extends BaseMapTest
         assertEquals("\"foo\"", json);
     }
     
+    // for [JACKSON-805]
     public void testBeanAsArrayUnwrapped() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

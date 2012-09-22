@@ -14,7 +14,7 @@ public class TestJavaType
     static class BaseType { }
 
     static class SubType extends BaseType { }
-
+    
     /*
     /**********************************************************
     /* Test methods

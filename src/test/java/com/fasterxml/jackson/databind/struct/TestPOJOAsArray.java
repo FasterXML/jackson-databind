@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -149,16 +148,6 @@ public class TestPOJOAsArray extends BaseMapTest
         mapper.enable(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED);
         String json = mapper.writeValueAsString(new SingleBean());
         assertEquals("\"foo\"", json);
-    }
-    
-    // for [JACKSON-805]
-    public void testBeanAsArrayUnwrapped() throws Exception
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY);
-        SingleBean result = mapper.readValue(quote("foobar"), SingleBean.class);
-        assertNotNull(result);
-        assertEquals("foobar", result.name);
     }
     
     /*

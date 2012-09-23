@@ -18,12 +18,13 @@ public final class StringDeserializer
     public String deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
-        JsonToken curr = jp.getCurrentToken();
-        // Usually should just get string value:
-        if (curr == JsonToken.VALUE_STRING) {
-            return jp.getText();
+        // 22-Sep-2012, tatu: For 2.1, use this new method, may force coercion:
+        String text = jp.getValueAsString();
+        if (text != null) {
+            return text;
         }
         // [JACKSON-330]: need to gracefully handle byte[] data, as base64
+        JsonToken curr = jp.getCurrentToken();
         if (curr == JsonToken.VALUE_EMBEDDED_OBJECT) {
             Object ob = jp.getEmbeddedObject();
             if (ob == null) {
@@ -34,10 +35,6 @@ public final class StringDeserializer
             }
             // otherwise, try conversion using toString()...
             return ob.toString();
-        }
-        // Can deserialize any scalar value, but not markers
-        if (curr.isScalarValue()) {
-            return jp.getText();
         }
         throw ctxt.mappingException(_valueClass, curr);
     }

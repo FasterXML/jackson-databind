@@ -124,7 +124,7 @@ public class PrimitiveArrayDeserializers
             
             while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
                 // Ok: no need to convert Strings, but must recognize nulls
-                String value = (t == JsonToken.VALUE_NULL) ? null : jp.getText();
+                String value = (t == JsonToken.VALUE_NULL) ? null : _parseString(jp, ctxt);
                 if (ix >= chunk.length) {
                     chunk = buffer.appendCompletedChunk(chunk);
                     ix = 0;
@@ -151,7 +151,7 @@ public class PrimitiveArrayDeserializers
                 }
                 throw ctxt.mappingException(_valueClass);
             }
-            return new String[] { (jp.getCurrentToken() == JsonToken.VALUE_NULL) ? null : jp.getText() };
+            return new String[] { (jp.getCurrentToken() == JsonToken.VALUE_NULL) ? null : _parseString(jp, ctxt) };
         }
     }
     

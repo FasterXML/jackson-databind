@@ -10,14 +10,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 public class JdkDeserializers
 {
@@ -56,6 +53,7 @@ public class JdkDeserializers
      * if sub-classing was needed could re-factor into reusable part, final
      * "Impl" sub-class
      */
+    /*
     @JacksonStdImpl
     public final static class StringDeserializer
         extends StdScalarDeserializer<String>
@@ -97,6 +95,7 @@ public class JdkDeserializers
             return deserialize(jp, ctxt);
         }
     }
+    */
     
     public static class UUIDDeserializer
         extends FromStringDeserializer<UUID>

@@ -592,6 +592,22 @@ public abstract class StdDeserializer<T>
         return Double.parseDouble(numStr);
     }
     
+    /**
+     * Helper method used for accessing String value, if possible, doing
+     * necessary conversion or throwing exception as necessary.
+     * 
+     * @since 2.1
+     */
+    protected final String _parseString(JsonParser jp, DeserializationContext ctxt)
+        throws IOException, JsonProcessingException
+    {
+        String value = jp.getValueAsString();
+        if (value != null) {
+            return value;
+        }
+        throw ctxt.mappingException(String.class, jp.getCurrentToken());
+    }
+    
     /*
     /****************************************************
     /* Helper methods for sub-classes, resolving dependencies

@@ -170,7 +170,7 @@ public final class StringCollectionDeserializer
         JsonToken t;
 
         while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-            result.add((t == JsonToken.VALUE_NULL) ? null : jp.getText());
+            result.add((t == JsonToken.VALUE_NULL) ? null : _parseString(jp, ctxt));
         }
         return result;
     }
@@ -224,7 +224,7 @@ public final class StringCollectionDeserializer
         if (t == JsonToken.VALUE_NULL) {
             value = null;
         } else {
-            value = (valueDes == null) ? jp.getText() : valueDes.deserialize(jp, ctxt);
+            value = (valueDes == null) ? _parseString(jp, ctxt) : valueDes.deserialize(jp, ctxt);
         }
         result.add(value);
         return result;

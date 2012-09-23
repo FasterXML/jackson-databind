@@ -28,10 +28,11 @@ public abstract class FromStringDeserializer<T>
     public final T deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
-        if (jp.getCurrentToken() == JsonToken.VALUE_STRING) {
-            String text = jp.getText().trim();
-            // 15-Oct-2010, tatu: Empty String usually means null, so
-            if (text.length() == 0) {
+        // 22-Sep-2012, tatu: For 2.1, use this new method, may force coercion:
+        String text = jp.getValueAsString();
+        if (text != null) { // has String representation
+            if (text.length() == 0 || (text = text.trim()).length() == 0) {
+                // 15-Oct-2010, tatu: Empty String usually means null, so
                 return null;
             }
             try {

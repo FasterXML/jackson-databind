@@ -46,6 +46,13 @@ public class SimpleSerializers extends Serializers.Base
     public SimpleSerializers() { }
 
     /**
+     * @since 2.1
+     */
+    public SimpleSerializers(List<JsonSerializer<?>> sers) {
+        addSerializers(sers);
+    }
+    
+    /**
      * Method for adding given serializer for type that {@link JsonSerializer#handledType}
      * specifies (which MUST return a non-null class; and can NOT be {@link Object}, as a
      * sanity check).
@@ -70,7 +77,16 @@ public class SimpleSerializers extends Serializers.Base
     {
         _addSerializer(type, ser);
     }
-    
+
+    /**
+     * @since 2.1
+     */
+    public void addSerializers(List<JsonSerializer<?>> sers) {
+        for (JsonSerializer<?> ser : sers) {
+            addSerializer(ser);
+        }
+    }
+
     private void _addSerializer(Class<?> cls, JsonSerializer<?> ser)
     {
         ClassKey key = new ClassKey(cls);

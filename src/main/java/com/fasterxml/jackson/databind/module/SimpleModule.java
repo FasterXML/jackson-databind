@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.module;
 
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.Version;
@@ -97,6 +98,39 @@ public class SimpleModule extends Module
     public SimpleModule(String name, Version version) {
         _name = name;
         _version = version;
+    }
+
+    /**
+     * @since 2.1
+     */
+    public SimpleModule(String name, Version version,
+            Map<Class<?>,JsonDeserializer<?>> deserializers) {
+        this(name, version, deserializers, null);
+    }
+
+    /**
+     * @since 2.1
+     */
+    public SimpleModule(String name, Version version,
+            List<JsonSerializer<?>> serializers) {
+        this(name, version, null, serializers);
+    }
+    
+    /**
+     * @since 2.1
+     */
+    public SimpleModule(String name, Version version,
+            Map<Class<?>,JsonDeserializer<?>> deserializers,
+            List<JsonSerializer<?>> serializers)
+    {
+        _name = name;
+        _version = version;
+        if (deserializers != null) {
+            _deserializers = new SimpleDeserializers(deserializers);
+        }
+        if (serializers != null) {
+            _serializers = new SimpleSerializers(serializers);
+        }
     }
     
     /*

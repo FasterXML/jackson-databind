@@ -29,6 +29,13 @@ public class SimpleDeserializers implements Deserializers
     
     public SimpleDeserializers() { }
 
+    /**
+     * @since 2.1
+     */
+    public SimpleDeserializers(Map<Class<?>,JsonDeserializer<?>> desers) {
+        addDeserializers(desers);
+    }
+    
     public <T> void addDeserializer(Class<T> forClass, JsonDeserializer<? extends T> deser)
     {
         ClassKey key = new ClassKey(forClass);
@@ -36,6 +43,20 @@ public class SimpleDeserializers implements Deserializers
             _classMappings = new HashMap<ClassKey,JsonDeserializer<?>>();
         }
         _classMappings.put(key, deser);
+    }
+
+    /**
+     * @since 2.1
+     */
+    @SuppressWarnings("unchecked")
+    public void addDeserializers(Map<Class<?>,JsonDeserializer<?>> desers)
+    {
+        for (Map.Entry<Class<?>,JsonDeserializer<?>> entry : desers.entrySet()) {
+            Class<?> cls = entry.getKey();
+            // what a mess... nominal generics safety...
+            JsonDeserializer<Object> deser = (JsonDeserializer<Object>) entry.getValue();
+            addDeserializer((Class<Object>) cls, deser);
+        }
     }
     
     /*

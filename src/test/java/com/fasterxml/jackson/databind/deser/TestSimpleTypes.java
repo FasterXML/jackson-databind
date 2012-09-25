@@ -366,6 +366,7 @@ public class TestSimpleTypes
         TokenBuffer buf = new TokenBuffer(null);
         buf.writeObject(null);
         assertNull(MAPPER.readValue(buf.asParser(), UUID.class));
+        buf.close();
 
         // then, UUID itself come as is:
         buf = new TokenBuffer(null);
@@ -386,6 +387,7 @@ public class TestSimpleTypes
         UUID value2 = MAPPER.readValue(buf.asParser(), UUID.class);
         
         assertEquals(value, value2);
+        buf.close();
     }
 
     public void testURL() throws Exception
@@ -397,11 +399,13 @@ public class TestSimpleTypes
         TokenBuffer buf = new TokenBuffer(null);
         buf.writeObject(null);
         assertNull(MAPPER.readValue(buf.asParser(), URL.class));
+        buf.close();
 
         // then, UUID itself come as is:
         buf = new TokenBuffer(null);
         buf.writeObject(value);
         assertSame(value, MAPPER.readValue(buf.asParser(), URL.class));
+        buf.close();
     }
 
     public void testURI() throws Exception

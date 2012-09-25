@@ -46,6 +46,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         assertEquals(13, jp.getIntValue());
         assertNull(jp.nextToken());
         jp.close();
+        buf.close();
     }
 
     public void testSimpleArray() throws IOException
@@ -68,6 +69,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         assertTrue(jp.getParsingContext().inRoot());
         assertNull(jp.nextToken());
         jp.close();
+        buf.close();
 
         // Then one with simple contents
         buf = new TokenBuffer(null);
@@ -83,6 +85,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
         assertNull(jp.nextToken());
         jp.close();
+        buf.close();
 
         // And finally, with array-in-array
         buf = new TokenBuffer(null);
@@ -104,6 +107,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
         assertNull(jp.nextToken());
         jp.close();
+        buf.close();
     }
 
     public void testSimpleObject() throws IOException
@@ -126,6 +130,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         assertTrue(jp.getParsingContext().inRoot());
         assertNull(jp.nextToken());
         jp.close();
+        buf.close();
 
         // Then one with simple contents
         buf = new TokenBuffer(null);
@@ -152,6 +157,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         assertNull(jp.getCurrentName());
         assertNull(jp.nextToken());
         jp.close();
+        buf.close();
     }
 
     /**
@@ -172,6 +178,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
 
         // then content check too:
         verifyJsonSpecSampleDoc(tb.asParser(), true);
+        tb.close();
     }
 
     public void testAppend() throws IOException
@@ -199,6 +206,8 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
         assertEquals(13, jp.getIntValue());
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        jp.close();
+        buf1.close();
     }
     
     /*
@@ -247,6 +256,8 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
 
         // also: original parsers should be closed
         assertTrue(jp.isClosed());
+        jp.close();
+        buf.close();
     }
     
     /**
@@ -279,5 +290,9 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         assertEquals(13, combo.getIntValue());
         assertToken(JsonToken.END_ARRAY, combo.nextToken());
         assertNull(combo.nextToken());        
+        buf1.close();
+        buf2.close();
+        buf3.close();
+        buf4.close();
     }    
 }

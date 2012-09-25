@@ -157,6 +157,7 @@ public class TestConversions extends BaseMapTest
         TokenBuffer buf = new TokenBuffer(MAPPER);
         buf.writeObject(new byte[3]);
         JsonNode node = MAPPER.readTree(buf.asParser());
+        buf.close();
         assertTrue(node.isBinary());
         byte[] data = node.binaryValue();
         assertNotNull(data);
@@ -172,6 +173,7 @@ public class TestConversions extends BaseMapTest
         buf.writeObject(MARKER);
         buf.writeEndArray();
         JsonNode node = MAPPER.readTree(buf.asParser());
+        buf.close();
         assertTrue(node.isArray());
         assertEquals(1, node.size());
         JsonNode n = node.get(0);
@@ -187,6 +189,7 @@ public class TestConversions extends BaseMapTest
         buf.writeObject(MARKER);
         buf.writeEndObject();
         JsonNode node = MAPPER.readTree(buf.asParser());
+        buf.close();
         assertTrue(node.isObject());
         assertEquals(1, node.size());
         JsonNode n = node.get("pojo");

@@ -68,6 +68,14 @@ public class TestViewSerialization
         @JsonView(ViewA.class)
         public String value = "x";
     }   
+
+    // [JACKSON-868]
+    public static class WebView { }
+    public static class OtherView { }
+    public static class Foo {
+      @JsonView(WebView.class)
+      public int getFoo() { return 3; }
+    }
     
     /*
     /**********************************************************
@@ -164,4 +172,13 @@ public class TestViewSerialization
         //json = mapper.writeValueAsString(bean);
         assertEquals("{\"id\":\"id\"}", json);
     }
+
+    // [JACKSON-868]
+    public void test() throws IOException
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT);
+        String json = mapper.writerWithView(OtherView.class).writeValueAsString(new Foo());
+        assertEquals(json, "{}");
+    }    
 }

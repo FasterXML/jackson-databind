@@ -16,25 +16,45 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public class ObjectNode
     extends ContainerNode<ObjectNode>
 {
-    protected LinkedHashMap<String, JsonNode> _children = null;
+    // note: until 2.1, was explicitly `LinkedHashMap`
+    protected Map<String, JsonNode> _children = null;
 
     public ObjectNode(JsonNodeFactory nc) { super(nc); }
 
-    protected ObjectNode(JsonNodeFactory nc, LinkedHashMap<String, JsonNode> children) {
+    protected ObjectNode(JsonNodeFactory nc, Map<String, JsonNode> children) {
         super(nc);
         _children = children;
     }
     
+    /* Question: should this delegate to `JsonNodeFactory`? It does not absolutely
+     * have to, as long as sub-types override the method but...
+     */
     // note: co-variant for type safety
     @SuppressWarnings("unchecked")
     @Override
     public ObjectNode deepCopy()
     {
+        /* 28-Sep-2012, tatu: Sub-classes really should override this method to
+         *   produce compliant copies.
+         * 
+         */
+        if (getClass() != ObjectNode.class) {
+            throw new IllegalStateException("ObjectNode subtype ("+getClass().getName()+" does not override deepCopy(), needs to");
+        }
+        return _defaultDeepCopy();
+    }
+ 
+    /**
+     * Default implementation for 'deepCopy()': can be delegated to by sub-classes
+     * if necessary; but usually isn't.
+     */
+    protected ObjectNode _defaultDeepCopy()
+    {
         if (_children == null) {
             return new ObjectNode(_nodeFactory);
         }
         final int len = _children.size();
-        LinkedHashMap<String, JsonNode> newKids = new LinkedHashMap<String, JsonNode>(Math.max(4, len));
+        Map<String, JsonNode> newKids = _createMap(Math.max(4, len));
         for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
             newKids.put(entry.getKey(), entry.getValue().deepCopy());
         }
@@ -115,7 +135,7 @@ public class ObjectNode
     public ObjectNode with(String propertyName)
     {
         if (_children == null) {
-            _children = new LinkedHashMap<String, JsonNode>();
+            _children = _createMap();
         } else {
             JsonNode n = _children.get(propertyName);
             if (n != null) {
@@ -136,7 +156,7 @@ public class ObjectNode
     public ArrayNode withArray(String propertyName)
     {
         if (_children == null) {
-            _children = new LinkedHashMap<String, JsonNode>();
+            _children = _createMap();
         } else {
             JsonNode n = _children.get(propertyName);
             if (n != null) {
@@ -335,7 +355,7 @@ public class ObjectNode
     public JsonNode setAll(Map<String,JsonNode> properties)
     {
         if (_children == null) {
-            _children = new LinkedHashMap<String, JsonNode>(properties);
+            _children = _createMap();
         } else {
             for (Map.Entry<String, JsonNode> en : properties.entrySet()) {
                 JsonNode n = en.getValue();
@@ -363,7 +383,7 @@ public class ObjectNode
         int len = other.size();
         if (len > 0) {
             if (_children == null) {
-                _children = new LinkedHashMap<String, JsonNode>(len);
+                _children = _createMap(len);
             }
             other.putContentsTo(_children);
         }
@@ -793,6 +813,37 @@ public class ObjectNode
 
     /*
     /**********************************************************
+    /* Overridable methods
+    /**********************************************************
+     */
+
+    /**
+     * Internal factory method for creating {@link Map} used for storing
+     * child nodes. 
+     * Overridable by sub-classes, used when caller does not know what
+     * optimal size would, used for example when constructing a Map when adding
+     * the first one.
+     * 
+     * @since 2.1
+     */
+    protected Map<String, JsonNode> _createMap() {
+        return new LinkedHashMap<String, JsonNode>();
+    }
+    
+    /**
+     * Internal factory method for creating {@link Map} used for storing
+     * child nodes. 
+     * Overridable by sub-classes, used when caller has an idea of what
+     * optimal size should be: used when copying contents of an existing node.
+     * 
+     * @since 2.1
+     */
+    protected Map<String, JsonNode> _createMap(int defaultSize) {
+        return new LinkedHashMap<String, JsonNode>(defaultSize);
+    }
+    
+    /*
+    /**********************************************************
     /* Package methods (for other node classes to use)
     /**********************************************************
      */
@@ -875,7 +926,7 @@ public class ObjectNode
     private final JsonNode _put(String fieldName, JsonNode value)
     {
         if (_children == null) {
-            _children = new LinkedHashMap<String, JsonNode>();
+            _children = _createMap();
         }
         return _children.put(fieldName, value);
     }

@@ -12,14 +12,73 @@ import java.math.BigInteger;
  */
 public class JsonNodeFactory
 {
+    private final boolean _cfgBigDecimalExact;
+
+    private static final JsonNodeFactory decimalsNormalized
+        = new JsonNodeFactory(false);
+    private static final JsonNodeFactory decimalsAsIs
+        = new JsonNodeFactory(true);
+
     /**
      * Default singleton instance that construct "standard" node instances:
      * given that this class is stateless, a globally shared singleton
      * can be used.
      */
-    public final static JsonNodeFactory instance = new JsonNodeFactory();
+    public final static JsonNodeFactory instance = decimalsNormalized;
 
-    protected JsonNodeFactory() { }
+    /**
+     * Main constructor
+     *
+     * <p>The only argument to this constructor is a boolean telling whether
+     * {@link DecimalNode} instances must be built with exact representations of
+     * {@link BigDecimal} instances.</p>
+     *
+     * <p>This has quite an influence since, for instance, a BigDecimal (and,
+     * therefore, a DecimalNode) constructed from input string {@code "1.0"} and
+     * another constructed with input string {@code "1.00"} <b>will not</b> be
+     * equal, since their scale differs (1 in the first case, 2 in the second
+     * case).</p>
+     *
+     * <p>Note that setting the argument to {@code true} does <i>not</i>
+     * guarantee a strict inequality between JSON representations: input texts
+     * {@code "0.1"} and {@code "1e-1"}, for instance, yield two equivalent
+     * BigDecimal instances since they have the same scale (1).</p>
+     *
+     * <p>The no-arg constructor (and the default {@link #instance}) calls this
+     * constructor with {@code false} as an argument.</p>
+     *
+     * @param bigDecimalExact see description
+     *
+     * @see BigDecimal
+     */
+    protected JsonNodeFactory(boolean bigDecimalExact)
+    {
+        _cfgBigDecimalExact = bigDecimalExact;
+    }
+
+    /**
+     * Default constructor
+     *
+     * <p>This calls {@link #JsonNodeFactory(boolean)} with {@code false}
+     * as an argument.</p>
+     */
+    protected JsonNodeFactory()
+    {
+        this(false);
+    }
+
+    /**
+     * Return a factory instance with the desired behavior for BigDecimals
+     *
+     * <p>See {@link #JsonNodeFactory(boolean)} for a full description.</p>
+     *
+     * @param bigDecimalExact see description
+     * @return a factory instance
+     */
+    public static JsonNodeFactory withExactBigDecimals(boolean bigDecimalExact)
+    {
+        return bigDecimalExact ? decimalsAsIs : decimalsNormalized;
+    }
 
     /*
     /**********************************************************
@@ -151,8 +210,17 @@ public class JsonNodeFactory
     /**
      * Factory method for getting an instance of JSON numeric value
      * that expresses given unlimited precision floating point value
+     *
+     * <p>In the event that the factory has been built to normalize decimal
+     * values, the BigDecimal argument will be stripped off its trailing zeroes,
+     * using {@link BigDecimal#stripTrailingZeros()}.</p>
+     *
+     * @see #JsonNodeFactory(boolean)
      */
-    public NumericNode numberNode(BigDecimal v) { return DecimalNode.valueOf(v); }
+    public NumericNode numberNode(BigDecimal v)
+    {
+        return DecimalNode.valueOf(_cfgBigDecimalExact ? v : v.stripTrailingZeros());
+    }
 
     /*
     /**********************************************************

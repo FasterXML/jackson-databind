@@ -16,26 +16,41 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public class ArrayNode
     extends ContainerNode<ArrayNode>
 {
-    protected ArrayList<JsonNode> _children;
+    // before 2.1, was explicitly `ArrayList`
+    protected List<JsonNode> _children;
 
     public ArrayNode(JsonNodeFactory nc) { super(nc); }
 
-    protected ArrayNode(JsonNodeFactory nc,
-            ArrayList<JsonNode> children) {
+    protected ArrayNode(JsonNodeFactory nc, List<JsonNode> children) {
         super(nc);
         _children = children;
     }
     
-    // note: co-variant for type safety
+    // note: co-variant to allow caller-side type safety
     @SuppressWarnings("unchecked")
     @Override
     public ArrayNode deepCopy()
+    {
+        /* 28-Sep-2012, tatu: Sub-classes really should override this method to
+         *   produce compliant copies.
+         */
+        if (getClass() != ArrayNode.class) {
+            throw new IllegalStateException("ArrayNode subtype ("+getClass().getName()+" does not override deepCopy(), needs to");
+        }
+        return _defaultDeepCopy();
+    }
+
+    /**
+     * Default implementation for 'deepCopy()': can be delegated to by sub-classes
+     * if necessary; but usually isn't.
+     */
+    protected ArrayNode _defaultDeepCopy()
     {
         if (_children == null) {
             return new ArrayNode(_nodeFactory);
         }
         final int len = _children.size();
-        ArrayList<JsonNode> newKids = new ArrayList<JsonNode>(Math.max(4, len));
+        List<JsonNode> newKids = _createList(Math.max(4, len));
         for (int i = 0; i < len; ++i) {
             newKids.add(_children.get(i).deepCopy());
         }
@@ -246,7 +261,7 @@ public class ArrayNode
         int len = other.size();
         if (len > 0) {
             if (_children == null) {
-                _children = new ArrayList<JsonNode>(len+2);
+                _children = _createList(len+2);
             }
             other.addContentsTo(_children);
         }
@@ -265,10 +280,9 @@ public class ArrayNode
         int len = nodes.size();
         if (len > 0) {
             if (_children == null) {
-                _children = new ArrayList<JsonNode>(nodes);
-            } else {
-                _children.addAll(nodes);
+                _children = _createList(nodes.size());
             }
+            _children.addAll(nodes);
         }
         return this;
     }
@@ -749,6 +763,37 @@ public class ArrayNode
             }
         }
     }
+
+    /*
+    /**********************************************************
+    /* Overridable methods
+    /**********************************************************
+     */
+
+    /**
+     * Internal factory method for creating {@link Map} used for storing
+     * child nodes. 
+     * Overridable by sub-classes, used when caller does not know what
+     * optimal size would, used for example when constructing a Map when adding
+     * the first one.
+     * 
+     * @since 2.1
+     */
+    protected List<JsonNode> _createList() {
+        return new ArrayList<JsonNode>();
+    }
+    
+    /**
+     * Internal factory method for creating {@link Map} used for storing
+     * child nodes. 
+     * Overridable by sub-classes, used when caller has an idea of what
+     * optimal size should be: used when copying contents of an existing node.
+     * 
+     * @since 2.1
+     */
+    protected List<JsonNode> _createList(int defaultSize) {
+        return new ArrayList<JsonNode>(defaultSize);
+    }
     
     /*
     /**********************************************************
@@ -823,7 +868,7 @@ public class ArrayNode
     private ArrayNode _add(JsonNode node)
     {
         if (_children == null) {
-            _children = new ArrayList<JsonNode>();
+            _children = _createList();
         }
         _children.add(node);
         return this;
@@ -832,7 +877,7 @@ public class ArrayNode
     private ArrayNode _insert(int index, JsonNode node)
     {
         if (_children == null) {
-            _children = new ArrayList<JsonNode>();
+            _children = _createList();
             _children.add(node);
             return this;
         }
@@ -850,7 +895,7 @@ public class ArrayNode
      * Note: this method gets called iff <code>otherChildren</code>
      * is non-empty
      */
-    private boolean _sameChildren(ArrayList<JsonNode> otherChildren)
+    private boolean _sameChildren(List<JsonNode> otherChildren)
     {
         int len = otherChildren.size();
         if (this.size() != len) { // important: call size() to handle case of null list...

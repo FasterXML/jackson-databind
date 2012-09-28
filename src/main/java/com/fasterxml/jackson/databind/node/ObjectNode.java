@@ -36,7 +36,6 @@ public class ObjectNode
     {
         /* 28-Sep-2012, tatu: Sub-classes really should override this method to
          *   produce compliant copies.
-         * 
          */
         if (getClass() != ObjectNode.class) {
             throw new IllegalStateException("ObjectNode subtype ("+getClass().getName()+" does not override deepCopy(), needs to");

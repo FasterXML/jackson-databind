@@ -100,7 +100,11 @@ public final class DoubleNode
         if (o.getClass() != getClass()) { // final class, can do this
             return false;
         }
-        return ((DoubleNode) o)._value == _value;
+
+        // We must account for NaNs: NaN does not equal NaN, therefore we have
+        // to use Double.compare().
+        final double otherValue = ((DoubleNode) o)._value;
+        return Double.compare(_value, otherValue) == 0;
     }
 
     @Override

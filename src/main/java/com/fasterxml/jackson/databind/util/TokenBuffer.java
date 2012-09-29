@@ -506,7 +506,6 @@ public class TokenBuffer
         _reportUnsupportedOperation();
     }
 
-    @Override
     public void writeRaw(SerializableString text) throws IOException, JsonGenerationException {
         _reportUnsupportedOperation();
     }

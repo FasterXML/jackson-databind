@@ -30,7 +30,7 @@ public class TestKeySerializers extends BaseMapTest
         @JsonSerialize(keyUsing = KarlSerializer.class)
         public Map<String,Integer> map = new HashMap<String,Integer>();
         {
-            map.put("Not Karl", 1);
+            map.put("Karl", 1);
         }
     }
 

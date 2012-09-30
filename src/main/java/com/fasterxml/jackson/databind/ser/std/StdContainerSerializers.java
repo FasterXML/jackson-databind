@@ -16,16 +16,20 @@ public class StdContainerSerializers
 {
     protected StdContainerSerializers() { }
     
+    /**
+     * @since 2.1
+     */
     public static ContainerSerializer<?> indexedListSerializer(JavaType elemType,
-            boolean staticTyping, TypeSerializer vts, BeanProperty property,
-            JsonSerializer<Object> valueSerializer)
+            boolean staticTyping, TypeSerializer vts, JsonSerializer<Object> valueSerializer)
     {
         return new IndexedListSerializer(elemType, staticTyping, vts, null, valueSerializer);
     }
-
+    
+    /**
+     * @since 2.1
+     */
     public static ContainerSerializer<?> collectionSerializer(JavaType elemType,
-            boolean staticTyping, TypeSerializer vts, BeanProperty property,
-            JsonSerializer<Object> valueSerializer)
+            boolean staticTyping, TypeSerializer vts, JsonSerializer<Object> valueSerializer)
     {
         return new CollectionSerializer(elemType, staticTyping, vts, null, valueSerializer);
     }
@@ -45,5 +49,33 @@ public class StdContainerSerializers
     public static JsonSerializer<?> enumSetSerializer(JavaType enumType)
     {
         return new EnumSetSerializer(enumType, null);
+    }
+
+    /*
+    /**********************************************************
+    /* Deprecated methods
+    /**********************************************************
+     */
+
+    /**
+     * @deprecated Since 2.1; use variant that does not take 'property' argument
+     */
+    @Deprecated
+    public static ContainerSerializer<?> indexedListSerializer(JavaType elemType,
+            boolean staticTyping, TypeSerializer vts, BeanProperty property,
+            JsonSerializer<Object> valueSerializer)
+    {
+        return indexedListSerializer(elemType, staticTyping, vts, valueSerializer);
+    }
+
+    /**
+     * @deprecated Since 2.1; use variant that does not take 'property' argument
+     */
+    @Deprecated
+    public static ContainerSerializer<?> collectionSerializer(JavaType elemType,
+            boolean staticTyping, TypeSerializer vts, BeanProperty property,
+            JsonSerializer<Object> valueSerializer)
+    {
+        return collectionSerializer(elemType, staticTyping, vts, valueSerializer);
     }
 }

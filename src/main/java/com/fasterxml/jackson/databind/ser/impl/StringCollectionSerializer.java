@@ -51,11 +51,10 @@ public class StringCollectionSerializer
         return createSchemaNode("string", true);
     }
     
-	@Override
-	protected void acceptContentVisitor(JsonArrayFormatVisitor visitor) {
-		visitor.itemsFormat(JsonFormatTypes.STRING);
-		
-	}
+    @Override
+    protected void acceptContentVisitor(JsonArrayFormatVisitor visitor) {
+        visitor.itemsFormat(JsonFormatTypes.STRING);
+    }
 
     /*
     /**********************************************************

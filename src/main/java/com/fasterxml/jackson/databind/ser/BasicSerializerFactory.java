@@ -449,9 +449,26 @@ public abstract class BasicSerializerFactory
     /* Factory methods, container types:
     /**********************************************************
      */
+
+    /**
+     * Deprecated method; final to help identify problems with sub-classes,
+     * as this method will NOT be called any more in 2.1
+     * 
+     * @deprecated Since 2.1 (removed 'property' argument)
+     */
+    @Deprecated
+    protected final JsonSerializer<?> buildContainerSerializer(SerializerProvider prov,
+            JavaType type, BeanDescription beanDesc, BeanProperty Xproperty, boolean staticTyping)
+        throws JsonMappingException
+    {
+        return  buildContainerSerializer(prov, type, beanDesc, staticTyping);
+    }
     
+    /**
+     * @since 2.1
+     */
     protected JsonSerializer<?> buildContainerSerializer(SerializerProvider prov,
-            JavaType type, BeanDescription beanDesc, BeanProperty property, boolean staticTyping)
+            JavaType type, BeanDescription beanDesc, boolean staticTyping)
         throws JsonMappingException
     {
         final SerializationConfig config = prov.getConfig();
@@ -509,7 +526,7 @@ public abstract class BasicSerializerFactory
                 JsonFormat.Value format = beanDesc.findExpectedFormat(null);
 
                 if (format == null || format.getShape() != JsonFormat.Shape.OBJECT) {
-                    return buildCollectionSerializer(config, trueCT, beanDesc, property, staticTyping,
+                    return buildCollectionSerializer(config, trueCT, beanDesc, staticTyping,
                             elementTypeSerializer, elementValueSerializer);
                 }
             } else {
@@ -533,13 +550,31 @@ public abstract class BasicSerializerFactory
     }
 
     /**
-     * Helper method that handles configuration details when constructing serializers for
-     * {@link java.util.List} types that support efficient by-index access
+     * Deprecated method; final to help identify problems with sub-classes,
+     * as this method will NOT be called any more in 2.1
+     * 
+     * @deprecated Since 2.1
      */
-    protected JsonSerializer<?> buildCollectionSerializer(SerializationConfig config,
+    @Deprecated
+    protected final JsonSerializer<?> buildCollectionSerializer(SerializationConfig config,
             CollectionType type,
             BeanDescription beanDesc, BeanProperty property,
             boolean staticTyping,
+            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
+        throws JsonMappingException
+    {
+        return buildCollectionSerializer(config, type, beanDesc,
+                staticTyping, elementTypeSerializer, elementValueSerializer);
+    }
+    
+    /**
+     * Helper method that handles configuration details when constructing serializers for
+     * {@link java.util.List} types that support efficient by-index access
+     * 
+     * @since 2.1
+     */
+    protected JsonSerializer<?> buildCollectionSerializer(SerializationConfig config,
+            CollectionType type, BeanDescription beanDesc, boolean staticTyping,
             TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
         throws JsonMappingException
     {
@@ -562,7 +597,7 @@ public abstract class BasicSerializerFactory
                 }
             }
             return StdContainerSerializers.indexedListSerializer(type.getContentType(), staticTyping,
-                    elementTypeSerializer, property, elementValueSerializer);
+                    elementTypeSerializer, elementValueSerializer);
         }
         if (elementRaw == String.class) {
             // [JACKSON-829] Must NOT use if we have custom serializer
@@ -571,7 +606,7 @@ public abstract class BasicSerializerFactory
             }
         }
         return StdContainerSerializers.collectionSerializer(type.getContentType(), staticTyping,
-                elementTypeSerializer, property, elementValueSerializer);
+                elementTypeSerializer, elementValueSerializer);
     }
     
     protected boolean isIndexedList(Class<?> cls)

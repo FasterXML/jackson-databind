@@ -167,7 +167,7 @@ public class BeanSerializerFactory
                 */
             }
             // 03-Aug-2012, tatu: As per [Issue#40], may require POJO serializer...
-            ser =  buildContainerSerializer(prov, type, beanDesc, property, staticTyping);
+            ser =  buildContainerSerializer(prov, type, beanDesc, staticTyping);
             if (ser != null) {
                 return (JsonSerializer<Object>) ser;
             }
@@ -193,7 +193,7 @@ public class BeanSerializerFactory
                  * known "primary JDK type", perhaps it's a bean? We can still
                  * get a null, if we can't find a single suitable bean property.
                  */
-                ser = findBeanSerializer(prov, type, beanDesc, property);
+                ser = findBeanSerializer(prov, type, beanDesc);
                 /* Finally: maybe we can still deal with it as an
                  * implementation of some basic JDK interface?
                  */
@@ -213,12 +213,25 @@ public class BeanSerializerFactory
      */
 
     /**
+     * Deprecated method; final to help identify problems with sub-classes,
+     * as this method will NOT be called any more in 2.1
+     * 
+     * @deprecated Since 2.1 (use variant without 'property' argument).
+     */
+    @Deprecated
+    public final JsonSerializer<Object> findBeanSerializer(SerializerProvider prov,
+            JavaType type, BeanDescription beanDesc, BeanProperty property)
+        throws JsonMappingException {
+        return findBeanSerializer(prov, type, beanDesc);
+    }
+    
+    /**
      * Method that will try to construct a {@link BeanSerializer} for
      * given class. Returns null if no properties are found.
      */
     @SuppressWarnings("unchecked")
     public JsonSerializer<Object> findBeanSerializer(SerializerProvider prov,
-            JavaType type, BeanDescription beanDesc, BeanProperty property)
+            JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
         // First things first: we know some types are not beans...
@@ -229,7 +242,7 @@ public class BeanSerializerFactory
                 return null;
             }
         }
-        JsonSerializer<Object> serializer = constructBeanSerializer(prov, beanDesc, property);
+        JsonSerializer<Object> serializer = constructBeanSerializer(prov, beanDesc);
         // [JACKSON-440] Need to allow overriding actual serializer, as well...
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
@@ -239,7 +252,7 @@ public class BeanSerializerFactory
         }
         return serializer;
     }
-
+    
     /**
      * Method called to create a type information serializer for values of given
      * non-container property
@@ -251,7 +264,7 @@ public class BeanSerializerFactory
      * @return Type serializer to use for property values, if one is needed; null if not.
      */
     public TypeSerializer findPropertyTypeSerializer(JavaType baseType,
-            SerializationConfig config, AnnotatedMember accessor, BeanProperty property)
+            SerializationConfig config, AnnotatedMember accessor) // BeanProperty property)
         throws JsonMappingException
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
@@ -298,11 +311,27 @@ public class BeanSerializerFactory
      */
 
     /**
+     * Deprecated method; final to help identify problems with sub-classes,
+     * as this method will NOT be called any more in 2.1
+     * 
+     * @deprecated Since 2.1, do not pass 'property' argument
+     */
+    @Deprecated
+    protected final JsonSerializer<Object> constructBeanSerializer(SerializerProvider prov,
+            BeanDescription beanDesc, BeanProperty property)
+        throws JsonMappingException
+    {
+        return constructBeanSerializer(prov, beanDesc);
+    }
+    
+    /**
      * Method called to construct serializer for serializing specified bean type.
+     * 
+     * @since 2.1
      */
     @SuppressWarnings("unchecked")
     protected JsonSerializer<Object> constructBeanSerializer(SerializerProvider prov,
-            BeanDescription beanDesc, BeanProperty property)
+            BeanDescription beanDesc)
         throws JsonMappingException
     {
         // 13-Oct-2010, tatu: quick sanity check: never try to create bean serializer for plain Object
@@ -703,7 +732,7 @@ public class BeanSerializerFactory
         }
 
         // and if not JAXB collection/array with annotations, maybe regular type info?
-        TypeSerializer typeSer = findPropertyTypeSerializer(type, prov.getConfig(), accessor, property);
+        TypeSerializer typeSer = findPropertyTypeSerializer(type, prov.getConfig(), accessor);
         BeanPropertyWriter pbw = pb.buildWriter(propDef, type, annotatedSerializer,
                         typeSer, contentTypeSer, accessor, staticTyping);
         return pbw;

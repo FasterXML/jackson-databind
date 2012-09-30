@@ -458,7 +458,7 @@ public abstract class BasicSerializerFactory
      */
     @Deprecated
     protected final JsonSerializer<?> buildContainerSerializer(SerializerProvider prov,
-            JavaType type, BeanDescription beanDesc, BeanProperty Xproperty, boolean staticTyping)
+            JavaType type, BeanDescription beanDesc, BeanProperty property, boolean staticTyping)
         throws JsonMappingException
     {
         return  buildContainerSerializer(prov, type, beanDesc, staticTyping);
@@ -712,7 +712,7 @@ public abstract class BasicSerializerFactory
         }
         TypeSerializer vts = createTypeSerializer(config, valueType);
         return StdContainerSerializers.iteratorSerializer(valueType,
-                usesStaticTyping(config, beanDesc, vts, null), vts);
+                usesStaticTyping(config, beanDesc, vts), vts);
     }
     
     protected JsonSerializer<?> buildIterableSerializer(SerializationConfig config,
@@ -727,8 +727,7 @@ public abstract class BasicSerializerFactory
         }
         TypeSerializer vts = createTypeSerializer(config, valueType);
         return StdContainerSerializers.iterableSerializer(valueType,
-                usesStaticTyping(config, beanDesc, vts, null),
-                vts);
+                usesStaticTyping(config, beanDesc, vts), vts);
     }
     
     /*
@@ -822,15 +821,27 @@ public abstract class BasicSerializerFactory
         }
         return null;
     }
+
+    /**
+     * @deprecated Since 2.1: use method without 'property'
+     */
+    @Deprecated
+    protected final  boolean usesStaticTyping(SerializationConfig config,
+            BeanDescription beanDesc, TypeSerializer typeSer, BeanProperty property)
+    {
+        return usesStaticTyping(config, beanDesc, typeSer);
+    }
     
     /**
      * Helper method to check whether global settings and/or class
      * annotations for the bean class indicate that static typing
      * (declared types)  should be used for properties.
      * (instead of dynamic runtime types).
+     * 
+     * @since 2.1 (earlier had variant with additional 'property' parameter)
      */
     protected boolean usesStaticTyping(SerializationConfig config,
-            BeanDescription beanDesc, TypeSerializer typeSer, BeanProperty property)
+            BeanDescription beanDesc, TypeSerializer typeSer)
     {
         /* 16-Aug-2010, tatu: If there is a (value) type serializer, we can not force
          *    static typing; that would make it impossible to handle expected subtypes
@@ -847,22 +858,6 @@ public abstract class BasicSerializerFactory
         } else {
             if (config.isEnabled(MapperFeature.USE_STATIC_TYPING)) {
                 return true;
-            }
-        }
-        /* 11-Mar-2011, tatu: Ok. This is bit hacky, but we really need to be able to find cases
-         *    where key and/or value serializers were specified, to force use of static typing
-         */
-        if (property != null) {
-            JavaType type = property.getType();
-            if (type.isContainerType()) {
-                if (intr.findSerializationContentType(property.getMember(), property.getType()) != null) {
-                    return true;
-                }
-                if (type instanceof MapType) {
-                    if (intr.findSerializationKeyType(property.getMember(), property.getType()) != null) {
-                        return true;
-                    }
-                }
             }
         }
         return false;

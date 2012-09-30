@@ -141,8 +141,12 @@ public class ObjectArraySerializer
             ser = _elementSerializer;
         }
         if (ser == null) {
-            if (_staticTyping) {
-                ser = provider.findValueSerializer(_elementType, property);
+            // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
+            //   we can consider it a static case as well.
+            if (_elementType != null) {
+                if (_staticTyping || hasContentTypeAnnotation(provider, property)) {
+                    ser = provider.findValueSerializer(_elementType, property);
+                }
             }
         } else if (ser instanceof ContextualSerializer) {
             ser = ((ContextualSerializer) _elementSerializer).createContextual(provider, property);

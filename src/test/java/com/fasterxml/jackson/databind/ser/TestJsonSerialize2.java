@@ -146,6 +146,13 @@ public class TestJsonSerialize2
         assertEquals("[\"value foo\"]", m.writeValueAsString(list));
     }
 
+    // [JACKSON-480], test annotations when applied to List property (getter, setter)
+    public void testSerializedAsListWithPropertyAnnotations() throws IOException
+    {
+        ListWrapperSimple input = new ListWrapperSimple("bar");
+        assertEquals("{\"values\":[{\"value\":\"bar\"}]}", MAPPER.writeValueAsString(input));
+    }
+    
     // [JACKSON-480], test Serialization annotation with Map
     public void testSerializedAsMapWithClassSerializer() throws IOException
     {
@@ -153,25 +160,19 @@ public class TestJsonSerialize2
         map.put(new SimpleKey("abc"), new ActualValue("123"));
         assertEquals("{\"key abc\":\"value 123\"}", MAPPER.writeValueAsString(map));
     }
-    
-    // [JACKSON-480], test annotations when applied to List property (getter, setter)
-    public void testSerializedAsListWithPropertyAnnotations() throws IOException
-    {
-        ListWrapperSimple input = new ListWrapperSimple("bar");
-        assertEquals("{\"values\":[{\"value\":\"bar\"}]}", MAPPER.writeValueAsString(input));
-    }
 
-    public void testSerializedAsListWithPropertyAnnotations2() throws IOException
-    {
-        ListWrapperWithSerializer input = new ListWrapperWithSerializer("abc");
-        assertEquals("{\"values\":[\"value abc\"]}", MAPPER.writeValueAsString(input));
-    }
-    
     // [JACKSON-480], test annotations when applied to Map property (getter, setter)
     public void testSerializedAsMapWithPropertyAnnotations() throws IOException
     {
         MapWrapperSimple input = new MapWrapperSimple("a", "b");
-        assertEquals("{\"values\":{\"toString:a\":{\"value\":\"b\"}}}", MAPPER.writeValueAsString(input));
+        assertEquals("{\"values\":{\"toString:a\":{\"value\":\"b\"}}}",
+                MAPPER.writeValueAsString(input));
+    }
+    
+    public void testSerializedAsListWithPropertyAnnotations2() throws IOException
+    {
+        ListWrapperWithSerializer input = new ListWrapperWithSerializer("abc");
+        assertEquals("{\"values\":[\"value abc\"]}", MAPPER.writeValueAsString(input));
     }
 
     public void testSerializedAsMapWithPropertyAnnotations2() throws IOException

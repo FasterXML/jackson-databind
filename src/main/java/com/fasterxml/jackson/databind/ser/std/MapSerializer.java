@@ -215,7 +215,9 @@ public class MapSerializer
             ser = _valueSerializer;
         }
         if (ser == null) {
-            if (_valueTypeIsStatic) {
+            // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
+            //   we can consider it a static case as well.
+            if (_valueTypeIsStatic || hasContentTypeAnnotation(provider, property)) {
                 ser = provider.findValueSerializer(_valueType, property);
             }
         } else if (ser instanceof ContextualSerializer) {

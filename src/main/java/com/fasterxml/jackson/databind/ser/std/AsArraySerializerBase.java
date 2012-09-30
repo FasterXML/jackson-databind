@@ -94,6 +94,12 @@ public abstract class AsArraySerializerBase<T>
     /**********************************************************
      */
     
+    /**
+     * This method is needed to resolve contextual annotations like
+     * per-property overrides, as well as do recursive call
+     * to <code>createContextual</code> of content serializer, if
+     * known statically.
+     */
 //  @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
@@ -122,8 +128,12 @@ public abstract class AsArraySerializerBase<T>
             ser = _elementSerializer;
         }
         if (ser == null) {
-            if (_staticTyping && _elementType != null) {
-                ser = provider.findValueSerializer(_elementType, property);
+            // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
+            //   we can consider it a static case as well.
+            if (_elementType != null) {
+                if (_staticTyping || hasContentTypeAnnotation(provider, property)) {
+                    ser = provider.findValueSerializer(_elementType, property);
+                }
             }
         } else if (ser instanceof ContextualSerializer) {
             ser = ((ContextualSerializer) ser).createContextual(provider, property);
@@ -133,7 +143,7 @@ public abstract class AsArraySerializerBase<T>
         }
         return this;
     }
-
+    
     /*
     /**********************************************************
     /* Accessors

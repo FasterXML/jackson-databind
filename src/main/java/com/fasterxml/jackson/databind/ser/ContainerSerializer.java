@@ -1,7 +1,10 @@
 package com.fasterxml.jackson.databind.ser;
 
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
@@ -106,4 +109,31 @@ public abstract class ContainerSerializer<T>
      * addition type information is to be embedded.
      */
     protected abstract ContainerSerializer<?> _withValueTypeSerializer(TypeSerializer vts);
+
+    /*
+    /**********************************************************
+    /* Helper methods for sub-types
+    /**********************************************************
+     */
+
+    /**
+     * Helper method used to encapsulate logic for determining whether there is
+     * a property annotation that overrides element type; if so, we can
+     * and need to statically find the serializer.
+     * 
+     * @since 2.1
+     */
+    protected boolean hasContentTypeAnnotation(SerializerProvider provider,
+            BeanProperty property)
+    {
+        if (property != null) {
+            AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+            if (intr != null) {
+                if (intr.findSerializationContentType(property.getMember(), property.getType()) != null) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

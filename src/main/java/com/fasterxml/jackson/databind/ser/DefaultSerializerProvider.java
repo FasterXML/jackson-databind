@@ -292,7 +292,7 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
      * implementations are to swallow exceptions if necessary.
      */
     public boolean hasSerializerFor(Class<?> cls) {
-        return _findExplicitUntypedSerializer(cls, null) != null;
+        return _findExplicitUntypedSerializer(cls) != null;
     }
 
     /*

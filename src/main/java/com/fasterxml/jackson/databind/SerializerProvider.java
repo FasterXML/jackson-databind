@@ -426,7 +426,7 @@ public abstract class SerializerProvider
                 ser = _serializerCache.untypedValueSerializer(_config.constructType(valueType));
                 if (ser == null) {
                     // If neither, must create
-                    ser = _createAndCacheUntypedSerializer(valueType, property);
+                    ser = _createAndCacheUntypedSerializer(valueType);
                     // Not found? Must use the unknown type serializer
                     /* Couldn't create? Need to return the fallback serializer, which
                      * most likely will report an error: but one question is whether
@@ -467,7 +467,7 @@ public abstract class SerializerProvider
             ser = _serializerCache.untypedValueSerializer(valueType);
             if (ser == null) {
                 // If neither, must create
-                ser = _createAndCacheUntypedSerializer(valueType, property);
+                ser = _createAndCacheUntypedSerializer(valueType);
                 // Not found? Must use the unknown type serializer
                 /* Couldn't create? Need to return the fallback serializer, which
                  * most likely will report an error: but one question is whether
@@ -854,8 +854,7 @@ public abstract class SerializerProvider
      *
      * @return Serializer if one can be found, null if not.
      */
-    protected JsonSerializer<Object> _findExplicitUntypedSerializer(Class<?> runtimeType,
-            BeanProperty property)
+    protected JsonSerializer<Object> _findExplicitUntypedSerializer(Class<?> runtimeType)
     {        
         // Fast lookup from local lookup thingy works?
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(runtimeType);
@@ -868,7 +867,7 @@ public abstract class SerializerProvider
             return ser;
         }
         try {
-            return _createAndCacheUntypedSerializer(runtimeType, property);
+            return _createAndCacheUntypedSerializer(runtimeType);
         } catch (Exception e) {
             return null;
         }
@@ -885,13 +884,12 @@ public abstract class SerializerProvider
      * Method that will try to construct a value serializer; and if
      * one is successfully created, cache it for reuse.
      */
-    protected JsonSerializer<Object> _createAndCacheUntypedSerializer(Class<?> type,
-            BeanProperty property)
+    protected JsonSerializer<Object> _createAndCacheUntypedSerializer(Class<?> type)
         throws JsonMappingException
     {        
         JsonSerializer<Object> ser;
         try {
-            ser = _createUntypedSerializer(_config.constructType(type), property);
+            ser = _createUntypedSerializer(_config.constructType(type));
         } catch (IllegalArgumentException iae) {
             /* We better only expose checked exceptions, since those
              * are what caller is expected to handle
@@ -905,13 +903,12 @@ public abstract class SerializerProvider
         return ser;
     }
 
-    protected JsonSerializer<Object> _createAndCacheUntypedSerializer(JavaType type,
-            BeanProperty property)
+    protected JsonSerializer<Object> _createAndCacheUntypedSerializer(JavaType type)
         throws JsonMappingException
     {        
         JsonSerializer<Object> ser;
         try {
-            ser = _createUntypedSerializer(type, property);
+            ser = _createUntypedSerializer(type);
         } catch (IllegalArgumentException iae) {
             /* We better only expose checked exceptions, since those
              * are what caller is expected to handle
@@ -925,17 +922,17 @@ public abstract class SerializerProvider
         return ser;
     }
 
-    protected JsonSerializer<Object> _createUntypedSerializer(JavaType type,
-            BeanProperty property)
+    /**
+     * @since 2.1
+     */
+    @SuppressWarnings("deprecation")
+    protected JsonSerializer<Object> _createUntypedSerializer(JavaType type)
         throws JsonMappingException
     {
-        /* 10-Dec-2008, tatu: Is there a possibility of infinite loops
-         *   here? Shouldn't be, given that we do not pass back-reference
-         *   to this provider. But if there is, we'd need to sync calls,
-         *   and keep track of creation chain to look for loops -- fairly
-         *   easy to do, but won't add yet since it seems unnecessary.
+        /* 30-Sep-2012, tatu: For now need to call the deprecated method; for 2.2,
+         *   convert to using new one. But note that we do NOT pass 'property' along.
          */
-        return (JsonSerializer<Object>)_serializerFactory.createSerializer(this, type, property);
+        return (JsonSerializer<Object>)_serializerFactory.createSerializer(this, type, null);
     }
 
     /**

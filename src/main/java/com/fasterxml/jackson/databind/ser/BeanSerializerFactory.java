@@ -121,7 +121,7 @@ public class BeanSerializerFactory
     @Override
     @SuppressWarnings("unchecked")
     public JsonSerializer<Object> createSerializer(SerializerProvider prov,
-            JavaType origType, BeanProperty property)
+            JavaType origType)
         throws JsonMappingException
     {
         // Very first thing, let's check if there is explicit serializer annotation:
@@ -252,6 +252,16 @@ public class BeanSerializerFactory
         }
         return serializer;
     }
+
+    /**
+     * @deprecated Since 2.1
+     */
+    @Deprecated
+    public final TypeSerializer findPropertyTypeSerializer(JavaType baseType,
+            SerializationConfig config, AnnotatedMember accessor, BeanProperty property)
+        throws JsonMappingException {
+        return findPropertyTypeSerializer(baseType, config, accessor);
+    }
     
     /**
      * Method called to create a type information serializer for values of given
@@ -264,7 +274,7 @@ public class BeanSerializerFactory
      * @return Type serializer to use for property values, if one is needed; null if not.
      */
     public TypeSerializer findPropertyTypeSerializer(JavaType baseType,
-            SerializationConfig config, AnnotatedMember accessor) // BeanProperty property)
+            SerializationConfig config, AnnotatedMember accessor)
         throws JsonMappingException
     {
         AnnotationIntrospector ai = config.getAnnotationIntrospector();

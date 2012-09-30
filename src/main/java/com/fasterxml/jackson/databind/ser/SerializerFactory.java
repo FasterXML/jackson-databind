@@ -43,13 +43,26 @@ public abstract class SerializerFactory
      */
 
     /**
+     * @deprecated Since 2.1: need to use the new variant without 'property'
+     *    argument (since one won't be passed)
+     */
+    @Deprecated
+    public JsonSerializer<Object> createSerializer(SerializerProvider prov,
+            JavaType baseType, BeanProperty property)
+        throws JsonMappingException {
+        return createSerializer(prov, baseType);
+    }
+    
+    /**
       * Method called to create (or, for immutable serializers, reuse) a serializer for given type. 
       * 
       * @param prov Provider that needs to be used to resolve annotation-provided
       *    serializers (but NOT for others)
+      *    
+      * @since 2.1 (earlier versions had method with different signature)
       */
     public abstract JsonSerializer<Object> createSerializer(SerializerProvider prov,
-            JavaType baseType, BeanProperty property)
+            JavaType baseType)
         throws JsonMappingException;
     
     /**

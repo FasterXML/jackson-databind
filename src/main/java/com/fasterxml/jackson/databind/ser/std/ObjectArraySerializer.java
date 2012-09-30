@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
@@ -121,8 +122,24 @@ public class ObjectArraySerializer
         if (vts != null) {
             vts = vts.forProperty(property);
         }
-        JsonSerializer<?> ser = _elementSerializer;
-
+        /* 29-Sep-2012, tatu: Actually, we need to do much more contextual
+         *    checking here since we finally know for sure the property,
+         *    and it may have overrides
+         */
+        JsonSerializer<?> ser = null;
+        // First: if we have a property, may have property-annotation overrides
+        if (property != null) {
+            AnnotatedMember m = property.getMember();
+            if (m != null) {
+                Object serDef = provider.getAnnotationIntrospector().findContentSerializer(m);
+                if (serDef != null) {
+                    ser = provider.serializerInstance(m, serDef);
+                }
+            }
+        }
+        if (ser == null) {
+            ser = _elementSerializer;
+        }
         if (ser == null) {
             if (_staticTyping) {
                 ser = provider.findValueSerializer(_elementType, property);

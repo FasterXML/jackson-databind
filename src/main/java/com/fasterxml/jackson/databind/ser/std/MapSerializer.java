@@ -6,10 +6,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -190,28 +188,38 @@ public class MapSerializer
             BeanProperty property)
         throws JsonMappingException
     {
-        JsonSerializer<?> ser = _valueSerializer;
+        /* 29-Sep-2012, tatu: Actually, we need to do much more contextual
+         *    checking here since we finally know for sure the property,
+         *    and it may have overrides
+         */
+        JsonSerializer<?> ser = null;
+        JsonSerializer<?> keySer = null;
+
+        // First: if we have a property, may have property-annotation overrides
+        if (property != null) {
+            AnnotatedMember m = property.getMember();
+            if (m != null) {
+                Object serDef;
+                final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+                serDef = intr.findKeySerializer(m);
+                if (serDef != null) {
+                    keySer = provider.serializerInstance(m, serDef);
+                }
+                serDef = intr.findContentSerializer(m);
+                if (serDef != null) {
+                    ser = provider.serializerInstance(m, serDef);
+                }
+            }
+        }
+        if (ser == null) {
+            ser = _valueSerializer;
+        }
         if (ser == null) {
             if (_valueTypeIsStatic) {
                 ser = provider.findValueSerializer(_valueType, property);
             }
         } else if (ser instanceof ContextualSerializer) {
             ser = ((ContextualSerializer) ser).createContextual(provider, property);
-        }
-        /* 29-Sep-2012, tatu: Actually, we need to do much more contextual
-         *    checking here since we finally know for sure the property,
-         *    and it may have overrides
-         */
-        JsonSerializer<?> keySer = null;
-        // Start with property (more specific); if not found, then find from type
-        if (property != null) {
-            AnnotatedMember m = property.getMember();
-            if (m != null) {
-                Object serDef = provider.getAnnotationIntrospector().findKeySerializer(m);
-                if (serDef != null) {
-                    keySer = provider.serializerInstance(m, serDef);
-                }
-            }
         }
         if (keySer == null) {
             keySer = _keySerializer;

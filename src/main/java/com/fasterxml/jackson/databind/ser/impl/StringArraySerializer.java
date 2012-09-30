@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -76,7 +77,24 @@ public class StringArraySerializer
             BeanProperty property)
         throws JsonMappingException
     {
-        JsonSerializer<?> ser = _elementSerializer;
+        /* 29-Sep-2012, tatu: Actually, we need to do much more contextual
+         *    checking here since we finally know for sure the property,
+         *    and it may have overrides
+         */
+        JsonSerializer<?> ser = null;
+        // First: if we have a property, may have property-annotation overrides
+        if (property != null) {
+            AnnotatedMember m = property.getMember();
+            if (m != null) {
+                Object serDef = provider.getAnnotationIntrospector().findContentSerializer(m);
+                if (serDef != null) {
+                    ser = provider.serializerInstance(m, serDef);
+                }
+            }
+        }
+        if (ser == null) {
+            ser = _elementSerializer;
+        }
         if (ser == null) {
             ser = provider.findValueSerializer(String.class, property);
         } else if (ser instanceof ContextualSerializer) {

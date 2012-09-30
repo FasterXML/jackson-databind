@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
@@ -109,13 +110,33 @@ public class EnumMapSerializer
             BeanProperty property)
         throws JsonMappingException
     {
-        if (_valueSerializer == null) {
+        /* 29-Sep-2012, tatu: Actually, we need to do much more contextual
+         *    checking here since we finally know for sure the property,
+         *    and it may have overrides
+         */
+        JsonSerializer<?> ser = null;
+        // First: if we have a property, may have property-annotation overrides
+        if (property != null) {
+            AnnotatedMember m = property.getMember();
+            if (m != null) {
+                Object serDef = provider.getAnnotationIntrospector().findContentSerializer(m);
+                if (serDef != null) {
+                    ser = provider.serializerInstance(m, serDef);
+                }
+            }
+        }
+        if (ser == null) {
+            ser = _valueSerializer;
+        }
+        if (ser == null) {
             if (_staticTyping) {
                 return withValueSerializer(property, provider.findValueSerializer(_valueType, property));
             }
         } else if (_valueSerializer instanceof ContextualSerializer) {
-            return withValueSerializer(property, ((ContextualSerializer) _valueSerializer)
-                    .createContextual(provider, property));
+            ser = ((ContextualSerializer) ser).createContextual(provider, property);
+        }
+        if (ser != _valueSerializer) {
+            return withValueSerializer(property, ser);
         }
         return this;
     }

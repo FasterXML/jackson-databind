@@ -3,11 +3,11 @@ Here are people who have contributed to Jackson JSON process development:
 
 Tatu Saloranta, tatu.saloranta@iki.fi: author
 
-Ryan Heaton, ryan@webcohesion.com: co-author
+Ryan Heaton, ryan@webcohesion.com: co-author (JSON Schema)
+
+Christopher Currie: co-author (Scala module)
 
 Peter Harris, Peter.Harris@betfair.com: contributor
-
-Sunny Gleason, sunny@ning.com: contributor
 
 Alain Penders:
   * Reported problem with JavaTypeMapper, where floating point numbers were

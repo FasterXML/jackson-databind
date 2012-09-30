@@ -12,6 +12,7 @@ Fixes:
 * ]JACKSON-847]: Make @JsonIdentityInfo work with property-based creator
 * [JACKSON-851]: State corruption with ObjectWriter, DefaultPrettyPrinter
  (reported by Duncan A)
+* [Issue#75]: Too aggressive KeySerializer caching
 * Minor fix wrt [Issue#11], coercion needed extra checks
 
 Improvements:

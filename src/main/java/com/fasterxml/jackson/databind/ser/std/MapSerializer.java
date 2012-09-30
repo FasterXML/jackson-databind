@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -196,14 +198,24 @@ public class MapSerializer
         } else if (ser instanceof ContextualSerializer) {
             ser = ((ContextualSerializer) ser).createContextual(provider, property);
         }
-        /* 10-Dec-2010, tatu: Let's also fetch key serializer; and always assume we'll
-         *   do that just by using static type information
+        /* 29-Sep-2012, tatu: Actually, we need to do much more contextual
+         *    checking here since we finally know for sure the property,
+         *    and it may have overrides
          */
-        /* 25-Feb-2011, tatu: May need to reconsider this static checking (since it
-         *   differs from value handling)... but for now, it's ok to ensure contextual
-         *   aspects are handled; this is done by provider.
-         */
-        JsonSerializer<?> keySer = _keySerializer;
+        JsonSerializer<?> keySer = null;
+        // Start with property (more specific); if not found, then find from type
+        if (property != null) {
+            AnnotatedMember m = property.getMember();
+            if (m != null) {
+                Object serDef = provider.getAnnotationIntrospector().findKeySerializer(m);
+                if (serDef != null) {
+                    keySer = provider.serializerInstance(m, serDef);
+                }
+            }
+        }
+        if (keySer == null) {
+            keySer = _keySerializer;
+        }
         if (keySer == null) {
             keySer = provider.findKeySerializer(_keyType, property);
         } else if (keySer instanceof ContextualSerializer) {
@@ -222,7 +234,7 @@ public class MapSerializer
         }
         return withResolved(property, keySer, ser, ignored);
     }
-
+    
     /*
     /**********************************************************
     /* Accessors

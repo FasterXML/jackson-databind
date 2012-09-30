@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.ser;
 
 import java.io.IOException;
 import java.util.*;
@@ -30,7 +30,7 @@ public class TestKeySerializers extends BaseMapTest
         @JsonSerialize(keyUsing = KarlSerializer.class)
         public Map<String,Integer> map = new HashMap<String,Integer>();
         {
-            map.put("Karl", 1);
+            map.put("Not Karl", 1);
         }
     }
 
@@ -53,7 +53,8 @@ public class TestKeySerializers extends BaseMapTest
     }
 
     // [Issue#75]: caching of KeySerializers
-    public void testBoth() throws IOException {
+    public void testBoth() throws IOException
+    {
         final ObjectMapper mapper = new ObjectMapper();
         final String value1 = mapper.writeValueAsString(new NotKarlBean());
         assertEquals("{\"map\":{\"Not Karl\":1}}", value1);

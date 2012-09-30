@@ -469,7 +469,12 @@ public abstract class BasicSerializerFactory
         
         if (type.isMapLikeType()) { // implements java.util.Map
             MapLikeType mlt = (MapLikeType) type;
-            JsonSerializer<Object> keySerializer = _findKeySerializer(prov, beanDesc.getClassInfo(), property);
+            /* 29-Sep-2012, tatu: This is actually too early to (try to) find
+             *  key serializer from property annotations, and can lead to caching
+             *  issues (see [Issue#75]). Instead, must be done from 'createContextual()' call.
+             *  But we do need to check class annotations.
+             */
+            JsonSerializer<Object> keySerializer = _findKeySerializer(prov, beanDesc.getClassInfo());
             if (mlt.isTrueMapType()) {
                 return buildMapSerializer(config, (MapType) mlt, beanDesc, staticTyping,
                         keySerializer, elementTypeSerializer, elementValueSerializer);
@@ -750,27 +755,15 @@ public abstract class BasicSerializerFactory
     }
 
     /**
-     * Helper method called to try to find whether there is an annotation that
-     * specifies key serializer to use: either attached to property (higher priority)
-     * or class of key type (lower priority).
+     * Helper method called to try to find whether there is an annotation in the
+     * class that indicates key serializer to use.
      * If so, will try to instantiate key serializer and return it; otherwise returns null.
      */
     protected JsonSerializer<Object> _findKeySerializer(SerializerProvider prov,
-            Annotated a, BeanProperty property)
+            Annotated a)
         throws JsonMappingException
     {
         AnnotationIntrospector intr = prov.getAnnotationIntrospector();
-
-        // Start with property (more specific); if not found, then find from type
-        if (property != null) {
-            AnnotatedMember m = property.getMember();
-            if (m != null) {
-                Object serDef = intr.findKeySerializer(m);
-                if (serDef != null) {
-                    return prov.serializerInstance(m, serDef);
-                }
-            }
-        }
         Object serDef = intr.findKeySerializer(a);
         if (serDef != null) {
             return prov.serializerInstance(a, serDef);

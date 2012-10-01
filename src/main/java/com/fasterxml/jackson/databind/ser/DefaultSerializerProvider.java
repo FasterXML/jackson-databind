@@ -278,9 +278,9 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
          */
         JsonSerializer<Object> ser = findValueSerializer(javaType, null);
         if (ser instanceof JsonFormatVisitable) {
-        	((JsonFormatVisitable) ser).acceptJsonFormatVisitor(visitor, javaType);
+            ((JsonFormatVisitable) ser).acceptJsonFormatVisitor(visitor, javaType);
         } else {
-        	visitor.expectAnyFormat(javaType);
+            visitor.expectAnyFormat(javaType);
         }
     }
     

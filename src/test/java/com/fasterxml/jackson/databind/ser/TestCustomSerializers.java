@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.CollectionSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
+import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Test for verifying [JACKSON-238]
@@ -46,22 +47,12 @@ public class TestCustomSerializers
         protected int y() { return 7; }
     }
 
-    public static class ImmutableSerializer
-        extends StdDelegatingSerializer<Immutable, Map<String,Integer>>
+    public static class ImmutableConverter
+        implements Converter<Immutable, Map<String,Integer>>
     {
-        public ImmutableSerializer() { super(Immutable.class); }
-        protected ImmutableSerializer(JavaType delegateType, JsonSerializer<?> delegateSerializer) {
-            super(delegateType, delegateSerializer);
-        }
-
         @Override
-        protected JsonSerializer<?> withDelegate(JavaType delegateType, JsonSerializer<?> delegateSerializer) {
-            return new ImmutableSerializer(delegateType, delegateSerializer);
-        }
-
-        @Override
-        public Map<String, Integer> convert(Immutable value, SerializerProvider provider)
-                throws JsonMappingException {
+        public Map<String, Integer> convert(Immutable value)
+        {
             HashMap<String,Integer> map = new LinkedHashMap<String,Integer>();
             map.put("x", value.x());
             map.put("y", value.y());
@@ -113,7 +104,8 @@ public class TestCustomSerializers
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
-        module.addSerializer(Immutable.class, new ImmutableSerializer());
+        module.addSerializer(new StdDelegatingSerializer(Immutable.class,
+                new ImmutableConverter()));
         mapper.registerModule(module);
         assertEquals("{\"x\":3,\"y\":7}", mapper.writeValueAsString(new Immutable()));
     }

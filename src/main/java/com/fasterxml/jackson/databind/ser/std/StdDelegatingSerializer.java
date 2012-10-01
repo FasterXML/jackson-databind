@@ -12,27 +12,25 @@ import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Serializer implementation where given Java type is first converted
- * (by implemenetation sub-class provides) into an intermediate
- * "delegate type", and then serialized by Jackson.
+ * to an intermediate "delegate type" (using a configured
+ * {@link Converter}, and then this delegate value is serialized by Jackson.
+ *<p>
  * Note that although types may be related, they must not be same; trying
  * to do this will result in an exception.
- *
- * @param <T> Java type being serialized and that is first converted into
- *   delegate type <code>DT</code>
- * @param <DT> Delegate type, intermediate into which sub-class converts
- *   Java type <code>T</code>, and that Jackson serializes using standard
- *   serializer of that type
  * 
  * @since 2.1
  */
-public abstract class StdDelegatingSerializer<T,DT>
-    extends StdSerializer<T>
+public class StdDelegatingSerializer
+    extends StdSerializer<Object>
     implements ContextualSerializer,
         JsonFormatVisitable, SchemaAware
 {
+    protected final Converter<Object,?> _converter;
+    
     /**
      * Fully resolved delegate type, with generic information if any available.
      */
@@ -49,34 +47,52 @@ public abstract class StdDelegatingSerializer<T,DT>
     /**********************************************************
      */
 
-    public StdDelegatingSerializer() {
+    @SuppressWarnings("unchecked")
+    public StdDelegatingSerializer(Converter<?,?> converter)
+    {
         super(Object.class, false);
+        _converter = (Converter<Object,?>)converter;
         _delegateType = null;
         _delegateSerializer = null;
     }
 
-    public StdDelegatingSerializer(Class<T> cls) {
-        super(cls);
+    @SuppressWarnings("unchecked")
+    public <T> StdDelegatingSerializer(Class<T> cls, Converter<T,?> converter)
+    {
+        super(cls, false);
+        _converter = (Converter<Object,?>)converter;
         _delegateType = null;
         _delegateSerializer = null;
     }
     
     @SuppressWarnings("unchecked")
-    protected StdDelegatingSerializer(JavaType delegateType,
-            JsonSerializer<?> delegateSerializer)
+    protected StdDelegatingSerializer(Converter<Object,?> converter,
+            JavaType delegateType, JsonSerializer<?> delegateSerializer)
     {
         super(delegateType);
+        _converter = converter;
         _delegateType = delegateType;
         _delegateSerializer = (JsonSerializer<Object>) delegateSerializer;
     }
 
     /**
-     * Method that sub-classes have to implement for creating the actual
-     * serializer instance, once all delegating information has been
-     * collected: typically simply calls a constructor.
+     * Method used for creating resolved contextual instances. Must be
+     * overridden when sub-classing.
      */
-    protected abstract JsonSerializer<?> withDelegate(JavaType delegateType,
-            JsonSerializer<?> delegateSerializer);
+    protected JsonSerializer<?> withDelegate(Converter<Object,?> converter,
+            JavaType delegateType, JsonSerializer<?> delegateSerializer)
+    {
+        if (getClass() != StdDelegatingSerializer.class) {
+            throw new IllegalStateException("Sub-class "+getClass().getName()+" must override 'withDelegate'");
+        }
+        return new StdDelegatingSerializer(converter, delegateType, delegateSerializer);
+    }
+    
+    /*
+    /**********************************************************
+    /* Contextualization
+    /**********************************************************
+     */
     
     // @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
@@ -84,15 +100,16 @@ public abstract class StdDelegatingSerializer<T,DT>
     {
         // First: figure out what is the fully generic delegate type:
         TypeFactory tf = provider.getTypeFactory();
-        JavaType implType = tf.constructType(getClass());
-        JavaType[] params = tf.findTypeParameters(implType, StdDelegatingSerializer.class);
+        JavaType implType = tf.constructType(_converter.getClass());
+        JavaType[] params = tf.findTypeParameters(implType, Converter.class);
         if (params == null || params.length != 2) {
-            throw new JsonMappingException("Could not determine StdDelegatingSerializer parameterization for "
+            throw new JsonMappingException("Could not determine Converter parameterization for "
                     +implType);
         }
         // and then we can find serializer to delegate to, construct a new instance:
         JavaType delegateType = params[1];
-        return withDelegate(delegateType, provider.findValueSerializer(delegateType, property));
+        return withDelegate(_converter, delegateType,
+                provider.findValueSerializer(delegateType, property));
     }
 
     /*
@@ -101,33 +118,25 @@ public abstract class StdDelegatingSerializer<T,DT>
     /**********************************************************
      */
 
-    /**
-     * Method for sub-class to implement, used for converting given
-     * value into delegate value, which is then serialized by standard
-     * Jackson serializer.
-     * 
-     * @param value Property value tyo serializer
-     * @param provider Contextual provider to use
-     * 
-     * @return Delegate value to serialize
-     */
-    public abstract DT convert(T value, SerializerProvider provider) 
-        throws JsonMappingException;
-
     @Override
-    public void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonProcessingException
     {
-        DT delegateValue = convert(value, provider);
+        Object delegateValue = _converter.convert(value);
+        // should we accept nulls?
+        if (delegateValue == null) {
+            provider.defaultSerializeNull(jgen);
+            return;
+        }
         _delegateSerializer.serialize(delegateValue, jgen, provider);
     }
 
     @Override
-    public void serializeWithType(T value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(Object value, JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException, JsonProcessingException
     {
-        DT delegateValue = convert(value, provider);
+        Object delegateValue = _converter.convert(value);
         _delegateSerializer.serializeWithType(delegateValue, jgen, provider, typeSer);
     }
     

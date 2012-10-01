@@ -694,22 +694,20 @@ public abstract class BeanSerializerBase
     	JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
  
         if (_propertyFilterId != null) {
-        	try {
-        		BeanPropertyFilter filter = findFilter(visitor.getProvider());
-				for (int i = 0; i < _props.length; i++) {
-		            BeanPropertyWriter prop = _props[i];
-		            filter.depositSchemaProperty(prop, objectVisitor, visitor.getProvider());
-		        }
-				return;
-			} catch (JsonMappingException e) {
-				// TODO Auto-generated catch block
-
-			}
+            try {
+                BeanPropertyFilter filter = findFilter(visitor.getProvider());
+                for (int i = 0; i < _props.length; i++) {
+                    BeanPropertyWriter prop = _props[i];
+                    filter.depositSchemaProperty(prop, objectVisitor, visitor.getProvider());
+                }
+                return;
+            } catch (JsonMappingException e) {
+                throw new IllegalStateException("Internal error: "+e.getMessage(), e);
+            }
         } 
         		
         for (int i = 0; i < _props.length; i++) {
             BeanPropertyWriter prop = _props[i];
-//            JavaType propType = prop.getSerializationType();
             BeanSerializerBase.depositSchemaProperty(prop, objectVisitor);
         }
     }

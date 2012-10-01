@@ -247,12 +247,13 @@ public abstract class AsArraySerializerBase<T>
          *    information.
          */
         //ObjectNode o = createSchemaNode("array", true);
-        JsonArrayFormatVisitor arrayVisitor = 
-        		visitor.expectArrayFormat(typeHint);
+        JsonArrayFormatVisitor arrayVisitor = visitor.expectArrayFormat(typeHint);
         JavaType contentType = null;
         if (typeHint != null) {
             contentType = typeHint.getContentType();
-            if (contentType == null) { // could still be parametrized (Iterators)
+            if (contentType == null) { // could still be parameterized (Iterators)
+                // 30-Sep-2012, tatu: This is wrong, should use TypeFactory... but it is alas
+                //    not being passed (oversight)
                 if (typeHint instanceof ParameterizedType) {
                     Type[] typeArgs = ((ParameterizedType) typeHint).getActualTypeArguments();
                     if (typeArgs.length == 1) {

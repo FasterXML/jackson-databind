@@ -40,6 +40,8 @@ Improvements:
 * [Issue#65]: Add getters to `ObjectMapper`, DeserializationContext/-Factory.
  (contributed by Dmitry K)
 * [Issue#69]: Add `PropertyName` abstraction, new methods in AnnotationIntrospector
+* [Issue#80]: Make `DecimalNode` normalize input, to make "1.0" and "1.00"equal
+ (reported by fge@github)
 
 New features:
 

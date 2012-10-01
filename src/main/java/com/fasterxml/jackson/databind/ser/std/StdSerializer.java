@@ -59,7 +59,7 @@ public abstract class StdSerializer<T>
      */
     
     @Override
-    public final Class<T> handledType() { return _handledType; }
+    public Class<T> handledType() { return _handledType; }
 
     /*
     /**********************************************************

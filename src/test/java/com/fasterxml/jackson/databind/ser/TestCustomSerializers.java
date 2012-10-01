@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.CollectionSerializer;
+import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 
 /**
  * Test for verifying [JACKSON-238]
@@ -39,6 +40,34 @@ public class TestCustomSerializers
     
     @JsonSerialize(using = ElementSerializer.class)
     public static class ElementMixin {}
+
+    public static class Immutable {
+        protected int x() { return 3; }
+        protected int y() { return 7; }
+    }
+
+    public static class ImmutableSerializer
+        extends StdDelegatingSerializer<Immutable, Map<String,Integer>>
+    {
+        public ImmutableSerializer() { super(Immutable.class); }
+        protected ImmutableSerializer(JavaType delegateType, JsonSerializer<?> delegateSerializer) {
+            super(delegateType, delegateSerializer);
+        }
+
+        @Override
+        protected JsonSerializer<?> withDelegate(JavaType delegateType, JsonSerializer<?> delegateSerializer) {
+            return new ImmutableSerializer(delegateType, delegateSerializer);
+        }
+
+        @Override
+        public Map<String, Integer> convert(Immutable value, SerializerProvider provider)
+                throws JsonMappingException {
+            HashMap<String,Integer> map = new LinkedHashMap<String,Integer>();
+            map.put("x", value.x());
+            map.put("y", value.y());
+            return map;
+        }
+    }
 
     /*
     /**********************************************************
@@ -77,5 +106,15 @@ public class TestCustomSerializers
         });
         mapper.registerModule(module);
         assertEquals("null", mapper.writeValueAsString(new ArrayList<Object>()));
+    }
+
+    // [Issue#87]: delegating serializer
+    public void testDelegating() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule("test", Version.unknownVersion());
+        module.addSerializer(Immutable.class, new ImmutableSerializer());
+        mapper.registerModule(module);
+        assertEquals("{\"x\":3,\"y\":7}", mapper.writeValueAsString(new Immutable()));
     }
 }

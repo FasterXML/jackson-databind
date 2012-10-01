@@ -47,19 +47,6 @@ public class TestCustomSerializers
         protected int y() { return 7; }
     }
 
-    public static class ImmutableConverter
-        implements Converter<Immutable, Map<String,Integer>>
-    {
-        @Override
-        public Map<String, Integer> convert(Immutable value)
-        {
-            HashMap<String,Integer> map = new LinkedHashMap<String,Integer>();
-            map.put("x", value.x());
-            map.put("y", value.y());
-            return map;
-        }
-    }
-
     /*
     /**********************************************************
     /* Unit tests
@@ -105,7 +92,16 @@ public class TestCustomSerializers
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(new StdDelegatingSerializer(Immutable.class,
-                new ImmutableConverter()));
+                new Converter<Immutable, Map<String,Integer>>() {
+                    @Override
+                    public Map<String, Integer> convert(Immutable value)
+                    {
+                        HashMap<String,Integer> map = new LinkedHashMap<String,Integer>();
+                        map.put("x", value.x());
+                        map.put("y", value.y());
+                        return map;
+                    }
+        }));
         mapper.registerModule(module);
         assertEquals("{\"x\":3,\"y\":7}", mapper.writeValueAsString(new Immutable()));
     }

@@ -23,13 +23,42 @@ public class TestFiltering extends BaseMapTest
         public String a = "a";
         public String b = "b";
     }
+
     
+    // [Issue#89]
+    static class Pod
+    {
+        protected String username;
+
+//        @JsonProperty(value = "user_password")
+        protected String userPassword;
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String value) {
+            this.username = value;
+        }
+
+        @JsonIgnore
+        @JsonProperty(value = "user_password")
+        public java.lang.String getUserPassword() {
+            return userPassword;
+        }
+
+        @JsonProperty(value = "user_password")
+        public void setUserPassword(String value) {
+            this.userPassword = value;
+        }
+
+    }    
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
-
+    
     public void testSimpleInclusionFilter() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -76,5 +105,22 @@ public class TestFiltering extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         FilterProvider prov = new SimpleFilterProvider().setDefaultFilter(SimpleBeanPropertyFilter.filterOutAllExcept("b"));
         assertEquals("{\"b\":\"b\"}", mapper.writer(prov).writeValueAsString(new Bean()));
+    }
+
+    // [Issue#89] combining @JsonIgnore, @JsonProperty
+    public void testIssue89() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        Pod pod = new Pod();
+        pod.username = "Bob";
+        pod.userPassword = "s3cr3t!";
+
+        String json = mapper.writeValueAsString(pod);
+
+        assertEquals("{\"username\":\"Bob\"}", json);
+
+        Pod pod2 = mapper.readValue("{\"username\":\"Bill\",\"user_password\":\"foo!\"}", Pod.class);
+        assertEquals("Bill", pod2.username);
+        assertEquals("foo!", pod2.userPassword);
     }
 }

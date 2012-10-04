@@ -109,6 +109,7 @@ public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
             _propertiesToInclude = properties;
         }
 
+        @Override
         protected boolean include(BeanPropertyWriter writer) {
             return _propertiesToInclude.contains(writer.getName());
         }
@@ -130,6 +131,7 @@ public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
             _propertiesToExclude = properties;
         }
 
+        @Override
         protected boolean include(BeanPropertyWriter writer) {
             return !_propertiesToExclude.contains(writer.getName());
         }

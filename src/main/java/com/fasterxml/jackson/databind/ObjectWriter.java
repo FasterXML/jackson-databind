@@ -393,6 +393,17 @@ public class ObjectWriter
         SerializationConfig newConfig = _config.with(tz);
         return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
     }
+
+    /**
+     * Method that will construct a new instance that uses specified default
+     * {@link Base64Variant} for base64 encoding
+     * 
+     * @since 2.1
+     */
+    public ObjectWriter with(Base64Variant b64variant) {
+        SerializationConfig newConfig = _config.with(b64variant);
+        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+    }
     
     /*
     /**********************************************************

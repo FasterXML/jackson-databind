@@ -201,7 +201,7 @@ public class ObjectMapper
 //            TimeZone.getDefault()
             TimeZone.getTimeZone("GMT"),
             Base64Variants.getDefaultVariant() // 2.1
-            );
+    );
     
     /*
     /**********************************************************
@@ -1114,6 +1114,22 @@ public class ObjectMapper
         _serializationConfig = _serializationConfig.withFilters(filterProvider);
     }
 
+    /**
+     * Method that will configure default {@link Base64Variant} that
+     * <code>byte[]</code> serializers and deserializers will use.
+     * 
+     * @param v Base64 variant to use
+     * 
+     * @returns This mapper, for convenience to allow chaining
+     * 
+     * @since 2.1
+     */
+    public ObjectMapper setBase64Variant(Base64Variant v) {
+        _serializationConfig = _serializationConfig.with(v);
+        _deserializationConfig = _deserializationConfig.with(v);
+        return this;
+    }
+    
     /*
     /**********************************************************
     /* Configuration, other

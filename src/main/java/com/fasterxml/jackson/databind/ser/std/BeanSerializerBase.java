@@ -661,11 +661,11 @@ public abstract class BeanSerializerBase
         		
         for (int i = 0; i < _props.length; i++) {
             BeanPropertyWriter prop = _props[i];
-            if (filter != null) {
-            	filter.depositSchemaProperty(prop, propertiesNode, provider);
-            	continue;
+            if (filter == null) {
+                prop.depositSchemaProperty(propertiesNode, provider);
+            } else {
+                filter.depositSchemaProperty(prop, propertiesNode, provider);
             }
-            prop.depositSchemaProperty(propertiesNode, provider);
 
         }
         o.put("properties", propertiesNode);
@@ -682,8 +682,7 @@ public abstract class BeanSerializerBase
         if (_propertyFilterId != null) {
             BeanPropertyFilter filter = findFilter(visitor.getProvider());
             for (int i = 0; i < _props.length; i++) {
-                BeanPropertyWriter prop = _props[i];
-                filter.depositSchemaProperty(prop, objectVisitor, visitor.getProvider());
+                filter.depositSchemaProperty(_props[i], objectVisitor, visitor.getProvider());
             }
         } else {
             for (int i = 0; i < _props.length; i++) {

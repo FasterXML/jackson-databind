@@ -69,4 +69,15 @@ public final class EnumValues
     public Collection<SerializedString> values() {
         return _values.values();
     }
+
+    /**
+     * Method used for serialization and introspection by core Jackson
+     * code.
+     * 
+     * @since 2.1
+     */
+    public EnumMap<?,SerializedString> internalMap() {
+        return _values;
+    }
+
 }

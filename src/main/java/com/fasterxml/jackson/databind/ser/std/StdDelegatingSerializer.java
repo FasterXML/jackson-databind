@@ -171,12 +171,12 @@ public class StdDelegatingSerializer
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
     {
-        if (_delegateSerializer instanceof JsonFormatVisitable) {
-            ((JsonFormatVisitable) _delegateSerializer).acceptJsonFormatVisitor(visitor, typeHint);
-            return;
-        }
-        super.acceptJsonFormatVisitor(visitor, typeHint);
+        /* 03-Sep-2012, tatu: Not sure if this can be made to really work
+         *    properly... but for now, try this:
+         */
+        _delegateSerializer.acceptJsonFormatVisitor(visitor, typeHint);
     }
 
     /*

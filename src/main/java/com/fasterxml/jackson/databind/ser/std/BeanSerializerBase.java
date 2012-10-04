@@ -676,8 +676,6 @@ public abstract class BeanSerializerBase
     /**
      * Determines if a bean property is required, as determined by
      * {@link com.fasterxml.jackson.databind.AnnotationIntrospector#hasRequiredMarker}.
-     *<p>
-     * 
      * 
      * @param prop the bean property.
      * @return true if the property is optional, false otherwise.
@@ -689,6 +687,7 @@ public abstract class BeanSerializerBase
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
     {
     	//deposit your output format 
     	JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
@@ -724,7 +723,9 @@ public abstract class BeanSerializerBase
      * 	
      *  {@link BeanPropertyFilter#depositSchemaProperty(BeanPropertyWriter, ObjectNode, SerializerProvider)}
      */
-    public static void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode, SerializerProvider provider)
+    public static void depositSchemaProperty(BeanPropertyWriter writer,
+            ObjectNode propertiesNode, SerializerProvider provider)
+        throws JsonMappingException
     {
         JavaType propType = writer.getSerializationType();
 
@@ -733,24 +734,18 @@ public abstract class BeanSerializerBase
         JsonNode schemaNode;
         // Maybe it already has annotated/statically configured serializer?
         JsonSerializer<Object> ser = writer.getSerializer();
-
-        try {
-            if (ser == null) { // nope
-                Class<?> serType = writer.getRawSerializationType();
-                if (serType == null) {
-                    serType = writer.getPropertyType();
-                }
-                ser = provider.findValueSerializer(serType, writer);
+        if (ser == null) { // nope
+            Class<?> serType = writer.getRawSerializationType();
+            if (serType == null) {
+                serType = writer.getPropertyType();
             }
-            boolean isOptional = !BeanSerializerBase.isPropertyRequired(writer, provider);
-            if (ser instanceof SchemaAware) {
-                schemaNode =  ((SchemaAware) ser).getSchema(provider, hint, isOptional) ;
-            } else {  
-                schemaNode = JsonSchema.getDefaultSchemaNode(); 
-            }
-        } catch (JsonMappingException e) {
+            ser = provider.findValueSerializer(serType, writer);
+        }
+        boolean isOptional = !isPropertyRequired(writer, provider);
+        if (ser instanceof SchemaAware) {
+            schemaNode =  ((SchemaAware) ser).getSchema(provider, hint, isOptional) ;
+        } else {  
             schemaNode = JsonSchema.getDefaultSchemaNode(); 
-            // TODO: handle in better way (why not throw?)
         }
         propertiesNode.put(writer.getName(), schemaNode);
     }
@@ -762,7 +757,10 @@ public abstract class BeanSerializerBase
      * @param writer Bean property serializer to use to create schema value
      * @param objectVisitor ObjectVisitor which cab receive the property
      */
-    public static void depositSchemaProperty(BeanPropertyWriter writer, JsonObjectFormatVisitor objectVisitor) {
+    public static void depositSchemaProperty(BeanPropertyWriter writer,
+            JsonObjectFormatVisitor objectVisitor)
+        throws JsonMappingException
+    {
         if (isPropertyRequired(writer, objectVisitor.getProvider())) {
             objectVisitor.property(writer); 
         } else {

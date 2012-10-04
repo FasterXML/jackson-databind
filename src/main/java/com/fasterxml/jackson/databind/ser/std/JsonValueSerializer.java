@@ -242,11 +242,12 @@ public class JsonValueSerializer
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
     {
-    	if (_valueSerializer instanceof JsonFormatVisitable) {
-    		((JsonFormatVisitable) _valueSerializer).acceptJsonFormatVisitor(visitor, null); 
-    	} else {
-    		visitor.expectAnyFormat(typeHint);
+        if (_valueSerializer != null) {
+            _valueSerializer.acceptJsonFormatVisitor(visitor, null); 
+        } else {
+            visitor.expectAnyFormat(typeHint);
     	}
     }
 

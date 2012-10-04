@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -37,10 +38,10 @@ public interface BeanPropertyFilter
      * @param propertiesNode Node which the given property would exist within
      * @param provider Provider that can be used for accessing dynamic aspects of serialization
      * 	processing
-     *
      */
     public void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode,
-    		SerializerProvider provider);
+            SerializerProvider provider)
+        throws JsonMappingException;
     
     /**
      * Method called by {@link BeanSerializer} to let the filter determine whether, and in what
@@ -53,7 +54,9 @@ public interface BeanPropertyFilter
      * @param provider Provider that can be used for accessing dynamic aspects of serialization
      * 	processing
      * 
+     * @since 2.1
      */
     public void depositSchemaProperty(BeanPropertyWriter writer, JsonObjectFormatVisitor objectVisitor,
-    		SerializerProvider provider);
+            SerializerProvider provider)
+        throws JsonMappingException;
 }

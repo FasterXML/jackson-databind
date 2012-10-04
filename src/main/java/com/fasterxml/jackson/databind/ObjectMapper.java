@@ -2516,24 +2516,47 @@ public class ObjectMapper
     public JsonSchema generateJsonSchema(Class<?> t) throws JsonMappingException {
         return _serializerProvider(getSerializationConfig()).generateJsonSchema(t);
     }
+
+    /**
+     * Method for visiting type hierarchy for given type, using specified visitor.
+     *<p>
+     * This method can be used for things like
+     * generating <a href="http://json-schema.org/">Json Schema</a>
+     * instance for specified type.
+     *
+     * @param type Type to generate schema for (possibly with generic signature)
+     * 
+     * @since 2.1
+     */
+    public void acceptJsonFormatVisitor(Class<?> type, JsonFormatVisitorWrapper visitor)
+        throws JsonMappingException
+    {
+        acceptJsonFormatVisitor(_typeFactory.constructType(type), visitor);
+    }
     
     /**
-     * Generate <a href="http://json-schema.org/">Json-schema</a>
-     * instance for specified class.
+     * Method for visiting type hierarchy for given type, using specified visitor.
+     *<p>
+     * This method can be used for things like
+     * generating <a href="http://json-schema.org/">Json Schema</a>
+     * instance for specified type.
      *
-     * @param javaType The class to generate schema for
+     * @param type Type to generate schema for (possibly with generic signature)
+     * 
+     * @since 2.1
      */
-    public void acceptJsonFormatVisitor(JavaType javaType, JsonFormatVisitorWrapper visitor) throws JsonMappingException {
-    	if (javaType == null) {
-    		throw new IllegalArgumentException("class must be provided");
+    public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor)
+        throws JsonMappingException
+    {
+    	if (type == null) {
+    	    throw new IllegalArgumentException("type must be provided");
     	}
-    	
     	if (visitor == null) {
-    		return;
+    	    return;
     	}
     	DefaultSerializerProvider provider = _serializerProvider(getSerializationConfig());
         visitor.setProvider(provider);
-    	provider.acceptJsonFormatVisitor(javaType, visitor);
+    	provider.acceptJsonFormatVisitor(type, visitor);
     }
 
     /*

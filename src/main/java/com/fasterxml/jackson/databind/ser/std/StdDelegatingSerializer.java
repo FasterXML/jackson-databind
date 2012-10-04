@@ -50,7 +50,7 @@ public class StdDelegatingSerializer
     @SuppressWarnings("unchecked")
     public StdDelegatingSerializer(Converter<?,?> converter)
     {
-        super(Object.class, false);
+        super(Object.class);
         _converter = (Converter<Object,?>)converter;
         _delegateType = null;
         _delegateSerializer = null;
@@ -79,7 +79,7 @@ public class StdDelegatingSerializer
      * Method used for creating resolved contextual instances. Must be
      * overridden when sub-classing.
      */
-    protected JsonSerializer<?> withDelegate(Converter<Object,?> converter,
+    protected StdDelegatingSerializer withDelegate(Converter<Object,?> converter,
             JavaType delegateType, JsonSerializer<?> delegateSerializer)
     {
         if (getClass() != StdDelegatingSerializer.class) {
@@ -136,6 +136,9 @@ public class StdDelegatingSerializer
             TypeSerializer typeSer)
         throws IOException, JsonProcessingException
     {
+        /* 03-Oct-2012, tatu: This is actually unlikely to work ok... but for now,
+         *    let's give it a chance?
+         */
         Object delegateValue = _converter.convert(value);
         _delegateSerializer.serializeWithType(delegateValue, jgen, provider, typeSer);
     }
@@ -145,7 +148,8 @@ public class StdDelegatingSerializer
     /* Schema functionality
     /**********************************************************
      */
-    
+
+    @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException
     {
@@ -155,6 +159,7 @@ public class StdDelegatingSerializer
         return super.getSchema(provider, typeHint);
     }
 
+    @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint,
         boolean isOptional) throws JsonMappingException
     {
@@ -164,6 +169,7 @@ public class StdDelegatingSerializer
         return super.getSchema(provider, typeHint);
     }
 
+    @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
         if (_delegateSerializer instanceof JsonFormatVisitable) {
@@ -171,5 +177,16 @@ public class StdDelegatingSerializer
             return;
         }
         super.acceptJsonFormatVisitor(visitor, typeHint);
+    }
+
+    /*
+    /**********************************************************
+    /* Other
+    /**********************************************************
+     */
+
+    @Override
+    public JsonSerializer<?> getDelegatee() {
+        return _delegateSerializer;
     }
 }

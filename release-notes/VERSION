@@ -70,6 +70,8 @@ New features:
  (contributed by Pascal G)
 * [Issue#72]: Add 'MapperFeature.USE_WRAPPER_NAME_AS_PROPERTY_NAME' to use
   wrapper name annotations for renaming properties
+* [Issue#87]: Add 'StdDelegatingSerializer', 'StdDelegatingDeserializer' to
+  simplify writing of two-step handlers
 * (issue #4 of jackson-annotations): Add `@JsonIdentityReference(alwaysAsId=true)`
   to force ALL references to an object written as Object Id, even the first one.
 * Added 'ObjectReader#withHandler' to allow for reconfiguring deserialization

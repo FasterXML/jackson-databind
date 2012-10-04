@@ -13,7 +13,11 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
+import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
+import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -411,6 +415,82 @@ public class BeanPropertyWriter
     }
 
     public Class<?>[] getViews() { return _includeInViews; }
+
+    /**
+     *<p>
+     * NOTE: due to introspection, this is a <b>slow</b> method to call
+     * and should never be called during actual serialization or filtering
+     * of the property. Rather it is needed for traversal needed for things
+     * like constructing JSON Schema instances.
+     * 
+     * @since 2.1
+     */
+    protected boolean isRequired(AnnotationIntrospector intr)
+    {
+        Boolean value = intr.hasRequiredMarker(_member);
+        return (value == null) ? false : value.booleanValue();
+    }
+
+    /*
+    /**********************************************************
+    /* Support for JsonFormatVisitable
+    /**********************************************************
+     */
+
+    /**
+     * Method called to handle appropriate type-specific visiting
+     * over logical property this writer handles.
+     * 
+     * @param objectVisitor ObjectVisitor which can receive the property
+     * 
+     * @since 2.1
+     */
+    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
+        throws JsonMappingException
+    {
+        if (isRequired(objectVisitor.getProvider().getAnnotationIntrospector())) {
+            objectVisitor.property(this); 
+        } else {
+            objectVisitor.optionalProperty(this);
+        }
+    }
+
+    /**
+     * Attempt to add the output of the given {@link BeanPropertyWriter} in the given {@link ObjectNode}.
+     * Otherwise, add the default schema {@link JsonNode} in place of the writer's output
+     * 
+     * @param propertiesNode Node which the given property would exist within
+     * @param provider Provider that can be used for accessing dynamic aspects of serialization
+     *  processing
+     *  
+     *  {@link BeanPropertyFilter#depositSchemaProperty(BeanPropertyWriter, ObjectNode, SerializerProvider)}
+     * 
+     * @since 2.1
+     */
+    public void depositSchemaProperty(ObjectNode propertiesNode, SerializerProvider provider)
+        throws JsonMappingException
+    {
+        JavaType propType = getSerializationType();
+        // 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas it doesn't...
+        Type hint = (propType == null) ? getGenericPropertyType() : propType.getRawClass();
+        JsonNode schemaNode;
+        // Maybe it already has annotated/statically configured serializer?
+        JsonSerializer<Object> ser = getSerializer();
+        if (ser == null) { // nope
+            Class<?> serType = getRawSerializationType();
+            if (serType == null) {
+                serType = getPropertyType();
+            }
+            ser = provider.findValueSerializer(serType, this);
+        }
+        boolean isOptional = !isRequired(provider.getAnnotationIntrospector());
+        if (ser instanceof SchemaAware) {
+            schemaNode =  ((SchemaAware) ser).getSchema(provider, hint, isOptional) ;
+        } else {  
+            schemaNode = JsonSchema.getDefaultSchemaNode(); 
+        }
+        propertiesNode.put(getName(), schemaNode);
+    }
     
     /*
     /**********************************************************

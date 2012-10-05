@@ -10,7 +10,10 @@ import com.fasterxml.jackson.databind.type.SimpleType;
 
 public class BasicClassIntrospector
     extends ClassIntrospector
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /* We keep a small set of pre-constructed descriptions to use for
      * common non-structured values, such as Numbers and Strings.
      * This is strictly performance optimization to reduce what is

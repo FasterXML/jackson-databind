@@ -34,7 +34,11 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  */
 public final class SerializationConfig
     extends MapperConfigBase<SerializationFeature, SerializationConfig>
+    implements java.io.Serializable // since 2.1
 {
+    // for 2.1.0:
+    private static final long serialVersionUID = 8849092838541724233L;
+
     /**
      * Set of features enabled; actual type (kind of features)
      * depends on sub-classes.

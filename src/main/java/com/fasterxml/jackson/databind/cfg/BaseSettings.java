@@ -21,7 +21,11 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
  * be freely shared and used without synchronization.
  */
 public final class BaseSettings
+    implements java.io.Serializable // since 2.1
 {
+    // for 2.1.0:
+    private static final long serialVersionUID = 4939673998947122190L;
+
     /*
     /**********************************************************
     /* Configuration settings; introspection, related

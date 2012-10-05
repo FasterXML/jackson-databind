@@ -24,6 +24,8 @@ public class TestNodeFactoryConfig
     static class MyNodeFactory
         extends JsonNodeFactory
     {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public ObjectNode objectNode() { return new MyObjectNode(this); }
         

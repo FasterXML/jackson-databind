@@ -31,7 +31,10 @@ import com.fasterxml.jackson.databind.util.LRUMap;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public final class TypeFactory
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final static JavaType[] NO_TYPES = new JavaType[0];
 
     /**
@@ -61,7 +64,7 @@ public final class TypeFactory
      * actual generic types), we will use small cache to avoid repetitive
      * resolution of core types
      */
-    protected final LRUMap<ClassKey, JavaType> _typeCache = new LRUMap<ClassKey, JavaType>(16, 100);
+    protected final transient LRUMap<ClassKey, JavaType> _typeCache = new LRUMap<ClassKey, JavaType>(16, 100);
     
     /*
      * Looks like construction of {@link JavaType} instances can be
@@ -73,13 +76,13 @@ public final class TypeFactory
      * Lazily constructed copy of type hierarchy from {@link java.util.HashMap}
      * to its supertypes.
      */
-    protected HierarchicType _cachedHashMapType;
+    protected transient HierarchicType _cachedHashMapType;
 
     /**
      * Lazily constructed copy of type hierarchy from {@link java.util.ArrayList}
      * to its supertypes.
      */
-    protected HierarchicType _cachedArrayListType;
+    protected transient HierarchicType _cachedArrayListType;
     
     /*
     /**********************************************************

@@ -12,8 +12,11 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * @author tatu
  */
 public class TypeParser
+    implements java.io.Serializable
 {
-    final TypeFactory _factory;
+    private static final long serialVersionUID = 1L;
+
+    protected final TypeFactory _factory;
         
     public TypeParser(TypeFactory f) {
         _factory = f;

@@ -30,6 +30,7 @@ public class TestFormatSchema extends BaseMapTest
     
     static class FactoryWithSchema extends JsonFactory
     {
+        private static final long serialVersionUID = 1L;
         @Override
         protected JsonParser _createJsonParser(Reader r, IOContext ctxt)
             throws IOException, JsonParseException

@@ -35,7 +35,8 @@ public class TestParserUsingMapper  extends com.fasterxml.jackson.test.BaseTest
      */
     static class MyEscapes extends CharacterEscapes
     {
-        
+        private static final long serialVersionUID = 1L;
+
         private final int[] _asciiEscapes;
 
         public MyEscapes() {

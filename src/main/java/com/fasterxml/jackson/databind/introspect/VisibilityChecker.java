@@ -160,8 +160,11 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         fieldVisibility = Visibility.PUBLIC_ONLY
     )
     public static class Std
-        implements VisibilityChecker<Std>
+        implements VisibilityChecker<Std>,
+            java.io.Serializable
     {
+        private static final long serialVersionUID = -7073939237187922755L;
+
         /**
          * This is the canonical base instance, configured with default
          * visibility values

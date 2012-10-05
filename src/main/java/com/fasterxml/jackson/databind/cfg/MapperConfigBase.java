@@ -144,6 +144,19 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _rootName = src._rootName;
         _view = src._view;
     }
+
+    /**
+     * Constructor only used for JDK deserialization
+     * 
+     * @since 2.1
+     */
+    protected MapperConfigBase() {
+        super();
+        _mixInAnnotations = null;
+        _subtypeResolver = null;
+        _rootName = null;
+        _view = null;
+    }
     
     /*
     /**********************************************************

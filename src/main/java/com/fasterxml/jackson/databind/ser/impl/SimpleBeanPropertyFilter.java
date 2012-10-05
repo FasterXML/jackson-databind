@@ -15,61 +15,68 @@ import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
  * Simple {@link BeanPropertyFilter} implementation that only uses property name
  * to determine whether to serialize property as is, or to filter it out.
  */
-public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
+public abstract class SimpleBeanPropertyFilter
+    implements BeanPropertyFilter,
+        java.io.Serializable // since 2.1
 {
-	/*
+    private static final long serialVersionUID = 612196544186875755L;
+
+    /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
-	 */
+     */
 
-	protected SimpleBeanPropertyFilter() { }
+    protected SimpleBeanPropertyFilter() { }
 
-	/**
-	 * Factory method to construct filter that filters out all properties <b>except</b>
-	 * ones includes in set
-	 */
-	public static SimpleBeanPropertyFilter filterOutAllExcept(Set<String> properties) {
-		return new FilterExceptFilter(properties);
-	}
+    /**
+     * Factory method to construct filter that filters out all properties <b>except</b>
+     * ones includes in set
+     */
+    public static SimpleBeanPropertyFilter filterOutAllExcept(Set<String> properties) {
+        return new FilterExceptFilter(properties);
+    }
 
-	public static SimpleBeanPropertyFilter filterOutAllExcept(String... propertyArray) {
-		HashSet<String> properties = new HashSet<String>(propertyArray.length);
-		Collections.addAll(properties, propertyArray);
-		return new FilterExceptFilter(properties);
-	}
+    public static SimpleBeanPropertyFilter filterOutAllExcept(String... propertyArray) {
+        HashSet<String> properties = new HashSet<String>(propertyArray.length);
+        Collections.addAll(properties, propertyArray);
+        return new FilterExceptFilter(properties);
+    }
 
-	public static SimpleBeanPropertyFilter serializeAllExcept(Set<String> properties) {
-		return new SerializeExceptFilter(properties);
-	}
+    public static SimpleBeanPropertyFilter serializeAllExcept(Set<String> properties) {
+        return new SerializeExceptFilter(properties);
+    }
 
-	public static SimpleBeanPropertyFilter serializeAllExcept(String... propertyArray) {
-		HashSet<String> properties = new HashSet<String>(propertyArray.length);
-		Collections.addAll(properties, propertyArray);
-		return new SerializeExceptFilter(properties);
-	}
+    public static SimpleBeanPropertyFilter serializeAllExcept(String... propertyArray) {
+        HashSet<String> properties = new HashSet<String>(propertyArray.length);
+        Collections.addAll(properties, propertyArray);
+        return new SerializeExceptFilter(properties);
+    }
 
-	/*
+    /*
     /**********************************************************
     /* Sub-classes
     /**********************************************************
-	 */
+     */
 
-	/**
-	 * Filter implementation which defaults to filtering out unknown
-	 * properties and only serializes ones explicitly listed.
-	 */
-	public static class FilterExceptFilter
-	extends SimpleBeanPropertyFilter
-	{
-		/**
-		 * Set of property names to serialize.
-		 */
-		protected final Set<String> _propertiesToInclude;
+    /**
+     * Filter implementation which defaults to filtering out unknown
+     * properties and only serializes ones explicitly listed.
+     */
+    public static class FilterExceptFilter
+        extends SimpleBeanPropertyFilter
+    {
+        // generated for 2.1.0
+        private static final long serialVersionUID = -5409460444028386035L;
 
-		public FilterExceptFilter(Set<String> properties) {
-			_propertiesToInclude = properties;
-		}
+        /**
+         * Set of property names to serialize.
+         */
+        protected final Set<String> _propertiesToInclude;
+
+        public FilterExceptFilter(Set<String> properties) {
+            _propertiesToInclude = properties;
+        }
 
 		public void serializeAsField(Object bean, JsonGenerator jgen,
 				SerializerProvider provider, BeanPropertyWriter writer) throws Exception
@@ -92,19 +99,22 @@ public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
 				BeanSerializerBase.depositSchemaProperty(writer, objectVisitor);
 			}
 		}
-	}
+    }
 
-	/**
-	 * Filter implementation which defaults to serializing all
-	 * properties, except for ones explicitly listed to be filtered out.
-	 */
-	public static class SerializeExceptFilter
-	extends SimpleBeanPropertyFilter
-	{
-		/**
-		 * Set of property names to filter out.
-		 */
-		protected final Set<String> _propertiesToExclude;
+    /**
+     * Filter implementation which defaults to serializing all
+     * properties, except for ones explicitly listed to be filtered out.
+     */
+    public static class SerializeExceptFilter
+        extends SimpleBeanPropertyFilter
+    {
+        // generated for 2.1.0
+        private static final long serialVersionUID = 6654996217449646999L;
+
+        /**
+         * Set of property names to filter out.
+         */
+        protected final Set<String> _propertiesToExclude;
 
 		public SerializeExceptFilter(Set<String> properties) {
 			_propertiesToExclude = properties;
@@ -131,6 +141,5 @@ public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
 				BeanSerializerBase.depositSchemaProperty(writer, objectVisitor);
 			}
 		}
-	}
-
+    }
 }

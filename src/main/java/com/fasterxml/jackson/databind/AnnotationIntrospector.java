@@ -1026,6 +1026,8 @@ public abstract class AnnotationIntrospector implements Versioned
     public static class Pair
         extends AnnotationIntrospectorPair
     {
+        private static final long serialVersionUID = 1L;
+
         @Deprecated
         public Pair(AnnotationIntrospector p, AnnotationIntrospector s) {
             super(p, s);

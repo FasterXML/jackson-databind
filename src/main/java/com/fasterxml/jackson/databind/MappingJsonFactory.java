@@ -31,6 +31,9 @@ import com.fasterxml.jackson.core.format.MatchStrength;
 public class MappingJsonFactory
     extends JsonFactory
 {
+    // generated for Jackson 2.1.0
+    private static final long serialVersionUID = -6744103724013275513L;
+
     public MappingJsonFactory()
     {
         this(null);

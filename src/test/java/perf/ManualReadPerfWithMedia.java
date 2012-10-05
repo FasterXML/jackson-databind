@@ -39,6 +39,7 @@ public class ManualReadPerfWithMedia extends ObjectReaderBase
 
     final static class NoFormatIntrospector extends JacksonAnnotationIntrospector
     {
+        private static final long serialVersionUID = 1L;
         @Override
         public JsonFormat.Value findFormat(Annotated a) { return null; }
     }

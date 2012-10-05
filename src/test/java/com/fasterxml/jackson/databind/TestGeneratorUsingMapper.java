@@ -63,6 +63,8 @@ public class TestGeneratorUsingMapper extends BaseMapTest
 
         final ObjectMapper mapper = new ObjectMapper();
         final CharacterEscapes defaultCharacterEscapes = new CharacterEscapes() {
+            private static final long serialVersionUID = 1L;
+
             @Override
             public int[] getEscapeCodesForAscii() {
                 return standardAsciiEscapesForJSON();

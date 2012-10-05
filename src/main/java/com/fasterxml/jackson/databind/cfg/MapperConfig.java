@@ -60,6 +60,16 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         _base = src._base;
         _mapperFeatures = src._mapperFeatures;
     }
+
+    /**
+     * Constructor only used for JDK deserialization
+     * 
+     * @since 2.1
+     */
+    MapperConfig() {
+        _base = null;
+        _mapperFeatures = 0;
+    }
     
     /**
      * Method that calculates bit set (flags) of all features that

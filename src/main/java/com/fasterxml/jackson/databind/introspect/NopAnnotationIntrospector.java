@@ -11,13 +11,18 @@ import com.fasterxml.jackson.databind.cfg.DatabindVersion;
  */
 public abstract class NopAnnotationIntrospector
     extends AnnotationIntrospector
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Static immutable and shareable instance that can be used as
      * "null" introspector: one that never finds any annotation
      * information.
      */
     public final static NopAnnotationIntrospector instance = new NopAnnotationIntrospector() {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public Version version() {
             return DatabindVersion.instance.version();

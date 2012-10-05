@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.JavaType;
 public final class ArrayType
     extends TypeBase
 {
+    private static final long serialVersionUID = -6866628807166594553L;
+
     /**
      * Type of elements in the array.
      */

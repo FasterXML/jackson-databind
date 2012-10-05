@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.JavaType;
  */
 public final class MapType extends MapLikeType
 {
+    private static final long serialVersionUID = 2276544408153191774L;
+
     /*
     /**********************************************************
     /* Life-cycle

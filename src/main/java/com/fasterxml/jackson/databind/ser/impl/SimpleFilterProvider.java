@@ -8,8 +8,13 @@ import com.fasterxml.jackson.databind.ser.*;
  * Simple {@link FilterProvider} implementation that just stores
  * direct id-to-filter mapping.
  */
-public class SimpleFilterProvider extends FilterProvider
+public class SimpleFilterProvider
+    extends FilterProvider
+    implements java.io.Serializable // since 2.1
 {
+    // generated for 2.1.0
+    private static final long serialVersionUID = -2825494703774121220L;
+
     /**
      * Mappings from ids to filters.
      */

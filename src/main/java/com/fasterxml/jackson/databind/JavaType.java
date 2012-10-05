@@ -14,7 +14,11 @@ import com.fasterxml.jackson.core.type.ResolvedType;
  */
 public abstract class JavaType
     extends ResolvedType
+    implements java.io.Serializable
 {
+    // for 2.1.0:
+    private static final long serialVersionUID = -5321897246493723158L;
+
     /**
      * This is the nominal type-erased Class that would be close to the
      * type represented (but not exactly type, due to type erasure: type

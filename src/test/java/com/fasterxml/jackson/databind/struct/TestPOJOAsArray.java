@@ -59,6 +59,8 @@ public class TestPOJOAsArray extends BaseMapTest
 
     static class ForceArraysIntrospector extends JacksonAnnotationIntrospector
     {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public JsonFormat.Value findFormat(Annotated a) {
             return new JsonFormat.Value().withShape(JsonFormat.Shape.ARRAY);

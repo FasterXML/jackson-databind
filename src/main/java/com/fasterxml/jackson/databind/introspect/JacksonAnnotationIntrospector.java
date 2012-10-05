@@ -24,7 +24,10 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  */
 public class JacksonAnnotationIntrospector
     extends AnnotationIntrospector
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     public JacksonAnnotationIntrospector() { }
 
     @Override

@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.JavaType;
  */
 public class CollectionLikeType extends TypeBase
 {
+    private static final long serialVersionUID = -2079769185110719683L;
+
     /**
      * Type of elements in collection
      */

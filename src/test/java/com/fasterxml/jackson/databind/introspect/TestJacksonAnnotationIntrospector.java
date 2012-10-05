@@ -136,6 +136,7 @@ public class TestJacksonAnnotationIntrospector
     // Test to ensure we can override enum settings
     static class LcEnumIntrospector extends JacksonAnnotationIntrospector
     {
+        private static final long serialVersionUID = 1L;
         @Override
         public String findEnumValue(Enum<?> value)
         {

@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.JavaType;
 public final class SimpleType
     extends TypeBase
 {
+    private static final long serialVersionUID = -800374828948534376L;
+
     /**
      * Generic type arguments for this type.
      */

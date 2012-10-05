@@ -11,7 +11,11 @@ import java.math.BigInteger;
  * to behavior of node types, mostly) is needed.
  */
 public class JsonNodeFactory
+    implements java.io.Serializable // since 2.1
 {
+    // for 2.1:
+    private static final long serialVersionUID = 2323165117839546871L;
+
     private final boolean _cfgBigDecimalExact;
 
     private static final JsonNodeFactory decimalsNormalized

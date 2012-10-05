@@ -34,8 +34,12 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * 
  * @since 2.1
  */
-public class AnnotationIntrospectorPair extends AnnotationIntrospector
+public class AnnotationIntrospectorPair
+    extends AnnotationIntrospector
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     protected final AnnotationIntrospector _primary, _secondary;
 
     public AnnotationIntrospectorPair(AnnotationIntrospector p, AnnotationIntrospector s)

@@ -129,7 +129,9 @@ public abstract class StdSerializer<T>
      * overriden by custom serializers.
      */
 //  @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) { 
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
+    {
     	visitor.expectAnyFormat(typeHint);
     }
             

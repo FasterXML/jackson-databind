@@ -93,6 +93,9 @@ INCOMPATIBILITIES: (rats!)
   imcompatible change. It is estimated that it should NOT affect most
   users, as changes are to edge cases (and undocumented ones at that).
   However, it can potentially cause problems with upgrade.
+* Implementation of `JsonFormatVisitable` resulting in 2 new methods
+  being added in `BeanPropertyFilter` interface -- this is unfortunate,
+  but was required to support full traversability.
 
 ------------------------------------------------------------------------
 === History: ===

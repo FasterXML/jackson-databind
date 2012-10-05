@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.io.SerializedString;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -297,34 +297,34 @@ public class EnumMapSerializer
         }
         return o;
     }
-    
-    @SuppressWarnings("unchecked")
+
+    /* !!! 03-Oct-2012, tatu: This is total mess, and partly incorrect. MUST be
+     *   rewritten in near future, to work.
+     */
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
     {
     	JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
-        if (typeHint instanceof ParameterizedType) {
-            Type[] typeArgs = ((ParameterizedType) typeHint).getActualTypeArguments();
-            if (typeArgs.length == 2) {
-                JavaType enumType = visitor.getProvider().constructType(typeArgs[0]);
-                JavaType valueType = visitor.getProvider().constructType(typeArgs[1]);
-//                ObjectNode propsNode = JsonNodeFactory.instance.objectNode();
-                Class<Enum<?>> enumClass = (Class<Enum<?>>) enumType.getRawClass();
-                for (Enum<?> enumValue : enumClass.getEnumConstants()) {
-                	JsonSerializer<Object> ser;
-                	String name = visitor.getProvider().getConfig().getAnnotationIntrospector().findEnumValue((Enum<?>)enumValue);
-                	try {
-                		ser = visitor.getProvider().findValueSerializer(valueType.getRawClass(), _property);
-                		if (ser instanceof JsonFormatVisitable)  {
-                			objectVisitor.property(name, (JsonFormatVisitable) ser, valueType);
-                		} 
-                		continue;
-                	} catch (JsonMappingException e) {
-                		//TODO: log error
-                	}
-                	objectVisitor.property(name);
-                }
+    	/*
+        JavaType enumType = typeHint.containedType(0);
+    	if (enumType == null) {
+    	    enumType = visitor.getProvider().constructType(Object.class);
+    	}
+    	*/
+        JavaType valueType = typeHint.containedType(1);
+    	if (valueType == null) {
+    	    valueType = visitor.getProvider().constructType(Object.class);
+    	}
+        JsonSerializer<Object> ser = _valueSerializer;
+//        Class<Enum<?>> enumClass = (Class<Enum<?>>) enumType.getRawClass();
+        for (Map.Entry<?,SerializedString> entry : _keyEnums.internalMap().entrySet()) {
+            String name = entry.getValue().getValue();
+            // should all have the same type, so:
+            if (ser == null) {
+                ser = visitor.getProvider().findValueSerializer(entry.getKey().getClass(), _property);
             }
+            objectVisitor.property(name, (JsonFormatVisitable) ser, valueType);
         }
     }
 }

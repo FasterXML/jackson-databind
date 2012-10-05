@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -40,6 +42,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * contextualization.
  */
 public abstract class JsonSerializer<T>
+    implements JsonFormatVisitable // since 2.1
 {
     /*
     /**********************************************************
@@ -197,6 +200,23 @@ public abstract class JsonSerializer<T>
      */
     public JsonSerializer<?> getDelegatee() {
         return null;
+    }
+
+    /*
+    /**********************************************************
+    /* Default JsonFormatVisitable implementation
+    /**********************************************************
+     */
+
+    /**
+     * Default implementation simply calls {@link JsonFormatVisitorWrapper#expectAnyFormat(JavaType)}.
+     * 
+     * @since 2.1
+     */
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType type)
+        throws JsonMappingException
+    {
+        visitor.expectAnyFormat(type);
     }
     
     /*

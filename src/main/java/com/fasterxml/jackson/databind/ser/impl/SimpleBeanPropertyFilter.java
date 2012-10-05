@@ -9,18 +9,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
-import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 
 /**
  * Simple {@link BeanPropertyFilter} implementation that only uses property name
  * to determine whether to serialize property as is, or to filter it out.
  */
-public abstract class SimpleBeanPropertyFilter
-    implements BeanPropertyFilter,
-        java.io.Serializable // since 2.1
+public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
 {
-    private static final long serialVersionUID = 612196544186875755L;
-
     /*
     /**********************************************************
     /* Life-cycle
@@ -55,6 +50,45 @@ public abstract class SimpleBeanPropertyFilter
 
     /*
     /**********************************************************
+    /* Methods for sub-classes
+    /**********************************************************
+     */
+
+    /**
+     * Method called to determine whether property will be included
+     * (if 'true' returned) or filtered out (if 'false' returned)
+     */
+    protected abstract boolean include(BeanPropertyWriter writer);
+
+    public void serializeAsField(Object bean, JsonGenerator jgen,
+            SerializerProvider provider, BeanPropertyWriter writer) throws Exception
+    {
+        if (include(writer)) {
+            writer.serializeAsField(bean, jgen, provider);
+        }
+    }
+
+    
+    public void depositSchemaProperty(BeanPropertyWriter writer,
+            ObjectNode propertiesNode, SerializerProvider provider)
+        throws JsonMappingException
+    {
+        if (include(writer)) {
+            writer.depositSchemaProperty(propertiesNode, provider);
+        }
+    }
+
+    public void depositSchemaProperty(BeanPropertyWriter writer,
+            JsonObjectFormatVisitor objectVisitor, SerializerProvider provider)
+        throws JsonMappingException
+    {
+        if (include(writer)) {
+            writer.depositSchemaProperty(objectVisitor);
+        }
+    }
+    
+    /*
+    /**********************************************************
     /* Sub-classes
     /**********************************************************
      */
@@ -66,9 +100,6 @@ public abstract class SimpleBeanPropertyFilter
     public static class FilterExceptFilter
         extends SimpleBeanPropertyFilter
     {
-        // generated for 2.1.0
-        private static final long serialVersionUID = -5409460444028386035L;
-
         /**
          * Set of property names to serialize.
          */
@@ -78,27 +109,10 @@ public abstract class SimpleBeanPropertyFilter
             _propertiesToInclude = properties;
         }
 
-		public void serializeAsField(Object bean, JsonGenerator jgen,
-				SerializerProvider provider, BeanPropertyWriter writer) throws Exception
-		{
-			if (_propertiesToInclude.contains(writer.getName())) {
-				writer.serializeAsField(bean, jgen, provider);
-			}
-		}
-		
-		public void depositSchemaProperty(BeanPropertyWriter writer,
-				ObjectNode propertiesNode, SerializerProvider provider) {
-			if (_propertiesToInclude.contains(writer.getName())) {
-				BeanSerializerBase.depositSchemaProperty(writer, propertiesNode, provider);
-			}
-		}
-		
-		public void depositSchemaProperty(BeanPropertyWriter writer,
-				JsonObjectFormatVisitor objectVisitor, SerializerProvider provider) {
-			if (_propertiesToInclude.contains(writer.getName())) {
-				BeanSerializerBase.depositSchemaProperty(writer, objectVisitor);
-			}
-		}
+        @Override
+        protected boolean include(BeanPropertyWriter writer) {
+            return _propertiesToInclude.contains(writer.getName());
+        }
     }
 
     /**
@@ -108,38 +122,18 @@ public abstract class SimpleBeanPropertyFilter
     public static class SerializeExceptFilter
         extends SimpleBeanPropertyFilter
     {
-        // generated for 2.1.0
-        private static final long serialVersionUID = 6654996217449646999L;
-
         /**
          * Set of property names to filter out.
          */
         protected final Set<String> _propertiesToExclude;
 
-		public SerializeExceptFilter(Set<String> properties) {
-			_propertiesToExclude = properties;
-		}
+        public SerializeExceptFilter(Set<String> properties) {
+            _propertiesToExclude = properties;
+        }
 
-		public void serializeAsField(Object bean, JsonGenerator jgen,
-				SerializerProvider provider, BeanPropertyWriter writer) throws Exception
-		{
-			if (!_propertiesToExclude.contains(writer.getName())) {
-				writer.serializeAsField(bean, jgen, provider);
-			}
-		}
-
-		public void depositSchemaProperty(BeanPropertyWriter writer,
-				ObjectNode propertiesNode, SerializerProvider provider) {
-			if (!_propertiesToExclude.contains(writer.getName())) {
-				BeanSerializerBase.depositSchemaProperty(writer, propertiesNode, provider);
-			}
-		}
-		
-		public void depositSchemaProperty(BeanPropertyWriter writer,
-				JsonObjectFormatVisitor objectVisitor, SerializerProvider provider) {
-			if (!_propertiesToExclude.contains(writer.getName())) {
-				BeanSerializerBase.depositSchemaProperty(writer, objectVisitor);
-			}
-		}
+        @Override
+        protected boolean include(BeanPropertyWriter writer) {
+            return !_propertiesToExclude.contains(writer.getName());
+        }
     }
 }

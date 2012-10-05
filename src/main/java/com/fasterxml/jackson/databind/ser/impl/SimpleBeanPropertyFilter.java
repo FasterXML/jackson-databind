@@ -14,7 +14,8 @@ import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
  * Simple {@link BeanPropertyFilter} implementation that only uses property name
  * to determine whether to serialize property as is, or to filter it out.
  */
-public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
+public abstract class SimpleBeanPropertyFilter
+    implements BeanPropertyFilter // sub-classes must also implement java.io.Serializable
 {
     /*
     /**********************************************************
@@ -99,7 +100,10 @@ public abstract class SimpleBeanPropertyFilter implements BeanPropertyFilter
      */
     public static class FilterExceptFilter
         extends SimpleBeanPropertyFilter
+        implements java.io.Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         /**
          * Set of property names to serialize.
          */

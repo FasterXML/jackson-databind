@@ -19,8 +19,11 @@ import com.fasterxml.jackson.databind.type.ClassKey;
  * Unlike {@link SimpleSerializers}, this class does not currently support generic mappings;
  * all mappings must be to exact declared deserialization type.
  */
-public class SimpleKeyDeserializers implements KeyDeserializers
+public class SimpleKeyDeserializers
+    implements KeyDeserializers, java.io.Serializable // since 2.1
 {
+    private static final long serialVersionUID = -6786398737835438187L;
+
     protected HashMap<ClassKey,KeyDeserializer> _classMappings = null;
 
     /*

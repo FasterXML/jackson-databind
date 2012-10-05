@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.type.*;
 
+@SuppressWarnings("serial")
 public class TestTypeModifiers extends BaseMapTest
 {
     /*

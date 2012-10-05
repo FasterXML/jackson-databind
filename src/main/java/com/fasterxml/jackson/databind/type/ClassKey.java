@@ -17,8 +17,11 @@ package com.fasterxml.jackson.databind.type;
  * know what it is doing, if changing field values.
  */
 public final class ClassKey
-    implements Comparable<ClassKey>
+    implements Comparable<ClassKey>,
+        java.io.Serializable // since 2.1
 {
+    private static final long serialVersionUID = 1L;
+
     private String _className;
 
     private Class<?> _class;

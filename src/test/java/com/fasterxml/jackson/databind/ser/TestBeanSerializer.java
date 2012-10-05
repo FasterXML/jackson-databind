@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
  * Unit tests for verifying that it is possible to configure
  * construction of {@link BeanSerializer} instances.
  */
+@SuppressWarnings("serial")
 public class TestBeanSerializer extends BaseMapTest
 {
     /*

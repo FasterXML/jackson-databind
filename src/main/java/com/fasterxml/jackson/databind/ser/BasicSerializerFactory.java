@@ -36,7 +36,10 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public abstract class BasicSerializerFactory
     extends SerializerFactory
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = -1416617628045738132L;
+
     /*
     /**********************************************************
     /* Configuration, lookup tables/maps

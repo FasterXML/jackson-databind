@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.deser.BeanDeserializerBuilder;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
+@SuppressWarnings("serial")
 public class TestBeanDeserializer extends BaseMapTest
 {
     /*

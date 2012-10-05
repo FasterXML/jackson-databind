@@ -26,8 +26,12 @@ import com.fasterxml.jackson.databind.type.ClassKey;
  * concrete implementations; however, only works with abstract types (since
  * this is only called for abstract types)
  */
-public class SimpleAbstractTypeResolver extends AbstractTypeResolver
+public class SimpleAbstractTypeResolver
+    extends AbstractTypeResolver
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 8635483102371490919L;
+
     /**
      * Mappings from super types to subtypes
      */

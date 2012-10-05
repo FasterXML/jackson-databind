@@ -10,7 +10,10 @@ import com.fasterxml.jackson.databind.type.ClassKey;
 
 public class SimpleValueInstantiators
     extends ValueInstantiators.Base
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = -8929386427526115130L;
+
     /**
      * Mappings from raw (type-erased, i.e. non-generic) types
      * to matching {@link ValueInstantiator} instances.

@@ -33,8 +33,12 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * implementations must sub-class this class: {@link ObjectMapper}
  * requires this type, not basic provider type.
  */
-public abstract class DefaultSerializerProvider extends SerializerProvider
+public abstract class DefaultSerializerProvider
+    extends SerializerProvider
+    implements java.io.Serializable // since 2.1; only because ObjectWriter needs it
 {
+    private static final long serialVersionUID = 1L;
+
     /*
     /**********************************************************
     /* State, for non-blueprint instances: Object Id handling
@@ -45,9 +49,9 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
      * Per-serialization map Object Ids that have seen so far, iff
      * Object Id handling is enabled.
      */
-    protected IdentityHashMap<Object, WritableObjectId> _seenObjectIds;
+    protected transient IdentityHashMap<Object, WritableObjectId> _seenObjectIds;
     
-    protected ArrayList<ObjectIdGenerator<?>> _objectIdGenerators;
+    protected transient ArrayList<ObjectIdGenerator<?>> _objectIdGenerators;
     
     /*
     /**********************************************************
@@ -444,6 +448,8 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
      */
     public final static class Impl extends DefaultSerializerProvider
     {
+        private static final long serialVersionUID = 1L;
+
         public Impl() { super(); }
 
         protected Impl(SerializerProvider src,

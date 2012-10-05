@@ -24,8 +24,12 @@ import com.fasterxml.jackson.databind.type.MapType;
  * is found first. As an example, handler for {@link CharSequence} would also be used
  * serializing {@link StringBuilder} instances, unless a direct mapping was found.
  */
-public class SimpleSerializers extends Serializers.Base
+public class SimpleSerializers
+    extends Serializers.Base
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 8531646511998456779L;
+
     /**
      * Class-based mappings that are used both for exact and
      * sub-class matches.

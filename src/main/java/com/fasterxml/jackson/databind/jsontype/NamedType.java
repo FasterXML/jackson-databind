@@ -7,7 +7,10 @@ package com.fasterxml.jackson.databind.jsontype;
  * @author tatu
  */
 public final class NamedType
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     protected final Class<?> _class;
     protected final int _hashCode;
 

@@ -14,12 +14,14 @@ import com.fasterxml.jackson.databind.util.Provider;
  * @author tatu
  */
 public class OptionalHandlerFactory
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = -7103336512296456640L;
+
     /* 1.6.1+ To make 2 main "optional" handler groups (javax.xml.stream)
      * more dynamic, we better only figure out handlers completely dynamically, if and
      * when they are needed. To do this we need to assume package prefixes.
      */
-
     private final static String PACKAGE_PREFIX_JAVAX_XML = "javax.xml.";
 
     private final static String SERIALIZERS_FOR_JAVAX_XML = "com.fasterxml.jackson.databind.ext.CoreXMLSerializers";

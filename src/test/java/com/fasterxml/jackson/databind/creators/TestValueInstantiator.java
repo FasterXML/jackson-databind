@@ -269,6 +269,7 @@ public class TestValueInstantiator extends BaseMapTest
         }
     }
     
+    @SuppressWarnings("serial")
     static class MyModule extends SimpleModule
     {
         public MyModule(Class<?> cls, ValueInstantiator inst)

@@ -100,6 +100,7 @@ public class TestWithGenerics extends BaseMapTest
         }
     }
     
+    @SuppressWarnings("serial")
     protected static class CustomJsonSerializerFactory extends BeanSerializerFactory
     {
         public CustomJsonSerializerFactory() { super(null); }

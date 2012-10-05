@@ -8,7 +8,9 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders;
  * {@link SerializerFactory} implementations.
  */
 public final class SerializerFactoryConfig
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
     /**
      * Constant for empty <code>Serializers</code> array (which by definition
      * is stateless and reusable)

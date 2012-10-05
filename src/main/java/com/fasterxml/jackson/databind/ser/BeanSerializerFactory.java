@@ -49,13 +49,14 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class BeanSerializerFactory
     extends BasicSerializerFactory
 {
+    private static final long serialVersionUID = -5348294866902611332L;
+
     /**
      * Like {@link BasicSerializerFactory}, this factory is stateless, and
      * thus a single shared global (== singleton) instance can be used
      * without thread-safety issues.
      */
     public final static BeanSerializerFactory instance = new BeanSerializerFactory(null);
-
 
     /*
     /**********************************************************

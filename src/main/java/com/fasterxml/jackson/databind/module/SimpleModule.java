@@ -16,8 +16,12 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
  * of serializers and deserializers, and bean serializer
  * and deserializer modifiers.
  */
-public class SimpleModule extends Module
+public class SimpleModule
+    extends Module
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 3132264350026957446L;
+
     protected final String _name;
     protected final Version _version;
     

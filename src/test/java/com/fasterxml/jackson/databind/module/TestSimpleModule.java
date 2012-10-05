@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.module.SimpleSerializers;
 import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
+@SuppressWarnings("serial")
 public class TestSimpleModule extends BaseMapTest
 {
     /*

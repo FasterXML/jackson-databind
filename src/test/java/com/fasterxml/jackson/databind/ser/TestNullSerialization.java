@@ -26,6 +26,7 @@ public class TestNullSerialization
         public String type = null;
     }
     
+    @SuppressWarnings("serial")
     static class MyNullProvider extends DefaultSerializerProvider
     {
         public MyNullProvider() { super(); }

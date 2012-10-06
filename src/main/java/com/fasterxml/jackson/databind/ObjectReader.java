@@ -37,8 +37,10 @@ import com.fasterxml.jackson.databind.util.RootNameLookup;
  */
 public class ObjectReader
     extends ObjectCodec
-    implements Versioned
+    implements Versioned, java.io.Serializable // since 2.1
 {
+    private static final long serialVersionUID = -4251443320039569153L;
+
     private final static JavaType JSON_NODE_TYPE = SimpleType.constructUnsafe(JsonNode.class);
 
     /*

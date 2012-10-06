@@ -27,8 +27,11 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * reused in completely thread-safe manner with no explicit synchronization
  */
 public class ObjectWriter
-    implements Versioned
+    implements Versioned,
+        java.io.Serializable // since 2.1
 {
+    private static final long serialVersionUID = -7024829992408267532L;
+
     /**
      * We need to keep track of explicit disabling of pretty printing;
      * easiest to do by a token value.

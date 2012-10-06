@@ -11,7 +11,10 @@ import com.fasterxml.jackson.databind.type.ClassKey;
  * Helper class for caching resolved root names.
  */
 public class RootNameLookup
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * For efficient operation, let's try to minimize number of times we
      * need to introspect root element name to use.

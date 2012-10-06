@@ -64,8 +64,8 @@ public final class TypeFactory
      * actual generic types), we will use small cache to avoid repetitive
      * resolution of core types
      */
-    protected final transient LRUMap<ClassKey, JavaType> _typeCache = new LRUMap<ClassKey, JavaType>(16, 100);
-    
+    protected final LRUMap<ClassKey, JavaType> _typeCache = new LRUMap<ClassKey, JavaType>(16, 100);
+
     /*
      * Looks like construction of {@link JavaType} instances can be
      * a bottleneck, esp. for root-level Maps, so we better do bit
@@ -129,6 +129,12 @@ public final class TypeFactory
      */
     public static TypeFactory defaultInstance() { return instance; }
 
+    /*
+    /**********************************************************
+    /* Overrides for supporting Serializable
+    /**********************************************************
+     */
+    
     /*
     /**********************************************************
     /* Static methods for non-instance-specific functionality

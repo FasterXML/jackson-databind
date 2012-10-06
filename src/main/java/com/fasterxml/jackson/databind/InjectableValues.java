@@ -38,7 +38,10 @@ public abstract class InjectableValues
      */
     public static class Std
         extends InjectableValues
+        implements java.io.Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         protected final Map<String,Object> _values;
         
         public Std() {

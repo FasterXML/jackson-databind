@@ -23,8 +23,11 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public abstract class DefaultDeserializationContext
     extends DeserializationContext
+    implements java.io.Serializable // since 2.1
 {
-    protected LinkedHashMap<ObjectIdGenerator.IdKey, ReadableObjectId> _objectIds;
+    private static final long serialVersionUID = 1L;
+
+    protected transient LinkedHashMap<ObjectIdGenerator.IdKey, ReadableObjectId> _objectIds;
     
     /**
      * Constructor that will pass specified deserializer factory and
@@ -43,6 +46,11 @@ public abstract class DefaultDeserializationContext
     protected DefaultDeserializationContext(DefaultDeserializationContext src,
             DeserializerFactory factory) {
         super(src, factory);
+    }
+    
+    // Only for JDK deserialization:
+    DefaultDeserializationContext() {
+        super();
     }
 
     /*
@@ -209,6 +217,11 @@ public abstract class DefaultDeserializationContext
      */
     public final static class Impl extends DefaultDeserializationContext
     {
+        private static final long serialVersionUID = 1L;
+
+        // Only for JDK deserialization:
+        Impl() { super(); }
+
         /**
          * Default constructor for a blueprint object, which will use the standard
          * {@link DeserializerCache}, given factory.

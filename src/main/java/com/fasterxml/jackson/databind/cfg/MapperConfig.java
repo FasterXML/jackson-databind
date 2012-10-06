@@ -31,8 +31,11 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * that is shared between different types of instances.
  */
 public abstract class MapperConfig<T extends MapperConfig<T>>
-    implements ClassIntrospector.MixInResolver
+    implements ClassIntrospector.MixInResolver,
+        java.io.Serializable
 {
+    private static final long serialVersionUID = 8891625428805876137L;
+
     /**
      * Set of shared mapper features enabled.
      */
@@ -59,16 +62,6 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     {
         _base = src._base;
         _mapperFeatures = src._mapperFeatures;
-    }
-
-    /**
-     * Constructor only used for JDK deserialization
-     * 
-     * @since 2.1
-     */
-    MapperConfig() {
-        _base = null;
-        _mapperFeatures = 0;
     }
     
     /**

@@ -21,7 +21,10 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 public abstract class MapperConfigBase<CFG extends ConfigFeature,
     T extends MapperConfigBase<CFG,T>>
     extends MapperConfig<T>
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = -8378230381628000111L;
+
     private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
 
     /*
@@ -143,19 +146,6 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
         _view = src._view;
-    }
-
-    /**
-     * Constructor only used for JDK deserialization
-     * 
-     * @since 2.1
-     */
-    protected MapperConfigBase() {
-        super();
-        _mixInAnnotations = null;
-        _subtypeResolver = null;
-        _rootName = null;
-        _view = null;
     }
     
     /*

@@ -97,7 +97,7 @@ public abstract class DeserializationContext
      * May be different from the outermost parser
      * when content is buffered.
      */
-    protected JsonParser _parser;
+    protected transient JsonParser _parser;
     
     /**
      * Object used for resolving references to injectable
@@ -111,11 +111,11 @@ public abstract class DeserializationContext
     /**********************************************************
      */
 
-    protected ArrayBuilders _arrayBuilders;
+    protected transient ArrayBuilders _arrayBuilders;
 
-    protected ObjectBuffer _objectBuffer;
+    protected transient ObjectBuffer _objectBuffer;
 
-    protected DateFormat _dateFormat;
+    protected transient DateFormat _dateFormat;
     
     /*
     /**********************************************************
@@ -167,6 +167,18 @@ public abstract class DeserializationContext
         _view = config.getActiveView();
         _parser = jp;
         _injectableValues = injectableValues;
+    }
+
+    // only for JDK deserialization
+    protected DeserializationContext() {
+        _cache = null;
+        _factory = null;
+
+        _config = null;
+        _featureFlags = 0;
+        _view = null;
+        _parser = null;
+        _injectableValues = null;
     }
     
     /*

@@ -55,8 +55,11 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class ObjectMapper
     extends ObjectCodec
-    implements Versioned
+    implements Versioned,
+        java.io.Serializable // as of 2.1
 {
+    private static final long serialVersionUID = 1L;
+
     /*
     /**********************************************************
     /* Helper classes, enums
@@ -115,7 +118,10 @@ public class ObjectMapper
      */
     public static class DefaultTypeResolverBuilder
         extends StdTypeResolverBuilder
+        implements java.io.Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         /**
          * Definition of what types is this default typer valid for.
          */

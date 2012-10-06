@@ -147,16 +147,6 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
     }
-
-    /**
-     * Constructor only needed for JDK (de)serialization
-     */
-    DeserializationConfig() {
-        super();
-        _deserFeatures = 0;
-        _problemHandlers = null;
-        _nodeFactory = null;
-    }
     
     // for unit tests only:
     protected BaseSettings getBaseSettings() { return _base; }

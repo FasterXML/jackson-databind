@@ -18,7 +18,10 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * ({@link com.fasterxml.jackson.databind.deser.DeserializerFactory}).
  */
 public final class DeserializerCache
+    implements java.io.Serializable // since 2.1 -- needs to be careful tho
 {
+    private static final long serialVersionUID = 1L;
+
     /*
     /**********************************************************
     /* Caching
@@ -43,7 +46,7 @@ public final class DeserializerCache
      * completed deserializers, to resolve cyclic dependencies. This is the
      * map used for storing deserializers before they are fully complete.
      */
-    final protected HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
+    final transient protected HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
         = new HashMap<JavaType, JsonDeserializer<Object>>(8);
 
     /*

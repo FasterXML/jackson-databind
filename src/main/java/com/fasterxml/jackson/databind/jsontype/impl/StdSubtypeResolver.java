@@ -12,8 +12,12 @@ import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 /**
  * Standard {@link SubtypeResolver} implementation.
  */
-public class StdSubtypeResolver extends SubtypeResolver
+public class StdSubtypeResolver
+    extends SubtypeResolver
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     protected LinkedHashSet<NamedType> _registeredSubtypes;
 
     public StdSubtypeResolver() { }

@@ -14,9 +14,19 @@ import java.io.ObjectOutputStream;
  */
 public class TestJDKSerialization extends BaseMapTest
 {
+    static class MyPojo {
+        public MyPojo() { }
+        public MyPojo(int x0, int y0) {
+            x = x0;
+            y = y0;
+        }
+
+        public int x, y;
+    }
+    
     /*
     /**********************************************************
-    /* Individual objects
+    /* Tests for individual objects
     /**********************************************************
      */
 
@@ -40,7 +50,30 @@ public class TestJDKSerialization extends BaseMapTest
         assertNotNull(sc);
         assertEquals(sc._serFeatures, origSC._serFeatures);
     }
+
+    public void testObjectWriter() throws IOException
+    {
+        ObjectWriter origWriter = new ObjectMapper().writer();
+        final String EXP_JSON = "{\"x\":2,\"y\":3}";
+        final MyPojo p = new MyPojo(2, 3);
+        assertEquals(EXP_JSON, origWriter.writeValueAsString(p));
+        byte[] bytes = jdkSerialize(origWriter);
+        ObjectWriter writer2 = jdkDeserialize(bytes);
+        assertEquals(EXP_JSON, writer2.writeValueAsString(p));
+    }
     
+    public void testObjectReader() throws IOException
+    {
+        ObjectReader origReader = new ObjectMapper().reader(MyPojo.class);
+        final String JSON = "{\"x\":1,\"y\":2}";
+        MyPojo p1 = origReader.readValue(JSON);
+        assertEquals(2, p1.y);
+        byte[] bytes = jdkSerialize(origReader);
+        ObjectReader reader2 = jdkDeserialize(bytes);
+        MyPojo p2 = reader2.readValue(JSON);
+        assertEquals(2, p2.y);
+    }
+
     /*
     /**********************************************************
     /* Helper methods

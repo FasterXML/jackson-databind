@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.util.Converter;
 /**
  * Test to check that customizations work as expected.
  */
+@SuppressWarnings("serial")
 public class TestCustomDeserializers
     extends BaseMapTest
 {

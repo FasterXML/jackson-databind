@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
+@SuppressWarnings("serial")
 public class TestCollectionDeserialization
     extends BaseMapTest
 {
@@ -16,7 +17,6 @@ public class TestCollectionDeserialization
         KEY1, KEY2, WHATEVER;
     }
 
-    @SuppressWarnings("serial")
     @JsonDeserialize(using=ListDeserializer.class)
     static class CustomList extends LinkedList<String> { }
 

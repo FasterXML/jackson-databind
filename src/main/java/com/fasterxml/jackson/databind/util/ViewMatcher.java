@@ -28,7 +28,11 @@ public abstract class ViewMatcher
     /**********************************************************
      */
 
-    private final static class Empty extends ViewMatcher {
+    private final static class Empty extends ViewMatcher
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
         final static Empty instance = new Empty();
         @Override
         public boolean isVisibleForView(Class<?> activeView) {
@@ -36,7 +40,11 @@ public abstract class ViewMatcher
         }
     }
 
-    private final static class Single extends ViewMatcher {
+    private final static class Single extends ViewMatcher
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
         private final Class<?> _view;
         public Single(Class<?> v) { _view = v; }
         @Override
@@ -45,7 +53,11 @@ public abstract class ViewMatcher
         }
     }
 
-    private final static class Multi extends ViewMatcher {
+    private final static class Multi extends ViewMatcher
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
         private final Class<?>[] _views;
 
         public Multi(Class<?>[] v) { _views = v; }

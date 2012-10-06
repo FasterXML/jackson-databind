@@ -2,19 +2,29 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.reflect.*;
 
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 
 public final class AnnotatedMethod
     extends AnnotatedWithParams
+    implements java.io.Serializable
 {
-    final protected Method _method;
+    private static final long serialVersionUID = 1347232380363777953L;
+
+    final protected transient Method _method;
 
     // // Simple lazy-caching:
 
     protected Class<?>[] _paramClasses;
 
+    /**
+     * Field that is used to make JDK serialization work with this
+     * object.
+     * 
+     * @since 2.1
+     */
+    protected Serialization _serialization;
+    
     /*
     /*****************************************************
     /* Life-cycle
@@ -25,11 +35,21 @@ public final class AnnotatedMethod
     {
         super(classAnn, paramAnnotations);
         if (method == null) {
-        	throw new IllegalArgumentException("Can not construct AnnotatedMethod with null Method");
+            throw new IllegalArgumentException("Can not construct AnnotatedMethod with null Method");
         }
         _method = method;
     }
 
+    /**
+     * Method used for JDK serialization support
+     */
+    protected AnnotatedMethod(Serialization ser)
+    {
+        super(null, null);
+        _method = null;
+        _serialization = ser;
+    }
+    
     /**
      * Method that constructs a new instance with settings (annotations, parameter annotations)
      * of this instance, but with different physical {@link Method}.
@@ -204,5 +224,47 @@ public final class AnnotatedMethod
     public String toString()
     {
         return "[method "+getFullName()+"]";
+    }
+
+    /*
+    /**********************************************************
+    /* JDK serialization handling
+    /**********************************************************
+     */
+
+    Object writeReplace() {
+        return new AnnotatedMethod(new Serialization(_method));
+    }
+
+    Object readResolve() {
+        Class<?> clazz = _serialization.clazz;
+        try {
+            Method m = clazz.getDeclaredMethod(_serialization.name,
+                    _serialization.args);
+            return new AnnotatedMethod(m, null, null);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not find method '"+_serialization.name
+                        +"' from Class '"+clazz.getName());
+        }
+    }
+    
+    /**
+     * Helper class that is used as the workaround to persist
+     * Field references. It basically just stores declaring class
+     * and field name.
+     */
+    private final static class Serialization
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+        protected Class<?> clazz;
+        protected String name;
+        protected Class<?>[] args;
+
+        public Serialization(Method setter) {
+            clazz = setter.getDeclaringClass();
+            name = setter.getName();
+            args = setter.getParameterTypes();
+        }
     }
 }

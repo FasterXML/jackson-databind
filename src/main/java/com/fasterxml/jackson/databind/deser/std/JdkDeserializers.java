@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 
+@SuppressWarnings("serial")
 public class JdkDeserializers
 {
     public static StdDeserializer<?>[] all()

@@ -27,8 +27,11 @@ import com.fasterxml.jackson.databind.util.*;
  */
 public abstract class BeanDeserializerBase
     extends StdDeserializer<Object>
-    implements ContextualDeserializer, ResolvableDeserializer
+    implements ContextualDeserializer, ResolvableDeserializer,
+        java.io.Serializable // since 2.1
 {
+    private static final long serialVersionUID = -2038793552422727904L;
+
     /*
     /**********************************************************
     /* Information regarding type being deserialized
@@ -39,9 +42,11 @@ public abstract class BeanDeserializerBase
      * Annotations from the bean class: used for accessing
      * annotations during resolution
      * (see {@link #resolve}) and
-     * contextualization (see {@link #createContextual}).
+     * contextualization (see {@link #createContextual})
+     *<p> 
+     * Transient since annotations only used during construction.
      */
-    final private Annotations _classAnnotations;
+    final private transient Annotations _classAnnotations;
 
     /**
      * Declared type of the bean this deserializer handles.
@@ -159,7 +164,7 @@ public abstract class BeanDeserializerBase
      * that is, when the actual type is not statically known.
      * For other types this remains null.
      */
-    protected HashMap<ClassKey, JsonDeserializer<Object>> _subDeserializers;
+    protected transient HashMap<ClassKey, JsonDeserializer<Object>> _subDeserializers;
 
     /**
      * If one of properties has "unwrapped" value, we need separate

@@ -15,13 +15,17 @@ import java.io.ObjectOutputStream;
 public class TestJDKSerialization extends BaseMapTest
 {
     static class MyPojo {
+        public int x;
+        private int y;
+        
         public MyPojo() { }
         public MyPojo(int x0, int y0) {
             x = x0;
             y = y0;
         }
-
-        public int x, y;
+        
+        public int getY() { return y; }
+        public void setY(int y) { this.y = y; }
     }
     
     /*

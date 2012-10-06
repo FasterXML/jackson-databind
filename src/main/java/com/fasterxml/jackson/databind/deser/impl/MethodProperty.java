@@ -10,9 +10,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
 
@@ -23,14 +21,16 @@ import com.fasterxml.jackson.databind.util.Annotations;
 public final class MethodProperty
     extends SettableBeanProperty
 {
-    protected final AnnotatedMethod _annotated;
+    private static final long serialVersionUID = 1;
+
+    protected final transient AnnotatedMethod _annotated;
     
     /**
      * Setter method for modifying property value; used for
      * "regular" method-accessible properties.
      */
-    protected final Method _setter;
-
+    protected final transient Method _setter;
+    
     public MethodProperty(BeanPropertyDefinition propDef,
             JavaType type, TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedMethod method)
@@ -52,6 +52,15 @@ public final class MethodProperty
         _setter = src._setter;
     }
 
+    /**
+     * Constructor used for JDK Serialization when reading persisted object
+     */
+    protected MethodProperty(MethodProperty src, Method m) {
+        super(src);
+        _annotated = src._annotated;
+        _setter = m;
+    }
+    
     @Override
     public MethodProperty withName(String newName) {
         return new MethodProperty(this, newName);
@@ -111,7 +120,7 @@ public final class MethodProperty
     @Override
     public Object setAndReturn(Object instance, Object value)
 		throws IOException
-	{
+    {
         try {
             Object result = _setter.invoke(instance, value);
             return (result == null) ? instance : result;
@@ -119,5 +128,5 @@ public final class MethodProperty
             _throwAsIOE(e, value);
             return null;
         }
-	}
+    }
 }

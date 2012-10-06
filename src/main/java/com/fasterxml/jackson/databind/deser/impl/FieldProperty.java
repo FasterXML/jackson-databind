@@ -23,13 +23,19 @@ import com.fasterxml.jackson.databind.util.Annotations;
 public final class FieldProperty
     extends SettableBeanProperty
 {
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Transient since there is no need to persist; only needed during
+     * construction of objects.
+     */
     protected final AnnotatedField _annotated;
 
     /**
      * Actual field to set when deserializing this property.
      */
-    protected final Field _field;
-
+    protected final transient Field _field;
+    
     public FieldProperty(BeanPropertyDefinition propDef, JavaType type,
             TypeDeserializer typeDeser, Annotations contextAnnotations, AnnotatedField field)
     {
@@ -50,6 +56,16 @@ public final class FieldProperty
         _field = src._field;
     }
 
+    /**
+     * Constructor used for JDK Serialization when reading persisted object
+     */
+    protected FieldProperty(FieldProperty src, Field f)
+    {
+        super(src);
+        _annotated = src._annotated;
+        _field = f;
+    }
+    
     @Override
     public FieldProperty withName(String newName) {
         return new FieldProperty(this, newName);
@@ -116,5 +132,16 @@ public final class FieldProperty
             _throwAsIOE(e, value);
         }
         return instance;
+    }
+
+    /*
+    /**********************************************************
+    /* JDK serialization handling
+    /**********************************************************
+     */
+
+    Object writeReplace() {
+        // Just need to make sure we reset Field reference from AnnotatedField
+        return new FieldProperty(this, _annotated.getAnnotated());
     }
 }

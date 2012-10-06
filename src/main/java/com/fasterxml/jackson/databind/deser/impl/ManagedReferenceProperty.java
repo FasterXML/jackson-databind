@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.util.Annotations;
 public final class ManagedReferenceProperty
     extends SettableBeanProperty
 {
+    private static final long serialVersionUID = 1L;
+
     protected final String _referenceName;
     
     /**

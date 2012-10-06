@@ -8,14 +8,26 @@ import java.lang.reflect.Type;
 /**
  * Object that represents non-static (and usually non-transient/volatile)
  * fields of a class.
- * 
- * @author tatu
  */
 public final class AnnotatedField
     extends AnnotatedMember
+    implements java.io.Serializable
 {
-    protected final Field _field;
+    private static final long serialVersionUID = 7364428299211355871L;
 
+    /**
+     * Actual {@link Field} used for access.
+     *<p>
+     * Transient since it can not be persisted directly using
+     * JDK serialization
+     */
+    protected final transient Field _field;
+
+    /**
+     * Temporary field required for JDK serialization support
+     */
+    protected Serialization _serialization;
+    
     /*
     /**********************************************************
     /* Life-cycle
@@ -27,12 +39,22 @@ public final class AnnotatedField
         super(annMap);
         _field = field;
     }
-
+    
     @Override
     public AnnotatedField withAnnotations(AnnotationMap ann) {
         return new AnnotatedField(_field, ann);
     }
 
+    /**
+     * Method used for JDK serialization support
+     */
+    protected AnnotatedField(Serialization ser)
+    {
+        super(null);
+        _field = null;
+        _serialization = ser;
+    }
+    
     /*
     /**********************************************************
     /* Annotated impl
@@ -114,6 +136,45 @@ public final class AnnotatedField
     public String toString()
     {
         return "[field "+getFullName()+"]";
+    }
+
+    /*
+    /**********************************************************
+    /* JDK serialization handling
+    /**********************************************************
+     */
+
+    Object writeReplace() {
+        return new AnnotatedField(new Serialization(_field));
+    }
+
+    Object readResolve() {
+        Class<?> clazz = _serialization.clazz;
+        try {
+            return new AnnotatedField(clazz.getDeclaredField(_serialization.name), null);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not find method '"+_serialization.name
+                        +"' from Class '"+clazz.getName());
+        }
+    }
+    
+    /**
+     * Helper class that is used as the workaround to persist
+     * Field references. It basically just stores declaring class
+     * and field name.
+     */
+    private final static class Serialization
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+        protected Class<?> clazz;
+        protected String name;
+
+        public Serialization(Field f) {
+            clazz = f.getDeclaringClass();
+            name = f.getName();
+            
+        }
     }
 }
 

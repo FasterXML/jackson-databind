@@ -20,8 +20,12 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * 
  * @author tatu
  */
-public class AsArrayTypeDeserializer extends TypeDeserializerBase
+public class AsArrayTypeDeserializer
+    extends TypeDeserializerBase
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 5345570420394408290L;
+
     public AsArrayTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl)
     {

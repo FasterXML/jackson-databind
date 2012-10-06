@@ -21,6 +21,8 @@ public final class StringCollectionDeserializer
     extends ContainerDeserializerBase<Collection<String>>
     implements ContextualDeserializer
 {
+    private static final long serialVersionUID = 1L;
+
     // // Configuration
 
     protected final JavaType _collectionType;

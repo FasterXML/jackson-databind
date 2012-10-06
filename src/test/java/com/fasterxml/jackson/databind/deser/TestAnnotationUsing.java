@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
  * Unit test suite that tests "usingXxx" properties of
  * {@link JsonDeserialize} annotation.
  */
+@SuppressWarnings("serial")
 public class TestAnnotationUsing
     extends BaseMapTest
 {
@@ -77,7 +78,6 @@ public class TestAnnotationUsing
         public Map<Object,Object> values;
     }
 
-    @SuppressWarnings("serial")
     @JsonDeserialize(keyUsing=MapKeyDeserializer.class, contentUsing=ValueDeserializer.class)
     static class MapKeyMap extends HashMap<Object,Object> { }
     

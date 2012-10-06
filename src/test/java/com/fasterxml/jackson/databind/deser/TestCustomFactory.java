@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 /**
  * Test to check that customizations work as expected.
  */
+@SuppressWarnings("serial")
 public class TestCustomFactory
     extends BaseMapTest
 {

@@ -84,6 +84,8 @@ public class PrimitiveArrayDeserializers
      */
     static abstract class Base<T> extends StdDeserializer<T>
     {
+        private static final long serialVersionUID = 1L;
+
         protected Base(Class<T> cls) {
             super(cls);
         }
@@ -107,6 +109,8 @@ public class PrimitiveArrayDeserializers
     final static class StringDeser
         extends Base<String[]>
     {
+        private static final long serialVersionUID = 1L;
+
         public StringDeser() { super(String[].class); }
 
         @Override
@@ -159,6 +163,8 @@ public class PrimitiveArrayDeserializers
     final static class CharDeser
         extends Base<char[]>
     {
+        private static final long serialVersionUID = 1L;
+
         public CharDeser() { super(char[].class); }
 
         @Override
@@ -225,6 +231,8 @@ public class PrimitiveArrayDeserializers
     final static class BooleanDeser
         extends Base<boolean[]>
     {
+        private static final long serialVersionUID = 1L;
+
         public BooleanDeser() { super(boolean[].class); }
 
         @Override
@@ -275,6 +283,8 @@ public class PrimitiveArrayDeserializers
     final static class ByteDeser
         extends Base<byte[]>
     {
+        private static final long serialVersionUID = 1L;
+
         public ByteDeser() { super(byte[].class); }
 
         @Override
@@ -357,6 +367,8 @@ public class PrimitiveArrayDeserializers
     final static class ShortDeser
         extends Base<short[]>
     {
+        private static final long serialVersionUID = 1L;
+
         public ShortDeser() { super(short[].class); }
 
         @Override
@@ -402,6 +414,8 @@ public class PrimitiveArrayDeserializers
     final static class IntDeser
         extends Base<int[]>
     {
+        private static final long serialVersionUID = 1L;
+
         public IntDeser() { super(int[].class); }
 
         @Override
@@ -448,6 +462,8 @@ public class PrimitiveArrayDeserializers
     final static class LongDeser
         extends Base<long[]>
     {
+        private static final long serialVersionUID = 1L;
+
         public LongDeser() { super(long[].class); }
 
         @Override
@@ -493,6 +509,8 @@ public class PrimitiveArrayDeserializers
     final static class FloatDeser
         extends Base<float[]>
     {
+        private static final long serialVersionUID = 1L;
+
         public FloatDeser() { super(float[].class); }
 
         @Override
@@ -539,6 +557,8 @@ public class PrimitiveArrayDeserializers
     final static class DoubleDeser
         extends Base<double[]>
     {
+        private static final long serialVersionUID = 1L;
+        
         public DoubleDeser() { super(double[].class); }
 
         @Override

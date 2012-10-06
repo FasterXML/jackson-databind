@@ -21,8 +21,11 @@ import com.fasterxml.jackson.databind.util.ViewMatcher;
  * can be handled.
  */
 public abstract class SettableBeanProperty
-    implements BeanProperty
+    implements BeanProperty,
+        java.io.Serializable
 {
+    private static final long serialVersionUID = -1026580169193933453L;
+
     /**
      * Logical name of the property (often but not always derived
      * from the setter method name)
@@ -39,7 +42,7 @@ public abstract class SettableBeanProperty
      * the property or one of its subclasses), class that is
      * deserialized using deserializer that contains this property.
      */
-    protected final Annotations _contextAnnotations;
+    protected final transient Annotations _contextAnnotations;
     
     /**
      * Deserializer used for handling property value.

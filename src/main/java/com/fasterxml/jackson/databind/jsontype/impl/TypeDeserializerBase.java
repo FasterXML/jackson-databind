@@ -16,8 +16,12 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 /**
  * Base class for all standard Jackson {@link TypeDeserializer}s.
  */
-public abstract class TypeDeserializerBase extends TypeDeserializer
+public abstract class TypeDeserializerBase
+    extends TypeDeserializer
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 278445030337366675L;
+
     protected final TypeIdResolver _idResolver;
     
     protected final JavaType _baseType;

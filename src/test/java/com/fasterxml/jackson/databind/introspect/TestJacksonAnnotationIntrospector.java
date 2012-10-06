@@ -19,9 +19,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-/**
- * @author Ryan Heaton
- */
+@SuppressWarnings("serial")
 public class TestJacksonAnnotationIntrospector
     extends BaseMapTest
 {

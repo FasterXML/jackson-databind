@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.util.Annotations;
 public final class SetterlessProperty
     extends SettableBeanProperty
 {
+    private static final long serialVersionUID = 1L;
+
     protected final AnnotatedMethod _annotated;
 
     /**
@@ -132,9 +134,9 @@ public final class SetterlessProperty
 
     @Override
     public Object setAndReturn(Object instance, Object value)
-		throws IOException
-	{
+            throws IOException
+    {
     	set(instance, value);
     	return null;
-	}
+    }
 }

@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
+@SuppressWarnings("serial")
 public class TestMapDeserialization
     extends BaseMapTest
 {
@@ -26,7 +27,6 @@ public class TestMapDeserialization
         KEY1, KEY2, WHATEVER;
     }
 
-    @SuppressWarnings("serial")
     static class BrokenMap
         extends HashMap<Object,Object>
     {
@@ -34,7 +34,6 @@ public class TestMapDeserialization
         public BrokenMap(boolean dummy) { super(); }
     }
 
-    @SuppressWarnings("serial")
     @JsonDeserialize(using=MapDeserializer.class)
     static class CustomMap extends LinkedHashMap<String,String> { }
 
@@ -143,7 +142,6 @@ public class TestMapDeserialization
             +"\"boolean\":true, \"list\":[\"list0\"],"
             +"\"null\":null }";
     
-    @SuppressWarnings("serial")
     static class ObjectWrapperMap extends HashMap<String, ObjectWrapper> { }
     
     public void testSpecialMap() throws IOException

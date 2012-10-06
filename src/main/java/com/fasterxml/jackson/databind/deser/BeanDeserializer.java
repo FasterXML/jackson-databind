@@ -16,7 +16,10 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class BeanDeserializer
     extends BeanDeserializerBase
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /*
     /**********************************************************
     /* Life-cycle, construction, initialization

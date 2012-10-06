@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 /**
  * Container class for core JDK date/time type deserializers.
  */
+@SuppressWarnings("serial")
 public class DateDeserializers
 {
     public static StdDeserializer<?>[] all()

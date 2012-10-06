@@ -30,6 +30,8 @@ public class StdDelegatingDeserializer<T>
     extends StdDeserializer<T>
     implements ContextualDeserializer
 {
+    private static final long serialVersionUID = 1L;
+
     protected final Converter<Object,T> _converter;
     
     /**

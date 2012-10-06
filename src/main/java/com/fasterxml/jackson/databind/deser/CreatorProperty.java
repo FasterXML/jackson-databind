@@ -28,6 +28,8 @@ import com.fasterxml.jackson.databind.util.Annotations;
 public class CreatorProperty
     extends SettableBeanProperty
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Placeholder that represents constructor parameter, when it is created
      * from actual constructor.

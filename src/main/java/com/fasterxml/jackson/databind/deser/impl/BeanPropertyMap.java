@@ -18,8 +18,11 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * as it is done for each and every POJO property deserialized.
  */
 public final class BeanPropertyMap
-    implements Iterable<SettableBeanProperty>
+    implements Iterable<SettableBeanProperty>,
+        java.io.Serializable // since 2.1
 {
+    private static final long serialVersionUID = 1L;
+
     private final Bucket[] _buckets;
     
     private final int _hashMask;
@@ -292,7 +295,10 @@ public final class BeanPropertyMap
      */
     
     private final static class Bucket
+        implements java.io.Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         public final Bucket next;
         public final String key;
         public final SettableBeanProperty value;
@@ -311,7 +317,8 @@ public final class BeanPropertyMap
         }
     }
 
-    private final static class IteratorImpl implements Iterator<SettableBeanProperty>
+    private final static class IteratorImpl
+        implements Iterator<SettableBeanProperty>
     {
         /**
          * Buckets of the map

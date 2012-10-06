@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
  * so that other classes can access information about contained (value)
  * types
  */
+@SuppressWarnings("serial")
 public abstract class ContainerDeserializerBase<T>
     extends StdDeserializer<T>
 {

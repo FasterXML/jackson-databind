@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 {
+    private static final long serialVersionUID = 1L;
+
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl)
     {

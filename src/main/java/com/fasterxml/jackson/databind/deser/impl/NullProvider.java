@@ -10,7 +10,10 @@ import com.fasterxml.jackson.databind.JavaType;
  * artificial failure for primitives that don't accept JSON null as value.
  */
 public final class NullProvider
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     private final Object _nullValue;
 
     private final boolean _isPrimitive;

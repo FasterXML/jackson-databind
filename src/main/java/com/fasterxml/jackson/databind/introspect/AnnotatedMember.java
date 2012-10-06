@@ -13,9 +13,15 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * 
  * @author tatu
  */
-public abstract class AnnotatedMember extends Annotated
+public abstract class AnnotatedMember
+    extends Annotated
+    implements java.io.Serializable
 {
-    protected final AnnotationMap _annotations;
+    private static final long serialVersionUID = 7364428299211355871L;
+
+    // Transient since information not needed after construction, so
+    // no need to persist
+    protected final transient AnnotationMap _annotations;
 
     protected AnnotatedMember(AnnotationMap annotations) {
         super();

@@ -61,6 +61,7 @@ public class TestValueAnnotations
     @JsonDeserialize(contentAs=RootStringImpl.class)
     static class RootList extends LinkedList<RootStringImpl> { }
 
+    @SuppressWarnings("serial")
     static class RootStringDeserializer
         extends StdDeserializer<RootString>
     {

@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public final class InnerClassProperty
     extends SettableBeanProperty
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Actual property that we use after value construction.
      */

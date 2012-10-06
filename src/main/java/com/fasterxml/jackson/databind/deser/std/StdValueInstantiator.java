@@ -21,7 +21,10 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
  */
 public class StdValueInstantiator
     extends ValueInstantiator
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Type of values that are instantiated; used
      * for error reporting purposes.

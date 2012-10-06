@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 public final class ObjectIdValueProperty
     extends SettableBeanProperty
 {
+    private static final long serialVersionUID = 1L;
+
     protected final ObjectIdReader _objectIdReader;
     
     public ObjectIdValueProperty(ObjectIdReader objectIdReader)

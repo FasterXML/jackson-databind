@@ -68,7 +68,7 @@ public class TestAnnotations
         public ClassMethodSerializer(int x) { _x = x; }
 
         @JsonSerialize(using=StringSerializer.class)
-            public int getX() { return _x; }
+        public int getX() { return _x; }
     }
 
     /**
@@ -82,7 +82,7 @@ public class TestAnnotations
 
         // Basically, has no effect, hence gets serialized as number
         @JsonSerialize(using=JsonSerializer.None.class)
-            public int getX() { return _x; }
+        public int getX() { return _x; }
     }
 
     /**
@@ -92,7 +92,7 @@ public class TestAnnotations
     static class BaseBean {
         public int getX() { return 1; }
         @SuppressWarnings("unused")
-            @JsonProperty("y")
+        @JsonProperty("y")
         private int getY() { return 2; }
     }
 

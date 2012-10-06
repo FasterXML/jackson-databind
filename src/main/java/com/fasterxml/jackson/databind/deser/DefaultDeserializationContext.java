@@ -47,11 +47,6 @@ public abstract class DefaultDeserializationContext
             DeserializerFactory factory) {
         super(src, factory);
     }
-    
-    // Only for JDK deserialization:
-    DefaultDeserializationContext() {
-        super();
-    }
 
     /*
     /**********************************************************
@@ -218,9 +213,6 @@ public abstract class DefaultDeserializationContext
     public final static class Impl extends DefaultDeserializationContext
     {
         private static final long serialVersionUID = 1L;
-
-        // Only for JDK deserialization:
-        Impl() { super(); }
 
         /**
          * Default constructor for a blueprint object, which will use the standard

@@ -48,8 +48,9 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  */
 public class BeanSerializerFactory
     extends BasicSerializerFactory
+    implements java.io.Serializable // since 2.1
 {
-    private static final long serialVersionUID = -5348294866902611332L;
+    private static final long serialVersionUID = 1;
 
     /**
      * Like {@link BasicSerializerFactory}, this factory is stateless, and

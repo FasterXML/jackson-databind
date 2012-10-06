@@ -8,7 +8,10 @@ import com.fasterxml.jackson.databind.util.ArrayBuilders;
  * Configuration settings container class for {@link DeserializerFactory}.
  */
 public class DeserializerFactoryConfig
+    implements java.io.Serializable // since 2.1
 {
+    private static final long serialVersionUID = 3683541151102256824L;
+
     protected final static Deserializers[] NO_DESERIALIZERS = new Deserializers[0];
     protected final static KeyDeserializers[] NO_KEY_DESERIALIZERS = new KeyDeserializers[0];
     protected final static BeanDeserializerModifier[] NO_MODIFIERS = new BeanDeserializerModifier[0];

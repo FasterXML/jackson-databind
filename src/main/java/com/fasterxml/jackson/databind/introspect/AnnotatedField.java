@@ -5,6 +5,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
 
+import com.fasterxml.jackson.databind.util.ClassUtil;
+
 /**
  * Object that represents non-static (and usually non-transient/volatile)
  * fields of a class.
@@ -151,7 +153,12 @@ public final class AnnotatedField
     Object readResolve() {
         Class<?> clazz = _serialization.clazz;
         try {
-            return new AnnotatedField(clazz.getDeclaredField(_serialization.name), null);
+            Field f = clazz.getDeclaredField(_serialization.name);
+            // 06-Oct-2012, tatu: Has "lost" its security override, may need to force back
+            if (!f.isAccessible()) {
+                ClassUtil.checkAndFixAccess(f);
+            }
+            return new AnnotatedField(f, null);
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not find method '"+_serialization.name
                         +"' from Class '"+clazz.getName());

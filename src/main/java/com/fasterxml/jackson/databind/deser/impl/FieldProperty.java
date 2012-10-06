@@ -63,6 +63,10 @@ public final class FieldProperty
     {
         super(src);
         _annotated = src._annotated;
+        if (f == null) {
+            throw new IllegalArgumentException("No Field passed for property '"+src.getName()
+                    +"' (class "+src.getDeclaringClass().getName()+")");
+        }
         _field = f;
     }
     
@@ -140,8 +144,7 @@ public final class FieldProperty
     /**********************************************************
      */
 
-    Object writeReplace() {
-        // Just need to make sure we reset Field reference from AnnotatedField
+    Object readResolve() {
         return new FieldProperty(this, _annotated.getAnnotated());
     }
 }

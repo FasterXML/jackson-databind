@@ -38,7 +38,10 @@ import com.fasterxml.jackson.databind.util.SimpleBeanPropertyDefinition;
  */
 public class BeanDeserializerFactory
     extends BasicDeserializerFactory
+    implements java.io.Serializable // since 2.1
 {
+    private static final long serialVersionUID = 1;
+
     /**
      * Signature of <b>Throwable.initCause</b> method.
      */

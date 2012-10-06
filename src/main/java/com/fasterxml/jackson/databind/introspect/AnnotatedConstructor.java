@@ -1,17 +1,26 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Member;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeBindings;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public final class AnnotatedConstructor
     extends AnnotatedWithParams
 {
+    private static final long serialVersionUID = 1L;
+
     protected final Constructor<?> _constructor;
+
+    /**
+     * Field that is used to make JDK serialization work with this
+     * object.
+     * 
+     * @since 2.1
+     */
+    protected Serialization _serialization;
     
     /*
     /**********************************************************
@@ -29,6 +38,17 @@ public final class AnnotatedConstructor
         _constructor = constructor;
     }
 
+    /**
+     * Method used for JDK serialization support
+     * @since 2.1
+     */
+    protected AnnotatedConstructor(Serialization ser)
+    {
+        super(null, null);
+        _constructor = null;
+        _serialization = ser;
+    }
+    
     @Override
     public AnnotatedConstructor withAnnotations(AnnotationMap ann) {
         return new AnnotatedConstructor(_constructor, ann, _paramAnnotations);
@@ -148,5 +168,47 @@ public final class AnnotatedConstructor
     public String toString() {
         return "[constructor for "+getName()+", annotations: "+_annotations+"]";
     }
-}
 
+    /*
+    /**********************************************************
+    /* JDK serialization handling
+    /**********************************************************
+     */
+
+    Object writeReplace() {
+        return new AnnotatedConstructor(new Serialization(_constructor));
+    }
+
+    Object readResolve() {
+        Class<?> clazz = _serialization.clazz;
+        try {
+            Constructor<?> ctor = clazz.getDeclaredConstructor(_serialization.args);
+            // 06-Oct-2012, tatu: Has "lost" its security override, must force back
+            if (!ctor.isAccessible()) {
+                ClassUtil.checkAndFixAccess(ctor);
+            }
+            return new AnnotatedConstructor(ctor, null, null);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not find constructor with "
+                    +_serialization.args.length+" args from Class '"+clazz.getName());
+        }
+    }
+    
+    /**
+     * Helper class that is used as the workaround to persist
+     * Field references. It basically just stores declaring class
+     * and field name.
+     */
+    private final static class Serialization
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+        protected Class<?> clazz;
+        protected Class<?>[] args;
+
+        public Serialization(Constructor<?> ctor) {
+            clazz = ctor.getDeclaringClass();
+            args = ctor.getParameterTypes();
+        }
+    }
+}

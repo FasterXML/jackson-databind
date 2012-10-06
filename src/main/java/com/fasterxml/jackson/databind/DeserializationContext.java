@@ -38,7 +38,10 @@ import com.fasterxml.jackson.databind.util.*;
  * for reconfiguring blueprints and creating instances.
  */
 public abstract class DeserializationContext
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = -7727373309391091315L;
+
     /**
      * Let's limit length of error messages, for cases where underlying data
      * may be very large -- no point in spamming logs with megs of meaningless
@@ -167,18 +170,6 @@ public abstract class DeserializationContext
         _view = config.getActiveView();
         _parser = jp;
         _injectableValues = injectableValues;
-    }
-
-    // only for JDK deserialization
-    protected DeserializationContext() {
-        _cache = null;
-        _factory = null;
-
-        _config = null;
-        _featureFlags = 0;
-        _view = null;
-        _parser = null;
-        _injectableValues = null;
     }
     
     /*

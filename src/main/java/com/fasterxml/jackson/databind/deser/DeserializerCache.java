@@ -46,7 +46,7 @@ public final class DeserializerCache
      * completed deserializers, to resolve cyclic dependencies. This is the
      * map used for storing deserializers before they are fully complete.
      */
-    final transient protected HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
+    final protected HashMap<JavaType, JsonDeserializer<Object>> _incompleteDeserializers
         = new HashMap<JavaType, JsonDeserializer<Object>>(8);
 
     /*
@@ -56,6 +56,19 @@ public final class DeserializerCache
      */
 
     public DeserializerCache() { }
+
+    /*
+    /**********************************************************
+    /* JDK serialization handling
+    /**********************************************************
+     */
+
+    Object writeReplace() {
+        // instead of making this transient, just clear it:
+        _incompleteDeserializers.clear();
+        // TODO: clear out "cheap" cached deserializers?
+        return this;
+    }
     
     /*
     /**********************************************************

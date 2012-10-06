@@ -31,7 +31,10 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
  */
 public abstract class BasicDeserializerFactory
     extends DeserializerFactory
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1;
+
     /**
      * We will pre-create serializers for common non-structured
      * (that is things other than Collection, Map or array)

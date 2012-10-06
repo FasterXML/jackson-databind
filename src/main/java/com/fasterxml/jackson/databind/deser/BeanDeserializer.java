@@ -339,6 +339,7 @@ public class BeanDeserializer
      * buffering in some cases, but usually just a simple lookup to ensure
      * that ordering is correct.
      */
+    @SuppressWarnings("resource")
     protected Object deserializeWithObjectId(JsonParser jp, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
     {
@@ -823,6 +824,7 @@ public class BeanDeserializer
         return bean;
     }
 
+    @SuppressWarnings("resource")
     protected Object deserializeUsingPropertyBasedWithUnwrapped(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -860,6 +862,7 @@ public class BeanDeserializer
                     if (bean.getClass() != _beanType.getRawClass()) {
                         // !!! 08-Jul-2011, tatu: Could probably support; but for now
                         //   it's too complicated, so bail out
+                        tokens.close();
                         throw ctxt.mappingException("Can not create polymorphic instances with unwrapped values");
                     }
                     return _unwrappedPropertyHandler.processUnwrapped(jp, ctxt, bean, tokens);
@@ -969,6 +972,7 @@ public class BeanDeserializer
         return ext.complete(jp, ctxt, bean);
     }        
 
+    @SuppressWarnings("resource")
     protected Object deserializeUsingPropertyBasedWithExternalTypeId(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.test;
 
 import java.io.*;
 

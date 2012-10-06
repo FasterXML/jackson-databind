@@ -4,12 +4,13 @@ import java.lang.reflect.*;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.type.TypeBindings;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 public final class AnnotatedMethod
     extends AnnotatedWithParams
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1347232380363777953L;
+    private static final long serialVersionUID = 1L;
 
     final protected transient Method _method;
 
@@ -42,6 +43,7 @@ public final class AnnotatedMethod
 
     /**
      * Method used for JDK serialization support
+     * @since 2.1
      */
     protected AnnotatedMethod(Serialization ser)
     {
@@ -241,6 +243,10 @@ public final class AnnotatedMethod
         try {
             Method m = clazz.getDeclaredMethod(_serialization.name,
                     _serialization.args);
+            // 06-Oct-2012, tatu: Has "lost" its security override, may need to force back
+            if (!m.isAccessible()) {
+                ClassUtil.checkAndFixAccess(m);
+            }
             return new AnnotatedMethod(m, null, null);
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not find method '"+_serialization.name

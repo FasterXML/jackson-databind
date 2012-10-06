@@ -63,7 +63,9 @@ public class NumberDeserializers
     protected abstract static class PrimitiveOrWrapperDeserializer<T>
         extends StdScalarDeserializer<T>
     {
-        final T _nullValue;
+        private static final long serialVersionUID = 1L;
+
+        protected final T _nullValue;
         
         protected PrimitiveOrWrapperDeserializer(Class<T> vc, T nvl)
         {
@@ -87,6 +89,8 @@ public class NumberDeserializers
     public final static class BooleanDeserializer
         extends PrimitiveOrWrapperDeserializer<Boolean>
     {
+        private static final long serialVersionUID = 1L;
+
         public BooleanDeserializer(Class<Boolean> cls, Boolean nvl)
         {
             super(cls, nvl);
@@ -184,6 +188,8 @@ public class NumberDeserializers
     public final static class IntegerDeserializer
         extends PrimitiveOrWrapperDeserializer<Integer>
     {
+        private static final long serialVersionUID = 1L;
+
         public IntegerDeserializer(Class<Integer> cls, Integer nvl)
         {
             super(cls, nvl);
@@ -211,6 +217,8 @@ public class NumberDeserializers
     public final static class LongDeserializer
         extends PrimitiveOrWrapperDeserializer<Long>
     {
+        private static final long serialVersionUID = 1L;
+
         public LongDeserializer(Class<Long> cls, Long nvl)
         {
             super(cls, nvl);
@@ -228,6 +236,8 @@ public class NumberDeserializers
     public final static class FloatDeserializer
         extends PrimitiveOrWrapperDeserializer<Float>
     {
+        private static final long serialVersionUID = 1L;
+
         public FloatDeserializer(Class<Float> cls, Float nvl)
         {
             super(cls, nvl);
@@ -248,6 +258,8 @@ public class NumberDeserializers
     public final static class DoubleDeserializer
         extends PrimitiveOrWrapperDeserializer<Double>
     {
+        private static final long serialVersionUID = 1L;
+
         public DoubleDeserializer(Class<Double> cls, Double nvl)
         {
             super(cls, nvl);
@@ -281,6 +293,7 @@ public class NumberDeserializers
      * But other numeric types may need such type information.
      * This is why {@link #deserializeWithType} must be overridden.
      */
+    @SuppressWarnings("serial")
     @JacksonStdImpl
     public final static class NumberDeserializer
         extends StdScalarDeserializer<Number>
@@ -370,6 +383,7 @@ public class NumberDeserializers
      * This is bit trickier to implement efficiently, while avoiding
      * overflow problems.
      */
+    @SuppressWarnings("serial")
     @JacksonStdImpl
     public static class BigIntegerDeserializer
         extends StdScalarDeserializer<BigInteger>
@@ -410,6 +424,7 @@ public class NumberDeserializers
         }
     }
     
+    @SuppressWarnings("serial")
     @JacksonStdImpl
     public static class BigDecimalDeserializer
         extends StdScalarDeserializer<BigDecimal>

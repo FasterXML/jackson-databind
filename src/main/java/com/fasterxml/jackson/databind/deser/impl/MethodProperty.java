@@ -23,7 +23,7 @@ public final class MethodProperty
 {
     private static final long serialVersionUID = 1;
 
-    protected final transient AnnotatedMethod _annotated;
+    protected final AnnotatedMethod _annotated;
     
     /**
      * Setter method for modifying property value; used for
@@ -128,5 +128,15 @@ public final class MethodProperty
             _throwAsIOE(e, value);
             return null;
         }
+    }
+
+    /*
+    /**********************************************************
+    /* JDK serialization handling
+    /**********************************************************
+     */
+
+    Object readResolve() {
+        return new MethodProperty(this, _annotated.getAnnotated());
     }
 }

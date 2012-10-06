@@ -1,10 +1,17 @@
 Version: 2.1.0
 
 Release date:
-  xx-Jun-2012
+  xx-Oct-2012
 
 Description:
-  New minor version for 2.x.
+  New minor version for 2.x series. Major improvements in multiple areas,
+  including:
+
+  - Dataformat auto-detection
+  - More `@JsonFormat.shape` variant to serialize Collections as
+    JSON Objects, POJOs as JSON Arrays (csv-like).
+  - Much more configuration accessible via ObjectReader, ObjectWriter
+  - New mechanism for JSON Schema generation, other uses (in future)
 
 Fixes:
 

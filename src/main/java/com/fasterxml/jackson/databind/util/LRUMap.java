@@ -1,21 +1,15 @@
 package com.fasterxml.jackson.databind.util;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import com.fasterxml.jackson.core.io.SerializedString;
 
 /**
  * Helper for simple bounded LRU maps used for reusing lookup values.
  *<p>
  * Note that serialization behavior is such that contents are NOT serialized,
  * on assumption that all use cases are for caching where persistence
- * does not make sense
+ * does not make sense. The only thing serialized is the cache size of Map.
  */
 public class LRUMap<K,V> extends LinkedHashMap<K,V>
     implements java.io.Serializable

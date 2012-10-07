@@ -1,18 +1,23 @@
 package com.fasterxml.jackson.databind.ser.std;
 
-import java.io.IOException;
-import java.lang.reflect.Type;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.*;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
+
+import java.io.IOException;
+import java.lang.reflect.Type;
 
 /**
  * Serializer implementation where given Java type is first converted
@@ -142,6 +147,13 @@ public class StdDelegatingSerializer
         Object delegateValue = _converter.convert(value);
         _delegateSerializer.serializeWithType(delegateValue, jgen, provider, typeSer);
     }
+
+    @Override
+    public boolean isEmpty(Object value)
+    {
+        Object delegateValue = _converter.convert(value);
+        return _delegateSerializer.isEmpty(delegateValue);
+    }
     
     /*
     /**********************************************************
@@ -184,6 +196,10 @@ public class StdDelegatingSerializer
     /* Other
     /**********************************************************
      */
+
+    protected Converter<Object, ?> getConverter() {
+        return _converter;
+    }
 
     @Override
     public JsonSerializer<?> getDelegatee() {

@@ -119,6 +119,21 @@ public class StdDelegatingSerializer
 
     /*
     /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
+
+    protected Converter<Object, ?> getConverter() {
+        return _converter;
+    }
+
+    @Override
+    public JsonSerializer<?> getDelegatee() {
+        return _delegateSerializer;
+    }
+    
+    /*
+    /**********************************************************
     /* Serialization
     /**********************************************************
      */
@@ -127,7 +142,7 @@ public class StdDelegatingSerializer
     public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonProcessingException
     {
-        Object delegateValue = _converter.convert(value);
+        Object delegateValue = convertValue(value);
         // should we accept nulls?
         if (delegateValue == null) {
             provider.defaultSerializeNull(jgen);
@@ -144,14 +159,14 @@ public class StdDelegatingSerializer
         /* 03-Oct-2012, tatu: This is actually unlikely to work ok... but for now,
          *    let's give it a chance?
          */
-        Object delegateValue = _converter.convert(value);
+        Object delegateValue = convertValue(value);
         _delegateSerializer.serializeWithType(delegateValue, jgen, provider, typeSer);
     }
 
     @Override
     public boolean isEmpty(Object value)
     {
-        Object delegateValue = _converter.convert(value);
+        Object delegateValue = convertValue(value);
         return _delegateSerializer.isEmpty(delegateValue);
     }
     
@@ -193,16 +208,22 @@ public class StdDelegatingSerializer
 
     /*
     /**********************************************************
-    /* Other
+    /* Overridable methods
     /**********************************************************
      */
 
-    protected Converter<Object, ?> getConverter() {
-        return _converter;
+    /**
+     * Method called to convert from source Java value into delegate
+     * value (which will be serialized using standard Jackson serializer for delegate type)
+     *<P>
+     * The default implementation uses configured {@link Converter} to do
+     * conversion.
+     * 
+     * @param delegateValue
+     * @return
+     */
+    protected Object convertValue(Object value) {
+        return _converter.convert(value);
     }
 
-    @Override
-    public JsonSerializer<?> getDelegatee() {
-        return _delegateSerializer;
-    }
 }

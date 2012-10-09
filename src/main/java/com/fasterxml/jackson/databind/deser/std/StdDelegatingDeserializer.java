@@ -108,15 +108,30 @@ public class StdDelegatingDeserializer<T>
 
     /*
     /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
+
+    @Override
+    public JsonDeserializer<?> getDelegatee() {
+        return _delegateDeserializer;
+    }
+
+    /*
+    /**********************************************************
     /* Serialization
     /**********************************************************
      */
     
     @Override
     public T deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+            throws IOException, JsonProcessingException
+    {
         Object delegateValue = _delegateDeserializer.deserialize(jp, ctxt);
-        return (delegateValue == null) ? null : _converter.convert(delegateValue);
+        if (delegateValue == null) {
+            return null;
+        }
+        return convertValue(delegateValue);
     }
 
     @Override
@@ -129,17 +144,30 @@ public class StdDelegatingDeserializer<T>
          */
         Object delegateValue = _delegateDeserializer.deserializeWithType(jp, ctxt,
                 typeDeserializer);
-        return (delegateValue == null) ? null : _converter.convert(delegateValue);
+        if (delegateValue == null) {
+            return null;
+        }
+        return convertValue(delegateValue);
     }
 
     /*
     /**********************************************************
-    /* Serialization
+    /* Overridable methods
     /**********************************************************
      */
 
-    @Override
-    public JsonDeserializer<?> getDelegatee() {
-        return _delegateDeserializer;
+    /**
+     * Method called to convert from "delegate value" (which was deserialized
+     * from JSON using standard Jackson deserializer for delegate type)
+     * into desired target type.
+     *<P>
+     * The default implementation uses configured {@link Converter} to do
+     * conversion.
+     * 
+     * @param delegateValue
+     * @return
+     */
+    protected T convertValue(Object delegateValue) {
+        return _converter.convert(delegateValue);
     }
 }

@@ -35,6 +35,7 @@
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
     <url>http://github.com/FasterXML/jackson-databind</url>    
+    <tag>jackson-databind-2.1.0</tag>
   </scm>
 
   <properties>
@@ -140,7 +141,7 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${surefire.version}</version>
+        <version>${javadoc.version}</version>
         <configuration>
           <links>
             <link>http://docs.oracle.com/javase/6/docs/api/</link>

@@ -42,7 +42,16 @@ public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapT
       @JsonProperty
       public int getB() { return 5; }
     }
-    
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @JacksonAnnotationsInside
+    @JsonProperty("_id")
+    public @interface Bundle92 {}
+
+    public class Bean92 {
+        @Bundle92
+        protected String id = "abc";
+    }    
     /*
     /**********************************************************
     /* Test methods
@@ -61,4 +70,8 @@ public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapT
         assertEquals("{\"b\":5}", MAPPER.writeValueAsString(new NoAutoDetect()));
     }
     
+    public void testIssue92() throws Exception
+    {
+        assertEquals("{\"_id\":\"abc\"}", MAPPER.writeValueAsString(new Bean92()));
+    }
 }

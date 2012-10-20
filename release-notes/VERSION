@@ -1,9 +1,22 @@
-Version: 2.1.0
+Version: 2.1.1
 
 Release date:
-  08-Oct-2012
+  xx-Nov-2012
 
-Description:
+First patch release for 2.1 branch.
+
+Fixes:
+
+* [Issue#93]: ObjectNode.setAll() broken; would not add anything for
+  empty ObjectNodes.
+ (reported by Francis G)
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.1.0 (26-Jun-2012)
+
   New minor version for 2.x series. Major improvements in multiple areas,
   including:
 
@@ -103,10 +116,6 @@ INCOMPATIBILITIES: (rats!)
 * Implementation of `JsonFormatVisitable` resulting in 2 new methods
   being added in `BeanPropertyFilter` interface -- this is unfortunate,
   but was required to support full traversability.
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.0.4 (26-Jun-2012)
 

@@ -904,3 +904,7 @@ Dmitry Katsubo:
    DeserializationFactory.
   (2.1.0)
 
+Francis Galiegue:
+ * Reported [Issue#93] (and suggested fix): bug in `ObjectMapper.setAll(...)'
+  implementation
+  (2.1.1)

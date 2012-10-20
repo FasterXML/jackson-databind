@@ -355,14 +355,13 @@ public class ObjectNode
     {
         if (_children == null) {
             _children = _createMap();
-        } else {
-            for (Map.Entry<String, JsonNode> en : properties.entrySet()) {
-                JsonNode n = en.getValue();
-                if (n == null) {
-                    n = nullNode();
-                }
-                _children.put(en.getKey(), n);
+        }
+        for (Map.Entry<String, JsonNode> en : properties.entrySet()) {
+            JsonNode n = en.getValue();
+            if (n == null) {
+                n = nullNode();
             }
+            _children.put(en.getKey(), n);
         }
         return this;
     }

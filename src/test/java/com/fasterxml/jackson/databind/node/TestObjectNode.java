@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.*;
 public class TestObjectNode
     extends BaseMapTest
 {
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
     public void testBasics()
     {
         ObjectNode n = new ObjectNode(JsonNodeFactory.instance);
@@ -99,17 +101,15 @@ public class TestObjectNode
      */
     public void testNullChecking2()
     {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode src = mapper.createObjectNode();
-        ObjectNode dest = mapper.createObjectNode();
+        ObjectNode src = MAPPER.createObjectNode();
+        ObjectNode dest = MAPPER.createObjectNode();
         src.put("a", "b");
         dest.setAll(src);
     }
 
     public void testRemove()
     {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode ob = mapper.createObjectNode();
+        ObjectNode ob = MAPPER.createObjectNode();
         ob.put("a", "a");
         ob.put("b", "b");
         ob.put("c", "c");
@@ -121,8 +121,7 @@ public class TestObjectNode
 
     public void testRetain()
     {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode ob = mapper.createObjectNode();
+        ObjectNode ob = MAPPER.createObjectNode();
         ob.put("a", "a");
         ob.put("b", "b");
         ob.put("c", "c");
@@ -134,31 +133,27 @@ public class TestObjectNode
         assertEquals("c", ob.get("c").textValue());
     }
 
-    // @since 1.8
     public void testValidWith() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode root = mapper.createObjectNode();
-        assertEquals("{}", mapper.writeValueAsString(root));
+        ObjectNode root = MAPPER.createObjectNode();
+        assertEquals("{}", MAPPER.writeValueAsString(root));
         JsonNode child = root.with("prop");
         assertTrue(child instanceof ObjectNode);
-        assertEquals("{\"prop\":{}}", mapper.writeValueAsString(root));
+        assertEquals("{\"prop\":{}}", MAPPER.writeValueAsString(root));
     }
 
     public void testValidWithArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode root = mapper.createObjectNode();
-        assertEquals("{}", mapper.writeValueAsString(root));
+        ObjectNode root = MAPPER.createObjectNode();
+        assertEquals("{}", MAPPER.writeValueAsString(root));
         JsonNode child = root.withArray("arr");
         assertTrue(child instanceof ArrayNode);
-        assertEquals("{\"arr\":[]}", mapper.writeValueAsString(root));
+        assertEquals("{\"arr\":[]}", MAPPER.writeValueAsString(root));
     }
 
     public void testInvalidWith() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.createArrayNode();
+        JsonNode root = MAPPER.createArrayNode();
         try { // should not work for non-ObjectNode nodes:
             root.with("prop");
             fail("Expected exception");
@@ -166,7 +161,7 @@ public class TestObjectNode
             verifyException(e, "not of type ObjectNode");
         }
         // also: should fail of we already have non-object property
-        ObjectNode root2 = mapper.createObjectNode();
+        ObjectNode root2 = MAPPER.createObjectNode();
         root2.put("prop", 13);
         try { // should not work for non-ObjectNode nodes:
             root2.with("prop");
@@ -178,8 +173,7 @@ public class TestObjectNode
 
     public void testInvalidWithArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.createArrayNode();
+        JsonNode root = MAPPER.createArrayNode();
         try { // should not work for non-ObjectNode nodes:
             root.withArray("prop");
             fail("Expected exception");
@@ -187,7 +181,7 @@ public class TestObjectNode
             verifyException(e, "not of type ObjectNode");
         }
         // also: should fail of we already have non-Array property
-        ObjectNode root2 = mapper.createObjectNode();
+        ObjectNode root2 = MAPPER.createObjectNode();
         root2.put("prop", 13);
         try { // should not work for non-ObjectNode nodes:
             root2.withArray("prop");
@@ -195,5 +189,43 @@ public class TestObjectNode
         } catch (UnsupportedOperationException e) {
             verifyException(e, "has value that is not");
         }
+    }
+
+    // [Issue#93]
+    public void testSetAll() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+        assertEquals(0, root.size());
+        HashMap<String,JsonNode> map = new HashMap<String,JsonNode>();
+        map.put("a", root.numberNode(1));
+        root.setAll(map);
+        assertEquals(1, root.size());
+        assertTrue(root.has("a"));
+        assertFalse(root.has("b"));
+
+        map.put("b", root.numberNode(2));
+        root.setAll(map);
+        assertEquals(2, root.size());
+        assertTrue(root.has("a"));
+        assertTrue(root.has("b"));
+        assertEquals(2, root.path("b").intValue());
+
+        // Then with ObjectNodes...
+        ObjectNode root2 = MAPPER.createObjectNode();
+        root2.setAll(root);
+        assertEquals(2, root.size());
+        assertEquals(2, root2.size());
+
+        root2.setAll(root);
+        assertEquals(2, root.size());
+        assertEquals(2, root2.size());
+
+        ObjectNode root3 = MAPPER.createObjectNode();
+        root3.put("a", 2);
+        root3.put("c", 3);
+        assertEquals(2, root3.path("a").intValue());
+        root3.setAll(root2);
+        assertEquals(3, root3.size());
+        assertEquals(1, root3.path("a").intValue());
     }
 }

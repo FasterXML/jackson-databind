@@ -12,17 +12,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class TestTypedDeserializationWithDefault extends BaseMapTest
 {
-  private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
-  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", defaultImpl = LegacyInter.class)
-  @JsonSubTypes(value = {@JsonSubTypes.Type(name = "mine", value = MyInter.class)})
-  public static interface Inter { }
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", defaultImpl = LegacyInter.class)
+    @JsonSubTypes(value = {@JsonSubTypes.Type(name = "mine", value = MyInter.class)})
+    public static interface Inter { }
 
-  public static class MyInter implements Inter
-  {
-    @JsonProperty("blah")
-    public List<String> blah;
-  }
+    public static class MyInter implements Inter {
+        @JsonProperty("blah") public List<String> blah;
+    }
 
   public static class LegacyInter extends MyInter
   {
@@ -44,14 +42,19 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
     }
   }
 
-  public void testDeserializationWithObject() throws Exception
-  {
-    Inter inter = mapper.readValue("{\"type\": \"mine\", \"blah\": [\"a\", \"b\", \"c\"]}", Inter.class);
+    /*
+    /**********************************************************
+    /* Unit tests, deserialization
+    /**********************************************************
+     */
 
-    assertTrue(inter instanceof MyInter);
-    assertFalse(inter instanceof LegacyInter);
-    assertEquals(Arrays.asList("a", "b", "c"), ((MyInter) inter).blah);
-  }
+    public void testDeserializationWithObject() throws Exception
+    {
+        Inter inter = mapper.readValue("{\"type\": \"mine\", \"blah\": [\"a\", \"b\", \"c\"]}", Inter.class);
+        assertTrue(inter instanceof MyInter);
+        assertFalse(inter instanceof LegacyInter);
+        assertEquals(Arrays.asList("a", "b", "c"), ((MyInter) inter).blah);
+    }
 
   public void testDeserializationWithString() throws Exception
   {

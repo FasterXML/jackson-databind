@@ -10,6 +10,10 @@ Fixes:
 * [Issue#93]: ObjectNode.setAll() broken; would not add anything for
   empty ObjectNodes.
  (reported by Francis G)
+* [Issue#94]: PropertyNamingStrategy not java.io.Serializable
+ (reported by Sean B)
+* [Issue#96]: Problem with JsonTypeInfo.As.EXTERNAL_PROPERTY, defaultImpl
+ (reported by Adva11@github)
 
 ------------------------------------------------------------------------
 === History: ===

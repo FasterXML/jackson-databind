@@ -131,14 +131,15 @@ public class AsArrayTypeDeserializer
             throw ctxt.wrongTokenException(jp, JsonToken.START_ARRAY, "need JSON Array to contain As.WRAPPER_ARRAY type information for class "+baseTypeName());
         }
         // And then type id as a String
-        if (jp.nextToken() != JsonToken.VALUE_STRING) {
-            if (_defaultImpl != null) {
-                return _idResolver.idFromBaseType();
-            }
-            throw ctxt.wrongTokenException(jp, JsonToken.VALUE_STRING, "need JSON String that contains type id (for subtype of "+baseTypeName()+")");
+        JsonToken t = jp.nextToken();
+        if (t == JsonToken.VALUE_STRING) {
+            String result = jp.getText();
+            jp.nextToken();
+            return result;
         }
-        String result = jp.getText();
-        jp.nextToken();
-        return result;
+        if (_defaultImpl != null) {
+            return _idResolver.idFromBaseType();
+        }
+        throw ctxt.wrongTokenException(jp, JsonToken.VALUE_STRING, "need JSON String that contains type id (for subtype of "+baseTypeName()+")");
     }
 }

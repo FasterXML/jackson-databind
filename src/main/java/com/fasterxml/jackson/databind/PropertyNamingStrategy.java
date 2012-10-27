@@ -26,7 +26,9 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
  * from methods (as well as lower-cases initial sequence of capitalized
  * characters).
  */
+@SuppressWarnings("serial")
 public abstract class PropertyNamingStrategy
+    implements java.io.Serializable
 {
     /*
     /**********************************************************

@@ -412,7 +412,7 @@ public abstract class BeanDeserializerBase
                         if (extTypes == null) {
                             extTypes = new ExternalTypeHandler.Builder();
                         }
-                        extTypes.addExternal(prop, typeDeser.getPropertyName());
+                        extTypes.addExternal(prop, typeDeser);
                     }
                 }
             }
@@ -461,7 +461,7 @@ public abstract class BeanDeserializerBase
                     if (extTypes == null) {
                         extTypes = new ExternalTypeHandler.Builder();
                     }
-                    extTypes.addExternal(prop, typeDeser.getPropertyName());
+                    extTypes.addExternal(prop, typeDeser);
                     // In fact, remove from list of known properties to simplify later handling
                     _beanProperties.remove(prop);
                     continue;

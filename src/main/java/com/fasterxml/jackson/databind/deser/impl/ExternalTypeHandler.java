@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -66,15 +67,16 @@ public class ExternalTypeHandler
         if (!prop.hasTypePropertyName(propName)) {
             return false;
         }
-        _typeIds[index] = jp.getText();
+        String typeId = jp.getText();
         // note: can NOT skip child values (should always be String anyway)
         boolean canDeserialize = (bean != null) && (_tokens[index] != null);
         // Minor optimization: deserialize properties as soon as we have all we need:
         if (canDeserialize) {
-            _deserializeAndSet(jp, ctxt, bean, index);
+            _deserializeAndSet(jp, ctxt, bean, index, typeId);
             // clear stored data, to avoid deserializing+setting twice:
-            _typeIds[index] = null;
             _tokens[index] = null;
+        } else {
+            _typeIds[index] = typeId;
         }
         return true;
     }
@@ -112,9 +114,10 @@ public class ExternalTypeHandler
          * we have all pertinent information:
          */
         if (canDeserialize) {
-            _deserializeAndSet(jp, ctxt, bean, index);
+            String typeId = _typeIds[index];
             // clear stored data, to avoid deserializing+setting twice:
             _typeIds[index] = null;
+            _deserializeAndSet(jp, ctxt, bean, index, typeId);
             _tokens[index] = null;
         }
         return true;
@@ -124,18 +127,23 @@ public class ExternalTypeHandler
         throws IOException, JsonProcessingException
     {
         for (int i = 0, len = _properties.length; i < len; ++i) {
-            if (_typeIds[i] == null) {
+            String typeId = _typeIds[i];
+            if (typeId == null) {
                 // let's allow missing both type and property (may already have been set, too)
                 if (_tokens[i] == null) {
                     continue;
                 }
                 // but not just one
-                throw ctxt.mappingException("Missing external type id property '"+_properties[i].getTypePropertyName());
+                // 26-Oct-2012, tatu: As per [Issue#94], must allow use of 'defaultImpl'
+                if (!_properties[i].hasDefaultType()) {
+                    throw ctxt.mappingException("Missing external type id property '"+_properties[i].getTypePropertyName()+"'");
+                }
+                typeId = _properties[i].getDefaultTypeId();
             } else if (_tokens[i] == null) {
                 SettableBeanProperty prop = _properties[i].getProperty();
                 throw ctxt.mappingException("Missing property '"+prop.getName()+"' for external type id '"+_properties[i].getTypePropertyName());
             }
-            _deserializeAndSet(jp, ctxt, bean, i);
+            _deserializeAndSet(jp, ctxt, bean, i, typeId);
         }
         return bean;
     }
@@ -152,18 +160,23 @@ public class ExternalTypeHandler
         final int len = _properties.length;
         Object[] values = new Object[len];
         for (int i = 0; i < len; ++i) {
-            if (_typeIds[i] == null) {
+            String typeId = _typeIds[i];
+            if (typeId == null) {
                 // let's allow missing both type and property (may already have been set, too)
                 if (_tokens[i] == null) {
                     continue;
                 }
                 // but not just one
-                throw ctxt.mappingException("Missing external type id property '"+_properties[i].getTypePropertyName());
+                // 26-Oct-2012, tatu: As per [Issue#94], must allow use of 'defaultImpl'
+                if (!_properties[i].hasDefaultType()) {
+                    throw ctxt.mappingException("Missing external type id property '"+_properties[i].getTypePropertyName()+"'");
+                }
+                typeId = _properties[i].getDefaultTypeId();
             } else if (_tokens[i] == null) {
                 SettableBeanProperty prop = _properties[i].getProperty();
                 throw ctxt.mappingException("Missing property '"+prop.getName()+"' for external type id '"+_properties[i].getTypePropertyName());
             }
-            values[i] = _deserialize(jp, ctxt, i);
+            values[i] = _deserialize(jp, ctxt, i, typeId);
         }
         // second: fill in creator properties:
         for (int i = 0; i < len; ++i) {
@@ -184,23 +197,25 @@ public class ExternalTypeHandler
     }
 
     protected final Object _deserialize(JsonParser jp, DeserializationContext ctxt,
-            int index)
+            int index, String typeId)
         throws IOException, JsonProcessingException
     {
         TokenBuffer merged = new TokenBuffer(jp.getCodec());
         merged.writeStartArray();
-        merged.writeString(_typeIds[index]);
+        merged.writeString(typeId);
         JsonParser p2 = _tokens[index].asParser(jp);
         p2.nextToken();
         merged.copyCurrentStructure(p2);
         merged.writeEndArray();
+
         // needs to point to START_OBJECT (or whatever first token is)
         p2 = merged.asParser(jp);
         p2.nextToken();
         return _properties[index].getProperty().deserialize(p2, ctxt);
     }
     
-    protected final void _deserializeAndSet(JsonParser jp, DeserializationContext ctxt, Object bean, int index)
+    protected final void _deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
+            Object bean, int index, String typeId)
         throws IOException, JsonProcessingException
     {
         /* Ok: time to mix type id, value; and we will actually use "wrapper-array"
@@ -208,11 +223,12 @@ public class ExternalTypeHandler
          */
         TokenBuffer merged = new TokenBuffer(jp.getCodec());
         merged.writeStartArray();
-        merged.writeString(_typeIds[index]);
+        merged.writeString(typeId);
         JsonParser p2 = _tokens[index].asParser(jp);
         p2.nextToken();
         merged.copyCurrentStructure(p2);
         merged.writeEndArray();
+        
         // needs to point to START_OBJECT (or whatever first token is)
         p2 = merged.asParser(jp);
         p2.nextToken();
@@ -229,13 +245,14 @@ public class ExternalTypeHandler
     {
         private final ArrayList<ExtTypedProperty> _properties = new ArrayList<ExtTypedProperty>();
         private final HashMap<String, Integer> _nameToPropertyIndex = new HashMap<String, Integer>();
-        
-        public void addExternal(SettableBeanProperty property, String extPropName)
+
+        // note: signature changed between 2.1.0 and 2.1.1 (alas!)
+        public void addExternal(SettableBeanProperty property, TypeDeserializer typeDeser)
         {
             Integer index = _properties.size();
-            _properties.add(new ExtTypedProperty(property, extPropName));
+            _properties.add(new ExtTypedProperty(property, typeDeser));
             _nameToPropertyIndex.put(property.getName(), index);
-            _nameToPropertyIndex.put(extPropName, index);
+            _nameToPropertyIndex.put(typeDeser.getPropertyName(), index);
         }
         
         public ExternalTypeHandler build() {
@@ -247,18 +264,32 @@ public class ExternalTypeHandler
     private final static class ExtTypedProperty
     {
         private final SettableBeanProperty _property;
+        private final TypeDeserializer _typeDeserializer;
         private final String _typePropertyName;
         
-        public ExtTypedProperty(SettableBeanProperty property, String typePropertyName)
+        public ExtTypedProperty(SettableBeanProperty property, TypeDeserializer typeDeser)
         {
             _property = property;
-            _typePropertyName = typePropertyName;
+            _typeDeserializer = typeDeser;
+            _typePropertyName = typeDeser.getPropertyName();
         }
 
         public boolean hasTypePropertyName(String n) {
             return n.equals(_typePropertyName);
         }
 
+        public boolean hasDefaultType() {
+            return _typeDeserializer.getDefaultImpl() != null;
+        }
+
+        public String getDefaultTypeId() {
+            Class<?> defaultType = _typeDeserializer.getDefaultImpl();
+            if (defaultType == null) {
+                return null;
+            }
+            return _typeDeserializer.getTypeIdResolver().idFromValueAndType(null, defaultType);
+        }
+        
         public String getTypePropertyName() { return _typePropertyName; }
         
         public SettableBeanProperty getProperty() {

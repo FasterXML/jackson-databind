@@ -27,6 +27,19 @@ public class TestExternalId extends BaseMapTest
         }
     }
 
+    // for [Issue#96]
+    static class ExternalBeanWithDefault
+    {
+        @JsonTypeInfo(use=Id.CLASS, include=As.EXTERNAL_PROPERTY, property="extType",
+                defaultImpl=ValueBean.class)
+        public Object bean;
+
+        public ExternalBeanWithDefault() { }
+        public ExternalBeanWithDefault(int v) {
+            bean = new ValueBean(v);
+        }
+    }
+
     static class ExternalBean3
     {
         @JsonTypeInfo(use=Id.NAME, include=As.EXTERNAL_PROPERTY, property="extType1")
@@ -173,6 +186,8 @@ public class TestExternalId extends BaseMapTest
         }
     }    
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
     /*
     /**********************************************************
     /* Unit tests, serialization
@@ -206,7 +221,7 @@ public class TestExternalId extends BaseMapTest
     /* Unit tests, deserialization
     /**********************************************************
      */
-
+    
     public void testSimpleDeserialization() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -252,20 +267,18 @@ public class TestExternalId extends BaseMapTest
     // If trying to use with Class, should just become "PROPERTY" instead:
     public void testImproperExternalIdDeserialization() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        FunkyExternalBean result = mapper.readValue("{\"extType\":\"funk\",\"i\":3}", FunkyExternalBean.class);
+        FunkyExternalBean result = MAPPER.readValue("{\"extType\":\"funk\",\"i\":3}",
+                FunkyExternalBean.class);
         assertNotNull(result);
         assertEquals(3, result.i);
     }
 
     public void testIssue798() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-
         Base base = new Derived1("derived1 prop val", "base prop val");
         BaseContainer baseContainer = new BaseContainer("bc prop val", base);
-        String generatedJson = mapper.writeValueAsString(baseContainer);
-        BaseContainer baseContainer2 = mapper.readValue(generatedJson,BaseContainer.class);
+        String generatedJson = MAPPER.writeValueAsString(baseContainer);
+        BaseContainer baseContainer2 = MAPPER.readValue(generatedJson,BaseContainer.class);
         assertEquals("bc prop val", baseContainer.getBaseContainerProperty());
 
         Base b = baseContainer2.getBase();
@@ -284,11 +297,27 @@ public class TestExternalId extends BaseMapTest
     {
         final String JSON = "{ \"petType\": \"dog\",\n"
                 +"\"pet\": { \"name\": \"Pluto\" }\n}";
-        ObjectMapper mapper = new ObjectMapper();
-        House831 result = mapper.readValue(JSON, House831.class);
+        House831 result = MAPPER.readValue(JSON, House831.class);
         assertNotNull(result);
         assertNotNull(result.pet);
         assertSame(Dog.class, result.pet.getClass());
         assertEquals("dog", result.petType);
+    }
+
+    // For [Issue#96]: should allow use of default impl, if property missing
+    public void testWithDefaultAndMissing() throws Exception
+    {
+        ExternalBeanWithDefault input = new ExternalBeanWithDefault(13);
+        // baseline: include type, verify things work:
+        String fullJson = MAPPER.writeValueAsString(input);
+        ExternalBeanWithDefault output = MAPPER.readValue(fullJson, ExternalBeanWithDefault.class);
+        assertNotNull(output);
+        assertNotNull(output.bean);
+        // and then try without type info...
+        ExternalBeanWithDefault defaulted = MAPPER.readValue("{\"bean\":{\"value\":13}}",
+                ExternalBeanWithDefault.class);
+        assertNotNull(defaulted);
+        assertNotNull(defaulted.bean);
+        assertSame(ValueBean.class, defaulted.bean.getClass());
     }
 }

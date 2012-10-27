@@ -19,6 +19,12 @@ public class TestTreeDeserialization
         public void setNode(JsonNode n) { _node = n; }
     }
 
+    /*
+    /**********************************************************
+    /* Unit tests
+    /**********************************************************
+     */
+    
     /**
      * This test checks that is possible to mix "regular" Java objects
      * and JsonNode.
@@ -74,5 +80,19 @@ public class TestTreeDeserialization
 
         assertTrue(n1.equals(n2));
         assertTrue(n2.equals(n1));
+    }
+
+    public void testReadFromString() throws Exception
+    {
+        String json = "{\"field\":\"{\\\"name\\\":\\\"John Smith\\\"}\"}";
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jNode = mapper.readValue(json, JsonNode.class);
+
+        String generated = mapper.writeValueAsString( jNode);  //back slashes are gone
+        JsonNode out = mapper.readValue( generated, JsonNode.class );   //crashes here
+        assertTrue(out.isObject());
+        assertEquals(1, out.size());
+        String value = out.path("field").asText();
+        assertNotNull(value);
     }
 }

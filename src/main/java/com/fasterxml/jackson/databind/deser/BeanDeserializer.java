@@ -970,7 +970,7 @@ public class BeanDeserializer
         }
         // and when we get this far, let's try finalizing the deal:
         return ext.complete(jp, ctxt, bean);
-    }        
+    }
 
     @SuppressWarnings("resource")
     protected Object deserializeUsingPropertyBasedWithExternalTypeId(JsonParser jp, DeserializationContext ctxt)

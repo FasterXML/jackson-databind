@@ -73,7 +73,7 @@ public abstract class TypeDeserializer
     public abstract Class<?> getDefaultImpl();
     
     /*
-    /*********************************************************
+    /**********************************************************
     /* Type deserialization methods
     /**********************************************************
      */

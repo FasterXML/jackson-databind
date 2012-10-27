@@ -165,7 +165,8 @@ public class StdDelegatingDeserializer<T>
      * conversion.
      * 
      * @param delegateValue
-     * @return
+     * 
+     * @return Result of conversion
      */
     protected T convertValue(Object delegateValue) {
         return _converter.convert(delegateValue);

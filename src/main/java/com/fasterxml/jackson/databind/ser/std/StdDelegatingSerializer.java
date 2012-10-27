@@ -219,8 +219,9 @@ public class StdDelegatingSerializer
      * The default implementation uses configured {@link Converter} to do
      * conversion.
      * 
-     * @param delegateValue
-     * @return
+     * @param value Value to convert
+     * 
+     * @return Result of conversion
      */
     protected Object convertValue(Object value) {
         return _converter.convert(value);

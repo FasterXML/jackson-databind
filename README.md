@@ -12,6 +12,7 @@ parser and generator implementations exist.
 Naming of classes uses word 'JSON' in many places even though there is no
 actual hard dependency to JSON format.
 
+[![Build Status](https://fasterxml.ci.cloudbees.com/job/jackson-databind-master/badge/icon)](https://fasterxml.ci.cloudbees.com/job/jackson-databind-master/)
 ### Differences from Jackson 1.x
 
 Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository

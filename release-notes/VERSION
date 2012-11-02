@@ -10,8 +10,9 @@ Fixes:
 * [Issue#93]: ObjectNode.setAll() broken; would not add anything for
   empty ObjectNodes.
  (reported by Francis G)
-* [Issue#94]: PropertyNamingStrategy not java.io.Serializable
- (reported by Sean B)
+* Making things implement java.io.Serializable:
+  - [Issue#94]: PropertyNamingStrategy (reported by Sean B)
+  - [Issue#99]: EnumResolves (reported by Sean B)
 * [Issue#96]: Problem with JsonTypeInfo.As.EXTERNAL_PROPERTY, defaultImpl
  (reported by Adva11@github)
 
@@ -19,7 +20,7 @@ Fixes:
 === History: ===
 ------------------------------------------------------------------------
 
-2.1.0 (26-Jun-2012)
+2.1.0 (08-Oct-2012)
 
   New minor version for 2.x series. Major improvements in multiple areas,
   including:

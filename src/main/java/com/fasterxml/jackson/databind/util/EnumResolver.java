@@ -10,7 +10,10 @@ import java.util.*;
  * names or regular String values) into Java Enum instances.
  */
 public class EnumResolver<T extends Enum<T>>
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     protected final Class<T> _enumClass;
 
     protected final T[] _enums;

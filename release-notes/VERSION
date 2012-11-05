@@ -12,7 +12,8 @@ Fixes:
  (reported by Francis G)
 * Making things implement java.io.Serializable:
   - [Issue#94]: PropertyNamingStrategy (reported by Sean B)
-  - [Issue#99]: EnumResolves (reported by Sean B)
+  - [Issue#99]: EnumResolver (reported by Sean B)
+  - [Issue#100]: AbstractDeserializer (reported by Sean B)
 * [Issue#96]: Problem with JsonTypeInfo.As.EXTERNAL_PROPERTY, defaultImpl
  (reported by Adva11@github)
 

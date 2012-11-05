@@ -9,7 +9,10 @@ import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
  * Object that knows how to serialize Object Ids.
  */
 public final class ObjectIdReader
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     public final JavaType idType;
 
     public final String propertyName;

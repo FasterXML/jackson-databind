@@ -98,6 +98,8 @@ public class JsonNodeDeserializer
     final static class ArrayDeserializer
         extends BaseNodeDeserializer<ArrayNode>
     {
+        private static final long serialVersionUID = 1L;
+
         protected final static ArrayDeserializer _instance = new ArrayDeserializer();
 
         protected ArrayDeserializer() {

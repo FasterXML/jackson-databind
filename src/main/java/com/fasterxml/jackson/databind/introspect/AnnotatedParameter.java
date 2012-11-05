@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 public final class AnnotatedParameter
     extends AnnotatedMember
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Member (method, constructor) that this parameter belongs to
      */

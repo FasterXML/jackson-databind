@@ -19,7 +19,10 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  */
 public class AbstractDeserializer
     extends JsonDeserializer<Object>
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = -3010349050434697698L;
+
     protected final JavaType _baseType;
 
     protected final ObjectIdReader _objectIdReader;

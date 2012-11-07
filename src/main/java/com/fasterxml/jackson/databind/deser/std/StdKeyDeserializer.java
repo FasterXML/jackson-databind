@@ -19,7 +19,10 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
  */
 public abstract class StdKeyDeserializer
     extends KeyDeserializer
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     final protected Class<?> _keyClass;
 
     protected StdKeyDeserializer(Class<?> cls) { _keyClass = cls; }
@@ -79,6 +82,8 @@ public abstract class StdKeyDeserializer
     @JacksonStdImpl
     final static class StringKD extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         private final static StringKD sString = new StringKD(String.class);
         private final static StringKD sObject = new StringKD(Object.class);
         
@@ -110,6 +115,8 @@ public abstract class StdKeyDeserializer
     @JacksonStdImpl
     final static class BoolKD extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         BoolKD() { super(Boolean.class); }
 
         @Override
@@ -128,6 +135,8 @@ public abstract class StdKeyDeserializer
     @JacksonStdImpl
     final static class ByteKD extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         ByteKD() { super(Byte.class); }
 
         @Override
@@ -145,6 +154,8 @@ public abstract class StdKeyDeserializer
     @JacksonStdImpl
     final static class ShortKD extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         ShortKD() { super(Integer.class); }
 
         @Override
@@ -165,6 +176,8 @@ public abstract class StdKeyDeserializer
     @JacksonStdImpl
     final static class CharKD extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         CharKD() { super(Character.class); }
 
         @Override
@@ -180,6 +193,8 @@ public abstract class StdKeyDeserializer
     @JacksonStdImpl
     final static class IntKD extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         IntKD() { super(Integer.class); }
 
         @Override
@@ -192,6 +207,8 @@ public abstract class StdKeyDeserializer
     @JacksonStdImpl
     final static class LongKD extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         LongKD() { super(Long.class); }
 
         @Override
@@ -204,6 +221,8 @@ public abstract class StdKeyDeserializer
     @JacksonStdImpl
     final static class DoubleKD extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         DoubleKD() { super(Double.class); }
 
         @Override
@@ -216,6 +235,8 @@ public abstract class StdKeyDeserializer
     @JacksonStdImpl
     final static class FloatKD extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         FloatKD() { super(Float.class); }
 
         @Override
@@ -230,6 +251,8 @@ public abstract class StdKeyDeserializer
 
     @JacksonStdImpl
     final static class LocaleKD extends StdKeyDeserializer {
+        private static final long serialVersionUID = 1L;
+
         protected JdkDeserializers.LocaleDeserializer _localeDeserializer;
 
         LocaleKD() { super(Locale.class); _localeDeserializer = new JdkDeserializers.LocaleDeserializer();}
@@ -255,8 +278,12 @@ public abstract class StdKeyDeserializer
      * that must recognize FIELD_NAMEs as text!) to reuse existing
      * handlers as key handlers.
      */
-    final static class DelegatingKD extends KeyDeserializer // note: NOT the std one
+    final static class DelegatingKD
+        extends KeyDeserializer // note: NOT the std one
+        implements java.io.Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         final protected Class<?> _keyClass;
 
         protected final JsonDeserializer<?> _delegate;
@@ -291,6 +318,8 @@ public abstract class StdKeyDeserializer
     @JacksonStdImpl
     final static class EnumKD extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         protected final EnumResolver<?> _resolver;
 
         protected final AnnotatedMethod _factory;
@@ -325,6 +354,8 @@ public abstract class StdKeyDeserializer
      */
     final static class StringCtorKeyDeserializer extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         protected final Constructor<?> _ctor;
 
         public StringCtorKeyDeserializer(Constructor<?> ctor) {
@@ -345,6 +376,8 @@ public abstract class StdKeyDeserializer
      */
     final static class StringFactoryKeyDeserializer extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         final Method _factoryMethod;
 
         public StringFactoryKeyDeserializer(Method fm) {
@@ -363,6 +396,8 @@ public abstract class StdKeyDeserializer
     @JacksonStdImpl
     final static class DateKD extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         protected DateKD() {
             super(java.util.Date.class);
         }
@@ -379,6 +414,8 @@ public abstract class StdKeyDeserializer
     @JacksonStdImpl
     final static class CalendarKD extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         protected CalendarKD() {
             super(java.util.Calendar.class);
         }
@@ -396,6 +433,8 @@ public abstract class StdKeyDeserializer
     @JacksonStdImpl
     final static class UuidKD extends StdKeyDeserializer
     {
+        private static final long serialVersionUID = 1L;
+
         protected UuidKD() {
             super(UUID.class);
         }

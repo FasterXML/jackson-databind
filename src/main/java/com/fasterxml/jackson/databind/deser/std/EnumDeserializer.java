@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
 public class EnumDeserializer
     extends StdScalarDeserializer<Enum<?>>
 {
+    private static final long serialVersionUID = -5893263645879532318L;
+
     protected final EnumResolver<?> _resolver;
     
     public EnumDeserializer(EnumResolver<?> res)
@@ -38,7 +40,6 @@ public class EnumDeserializer
     public static JsonDeserializer<?> deserializerForCreator(DeserializationConfig config,
             Class<?> enumClass, AnnotatedMethod factory)
     {
-        
         // note: caller has verified there's just one arg; but we must verify its type
         Class<?> paramClass = factory.getRawParameterType(0);
         if (paramClass == String.class) {
@@ -119,6 +120,8 @@ public class EnumDeserializer
     protected static class FactoryBasedDeserializer
         extends StdScalarDeserializer<Object>
     {
+        private static final long serialVersionUID = -7775129435872564122L;
+
         protected final Class<?> _enumClass;
         // Marker type; null if String expected; otherwise numeric wrapper
         protected final Class<?> _inputType;

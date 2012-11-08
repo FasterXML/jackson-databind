@@ -632,7 +632,8 @@ public abstract class AnnotationIntrospector implements Versioned
      * @return Serialized enum value.
      */
     public String findEnumValue(Enum<?> value) {
-        return null;
+        // as per [JACKSON-875], should use default here
+        return value.name();
     }
 
     /*

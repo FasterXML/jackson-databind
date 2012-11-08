@@ -8,6 +8,8 @@ Description:
 
 Fixes:
 
+* [JACKSON-875]: Enums not properly serialized if USE_ANNOTATIONS disabled
+ (reported by Laurent P)
 * [Issue#71]: Incorrect class name prevent deserialization of
   ConcurrentNavigableMap, ConcurrentSkipListMap
  (reported by 'twoi@GitHub')

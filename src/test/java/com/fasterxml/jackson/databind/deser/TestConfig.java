@@ -23,6 +23,8 @@ public class TestConfig
         @JsonProperty("y")
             public void setX(int v) { value = v; }
     }
+
+    enum Alpha { A, B, C; }
     
     /*
     /**********************************************************
@@ -73,5 +75,17 @@ public class TestConfig
         // without annotations, should default to default bean-based name...
         bean = m.readValue("{ \"x\" : 0 }", AnnoBean.class);
         assertEquals(0, bean.value);
+    }
+
+    // [JACKSON-875]
+    public void testEnumsWhenDisabled() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        assertEquals(Alpha.B, m.readValue(quote("B"), Alpha.class));
+
+        m = new ObjectMapper();
+        m.configure(MapperFeature.USE_ANNOTATIONS, false);
+        // should still use the basic name handling here
+        assertEquals(Alpha.B, m.readValue(quote("B"), Alpha.class));
     }
 }

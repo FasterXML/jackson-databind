@@ -66,11 +66,8 @@ public class JacksonAnnotationIntrospector
     /**********************************************************
      */
 
-    @Override
-    public String findEnumValue(Enum<?> value)
-    {
-        return value.name();
-    }
+    // default impl is fine:
+    //public String findEnumValue(Enum<?> value) { return value.name(); }
     
     /*
     /**********************************************************

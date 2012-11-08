@@ -7,6 +7,8 @@ First patch release for 2.1 branch.
 
 Fixes:
 
+* [JACKSON-875]: Enum values not found if Feature.USE_ANNOTATIONS disabled
+ (reported by Laurent P)
 * [Issue#93]: ObjectNode.setAll() broken; would not add anything for
   empty ObjectNodes.
  (reported by Francis G)

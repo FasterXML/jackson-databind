@@ -102,6 +102,36 @@ public class TestCollectionSerialization
         public Iterable<String> getValues() { return values; }
     }
 
+    static class IntIterable implements Iterable<Integer>
+    {
+        public Iterator<Integer> iterator() {
+            return new IntIterator(1, 3);
+        }
+    }
+
+    static class IntIterator implements Iterator<Integer> {
+        int i;
+        final int last;
+
+        public IntIterator(int first, int last) {
+            i = first;
+            this.last = last;
+        }
+
+        public boolean hasNext() {
+            return i <= last;
+        }
+
+        public Integer next() {
+            return i++;
+        }
+
+        public void remove() {
+        }
+
+        public int getX() { return 13; }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -311,10 +341,14 @@ public class TestCollectionSerialization
         assertEquals("{}", m.writeValueAsString(array));
     }
     
-    // [JACKSON-689]
+    // [JACKSON-689], [JACKSON-876]
     public void testWithIterable() throws IOException
     {
+        // 689:
         assertEquals("{\"values\":[\"value\"]}",
                 MAPPER.writeValueAsString(new BeanWithIterable()));
+        // 876:
+        assertEquals("[1,2,3]",
+                MAPPER.writeValueAsString(new IntIterable()));
     }
 }

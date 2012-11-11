@@ -32,7 +32,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.1.0</version>
+      <version>2.1.1</version>
     </dependency>
 
 Since package also depends on '''jackson-core''' and '''jackson-databind''' packages, you will need to download these if not using Maven; and you may also want to add them as Maven dependency to ensure that compatible versions are used.
@@ -41,13 +41,15 @@ If so, also add:
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.1.0</version>
+      <version>2.1.1</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.1.0</version>
+      <version>2.1.1</version>
     </dependency>
+
+but note that this is optional, and only necessary if there are conflicts between jackson core dependencies through transitive dependencies.
 
 ## Non-Maven
 
@@ -314,7 +316,7 @@ Basically, Jackson can work as a replacement for many Apache Commons components,
 
 Project-specific documentation:
 
-* [Javadocs](http://fasterxml.github.com/jackson-databind/javadoc/2.1.0/)
+* [Javadocs](http://fasterxml.github.com/jackson-databind/javadoc/2.1.1/)
 * [Documentation](jackson-databind/wiki/Documentation)
 
 Related:

@@ -24,7 +24,7 @@ public final class ReadOnlyClassToSerializerMap
      * this is not shared between threads, we can just reuse single
      * instance.
      */
-    protected final TypeKey _cacheKey = new TypeKey(getClass(), false);
+    protected TypeKey _cacheKey = null;
     
     private ReadOnlyClassToSerializerMap(JsonSerializerMap map)
     {
@@ -48,25 +48,41 @@ public final class ReadOnlyClassToSerializerMap
 
     public JsonSerializer<Object> typedValueSerializer(JavaType type)
     { 
-        _cacheKey.resetTyped(type);
+        if (_cacheKey == null) {
+            _cacheKey = new TypeKey(type, true);
+        } else {
+            _cacheKey.resetTyped(type);
+        }
         return _map.find(_cacheKey);
     }
 
     public JsonSerializer<Object> typedValueSerializer(Class<?> cls)
     { 
-        _cacheKey.resetTyped(cls);
-        return _map.find(_cacheKey);
-    }
-    
-    public JsonSerializer<Object> untypedValueSerializer(Class<?> cls)
-    { 
-        _cacheKey.resetUntyped(cls);
+        if (_cacheKey == null) {
+            _cacheKey = new TypeKey(cls, true);
+        } else {
+            _cacheKey.resetTyped(cls);
+        }
         return _map.find(_cacheKey);
     }
 
     public JsonSerializer<Object> untypedValueSerializer(JavaType type)
     { 
-        _cacheKey.resetUntyped(type);
+        if (_cacheKey == null) {
+            _cacheKey = new TypeKey(type, false);
+        } else {
+            _cacheKey.resetUntyped(type);
+        }
+        return _map.find(_cacheKey);
+    }
+
+    public JsonSerializer<Object> untypedValueSerializer(Class<?> cls)
+    { 
+        if (_cacheKey == null) {
+            _cacheKey = new TypeKey(cls, false);
+        } else {
+            _cacheKey.resetUntyped(cls);
+        }
         return _map.find(_cacheKey);
     }
 }

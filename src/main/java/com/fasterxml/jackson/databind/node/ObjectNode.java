@@ -79,7 +79,9 @@ public class ObjectNode
     @Override
     public Iterator<JsonNode> elements()
     {
-        return (_children == null) ? NoNodesIterator.instance() : _children.values().iterator();
+        return _children == null
+            ? Collections.<JsonNode>emptyIterator()
+            : _children.values().iterator();
     }
 
     @Override
@@ -95,8 +97,11 @@ public class ObjectNode
     }
 
     @Override
-    public Iterator<String> fieldNames() {
-        return (_children == null) ? NoStringsIterator.instance() : _children.keySet().iterator();
+    public Iterator<String> fieldNames()
+    {
+        return _children == null
+            ? Collections.<String>emptyIterator()
+            : _children.keySet().iterator();
     }
 
     @Override
@@ -124,10 +129,9 @@ public class ObjectNode
     @Override
     public Iterator<Map.Entry<String, JsonNode>> fields()
     {
-        if (_children == null) {
-            return NoFieldsIterator.instance;
-        }
-        return _children.entrySet().iterator();
+        return _children == null
+            ? Collections.<Map.Entry<String, JsonNode>>emptyIterator()
+            : _children.entrySet().iterator();
     }
 
     @Override

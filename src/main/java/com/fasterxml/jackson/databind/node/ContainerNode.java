@@ -132,46 +132,4 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     /* Helper classes
     /**********************************************************
      */
-
-    protected static class NoNodesIterator
-        implements Iterator<JsonNode>
-    {
-        final static NoNodesIterator instance = new NoNodesIterator();
-
-        private NoNodesIterator() { }
-
-        public static NoNodesIterator instance() { return instance; }
-
-//      @Override
-        public boolean hasNext() { return false; }
-//      @Override
-        public JsonNode next() { throw new NoSuchElementException(); }
-
-//      @Override
-        public void remove() {
-            // could as well throw IllegalOperationException?
-            throw new IllegalStateException();
-        }
-    }
-
-    protected static class NoStringsIterator
-        implements Iterator<String>
-    {
-        final static NoStringsIterator instance = new NoStringsIterator();
-
-        private NoStringsIterator() { }
-
-        public static NoStringsIterator instance() { return instance; }
-
-//      @Override
-        public boolean hasNext() { return false; }
-//      @Override
-        public String next() { throw new NoSuchElementException(); }
-
-//      @Override
-        public void remove() {
-            // could as well throw IllegalOperationException?
-            throw new IllegalStateException();
-        }
-    }
 }

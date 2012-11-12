@@ -77,7 +77,9 @@ public class ArrayNode
     @Override
     public Iterator<JsonNode> elements()
     {
-        return (_children == null) ? NoNodesIterator.instance() : _children.iterator();
+        return _children == null
+            ? Collections.<JsonNode>emptyIterator()
+            : _children.iterator();
     }
 
     @Override

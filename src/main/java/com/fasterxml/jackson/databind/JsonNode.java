@@ -31,9 +31,6 @@ import com.fasterxml.jackson.core.TreeNode;
 public abstract class JsonNode
     implements TreeNode, Iterable<JsonNode>
 {
-    protected final static List<JsonNode> NO_NODES = Collections.emptyList();
-    protected final static List<String> NO_STRINGS = Collections.emptyList();
-
     /*
     /**********************************************************
     /* Construction, related
@@ -679,21 +676,27 @@ public abstract class JsonNode
      * field names (keys) are not included, only values.
      * For other types of nodes, returns empty iterator.
      */
-    public Iterator<JsonNode> elements() { return NO_NODES.iterator(); }
+    public Iterator<JsonNode> elements()
+    {
+        return Collections.emptyIterator();
+    }
 
     /**
      * Method for accessing names of all fields for this Node, iff
      * this node is a JSON Object node.
      */
-    public Iterator<String> fieldNames() { return NO_STRINGS.iterator(); }
+    public Iterator<String> fieldNames()
+    {
+        return Collections.emptyIterator();
+    }
 
     /**
      * @return Iterator that can be used to traverse all key/value pairs for
      *   object nodes; empty iterator (no contents) for other types
      */
-    public Iterator<Map.Entry<String, JsonNode>> fields() {
-        Collection<Map.Entry<String, JsonNode>> coll = Collections.emptyList();
-        return coll.iterator();
+    public Iterator<Map.Entry<String, JsonNode>> fields()
+    {
+        return Collections.emptyIterator();
     }
     
     /*

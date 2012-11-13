@@ -244,24 +244,23 @@ public abstract class DefaultSerializerProvider
      * @param type The type for which to generate schema
      */
     public JsonSchema generateJsonSchema(Class<?> type)
-            throws JsonMappingException
-        {
-            if (type == null) {
-                throw new IllegalArgumentException("A class must be provided");
-            }
-            /* no need for embedded type information for JSON schema generation (all
-             * type information it needs is accessible via "untyped" serializer)
-             */
-            JsonSerializer<Object> ser = findValueSerializer(type, null);
-            JsonNode schemaNode = (ser instanceof SchemaAware) ?
-                    ((SchemaAware) ser).getSchema(this, null) : 
-                    JsonSchema.getDefaultSchemaNode();
-            if (!(schemaNode instanceof ObjectNode)) {
-                throw new IllegalArgumentException("Class " + type.getName() +
-                        " would not be serialized as a JSON object and therefore has no schema");
-            }
-            return new JsonSchema((ObjectNode) schemaNode);
+        throws JsonMappingException
+    {
+        if (type == null) {
+            throw new IllegalArgumentException("A class must be provided");
         }
+        /* no need for embedded type information for JSON schema generation (all
+         * type information it needs is accessible via "untyped" serializer)
+         */
+        JsonSerializer<Object> ser = findValueSerializer(type, null);
+        JsonNode schemaNode = (ser instanceof SchemaAware) ?
+                ((SchemaAware) ser).getSchema(this, null) : JsonSchema.getDefaultSchemaNode();
+        if (!(schemaNode instanceof ObjectNode)) {
+            throw new IllegalArgumentException("Class " + type.getName()
+                    +" would not be serialized as a JSON object and therefore has no schema");
+        }
+        return new JsonSchema((ObjectNode) schemaNode);
+    }
     
     /**
      * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}

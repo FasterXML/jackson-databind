@@ -305,7 +305,7 @@ public class EnumMapSerializer
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-    	JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
+        JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
     	/*
         JavaType enumType = typeHint.containedType(0);
     	if (enumType == null) {
@@ -313,9 +313,9 @@ public class EnumMapSerializer
     	}
     	*/
         JavaType valueType = typeHint.containedType(1);
-    	if (valueType == null) {
-    	    valueType = visitor.getProvider().constructType(Object.class);
-    	}
+        if (valueType == null) {
+            valueType = visitor.getProvider().constructType(Object.class);
+        }
         JsonSerializer<Object> ser = _valueSerializer;
 //        Class<Enum<?>> enumClass = (Class<Enum<?>>) enumType.getRawClass();
         for (Map.Entry<?,SerializedString> entry : _keyEnums.internalMap().entrySet()) {

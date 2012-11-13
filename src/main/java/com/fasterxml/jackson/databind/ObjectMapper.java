@@ -2570,15 +2570,15 @@ public class ObjectMapper
     public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor)
         throws JsonMappingException
     {
-    	if (type == null) {
-    	    throw new IllegalArgumentException("type must be provided");
-    	}
-    	if (visitor == null) {
-    	    return;
-    	}
-    	DefaultSerializerProvider provider = _serializerProvider(getSerializationConfig());
+        if (type == null) {
+            throw new IllegalArgumentException("type must be provided");
+        }
+        if (visitor == null) {
+            return;
+        }
+        DefaultSerializerProvider provider = _serializerProvider(getSerializationConfig());
         visitor.setProvider(provider);
-    	provider.acceptJsonFormatVisitor(type, visitor);
+        provider.acceptJsonFormatVisitor(type, visitor);
     }
 
     /*

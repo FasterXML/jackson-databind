@@ -119,9 +119,6 @@ public class PropertyName
         if (o == this) return true;
         if (o == null) return false;
         if (o.getClass() != getClass()) return false;
-        if (USE_DEFAULT == o) {
-            return this == USE_DEFAULT;
-        }
         PropertyName other = (PropertyName) o;
         if (_simpleName == null) {
             if (other._simpleName != null) return false;

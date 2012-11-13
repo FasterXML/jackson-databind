@@ -56,6 +56,12 @@ public class JsonSchema
     }
 
     @Override
+    public int hashCode()
+    {
+        return schema.hashCode();
+    }
+
+    @Override
     public boolean equals(Object o)
     {
         if (o == this) return true;

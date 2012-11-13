@@ -21,7 +21,7 @@ public class DateSerializer
      * Default instance that is used when no contextual configuration
      * is needed.
      */
-    public static DateSerializer instance = new DateSerializer();
+    public static final DateSerializer instance = new DateSerializer();
     
     public DateSerializer() {
         this(false, null);

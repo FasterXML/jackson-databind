@@ -274,7 +274,10 @@ public final class SerializerCache
         // note: we assume key is never used for anything other than as map key, so:
         @Override public final boolean equals(Object o)
         {
+            if (o == null) return false;
             if (o == this) return true;
+            if (!(o instanceof TypeKey))
+                return false;
             TypeKey other = (TypeKey) o;
             if (other._isTyped == _isTyped) {
                 if (_class != null) {

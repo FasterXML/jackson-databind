@@ -118,10 +118,14 @@ public class PropertyName
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != PropertyName.class) return false;
-        if (USE_DEFAULT == o) {
-            return this == USE_DEFAULT;
-        }
+        /* 13-Nov-2012, tatu: by default, require strict type equality.
+         *   Re-evaluate if this becomes an issue.
+         */
+        if (o.getClass() != getClass()) return false;
+        // 13-Nov-2012, tatu: Should we have specific rules on matching USE_DEFAULT?
+        //   (like, it only ever matching exact instance)
+        //   If we did, would need to check symmetrically; that is, if either 'this'
+        //   or 'o' was USE_DEFAULT, both would have to be.
         PropertyName other = (PropertyName) o;
         if (_simpleName == null) {
             if (other._simpleName != null) return false;

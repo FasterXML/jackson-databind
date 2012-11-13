@@ -118,11 +118,11 @@ public class PropertyName
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != PropertyName.class) return false;
+        if (o.getClass() != getClass()) return false;
         if (USE_DEFAULT == o) {
             return this == USE_DEFAULT;
         }
-        PropertyName other = (PropertyName) this;
+        PropertyName other = (PropertyName) o;
         if (_simpleName == null) {
             if (other._simpleName != null) return false;
         } else if (!_simpleName.equals(other._simpleName)) {

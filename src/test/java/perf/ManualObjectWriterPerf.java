@@ -57,6 +57,7 @@ public class ManualObjectWriterPerf
                 value = inputValue2;
                 break;
             default:
+            	out.close(); // silly eclipse juno
                 throw new Error();
             }
             msecs = testSer(REPS, value, writer, out);

@@ -276,8 +276,9 @@ public final class SerializerCache
         {
             if (o == null) return false;
             if (o == this) return true;
-            if (!(o instanceof TypeKey))
+            if (o.getClass() != getClass()) {
                 return false;
+            }
             TypeKey other = (TypeKey) o;
             if (other._isTyped == _isTyped) {
                 if (_class != null) {

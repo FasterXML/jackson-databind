@@ -162,5 +162,6 @@ public class TestArrayNode
         p.nextToken();
         assertToken(JsonToken.VALUE_NUMBER_INT, p.nextToken());
         assertEquals(JsonParser.NumberType.INT, p.getNumberType());
+        p.close();
     }
 }

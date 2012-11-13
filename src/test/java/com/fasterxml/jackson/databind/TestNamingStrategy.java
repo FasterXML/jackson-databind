@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
  * Unit tests to verify functioning of {@link PropertyNamingStrategy} which
  * was added in Jackson 1.8, as per [JACKSON-178].
  */
+@SuppressWarnings("serial")
 public class TestNamingStrategy extends BaseMapTest
 {
     /*
@@ -24,7 +25,7 @@ public class TestNamingStrategy extends BaseMapTest
     /**********************************************************************
      */
 
-    static class PrefixStrategy extends PropertyNamingStrategy
+	static class PrefixStrategy extends PropertyNamingStrategy
     {
         @Override
         public String nameForField(MapperConfig<?> config,

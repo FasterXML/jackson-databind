@@ -122,7 +122,7 @@ public class PropertyName
         if (USE_DEFAULT == o) {
             return this == USE_DEFAULT;
         }
-        PropertyName other = (PropertyName) this;
+        PropertyName other = (PropertyName) o;
         if (_simpleName == null) {
             if (other._simpleName != null) return false;
         } else if (!_simpleName.equals(other._simpleName)) {

@@ -21,7 +21,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * conversions. 
  */
 public final class MissingNode
-    extends BaseJsonNode
+    extends ValueNode
 {
     private final static MissingNode instance = new MissingNode();
 
@@ -51,12 +51,6 @@ public final class MissingNode
     public boolean asBoolean(boolean defaultValue);
     */
     
-    @Override
-    public JsonNode path(String fieldName) { return this; }
-
-    @Override
-    public JsonNode path(int index) { return this; }
-
     @Override
     public final void serialize(JsonGenerator jg, SerializerProvider provider)
         throws IOException, JsonProcessingException

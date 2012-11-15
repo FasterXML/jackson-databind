@@ -39,18 +39,6 @@ public abstract class ValueNode
         serialize(jg, provider);
         typeSer.writeTypeSuffixForScalar(this, jg);
     }
-    
-    /*
-    /**********************************************************************
-    /* Public API, path handling
-    /**********************************************************************
-     */
-
-    @Override
-    public JsonNode path(String fieldName) { return MissingNode.getInstance(); }
-
-    @Override
-    public JsonNode path(int index) { return MissingNode.getInstance(); }
 
     /*
     /**********************************************************************
@@ -60,4 +48,58 @@ public abstract class ValueNode
 
     @Override
     public String toString() { return asText(); }
+
+    /*
+     **********************************************************************
+     * Navigation methods
+     **********************************************************************
+     */
+
+    @Override
+    public final JsonNode get(int index)
+    {
+        return null;
+    }
+
+    @Override
+    public final JsonNode path(int index)
+    {
+        return MissingNode.getInstance();
+    }
+
+    @Override
+    public final boolean has(int index)
+    {
+        return false;
+    }
+
+    @Override
+    public final boolean hasNonNull(int index)
+    {
+        return false;
+    }
+
+    @Override
+    public final JsonNode get(String fieldName)
+    {
+        return null;
+    }
+
+    @Override
+    public final JsonNode path(String fieldName)
+    {
+        return MissingNode.getInstance();
+    }
+
+    @Override
+    public final boolean has(String fieldName)
+    {
+        return false;
+    }
+
+    @Override
+    public final boolean hasNonNull(String fieldName)
+    {
+        return false;
+    }
 }

@@ -324,7 +324,7 @@ public abstract class JsonNode
      *   if this node is an array and has specified element.
      *   Null otherwise.
      */
-    public JsonNode get(int index) { return null; }
+    public abstract JsonNode get(int index);
 
     /**
      * Method for accessing value of the specified field of

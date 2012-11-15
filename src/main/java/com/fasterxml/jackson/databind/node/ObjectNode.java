@@ -932,31 +932,4 @@ public class ObjectNode
         }
         return _children.put(fieldName, value);
     }
-
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
-    /**
-     * For efficiency, let's share the "no fields" iterator...
-     */
-    protected static class NoFieldsIterator
-        implements Iterator<Map.Entry<String, JsonNode>>
-    {
-        final static NoFieldsIterator instance = new NoFieldsIterator();
-
-        private NoFieldsIterator() { }
-
-//      @Override
-        public boolean hasNext() { return false; }
-//      @Override
-        public Map.Entry<String,JsonNode> next() { throw new NoSuchElementException(); }
-
-//      @Override
-        public void remove() { // or IllegalOperationException?
-            throw new IllegalStateException();
-        }
-    }
 }

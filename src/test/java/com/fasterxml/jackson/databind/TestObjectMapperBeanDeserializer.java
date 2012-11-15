@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import java.io.*;
-import java.net.URL;
+import java.net.URI;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -75,16 +75,16 @@ public class TestObjectMapperBeanDeserializer
         int _x;
         long _y;
         String _desc;
-        URL _url;
+        URI _uri;
         Collection<?> _misc;
 
         // Explicit constructor
-        public TestBean(int x, long y, String desc, URL url, Collection<?> misc)
+        public TestBean(int x, long y, String desc, URI uri, Collection<?> misc)
         {
             _x = x;
             _y = y;
             _desc = desc;
-            _url = url;
+            _uri = uri;
             _misc = misc;
         }
 
@@ -94,13 +94,13 @@ public class TestObjectMapperBeanDeserializer
         public String getDesc() { return _desc; }
         public int getX() { return _x; }
         public long getY() { return _y; }
-        public URL getURL() { return _url; }
+        public URI getURI() { return _uri; }
         public Collection<?> getMisc() { return _misc; }
 
         public void setDesc(String value) { _desc = value; }
         public void setX(int value) { _x = value; }
         public void setY(long value) { _y = value; }
-        public void setURL(URL value) { _url = value; }
+        public void setURI(URI value) { _uri = value; }
         public void setMisc(Collection<?> value) { _misc = value; }
 
         @Override
@@ -111,7 +111,7 @@ public class TestObjectMapperBeanDeserializer
             return (other._x == _x)
                 && (other._y == _y)
                 && (other._desc.equals(_desc))
-                && (other._url.equals(_url))
+                && (other._uri.equals(_uri))
                 && (other._misc.equals(_misc))
                 ;
         }
@@ -124,7 +124,7 @@ public class TestObjectMapperBeanDeserializer
             sb.append("x=").append(_x);
             sb.append(" y=").append(_y);
             sb.append(" desc=").append(_desc);
-            sb.append(" url=").append(_url);
+            sb.append(" uri=").append(_uri);
             sb.append(" misc=").append(_misc);
             sb.append("]");
             return sb.toString();
@@ -245,7 +245,7 @@ public class TestObjectMapperBeanDeserializer
         misc.add(42);
         misc.add(null);
         misc.add(Boolean.TRUE);
-        TestBean bean = new TestBean(13, -900L, "\"test\"", new URL("http://foobar.com"), misc);
+        TestBean bean = new TestBean(13, -900L, "\"test\"", new URI("http://foobar.com"), misc);
 
         // Hmmh. We probably should use serializer too... easier
         String json = MAPPER.writeValueAsString(bean);

@@ -676,8 +676,8 @@ public abstract class BeanSerializerBase
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-    	//deposit your output format 
-    	JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
+        //deposit your output format 
+        JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
  
         if (_propertyFilterId != null) {
             BeanPropertyFilter filter = findFilter(visitor.getProvider());

@@ -2573,12 +2573,11 @@ public class ObjectMapper
         if (type == null) {
             throw new IllegalArgumentException("type must be provided");
         }
-        if (visitor == null) {
-            return;
+        if (visitor != null) {
+            DefaultSerializerProvider provider = _serializerProvider(getSerializationConfig());
+            visitor.setProvider(provider);
+            provider.acceptJsonFormatVisitor(type, visitor);
         }
-        DefaultSerializerProvider provider = _serializerProvider(getSerializationConfig());
-        visitor.setProvider(provider);
-        provider.acceptJsonFormatVisitor(type, visitor);
     }
 
     /*

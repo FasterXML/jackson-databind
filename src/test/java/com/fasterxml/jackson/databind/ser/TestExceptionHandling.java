@@ -100,7 +100,7 @@ public class TestExceptionHandling
         ObjectMapper mapper = new ObjectMapper();
         JsonFactory f = new MappingJsonFactory();
         BrokenStringWriter sw = new BrokenStringWriter("TEST");
-        JsonGenerator jg = f.createJsonGenerator(sw);
+        JsonGenerator jg = f.createGenerator(sw);
 
         try {
             mapper.writeValue(jg, createLongObject());
@@ -114,7 +114,7 @@ public class TestExceptionHandling
         throws Exception
     {
         JsonFactory f = new MappingJsonFactory();
-        JsonGenerator jg = f.createJsonGenerator(new BrokenStringWriter("TEST"));
+        JsonGenerator jg = f.createGenerator(new BrokenStringWriter("TEST"));
         try {
             jg.writeObject(createLongObject());
             fail("Should have gotten an exception");

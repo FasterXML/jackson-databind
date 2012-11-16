@@ -177,7 +177,7 @@ public class TestCollectionSerialization
             String json = MAPPER.writeValueAsString(value);
             
             // and then need to verify:
-            JsonParser jp = new JsonFactory().createJsonParser(json);
+            JsonParser jp = new JsonFactory().createParser(json);
             assertToken(JsonToken.START_ARRAY, jp.nextToken());
             for (int i = 0; i < entryLen; ++i) {
                 assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
@@ -202,7 +202,7 @@ public class TestCollectionSerialization
             case 0:
                 {
                     byte[] data = MAPPER.writeValueAsBytes(value);
-                    jp = new JsonFactory().createJsonParser(data);
+                    jp = new JsonFactory().createParser(data);
                 }
                 break;
             case 1:

@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 public class ClassDeserializer
     extends StdScalarDeserializer<Class<?>>
 {
+    private static final long serialVersionUID = 1L;
+
     public ClassDeserializer() { super(Class.class); }
 
     @Override

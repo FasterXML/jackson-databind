@@ -6,6 +6,7 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -66,11 +67,12 @@ public class TokenBufferSerializer
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
     {
         /* 01-Jan-2010, tatu: Not 100% sure what we should say here:
          *   type is basically not known. This seems closest
          *   approximation
          */
-    	visitor.expectAnyFormat(typeHint);
+        visitor.expectAnyFormat(typeHint);
     }
 }    

@@ -302,7 +302,7 @@ public class TestTreeMapperDeserializer
             ;
         JsonFactory jf = new JsonFactory();
         ObjectMapper mapper = new ObjectMapper();
-        JsonParser jp = jf.createJsonParser(new StringReader(JSON));
+        JsonParser jp = jf.createParser(new StringReader(JSON));
         JsonNode result = mapper.readTree(jp);
 
         assertTrue(result.isObject());
@@ -316,7 +316,7 @@ public class TestTreeMapperDeserializer
         String JSON = "12  \"string\" [ 1, 2, 3 ]";
         JsonFactory jf = new JsonFactory();
         ObjectMapper mapper = new ObjectMapper();
-        JsonParser jp = jf.createJsonParser(new StringReader(JSON));
+        JsonParser jp = jf.createParser(new StringReader(JSON));
         JsonNode result = mapper.readTree(jp);
 
         assertTrue(result.isIntegralNumber());

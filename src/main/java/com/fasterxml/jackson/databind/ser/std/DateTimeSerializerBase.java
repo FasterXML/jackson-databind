@@ -117,6 +117,7 @@ public abstract class DateTimeSerializerBase<T>
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
     {
         //todo: (ryan) add a format for the date in the schema?
         boolean asNumber = _useTimestamp;
@@ -126,9 +127,9 @@ public abstract class DateTimeSerializerBase<T>
             }
         }
         if (asNumber) {
-        	visitor.expectNumberFormat(typeHint).format(JsonValueFormat.UTC_MILLISEC);
+            visitor.expectNumberFormat(typeHint).format(JsonValueFormat.UTC_MILLISEC);
         } else {
-        	visitor.expectStringFormat(typeHint).format(JsonValueFormat.DATE_TIME);
+            visitor.expectStringFormat(typeHint).format(JsonValueFormat.DATE_TIME);
         }
     }
 

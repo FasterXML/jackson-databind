@@ -105,6 +105,7 @@ public class ExternalTypeHandler
             jp.skipChildren();
             canDeserialize = (bean != null) && (_tokens[index] != null);
         } else {
+            @SuppressWarnings("resource")
             TokenBuffer tokens = new TokenBuffer(jp.getCodec());
             tokens.copyCurrentStructure(jp);
             _tokens[index] = tokens;
@@ -200,6 +201,7 @@ public class ExternalTypeHandler
             int index, String typeId)
         throws IOException, JsonProcessingException
     {
+        @SuppressWarnings("resource")
         TokenBuffer merged = new TokenBuffer(jp.getCodec());
         merged.writeStartArray();
         merged.writeString(typeId);
@@ -221,6 +223,7 @@ public class ExternalTypeHandler
         /* Ok: time to mix type id, value; and we will actually use "wrapper-array"
          * style to ensure we can handle all kinds of JSON constructs.
          */
+        @SuppressWarnings("resource")
         TokenBuffer merged = new TokenBuffer(jp.getCodec());
         merged.writeStartArray();
         merged.writeString(typeId);

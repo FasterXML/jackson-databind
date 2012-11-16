@@ -84,7 +84,7 @@ public class TestArrayNode
         assertEquals(6, n.size());
 
         // Try serializing it for fun, too...
-        JsonGenerator jg = new MappingJsonFactory().createJsonGenerator(new StringWriter());
+        JsonGenerator jg = new MappingJsonFactory().createGenerator(new StringWriter());
         n.serialize(jg, null);
 
         n.removeAll();

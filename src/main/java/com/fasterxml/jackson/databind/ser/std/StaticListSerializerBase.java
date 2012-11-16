@@ -4,6 +4,7 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
@@ -36,8 +37,9 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
     {
-    	acceptContentVisitor(visitor.expectArrayFormat(typeHint));
+        acceptContentVisitor(visitor.expectArrayFormat(typeHint));
     }
 
     /*
@@ -48,5 +50,6 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
 
     protected abstract JsonNode contentSchema();
     
-    protected abstract void acceptContentVisitor(JsonArrayFormatVisitor visitor);    
+    protected abstract void acceptContentVisitor(JsonArrayFormatVisitor visitor)
+        throws JsonMappingException;
 }

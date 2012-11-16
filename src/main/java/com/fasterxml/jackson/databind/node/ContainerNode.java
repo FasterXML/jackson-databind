@@ -1,9 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.math.BigDecimal;
-import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import com.fasterxml.jackson.core.*;
 

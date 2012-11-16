@@ -44,7 +44,7 @@ public class TestTreeMapperSerializer
         for (int i = 0; i < 2; ++i) {
             StringWriter sw = new StringWriter();
             if (i == 0) {
-                JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+                JsonGenerator gen = new JsonFactory().createGenerator(sw);
                 root.serialize(gen, null);
                 gen.close();
             } else {
@@ -74,7 +74,7 @@ public class TestTreeMapperSerializer
         for (int i = 0; i < 2; ++i) {
             StringWriter sw = new StringWriter();
             if (i == 0) {
-                JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+                JsonGenerator gen = new JsonFactory().createGenerator(sw);
                 root.serialize(gen, null);
                 gen.close();
             } else {
@@ -106,7 +106,7 @@ public class TestTreeMapperSerializer
         for (int type = 0; type < 2; ++type) {
             StringWriter sw = new StringWriter();
             if (type == 0) {
-                JsonGenerator gen = new JsonFactory().createJsonGenerator(sw);
+                JsonGenerator gen = new JsonFactory().createGenerator(sw);
                 root.serialize(gen, null);
                 gen.close();
             } else {
@@ -114,7 +114,7 @@ public class TestTreeMapperSerializer
             }
             
             String doc = sw.toString();
-            JsonParser jp = new JsonFactory().createJsonParser(new StringReader(doc));
+            JsonParser jp = new JsonFactory().createParser(new StringReader(doc));
             
             assertEquals(JsonToken.START_ARRAY, jp.nextToken());
             for (int i = -20; i <= 20; ++i) {
@@ -147,7 +147,7 @@ public class TestTreeMapperSerializer
         StringWriter sw = new StringWriter();
         mapper.writeValue(sw, BinaryNode.valueOf(data));
 
-        JsonParser jp = new JsonFactory().createJsonParser(sw.toString());
+        JsonParser jp = new JsonFactory().createParser(sw.toString());
         // note: can't determine it's binary from json alone:
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertArrayEquals(data, jp.getBinaryValue());
@@ -163,7 +163,7 @@ public class TestTreeMapperSerializer
     private void verifyFromArray(String input)
         throws Exception
     {
-        JsonParser jp = new JsonFactory().createJsonParser(new StringReader(input));
+        JsonParser jp = new JsonFactory().createParser(new StringReader(input));
         
         assertEquals(JsonToken.START_ARRAY, jp.nextToken());
         
@@ -194,7 +194,7 @@ public class TestTreeMapperSerializer
     private void verifyFromMap(String input)
         throws Exception
     {
-        JsonParser jp = new JsonFactory().createJsonParser(new StringReader(input));
+        JsonParser jp = new JsonFactory().createParser(new StringReader(input));
         assertEquals(JsonToken.START_OBJECT, jp.nextToken());
         assertEquals(JsonToken.FIELD_NAME, jp.nextToken());
         assertEquals(FIELD4, getAndVerifyText(jp));

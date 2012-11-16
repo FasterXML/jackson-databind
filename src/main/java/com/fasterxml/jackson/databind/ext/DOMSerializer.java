@@ -9,6 +9,7 @@ import  org.w3c.dom.ls.LSSerializer;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -49,6 +50,7 @@ public class DOMSerializer
 
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+            throws JsonMappingException
     {
         visitor.expectAnyFormat(typeHint);
     }

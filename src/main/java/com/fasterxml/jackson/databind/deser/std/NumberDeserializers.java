@@ -118,6 +118,8 @@ public class NumberDeserializers
     public final static class ByteDeserializer
         extends PrimitiveOrWrapperDeserializer<Byte>
     {
+        private static final long serialVersionUID = 1L;
+
         public ByteDeserializer(Class<Byte> cls, Byte nvl)
         {
             super(cls, nvl);
@@ -135,6 +137,8 @@ public class NumberDeserializers
     public final static class ShortDeserializer
         extends PrimitiveOrWrapperDeserializer<Short>
     {
+        private static final long serialVersionUID = 1L;
+
         public ShortDeserializer(Class<Short> cls, Short nvl)
         {
             super(cls, nvl);
@@ -152,6 +156,8 @@ public class NumberDeserializers
     public final static class CharacterDeserializer
         extends PrimitiveOrWrapperDeserializer<Character>
     {
+        private static final long serialVersionUID = 1L;
+
         public CharacterDeserializer(Class<Character> cls, Character nvl)
         {
             super(cls, nvl);

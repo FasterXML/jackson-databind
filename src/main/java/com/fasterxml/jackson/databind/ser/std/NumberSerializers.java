@@ -79,8 +79,9 @@ public class NumberSerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectIntegerFormat(typeHint);
+            visitor.expectIntegerFormat(typeHint);
         }
     }
 
@@ -112,8 +113,9 @@ public class NumberSerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectIntegerFormat(typeHint);
+            visitor.expectIntegerFormat(typeHint);
         }
     }
 
@@ -140,8 +142,9 @@ public class NumberSerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectNumberFormat(typeHint);
+            visitor.expectNumberFormat(typeHint);
         }
     }
     
@@ -168,8 +171,9 @@ public class NumberSerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectNumberFormat(typeHint);
+            visitor.expectNumberFormat(typeHint);
         }
     }
 
@@ -203,8 +207,9 @@ public class NumberSerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+            throws JsonMappingException
         {
-        	visitor.expectNumberFormat(typeHint);
+            visitor.expectNumberFormat(typeHint);
         }
     }
     
@@ -257,8 +262,9 @@ public class NumberSerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+            throws JsonMappingException
         {
-        	visitor.expectNumberFormat(typeHint);
+            visitor.expectNumberFormat(typeHint);
         }
     }
 }

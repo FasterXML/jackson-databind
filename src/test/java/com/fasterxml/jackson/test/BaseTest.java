@@ -292,7 +292,7 @@ public abstract class BaseTest
     protected JsonParser createParserUsingReader(JsonFactory f, String input)
         throws IOException, JsonParseException
     {
-        return f.createJsonParser(new StringReader(input));
+        return f.createParser(new StringReader(input));
     }
 
     protected JsonParser createParserUsingStream(String input, String encoding)
@@ -318,7 +318,7 @@ public abstract class BaseTest
             data = input.getBytes(encoding);
         }
         InputStream is = new ByteArrayInputStream(data);
-        return f.createJsonParser(is);
+        return f.createParser(is);
     }
 
     /*

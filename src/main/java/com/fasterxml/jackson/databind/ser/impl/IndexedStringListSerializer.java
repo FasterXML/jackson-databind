@@ -51,11 +51,12 @@ public final class IndexedStringListSerializer
         return createSchemaNode("string", true);
     }
 
-	@Override
-	protected void acceptContentVisitor(JsonArrayFormatVisitor visitor) {
+    @Override
+    protected void acceptContentVisitor(JsonArrayFormatVisitor visitor)
+        throws JsonMappingException
+    {
 		visitor.itemsFormat(JsonFormatTypes.STRING);
-		
-	}
+    }
 
     /*
     /**********************************************************

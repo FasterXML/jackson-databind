@@ -90,6 +90,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         return _deserializeTypedUsingDefaultImpl(jp, ctxt, tb);
     }
 
+    @SuppressWarnings("resource")
     protected final Object _deserializeTypedForId(JsonParser jp, DeserializationContext ctxt,
             TokenBuffer tb)
         throws IOException, JsonProcessingException

@@ -85,8 +85,9 @@ public class StdJdkSerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectBooleanFormat(typeHint);
+            visitor.expectBooleanFormat(typeHint);
         }
     }
     
@@ -110,8 +111,9 @@ public class StdJdkSerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectIntegerFormat(typeHint);
+            visitor.expectIntegerFormat(typeHint);
         }
     }
 
@@ -135,8 +137,9 @@ public class StdJdkSerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectIntegerFormat(typeHint);
+            visitor.expectIntegerFormat(typeHint);
         }
     }
     
@@ -160,8 +163,9 @@ public class StdJdkSerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectAnyFormat(typeHint);
+            visitor.expectAnyFormat(typeHint);
         }
     }
     
@@ -195,8 +199,9 @@ public class StdJdkSerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectStringFormat(typeHint);
+            visitor.expectStringFormat(typeHint);
         }
     }
 
@@ -224,8 +229,9 @@ public class StdJdkSerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectStringFormat(typeHint);
+            visitor.expectStringFormat(typeHint);
         }
     }
 }

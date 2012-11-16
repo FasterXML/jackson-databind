@@ -52,7 +52,9 @@ public class StringCollectionSerializer
     }
     
     @Override
-    protected void acceptContentVisitor(JsonArrayFormatVisitor visitor) {
+    protected void acceptContentVisitor(JsonArrayFormatVisitor visitor)
+        throws JsonMappingException
+    {
         visitor.itemsFormat(JsonFormatTypes.STRING);
     }
 

@@ -67,7 +67,7 @@ public class TestExceptionHandling
     {
         BrokenStringReader r = new BrokenStringReader("[ 1, ", "TEST");
         JsonFactory f = new JsonFactory();
-        JsonParser jp = f.createJsonParser(r);
+        JsonParser jp = f.createParser(r);
         ObjectMapper mapper = new ObjectMapper();
         try {
             @SuppressWarnings("unused")
@@ -86,7 +86,7 @@ public class TestExceptionHandling
     {
         StringReader r = new StringReader("  3");
         JsonFactory f = new JsonFactory();
-        JsonParser jp = f.createJsonParser(r);
+        JsonParser jp = f.createParser(r);
         ObjectMapper mapper = new ObjectMapper();
 
         Integer I = mapper.readValue(jp, Integer.class);

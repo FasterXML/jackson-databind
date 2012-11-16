@@ -240,6 +240,7 @@ public abstract class AsArraySerializerBase<T>
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
     {
         /* 15-Jan-2010, tatu: This should probably be rewritten, given that
          *    more information about content type is actually being explicitly

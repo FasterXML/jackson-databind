@@ -79,7 +79,7 @@ public class TestParserUsingMapper  extends com.fasterxml.jackson.test.BaseTest
         final String JSON = "[ 1, 2, false ]";
 
         for (int i = 0; i < 2; ++i) {
-            JsonParser jp = jf.createJsonParser(new StringReader(JSON));
+            JsonParser jp = jf.createParser(new StringReader(JSON));
             // whether to try advancing first or not? Try both
             if (i == 0) {
                 assertToken(JsonToken.START_ARRAY, jp.nextToken());
@@ -98,7 +98,7 @@ public class TestParserUsingMapper  extends com.fasterxml.jackson.test.BaseTest
     {
         JsonFactory jf = new MappingJsonFactory();
         final String JSON = "{ \"x\" : 9 }";
-        JsonParser jp = jf.createJsonParser(new StringReader(JSON));
+        JsonParser jp = jf.createParser(new StringReader(JSON));
 
         // let's try first by advancing:
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
@@ -107,7 +107,7 @@ public class TestParserUsingMapper  extends com.fasterxml.jackson.test.BaseTest
         jp.close();
 
         // and without
-        jp = jf.createJsonParser(new StringReader(JSON));
+        jp = jf.createParser(new StringReader(JSON));
         p = jp.readValueAs(Pojo.class);
         assertEquals(9, p._x);
         jp.close();
@@ -121,7 +121,7 @@ public class TestParserUsingMapper  extends com.fasterxml.jackson.test.BaseTest
     {
         JsonFactory jf = new MappingJsonFactory();
         final String JSON = "[ 1, true, null, \"abc\" ]";
-        JsonParser jp = jf.createJsonParser(new StringReader(JSON));
+        JsonParser jp = jf.createParser(new StringReader(JSON));
 
         // let's advance past array start to prevent full binding
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
@@ -156,7 +156,7 @@ public class TestParserUsingMapper  extends com.fasterxml.jackson.test.BaseTest
         JsonFactory jf = new JsonFactory();
         try {
             final String JSON = "{ \"x\" : 9 }";
-            JsonParser jp = jf.createJsonParser(new StringReader(JSON));
+            JsonParser jp = jf.createParser(new StringReader(JSON));
             Pojo p = jp.readValueAs(Pojo.class);
             fail("Expected an exception: got "+p);
         } catch (IllegalStateException e) {

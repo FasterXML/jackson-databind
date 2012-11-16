@@ -70,7 +70,9 @@ public class CoreXMLSerializers
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) {
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
+        {
             CalendarSerializer.instance.acceptJsonFormatVisitor(visitor, null);
         }
     }

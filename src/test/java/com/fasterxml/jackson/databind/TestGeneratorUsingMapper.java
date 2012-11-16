@@ -26,7 +26,7 @@ public class TestGeneratorUsingMapper extends BaseMapTest
     {
         JsonFactory jf = new MappingJsonFactory();
         StringWriter sw = new StringWriter();
-        JsonGenerator gen = jf.createJsonGenerator(sw);
+        JsonGenerator gen = jf.createGenerator(sw);
         gen.writeObject(new Pojo());
         gen.close();
         // trimming needed if main-level object has leading space
@@ -41,7 +41,7 @@ public class TestGeneratorUsingMapper extends BaseMapTest
         JsonFactory jf = new JsonFactory();
         try {
             StringWriter sw = new StringWriter();
-            JsonGenerator gen = jf.createJsonGenerator(sw);
+            JsonGenerator gen = jf.createGenerator(sw);
             gen.writeObject(new Pojo());
             gen.close();
             fail("Expected an exception: got sw '"+sw.toString()+"'");

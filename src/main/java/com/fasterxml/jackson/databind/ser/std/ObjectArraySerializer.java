@@ -342,8 +342,9 @@ public class ObjectArraySerializer
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
     {
-    	visitor.expectArrayFormat(typeHint).itemsFormat(_elementType);
+        visitor.expectArrayFormat(typeHint).itemsFormat(_elementType);
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,

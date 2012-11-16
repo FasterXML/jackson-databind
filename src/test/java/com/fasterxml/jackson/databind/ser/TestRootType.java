@@ -146,7 +146,7 @@ public class TestRootType
 
         StringWriter out = new StringWriter();
         JsonFactory f = new JsonFactory();
-        mapper.writerWithType(collectionType).writeValue(f.createJsonGenerator(out), typedList);
+        mapper.writerWithType(collectionType).writeValue(f.createGenerator(out), typedList);
 
         assertEquals(EXP, out.toString());
     }

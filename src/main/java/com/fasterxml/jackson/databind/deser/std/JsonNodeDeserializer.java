@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.node.*;
  * Deserializer that can build instances of {@link JsonNode} from any
  * JSON content, using appropriate {@link JsonNode} type.
  */
+@SuppressWarnings("serial")
 public class JsonNodeDeserializer
     extends BaseNodeDeserializer<JsonNode>
 {
@@ -72,6 +73,8 @@ public class JsonNodeDeserializer
     final static class ObjectDeserializer
         extends BaseNodeDeserializer<ObjectNode>
     {
+        private static final long serialVersionUID = 1L;
+
         protected final static ObjectDeserializer _instance = new ObjectDeserializer();
 
         protected ObjectDeserializer() {
@@ -124,6 +127,7 @@ public class JsonNodeDeserializer
  * Base class for all actual {@link JsonNode} deserializer
  * implementations
  */
+@SuppressWarnings("serial")
 abstract class BaseNodeDeserializer<N extends JsonNode>
     extends StdDeserializer<N>
 {

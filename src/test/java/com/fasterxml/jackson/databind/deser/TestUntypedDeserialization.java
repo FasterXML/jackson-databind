@@ -27,7 +27,7 @@ public class TestUntypedDeserialization
         /* To get "untyped" Mapping (to Maps, Lists, instead of beans etc),
          * we'll specify plain old Object.class as the target.
          */
-        Object root = new ObjectMapper().readValue(jf.createJsonParser(new StringReader(JSON)), Object.class);
+        Object root = new ObjectMapper().readValue(jf.createParser(new StringReader(JSON)), Object.class);
 
         assertType(root, Map.class);
         Map<?,?> rootMap = (Map<?,?>) root;

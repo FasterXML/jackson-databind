@@ -33,7 +33,7 @@ public class TestUntypedSerialization
         for (int i = 0; i < 3; ++i) {
             String str = mapper.writeValueAsString(doc);
             
-            JsonParser jp = f.createJsonParser(str);
+            JsonParser jp = f.createParser(str);
             assertEquals(JsonToken.START_ARRAY, jp.nextToken());
             
             assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
@@ -76,7 +76,7 @@ public class TestUntypedSerialization
         ObjectMapper mapper = new ObjectMapper();
         for (int i = 0; i < 3; ++i) {
             String str = mapper.writeValueAsString(doc);
-            JsonParser jp = f.createJsonParser(str);
+            JsonParser jp = f.createParser(str);
             
             assertEquals(JsonToken.START_OBJECT, jp.nextToken());
             

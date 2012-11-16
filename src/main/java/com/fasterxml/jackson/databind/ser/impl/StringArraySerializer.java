@@ -198,7 +198,8 @@ public class StringArraySerializer
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+            throws JsonMappingException
     {
-    	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.STRING);
+        visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.STRING);
     }
 }

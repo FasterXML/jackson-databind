@@ -794,6 +794,7 @@ public class BuilderBasedDeserializer
         return bean;
     }
 
+    @SuppressWarnings("resource")
     protected Object deserializeUsingPropertyBasedWithUnwrapped(JsonParser jp,
     		DeserializationContext ctxt)
         throws IOException, JsonProcessingException

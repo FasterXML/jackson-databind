@@ -28,10 +28,10 @@ public class TestObjectMapperBeanSerializer
         FixtureObject  aTestObj = new FixtureObject();
         ObjectMapper aMapper  = new ObjectMapper();
         StringWriter aWriter = new StringWriter();
-        JsonGenerator aGen = new JsonFactory().createJsonGenerator(aWriter);
+        JsonGenerator aGen = new JsonFactory().createGenerator(aWriter);
         aMapper.writeValue(aGen, aTestObj);
         aGen.close();
-        JsonParser jp = new JsonFactory().createJsonParser(new StringReader(aWriter.toString()));
+        JsonParser jp = new JsonFactory().createParser(new StringReader(aWriter.toString()));
 
         assertEquals(JsonToken.START_OBJECT, jp.nextToken());
 

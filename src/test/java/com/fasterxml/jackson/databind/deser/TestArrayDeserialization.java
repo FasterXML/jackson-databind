@@ -252,7 +252,7 @@ public class TestArrayDeserialization
             "a", "b", "abcd", "", "???", "\"quoted\"", "lf: \n",
         };
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = new JsonFactory().createJsonGenerator(sw);
+        JsonGenerator jg = new JsonFactory().createGenerator(sw);
         jg.writeStartArray();
         for (String str : STRS) {
             jg.writeString(str);
@@ -336,7 +336,7 @@ public class TestArrayDeserialization
             TEST[i] = (byte) i;
         }
 
-        JsonGenerator jg = jf.createJsonGenerator(sw);
+        JsonGenerator jg = jf.createGenerator(sw);
         jg.writeBinary(TEST);
         jg.close();
         String inputData = sw.toString();
@@ -357,7 +357,7 @@ public class TestArrayDeserialization
 
         final int entryCount = 15;
 
-        JsonGenerator jg = jf.createJsonGenerator(sw);
+        JsonGenerator jg = jf.createGenerator(sw);
         jg.writeStartArray();
 
         byte[][] entries = new byte[entryCount][];

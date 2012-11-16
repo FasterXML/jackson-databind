@@ -22,7 +22,7 @@ public class TestArraySerialization
         }
         String str = sb.toString();
         byte[] data = MAPPER.writeValueAsBytes(new String[] { "abc", str, null, str });
-        JsonParser jp = MAPPER.getFactory().createJsonParser(data);
+        JsonParser jp = MAPPER.getFactory().createParser(data);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         assertToken(JsonToken.VALUE_STRING, jp.nextToken());
         assertEquals("abc", jp.getText());
@@ -58,7 +58,7 @@ public class TestArraySerialization
         JsonFactory f = MAPPER.getFactory();
         for (int round = 0; round < 3; ++round) {
             byte[] data = MAPPER.writeValueAsBytes(ints);
-            JsonParser jp = f.createJsonParser(data);
+            JsonParser jp = f.createParser(data);
             assertToken(JsonToken.START_ARRAY, jp.nextToken());
             for (int i = 0; i < SIZE; ++i) {
                 assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());

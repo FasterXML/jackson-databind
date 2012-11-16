@@ -25,6 +25,8 @@ public class CollectionDeserializer
     extends ContainerDeserializerBase<Collection<Object>>
     implements ContextualDeserializer
 {
+    private static final long serialVersionUID = -2003828398549708958L;
+
     // // Configuration
 
     protected final JavaType _collectionType;

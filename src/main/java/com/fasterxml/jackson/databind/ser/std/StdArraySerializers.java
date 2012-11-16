@@ -137,11 +137,12 @@ public class StdArraySerializers
             o.put("items", createSchemaNode("boolean"));
             return o;
         }
-        
+
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.BOOLEAN);
+            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.BOOLEAN);
         }
     }
 
@@ -195,8 +196,9 @@ public class StdArraySerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.STRING);
+            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.STRING);
         }
     }
 
@@ -267,8 +269,9 @@ public class StdArraySerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.INTEGER);
+            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.INTEGER);
         }
     }
 
@@ -341,8 +344,9 @@ public class StdArraySerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.STRING);
+            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.STRING);
         }
     }
 
@@ -404,8 +408,9 @@ public class StdArraySerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.INTEGER);
+            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.INTEGER);
         }
     }
 
@@ -476,8 +481,9 @@ public class StdArraySerializers
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.NUMBER);
+            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.NUMBER);
         }
     }
 
@@ -549,8 +555,9 @@ public class StdArraySerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.NUMBER);
+            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.NUMBER);
         }
     }
 
@@ -612,8 +619,9 @@ public class StdArraySerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
         {
-        	visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.NUMBER);
+            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.NUMBER);
         }
     }
 }

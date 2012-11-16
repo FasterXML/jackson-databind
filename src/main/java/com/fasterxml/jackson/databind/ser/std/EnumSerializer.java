@@ -166,10 +166,11 @@ public class EnumSerializer
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+            throws JsonMappingException
     {
         // [JACKSON-684]: serialize as index?
     	if (visitor.getProvider().isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
-    		visitor.expectIntegerFormat(typeHint);
+    	    visitor.expectIntegerFormat(typeHint);
     	} else {
     		JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
     		if (typeHint != null) {

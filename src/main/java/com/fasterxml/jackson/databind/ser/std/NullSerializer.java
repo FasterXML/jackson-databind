@@ -40,7 +40,8 @@ public class NullSerializer
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+        throws JsonMappingException
     {
-    	visitor.expectNullFormat(typeHint);
+        visitor.expectNullFormat(typeHint);
     }
 }

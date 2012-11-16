@@ -65,7 +65,7 @@ public class TestReadValues extends BaseMapTest
     public void testRootBeansWithParser() throws Exception
     {
         final String JSON = "{\"a\":3}{\"a\":27}  ";
-        JsonParser jp = MAPPER.getFactory().createJsonParser(JSON);
+        JsonParser jp = MAPPER.getFactory().createParser(JSON);
         
         Iterator<Bean> it = jp.readValuesAs(Bean.class);
 
@@ -81,7 +81,7 @@ public class TestReadValues extends BaseMapTest
     public void testRootArraysWithParser() throws Exception
     {
         final String JSON = "[1][3]";
-        JsonParser jp = MAPPER.getFactory().createJsonParser(JSON);
+        JsonParser jp = MAPPER.getFactory().createParser(JSON);
 
         // NOTE: We must point JsonParser to the first element; if we tried to
         // use "managed" accessor, it would try to advance past START_ARRAY.
@@ -101,7 +101,7 @@ public class TestReadValues extends BaseMapTest
     
     public void testHasNextWithEndArray() throws Exception {
         final String JSON = "[1,3]";
-        JsonParser jp = MAPPER.getFactory().createJsonParser(JSON);
+        JsonParser jp = MAPPER.getFactory().createParser(JSON);
 
         // NOTE: We must point JsonParser to the first element; if we tried to
         // use "managed" accessor, it would try to advance past START_ARRAY.
@@ -142,7 +142,7 @@ public class TestReadValues extends BaseMapTest
     public void testNonRootBeans() throws Exception
     {
         final String JSON = "{\"leaf\":[{\"a\":3},{\"a\":27}]}";
-        JsonParser jp = MAPPER.getFactory().createJsonParser(JSON);
+        JsonParser jp = MAPPER.getFactory().createParser(JSON);
         assertToken(JsonToken.START_OBJECT, jp.nextToken());
         assertToken(JsonToken.FIELD_NAME, jp.nextToken());
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
@@ -166,7 +166,7 @@ public class TestReadValues extends BaseMapTest
     public void testNonRootMapsWithParser() throws Exception
     {
         final String JSON = "[{\"a\":3},{\"a\":27}]";
-        JsonParser jp = MAPPER.getFactory().createJsonParser(JSON);
+        JsonParser jp = MAPPER.getFactory().createParser(JSON);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
 
         // can either advance to first START_OBJECT, or clear current token;
@@ -210,7 +210,7 @@ public class TestReadValues extends BaseMapTest
     public void testNonRootArraysUsingParser() throws Exception
     {
         final String JSON = "[[1],[3]]";
-        JsonParser jp = MAPPER.getFactory().createJsonParser(JSON);
+        JsonParser jp = MAPPER.getFactory().createParser(JSON);
         assertToken(JsonToken.START_ARRAY, jp.nextToken());
         
         // Important: as of 2.1, START_ARRAY can only be skipped if the

@@ -44,7 +44,8 @@ public class StdKeySerializer
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+            throws JsonMappingException
     {
-    	visitor.expectStringFormat(typeHint);
+        visitor.expectStringFormat(typeHint);
     }
 }

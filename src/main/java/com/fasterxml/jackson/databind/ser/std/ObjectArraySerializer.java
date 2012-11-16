@@ -149,7 +149,7 @@ public class ObjectArraySerializer
                 }
             }
         } else if (ser instanceof ContextualSerializer) {
-            ser = ((ContextualSerializer) _elementSerializer).createContextual(provider, property);
+            ser = ((ContextualSerializer) ser).createContextual(provider, property);
         }
         return withResolved(property, vts, ser);
     }

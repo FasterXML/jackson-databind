@@ -1,9 +1,16 @@
-Version: 2.1.1
-
-Release date:
-  11-Nov-2012
+Version: 2.1.2 (xx-Dec-2012)
 
 First patch release for 2.1 branch.
+
+Fixes:
+
+* [Issue#106]: NPE in ObjectArraySerializer.createContextual(...)
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.1.1 (11-Nov-2012)
 
 Fixes:
 
@@ -17,10 +24,6 @@ Fixes:
     (reported by Sean B)
 * [Issue#96]: Problem with JsonTypeInfo.As.EXTERNAL_PROPERTY, defaultImpl
  (reported by Adva11@github)
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.1.0 (08-Oct-2012)
 

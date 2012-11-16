@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.util.EmptyIterator;
 
 /**
  * Node class that represents Arrays mapped from Json content.
@@ -77,9 +78,10 @@ public class ArrayNode
     @Override
     public Iterator<JsonNode> elements()
     {
-        return _children == null
-            ? Collections.<JsonNode>emptyIterator()
-            : _children.iterator();
+        if (_children == null) {
+            return EmptyIterator.instance();
+        }
+        return _children.iterator();
     }
 
     @Override

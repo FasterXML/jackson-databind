@@ -36,7 +36,7 @@ public class EnumMapSerializer
     protected final boolean _staticTyping;
 
     /**
-     * Propery for which this serializer is being used, if any;
+     * Property for which this serializer is being used, if any;
      * null for root values.
      */
     protected final BeanProperty _property;
@@ -306,19 +306,28 @@ public class EnumMapSerializer
         throws JsonMappingException
     {
         JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
-    	/*
-        JavaType enumType = typeHint.containedType(0);
-    	if (enumType == null) {
-    	    enumType = visitor.getProvider().constructType(Object.class);
-    	}
-    	*/
         JavaType valueType = typeHint.containedType(1);
+        JsonSerializer<Object> ser = _valueSerializer;
+        if (ser == null && valueType != null) {
+            ser = visitor.getProvider().findValueSerializer(valueType, _property);
+        }
         if (valueType == null) {
             valueType = visitor.getProvider().constructType(Object.class);
         }
-        JsonSerializer<Object> ser = _valueSerializer;
-//        Class<Enum<?>> enumClass = (Class<Enum<?>>) enumType.getRawClass();
-        for (Map.Entry<?,SerializedString> entry : _keyEnums.internalMap().entrySet()) {
+        EnumValues keyEnums = _keyEnums;
+        if (keyEnums == null) {
+            JavaType enumType = typeHint.containedType(0);
+             if (enumType == null) {
+                 throw new IllegalStateException("Can not resolve Enum type of EnumMap: "+typeHint);
+             }
+             JsonSerializer<?> enumSer = (enumType == null) ? null :
+                 visitor.getProvider().findValueSerializer(enumType, _property);
+             if (!(enumSer instanceof EnumSerializer)) {
+                 throw new IllegalStateException("Can not resolve Enum type of EnumMap: "+typeHint);
+             }
+             keyEnums = ((EnumSerializer) enumSer).getEnumValues();
+        }
+        for (Map.Entry<?,SerializedString> entry : keyEnums.internalMap().entrySet()) {
             String name = entry.getValue().getValue();
             // should all have the same type, so:
             if (ser == null) {

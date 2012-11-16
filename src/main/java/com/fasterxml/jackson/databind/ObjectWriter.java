@@ -477,7 +477,7 @@ public class ObjectWriter
     public void writeValue(File resultFile, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(_jsonFactory.createJsonGenerator(resultFile, JsonEncoding.UTF8), value);
+        _configAndWriteValue(_jsonFactory.createGenerator(resultFile, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -494,7 +494,7 @@ public class ObjectWriter
     public void writeValue(OutputStream out, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(_jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8), value);
+        _configAndWriteValue(_jsonFactory.createGenerator(out, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -510,7 +510,7 @@ public class ObjectWriter
     public void writeValue(Writer w, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(_jsonFactory.createJsonGenerator(w), value);
+        _configAndWriteValue(_jsonFactory.createGenerator(w), value);
     }
 
     /**
@@ -527,7 +527,7 @@ public class ObjectWriter
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
         try {
-            _configAndWriteValue(_jsonFactory.createJsonGenerator(sw), value);
+            _configAndWriteValue(_jsonFactory.createGenerator(sw), value);
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -550,7 +550,7 @@ public class ObjectWriter
     {
         ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler());
         try {
-            _configAndWriteValue(_jsonFactory.createJsonGenerator(bb, JsonEncoding.UTF8), value);
+            _configAndWriteValue(_jsonFactory.createGenerator(bb, JsonEncoding.UTF8), value);
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:

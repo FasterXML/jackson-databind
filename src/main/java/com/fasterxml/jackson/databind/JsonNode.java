@@ -8,6 +8,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.databind.util.EmptyIterator;
 
 /**
  * Base class for all JSON nodes, which form the basis of JSON
@@ -676,27 +677,24 @@ public abstract class JsonNode
      * field names (keys) are not included, only values.
      * For other types of nodes, returns empty iterator.
      */
-    public Iterator<JsonNode> elements()
-    {
-        return Collections.emptyIterator();
+    public Iterator<JsonNode> elements() {
+        return EmptyIterator.instance();
     }
 
     /**
      * Method for accessing names of all fields for this Node, iff
      * this node is a JSON Object node.
      */
-    public Iterator<String> fieldNames()
-    {
-        return Collections.emptyIterator();
+    public Iterator<String> fieldNames() {
+        return EmptyIterator.instance();
     }
 
     /**
      * @return Iterator that can be used to traverse all key/value pairs for
      *   object nodes; empty iterator (no contents) for other types
      */
-    public Iterator<Map.Entry<String, JsonNode>> fields()
-    {
-        return Collections.emptyIterator();
+    public Iterator<Map.Entry<String, JsonNode>> fields() {
+        return EmptyIterator.instance();
     }
     
     /*

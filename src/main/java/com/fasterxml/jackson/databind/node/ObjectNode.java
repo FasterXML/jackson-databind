@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.util.EmptyIterator;
 
 /**
  * Node that maps to JSON Object structures in JSON content.
@@ -79,9 +80,10 @@ public class ObjectNode
     @Override
     public Iterator<JsonNode> elements()
     {
-        return _children == null
-            ? Collections.<JsonNode>emptyIterator()
-            : _children.values().iterator();
+        if (_children == null) {
+            return EmptyIterator.instance();
+        }
+        return _children.values().iterator();
     }
 
     @Override
@@ -99,9 +101,10 @@ public class ObjectNode
     @Override
     public Iterator<String> fieldNames()
     {
-        return _children == null
-            ? Collections.<String>emptyIterator()
-            : _children.keySet().iterator();
+        if (_children == null) {
+            return EmptyIterator.instance();
+        }
+        return _children.keySet().iterator();
     }
 
     @Override
@@ -129,9 +132,10 @@ public class ObjectNode
     @Override
     public Iterator<Map.Entry<String, JsonNode>> fields()
     {
-        return _children == null
-            ? Collections.<Map.Entry<String, JsonNode>>emptyIterator()
-            : _children.entrySet().iterator();
+        if (_children == null) {
+            return EmptyIterator.instance();
+        }
+        return _children.entrySet().iterator();
     }
 
     @Override

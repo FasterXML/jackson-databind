@@ -1624,7 +1624,7 @@ public class ObjectMapper
     public JsonNode readTree(InputStream in)
         throws IOException, JsonProcessingException
     {
-        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createJsonParser(in), JSON_NODE_TYPE);
+        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createParser(in), JSON_NODE_TYPE);
         return (n == null) ? NullNode.instance : n;
     }
 
@@ -1641,7 +1641,7 @@ public class ObjectMapper
     public JsonNode readTree(Reader r)
         throws IOException, JsonProcessingException
     {
-        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createJsonParser(r), JSON_NODE_TYPE);
+        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createParser(r), JSON_NODE_TYPE);
         return (n == null) ? NullNode.instance : n;
     }
 
@@ -1655,7 +1655,7 @@ public class ObjectMapper
     public JsonNode readTree(String content)
         throws IOException, JsonProcessingException
     {
-        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createJsonParser(content), JSON_NODE_TYPE);
+        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createParser(content), JSON_NODE_TYPE);
         return (n == null) ? NullNode.instance : n;
     }
 
@@ -1669,7 +1669,7 @@ public class ObjectMapper
     public JsonNode readTree(byte[] content)
         throws IOException, JsonProcessingException
     {
-        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createJsonParser(content), JSON_NODE_TYPE);
+        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createParser(content), JSON_NODE_TYPE);
         return (n == null) ? NullNode.instance : n;
     }
     
@@ -1683,7 +1683,7 @@ public class ObjectMapper
     public JsonNode readTree(File file)
         throws IOException, JsonProcessingException
     {
-        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createJsonParser(file), JSON_NODE_TYPE);
+        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createParser(file), JSON_NODE_TYPE);
         return (n == null) ? NullNode.instance : n;
     }
 
@@ -1697,7 +1697,7 @@ public class ObjectMapper
     public JsonNode readTree(URL source)
         throws IOException, JsonProcessingException
     {
-        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createJsonParser(source), JSON_NODE_TYPE);
+        JsonNode n = (JsonNode) _readMapAndClose(_jsonFactory.createParser(source), JSON_NODE_TYPE);
         return (n == null) ? NullNode.instance : n;
     }
 
@@ -1893,21 +1893,21 @@ public class ObjectMapper
     {
      // !!! TODO
 //    	_setupClassLoaderForDeserialization(valueType);
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), _typeFactory.constructType(valueType));
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T readValue(File src, TypeReference valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), _typeFactory.constructType(valueTypeRef));
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
     } 
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(File src, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), valueType);
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
     } 
 
     @SuppressWarnings("unchecked")
@@ -1916,21 +1916,21 @@ public class ObjectMapper
     {
      // !!! TODO
 //    	_setupClassLoaderForDeserialization(valueType);
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), _typeFactory.constructType(valueType));
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T readValue(URL src, TypeReference valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), _typeFactory.constructType(valueTypeRef));
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
     } 
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), valueType);
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
     } 
 
     @SuppressWarnings("unchecked")
@@ -1939,21 +1939,21 @@ public class ObjectMapper
     {
      // !!! TODO
 //    	_setupClassLoaderForDeserialization(valueType);
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(content), _typeFactory.constructType(valueType));
+        return (T) _readMapAndClose(_jsonFactory.createParser(content), _typeFactory.constructType(valueType));
     } 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T readValue(String content, TypeReference valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(content), _typeFactory.constructType(valueTypeRef));
+        return (T) _readMapAndClose(_jsonFactory.createParser(content), _typeFactory.constructType(valueTypeRef));
     } 
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(String content, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(content), valueType);
+        return (T) _readMapAndClose(_jsonFactory.createParser(content), valueType);
     } 
 
     @SuppressWarnings("unchecked")
@@ -1962,21 +1962,21 @@ public class ObjectMapper
     {
      // !!! TODO
 //    	_setupClassLoaderForDeserialization(valueType);
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), _typeFactory.constructType(valueType));
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T readValue(Reader src, TypeReference valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), _typeFactory.constructType(valueTypeRef));
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
     } 
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(Reader src, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), valueType);
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
     } 
 
     @SuppressWarnings("unchecked")
@@ -1985,21 +1985,21 @@ public class ObjectMapper
     {
      // !!! TODO
 //    	_setupClassLoaderForDeserialization(valueType);
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), _typeFactory.constructType(valueType));
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T readValue(InputStream src, TypeReference valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), _typeFactory.constructType(valueTypeRef));
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
     } 
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(InputStream src, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), valueType);
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
     } 
 
     @SuppressWarnings("unchecked")
@@ -2008,7 +2008,7 @@ public class ObjectMapper
     {
      // !!! TODO
 //      _setupClassLoaderForDeserialization(valueType);
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), _typeFactory.constructType(valueType));
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
     
     @SuppressWarnings("unchecked")
@@ -2018,14 +2018,14 @@ public class ObjectMapper
     {
      // !!! TODO
 //    	_setupClassLoaderForDeserialization(valueType);
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src, offset, len), _typeFactory.constructType(valueType));
+        return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), _typeFactory.constructType(valueType));
     } 
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T readValue(byte[] src, TypeReference valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), _typeFactory.constructType(valueTypeRef));
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
     } 
     
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -2033,14 +2033,14 @@ public class ObjectMapper
                            TypeReference valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src, offset, len), _typeFactory.constructType(valueTypeRef));
+        return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), _typeFactory.constructType(valueTypeRef));
     } 
 
     @SuppressWarnings("unchecked")
     public <T> T readValue(byte[] src, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src), valueType);
+        return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
     } 
 
     @SuppressWarnings("unchecked")
@@ -2048,7 +2048,7 @@ public class ObjectMapper
                            JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-        return (T) _readMapAndClose(_jsonFactory.createJsonParser(src, offset, len), valueType);
+        return (T) _readMapAndClose(_jsonFactory.createParser(src, offset, len), valueType);
     } 
     
     /*
@@ -2065,7 +2065,7 @@ public class ObjectMapper
     public void writeValue(File resultFile, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(_jsonFactory.createJsonGenerator(resultFile, JsonEncoding.UTF8), value);
+        _configAndWriteValue(_jsonFactory.createGenerator(resultFile, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -2082,7 +2082,7 @@ public class ObjectMapper
     public void writeValue(OutputStream out, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(_jsonFactory.createJsonGenerator(out, JsonEncoding.UTF8), value);
+        _configAndWriteValue(_jsonFactory.createGenerator(out, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -2098,7 +2098,7 @@ public class ObjectMapper
     public void writeValue(Writer w, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(_jsonFactory.createJsonGenerator(w), value);
+        _configAndWriteValue(_jsonFactory.createGenerator(w), value);
     }
 
     /**
@@ -2115,7 +2115,7 @@ public class ObjectMapper
         // alas, we have to pull the recycler directly here...
         SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
         try {
-            _configAndWriteValue(_jsonFactory.createJsonGenerator(sw), value);
+            _configAndWriteValue(_jsonFactory.createGenerator(sw), value);
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -2138,7 +2138,7 @@ public class ObjectMapper
     {
         ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler());
         try {
-            _configAndWriteValue(_jsonFactory.createJsonGenerator(bb, JsonEncoding.UTF8), value);
+            _configAndWriteValue(_jsonFactory.createGenerator(bb, JsonEncoding.UTF8), value);
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:

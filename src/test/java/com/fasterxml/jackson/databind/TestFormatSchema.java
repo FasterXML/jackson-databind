@@ -32,14 +32,14 @@ public class TestFormatSchema extends BaseMapTest
     {
         private static final long serialVersionUID = 1L;
         @Override
-        protected JsonParser _createJsonParser(Reader r, IOContext ctxt)
+        protected JsonParser _createParser(Reader r, IOContext ctxt)
             throws IOException, JsonParseException
         {
             return new ParserWithSchema(ctxt, _parserFeatures);
         }
 
         @Override
-        protected JsonGenerator _createJsonGenerator(Writer out, IOContext ctxt) throws IOException
+        protected JsonGenerator _createGenerator(Writer out, IOContext ctxt) throws IOException
         {
             return new GeneratorWithSchema(_generatorFeatures, _objectCodec);
         }

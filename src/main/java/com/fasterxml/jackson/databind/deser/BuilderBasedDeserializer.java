@@ -261,33 +261,10 @@ public class BuilderBasedDeserializer
                     wrapAndThrow(e, bean, propName, ctxt);
                 }
             } else {
-                _vanillaDeserializeHandleUnknown(jp, ctxt, bean, propName);
+                handleUnknownVanilla(jp, ctxt, bean, propName);
             }
         }
         return bean;
-    }
-
-    /**
-     * Helper method called for an unknown property, when using "vanilla"
-     * processing.
-     */
-    private final void _vanillaDeserializeHandleUnknown(JsonParser jp, DeserializationContext ctxt,
-            Object bean, String propName)
-        throws IOException, JsonProcessingException
-    {
-        if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-            jp.skipChildren();
-        } else if (_anySetter != null) {
-            try {
-            	// should we consider return type of any setter?
-                _anySetter.deserializeAndSet(jp, ctxt, bean, propName);
-            } catch (Exception e) {
-                wrapAndThrow(e, bean, propName, ctxt);
-            }
-        } else {
-            // Unknown: let's call handler method
-            handleUnknownProperty(jp, ctxt, bean, propName);         
-        }
     }
 
     /**
@@ -347,26 +324,6 @@ public class BuilderBasedDeserializer
             }
         }
         return bean;
-    }
-
-    protected Object deserializeFromObjectUsingNonDefault(JsonParser jp,
-            DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {        
-        if (_delegateDeserializer != null) {
-            return _valueInstantiator.createUsingDelegate(ctxt,
-                    _delegateDeserializer.deserialize(jp, ctxt));
-        }
-        if (_propertyBasedCreator != null) {
-            return _deserializeUsingPropertyBased(jp, ctxt);
-        }
-        // should only occur for abstract types...
-        if (_beanType.isAbstract()) {
-            throw JsonMappingException.from(jp, "Can not instantiate abstract type "+_beanType
-                    +" (need to add/enable type information?)");
-        }
-        throw JsonMappingException.from(jp, "No suitable constructor found for type "
-                +_beanType+": can not instantiate from JSON object (need to add/enable type information?)");
     }
     
     public Object deserializeFromString(JsonParser jp, DeserializationContext ctxt)
@@ -485,18 +442,18 @@ public class BuilderBasedDeserializer
     public Object deserializeFromArray(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
-    	if (_delegateDeserializer != null) {
-    	    try {
-    	        Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
-    	        if (_injectables != null) {
-    	            injectValues(ctxt, bean);
-    	        }
-    	        return bean;
+        if (_delegateDeserializer != null) {
+            try {
+                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+                if (_injectables != null) {
+                    injectValues(ctxt, bean);
+                }
+                return bean;
             } catch (Exception e) {
                 wrapInstantiationProblem(e, ctxt);
             }
-    	}
-    	throw ctxt.mappingException(getBeanClass());
+        }
+        throw ctxt.mappingException(getBeanClass());
     }
 
     /**
@@ -557,9 +514,8 @@ public class BuilderBasedDeserializer
                 buffer.bufferProperty(prop, prop.deserialize(jp, ctxt));
                 continue;
             }
-            /* As per [JACKSON-313], things marked as ignorable should not be
-             * passed to any setter
-             */
+            // As per [JACKSON-313], things marked as ignorable should not be
+            // passed to any setter
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
                 jp.skipChildren();
                 continue;
@@ -592,48 +548,6 @@ public class BuilderBasedDeserializer
             }
             // no, just some extra unknown properties
             return handleUnknownProperties(ctxt, bean, unknown);
-        }
-        return bean;
-    }
-
-    /**
-     * Method called in cases where we may have polymorphic deserialization
-     * case: that is, type of Creator-constructed bean is not the type
-     * of deserializer itself. It should be a sub-class or implementation
-     * class; either way, we may have more specific deserializer to use
-     * for handling it.
-     *
-     * @param jp (optional) If not null, parser that has more properties to handle
-     *   (in addition to buffered properties); if null, all properties are passed
-     *   in buffer
-     */
-    protected Object handlePolymorphic(JsonParser jp, DeserializationContext ctxt,                                          
-            Object bean, TokenBuffer unknownTokens)
-        throws IOException, JsonProcessingException
-    {  
-        // First things first: maybe there is a more specific deserializer available?
-        JsonDeserializer<Object> subDeser = _findSubclassDeserializer(ctxt, bean, unknownTokens);
-        if (subDeser != null) {
-            if (unknownTokens != null) {
-                // need to add END_OBJECT marker first
-                unknownTokens.writeEndObject();
-                JsonParser p2 = unknownTokens.asParser();
-                p2.nextToken(); // to get to first data field
-                bean = subDeser.deserialize(p2, ctxt, bean);
-            }
-            // Original parser may also have some leftovers
-            if (jp != null) {
-                bean = subDeser.deserialize(jp, ctxt, bean);
-            }
-            return bean;
-        }
-        // nope; need to use this deserializer. Unknowns we've seen so far?
-        if (unknownTokens != null) {
-            bean = handleUnknownProperties(ctxt, bean, unknownTokens);
-        }
-        // and/or things left to process via main parser?
-        if (jp != null) {
-            bean = deserialize(jp, ctxt, bean);
         }
         return bean;
     }

@@ -111,15 +111,22 @@ public class BeanDeserializer
         JsonToken t = jp.getCurrentToken();
         // common case first:
         if (t == JsonToken.START_OBJECT) {
-            t = jp.nextToken();
             if (_vanillaProcessing) {
-                return vanillaDeserialize(jp, ctxt, t);
+                return vanillaDeserialize(jp, ctxt, jp.nextToken());
             }
+            jp.nextToken();
             if (_objectIdReader != null) {
                 return deserializeWithObjectId(jp, ctxt);
             }
             return deserializeFromObject(jp, ctxt);
         }
+        return _deserializeOther(jp, ctxt, t);
+    }
+    
+    private final Object _deserializeOther(JsonParser jp, DeserializationContext ctxt,
+            JsonToken t)
+        throws IOException, JsonProcessingException
+    {
         if (t == null) {
             return _missingToken(jp, ctxt);
         }
@@ -148,11 +155,11 @@ public class BeanDeserializer
                 return deserializeWithObjectId(jp, ctxt);
             }
             return deserializeFromObject(jp, ctxt);
-	}
+        }
         throw ctxt.mappingException(getBeanClass());
     }
 
-    private Object _missingToken(JsonParser jp, DeserializationContext ctxt)
+    protected Object _missingToken(JsonParser jp, DeserializationContext ctxt)
         throws JsonProcessingException
     {
         throw ctxt.endOfInputException(getBeanClass());
@@ -244,32 +251,10 @@ public class BeanDeserializer
                     wrapAndThrow(e, bean, propName, ctxt);
                 }
             } else {
-                _vanillaDeserializeHandleUnknown(jp, ctxt, bean, propName);
+                handleUnknownVanilla(jp, ctxt, bean, propName);
             }
         }
         return bean;
-    }
-
-    /**
-     * Helper method called for an unknown property, when using "vanilla"
-     * processing.
-     */
-    private final void _vanillaDeserializeHandleUnknown(JsonParser jp, DeserializationContext ctxt,
-            Object bean, String propName)
-        throws IOException, JsonProcessingException
-    {
-        if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-            jp.skipChildren();
-        } else if (_anySetter != null) {
-            try {
-                _anySetter.deserializeAndSet(jp, ctxt, bean, propName);
-            } catch (Exception e) {
-                wrapAndThrow(e, bean, propName, ctxt);
-            }
-        } else {
-            // Unknown: let's call handler method
-            handleUnknownProperty(jp, ctxt, bean, propName);         
-        }
     }
 
     /**
@@ -381,24 +366,6 @@ public class BeanDeserializer
         JsonParser mergedParser = buffer.asParser();
         mergedParser.nextToken();
         return deserializeFromObject(mergedParser, ctxt);
-    }
-
-    protected Object deserializeFromObjectUsingNonDefault(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {        
-        if (_delegateDeserializer != null) {
-            return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
-        }
-        if (_propertyBasedCreator != null) {
-            return _deserializeUsingPropertyBased(jp, ctxt);
-        }
-        // should only occur for abstract types...
-        if (_beanType.isAbstract()) {
-            throw JsonMappingException.from(jp, "Can not instantiate abstract type "+_beanType
-                    +" (need to add/enable type information?)");
-        }
-        throw JsonMappingException.from(jp, "No suitable constructor found for type "
-                +_beanType+": can not instantiate from JSON object (need to add/enable type information?)");
     }
     
     public Object deserializeFromString(JsonParser jp, DeserializationContext ctxt)
@@ -517,20 +484,19 @@ public class BeanDeserializer
     public Object deserializeFromArray(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
-    	if (_delegateDeserializer != null) {
-    	    try {
-    	        Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
-    	        if (_injectables != null) {
-    	            injectValues(ctxt, bean);
-    	        }
-    	        return bean;
+        if (_delegateDeserializer != null) {
+            try {
+                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+                if (_injectables != null) {
+                    injectValues(ctxt, bean);
+                }
+                return bean;
             } catch (Exception e) {
                 wrapInstantiationProblem(e, ctxt);
             }
-    	}
-    	throw ctxt.mappingException(getBeanClass());
+        }
+        throw ctxt.mappingException(getBeanClass());
     }
-
     /**
      * Method called to deserialize bean using "property-based creator":
      * this means that a non-default constructor or factory method is
@@ -539,7 +505,7 @@ public class BeanDeserializer
      * due to non-guaranteed ordering possibly some other properties
      * as well.
      */
-    protected final Object _deserializeUsingPropertyBased(final JsonParser jp, final DeserializationContext ctxt)
+    protected Object _deserializeUsingPropertyBased(final JsonParser jp, final DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     { 
         final PropertyBasedCreator creator = _propertyBasedCreator;
@@ -588,9 +554,8 @@ public class BeanDeserializer
                 buffer.bufferProperty(prop, prop.deserialize(jp, ctxt));
                 continue;
             }
-            /* As per [JACKSON-313], things marked as ignorable should not be
-             * passed to any setter
-             */
+            // As per [JACKSON-313], things marked as ignorable should not be
+            // passed to any setter
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
                 jp.skipChildren();
                 continue;

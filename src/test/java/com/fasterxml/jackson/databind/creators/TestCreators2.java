@@ -174,12 +174,13 @@ public class TestCreators2
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     // for [JACKSON-547]
     public void testExceptionFromConstructor() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         try {
-            m.readValue("{}", BustedCtor.class);
+            MAPPER.readValue("{}", BustedCtor.class);
             fail("Expected exception");
         } catch (JsonMappingException e) {
             verifyException(e, ": foobar");
@@ -193,8 +194,7 @@ public class TestCreators2
     
     public void testSimpleConstructor() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        HashTest test = m.readValue("{\"type\":\"custom\",\"bytes\":\"abc\" }", HashTest.class);
+        HashTest test = MAPPER.readValue("{\"type\":\"custom\",\"bytes\":\"abc\" }", HashTest.class);
         assertEquals("custom", test.type);
         assertEquals("abc", new String(test.bytes, "UTF-8"));
     }    
@@ -202,8 +202,7 @@ public class TestCreators2
     // Test for [JACKSON-372]
     public void testMissingPrimitives() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        Primitives p = m.readValue("{}", Primitives.class);
+        Primitives p = MAPPER.readValue("{}", Primitives.class);
         assertFalse(p.b);
         assertEquals(0, p.x);
         assertEquals(0.0, p.d);
@@ -211,8 +210,7 @@ public class TestCreators2
 
     public void testJackson431() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        final Test431Container foo = m.readValue(
+        final Test431Container foo = MAPPER.readValue(
                 "{\"items\":\n"
                 +"[{\"bar\": 0,\n"
                 +"\"id\": \"id123\",\n"
@@ -225,9 +223,8 @@ public class TestCreators2
     // [JACKSON-438]: Catch and rethrow exceptions that Creator methods throw
     public void testJackson438() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         try {
-            m.readValue("{ \"name\":\"foobar\" }", BeanFor438.class);
+            MAPPER.readValue("{ \"name\":\"foobar\" }", BeanFor438.class);
             fail("Should have failed");
         } catch (Exception e) {
             if (!(e instanceof JsonMappingException)) {
@@ -245,33 +242,31 @@ public class TestCreators2
     @SuppressWarnings("unchecked")
     public void testIssue465() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         final String JSON = "{\"A\":12}";
 
         // first, test with regular Map, non empty
-        Map<String,Long> map = mapper.readValue(JSON, Map.class);
+        Map<String,Long> map = MAPPER.readValue(JSON, Map.class);
         assertEquals(1, map.size());
         assertEquals(Integer.valueOf(12), map.get("A"));
         
-        MapBean bean = mapper.readValue(JSON, MapBean.class);
+        MapBean bean = MAPPER.readValue(JSON, MapBean.class);
         assertEquals(1, bean.map.size());
         assertEquals(Long.valueOf(12L), bean.map.get("A"));
 
         // and then empty ones
         final String EMPTY_JSON = "{}";
 
-        map = mapper.readValue(EMPTY_JSON, Map.class);
+        map = MAPPER.readValue(EMPTY_JSON, Map.class);
         assertEquals(0, map.size());
         
-        bean = mapper.readValue(EMPTY_JSON, MapBean.class);
+        bean = MAPPER.readValue(EMPTY_JSON, MapBean.class);
         assertEquals(0, bean.map.size());
     }
 
     public void testCreatorWithDupNames() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            mapper.readValue("{\"bar\":\"x\"}", BrokenCreatorBean.class);
+            MAPPER.readValue("{\"bar\":\"x\"}", BrokenCreatorBean.class);
             fail("Should have caught duplicate creator parameters");
         } catch (JsonMappingException e) {
             verifyException(e, "duplicate creator property \"bar\"");
@@ -279,18 +274,16 @@ public class TestCreators2
     }
     
     public void testCreatorMultipleArgumentWithoutAnnotation() throws Exception {
-    	ObjectMapper mapper = new ObjectMapper();
-    	AutoDetectConstructorBean value = mapper.readValue("{\"bar\":\"bar\",\"foo\":\"foo\"}", AutoDetectConstructorBean.class);
-    	assertEquals("bar", value.bar);
-    	assertEquals("foo", value.foo);
+        AutoDetectConstructorBean value = MAPPER.readValue("{\"bar\":\"bar\",\"foo\":\"foo\"}", AutoDetectConstructorBean.class);
+        assertEquals("bar", value.bar);
+        assertEquals("foo", value.foo);
     }
 
     // for [JACKSON-575]
     public void testIgnoredSingleArgCtor() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            mapper.readValue(quote("abc"), IgnoredCtor.class);
+            MAPPER.readValue(quote("abc"), IgnoredCtor.class);
             fail("Should have caught missing constructor problem");
         } catch (JsonMappingException e) {
             verifyException(e, "no single-String constructor/factory method");
@@ -299,9 +292,7 @@ public class TestCreators2
 
     public void testAbstractFactory() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        AbstractBase bean = mapper.readValue("{\"a\":3}",
-                AbstractBase.class);
+        AbstractBase bean = MAPPER.readValue("{\"a\":3}", AbstractBase.class);
         assertNotNull(bean);
         AbstractBaseImpl impl = (AbstractBaseImpl) bean;
         assertEquals(1, impl.props.size());
@@ -311,8 +302,7 @@ public class TestCreators2
     // [JACKSON-700]
     public void testCreatorProperties() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        Issue700Bean value = mapper.readValue("{ \"item\" : \"foo\" }", Issue700Bean.class);
+        Issue700Bean value = MAPPER.readValue("{ \"item\" : \"foo\" }", Issue700Bean.class);
         assertNotNull(value);
     }
 }

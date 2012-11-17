@@ -830,7 +830,14 @@ public abstract class BeanDeserializerBase
     /* Partial deserializer implementation
     /**********************************************************
      */
-    
+
+    /**
+     * General version used when handling needs more advanced
+     * features.
+     */
+    public abstract Object deserializeFromObject(JsonParser jp, DeserializationContext ctxt)
+        throws IOException, JsonProcessingException;
+
     @Override
     public final Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
@@ -850,6 +857,59 @@ public abstract class BeanDeserializerBase
         return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
     }
 
+    // NOTE: currently only used by standard BeanDeserializer (not Builder-based)
+    /**
+     * Alternative deserialization method used when we expect to see Object Id;
+     * if so, we will need to ensure that the Id is seen before anything
+     * else, to ensure that it is available for solving references,
+     * even if JSON itself is not ordered that way. This may require
+     * buffering in some cases, but usually just a simple lookup to ensure
+     * that ordering is correct.
+     */
+    @SuppressWarnings("resource")
+    protected Object deserializeWithObjectId(JsonParser jp, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException
+    {
+        final String idPropName = _objectIdReader.propertyName;
+        // First, the simple case: we point to the Object Id property
+        if (idPropName.equals(jp.getCurrentName())) {
+            return deserializeFromObject(jp, ctxt);
+        }
+        // otherwise need to reorder things
+        TokenBuffer tmpBuffer = new TokenBuffer(jp.getCodec());
+        TokenBuffer mergedBuffer = null;
+        for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
+            String propName = jp.getCurrentName();
+            // when we match the id property, can start merging
+            if (mergedBuffer == null) {
+                if (idPropName.equals(propName)) {
+                    mergedBuffer = new TokenBuffer(jp.getCodec());
+                    mergedBuffer.writeFieldName(propName);
+                    jp.nextToken();
+                    mergedBuffer.copyCurrentStructure(jp);
+                    mergedBuffer.append(tmpBuffer);
+                    tmpBuffer = null;
+                } else {
+                    tmpBuffer.writeFieldName(propName);
+                    jp.nextToken();
+                    tmpBuffer.copyCurrentStructure(jp);
+                }
+            } else {
+                mergedBuffer.writeFieldName(propName);
+                jp.nextToken();
+                mergedBuffer.copyCurrentStructure(jp);
+            }
+        }
+        // note: we really should get merged buffer (and if not, that is likely error), but
+        // for now let's allow missing case as well. Will be caught be a later stage...
+        TokenBuffer buffer = (mergedBuffer == null) ? tmpBuffer : mergedBuffer;
+        buffer.writeEndObject();
+        // important: need to advance to point to first FIELD_NAME:
+        JsonParser mergedParser = buffer.asParser();
+        mergedParser.nextToken();
+        return deserializeFromObject(mergedParser, ctxt);
+    }
+    
     /**
      * Method called in cases where it looks like we got an Object Id
      * to parse and use as a reference.

@@ -174,6 +174,15 @@ public class BeanAsArrayDeserializer
         return bean;
     }
 
+
+    // needed since 2.1
+    @Override
+    public Object deserializeFromObject(JsonParser jp, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException
+    {
+        return _deserializeFromNonArray(jp, ctxt);
+    }
+    
     /*
     /**********************************************************
     /* Helper methods, non-standard creation

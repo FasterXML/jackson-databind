@@ -181,6 +181,14 @@ public class BeanAsArrayBuilderDeserializer
         return finishBuild(ctxt, builder);
     }
 
+    // needed since 2.1
+    @Override
+    public Object deserializeFromObject(JsonParser jp, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException
+    {
+        return _deserializeFromNonArray(jp, ctxt);
+    }
+    
     /*
     /**********************************************************
     /* Helper methods, non-standard creation

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import com.fasterxml.jackson.core.*;
 
@@ -38,27 +37,6 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     @Override
     public String asText() { return ""; }
 
-    /*
-    /**********************************************************
-    /* Find methods; made abstract again to ensure implementation
-    /**********************************************************
-     */
-
-    @Override
-    public abstract JsonNode findValue(String fieldName);
-    
-    @Override
-    public abstract ObjectNode findParent(String fieldName);
-
-    @Override
-    public abstract List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar);
-    
-    @Override
-    public abstract List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar);
-
-    @Override
-    public abstract List<String> findValuesAsText(String fieldName, List<String> foundSoFar);
-    
     /*
     /**********************************************************
     /* Methods reset as abstract to force real implementation

@@ -993,6 +993,93 @@ public abstract class BeanDeserializerBase
         }
         throw ctxt.instantiationException(getBeanClass(), "no suitable creator method found to deserialize from JSON integer number");
     }
+
+    public Object deserializeFromString(JsonParser jp, DeserializationContext ctxt)
+        throws IOException, JsonProcessingException
+    {
+        // First things first: id Object Id is used, most likely that's it
+        if (_objectIdReader != null) {
+            return deserializeFromObjectId(jp, ctxt);
+        }
+        
+        /* Bit complicated if we have delegating creator; may need to use it,
+         * or might not...
+         */
+        if (_delegateDeserializer != null) {
+            if (!_valueInstantiator.canCreateFromString()) {
+                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+                if (_injectables != null) {
+                    injectValues(ctxt, bean);
+                }
+                return bean;
+            }
+        }
+        return _valueInstantiator.createFromString(ctxt, jp.getText());
+    }
+
+    /**
+     * Method called to deserialize POJO value from a JSON floating-point
+     * number.
+     */
+    public Object deserializeFromDouble(JsonParser jp, DeserializationContext ctxt)
+        throws IOException, JsonProcessingException
+    {
+        switch (jp.getNumberType()) {
+        case FLOAT: // no separate methods for taking float...
+        case DOUBLE:
+            if (_delegateDeserializer != null) {
+                if (!_valueInstantiator.canCreateFromDouble()) {
+                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+                    if (_injectables != null) {
+                        injectValues(ctxt, bean);
+                    }
+                    return bean;
+                }
+            }
+            return _valueInstantiator.createFromDouble(ctxt, jp.getDoubleValue());
+        }
+        // actually, could also be BigDecimal, so:
+        if (_delegateDeserializer != null) {
+            return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+        }
+        throw ctxt.instantiationException(getBeanClass(), "no suitable creator method found to deserialize from JSON floating-point number");
+    }
+
+    /**
+     * Method called to deserialize POJO value from a JSON boolean value (true, false)
+     */
+    public Object deserializeFromBoolean(JsonParser jp, DeserializationContext ctxt)
+        throws IOException, JsonProcessingException
+    {
+        if (_delegateDeserializer != null) {
+            if (!_valueInstantiator.canCreateFromBoolean()) {
+                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+                if (_injectables != null) {
+                    injectValues(ctxt, bean);
+                }
+                return bean;
+            }
+        }
+        boolean value = (jp.getCurrentToken() == JsonToken.VALUE_TRUE);
+        return _valueInstantiator.createFromBoolean(ctxt, value);
+    }
+
+    public Object deserializeFromArray(JsonParser jp, DeserializationContext ctxt)
+        throws IOException, JsonProcessingException
+    {
+        if (_delegateDeserializer != null) {
+            try {
+                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+                if (_injectables != null) {
+                    injectValues(ctxt, bean);
+                }
+                return bean;
+            } catch (Exception e) {
+                wrapInstantiationProblem(e, ctxt);
+            }
+        }
+        throw ctxt.mappingException(getBeanClass());
+    }
     
     /*
     /**********************************************************

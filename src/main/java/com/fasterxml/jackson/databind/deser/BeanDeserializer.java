@@ -315,93 +315,7 @@ public class BeanDeserializer
         }
         return bean;
     }
-    
-    public Object deserializeFromString(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
-        // First things first: id Object Id is used, most likely that's it
-        if (_objectIdReader != null) {
-            return deserializeFromObjectId(jp, ctxt);
-        }
-        
-        /* Bit complicated if we have delegating creator; may need to use it,
-         * or might not...
-         */
-        if (_delegateDeserializer != null) {
-            if (!_valueInstantiator.canCreateFromString()) {
-                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
-                if (_injectables != null) {
-                    injectValues(ctxt, bean);
-                }
-                return bean;
-            }
-        }
-        return _valueInstantiator.createFromString(ctxt, jp.getText());
-    }
 
-    /**
-     * Method called to deserialize POJO value from a JSON floating-point
-     * number.
-     */
-    public Object deserializeFromDouble(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
-        switch (jp.getNumberType()) {
-        case FLOAT: // no separate methods for taking float...
-        case DOUBLE:
-            if (_delegateDeserializer != null) {
-                if (!_valueInstantiator.canCreateFromDouble()) {
-                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
-                    if (_injectables != null) {
-                        injectValues(ctxt, bean);
-                    }
-                    return bean;
-                }
-            }
-            return _valueInstantiator.createFromDouble(ctxt, jp.getDoubleValue());
-        }
-        // actually, could also be BigDecimal, so:
-        if (_delegateDeserializer != null) {
-            return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
-        }
-        throw ctxt.instantiationException(getBeanClass(), "no suitable creator method found to deserialize from JSON floating-point number");
-    }
-
-    /**
-     * Method called to deserialize POJO value from a JSON boolean value (true, false)
-     */
-    public Object deserializeFromBoolean(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
-        if (_delegateDeserializer != null) {
-            if (!_valueInstantiator.canCreateFromBoolean()) {
-                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
-                if (_injectables != null) {
-                    injectValues(ctxt, bean);
-                }
-                return bean;
-            }
-        }
-        boolean value = (jp.getCurrentToken() == JsonToken.VALUE_TRUE);
-        return _valueInstantiator.createFromBoolean(ctxt, value);
-    }
-
-    public Object deserializeFromArray(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
-        if (_delegateDeserializer != null) {
-            try {
-                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
-                if (_injectables != null) {
-                    injectValues(ctxt, bean);
-                }
-                return bean;
-            } catch (Exception e) {
-                wrapInstantiationProblem(e, ctxt);
-            }
-        }
-        throw ctxt.mappingException(getBeanClass());
-    }
     /**
      * Method called to deserialize bean using "property-based creator":
      * this means that a non-default constructor or factory method is
@@ -438,13 +352,13 @@ public class BeanDeserializer
                         bean = null; // never gets here
                     }
                     //  polymorphic?
-		    if (bean.getClass() != _beanType.getRawClass()) {
-			return handlePolymorphic(jp, ctxt, bean, unknown);
-		    }
+                    if (bean.getClass() != _beanType.getRawClass()) {
+                        return handlePolymorphic(jp, ctxt, bean, unknown);
+                    }
                     if (unknown != null) { // nope, just extra unknown stuff...
                         bean = handleUnknownProperties(ctxt, bean, unknown);
-		    }
-		    // or just clean?
+                    }
+                    // or just clean?
                     return deserialize(jp, ctxt, bean);
                 }
                 continue;
@@ -496,49 +410,7 @@ public class BeanDeserializer
         }
         return bean;
     }
-    
-    /**
-     * Method called in cases where we may have polymorphic deserialization
-     * case: that is, type of Creator-constructed bean is not the type
-     * of deserializer itself. It should be a sub-class or implementation
-     * class; either way, we may have more specific deserializer to use
-     * for handling it.
-     *
-     * @param jp (optional) If not null, parser that has more properties to handle
-     *   (in addition to buffered properties); if null, all properties are passed
-     *   in buffer
-     */
-    protected Object handlePolymorphic(JsonParser jp, DeserializationContext ctxt,                                          
-            Object bean, TokenBuffer unknownTokens)
-        throws IOException, JsonProcessingException
-    {  
-        // First things first: maybe there is a more specific deserializer available?
-        JsonDeserializer<Object> subDeser = _findSubclassDeserializer(ctxt, bean, unknownTokens);
-        if (subDeser != null) {
-            if (unknownTokens != null) {
-                // need to add END_OBJECT marker first
-                unknownTokens.writeEndObject();
-                JsonParser p2 = unknownTokens.asParser();
-                p2.nextToken(); // to get to first data field
-                bean = subDeser.deserialize(p2, ctxt, bean);
-            }
-            // Original parser may also have some leftovers
-            if (jp != null) {
-                bean = subDeser.deserialize(jp, ctxt, bean);
-            }
-            return bean;
-        }
-        // nope; need to use this deserializer. Unknowns we've seen so far?
-        if (unknownTokens != null) {
-            bean = handleUnknownProperties(ctxt, bean, unknownTokens);
-        }
-        // and/or things left to process via main parser?
-        if (jp != null) {
-            bean = deserialize(jp, ctxt, bean);
-        }
-        return bean;
-    }
-    
+
     /*
     /**********************************************************
     /* Deserializing when we have to consider an active View

@@ -42,8 +42,7 @@ public class TestCreators
         }
     }
 
-    @SuppressWarnings("unused")
-    private static class BooleanConstructorBean2 {
+    static class BooleanConstructorBean2 {
         boolean b;
         @JsonCreator protected BooleanConstructorBean2(boolean b) {
             this.b = b;

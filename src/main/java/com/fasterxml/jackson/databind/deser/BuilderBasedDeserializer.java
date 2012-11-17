@@ -349,49 +349,6 @@ public class BuilderBasedDeserializer
         return _valueInstantiator.createFromString(ctxt, jp.getText());
     }
 
-    public Object deserializeFromNumber(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
-        // First things first: id Object Id is used, most likely that's it
-        if (_objectIdReader != null) {
-            return deserializeFromObjectId(jp, ctxt);
-        }
-
-        switch (jp.getNumberType()) {
-        case INT:
-            if (_delegateDeserializer != null) {
-                if (!_valueInstantiator.canCreateFromInt()) {
-                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
-                    if (_injectables != null) {
-                        injectValues(ctxt, bean);
-                    }
-                    return bean;
-                }
-            }
-            return _valueInstantiator.createFromInt(ctxt, jp.getIntValue());
-        case LONG:
-            if (_delegateDeserializer != null) {
-                if (!_valueInstantiator.canCreateFromInt()) {
-                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
-                    if (_injectables != null) {
-                        injectValues(ctxt, bean);
-                    }
-                    return bean;
-                }
-            }
-            return _valueInstantiator.createFromLong(ctxt, jp.getLongValue());
-    	}
-        // actually, could also be BigInteger, so:
-        if (_delegateDeserializer != null) {
-            Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
-            if (_injectables != null) {
-                injectValues(ctxt, bean);
-            }
-            return bean;
-        }
-        throw ctxt.instantiationException(getBeanClass(), "no suitable creator method found to deserialize from JSON integer number");
-    }
-
     /**
      * Method called to deserialize POJO value from a JSON floating-point
      * number.

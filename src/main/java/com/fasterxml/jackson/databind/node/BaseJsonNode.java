@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
-import java.util.List;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,11 +28,6 @@ public abstract class BaseJsonNode
      */
 
     @Override
-    public JsonNode findValue(String fieldName) {
-        return null;
-    }
-
-    @Override
     public final JsonNode findPath(String fieldName)
     {
         JsonNode value = findValue(fieldName);
@@ -42,28 +36,7 @@ public abstract class BaseJsonNode
         }
         return value;
     }
-    
-    // note: co-variant return type
-    @Override
-    public ObjectNode findParent(String fieldName) {
-        return null;
-    }
 
-    @Override
-    public List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar) {
-        return foundSoFar;
-    }
-
-    @Override
-    public List<String> findValuesAsText(String fieldName, List<String> foundSoFar) {
-        return foundSoFar;
-    }
-    
-    @Override
-    public List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar) {
-        return foundSoFar;
-    }
-    
     /*
     /**********************************************************
     /* Support for traversal-as-stream

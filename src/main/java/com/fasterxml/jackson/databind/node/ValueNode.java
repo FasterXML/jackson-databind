@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.fasterxml.jackson.core.*;
 
@@ -101,5 +102,42 @@ public abstract class ValueNode
     public final boolean hasNonNull(String fieldName)
     {
         return false;
+    }
+
+    /*
+     **********************************************************************
+     * Find methods: all "leaf" nodes return the same for these
+     **********************************************************************
+     */
+
+    @Override
+    public final JsonNode findValue(String fieldName)
+    {
+        return null;
+    }
+
+    // note: co-variant return type
+    @Override
+    public final ObjectNode findParent(String fieldName)
+    {
+        return null;
+    }
+
+    @Override
+    public final List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar)
+    {
+        return foundSoFar;
+    }
+
+    @Override
+    public final List<String> findValuesAsText(String fieldName, List<String> foundSoFar)
+    {
+        return foundSoFar;
+    }
+
+    @Override
+    public final List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar)
+    {
+        return foundSoFar;
     }
 }

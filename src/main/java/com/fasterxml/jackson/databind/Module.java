@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.deser.KeyDeserializers;
 import com.fasterxml.jackson.databind.deser.ValueInstantiators;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.Serializers;
@@ -231,6 +232,24 @@ public abstract class Module
          * @param ai Annotation introspector to register.
          */
         public void appendAnnotationIntrospector(AnnotationIntrospector ai);
+
+        /**
+         * Method for registering specified {@link ClassIntrospector} as the highest
+         * priority introspector (will be chained with existing introspector(s) which
+         * will be used as fallbacks for cases this introspector does not handle)
+         *
+         * @param ci Class introspector to register.
+         */
+        public void insertClassIntrospector(ClassIntrospector ci);
+
+        /**
+         * Method for registering specified {@link ClassIntrospector} as the lowest
+         * priority introspector, chained with existing introspector(s) and called
+         * as fallback for cases not otherwise handled.
+         *
+         * @param ci Class introspector to register.
+         */
+        public void appendClassIntrospector(ClassIntrospector ci);
 
         /**
          * Method for registering specified classes as subtypes (of supertype(s)

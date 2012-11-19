@@ -862,14 +862,55 @@ public class ObjectNode
      */
 
     @Override
-    public boolean equals(Object o)
+    public final boolean equals(Object o)
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != getClass()) {
+        
+        // minor improvement, wrt [Issue#70]
+        if (o.getClass() != getClass() && !(o instanceof ObjectNode)) {
             return false;
         }
-        ObjectNode other = (ObjectNode) o;
+        /* This is bit convoluted, but the goal is to make it possible to
+         * fully override equality comparison, even though it is
+         * asymmetric (i.e. can be called on either side, but we
+         * want behavior to match).
+         */
+        return _equals((ObjectNode) o);
+    }
+    
+    /**
+     * Method that sub-classes should override, if equality comparison
+     * needs additional verification beyond defaults.
+     * 
+     * @since 2.1
+     */
+    protected boolean _equals(ObjectNode other)
+    {
+        return _stdEquals(other)
+                &&_customEquals(other)
+                && other._customEquals(this)
+                ;
+    }
+    
+    /**
+     * Method that sub-classes should override, if equality comparison
+     * needs additional verification beyond defaults.
+     *
+     * @since 2.1
+     */
+    protected boolean _customEquals(ObjectNode other) {
+        return true;
+    }
+
+    /**
+     * Standard equality checks, which may also be overridden by
+     * sub-classes if necessary (but usually isn't).
+     *
+     * @since 2.1
+     */
+    protected final boolean _stdEquals(ObjectNode other)
+    {
         if (other.size() != size()) {
             return false;
         }
@@ -877,9 +918,7 @@ public class ObjectNode
             for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
                 String key = en.getKey();
                 JsonNode value = en.getValue();
-
                 JsonNode otherValue = other.get(key);
-
                 if (otherValue == null || !otherValue.equals(value)) {
                     return false;
                 }

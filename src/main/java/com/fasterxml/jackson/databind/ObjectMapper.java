@@ -2558,6 +2558,7 @@ public class ObjectMapper
     
     /**
      * Method for visiting type hierarchy for given type, using specified visitor.
+     * Visitation uses <code>Serializer</code> hierarchy and related properties
      *<p>
      * This method can be used for things like
      * generating <a href="http://json-schema.org/">Json Schema</a>
@@ -2579,7 +2580,7 @@ public class ObjectMapper
             provider.acceptJsonFormatVisitor(type, visitor);
         }
     }
-
+    
     /*
     /**********************************************************
     /* Internal methods for serialization, overridable

@@ -310,8 +310,11 @@ public class BeanDeserializerBuilder
     /**
      * Method for constructing a {@link BeanDeserializer}, given all
      * information collected.
+     *<p>
+     * NOTE: Signature of this method did unfortunately change between Jackson 2.1
+     * and Jackson 2.2
      */
-    public BeanDeserializer build()
+    public JsonDeserializer<?> build()
     {
         Collection<SettableBeanProperty> props = _properties.values();
         BeanPropertyMap propertyMap = new BeanPropertyMap(props);
@@ -333,7 +336,11 @@ public class BeanDeserializerBuilder
 
         // one more thing: may need to create virtual ObjectId property:
         if (_objectIdReader != null) {
-            ObjectIdValueProperty prop = new ObjectIdValueProperty(_objectIdReader);
+            /* 18-Nov-2012, tatu: May or may not have annotations for id property;
+             *   but no easy access. But hard to see id property being optional,
+             *   so let's consider required at this point.
+             */
+            ObjectIdValueProperty prop = new ObjectIdValueProperty(_objectIdReader, true);
             propertyMap = propertyMap.withProperty(prop);
         }
         
@@ -390,7 +397,11 @@ public class BeanDeserializerBuilder
         }
 
         if (_objectIdReader != null) {
-            ObjectIdValueProperty prop = new ObjectIdValueProperty(_objectIdReader);
+            /* 18-Nov-2012, tatu: May or may not have annotations for id property;
+             *   but no easy access. But hard to see id property being optional,
+             *   so let's consider required at this point.
+             */
+            ObjectIdValueProperty prop = new ObjectIdValueProperty(_objectIdReader, true);
             propertyMap = propertyMap.withProperty(prop);
         }
         

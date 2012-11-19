@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.NullProvider;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ViewMatcher;
@@ -84,6 +85,16 @@ public abstract class SettableBeanProperty
      * changed.
      */
     protected int _propertyIndex = -1;
+
+    /**
+     * Whether value of this property has been marked as required.
+     * Retained since it will be needed when traversing type hierarchy
+     * for producing schemas (and other similar tasks); currently not
+     * used for serialization.
+     * 
+     * @since 2.2
+     */
+    protected final boolean _isRequired;
     
     /*
     /**********************************************************
@@ -94,11 +105,22 @@ public abstract class SettableBeanProperty
     protected SettableBeanProperty(BeanPropertyDefinition propDef,
             JavaType type, TypeDeserializer typeDeser, Annotations contextAnnotations)
     {
-        this(propDef.getName(), type, typeDeser, contextAnnotations);
+        this(propDef.getName(), type, typeDeser, contextAnnotations,
+                propDef.isRequired());
     }
-    
+
+    /*
+    @Deprecated // since 2.2
     protected SettableBeanProperty(String propName,
             JavaType type, TypeDeserializer typeDeser, Annotations contextAnnotations)
+    {
+        this(propName, type, typeDeser, contextAnnotations, false);
+    }
+    */
+    
+    protected SettableBeanProperty(String propName,
+            JavaType type, TypeDeserializer typeDeser, Annotations contextAnnotations,
+            boolean isRequired)
     {
         /* 09-Jan-2009, tatu: Intern()ing makes sense since Jackson parsed
          *   field names are (usually) interned too, hence lookups will be faster.
@@ -113,6 +135,7 @@ public abstract class SettableBeanProperty
             _propName = InternCache.instance.intern(propName);
         }
         _type = type;
+        _isRequired = isRequired;
         _contextAnnotations = contextAnnotations;
         _viewMatcher = null;
 
@@ -130,6 +153,7 @@ public abstract class SettableBeanProperty
     {
         _propName = src._propName;
         _type = src._type;
+        _isRequired = src._isRequired;
         _contextAnnotations = src._contextAnnotations;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
@@ -147,6 +171,7 @@ public abstract class SettableBeanProperty
     {
         _propName = src._propName;
         _type = src._type;
+        _isRequired = src._isRequired;
         _contextAnnotations = src._contextAnnotations;
         _valueTypeDeserializer = src._valueTypeDeserializer;
         _managedReferenceName = src._managedReferenceName;
@@ -169,6 +194,7 @@ public abstract class SettableBeanProperty
     {
         _propName = newName;
         _type = src._type;
+        _isRequired = src._isRequired;
         _contextAnnotations = src._contextAnnotations;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
@@ -234,6 +260,9 @@ public abstract class SettableBeanProperty
     public final String getName() { return _propName; }
 
 //  @Override
+    public boolean isRequired() { return _isRequired; }
+    
+//  @Override
     public JavaType getType() { return _type; }
 
     public abstract <A extends Annotation> A getAnnotation(Class<A> acls);
@@ -245,6 +274,17 @@ public abstract class SettableBeanProperty
         return _contextAnnotations.get(acls);
     }
 
+//  @Override
+    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
+        throws JsonMappingException
+    {
+        if (isRequired()) {
+            objectVisitor.property(this); 
+        } else {
+            objectVisitor.optionalProperty(this);
+        }
+    }
+    
     /*
     /**********************************************************
     /* Accessors

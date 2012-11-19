@@ -47,6 +47,18 @@ public class CreatorProperty
      * @since 2.1
      */
     protected final int _creatorIndex;
+
+    /**
+     * @deprecated Since 2.2: use the method that takes <code>isRequired</code> property
+     */
+    @Deprecated
+    public CreatorProperty(String name, JavaType type, TypeDeserializer typeDeser,
+            Annotations contextAnnotations, AnnotatedParameter param,
+            int index, Object injectableValueId)
+    {
+        this(name, type, typeDeser, contextAnnotations, param, index, injectableValueId,
+                true);
+    }
     
     /**
      * @param name Name of the logical property
@@ -62,9 +74,10 @@ public class CreatorProperty
      */
     public CreatorProperty(String name, JavaType type, TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
-            int index, Object injectableValueId)
+            int index, Object injectableValueId,
+            boolean isRequired)
     {
-        super(name, type, typeDeser, contextAnnotations);
+        super(name, type, typeDeser, contextAnnotations, isRequired);
         _annotated = param;
         _creatorIndex = index;
         _injectableValueId = injectableValueId;

@@ -675,8 +675,14 @@ public abstract class BasicDeserializerFactory
         if (typeDeser == null) {
             typeDeser = findTypeDeserializer(config, type);
         }
+        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        Boolean b = (intr == null) ? null : intr.hasRequiredMarker(param);
+        // how to default? Other code assumes missing value means 'false', so:
+        boolean isRequired = (b == null) ? false : b.booleanValue();
+
         CreatorProperty prop = new CreatorProperty(name, type, typeDeser,
-                beanDesc.getClassAnnotations(), param, index, injectableValueId);
+                beanDesc.getClassAnnotations(), param, index, injectableValueId,
+                isRequired);
         if (deser != null) {
             prop = prop.withValueDeserializer(deser);
         }

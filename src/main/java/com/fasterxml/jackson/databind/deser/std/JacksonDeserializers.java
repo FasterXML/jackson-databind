@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 /**
  * Container class for core Jackson type deserializers.
  */
+@SuppressWarnings("serial")
 public class JacksonDeserializers
 {
     public static StdDeserializer<?>[] all()
@@ -93,11 +94,11 @@ public class JacksonDeserializers
             JavaType intType = config.constructType(Integer.TYPE);
             JavaType longType = config.constructType(Long.TYPE);
             return  new CreatorProperty[] {
-                    new CreatorProperty("sourceRef", config.constructType(Object.class), null, null, null, 0, null),
-                    new CreatorProperty("byteOffset", longType, null, null, null, 1, null),
-                    new CreatorProperty("charOffset", longType, null, null, null, 2, null),
-                    new CreatorProperty("lineNr", intType, null, null, null, 3, null),
-                    new CreatorProperty("columnNr", intType, null, null, null, 4, null)
+                    new CreatorProperty("sourceRef", config.constructType(Object.class), null, null, null, 0, null, true),
+                    new CreatorProperty("byteOffset", longType, null, null, null, 1, null, true),
+                    new CreatorProperty("charOffset", longType, null, null, null, 2, null, true),
+                    new CreatorProperty("lineNr", intType, null, null, null, 3, null, true),
+                    new CreatorProperty("columnNr", intType, null, null, null, 4, null, true)
             };
         }
 

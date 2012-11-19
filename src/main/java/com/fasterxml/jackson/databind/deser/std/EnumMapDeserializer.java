@@ -23,6 +23,8 @@ public class EnumMapDeserializer
     extends StdDeserializer<EnumMap<?,?>>
     implements ContextualDeserializer
 {
+    private static final long serialVersionUID = 1916979386940205321L;
+
     protected final JavaType _mapType;
     
     protected final Class<?> _enumClass;

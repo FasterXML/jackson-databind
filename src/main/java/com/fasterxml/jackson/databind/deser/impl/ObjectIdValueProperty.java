@@ -21,10 +21,17 @@ public final class ObjectIdValueProperty
     private static final long serialVersionUID = 1L;
 
     protected final ObjectIdReader _objectIdReader;
+
+    @Deprecated // since 2.2
+    public ObjectIdValueProperty(ObjectIdReader objectIdReader) {
+        this(objectIdReader, true);
+    }
     
-    public ObjectIdValueProperty(ObjectIdReader objectIdReader)
+    public ObjectIdValueProperty(ObjectIdReader objectIdReader,
+            boolean isRequired)
     {
-        super(objectIdReader.propertyName, objectIdReader.idType, null, null);
+        super(objectIdReader.propertyName, objectIdReader.idType, null, null,
+                isRequired);
         _objectIdReader = objectIdReader;
         _valueDeserializer = objectIdReader.deserializer;
     }

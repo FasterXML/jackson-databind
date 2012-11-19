@@ -20,6 +20,8 @@ public class EnumSetDeserializer
     extends StdDeserializer<EnumSet<?>>
     implements ContextualDeserializer
 {
+    private static final long serialVersionUID = 3479455075597887177L;
+
     protected final JavaType _enumType;
 
     protected final Class<Enum> _enumClass;

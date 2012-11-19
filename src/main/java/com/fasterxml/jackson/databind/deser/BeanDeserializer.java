@@ -122,7 +122,7 @@ public class BeanDeserializer
         }
         return _deserializeOther(jp, ctxt, t);
     }
-    
+
     private final Object _deserializeOther(JsonParser jp, DeserializationContext ctxt,
             JsonToken t)
         throws IOException, JsonProcessingException

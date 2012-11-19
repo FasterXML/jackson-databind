@@ -55,7 +55,7 @@ public class JsonNodeFactory
      *
      * @see BigDecimal
      */
-    protected JsonNodeFactory(boolean bigDecimalExact)
+    public JsonNodeFactory(boolean bigDecimalExact)
     {
         _cfgBigDecimalExact = bigDecimalExact;
     }
@@ -73,7 +73,6 @@ public class JsonNodeFactory
 
     /**
      * Return a factory instance with the desired behavior for BigDecimals
-     *
      * <p>See {@link #JsonNodeFactory(boolean)} for a full description.</p>
      *
      * @param bigDecimalExact see description

@@ -337,7 +337,12 @@ public abstract class BeanDeserializerBase
         if (oir == null) {
             _beanProperties = src._beanProperties;
         } else {
-            _beanProperties = src._beanProperties.withProperty(new ObjectIdValueProperty(oir));
+            /* 18-Nov-2012, tatu: May or may not have annotations for id property;
+             *   but no easy access. But hard to see id property being optional,
+             *   so let's consider required at this point.
+             */
+            ObjectIdValueProperty idProp = new ObjectIdValueProperty(oir, true);
+            _beanProperties = src._beanProperties.withProperty(idProp);
         }
     }
 

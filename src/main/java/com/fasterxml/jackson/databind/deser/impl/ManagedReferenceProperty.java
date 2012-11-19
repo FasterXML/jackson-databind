@@ -40,7 +40,8 @@ public final class ManagedReferenceProperty
             Annotations contextAnnotations, boolean isContainer)
     {
         super(forward.getName(), forward.getType(), forward.getValueTypeDeserializer(),
-                contextAnnotations);
+                contextAnnotations,
+                forward.isRequired());
         _referenceName = refName;
         _managedProperty = forward;
         _backProperty = backward;
@@ -120,7 +121,7 @@ public final class ManagedReferenceProperty
     public Object setAndReturn(Object instance, Object value)
    		throws IOException
 	{
-    	Object result = _managedProperty.setAndReturn(instance, value);
+        Object result = _managedProperty.setAndReturn(instance, value);
         /* And then back reference, if (and only if!) we actually have a non-null
          * reference
          */
@@ -152,6 +153,6 @@ public final class ManagedReferenceProperty
                 _backProperty.set(value, instance);
             }
         }
-    	return result;
+        return result;
 	}
 }

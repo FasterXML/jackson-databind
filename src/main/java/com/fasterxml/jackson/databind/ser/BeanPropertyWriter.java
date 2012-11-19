@@ -161,6 +161,16 @@ public class BeanPropertyWriter
      */
     protected JavaType _nonTrivialBaseType;
 
+    /**
+     * Whether value of this property has been marked as required.
+     * Retained since it will be needed when traversing type hierarchy
+     * for producing schemas (and other similar tasks); currently not
+     * used for serialization.
+     * 
+     * @since 2.2
+     */
+    protected final boolean _isRequired;
+    
     /*
     /**********************************************************
     /* Construction, configuration
@@ -183,6 +193,7 @@ public class BeanPropertyWriter
         _dynamicSerializers = (ser == null) ? PropertySerializerMap.emptyMap() : null;
         _typeSerializer = typeSer;
         _cfgSerializationType = serType;
+        _isRequired = propDef.isRequired();
 
         if (member instanceof AnnotatedField) {
             _accessorMethod = null;
@@ -230,6 +241,7 @@ public class BeanPropertyWriter
         _includeInViews = base._includeInViews;
         _typeSerializer = base._typeSerializer;
         _nonTrivialBaseType = base._nonTrivialBaseType;
+        _isRequired = base._isRequired;
     }
 
     public BeanPropertyWriter rename(NameTransformer transformer) {
@@ -302,6 +314,11 @@ public class BeanPropertyWriter
     }
 
 //  @Override
+    public boolean isRequired() {
+        return _isRequired;
+    }
+    
+//  @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
         return _member.getAnnotation(acls);
     }
@@ -315,7 +332,19 @@ public class BeanPropertyWriter
     public AnnotatedMember getMember() {
         return _member;
     }
-    
+
+
+//  @Override
+    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
+        throws JsonMappingException
+    {
+        if (isRequired()) {
+            objectVisitor.property(this); 
+        } else {
+            objectVisitor.optionalProperty(this);
+        }
+    }
+
     /*
     /**********************************************************
     /* Managing and accessing of opaque internal settings
@@ -424,36 +453,19 @@ public class BeanPropertyWriter
      * like constructing JSON Schema instances.
      * 
      * @since 2.1
+     * 
+     * @deprecated since 2.2, use {@link #isRequired()} instead.
      */
-    protected boolean isRequired(AnnotationIntrospector intr)
-    {
-        Boolean value = intr.hasRequiredMarker(_member);
-        return (value == null) ? false : value.booleanValue();
+    @Deprecated
+    protected boolean isRequired(AnnotationIntrospector intr) {
+        return _isRequired;
     }
 
     /*
     /**********************************************************
-    /* Support for JsonFormatVisitable
+    /* Legacy support for JsonFormatVisitable
     /**********************************************************
      */
-
-    /**
-     * Method called to handle appropriate type-specific visiting
-     * over logical property this writer handles.
-     * 
-     * @param objectVisitor ObjectVisitor which can receive the property
-     * 
-     * @since 2.1
-     */
-    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
-        throws JsonMappingException
-    {
-        if (isRequired(objectVisitor.getProvider().getAnnotationIntrospector())) {
-            objectVisitor.property(this); 
-        } else {
-            objectVisitor.optionalProperty(this);
-        }
-    }
 
     /**
      * Attempt to add the output of the given {@link BeanPropertyWriter} in the given {@link ObjectNode}.
@@ -483,7 +495,7 @@ public class BeanPropertyWriter
             }
             ser = provider.findValueSerializer(serType, this);
         }
-        boolean isOptional = !isRequired(provider.getAnnotationIntrospector());
+        boolean isOptional = !isRequired();
         if (ser instanceof SchemaAware) {
             schemaNode =  ((SchemaAware) ser).getSchema(provider, hint, isOptional) ;
         } else {  

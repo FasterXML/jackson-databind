@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.Named;
 
@@ -39,6 +40,14 @@ public interface BeanProperty extends Named
     public JavaType getType();
 
     /**
+     * Whether value for property is marked as required using
+     * annotations or associated schema.
+     * 
+     * @since 2.2
+     */
+    public boolean isRequired();
+    
+    /**
      * Method for finding annotation associated with this property;
      * meaning annotation associated with one of entities used to
      * access property.
@@ -57,6 +66,20 @@ public interface BeanProperty extends Named
      * annotated field, method or constructor property.
      */
     public AnnotatedMember getMember();
+
+    /**
+     * Method that can be called to visit the type structure that this
+     * property is part of.
+     * Note that not all implementations support traversal with this
+     * method; those that do not should throw
+     * {@link UnsupportedOperationException}.
+     * 
+     * @param objectVisitor Visitor to used as the callback handler
+     * 
+     * @since 2.2
+     */
+    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
+        throws JsonMappingException;
     
     /*
     /**********************************************************
@@ -119,8 +142,26 @@ public interface BeanProperty extends Named
         }
 
 //      @Override
+        public boolean isRequired() {
+            // !!! TODO (maybe): allow changing
+            return false;
+        }
+        
+//      @Override
         public AnnotatedMember getMember() {
             return _member;
+        }
+
+        /**
+         * Implementation of this method throws
+         * {@link UnsupportedOperationException}, since instances of this
+         * implementation should not be used as part of actual structure
+         * visited. Rather, other implementations should handle it.
+         */
+//      @Override
+        public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor) {
+            throw new UnsupportedOperationException("Instances of "+getClass().getName()
+                    +" should not get visited");
         }
     }
 }

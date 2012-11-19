@@ -630,7 +630,13 @@ public class ObjectMapper
                 DeserializerFactory df = mapper._deserializationContext._factory.withValueInstantiators(instantiators);
                 mapper._deserializationContext = mapper._deserializationContext.with(df);
             }
-            
+
+//          @Override
+            public void setClassIntrospector(ClassIntrospector ci) {
+                mapper._deserializationConfig = mapper._deserializationConfig.with(ci);
+                mapper._serializationConfig = mapper._serializationConfig.with(ci);
+            }
+
 //          @Override
             public void insertAnnotationIntrospector(AnnotationIntrospector ai) {
                 mapper._deserializationConfig = mapper._deserializationConfig.withInsertedAnnotationIntrospector(ai);

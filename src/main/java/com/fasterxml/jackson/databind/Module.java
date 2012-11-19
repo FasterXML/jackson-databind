@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.deser.KeyDeserializers;
 import com.fasterxml.jackson.databind.deser.ValueInstantiators;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.Serializers;
@@ -213,7 +214,17 @@ public abstract class Module
          *    constructing POJO values during deserialization
          */
         public void addValueInstantiators(ValueInstantiators instantiators);
-        
+
+        /**
+         * Method for replacing the default class introspector with a derived class that
+         * overrides specific behavior.
+         *
+         * @param ci Derived class of ClassIntrospector with overriden behavior
+         *
+         * @since 2.2
+         */
+        public void setClassIntrospector(ClassIntrospector ci);
+
         /**
          * Method for registering specified {@link AnnotationIntrospector} as the highest
          * priority introspector (will be chained with existing introspector(s) which

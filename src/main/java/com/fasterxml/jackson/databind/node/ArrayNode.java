@@ -810,7 +810,7 @@ public class ArrayNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != getClass()) { // final class, can do this
+        if (!(o instanceof ArrayNode)) {
             return false;
         }
         ArrayNode other = (ArrayNode) o;

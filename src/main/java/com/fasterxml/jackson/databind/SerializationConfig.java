@@ -199,7 +199,17 @@ public final class SerializationConfig
     public SerializationConfig with(ClassIntrospector ci) {
         return _withBase(_base.withClassIntrospector(ci));
     }
-    
+
+    @Override
+    public SerializationConfig withAppendedClassIntrospector(ClassIntrospector ci) {
+        return _withBase(_base.withAppendedClassIntrospector(ci));
+    }
+
+    @Override
+    public SerializationConfig withInsertedClassIntrospector(ClassIntrospector ci) {
+        return _withBase(_base.withInsertedClassIntrospector(ci));
+    }
+
     /**
      * In addition to constructing instance with specified date format,
      * will enable or disable <code>SerializationFeature.WRITE_DATES_AS_TIMESTAMPS</code>

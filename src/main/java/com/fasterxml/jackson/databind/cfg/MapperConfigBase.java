@@ -186,6 +186,22 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public abstract T with(ClassIntrospector ci);
 
     /**
+     * Method for constructing and returning a new instance with additional
+     * {@link ClassIntrospector} appended (as the lowest priority one)
+     *
+     * @since 2.2
+     */
+    public abstract T withAppendedClassIntrospector(ClassIntrospector introspector);
+
+    /**
+     * Method for constructing and returning a new instance with additional
+     * {@link ClassIntrospector} inserted (as the highest priority one)
+     *
+     * @since 2.2
+     */
+    public abstract T withInsertedClassIntrospector(ClassIntrospector introspector);
+
+    /**
      * Method for constructing and returning a new instance with different
      * {@link DateFormat}
      * to use.

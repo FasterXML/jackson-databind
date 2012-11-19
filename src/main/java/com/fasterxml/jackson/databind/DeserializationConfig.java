@@ -252,6 +252,16 @@ public final class DeserializationConfig
     }
 
     @Override
+    public DeserializationConfig withInsertedClassIntrospector(ClassIntrospector ci) {
+        return _withBase(_base.withInsertedClassIntrospector(ci));
+    }
+
+    @Override
+    public DeserializationConfig withAppendedClassIntrospector(ClassIntrospector ci) {
+        return _withBase(_base.withAppendedClassIntrospector(ci));
+    }
+
+    @Override
     public DeserializationConfig withView(Class<?> view) {
         return (_view == view) ? this : new DeserializationConfig(this, view);
     }

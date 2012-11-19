@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.introspect.ClassIntrospectorPair;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -164,6 +165,14 @@ public final class BaseSettings
         return new BaseSettings(ci, _annotationIntrospector, _visibilityChecker, _propertyNamingStrategy, _typeFactory,
                 _typeResolverBuilder, _dateFormat, _handlerInstantiator, _locale,
                 _timeZone, _defaultBase64);
+    }
+
+    public BaseSettings withInsertedClassIntrospector(ClassIntrospector ci) {
+        return withClassIntrospector(ClassIntrospectorPair.create(ci, _classIntrospector));
+    }
+
+    public BaseSettings withAppendedClassIntrospector(ClassIntrospector ci) {
+        return withClassIntrospector(ClassIntrospectorPair.create(_classIntrospector, ci));
     }
     
     public BaseSettings withAnnotationIntrospector(AnnotationIntrospector ai) {

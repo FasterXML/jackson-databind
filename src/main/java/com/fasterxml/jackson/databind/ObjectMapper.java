@@ -644,6 +644,18 @@ public class ObjectMapper
             }
 
 //          @Override
+            public void insertClassIntrospector(ClassIntrospector ci) {
+                mapper._deserializationConfig = mapper._deserializationConfig.withInsertedClassIntrospector(ci);
+                mapper._serializationConfig = mapper._serializationConfig.withInsertedClassIntrospector(ci);
+            }
+
+//          @Override
+            public void appendClassIntrospector(ClassIntrospector ci) {
+                mapper._deserializationConfig = mapper._deserializationConfig.withAppendedClassIntrospector(ci);
+                mapper._serializationConfig = mapper._serializationConfig.withAppendedClassIntrospector(ci);
+            }
+
+//          @Override
             public void registerSubtypes(Class<?>... subtypes) {
                 mapper.registerSubtypes(subtypes);
             }

@@ -310,6 +310,24 @@ But here are couple of potentially useful use cases:
 
 Basically, Jackson can work as a replacement for many Apache Commons components, for tasks like base64 encoding/decoding, and handling of "dyna beans" (Maps to/from POJOs).
 
+# Contribute!
+
+We would love to get your contribution, whether it's in form of bug reports, Requests for Enhancement (RFE), documentation, or code patches.
+The primary mechanism for all of above is [GitHub Issues system](FasterXML/jackson-databind/issues).
+
+## Basic rules for Code Contributions
+
+There is really just one main rule, which is that to accept any code contribution, we need to get a filled Contributor License Agreement (CLA) from the author. One CLA is enough for any number of contributions, but we need one. Or, rather, companies that use our code want it. It keeps their lawyers less unhappy about Open Source usage.
+
+## Limitation on Dependencies by Core Components
+
+One additional limitation exists for so-called core components (streaming api, jackson-annotations and jackson-databind): no additional dependendies are allowed beyond:
+
+* Core components may rely on any methods included in the supported JDK: currently core components are limited to JDK 1.5
+* Jackson-databind (this package) depends on the other two (annotations, streaming).
+
+This means that anything that has to rely on additional APIs or libraries needs to be built as an extension, usually a Jackson module.
+
 -----
 
 # Further reading

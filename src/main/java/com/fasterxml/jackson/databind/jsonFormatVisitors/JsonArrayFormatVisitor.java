@@ -12,7 +12,8 @@ public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializerP
      * @param handler Serializer used, to allow for further callbacks
      * @param elementType Type of elements in JSON array value
      */
-    void itemsFormat(JsonFormatVisitable handler, JavaType elementType);
+    void itemsFormat(JsonFormatVisitable handler, JavaType elementType)
+        throws JsonMappingException;
     
     /**
      * Visit method that is called if the content type is a simple
@@ -20,7 +21,7 @@ public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializerP
      * for structured types like {@link JsonFormatTypes#OBJECT} since
      * they would be missing type information).
      */
-    void itemsFormat(JsonFormatTypes format) throws JsonMappingException;
-
+    void itemsFormat(JsonFormatTypes format)
+        throws JsonMappingException;
 }
 

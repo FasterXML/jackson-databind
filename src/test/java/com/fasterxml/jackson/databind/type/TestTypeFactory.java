@@ -506,5 +506,32 @@ public class TestTypeFactory
         assertEquals(TypeFactory.unknownType(), type.getKeyType());
         assertEquals(TypeFactory.unknownType(), type.getContentType());
     }
-}
 
+    /*
+    /**********************************************************
+    /* Unit tests: other
+    /**********************************************************
+     */
+    
+    public void testMoreSpecificType()
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+
+        JavaType t1 = tf.constructCollectionType(Collection.class, Object.class);
+        JavaType t2 = tf.constructCollectionType(List.class, Object.class);
+        assertSame(t2, tf.moreSpecificType(t1, t2));
+        assertSame(t2, tf.moreSpecificType(t2, t1));
+
+        t1 = tf.constructType(Double.class);
+        t2 = tf.constructType(Number.class);
+        assertSame(t1, tf.moreSpecificType(t1, t2));
+        assertSame(t1, tf.moreSpecificType(t2, t1));
+
+        // and then unrelated, return first
+        t1 = tf.constructType(Double.class);
+        t2 = tf.constructType(String.class);
+        assertSame(t1, tf.moreSpecificType(t1, t2));
+        assertSame(t2, tf.moreSpecificType(t2, t1));
+    }
+}
+        

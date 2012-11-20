@@ -5,7 +5,22 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializerProvider
 {
-	void itemsFormat(JavaType contentType) throws JsonMappingException;
-	void itemsFormat(JsonFormatTypes format) throws JsonMappingException;
+    /**
+     * Visit method called for structured types, as well as possibly
+     * for leaf types (especially if handled by custom serializers).
+     * 
+     * @param handler Serializer used, to allow for further callbacks
+     * @param elementType Type of elements in JSON array value
+     */
+    void itemsFormat(JsonFormatVisitable handler, JavaType elementType);
+    
+    /**
+     * Visit method that is called if the content type is a simple
+     * scalar type like {@link JsonFormatTypes#STRING} (but not
+     * for structured types like {@link JsonFormatTypes#OBJECT} since
+     * they would be missing type information).
+     */
+    void itemsFormat(JsonFormatTypes format) throws JsonMappingException;
+
 }
 

@@ -131,12 +131,6 @@ public final class TypeFactory
 
     /*
     /**********************************************************
-    /* Overrides for supporting Serializable
-    /**********************************************************
-     */
-    
-    /*
-    /**********************************************************
     /* Static methods for non-instance-specific functionality
     /**********************************************************
      */
@@ -165,6 +159,7 @@ public final class TypeFactory
     }
     
     /*
+    /**********************************************************
     /* Type conversion, parameterization resolution methods
     /**********************************************************
      */
@@ -297,6 +292,36 @@ public final class TypeFactory
             return null;
         }
         return bindings.typesAsArray();
+    }
+
+    /**
+     * Method that can be called to figure out more specific of two
+     * types (if they are related; that is, one implements or extends the
+     * other); or if not related, return the primary type.
+     * 
+     * @param type1 Primary type to consider
+     * @param type2 Secondary type to consider
+     * 
+     * @since 2.2
+     */
+    public JavaType moreSpecificType(JavaType type1, JavaType type2)
+    {
+        if (type1 == null) {
+            return type2;
+        }
+        if (type2 == null) {
+            return type1;
+        }
+        Class<?> raw1 = type1.getRawClass();
+        Class<?> raw2 = type2.getRawClass();
+        if (raw1 == raw2) {
+            return type1;
+        }
+        // TODO: maybe try sub-classing, to retain generic types?
+        if (raw1.isAssignableFrom(raw2)) {
+            return type2;
+        }
+        return type1;
     }
     
     /*

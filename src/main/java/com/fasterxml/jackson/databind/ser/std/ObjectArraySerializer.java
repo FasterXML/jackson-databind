@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.type.ArrayType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Generic serializer for Object arrays (<code>Object[]</code>).
@@ -344,7 +346,20 @@ public class ObjectArraySerializer
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        visitor.expectArrayFormat(typeHint).itemsFormat(_elementType);
+        JsonArrayFormatVisitor arrayVisitor = visitor.expectArrayFormat(typeHint);
+        if (arrayVisitor == null) { // not sure if this is legal but...
+            return; 
+        }
+        TypeFactory tf = visitor.getProvider().getTypeFactory();
+        JavaType contentType = tf.moreSpecificType(_elementType, typeHint.getContentType());
+        if (contentType == null) {
+            throw new JsonMappingException("Could not resolve type");
+        }
+        JsonSerializer<?> valueSer = _elementSerializer;
+        if (valueSer == null) {
+            valueSer = visitor.getProvider().findValueSerializer(contentType, _property);
+        }
+        arrayVisitor.itemsFormat(valueSer, contentType);
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,

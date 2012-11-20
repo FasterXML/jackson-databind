@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Base class for serializers that will output contents as JSON
@@ -242,34 +243,20 @@ public abstract class AsArraySerializerBase<T>
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        /* 15-Jan-2010, tatu: This should probably be rewritten, given that
-         *    more information about content type is actually being explicitly
-         *    passed. So there should be less need to try to re-process that
-         *    information.
-         */
-        //ObjectNode o = createSchemaNode("array", true);
         JsonArrayFormatVisitor arrayVisitor = visitor.expectArrayFormat(typeHint);
-        JavaType contentType = null;
-        if (typeHint != null) {
-            contentType = typeHint.getContentType();
-            if (contentType == null) { // could still be parameterized (Iterators)
-                // 30-Sep-2012, tatu: This is wrong, should use TypeFactory... but it is alas
-                //    not being passed (oversight)
-                if (typeHint instanceof ParameterizedType) {
-                    Type[] typeArgs = ((ParameterizedType) typeHint).getActualTypeArguments();
-                    if (typeArgs.length == 1) {
-                        contentType = visitor.getProvider().constructType(typeArgs[0]);
-                    }
-                }
-            }
+        if (arrayVisitor == null) { // not sure if this is legal but...
+            return; 
         }
-        if (contentType == null && _elementType != null) {
-            contentType = _elementType;
+        TypeFactory tf = visitor.getProvider().getTypeFactory();
+        JavaType contentType = tf.moreSpecificType(_elementType, typeHint.getContentType());
+        if (contentType == null) {
+            throw new JsonMappingException("Could not resolve type");
         }
-        if (contentType != null) {
-//            JsonNode schemaNode = null;
-            arrayVisitor.itemsFormat(contentType);
+        JsonSerializer<?> valueSer = _elementSerializer;
+        if (valueSer == null) {
+            valueSer = visitor.getProvider().findValueSerializer(contentType, _property);
         }
+        arrayVisitor.itemsFormat(valueSer, contentType);
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,

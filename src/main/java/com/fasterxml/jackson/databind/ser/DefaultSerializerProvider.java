@@ -257,11 +257,8 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
     {
         Class<?> implClass = objectIdInfo.getGeneratorType();
         HandlerInstantiator hi = _config.getHandlerInstantiator();
-        ObjectIdGenerator<?> gen;
-
-        if (hi != null) {
-            gen =  hi.objectIdGeneratorInstance(_config, annotated, implClass);
-        } else {
+        ObjectIdGenerator<?> gen = (hi == null) ? null : hi.objectIdGeneratorInstance(_config, annotated, implClass);
+        if (gen == null) {
             gen = (ObjectIdGenerator<?>) ClassUtil.createInstance(implClass,
                     _config.canOverrideAccessModifiers());
         }
@@ -340,9 +337,8 @@ public abstract class DefaultSerializerProvider extends SerializerProvider
                         +serClass.getName()+"; expected Class<JsonSerializer>");
             }
             HandlerInstantiator hi = _config.getHandlerInstantiator();
-            if (hi != null) {
-                ser = hi.serializerInstance(_config, annotated, serClass);
-            } else {
+            ser = (hi == null) ? null : hi.serializerInstance(_config, annotated, serClass);
+            if (ser == null) {
                 ser = (JsonSerializer<?>) ClassUtil.createInstance(serClass,
                         _config.canOverrideAccessModifiers());
             }

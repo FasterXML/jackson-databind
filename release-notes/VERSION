@@ -13,6 +13,7 @@ Fixes:
 * [Issue#71]: Incorrect class name prevent deserialization of
   ConcurrentNavigableMap, ConcurrentSkipListMap
  (reported by 'twoi@GitHub')
+* [Issue#117]: HandlerInstantiator defaulting not working
 
 ------------------------------------------------------------------------
 === History: ===

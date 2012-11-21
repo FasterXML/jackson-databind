@@ -73,11 +73,9 @@ public abstract class DefaultDeserializationContext
     {
         Class<?> implClass = objectIdInfo.getGeneratorType();
         HandlerInstantiator hi = _config.getHandlerInstantiator();
-        ObjectIdGenerator<?> gen;
-
-        if (hi != null) {
-            gen = hi.objectIdGeneratorInstance(_config, annotated, implClass);
-        } else {
+        ObjectIdGenerator<?> gen = (hi == null) ? null : 
+            hi.objectIdGeneratorInstance(_config, annotated, implClass);
+        if (gen == null) {
             gen = (ObjectIdGenerator<?>) ClassUtil.createInstance(implClass,
                     _config.canOverrideAccessModifiers());
         }
@@ -119,9 +117,8 @@ public abstract class DefaultDeserializationContext
                 throw new IllegalStateException("AnnotationIntrospector returned Class "+deserClass.getName()+"; expected Class<JsonDeserializer>");
             }
             HandlerInstantiator hi = _config.getHandlerInstantiator();
-            if (hi != null) {
-                deser = hi.deserializerInstance(_config, annotated, deserClass);
-            } else {
+            deser = (hi == null) ? null : hi.deserializerInstance(_config, annotated, deserClass);
+            if (deser == null) {
                 deser = (JsonDeserializer<?>) ClassUtil.createInstance(deserClass,
                         _config.canOverrideAccessModifiers());
             }
@@ -162,9 +159,8 @@ public abstract class DefaultDeserializationContext
                         +"; expected Class<KeyDeserializer>");
             }
             HandlerInstantiator hi = _config.getHandlerInstantiator();
-            if (hi != null) {
-                deser = hi.keyDeserializerInstance(_config, annotated, deserClass);
-            } else {
+            deser = (hi == null) ? null : hi.keyDeserializerInstance(_config, annotated, deserClass);
+            if (deser == null) {
                 deser = (KeyDeserializer) ClassUtil.createInstance(deserClass,
                         _config.canOverrideAccessModifiers());
             }

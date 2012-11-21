@@ -376,31 +376,30 @@ public abstract class BasicDeserializerFactory
         ValueInstantiator inst;
         
         if (instDef instanceof ValueInstantiator) {
-            inst = (ValueInstantiator) instDef;
-        } else {
-            if (!(instDef instanceof Class)) {
-                throw new IllegalStateException("AnnotationIntrospector returned key deserializer definition of type "
-                        +instDef.getClass().getName()
-                        +"; expected type KeyDeserializer or Class<KeyDeserializer> instead");
-            }
-            Class<?> instClass = (Class<?>)instDef;
-            if (instClass == NoClass.class) {
-                return null;
-            }
-            if (!ValueInstantiator.class.isAssignableFrom(instClass)) {
-                throw new IllegalStateException("AnnotationIntrospector returned Class "+instClass.getName()
-                        +"; expected Class<ValueInstantiator>");
-            }
-            HandlerInstantiator hi = config.getHandlerInstantiator();
-            if (hi != null) {
-                inst = hi.valueInstantiatorInstance(config, annotated, instClass);
-            } else {
-                inst = (ValueInstantiator) ClassUtil.createInstance(instClass,
-                        config.canOverrideAccessModifiers());
+            return (ValueInstantiator) instDef;
+        }
+        if (!(instDef instanceof Class)) {
+            throw new IllegalStateException("AnnotationIntrospector returned key deserializer definition of type "
+                    +instDef.getClass().getName()
+                    +"; expected type KeyDeserializer or Class<KeyDeserializer> instead");
+        }
+        Class<?> instClass = (Class<?>)instDef;
+        if (instClass == NoClass.class) {
+            return null;
+        }
+        if (!ValueInstantiator.class.isAssignableFrom(instClass)) {
+            throw new IllegalStateException("AnnotationIntrospector returned Class "+instClass.getName()
+                    +"; expected Class<ValueInstantiator>");
+        }
+        HandlerInstantiator hi = config.getHandlerInstantiator();
+        if (hi != null) {
+            inst = hi.valueInstantiatorInstance(config, annotated, instClass);
+            if (inst != null) {
+                return inst;
             }
         }
-        // not resolvable or contextual, just return:
-        return inst;
+        return (ValueInstantiator) ClassUtil.createInstance(instClass,
+                config.canOverrideAccessModifiers());
     }
     
     protected void _addDeserializerConstructors

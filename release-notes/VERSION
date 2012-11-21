@@ -5,6 +5,8 @@ First patch release for 2.1 branch.
 Fixes:
 
 * [Issue#106]: NPE in ObjectArraySerializer.createContextual(...)
+* [Issue#117]: HandlerInstantiator defaulting not working
+ (reported by Alexander B)
 
 ------------------------------------------------------------------------
 === History: ===

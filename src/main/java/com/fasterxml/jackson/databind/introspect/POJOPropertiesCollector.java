@@ -799,7 +799,10 @@ public class POJOPropertiesCollector
         }
         HandlerInstantiator hi = _config.getHandlerInstantiator();
         if (hi != null) {
-            return hi.namingStrategyInstance(_config, _classDef, namingClass);
+            PropertyNamingStrategy pns = hi.namingStrategyInstance(_config, _classDef, namingClass);
+            if (pns != null) {
+                return pns;
+            }
         }
         return (PropertyNamingStrategy) ClassUtil.createInstance(namingClass,
                     _config.canOverrideAccessModifiers());

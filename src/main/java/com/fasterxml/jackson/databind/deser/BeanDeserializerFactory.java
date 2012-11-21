@@ -539,10 +539,12 @@ public class BeanDeserializerFactory
                  */
                 // but let's call a method just to allow custom builders to be aware...
                 final String name = propDef.getName();
-                for (SettableBeanProperty cp : creatorProps) {
-                    if (name.equals(cp.getName())) {
-                        prop = cp;
-                        break;
+                if (creatorProps != null) {
+                    for (SettableBeanProperty cp : creatorProps) {
+                        if (name.equals(cp.getName())) {
+                            prop = cp;
+                            break;
+                        }
                     }
                 }
                 if (prop == null) {

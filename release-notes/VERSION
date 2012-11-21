@@ -4,7 +4,12 @@ New minor version.
 
 Fixes:
 
+Improvements:
+
+* [Issue#116]: JavaType implements `java.lang.reflect.Type`
+
 New features:
+
 
 ------------------------------------------------------------------------
 === History: ===

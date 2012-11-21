@@ -9,12 +9,15 @@ import com.fasterxml.jackson.core.type.ResolvedType;
  * and as keys for deserializers.
  *<p>
  * Instances can (only) be constructed by
- * <code>com.fasterxml.jackson.databind.TypeFactory</code>
- * (included in "jackson-databind")
+ * <code>com.fasterxml.jackson.databind.TypeFactory</code>.
+ *<p>
+ * Since 2.2 this implements {@link java.lang.reflect.Type} to allow
+ * it to be pushed through interfaces that only expose that type.
  */
 public abstract class JavaType
     extends ResolvedType
-    implements java.io.Serializable
+    implements java.io.Serializable, // 2.1
+        java.lang.reflect.Type // 2.2
 {
     // for 2.1.0:
     private static final long serialVersionUID = -5321897246493723158L;

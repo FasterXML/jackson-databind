@@ -52,16 +52,15 @@ public class TestAnnotatedClass
      * Test class for checking that field introspection
      * works as expected
      */
+    @SuppressWarnings("unused")
     static class FieldBean
     {
         // static, not to be included:
         public static boolean DUMMY;
 
         // not public, no annotations, shouldn't be included
-        @SuppressWarnings("unused")
         private long bar;
 
-        @SuppressWarnings("unused")
         @JsonProperty
         private String props;
     }

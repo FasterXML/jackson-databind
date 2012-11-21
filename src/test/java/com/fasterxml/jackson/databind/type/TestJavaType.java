@@ -160,5 +160,15 @@ public class TestJavaType
         assertFalse(key.equals(new ClassKey(Integer.class)));
         assertEquals(String.class.getName(), key.toString());
     }
+
+    // [Issue#116]
+    public void testJavaTypeAsJLRType()
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        JavaType t1 = tf.constructType(getClass());
+        // should just get it back as-is:
+        JavaType t2 = tf.constructType(t1);
+        assertSame(t1, t2);
+    }
 }
 

@@ -370,6 +370,9 @@ public final class TypeFactory
         else if (type instanceof ParameterizedType) {
             resultType = _fromParamType((ParameterizedType) type, context);
         }
+        else if (type instanceof JavaType) { // [Issue#116]
+            return (JavaType) type;
+        }
         else if (type instanceof GenericArrayType) {
             resultType = _fromArrayType((GenericArrayType) type, context);
         }

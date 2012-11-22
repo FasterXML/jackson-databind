@@ -52,6 +52,6 @@ public class DOMSerializer
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException
     {
-        visitor.expectAnyFormat(typeHint);
+        if (visitor != null) visitor.expectAnyFormat(typeHint);
     }
 }

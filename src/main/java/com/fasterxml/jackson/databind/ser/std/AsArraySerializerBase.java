@@ -243,20 +243,19 @@ public abstract class AsArraySerializerBase<T>
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        JsonArrayFormatVisitor arrayVisitor = visitor.expectArrayFormat(typeHint);
-        if (arrayVisitor == null) { // not sure if this is legal but...
-            return; 
+        JsonArrayFormatVisitor arrayVisitor = (visitor == null) ? null : visitor.expectArrayFormat(typeHint);
+        if (arrayVisitor != null) {
+            TypeFactory tf = visitor.getProvider().getTypeFactory();
+            JavaType contentType = tf.moreSpecificType(_elementType, typeHint.getContentType());
+            if (contentType == null) {
+                throw new JsonMappingException("Could not resolve type");
+            }
+            JsonSerializer<?> valueSer = _elementSerializer;
+            if (valueSer == null) {
+                valueSer = visitor.getProvider().findValueSerializer(contentType, _property);
+            }
+            arrayVisitor.itemsFormat(valueSer, contentType);
         }
-        TypeFactory tf = visitor.getProvider().getTypeFactory();
-        JavaType contentType = tf.moreSpecificType(_elementType, typeHint.getContentType());
-        if (contentType == null) {
-            throw new JsonMappingException("Could not resolve type");
-        }
-        JsonSerializer<?> valueSer = _elementSerializer;
-        if (valueSer == null) {
-            valueSer = visitor.getProvider().findValueSerializer(contentType, _property);
-        }
-        arrayVisitor.itemsFormat(valueSer, contentType);
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,

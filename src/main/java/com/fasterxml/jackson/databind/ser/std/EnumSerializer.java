@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -169,20 +170,20 @@ public class EnumSerializer
             throws JsonMappingException
     {
         // [JACKSON-684]: serialize as index?
-    	if (visitor.getProvider().isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
-    	    visitor.expectIntegerFormat(typeHint);
-    	} else {
+        if (visitor.getProvider().isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
+            visitor.expectIntegerFormat(typeHint);
+        } else {
     		JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
-    		if (typeHint != null) {
+    		if (typeHint != null && stringVisitor != null) {
     			if (typeHint.isEnumType()) {
-    				Set<String> enums = new HashSet<String>();
+    				Set<String> enums = new LinkedHashSet<String>();
     				for (SerializedString value : _values.values()) {
     					enums.add(value.getValue());
     				}
     				stringVisitor.enumTypes(enums);
     			}
     		}
-    	}
+        }
     }
 
     /*

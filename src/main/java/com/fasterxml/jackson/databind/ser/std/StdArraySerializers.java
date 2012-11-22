@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -142,7 +143,12 @@ public class StdArraySerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.BOOLEAN);
+            if (visitor != null) {
+                JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+                if (v2 != null) {
+                    v2.itemsFormat(JsonFormatTypes.BOOLEAN);
+                }
+            }
         }
     }
 
@@ -198,7 +204,12 @@ public class StdArraySerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.STRING);
+            if (visitor != null) {
+                JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+                if (v2 != null) {
+                    v2.itemsFormat(JsonFormatTypes.STRING);
+                }
+            }
         }
     }
 
@@ -271,7 +282,12 @@ public class StdArraySerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.INTEGER);
+            if (visitor != null) {
+                JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+                if (v2 != null) {
+                    v2.itemsFormat(JsonFormatTypes.INTEGER);
+                }
+            }
         }
     }
 
@@ -346,7 +362,12 @@ public class StdArraySerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.STRING);
+            if (visitor != null) {
+                JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+                if (v2 != null) {
+                    v2.itemsFormat(JsonFormatTypes.STRING);
+                }
+            }
         }
     }
 
@@ -410,7 +431,12 @@ public class StdArraySerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.INTEGER);
+            if (visitor != null) {
+                JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+                if (v2 != null) {
+                    v2.itemsFormat(JsonFormatTypes.INTEGER);
+                }
+            }
         }
     }
 
@@ -483,7 +509,12 @@ public class StdArraySerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.NUMBER);
+            if (visitor != null) {
+                JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+                if (v2 != null) {
+                    v2.itemsFormat(JsonFormatTypes.NUMBER);
+                }
+            }
         }
     }
 
@@ -557,7 +588,12 @@ public class StdArraySerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.NUMBER);
+            if (visitor != null) {
+                JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+                if (v2 != null) {
+                    v2.itemsFormat(JsonFormatTypes.NUMBER);
+                }
+            }
         }
     }
 
@@ -621,7 +657,12 @@ public class StdArraySerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.NUMBER);
+            if (visitor != null) {
+                JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+                if (v2 != null) {
+                    v2.itemsFormat(JsonFormatTypes.NUMBER);
+                }
+            }
         }
     }
 }

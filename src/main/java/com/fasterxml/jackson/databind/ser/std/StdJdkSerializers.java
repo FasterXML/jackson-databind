@@ -87,7 +87,9 @@ public class StdJdkSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectBooleanFormat(typeHint);
+            if (visitor != null) {
+                visitor.expectBooleanFormat(typeHint);
+            }
         }
     }
     
@@ -113,7 +115,9 @@ public class StdJdkSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectIntegerFormat(typeHint);
+            if (visitor != null) {
+                visitor.expectIntegerFormat(typeHint);
+            }
         }
     }
 
@@ -139,7 +143,9 @@ public class StdJdkSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectIntegerFormat(typeHint);
+            if (visitor != null) {
+                visitor.expectIntegerFormat(typeHint);
+            }
         }
     }
     
@@ -165,7 +171,9 @@ public class StdJdkSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectAnyFormat(typeHint);
+            if (visitor != null) {
+                visitor.expectAnyFormat(typeHint);
+            }
         }
     }
     
@@ -201,7 +209,9 @@ public class StdJdkSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectStringFormat(typeHint);
+            if (visitor != null) {
+                visitor.expectStringFormat(typeHint);
+            }
         }
     }
 
@@ -231,7 +241,9 @@ public class StdJdkSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectStringFormat(typeHint);
+            if (visitor != null) {
+                visitor.expectStringFormat(typeHint);
+            }
         }
     }
 }

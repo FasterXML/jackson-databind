@@ -338,10 +338,12 @@ public class BeanPropertyWriter
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
         throws JsonMappingException
     {
-        if (isRequired()) {
-            objectVisitor.property(this); 
-        } else {
-            objectVisitor.optionalProperty(this);
+        if (objectVisitor != null) {
+            if (isRequired()) {
+                objectVisitor.property(this); 
+            } else {
+                objectVisitor.optionalProperty(this);
+            }
         }
     }
 

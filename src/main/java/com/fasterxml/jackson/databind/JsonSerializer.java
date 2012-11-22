@@ -216,7 +216,7 @@ public abstract class JsonSerializer<T>
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType type)
         throws JsonMappingException
     {
-        visitor.expectAnyFormat(type);
+        if (visitor != null) visitor.expectAnyFormat(type);
     }
     
     /*

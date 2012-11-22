@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -200,6 +201,11 @@ public class StringArraySerializer
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException
     {
-        visitor.expectArrayFormat(typeHint).itemsFormat(JsonFormatTypes.STRING);
+        if (visitor != null) {
+            JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
+            if (v2 != null) {
+                v2.itemsFormat(JsonFormatTypes.STRING);
+            }
+        }
     }
 }

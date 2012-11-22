@@ -52,6 +52,8 @@ public final class BooleanSerializer
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        visitor.expectBooleanFormat(typeHint);
+        if (visitor != null) {
+            visitor.expectBooleanFormat(typeHint);
+        }
     }
 }

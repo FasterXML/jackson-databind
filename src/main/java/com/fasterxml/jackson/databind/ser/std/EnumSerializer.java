@@ -2,8 +2,7 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
@@ -172,9 +171,10 @@ public class EnumSerializer
     		visitor.expectIntegerFormat(typeHint);
     	} else {
     		JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
-    		if (typeHint != null) {
+    		if (typeHint != null && visitor != null) {
     			if (typeHint.isEnumType()) {
-    				Set<String> enums = new HashSet<String>();
+			    // important: ensure that order is retained
+    				Set<String> enums = new LinkedHashSet<String>();
     				for (SerializedString value : _values.values()) {
     					enums.add(value.getValue());
     				}

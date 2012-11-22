@@ -4,7 +4,8 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
- * Marker interface for schema-aware serializers.
+ * Interface {@link com.fasterxml.jackson.databind.JsonSerializer} implements
+ * to allow for visiting type hierarchy.
  */
 public interface JsonFormatVisitable
 {

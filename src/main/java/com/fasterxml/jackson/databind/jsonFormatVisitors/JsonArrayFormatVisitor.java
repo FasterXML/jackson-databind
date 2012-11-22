@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.jsonFormatVisitors;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
 public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializerProvider
 {
@@ -23,5 +24,25 @@ public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializerP
      */
     void itemsFormat(JsonFormatTypes format)
         throws JsonMappingException;
+
+    /**
+     * Default "empty" implementation, useful as the base to start on;
+     * especially as it is guaranteed to implement all the method
+     * of the interface, even if new methods are getting added.
+     */
+    public static class Base implements JsonArrayFormatVisitor {
+        protected SerializerProvider provider;
+
+        public SerializerProvider getProvider() { return provider; }
+
+        public void setProvider(SerializerProvider p) { provider = p; }
+
+        public void itemsFormat(JsonFormatVisitable handler, JavaType elementType)
+            throws JsonMappingException { }
+
+        public void itemsFormat(JsonFormatTypes format)
+            throws JsonMappingException { }
+    }
+
 }
 

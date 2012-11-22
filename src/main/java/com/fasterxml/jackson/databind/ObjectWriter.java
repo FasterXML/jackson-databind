@@ -426,14 +426,32 @@ public class ObjectWriter
         return _jsonFactory.isEnabled(f);
     }
 
+    /**
+     * @since 2.2
+     */
+    public SerializationConfig getConfig() {
+        return _config;
+    }
+
+    /**
+     * @deprecated Since 2.2, use {@link #getFactory} instead.
+     */
+    @Deprecated
     public JsonFactory getJsonFactory() {
+        return _jsonFactory;
+    }
+
+    /**
+     * @since 2.2
+     */
+    public JsonFactory getFactory() {
         return _jsonFactory;
     }
     
     public TypeFactory getTypeFactory() {
         return _config.getTypeFactory();
     }
-    
+
     /*
     /**********************************************************
     /* Serialization methods; ones from ObjectCodec first

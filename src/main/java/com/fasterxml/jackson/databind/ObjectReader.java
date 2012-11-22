@@ -584,6 +584,16 @@ public class ObjectReader
         return _jsonFactory.isEnabled(f);
     }
 
+    /**
+     * @since 2.2
+     */
+    public DeserializationConfig getConfig() {
+        return _config;
+    }
+    
+    /**
+     * @since 2.1
+     */
     @Override
     public JsonFactory getFactory() {
         return _jsonFactory;

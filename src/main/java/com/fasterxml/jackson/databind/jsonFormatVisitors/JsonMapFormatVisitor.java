@@ -1,0 +1,38 @@
+package com.fasterxml.jackson.databind.jsonFormatVisitors;
+
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.SerializerProvider;
+
+public interface JsonMapFormatVisitor extends JsonFormatVisitorWithSerializerProvider
+{
+    /**
+     * Visit method called to indicate type of keys of the Map type
+     * being visited
+     */
+    public void keyFormat(JsonFormatVisitable handler, JavaType keyType) throws JsonMappingException;
+
+    /**
+     * Visit method called after {@link #keyFormat} to allow visiting of
+     * the value type
+     */
+    public void valueFormat(JsonFormatVisitable handler, JavaType valueType) throws JsonMappingException;
+    
+    /**
+     * Default "empty" implementation, useful as the base to start on;
+     * especially as it is guaranteed to implement all the method
+     * of the interface, even if new methods are getting added.
+     */
+    public static class Base
+        implements JsonMapFormatVisitor
+    {
+        protected SerializerProvider provider;
+
+        public SerializerProvider getProvider() { return provider; }
+
+        public void setProvider(SerializerProvider p) { provider = p; }
+
+        public void keyFormat(JsonFormatVisitable handler, JavaType keyType) throws JsonMappingException { }
+        public void valueFormat(JsonFormatVisitable handler, JavaType valueType) throws JsonMappingException { }
+    }
+}

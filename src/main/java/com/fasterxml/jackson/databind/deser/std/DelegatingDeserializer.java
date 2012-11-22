@@ -22,6 +22,8 @@ public abstract class DelegatingDeserializer
     extends StdDeserializer<Object>
     implements ContextualDeserializer, ResolvableDeserializer
 {
+    private static final long serialVersionUID = 1L;
+
     protected final JsonDeserializer<?> _delegatee;
     
     /*

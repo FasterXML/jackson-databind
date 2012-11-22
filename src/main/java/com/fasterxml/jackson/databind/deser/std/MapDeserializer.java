@@ -28,6 +28,8 @@ public class MapDeserializer
     extends ContainerDeserializerBase<Map<Object,Object>>
     implements ContextualDeserializer, ResolvableDeserializer
 {
+    private static final long serialVersionUID = -3378654289961736240L;
+
     // // Configuration: typing, deserializers
 
     protected final JavaType _mapType;

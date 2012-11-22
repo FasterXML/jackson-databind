@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 public abstract class FromStringDeserializer<T>
     extends StdScalarDeserializer<T>
 {
+    private static final long serialVersionUID = 1L;
+
     protected FromStringDeserializer(Class<?> vc) {
         super(vc);
     }

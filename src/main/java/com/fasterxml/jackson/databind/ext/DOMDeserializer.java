@@ -18,7 +18,9 @@ import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
  */
 public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
 {
-    final static DocumentBuilderFactory _parserFactory;
+    private static final long serialVersionUID = 1L;
+
+    private final static DocumentBuilderFactory _parserFactory;
     static {
         _parserFactory = DocumentBuilderFactory.newInstance();
         // yup, only cave men do XML without recognizing namespaces...
@@ -47,6 +49,7 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     
     public static class NodeDeserializer extends DOMDeserializer<Node>
     {
+        private static final long serialVersionUID = 1L;
         public NodeDeserializer() { super(Node.class); }
         @Override
         public Node _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
@@ -56,6 +59,7 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
 
     public static class DocumentDeserializer extends DOMDeserializer<Document>
     {
+        private static final long serialVersionUID = 1L;
         public DocumentDeserializer() { super(Document.class); }
         @Override
         public Document _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {

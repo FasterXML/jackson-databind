@@ -36,14 +36,6 @@ public class NumberSerializers
         allDeserializers.put(Double.class.getName(), DoubleSerializer.instance);
         allDeserializers.put(Double.TYPE.getName(), DoubleSerializer.instance);
     }
-    
-    /*
-    /**********************************************************
-    /* Concrete serializers
-    /**********************************************************
-     */
-    
-
 
     /*
     /**********************************************************
@@ -81,7 +73,7 @@ public class NumberSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectIntegerFormat(typeHint);
+            if (visitor != null) visitor.expectIntegerFormat(typeHint);
         }
     }
 
@@ -115,7 +107,7 @@ public class NumberSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectIntegerFormat(typeHint);
+            if (visitor != null) visitor.expectIntegerFormat(typeHint);
         }
     }
 
@@ -144,7 +136,7 @@ public class NumberSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectNumberFormat(typeHint);
+            if (visitor != null) visitor.expectNumberFormat(typeHint);
         }
     }
     
@@ -173,7 +165,7 @@ public class NumberSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            visitor.expectNumberFormat(typeHint);
+            if (visitor != null) visitor.expectNumberFormat(typeHint);
         }
     }
 
@@ -209,7 +201,7 @@ public class NumberSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException
         {
-            visitor.expectNumberFormat(typeHint);
+            if (visitor != null) visitor.expectNumberFormat(typeHint);
         }
     }
     
@@ -264,7 +256,7 @@ public class NumberSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException
         {
-            visitor.expectNumberFormat(typeHint);
+            if (visitor != null) visitor.expectNumberFormat(typeHint);
         }
     }
 }

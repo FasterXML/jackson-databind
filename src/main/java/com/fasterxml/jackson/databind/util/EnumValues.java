@@ -12,13 +12,19 @@ import com.fasterxml.jackson.databind.*;
 public final class EnumValues
 {
     /**
+     * @since 2.2
+     */
+    private final Class<Enum<?>> _enumClass;
+    
+    /**
      * Since 1.7, we are storing values as SerializedStrings, to further
      * speed up serialization.
      */
     private final EnumMap<?,SerializedString> _values;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private EnumValues(Map<Enum<?>,SerializedString> v) {
+    private EnumValues(Class<Enum<?>> enumClass, Map<Enum<?>,SerializedString> v) {
+        _enumClass = enumClass;
         _values = new EnumMap(v);
     }
 
@@ -32,7 +38,7 @@ public final class EnumValues
         /* [JACKSON-214]: Enum types with per-instance sub-classes
          *   need special handling
          */
-    	Class<? extends Enum<?>> cls = ClassUtil.findEnumType(enumClass);
+        Class<? extends Enum<?>> cls = ClassUtil.findEnumType(enumClass);
         Enum<?>[] values = cls.getEnumConstants();
         if (values != null) {
             // Type juggling... unfortunate
@@ -41,7 +47,7 @@ public final class EnumValues
                 String value = intr.findEnumValue(en);
                 map.put(en, new SerializedString(value));
             }
-            return new EnumValues(map);
+            return new EnumValues(enumClass, map);
         }
         throw new IllegalArgumentException("Can not determine enum constants for Class "+enumClass.getName());
     }
@@ -56,7 +62,7 @@ public final class EnumValues
             for (Enum<?> en : values) {
                 map.put(en, new SerializedString(en.toString()));
             }
-            return new EnumValues(map);
+            return new EnumValues(enumClass, map);
         }
         throw new IllegalArgumentException("Can not determine enum constants for Class "+enumClass.getName());
     }
@@ -80,4 +86,11 @@ public final class EnumValues
         return _values;
     }
 
+    /**
+     * @since 2.2
+     */
+    public Class<Enum<?>> getEnumClass() {
+        return _enumClass;
+    }
+    
 }

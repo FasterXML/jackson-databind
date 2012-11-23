@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
@@ -298,14 +299,22 @@ public class EnumMapSerializer
         return o;
     }
 
-    /* !!! 03-Oct-2012, tatu: This is total mess, and partly incorrect. MUST be
-     *   rewritten in near future, to work.
+    /**
+     * We consider possibility here that an EnumMap might actually just be serialized
+     * as something like a Record, given that number of keys is bound, just like
+     * with Objects/Records (and not unbounded like regular maps)
      */
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
+        if (visitor == null) {
+            return;
+        }
         JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
+        if (objectVisitor == null) {
+            return;
+        }
         JavaType valueType = typeHint.containedType(1);
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null && valueType != null) {

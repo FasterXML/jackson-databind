@@ -167,19 +167,21 @@ public class EnumSerializer
             throws JsonMappingException
     {
         // [JACKSON-684]: serialize as index?
-        if (visitor.getProvider().isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
-            visitor.expectIntegerFormat(typeHint);
-        } else {
-    		JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
-    		if (typeHint != null && stringVisitor != null) {
-    			if (typeHint.isEnumType()) {
-    				Set<String> enums = new LinkedHashSet<String>();
-    				for (SerializedString value : _values.values()) {
-    					enums.add(value.getValue());
-    				}
-    				stringVisitor.enumTypes(enums);
-    			}
-    		}
+        if (visitor != null) {
+            if (visitor.getProvider().isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
+                visitor.expectIntegerFormat(typeHint);
+            } else {
+        		JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
+        		if (typeHint != null && stringVisitor != null) {
+        			if (typeHint.isEnumType()) {
+        				Set<String> enums = new LinkedHashSet<String>();
+        				for (SerializedString value : _values.values()) {
+        					enums.add(value.getValue());
+        				}
+        				stringVisitor.enumTypes(enums);
+        			}
+        		}
+            }
         }
     }
 

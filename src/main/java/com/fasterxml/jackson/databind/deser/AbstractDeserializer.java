@@ -90,6 +90,8 @@ public class AbstractDeserializer
     {
         // Hmmh. One tricky question; for scalar, is it an Object Id, or "Natural" type?
 
+System.err.println("Abstract, objR = "+_objectIdReader);
+
         // for now, prefer Object Id:
         if (_objectIdReader != null) {
             JsonToken t = jp.getCurrentToken();

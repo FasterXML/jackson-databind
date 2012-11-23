@@ -1,12 +1,13 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.jsontype;
 
 import com.fasterxml.jackson.annotation.*;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 
 import java.util.*;
 
-public class TestIssue877TypingWithId extends BaseMapTest
+public class TestAbstractWithObjectId extends BaseMapTest
 {
     interface BaseInterface { }
 
@@ -21,7 +22,7 @@ public class TestIssue877TypingWithId extends BaseMapTest
         }
     }
 
-    static class LisWrappert<T extends BaseInterface> {
+    static class ListWrapper<T extends BaseInterface> {
 
         @JsonProperty
         private List<T> myList = new ArrayList<T>();
@@ -46,7 +47,7 @@ public class TestIssue877TypingWithId extends BaseMapTest
         two.addInstance(one);
 
         // make a typed version of the list and add the 2 instances to it
-        LisWrappert<BaseInterfaceImpl> myList = new LisWrappert<BaseInterfaceImpl>();
+        ListWrapper<BaseInterfaceImpl> myList = new ListWrapper<BaseInterfaceImpl>();
         myList.add(one);
         myList.add(two);
 
@@ -56,14 +57,9 @@ public class TestIssue877TypingWithId extends BaseMapTest
 
         // write and print the JSON
         String json = om.writerWithDefaultPrettyPrinter().writeValueAsString(myList);
-
-        /*
-        System.out.println("JSON:\n"+json);
-        */
-
-        LisWrappert<BaseInterfaceImpl> result;
+        ListWrapper<BaseInterfaceImpl> result;
         
-        result = om.readValue(json, myList.getClass());
+        result = om.readValue(json, new TypeReference<ListWrapper<BaseInterfaceImpl>>() { });
 
         assertNotNull(result);
         // see what we get back

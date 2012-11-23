@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 /**
  * @author Ryan Heaton
  */
+@SuppressWarnings("deprecation")
 public class TestGenerateJsonSchema
     extends com.fasterxml.jackson.databind.BaseMapTest
 {

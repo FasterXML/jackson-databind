@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 /**
  * Trivial test to ensure {@link JsonSchema} can be also deserialized
  */
+@SuppressWarnings("deprecation")
 public class TestReadJsonSchema
     extends com.fasterxml.jackson.databind.BaseMapTest
 {

@@ -15,7 +15,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  *
  * @author Ryan Heaton
  * @see <a href="http://json-schema.org/">JSON Schema</a>
+ * 
+ * @deprecated Since 2.2, we recommend use of external
+ *   <a href="https://github.com/FasterXML/jackson-module-jsonSchema">JSON Schema generator module</module>
  */
+@Deprecated
 public class JsonSchema
 {
     private final ObjectNode schema;

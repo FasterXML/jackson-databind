@@ -26,11 +26,14 @@ public interface JsonMapFormatVisitor extends JsonFormatVisitorWithSerializerPro
     public static class Base
         implements JsonMapFormatVisitor
     {
-        protected SerializerProvider provider;
+        protected SerializerProvider _provider;
 
-        public SerializerProvider getProvider() { return provider; }
+        public Base() { }
+        public Base(SerializerProvider p) { _provider = p; }
 
-        public void setProvider(SerializerProvider p) { provider = p; }
+        public SerializerProvider getProvider() { return _provider; }
+
+        public void setProvider(SerializerProvider p) { _provider = p; }
 
         public void keyFormat(JsonFormatVisitable handler, JavaType keyType) throws JsonMappingException { }
         public void valueFormat(JsonFormatVisitable handler, JavaType valueType) throws JsonMappingException { }

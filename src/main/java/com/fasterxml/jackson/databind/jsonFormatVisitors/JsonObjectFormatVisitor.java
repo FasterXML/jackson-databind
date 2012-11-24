@@ -29,16 +29,16 @@ public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializer
     public static class Base
         implements JsonObjectFormatVisitor
     {
-        protected SerializerProvider provider;
+        protected SerializerProvider _provider;
 
-        public SerializerProvider getProvider() { return provider; }
+        public Base() { }
+        public Base(SerializerProvider p) { _provider = p; }
+        
+        public SerializerProvider getProvider() { return _provider; }
 
-        public void setProvider(SerializerProvider p) { provider = p; }
+        public void setProvider(SerializerProvider p) { _provider = p; }
 
-        public void property(BeanProperty writer) throws JsonMappingException {
-            // TODO Auto-generated method stub
-            
-        }
+        public void property(BeanProperty writer) throws JsonMappingException { }
 
         public void property(String name, JsonFormatVisitable handler,
                 JavaType propertyTypeHint) throws JsonMappingException { }

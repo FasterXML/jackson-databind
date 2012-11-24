@@ -31,11 +31,14 @@ public interface JsonArrayFormatVisitor extends JsonFormatVisitorWithSerializerP
      * of the interface, even if new methods are getting added.
      */
     public static class Base implements JsonArrayFormatVisitor {
-        protected SerializerProvider provider;
+        protected SerializerProvider _provider;
 
-        public SerializerProvider getProvider() { return provider; }
+        public Base() { }
+        public Base(SerializerProvider p) { _provider = p; }
+        
+        public SerializerProvider getProvider() { return _provider; }
 
-        public void setProvider(SerializerProvider p) { provider = p; }
+        public void setProvider(SerializerProvider p) { _provider = p; }
 
         public void itemsFormat(JsonFormatVisitable handler, JavaType elementType)
             throws JsonMappingException { }

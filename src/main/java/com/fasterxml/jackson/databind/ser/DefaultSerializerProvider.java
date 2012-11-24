@@ -243,6 +243,7 @@ public abstract class DefaultSerializerProvider
      *
      * @param type The type for which to generate schema
      */
+    @SuppressWarnings("deprecation")
     public JsonSchema generateJsonSchema(Class<?> type)
         throws JsonMappingException
     {

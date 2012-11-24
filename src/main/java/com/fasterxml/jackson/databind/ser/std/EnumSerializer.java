@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -167,21 +168,22 @@ public class EnumSerializer
             throws JsonMappingException
     {
         // [JACKSON-684]: serialize as index?
-        if (visitor != null) {
-            if (visitor.getProvider().isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
-                visitor.expectIntegerFormat(typeHint);
-            } else {
-        		JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
-        		if (typeHint != null && stringVisitor != null) {
-        			if (typeHint.isEnumType()) {
-        				Set<String> enums = new LinkedHashSet<String>();
-        				for (SerializedString value : _values.values()) {
-        					enums.add(value.getValue());
-        				}
-        				stringVisitor.enumTypes(enums);
-        			}
-        		}
+        if (visitor.getProvider().isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
+            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
+            if (v2 != null) { // typically serialized as a small number (byte or int)
+                v2.numberType(JsonParser.NumberType.INT);
             }
+        } else {
+    		JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
+    		if (typeHint != null && stringVisitor != null) {
+    			if (typeHint.isEnumType()) {
+    				Set<String> enums = new LinkedHashSet<String>();
+    				for (SerializedString value : _values.values()) {
+    					enums.add(value.getValue());
+    				}
+    				stringVisitor.enumTypes(enums);
+    			}
+    		}
         }
     }
 

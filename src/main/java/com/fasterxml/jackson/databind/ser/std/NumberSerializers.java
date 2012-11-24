@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor;
 
 /**
  * Container class for serializers used for handling standard JDK-provided types.
@@ -73,7 +75,10 @@ public class NumberSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            if (visitor != null) visitor.expectIntegerFormat(typeHint);
+            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
+            if (v2 != null) {
+                v2.numberType(JsonParser.NumberType.INT);
+            }
         }
     }
 
@@ -107,7 +112,10 @@ public class NumberSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            if (visitor != null) visitor.expectIntegerFormat(typeHint);
+            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
+            if (v2 != null) {
+                v2.numberType(JsonParser.NumberType.INT);
+            }
         }
     }
 
@@ -136,7 +144,10 @@ public class NumberSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            if (visitor != null) visitor.expectNumberFormat(typeHint);
+            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
+            if (v2 != null) {
+                v2.numberType(JsonParser.NumberType.LONG);
+            }
         }
     }
     
@@ -165,7 +176,10 @@ public class NumberSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
                 throws JsonMappingException
         {
-            if (visitor != null) visitor.expectNumberFormat(typeHint);
+            JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
+            if (v2 != null) {
+                v2.numberType(JsonParser.NumberType.FLOAT);
+            }
         }
     }
 
@@ -201,7 +215,10 @@ public class NumberSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException
         {
-            if (visitor != null) visitor.expectNumberFormat(typeHint);
+            JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
+            if (v2 != null) {
+                v2.numberType(JsonParser.NumberType.DOUBLE);
+            }
         }
     }
     
@@ -256,7 +273,12 @@ public class NumberSerializers
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
             throws JsonMappingException
         {
-            if (visitor != null) visitor.expectNumberFormat(typeHint);
+            // Hmmh. What should it be? Ideally should probably indicate BIG_DECIMAL
+            // to ensure no information is lost? But probably won't work that well...
+            JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
+            if (v2 != null) {
+                v2.numberType(JsonParser.NumberType.BIG_DECIMAL);
+            }
         }
     }
 }

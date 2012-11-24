@@ -9,8 +9,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -504,7 +502,7 @@ public class MapSerializer
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        JsonMapFormatVisitor v2 = (visitor == null) ? null : visitor.expectMapFormat(typeHint);
+        JsonMapFormatVisitor v2 = (visitor == null) ? null : visitor.expectMapFormat(typeHint);        
         if (v2 != null) {
             v2.keyFormat(_keySerializer, _keyType);
             JsonSerializer<?> valueSer = _valueSerializer;

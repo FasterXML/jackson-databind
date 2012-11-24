@@ -10,12 +10,10 @@ import java.util.TimeZone;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.util.StdDateFormat;
 
@@ -121,23 +119,22 @@ public abstract class DateTimeSerializerBase<T>
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        if (visitor != null) {
-            boolean asNumber = _useTimestamp;
-            if (!asNumber) {
-                if (_customFormat == null) {
-                    asNumber = visitor.getProvider().isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-                }
+        boolean asNumber = _useTimestamp;
+        if (!asNumber) {
+            if (_customFormat == null) {
+                asNumber = visitor.getProvider().isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
             }
-            if (asNumber) {
-                JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
-                if (v2 != null) {
-                    v2.format(JsonValueFormat.UTC_MILLISEC);
-                }
-            } else {
-                JsonStringFormatVisitor v2 = visitor.expectStringFormat(typeHint);
-                if (v2 != null) {
-                    v2.format(JsonValueFormat.DATE_TIME);
-                }
+        }
+        if (asNumber) {
+            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
+            if (v2 != null) {
+                v2.numberType(JsonParser.NumberType.LONG);
+                v2.format(JsonValueFormat.UTC_MILLISEC);
+            }
+        } else {
+            JsonStringFormatVisitor v2 = visitor.expectStringFormat(typeHint);
+            if (v2 != null) {
+                v2.format(JsonValueFormat.DATE_TIME);
             }
         }
     }

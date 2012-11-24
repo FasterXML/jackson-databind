@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Instantiatable;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
 import com.fasterxml.jackson.databind.cfg.DatabindVersion;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
@@ -585,6 +586,27 @@ public class ObjectWriter
     /**********************************************************
      */
 
+    /**
+     * Method for visiting type hierarchy for given type, using specified visitor.
+     * Visitation uses <code>Serializer</code> hierarchy and related properties
+     *<p>
+     * This method can be used for things like
+     * generating <a href="http://json-schema.org/">Json Schema</a>
+     * instance for specified type.
+     *
+     * @param type Type to generate schema for (possibly with generic signature)
+     * 
+     * @since 2.2
+     */
+    public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor)
+        throws JsonMappingException
+    {
+        if (type == null) {
+            throw new IllegalArgumentException("type must be provided");
+        }
+        _serializerProvider(_config).acceptJsonFormatVisitor(type, visitor);
+    }
+    
     public boolean canSerialize(Class<?> type) {
         return _serializerProvider(_config).hasSerializerFor(type);
     }

@@ -2541,6 +2541,7 @@ public class ObjectMapper
      * @param t The class to generate schema for
      * @return Constructed JSON schema.
      */
+    @SuppressWarnings("deprecation")
     public JsonSchema generateJsonSchema(Class<?> t) throws JsonMappingException {
         return _serializerProvider(getSerializationConfig()).generateJsonSchema(t);
     }
@@ -2580,11 +2581,7 @@ public class ObjectMapper
         if (type == null) {
             throw new IllegalArgumentException("type must be provided");
         }
-        if (visitor != null) {
-            DefaultSerializerProvider provider = _serializerProvider(getSerializationConfig());
-            visitor.setProvider(provider);
-            provider.acceptJsonFormatVisitor(type, visitor);
-        }
+        _serializerProvider(getSerializationConfig()).acceptJsonFormatVisitor(type, visitor);
     }
     
     /*

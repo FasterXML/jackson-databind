@@ -279,6 +279,7 @@ public abstract class DefaultSerializerProvider
         /* no need for embedded type information for JSON schema generation (all
          * type information it needs is accessible via "untyped" serializer)
          */
+        visitor.setProvider(this);
         findValueSerializer(javaType, null).acceptJsonFormatVisitor(visitor, javaType);
     }
     

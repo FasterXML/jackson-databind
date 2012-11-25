@@ -6,14 +6,20 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerFactory;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.type.ArrayType;
 
 /**
- * Abstract class that defines API for objects that can be registered (for {@link BeanDeserializerFactory}
- * to participate in constructing {@link BeanDeserializer} instances.
+ * Abstract class that defines API for objects that can be registered
+ * to participate in constructing {@link JsonDeserializer} instances
+ * (via {@link DeserializerFactory}).
  * This is typically done by modules that want alter some aspects of deserialization
  * process; and is preferable to sub-classing of {@link BeanDeserializerFactory}.
  *<p>
- * Sequence in which callback methods are called is as follows:
+ * Note that Jackson 2.2 adds more methods for customization; with earlier versions
+ * only {@link BeanDeserializer} instances could be modified, but with 2.2 all types
+ * of deserializers can be changed.
+ *<p>
+ * Sequence in which callback methods are called for {@link BeanDeserializer} is:
  *  <li>{@link #updateProperties} is called once all property definitions are
  *    collected, and initial filtering (by ignorable type and explicit ignoral-by-bean)
  *    has been performed.
@@ -25,6 +31,10 @@ import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
  *    but before it is returned to be used
  *   </li>
  * </ol>
+ *<p>
+ * For other types of deserializers, methods called depend on type of values for
+ * which deserializer is being constructed; and only a single method is called
+ * since the process does not involve builders (unlike that of {@link BeanDeserializer}.
  *<p>
  * Default method implementations are "no-op"s, meaning that methods are implemented
  * but have no effect; this is mostly so that new methods can be added in later
@@ -72,4 +82,34 @@ public abstract class BeanDeserializerModifier
             BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
         return deserializer;
     }
+
+    /*
+    /**********************************************************
+    /* Callback methods for other types (since 2.2)
+    /**********************************************************
+     */
+
+    /**
+     * Method called by {@link DeserializerFactory} after it has constructed the
+     * standard deserializer for given
+     * {@link ArrayType}
+     * to make it possible to either replace or augment this deserializer with
+     * additional functionality.
+     * 
+     * @param config Configuration in use
+     * @param valueType Type of the value deserializer is used for.
+     * @param beanDesc Description f
+     * @param deserializer Default deserializer that would be used.
+     * 
+     * @return Deserializer to use; either <code>deserializer</code> that was passed
+     *   in, or an instance method constructed.
+     * 
+     * @since 2.2
+     */
+    public JsonDeserializer<?> modifyArrayDeserializer(DeserializationConfig config,
+            ArrayType valueType,
+            BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+        return deserializer;
+    }
+    
 }

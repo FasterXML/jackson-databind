@@ -699,43 +699,44 @@ public abstract class BasicDeserializerFactory
             ArrayType type, final BeanDescription beanDesc)
         throws JsonMappingException
     {
+        final DeserializationConfig config = ctxt.getConfig();
         JavaType elemType = type.getContentType();
         
         // Very first thing: is deserializer hard-coded for elements?
         JsonDeserializer<Object> contentDeser = elemType.getValueHandler();
-        if (contentDeser == null) {
-            // Maybe special array type, such as "primitive" arrays (int[] etc)
-            JsonDeserializer<?> deser = _arrayDeserializers.get(elemType);
-            if (deser != null) {
-                /* 23-Nov-2010, tatu: Although not commonly needed, ability to override
-                 *   deserializers for all types (including primitive arrays) is useful
-                 *   so let's allow this
-                 */
-                JsonDeserializer<?> custom = _findCustomArrayDeserializer(type,
-                        ctxt.getConfig(), beanDesc, null, contentDeser);
-                if (custom != null) {
-                    return custom;
-                }
-                return deser;
-            }
-            // If not, generic one:
-            if (elemType.isPrimitive()) { // sanity check
-                throw new IllegalArgumentException("Internal error: primitive type ("+type+") passed, no array deserializer found");
-            }
-        }
         // Then optional type info (1.5): if type has been resolved, we may already know type deserializer:
         TypeDeserializer elemTypeDeser = elemType.getTypeHandler();
         // but if not, may still be possible to find:
         if (elemTypeDeser == null) {
-            elemTypeDeser = findTypeDeserializer(ctxt.getConfig(), elemType);
+            elemTypeDeser = findTypeDeserializer(config, elemType);
         }
         // 23-Nov-2010, tatu: Custom array deserializer?
         JsonDeserializer<?> custom = _findCustomArrayDeserializer(type,
-                ctxt.getConfig(), beanDesc, elemTypeDeser, contentDeser);
+                config, beanDesc, elemTypeDeser, contentDeser);
         if (custom != null) {
             return custom;
         }
-        return new ObjectArrayDeserializer(type, contentDeser, elemTypeDeser);
+
+        JsonDeserializer<?>  deser = null;       
+        if (contentDeser == null) {
+            // Maybe special array type, such as "primitive" arrays (int[] etc)
+            deser = _arrayDeserializers.get(elemType);
+            if (deser == null) {
+                if (elemType.isPrimitive()) { // sanity check
+                    throw new IllegalArgumentException("Internal error: primitive type ("+type+") passed, no array deserializer found");
+                }
+            }
+        }
+        if (deser == null) {
+            deser = new ObjectArrayDeserializer(type, contentDeser, elemTypeDeser);
+        }
+        // and then new with 2.2: ability to post-process it too
+        if (_factoryConfig.hasDeserializerModifiers()) {
+            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                deser = mod.modifyArrayDeserializer(config, type, beanDesc, deser);
+            }
+        }
+        return deser;
     }
 
     protected JsonDeserializer<?> _findCustomArrayDeserializer(ArrayType type,

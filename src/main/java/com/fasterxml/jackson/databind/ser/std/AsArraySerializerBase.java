@@ -196,6 +196,7 @@ public abstract class AsArraySerializerBase<T>
     protected abstract void serializeContents(T value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException;
 
+    @SuppressWarnings("deprecation")
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException

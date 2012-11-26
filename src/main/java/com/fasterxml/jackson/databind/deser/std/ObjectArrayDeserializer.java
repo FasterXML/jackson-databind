@@ -20,6 +20,8 @@ public class ObjectArrayDeserializer
     extends ContainerDeserializerBase<Object[]>
     implements ContextualDeserializer
 {
+    private static final long serialVersionUID = 1L;
+
     // // Configuration
 
     /**

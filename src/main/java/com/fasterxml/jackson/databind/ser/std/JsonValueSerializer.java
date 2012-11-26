@@ -231,6 +231,7 @@ public class JsonValueSerializer
         }
     }
     
+    @SuppressWarnings("deprecation")
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException

@@ -60,7 +60,6 @@ public class TestFieldDeserialization
         @JsonProperty("foo")
         public int _z;
 
-        @SuppressWarnings("unused")
         @JsonDeserialize
         private int foo;
     }

@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ser.*;
 public class PropertyBasedObjectIdGenerator
     extends ObjectIdGenerators.PropertyGenerator
 {
+    private static final long serialVersionUID = 1L;
+
     protected final BeanPropertyWriter _property;
     
     public PropertyBasedObjectIdGenerator(ObjectIdInfo oid, BeanPropertyWriter prop)

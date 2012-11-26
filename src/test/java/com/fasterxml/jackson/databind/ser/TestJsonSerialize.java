@@ -88,7 +88,6 @@ public class TestJsonSerialize
     static class ValueLinkedList extends LinkedList<ValueInterface> { }
     
     // Classes for [JACKSON-294]
-    @SuppressWarnings("unused")
     static class Foo294
     {
         @JsonProperty private String id;

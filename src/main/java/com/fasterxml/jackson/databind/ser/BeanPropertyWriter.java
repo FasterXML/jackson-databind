@@ -481,6 +481,7 @@ public class BeanPropertyWriter
      * 
      * @since 2.1
      */
+    @SuppressWarnings("deprecation")
     public void depositSchemaProperty(ObjectNode propertiesNode, SerializerProvider provider)
         throws JsonMappingException
     {

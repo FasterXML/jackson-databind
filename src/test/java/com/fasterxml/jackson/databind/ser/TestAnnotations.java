@@ -91,7 +91,6 @@ public class TestAnnotations
      */
     static class BaseBean {
         public int getX() { return 1; }
-        @SuppressWarnings("unused")
         @JsonProperty("y")
         private int getY() { return 2; }
     }

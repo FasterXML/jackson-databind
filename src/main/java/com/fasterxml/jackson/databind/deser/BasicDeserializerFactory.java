@@ -711,26 +711,23 @@ public abstract class BasicDeserializerFactory
             elemTypeDeser = findTypeDeserializer(config, elemType);
         }
         // 23-Nov-2010, tatu: Custom array deserializer?
-        JsonDeserializer<?> custom = _findCustomArrayDeserializer(type,
+        JsonDeserializer<?>  deser = _findCustomArrayDeserializer(type,
                 config, beanDesc, elemTypeDeser, contentDeser);
-        if (custom != null) {
-            return custom;
-        }
-
-        JsonDeserializer<?>  deser = null;       
-        if (contentDeser == null) {
-            // Maybe special array type, such as "primitive" arrays (int[] etc)
-            deser = _arrayDeserializers.get(elemType);
-            if (deser == null) {
-                if (elemType.isPrimitive()) { // sanity check
-                    throw new IllegalArgumentException("Internal error: primitive type ("+type+") passed, no array deserializer found");
+        if (deser == null) {
+            if (contentDeser == null) {
+                // Maybe special array type, such as "primitive" arrays (int[] etc)
+                deser = _arrayDeserializers.get(elemType);
+                if (deser == null) {
+                    if (elemType.isPrimitive()) { // sanity check
+                        throw new IllegalArgumentException("Internal error: primitive type ("+type+") passed, no array deserializer found");
+                    }
                 }
             }
+            if (deser == null) {
+                deser = new ObjectArrayDeserializer(type, contentDeser, elemTypeDeser);
+            }
         }
-        if (deser == null) {
-            deser = new ObjectArrayDeserializer(type, contentDeser, elemTypeDeser);
-        }
-        // and then new with 2.2: ability to post-process it too
+        // and then new with 2.2: ability to post-process it too (Issue#120)
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
                 deser = mod.modifyArrayDeserializer(config, type, beanDesc, deser);

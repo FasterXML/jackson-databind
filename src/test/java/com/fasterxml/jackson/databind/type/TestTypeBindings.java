@@ -60,7 +60,7 @@ public class TestTypeBindings
 
 
     // [JACKSON-677]
-    public void testInnerType()
+    public void testInnerType() throws Exception
     {
         TypeFactory tf = TypeFactory.defaultInstance();
         JavaType type = tf.constructType(InnerGenericTyping.InnerClass.class);
@@ -72,5 +72,4 @@ public class TestTypeBindings
         JavaType vt2 = valueType.getContentType();
         assertEquals(Object.class, vt2.getRawClass());
     }
-
 }

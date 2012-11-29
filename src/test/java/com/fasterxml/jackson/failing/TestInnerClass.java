@@ -23,6 +23,18 @@ public class TestInnerClass extends BaseMapTest
     /**********************************************************
      */
 
+    // additional part of [JACKSON-677]
+    public void test677() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        // and bit more checking as per later comments
+        JavaType t677 = mapper.constructType(Result677.Success677.class);
+        assertNotNull(t677);
+        Result677.Success677<Integer> s = new Result677.Success677<Integer>(Integer.valueOf(4));
+        String json = mapper.writeValueAsString(s);
+        assertEquals("{\"value\":4}", json);
+    }
+    
     // core/[Issue#32]
     public void testInnerList() throws Exception
     {
@@ -37,7 +49,7 @@ public class TestInnerClass extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
 
         String dogJson = mapper.writeValueAsString(dog);
-        System.out.println(dogJson);
+//        System.out.println(dogJson);
       // output: {"name":"Spike","legs":[{length: 5}, {length: 4}]}
 
         // currently throws JsonMappingException
@@ -46,3 +58,15 @@ public class TestInnerClass extends BaseMapTest
         // prefer fully populated Dog instance
     }
 }
+
+// more fails with [JACKSON-677]
+class Result677<T> {
+    public static class Success677<K> extends Result677<K> {
+        public K value;
+        
+        public Success677() { }
+        public Success677(K k) { value = k; }
+    }
+}
+
+

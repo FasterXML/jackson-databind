@@ -389,8 +389,9 @@ public class ObjectMapper
         _rootNames = new RootNameLookup();
         _typeFactory = src._typeFactory;
         _serializationConfig = src._serializationConfig;
-        _serializationConfig = new SerializationConfig(src._serializationConfig, _mixInAnnotations);
-        _deserializationConfig = new DeserializationConfig(src._deserializationConfig, _mixInAnnotations);
+        HashMap<ClassKey,Class<?>> mixins = new HashMap<ClassKey,Class<?>>(src._mixInAnnotations);
+        _serializationConfig = new SerializationConfig(src._serializationConfig, mixins);
+        _deserializationConfig = new DeserializationConfig(src._deserializationConfig, mixins);
         _serializerProvider = src._serializerProvider;
         _deserializationContext = src._deserializationContext;
 

@@ -7,6 +7,8 @@ Fixes:
 * [Issue#106]: NPE in ObjectArraySerializer.createContextual(...)
 * [Issue#117]: HandlerInstantiator defaulting not working
  (reported by Alexander B)
+* [Issue#122]: ObjectMapper.copy() was not copying underlying mix-in map
+ (reported by rzlo@github)
 
 ------------------------------------------------------------------------
 === History: ===

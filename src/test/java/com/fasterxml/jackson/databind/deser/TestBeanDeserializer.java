@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.MapType;
 
 @SuppressWarnings("serial")
 public class TestBeanDeserializer extends BaseMapTest
@@ -169,6 +170,20 @@ public class TestBeanDeserializer extends BaseMapTest
             };
         }
     }
+
+    static class MapDeserializerModifier extends BeanDeserializerModifier {
+        public JsonDeserializer<?> modifyMapDeserializer(DeserializationConfig config, MapType valueType,
+                BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+            return (JsonDeserializer<?>) new StdDeserializer<Object>(Object.class) {
+                @Override public Object deserialize(JsonParser jp,
+                        DeserializationContext ctxt) {
+                    HashMap<String,String> map = new HashMap<String,String>();
+                    map.put("a", "foo");
+                    return map;
+                }
+            };
+        }
+    }
     
     /*
     /********************************************************
@@ -246,5 +261,16 @@ public class TestBeanDeserializer extends BaseMapTest
         List<?> result = mapper.readValue("[1,2]", List.class);
         assertEquals(1, result.size());
         assertEquals("foo", result.get(0));
+    }
+
+    public void testModifyMapDeserializer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new SimpleModule("test")
+            .setDeserializerModifier(new MapDeserializerModifier())
+        );
+        Map<?,?> result = mapper.readValue("{\"a\":1,\"b\":2}", Map.class);
+        assertEquals(1, result.size());
+        assertEquals("foo", result.get("a"));
     }
 }

@@ -827,26 +827,6 @@ public abstract class BasicDeserializerFactory
         return deser;
     }
 
-    // Copied almost verbatim from "createCollectionDeserializer" -- should try to share more code
-    @Override
-    public JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
-            CollectionLikeType type, final BeanDescription beanDesc)
-        throws JsonMappingException
-    {
-        JavaType contentType = type.getContentType();
-        // Very first thing: is deserializer hard-coded for elements?
-        JsonDeserializer<Object> contentDeser = contentType.getValueHandler();
-
-        // Then optional type info (1.5): if type has been resolved, we may already know type deserializer:
-        TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
-        // but if not, may still be possible to find:
-        if (contentTypeDeser == null) {
-            contentTypeDeser = findTypeDeserializer(ctxt.getConfig(), contentType);
-        }
-        return _findCustomCollectionLikeDeserializer(type, ctxt.getConfig(), beanDesc,
-                contentTypeDeser, contentDeser);
-    }
-  
     protected JsonDeserializer<?> _findCustomCollectionDeserializer(CollectionType type,
             DeserializationConfig config, BeanDescription beanDesc,
             TypeDeserializer elementTypeDeserializer, JsonDeserializer<?> elementDeserializer)
@@ -860,6 +840,36 @@ public abstract class BasicDeserializerFactory
             }
         }
         return null;
+    }
+    
+    // Copied almost verbatim from "createCollectionDeserializer" -- should try to share more code
+    @Override
+    public JsonDeserializer<?> createCollectionLikeDeserializer(DeserializationContext ctxt,
+            CollectionLikeType type, final BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        JavaType contentType = type.getContentType();
+        // Very first thing: is deserializer hard-coded for elements?
+        JsonDeserializer<Object> contentDeser = contentType.getValueHandler();
+        final DeserializationConfig config = ctxt.getConfig();
+
+        // Then optional type info (1.5): if type has been resolved, we may already know type deserializer:
+        TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
+        // but if not, may still be possible to find:
+        if (contentTypeDeser == null) {
+            contentTypeDeser = findTypeDeserializer(config, contentType);
+        }
+        JsonDeserializer<?> deser = _findCustomCollectionLikeDeserializer(type, config, beanDesc,
+                contentTypeDeser, contentDeser);
+        if (deser != null) {
+            // and then new with 2.2: ability to post-process it too (Issue#120)
+            if (_factoryConfig.hasDeserializerModifiers()) {
+                for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                    deser = mod.modifyCollectionLikeDeserializer(config, type, beanDesc, deser);
+                }
+            }
+        }
+        return deser;
     }
 
     protected JsonDeserializer<?> _findCustomCollectionLikeDeserializer(CollectionLikeType type,
@@ -906,48 +916,56 @@ public abstract class BasicDeserializerFactory
         }
 
         // 23-Nov-2010, tatu: Custom deserializer?
-        JsonDeserializer<?> custom = _findCustomMapDeserializer(type, config, beanDesc,
+        JsonDeserializer<?> deser = _findCustomMapDeserializer(type, config, beanDesc,
                 keyDes, contentTypeDeser, contentDeser);
 
-        if (custom != null) {
-            return custom;
-        }
-        // Value handling is identical for all, but EnumMap requires special handling for keys
-        Class<?> mapClass = type.getRawClass();
-        if (EnumMap.class.isAssignableFrom(mapClass)) {
-            Class<?> kt = keyType.getRawClass();
-            if (kt == null || !kt.isEnum()) {
-                throw new IllegalArgumentException("Can not construct EnumMap; generic (key) type not available");
+        if (deser == null) {
+            // Value handling is identical for all, but EnumMap requires special handling for keys
+            Class<?> mapClass = type.getRawClass();
+            if (EnumMap.class.isAssignableFrom(mapClass)) {
+                Class<?> kt = keyType.getRawClass();
+                if (kt == null || !kt.isEnum()) {
+                    throw new IllegalArgumentException("Can not construct EnumMap; generic (key) type not available");
+                }
+                deser = new EnumMapDeserializer(type, null, contentDeser);
             }
-            return new EnumMapDeserializer(type, null, contentDeser);
-        }
 
-        // Otherwise, generic handler works ok.
-
-        /* But there is one more twist: if we are being asked to instantiate
-         * an interface or abstract Map, we need to either find something
-         * that implements the thing, or give up.
-         *
-         * Note that we do NOT try to guess based on secondary interfaces
-         * here; that would probably not work correctly since casts would
-         * fail later on (as the primary type is not the interface we'd
-         * be implementing)
-         */
-        if (type.isInterface() || type.isAbstract()) {
-            @SuppressWarnings("rawtypes")
-            Class<? extends Map> fallback = _mapFallbacks.get(mapClass.getName());
-            if (fallback == null) {
-                throw new IllegalArgumentException("Can not find a deserializer for non-concrete Map type "+type);
+            // Otherwise, generic handler works ok.
+    
+            /* But there is one more twist: if we are being asked to instantiate
+             * an interface or abstract Map, we need to either find something
+             * that implements the thing, or give up.
+             *
+             * Note that we do NOT try to guess based on secondary interfaces
+             * here; that would probably not work correctly since casts would
+             * fail later on (as the primary type is not the interface we'd
+             * be implementing)
+             */
+            if (deser == null) {
+                if (type.isInterface() || type.isAbstract()) {
+                    @SuppressWarnings("rawtypes")
+                    Class<? extends Map> fallback = _mapFallbacks.get(mapClass.getName());
+                    if (fallback == null) {
+                        throw new IllegalArgumentException("Can not find a deserializer for non-concrete Map type "+type);
+                    }
+                    mapClass = fallback;
+                    type = (MapType) config.constructSpecializedType(type, mapClass);
+                    // But if so, also need to re-check creators...
+                    beanDesc = config.introspectForCreation(type);
+                }
+                ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
+                MapDeserializer md = new MapDeserializer(type, inst, keyDes, contentDeser, contentTypeDeser);
+                md.setIgnorableProperties(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()));
+                deser = md;
             }
-            mapClass = fallback;
-            type = (MapType) config.constructSpecializedType(type, mapClass);
-            // But if so, also need to re-check creators...
-            beanDesc = config.introspectForCreation(type);
         }
-        ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
-        MapDeserializer md = new MapDeserializer(type, inst, keyDes, contentDeser, contentTypeDeser);
-        md.setIgnorableProperties(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()));
-        return md;
+        // and then new with 2.2: ability to post-process it too (Issue#120)
+        if (_factoryConfig.hasDeserializerModifiers()) {
+            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                deser = mod.modifyMapDeserializer(config, type, beanDesc, deser);
+            }
+        }
+        return deser;
     }
 
     // Copied almost verbatim from "createMapDeserializer" -- should try to share more code
@@ -958,6 +976,7 @@ public abstract class BasicDeserializerFactory
     {
         JavaType keyType = type.getKeyType();
         JavaType contentType = type.getContentType();
+        final DeserializationConfig config = ctxt.getConfig();
         
         // First: is there annotation-specified deserializer for values?
         @SuppressWarnings("unchecked")
@@ -974,10 +993,19 @@ public abstract class BasicDeserializerFactory
         TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
         // but if not, may still be possible to find:
         if (contentTypeDeser == null) {
-            contentTypeDeser = findTypeDeserializer(ctxt.getConfig(), contentType);
+            contentTypeDeser = findTypeDeserializer(config, contentType);
         }
-        return _findCustomMapLikeDeserializer(type, ctxt.getConfig(),
+        JsonDeserializer<?> deser = _findCustomMapLikeDeserializer(type, config,
                 beanDesc, keyDes, contentTypeDeser, contentDeser);
+        if (deser != null) {
+            // and then new with 2.2: ability to post-process it too (Issue#120)
+            if (_factoryConfig.hasDeserializerModifiers()) {
+                for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                    deser = mod.modifyMapLikeDeserializer(config, type, beanDesc, deser);
+                }
+            }
+        }
+        return deser;
     }
 
     protected JsonDeserializer<?> _findCustomMapDeserializer(MapType type,

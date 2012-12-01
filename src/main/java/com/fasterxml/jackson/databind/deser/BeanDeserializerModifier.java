@@ -130,19 +130,27 @@ public abstract class BeanDeserializerModifier
             CollectionLikeType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
         return deserializer;
     }
+
+    /**
+     * @since 2.2
+     */
+    public JsonDeserializer<?> modifyMapDeserializer(DeserializationConfig config,
+            MapType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+        return deserializer;
+    }
+
+    /**
+     * @since 2.2
+     */
+    public JsonDeserializer<?> modifyMapLikeDeserializer(DeserializationConfig config,
+            MapLikeType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+        return deserializer;
+    }
     
     /*
     
     public abstract JsonDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
             JavaType type, BeanDescription beanDesc)
-        throws JsonMappingException;
-
-    public abstract JsonDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
-            MapType type, BeanDescription beanDesc)
-        throws JsonMappingException;
-
-    public abstract JsonDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
-            MapLikeType type, BeanDescription beanDesc)
         throws JsonMappingException;
 
     public abstract KeyDeserializer createKeyDeserializer(DeserializationContext ctxt,

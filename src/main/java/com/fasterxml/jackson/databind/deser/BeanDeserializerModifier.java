@@ -156,9 +156,15 @@ public abstract class BeanDeserializerModifier
     }
     
     /**
+     * Method called by {@link DeserializerFactory} after it has constructed the
+     * standard key deserializer for given key type.
+     * This make it possible to replace the default key deserializer, or augment
+     * it somehow (including optional use of default deserializer with occasional
+     * override).
+     * 
      * @since 2.2
      */
-    public KeyDeserializer createKeyDeserializer(DeserializationConfig config,
+    public KeyDeserializer modifyKeyDeserializer(DeserializationConfig config,
             JavaType type, KeyDeserializer deserializer) {
         return deserializer;
     }

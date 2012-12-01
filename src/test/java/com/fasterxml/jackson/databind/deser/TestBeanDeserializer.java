@@ -198,6 +198,20 @@ public class TestBeanDeserializer extends BaseMapTest
             };
         }
     }
+
+    static class KeyDeserializerModifier extends BeanDeserializerModifier {
+        public KeyDeserializer modifyKeyDeserializer(DeserializationConfig config, JavaType valueType,
+                KeyDeserializer kd) {
+            return new KeyDeserializer() {
+                @Override
+                public Object deserializeKey(String key,
+                        DeserializationContext ctxt) throws IOException,
+                        JsonProcessingException {
+                    return "foo";
+                }
+            };
+        }
+    }
     
     /*
     /********************************************************
@@ -296,5 +310,16 @@ public class TestBeanDeserializer extends BaseMapTest
         );
         Object result = mapper.readValue(quote("B"), EnumABC.class);
         assertEquals("foo", result);
+    }
+
+    public void testModifyKeyDeserializer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new SimpleModule("test")
+            .setDeserializerModifier(new KeyDeserializerModifier())
+        );
+        Map<?,?> result = mapper.readValue("{\"a\":1}", Map.class);
+        assertEquals(1, result.size());
+        assertEquals("foo", result.entrySet().iterator().next().getKey());
     }
 }

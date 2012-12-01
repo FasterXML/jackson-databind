@@ -6,10 +6,11 @@ Fixes:
 
 Improvements:
 
-* [Issue#116]: JavaType implements `java.lang.reflect.Type`
+* [Issue#116]: JavaType implements `java.lang.reflect.Type` (as does `TypeReference`)
 
 New features:
 
+* [Issue#120]: Extend BeanDeserializerModifier to work with non-POJO deserializers
 
 ------------------------------------------------------------------------
 === History: ===

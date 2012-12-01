@@ -1190,32 +1190,42 @@ public abstract class BasicDeserializerFactory
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
+        KeyDeserializer deser = null;
         if (_factoryConfig.hasKeyDeserializers()) {
             BeanDescription beanDesc = config.introspectClassAnnotations(type.getRawClass());
             for (KeyDeserializers d  : _factoryConfig.keyDeserializers()) {
-                KeyDeserializer deser = d.findKeyDeserializer(type, config, beanDesc);
+                deser = d.findKeyDeserializer(type, config, beanDesc);
                 if (deser != null) {
-                    return deser;
+                    break;
                 }
             }
         }
-        // and if none found, standard ones:
-        Class<?> raw = type.getRawClass();
-        if (raw == String.class || raw == Object.class) {
-            return StdKeyDeserializers.constructStringKeyDeserializer(config, type);
+        if (deser == null) {
+            // and if none found, standard ones:
+            Class<?> raw = type.getRawClass();
+            if (raw == String.class || raw == Object.class) {
+                deser = StdKeyDeserializers.constructStringKeyDeserializer(config, type);
+            } else {
+                // Most other keys are for limited number of static types
+                deser = _keyDeserializers.get(type);
+                if (deser == null) {
+                    // And then other one-offs; first, Enum:
+                    if (type.isEnumType()) {
+                        deser = _createEnumKeyDeserializer(ctxt, type);
+                    } else {
+                        // One more thing: can we find ctor(String) or valueOf(String)?
+                        deser = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
+                    }
+                }
+            }
         }
-        // Most other keys are for limited number of static types
-        KeyDeserializer kdes = _keyDeserializers.get(type);
-        if (kdes != null) {
-            return kdes;
+        // and then new with 2.2: ability to post-process it too (Issue#120)
+        if (_factoryConfig.hasDeserializerModifiers()) {
+            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                deser = mod.modifyKeyDeserializer(config, type, deser);
+            }
         }
-        // And then other one-offs; first, Enum:
-        if (type.isEnumType()) {
-            return _createEnumKeyDeserializer(ctxt, type);
-        }
-        // One more thing: can we find ctor(String) or valueOf(String)?
-        kdes = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
-        return kdes;
+        return deser;
     }
 
     private KeyDeserializer _createEnumKeyDeserializer(DeserializationContext ctxt,

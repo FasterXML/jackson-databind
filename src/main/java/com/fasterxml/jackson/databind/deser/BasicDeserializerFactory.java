@@ -1054,31 +1054,40 @@ public abstract class BasicDeserializerFactory
             JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
-        Class<?> enumClass = type.getRawClass();
+        final DeserializationConfig config = ctxt.getConfig();
+        final Class<?> enumClass = type.getRawClass();
         // 23-Nov-2010, tatu: Custom deserializer?
-        JsonDeserializer<?> custom = _findCustomEnumDeserializer(enumClass,
-                ctxt.getConfig(), beanDesc);
-        if (custom != null) {
-            return custom;
-        }
-
-        // [JACKSON-193] May have @JsonCreator for static factory method:
-        for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
-            if (ctxt.getAnnotationIntrospector().hasCreatorAnnotation(factory)) {
-                int argCount = factory.getParameterCount();
-                if (argCount == 1) {
-                    Class<?> returnType = factory.getRawReturnType();
-                    // usually should be class, but may be just plain Enum<?> (for Enum.valueOf()?)
-                    if (returnType.isAssignableFrom(enumClass)) {
-                        return EnumDeserializer.deserializerForCreator(ctxt.getConfig(), enumClass, factory);
+        JsonDeserializer<?> deser = _findCustomEnumDeserializer(enumClass, config, beanDesc);
+        if (deser == null) {
+            // [JACKSON-193] May have @JsonCreator for static factory method:
+            for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
+                if (ctxt.getAnnotationIntrospector().hasCreatorAnnotation(factory)) {
+                    int argCount = factory.getParameterCount();
+                    if (argCount == 1) {
+                        Class<?> returnType = factory.getRawReturnType();
+                        // usually should be class, but may be just plain Enum<?> (for Enum.valueOf()?)
+                        if (returnType.isAssignableFrom(enumClass)) {
+                            deser = EnumDeserializer.deserializerForCreator(config, enumClass, factory);
+                            break;
+                        }
                     }
+                    throw new IllegalArgumentException("Unsuitable method ("+factory+") decorated with @JsonCreator (for Enum type "
+                            +enumClass.getName()+")");
                 }
-                throw new IllegalArgumentException("Unsuitable method ("+factory+") decorated with @JsonCreator (for Enum type "
-                        +enumClass.getName()+")");
+            }
+            // [JACKSON-749] Also, need to consider @JsonValue, if one found
+            if (deser == null) {
+                deser = new EnumDeserializer(constructEnumResolver(enumClass, config, beanDesc.findJsonValueMethod()));
             }
         }
-        // [JACKSON-749] Also, need to consider @JsonValue, if one found
-        return new EnumDeserializer(constructEnumResolver(enumClass, ctxt.getConfig(), beanDesc.findJsonValueMethod()));
+
+        // and then new with 2.2: ability to post-process it too (Issue#120)
+        if (_factoryConfig.hasDeserializerModifiers()) {
+            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                deser = mod.modifyEnumDeserializer(config, type, beanDesc, deser);
+            }
+        }
+        return deser;
     }
 
     protected JsonDeserializer<?> _findCustomEnumDeserializer(Class<?> type,

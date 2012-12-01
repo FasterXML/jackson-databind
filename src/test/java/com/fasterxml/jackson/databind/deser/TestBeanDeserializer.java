@@ -145,6 +145,8 @@ public class TestBeanDeserializer extends BaseMapTest
     
     // [Issue#121], arrays, collections, maps
 
+    enum EnumABC { A, B, C; }
+    
     static class ArrayDeserializerModifier extends BeanDeserializerModifier {
         public JsonDeserializer<?> modifyArrayDeserializer(DeserializationConfig config, ArrayType valueType,
                 BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
@@ -180,6 +182,18 @@ public class TestBeanDeserializer extends BaseMapTest
                     HashMap<String,String> map = new HashMap<String,String>();
                     map.put("a", "foo");
                     return map;
+                }
+            };
+        }
+    }
+
+    static class EnumDeserializerModifier extends BeanDeserializerModifier {
+        public JsonDeserializer<?> modifyEnumDeserializer(DeserializationConfig config, JavaType valueType,
+                BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+            return (JsonDeserializer<?>) new StdDeserializer<Object>(Object.class) {
+                @Override public Object deserialize(JsonParser jp,
+                        DeserializationContext ctxt) {
+                    return "foo";
                 }
             };
         }
@@ -272,5 +286,15 @@ public class TestBeanDeserializer extends BaseMapTest
         Map<?,?> result = mapper.readValue("{\"a\":1,\"b\":2}", Map.class);
         assertEquals(1, result.size());
         assertEquals("foo", result.get("a"));
+    }
+
+    public void testModifyEnumDeserializer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new SimpleModule("test")
+            .setDeserializerModifier(new EnumDeserializerModifier())
+        );
+        Object result = mapper.readValue(quote("B"), EnumABC.class);
+        assertEquals("foo", result);
     }
 }

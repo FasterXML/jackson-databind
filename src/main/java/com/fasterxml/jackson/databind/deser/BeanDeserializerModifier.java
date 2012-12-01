@@ -146,15 +146,20 @@ public abstract class BeanDeserializerModifier
             MapLikeType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
         return deserializer;
     }
-    
-    /*
-    
-    public abstract JsonDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc)
-        throws JsonMappingException;
 
-    public abstract KeyDeserializer createKeyDeserializer(DeserializationContext ctxt,
-            JavaType type)
-        throws JsonMappingException;
+    /**
+     * @since 2.2
      */
+    public JsonDeserializer<?> modifyEnumDeserializer(DeserializationConfig config,
+            JavaType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+        return deserializer;
+    }
+    
+    /**
+     * @since 2.2
+     */
+    public KeyDeserializer createKeyDeserializer(DeserializationConfig config,
+            JavaType type, KeyDeserializer deserializer) {
+        return deserializer;
+    }
 }

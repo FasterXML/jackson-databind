@@ -2,9 +2,9 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.List;
 
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.DeserializerFactory;
+import com.fasterxml.jackson.databind.type.*;
 
 /**
  * Abstract class that defines API for objects that can be registered (for {@link BeanSerializerFactory}
@@ -85,9 +85,66 @@ public abstract class BeanSerializerModifier
      * to use. Note that although initial serializer being passed is of type
      * {@link BeanSerializer}, modifiers may return serializers of other types;
      * and this is why implementations must check for type before casting.
+     *<p>
+     * NOTE: since 2.2, gets called for serializer of those non-POJO types that
+     * do not go through any of more specific <code>modifyXxxSerializer</code>
+     * methods; mostly for JDK types like {@link java.util.Iterator} and such.
      */
     public JsonSerializer<?> modifySerializer(SerializationConfig config,
             BeanDescription beanDesc, JsonSerializer<?> serializer) {
+        return serializer;
+    }
+
+    /*
+    /**********************************************************
+    /* Callback methods for other types (since 2.2)
+    /**********************************************************
+     */
+
+    /**
+     * Method called by {@link DeserializerFactory} after it has constructed the
+     * standard serializer for given
+     * {@link ArrayType}
+     * to make it possible to either replace or augment this serializer with
+     * additional functionality.
+     * 
+     * @param config Configuration in use
+     * @param valueType Type of the value serializer is used for.
+     * @param beanDesc Description f
+     * @param serializer Default serializer that would be used.
+     * 
+     * @return Serializer to use; either <code>serializer</code> that was passed
+     *   in, or an instance method constructed.
+     * 
+     * @since 2.2
+     */
+    public JsonSerializer<?> modifyArraySerializer(SerializationConfig config,
+            ArrayType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+        return serializer;
+    }
+
+    public JsonSerializer<?> modifyCollectionSerializer(SerializationConfig config,
+            CollectionType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+        return serializer;
+    }
+
+    public JsonSerializer<?> modifyCollectionLikeSerializer(SerializationConfig config,
+            CollectionLikeType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+        return serializer;
+    }
+    
+    public JsonSerializer<?> modifyMapSerializer(SerializationConfig config,
+            MapType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+        return serializer;
+    }
+
+    public JsonSerializer<?> modifyMapLikeSerializer(SerializationConfig config,
+            MapLikeType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+        return serializer;
+    }
+
+    public JsonSerializer<?> modifyEnumSerializer(SerializationConfig config,
+            JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
         return serializer;
     }
 }

@@ -141,7 +141,6 @@ public class TestBeanDeserializer extends BaseMapTest
             context.addBeanDeserializerModifier(new Issue476DeserializerModifier());
         }        
     }
-
     
     // [Issue#121], arrays, collections, maps
 

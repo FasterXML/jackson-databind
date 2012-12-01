@@ -14,6 +14,10 @@ import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
 import com.fasterxml.jackson.databind.ser.BeanSerializerBuilder;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.databind.type.ArrayType;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.MapType;
 
 /**
  * Unit tests for verifying that it is possible to configure
@@ -180,6 +184,58 @@ public class TestBeanSerializer extends BaseMapTest
         public int getX() { return 3; }
         public boolean isX() { return false; }
     }
+
+    // [Issue#120], arrays, collections, maps
+    
+    static class ArraySerializerModifier extends BeanSerializerModifier {
+        @Override
+        public JsonSerializer<?> modifyArraySerializer(SerializationConfig config,
+                ArrayType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+            return new StdSerializer<Object>(Object.class) {
+                @Override public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                    jgen.writeNumber(123);
+                }
+            };
+        }
+    }
+
+    static class CollectionSerializerModifier extends BeanSerializerModifier {
+        @Override
+        public JsonSerializer<?> modifyCollectionSerializer(SerializationConfig config,
+                CollectionType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+            return new StdSerializer<Object>(Object.class) {
+                @Override public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                    jgen.writeNumber(123);
+                }
+            };
+        }
+    }
+
+    static class MapSerializerModifier extends BeanSerializerModifier {
+        @Override
+        public JsonSerializer<?> modifyMapSerializer(SerializationConfig config,
+                MapType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+            return new StdSerializer<Object>(Object.class) {
+                @Override public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                    jgen.writeNumber(123);
+                }
+            };
+        }
+    }
+
+    static class EnumSerializerModifier extends BeanSerializerModifier {
+        @Override
+        public JsonSerializer<?> modifyEnumSerializer(SerializationConfig config,
+                JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+            return new StdSerializer<Object>(Object.class) {
+                @Override public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                    jgen.writeNumber(123);
+                }
+            };
+        }
+    }
+    
+    enum EnumABC { A, B, C };
     
     /*
     /********************************************************
@@ -234,6 +290,44 @@ public class TestBeanSerializer extends BaseMapTest
         assertEquals("{\"bogus\":\"foo\"}", json);
     }
 
+    // [Issue#121]
+
+    public void testModifyArraySerializer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new SimpleModule("test")
+            .setSerializerModifier(new ArraySerializerModifier()));
+        assertEquals("123", mapper.writeValueAsString(new Integer[] { 1, 2 }));
+    }
+
+    public void testModifyCollectionSerializer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new SimpleModule("test")
+            .setSerializerModifier(new CollectionSerializerModifier()));
+        assertEquals("123", mapper.writeValueAsString(new ArrayList<Integer>()));
+    }
+
+    public void testModifyMapSerializer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new SimpleModule("test")
+            .setSerializerModifier(new MapSerializerModifier()));
+        assertEquals("123", mapper.writeValueAsString(new HashMap<String,String>()));
+    }
+
+    public void testModifyEnumSerializer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new SimpleModule("test")
+            .setSerializerModifier(new EnumSerializerModifier()));
+        assertEquals("123", mapper.writeValueAsString(EnumABC.C));
+    }
+
+    public void testModifyKeySerializer() throws Exception
+    {
+    }
+    
     /*
     /********************************************************
     /* Unit tests: failure handling

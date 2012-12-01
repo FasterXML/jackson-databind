@@ -7,6 +7,10 @@ import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerFactory;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.type.ArrayType;
+import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import com.fasterxml.jackson.databind.type.CollectionType;
+import com.fasterxml.jackson.databind.type.MapLikeType;
+import com.fasterxml.jackson.databind.type.MapType;
 
 /**
  * Abstract class that defines API for objects that can be registered
@@ -107,9 +111,42 @@ public abstract class BeanDeserializerModifier
      * @since 2.2
      */
     public JsonDeserializer<?> modifyArrayDeserializer(DeserializationConfig config,
-            ArrayType valueType,
-            BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+            ArrayType valueType, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+        return deserializer;
+    }
+
+    /**
+     * @since 2.2
+     */
+    public JsonDeserializer<?> modifyCollectionDeserializer(DeserializationConfig config,
+            CollectionType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+        return deserializer;
+    }
+
+    /**
+     * @since 2.2
+     */
+    public JsonDeserializer<?> modifyCollectionLikeDeserializer(DeserializationConfig config,
+            CollectionLikeType type, BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
         return deserializer;
     }
     
+    /*
+    
+    public abstract JsonDeserializer<?> createEnumDeserializer(DeserializationContext ctxt,
+            JavaType type, BeanDescription beanDesc)
+        throws JsonMappingException;
+
+    public abstract JsonDeserializer<?> createMapDeserializer(DeserializationContext ctxt,
+            MapType type, BeanDescription beanDesc)
+        throws JsonMappingException;
+
+    public abstract JsonDeserializer<?> createMapLikeDeserializer(DeserializationContext ctxt,
+            MapLikeType type, BeanDescription beanDesc)
+        throws JsonMappingException;
+
+    public abstract KeyDeserializer createKeyDeserializer(DeserializationContext ctxt,
+            JavaType type)
+        throws JsonMappingException;
+     */
 }

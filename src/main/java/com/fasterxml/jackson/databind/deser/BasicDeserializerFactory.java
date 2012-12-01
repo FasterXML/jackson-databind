@@ -765,26 +765,25 @@ public abstract class BasicDeserializerFactory
         JavaType contentType = type.getContentType();
         // Very first thing: is deserializer hard-coded for elements?
         JsonDeserializer<Object> contentDeser = contentType.getValueHandler();
+        final DeserializationConfig config = ctxt.getConfig();
 
         // Then optional type info (1.5): if type has been resolved, we may already know type deserializer:
         TypeDeserializer contentTypeDeser = contentType.getTypeHandler();
         // but if not, may still be possible to find:
         if (contentTypeDeser == null) {
-            contentTypeDeser = findTypeDeserializer(ctxt.getConfig(), contentType);
+            contentTypeDeser = findTypeDeserializer(config, contentType);
         }
 
         // 23-Nov-2010, tatu: Custom deserializer?
-        JsonDeserializer<?> custom = _findCustomCollectionDeserializer(type,
-                ctxt.getConfig(), beanDesc, contentTypeDeser, contentDeser);
-        if (custom != null) {
-            return custom;
-        }
-        
-        Class<?> collectionClass = type.getRawClass();
-        if (contentDeser == null) { // not defined by annotation
-            // One special type: EnumSet:
-            if (EnumSet.class.isAssignableFrom(collectionClass)) {
-                return new EnumSetDeserializer(contentType, null);
+        JsonDeserializer<?> deser = _findCustomCollectionDeserializer(type,
+                config, beanDesc, contentTypeDeser, contentDeser);
+        if (deser == null) {
+            Class<?> collectionClass = type.getRawClass();
+            if (contentDeser == null) { // not defined by annotation
+                // One special type: EnumSet:
+                if (EnumSet.class.isAssignableFrom(collectionClass)) {
+                    deser = new EnumSetDeserializer(contentType, null);
+                }
             }
         }
         
@@ -797,24 +796,35 @@ public abstract class BasicDeserializerFactory
          * fail later on (as the primary type is not the interface we'd
          * be implementing)
          */
-        if (type.isInterface() || type.isAbstract()) {
-            @SuppressWarnings({ "rawtypes" })
-            Class<? extends Collection> fallback = _collectionFallbacks.get(collectionClass.getName());
-            if (fallback == null) {
-                throw new IllegalArgumentException("Can not find a deserializer for non-concrete Collection type "+type);
+        if (deser == null) {
+            if (type.isInterface() || type.isAbstract()) {
+                Class<?> collectionClass = type.getRawClass();
+                @SuppressWarnings({ "rawtypes" })
+                Class<? extends Collection> fallback = _collectionFallbacks.get(collectionClass.getName());
+                if (fallback == null) {
+                    throw new IllegalArgumentException("Can not find a deserializer for non-concrete Collection type "+type);
+                }
+                collectionClass = fallback;
+                type = (CollectionType) config.constructSpecializedType(type, collectionClass);
+                // But if so, also need to re-check creators...
+                beanDesc = config.introspectForCreation(type);
             }
-            collectionClass = fallback;
-            type = (CollectionType) ctxt.getConfig().constructSpecializedType(type, collectionClass);
-            // But if so, also need to re-check creators...
-            beanDesc = ctxt.getConfig().introspectForCreation(type);
+            ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
+            // 13-Dec-2010, tatu: Can use more optimal deserializer if content type is String, so:
+            if (contentType.getRawClass() == String.class) {
+                // no value type deserializer because Strings are one of natural/native types:
+                deser = new StringCollectionDeserializer(type, contentDeser, inst);
+            } else {
+                deser = new CollectionDeserializer(type, contentDeser, contentTypeDeser, inst);
+            }
         }
-        ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
-        // 13-Dec-2010, tatu: Can use more optimal deserializer if content type is String, so:
-        if (contentType.getRawClass() == String.class) {
-            // no value type deserializer because Strings are one of natural/native types:
-            return new StringCollectionDeserializer(type, contentDeser, inst);
+        // and then new with 2.2: ability to post-process it too (Issue#120)
+        if (_factoryConfig.hasDeserializerModifiers()) {
+            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                deser = mod.modifyCollectionDeserializer(config, type, beanDesc, deser);
+            }
         }
-        return new CollectionDeserializer(type, contentDeser, contentTypeDeser, inst);
+        return deser;
     }
 
     // Copied almost verbatim from "createCollectionDeserializer" -- should try to share more code

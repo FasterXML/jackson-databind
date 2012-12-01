@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
+import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -9,8 +10,8 @@ import com.fasterxml.jackson.databind.deser.BeanDeserializerBuilder;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.type.ArrayType;
+import com.fasterxml.jackson.databind.type.CollectionType;
 
 @SuppressWarnings("serial")
 public class TestBeanDeserializer extends BaseMapTest
@@ -141,18 +142,29 @@ public class TestBeanDeserializer extends BaseMapTest
     }
 
     
-    // [Issue#121], arrays:
+    // [Issue#121], arrays, collections, maps
 
-    static class ArrayListModifier extends BeanDeserializerModifier {
-        public JsonDeserializer<?> modifyArrayDeserializer(DeserializationConfig config,
-                ArrayType valueType,
+    static class ArrayDeserializerModifier extends BeanDeserializerModifier {
+        public JsonDeserializer<?> modifyArrayDeserializer(DeserializationConfig config, ArrayType valueType,
                 BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
             return (JsonDeserializer<?>) new StdDeserializer<Object>(Object.class) {
-                @Override
-                public Object deserialize(JsonParser jp,
-                        DeserializationContext ctxt) throws IOException,
-                        JsonProcessingException {
+                @Override public Object deserialize(JsonParser jp,
+                        DeserializationContext ctxt) {
                     return new String[] { "foo" };
+                }
+            };
+        }
+    }
+
+    static class CollectionDeserializerModifier extends BeanDeserializerModifier {
+        public JsonDeserializer<?> modifyCollectionDeserializer(DeserializationConfig config, CollectionType valueType,
+                BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+            return (JsonDeserializer<?>) new StdDeserializer<Object>(Object.class) {
+                @Override public Object deserialize(JsonParser jp,
+                        DeserializationContext ctxt) {
+                    ArrayList<String> list = new ArrayList<String>();
+                    list.add("foo");
+                    return list;
                 }
             };
         }
@@ -219,9 +231,20 @@ public class TestBeanDeserializer extends BaseMapTest
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new SimpleModule("test")
-            .setDeserializerModifier(new ArrayListModifier()));
+            .setDeserializerModifier(new ArrayDeserializerModifier()));
         Object[] result = mapper.readValue("[1,2]", Object[].class);
         assertEquals(1, result.length);
         assertEquals("foo", result[0]);
+    }
+
+    public void testModifyCollectionDeserializer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new SimpleModule("test")
+            .setDeserializerModifier(new CollectionDeserializerModifier())
+        );
+        List<?> result = mapper.readValue("[1,2]", List.class);
+        assertEquals(1, result.size());
+        assertEquals("foo", result.get(0));
     }
 }

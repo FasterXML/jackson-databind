@@ -170,6 +170,7 @@ public class BeanSerializerFactory
             }
             // 03-Aug-2012, tatu: As per [Issue#40], may require POJO serializer...
             ser =  buildContainerSerializer(prov, type, beanDesc, staticTyping);
+            // Will return right away, since called method does post-processing:
             if (ser != null) {
                 return (JsonSerializer<Object>) ser;
             }
@@ -178,7 +179,7 @@ public class BeanSerializerFactory
             for (Serializers serializers : customSerializers()) {
                 ser = serializers.findSerializer(config, type, beanDesc);
                 if (ser != null) {
-                    return (JsonSerializer<Object>) ser;
+                    break;
                 }
             }
         }
@@ -187,20 +188,30 @@ public class BeanSerializerFactory
          * indicate specific handling (JsonSerializable), or main types that have
          * precedence over container types
          */
-        ser = findSerializerByLookup(type, config, beanDesc, staticTyping);
         if (ser == null) {
-            ser = findSerializerByPrimaryType(prov, type, beanDesc, staticTyping);
+            ser = findSerializerByLookup(type, config, beanDesc, staticTyping);
             if (ser == null) {
-                /* And this is where this class comes in: if type is not a
-                 * known "primary JDK type", perhaps it's a bean? We can still
-                 * get a null, if we can't find a single suitable bean property.
-                 */
-                ser = findBeanSerializer(prov, type, beanDesc);
-                /* Finally: maybe we can still deal with it as an
-                 * implementation of some basic JDK interface?
-                 */
+                ser = findSerializerByPrimaryType(prov, type, beanDesc, staticTyping);
                 if (ser == null) {
-                    ser = findSerializerByAddonType(config, type, beanDesc, staticTyping);
+                    /* And this is where this class comes in: if type is not a
+                     * known "primary JDK type", perhaps it's a bean? We can still
+                     * get a null, if we can't find a single suitable bean property.
+                     */
+                    ser = findBeanSerializer(prov, type, beanDesc);
+                    /* Finally: maybe we can still deal with it as an
+                     * implementation of some basic JDK interface?
+                     */
+                    if (ser == null) {
+                        ser = findSerializerByAddonType(config, type, beanDesc, staticTyping);
+                    }
+                }
+            }
+        }
+        if (ser != null) {
+            // [Issue#120]: Allow post-processing
+            if (_factoryConfig.hasSerializerModifiers()) {
+                for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+                    ser = mod.modifySerializer(config, beanDesc, ser);
                 }
             }
         }
@@ -244,15 +255,7 @@ public class BeanSerializerFactory
                 return null;
             }
         }
-        JsonSerializer<Object> serializer = constructBeanSerializer(prov, beanDesc);
-        // [JACKSON-440] Need to allow overriding actual serializer, as well...
-        if (_factoryConfig.hasSerializerModifiers()) {
-            for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
-                serializer = (JsonSerializer<Object>)mod.modifySerializer(prov.getConfig(),
-                        beanDesc, serializer);
-            }
-        }
-        return serializer;
+        return constructBeanSerializer(prov, beanDesc);
     }
 
     /**

@@ -7,7 +7,10 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.BeanDeserializer;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerBuilder;
 import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import com.fasterxml.jackson.databind.type.ArrayType;
 
 @SuppressWarnings("serial")
 public class TestBeanDeserializer extends BaseMapTest
@@ -136,6 +139,24 @@ public class TestBeanDeserializer extends BaseMapTest
             context.addBeanDeserializerModifier(new Issue476DeserializerModifier());
         }        
     }
+
+    
+    // [Issue#121], arrays:
+
+    static class ArrayListModifier extends BeanDeserializerModifier {
+        public JsonDeserializer<?> modifyArrayDeserializer(DeserializationConfig config,
+                ArrayType valueType,
+                BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
+            return (JsonDeserializer<?>) new StdDeserializer<Object>(Object.class) {
+                @Override
+                public Object deserialize(JsonParser jp,
+                        DeserializationContext ctxt) throws IOException,
+                        JsonProcessingException {
+                    return new String[] { "foo" };
+                }
+            };
+        }
+    }
     
     /*
     /********************************************************
@@ -191,5 +212,16 @@ public class TestBeanDeserializer extends BaseMapTest
         mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         Bean result = mapper.readValue(quote(""), Bean.class);
         assertNull(result);
+    }
+
+    // [Issue#120]
+    public void testModifyArrayDeserializer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new SimpleModule("test")
+            .setDeserializerModifier(new ArrayListModifier()));
+        Object[] result = mapper.readValue("[1,2]", Object[].class);
+        assertEquals(1, result.length);
+        assertEquals("foo", result[0]);
     }
 }

@@ -151,7 +151,7 @@ public class TestBeanSerializer extends BaseMapTest
         @JsonIgnore
         public String name = "foo";
     }
-    
+
     static class EmptyBeanModifier extends BeanSerializerModifier
     {
         @Override

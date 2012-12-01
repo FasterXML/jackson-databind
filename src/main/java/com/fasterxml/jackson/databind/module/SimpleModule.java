@@ -8,8 +8,10 @@ import java.util.Map;
 import com.fasterxml.jackson.core.Version;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
+import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 
 /**
  * Simple {@link Module} implementation that allows registration
@@ -44,6 +46,16 @@ public class SimpleModule
      * (which may be abstract or concrete)
      */
     protected SimpleValueInstantiators _valueInstantiators = null;
+
+    /**
+     * @since 2.2
+     */
+    protected BeanDeserializerModifier _deserializerModifier = null;
+
+    /**
+     * @since 2.2
+     */
+    protected BeanSerializerModifier _serializerModifier = null;
 
     /**
      * Lazily-constructed map that contains mix-in definitions, indexed
@@ -183,6 +195,22 @@ public class SimpleModule
      */
     public void setValueInstantiators(SimpleValueInstantiators svi) {
         _valueInstantiators = svi;
+    }
+
+    /**
+     * @since 2.2
+     */
+    public SimpleModule setDeserializerModifier(BeanDeserializerModifier mod) {
+        _deserializerModifier = mod;
+        return this;
+    }
+
+    /**
+     * @since 2.2
+     */
+    public SimpleModule setSerializerModifier(BeanSerializerModifier mod) {
+        _serializerModifier = mod;
+        return this;
     }
     
     /*
@@ -348,6 +376,12 @@ public class SimpleModule
         }
         if (_valueInstantiators != null) {
             context.addValueInstantiators(_valueInstantiators);
+        }
+        if (_deserializerModifier != null) {
+            context.addBeanDeserializerModifier(_deserializerModifier);
+        }
+        if (_serializerModifier != null) {
+            context.addBeanSerializerModifier(_serializerModifier);
         }
         if (_subtypes != null && _subtypes.size() > 0) {
             context.registerSubtypes(_subtypes.toArray(new NamedType[_subtypes.size()]));

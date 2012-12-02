@@ -210,21 +210,32 @@ public abstract class BasicSerializerFactory
     @Override
     @SuppressWarnings("unchecked")
     public JsonSerializer<Object> createKeySerializer(SerializationConfig config,
-            JavaType type)
+            JavaType keyType, JsonSerializer<Object> defaultImpl)
     {
-        // Minor optimization: to avoid constructing beanDesc, bail out if none registered
-        if (!_factoryConfig.hasKeySerializers()) {
-            return null;
-        }
         // We should not need any member method info; at most class annotations for Map type
-        BeanDescription beanDesc = config.introspectClassAnnotations(type.getRawClass());
+        BeanDescription beanDesc = config.introspectClassAnnotations(keyType.getRawClass());
         JsonSerializer<?> ser = null;
+        // Minor optimization: to avoid constructing beanDesc, bail out if none registered
+        if (_factoryConfig.hasKeySerializers()) {
+            // Only thing we have here are module-provided key serializers:
+            for (Serializers serializers : _factoryConfig.keySerializers()) {
+                ser = serializers.findSerializer(config, keyType, beanDesc);
+                if (ser != null) {
+                    break;
+                }
+            }
+        }
+        if (ser == null) {
+            ser = defaultImpl;
+            if (ser == null) {
+                ser = StdKeySerializers.getStdKeySerializer(keyType);
+            }
+        }
         
-        // Only thing we have here are module-provided key serializers:
-        for (Serializers serializers : _factoryConfig.keySerializers()) {
-            ser = serializers.findSerializer(config, type, beanDesc);
-            if (ser != null) {
-                break;
+        // [Issue#120]: Allow post-processing
+        if (_factoryConfig.hasSerializerModifiers()) {
+            for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {
+                ser = mod.modifyKeySerializer(config, keyType, beanDesc, ser);
             }
         }
         return (JsonSerializer<Object>) ser;

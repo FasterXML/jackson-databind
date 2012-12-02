@@ -18,7 +18,7 @@ public class TestSerializerProvider
         DefaultSerializerProvider prov = new DefaultSerializerProvider.Impl().createInstance(config, f);
 
         // Should have working default key and null key serializers
-        assertNotNull(prov.findKeySerializer(null, null));
+        assertNotNull(prov.findKeySerializer(mapper.constructType(String.class), null));
         assertNotNull(prov.getDefaultNullKeySerializer());
         assertNotNull(prov.getDefaultNullValueSerializer());
         // as well as 'unknown type' one (throws exception)

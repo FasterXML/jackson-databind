@@ -234,6 +234,18 @@ public class TestBeanSerializer extends BaseMapTest
             };
         }
     }
+
+    static class KeySerializerModifier extends BeanSerializerModifier {
+        @Override
+        public JsonSerializer<?> modifyKeySerializer(SerializationConfig config,
+                JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+            return new StdSerializer<Object>(Object.class) {
+                @Override public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+                    jgen.writeFieldName("foo");
+                }
+            };
+        }
+    }
     
     enum EnumABC { A, B, C };
     
@@ -326,6 +338,12 @@ public class TestBeanSerializer extends BaseMapTest
 
     public void testModifyKeySerializer() throws Exception
     {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new SimpleModule("test")
+            .setSerializerModifier(new KeySerializerModifier()));
+        Map<String,Integer> map = new HashMap<String,Integer>();
+        map.put("x", 3);
+        assertEquals("{\"foo\":3}", mapper.writeValueAsString(map));
     }
     
     /*

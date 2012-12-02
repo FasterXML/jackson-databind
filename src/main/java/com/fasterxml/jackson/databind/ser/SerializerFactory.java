@@ -84,11 +84,23 @@ public abstract class SerializerFactory
      * key type, and is for specified property (or, if property is null, as root value)
      * 
      * @param baseType Declared type for Map keys
+     * @param defaultImpl Default key serializer implementation to use, if no custom ones
+     *    are found (may be null)
      * 
      * @return Serializer to use, if factory knows it; null if not (in which case default
      *   serializer is to be used)
      */
     public abstract JsonSerializer<Object> createKeySerializer(SerializationConfig config,
-            JavaType baseType)
+            JavaType baseType, JsonSerializer<Object> defaultImpl)
         throws JsonMappingException;
+
+    /**
+     * @deprecated Since 2.2, use one that takes additional <code>defaultImpl</code> parameter
+     */
+    @Deprecated
+    public JsonSerializer<Object> createKeySerializer(SerializationConfig config,
+            JavaType baseType)
+        throws JsonMappingException {
+        return createKeySerializer(config, baseType, null);
+    }
 }

@@ -11,6 +11,7 @@ Improvements:
 New features:
 
 * [Issue#120]: Extend BeanDeserializerModifier to work with non-POJO deserializers
+* [Issue#121]: Extend BeanSerializerModifier to work with non-POJO serializers
 
 ------------------------------------------------------------------------
 === History: ===

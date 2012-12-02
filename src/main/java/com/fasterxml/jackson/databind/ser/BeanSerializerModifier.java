@@ -110,7 +110,7 @@ public abstract class BeanSerializerModifier
      * 
      * @param config Configuration in use
      * @param valueType Type of the value serializer is used for.
-     * @param beanDesc Description f
+     * @param beanDesc Details of the type in question, to allow checking class annotations
      * @param serializer Default serializer that would be used.
      * 
      * @return Serializer to use; either <code>serializer</code> that was passed
@@ -123,27 +123,64 @@ public abstract class BeanSerializerModifier
         return serializer;
     }
 
+    /**
+     * @since 2.2
+     */
     public JsonSerializer<?> modifyCollectionSerializer(SerializationConfig config,
             CollectionType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
         return serializer;
     }
 
+    /**
+     * @since 2.2
+     */
     public JsonSerializer<?> modifyCollectionLikeSerializer(SerializationConfig config,
             CollectionLikeType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
         return serializer;
     }
     
+    /**
+     * @since 2.2
+     */
     public JsonSerializer<?> modifyMapSerializer(SerializationConfig config,
             MapType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
         return serializer;
     }
 
+    /**
+     * @since 2.2
+     */
     public JsonSerializer<?> modifyMapLikeSerializer(SerializationConfig config,
             MapLikeType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
         return serializer;
     }
 
+    /**
+     * @since 2.2
+     */
     public JsonSerializer<?> modifyEnumSerializer(SerializationConfig config,
+            JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
+        return serializer;
+    }
+
+    /**
+     * Method called by {@link DeserializerFactory} after it has constructed the
+     * default key serializer to use for serializing {@link java.util.Map} keys of
+     * given type.
+     * This makes it possible to either replace or augment default serializer with
+     * additional functionality.
+     * 
+     * @param config Configuration in use
+     * @param valueType Type of keys the serializer is used for.
+     * @param beanDesc Details of the type in question, to allow checking class annotations
+     * @param serializer Default serializer that would be used.
+     * 
+     * @return Serializer to use; either <code>serializer</code> that was passed
+     *   in, or an instance method constructed.
+     * 
+     * @since 2.2
+     */
+    public JsonSerializer<?> modifyKeySerializer(SerializationConfig config,
             JavaType valueType, BeanDescription beanDesc, JsonSerializer<?> serializer) {
         return serializer;
     }

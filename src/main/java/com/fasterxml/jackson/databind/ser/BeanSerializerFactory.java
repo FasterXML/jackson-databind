@@ -242,7 +242,6 @@ public class BeanSerializerFactory
      * Method that will try to construct a {@link BeanSerializer} for
      * given class. Returns null if no properties are found.
      */
-    @SuppressWarnings("unchecked")
     public JsonSerializer<Object> findBeanSerializer(SerializerProvider prov,
             JavaType type, BeanDescription beanDesc)
         throws JsonMappingException

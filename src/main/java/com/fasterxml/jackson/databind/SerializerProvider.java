@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.*;
 import com.fasterxml.jackson.databind.ser.std.NullSerializer;
-import com.fasterxml.jackson.databind.ser.std.StdKeySerializers;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
@@ -588,17 +587,7 @@ public abstract class SerializerProvider
             BeanProperty property)
         throws JsonMappingException
     {
-        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(_config, keyType);
-    
-        // First things first: maybe there are registered custom implementations
-        // if not, use default one:
-        if (ser == null) {
-            if (_keySerializer == null) {
-                ser = StdKeySerializers.getStdKeySerializer(keyType);
-            } else {
-                ser = _keySerializer;
-            }
-        }
+        JsonSerializer<Object> ser = _serializerFactory.createKeySerializer(_config, keyType, _keySerializer);
         // 25-Feb-2011, tatu: As per [JACKSON-519], need to ensure contextuality works here, too
         return _handleContextualResolvable(ser, property);
     }

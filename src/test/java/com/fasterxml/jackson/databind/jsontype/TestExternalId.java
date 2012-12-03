@@ -188,6 +188,7 @@ public class TestExternalId extends BaseMapTest
         }
     }    
 
+    // for [Issue#118]
     static class ExternalTypeWithNonPOJO {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
                 property = "type",
@@ -203,6 +204,15 @@ public class TestExternalId extends BaseMapTest
         public ExternalTypeWithNonPOJO() { }
         public ExternalTypeWithNonPOJO(Object o) { value = o; }
     }    
+
+    // for [Issue#119]
+    static class AsValueThingy {
+        public int stuff = 3;
+        
+        @JsonValue public int serialization() {
+            return stuff+1;
+        }
+    }
     
     /*
     /**********************************************************
@@ -343,17 +353,23 @@ public class TestExternalId extends BaseMapTest
     // Note: String works fine, since no type id will used; other scalar types have issues
     public void testWithScalar118() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        String json;
-
         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new java.util.Date(123L));
-        json = mapper.writeValueAsString(input);
-        System.out.println("JSON with Date: "+json);
+        String json = MAPPER.writeValueAsString(input);
         assertNotNull(json);
 
         // and back just to be sure:
-        ExternalTypeWithNonPOJO result = mapper.readValue(json, ExternalTypeWithNonPOJO.class);
+        ExternalTypeWithNonPOJO result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
         assertNotNull(result.value);
         assertTrue(result.value instanceof java.util.Date);
+    }
+
+    // For [Issue#119]
+    public void testWithAsValue() throws Exception
+    {
+        ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy());
+        String json = MAPPER.writeValueAsString(input);
+        assertNotNull(json);
+        String className = getClass().getSimpleName() + "$" + AsValueThingy.class.getSimpleName();
+        assertEquals(json, "{\"value\":4,\"type\":\""+className+"\"}");
     }
 }

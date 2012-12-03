@@ -34,7 +34,7 @@ public class AsExternalTypeSerializer
    @Override
    public AsExternalTypeSerializer forProperty(BeanProperty prop) {
        if (_property == prop) return this;
-       return new AsExternalTypeSerializer(this._idResolver, prop, this._typePropertyName);
+       return new AsExternalTypeSerializer(_idResolver, prop, _typePropertyName);
    }
    
    @Override
@@ -53,42 +53,42 @@ public class AsExternalTypeSerializer
    public void writeTypePrefixForObject(Object value, JsonGenerator jgen)
        throws IOException, JsonProcessingException
    {
-       _writePrefix(value, jgen);
+       _writeObjectPrefix(value, jgen);
    }
 
    @Override
    public void writeTypePrefixForObject(Object value, JsonGenerator jgen, Class<?> type)
        throws IOException, JsonProcessingException
    {
-       _writePrefix(value, jgen, type);
+       _writeObjectPrefix(value, jgen);
    }
    
    @Override
    public void writeTypePrefixForArray(Object value, JsonGenerator jgen)
        throws IOException, JsonProcessingException
    {
-       _writePrefix(value, jgen);
+       _writeArrayPrefix(value, jgen);
    }
 
    @Override
    public void writeTypePrefixForArray(Object value, JsonGenerator jgen, Class<?> type)
            throws IOException, JsonProcessingException
    {
-       _writePrefix(value, jgen, type);
+       _writeArrayPrefix(value, jgen);
    }
 
    @Override
    public void writeTypePrefixForScalar(Object value, JsonGenerator jgen)
            throws IOException, JsonProcessingException
    {
-       _writePrefix(value, jgen);
+       _writeScalarPrefix(value, jgen);
    }
 
    @Override
    public void writeTypePrefixForScalar(Object value, JsonGenerator jgen, Class<?> type)
            throws IOException, JsonProcessingException
    {
-       _writePrefix(value, jgen, type);
+       _writeScalarPrefix(value, jgen);
    }
 
    /*
@@ -101,21 +101,21 @@ public class AsExternalTypeSerializer
    public void writeTypeSuffixForObject(Object value, JsonGenerator jgen)
        throws IOException, JsonProcessingException
    {
-       _writeSuffix(value, jgen, idFromValue(value));
+       _writeObjectSuffix(value, jgen, idFromValue(value));
    }
 
    @Override
    public void writeTypeSuffixForArray(Object value, JsonGenerator jgen)
        throws IOException, JsonProcessingException
    {
-       _writeSuffix(value, jgen, idFromValue(value));
+       _writeArraySuffix(value, jgen, idFromValue(value));
    }
    
    @Override
    public void writeTypeSuffixForScalar(Object value, JsonGenerator jgen)
        throws IOException, JsonProcessingException
    {
-       _writeSuffix(value, jgen, idFromValue(value));
+       _writeScalarSuffix(value, jgen, idFromValue(value));
    }
 
    /*
@@ -128,38 +128,38 @@ public class AsExternalTypeSerializer
    public void writeCustomTypePrefixForScalar(Object value, JsonGenerator jgen, String typeId)
        throws IOException, JsonProcessingException
    {
-       _writePrefix(value, jgen); // here standard works fine
+       _writeScalarPrefix(value, jgen);
    }
    
    @Override
    public void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId)
        throws IOException, JsonProcessingException {
-       _writePrefix(value, jgen); // here standard works fine
+       _writeObjectPrefix(value, jgen);
    }
    
    @Override
    public void writeCustomTypePrefixForArray(Object value, JsonGenerator jgen, String typeId)
        throws IOException, JsonProcessingException
    {
-       _writePrefix(value, jgen); // here standard works fine
+       _writeArrayPrefix(value, jgen);
    }
 
    @Override
    public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator jgen, String typeId)
        throws IOException, JsonProcessingException {
-       _writeSuffix(value, jgen, typeId);// here standard works fine
+       _writeScalarSuffix(value, jgen, typeId);
    }
 
    @Override
    public void writeCustomTypeSuffixForObject(Object value, JsonGenerator jgen, String typeId)
        throws IOException, JsonProcessingException {
-       _writeSuffix(value, jgen, typeId);// here standard works fine
+       _writeObjectSuffix(value, jgen, typeId);
    }
 
    @Override
    public void writeCustomTypeSuffixForArray(Object value, JsonGenerator jgen, String typeId)
            throws IOException, JsonProcessingException {
-       _writeSuffix(value, jgen, typeId);// here standard works fine
+       _writeArraySuffix(value, jgen, typeId);
    }
    
    /*
@@ -167,23 +167,39 @@ public class AsExternalTypeSerializer
    /* Helper methods
    /**********************************************************
     */
-   
-   protected final void _writePrefix(Object value, JsonGenerator jgen)
-       throws IOException, JsonProcessingException
-   {
+
+   protected final void _writeScalarPrefix(Object value, JsonGenerator jgen)
+       throws IOException, JsonProcessingException {
+       // nothing to wrap it with
+   }
+
+   protected final void _writeObjectPrefix(Object value, JsonGenerator jgen)
+       throws IOException, JsonProcessingException {
        jgen.writeStartObject();
    }
 
-   protected final void _writePrefix(Object value, JsonGenerator jgen, Class<?> type)
-       throws IOException, JsonProcessingException
-   {
-       jgen.writeStartObject();
+   protected final void _writeArrayPrefix(Object value, JsonGenerator jgen)
+       throws IOException, JsonProcessingException {
+       jgen.writeStartArray();
    }
    
-   protected final void _writeSuffix(Object value, JsonGenerator jgen, String typeId)
+   protected final void _writeScalarSuffix(Object value, JsonGenerator jgen, String typeId)
+       throws IOException, JsonProcessingException
+   {
+       jgen.writeStringField(_typePropertyName, typeId);
+   }
+   
+   protected final void _writeObjectSuffix(Object value, JsonGenerator jgen, String typeId)
        throws IOException, JsonProcessingException
    {
        jgen.writeEndObject();
+       jgen.writeStringField(_typePropertyName, typeId);
+   }
+
+   protected final void _writeArraySuffix(Object value, JsonGenerator jgen, String typeId)
+       throws IOException, JsonProcessingException
+   {
+       jgen.writeEndArray();
        jgen.writeStringField(_typePropertyName, typeId);
    }
 }

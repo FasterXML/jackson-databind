@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -186,13 +188,29 @@ public class TestExternalId extends BaseMapTest
         }
     }    
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    static class ExternalTypeWithNonPOJO {
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+                property = "type",
+                visible = true,
+                include = JsonTypeInfo.As.EXTERNAL_PROPERTY,
+                defaultImpl = String.class)
+        @JsonSubTypes({
+            @JsonSubTypes.Type(value = Date.class, name = "date"),
+            @JsonSubTypes.Type(value = String.class, name = "")
+        })
+        public Object value;
 
+        public ExternalTypeWithNonPOJO() { }
+        public ExternalTypeWithNonPOJO(Object o) { value = o; }
+    }    
+    
     /*
     /**********************************************************
     /* Unit tests, serialization
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testSimpleSerialization() throws Exception
     {
@@ -319,5 +337,23 @@ public class TestExternalId extends BaseMapTest
         assertNotNull(defaulted);
         assertNotNull(defaulted.bean);
         assertSame(ValueBean.class, defaulted.bean.getClass());
+    }
+
+    // For [Issue#118]
+    // Note: String works fine, since no type id will used; other scalar types have issues
+    public void testWithScalar118() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        String json;
+
+        ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new java.util.Date(123L));
+        json = mapper.writeValueAsString(input);
+        System.out.println("JSON with Date: "+json);
+        assertNotNull(json);
+
+        // and back just to be sure:
+        ExternalTypeWithNonPOJO result = mapper.readValue(json, ExternalTypeWithNonPOJO.class);
+        assertNotNull(result.value);
+        assertTrue(result.value instanceof java.util.Date);
     }
 }

@@ -194,30 +194,27 @@ public class JsonValueSerializer
         Object value = null;
         try {
             value = _accessorMethod.invoke(bean);
-
             // and if we got null, can also just write it directly
             if (value == null) {
                 provider.defaultSerializeNull(jgen);
                 return;
             }
             JsonSerializer<Object> ser = _valueSerializer;
-            if (ser != null) { // already got a serializer? fabulous, that be easy...
+            if (ser == null) { // already got a serializer? fabulous, that be easy...
+//                ser = provider.findTypedValueSerializer(value.getClass(), true, _property);
+                ser = provider.findValueSerializer(value.getClass(), _property);
+            } else {
                 /* 09-Dec-2010, tatu: To work around natural type's refusal to add type info, we do
                  *    this (note: type is for the wrapper type, not enclosed value!)
                  */
                 if (_forceTypeInformation) {
                     typeSer0.writeTypePrefixForScalar(bean, jgen);
-                } 
-                ser.serializeWithType(value, jgen, provider, typeSer0);
-                if (_forceTypeInformation) {
+                    ser.serialize(value, jgen, provider);
                     typeSer0.writeTypeSuffixForScalar(bean, jgen);
-                } 
-                return;
+                    return;
+                }
             }
-            // But if not, it gets tad trickier (copied from main serialize() method)
-            Class<?> c = value.getClass();
-            ser = provider.findTypedValueSerializer(c, true, _property);
-            // note: now we have bundled type serializer, so should NOT call with typed version
+            // and then redirect type id lookups
             TypeSerializer typeSer = new TypeSerializerWrapper(typeSer0, bean);
             ser.serializeWithType(value, jgen, provider, typeSer);
         } catch (IOException ioe) {

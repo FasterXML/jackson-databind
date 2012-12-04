@@ -12,9 +12,9 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializerWrapper;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
@@ -74,13 +74,18 @@ public class JsonValueSerializer
     public JsonValueSerializer(JsonValueSerializer src, BeanProperty property,
             JsonSerializer<?> ser, boolean forceTypeInfo)
     {
-        super(Object.class);
+        super(_notNullClass(src.handledType()));
         _accessorMethod = src._accessorMethod;
         _valueSerializer = (JsonSerializer<Object>) ser;
         _property = property;
         _forceTypeInformation = forceTypeInfo;
     }
 
+    @SuppressWarnings("unchecked")
+    private final static Class<Object> _notNullClass(Class<?> cls) {
+        return (cls == null) ? Object.class : (Class<Object>) cls;
+    }
+    
     public JsonValueSerializer withResolved(BeanProperty property,
             JsonSerializer<?> ser, boolean forceTypeInfo)
     {
@@ -182,7 +187,7 @@ public class JsonValueSerializer
 
     @Override
     public void serializeWithType(Object bean, JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
+            TypeSerializer typeSer0)
         throws IOException, JsonProcessingException
     {
         // Regardless of other parts, first need to find value to serialize:
@@ -201,11 +206,11 @@ public class JsonValueSerializer
                  *    this (note: type is for the wrapper type, not enclosed value!)
                  */
                 if (_forceTypeInformation) {
-                    typeSer.writeTypePrefixForScalar(bean, jgen);
+                    typeSer0.writeTypePrefixForScalar(bean, jgen);
                 } 
-                ser.serializeWithType(value, jgen, provider, typeSer);
+                ser.serializeWithType(value, jgen, provider, typeSer0);
                 if (_forceTypeInformation) {
-                    typeSer.writeTypeSuffixForScalar(bean, jgen);
+                    typeSer0.writeTypeSuffixForScalar(bean, jgen);
                 } 
                 return;
             }
@@ -213,7 +218,8 @@ public class JsonValueSerializer
             Class<?> c = value.getClass();
             ser = provider.findTypedValueSerializer(c, true, _property);
             // note: now we have bundled type serializer, so should NOT call with typed version
-            ser.serialize(value, jgen, provider);
+            TypeSerializer typeSer = new TypeSerializerWrapper(typeSer0, bean);
+            ser.serializeWithType(value, jgen, provider, typeSer);
         } catch (IOException ioe) {
             throw ioe;
         } catch (Exception e) {
@@ -237,7 +243,7 @@ public class JsonValueSerializer
     {
         return (_valueSerializer instanceof SchemaAware) ?
                 ((SchemaAware) _valueSerializer).getSchema(provider, null) :
-                JsonSchema.getDefaultSchemaNode();
+                    com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
     }
     
     @Override

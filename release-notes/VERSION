@@ -9,6 +9,8 @@ Fixes:
  (reported by Alexander B)
 * [Issue#118]: Problems with JsonTypeInfo.As.EXTERNAL_PROPERTY, scalar values
  (reported by Adva11@github)
+* [Issue#119]: Problems with @JsonValue, JsonTypeInfo.As.EXTERNAL_PROPERTY
+ (reported by Adva11@github)
 * [Issue#122]: ObjectMapper.copy() was not copying underlying mix-in map
  (reported by rzlo@github)
 

@@ -197,7 +197,7 @@ public class TestExternalId extends BaseMapTest
                 defaultImpl = String.class)
         @JsonSubTypes({
             @JsonSubTypes.Type(value = Date.class, name = "date"),
-            @JsonSubTypes.Type(value = String.class, name = "")
+            @JsonSubTypes.Type(value = AsValueThingy.class, name = "thingy")
         })
         public Object value;
 
@@ -207,10 +207,13 @@ public class TestExternalId extends BaseMapTest
 
     // for [Issue#119]
     static class AsValueThingy {
-        public int stuff = 3;
+        public long rawDate;
+
+        public AsValueThingy(long l) { rawDate = l; }
+        public AsValueThingy() { }
         
-        @JsonValue public int serialization() {
-            return stuff+1;
+        @JsonValue public Date serialization() {
+            return new Date(rawDate);
         }
     }
     
@@ -366,10 +369,16 @@ public class TestExternalId extends BaseMapTest
     // For [Issue#119]
     public void testWithAsValue() throws Exception
     {
-        ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy());
+        ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy(12345L));
         String json = MAPPER.writeValueAsString(input);
         assertNotNull(json);
-        String className = getClass().getSimpleName() + "$" + AsValueThingy.class.getSimpleName();
-        assertEquals(json, "{\"value\":4,\"type\":\""+className+"\"}");
+        assertEquals("{\"value\":12345,\"type\":\"thingy\"}", json);
+
+        // and get it back too:
+        ExternalTypeWithNonPOJO result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
+        assertNotNull(result);
+        assertNotNull(result.value);
+        assertEquals(AsValueThingy.class, result.value.getClass());
+        assertEquals(12345L, ((AsValueThingy) result.value).rawDate);
     }
 }

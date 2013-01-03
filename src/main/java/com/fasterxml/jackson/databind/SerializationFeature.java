@@ -30,7 +30,7 @@ public enum SerializationFeature implements ConfigFeature
      * class name).
      * Feature is mostly intended for JAXB compatibility.
      *<p>
-     * Feature is enabled by default.
+     * Feature is disabled by default.
      */
     WRAP_ROOT_VALUE(false),
 

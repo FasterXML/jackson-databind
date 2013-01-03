@@ -12,11 +12,16 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * Abstract class that defines API used by {@link ObjectMapper} (and
  * other chained {@link JsonSerializer}s too) to serialize Objects of
  * arbitrary types into JSON, using provided {@link JsonGenerator}.
- *<p>
- * NOTE: it is recommended that custom serializers extend
  * {@link com.fasterxml.jackson.databind.ser.std.StdSerializer} instead
  * of this class, since it will implement many of optional
  * methods of this class.
+ *<p>
+ * NOTE: various <code>serialize</code> methods are never (to be) called
+ * with null values -- caller <b>must</b> handle null values, usually
+ * by calling {@link SerializerProvider#findNullValueSerializer} to obtain
+ * serializer to use.
+ * This also means that custom serializers can not be directly used to change
+ * the output to produce when serializing null values.
  *<p>
  * If serializer is an aggregate one -- meaning it delegates handling of some
  * of its contents by using other serializer(s) -- it typically also needs

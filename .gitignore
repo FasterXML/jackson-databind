@@ -19,3 +19,6 @@ target
 *.iml
 *.ipr
 *.iws
+
+# Generated from PackageVersion.java.in
+src/main/java/com/fasterxml/jackson/databind/cfg/PackageVersion.java

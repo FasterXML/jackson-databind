@@ -73,6 +73,13 @@ com.fasterxml.jackson.core.type,
 org.xml.sax,org.w3c.dom, org.w3c.dom.bootstrap, org.w3c.dom.ls,
 javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
 </osgi.import>
+
+    <!-- Package version class (generated from template -->
+    <version.template.dir>src/main/java/com/fasterxml/jackson/databind/cfg</version.template.dir>
+    <version.template.packageversion>PackageVersion.java</version.template.packageversion>
+    <version.template.file>${version.template.dir}/${version.template.packageversion}.in</version.template.file>
+    <version.file>${version.template.dir}/${version.template.packageversion}</version.file>
+    <version.package>${project.groupId}.cfg</version.package>
   </properties>
 
   <dependencies>
@@ -149,6 +156,41 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
             <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.1.1/</link>
             <link>http://fasterxml.github.com/jackson-core/javadoc/2.1.1/</link>
           </links>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>maven-replacer-plugin</artifactId>
+        <version>1.4.0</version>
+        <executions>
+          <execution>
+            <phase>process-sources</phase>
+            <goals>
+                <goal>replace</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <file>${version.template.file}</file>
+          <outputFile>${version.file}</outputFile>
+          <replacements>
+              <replacement>
+                <token>@package@</token>
+                <value>${version.package}</value>
+              </replacement>
+              <replacement>
+                <token>@projectversion@</token>
+                <value>${project.version}</value>
+              </replacement>
+              <replacement>
+                <token>@projectgroupid@</token>
+                <value>${project.groupId}</value>
+              </replacement>
+              <replacement>
+                <token>@projectartifactid@</token>
+                <value>${project.artifactId}</value>
+              </replacement>
+            </replacements>
         </configuration>
       </plugin>
     </plugins>

@@ -15,12 +15,12 @@
  |  limitations under the License.
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion> 
+  <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>com.fasterxml</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>4</version>
+    <version>5-SNAPSHOT</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>
@@ -34,7 +34,7 @@
   <scm>
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
-    <url>http://github.com/FasterXML/jackson-databind</url>    
+    <url>http://github.com/FasterXML/jackson-databind</url>
     <tag>jackson-databind-2.1.0</tag>
   </scm>
 
@@ -74,12 +74,9 @@ org.xml.sax,org.w3c.dom, org.w3c.dom.bootstrap, org.w3c.dom.ls,
 javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
 </osgi.import>
 
-    <!-- Package version class (generated from template -->
-    <version.template.dir>src/main/java/com/fasterxml/jackson/databind/cfg</version.template.dir>
-    <version.template.packageversion>PackageVersion.java</version.template.packageversion>
-    <version.template.file>${version.template.dir}/${version.template.packageversion}.in</version.template.file>
-    <version.file>${version.template.dir}/${version.template.packageversion}</version.file>
-    <version.package>${project.groupId}.cfg</version.package>
+    <!-- Generate PackageVersion.java into this directory. -->
+    <packageVersion.dir>src/main/java/com/fasterxml/jackson/databind/cfg</packageVersion.dir>
+    <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
   </properties>
 
   <dependencies>
@@ -159,39 +156,15 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
         </configuration>
       </plugin>
       <plugin>
+        <!-- Inherited from oss-base. Generate PackageVersion.java.-->
         <groupId>com.google.code.maven-replacer-plugin</groupId>
-        <artifactId>maven-replacer-plugin</artifactId>
-        <version>1.4.0</version>
+        <artifactId>replacer</artifactId>
         <executions>
           <execution>
+            <id>process-packageVersion</id>
             <phase>process-sources</phase>
-            <goals>
-                <goal>replace</goal>
-            </goals>
           </execution>
         </executions>
-        <configuration>
-          <file>${version.template.file}</file>
-          <outputFile>${version.file}</outputFile>
-          <replacements>
-              <replacement>
-                <token>@package@</token>
-                <value>${version.package}</value>
-              </replacement>
-              <replacement>
-                <token>@projectversion@</token>
-                <value>${project.version}</value>
-              </replacement>
-              <replacement>
-                <token>@projectgroupid@</token>
-                <value>${project.groupId}</value>
-              </replacement>
-              <replacement>
-                <token>@projectartifactid@</token>
-                <value>${project.artifactId}</value>
-              </replacement>
-            </replacements>
-        </configuration>
       </plugin>
     </plugins>
   </build>

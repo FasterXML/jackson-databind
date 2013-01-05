@@ -255,6 +255,15 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default, so that no special handling is done.
      */
     WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED(false),
+
+    /**
+     * Feature that determines whether {@link java.math.BigDecimal} entries are
+     * serialized using {@link java.math.BigDecimal#toPlainString()} to prevent
+     * values to be written using scientific notation.
+     * <p>
+     * Feature is disabled by default.
+     */
+    WRITE_BIGDECIMAL_AS_PLAIN(false),
     
     /**
      * Feature that determines whether {@link java.util.Map} entries are first

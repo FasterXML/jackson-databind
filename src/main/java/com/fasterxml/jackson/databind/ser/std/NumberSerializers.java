@@ -240,7 +240,11 @@ public class NumberSerializers
         {
             // As per [JACKSON-423], handling for BigInteger and BigDecimal was missing!
             if (value instanceof BigDecimal) {
-                jgen.writeNumber((BigDecimal) value);
+                if (provider.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN)) {
+                    jgen.writeNumber(((BigDecimal) value).toPlainString());
+                } else {
+                    jgen.writeNumber((BigDecimal) value);
+                }
             } else if (value instanceof BigInteger) {
                 jgen.writeNumber((BigInteger) value);
                 

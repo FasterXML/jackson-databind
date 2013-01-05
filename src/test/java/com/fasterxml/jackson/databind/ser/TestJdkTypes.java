@@ -31,6 +31,17 @@ public class TestJdkTypes
         assertEquals("{\"pi\":3.14159265}", str);
     }
     
+    public void testBigDecimalAsPlainString()
+        throws Exception
+    {
+        MAPPER.enable(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
+        Map<String, Object> map = new HashMap<String, Object>();
+        String PI_STR = "3.00000000";
+        map.put("pi", new BigDecimal(PI_STR));
+        String str = MAPPER.writeValueAsString(map);
+        assertEquals("{\"pi\":3.00000000}", str);
+    }
+    
     /**
      * Unit test related to [JACKSON-155]
      */

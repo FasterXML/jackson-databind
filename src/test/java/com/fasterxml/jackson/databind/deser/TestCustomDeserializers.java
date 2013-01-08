@@ -3,9 +3,14 @@ package com.fasterxml.jackson.databind.deser;
 import java.io.*;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -99,6 +104,46 @@ public class TestCustomDeserializers
             y = y0;
         }
     }
+
+    // [JACKSON-882]
+    public static class CustomKey {
+        private final int id;
+
+        public CustomKey(int id) {this.id = id;}
+
+        public int getId() { return id; }
+    }
+    
+    public static class Model
+    {
+        protected final Map<CustomKey, String> map;
+
+        @JsonCreator
+        public Model(@JsonProperty("map") @JsonDeserialize(keyUsing = CustomKeyDeserializer.class) Map<CustomKey, String> map)
+        {
+            this.map = new HashMap<CustomKey, String>(map);
+        }
+
+        @JsonProperty
+        @JsonSerialize(keyUsing = CustomKeySerializer.class)
+        public Map<CustomKey, String> getMap() {
+            return map;
+        }
+    }
+     
+    static class CustomKeySerializer extends JsonSerializer<CustomKey> {
+        @Override
+        public void serialize(CustomKey value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+            jgen.writeFieldName(String.valueOf(value.getId()));
+        }
+    }
+
+    static class CustomKeyDeserializer extends KeyDeserializer {
+        @Override
+        public CustomKey deserializeKey(String key, DeserializationContext ctxt) throws IOException {
+            return new CustomKey(Integer.valueOf(key));
+        }
+    }
     
     /*
     /**********************************************************
@@ -106,12 +151,12 @@ public class TestCustomDeserializers
     /**********************************************************
      */
 
+    final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testCustomBeanDeserializer() throws Exception
     {
-
-        final ObjectMapper map = new ObjectMapper();
         String json = "{\"beans\":[{\"c\":{\"a\":10,\"b\":20},\"d\":\"hello, tatu\"}]}";
-        TestBeans beans = map.readValue(json, TestBeans.class);
+        TestBeans beans = MAPPER.readValue(json, TestBeans.class);
 
         assertNotNull(beans);
         List<TestBean> results = beans.beans;
@@ -126,7 +171,7 @@ public class TestCustomDeserializers
 
         json = "{\"beans\":[{\"c\":{\"b\":3,\"a\":-4},\"d\":\"\"},"
             +"{\"d\":\"abc\", \"c\":{\"b\":15}}]}";
-        beans = map.readValue(json, TestBeans.class);
+        beans = MAPPER.readValue(json, TestBeans.class);
 
         assertNotNull(beans);
         results = beans.beans;
@@ -170,5 +215,15 @@ public class TestCustomDeserializers
         Immutable imm = mapper.readValue("{\"x\":3,\"y\":7}", Immutable.class);
         assertEquals(3, imm.x);
         assertEquals(7, imm.y);
+    }
+
+    public void testIssue882() throws Exception
+    {
+        Model original = new Model(Collections.singletonMap(new CustomKey(123), "test"));
+        String json = MAPPER.writeValueAsString(original);
+        Model deserialized = MAPPER.readValue(json, Model.class);
+        assertNotNull(deserialized);
+        assertNotNull(deserialized.map);
+        assertEquals(1, deserialized.map.size());
     }
 }

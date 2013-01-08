@@ -81,9 +81,16 @@ public class EnumDeserializer
         if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
             String name = jp.getText();
             Enum<?> result = _resolver.findEnum(name);
-            if (result == null  && !ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                throw ctxt.weirdStringException(name, _resolver.getEnumClass(),
-                        "value not one of declared Enum instance names");
+            if (result == null) {
+                if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                    if (name.length() == 0 || name.trim().length() == 0) {
+                        return null;
+                    }
+                }
+                if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+                    throw ctxt.weirdStringException(name, _resolver.getEnumClass(),
+                            "value not one of declared Enum instance names");
+                }
             }
             return result;
         }

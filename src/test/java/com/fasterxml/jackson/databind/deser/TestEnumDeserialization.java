@@ -322,4 +322,14 @@ public class TestEnumDeserialization
         TestEnumFor834 res = mapper.readValue("1 ", TestEnumFor834.class);
         assertSame(TestEnumFor834.ENUM_A, res);
     }
+
+    // [Issue#141]: allow mapping of empty String into null
+    public void testEnumsWithEmpty() throws Exception
+    {
+       final ObjectMapper m = new ObjectMapper();
+       m.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+       TestEnum result = m.readValue("\"\"", TestEnum.class);
+       assertNull(result);
+    }
+
 }

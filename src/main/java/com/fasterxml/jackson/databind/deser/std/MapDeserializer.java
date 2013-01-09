@@ -369,7 +369,6 @@ public class MapDeserializer
             t = jp.nextToken();
         }
         final KeyDeserializer keyDes = _keyDeserializer;
-        
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {

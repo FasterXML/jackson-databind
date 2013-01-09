@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -62,6 +63,28 @@ public class TestMapDeserialization
             return new KeyType(v, true);
         }
     }
+
+    // Issue #142
+    public static class EnumMapContainer {
+        @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
+        public EnumMap<KeyEnum,ITestType> testTypes;
+    }
+
+    public static class ListContainer {
+        public List<ITestType> testTypes;
+    }
+
+    @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
+    public static interface ITestType { }
+
+    public static enum KeyEnum {
+        A, B
+    }
+    public static enum ConcreteType implements ITestType {
+        ONE, TWO;
+    }
+
+    
     
     /*
     /**********************************************************
@@ -306,7 +329,27 @@ public class TestMapDeserialization
         assertNull(result.get(Key.WHATEVER));
         assertNull(result.get(Key.KEY1));
     }
-    
+
+    public void testEnumPolymorphicSerializationTest() throws Exception 
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        List<ITestType> testTypesList = new ArrayList<ITestType>();
+        testTypesList.add(ConcreteType.ONE);
+        testTypesList.add(ConcreteType.TWO);
+        ListContainer listContainer = new ListContainer();
+        listContainer.testTypes = testTypesList;
+        String json = mapper.writeValueAsString(listContainer);
+        listContainer = mapper.readValue(json, ListContainer.class);
+        EnumMapContainer enumMapContainer = new EnumMapContainer();
+        EnumMap<KeyEnum,ITestType> testTypesMap = new EnumMap<KeyEnum,ITestType>(KeyEnum.class);
+        testTypesMap.put(KeyEnum.A, ConcreteType.ONE);
+        testTypesMap.put(KeyEnum.B, ConcreteType.TWO);
+        enumMapContainer.testTypes = testTypesMap;
+        
+        json = mapper.writeValueAsString(enumMapContainer);
+        enumMapContainer = mapper.readValue(json, EnumMapContainer.class);
+    }
+
     /*
     /**********************************************************
     /* Test methods, maps with Date

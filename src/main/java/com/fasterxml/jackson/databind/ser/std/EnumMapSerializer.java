@@ -206,8 +206,14 @@ public class EnumMapSerializer
         JsonSerializer<Object> prevSerializer = null;
         Class<?> prevClass = null;
         EnumValues keyEnums = _keyEnums;
+        final boolean skipNulls = !provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
+        final TypeSerializer vts = _valueTypeSerializer;
 
         for (Map.Entry<? extends Enum<?>,?> entry : value.entrySet()) {
+            final Object valueElem = entry.getValue();
+            if (skipNulls && valueElem == null) { // [JACKSON-314] skip entries with null values?
+                continue;
+            }
             // First, serialize key
             Enum<?> key = entry.getKey();
             if (keyEnums == null) {
@@ -221,26 +227,28 @@ public class EnumMapSerializer
                 keyEnums = ((EnumSerializer) ser).getEnumValues();
             }
             jgen.writeFieldName(keyEnums.serializedValueFor(key));
-            // And then value
-            Object valueElem = entry.getValue();
             if (valueElem == null) {
                 provider.defaultSerializeNull(jgen);
+                continue;
+            }
+            Class<?> cc = valueElem.getClass();
+            JsonSerializer<Object> currSerializer;
+            if (cc == prevClass) {
+                currSerializer = prevSerializer;
             } else {
-                Class<?> cc = valueElem.getClass();
-                JsonSerializer<Object> currSerializer;
-                if (cc == prevClass) {
-                    currSerializer = prevSerializer;
-                } else {
-                    currSerializer = provider.findValueSerializer(cc, _property);
-                    prevSerializer = currSerializer;
-                    prevClass = cc;
-                }
-                try {
+                currSerializer = provider.findValueSerializer(cc, _property);
+                prevSerializer = currSerializer;
+                prevClass = cc;
+            }
+            try {
+                if (vts == null) {
                     currSerializer.serialize(valueElem, jgen, provider);
-                } catch (Exception e) {
-                    // [JACKSON-55] Need to add reference information
-                    wrapAndThrow(provider, e, value, entry.getKey().name());
+                } else {
+                    currSerializer.serializeWithType(valueElem, jgen, provider, vts);
                 }
+            } catch (Exception e) {
+                // [JACKSON-55] Need to add reference information
+                wrapAndThrow(provider, e, value, entry.getKey().name());
             }
         }
     }
@@ -250,7 +258,14 @@ public class EnumMapSerializer
         throws IOException, JsonGenerationException
     {
         EnumValues keyEnums = _keyEnums;
+        final boolean skipNulls = !provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
+        final TypeSerializer vts = _valueTypeSerializer;
+        
         for (Map.Entry<? extends Enum<?>,?> entry : value.entrySet()) {
+            final Object valueElem = entry.getValue();
+            if (skipNulls && valueElem == null) { // [JACKSON-314] skip entries with null values?
+                continue;
+            }
             Enum<?> key = entry.getKey();
             if (keyEnums == null) {
                 // clumsy, but has to do for now:
@@ -259,15 +274,18 @@ public class EnumMapSerializer
                 keyEnums = ((EnumSerializer) ser).getEnumValues();
             }
             jgen.writeFieldName(keyEnums.serializedValueFor(key));
-            Object valueElem = entry.getValue();
             if (valueElem == null) {
                 provider.defaultSerializeNull(jgen);
-            } else {
-                try {
+                continue;
+            }
+            try {
+                if (vts == null) {
                     valueSer.serialize(valueElem, jgen, provider);
-                } catch (Exception e) {
-                    wrapAndThrow(provider, e, value, entry.getKey().name());
+                } else {
+                    valueSer.serializeWithType(valueElem, jgen, provider, vts);
                 }
+            } catch (Exception e) {
+                wrapAndThrow(provider, e, value, entry.getKey().name());
             }
         }
     }

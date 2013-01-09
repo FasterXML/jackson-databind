@@ -23,7 +23,7 @@ public class EnumMapDeserializer
     extends StdDeserializer<EnumMap<?,?>>
     implements ContextualDeserializer
 {
-    private static final long serialVersionUID = 1916979386940205321L;
+    private static final long serialVersionUID = 1518773374647478964L;
 
     protected final JavaType _mapType;
     
@@ -33,30 +33,59 @@ public class EnumMapDeserializer
 
     protected JsonDeserializer<Object> _valueDeserializer;
 
+    /**
+     * If value instances have polymorphic type information, this
+     * is the type deserializer that can handle it
+     */
+    protected final TypeDeserializer _valueTypeDeserializer;
+    
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
+
+    /**
+     * @deprecated Since 2.1.3 -- use variant that takes one more argument.
+     */
+    @Deprecated
+    public EnumMapDeserializer(JavaType mapType,
+            JsonDeserializer<?> keyDeserializer, JsonDeserializer<?> valueDeser) {
+        this(mapType, keyDeserializer, valueDeser, null);
+    }
     
     public EnumMapDeserializer(JavaType mapType,
-            JsonDeserializer<?> keyDeserializer, JsonDeserializer<?> valueDeser)
+            JsonDeserializer<?> keyDeserializer, JsonDeserializer<?> valueDeser,
+            TypeDeserializer valueTypeDeser)
     {
         super(EnumMap.class);
         _mapType = mapType;
         _enumClass = mapType.getKeyType().getRawClass();
         _keyDeserializer = (JsonDeserializer<Enum<?>>) keyDeserializer;
         _valueDeserializer = (JsonDeserializer<Object>) valueDeser;
+        _valueTypeDeserializer = valueTypeDeser;
     }
 
+    /**
+     * @deprecated Since 2.1.3 -- use variant that takes one more argument.
+     */
+    @Deprecated
     public EnumMapDeserializer withResolved(JsonDeserializer<?> keyDeserializer,
             JsonDeserializer<?> valueDeserializer)
     {
-        if ((keyDeserializer == _keyDeserializer) && valueDeserializer == _valueDeserializer) {
+        return withResolved(keyDeserializer, valueDeserializer, null);
+    } 
+    
+    public EnumMapDeserializer withResolved(JsonDeserializer<?> keyDeserializer,
+            JsonDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser)
+    {
+        if ((keyDeserializer == _keyDeserializer)
+                && (valueDeserializer == _valueDeserializer)
+                && (valueTypeDeser == _valueTypeDeserializer)) {
             return this;
         }
         return new EnumMapDeserializer(_mapType,
-                keyDeserializer, valueDeserializer);
+                keyDeserializer, valueDeserializer, _valueTypeDeserializer);
     }
     
     /**
@@ -82,8 +111,11 @@ public class EnumMapDeserializer
                 vd = ((ContextualDeserializer) vd).createContextual(ctxt, property);
             }
         }
-
-        return withResolved(kd, vd);
+        TypeDeserializer vtd = _valueTypeDeserializer;
+        if (vtd != null) {
+            vtd = vtd.forProperty(property);
+        }
+        return withResolved(kd, vd, vtd);
     }
     
     /**
@@ -108,6 +140,8 @@ public class EnumMapDeserializer
             throw ctxt.mappingException(EnumMap.class);
         }
         EnumMap result = constructMap();
+        final JsonDeserializer<Object> valueDes = _valueDeserializer;
+        final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
         while ((jp.nextToken()) != JsonToken.END_OBJECT) {
             Enum<?> key = _keyDeserializer.deserialize(jp, ctxt);
@@ -133,8 +167,15 @@ public class EnumMapDeserializer
             /* note: MUST check for nulls separately: deserializers will
              * not handle them (and maybe fail or return bogus data)
              */
-            Object value = (t == JsonToken.VALUE_NULL) ?
-                null :  _valueDeserializer.deserialize(jp, ctxt);
+            Object value;
+            
+            if (t == JsonToken.VALUE_NULL) {
+                value = null;
+            } else if (typeDeser == null) {
+                value =  valueDes.deserialize(jp, ctxt);
+            } else {
+                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+            }
             result.put(key, value);
         }
         return result;

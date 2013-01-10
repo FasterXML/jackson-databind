@@ -32,7 +32,7 @@ public class TestObjectIdSerialization extends BaseMapTest {
 
         public int id;
         @JsonIdentityReference(alwaysAsId = true)
-        @JsonSerialize(contentAs = Obj.class)
+//        @JsonSerialize(contentAs = Obj.class)
         public Set<Obj> objs = new LinkedHashSet<Obj>();
 
         public SetContainer(int id) {

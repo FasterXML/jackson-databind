@@ -20,7 +20,7 @@
   <parent>
     <groupId>com.fasterxml</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>6</version>
+    <version>7-SNAPSHOT</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>
@@ -75,7 +75,7 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
 </osgi.import>
 
     <!-- Generate PackageVersion.java into this directory. -->
-    <packageVersion.dir>src/main/java/com/fasterxml/jackson/databind/cfg</packageVersion.dir>
+    <packageVersion.dir>com/fasterxml/jackson/databind/cfg</packageVersion.dir>
     <packageVersion.package>com.fasterxml.jackson.databind.cfg</packageVersion.package>
   </properties>
 

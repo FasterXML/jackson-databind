@@ -15,7 +15,6 @@ import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
-import com.fasterxml.jackson.databind.cfg.DatabindVersion;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.*;
@@ -487,9 +486,9 @@ public class ObjectMapper
      * Method that will return version information stored in and read from jar
      * that contains this class.
      */
-//  @Override
+    @Override
     public Version version() {
-        return DatabindVersion.instance.version();
+        return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
     }
     
     /*

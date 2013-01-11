@@ -12,7 +12,7 @@ import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Instantiatable;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
-import com.fasterxml.jackson.databind.cfg.DatabindVersion;
+
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -194,9 +194,9 @@ public class ObjectWriter
      * Method that will return version information stored in and read from jar
      * that contains this class.
      */
-//  @Override
+    @Override
     public Version version() {
-        return DatabindVersion.instance.version();
+        return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
     }
     
     /*

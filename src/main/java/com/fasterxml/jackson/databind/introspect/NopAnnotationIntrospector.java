@@ -1,8 +1,8 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.core.Version;
+
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.cfg.DatabindVersion;
 
 /**
  * Dummy, "no-operation" implementation of {@link AnnotationIntrospector}.
@@ -25,8 +25,8 @@ public abstract class NopAnnotationIntrospector
 
         @Override
         public Version version() {
-            return DatabindVersion.instance.version();
-        }
+            return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
+       }
     };
 
     @Override

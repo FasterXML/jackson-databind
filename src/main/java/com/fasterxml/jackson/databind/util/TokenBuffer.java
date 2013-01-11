@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -11,8 +9,6 @@ import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
-
-import com.fasterxml.jackson.databind.cfg.DatabindVersion;
 
 /**
  * Utility class used for efficient storage of {@link JsonToken}
@@ -111,7 +107,7 @@ public class TokenBuffer
 
     @Override
     public Version version() {
-        return DatabindVersion.instance.version();
+        return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
     }
 
     /**
@@ -863,9 +859,9 @@ public class TokenBuffer
 
         @Override
         public Version version() {
-            return DatabindVersion.instance.version();
+            return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
         }
-        
+
         /*
         /**********************************************************
         /* Extended API beyond JsonParser
@@ -1001,8 +997,9 @@ public class TokenBuffer
             case VALUE_NUMBER_FLOAT:
                 Object ob = _currentObject();
                 return (ob == null) ? null : ob.toString();
+            default:
+            	return _currToken.asString();
             }
-            return _currToken.asString();
         }
 
         @Override
@@ -1039,8 +1036,7 @@ public class TokenBuffer
             if (n instanceof BigInteger) {
                 return (BigInteger) n;
             }
-            switch (getNumberType()) {
-            case BIG_DECIMAL:
+            if (getNumberType() == NumberType.BIG_DECIMAL) {
                 return ((BigDecimal) n).toBigInteger();
             }
             // int/long is simple, but let's also just truncate float/double:
@@ -1060,6 +1056,7 @@ public class TokenBuffer
                 return BigDecimal.valueOf(n.longValue());
             case BIG_INTEGER:
                 return new BigDecimal((BigInteger) n);
+            default:
             }
             // float or double
             return BigDecimal.valueOf(n.doubleValue());

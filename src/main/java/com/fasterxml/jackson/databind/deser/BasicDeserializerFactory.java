@@ -326,7 +326,14 @@ public abstract class BasicDeserializerFactory
                 }
             }
         }
-        
+
+        // Sanity check: does the chosen instantatior have incomplete creators?
+        if (instantiator.getIncompleteParameter() != null) {
+            final AnnotatedParameter nonAnnotatedParam = instantiator.getIncompleteParameter();
+            final AnnotatedWithParams ctor = nonAnnotatedParam.getOwner();
+            throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()+" of constructor "+ctor+" has no property name annotation; must have name when multiple-paramater constructor annotated as Creator");
+        }
+
         return instantiator;
     }
 
@@ -465,8 +472,8 @@ public abstract class BasicDeserializerFactory
                 } else if ((namedCount == 0) && ((injectCount + 1) == argCount)) {
                     // [712] secondary: all but one injectable, one un-annotated (un-named)
                     creators.addDelegatingCreator(ctor, properties);
-                } else { // otherwise, epic fail
-                    throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()+" of constructor "+ctor+" has no property name annotation; must have name when multiple-paramater constructor annotated as Creator");
+                } else { // otherwise, record the incomplete parameter for later error messaging.
+                    creators.addIncompeteParameter(nonAnnotatedParam);
                 }
             }
         }

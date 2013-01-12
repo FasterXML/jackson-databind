@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationConfig;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 
 
@@ -62,6 +64,9 @@ public class StdValueInstantiator
     protected AnnotatedWithParams _fromLongCreator;
     protected AnnotatedWithParams _fromDoubleCreator;
     protected AnnotatedWithParams _fromBooleanCreator;
+
+    // // // Incomplete creator
+    protected AnnotatedParameter  _incompleteParameter;
     
     /*
     /**********************************************************
@@ -143,6 +148,10 @@ public class StdValueInstantiator
 
     public void configureFromBooleanCreator(AnnotatedWithParams creator) {
         _fromBooleanCreator = creator;
+    }
+
+    public void configureIncompleteParameter(AnnotatedParameter parameter) {
+        _incompleteParameter = parameter;
     }
     
     /*
@@ -390,6 +399,11 @@ public class StdValueInstantiator
     @Override
     public AnnotatedWithParams getWithArgsCreator() {
         return _withArgsCreator;
+    }
+
+    @Override
+    public AnnotatedParameter getIncompleteParameter() {
+        return _incompleteParameter;
     }
     
     /*

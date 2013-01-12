@@ -43,6 +43,8 @@ public class CreatorCollector
     protected AnnotatedWithParams _propertyBasedCreator;
     protected CreatorProperty[] _propertyBasedArgs = null;
 
+    protected AnnotatedParameter _incompleteParameter;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -86,6 +88,7 @@ public class CreatorCollector
         inst.configureFromLongCreator(_longCreator);
         inst.configureFromDoubleCreator(_doubleCreator);
         inst.configureFromBooleanCreator(_booleanCreator);
+        inst.configureIncompleteParameter(_incompleteParameter);
         return inst;
     }
     
@@ -167,6 +170,12 @@ public class CreatorCollector
             }
         }
         _propertyBasedArgs = properties;
+    }
+
+    public void addIncompeteParameter(AnnotatedParameter parameter) {
+        if (_incompleteParameter == null) {
+            _incompleteParameter = parameter;
+        }
     }
 
     /*

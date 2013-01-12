@@ -19,6 +19,10 @@ New features:
   of non-scientific notation when serializing BigDecimals.
  (suggested by phedny@github)
 
+Other:
+
+* [Issue#126]: Update JDK baseline to 1.6
+
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------

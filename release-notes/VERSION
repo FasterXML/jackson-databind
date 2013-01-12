@@ -6,6 +6,8 @@ Fixes:
 
 * [Issue#144]: MissingNode.isValueNode() should return 'false'
  (reported by 'fge@github')
+* [Issue#146]: Creator properties were not being renamed as expected
+ (contributed by Christoper C)
 
 Improvements:
 

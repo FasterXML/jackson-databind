@@ -666,6 +666,16 @@ public class POJOPropertiesCollector
                 } else {
                     old.addAll(prop);
                 }
+
+                // replace the creatorProperty too, if there is one
+                if (_creatorProperties != null) {
+                    for (int i = 0; i < _creatorProperties.size(); ++i) {
+                        if (_creatorProperties.get(i).getInternalName() == prop.getInternalName()) {
+                            _creatorProperties.set(i, prop);
+                            break;
+                        }
+                    }
+                }
             }
         }
     }

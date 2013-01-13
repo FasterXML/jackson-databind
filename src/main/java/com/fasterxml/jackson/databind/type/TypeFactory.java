@@ -357,7 +357,7 @@ public final class TypeFactory
      * as Java typing returned from <code>getGenericXxx</code> methods
      * (usually for a return or argument type).
      */
-    public JavaType _constructType(Type type, TypeBindings context)
+    protected JavaType _constructType(Type type, TypeBindings context)
     {
         JavaType resultType;
 

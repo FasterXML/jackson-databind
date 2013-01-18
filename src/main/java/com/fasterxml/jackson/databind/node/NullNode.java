@@ -21,10 +21,13 @@ public final class NullNode
 
     public static NullNode getInstance() { return instance; }
 
-    @Override public JsonToken asToken() { return JsonToken.VALUE_NULL; }
-
     @Override
-    public boolean isNull() { return true; }
+    public JsonNodeType getNodeType()
+    {
+        return JsonNodeType.NULL;
+    }
+
+    @Override public JsonToken asToken() { return JsonToken.VALUE_NULL; }
 
     @Override
     public String asText() {

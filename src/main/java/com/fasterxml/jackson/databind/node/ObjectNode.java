@@ -67,10 +67,13 @@ public class ObjectNode
     /**********************************************************
      */
 
-    @Override public JsonToken asToken() { return JsonToken.START_OBJECT; }
-
     @Override
-    public boolean isObject() { return true; }
+    public final JsonNodeType getNodeType()
+    {
+        return JsonNodeType.OBJECT;
+    }
+
+    @Override public JsonToken asToken() { return JsonToken.START_OBJECT; }
 
     @Override
     public int size() {

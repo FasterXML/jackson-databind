@@ -64,10 +64,13 @@ public class ArrayNode
     /**********************************************************
      */
 
-    @Override public JsonToken asToken() { return JsonToken.START_ARRAY; }
-
     @Override
-    public boolean isArray() { return true; }
+    public final JsonNodeType getNodeType()
+    {
+        return JsonNodeType.ARRAY;
+    }
+
+    @Override public JsonToken asToken() { return JsonToken.START_ARRAY; }
 
     @Override
     public int size()

@@ -43,13 +43,13 @@ public final class TextNode
         return new TextNode(v);
     }
 
-    @Override public JsonToken asToken() { return JsonToken.VALUE_STRING; }
-
-    /**
-     * Yes indeed it is textual
-     */
     @Override
-    public boolean isTextual() { return true; }
+    public JsonNodeType getNodeType()
+    {
+        return JsonNodeType.STRING;
+    }
+
+    @Override public JsonToken asToken() { return JsonToken.VALUE_STRING; }
 
     @Override
     public String textValue() {

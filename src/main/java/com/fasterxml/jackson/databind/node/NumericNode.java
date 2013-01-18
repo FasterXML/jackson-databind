@@ -14,7 +14,10 @@ public abstract class NumericNode
     protected NumericNode() { }
 
     @Override
-    public final boolean isNumber() { return true; }
+    public final JsonNodeType getNodeType()
+    {
+        return JsonNodeType.NUMBER;
+    }
 
     // // // Let's re-abstract so sub-classes handle them
 

@@ -35,15 +35,12 @@ public final class MissingNode
     public static MissingNode getInstance() { return instance; }
 
     @Override
-    public boolean isValueNode()
+    public JsonNodeType getNodeType()
     {
-        return false;
+        return JsonNodeType.MISSING;
     }
 
     @Override public JsonToken asToken() { return JsonToken.NOT_AVAILABLE; }
-
-    @Override
-    public boolean isMissingNode() { return true; }
 
     @Override
     public String asText() { return ""; }

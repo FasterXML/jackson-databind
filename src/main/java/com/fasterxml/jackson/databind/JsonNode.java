@@ -8,6 +8,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.util.EmptyIterator;
 
 /**
@@ -68,6 +69,13 @@ public abstract class JsonNode
     // // First high-level division between values, containers and "missing"
 
     /**
+     * Return the type of this node
+     *
+     * @return the node type as a {@link JsonNodeType} enum value
+     */
+    public abstract JsonNodeType getNodeType();
+
+    /**
      * Method that returns true for all value nodes: ones that 
      * are not containers, and that do not represent "missing" nodes
      * in the path. Such value nodes represent String, Number, Boolean
@@ -77,7 +85,15 @@ public abstract class JsonNode
      * {@link #isContainerNode} and {@link #isMissingNode} ever
      * returns true for any given node.
      */
-    public boolean isValueNode() { return false; }
+    public final boolean isValueNode()
+    {
+        switch (getNodeType()) {
+            case ARRAY: case OBJECT: case MISSING:
+                return false;
+            default:
+                return true;
+        }
+    }
 
     /**
      * Method that returns true for container nodes: Arrays and Objects.
@@ -86,7 +102,11 @@ public abstract class JsonNode
      * {@link #isContainerNode} and {@link #isMissingNode} ever
      * returns true for any given node.
      */
-    public boolean isContainerNode() { return false; }
+    public final boolean isContainerNode()
+    {
+        final JsonNodeType type = getNodeType();
+        return type == JsonNodeType.OBJECT || type == JsonNodeType.ARRAY;
+    }
 
     /**
      * Method that returns true for "virtual" nodes which represent
@@ -97,7 +117,10 @@ public abstract class JsonNode
      * {@link #isContainerNode} and {@link #isMissingNode} ever
      * returns true for any given node.
      */
-    public boolean isMissingNode() { return false; }
+    public final boolean isMissingNode()
+    {
+        return getNodeType() == JsonNodeType.MISSING;
+    }
 
     // // Then more specific type introspection
     // // (along with defaults to be overridden)
@@ -105,12 +128,18 @@ public abstract class JsonNode
     /**
      * @return True if this node represents JSON Array
      */
-    public boolean isArray() { return false; }
+    public final boolean isArray()
+    {
+        return getNodeType() == JsonNodeType.ARRAY;
+    }
 
     /**
      * @return True if this node represents JSON Object
      */
-    public boolean isObject() { return false; }
+    public final boolean isObject()
+    {
+        return getNodeType() == JsonNodeType.OBJECT;
+    }
 
     /**
      * Method that can be used to check if the node is a wrapper
@@ -120,13 +149,19 @@ public abstract class JsonNode
      *
      * @return True if this node wraps a POJO
      */
-    public boolean isPojo() { return false; }
+    public final boolean isPojo()
+    {
+        return getNodeType() == JsonNodeType.POJO;
+    }
 
     /**
      * @return True if this node represents a numeric JSON
      *   value
      */
-    public boolean isNumber() { return false; }
+    public final boolean isNumber()
+    {
+        return getNodeType() == JsonNodeType.NUMBER;
+    }
 
     /**
      * 
@@ -169,19 +204,28 @@ public abstract class JsonNode
     public boolean isBigDecimal() { return false; }
     public boolean isBigInteger() { return false; }
 
-    public boolean isTextual() { return false; }
+    public final boolean isTextual()
+    {
+        return getNodeType() == JsonNodeType.STRING;
+    }
 
     /**
      * Method that can be used to check if this node was created from
      * JSON boolean value (literals "true" and "false").
      */
-    public boolean isBoolean() { return false; }
+    public final boolean isBoolean()
+    {
+        return getNodeType() == JsonNodeType.BOOLEAN;
+    }
 
     /**
      * Method that can be used to check if this node was created from
      * JSON literal null value.
      */
-    public boolean isNull() { return false; }
+    public final boolean isNull()
+    {
+        return getNodeType() == JsonNodeType.NULL;
+    }
 
     /**
      * Method that can be used to check if this node represents
@@ -191,7 +235,10 @@ public abstract class JsonNode
      *
      * @return True if this node represents base64 encoded binary data
      */
-    public boolean isBinary() { return false; }
+    public final boolean isBinary()
+    {
+        return getNodeType() == JsonNodeType.BINARY;
+    }
 
     /**
      * Method that can be used for efficient type detection

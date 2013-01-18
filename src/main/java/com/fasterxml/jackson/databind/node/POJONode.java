@@ -24,10 +24,13 @@ public final class POJONode
     /**********************************************************
      */
 
-    @Override public JsonToken asToken() { return JsonToken.VALUE_EMBEDDED_OBJECT; }
-
     @Override
-    public boolean isPojo() { return true; }
+    public JsonNodeType getNodeType()
+    {
+        return JsonNodeType.POJO;
+    }
+
+    @Override public JsonToken asToken() { return JsonToken.VALUE_EMBEDDED_OBJECT; }
 
     /**
      * As it is possible that some implementations embed byte[] as POJONode

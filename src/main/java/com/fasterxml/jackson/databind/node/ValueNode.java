@@ -27,8 +27,6 @@ public abstract class ValueNode
     @Override
     public <T extends JsonNode> T deepCopy() { return (T) this; }
     
-    @Override public boolean isValueNode() { return true; }
-
     @Override public abstract JsonToken asToken();
 
     @Override

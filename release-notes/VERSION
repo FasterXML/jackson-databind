@@ -4,6 +4,8 @@ New minor version.
 
 Fixes:
 
+* [Issue#118]: JsonTypeInfo.as.EXTERNAL_PROPERTY not working correctly
+ with missing type id, scalar types
 * [Issue#144]: MissingNode.isValueNode() should return 'false'
  (reported by 'fge@github')
 * [Issue#146]: Creator properties were not being renamed as expected
@@ -26,6 +28,10 @@ New features:
 Other:
 
 * [Issue#126]: Update JDK baseline to 1.6
+* API under 'com.fasterxml.jackson.databind.jsonFormatVisitors' changed significantly
+  based on experiences with external JSON Schema generator.
+* Version information accessed via code-generated access class, instead of reading
+  VERSION.txt
 
 ------------------------------------------------------------------------
 === History: ===

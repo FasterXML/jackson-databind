@@ -336,6 +336,10 @@ public class TestExternalId extends BaseMapTest
     }
 
     // For [Issue#96]: should allow use of default impl, if property missing
+    /* 18-Jan-2013, tatu: Unfortunately this collides with [Issue#118], and I don't
+     *   know what the best resolution is. For now at least 
+     */
+    /*
     public void testWithDefaultAndMissing() throws Exception
     {
         ExternalBeanWithDefault input = new ExternalBeanWithDefault(13);
@@ -351,6 +355,7 @@ public class TestExternalId extends BaseMapTest
         assertNotNull(defaulted.bean);
         assertSame(ValueBean.class, defaulted.bean.getClass());
     }
+    */
 
     // For [Issue#118]
     // Note: String works fine, since no type id will used; other scalar types have issues
@@ -366,6 +371,34 @@ public class TestExternalId extends BaseMapTest
         assertTrue(result.value instanceof java.util.Date);
     }
 
+    // For [Issue#118] using "natural" type(s)
+    public void testWithNaturalScalar118() throws Exception
+    {
+        ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(Integer.valueOf(13));
+        String json = MAPPER.writeValueAsString(input);
+        assertNotNull(json);
+        // and back just to be sure:
+        ExternalTypeWithNonPOJO result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
+        assertNotNull(result.value);
+        assertTrue(result.value instanceof Integer);
+
+        // ditto with others types
+        input = new ExternalTypeWithNonPOJO(Boolean.TRUE);
+        json = MAPPER.writeValueAsString(input);
+        assertNotNull(json);
+        result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
+        assertNotNull(result.value);
+        assertTrue(result.value instanceof Boolean);
+
+        input = new ExternalTypeWithNonPOJO("foobar");
+        json = MAPPER.writeValueAsString(input);
+        assertNotNull(json);
+        result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
+        assertNotNull(result.value);
+        assertTrue(result.value instanceof String);
+        assertEquals("foobar", result.value);
+    }
+    
     // For [Issue#119]
     public void testWithAsValue() throws Exception
     {

@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
@@ -131,5 +132,61 @@ public abstract class TypeDeserializer
             DeserializationContext ctxt)
         throws IOException, JsonProcessingException;
 
+    /*
+    /**********************************************************
+    /* Shared helper methods
+    /**********************************************************
+     */
+
+    /**
+     * Helper method used to check if given parser might be pointing to
+     * a "natural" value, and one that would be acceptable as the
+     * result value (compatible with declared base type)
+     */
+    public static Object deserializeIfNatural(JsonParser jp, DeserializationContext ctxt,
+            JavaType baseType)
+        throws IOException, JsonProcessingException
+    {
+        return deserializeIfNatural(jp, ctxt, baseType.getRawClass());
+    }
+    
+    public static Object deserializeIfNatural(JsonParser jp, DeserializationContext ctxt,
+            Class<?> base)
+        throws IOException, JsonProcessingException
+    {
+        JsonToken t = jp.getCurrentToken();
+        if (t == null) {
+            return null;
+        }
+        switch (t) {
+        case VALUE_STRING:
+            if (base.isAssignableFrom(String.class)) {
+                return jp.getText();
+            }
+            break;
+        case VALUE_NUMBER_INT:
+            if (base.isAssignableFrom(Integer.class)) {
+                return jp.getIntValue();
+            }
+            break;
+
+        case VALUE_NUMBER_FLOAT:
+            if (base.isAssignableFrom(Double.class)) {
+                return Double.valueOf(jp.getDoubleValue());
+            }
+            break;
+        case VALUE_TRUE:
+            if (base.isAssignableFrom(Boolean.class)) {
+                return Boolean.TRUE;
+            }
+            break;
+        case VALUE_FALSE:
+            if (base.isAssignableFrom(Boolean.class)) {
+                return Boolean.FALSE;
+            }
+            break;
+        }
+        return null;
+    }
 }
     

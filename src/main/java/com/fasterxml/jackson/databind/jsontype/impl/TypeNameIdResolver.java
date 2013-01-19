@@ -107,6 +107,12 @@ public class TypeNameIdResolver
 //  @Override
     public String idFromValueAndType(Object value, Class<?> type)
     {
+        /* 18-Jan-2013, tatu: We may be called with null value occasionally
+         *   it seems; nothing much we can figure out that way.
+         */
+        if (value == null) {
+            return null;
+        }
         return idFromValue(value);
     }
     

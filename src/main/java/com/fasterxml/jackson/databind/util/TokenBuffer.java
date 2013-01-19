@@ -156,6 +156,19 @@ public class TokenBuffer
     
     /*
     /**********************************************************
+    /* Additional accessors
+    /**********************************************************
+     */
+
+    public JsonToken firstToken() {
+        if (_first != null) {
+            return _first.type(0);
+        }
+        return null;
+    }
+    
+    /*
+    /**********************************************************
     /* Other custom methods not needed for implementing interfaces
     /**********************************************************
      */

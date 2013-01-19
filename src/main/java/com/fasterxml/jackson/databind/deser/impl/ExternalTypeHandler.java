@@ -6,6 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -130,16 +131,31 @@ public class ExternalTypeHandler
         for (int i = 0, len = _properties.length; i < len; ++i) {
             String typeId = _typeIds[i];
             if (typeId == null) {
+                TokenBuffer tokens = _tokens[i];
                 // let's allow missing both type and property (may already have been set, too)
-                if (_tokens[i] == null) {
+                // but not just one
+                if (tokens == null) {
                     continue;
                 }
-                // but not just one
-                // 26-Oct-2012, tatu: As per [Issue#94], must allow use of 'defaultImpl'
-                if (!_properties[i].hasDefaultType()) {
-                    throw ctxt.mappingException("Missing external type id property '"+_properties[i].getTypePropertyName()+"'");
+                /* [Issue#118]: Need to mind natural types, for which no type id
+                 *   will be included.
+                 */
+                JsonToken t = tokens.firstToken();
+                if (t != null && t.isScalarValue()) {
+                    JsonParser buffered = tokens.asParser(jp);
+                    buffered.nextToken();
+                    SettableBeanProperty extProp = _properties[i].getProperty();
+                    Object result = TypeDeserializer.deserializeIfNatural(buffered, ctxt, extProp.getType());
+                    if (result != null) {
+                        extProp.set(bean, result);
+                        continue;
+                    }
+                    // 26-Oct-2012, tatu: As per [Issue#94], must allow use of 'defaultImpl'
+                    if (!_properties[i].hasDefaultType()) {
+                        throw ctxt.mappingException("Missing external type id property '"+_properties[i].getTypePropertyName()+"'");
+                    }
+                    typeId = _properties[i].getDefaultTypeId();
                 }
-                typeId = _properties[i].getDefaultTypeId();
             } else if (_tokens[i] == null) {
                 SettableBeanProperty prop = _properties[i].getProperty();
                 throw ctxt.mappingException("Missing property '"+prop.getName()+"' for external type id '"+_properties[i].getTypePropertyName());

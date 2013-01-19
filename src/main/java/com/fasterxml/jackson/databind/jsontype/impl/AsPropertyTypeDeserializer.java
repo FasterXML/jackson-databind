@@ -130,7 +130,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
             return deser.deserialize(jp, ctxt);
         }
         // or, perhaps we just bumped into a "natural" value (boolean/int/double/String)?
-        Object result = _deserializeIfNatural(jp, ctxt);
+        Object result = TypeDeserializer.deserializeIfNatural(jp, ctxt, _baseType);
         if (result != null) {
             return result;
         }
@@ -162,43 +162,4 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     // These are fine from base class:
     //public Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt)
     //public Object deserializeTypedFromScalar(JsonParser jp, DeserializationContext ctxt)    
-
-    /**
-     * Helper method used to check if given parser might be pointing to
-     * a "natural" value, and one that would be acceptable as the
-     * result value (compatible with declared base type)
-     */
-    protected Object _deserializeIfNatural(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
-        switch (jp.getCurrentToken()) {
-        case VALUE_STRING:
-            if (_baseType.getRawClass().isAssignableFrom(String.class)) {
-                return jp.getText();
-            }
-            break;
-        case VALUE_NUMBER_INT:
-            if (_baseType.getRawClass().isAssignableFrom(Integer.class)) {
-                return jp.getIntValue();
-            }
-            break;
-
-        case VALUE_NUMBER_FLOAT:
-            if (_baseType.getRawClass().isAssignableFrom(Double.class)) {
-                return Double.valueOf(jp.getDoubleValue());
-            }
-            break;
-        case VALUE_TRUE:
-            if (_baseType.getRawClass().isAssignableFrom(Boolean.class)) {
-                return Boolean.TRUE;
-            }
-            break;
-        case VALUE_FALSE:
-            if (_baseType.getRawClass().isAssignableFrom(Boolean.class)) {
-                return Boolean.FALSE;
-            }
-            break;
-        }
-        return null;
-    }
 }

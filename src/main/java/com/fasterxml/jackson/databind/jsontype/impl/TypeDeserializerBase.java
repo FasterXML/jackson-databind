@@ -125,12 +125,12 @@ public abstract class TypeDeserializerBase
     @Override
     public String toString()
     {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append('[').append(getClass().getName());
-    	sb.append("; base-type:").append(_baseType);
-    	sb.append("; id-resolver: ").append(_idResolver);
-    	sb.append(']');
-    	return sb.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append('[').append(getClass().getName());
+        sb.append("; base-type:").append(_baseType);
+        sb.append("; id-resolver: ").append(_idResolver);
+    	    sb.append(']');
+    	    return sb.toString();
     }
     
     /*

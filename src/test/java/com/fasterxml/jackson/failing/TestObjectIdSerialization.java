@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -22,6 +21,9 @@ public class TestObjectIdSerialization extends BaseMapTest {
         @JsonIdentityReference(alwaysAsId = true)
         public SetContainer objGroup;
 
+        public Obj() {
+        }
+
         public Obj(int id) {
             this.id = id;
         }
@@ -35,6 +37,9 @@ public class TestObjectIdSerialization extends BaseMapTest {
 //        @JsonSerialize(contentAs = Obj.class)
         public Set<Obj> objs = new LinkedHashSet<Obj>();
 
+        public SetContainer() {
+        }
+
         public SetContainer(int id) {
             this.id = id;
         }
@@ -46,6 +51,9 @@ public class TestObjectIdSerialization extends BaseMapTest {
         public int id;
         @JsonIdentityReference(alwaysAsId = true)
         public Obj[] objs;
+
+        public ArrContainer() {
+        }
 
         public ArrContainer(int id) {
             this.id = id;
@@ -71,5 +79,14 @@ public class TestObjectIdSerialization extends BaseMapTest {
         os.objs.add(o2);
         String json = MAPPER.writeValueAsString(os);
         assertEquals(EXP_ARR_SET, json);
+    }
+
+    public void testDeserialization() throws Exception {
+        Obj o = new Obj(1);
+        o.objGroup = new SetContainer(4);
+        String json = MAPPER.writeValueAsString(o);
+        Obj deser = MAPPER.readValue(json, Obj.class);
+        assertEquals(deser.id, 1);
+        assertEquals(deser.objGroup.id, 4);
     }
 }

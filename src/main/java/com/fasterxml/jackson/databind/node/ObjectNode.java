@@ -17,16 +17,12 @@ import com.fasterxml.jackson.databind.util.EmptyIterator;
 public class ObjectNode
     extends ContainerNode<ObjectNode>
 {
-    // note: until 2.1, was explicitly `LinkedHashMap`
-    protected Map<String, JsonNode> _children = null;
+    // Note: LinkedHashMap for backwards compatibility
+    protected final Map<String, JsonNode> _children
+        = new LinkedHashMap<String, JsonNode>();
 
     public ObjectNode(JsonNodeFactory nc) { super(nc); }
 
-    protected ObjectNode(JsonNodeFactory nc, Map<String, JsonNode> children) {
-        super(nc);
-        _children = children;
-    }
-    
     /* Question: should this delegate to `JsonNodeFactory`? It does not absolutely
      * have to, as long as sub-types override the method but...
      */
@@ -50,15 +46,13 @@ public class ObjectNode
      */
     protected ObjectNode _defaultDeepCopy()
     {
-        if (_children == null) {
-            return new ObjectNode(_nodeFactory);
-        }
         final int len = _children.size();
-        Map<String, JsonNode> newKids = _createMap(Math.max(4, len));
-        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            newKids.put(entry.getKey(), entry.getValue().deepCopy());
-        }
-        return new ObjectNode(_nodeFactory, newKids);
+        final ObjectNode ret = new ObjectNode(_nodeFactory);
+
+        for (Map.Entry<String, JsonNode> entry : _children.entrySet())
+            ret._children.put(entry.getKey(), entry.getValue().deepCopy());
+
+        return ret;
     }
     
     /*
@@ -77,15 +71,12 @@ public class ObjectNode
 
     @Override
     public int size() {
-        return (_children == null) ? 0 : _children.size();
+        return _children.size();
     }
 
     @Override
     public Iterator<JsonNode> elements()
     {
-        if (_children == null) {
-            return EmptyIterator.instance();
-        }
         return _children.values().iterator();
     }
 
@@ -95,18 +86,12 @@ public class ObjectNode
     @Override
     public JsonNode get(String fieldName)
     {
-        if (_children != null) {
-            return _children.get(fieldName);
-        }
-        return null;
+        return _children.get(fieldName);
     }
 
     @Override
     public Iterator<String> fieldNames()
     {
-        if (_children == null) {
-            return EmptyIterator.instance();
-        }
         return _children.keySet().iterator();
     }
 
@@ -119,11 +104,9 @@ public class ObjectNode
     @Override
     public JsonNode path(String fieldName)
     {
-        if (_children != null) {
-            JsonNode n = _children.get(fieldName);
-            if (n != null) {
-                return n;
-            }
+        JsonNode n = _children.get(fieldName);
+        if (n != null) {
+            return n;
         }
         return MissingNode.getInstance();
     }
@@ -135,27 +118,20 @@ public class ObjectNode
     @Override
     public Iterator<Map.Entry<String, JsonNode>> fields()
     {
-        if (_children == null) {
-            return EmptyIterator.instance();
-        }
         return _children.entrySet().iterator();
     }
 
     @Override
     public ObjectNode with(String propertyName)
     {
-        if (_children == null) {
-            _children = _createMap();
-        } else {
-            JsonNode n = _children.get(propertyName);
-            if (n != null) {
-                if (n instanceof ObjectNode) {
-                    return (ObjectNode) n;
-                }
-                throw new UnsupportedOperationException("Property '"+propertyName
-                        +"' has value that is not of type ObjectNode (but "
-                        +n.getClass().getName()+")");
+        JsonNode n = _children.get(propertyName);
+        if (n != null) {
+            if (n instanceof ObjectNode) {
+                return (ObjectNode) n;
             }
+            throw new UnsupportedOperationException("Property '" + propertyName
+                + "' has value that is not of type ObjectNode (but " + n
+                .getClass().getName() + ")");
         }
         ObjectNode result = objectNode();
         _children.put(propertyName, result);
@@ -165,18 +141,14 @@ public class ObjectNode
     @Override
     public ArrayNode withArray(String propertyName)
     {
-        if (_children == null) {
-            _children = _createMap();
-        } else {
-            JsonNode n = _children.get(propertyName);
-            if (n != null) {
-                if (n instanceof ArrayNode) {
-                    return (ArrayNode) n;
-                }
-                throw new UnsupportedOperationException("Property '"+propertyName
-                        +"' has value that is not of type ArrayNode (but "
-                        +n.getClass().getName()+")");
+        JsonNode n = _children.get(propertyName);
+        if (n != null) {
+            if (n instanceof ArrayNode) {
+                return (ArrayNode) n;
             }
+            throw new UnsupportedOperationException("Property '" + propertyName
+                + "' has value that is not of type ArrayNode (but " + n
+                .getClass().getName() + ")");
         }
         ArrayNode result = arrayNode();
         _children.put(propertyName, result);
@@ -192,15 +164,13 @@ public class ObjectNode
     @Override
     public JsonNode findValue(String fieldName)
     {
-        if (_children != null) {
-            for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-                if (fieldName.equals(entry.getKey())) {
-                    return entry.getValue();
-                }
-                JsonNode value = entry.getValue().findValue(fieldName);
-                if (value != null) {
-                    return value;
-                }
+        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
+            if (fieldName.equals(entry.getKey())) {
+                return entry.getValue();
+            }
+            JsonNode value = entry.getValue().findValue(fieldName);
+            if (value != null) {
+                return value;
             }
         }
         return null;
@@ -209,16 +179,14 @@ public class ObjectNode
     @Override
     public List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar)
     {
-        if (_children != null) {
-            for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-                if (fieldName.equals(entry.getKey())) {
-                    if (foundSoFar == null) {
-                        foundSoFar = new ArrayList<JsonNode>();
-                    }
-                    foundSoFar.add(entry.getValue());
-                } else { // only add children if parent not added
-                    foundSoFar = entry.getValue().findValues(fieldName, foundSoFar);
+        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
+            if (fieldName.equals(entry.getKey())) {
+                if (foundSoFar == null) {
+                    foundSoFar = new ArrayList<JsonNode>();
                 }
+                foundSoFar.add(entry.getValue());
+            } else { // only add children if parent not added
+                foundSoFar = entry.getValue().findValues(fieldName, foundSoFar);
             }
         }
         return foundSoFar;
@@ -227,16 +195,15 @@ public class ObjectNode
     @Override
     public List<String> findValuesAsText(String fieldName, List<String> foundSoFar)
     {
-        if (_children != null) {
-            for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-                if (fieldName.equals(entry.getKey())) {
-                    if (foundSoFar == null) {
-                        foundSoFar = new ArrayList<String>();
-                    }
-                    foundSoFar.add(entry.getValue().asText());
-                } else { // only add children if parent not added
-                    foundSoFar = entry.getValue().findValuesAsText(fieldName, foundSoFar);
+        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
+            if (fieldName.equals(entry.getKey())) {
+                if (foundSoFar == null) {
+                    foundSoFar = new ArrayList<String>();
                 }
+                foundSoFar.add(entry.getValue().asText());
+            } else { // only add children if parent not added
+                foundSoFar = entry.getValue().findValuesAsText(fieldName,
+                    foundSoFar);
             }
         }
         return foundSoFar;
@@ -245,15 +212,13 @@ public class ObjectNode
     @Override
     public ObjectNode findParent(String fieldName)
     {
-        if (_children != null) {
-            for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-                if (fieldName.equals(entry.getKey())) {
-                    return this;
-                }
-                JsonNode value = entry.getValue().findParent(fieldName);
-                if (value != null) {
-                    return (ObjectNode) value;
-                }
+        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
+            if (fieldName.equals(entry.getKey())) {
+                return this;
+            }
+            JsonNode value = entry.getValue().findParent(fieldName);
+            if (value != null) {
+                return (ObjectNode) value;
             }
         }
         return null;
@@ -262,16 +227,15 @@ public class ObjectNode
     @Override
     public List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar)
     {
-        if (_children != null) {
-            for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-                if (fieldName.equals(entry.getKey())) {
-                    if (foundSoFar == null) {
-                        foundSoFar = new ArrayList<JsonNode>();
-                    }
-                    foundSoFar.add(this);
-                } else { // only add children if parent not added
-                    foundSoFar = entry.getValue().findParents(fieldName, foundSoFar);
+        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
+            if (fieldName.equals(entry.getKey())) {
+                if (foundSoFar == null) {
+                    foundSoFar = new ArrayList<JsonNode>();
                 }
+                foundSoFar.add(this);
+            } else { // only add children if parent not added
+                foundSoFar = entry.getValue()
+                    .findParents(fieldName, foundSoFar);
             }
         }
         return foundSoFar;
@@ -292,16 +256,14 @@ public class ObjectNode
         throws IOException, JsonProcessingException
     {
         jg.writeStartObject();
-        if (_children != null) {
-            for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
-                jg.writeFieldName(en.getKey());
+        for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+            jg.writeFieldName(en.getKey());
                 /* 17-Feb-2009, tatu: Can we trust that all nodes will always
                  *   extend BaseJsonNode? Or if not, at least implement
                  *   JsonSerializable? Let's start with former, change if
                  *   we must.
                  */
-                ((BaseJsonNode) en.getValue()).serialize(jg, provider);
-            }
+            ((BaseJsonNode) en.getValue()).serialize(jg, provider);
         }
         jg.writeEndObject();
     }
@@ -312,11 +274,9 @@ public class ObjectNode
         throws IOException, JsonProcessingException
     {
         typeSer.writeTypePrefixForObject(this, jg);
-        if (_children != null) {
-            for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
-                jg.writeFieldName(en.getKey());
-                ((BaseJsonNode) en.getValue()).serialize(jg, provider);
-            }
+        for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+            jg.writeFieldName(en.getKey());
+            ((BaseJsonNode) en.getValue()).serialize(jg, provider);
         }
         typeSer.writeTypeSuffixForObject(this, jg);
     }
@@ -348,7 +308,7 @@ public class ObjectNode
         if (value == null) {
             value = nullNode();
         }
-        _put(fieldName, value);
+        _children.put(fieldName, value);
         return this;
     }
 
@@ -364,9 +324,6 @@ public class ObjectNode
      */
     public JsonNode setAll(Map<String,JsonNode> properties)
     {
-        if (_children == null) {
-            _children = _createMap();
-        }
         for (Map.Entry<String, JsonNode> en : properties.entrySet()) {
             JsonNode n = en.getValue();
             if (n == null) {
@@ -391,9 +348,6 @@ public class ObjectNode
     {
         int len = other.size();
         if (len > 0) {
-            if (_children == null) {
-                _children = _createMap(len);
-            }
             other.putContentsTo(_children);
         }
         return this;
@@ -416,7 +370,7 @@ public class ObjectNode
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        return _put(fieldName, value);
+        return _children.put(fieldName, value);
     }
 
     /**
@@ -429,9 +383,7 @@ public class ObjectNode
      */
     public JsonNode without(String fieldName)
     {
-        if (_children != null) {
-            _children.remove(fieldName);
-        }
+        _children.remove(fieldName);
         return this;
     }
 
@@ -447,11 +399,7 @@ public class ObjectNode
      */
     public ObjectNode without(Collection<String> fieldNames)
     {
-        if (_children != null) {
-            for (String fieldName : fieldNames) {
-                _children.remove(fieldName);
-            }
-        }
+        _children.keySet().removeAll(fieldNames);
         return this;
     }
     
@@ -481,7 +429,7 @@ public class ObjectNode
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        return _put(fieldName, value);
+        return _children.put(fieldName, value);
     }
     
     /**
@@ -493,10 +441,7 @@ public class ObjectNode
      */
     public JsonNode remove(String fieldName)
     {
-        if (_children != null) {
-            return _children.remove(fieldName);
-        }
-        return null;
+        return _children.remove(fieldName);
     }
 
     /**
@@ -509,11 +454,7 @@ public class ObjectNode
      */
     public ObjectNode remove(Collection<String> fieldNames)
     {
-        if (_children != null) {
-            for (String fieldName : fieldNames) {
-                _children.remove(fieldName);
-            }
-        }
+        _children.keySet().removeAll(fieldNames);
         return this;
     }
     
@@ -526,7 +467,7 @@ public class ObjectNode
     @Override
     public ObjectNode removeAll()
     {
-        _children = null;
+        _children.clear();
         return this;
     }
 
@@ -570,15 +511,7 @@ public class ObjectNode
      */
     public ObjectNode retain(Collection<String> fieldNames)
     {
-        if (_children != null) {
-            Iterator<Map.Entry<String,JsonNode>> entries = _children.entrySet().iterator();
-            while (entries.hasNext()) {
-                Map.Entry<String, JsonNode> entry = entries.next();
-                if (!fieldNames.contains(entry.getKey())) {
-                    entries.remove();
-                }
-            }
-        }
+        _children.keySet().retainAll(fieldNames);
         return this;
     }
 
@@ -614,7 +547,7 @@ public class ObjectNode
     public ArrayNode putArray(String fieldName)
     {
         ArrayNode n  = arrayNode();
-        _put(fieldName, n);
+        _children.put(fieldName, n);
         return n;
     }
 
@@ -632,7 +565,7 @@ public class ObjectNode
     public ObjectNode putObject(String fieldName)
     {
         ObjectNode n  = objectNode();
-        _put(fieldName, n);
+        _children.put(fieldName, n);
         return n;
     }
 
@@ -640,7 +573,7 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode putPOJO(String fieldName, Object pojo) {
-        _put(fieldName, POJONode(pojo));
+        _children.put(fieldName, POJONode(pojo));
         return this;
     }
 
@@ -649,7 +582,7 @@ public class ObjectNode
      */
     public ObjectNode putNull(String fieldName)
     {
-        _put(fieldName, nullNode());
+        _children.put(fieldName, nullNode());
         return this;
     }
 
@@ -659,7 +592,7 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, int v) {
-        _put(fieldName, numberNode(v));
+        _children.put(fieldName, numberNode(v));
         return this;
     }
 
@@ -671,9 +604,9 @@ public class ObjectNode
      */
     public ObjectNode put(String fieldName, Integer value) {
         if (value == null) {
-            _put(fieldName, nullNode());
+            _children.put(fieldName, nullNode());
         } else {
-            _put(fieldName, numberNode(value.intValue()));
+            _children.put(fieldName, numberNode(value.intValue()));
         }
         return this;
     }
@@ -684,7 +617,7 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, long v) {
-        _put(fieldName, numberNode(v));
+        _children.put(fieldName, numberNode(v));
         return this;
     }
 
@@ -696,9 +629,9 @@ public class ObjectNode
      */
     public ObjectNode put(String fieldName, Long value) {
         if (value == null) {
-            _put(fieldName, nullNode());
+            _children.put(fieldName, nullNode());
         } else {
-            _put(fieldName, numberNode(value.longValue()));
+            _children.put(fieldName, numberNode(value.longValue()));
         }
         return this;
     }
@@ -709,7 +642,7 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, float v) {
-        _put(fieldName, numberNode(v));
+        _children.put(fieldName, numberNode(v));
         return this;
     }
 
@@ -721,9 +654,9 @@ public class ObjectNode
      */
     public ObjectNode put(String fieldName, Float value) {
         if (value == null) {
-            _put(fieldName, nullNode());
+            _children.put(fieldName, nullNode());
         } else {
-            _put(fieldName, numberNode(value.floatValue()));
+            _children.put(fieldName, numberNode(value.floatValue()));
         }
         return this;
     }
@@ -734,7 +667,7 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, double v) {
-        _put(fieldName, numberNode(v));
+        _children.put(fieldName, numberNode(v));
         return this;
     }
 
@@ -746,9 +679,9 @@ public class ObjectNode
      */
     public ObjectNode put(String fieldName, Double value) {
         if (value == null) {
-            _put(fieldName, nullNode());
+            _children.put(fieldName, nullNode());
         } else {
-            _put(fieldName, numberNode(value.doubleValue()));
+            _children.put(fieldName, numberNode(value.doubleValue()));
         }
         return this;
     }
@@ -762,7 +695,7 @@ public class ObjectNode
         if (v == null) {
             putNull(fieldName);
         } else {
-            _put(fieldName, numberNode(v));
+            _children.put(fieldName, numberNode(v));
         }
         return this;
     }
@@ -776,7 +709,7 @@ public class ObjectNode
         if (v == null) {
             putNull(fieldName);
         } else {
-            _put(fieldName, textNode(v));
+            _children.put(fieldName, textNode(v));
         }
         return this;
     }
@@ -787,7 +720,7 @@ public class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, boolean v) {
-        _put(fieldName, booleanNode(v));
+        _children.put(fieldName, booleanNode(v));
         return this;
     }
 
@@ -799,9 +732,9 @@ public class ObjectNode
      */
     public ObjectNode put(String fieldName, Boolean value) {
         if (value == null) {
-            _put(fieldName, nullNode());
+            _children.put(fieldName, nullNode());
         } else {
-            _put(fieldName, booleanNode(value.booleanValue()));
+            _children.put(fieldName, booleanNode(value.booleanValue()));
         }
         return this;
     }
@@ -813,9 +746,9 @@ public class ObjectNode
      */
     public ObjectNode put(String fieldName, byte[] v) {
         if (v == null) {
-            _put(fieldName, nullNode());
+            _children.put(fieldName, nullNode());
         } else {
-            _put(fieldName, binaryNode(v));
+            _children.put(fieldName, binaryNode(v));
         }
         return this;
     }
@@ -826,31 +759,6 @@ public class ObjectNode
     /**********************************************************
      */
 
-    /**
-     * Internal factory method for creating {@link Map} used for storing
-     * child nodes. 
-     * Overridable by sub-classes, used when caller does not know what
-     * optimal size would, used for example when constructing a Map when adding
-     * the first one.
-     * 
-     * @since 2.1
-     */
-    protected Map<String, JsonNode> _createMap() {
-        return new LinkedHashMap<String, JsonNode>();
-    }
-    
-    /**
-     * Internal factory method for creating {@link Map} used for storing
-     * child nodes. 
-     * Overridable by sub-classes, used when caller has an idea of what
-     * optimal size should be: used when copying contents of an existing node.
-     * 
-     * @since 2.1
-     */
-    protected Map<String, JsonNode> _createMap(int defaultSize) {
-        return new LinkedHashMap<String, JsonNode>(defaultSize);
-    }
-    
     /*
     /**********************************************************
     /* Package methods (for other node classes to use)
@@ -898,52 +806,13 @@ public class ObjectNode
      */
     protected boolean _equals(ObjectNode other)
     {
-        return _stdEquals(other)
-                &&_customEquals(other)
-                && other._customEquals(this)
-                ;
+        return _children.equals(other._children);
     }
     
-    /**
-     * Method that sub-classes should override, if equality comparison
-     * needs additional verification beyond defaults.
-     *
-     * @since 2.1
-     */
-    protected boolean _customEquals(ObjectNode other) {
-        return true;
-    }
-
-    /**
-     * Standard equality checks, which may also be overridden by
-     * sub-classes if necessary (but usually isn't).
-     *
-     * @since 2.1
-     */
-    protected final boolean _stdEquals(ObjectNode other)
-    {
-        if (other.size() != size()) {
-            return false;
-        }
-        if (_children != null) {
-            for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
-                String key = en.getKey();
-                JsonNode value = en.getValue();
-
-                JsonNode otherValue = other.get(key);
-
-                if (otherValue == null || !otherValue.equals(value)) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     @Override
     public int hashCode()
     {
-        return (_children == null) ? -1 : _children.hashCode();
+        return _children.hashCode();
     }
 
     @Override
@@ -951,33 +820,17 @@ public class ObjectNode
     {
         StringBuilder sb = new StringBuilder(32 + (size() << 4));
         sb.append("{");
-        if (_children != null) {
-            int count = 0;
-            for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
-                if (count > 0) {
-                    sb.append(",");
-                }
-                ++count;
-                TextNode.appendQuoted(sb, en.getKey());
-                sb.append(':');
-                sb.append(en.getValue().toString());
+        int count = 0;
+        for (Map.Entry<String, JsonNode> en : _children.entrySet()) {
+            if (count > 0) {
+                sb.append(",");
             }
+            ++count;
+            TextNode.appendQuoted(sb, en.getKey());
+            sb.append(':');
+            sb.append(en.getValue().toString());
         }
         sb.append("}");
         return sb.toString();
-    }
-
-    /*
-    /**********************************************************
-    /* Internal methods
-    /**********************************************************
-     */
-
-    private final JsonNode _put(String fieldName, JsonNode value)
-    {
-        if (_children == null) {
-            _children = _createMap();
-        }
-        return _children.put(fieldName, value);
     }
 }

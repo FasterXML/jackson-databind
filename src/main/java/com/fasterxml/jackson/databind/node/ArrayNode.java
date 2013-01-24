@@ -21,11 +21,6 @@ public class ArrayNode
 
     public ArrayNode(JsonNodeFactory nc) { super(nc); }
 
-    protected ArrayNode(JsonNodeFactory nc, List<JsonNode> children) {
-        super(nc);
-        _children.addAll(children);
-    }
-    
     // note: co-variant to allow caller-side type safety
     @SuppressWarnings("unchecked")
     @Override
@@ -47,12 +42,12 @@ public class ArrayNode
     protected ArrayNode _defaultDeepCopy()
     {
         final int len = _children.size();
-        final List<JsonNode> newKids = new ArrayList<JsonNode>(len);
+        final ArrayNode ret = new ArrayNode(_nodeFactory);
 
         for (JsonNode child : _children)
-            newKids.add(child.deepCopy());
+            ret._children.add(child.deepCopy());
 
-        return new ArrayNode(_nodeFactory, newKids);
+        return ret;
     }
     
     /*

@@ -17,16 +17,10 @@ import com.fasterxml.jackson.databind.util.EmptyIterator;
 public class ArrayNode
     extends ContainerNode<ArrayNode>
 {
-    // before 2.1, was explicitly `ArrayList`
-    protected List<JsonNode> _children;
+    protected final List<JsonNode> _children = new ArrayList<JsonNode>();
 
     public ArrayNode(JsonNodeFactory nc) { super(nc); }
 
-    protected ArrayNode(JsonNodeFactory nc, List<JsonNode> children) {
-        super(nc);
-        _children = children;
-    }
-    
     // note: co-variant to allow caller-side type safety
     @SuppressWarnings("unchecked")
     @Override
@@ -47,15 +41,13 @@ public class ArrayNode
      */
     protected ArrayNode _defaultDeepCopy()
     {
-        if (_children == null) {
-            return new ArrayNode(_nodeFactory);
-        }
         final int len = _children.size();
-        List<JsonNode> newKids = _createList(Math.max(4, len));
-        for (int i = 0; i < len; ++i) {
-            newKids.add(_children.get(i).deepCopy());
-        }
-        return new ArrayNode(_nodeFactory, newKids);
+        final ArrayNode ret = new ArrayNode(_nodeFactory);
+
+        for (JsonNode child : _children)
+            ret._children.add(child.deepCopy());
+
+        return ret;
     }
     
     /*
@@ -75,22 +67,19 @@ public class ArrayNode
     @Override
     public int size()
     {
-        return (_children == null) ? 0 : _children.size();
+        return _children.size();
     }
 
     @Override
     public Iterator<JsonNode> elements()
     {
-        if (_children == null) {
-            return EmptyIterator.instance();
-        }
         return _children.iterator();
     }
 
     @Override
     public JsonNode get(int index)
     {
-        if (index >= 0 && (_children != null) && index < _children.size()) {
+        if (index >= 0 && index < _children.size()) {
             return _children.get(index);
         }
         return null;
@@ -105,7 +94,7 @@ public class ArrayNode
     @Override
     public JsonNode path(int index)
     {
-        if (index >= 0 && (_children != null) && index < _children.size()) {
+        if (index >= 0 && index < _children.size()) {
             return _children.get(index);
         }
         return MissingNode.getInstance();
@@ -122,15 +111,13 @@ public class ArrayNode
         throws IOException, JsonProcessingException
     {
         jg.writeStartArray();
-        if (_children != null) {
-            for (JsonNode n : _children) {
-                /* 17-Feb-2009, tatu: Can we trust that all nodes will always
-                 *   extend BaseJsonNode? Or if not, at least implement
-                 *   JsonSerializable? Let's start with former, change if
-                 *   we must.
-                 */
-                ((BaseJsonNode)n).serialize(jg, provider);
-            }
+        for (JsonNode n : _children) {
+            /* 17-Feb-2009, tatu: Can we trust that all nodes will always
+             *   extend BaseJsonNode? Or if not, at least implement
+             *   JsonSerializable? Let's start with former, change if
+             *   we must.
+             */
+            ((BaseJsonNode)n).serialize(jg, provider);
         }
         jg.writeEndArray();
     }
@@ -141,10 +128,8 @@ public class ArrayNode
         throws IOException, JsonProcessingException
     {
         typeSer.writeTypePrefixForArray(this, jg);
-        if (_children != null) {
-            for (JsonNode n : _children) {
-                ((BaseJsonNode)n).serialize(jg, provider);
-            }
+        for (JsonNode n : _children) {
+            ((BaseJsonNode)n).serialize(jg, provider);
         }
         typeSer.writeTypeSuffixForArray(this, jg);
     }
@@ -158,12 +143,10 @@ public class ArrayNode
     @Override
     public JsonNode findValue(String fieldName)
     {
-        if (_children != null) {
-            for (JsonNode node : _children) {
-                JsonNode value = node.findValue(fieldName);
-                if (value != null) {
-                    return value;
-                }
+        for (JsonNode node : _children) {
+            JsonNode value = node.findValue(fieldName);
+            if (value != null) {
+                return value;
             }
         }
         return null;
@@ -172,10 +155,8 @@ public class ArrayNode
     @Override
     public List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar)
     {
-        if (_children != null) {
-            for (JsonNode node : _children) {
-                foundSoFar = node.findValues(fieldName, foundSoFar);
-            }
+        for (JsonNode node : _children) {
+            foundSoFar = node.findValues(fieldName, foundSoFar);
         }
         return foundSoFar;
     }
@@ -183,10 +164,8 @@ public class ArrayNode
     @Override
     public List<String> findValuesAsText(String fieldName, List<String> foundSoFar)
     {
-        if (_children != null) {
-            for (JsonNode node : _children) {
-                foundSoFar = node.findValuesAsText(fieldName, foundSoFar);
-            }
+        for (JsonNode node : _children) {
+            foundSoFar = node.findValuesAsText(fieldName, foundSoFar);
         }
         return foundSoFar;
     }
@@ -194,24 +173,20 @@ public class ArrayNode
     @Override
     public ObjectNode findParent(String fieldName)
     {
-        if (_children != null) {
-            for (JsonNode node : _children) {
-                JsonNode parent = node.findParent(fieldName);
-                if (parent != null) {
-                    return (ObjectNode) parent;
-                }
+        for (JsonNode node : _children) {
+            JsonNode parent = node.findParent(fieldName);
+            if (parent != null) {
+                return (ObjectNode) parent;
             }
         }
-        return null;        
+        return null;
     }
 
     @Override
     public List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar)
     {
-        if (_children != null) {
-            for (JsonNode node : _children) {
-                foundSoFar = node.findParents(fieldName, foundSoFar);
-            }
+        for (JsonNode node : _children) {
+            foundSoFar = node.findParents(fieldName, foundSoFar);
         }
         return foundSoFar;
     }
@@ -238,7 +213,10 @@ public class ArrayNode
         if (value == null) { // let's not store 'raw' nulls but nodes
             value = nullNode();
         }
-        return _set(index, value);
+        if (index < 0 || index >= _children.size()) {
+            throw new IndexOutOfBoundsException("Illegal index "+ index +", array size "+size());
+        }
+        return _children.set(index, value);
     }
 
     /**
@@ -265,13 +243,7 @@ public class ArrayNode
      */
     public ArrayNode addAll(ArrayNode other)
     {
-        int len = other.size();
-        if (len > 0) {
-            if (_children == null) {
-                _children = _createList(len+2);
-            }
-            other.addContentsTo(_children);
-        }
+        _children.addAll(other._children);
         return this;
     }
 
@@ -284,13 +256,7 @@ public class ArrayNode
      */
     public ArrayNode addAll(Collection<JsonNode> nodes)
     {
-        int len = nodes.size();
-        if (len > 0) {
-            if (_children == null) {
-                _children = _createList(nodes.size());
-            }
-            _children.addAll(nodes);
-        }
+        _children.addAll(nodes);
         return this;
     }
     
@@ -321,7 +287,7 @@ public class ArrayNode
      */
     public JsonNode remove(int index)
     {
-        if (index >= 0 && (_children != null) && index < _children.size()) {
+        if (index >= 0 && index < _children.size()) {
             return _children.remove(index);
         }
         return null;
@@ -336,7 +302,7 @@ public class ArrayNode
     @Override
     public ArrayNode removeAll()
     {
-        _children = null;
+        _children.clear();
         return this;
     }
     
@@ -764,11 +730,7 @@ public class ArrayNode
 
     protected void addContentsTo(List<JsonNode> dst)
     {
-        if (_children != null) {
-            for (JsonNode n : _children) {
-                dst.add(n);
-            }
-        }
+        dst.addAll(_children);
     }
 
     /*
@@ -813,70 +775,16 @@ public class ArrayNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != getClass() && !(o instanceof ArrayNode)) {
+        if (!(o instanceof ArrayNode)) {
             return false;
         }
-        /* This is bit convoluted, but the goal is to make it possible to
-         * fully override equality comparison, even though it is
-         * asymmetric (i.e. can be called on either side, but we
-         * want behavior to match).
-         */
-        return _equals((ArrayNode) o);
-    }
-
-    /**
-     * Method that sub-classes should override, if equality comparison
-     * needs additional verification beyond defaults.
-     *
-     * @since 2.1
-     */
-    protected boolean _equals(ArrayNode other)
-    {
-        return _stdEquals(other)
-                &&_customEquals(other)
-                && other._customEquals(this)
-                ;
-    }
-    
-    /**
-     * Method that sub-classes should override, if equality comparison
-     * needs additional verification beyond defaults.
-     *
-     * @since 2.1
-     */
-    protected boolean _customEquals(ArrayNode other) {
-        return true;
-    }
-
-    /**
-     * Standard equality check, which may also be overridden by
-     * sub-classes if necessary (but usually isn't).
-     *
-     * @since 2.1
-     */
-    protected final boolean _stdEquals(ArrayNode other)
-    {
-        if (_children == null || _children.size() == 0) {
-            return other.size() == 0;
-        }
-        return other._sameChildren(_children);
+        return _children.equals(((ArrayNode) o)._children);
     }
 
     @Override
     public int hashCode()
     {
-        int hash;
-        if (_children == null) {
-            hash = 1;
-        } else {
-            hash = _children.size();
-            for (JsonNode n : _children) {
-                if (n != null) {
-                    hash ^= n.hashCode();
-                }
-            }
-        }
-        return hash;
+        return _children.hashCode();
     }
 
 
@@ -885,13 +793,11 @@ public class ArrayNode
     {
         StringBuilder sb = new StringBuilder(16 + (size() << 4));
         sb.append('[');
-        if (_children != null) {
-            for (int i = 0, len = _children.size(); i < len; ++i) {
-                if (i > 0) {
-                    sb.append(',');
-                }
-                sb.append(_children.get(i).toString());
+        for (int i = 0, len = _children.size(); i < len; ++i) {
+            if (i > 0) {
+                sb.append(',');
             }
+            sb.append(_children.get(i).toString());
         }
         sb.append(']');
         return sb.toString();
@@ -903,30 +809,14 @@ public class ArrayNode
     /**********************************************************
      */
 
-    public JsonNode _set(int index, JsonNode value)
-    {
-        if (_children == null || index < 0 || index >= _children.size()) {
-            throw new IndexOutOfBoundsException("Illegal index "+index+", array size "+size());
-        }
-        return _children.set(index, value);
-    }
-
     private ArrayNode _add(JsonNode node)
     {
-        if (_children == null) {
-            _children = _createList();
-        }
         _children.add(node);
         return this;
     }
 
     private ArrayNode _insert(int index, JsonNode node)
     {
-        if (_children == null) {
-            _children = _createList();
-            _children.add(node);
-            return this;
-        }
         if (index < 0) {
             _children.add(0, node);
         } else if (index >= _children.size()) {
@@ -935,23 +825,5 @@ public class ArrayNode
             _children.add(index, node);
         }
         return this;
-    }
-
-    /**
-     * Note: this method gets called iff <code>otherChildren</code>
-     * is non-empty
-     */
-    private boolean _sameChildren(List<JsonNode> otherChildren)
-    {
-        int len = otherChildren.size();
-        if (this.size() != len) { // important: call size() to handle case of null list...
-            return false;
-        }
-        for (int i = 0; i < len; ++i) {
-            if (!_children.get(i).equals(otherChildren.get(i))) {
-                return false;
-            }
-        }
-        return true;
     }
 }

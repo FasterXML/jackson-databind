@@ -23,11 +23,6 @@ public class ObjectNode
 
     public ObjectNode(JsonNodeFactory nc) { super(nc); }
 
-    protected ObjectNode(JsonNodeFactory nc, Map<String, JsonNode> children) {
-        super(nc);
-        _children.putAll(children);
-    }
-    
     /* Question: should this delegate to `JsonNodeFactory`? It does not absolutely
      * have to, as long as sub-types override the method but...
      */
@@ -52,12 +47,12 @@ public class ObjectNode
     protected ObjectNode _defaultDeepCopy()
     {
         final int len = _children.size();
-        Map<String, JsonNode> newKids
-            = new LinkedHashMap<String, JsonNode>(Math.max(4, len));
-        for (Map.Entry<String, JsonNode> entry : _children.entrySet()) {
-            newKids.put(entry.getKey(), entry.getValue().deepCopy());
-        }
-        return new ObjectNode(_nodeFactory, newKids);
+        final ObjectNode ret = new ObjectNode(_nodeFactory);
+
+        for (Map.Entry<String, JsonNode> entry : _children.entrySet())
+            ret._children.put(entry.getKey(), entry.getValue().deepCopy());
+
+        return ret;
     }
     
     /*

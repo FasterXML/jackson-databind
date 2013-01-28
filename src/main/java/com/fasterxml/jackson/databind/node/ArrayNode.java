@@ -1,23 +1,26 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.*;
-
-import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.util.EmptyIterator;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Node class that represents Arrays mapped from Json content.
  */
-public class ArrayNode
+public final class ArrayNode
     extends ContainerNode<ArrayNode>
 {
-    protected final List<JsonNode> _children = new ArrayList<JsonNode>();
+    private final List<JsonNode> _children = new ArrayList<JsonNode>();
 
     public ArrayNode(JsonNodeFactory nc) { super(nc); }
 
@@ -26,30 +29,14 @@ public class ArrayNode
     @Override
     public ArrayNode deepCopy()
     {
-        /* 28-Sep-2012, tatu: Sub-classes really should override this method to
-         *   produce compliant copies.
-         */
-        if (getClass() != ArrayNode.class) {
-            throw new IllegalStateException("ArrayNode subtype ("+getClass().getName()+" does not override deepCopy(), needs to");
-        }
-        return _defaultDeepCopy();
-    }
+        ArrayNode ret = new ArrayNode(_nodeFactory);
 
-    /**
-     * Default implementation for 'deepCopy()': can be delegated to by sub-classes
-     * if necessary; but usually isn't.
-     */
-    protected ArrayNode _defaultDeepCopy()
-    {
-        final int len = _children.size();
-        final ArrayNode ret = new ArrayNode(_nodeFactory);
-
-        for (JsonNode child : _children)
-            ret._children.add(child.deepCopy());
+        for (JsonNode element: _children)
+            ret._children.add(element.deepCopy());
 
         return ret;
     }
-    
+
     /*
     /**********************************************************
     /* Implementation of core JsonNode API
@@ -57,7 +44,7 @@ public class ArrayNode
      */
 
     @Override
-    public final JsonNodeType getNodeType()
+    public JsonNodeType getNodeType()
     {
         return JsonNodeType.ARRAY;
     }
@@ -107,7 +94,7 @@ public class ArrayNode
      */
 
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
+    public void serialize(JsonGenerator jg, SerializerProvider provider)
         throws IOException, JsonProcessingException
     {
         jg.writeStartArray();
@@ -724,58 +711,16 @@ public class ArrayNode
 
     /*
     /**********************************************************
-    /* Package methods (for other node classes to use)
-    /**********************************************************
-     */
-
-    protected void addContentsTo(List<JsonNode> dst)
-    {
-        dst.addAll(_children);
-    }
-
-    /*
-    /**********************************************************
-    /* Overridable methods
-    /**********************************************************
-     */
-
-    /**
-     * Internal factory method for creating {@link Map} used for storing
-     * child nodes. 
-     * Overridable by sub-classes, used when caller does not know what
-     * optimal size would, used for example when constructing a Map when adding
-     * the first one.
-     * 
-     * @since 2.1
-     */
-    protected List<JsonNode> _createList() {
-        return new ArrayList<JsonNode>();
-    }
-    
-    /**
-     * Internal factory method for creating {@link Map} used for storing
-     * child nodes. 
-     * Overridable by sub-classes, used when caller has an idea of what
-     * optimal size should be: used when copying contents of an existing node.
-     * 
-     * @since 2.1
-     */
-    protected List<JsonNode> _createList(int defaultSize) {
-        return new ArrayList<JsonNode>(defaultSize);
-    }
-    
-    /*
-    /**********************************************************
     /* Standard methods
     /**********************************************************
      */
 
     @Override
-    public final boolean equals(Object o)
+    public boolean equals(Object o)
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (!(o instanceof ArrayNode)) {
+        if (getClass() != o.getClass()) {
             return false;
         }
         return _children.equals(((ArrayNode) o)._children);

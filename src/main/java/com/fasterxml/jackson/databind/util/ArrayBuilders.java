@@ -238,7 +238,7 @@ public final class ArrayBuilders
                 }
                 // otherwise move things around
                 T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), len);
-                System.arraycopy(array, 0, result, 1, ix);
+                System.arraycopy(array, 0, result, 0, len);
                 result[ix] = element;
                 return result;
             }

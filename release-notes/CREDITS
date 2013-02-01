@@ -64,3 +64,7 @@ Francis Galiegue:
  * Reported [Issue#93] (and suggested fix): bug in `ObjectMapper.setAll(...)'
   implementation
   (2.1.1)
+
+kelaneren@github:
+ * Reported [Issue#157], contributed unit test: NPE when registering same module twice.
+  (2.1.4)

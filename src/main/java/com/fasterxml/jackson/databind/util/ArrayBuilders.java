@@ -239,7 +239,12 @@ public final class ArrayBuilders
                 // otherwise move things around
                 T[] result = (T[]) Array.newInstance(array.getClass().getComponentType(), len);
                 System.arraycopy(array, 0, result, 1, ix);
-                array[0] = element;
+                result[0] = element;
+                ++ix;
+                int left = len - ix;
+                if (left > 0) {
+                	System.arraycopy(array, ix, result, ix, left);
+                }
                 return result;
             }
         }

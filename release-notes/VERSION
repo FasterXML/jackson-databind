@@ -1,18 +1,22 @@
 Project: jackson-databind
-Version: 2.1.3 (19-Jan-2013)
+Version: 2.1.4 (...)
 
 A patch release for 2.1 branch.
 
 Fixes:
 
-* [Issue#141]: ACCEPT_EMPTY_STRING_AS_NULL_OBJECT not working for enums
-* [Issue#142]: Serialization of class containing EnumMap with polymorphic enum
-  fails to generate class type data
- (reported by kidavis4@github)
+* [Issue#157]: NPE when registering module twice
 
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
+
+2.1.3 (19-Jan-2013)
+
+* [Issue#141]: ACCEPT_EMPTY_STRING_AS_NULL_OBJECT not working for enums
+* [Issue#142]: Serialization of class containing EnumMap with polymorphic enum
+  fails to generate class type data
+ (reported by kidavis4@github)
 
 2.1.2 (04-Dec-2012)
 

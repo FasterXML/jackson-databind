@@ -1,24 +1,30 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.*;
-
-import com.fasterxml.jackson.core.*;
-
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.util.EmptyIterator;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Node that maps to JSON Object structures in JSON content.
  */
-public class ObjectNode
+public final class ObjectNode
     extends ContainerNode<ObjectNode>
 {
     // Note: LinkedHashMap for backwards compatibility
-    protected final Map<String, JsonNode> _children
+    private final Map<String, JsonNode> _children
         = new LinkedHashMap<String, JsonNode>();
 
     public ObjectNode(JsonNodeFactory nc) { super(nc); }
@@ -31,30 +37,14 @@ public class ObjectNode
     @Override
     public ObjectNode deepCopy()
     {
-        /* 28-Sep-2012, tatu: Sub-classes really should override this method to
-         *   produce compliant copies.
-         */
-        if (getClass() != ObjectNode.class) {
-            throw new IllegalStateException("ObjectNode subtype ("+getClass().getName()+" does not override deepCopy(), needs to");
-        }
-        return _defaultDeepCopy();
-    }
- 
-    /**
-     * Default implementation for 'deepCopy()': can be delegated to by sub-classes
-     * if necessary; but usually isn't.
-     */
-    protected ObjectNode _defaultDeepCopy()
-    {
-        final int len = _children.size();
-        final ObjectNode ret = new ObjectNode(_nodeFactory);
+        ObjectNode ret = new ObjectNode(_nodeFactory);
 
-        for (Map.Entry<String, JsonNode> entry : _children.entrySet())
+        for (Map.Entry<String, JsonNode> entry: _children.entrySet())
             ret._children.put(entry.getKey(), entry.getValue().deepCopy());
 
         return ret;
     }
-    
+
     /*
     /**********************************************************
     /* Implementation of core JsonNode API
@@ -62,7 +52,7 @@ public class ObjectNode
      */
 
     @Override
-    public final JsonNodeType getNodeType()
+    public JsonNodeType getNodeType()
     {
         return JsonNodeType.OBJECT;
     }
@@ -252,7 +242,7 @@ public class ObjectNode
      * all of its descendants using specified JSON generator.
      */
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
+    public void serialize(JsonGenerator jg, SerializerProvider provider)
         throws IOException, JsonProcessingException
     {
         jg.writeStartObject();
@@ -346,10 +336,7 @@ public class ObjectNode
      */
     public JsonNode setAll(ObjectNode other)
     {
-        int len = other.size();
-        if (len > 0) {
-            other.putContentsTo(_children);
-        }
+        other._children.putAll(_children);
         return this;
     }
     
@@ -755,58 +742,21 @@ public class ObjectNode
 
     /*
     /**********************************************************
-    /* Overridable methods
-    /**********************************************************
-     */
-
-    /*
-    /**********************************************************
-    /* Package methods (for other node classes to use)
-    /**********************************************************
-     */
-
-    protected void putContentsTo(Map<String,JsonNode> dst)
-    {
-        if (_children != null) {
-            for (Map.Entry<String,JsonNode> en : _children.entrySet()) {
-                dst.put(en.getKey(), en.getValue());
-            }
-        }
-    }
-
-    /*
-    /**********************************************************
     /* Standard methods
     /**********************************************************
      */
 
     @Override
-    public final boolean equals(Object o)
+    public boolean equals(Object o)
     {
         if (o == this) return true;
         if (o == null) return false;
         
         // minor improvement, wrt [Issue#70]
-        if (o.getClass() != getClass() && !(o instanceof ObjectNode)) {
+        if (getClass() != o.getClass()) {
             return false;
         }
-        /* This is bit convoluted, but the goal is to make it possible to
-         * fully override equality comparison, even though it is
-         * asymmetric (i.e. can be called on either side, but we
-         * want behavior to match).
-         */
-        return _equals((ObjectNode) o);
-    }
-    
-    /**
-     * Method that sub-classes should override, if equality comparison
-     * needs additional verification beyond defaults.
-     * 
-     * @since 2.1
-     */
-    protected boolean _equals(ObjectNode other)
-    {
-        return _children.equals(other._children);
+        return _children.equals(((ObjectNode) o)._children);
     }
     
     @Override

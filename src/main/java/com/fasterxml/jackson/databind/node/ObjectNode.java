@@ -336,7 +336,7 @@ public final class ObjectNode
      */
     public JsonNode setAll(ObjectNode other)
     {
-        other._children.putAll(_children);
+        _children.putAll(other._children);
         return this;
     }
     

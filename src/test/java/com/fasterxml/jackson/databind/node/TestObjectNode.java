@@ -46,6 +46,7 @@ public class TestObjectNode
         n2.put("b", 13);
         assertFalse(n.equals(n2));
         n.setAll(n2);
+        
         assertEquals(2, n.size());
         n.set("null", (JsonNode)null);
         assertEquals(3, n.size());

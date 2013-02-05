@@ -24,6 +24,9 @@ New features:
 * [Issue#140]: Add 'SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN' to allow forcing
   of non-scientific notation when serializing BigDecimals.
  (suggested by phedny@github)
+* [Issue#159]: Add more accessors in 'MappingIterator': getParser(), getParserSchema(),
+  readAll()
+ (suggested by Tom D)
 
 Other:
 

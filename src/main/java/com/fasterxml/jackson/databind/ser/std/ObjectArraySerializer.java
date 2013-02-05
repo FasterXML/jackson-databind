@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -330,12 +329,12 @@ public class ObjectArraySerializer
                 Class<?> componentType = ((ArrayType) javaType).getContentType().getRawClass();
                 // 15-Oct-2010, tatu: We can't serialize plain Object.class; but what should it produce here? Untyped?
                 if (componentType == Object.class) {
-                    o.put("items", JsonSchema.getDefaultSchemaNode());
+                    o.put("items", com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode());
                 } else {
                     JsonSerializer<Object> ser = provider.findValueSerializer(componentType, _property);
                     JsonNode schemaNode = (ser instanceof SchemaAware) ?
                             ((SchemaAware) ser).getSchema(provider, null) :
-                            JsonSchema.getDefaultSchemaNode();
+                            	com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
                     o.put("items", schemaNode);
                 }
             }

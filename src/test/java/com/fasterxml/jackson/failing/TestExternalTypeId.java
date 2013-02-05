@@ -8,36 +8,37 @@ import com.fasterxml.jackson.databind.*;
 
 public class TestExternalTypeId extends BaseMapTest
 {
-    public void testTypes() throws IOException {
-    final ObjectMapper mapper = new ObjectMapper();
-    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	@SuppressWarnings("unused")
+	public void testTypes() throws IOException {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-    final Point _date = new Point(new Date());
-    final Point _integer = new Point(12231321);
-    final Point _boolean = new Point(Boolean.TRUE);
-    final Point _long = new Point(1234L);
+        final Point _date = new Point(new Date());
+        final Point _integer = new Point(12231321);
+        final Point _boolean = new Point(Boolean.TRUE);
+        final Point _long = new Point(1234L);
 
-    final Point _pojo = new Point(new Pojo(1));
-    final String s_date = mapper.writeValueAsString(_date);
-    final String s_integer = mapper.writeValueAsString(_integer);
+        final Point _pojo = new Point(new Pojo(1));
+        final String s_date = mapper.writeValueAsString(_date);
+        final String s_integer = mapper.writeValueAsString(_integer);
 
 System.err.println("Int -> "+s_integer);   
     
-    final String s_boolean = mapper.writeValueAsString(_boolean);
-    final String s_long = mapper.writeValueAsString(_long);
-    final String s_pojo = mapper.writeValueAsString(_pojo);
+        final String s_boolean = mapper.writeValueAsString(_boolean);
+        final String s_long = mapper.writeValueAsString(_long);
+        final String s_pojo = mapper.writeValueAsString(_pojo);
 
-    final Point d_date = mapper.readValue(s_date, Point.class);
-    final Point d_long = mapper.readValue(s_long, Point.class);
-    final Point d_pojo = mapper.readValue(s_pojo, Point.class);
-    final Point d_integer = mapper.readValue(s_integer, Point.class);
-    final Point d_boolean = mapper.readValue(s_boolean, Point.class);
+        final Point d_date = mapper.readValue(s_date, Point.class);
+        final Point d_long = mapper.readValue(s_long, Point.class);
+        final Point d_pojo = mapper.readValue(s_pojo, Point.class);
+        final Point d_integer = mapper.readValue(s_integer, Point.class);
+        final Point d_boolean = mapper.readValue(s_boolean, Point.class);
     }
 
     @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY,
         getterVisibility = JsonAutoDetect.Visibility.NONE,
         setterVisibility = JsonAutoDetect.Visibility.NONE)
-    private static class Point {
+    static class Point {
         @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
         property = "t",
         visible = true,
@@ -54,7 +55,6 @@ System.err.println("Int -> "+s_integer);
         private final Object v;
     
         @JsonCreator
-        @SuppressWarnings("unused")
         public Point(@JsonProperty("v") Object v) {
             this.v = v;
         }
@@ -65,7 +65,7 @@ System.err.println("Int -> "+s_integer);
     }
      
 
-    private static class Pojo {
+    static class Pojo {
         public final int p;
 
         @JsonCreator

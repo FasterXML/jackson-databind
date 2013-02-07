@@ -328,4 +328,24 @@ public class TestJdkTypes extends BaseMapTest
         Charset UTF8 = Charset.forName("UTF-8");
         assertSame(UTF8, mapper.readValue(quote("UTF-8"), Charset.class));
     }
+
+    // [JACKSON-888]
+    public void testStackTraceElement() throws Exception
+    {
+        StackTraceElement elem = null;
+        try {
+            throw new IllegalStateException();
+        } catch (Exception e) {
+            elem = e.getStackTrace()[0];
+        }
+        String json = mapper.writeValueAsString(elem);
+        StackTraceElement back = mapper.readValue(json, StackTraceElement.class);
+        
+        assertEquals("testStackTraceElement", back.getMethodName());
+        assertEquals(elem.getLineNumber(), back.getLineNumber());
+        assertEquals(elem.getClassName(), back.getClassName());
+        assertEquals(elem.isNativeMethod(), back.isNativeMethod());
+        assertTrue(back.getClassName().endsWith("TestJdkTypes"));
+        assertFalse(back.isNativeMethod());
+    }
 }

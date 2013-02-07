@@ -10,6 +10,7 @@ Fixes:
  (reported by 'fge@github')
 * [Issue#146]: Creator properties were not being renamed as expected
  (contributed by Christoper C)
+* [Issue#130]: TimeZone not set for GregorianCalendar, even if configured
 
 Improvements:
 

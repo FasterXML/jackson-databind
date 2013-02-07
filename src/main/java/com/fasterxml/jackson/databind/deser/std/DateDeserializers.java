@@ -193,6 +193,10 @@ public class DateDeserializers
             try {
                 Calendar c = _calendarClass.newInstance();            
                 c.setTimeInMillis(d.getTime());
+                TimeZone tz = ctxt.getTimeZone();
+                if (tz != null) {
+                    c.setTimeZone(tz);
+                }
                 return c;
             } catch (Exception e) {
                 throw ctxt.instantiationException(_calendarClass, e);

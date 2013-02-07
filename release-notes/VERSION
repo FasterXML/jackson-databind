@@ -25,6 +25,9 @@ New features:
 * [Issue#140]: Add 'SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN' to allow forcing
   of non-scientific notation when serializing BigDecimals.
  (suggested by phedny@github)
+* [Issue#148]: Add 'DeserializationFeature.FAIL_ON_INVALID_SUBTYPE`, which allows mapping
+  entries with missing or invalid type id into null references (instead of failing).
+  Also allows use of '@JsonTypeInfo.defaultImpl = NoClass.class' as alternative.
 * [Issue#159]: Add more accessors in 'MappingIterator': getParser(), getParserSchema(),
   readAll()
  (suggested by Tom D)

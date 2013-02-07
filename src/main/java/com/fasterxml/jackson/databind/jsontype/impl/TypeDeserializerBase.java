@@ -8,8 +8,11 @@ import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.annotation.NoClass;
+import com.fasterxml.jackson.databind.deser.std.NullifyingDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 
@@ -21,7 +24,7 @@ public abstract class TypeDeserializerBase
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 278445030337366675L;
-
+    
     protected final TypeIdResolver _idResolver;
     
     protected final JavaType _baseType;
@@ -178,9 +181,20 @@ public abstract class TypeDeserializerBase
     protected final JsonDeserializer<Object> _findDefaultImplDeserializer(DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
+        /* 06-Feb-2013, tatu: As per [Issue#148], consider default implementation value of
+         *   {@link NoClass} to mean "serialize as null"; as well as DeserializationFeature
+         *   to do swift mapping to null
+         */
         if (_defaultImpl == null) {
+            if (!ctxt.isEnabled(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)) {
+                return NullifyingDeserializer.instance;
+            }
             return null;
         }
+        if (_defaultImpl.getRawClass() == NoClass.class) {
+            return NullifyingDeserializer.instance;
+        }
+        
         synchronized (_defaultImpl) {
             if (_defaultImplDeserializer == null) {
                 _defaultImplDeserializer = ctxt.findContextualValueDeserializer(

@@ -4,6 +4,9 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.annotation.NoClass;
 
 /**
  * Unit tests related to [JACKSON-712]; specialized handling of
@@ -39,12 +42,20 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
         }
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type",
+            defaultImpl = NoClass.class)
+    public static class DefaultWithNoClass { }
+
+    // and then one with no defaultImpl nor listed subtypes
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+    abstract static class MysteryPolymorphic { }
+    
     /*
     /**********************************************************
     /* Unit tests, deserialization
     /**********************************************************
      */
-
+    
     public void testDeserializationWithObject() throws Exception
     {
         Inter inter = objectReader(Inter.class).readValue("{\"type\": \"mine\", \"blah\": [\"a\", \"b\", \"c\"]}");
@@ -72,5 +83,25 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
         Inter inter = objectReader(Inter.class).readValue("[\"a\", \"b\"]");
         assertTrue(inter instanceof LegacyInter);
         assertEquals(Arrays.asList("a", "b"), ((MyInter) inter).blah);
+    }
+
+    // [Issue#148]
+    public void testDefaultAsNoClass() throws Exception
+    {
+        Object ob = objectReader(DefaultWithNoClass.class).readValue("{ }");
+        assertNull(ob);
+        ob = objectReader(DefaultWithNoClass.class).readValue("{ \"bogus\":3 }");
+        assertNull(ob);
+    }
+
+    // [Issue#148]
+    public void testBadTypeAsNull() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE);
+        Object ob = mapper.readValue("{}", MysteryPolymorphic.class);
+        assertNull(ob);
+        ob = mapper.readValue("{ \"whatever\":13}", MysteryPolymorphic.class);
+        assertNull(ob);
     }
 }

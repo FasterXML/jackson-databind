@@ -128,6 +128,19 @@ public enum DeserializationFeature implements ConfigFeature
     FAIL_ON_NUMBERS_FOR_ENUMS(false),
 
     /**
+     * Feature that determines what happens when type of a polymorphic
+     * value (indicated for example by {@link com.fasterxml.jackson.annotation.JsonTypeInfo})
+     * can not be found (missing) or resolved (invalid class name, unmappable id);
+     * if enabled, an exception ir thrown; if false, null value is used instead.
+     *<p>
+     * Feature is enabled by default so that exception is thrown for missing or invalid
+     * type information.
+     * 
+     * @since 2.2
+     */
+    FAIL_ON_INVALID_SUBTYPE(true),
+    
+    /**
      * Feature that determines whether Jackson code should catch
      * and wrap {@link Exception}s (but never {@link Error}s!)
      * to add additional information about

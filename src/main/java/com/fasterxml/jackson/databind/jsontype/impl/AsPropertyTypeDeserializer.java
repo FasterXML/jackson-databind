@@ -119,8 +119,8 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         throws IOException, JsonProcessingException
     {
         // As per [JACKSON-614], may have default implementation to use
-        if (_defaultImpl != null) { 
-            JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
+        JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
+        if (deser != null) {
             if (tb != null) {
                 tb.writeEndObject();
                 jp = tb.asParser(jp);

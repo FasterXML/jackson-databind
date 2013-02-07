@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
@@ -2542,7 +2541,8 @@ public class ObjectMapper
      * @return Constructed JSON schema.
      */
     @SuppressWarnings("deprecation")
-    public JsonSchema generateJsonSchema(Class<?> t) throws JsonMappingException {
+    public com.fasterxml.jackson.databind.jsonschema.JsonSchema generateJsonSchema(Class<?> t)
+            throws JsonMappingException {
         return _serializerProvider(getSerializationConfig()).generateJsonSchema(t);
     }
 

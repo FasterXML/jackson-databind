@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -143,5 +144,17 @@ public class TestCollectionDeserialization
         ObjectReader r = MAPPER.reader(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
         List<?> result = r.withType(List.class).readValue(quote(""));
         assertNull(result);
+    }
+
+    // [Issue#161]
+    public void testArrayBlockingQueue() throws Exception
+    {
+        // ok to skip polymorphic type to get Object
+        ArrayBlockingQueue<?> q = MAPPER.readValue("[1, 2, 3]", ArrayBlockingQueue.class);
+        assertNotNull(q);
+        assertEquals(3, q.size());
+        assertEquals(Integer.valueOf(1), q.take());
+        assertEquals(Integer.valueOf(2), q.take());
+        assertEquals(Integer.valueOf(3), q.take());
     }
 }

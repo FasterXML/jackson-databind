@@ -199,28 +199,28 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      * Convenience method for reading all entries accessible via
      * this iterator
      * 
-     * @return
+     * @return List of entries read
      * 
      * @since 2.2
      */
     public List<T> readAll() throws IOException {
-    	return readAll(new ArrayList<T>());
+        return readAll(new ArrayList<T>());
     }
 
     /**
      * Convenience method for reading all entries accessible via
      * this iterator
      * 
-     * @return
+     * @return List of entries read (same as passed-in argument)
      * 
      * @since 2.2
      */
     public List<T> readAll(List<T> resultList) throws IOException
     {
-    	while (hasNextValue()) {
-    		resultList.add(nextValue());
-    	}
-    	return resultList;
+        while (hasNextValue()) {
+    		    resultList.add(nextValue());
+        }
+        return resultList;
     }
     
     /*

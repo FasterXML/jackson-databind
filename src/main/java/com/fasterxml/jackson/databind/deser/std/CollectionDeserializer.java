@@ -248,7 +248,7 @@ public class CollectionDeserializer
      * throw an exception, or try to handle value as if member of implicit
      * array, depending on configuration.
      */
-    private final Collection<Object> handleNonArray(JsonParser jp, DeserializationContext ctxt,
+    protected final Collection<Object> handleNonArray(JsonParser jp, DeserializationContext ctxt,
             Collection<Object> result)
         throws IOException, JsonProcessingException
     {

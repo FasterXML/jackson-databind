@@ -16,6 +16,7 @@ Improvements:
 * [Issue#116]: JavaType implements `java.lang.reflect.Type` (as does `TypeReference`)
 * [Issue#147]: Defer reporting of problems with missing creator parameters
  (contributed by Christoper C)
+* [Issue#161]: Add deserializer for java.util.concurrent.ArrayBlockingQueue
 
 New features:
 

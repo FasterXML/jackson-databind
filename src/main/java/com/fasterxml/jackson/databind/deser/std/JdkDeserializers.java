@@ -16,6 +16,10 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 
+/**
+ * Container class that contains serializers for JDK types that
+ * require special handling for some reason.
+ */
 @SuppressWarnings("serial")
 public class JdkDeserializers
 {
@@ -33,7 +37,7 @@ public class JdkDeserializers
             new LocaleDeserializer(),
             new InetAddressDeserializer(),
             new CharsetDeserializer(),
-
+            
             // other types:
 
             // (note: AtomicInteger/Long work due to single-arg constructor;

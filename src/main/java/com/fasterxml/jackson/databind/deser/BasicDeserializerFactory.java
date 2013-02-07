@@ -817,6 +817,12 @@ public abstract class BasicDeserializerFactory
                 beanDesc = config.introspectForCreation(type);
             }
             ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
+            if (!inst.canCreateUsingDefault()) {
+                // [Issue#161]: No default constructor for ArrayBlockingQueue...
+                if (type.getRawClass() == ArrayBlockingQueue.class) {
+                    return new ArrayBlockingQueueDeserializer(type, contentDeser, contentTypeDeser, inst, null);
+                }
+            }
             // 13-Dec-2010, tatu: Can use more optimal deserializer if content type is String, so:
             if (contentType.getRawClass() == String.class) {
                 // no value type deserializer because Strings are one of natural/native types:

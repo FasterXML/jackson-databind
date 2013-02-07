@@ -93,6 +93,10 @@ public class CoreXMLDeserializers
             }
             GregorianCalendar calendar = new GregorianCalendar();
             calendar.setTime(d);
+            TimeZone tz = ctxt.getTimeZone();
+            if (tz != null) {
+                calendar.setTimeZone(tz);
+            }
             return _dataTypeFactory.newXMLGregorianCalendar(calendar);
         }
     }

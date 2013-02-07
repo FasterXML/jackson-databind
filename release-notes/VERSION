@@ -5,6 +5,7 @@ A patch release for 2.1 branch.
 
 Fixes:
 
+* [Issue#130]: TimeZone not set for GregorianCalendar, when deserializing
 * [Issue#157]: NPE when registering module twice
 
 ------------------------------------------------------------------------

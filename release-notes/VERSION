@@ -7,6 +7,8 @@ Fixes:
 
 * [Issue#130]: TimeZone not set for GregorianCalendar, when deserializing
 * [Issue#157]: NPE when registering module twice
+* [Issue#162]: JsonNodeFactory: work around an old bug with BigDecimal and zero
+ (submitted by fge@github)
 
 ------------------------------------------------------------------------
 === History: ===

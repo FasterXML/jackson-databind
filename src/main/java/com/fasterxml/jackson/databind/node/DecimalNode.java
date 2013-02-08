@@ -7,7 +7,6 @@ import java.math.BigInteger;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-
 /**
  * Numeric node that contains values that do not fit in simple
  * integer (int, long) or floating point (double) values.
@@ -15,6 +14,8 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public final class DecimalNode
     extends NumericNode
 {
+    public static final DecimalNode ZERO = new DecimalNode(BigDecimal.ZERO);
+
     private final static BigDecimal MIN_INTEGER = BigDecimal.valueOf(Integer.MIN_VALUE);
     private final static BigDecimal MAX_INTEGER = BigDecimal.valueOf(Integer.MAX_VALUE);
     private final static BigDecimal MIN_LONG = BigDecimal.valueOf(Long.MIN_VALUE);

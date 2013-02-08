@@ -55,7 +55,7 @@ public class JsonNodeFactory
      *
      * @see BigDecimal
      */
-    protected JsonNodeFactory(boolean bigDecimalExact)
+    public JsonNodeFactory(boolean bigDecimalExact)
     {
         _cfgBigDecimalExact = bigDecimalExact;
     }
@@ -73,7 +73,6 @@ public class JsonNodeFactory
 
     /**
      * Return a factory instance with the desired behavior for BigDecimals
-     *
      * <p>See {@link #JsonNodeFactory(boolean)} for a full description.</p>
      *
      * @param bigDecimalExact see description
@@ -223,7 +222,24 @@ public class JsonNodeFactory
      */
     public NumericNode numberNode(BigDecimal v)
     {
-        return DecimalNode.valueOf(_cfgBigDecimalExact ? v : v.stripTrailingZeros());
+        /*
+         * If the user wants the exact representation of this big decimal,
+         * return the value directly
+         */
+        if (_cfgBigDecimalExact)
+            return DecimalNode.valueOf(v);
+
+        /*
+         * If the user has asked to strip trailing zeroes, however, there is
+         * this bug to account for:
+         *
+         * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6480539
+         *
+         * In short: zeroes are never stripped out of 0! We therefore _have_
+         * to compare with BigDecimal.ZERO...
+         */
+        return v.compareTo(BigDecimal.ZERO) == 0 ? DecimalNode.ZERO
+            : DecimalNode.valueOf(v.stripTrailingZeros());
     }
 
     /*

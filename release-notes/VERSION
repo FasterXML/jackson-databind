@@ -6,17 +6,19 @@ Fixes:
 
 * [Issue#118]: JsonTypeInfo.as.EXTERNAL_PROPERTY not working correctly
  with missing type id, scalar types
+* [Issue#130]: TimeZone not set for GregorianCalendar, even if configured
 * [Issue#144]: MissingNode.isValueNode() should return 'false'
  (reported by 'fge@github')
 * [Issue#146]: Creator properties were not being renamed as expected
  (contributed by Christoper C)
-* [Issue#130]: TimeZone not set for GregorianCalendar, even if configured
 
 Improvements:
 
 * [Issue#116]: JavaType implements `java.lang.reflect.Type` (as does `TypeReference`)
 * [Issue#147]: Defer reporting of problems with missing creator parameters
  (contributed by Christoper C)
+* [Issue#155]: Make `ObjectNode` and `ArrayNode` final (other node types already were)
+ (requested by fge@github)
 * [Issue#161]: Add deserializer for java.util.concurrent.ArrayBlockingQueue
 
 New features:

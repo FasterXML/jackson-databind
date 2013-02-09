@@ -19,6 +19,12 @@ public class TestTypeResolution extends com.fasterxml.jackson.test.BaseTest
 
     static class LongList extends GenericList2<Long> { }
     static class MyLongList<T> extends LongList { }
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
     
     public void testMaps()
     {

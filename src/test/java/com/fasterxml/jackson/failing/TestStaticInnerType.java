@@ -1,10 +1,9 @@
 package com.fasterxml.jackson.failing;
 
-import java.util.*;
-
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+// [JACKSON-887]
 public class TestStaticInnerType extends BaseMapTest
 {
     public void testInnerType() throws Exception
@@ -16,7 +15,7 @@ public class TestStaticInnerType extends BaseMapTest
 }
 
 abstract class BaseType<T> {
-    public List<T> list;
+    public T value;
 
     public final static class SubType<T extends Number> extends BaseType<T>
     {

@@ -266,7 +266,15 @@ public class TypeBindings
              * need to call getEnclosingClass since anonymous classes declare 
              * generics
              */
-            _resolveBindings(raw.getDeclaringClass());
+            Class<?> decl = raw.getDeclaringClass();
+            /* 08-Feb-2013, tatu: Except that if context is also super-class, we must
+             *   skip it; context will be checked anyway, and we'd get StackOverflow if
+             *   we went there.
+             */
+            if (decl != null && !decl.isAssignableFrom(raw)) {
+                _resolveBindings(raw.getDeclaringClass());
+            }
+
             /* 24-Mar-2010, tatu: Can not have true generics definitions, but can
              *   have lower bounds ("<T extends BeanBase>") in declaration itself
              */

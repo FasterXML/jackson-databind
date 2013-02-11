@@ -29,25 +29,29 @@ Main differences compared to 1.0 "mapper" jar are:
 
 Functionality of this package is contained in Java package `com.fasterxml.jackson.databind`, and can be used using following Maven dependency:
 
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.1.3</version>
-    </dependency>
+```xml
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-databind</artifactId>
+  <version>2.1.3</version>
+</dependency>
+```
 
 Since package also depends on '''jackson-core''' and '''jackson-databind''' packages, you will need to download these if not using Maven; and you may also want to add them as Maven dependency to ensure that compatible versions are used.
 If so, also add:
 
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-      <version>2.1.2</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>2.1.3</version>
-    </dependency>
+```xml
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-annotations</artifactId>
+  <version>2.1.2</version>
+</dependency>
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-core</artifactId>
+  <version>2.1.3</version>
+</dependency>
+```
 
 but note that this is optional, and only necessary if there are conflicts between jackson core dependencies through transitive dependencies.
 
@@ -69,23 +73,29 @@ The most common usage is to take piece of JSON, and construct a Plain Old Java O
 
 All data binding starts with a `com.fasterxml.jackson.databind.ObjectMapper` instance, so let's construct one:
 
-    ObjectMapper mapper = new ObjectMapper(); // create once, reuse
+```java
+ObjectMapper mapper = new ObjectMapper(); // create once, reuse
+```
 
 The default instance is fine for our use -- we will learn later on how to configure mapper instance if necessary. Usage is simple:
 
-    MyValue value = mapper.readValue(new File("data.json"), MyValue.class);
-    // or:
-    value = mapper.readValue(new URL("http://some.com/api/entry.json"), MyValue.class);
-    // or:
-    value = mapper.readValue("{\"name\":\"Bob\", \"age\":13}", MyValue.class);
+```java
+MyValue value = mapper.readValue(new File("data.json"), MyValue.class);
+// or:
+value = mapper.readValue(new URL("http://some.com/api/entry.json"), MyValue.class);
+// or:
+value = mapper.readValue("{\"name\":\"Bob\", \"age\":13}", MyValue.class);
+```
 
 And if we want to write JSON, we do the reverse:
 
-    mapper.writeValue(new File("result.json"), myResultObject);
-    // or:
-    byte[] jsonBytes = mapper.writeValueAsBytes(myResultObject);
-    // or:
-    String jsonString = mapper.writeValueAsString(myResultObject);
+```java
+mapper.writeValue(new File("result.json"), myResultObject);
+// or:
+byte[] jsonBytes = mapper.writeValueAsBytes(myResultObject);
+// or:
+String jsonString = mapper.writeValueAsString(myResultObject);
+```
 
 So far so good?
 
@@ -93,18 +103,22 @@ So far so good?
 
 Beyond dealing with simple Bean-style POJOs, you can also handle JDK `List`s, `Map`s:
 
-    Map<String, Integer> scoreByName = mapper.readValue(jsonSource, Map.class);
-    List<String> names = mapper.readValue(jsonSource, List.class);
+```java
+Map<String, Integer> scoreByName = mapper.readValue(jsonSource, Map.class);
+List<String> names = mapper.readValue(jsonSource, List.class);
 
-    // and can obviously write out as well
-    mapper.writeValue(new File("names.json"), names);
+// and can obviously write out as well
+mapper.writeValue(new File("names.json"), names);
+```
 
 as long as JSON structure matches, and types are simple.
 If you have POJO values, you need to indicate actual type (note: this is NOT needed for POJO properties with `List` etc types):
 
-    Map<String, ResultValue> results = mapper.readValue(jsonSource,
-       new TypeReference<String, ResultValue>() { } );
-    // why extra work? Java Type Erasure will prevent type detection otherwise
+```java
+Map<String, ResultValue> results = mapper.readValue(jsonSource,
+   new TypeReference<String, ResultValue>() { } );
+// why extra work? Java Type Erasure will prevent type detection otherwise
+```
 
 (note: no extra effort needed for serialization, regardless of generic types)
 
@@ -113,23 +127,25 @@ But wait! There is more!
 While dealing with `Map`s, `List`s and other "simple" Object types (Strings, Numbers, Booleans) can be simple, Object traversal can be cumbersome.
 This is where Jackson's [Tree model](jackson-databind/wiki/JacksonTreeModel) can come in handy:
 
-    // can be read as generic JsonNode, if it can be Object or Array; or,
-    // if known to be Object, as ObjectNode, if array, ArrayNode etc:
-    ObjectNode root = mapper.readTree("stuff.json");
-    String name = root.get("name").asText();
-    int age = root.get("age").asInt();
+```java
+// can be read as generic JsonNode, if it can be Object or Array; or,
+// if known to be Object, as ObjectNode, if array, ArrayNode etc:
+ObjectNode root = mapper.readTree("stuff.json");
+String name = root.get("name").asText();
+int age = root.get("age").asInt();
 
-    // can modify as well: this adds child Object as property 'other', set property 'type'
-    root.with("other").put("type", "student");
-    String json = mapper.writeValueAsString(root);
+// can modify as well: this adds child Object as property 'other', set property 'type'
+root.with("other").put("type", "student");
+String json = mapper.writeValueAsString(root);
 
-    // with above, we end up with something like as 'json' String:
-    // {
-    //   "name" : "Bob", "age" : 13,
-    //   "other" : {
-    //      "type" : "student"
-    //   {
-    // }
+// with above, we end up with something like as 'json' String:
+// {
+//   "name" : "Bob", "age" : 13,
+//   "other" : {
+//      "type" : "student"
+//   {
+// }
+```
 
 Tree Model can be more convenient than data-binding, especially in cases where structure is highly dynamic, or does not map nicely to Java classes.
 
@@ -155,38 +171,42 @@ Here are examples of configuration features that you are most likely to need to 
 
 Let's start with higher-level data-binding configuration.
 
-    // SerializationFeature for changing how JSON is written
+```java
+// SerializationFeature for changing how JSON is written
 
-    // to enable standard indentation ("pretty-printing"):
-    mapper.enable(SerializationFeature.INDENT_OUTPUT);
-    // to allow serialization of "empty" POJOs (no properties to serialize)
-    // (without this setting, an exception is thrown in those cases)
-    mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-    // to write java.util.Date, Calendar as number (timestamp):
-    mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+// to enable standard indentation ("pretty-printing"):
+mapper.enable(SerializationFeature.INDENT_OUTPUT);
+// to allow serialization of "empty" POJOs (no properties to serialize)
+// (without this setting, an exception is thrown in those cases)
+mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+// to write java.util.Date, Calendar as number (timestamp):
+mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
-    // DeserializationFeature for changing how JSON is read as POJOs:
+// DeserializationFeature for changing how JSON is read as POJOs:
 
-    // to prevent exception when encountering unknown property:
-    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-    // to allow coercion of JSON empty String ("") to null Object value:
-    mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+// to prevent exception when encountering unknown property:
+mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+// to allow coercion of JSON empty String ("") to null Object value:
+mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+```
 
 In addition, you may need to change some of low-level JSON parsing, generation details:
 
-    // JsonParser.Feature for configuring parsing settings:
- 
-    // to allow C/C++ style comments in JSON (non-standard, disabled by default)
-    mapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
-    // to allow (non-standard) unquoted field names in JSON:
-    mapper.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
-    // to allow use of apostrophes (single quotes), non standard
-    mapper.enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
+```java
+// JsonParser.Feature for configuring parsing settings:
 
-    // JsonGenerator.Feature for configuring low-level JSON generation:
+// to allow C/C++ style comments in JSON (non-standard, disabled by default)
+mapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
+// to allow (non-standard) unquoted field names in JSON:
+mapper.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+// to allow use of apostrophes (single quotes), non standard
+mapper.enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
 
-    // to force escaping of non-ASCII characters:
-    mapper.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+// JsonGenerator.Feature for configuring low-level JSON generation:
+
+// to force escaping of non-ASCII characters:
+mapper.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+```
 
 Full set of features are explained on [Jackson Features](jackson-databind/wiki/JacksonFeatures) page.
 
@@ -194,17 +214,19 @@ Full set of features are explained on [Jackson Features](jackson-databind/wiki/J
 
 The simplest annotation-based approach is to use `@JsonProperty` annotation like so:
 
-    public class MyBean {
-       private String _name;
+```java
+public class MyBean {
+   private String _name;
 
-       // without annotation, we'd get "theName", but we want "name":
-       @JsonProperty("name")
-       public String getTheName() { return _name; }
+   // without annotation, we'd get "theName", but we want "name":
+   @JsonProperty("name")
+   public String getTheName() { return _name; }
 
-       // note: it is enough to add annotation on just getter OR setter;
-       // so we can omit it here
-       public void setTheName(String n) { _name = n; }
-    }
+   // note: it is enough to add annotation on just getter OR setter;
+   // so we can omit it here
+   public void setTheName(String n) { _name = n; }
+}
+```
 
 There are other mechanisms to use for systematic naming changes: see [Custom Naming Convention](jackson-databind/wiki/JacksonCustomNamingConvention) for details.
 
@@ -214,34 +236,37 @@ Note, too, that you can use [Mix-in Annotations](jackson-databind/wiki/JacksonMi
 
 There are two main annotations that can be used to to ignore properties: `@JsonIgnore` for individual properties; and `@JsonIgnoreProperties` for per-class definition
 
-    // means that if we see "foo" or "bar" in JSON, they will be quietly skipped
-    // regardless of whether POJO has such properties
-    @JsonIgnoreProperties({ "foo", "bar" })
-    public class MyBean
-    {
-       // will not be written as JSON; nor assigned from JSON:
-       @JsonIgnore
-       public String internal;
+```java
+// means that if we see "foo" or "bar" in JSON, they will be quietly skipped
+// regardless of whether POJO has such properties
+@JsonIgnoreProperties({ "foo", "bar" })
+public class MyBean
+{
+   // will not be written as JSON; nor assigned from JSON:
+   @JsonIgnore
+   public String internal;
 
-       // no annotation, public field is read/written normally
-       public String external;
+   // no annotation, public field is read/written normally
+   public String external;
 
-       @JsonIgnore
-       public void setCode(int c) { _code = c; }
+   @JsonIgnore
+   public void setCode(int c) { _code = c; }
 
-       // note: will also be ignored because setter has annotation!
-       public int getCode() { return _code; }
-       
-    }
+   // note: will also be ignored because setter has annotation!
+   public int getCode() { return _code; }
+}
+```
 
 As with renaming, note that annotations are "shared" between matching fields, getters and setters: if only one has `@JsonIgnore`, it affects others.
 But it is also possible to use "split" annotations, to for example:
 
-    public class ReadButDontWriteProps {
-       private String _name;
-       @JsonProperty public void setName(String n) { _name = n; }
-       @JsonIgnore public String getName() { return _name; }
-    }
+```java
+public class ReadButDontWriteProps {
+   private String _name;
+   @JsonProperty public void setName(String n) { _name = n; }
+   @JsonIgnore public String getName() { return _name; }
+}
+```
 
 in this case, no "name" property would be written out (since 'getter' is ignored); but if "name" property was found from JSON, it would be assigned to POJO property!
 
@@ -252,34 +277,38 @@ For a more complete explanation of all possible ways of ignoring properties when
 Unlike many other data-binding packages, Jackson does not require you to define "default constructor" (constructor that does not take arguments).
 While it will use one if nothing else is available, you can easily define that an argument-taking constructor is used:
 
-    public class CtorBean
-    {
-      public final String name;
-      public final int age;
+```java
+public class CtorBean
+{
+  public final String name;
+  public final int age;
 
-      @JsonCreator // constructor can be public, private, whatever
-      private CtorBean(@JsonProperty("name") String name,
-        @JsonProperty("age") int age)
-      {
-          this.name = name;
-          this.age = age;
-      }
-    }
+  @JsonCreator // constructor can be public, private, whatever
+  private CtorBean(@JsonProperty("name") String name,
+    @JsonProperty("age") int age)
+  {
+      this.name = name;
+      this.age = age;
+  }
+}
+```
 
 Constructors are especially useful in supporting use of
 [Immutable objects](http://www.cowtowncoder.com/blog/archives/2010/08/entry_409.html).
 
 Alternatively, you can also define "factory methods":
 
-    public class FactoryBean
-    {
-        // fields etc omitted for brewity
+```java
+public class FactoryBean
+{
+    // fields etc omitted for brewity
 
-        @JsonCreator
-        public static FactoryBean create(@JsonProperty("name") String name) {
-          // construct and return an instance
-        }
+    @JsonCreator
+    public static FactoryBean create(@JsonProperty("name") String name) {
+      // construct and return an instance
     }
+}
+```
 
 Note that use of a "creator method" does not preclude use of setters: you
 can mix and match properties from constructor/factory method with ones that
@@ -292,21 +321,25 @@ to do arbitrary POJO-to-POJO conversions. Conceptually you can think of conversi
 
 Conversations work between any compatible types, and invocation is as simple as:
 
-    ResultType result = mapper.convertValue(sourceObject, ResultType.class);
+```java
+ResultType result = mapper.convertValue(sourceObject, ResultType.class);
+```
 
 and as long as source and result types are compatible -- that is, if to-JSON, from-JSON sequence would succeed -- things will "just work".
 But here are couple of potentially useful use cases:
 
-    // Convert from int[] to List<Integer>
-    List<Integer> sourceList = ...;
-    int[] ints = mapper.convertValue(sourceList, int[].class);
-    // Convert a POJO into Map!
-    Map<String,Object> propertyMap = mapper.convertValue(pojoValue, Map.class);
-    // ... and back
-    PojoType pojo = mapper.convertValue(propertyMap, PojoType.class);
-    // decode Base64! (default byte[] representation is base64-encoded String)
-    String base64 = "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz";
-    byte[] binary = mapper.convertValue(base64, byte[].class);
+```java
+// Convert from int[] to List<Integer>
+List<Integer> sourceList = ...;
+int[] ints = mapper.convertValue(sourceList, int[].class);
+// Convert a POJO into Map!
+Map<String,Object> propertyMap = mapper.convertValue(pojoValue, Map.class);
+// ... and back
+PojoType pojo = mapper.convertValue(propertyMap, PojoType.class);
+// decode Base64! (default byte[] representation is base64-encoded String)
+String base64 = "TWFuIGlzIGRpc3Rpbmd1aXNoZWQsIG5vdCBvbmx5IGJ5IGhpcyByZWFzb24sIGJ1dCBieSB0aGlz";
+byte[] binary = mapper.convertValue(base64, byte[].class);
+```
 
 Basically, Jackson can work as a replacement for many Apache Commons components, for tasks like base64 encoding/decoding, and handling of "dyna beans" (Maps to/from POJOs).
 

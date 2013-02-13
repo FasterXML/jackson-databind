@@ -548,7 +548,8 @@ public class BeanDeserializerFactory
                     }
                 }
                 if (prop == null) {
-                    throw ctxt.mappingException("Could not find creator property with name '"+name+"'");
+                    throw ctxt.mappingException("Could not find creator property with name '"
+                    		+name+"' (in class "+beanDesc.getBeanClass().getName()+")");
                 }
                 builder.addCreatorProperty(prop);
                 continue;

@@ -2442,11 +2442,6 @@ public class ObjectMapper
     {
         // sanity check for null first:
         if (fromValue == null) return null;
-        // also, as per [Issue-11], consider case for simple cast
-        // ... one caveat; while everything is Object.class, let's not take shortcut
-        if (toValueType != Object.class && toValueType.isAssignableFrom(fromValue.getClass())) {
-            return (T) fromValue;
-        }
         return (T) _convert(fromValue, _typeFactory.constructType(toValueType));
     } 
 
@@ -2463,17 +2458,6 @@ public class ObjectMapper
     {
         // sanity check for null first:
         if (fromValue == null) return null;
-        // also, as per [Issue-11], consider case for simple cast
-        /* But with caveats: one is that while everything is Object.class, we don't
-         * want to "optimize" that out; and the other is that we also do not want
-         * to lose conversions of generic types.
-         */
-        Class<?> targetType = toValueType.getRawClass();
-        if (targetType != Object.class
-                && !toValueType.hasGenericTypes()
-                && targetType.isAssignableFrom(fromValue.getClass())) {
-            return (T) fromValue;
-        }
         return (T) _convert(fromValue, toValueType);
     } 
 
@@ -2488,6 +2472,18 @@ public class ObjectMapper
     protected Object _convert(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
     {        
+        // also, as per [Issue-11], consider case for simple cast
+        /* But with caveats: one is that while everything is Object.class, we don't
+         * want to "optimize" that out; and the other is that we also do not want
+         * to lose conversions of generic types.
+         */
+        Class<?> targetType = toValueType.getRawClass();
+        if (targetType != Object.class
+                && !toValueType.hasGenericTypes()
+                && targetType.isAssignableFrom(fromValue.getClass())) {
+            return fromValue;
+        }
+        
         /* Then use TokenBuffer, which is a JsonGenerator:
          * (see [JACKSON-175])
          */

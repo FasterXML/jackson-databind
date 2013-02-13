@@ -11,6 +11,8 @@ Fixes:
 * [Issue#157]: NPE when registering module twice
 * [Issue#162]: JsonNodeFactory: work around an old bug with BigDecimal and zero
  (submitted by fge@github)
+* [Issue#166]: Incorrect optimization for `ObjectMapper.convertValue(Class)`
+ (reported by eric t)
 
 ------------------------------------------------------------------------
 === History: ===

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import junit.framework.Assert;
 
 /**
  * This unit test suite tests functioning of {@link JsonValue}
@@ -184,4 +185,78 @@ public class TestJsonValue
         String json = MAPPER.writeValueAsString(bean);
         assertEquals(json, "{\"values\":[{\"i\":1},{\"i\":2}]}");
     }
+
+  public void testPolymorphicSerdeWithDelegate() throws Exception
+  {
+    AdditionInterface adder = new AdditionInterfaceImpl(1);
+
+    assertEquals(2, adder.add(1));
+    String json = MAPPER.writeValueAsString(adder);
+    assertEquals("{\"boingo\":\"boopsy\",\"toAdd\":1}", json);
+    assertEquals(2, MAPPER.readValue(json, AdditionInterface.class).add(1));
+
+    adder = new NegatingAdditionInterface(adder);
+    assertEquals(0, adder.add(1));
+    json = MAPPER.writeValueAsString(adder);
+    assertEquals("{\"boingo\":\"boopsy\",\"toAdd\":1}", json);
+    assertEquals(2, MAPPER.readValue(json, AdditionInterface.class).add(1));
+  }
+
+  @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "boingo")
+  @JsonSubTypes(value = {
+      @JsonSubTypes.Type(name = "boopsy", value = AdditionInterfaceImpl.class)
+  })
+  static interface AdditionInterface
+  {
+    public int add(int in);
+  }
+
+  public static class AdditionInterfaceImpl implements AdditionInterface
+  {
+    private final int toAdd;
+
+    @JsonCreator
+    public AdditionInterfaceImpl(
+        @JsonProperty("toAdd") int toAdd
+    )
+    {
+      this.toAdd = toAdd;
+    }
+
+    @JsonProperty
+    public int getToAdd()
+    {
+      return toAdd;
+    }
+
+    @Override
+    public int add(int in)
+    {
+      return in + toAdd;
+    }
+  }
+
+  public static class NegatingAdditionInterface implements AdditionInterface
+  {
+    private final AdditionInterface delegate;
+
+    public NegatingAdditionInterface(
+        AdditionInterface delegate
+    )
+    {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public int add(int in)
+    {
+      return delegate.add(-in);
+    }
+
+    @JsonValue
+    public AdditionInterface getDelegate()
+    {
+      return delegate;
+    }
+  }
 }

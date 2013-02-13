@@ -12,6 +12,7 @@ public class TestInnerClass extends BaseMapTest
         public String name;
         public List<Leg> legs;
 
+        // NOTE: non-static on purpose!
         public class Leg {
             public int length;
         }

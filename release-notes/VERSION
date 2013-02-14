@@ -12,7 +12,9 @@ Fixes:
 * [Issue#162]: JsonNodeFactory: work around an old bug with BigDecimal and zero
  (submitted by fge@github)
 * [Issue#166]: Incorrect optimization for `ObjectMapper.convertValue(Class)`
- (reported by eric t)
+ (reported by Eric T)
+* [Issue#167]: Problems with @JsonValue, polymorphic types (regression from 1.x)
+ (reported by Eric T)
 
 ------------------------------------------------------------------------
 === History: ===

@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializerWrapper;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
@@ -152,7 +151,6 @@ public class JsonValueSerializer
     {
         try {
             Object value = _accessorMethod.invoke(bean);
-
             if (value == null) {
                 prov.defaultSerializeNull(jgen);
                 return;
@@ -214,9 +212,12 @@ public class JsonValueSerializer
                     return;
                 }
             }
+            /* 13-Feb-2013, tatu: Turns out that work-around should NOT be required
+             *   at all; it would not lead to correct behavior (as per #167).
+             */
             // and then redirect type id lookups
-            TypeSerializer typeSer = new TypeSerializerWrapper(typeSer0, bean);
-            ser.serializeWithType(value, jgen, provider, typeSer);
+//            TypeSerializer typeSer = new TypeSerializerWrapper(typeSer0, bean);
+            ser.serializeWithType(value, jgen, provider, typeSer0);
         } catch (IOException ioe) {
             throw ioe;
         } catch (Exception e) {

@@ -399,19 +399,27 @@ public class TestExternalId extends BaseMapTest
         assertEquals("foobar", result.value);
     }
     
-    // For [Issue#119]
+    // For [Issue#119]... and bit of [#167] as well
     public void testWithAsValue() throws Exception
     {
         ExternalTypeWithNonPOJO input = new ExternalTypeWithNonPOJO(new AsValueThingy(12345L));
         String json = MAPPER.writeValueAsString(input);
         assertNotNull(json);
-        assertEquals("{\"value\":12345,\"type\":\"thingy\"}", json);
+        assertEquals("{\"value\":12345,\"type\":\"date\"}", json);
 
         // and get it back too:
         ExternalTypeWithNonPOJO result = MAPPER.readValue(json, ExternalTypeWithNonPOJO.class);
         assertNotNull(result);
         assertNotNull(result.value);
+        /* 13-Feb-2013, tatu: Urgh. I don't think this can work quite as intended...
+         *   since POJO type, and type of thing @JsonValue annotated method returns
+         *   are not related. Best we can do is thus this:
+         */
+        /*
         assertEquals(AsValueThingy.class, result.value.getClass());
         assertEquals(12345L, ((AsValueThingy) result.value).rawDate);
+        */
+        assertEquals(Date.class, result.value.getClass());
+        assertEquals(12345L, ((Date) result.value).getTime());
     }
 }

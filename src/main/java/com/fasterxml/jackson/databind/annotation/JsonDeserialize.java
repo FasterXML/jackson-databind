@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.KeyDeserializer;
+import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Annotation use for configuring deserialization aspects, by attaching
@@ -70,6 +71,29 @@ public @interface JsonDeserialize
      */
     public Class<?> builder()
         default NoClass.class;
+
+    // // // Annotations for specifying intermediate Converters (2.2+)
+    
+    /**
+     * Which helper object (if any) is to be used to convert from Jackson-bound
+     * intermediate type (source type of converter) into actual property type
+     * (which must be same as result type of converter). This is often used
+     * for two-step deserialization; Jackson binds data into suitable intermediate
+     * type (like Tree representation), and converter then builds actual property
+     * type.
+     *
+     * @since 2.2
+     */
+    public Class<? extends Converter<?,?>> converter() default Converter.None.class;
+
+    /**
+     * Similar to {@link #converter}, but used for values of structures types
+     * (List, arrays, Maps).
+     *
+     * @since 2.2
+     */
+    public Class<? extends Converter<?,?>> contentConverter() default Converter.None.class;
+    
     
     // // // Annotations for explicitly specifying deserialization type
     // // // (which is used for choosing deserializer, if not explicitly

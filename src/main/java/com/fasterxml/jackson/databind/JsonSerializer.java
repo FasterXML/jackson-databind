@@ -223,7 +223,7 @@ public abstract class JsonSerializer<T>
     {
         if (visitor != null) visitor.expectAnyFormat(type);
     }
-    
+
     /*
     /**********************************************************
     /* Helper class(es)

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -33,12 +34,13 @@ public class TestObjectIdSerialization extends BaseMapTest {
     static protected class SetContainer {
 
         public int id;
+
         @JsonIdentityReference(alwaysAsId = true)
-//        @JsonSerialize(contentAs = Obj.class)
+        // NOTE: uncommenting this makes test pass:
+//        @com.fasterxml.jackson.databind.annotation.JsonSerialize(contentAs = Obj.class)
         public Set<Obj> objs = new LinkedHashSet<Obj>();
 
-        public SetContainer() {
-        }
+        public SetContainer() { }
 
         public SetContainer(int id) {
             this.id = id;

@@ -80,7 +80,7 @@ public abstract class AsArraySerializerBase<T>
         _elementType = src._elementType;
         _staticTyping = src._staticTyping;
         _valueTypeSerializer = vts;
-        _property = src._property;
+        _property = property;
         _elementSerializer = (JsonSerializer<Object>) elementSerializer;
         _dynamicSerializers = src._dynamicSerializers;
     }

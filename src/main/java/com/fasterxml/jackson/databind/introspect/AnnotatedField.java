@@ -75,7 +75,7 @@ public final class AnnotatedField
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls)
     {
-        return _annotations.get(acls);
+        return (_annotations == null) ? null : _annotations.get(acls);
     }
 
     @Override

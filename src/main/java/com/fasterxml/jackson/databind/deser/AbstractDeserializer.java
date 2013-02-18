@@ -121,6 +121,7 @@ public class AbstractDeserializer
     /**********************************************************
      */
     
+    @SuppressWarnings("incomplete-switch")
     protected Object _deserializeIfNatural(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {

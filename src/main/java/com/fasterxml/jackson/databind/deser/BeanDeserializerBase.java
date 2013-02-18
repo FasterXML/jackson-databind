@@ -927,7 +927,8 @@ public abstract class BeanDeserializerBase
         // do we have it resolved?
         Object pojo = roid.item;
         if (pojo == null) { // not yet; should wait...
-            throw new IllegalStateException("Could not resolve Object Id ["+id+"] -- unresolved forward-reference?");
+            throw new IllegalStateException("Could not resolve Object Id ["+id+"] (for "
+                    +_beanType+") -- unresolved forward-reference?");
         }
         return pojo;
     }
@@ -956,6 +957,7 @@ public abstract class BeanDeserializerBase
             final DeserializationContext ctxt)
         throws IOException, JsonProcessingException;
 
+    @SuppressWarnings("incomplete-switch")
     public Object deserializeFromNumber(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -1026,6 +1028,7 @@ public abstract class BeanDeserializerBase
      * Method called to deserialize POJO value from a JSON floating-point
      * number.
      */
+    @SuppressWarnings("incomplete-switch")
     public Object deserializeFromDouble(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {

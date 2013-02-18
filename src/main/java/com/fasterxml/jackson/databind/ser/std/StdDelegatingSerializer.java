@@ -71,7 +71,7 @@ public class StdDelegatingSerializer
     }
     
     @SuppressWarnings("unchecked")
-    protected StdDelegatingSerializer(Converter<Object,?> converter,
+    public StdDelegatingSerializer(Converter<Object,?> converter,
             JavaType delegateType, JsonSerializer<?> delegateSerializer)
     {
         super(delegateType);
@@ -103,16 +103,30 @@ public class StdDelegatingSerializer
     public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
         throws JsonMappingException
     {
-        // First: figure out what is the fully generic delegate type:
-        TypeFactory tf = provider.getTypeFactory();
-        JavaType implType = tf.constructType(_converter.getClass());
-        JavaType[] params = tf.findTypeParameters(implType, Converter.class);
-        if (params == null || params.length != 2) {
-            throw new JsonMappingException("Could not determine Converter parameterization for "
-                    +implType);
+        // First: if already got serializer to delegate to, contextualize it:
+        if (_delegateSerializer != null) {
+            if (_delegateSerializer instanceof ContextualSerializer) {
+                JsonSerializer<?> ser = ((ContextualSerializer)_delegateSerializer).createContextual(provider, property);
+                if (ser != _delegateSerializer) {
+                    return this;
+                }
+                return withDelegate(_converter, _delegateType, ser);
+            }
+            return this;
         }
-        // and then we can find serializer to delegate to, construct a new instance:
-        JavaType delegateType = params[1];
+        // Otherwise, need to locate serializer to delegate to. For that we need type information...
+        JavaType delegateType = _delegateType;
+        if (delegateType == null) {
+            TypeFactory tf = provider.getTypeFactory();
+            JavaType implType = tf.constructType(_converter.getClass());
+            JavaType[] params = tf.findTypeParameters(implType, Converter.class);
+            if (params == null || params.length != 2) {
+                throw new JsonMappingException("Could not determine Converter parameterization for "
+                        +implType);
+            }
+            delegateType = params[1];
+        }
+        // and then find the thing...
         return withDelegate(_converter, delegateType,
                 provider.findValueSerializer(delegateType, property));
     }

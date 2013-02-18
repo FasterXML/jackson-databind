@@ -362,6 +362,7 @@ public class NumberDeserializers
          * we must actually check for "raw" integers and doubles first, before
          * calling type deserializer.
          */
+        @SuppressWarnings("incomplete-switch")
         @Override
         public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
                                           TypeDeserializer typeDeserializer)
@@ -396,8 +397,9 @@ public class NumberDeserializers
     {
         public BigIntegerDeserializer() { super(BigInteger.class); }
 
+        @SuppressWarnings("incomplete-switch")
         @Override
-                public BigInteger deserialize(JsonParser jp, DeserializationContext ctxt)
+        public BigInteger deserialize(JsonParser jp, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
         {
             JsonToken t = jp.getCurrentToken();

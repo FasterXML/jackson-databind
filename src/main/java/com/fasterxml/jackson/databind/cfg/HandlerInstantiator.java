@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Helper class used for handling details of creating handler instances (things
@@ -129,6 +130,16 @@ public abstract class HandlerInstantiator
      * @since 2.1
      */
     public PropertyNamingStrategy namingStrategyInstance(MapperConfig<?> config,
+            Annotated annotated, Class<?> implClass) {
+        return null;
+    }
+
+    /**
+     * Method called to construct a Converter instance used for specified class.
+     * 
+     * @since 2.2
+     */
+    public Converter<?,?> converterInstance(MapperConfig<?> config,
             Annotated annotated, Class<?> implClass) {
         return null;
     }

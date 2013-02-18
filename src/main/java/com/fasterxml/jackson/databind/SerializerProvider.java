@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ser.impl.*;
 import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.RootNameLookup;
 
 /**
@@ -691,6 +692,13 @@ public abstract class SerializerProvider
             ObjectIdInfo objectIdInfo)
         throws JsonMappingException;
     
+    /**
+     * @since 2.2
+     */
+    public abstract Converter<Object,Object> converterInstance(Annotated annotated,
+            Object converterDef)
+        throws JsonMappingException;
+
     /*
     /********************************************************
     /* Convenience methods

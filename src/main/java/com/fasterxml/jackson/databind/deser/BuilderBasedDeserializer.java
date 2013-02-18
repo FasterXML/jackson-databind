@@ -162,8 +162,9 @@ public class BuilderBasedDeserializer
         case FIELD_NAME:
         case END_OBJECT: // added to resolve [JACKSON-319], possible related issues
             return finishBuild(ctxt, deserializeFromObject(jp, ctxt));
+        default:
+            throw ctxt.mappingException(getBeanClass());
         }
-        throw ctxt.mappingException(getBeanClass());
     }
 
     /**

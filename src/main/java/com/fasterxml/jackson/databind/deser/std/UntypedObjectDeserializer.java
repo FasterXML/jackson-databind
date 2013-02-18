@@ -44,12 +44,8 @@ public class UntypedObjectDeserializer
         switch (jp.getCurrentToken()) {
         case START_OBJECT:
             return mapObject(jp, ctxt);
-        case END_OBJECT: // invalid
-            break;
         case START_ARRAY:
             return mapArray(jp, ctxt);
-        case END_ARRAY: // invalid
-            break;
         case FIELD_NAME:
             return mapObject(jp, ctxt);
         case VALUE_EMBEDDED_OBJECT:
@@ -82,10 +78,12 @@ public class UntypedObjectDeserializer
 
         case VALUE_NULL: // should not get this but...
             return null;
-            
-         }
 
-        throw ctxt.mappingException(Object.class);
+        case END_ARRAY: // invalid
+        case END_OBJECT: // invalid
+        default:
+            throw ctxt.mappingException(Object.class);
+        }
     }
 
     @Override
@@ -137,8 +135,9 @@ public class UntypedObjectDeserializer
 
         case VALUE_NULL: // should not get this far really but...
             return null;
+        default:
+            throw ctxt.mappingException(Object.class);
         }
-        throw ctxt.mappingException(Object.class);
     }
 
     /*

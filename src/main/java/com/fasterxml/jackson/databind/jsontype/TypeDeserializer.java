@@ -150,6 +150,7 @@ public abstract class TypeDeserializer
         return deserializeIfNatural(jp, ctxt, baseType.getRawClass());
     }
     
+    @SuppressWarnings("incomplete-switch")
     public static Object deserializeIfNatural(JsonParser jp, DeserializationContext ctxt,
             Class<?> base)
         throws IOException, JsonProcessingException

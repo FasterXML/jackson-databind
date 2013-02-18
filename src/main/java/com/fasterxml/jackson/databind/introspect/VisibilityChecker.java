@@ -277,10 +277,11 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
 	        return withIsGetterVisibility(v);
             case ALL:
                 return with(v);
-            //case NONE:
+        //case NONE:
+        default:
             // break;
-	    }
             return this;
+	    }
 	}
 	
 //      @Override

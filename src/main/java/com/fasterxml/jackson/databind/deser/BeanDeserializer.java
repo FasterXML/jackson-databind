@@ -155,8 +155,9 @@ public class BeanDeserializer
                 return deserializeWithObjectId(jp, ctxt);
             }
             return deserializeFromObject(jp, ctxt);
+        default:
+            throw ctxt.mappingException(getBeanClass());
         }
-        throw ctxt.mappingException(getBeanClass());
     }
 
     protected Object _missingToken(JsonParser jp, DeserializationContext ctxt)

@@ -922,14 +922,11 @@ public abstract class SerializerProvider
     /**
      * @since 2.1
      */
-    @SuppressWarnings("deprecation")
     protected JsonSerializer<Object> _createUntypedSerializer(JavaType type)
         throws JsonMappingException
     {
-        /* 30-Sep-2012, tatu: For now need to call the deprecated method; for 2.2,
-         *   convert to using new one. But note that we do NOT pass 'property' along.
-         */
-        return (JsonSerializer<Object>)_serializerFactory.createSerializer(this, type, null);
+        // 17-Feb-2013, tatu: Used to call deprecated method (that passed property)
+        return (JsonSerializer<Object>)_serializerFactory.createSerializer(this, type);
     }
 
     /**

@@ -380,6 +380,26 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
+    public Object findSerializationConverter(Annotated a)
+    {
+        Object ob = _primary.findSerializationConverter(a);
+        if (ob == null) {
+            ob = _secondary.findSerializationConverter(a);
+        }
+        return ob;
+    }
+
+    @Override
+    public Object findSerializationContentConverter(AnnotatedMember a)
+    {
+        Object ob = _primary.findSerializationContentConverter(a);
+        if (ob == null) {
+            ob = _secondary.findSerializationContentConverter(a);
+        }
+        return ob;
+    }
+
+    @Override
     public Class<?>[] findViews(Annotated a)
     {
         /* Theoretically this could be trickier, if multiple introspectors

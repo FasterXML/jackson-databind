@@ -325,7 +325,7 @@ public class POJOPropertyBuilder
         });
         return (b != null) && b.booleanValue();
     }
-    
+
     @Override
     public ObjectIdInfo findObjectIdInfo() {
         return fromMemberAnnotations(new WithMember<ObjectIdInfo>() {

@@ -157,7 +157,7 @@ public class BeanSerializerFactory
         if (origType.isContainerType()) {
             if (!staticTyping) {
                 staticTyping = usesStaticTyping(config, beanDesc, null);
-                // [JACKSON-822]: Need to figure out how to force passed parameterization
+                // [Issue#23]: Need to figure out how to force passed parameterization
                 //  to stick...
                 /*
                 if (property == null) {

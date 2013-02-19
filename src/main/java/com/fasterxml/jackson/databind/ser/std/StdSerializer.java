@@ -81,7 +81,7 @@ public abstract class StdSerializer<T>
      * Default implementation simply claims type is "string"; usually
      * overriden by custom serializers.
      */
-//  @Override
+    @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException
     {
@@ -92,7 +92,7 @@ public abstract class StdSerializer<T>
      * Default implementation simply claims type is "string"; usually
      * overriden by custom serializers.
      */
-//    @Override
+    @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint, boolean isOptional)
         throws JsonMappingException
     {
@@ -132,7 +132,7 @@ public abstract class StdSerializer<T>
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-    	visitor.expectAnyFormat(typeHint);
+        visitor.expectAnyFormat(typeHint);
     }
             
     /*

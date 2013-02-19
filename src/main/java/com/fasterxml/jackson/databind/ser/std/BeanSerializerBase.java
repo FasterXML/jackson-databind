@@ -25,7 +25,9 @@ import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -251,7 +253,7 @@ public abstract class BeanSerializerBase
      * We need to implement {@link ResolvableSerializer} to be able to
      * properly handle cyclic type references.
      */
-//  @Override
+    @Override
     public void resolve(SerializerProvider provider)
         throws JsonMappingException
     {
@@ -276,40 +278,37 @@ public abstract class BeanSerializerBase
             if (prop.hasSerializer()) {
                 continue;
             }
-            // Was the serialization type hard-coded? If so, use it
-            JavaType type = prop.getSerializationType();
-            
-            /* It not, we can use declared return type if and only if
-             * declared type is final -- if not, we don't really know
-             * the actual type until we get the instance.
-             */
-            if (type == null) {
-                type = provider.constructType(prop.getGenericPropertyType());
-                if (!type.isFinal()) {
-                    /* 18-Feb-2010, tatus: But even if it is non-final, we may
-                     *   need to retain some of type information so that we can
-                     *   accurately handle contained types
-                     */
-                    if (type.isContainerType() || type.containedTypeCount() > 0) {
-                        prop.setNonTrivialBaseType(type);
+            // [Issue#124]: allow use of converters
+            JsonSerializer<Object> ser = findConvertingSerializer(provider, prop);  
+            if (ser == null) {
+                // Was the serialization type hard-coded? If so, use it
+                JavaType type = prop.getSerializationType();
+                
+                // It not, we can use declared return type if and only if declared type is final:
+                // if not, we don't really know the actual type until we get the instance.
+                if (type == null) {
+                    type = provider.constructType(prop.getGenericPropertyType());
+                    if (!type.isFinal()) {
+                        if (type.isContainerType() || type.containedTypeCount() > 0) {
+                            prop.setNonTrivialBaseType(type);
+                        }
+                        continue;
                     }
-                    continue;
                 }
-            }
-            
-            JsonSerializer<Object> ser = provider.findValueSerializer(type, prop);
-            /* 04-Feb-2010, tatu: We may have stashed type serializer for content types
-             *   too, earlier; if so, it's time to connect the dots here:
-             */
-            if (type.isContainerType()) {
-                TypeSerializer typeSer = type.getContentType().getTypeHandler();
-                if (typeSer != null) {
-                    // for now, can do this only for standard containers...
-                    if (ser instanceof ContainerSerializer<?>) {
-                        // ugly casts... but necessary
-                        @SuppressWarnings("unchecked")
-                        JsonSerializer<Object> ser2 = (JsonSerializer<Object>)((ContainerSerializer<?>) ser).withValueTypeSerializer(typeSer);
-                        ser = ser2;
+                ser = provider.findValueSerializer(type, prop);
+                /* 04-Feb-2010, tatu: We may have stashed type serializer for content types
+                 *   too, earlier; if so, it's time to connect the dots here:
+                 */
+                if (type.isContainerType()) {
+                    TypeSerializer typeSer = type.getContentType().getTypeHandler();
+                    if (typeSer != null) {
+                        // for now, can do this only for standard containers...
+                        if (ser instanceof ContainerSerializer<?>) {
+                            // ugly casts... but necessary
+                            @SuppressWarnings("unchecked")
+                            JsonSerializer<Object> ser2 = (JsonSerializer<Object>)((ContainerSerializer<?>) ser).withValueTypeSerializer(typeSer);
+                            ser = ser2;
+                        }
                     }
                 }
             }
@@ -329,7 +328,38 @@ public abstract class BeanSerializerBase
         }
     }
 
-//  @Override
+    /**
+     * Helper method that can be used to see if specified property is annotated
+     * to indicate use of a converter for property value (in case of container types,
+     * it is container type itself, not key or content type).
+     * 
+     * @since 2.2
+     */
+    protected JsonSerializer<Object> findConvertingSerializer(SerializerProvider provider,
+            BeanPropertyWriter prop)
+        throws JsonMappingException
+    {
+        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+        if (intr != null) {
+            Object convDef = intr.findSerializationConverter(prop.getMember());
+            if (convDef != null) {
+                Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
+                TypeFactory tf = provider.getTypeFactory();
+                JavaType converterType = tf.constructType(conv.getClass());
+                JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
+                if (params == null || params.length != 2) {
+                    throw new JsonMappingException("Could not determine Converter parameterization for "
+                            +converterType);
+                }
+                JavaType delegateType = params[1];
+                JsonSerializer<?> ser = provider.findValueSerializer(delegateType, prop);
+                return new StdDelegatingSerializer(conv, delegateType, ser);
+            }
+        }
+        return null;
+    }
+    
+    @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
         throws JsonMappingException

@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -145,7 +146,7 @@ public abstract class AnnotationIntrospector implements Versioned
     /**********************************************************
      */
 
-//  @Override
+    @Override
     public abstract Version version();
     
     /*
@@ -535,7 +536,7 @@ public abstract class AnnotationIntrospector implements Versioned
     /* Serialization: general annotations
     /**********************************************************
      */
-
+    
     /**
      * Method for getting a serializer definition on specified method
      * or field. Type of definition is either instance (of type
@@ -630,6 +631,53 @@ public abstract class AnnotationIntrospector implements Versioned
      * @return Typing mode to use, if annotation is found; null otherwise
      */
     public JsonSerialize.Typing findSerializationTyping(Annotated a) {
+        return null;
+    }
+
+    /**
+     * Method for finding {@link Converter} that annotated entity
+     * (property or class) has indicated to be used as part of
+     * serialization. If not null, either has to be actual
+     * {@link Converter} instance, or class for such converter;
+     * and resulting converter will be used first to convert property
+     * value to converter target type, and then serializer for that
+     * type is used for actual serialization.
+     *<p>
+     * This feature is typically used to convert internal values into types
+     * that Jackson can convert.
+     *<p>
+     * Note also that this feature does not necessarily work well with polymorphic
+     * type handling, or object identity handling; if such features are needed
+     * an explicit serializer is usually better way to handle serialization.
+     * 
+     * @param a Annotated property (field, method) or class to check for
+     *   annotations
+     *   
+     * @since 2.2
+     */
+    public Object findSerializationConverter(Annotated a) {
+        return null;
+    }
+
+    /**
+     * Method for finding {@link Converter} that annotated property
+     * has indicated needs to be used for values of container type
+     * (this also means that method should only be called for properties
+     * of container types, List/Map/array properties).
+     *<p>
+     * If not null, either has to be actual
+     * {@link Converter} instance, or class for such converter;
+     * and resulting converter will be used first to convert property
+     * value to converter target type, and then serializer for that
+     * type is used for actual serialization.
+     *<p>
+     * Other notes are same as those for {@link #findSerializationConverter}
+     * 
+     * @param a Annotated property (field, method) to check.
+     *   
+     * @since 2.2
+     */
+    public Object findSerializationContentConverter(AnnotatedMember a) {
         return null;
     }
     

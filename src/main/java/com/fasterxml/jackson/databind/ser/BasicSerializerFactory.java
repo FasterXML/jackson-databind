@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ser.impl.StringCollectionSerializer;
 import com.fasterxml.jackson.databind.ser.std.*;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.EnumValues;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -442,9 +443,34 @@ public abstract class BasicSerializerFactory
         if (serDef == null) {
             return null;
         }
-        return prov.serializerInstance(a, serDef);
+        JsonSerializer<Object> ser = prov.serializerInstance(a, serDef);
+        // One more thing however: may need to also apply a converter:
+        Converter<Object,Object> conv = findConverterFromAnnotation(prov, a);
+        if (conv != null) {
+            TypeFactory tf = prov.getTypeFactory();
+            JavaType converterType = tf.constructType(conv.getClass());
+            JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
+            if (params == null || params.length != 2) {
+                throw new JsonMappingException("Could not determine Converter parameterization for "
+                        +converterType);
+            }
+            JavaType delegateType = params[1];
+            return new StdDelegatingSerializer(conv, delegateType, ser);
+        }
+        return ser;
     }
 
+    protected Converter<Object,Object> findConverterFromAnnotation(SerializerProvider prov,
+            Annotated a)
+        throws JsonMappingException
+    {
+        Object convDef = prov.getAnnotationIntrospector().findSerializationConverter(a);
+        if (convDef != null) {
+            return prov.converterInstance(a, convDef);
+        }
+        return null;
+    }
+    
     /*
     /**********************************************************
     /* Factory methods, container types:

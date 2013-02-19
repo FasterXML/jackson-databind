@@ -141,7 +141,7 @@ public class ObjectArraySerializer
         if (ser == null) {
             ser = _elementSerializer;
         }
-        // 18-Feb-2013, tatu: May have a content converter:
+        // #124: May have a content converter
         ser = findConvertingContentSerializer(provider, property, ser);
         if (ser == null) {
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.convert;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -81,6 +80,16 @@ public class TestConvertingSerializer
         }
     }
     
+    static class PointListWrapperMap {
+        @JsonSerialize(contentConverter=PointConverter.class)
+        public Map<String,Point> values;
+
+        public PointListWrapperMap(String key, int x, int y) {
+            values = new HashMap<String,Point>();
+            values.put(key, new Point(x, y));
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -105,17 +114,18 @@ public class TestConvertingSerializer
         assertEquals("{\"value\":[3,4]}", json);
     }
 
-    public void testPropertyAnnotationForArrays() throws Exception
-    {
+    public void testPropertyAnnotationForArrays() throws Exception {
         String json = objectWriter().writeValueAsString(new PointListWrapperArray(4, 5));
         assertEquals("{\"values\":[[4,5],[5,4]]}", json);
     }
 
-    public void testPropertyAnnotationForLists() throws Exception
-    {
+    public void testPropertyAnnotationForLists() throws Exception {
         String json = objectWriter().writeValueAsString(new PointListWrapperList(7, 8));
-System.err.println("JSON -> "+json);
-        
         assertEquals("{\"values\":[[7,8],[8,7]]}", json);
+    }
+
+    public void testPropertyAnnotationForMaps() throws Exception {
+        String json = objectWriter().writeValueAsString(new PointListWrapperMap("a", 1, 2));
+        assertEquals("{\"values\":{\"a\":[1,2]}}", json);
     }
 }

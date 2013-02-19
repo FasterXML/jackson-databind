@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Base class used by all standard serializers, and can also
@@ -223,5 +225,41 @@ public abstract class StdSerializer<T>
      */
     protected boolean isDefaultSerializer(JsonSerializer<?> serializer) {
         return (serializer != null && serializer.getClass().getAnnotation(JacksonStdImpl.class) != null);
+    }
+
+    /**
+     * Helper method that can be used to see if specified property has annotation
+     * indicating that a converter is to be used for contained values (contents
+     * of structured types; array/List/Map values)
+     * 
+     * @param existingSerializer (optional) configured content
+     *    serializer if one already exists.
+     * 
+     * @since 2.2
+     */
+    protected JsonSerializer<?> findConvertingContentSerializer(SerializerProvider provider,
+            BeanProperty prop, JsonSerializer<?> existingSerializer)
+        throws JsonMappingException
+    {
+        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+        if (intr != null && prop != null) {
+            Object convDef = intr.findSerializationContentConverter(prop.getMember());
+            if (convDef != null) {
+                Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
+                TypeFactory tf = provider.getTypeFactory();
+                JavaType converterType = tf.constructType(conv.getClass());
+                JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
+                if (params == null || params.length != 2) {
+                    throw new JsonMappingException("Could not determine Converter parameterization for "
+                            +converterType);
+                }
+                JavaType delegateType = params[1];
+                if (existingSerializer == null) {
+                    existingSerializer = provider.findValueSerializer(delegateType, prop);
+                }
+                return new StdDelegatingSerializer(conv, delegateType, existingSerializer);
+            }
+        }
+        return existingSerializer;
     }
 }

@@ -96,6 +96,8 @@ public class StringArraySerializer
         if (ser == null) {
             ser = _elementSerializer;
         }
+        // #124: May have a content converter
+        ser = findConvertingContentSerializer(provider, property, ser);
         if (ser == null) {
             ser = provider.findValueSerializer(String.class, property);
         } else if (ser instanceof ContextualSerializer) {

@@ -63,8 +63,8 @@ public final class IndexedStringListSerializer
     /* Post-processing
     /**********************************************************
      */
-    
-//  @Override
+
+    @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
         throws JsonMappingException
@@ -87,6 +87,8 @@ public final class IndexedStringListSerializer
         if (ser == null) {
             ser = _serializer;
         }
+        // #124: May have a content converter
+        ser = findConvertingContentSerializer(provider, property, ser);
         if (ser == null) {
             ser = provider.findValueSerializer(String.class, property);
         } else if (ser instanceof ContextualSerializer) {

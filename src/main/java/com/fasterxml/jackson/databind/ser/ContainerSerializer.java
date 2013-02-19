@@ -140,39 +140,4 @@ public abstract class ContainerSerializer<T>
         }
         return false;
     }
-
-    /**
-     * Helper method that can be used to see if specified property has annotation
-     * indicating that a converter is to be used for contained values.
-     * 
-     * @param existingSerializer (optional) configured content
-     *    serializer if one already exists.
-     * 
-     * @since 2.2
-     */
-    protected JsonSerializer<?> findConvertingContentSerializer(SerializerProvider provider,
-            BeanProperty prop, JsonSerializer<?> existingSerializer)
-        throws JsonMappingException
-    {
-        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
-        if (intr != null && prop != null) {
-            Object convDef = intr.findSerializationContentConverter(prop.getMember());
-            if (convDef != null) {
-                Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
-                TypeFactory tf = provider.getTypeFactory();
-                JavaType converterType = tf.constructType(conv.getClass());
-                JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
-                if (params == null || params.length != 2) {
-                    throw new JsonMappingException("Could not determine Converter parameterization for "
-                            +converterType);
-                }
-                JavaType delegateType = params[1];
-                if (existingSerializer == null) {
-                    existingSerializer = provider.findValueSerializer(delegateType, prop);
-                }
-                return new StdDelegatingSerializer(conv, delegateType, existingSerializer);
-            }
-        }
-        return existingSerializer;
-    }
 }

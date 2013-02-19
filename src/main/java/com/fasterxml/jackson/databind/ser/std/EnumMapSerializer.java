@@ -103,8 +103,8 @@ public class EnumMapSerializer
         }
         return new EnumMapSerializer(this, prop, ser);
     }
-    
-//  @Override
+
+    @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
         throws JsonMappingException
@@ -127,6 +127,8 @@ public class EnumMapSerializer
         if (ser == null) {
             ser = _valueSerializer;
         }
+        // #124: May have a content converter
+        ser = findConvertingContentSerializer(provider, property, ser);
         if (ser == null) {
             if (_staticTyping) {
                 return withValueSerializer(property, provider.findValueSerializer(_valueType, property));

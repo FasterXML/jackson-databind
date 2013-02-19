@@ -1,16 +1,8 @@
 package com.fasterxml.jackson.databind.ser;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Intermediate base class for serializers used for serializing

@@ -118,6 +118,10 @@ public @interface JsonSerialize
     /**
      * Similar to {@link #converter}, but used for values of structures types
      * (List, arrays, Maps).
+     * Note that this property does NOT have effect when used as Class annotation;
+     * it can only be used as property annotation: this because association between
+     * container and value types is loose and as such converters seldom make sense
+     * for such usage.
      *
      * @since 2.2
      */

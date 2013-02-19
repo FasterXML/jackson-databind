@@ -14,9 +14,11 @@ import com.fasterxml.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
+import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Factory class that can provide serializers for any regular Java beans
@@ -134,7 +136,6 @@ public class BeanSerializerFactory
             return (JsonSerializer<Object>) ser;
         }
         boolean staticTyping;
-        
         // Next: we may have annotations that further define types to use...
         JavaType type = modifyTypeByAnnotation(config, beanDesc.getClassInfo(), origType);
         if (type == origType) { // no changes, won't force static typing
@@ -145,16 +146,38 @@ public class BeanSerializerFactory
                 beanDesc = config.introspect(type);
             }
         }
-
-        // Then JsonSerializable, @JsonValue etc:
-        ser = findSerializerByAnnotations(prov, type, beanDesc);
-        if (ser != null) {
-            return (JsonSerializer<Object>) ser;
+        // Slight detour: do we have a Converter to consider?
+        Converter<Object,Object> conv = beanDesc.findSerializationConverter();
+        if (conv == null) { // no, simple:
+            return (JsonSerializer<Object>) _createSerializer2(prov, type, beanDesc, staticTyping);
         }
+        // otherwise need to do bit of introspection
+        TypeFactory tf = prov.getTypeFactory();
+        JavaType converterType = tf.constructType(conv.getClass());
+        JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
+        if (params == null || params.length != 2) {
+            throw new JsonMappingException("Could not determine Converter parameterization for "
+                    +converterType);
+        }
+        JavaType delegateType = params[1];
+        return new StdDelegatingSerializer(conv, delegateType,
+                _createSerializer2(prov, delegateType, beanDesc, true));
+    }
+
+    protected JsonSerializer<?> _createSerializer2(SerializerProvider prov,
+            JavaType type, BeanDescription beanDesc, boolean staticTyping)
+        throws JsonMappingException
+    {
+        // Then JsonSerializable, @JsonValue etc:
+        JsonSerializer<?> ser = findSerializerByAnnotations(prov, type, beanDesc);
+        if (ser != null) {
+            return ser;
+        }
+        final SerializationConfig config = prov.getConfig();
         
         // Container types differ from non-container types
         // (note: called method checks for module-provided serializers)
-        if (origType.isContainerType()) {
+        if (type.isContainerType()) {
             if (!staticTyping) {
                 staticTyping = usesStaticTyping(config, beanDesc, null);
                 // [Issue#23]: Need to figure out how to force passed parameterization
@@ -172,7 +195,7 @@ public class BeanSerializerFactory
             ser =  buildContainerSerializer(prov, type, beanDesc, staticTyping);
             // Will return right away, since called method does post-processing:
             if (ser != null) {
-                return (JsonSerializer<Object>) ser;
+                return ser;
             }
         } else {
             // Modules may provide serializers of POJO types:
@@ -184,23 +207,19 @@ public class BeanSerializerFactory
             }
         }
         
-        /* Otherwise, we will check "primary types"; both marker types that
-         * indicate specific handling (JsonSerializable), or main types that have
-         * precedence over container types
-         */
+        // Otherwise, we will check "primary types"; both marker types that
+        // indicate specific handling (JsonSerializable), or main types that have
+        // precedence over container types
         if (ser == null) {
             ser = findSerializerByLookup(type, config, beanDesc, staticTyping);
             if (ser == null) {
                 ser = findSerializerByPrimaryType(prov, type, beanDesc, staticTyping);
                 if (ser == null) {
-                    /* And this is where this class comes in: if type is not a
-                     * known "primary JDK type", perhaps it's a bean? We can still
-                     * get a null, if we can't find a single suitable bean property.
-                     */
+                    // And this is where this class comes in: if type is not a
+                    // known "primary JDK type", perhaps it's a bean? We can still
+                    // get a null, if we can't find a single suitable bean property.
                     ser = findBeanSerializer(prov, type, beanDesc);
-                    /* Finally: maybe we can still deal with it as an
-                     * implementation of some basic JDK interface?
-                     */
+                    // Finally: maybe we can still deal with it as an implementation of some basic JDK interface?
                     if (ser == null) {
                         ser = findSerializerByAddonType(config, type, beanDesc, staticTyping);
                     }
@@ -215,7 +234,7 @@ public class BeanSerializerFactory
                 }
             }
         }
-        return (JsonSerializer<Object>) ser;
+        return ser;
     }
     
     /*

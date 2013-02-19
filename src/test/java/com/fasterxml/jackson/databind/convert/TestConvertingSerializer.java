@@ -104,8 +104,9 @@ public class TestConvertingSerializer
 
     public void testClassAnnotationForLists() throws Exception
     {
-        String json = objectWriter().writeValueAsString(new ConvertingBeanContainer(new ConvertingBean(3, 4)));
-        assertEquals("{\"values\":[1,2]}", json);
+        String json = objectWriter().writeValueAsString(new ConvertingBeanContainer(
+                new ConvertingBean(1, 2), new ConvertingBean(3, 4)));
+        assertEquals("{\"values\":[[1,2],[3,4]]}", json);
     }
 
     public void testPropertyAnnotationSimple() throws Exception

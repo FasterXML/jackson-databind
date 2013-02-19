@@ -426,7 +426,7 @@ public abstract class DefaultSerializerProvider
         }
         return gen.forScope(objectIdInfo.getScope());
     }
-    
+
     @SuppressWarnings("unchecked")
     public Converter<Object,Object> converterInstance(Annotated annotated,
             Object converterDef)

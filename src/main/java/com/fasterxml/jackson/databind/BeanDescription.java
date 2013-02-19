@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
+import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Basic container for information gathered by {@link ClassIntrospector} to
@@ -191,9 +192,17 @@ public abstract class BeanDescription
      * defined by defaults and possible annotations.
      * Note that this may be further refined by per-property annotations.
      * 
-     * @since 2.1s
+     * @since 2.1
      */
     public abstract JsonFormat.Value findExpectedFormat(JsonFormat.Value defValue);
+
+    /**
+     * Method for finding {@link Converter} used for serializing instances
+     * of this class.
+     * 
+     * @since 2.1
+     */
+    public abstract Converter<Object,Object> findSerializationConverter();
     
     /*
     /**********************************************************

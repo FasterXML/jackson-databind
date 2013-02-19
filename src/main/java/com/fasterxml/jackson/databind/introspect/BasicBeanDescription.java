@@ -8,9 +8,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.fasterxml.jackson.databind.annotation.NoClass;
+import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.util.Annotations;
+import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Default {@link BeanDescription} implementation.
@@ -94,7 +98,7 @@ public class BasicBeanDescription extends BeanDescription
     protected BasicBeanDescription(POJOPropertiesCollector coll)
     {
         this(coll.getConfig(), coll.getType(), coll.getClassDef(), coll.getProperties());
-    	_objectIdInfo = coll.getObjectIdInfo();
+        _objectIdInfo = coll.getObjectIdInfo();
     }
 
     /**
@@ -307,7 +311,7 @@ public class BasicBeanDescription extends BeanDescription
     
     /*
     /**********************************************************
-    /* Introspection for serialization, factories
+    /* Introspection for deserialization, factories
     /**********************************************************
      */
 
@@ -436,6 +440,42 @@ public class BasicBeanDescription extends BeanDescription
     /**********************************************************
      */
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public Converter<Object,Object> findSerializationConverter()
+    {
+        if (_annotationIntrospector == null) {
+            return null;
+        }
+        Object converterDef = _annotationIntrospector.findSerializationConverter(_classInfo);
+        if (converterDef == null) {
+            return null;
+        }
+        if (converterDef instanceof Converter<?,?>) {
+            return (Converter<Object,Object>) converterDef;
+        }
+        if (!(converterDef instanceof Class)) {
+            throw new IllegalStateException("AnnotationIntrospector returned Converter definition of type "
+                    +converterDef.getClass().getName()+"; expected type Converter or Class<Converter> instead");
+        }
+        Class<?> converterClass = (Class<?>)converterDef;
+        // there are some known "no class" markers to consider too:
+        if (converterClass == Converter.None.class || converterClass == NoClass.class) {
+            return null;
+        }
+        if (!Converter.class.isAssignableFrom(converterClass)) {
+            throw new IllegalStateException("AnnotationIntrospector returned Class "
+                    +converterClass.getName()+"; expected Class<Converter>");
+        }
+        HandlerInstantiator hi = _config.getHandlerInstantiator();
+        Converter<?,?> conv = (hi == null) ? null : hi.converterInstance(_config, _classInfo, converterClass);
+        if (conv == null) {
+            conv = (Converter<?,?>) ClassUtil.createInstance(converterClass,
+                    _config.canOverrideAccessModifiers());
+        }
+        return (Converter<Object,Object>) conv;
+    }
+
     /**
      * Method for determining whether null properties should be written
      * out for a Bean of introspected type. This is based on global
@@ -495,6 +535,12 @@ public class BasicBeanDescription extends BeanDescription
         return result;
     }
 
+    /*
+    /**********************************************************
+    /* Introspection for deserialization
+    /**********************************************************
+     */
+    
     @Override
     public Class<?> findPOJOBuilder()
     {

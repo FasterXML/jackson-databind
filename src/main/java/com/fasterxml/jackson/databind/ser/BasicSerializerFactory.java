@@ -435,6 +435,7 @@ public abstract class BasicSerializerFactory
      * that tells the class to use for serialization.
      * Returns null if no such annotation found.
      */
+    @SuppressWarnings("unchecked")
     protected JsonSerializer<Object> findSerializerFromAnnotation(SerializerProvider prov,
             Annotated a)
         throws JsonMappingException
@@ -445,30 +446,43 @@ public abstract class BasicSerializerFactory
         }
         JsonSerializer<Object> ser = prov.serializerInstance(a, serDef);
         // One more thing however: may need to also apply a converter:
-        Converter<Object,Object> conv = findConverterFromAnnotation(prov, a);
-        if (conv != null) {
-            TypeFactory tf = prov.getTypeFactory();
-            JavaType converterType = tf.constructType(conv.getClass());
-            JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
-            if (params == null || params.length != 2) {
-                throw new JsonMappingException("Could not determine Converter parameterization for "
-                        +converterType);
-            }
-            JavaType delegateType = params[1];
-            return new StdDelegatingSerializer(conv, delegateType, ser);
-        }
-        return ser;
+        return (JsonSerializer<Object>) findConvertingSerializer(prov, a, ser);
     }
 
-    protected Converter<Object,Object> findConverterFromAnnotation(SerializerProvider prov,
+    /**
+     * Helper method that will check whether given annotated entity (usually class,
+     * but may also be a property accessor) indicates that a {@link Converter} is to
+     * be used; and if so, to construct and return suitable serializer for it.
+     * If not, will simply return given serializer as is.
+     */
+    protected JsonSerializer<?> findConvertingSerializer(SerializerProvider prov,
+            Annotated a, JsonSerializer<?> ser)
+        throws JsonMappingException
+    {
+        Converter<Object,Object> conv = findConverter(prov, a);
+        if (conv == null) {
+            return ser;
+        }
+        TypeFactory tf = prov.getTypeFactory();
+        JavaType converterType = tf.constructType(conv.getClass());
+        JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
+        if (params == null || params.length != 2) {
+            throw new JsonMappingException("Could not determine Converter parameterization for "
+                    +converterType);
+        }
+        JavaType delegateType = params[1];
+        return new StdDelegatingSerializer(conv, delegateType, ser);
+    }
+
+    protected Converter<Object,Object> findConverter(SerializerProvider prov,
             Annotated a)
         throws JsonMappingException
     {
         Object convDef = prov.getAnnotationIntrospector().findSerializationConverter(a);
-        if (convDef != null) {
-            return prov.converterInstance(a, convDef);
+        if (convDef == null) {
+            return null;
         }
-        return null;
+        return prov.converterInstance(a, convDef);
     }
     
     /*

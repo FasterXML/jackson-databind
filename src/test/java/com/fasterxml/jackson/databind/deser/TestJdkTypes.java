@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.databind.*;
 
 public class TestJdkTypes extends BaseMapTest
@@ -72,7 +73,7 @@ public class TestJdkTypes extends BaseMapTest
     private final ObjectMapper mapper = new ObjectMapper();
 
     /**
-     * Related to issue [JACKSON-155].
+     * Related to issues [JACKSON-155], [#170].
      */
     public void testFile() throws Exception
     {
@@ -82,8 +83,14 @@ public class TestJdkTypes extends BaseMapTest
 
         // escape backslashes (for portability with windows)
         String json = mapper.writeValueAsString(abs);
-        
         File result = mapper.readValue(json, File.class);
+        assertEquals(abs, result.getAbsolutePath());
+
+        // Then #170
+        final ObjectMapper mapper2 = new ObjectMapper();
+        mapper2.setVisibility(PropertyAccessor.CREATOR, Visibility.NONE);
+
+        result = mapper2.readValue(json, File.class);
         assertEquals(abs, result.getAbsolutePath());
     }
 
@@ -107,8 +114,6 @@ public class TestJdkTypes extends BaseMapTest
 
     /**
      * Test for [JACKSON-419]
-     * 
-     * @since 1.7
      */
     public void testLocale() throws IOException
     {
@@ -119,8 +124,6 @@ public class TestJdkTypes extends BaseMapTest
 
     /**
      * Test for [JACKSON-420] (add DeserializationConfig.FAIL_ON_NULL_FOR_PRIMITIVES)
-     * 
-     * @since 1.7
      */
     public void testNullForPrimitives() throws IOException
     {

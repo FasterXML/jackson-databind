@@ -32,6 +32,7 @@ public class JdkDeserializers
             new UUIDDeserializer(),
             new URLDeserializer(),
             new URIDeserializer(),
+            new FileDeserializer(),
             new CurrencyDeserializer(),
             new PatternDeserializer(),
             new LocaleDeserializer(),
@@ -52,55 +53,6 @@ public class JdkDeserializers
     /* Deserializer implementations: from-String deserializers
     /**********************************************************
      */
-    
-    /**
-     * Note: final as performance optimization: not expected to need sub-classing;
-     * if sub-classing was needed could re-factor into reusable part, final
-     * "Impl" sub-class
-     */
-    /*
-    @JacksonStdImpl
-    public final static class StringDeserializer
-        extends StdScalarDeserializer<String>
-    {
-        public StringDeserializer() { super(String.class); }
-
-        @Override
-        public String deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-        {
-            // 22-Sep-2012, tatu: For 2.1, use this new method, may force coercion:
-            String text = jp.getValueAsString();
-            if (text != null) {
-                return text;
-            }
-            // [JACKSON-330]: need to gracefully handle byte[] data, as base64
-            JsonToken curr = jp.getCurrentToken();
-            if (curr == JsonToken.VALUE_EMBEDDED_OBJECT) {
-                Object ob = jp.getEmbeddedObject();
-                if (ob == null) {
-                    return null;
-                }
-                if (ob instanceof byte[]) {
-                    return Base64Variants.getDefaultVariant().encode((byte[]) ob, false);
-                }
-                // otherwise, try conversion using toString()...
-                return ob.toString();
-            }
-            throw ctxt.mappingException(_valueClass, curr);
-        }
-
-        // 1.6: since we can never have type info ("natural type"; String, Boolean, Integer, Double):
-        // (is it an error to even call this version?)
-        @Override
-        public String deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-                TypeDeserializer typeDeserializer)
-            throws IOException, JsonProcessingException
-        {
-            return deserialize(jp, ctxt);
-        }
-    }
-    */
     
     public static class UUIDDeserializer
         extends FromStringDeserializer<UUID>
@@ -242,6 +194,18 @@ public class JdkDeserializers
             throws IOException
         {
             return Charset.forName(value);
+        }
+    }
+
+    public static class FileDeserializer
+        extends FromStringDeserializer<File>
+    {
+        public FileDeserializer() { super(File.class); }
+        
+        @Override
+        protected File _deserialize(String value, DeserializationContext ctxt)
+        {
+            return new File(value);
         }
     }
     

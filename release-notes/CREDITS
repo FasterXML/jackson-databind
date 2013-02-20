@@ -908,3 +908,7 @@ Francis Galiegue:
  * Reported [Issue#93] (and suggested fix): bug in `ObjectMapper.setAll(...)'
   implementation
   (2.1.1)
+
+Eric Tschetter (cheddar@github):
+ * Reported issues #166, #167, #170 (regressions from 1.9.x to 2.x)
+  (2.1.4)

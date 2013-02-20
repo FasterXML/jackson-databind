@@ -26,15 +26,16 @@ public class NumberDeserializers
 {
     private final static HashSet<String> _classNames = new HashSet<String>();
     static {
+        // note: can skip primitive types; other ways to check them:
         Class<?>[] numberTypes = new Class<?>[] {
-            Boolean.class, Boolean.TYPE,
-            Byte.class, Byte.TYPE,
-            Short.class, Short.TYPE,
-            Character.class, Character.TYPE,
-            Integer.class, Integer.TYPE,
-            Long.class, Long.TYPE,
-            Float.class, Float.TYPE,
-            Double.class, Double.TYPE,
+            Boolean.class,
+            Byte.class,
+            Short.class,
+            Character.class,
+            Integer.class,
+            Long.class,
+            Float.class,
+            Double.class,
             // and more generic ones
             Number.class, BigDecimal.class, BigInteger.class
         };
@@ -81,67 +82,68 @@ public class NumberDeserializers
     
     public static JsonDeserializer<?> find(Class<?> rawType)
     {
-        if (!_classNames.contains(rawType.getName())) {
+        if (rawType.isPrimitive()) {
+            if (rawType == Integer.TYPE) {
+                return IntegerDeserializer.primitiveInstance;
+            }
+            if (rawType == Boolean.TYPE) {
+                return BooleanDeserializer.primitiveInstance;
+            }
+            if (rawType == Long.TYPE) {
+                return LongDeserializer.primitiveInstance;
+            }
+            if (rawType == Double.TYPE) {
+                return DoubleDeserializer.primitiveInstance;
+            }
+            if (rawType == Character.TYPE) {
+                return CharacterDeserializer.primitiveInstance;
+            }
+            if (rawType == Byte.TYPE) {
+                return ByteDeserializer.primitiveInstance;
+            }
+            if (rawType == Short.TYPE) {
+                return ShortDeserializer.primitiveInstance;
+            }
+            if (rawType == Float.TYPE) {
+                return FloatDeserializer.primitiveInstance;
+            }
+        } else if (_classNames.contains(rawType.getName())) {
+            // Start with most common types; int, boolean, long, double
+            if (rawType == Integer.class) {
+                return IntegerDeserializer.wrapperInstance;
+            }
+            if (rawType == Boolean.class) {
+                return BooleanDeserializer.wrapperInstance;
+            }
+            if (rawType == Long.class) {
+                return LongDeserializer.wrapperInstance;
+            }
+            if (rawType == Double.class) {
+                return DoubleDeserializer.wrapperInstance;
+            }
+            if (rawType == Character.class) {
+                return CharacterDeserializer.wrapperInstance;
+            }
+            if (rawType == Byte.class) {
+                return ByteDeserializer.wrapperInstance;
+            }
+            if (rawType == Short.class) {
+                return ShortDeserializer.wrapperInstance;
+            }
+            if (rawType == Float.class) {
+                return FloatDeserializer.wrapperInstance;
+            }
+            if (rawType == Number.class) {
+                return NumberDeserializer.instance;
+            }
+            if (rawType == BigDecimal.class) {
+                return BigDecimalDeserializer.instance;
+            }
+            if (rawType == BigInteger.class) {
+                return BigIntegerDeserializer.instance;
+            }
+        } else {
             return null;
-        }
-        // Start with most common types; int, boolean, long, double
-        if (rawType == Integer.TYPE) {
-            return IntegerDeserializer.primitiveInstance;
-        }
-        if (rawType == Integer.class) {
-            return IntegerDeserializer.wrapperInstance;
-        }
-        if (rawType == Boolean.TYPE) {
-            return BooleanDeserializer.primitiveInstance;
-        }
-        if (rawType == Boolean.class) {
-            return BooleanDeserializer.wrapperInstance;
-        }
-        if (rawType == Long.TYPE) {
-            return LongDeserializer.primitiveInstance;
-        }
-        if (rawType == Long.class) {
-            return LongDeserializer.wrapperInstance;
-        }
-        if (rawType == Double.TYPE) {
-            return DoubleDeserializer.primitiveInstance;
-        }
-        if (rawType == Double.class) {
-            return DoubleDeserializer.wrapperInstance;
-        }
-        if (rawType == Character.TYPE) {
-            return CharacterDeserializer.primitiveInstance;
-        }
-        if (rawType == Character.class) {
-            return CharacterDeserializer.wrapperInstance;
-        }
-
-        if (rawType == Byte.TYPE) {
-            return ByteDeserializer.primitiveInstance;
-        }
-        if (rawType == Byte.class) {
-            return ByteDeserializer.wrapperInstance;
-        }
-        if (rawType == Short.TYPE) {
-            return ShortDeserializer.primitiveInstance;
-        }
-        if (rawType == Short.class) {
-            return ShortDeserializer.wrapperInstance;
-        }
-        if (rawType == Float.TYPE) {
-            return FloatDeserializer.primitiveInstance;
-        }
-        if (rawType == Float.class) {
-            return FloatDeserializer.wrapperInstance;
-        }
-        if (rawType == Number.class) {
-            return NumberDeserializer.instance;
-        }
-        if (rawType == BigDecimal.class) {
-            return BigDecimalDeserializer.instance;
-        }
-        if (rawType == BigInteger.class) {
-            return BigIntegerDeserializer.instance;
         }
         // should never occur
         throw new IllegalArgumentException("Internal error: can't find deserializer for "+rawType.getName());

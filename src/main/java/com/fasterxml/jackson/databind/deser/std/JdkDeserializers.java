@@ -23,6 +23,29 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 @SuppressWarnings("serial")
 public class JdkDeserializers
 {
+    private final static HashSet<String> _classNames = new HashSet<String>();
+    static {
+        // note: can skip primitive types; other ways to check them:
+        Class<?>[] numberTypes = new Class<?>[] {
+                UUID.class,
+                URL.class,
+                URI.class,
+                File.class,
+                Currency.class,
+                Pattern.class,
+                Locale.class,
+                InetAddress.class,
+                Charset.class,
+                AtomicBoolean.class,
+                Class.class,
+                StackTraceElement.class
+
+        };
+        for (Class<?> cls : numberTypes) {
+            _classNames.add(cls.getName());
+        }
+    }
+
     /**
      * @deprecated Since 2.2 -- use {@link #find} instead.
      */
@@ -31,34 +54,34 @@ public class JdkDeserializers
     {
         return new StdDeserializer[] {
             // from String types:
-            new UUIDDeserializer(),
-            new URLDeserializer(),
-            new URIDeserializer(),
-            new FileDeserializer(),
-            new CurrencyDeserializer(),
-            new PatternDeserializer(),
-            new LocaleDeserializer(),
-            new InetAddressDeserializer(),
-            new CharsetDeserializer(),
+            UUIDDeserializer.instance,
+            URLDeserializer.instance,
+            URIDeserializer.instance,
+            FileDeserializer.instance,
+            CurrencyDeserializer.instance,
+            PatternDeserializer.instance,
+            LocaleDeserializer.instance,
+            InetAddressDeserializer.instance,
+            CharsetDeserializer.instance,
             
             // other types:
 
             // (note: AtomicInteger/Long work due to single-arg constructor;
-            new AtomicBooleanDeserializer(),
-            new ClassDeserializer(),
-            new StackTraceElementDeserializer()
+            AtomicBooleanDeserializer.instance,
+            ClassDeserializer.instance,
+            StackTraceElementDeserializer.instance
         };
     }
 
     public static JsonDeserializer<?> find(Class<?> rawType)
     {
-        if (rawType == UUID.class) {
-            return UUIDDeserializer.instance;
+        if (!_classNames.contains(rawType.getName())) {
+            return null;
         }
-        if (rawType == URIDeserializer.class) {
-            /* Ok: following ones would work via String-arg detection too;
-             * if we get more may want to formally change.
-             */
+        /* Ok: following ones would work via String-arg detection too;
+         * if we get more may want to formally change.
+         */
+        if (rawType == URI.class) {
             return URIDeserializer.instance;
         }
         if (rawType == URL.class) {
@@ -66,9 +89,11 @@ public class JdkDeserializers
         }
         if (rawType == File.class) {
             return FileDeserializer.instance;
-            
-            /* But these will require custom handling regardless:
-             */
+        }
+        /* But these will require custom handling regardless:
+         */
+        if (rawType == UUID.class) {
+            return UUIDDeserializer.instance;
         }
         if (rawType == Currency.class) {
             return CurrencyDeserializer.instance;
@@ -95,9 +120,9 @@ public class JdkDeserializers
             // (note: AtomicInteger/Long work due to single-arg constructor. For now?
             return AtomicBooleanDeserializer.instance;
         }
-        return null;
+        // should never occur
+        throw new IllegalArgumentException("Internal error: can't find deserializer for "+rawType.getName());
     }
-    
     
     /*
     /**********************************************************

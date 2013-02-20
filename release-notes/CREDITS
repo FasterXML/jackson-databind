@@ -68,3 +68,7 @@ Francis Galiegue:
 kelaneren@github:
  * Reported [Issue#157], contributed unit test: NPE when registering same module twice.
   (2.1.4)
+
+Eric Tschetter (cheddar@github):
+  * Reported issues #166, #167, #170 (regressions from 1.9.x to 2.x)
+   (2.1.4)

@@ -59,9 +59,9 @@ public class DateDeserializers
         };
     }
 
-    public static JsonDeserializer<?> find(Class<?> rawType)
+    public static JsonDeserializer<?> find(Class<?> rawType, String clsName)
     {
-        if (!_classNames.contains(rawType.getName())) {
+        if (!_classNames.contains(clsName)) {
             return null;
         }
         // Start with most common types; int, boolean, long, double
@@ -84,7 +84,7 @@ public class DateDeserializers
             return CalendarDeserializer.gregorianInstance;
         }
         // should never occur
-        throw new IllegalArgumentException("Internal error: can't find deserializer for "+rawType.getName());
+        throw new IllegalArgumentException("Internal error: can't find deserializer for "+clsName);
     }
     
     /*

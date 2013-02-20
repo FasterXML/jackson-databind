@@ -1329,11 +1329,11 @@ public abstract class BasicDeserializerFactory
                 return StringDeserializer.instance;
             }
             // Primitives/wrappers, other Numbers:
-            JsonDeserializer<?> deser = NumberDeserializers.find(rawType);
+            JsonDeserializer<?> deser = NumberDeserializers.find(rawType, clsName);
             if (deser == null) {
-                deser = DateDeserializers.find(rawType);
+                deser = DateDeserializers.find(rawType, clsName);
                 if (deser == null) {
-                    deser = JdkDeserializers.find(rawType);
+                    deser = JdkDeserializers.find(rawType, clsName);
                 }
             }
             return deser;

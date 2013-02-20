@@ -73,9 +73,9 @@ public class JdkDeserializers
         };
     }
 
-    public static JsonDeserializer<?> find(Class<?> rawType)
+    public static JsonDeserializer<?> find(Class<?> rawType, String clsName)
     {
-        if (!_classNames.contains(rawType.getName())) {
+        if (!_classNames.contains(clsName)) {
             return null;
         }
         /* Ok: following ones would work via String-arg detection too;
@@ -121,7 +121,7 @@ public class JdkDeserializers
             return AtomicBooleanDeserializer.instance;
         }
         // should never occur
-        throw new IllegalArgumentException("Internal error: can't find deserializer for "+rawType.getName());
+        throw new IllegalArgumentException("Internal error: can't find deserializer for "+clsName);
     }
     
     /*

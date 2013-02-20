@@ -80,7 +80,7 @@ public class NumberDeserializers
         };
     }
     
-    public static JsonDeserializer<?> find(Class<?> rawType)
+    public static JsonDeserializer<?> find(Class<?> rawType, String clsName)
     {
         if (rawType.isPrimitive()) {
             if (rawType == Integer.TYPE) {
@@ -107,7 +107,7 @@ public class NumberDeserializers
             if (rawType == Float.TYPE) {
                 return FloatDeserializer.primitiveInstance;
             }
-        } else if (_classNames.contains(rawType.getName())) {
+        } else if (_classNames.contains(clsName)) {
             // Start with most common types; int, boolean, long, double
             if (rawType == Integer.class) {
                 return IntegerDeserializer.wrapperInstance;

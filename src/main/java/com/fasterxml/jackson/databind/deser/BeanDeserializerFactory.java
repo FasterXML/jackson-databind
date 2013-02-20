@@ -10,16 +10,11 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
-import com.fasterxml.jackson.databind.deser.impl.FieldProperty;
-import com.fasterxml.jackson.databind.deser.impl.MethodProperty;
-import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
-import com.fasterxml.jackson.databind.deser.impl.PropertyBasedObjectIdGenerator;
-import com.fasterxml.jackson.databind.deser.impl.SetterlessProperty;
+import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.JdkDeserializers;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -194,9 +189,9 @@ public class BeanDeserializerFactory
     {
         Class<?> cls = type.getRawClass();
         // note: we do NOT check for custom deserializers here; that's for sub-class to do
-        JsonDeserializer<Object> deser = _simpleDeserializers.get(new ClassKey(cls));
+        JsonDeserializer<?> deser = findDefaultSerializer(cls);
         if (deser != null) {
-            return deser;
+            return (JsonDeserializer<Object>) deser;
         }
         
         // [JACKSON-283]: AtomicReference is a rather special type...

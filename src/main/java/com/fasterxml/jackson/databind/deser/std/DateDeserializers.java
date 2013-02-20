@@ -2,19 +2,15 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.text.*;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -30,21 +26,67 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 @SuppressWarnings("serial")
 public class DateDeserializers
 {
+    private final static HashSet<String> _classNames = new HashSet<String>();
+    static {
+        Class<?>[] numberTypes = new Class<?>[] {
+            Calendar.class,
+            GregorianCalendar.class,
+            java.sql.Date.class,
+            java.util.Date.class,
+            Timestamp.class,
+            TimeZone.class
+        };
+        for (Class<?> cls : numberTypes) {
+            _classNames.add(cls.getName());
+        }
+    }
+
+    /**
+     * @deprecated Since 2.2 -- use {@link #find} instead.
+     */
     public static StdDeserializer<?>[] all()
     {
         return  new StdDeserializer[] {
-            new CalendarDeserializer(), // for nominal type of java.util.Calendar
-            new DateDeserializer(),
+            CalendarDeserializer.instance, // for nominal type of java.util.Calendar
+            DateDeserializer.instance,
             /* 24-Jan-2010, tatu: When including type information, we may
              *    know that we specifically need GregorianCalendar...
              */
-            new CalendarDeserializer(GregorianCalendar.class),
-            new SqlDateDeserializer(),
-            new TimestampDeserializer(),
-            new TimeZoneDeserializer()
+            CalendarDeserializer.gregorianInstance,
+            SqlDateDeserializer.instance,
+            TimestampDeserializer.instance,
+            TimeZoneDeserializer.instance
         };
     }
 
+    public static JsonDeserializer<?> find(Class<?> rawType)
+    {
+        if (!_classNames.contains(rawType.getName())) {
+            return null;
+        }
+        // Start with most common types; int, boolean, long, double
+        if (rawType == Calendar.class) {
+            return CalendarDeserializer.instance;
+        }
+        if (rawType == java.util.Date.class) {
+            return DateDeserializer.instance;
+        }
+        if (rawType == java.sql.Date.class) {
+            return SqlDateDeserializer.instance;
+        }
+        if (rawType == Timestamp.class) {
+            return TimestampDeserializer.instance;
+        }
+        if (rawType == TimeZone.class) {
+            return TimeZoneDeserializer.instance;
+        }
+        if (rawType == GregorianCalendar.class) {
+            return CalendarDeserializer.gregorianInstance;
+        }
+        // should never occur
+        throw new IllegalArgumentException("Internal error: can't find deserializer for "+rawType.getName());
+    }
+    
     /*
     /**********************************************************
     /* Intermediate class for Date-based ones
@@ -81,7 +123,7 @@ public class DateDeserializers
 
         protected abstract DateBasedDeserializer<T> withDateFormat(DateFormat df, String formatStr);
         
-//      @Override
+        @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
            throws JsonMappingException
         {
@@ -153,6 +195,9 @@ public class DateDeserializers
     public static class CalendarDeserializer
         extends DateBasedDeserializer<Calendar>
     {
+        public final static CalendarDeserializer instance = new CalendarDeserializer();
+        public final static CalendarDeserializer gregorianInstance = new CalendarDeserializer(GregorianCalendar.class);
+        
         /**
          * We may know actual expected type; if so, it will be
          * used for instantiation.
@@ -214,6 +259,8 @@ public class DateDeserializers
     public static class DateDeserializer
         extends DateBasedDeserializer<Date>
     {
+        public final static DateDeserializer instance = new DateDeserializer();
+
         public DateDeserializer() { super(Date.class); }
         public DateDeserializer(DateDeserializer base, DateFormat df, String formatString) {
             super(base, df, formatString);
@@ -239,6 +286,8 @@ public class DateDeserializers
     public static class SqlDateDeserializer
         extends DateBasedDeserializer<java.sql.Date>
     {
+        public final static SqlDateDeserializer instance = new SqlDateDeserializer();
+
         public SqlDateDeserializer() { super(java.sql.Date.class); }
         public SqlDateDeserializer(SqlDateDeserializer src, DateFormat df, String formatString) {
             super(src, df, formatString);
@@ -268,6 +317,8 @@ public class DateDeserializers
     public static class TimestampDeserializer
         extends DateBasedDeserializer<Timestamp>
     {
+        public final static TimestampDeserializer instance = new TimestampDeserializer();
+
         public TimestampDeserializer() { super(Timestamp.class); }
         public TimestampDeserializer(TimestampDeserializer src, DateFormat df, String formatString) {
             super(src, df, formatString);
@@ -298,6 +349,8 @@ public class DateDeserializers
     protected static class TimeZoneDeserializer
         extends FromStringDeserializer<TimeZone>
     {
+        public final static TimeZoneDeserializer instance = new TimeZoneDeserializer();
+
         public TimeZoneDeserializer() { super(TimeZone.class); }
 
         @Override

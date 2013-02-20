@@ -36,14 +36,6 @@ public abstract class BasicDeserializerFactory
     private static final long serialVersionUID = 1;
 
     /**
-     * We will pre-create serializers for common non-structured
-     * (that is things other than Collection, Map or array)
-     * types. These need not go through factory.
-     */
-    final protected static HashMap<ClassKey, JsonDeserializer<Object>> _simpleDeserializers
-        = new HashMap<ClassKey, JsonDeserializer<Object>>();
-
-    /**
      * Also special array deserializers for primitive array types.
      */
     final protected static HashMap<JavaType,JsonDeserializer<Object>> _arrayDeserializers
@@ -51,43 +43,9 @@ public abstract class BasicDeserializerFactory
 
     /**
      * Set of available key deserializers is currently limited
-     * to standard types; and all known instances are storing in this map.
+     * to standard types; and all known instances are stored in this map.
      */
     final protected static HashMap<JavaType, KeyDeserializer> _keyDeserializers = StdKeyDeserializers.constructAll();
-
-    static {
-        // First, add the fall-back "untyped" deserializer:
-        _add(_simpleDeserializers, Object.class, new UntypedObjectDeserializer());
-    
-        // Then String and String-like converters:
-        StdDeserializer<?> strDeser = new StringDeserializer();
-        _add(_simpleDeserializers, String.class, strDeser);
-        _add(_simpleDeserializers, CharSequence.class, strDeser);
-    
-        // Primitives/wrappers, other Numbers:
-        _add(_simpleDeserializers, NumberDeserializers.all());
-        // Date/time types
-        _add(_simpleDeserializers, DateDeserializers.all());
-        // other JDK types
-        _add(_simpleDeserializers, JdkDeserializers.all());
-        // and a few Jackson types as well:
-        _add(_simpleDeserializers, JacksonDeserializers.all());
-    }
-
-    private static void _add(Map<ClassKey, JsonDeserializer<Object>> desers,
-            StdDeserializer<?>[] serializers) {
-        for (StdDeserializer<?> ser : serializers) {
-            _add(desers, ser.getValueClass(), ser);
-        }
-    }
-
-    private static void _add(Map<ClassKey, JsonDeserializer<Object>> desers,
-            Class<?> valueClass, StdDeserializer<?> stdDeser)
-    {
-        @SuppressWarnings("unchecked")
-        JsonDeserializer<Object> deser = (JsonDeserializer<Object>) stdDeser;
-        desers.put(new ClassKey(valueClass), deser);
-    }
     
     /* We do some defaulting for abstract Map classes and
      * interfaces, to avoid having to use exact types or annotations in
@@ -1348,6 +1306,46 @@ public abstract class BasicDeserializerFactory
         return b.buildTypeDeserializer(config, contentType, subtypes);
     }
 
+    private final static Class<?> CLASS_OBJECT = Object.class;
+    private final static Class<?> CLASS_STRING = String.class;
+    private final static Class<?> CLASS_CHAR_BUFFER = CharSequence.class;
+
+    /**
+     * Helper method called to find one of default serializers for "well-known"
+     * platform types: JDK-provided types, and small number of public Jackson
+     * API types.
+     * 
+     * @since 2.2
+     */
+    public JsonDeserializer<?> findDefaultSerializer(Class<?> rawType)
+    {
+        String clsName = rawType.getName();
+        if (rawType.isPrimitive() || clsName.startsWith("java.")) {
+            // Object ("untyped"), String equivalents:
+            if (rawType == CLASS_OBJECT) {
+                return UntypedObjectDeserializer.instance;
+            }
+            if (rawType == CLASS_STRING || rawType == CLASS_CHAR_BUFFER) {
+                return StringDeserializer.instance;
+            }
+            // Primitives/wrappers, other Numbers:
+            JsonDeserializer<?> deser = NumberDeserializers.find(rawType);
+            if (deser == null) {
+                deser = DateDeserializers.find(rawType);
+                if (deser == null) {
+                    deser = JdkDeserializers.find(rawType);
+                }
+            }
+            return deser;
+        }
+        if (clsName.startsWith("com.fasterxml.")) {
+            // and a few Jackson types as well:
+            return JacksonDeserializers.find(rawType);
+        }
+        return null;
+    }
+
+    
     /*
     /**********************************************************
     /* Helper methods, value/content/key type introspection

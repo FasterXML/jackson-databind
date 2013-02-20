@@ -14,6 +14,8 @@ public class ClassDeserializer
 {
     private static final long serialVersionUID = 1L;
 
+    public final static ClassDeserializer instance = new ClassDeserializer();
+    
     public ClassDeserializer() { super(Class.class); }
 
     @Override

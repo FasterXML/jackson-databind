@@ -14,6 +14,11 @@ public final class StringDeserializer
 {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * @since 2.2
+     */
+    public final static StringDeserializer instance = new StringDeserializer();
+    
     public StringDeserializer() { super(String.class); }
 
     @Override

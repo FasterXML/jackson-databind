@@ -23,12 +23,14 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 @SuppressWarnings("serial")
 public class JdkDeserializers
 {
+    /**
+     * @deprecated Since 2.2 -- use {@link #find} instead.
+     */
+    @Deprecated
     public static StdDeserializer<?>[] all()
     {
         return new StdDeserializer[] {
-
             // from String types:
-            new StringDeserializer(),
             new UUIDDeserializer(),
             new URLDeserializer(),
             new URIDeserializer(),
@@ -47,6 +49,55 @@ public class JdkDeserializers
             new StackTraceElementDeserializer()
         };
     }
+
+    public static JsonDeserializer<?> find(Class<?> rawType)
+    {
+        if (rawType == UUID.class) {
+            return UUIDDeserializer.instance;
+        }
+        if (rawType == URIDeserializer.class) {
+            /* Ok: following ones would work via String-arg detection too;
+             * if we get more may want to formally change.
+             */
+            return URIDeserializer.instance;
+        }
+        if (rawType == URL.class) {
+            return URLDeserializer.instance;
+        }
+        if (rawType == File.class) {
+            return FileDeserializer.instance;
+            
+            /* But these will require custom handling regardless:
+             */
+        }
+        if (rawType == Currency.class) {
+            return CurrencyDeserializer.instance;
+        }
+        if (rawType == Pattern.class) {
+            return PatternDeserializer.instance;
+        }
+        if (rawType == Locale.class) {
+            return LocaleDeserializer.instance;
+        }
+        if (rawType == InetAddress.class) {
+            return InetAddressDeserializer.instance;
+        }
+        if (rawType == Charset.class) {
+            return CharsetDeserializer.instance;
+        }
+        if (rawType == Class.class) {
+            return ClassDeserializer.instance;
+        }
+        if (rawType == StackTraceElement.class) {
+            return StackTraceElementDeserializer.instance;
+        }
+        if (rawType == AtomicBoolean.class) {
+            // (note: AtomicInteger/Long work due to single-arg constructor. For now?
+            return AtomicBooleanDeserializer.instance;
+        }
+        return null;
+    }
+    
     
     /*
     /**********************************************************
@@ -57,6 +108,8 @@ public class JdkDeserializers
     public static class UUIDDeserializer
         extends FromStringDeserializer<UUID>
     {
+        public final static UUIDDeserializer instance = new UUIDDeserializer();
+        
         public UUIDDeserializer() { super(UUID.class); }
 
         @Override
@@ -89,6 +142,8 @@ public class JdkDeserializers
     public static class URLDeserializer
         extends FromStringDeserializer<URL>
     {
+        public final static URLDeserializer instance = new URLDeserializer();
+
         public URLDeserializer() { super(URL.class); }
         
         @Override
@@ -102,6 +157,8 @@ public class JdkDeserializers
     public static class URIDeserializer
         extends FromStringDeserializer<URI>
     {
+        public final static URIDeserializer instance = new URIDeserializer();
+
         public URIDeserializer() { super(URI.class); }
     
         @Override
@@ -115,6 +172,8 @@ public class JdkDeserializers
     public static class CurrencyDeserializer
         extends FromStringDeserializer<Currency>
     {
+        public final static CurrencyDeserializer instance = new CurrencyDeserializer();
+
         public CurrencyDeserializer() { super(Currency.class); }
         
         @Override
@@ -129,6 +188,8 @@ public class JdkDeserializers
     public static class PatternDeserializer
         extends FromStringDeserializer<Pattern>
     {
+        public final static PatternDeserializer instance = new PatternDeserializer();
+
         public PatternDeserializer() { super(Pattern.class); }
         
         @Override
@@ -146,6 +207,8 @@ public class JdkDeserializers
     protected static class LocaleDeserializer
         extends FromStringDeserializer<Locale>
     {
+        public final static LocaleDeserializer instance = new LocaleDeserializer();
+
         public LocaleDeserializer() { super(Locale.class); }
         
         @Override
@@ -173,6 +236,8 @@ public class JdkDeserializers
     protected static class InetAddressDeserializer
         extends FromStringDeserializer<InetAddress>
     {
+        public final static InetAddressDeserializer instance = new InetAddressDeserializer();
+
         public InetAddressDeserializer() { super(InetAddress.class); }
     
         @Override
@@ -187,6 +252,8 @@ public class JdkDeserializers
     protected static class CharsetDeserializer
         extends FromStringDeserializer<Charset>
     {
+        public final static CharsetDeserializer instance = new CharsetDeserializer();
+
         public CharsetDeserializer() { super(Charset.class); }
     
         @Override
@@ -200,6 +267,8 @@ public class JdkDeserializers
     public static class FileDeserializer
         extends FromStringDeserializer<File>
     {
+        public final static FileDeserializer instance = new FileDeserializer();
+
         public FileDeserializer() { super(File.class); }
         
         @Override
@@ -248,7 +317,7 @@ public class JdkDeserializers
             return new AtomicReference<Object>(_valueDeserializer.deserialize(jp, ctxt));
         }
         
-//        @Override
+        @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property) throws JsonMappingException
         {
@@ -264,6 +333,8 @@ public class JdkDeserializers
     public static class AtomicBooleanDeserializer
         extends StdScalarDeserializer<AtomicBoolean>
     {
+        public final static AtomicBooleanDeserializer instance = new AtomicBooleanDeserializer();
+
         public AtomicBooleanDeserializer() { super(AtomicBoolean.class); }
         
         @Override
@@ -284,6 +355,8 @@ public class JdkDeserializers
     public static class StackTraceElementDeserializer
         extends StdScalarDeserializer<StackTraceElement>
     {
+        public final static StackTraceElementDeserializer instance = new StackTraceElementDeserializer();
+
         public StackTraceElementDeserializer() { super(StackTraceElement.class); }
     
         @Override

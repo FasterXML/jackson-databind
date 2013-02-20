@@ -3,12 +3,15 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.HashSet;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -21,6 +24,29 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  */
 public class NumberDeserializers
 {
+    private final static HashSet<String> _classNames = new HashSet<String>();
+    static {
+        Class<?>[] numberTypes = new Class<?>[] {
+            Boolean.class, Boolean.TYPE,
+            Byte.class, Byte.TYPE,
+            Short.class, Short.TYPE,
+            Character.class, Character.TYPE,
+            Integer.class, Integer.TYPE,
+            Long.class, Long.TYPE,
+            Float.class, Float.TYPE,
+            Double.class, Double.TYPE,
+            // and more generic ones
+            Number.class, BigDecimal.class, BigInteger.class
+        };
+        for (Class<?> cls : numberTypes) {
+            _classNames.add(cls.getName());
+        }
+    }
+
+    /**
+     * @deprecated Since 2.2 -- use {@link #find} instead.
+     */
+    @Deprecated
     public static StdDeserializer<?>[] all()
     {
         return new StdDeserializer<?>[] {
@@ -51,6 +77,74 @@ public class NumberDeserializers
                 new BigDecimalDeserializer(),
                 new BigIntegerDeserializer()
         };
+    }
+    
+    public static JsonDeserializer<?> find(Class<?> rawType)
+    {
+        if (!_classNames.contains(rawType.getName())) {
+            return null;
+        }
+        // Start with most common types; int, boolean, long, double
+        if (rawType == Integer.TYPE) {
+            return IntegerDeserializer.primitiveInstance;
+        }
+        if (rawType == Integer.class) {
+            return IntegerDeserializer.wrapperInstance;
+        }
+        if (rawType == Boolean.TYPE) {
+            return BooleanDeserializer.primitiveInstance;
+        }
+        if (rawType == Boolean.class) {
+            return BooleanDeserializer.wrapperInstance;
+        }
+        if (rawType == Long.TYPE) {
+            return LongDeserializer.primitiveInstance;
+        }
+        if (rawType == Long.class) {
+            return LongDeserializer.wrapperInstance;
+        }
+        if (rawType == Double.TYPE) {
+            return DoubleDeserializer.primitiveInstance;
+        }
+        if (rawType == Double.class) {
+            return DoubleDeserializer.wrapperInstance;
+        }
+        if (rawType == Character.TYPE) {
+            return CharacterDeserializer.primitiveInstance;
+        }
+        if (rawType == Character.class) {
+            return CharacterDeserializer.wrapperInstance;
+        }
+
+        if (rawType == Byte.TYPE) {
+            return ByteDeserializer.primitiveInstance;
+        }
+        if (rawType == Byte.class) {
+            return ByteDeserializer.wrapperInstance;
+        }
+        if (rawType == Short.TYPE) {
+            return ShortDeserializer.primitiveInstance;
+        }
+        if (rawType == Short.class) {
+            return ShortDeserializer.wrapperInstance;
+        }
+        if (rawType == Float.TYPE) {
+            return FloatDeserializer.primitiveInstance;
+        }
+        if (rawType == Float.class) {
+            return FloatDeserializer.wrapperInstance;
+        }
+        if (rawType == Number.class) {
+            return NumberDeserializer.instance;
+        }
+        if (rawType == BigDecimal.class) {
+            return BigDecimalDeserializer.instance;
+        }
+        if (rawType == BigInteger.class) {
+            return BigIntegerDeserializer.instance;
+        }
+        // should never occur
+        throw new IllegalArgumentException("Internal error: can't find deserializer for "+rawType.getName());
     }
     
     /*
@@ -91,6 +185,9 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
+        private final static BooleanDeserializer primitiveInstance = new BooleanDeserializer(Boolean.class, Boolean.FALSE);
+        private final static BooleanDeserializer wrapperInstance = new BooleanDeserializer(Boolean.TYPE, null);
+        
         public BooleanDeserializer(Class<Boolean> cls, Boolean nvl)
         {
             super(cls, nvl);
@@ -120,6 +217,9 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
+        private final static ByteDeserializer primitiveInstance = new ByteDeserializer(Byte.TYPE, (byte) 0);
+        private final static ByteDeserializer wrapperInstance = new ByteDeserializer(Byte.class, null);
+        
         public ByteDeserializer(Class<Byte> cls, Byte nvl)
         {
             super(cls, nvl);
@@ -139,6 +239,9 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
+        private final static ShortDeserializer primitiveInstance = new ShortDeserializer(Short.class, Short.valueOf((short)0));
+        private final static ShortDeserializer wrapperInstance = new ShortDeserializer(Short.TYPE, null);
+        
         public ShortDeserializer(Class<Short> cls, Short nvl)
         {
             super(cls, nvl);
@@ -158,6 +261,9 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
+        private final static CharacterDeserializer primitiveInstance = new CharacterDeserializer(Character.class, '\0');
+        private final static CharacterDeserializer wrapperInstance = new CharacterDeserializer(Character.TYPE, null);
+        
         public CharacterDeserializer(Class<Character> cls, Character nvl)
         {
             super(cls, nvl);
@@ -196,6 +302,9 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
+        private final static IntegerDeserializer primitiveInstance = new IntegerDeserializer(Integer.class, 0);
+        private final static IntegerDeserializer wrapperInstance = new IntegerDeserializer(Integer.TYPE, null);
+        
         public IntegerDeserializer(Class<Integer> cls, Integer nvl)
         {
             super(cls, nvl);
@@ -225,6 +334,9 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
+        private final static LongDeserializer primitiveInstance = new LongDeserializer(Long.class, Long.valueOf(0L));
+        private final static LongDeserializer wrapperInstance = new LongDeserializer(Long.TYPE, null);
+        
         public LongDeserializer(Class<Long> cls, Long nvl)
         {
             super(cls, nvl);
@@ -244,6 +356,9 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
+        private final static FloatDeserializer primitiveInstance = new FloatDeserializer(Float.class, 0.f);
+        private final static FloatDeserializer wrapperInstance = new FloatDeserializer(Float.TYPE, null);
+        
         public FloatDeserializer(Class<Float> cls, Float nvl)
         {
             super(cls, nvl);
@@ -266,6 +381,9 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
+        private final static DoubleDeserializer primitiveInstance = new DoubleDeserializer(Double.class, 0.d);
+        private final static DoubleDeserializer wrapperInstance = new DoubleDeserializer(Double.TYPE, null);
+        
         public DoubleDeserializer(Class<Double> cls, Double nvl)
         {
             super(cls, nvl);
@@ -304,6 +422,8 @@ public class NumberDeserializers
     public final static class NumberDeserializer
         extends StdScalarDeserializer<Number>
     {
+        public final static NumberDeserializer instance = new NumberDeserializer();
+        
         public NumberDeserializer() { super(Number.class); }
 
         @Override
@@ -395,6 +515,8 @@ public class NumberDeserializers
     public static class BigIntegerDeserializer
         extends StdScalarDeserializer<BigInteger>
     {
+        public final static BigIntegerDeserializer instance = new BigIntegerDeserializer();
+
         public BigIntegerDeserializer() { super(BigInteger.class); }
 
         @SuppressWarnings("incomplete-switch")
@@ -437,6 +559,8 @@ public class NumberDeserializers
     public static class BigDecimalDeserializer
         extends StdScalarDeserializer<BigDecimal>
     {
+        public final static BigDecimalDeserializer instance = new BigDecimalDeserializer();
+ 
         public BigDecimalDeserializer() { super(BigDecimal.class); }
 
         @Override

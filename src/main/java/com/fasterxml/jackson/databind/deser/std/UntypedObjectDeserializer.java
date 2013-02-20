@@ -28,6 +28,11 @@ public class UntypedObjectDeserializer
     private static final long serialVersionUID = 1L;
 
     private final static Object[] NO_OBJECTS = new Object[0];
+
+    /**
+     * @since 2.2
+     */
+    public final static UntypedObjectDeserializer instance = new UntypedObjectDeserializer();
     
     public UntypedObjectDeserializer() { super(Object.class); }
 

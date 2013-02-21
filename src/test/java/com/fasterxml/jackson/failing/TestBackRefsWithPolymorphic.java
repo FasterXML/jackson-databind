@@ -13,12 +13,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class TestBackRefsWithPolymorphic extends BaseMapTest
 {
     private final String CLASS_NAME = getClass().getName();
-    
+
+    // NOTE: order is arbitrary, test is fragile... has to work for now
     private final String JSON =
-        "{\"@class\":\""+CLASS_NAME+"$PropertySheetImpl\",\"properties\":{\"p1name\":{\"@class\":"
-            +"\"" +CLASS_NAME+ "$StringPropertyImpl\",\"value\":\"p1value\",\"name\":\"p1name\",\"id\":0},"
-            +"\"p2name\":{\"@class\":\""+CLASS_NAME+"$StringPropertyImpl\",\"value\":\"p2value\","
-            +"\"name\":\"p2name\",\"id\":0}},\"id\":0}";
+        "{\"@class\":\""+CLASS_NAME+"$PropertySheetImpl\",\"id\":0,\"properties\":{\"p1name\":{\"@class\":"
+            +"\"" +CLASS_NAME+ "$StringPropertyImpl\",\"id\":0,\"name\":\"p1name\",\"value\":\"p1value\"},"
+            +"\"p2name\":{\"@class\":\""+CLASS_NAME+"$StringPropertyImpl\",\"id\":0,"
+            +"\"name\":\"p2name\",\"value\":\"p2value\"}}}";
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -34,9 +35,11 @@ public class TestBackRefsWithPolymorphic extends BaseMapTest
 
         sheet.addProperty(new StringPropertyImpl("p1name", "p1value"));
         sheet.addProperty(new StringPropertyImpl("p2name", "p2value"));
-        assertEquals(JSON, MAPPER.writeValueAsString(sheet));
+        String actual = MAPPER.writeValueAsString(sheet);
+        assertEquals(JSON, actual);
     }
 
+    @JsonPropertyOrder(alphabetic=true)
     interface Entity
     {
         @JsonIgnore String getEntityType();
@@ -137,6 +140,7 @@ public class TestBackRefsWithPolymorphic extends BaseMapTest
         }
     }
 
+    @JsonPropertyOrder(alphabetic=true)
     static class NestedPropertySheetImpl
         extends AbstractProperty<PropertySheet>
         implements NestedPropertySheet

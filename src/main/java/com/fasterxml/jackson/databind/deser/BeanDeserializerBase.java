@@ -388,7 +388,7 @@ public abstract class BeanDeserializerBase
      * @since 2.1
      */
     protected abstract BeanDeserializerBase asArrayDeserializer();
-    
+
     /*
     /**********************************************************
     /* Validation, post-processing
@@ -400,7 +400,7 @@ public abstract class BeanDeserializerBase
      * after deserializer itself has been registered.
      * This is needed to handle recursive and transitive dependencies.
      */
-//  @Override
+    @Override
     public void resolve(DeserializationContext ctxt)
         throws JsonMappingException
     {

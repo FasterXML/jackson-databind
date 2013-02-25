@@ -356,6 +356,9 @@ public class JsonMappingException
 
     protected void _appendPathDesc(StringBuilder sb)
     {
+        if (_path == null) {
+            return;
+        }
         Iterator<Reference> it = _path.iterator();
         while (it.hasNext()) {
             sb.append(it.next().toString());

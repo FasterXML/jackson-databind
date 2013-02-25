@@ -912,3 +912,8 @@ Francis Galiegue:
 Eric Tschetter (cheddar@github):
  * Reported issues #166, #167, #170 (regressions from 1.9.x to 2.x)
   (2.1.4)
+
+Andrew Brampton (bramp@github)
+ * Reported #175: NPE in JsonMappingException if path is missing
+  (2.1.4)
+

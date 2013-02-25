@@ -7,16 +7,18 @@ Fixes:
 
 * [JACKSON-887]: StackOverflow with parameterized sub-class field
  (reported by Alexander M)
-* [Issue#130]: TimeZone not set for GregorianCalendar, when deserializing
-* [Issue#157]: NPE when registering module twice
-* [Issue#162]: JsonNodeFactory: work around an old bug with BigDecimal and zero
+* [#130]: TimeZone not set for GregorianCalendar, when deserializing
+* [#157]: NPE when registering module twice
+* [#162]: JsonNodeFactory: work around an old bug with BigDecimal and zero
  (submitted by fge@github)
-* [Issue#166]: Incorrect optimization for `ObjectMapper.convertValue(Class)`
+* [#166]: Incorrect optimization for `ObjectMapper.convertValue(Class)`
  (reported by Eric T)
-* [Issue#167]: Problems with @JsonValue, polymorphic types (regression from 1.x)
+* [#167]: Problems with @JsonValue, polymorphic types (regression from 1.x)
  (reported by Eric T)
 * [#170]: Problems deserializing `java.io.File` if creator auto-discovery disabled
  (reported by Eric T)
+* [#175]: NPE for JsonMappingException, if no path is specified
+ (reported by bramp@github)
 
 ------------------------------------------------------------------------
 === History: ===

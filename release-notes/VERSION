@@ -20,6 +20,7 @@ Improvements:
 * [#155]: Make `ObjectNode` and `ArrayNode` final (other node types already were)
  (requested by fge@github)
 * [#161]: Add deserializer for java.util.concurrent.ArrayBlockingQueue
+* [#173]: Add 'JsonNode.traverse(ObjectCodec)' for convenience
 
 New features:
 

@@ -48,6 +48,11 @@ public abstract class BaseJsonNode
         return new TreeTraversingParser(this);
     }
 
+    @Override
+    public JsonParser traverse(ObjectCodec codec) {
+        return new TreeTraversingParser(this, codec);
+    }
+    
     /**
      * Method that can be used for efficient type detection
      * when using stream abstraction for traversing nodes.

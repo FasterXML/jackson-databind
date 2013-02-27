@@ -2,8 +2,8 @@
 
 This project contains the general-purpose data-binding functionality
 and tree-model for [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome)
-It builds on [core streaming parser/generator](/FasterXML/jackson-core) package,
-and uses [Jackson Annotations](/FasterXML/jackson-annotations) for configuration.
+It builds on [core streaming parser/generator](https://github.com/FasterXML/jackson-core) package,
+and uses [Jackson Annotations](https://github.com/FasterXML//jackson-annotations) for configuration.
 More low-level details can be found from [Javadocs](http://fasterxml.github.com/jackson-databind/javadoc/2.1.1/).
 
 While the original use case for Jackson was JSON data-binding,
@@ -57,7 +57,7 @@ but note that this is optional, and only necessary if there are conflicts betwee
 
 ## Non-Maven
 
-For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/) or [Download page](jackson-databind/wiki/JacksonDownload).
+For non-Maven use cases, you download jars from [Central Maven repository](http://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/) or [Download page](https://github.com/FasterXML/jackson-databind/wiki/JacksonDownload).
 
 Databind jar is also a functional OSGi bundle, with proper import/export declarations, so it can be use on OSGi container as is.
 
@@ -125,7 +125,7 @@ Map<String, ResultValue> results = mapper.readValue(jsonSource,
 But wait! There is more!
 
 While dealing with `Map`s, `List`s and other "simple" Object types (Strings, Numbers, Booleans) can be simple, Object traversal can be cumbersome.
-This is where Jackson's [Tree model](jackson-databind/wiki/JacksonTreeModel) can come in handy:
+This is where Jackson's [Tree model](https://github.com/FasterXML/jackson-databind/wiki/JacksonTreeModel) can come in handy:
 
 ```java
 // can be read as generic JsonNode, if it can be Object or Array; or,
@@ -154,7 +154,7 @@ Tree Model can be more convenient than data-binding, especially in cases where s
 As convenient as data-binding (to/from POJOs) can be; and as flexible as Tree model can be, there is one more canonical processing model available: incremental (aka "streaming") model.
 It is the underlying processing model that data-binding and Tree Model both build upon, but it is also exposed to users who want ultimate performance and/or control over parsing or generation details.
 
-For in-depth explanation, look at [Jackson Core component](jackson-core).
+For in-depth explanation, look at [Jackson Core component](https://github.com/FasterXML/jackson-core).
 But let's look at a simple teaser to whet your appetite:
 
 (TO BE COMPLETED)
@@ -163,7 +163,7 @@ But let's look at a simple teaser to whet your appetite:
 ## 10 minute tutorial: configuration
 
 There are two entry-level configuration mechanisms you are likely to use:
-[Features](jackson-databind/wiki/JacksonFeatures) and [Annotations](jackson-annotations).
+[Features](https://github.com/FasterXML/jackson-databind/wiki/JacksonFeatures) and [Annotations](https://github.com/FasterXML/jackson-annotations).
 
 ### Commonly used Features
 
@@ -208,7 +208,7 @@ mapper.enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
 mapper.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
 ```
 
-Full set of features are explained on [Jackson Features](jackson-databind/wiki/JacksonFeatures) page.
+Full set of features are explained on [Jackson Features](https://github.com/FasterXML/jackson-databind/wiki/JacksonFeatures) page.
 
 ### Annotations: changing property names
 
@@ -228,9 +228,9 @@ public class MyBean {
 }
 ```
 
-There are other mechanisms to use for systematic naming changes: see [Custom Naming Convention](jackson-databind/wiki/JacksonCustomNamingConvention) for details.
+There are other mechanisms to use for systematic naming changes: see [Custom Naming Convention](https://github.com/FasterXML/jackson-databind/wiki/JacksonCustomNamingConvention) for details.
 
-Note, too, that you can use [Mix-in Annotations](jackson-databind/wiki/JacksonMixinAnnotations) to associate all annotations.
+Note, too, that you can use [Mix-in Annotations](https://github.com/FasterXML/jackson-databind/wiki/JacksonMixinAnnotations) to associate all annotations.
 
 ### Annotations: Ignoring properties
 
@@ -346,7 +346,7 @@ Basically, Jackson can work as a replacement for many Apache Commons components,
 # Contribute!
 
 We would love to get your contribution, whether it's in form of bug reports, Requests for Enhancement (RFE), documentation, or code patches.
-The primary mechanism for all of above is [GitHub Issues system](FasterXML/jackson-databind/issues).
+The primary mechanism for all of above is [GitHub Issues system](https://github.com/FasterXML/jackson-databind/issues).
 
 ## Basic rules for Code Contributions
 
@@ -368,7 +368,7 @@ This means that anything that has to rely on additional APIs or libraries needs 
 Project-specific documentation:
 
 * [Javadocs](http://fasterxml.github.com/jackson-databind/javadoc/2.1.1/)
-* [Documentation](jackson-databind/wiki/Documentation)
+* [Documentation](https://github.com/FasterXML/jackson-databind/wiki/Documentation)
 
 Related:
 

@@ -27,6 +27,7 @@ New features:
 * [#120]: Extend BeanDeserializerModifier to work with non-POJO deserializers
 * [#121]: Extend BeanSerializerModifier to work with non-POJO serializers
 * [#124]: Add support for serialization converters (@JsonSerializer(converter=...))
+* [#124]: Add support for deserialization converters (@JsonDeserializer(converter=...))
 * [#140]: Add 'SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN' to allow forcing
   of non-scientific notation when serializing BigDecimals.
  (suggested by phedny@github)

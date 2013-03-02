@@ -361,7 +361,7 @@ public final class DeserializerCache
             throw new JsonMappingException("Could not determine Converter parameterization for "
                     +converterType);
         }
-        JavaType delegateType = params[1];
+        JavaType delegateType = params[0];
         return new StdDelegatingDeserializer<Object>(conv, delegateType,
                 _createDeserializer2(ctxt, factory, delegateType, beanDesc));
     }

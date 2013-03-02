@@ -10,6 +10,9 @@ import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Base class for common deserializers. Contains shared
@@ -631,6 +634,50 @@ public abstract class StdDeserializer<T>
         throws JsonMappingException
     {
         return ctxt.findContextualValueDeserializer(type, property);
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods for sub-classes, deserializer construction
+    /**********************************************************
+     */
+    
+    /**
+     * Helper method that can be used to see if specified property has annotation
+     * indicating that a converter is to be used for contained values (contents
+     * of structured types; array/List/Map values)
+     * 
+     * @param existingSerializer (optional) configured content
+     *    serializer if one already exists.
+     * 
+     * @since 2.2
+     */
+    protected JsonDeserializer<?> findConvertingContentDeserializer(DeserializationContext ctxt,
+            BeanProperty prop, JsonDeserializer<?> existingDeserializer)
+        throws JsonMappingException
+    {
+        /*
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr != null && prop != null) {
+            Object convDef = intr.findSerializationContentConverter(prop.getMember());
+            if (convDef != null) {
+                Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
+                TypeFactory tf = ctxt.getTypeFactory();
+                JavaType converterType = tf.constructType(conv.getClass());
+                JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
+                if (params == null || params.length != 2) {
+                    throw new JsonMappingException("Could not determine Converter parameterization for "
+                            +converterType);
+                }
+                JavaType delegateType = params[1];
+                if (existingDeserializer == null) {
+                    existingDeserializer = ctxt.findValueSerializer(delegateType, prop);
+                }
+                return new StdDelegatingDeserializer<Object>(conv, delegateType, existingDeserializer);
+            }
+        }
+        */
+        return existingDeserializer;
     }
 
     /*

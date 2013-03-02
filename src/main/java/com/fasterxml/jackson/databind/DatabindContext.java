@@ -2,8 +2,15 @@ package com.fasterxml.jackson.databind;
 
 import java.lang.reflect.Type;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.databind.annotation.NoClass;
+import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Shared base class for {@link DeserializationContext} and
@@ -93,4 +100,54 @@ public abstract class DatabindContext
     }
 
     public abstract TypeFactory getTypeFactory();
+
+    /*
+    /**********************************************************
+    /* Helper object construction
+    /**********************************************************
+     */
+
+    public abstract ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
+            ObjectIdInfo objectIdInfo)
+        throws JsonMappingException;
+
+    /**
+     * Helper method to use to construct a {@link Converter}, given a definition
+     * that may be either actual converter instance, or Class for instantiating one.
+     * 
+     * @since 2.2
+     */
+    @SuppressWarnings("unchecked")
+    public final Converter<Object,Object> converterInstance(Annotated annotated,
+            Object converterDef)
+        throws JsonMappingException
+    {
+        if (converterDef == null) {
+            return null;
+        }
+        if (converterDef instanceof Converter<?,?>) {
+            return (Converter<Object,Object>) converterDef;
+        }
+        if (!(converterDef instanceof Class)) {
+            throw new IllegalStateException("AnnotationIntrospector returned Converter definition of type "
+                    +converterDef.getClass().getName()+"; expected type Converter or Class<Converter> instead");
+        }
+        Class<?> converterClass = (Class<?>)converterDef;
+        // there are some known "no class" markers to consider too:
+        if (converterClass == Converter.None.class || converterClass == NoClass.class) {
+            return null;
+        }
+        if (!Converter.class.isAssignableFrom(converterClass)) {
+            throw new IllegalStateException("AnnotationIntrospector returned Class "
+                    +converterClass.getName()+"; expected Class<Converter>");
+        }
+        MapperConfig<?> config = getConfig();
+        HandlerInstantiator hi = config.getHandlerInstantiator();
+        Converter<?,?> conv = (hi == null) ? null : hi.converterInstance(config, annotated, converterClass);
+        if (conv == null) {
+            conv = (Converter<?,?>) ClassUtil.createInstance(converterClass,
+                    config.canOverrideAccessModifiers());
+        }
+        return (Converter<Object,Object>) conv;
+    }
 }

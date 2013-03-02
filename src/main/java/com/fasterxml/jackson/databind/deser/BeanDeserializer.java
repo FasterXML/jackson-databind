@@ -262,6 +262,7 @@ public class BeanDeserializer
      * General version used when handling needs more advanced
      * features.
      */
+    @Override
     public Object deserializeFromObject(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -325,6 +326,7 @@ public class BeanDeserializer
      * due to non-guaranteed ordering possibly some other properties
      * as well.
      */
+    @Override
     protected Object _deserializeUsingPropertyBased(final JsonParser jp, final DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     { 

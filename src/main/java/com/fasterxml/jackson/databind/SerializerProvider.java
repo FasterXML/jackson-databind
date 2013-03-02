@@ -648,17 +648,6 @@ public abstract class SerializerProvider
             Object serDef)
         throws JsonMappingException;
 
-    public abstract ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
-            ObjectIdInfo objectIdInfo)
-        throws JsonMappingException;
-    
-    /**
-     * @since 2.2
-     */
-    public abstract Converter<Object,Object> converterInstance(Annotated annotated,
-            Object converterDef)
-        throws JsonMappingException;
-
     /*
     /********************************************************
     /* Convenience methods

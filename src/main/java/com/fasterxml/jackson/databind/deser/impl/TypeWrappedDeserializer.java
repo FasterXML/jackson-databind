@@ -44,4 +44,15 @@ public final class TypeWrappedDeserializer
         // should never happen? (if it can, could call on that object)
         throw new IllegalStateException("Type-wrapped deserializer's deserializeWithType should never get called");
     }
+
+    @Override
+    public Object deserialize(JsonParser jp, DeserializationContext ctxt,
+            Object intoValue)
+        throws IOException, JsonProcessingException
+    {
+        /* 01-Mar-2013, tatu: Hmmh. Tough call as to what to do... need
+         *   to delegate, but will this work reliably? Let's just hope so:
+         */
+        return _deserializer.deserialize(jp,  ctxt, intoValue);
+    }
 }

@@ -147,7 +147,6 @@ public class TestJsonValue
 	      return toAdd;
 	    }
 	
-	    @Override
 	    public int add(int in) {
 	      return in + toAdd;
 	    }
@@ -161,7 +160,6 @@ public class TestJsonValue
 	    	this.delegate = delegate;
 	    }
 	
-	    @Override
 	    public int add(int in) {
 	      return delegate.add(-in);
 	    }

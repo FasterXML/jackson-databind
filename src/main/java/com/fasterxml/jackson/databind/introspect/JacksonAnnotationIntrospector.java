@@ -638,12 +638,34 @@ public class JacksonAnnotationIntrospector
                 return cls;
             }
         }
-        /* 30-Jun-2011, tatu: Here we used to have support for @JsonContentClass;
-         *    removed in 1.9
-         */
         return null;
     }
 
+    @Override
+    public Object findDeserializationConverter(Annotated a)
+    {
+        JsonDeserialize ann = a.getAnnotation(JsonDeserialize.class);
+        if (ann != null) {
+            Class<?> def = ann.converter();
+            if (def != Converter.None.class) {
+                return def;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Object findDeserializationContentConverter(AnnotatedMember a)
+    {
+        JsonDeserialize ann = a.getAnnotation(JsonDeserialize.class);
+        if (ann != null) {
+            Class<?> def = ann.contentConverter();
+            if (def != Converter.None.class) {
+                return def;
+            }
+        }
+        return null;    }
+    
     /*
     /**********************************************************
     /* Deserialization: Class annotations

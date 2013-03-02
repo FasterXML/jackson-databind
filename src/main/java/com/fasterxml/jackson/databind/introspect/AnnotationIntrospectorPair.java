@@ -574,8 +574,7 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType)
-    {
+    public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType) {
         Class<?> result = _primary.findDeserializationContentType(am, baseContentType);
         if (result == null) {
             result = _secondary.findDeserializationContentType(am, baseContentType);
@@ -583,6 +582,24 @@ public class AnnotationIntrospectorPair
         return result;
     }
 
+    @Override
+    public Object findDeserializationConverter(Annotated a) {
+        Object ob = _primary.findDeserializationConverter(a);
+        if (ob == null) {
+            ob = _secondary.findDeserializationConverter(a);
+        }
+        return ob;
+    }
+
+    @Override
+    public Object findDeserializationContentConverter(AnnotatedMember a) {
+        Object ob = _primary.findDeserializationContentConverter(a);
+        if (ob == null) {
+            ob = _secondary.findDeserializationContentConverter(a);
+        }
+        return ob;
+    }
+    
     // // // Deserialization: class annotations
 
     @Override

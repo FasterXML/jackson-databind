@@ -891,6 +891,54 @@ public abstract class AnnotationIntrospector implements Versioned
         return null;
     }
 
+    /**
+     * Method for finding {@link Converter} that annotated entity
+     * (property or class) has indicated to be used as part of
+     * deserialization.
+     * If not null, either has to be actual
+     * {@link Converter} instance, or class for such converter;
+     * and resulting converter will be used after Jackson has deserializer
+     * data into intermediate type (Converter input type), and Converter
+     * needs to convert this into its target type to be set as property value.
+     *<p>
+     * This feature is typically used to convert intermediate Jackson types
+     * (that default deserializers can produce) into custom type instances.
+     *<p>
+     * Note also that this feature does not necessarily work well with polymorphic
+     * type handling, or object identity handling; if such features are needed
+     * an explicit deserializer is usually better way to handle deserialization.
+     * 
+     * @param a Annotated property (field, method) or class to check for
+     *   annotations
+     *   
+     * @since 2.2
+     */
+    public Object findDeserializationConverter(Annotated a) {
+        return null;
+    }
+
+    /**
+     * Method for finding {@link Converter} that annotated property
+     * has indicated needs to be used for values of container type
+     * (this also means that method should only be called for properties
+     * of container types, List/Map/array properties).
+     *<p>
+     * If not null, either has to be actual
+     * {@link Converter} instance, or class for such converter;
+     * and resulting converter will be used after Jackson has deserializer
+     * data into intermediate type (Converter input type), and Converter
+     * needs to convert this into its target type to be set as property value.
+     *<p>
+     * Other notes are same as those for {@link #findDeserializationConverter}
+     * 
+     * @param a Annotated property (field, method) to check.
+     *   
+     * @since 2.2
+     */
+    public Object findDeserializationContentConverter(AnnotatedMember a) {
+        return null;
+    }
+    
     /*
     /**********************************************************
     /* Deserialization: class annotations

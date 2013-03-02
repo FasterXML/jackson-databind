@@ -145,6 +145,8 @@ public class CollectionDeserializer
         }
         // also, often value deserializer is resolved here:
         JsonDeserializer<?> valueDeser = _valueDeserializer;
+        // #125: May have a content converter
+        valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
         if (valueDeser == null) {
             valueDeser = ctxt.findContextualValueDeserializer(
                     _collectionType.getContentType(), property);

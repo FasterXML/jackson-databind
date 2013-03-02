@@ -236,6 +236,8 @@ public class MapDeserializer
             }
         }
         JsonDeserializer<?> vd = _valueDeserializer;
+        // #125: May have a content converter
+        vd = findConvertingContentDeserializer(ctxt, property, vd);
         if (vd == null) {
             vd = ctxt.findContextualValueDeserializer(_mapType.getContentType(), property);
         } else { // if directly assigned, probably not yet contextual, so:

@@ -107,7 +107,7 @@ public class StdDelegatingSerializer
         if (_delegateSerializer != null) {
             if (_delegateSerializer instanceof ContextualSerializer) {
                 JsonSerializer<?> ser = ((ContextualSerializer)_delegateSerializer).createContextual(provider, property);
-                if (ser != _delegateSerializer) {
+                if (ser == _delegateSerializer) {
                     return this;
                 }
                 return withDelegate(_converter, _delegateType, ser);

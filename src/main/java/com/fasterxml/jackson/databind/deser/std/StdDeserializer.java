@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -656,10 +655,9 @@ public abstract class StdDeserializer<T>
             BeanProperty prop, JsonDeserializer<?> existingDeserializer)
         throws JsonMappingException
     {
-        /*
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (intr != null && prop != null) {
-            Object convDef = intr.findSerializationContentConverter(prop.getMember());
+            Object convDef = intr.findDeserializationContentConverter(prop.getMember());
             if (convDef != null) {
                 Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
                 TypeFactory tf = ctxt.getTypeFactory();
@@ -669,14 +667,14 @@ public abstract class StdDeserializer<T>
                     throw new JsonMappingException("Could not determine Converter parameterization for "
                             +converterType);
                 }
-                JavaType delegateType = params[1];
+                // We need to use input type, as that's what deserializer needs to produce:
+                JavaType delegateType = params[0];
                 if (existingDeserializer == null) {
-                    existingDeserializer = ctxt.findValueSerializer(delegateType, prop);
+                    existingDeserializer = ctxt.findContextualValueDeserializer(delegateType, prop);
                 }
                 return new StdDelegatingDeserializer<Object>(conv, delegateType, existingDeserializer);
             }
         }
-        */
         return existingDeserializer;
     }
 

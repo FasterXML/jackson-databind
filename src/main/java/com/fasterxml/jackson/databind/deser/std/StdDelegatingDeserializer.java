@@ -88,10 +88,21 @@ public class StdDelegatingDeserializer<T>
     /**********************************************************
      */
     
-
+    @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
         throws JsonMappingException
     {
+        // First: if already got serializer to delegate to, contextualize it:
+        if (_delegateDeserializer != null) {
+            if (_delegateDeserializer instanceof ContextualDeserializer) {
+                JsonDeserializer<?> deser = ((ContextualDeserializer)_delegateDeserializer).createContextual(ctxt, property);
+                if (deser != _delegateDeserializer || true) {
+                    return withDelegate(_converter, _delegateType, deser);
+                }
+            }
+            return this;
+        }
+
         // First: figure out what is the fully generic delegate type:
         TypeFactory tf = ctxt.getTypeFactory();
         JavaType implType = tf.constructType(_converter.getClass());

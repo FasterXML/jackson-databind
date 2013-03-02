@@ -83,11 +83,13 @@ public class ObjectArrayDeserializer
                 (JsonDeserializer<Object>) elemDeser, elemTypeDeser);
     }
 
-//    @Override
+    @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
         JsonDeserializer<?> deser = _elementDeserializer;
+        // #125: May have a content converter
+        deser = findConvertingContentDeserializer(ctxt, property, deser);
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(_arrayType.getContentType(), property);
         } else { // if directly assigned, probably not yet contextual, so:

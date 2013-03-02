@@ -299,38 +299,38 @@ public class BeanPropertyWriter
     /**********************************************************
      */
     
-//    @Override
+    @Override
     public String getName() {
         return _name.getValue();
     }
 
-//    @Override
+    @Override
     public JavaType getType() {
         return _declaredType;
     }
 
-//  @Override
+    @Override
     public boolean isRequired() {
         return _isRequired;
     }
     
-//  @Override
+    @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
         return _member.getAnnotation(acls);
     }
 
-//  @Override
+    @Override
     public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
         return _contextAnnotations.get(acls);
     }
 
-//    @Override
+    @Override
     public AnnotatedMember getMember() {
         return _member;
     }
 
 
-//  @Override
+    @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
         throws JsonMappingException
     {

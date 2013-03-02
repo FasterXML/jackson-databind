@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -107,10 +108,21 @@ public abstract class DatabindContext
     /**********************************************************
      */
 
-    public abstract ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
+    public ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
             ObjectIdInfo objectIdInfo)
-        throws JsonMappingException;
-
+        throws JsonMappingException
+    {
+        Class<?> implClass = objectIdInfo.getGeneratorType();
+        final MapperConfig<?> config = getConfig();
+        HandlerInstantiator hi = config.getHandlerInstantiator();
+        ObjectIdGenerator<?> gen = (hi == null) ? null : hi.objectIdGeneratorInstance(config, annotated, implClass);
+        if (gen == null) {
+            gen = (ObjectIdGenerator<?>) ClassUtil.createInstance(implClass,
+                    config.canOverrideAccessModifiers());
+        }
+        return gen.forScope(objectIdInfo.getScope());
+    }
+    
     /**
      * Helper method to use to construct a {@link Converter}, given a definition
      * that may be either actual converter instance, or Class for instantiating one.
@@ -118,7 +130,7 @@ public abstract class DatabindContext
      * @since 2.2
      */
     @SuppressWarnings("unchecked")
-    public final Converter<Object,Object> converterInstance(Annotated annotated,
+    public Converter<Object,Object> converterInstance(Annotated annotated,
             Object converterDef)
         throws JsonMappingException
     {
@@ -141,7 +153,7 @@ public abstract class DatabindContext
             throw new IllegalStateException("AnnotationIntrospector returned Class "
                     +converterClass.getName()+"; expected Class<Converter>");
         }
-        MapperConfig<?> config = getConfig();
+        final MapperConfig<?> config = getConfig();
         HandlerInstantiator hi = config.getHandlerInstantiator();
         Converter<?,?> conv = (hi == null) ? null : hi.converterInstance(config, annotated, converterClass);
         if (conv == null) {

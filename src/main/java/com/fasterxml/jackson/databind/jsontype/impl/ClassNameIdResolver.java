@@ -20,24 +20,24 @@ public class ClassNameIdResolver
         super(baseType, typeFactory);
     }
 
-//  @Override
+    @Override
     public JsonTypeInfo.Id getMechanism() { return JsonTypeInfo.Id.CLASS; }
 
     public void registerSubtype(Class<?> type, String name) {
         // not used with class name - based resolvers
     }
     
-//  @Override
+    @Override
     public String idFromValue(Object value) {
         return _idFrom(value, value.getClass());
     }
 
-//  @Override
+    @Override
     public String idFromValueAndType(Object value, Class<?> type) {
         return _idFrom(value, type);
     }
 
-//  @Override
+    @Override
     public JavaType typeFromId(String id)
     {
         /* 30-Jan-2010, tatu: Most ids are basic class names; so let's first

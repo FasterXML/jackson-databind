@@ -21,10 +21,12 @@ public class EmptyIterator<T> implements Iterator<T>
         return (Iterator<T>) instance;
     }
     
+    @Override
     public boolean hasNext() { return false; }
+    @Override
     public T next() { throw new NoSuchElementException(); }
 
-    // @Override
+    @Override
     public void remove() {
         throw new UnsupportedOperationException();
     }

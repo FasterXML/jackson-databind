@@ -57,7 +57,7 @@ public class EnumSetDeserializer
     @Override
     public boolean isCachable() { return true; }
     
-//    @Override
+    @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {

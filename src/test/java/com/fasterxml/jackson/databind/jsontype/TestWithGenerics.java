@@ -91,7 +91,7 @@ public class TestWithGenerics extends BaseMapTest
             beanSerializer.serializeWithType( value, jgen, provider, typeSer );
         }
 
-//      @Override
+        @Override
         public void resolve(SerializerProvider provider) throws JsonMappingException
         {
             if (beanSerializer instanceof ResolvableSerializer) {

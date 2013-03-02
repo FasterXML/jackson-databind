@@ -29,7 +29,7 @@ public class TestJsonSerialize
     static class ValueClass
         implements ValueInterface
     {
-//      @Override
+        @Override
         public int getX() { return 3; }
         public int getY() { return 5; }
     }

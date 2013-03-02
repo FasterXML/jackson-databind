@@ -272,6 +272,7 @@ public class BuilderBasedDeserializer
      * General version used when handling needs more advanced
      * features.
      */
+    @Override
     public Object deserializeFromObject(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -335,6 +336,7 @@ public class BuilderBasedDeserializer
      * due to non-guaranteed ordering possibly some other properties
      * as well.
      */
+    @Override
     protected final Object _deserializeUsingPropertyBased(final JsonParser jp,
             final DeserializationContext ctxt)
         throws IOException, JsonProcessingException

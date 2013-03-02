@@ -517,7 +517,7 @@ public abstract class BeanDeserializerBase
      * We will also consider Shape transformations (read from Array) at this
      * point, since it may come from either Class definition or property.
      */
-//  @Override
+    @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {

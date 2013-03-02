@@ -44,7 +44,7 @@ public abstract class DateTimeSerializerBase<T>
 
     public abstract DateTimeSerializerBase<T> withFormat(boolean timestamp, DateFormat customFormat);
 
-//  @Override
+    @Override
     public JsonSerializer<?> createContextual(SerializerProvider prov,
             BeanProperty property) throws JsonMappingException
     {

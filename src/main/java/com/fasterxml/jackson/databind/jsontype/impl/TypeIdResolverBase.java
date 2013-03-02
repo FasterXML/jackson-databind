@@ -20,12 +20,12 @@ public abstract class TypeIdResolverBase
         _typeFactory = typeFactory;
     }
 
-//  @Override
+    @Override
     public void init(JavaType bt) {
         // Standard type id resolvers do not need this: only useful for custom ones.
     }
 
-//  @Override
+    @Override
     public String idFromBaseType()
     {
         /* By default we will just defer to regular handling, handing out the

@@ -102,6 +102,7 @@ public class EnumSerializer
      * to make things contextual. We are limited to "textual vs index"
      * choice here, however.
      */
+    @Override
     public JsonSerializer<?> createContextual(SerializerProvider prov,
             BeanProperty property) throws JsonMappingException
     {

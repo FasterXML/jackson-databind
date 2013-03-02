@@ -67,8 +67,8 @@ public class JSONWrappedObject
     /* JsonSerializable(WithType) implementation
     /**************************************************************
      */
-    
-//  @Override
+
+    @Override
     public void serializeWithType(JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer)
             throws IOException, JsonProcessingException
     {
@@ -76,7 +76,7 @@ public class JSONWrappedObject
         serialize(jgen, provider);
     }
 
-//  @Override
+    @Override
     public void serialize(JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonProcessingException
     {

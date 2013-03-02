@@ -3,15 +3,15 @@ package com.fasterxml.jackson.databind.deser;
 import java.util.LinkedHashMap;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+
 import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Complete {@link DeserializationContext} implementation that adds
@@ -71,22 +71,6 @@ public abstract class DefaultDeserializationContext
         ReadableObjectId entry = new ReadableObjectId(id);
         _objectIds.put(key, entry);
         return entry;
-    }
-
-    @Override
-    public ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
-            ObjectIdInfo objectIdInfo)
-        throws JsonMappingException
-    {
-        Class<?> implClass = objectIdInfo.getGeneratorType();
-        HandlerInstantiator hi = _config.getHandlerInstantiator();
-        ObjectIdGenerator<?> gen = (hi == null) ? null : 
-            hi.objectIdGeneratorInstance(_config, annotated, implClass);
-        if (gen == null) {
-            gen = (ObjectIdGenerator<?>) ClassUtil.createInstance(implClass,
-                    _config.canOverrideAccessModifiers());
-        }
-        return gen.forScope(objectIdInfo.getScope());
     }
     
     /*

@@ -12,13 +12,11 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Standard implementation used by {@link ObjectMapper}:
@@ -410,21 +408,6 @@ public abstract class DefaultSerializerProvider
             }
         }
         return (JsonSerializer<Object>) _handleResolvable(ser);
-    }
-
-    @Override
-    public ObjectIdGenerator<?> objectIdGeneratorInstance(Annotated annotated,
-            ObjectIdInfo objectIdInfo)
-        throws JsonMappingException
-    {
-        Class<?> implClass = objectIdInfo.getGeneratorType();
-        HandlerInstantiator hi = _config.getHandlerInstantiator();
-        ObjectIdGenerator<?> gen = (hi == null) ? null : hi.objectIdGeneratorInstance(_config, annotated, implClass);
-        if (gen == null) {
-            gen = (ObjectIdGenerator<?>) ClassUtil.createInstance(implClass,
-                    _config.canOverrideAccessModifiers());
-        }
-        return gen.forScope(objectIdInfo.getScope());
     }
 
     /*

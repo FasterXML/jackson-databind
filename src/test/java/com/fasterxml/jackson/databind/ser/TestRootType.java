@@ -34,6 +34,7 @@ public class TestRootType
     {
         public String a = "a";
 
+        @Override
         public int getB() { return 3; }
     }
 

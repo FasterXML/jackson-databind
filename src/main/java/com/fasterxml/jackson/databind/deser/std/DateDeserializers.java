@@ -44,6 +44,7 @@ public class DateDeserializers
     /**
      * @deprecated Since 2.2 -- use {@link #find} instead.
      */
+    @Deprecated
     public static StdDeserializer<?>[] all()
     {
         return  new StdDeserializer[] {

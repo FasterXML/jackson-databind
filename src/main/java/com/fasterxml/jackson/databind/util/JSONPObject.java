@@ -53,8 +53,8 @@ public class JSONPObject
     /* JsonSerializable(WithType) implementation
     /**********************************************************
      */
-    
-//  @Override
+
+    @Override
     public void serializeWithType(JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer)
             throws IOException, JsonProcessingException
     {
@@ -62,7 +62,7 @@ public class JSONPObject
         serialize(jgen, provider);
     }
 
-//  @Override
+    @Override
     public void serialize(JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonProcessingException
     {

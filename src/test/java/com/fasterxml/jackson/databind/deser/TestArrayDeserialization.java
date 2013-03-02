@@ -75,7 +75,7 @@ public class TestArrayDeserialization
             _desc = d;
         }
 
-//      @Override
+        @Override
         public void serialize(JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonGenerationException
         {
@@ -90,7 +90,7 @@ public class TestArrayDeserialization
             return _desc.equals(other._desc);
         }
 
-//      @Override
+        @Override
         public void serializeWithType(JsonGenerator jgen,
                 SerializerProvider provider, TypeSerializer typeSer)
                 throws IOException, JsonProcessingException {

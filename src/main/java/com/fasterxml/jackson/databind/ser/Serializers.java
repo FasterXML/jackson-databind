@@ -90,14 +90,14 @@ public interface Serializers
      */
     public static class Base implements Serializers
     {
-//      @Override
+        @Override
         public JsonSerializer<?> findSerializer(SerializationConfig config,
                 JavaType type, BeanDescription beanDesc)
         {
             return null;
         }
         
-//      @Override
+        @Override
         public JsonSerializer<?> findArraySerializer(SerializationConfig config,
                 ArrayType type, BeanDescription beanDesc,
                 TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
@@ -105,7 +105,7 @@ public interface Serializers
             return null;
         }
 
-//      @Override
+        @Override
         public JsonSerializer<?> findCollectionSerializer(SerializationConfig config,
                 CollectionType type, BeanDescription beanDesc,
                 TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
@@ -113,7 +113,7 @@ public interface Serializers
             return null;
         }
 
-//      @Override
+        @Override
         public JsonSerializer<?> findCollectionLikeSerializer(SerializationConfig config,
                 CollectionLikeType type, BeanDescription beanDesc,
                 TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer)
@@ -121,7 +121,7 @@ public interface Serializers
             return null;
         }
             
-//      @Override
+        @Override
         public JsonSerializer<?> findMapSerializer(SerializationConfig config,
                 MapType type, BeanDescription beanDesc,
                 JsonSerializer<Object> keySerializer,
@@ -130,7 +130,7 @@ public interface Serializers
             return null;
         }
 
-//      @Override
+        @Override
         public JsonSerializer<?> findMapLikeSerializer(SerializationConfig config,
                 MapLikeType type, BeanDescription beanDesc,
                 JsonSerializer<Object> keySerializer,

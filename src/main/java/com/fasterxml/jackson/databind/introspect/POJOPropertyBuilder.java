@@ -79,7 +79,7 @@ public class POJOPropertyBuilder
     /**********************************************************
      */
 
-//    @Override
+    @Override
     public int compareTo(POJOPropertyBuilder other)
     {
         // first, if one has ctor params, that should come first:
@@ -287,10 +287,11 @@ public class POJOPropertyBuilder
     /* Implementations of refinement accessors
     /**********************************************************
      */
-    
+
     @Override
     public Class<?>[] findViews() {
         return fromMemberAnnotations(new WithMember<Class<?>[]>() {
+            @Override
             public Class<?>[] withMember(AnnotatedMember member) {
                 return _annotationIntrospector.findViews(member);
             }
@@ -300,6 +301,7 @@ public class POJOPropertyBuilder
     @Override
     public AnnotationIntrospector.ReferenceProperty findReferenceType() {
         return fromMemberAnnotations(new WithMember<AnnotationIntrospector.ReferenceProperty>() {
+            @Override
             public AnnotationIntrospector.ReferenceProperty withMember(AnnotatedMember member) {
                 return _annotationIntrospector.findReferenceType(member);
             }
@@ -309,6 +311,7 @@ public class POJOPropertyBuilder
     @Override
     public boolean isTypeId() {
         Boolean b = fromMemberAnnotations(new WithMember<Boolean>() {
+            @Override
             public Boolean withMember(AnnotatedMember member) {
                 return _annotationIntrospector.isTypeId(member);
             }
@@ -319,6 +322,7 @@ public class POJOPropertyBuilder
     @Override
     public boolean isRequired() {
         Boolean b = fromMemberAnnotations(new WithMember<Boolean>() {
+            @Override
             public Boolean withMember(AnnotatedMember member) {
                 return _annotationIntrospector.hasRequiredMarker(member);
             }
@@ -329,6 +333,7 @@ public class POJOPropertyBuilder
     @Override
     public ObjectIdInfo findObjectIdInfo() {
         return fromMemberAnnotations(new WithMember<ObjectIdInfo>() {
+            @Override
             public ObjectIdInfo withMember(AnnotatedMember member) {
                 ObjectIdInfo info = _annotationIntrospector.findObjectIdInfo(member);
                 if (info != null) {

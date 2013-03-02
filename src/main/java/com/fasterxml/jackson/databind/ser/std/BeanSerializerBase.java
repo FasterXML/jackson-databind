@@ -568,7 +568,7 @@ public abstract class BeanSerializerBase
         throws IOException, JsonGenerationException
     {
         final BeanPropertyWriter[] props;
-        if (_filteredProps != null && provider.getSerializationView() != null) {
+        if (_filteredProps != null && provider.getActiveView() != null) {
             props = _filteredProps;
         } else {
             props = _props;
@@ -612,7 +612,7 @@ public abstract class BeanSerializerBase
          */
         
         final BeanPropertyWriter[] props;
-        if (_filteredProps != null && provider.getSerializationView() != null) {
+        if (_filteredProps != null && provider.getActiveView() != null) {
             props = _filteredProps;
         } else {
             props = _props;

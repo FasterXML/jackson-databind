@@ -51,7 +51,7 @@ public class TestConcurrency extends BaseMapTest
             return b;
         }
 
-//      @Override
+        @Override
         public void resolve(DeserializationContext ctxt) throws JsonMappingException
         {
             try {
@@ -77,7 +77,7 @@ public class TestConcurrency extends BaseMapTest
         for (int i = 0; i < 5; ++i) {
             final ObjectMapper mapper = new ObjectMapper();
             Runnable r = new Runnable() {
-//              @Override
+                @Override
                 public void run() {
                     try {
                         /*Bean b =*/ mapper.readValue(JSON, Bean.class);

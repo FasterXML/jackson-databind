@@ -200,10 +200,18 @@ public abstract class BeanDescription
      * Method for finding {@link Converter} used for serializing instances
      * of this class.
      * 
-     * @since 2.1
+     * @since 2.2
      */
     public abstract Converter<Object,Object> findSerializationConverter();
-    
+
+    /**
+     * Method for finding {@link Converter} used for serializing instances
+     * of this class.
+     * 
+     * @since 2.2
+     */
+    public abstract Converter<Object,Object> findDeserializationConverter();
+
     /*
     /**********************************************************
     /* Basic API, other

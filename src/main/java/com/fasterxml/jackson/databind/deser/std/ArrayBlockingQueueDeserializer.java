@@ -51,6 +51,7 @@ public class ArrayBlockingQueueDeserializer
     /**
      * Fluent-factory method call to construct contextual instance.
      */
+    @Override
     @SuppressWarnings("unchecked")
     protected ArrayBlockingQueueDeserializer withResolved(JsonDeserializer<?> dd,
             JsonDeserializer<?> vd, TypeDeserializer vtd)

@@ -155,7 +155,7 @@ public class BeanAsArraySerializer
      */
     private boolean hasSingleElement(SerializerProvider provider) {
         final BeanPropertyWriter[] props;
-        if (_filteredProps != null && provider.getSerializationView() != null) {
+        if (_filteredProps != null && provider.getActiveView() != null) {
             props = _filteredProps;
         } else {
             props = _props;
@@ -167,7 +167,7 @@ public class BeanAsArraySerializer
         throws IOException, JsonGenerationException
     {
         final BeanPropertyWriter[] props;
-        if (_filteredProps != null && provider.getSerializationView() != null) {
+        if (_filteredProps != null && provider.getActiveView() != null) {
             props = _filteredProps;
         } else {
             props = _props;

@@ -33,26 +33,34 @@ public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializer
 
         public Base() { }
         public Base(SerializerProvider p) { _provider = p; }
-        
+
+        @Override
         public SerializerProvider getProvider() { return _provider; }
 
+        @Override
         public void setProvider(SerializerProvider p) { _provider = p; }
 
+        @Override
         public void property(BeanProperty writer) throws JsonMappingException { }
 
+        @Override
         public void property(String name, JsonFormatVisitable handler,
                 JavaType propertyTypeHint) throws JsonMappingException { }
 
         @Deprecated
+        @Override
         public void property(String name) throws JsonMappingException { }
 
+        @Override
         public void optionalProperty(BeanProperty writer)
                 throws JsonMappingException { }
 
+        @Override
         public void optionalProperty(String name, JsonFormatVisitable handler,
                 JavaType propertyTypeHint) throws JsonMappingException { }
 
         @Deprecated
+        @Override
         public void optionalProperty(String name) throws JsonMappingException { }
     }
 }

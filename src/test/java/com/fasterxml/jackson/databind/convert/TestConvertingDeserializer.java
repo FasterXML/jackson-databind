@@ -2,14 +2,7 @@ package com.fasterxml.jackson.databind.convert;
 
 import java.util.*;
 
-import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.convert.TestConvertingSerializer.ConvertingBean;
-import com.fasterxml.jackson.databind.convert.TestConvertingSerializer.ConvertingBeanContainer;
-import com.fasterxml.jackson.databind.convert.TestConvertingSerializer.PointListWrapperArray;
-import com.fasterxml.jackson.databind.convert.TestConvertingSerializer.PointListWrapperList;
-import com.fasterxml.jackson.databind.convert.TestConvertingSerializer.PointListWrapperMap;
-import com.fasterxml.jackson.databind.convert.TestConvertingSerializer.PointWrapper;
 import com.fasterxml.jackson.databind.util.Converter;
 
 public class TestConvertingDeserializer
@@ -19,7 +12,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
     static class ConvertingBean
     {
         protected int x, y;
-    
+
         protected ConvertingBean(int x, int y) {
             this.x = x;
             this.y = y;
@@ -39,7 +32,8 @@ extends com.fasterxml.jackson.databind.BaseMapTest
     static class ConvertingBeanContainer
     {
         public List<ConvertingBean> values;
-        
+
+        public ConvertingBeanContainer() { }
         public ConvertingBeanContainer(ConvertingBean... beans) {
             values = Arrays.asList(beans);
         }
@@ -63,7 +57,8 @@ extends com.fasterxml.jackson.databind.BaseMapTest
     static class PointWrapper {
         @JsonDeserialize(converter=PointConverter.class)
         public Point value;
-    
+
+        protected PointWrapper() { }
         public PointWrapper(int x, int y) {
             value = new Point(x, y);
         }

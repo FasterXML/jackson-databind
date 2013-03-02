@@ -4,11 +4,14 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
+import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.Converter;
 
 /**
  * Class that defines caching layer between callers (like
@@ -344,25 +347,44 @@ public final class DeserializerCache
             return (JsonDeserializer<Object>) factory.createBuilderBasedDeserializer(
             		ctxt, type, beanDesc, builder);
         }
-        
-        // If not, let's see which factory method to use:
+
+        // Or perhaps a Converter?
+        Converter<Object,Object> conv = beanDesc.findDeserializationConverter();
+        if (conv == null) { // nope, just construct in normal way
+            return (JsonDeserializer<Object>) _createDeserializer2(ctxt, factory, type, beanDesc);
+        }
+        // otherwise need to do bit of introspection
+        TypeFactory tf = ctxt.getTypeFactory();
+        JavaType converterType = tf.constructType(conv.getClass());
+        JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
+        if (params == null || params.length != 2) {
+            throw new JsonMappingException("Could not determine Converter parameterization for "
+                    +converterType);
+        }
+        JavaType delegateType = params[1];
+        return new StdDelegatingDeserializer<Object>(conv, delegateType,
+                _createDeserializer2(ctxt, factory, delegateType, beanDesc));
+    }
+
+    protected JsonDeserializer<?> _createDeserializer2(DeserializationContext ctxt,
+            DeserializerFactory factory, JavaType type, BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        final DeserializationConfig config = ctxt.getConfig();
+    // If not, let's see which factory method to use:
         if (type.isEnumType()) {
-            return (JsonDeserializer<Object>) factory.createEnumDeserializer(ctxt,
-                    type, beanDesc);
+            return factory.createEnumDeserializer(ctxt, type, beanDesc);
         }
         if (type.isContainerType()) {
             if (type.isArrayType()) {
-                return (JsonDeserializer<Object>) factory.createArrayDeserializer(ctxt,
-                        (ArrayType) type, beanDesc);
+                return factory.createArrayDeserializer(ctxt, (ArrayType) type, beanDesc);
             }
             if (type.isMapLikeType()) {
                 MapLikeType mlt = (MapLikeType) type;
                 if (mlt.isTrueMapType()) {
-                    return (JsonDeserializer<Object>) factory.createMapDeserializer(ctxt,
-                            (MapType) mlt, beanDesc);
+                    return factory.createMapDeserializer(ctxt,(MapType) mlt, beanDesc);
                 }
-                return (JsonDeserializer<Object>) factory.createMapLikeDeserializer(ctxt,
-                        mlt, beanDesc);
+                return factory.createMapLikeDeserializer(ctxt, mlt, beanDesc);
             }
             if (type.isCollectionLikeType()) {
                 /* 03-Aug-2012, tatu: As per [Issue#40], one exception is if shape
@@ -374,18 +396,16 @@ public final class DeserializerCache
                 if (format == null || format.getShape() != JsonFormat.Shape.OBJECT) {
                     CollectionLikeType clt = (CollectionLikeType) type;
                     if (clt.isTrueCollectionType()) {
-                        return (JsonDeserializer<Object>) factory.createCollectionDeserializer(ctxt,
-                                (CollectionType) clt, beanDesc);
+                        return factory.createCollectionDeserializer(ctxt, (CollectionType) clt, beanDesc);
                     }
-                    return (JsonDeserializer<Object>) factory.createCollectionLikeDeserializer(ctxt,
-                            clt, beanDesc);
+                    return factory.createCollectionLikeDeserializer(ctxt, clt, beanDesc);
                 }
             }
         }
         if (JsonNode.class.isAssignableFrom(type.getRawClass())) {
-            return (JsonDeserializer<Object>) factory.createTreeDeserializer(config, type, beanDesc);
+            return factory.createTreeDeserializer(config, type, beanDesc);
         }
-        return (JsonDeserializer<Object>) factory.createBeanDeserializer(ctxt, type, beanDesc);
+        return factory.createBeanDeserializer(ctxt, type, beanDesc);
     }
 
     /**
@@ -401,9 +421,46 @@ public final class DeserializerCache
         if (deserDef == null) {
             return null;
         }
-        return ctxt.deserializerInstance(ann, deserDef);
+        JsonDeserializer<Object> deser = ctxt.deserializerInstance(ann, deserDef);
+        // One more thing however: may need to also apply a converter:
+        return findConvertingDeserializer(ctxt, ann, deser);
     }
 
+    /**
+     * Helper method that will check whether given annotated entity (usually class,
+     * but may also be a property accessor) indicates that a {@link Converter} is to
+     * be used; and if so, to construct and return suitable serializer for it.
+     * If not, will simply return given serializer as is.
+     */
+    protected JsonDeserializer<Object> findConvertingDeserializer(DeserializationContext ctxt,
+            Annotated a, JsonDeserializer<Object> deser)
+        throws JsonMappingException
+    {
+        Converter<Object,Object> conv = findConverter(ctxt, a);
+        if (conv == null) {
+            return deser;
+        }
+        TypeFactory tf = ctxt.getTypeFactory();
+        JavaType converterType = tf.constructType(conv.getClass());
+        JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
+        if (params == null || params.length != 2) {
+            throw new JsonMappingException("Could not determine Converter parameterization for "
+                    +converterType);
+        }
+        JavaType delegateType = params[0];
+        return (JsonDeserializer<Object>) new StdDelegatingDeserializer<Object>(conv, delegateType, deser);
+    }
+
+    protected Converter<Object,Object> findConverter(DeserializationContext ctxt,
+            Annotated a)
+        throws JsonMappingException
+    {
+        Object convDef = ctxt.getAnnotationIntrospector().findDeserializationConverter(a);
+        if (convDef == null) {
+            return null;
+        }
+        return ctxt.converterInstance(a, convDef);
+    }    
     /**
      * Method called to see if given method has annotations that indicate
      * a more specific type than what the argument specifies.

@@ -99,7 +99,7 @@ public class StdDelegatingSerializer
     /**********************************************************
      */
     
-    // @Override
+    @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
         throws JsonMappingException
     {

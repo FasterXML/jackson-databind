@@ -25,7 +25,7 @@ public class StdJdkSerializers
      * Method called by {@link BasicSerializerFactory} to access
      * all serializers this class provides.
      */
-//  @Override
+    @Override
     public Collection<Map.Entry<Class<?>, Object>> provide()
     {
         HashMap<Class<?>,Object> sers = new HashMap<Class<?>,Object>();

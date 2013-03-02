@@ -42,7 +42,7 @@ public class TestAbstractTypeNames  extends BaseMapTest
             _employer = employer;
         }
 
-//      @Override
+        @Override
         public String getEmployer() {
             return _employer;
         }
@@ -65,10 +65,12 @@ public class TestAbstractTypeNames  extends BaseMapTest
             _friends = friends;
         }
 
+        @Override
         public String getName() {
             return _name;
         }
 
+        @Override
         public List<User> getFriends() {
             return _friends;
         }

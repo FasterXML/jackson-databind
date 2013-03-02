@@ -73,7 +73,7 @@ public final class AnnotatedMethodMap
     /**********************************************************
      */
 
-//  @Override
+    @Override
     public Iterator<AnnotatedMethod> iterator()
     {
         if (_methods != null) {

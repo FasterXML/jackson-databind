@@ -101,7 +101,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     /**********************************************************
      */
 
-//  @Override
+    @Override
     public boolean hasNext()
     {
         try {
@@ -113,7 +113,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
         }
     }
 
-//  @Override
+    @Override
     public T next()
     {
         try {
@@ -125,11 +125,12 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
         }
     }
 
-//  @Override
+    @Override
     public void remove() {
         throw new UnsupportedOperationException();
     }
     
+    @Override
     public void close() throws IOException{
         if(_parser != null) {
             _parser.close();

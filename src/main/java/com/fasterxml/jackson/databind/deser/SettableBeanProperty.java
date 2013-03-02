@@ -256,25 +256,27 @@ public abstract class SettableBeanProperty
     /**********************************************************
      */
     
-//  @Override
+    @Override
     public final String getName() { return _propName; }
 
-//  @Override
+    @Override
     public boolean isRequired() { return _isRequired; }
     
-//  @Override
+    @Override
     public JavaType getType() { return _type; }
 
+    @Override
     public abstract <A extends Annotation> A getAnnotation(Class<A> acls);
 
-//  @Override
+    @Override
     public abstract AnnotatedMember getMember();
 
+    @Override
     public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
         return _contextAnnotations.get(acls);
     }
 
-//  @Override
+    @Override
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
         throws JsonMappingException
     {

@@ -326,7 +326,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * Method that will check if there are "mix-in" classes (with mix-in
      * annotations) for given class
      */
-//  @Override
+    @Override
     public final Class<?> findMixInClassFor(Class<?> cls) {
         return (_mixInAnnotations == null) ? null : _mixInAnnotations.get(new ClassKey(cls));
     }

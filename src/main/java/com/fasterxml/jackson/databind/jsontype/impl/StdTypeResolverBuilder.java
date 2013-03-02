@@ -53,8 +53,8 @@ public class StdTypeResolverBuilder
     public static StdTypeResolverBuilder noTypeInfoBuilder() {
         return new StdTypeResolverBuilder().init(JsonTypeInfo.Id.NONE, null);
     }
-    
-//  @Override
+
+    @Override
     public StdTypeResolverBuilder init(JsonTypeInfo.Id idType, TypeIdResolver idRes)
     {
         // sanity checks
@@ -67,8 +67,8 @@ public class StdTypeResolverBuilder
         _typeProperty = idType.getDefaultPropertyName();
         return this;
     }
-    
-//  @Override
+
+    @Override
     public TypeSerializer buildTypeSerializer(SerializationConfig config,
             JavaType baseType, Collection<NamedType> subtypes)
     {
@@ -90,8 +90,8 @@ public class StdTypeResolverBuilder
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
-    
-//  @Override
+
+    @Override
     public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
             JavaType baseType, Collection<NamedType> subtypes)
     {
@@ -125,7 +125,7 @@ public class StdTypeResolverBuilder
     /**********************************************************
      */
 
-//  @Override
+    @Override
     public StdTypeResolverBuilder inclusion(JsonTypeInfo.As includeAs) {
         if (includeAs == null) {
             throw new IllegalArgumentException("includeAs can not be null");
@@ -138,7 +138,7 @@ public class StdTypeResolverBuilder
      * Method for constructing an instance with specified type property name
      * (property name to use for type id when using "as-property" inclusion).
      */
-//  @Override
+    @Override
     public StdTypeResolverBuilder typeProperty(String typeIdPropName)
     {
         // ok to have null/empty; will restore to use defaults
@@ -149,14 +149,14 @@ public class StdTypeResolverBuilder
         return this;
     }
 
-//  @Override
+    @Override
     public StdTypeResolverBuilder defaultImpl(Class<?> defaultImpl)
     {
         _defaultImpl = defaultImpl;
         return this;
     }
 
-//  @Override
+    @Override
     public StdTypeResolverBuilder typeIdVisibility(boolean isVisible) {
         _typeIdVisible = isVisible;
         return this;
@@ -170,7 +170,7 @@ public class StdTypeResolverBuilder
 
     public String getTypeProperty() { return _typeProperty; }
 
-//  @Override
+    @Override
     public Class<?> getDefaultImpl() {
         return _defaultImpl;
     }

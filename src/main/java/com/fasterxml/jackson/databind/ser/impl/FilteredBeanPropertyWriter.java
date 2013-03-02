@@ -59,7 +59,7 @@ public abstract class FilteredBeanPropertyWriter
         public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov)
             throws Exception
         {
-            Class<?> activeView = prov.getSerializationView();
+            Class<?> activeView = prov.getActiveView();
             if (activeView == null || _view.isAssignableFrom(activeView)) {
                 _delegate.serializeAsField(bean, jgen, prov);
             }
@@ -69,7 +69,7 @@ public abstract class FilteredBeanPropertyWriter
         public void serializeAsColumn(Object bean, JsonGenerator jgen, SerializerProvider prov)
             throws Exception
         {
-            Class<?> activeView = prov.getSerializationView();
+            Class<?> activeView = prov.getActiveView();
             if (activeView == null || _view.isAssignableFrom(activeView)) {
                 _delegate.serializeAsColumn(bean, jgen, prov);
             } else {
@@ -110,7 +110,7 @@ public abstract class FilteredBeanPropertyWriter
         public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov)
             throws Exception
         {
-            final Class<?> activeView = prov.getSerializationView();
+            final Class<?> activeView = prov.getActiveView();
             if (activeView != null) {
                 int i = 0, len = _views.length;
                 for (; i < len; ++i) {
@@ -128,7 +128,7 @@ public abstract class FilteredBeanPropertyWriter
         public void serializeAsColumn(Object bean, JsonGenerator jgen, SerializerProvider prov)
             throws Exception
         {
-            final Class<?> activeView = prov.getSerializationView();
+            final Class<?> activeView = prov.getActiveView();
             if (activeView != null) {
                 int i = 0, len = _views.length;
                 for (; i < len; ++i) {

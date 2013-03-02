@@ -218,6 +218,7 @@ public abstract class JsonSerializer<T>
      * 
      * @since 2.1
      */
+    @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType type)
         throws JsonMappingException
     {

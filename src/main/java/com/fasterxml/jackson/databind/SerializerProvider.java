@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.util.*;
 
@@ -37,6 +36,7 @@ import com.fasterxml.jackson.databind.util.RootNameLookup;
  * object is only to be used for creating instances.
  */
 public abstract class SerializerProvider
+    extends DatabindContext
 {
     protected final static JavaType TYPE_OBJECT = TypeFactory.defaultInstance().uncheckedSimpleType(Object.class);
 
@@ -254,26 +254,40 @@ public abstract class SerializerProvider
         
     /*
     /**********************************************************
-    /* Access to general configuration
+    /* DatabindContext implementation
     /**********************************************************
      */
 
     /**
      * Method for accessing configuration for the serialization processing.
      */
+    @Override
     public final SerializationConfig getConfig() { return _config; }
 
-    /**
-     * Convenience method for checking whether specified serialization
-     * feature is enabled or not.
-     * Shortcut for:
-     *<pre>
-     *  getConfig().isEnabled(feature);
-     *</pre>
-     */
-    public final boolean isEnabled(MapperFeature feature) {
-        return _config.isEnabled(feature);
+    @Override
+    public final AnnotationIntrospector getAnnotationIntrospector() {
+        return _config.getAnnotationIntrospector();
     }
+
+    @Override
+    public final TypeFactory getTypeFactory() {
+        return _config.getTypeFactory();
+    }
+    
+    @Override
+    public final Class<?> getActiveView() { return _serializationView; }
+    
+    /**
+     * @deprecated Since 2.2, use {@link #getActiveView} instead.
+     */
+    @Deprecated
+    public final Class<?> getSerializationView() { return _serializationView; }
+    
+    /*
+    /**********************************************************
+    /* Access to general configuration
+    /**********************************************************
+     */
 
     /**
      * Convenience method for checking whether specified serialization
@@ -286,34 +300,6 @@ public abstract class SerializerProvider
     public final boolean isEnabled(SerializationFeature feature) {
         return _config.isEnabled(feature);
     }
-
-    /**
-     * Convenience method for accessing serialization view in use (if any); equivalent to:
-     *<pre>
-     *   getConfig().canOverrideAccessModifiers();
-     *</pre>
-     */
-    public final boolean canOverrideAccessModifiers() {
-        return _config.canOverrideAccessModifiers();
-    }
-    
-    /**
-     * Convenience method for accessing serialization view in use (if any); equivalent to:
-     *<pre>
-     *   getConfig().getAnnotationIntrospector();
-     *</pre>
-     */
-    public final AnnotationIntrospector getAnnotationIntrospector() {
-        return _config.getAnnotationIntrospector();
-    }
-    
-    /**
-     * Convenience method for accessing serialization view in use (if any); equivalent to:
-     *<pre>
-     *   getConfig().getSerializationView();
-     *</pre>
-     */
-    public final Class<?> getSerializationView() { return _serializationView; }
 
     /**
      * Convenience method for accessing provider to find serialization filters used,
@@ -344,32 +330,6 @@ public abstract class SerializerProvider
      */
     public TimeZone getTimeZone() {
         return _config.getTimeZone();
-    }
-    
-    /*
-    /**********************************************************
-    /* Access to type handling
-    /**********************************************************
-     */
-    
-    /**
-     * Convenience method for constructing {@link JavaType} for given JDK
-     * type (usually {@link java.lang.Class})
-     */
-    public JavaType constructType(Type type) {
-         return _config.getTypeFactory().constructType(type);
-    }
-
-    /**
-     * Convenience method for constructing subtypes, retaining generic
-     * type parameter (if any)
-     */
-    public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
-        return _config.constructSpecializedType(baseType, subclass);
-    }
-
-    public TypeFactory getTypeFactory() {
-        return _config.getTypeFactory();
     }
 
     /*

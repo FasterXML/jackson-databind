@@ -52,7 +52,7 @@ public class TestCollectionSerialization
             }
         }
 
-//      @Override
+        @Override
         public Iterator<Integer> iterator() {
             return _ints.iterator();
         }
@@ -104,6 +104,7 @@ public class TestCollectionSerialization
 
     static class IntIterable implements Iterable<Integer>
     {
+        @Override
         public Iterator<Integer> iterator() {
             return new IntIterator(1, 3);
         }
@@ -118,16 +119,18 @@ public class TestCollectionSerialization
             this.last = last;
         }
 
+        @Override
         public boolean hasNext() {
             return i <= last;
         }
 
+        @Override
         public Integer next() {
             return i++;
         }
 
-        public void remove() {
-        }
+        @Override
+        public void remove() { }
 
         public int getX() { return 13; }
     }

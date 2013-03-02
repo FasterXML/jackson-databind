@@ -60,7 +60,7 @@ public class StdDelegatingDeserializer<T>
     }
     
     @SuppressWarnings("unchecked")
-    protected StdDelegatingDeserializer(Converter<Object,T> converter,
+    public StdDelegatingDeserializer(Converter<Object,T> converter,
             JavaType delegateType, JsonDeserializer<?> delegateDeserializer)
     {
         super(delegateType);

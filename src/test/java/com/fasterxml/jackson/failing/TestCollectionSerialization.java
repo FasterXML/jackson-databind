@@ -18,6 +18,7 @@ public class TestCollectionSerialization extends BaseMapTest
     //@com.fasterxml.jackson.databind.annotation.JsonSerialize(as=Issue822Interface.class)
     // but it should not be necessary when root type is passed
     static class Issue822Impl implements Issue822Interface {
+        @Override
         public int getA() { return 3; }
         public int getB() { return 9; }
     }

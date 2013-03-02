@@ -31,7 +31,7 @@ public interface BeanProperty extends Named
     /**
      * Method to get logical name of the property
      */
-//  @Override
+    @Override
     public String getName();
     
     /**
@@ -121,33 +121,33 @@ public interface BeanProperty extends Named
             return new Std(_name, type, _contextAnnotations, _member);
         }
         
-//        @Override
+        @Override
         public <A extends Annotation> A getAnnotation(Class<A> acls) {
             return (_member == null) ? null : _member.getAnnotation(acls);
         }
 
-//        @Override
+        @Override
         public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
             return (_contextAnnotations == null) ? null : _contextAnnotations.get(acls);
         }
         
-//      @Override
+        @Override
         public String getName() {
             return _name;
         }
 
-//      @Override
+        @Override
         public JavaType getType() {
             return _type;
         }
 
-//      @Override
+        @Override
         public boolean isRequired() {
             // !!! TODO (maybe): allow changing
             return false;
         }
         
-//      @Override
+        @Override
         public AnnotatedMember getMember() {
             return _member;
         }
@@ -158,7 +158,7 @@ public interface BeanProperty extends Named
          * implementation should not be used as part of actual structure
          * visited. Rather, other implementations should handle it.
          */
-//      @Override
+        @Override
         public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor) {
             throw new UnsupportedOperationException("Instances of "+getClass().getName()
                     +" should not get visited");

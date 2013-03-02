@@ -311,6 +311,80 @@ public class BasicBeanDescription extends BeanDescription
     
     /*
     /**********************************************************
+    /* Introspection for serialization
+    /**********************************************************
+     */
+
+    @Override
+    public Converter<Object,Object> findSerializationConverter()
+    {
+        if (_annotationIntrospector == null) {
+            return null;
+        }
+        return _createConverter(_annotationIntrospector.findSerializationConverter(_classInfo));
+    }
+
+    /**
+     * Method for determining whether null properties should be written
+     * out for a Bean of introspected type. This is based on global
+     * feature (lowest priority, passed as argument)
+     * and per-class annotation (highest priority).
+     */
+    @Override
+    public JsonInclude.Include findSerializationInclusion(JsonInclude.Include defValue)
+    {
+        if (_annotationIntrospector == null) {
+            return defValue;
+        }
+        return _annotationIntrospector.findSerializationInclusion(_classInfo, defValue);
+    }
+    
+    /**
+     * Method used to locate the method of introspected class that
+     * implements {@link com.fasterxml.jackson.annotation.JsonAnyGetter}.
+     * If no such method exists null is returned.
+     * If more than one are found, an exception is thrown.
+     */
+    @Override
+    public AnnotatedMember findAnyGetter() throws IllegalArgumentException
+    {
+        if (_anyGetter != null) {
+            /* For now let's require a Map; in future can add support for other
+             * types like perhaps Iterable<Map.Entry>?
+             */
+            Class<?> type = _anyGetter.getRawType();
+            if (!Map.class.isAssignableFrom(type)) {
+                throw new IllegalArgumentException("Invalid 'any-getter' annotation on method "+_anyGetter.getName()+"(): return type is not instance of java.util.Map");
+            }
+        }
+        return _anyGetter;
+    }
+    
+    @Override
+    public Map<String,AnnotatedMember> findBackReferenceProperties()
+    {
+        HashMap<String,AnnotatedMember> result = null;
+        for (BeanPropertyDefinition property : _properties) {
+            AnnotatedMember am = property.getMutator();
+            if (am == null) {
+                continue;
+            }
+            AnnotationIntrospector.ReferenceProperty refDef = _annotationIntrospector.findReferenceType(am);
+            if (refDef != null && refDef.isBackReference()) {
+                if (result == null) {
+                    result = new HashMap<String,AnnotatedMember>();
+                }
+                String refName = refDef.getName();
+                if (result.put(refName, am) != null) {
+                    throw new IllegalArgumentException("Multiple back-reference properties with name '"+refName+"'");
+                }
+            }
+        }
+        return result;
+    }
+
+    /*
+    /**********************************************************
     /* Introspection for deserialization, factories
     /**********************************************************
      */
@@ -433,111 +507,10 @@ public class BasicBeanDescription extends BeanDescription
         }
         return names;
     }
-    
-    /*
-    /**********************************************************
-    /* Introspection for serialization, other
-    /**********************************************************
-     */
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Converter<Object,Object> findSerializationConverter()
-    {
-        if (_annotationIntrospector == null) {
-            return null;
-        }
-        Object converterDef = _annotationIntrospector.findSerializationConverter(_classInfo);
-        if (converterDef == null) {
-            return null;
-        }
-        if (converterDef instanceof Converter<?,?>) {
-            return (Converter<Object,Object>) converterDef;
-        }
-        if (!(converterDef instanceof Class)) {
-            throw new IllegalStateException("AnnotationIntrospector returned Converter definition of type "
-                    +converterDef.getClass().getName()+"; expected type Converter or Class<Converter> instead");
-        }
-        Class<?> converterClass = (Class<?>)converterDef;
-        // there are some known "no class" markers to consider too:
-        if (converterClass == Converter.None.class || converterClass == NoClass.class) {
-            return null;
-        }
-        if (!Converter.class.isAssignableFrom(converterClass)) {
-            throw new IllegalStateException("AnnotationIntrospector returned Class "
-                    +converterClass.getName()+"; expected Class<Converter>");
-        }
-        HandlerInstantiator hi = _config.getHandlerInstantiator();
-        Converter<?,?> conv = (hi == null) ? null : hi.converterInstance(_config, _classInfo, converterClass);
-        if (conv == null) {
-            conv = (Converter<?,?>) ClassUtil.createInstance(converterClass,
-                    _config.canOverrideAccessModifiers());
-        }
-        return (Converter<Object,Object>) conv;
-    }
-
-    /**
-     * Method for determining whether null properties should be written
-     * out for a Bean of introspected type. This is based on global
-     * feature (lowest priority, passed as argument)
-     * and per-class annotation (highest priority).
-     */
-    @Override
-    public JsonInclude.Include findSerializationInclusion(JsonInclude.Include defValue)
-    {
-        if (_annotationIntrospector == null) {
-            return defValue;
-        }
-        return _annotationIntrospector.findSerializationInclusion(_classInfo, defValue);
-    }
-    
-    /**
-     * Method used to locate the method of introspected class that
-     * implements {@link com.fasterxml.jackson.annotation.JsonAnyGetter}.
-     * If no such method exists null is returned.
-     * If more than one are found, an exception is thrown.
-     */
-    @Override
-    public AnnotatedMember findAnyGetter() throws IllegalArgumentException
-    {
-        if (_anyGetter != null) {
-            /* For now let's require a Map; in future can add support for other
-             * types like perhaps Iterable<Map.Entry>?
-             */
-            Class<?> type = _anyGetter.getRawType();
-            if (!Map.class.isAssignableFrom(type)) {
-                throw new IllegalArgumentException("Invalid 'any-getter' annotation on method "+_anyGetter.getName()+"(): return type is not instance of java.util.Map");
-            }
-        }
-        return _anyGetter;
-    }
-    
-    @Override
-    public Map<String,AnnotatedMember> findBackReferenceProperties()
-    {
-        HashMap<String,AnnotatedMember> result = null;
-        for (BeanPropertyDefinition property : _properties) {
-            AnnotatedMember am = property.getMutator();
-            if (am == null) {
-                continue;
-            }
-            AnnotationIntrospector.ReferenceProperty refDef = _annotationIntrospector.findReferenceType(am);
-            if (refDef != null && refDef.isBackReference()) {
-                if (result == null) {
-                    result = new HashMap<String,AnnotatedMember>();
-                }
-                String refName = refDef.getName();
-                if (result.put(refName, am) != null) {
-                    throw new IllegalArgumentException("Multiple back-reference properties with name '"+refName+"'");
-                }
-            }
-        }
-        return result;
-    }
 
     /*
     /**********************************************************
-    /* Introspection for deserialization
+    /* Introspection for deserialization, other
     /**********************************************************
      */
     
@@ -554,7 +527,16 @@ public class BasicBeanDescription extends BeanDescription
         return (_annotationIntrospector == null) ?
                 null : _annotationIntrospector.findPOJOBuilderConfig(_classInfo);
     }
-    
+
+    @Override
+    public Converter<Object,Object> findDeserializationConverter()
+    {
+        if (_annotationIntrospector == null) {
+            return null;
+        }
+        return _createConverter(_annotationIntrospector.findDeserializationConverter(_classInfo));
+    }
+
     /*
     /**********************************************************
     /* Helper methods for field introspection
@@ -588,5 +570,42 @@ public class BasicBeanDescription extends BeanDescription
             }
         }
         return results;
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods, other
+    /**********************************************************
+     */
+    
+    @SuppressWarnings("unchecked")
+    public Converter<Object,Object> _createConverter(Object converterDef)
+    {
+        if (converterDef == null) {
+            return null;
+        }
+        if (converterDef instanceof Converter<?,?>) {
+            return (Converter<Object,Object>) converterDef;
+        }
+        if (!(converterDef instanceof Class)) {
+            throw new IllegalStateException("AnnotationIntrospector returned Converter definition of type "
+                    +converterDef.getClass().getName()+"; expected type Converter or Class<Converter> instead");
+        }
+        Class<?> converterClass = (Class<?>)converterDef;
+        // there are some known "no class" markers to consider too:
+        if (converterClass == Converter.None.class || converterClass == NoClass.class) {
+            return null;
+        }
+        if (!Converter.class.isAssignableFrom(converterClass)) {
+            throw new IllegalStateException("AnnotationIntrospector returned Class "
+                    +converterClass.getName()+"; expected Class<Converter>");
+        }
+        HandlerInstantiator hi = _config.getHandlerInstantiator();
+        Converter<?,?> conv = (hi == null) ? null : hi.converterInstance(_config, _classInfo, converterClass);
+        if (conv == null) {
+            conv = (Converter<?,?>) ClassUtil.createInstance(converterClass,
+                    _config.canOverrideAccessModifiers());
+        }
+        return (Converter<Object,Object>) conv;
     }
 }

@@ -525,68 +525,68 @@ public class ObjectMapper
         {
             // // // Accessors
 
-//          @Override
+            @Override
             public Version getMapperVersion() {
                 return version();
             }
 
             @SuppressWarnings("unchecked")
-//          @Override
+            @Override
             public <C extends ObjectCodec> C getOwner() {
                 // why do we need the cast here?!?
                 return (C) mapper;
             }
 
-//          @Override
+            @Override
             public TypeFactory getTypeFactory() {
                 return _typeFactory;
             }
             
-//          @Override
+            @Override
             public boolean isEnabled(MapperFeature f) {
                 return mapper.isEnabled(f);
             }
 
-//          @Override
+            @Override
             public boolean isEnabled(DeserializationFeature f) {
                 return mapper.isEnabled(f);
             }
             
-//          @Override
+            @Override
             public boolean isEnabled(SerializationFeature f) {
                 return mapper.isEnabled(f);
             }
 
-//          @Override
+            @Override
             public boolean isEnabled(JsonFactory.Feature f) {
                 return mapper.isEnabled(f);
             }
 
-//          @Override
+            @Override
             public boolean isEnabled(JsonParser.Feature f) {
                 return mapper.isEnabled(f);
             }
             
-//          @Override
+            @Override
             public boolean isEnabled(JsonGenerator.Feature f) {
                 return mapper.isEnabled(f);
             }
             
             // // // Methods for registering handlers: deserializers
             
-//          @Override
+            @Override
             public void addDeserializers(Deserializers d) {
                 DeserializerFactory df = mapper._deserializationContext._factory.withAdditionalDeserializers(d);
                 mapper._deserializationContext = mapper._deserializationContext.with(df);
             }
 
-//          @Override
+            @Override
             public void addKeyDeserializers(KeyDeserializers d) {
                 DeserializerFactory df = mapper._deserializationContext._factory.withAdditionalKeyDeserializers(d);
                 mapper._deserializationContext = mapper._deserializationContext.with(df);
             }
 
-//          @Override
+            @Override
             public void addBeanDeserializerModifier(BeanDeserializerModifier modifier) {
                 DeserializerFactory df = mapper._deserializationContext._factory.withDeserializerModifier(modifier);
                 mapper._deserializationContext = mapper._deserializationContext.with(df);
@@ -594,76 +594,76 @@ public class ObjectMapper
             
             // // // Methods for registering handlers: serializers
             
-//          @Override
+            @Override
             public void addSerializers(Serializers s) {
                 mapper._serializerFactory = mapper._serializerFactory.withAdditionalSerializers(s);
             }
 
-//          @Override
+            @Override
             public void addKeySerializers(Serializers s) {
                 mapper._serializerFactory = mapper._serializerFactory.withAdditionalKeySerializers(s);
             }
             
-//          @Override
+            @Override
             public void addBeanSerializerModifier(BeanSerializerModifier modifier) {
                 mapper._serializerFactory = mapper._serializerFactory.withSerializerModifier(modifier);
             }
 
             // // // Methods for registering handlers: other
             
-//          @Override
+            @Override
             public void addAbstractTypeResolver(AbstractTypeResolver resolver) {
                 DeserializerFactory df = mapper._deserializationContext._factory.withAbstractTypeResolver(resolver);
                 mapper._deserializationContext = mapper._deserializationContext.with(df);
             }
 
-//          @Override
+            @Override
             public void addTypeModifier(TypeModifier modifier) {
                 TypeFactory f = mapper._typeFactory;
                 f = f.withModifier(modifier);
                 mapper.setTypeFactory(f);
             }
 
-//          @Override
+            @Override
             public void addValueInstantiators(ValueInstantiators instantiators) {
                 DeserializerFactory df = mapper._deserializationContext._factory.withValueInstantiators(instantiators);
                 mapper._deserializationContext = mapper._deserializationContext.with(df);
             }
 
-//          @Override
+            @Override
             public void setClassIntrospector(ClassIntrospector ci) {
                 mapper._deserializationConfig = mapper._deserializationConfig.with(ci);
                 mapper._serializationConfig = mapper._serializationConfig.with(ci);
             }
 
-//          @Override
+            @Override
             public void insertAnnotationIntrospector(AnnotationIntrospector ai) {
                 mapper._deserializationConfig = mapper._deserializationConfig.withInsertedAnnotationIntrospector(ai);
                 mapper._serializationConfig = mapper._serializationConfig.withInsertedAnnotationIntrospector(ai);
             }
             
-//          @Override
+            @Override
             public void appendAnnotationIntrospector(AnnotationIntrospector ai) {
                 mapper._deserializationConfig = mapper._deserializationConfig.withAppendedAnnotationIntrospector(ai);
                 mapper._serializationConfig = mapper._serializationConfig.withAppendedAnnotationIntrospector(ai);
             }
 
-//          @Override
+            @Override
             public void registerSubtypes(Class<?>... subtypes) {
                 mapper.registerSubtypes(subtypes);
             }
 
-//          @Override
+            @Override
             public void registerSubtypes(NamedType... subtypes) {
                 mapper.registerSubtypes(subtypes);
             }
             
-//          @Override
+            @Override
             public void setMixInAnnotations(Class<?> target, Class<?> mixinSource) {
                 mapper.addMixInAnnotations(target, mixinSource);
             }
             
-//          @Override
+            @Override
             public void addDeserializationProblemHandler(DeserializationProblemHandler handler) {
                 mapper.addHandler(handler);
             }

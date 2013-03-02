@@ -59,9 +59,9 @@ public class TestAnnotationInheritance
     {
         // Both should be recognized as getters here
 
-//      @Override
+        @Override
         public int width() { return 1; }
-//      @Override
+        @Override
         public int length() { return 2; }
 
         public int getFoobar() { return 5; }

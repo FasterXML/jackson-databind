@@ -38,7 +38,7 @@ public abstract class Module
      * Method that returns version of this module. Can be used by Jackson for
      * informational purposes.
      */
-//  @Override
+    @Override
     public abstract Version version();
 
     /*

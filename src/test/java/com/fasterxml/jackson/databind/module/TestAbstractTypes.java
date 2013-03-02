@@ -22,17 +22,17 @@ public class TestAbstractTypes extends BaseMapTest
         
         public MyString(String s) { value = s; }
 
-//      @Override
+        @Override
         public char charAt(int index) {
             return value.charAt(index);
         }
 
-//      @Override
+        @Override
         public int length() {
             return value.length();
         }
 
-//      @Override
+        @Override
         public CharSequence subSequence(int arg0, int arg1) { return this; }
     }
     

@@ -16,10 +16,14 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
+import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.type.ClassKey;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.*;
 
 /**
@@ -429,7 +433,12 @@ public abstract class BeanDeserializerBase
             SettableBeanProperty prop = origProp;
             // May already have deserializer from annotations, if so, skip:
             if (!prop.hasValueDeserializer()) {
-                prop = prop.withValueDeserializer(findDeserializer(ctxt, prop.getType(), prop));
+                // [Issue#125]: allow use of converters
+                JsonDeserializer<?> deser = findConvertingDeserializer(ctxt, prop);
+                if (deser == null) {
+                    deser = findDeserializer(ctxt, prop.getType(), prop);
+                }
+                prop = prop.withValueDeserializer(deser);
             } else { // may need contextual version
                 JsonDeserializer<Object> deser = prop.getValueDeserializer();
                 if (deser instanceof ContextualDeserializer) {
@@ -510,6 +519,37 @@ public abstract class BeanDeserializerBase
         _vanillaProcessing = _vanillaProcessing && !_nonStandardCreation;
     }
 
+    /**
+     * Helper method that can be used to see if specified property is annotated
+     * to indicate use of a converter for property value (in case of container types,
+     * it is container type itself, not key or content type).
+     * 
+     * @since 2.2
+     */
+    protected JsonDeserializer<Object> findConvertingDeserializer(DeserializationContext ctxt,
+            SettableBeanProperty prop)
+        throws JsonMappingException
+    {
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        if (intr != null) {
+            Object convDef = intr.findDeserializationConverter(prop.getMember());
+            if (convDef != null) {
+                Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
+                TypeFactory tf = ctxt.getTypeFactory();
+                JavaType converterType = tf.constructType(conv.getClass());
+                JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
+                if (params == null || params.length != 2) {
+                    throw new JsonMappingException("Could not determine Converter parameterization for "
+                            +converterType);
+                }
+                JavaType delegateType = params[0];
+                JsonDeserializer<?> ser = ctxt.findContextualValueDeserializer(delegateType, prop);
+                return new StdDelegatingDeserializer<Object>(conv, delegateType, ser);
+            }
+        }
+        return null;
+    }
+    
     /**
      * Although most of post-processing is done in resolve(), we only get
      * access to referring property's annotations here; and this is needed

@@ -279,7 +279,7 @@ public abstract class BeanSerializerBase
                 continue;
             }
             // [Issue#124]: allow use of converters
-            JsonSerializer<Object> ser = findConvertingSerializer(provider, prop);  
+            JsonSerializer<Object> ser = findConvertingSerializer(provider, prop);
             if (ser == null) {
                 // Was the serialization type hard-coded? If so, use it
                 JavaType type = prop.getSerializationType();

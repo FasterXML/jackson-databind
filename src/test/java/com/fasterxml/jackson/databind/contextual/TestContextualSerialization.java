@@ -139,7 +139,7 @@ public class TestContextualSerialization extends BaseMapTest
             jgen.writeString(_prefix + value);
         }
 
-//      @Override
+        @Override
         public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
                 throws JsonMappingException
         {
@@ -179,14 +179,14 @@ public class TestContextualSerialization extends BaseMapTest
             jgen.writeString("contextual="+isContextual+",resolved="+isResolved);
         }
 
-//      @Override
+        @Override
         public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
                 throws JsonMappingException
         {
             return new ContextualAndResolvable(isResolved, isContextual+1);
         }
 
-//      @Override
+        @Override
         public void resolve(SerializerProvider provider) {
             ++isResolved;
         }

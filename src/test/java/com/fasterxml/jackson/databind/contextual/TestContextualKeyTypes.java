@@ -44,8 +44,8 @@ public class TestContextualKeyTypes extends BaseMapTest
             }
             jgen.writeFieldName(value);
         }
-    
-//      @Override
+
+        @Override
         public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
             throws JsonMappingException
         {
@@ -70,7 +70,7 @@ public class TestContextualKeyTypes extends BaseMapTest
             return _prefix + ":" + key;
         }
 
-//      @Override
+        @Override
         public KeyDeserializer createContextual(DeserializationContext ctxt,
                 BeanProperty property) throws JsonMappingException
         {

@@ -87,9 +87,7 @@ public final class StringCollectionDeserializer
     /* Validation, post-processing
     /**********************************************************
      */
-
-//    @Override
-    @SuppressWarnings("unchecked")
+    @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
     {
@@ -104,10 +102,12 @@ public final class StringCollectionDeserializer
         }
         JsonDeserializer<?> valueDeser = _valueDeserializer;
         if (valueDeser == null) {
+            // #125: May have a content converter
+            valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
+            if (valueDeser == null) {
             // And we may also need to get deserializer for String
-            JsonDeserializer<?> deser = ctxt.findContextualValueDeserializer(
-                    _collectionType.getContentType(), property);
-            valueDeser = (JsonDeserializer<String>) deser;
+                valueDeser = ctxt.findContextualValueDeserializer( _collectionType.getContentType(), property);
+            }
         } else { // if directly assigned, probably not yet contextual, so:
             if (valueDeser instanceof ContextualDeserializer) {
                 valueDeser = ((ContextualDeserializer) valueDeser).createContextual(ctxt, property);

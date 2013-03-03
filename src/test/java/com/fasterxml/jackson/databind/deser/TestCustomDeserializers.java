@@ -201,7 +201,7 @@ public class TestCustomDeserializers
         module.addDeserializer(Immutable.class,
             new StdDelegatingDeserializer<Immutable>(
                 new Converter<JsonNode, Immutable>() {
-                    //@Override
+                    @Override
                     public Immutable convert(JsonNode value)
                     {
                         int x = value.path("x").asInt();

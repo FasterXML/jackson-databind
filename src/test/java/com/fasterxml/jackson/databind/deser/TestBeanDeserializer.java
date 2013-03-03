@@ -147,6 +147,7 @@ public class TestBeanDeserializer extends BaseMapTest
     enum EnumABC { A, B, C; }
     
     static class ArrayDeserializerModifier extends BeanDeserializerModifier {
+        @Override
         public JsonDeserializer<?> modifyArrayDeserializer(DeserializationConfig config, ArrayType valueType,
                 BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
             return (JsonDeserializer<?>) new StdDeserializer<Object>(Object.class) {
@@ -159,6 +160,7 @@ public class TestBeanDeserializer extends BaseMapTest
     }
 
     static class CollectionDeserializerModifier extends BeanDeserializerModifier {
+        @Override
         public JsonDeserializer<?> modifyCollectionDeserializer(DeserializationConfig config, CollectionType valueType,
                 BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
             return (JsonDeserializer<?>) new StdDeserializer<Object>(Object.class) {
@@ -173,6 +175,7 @@ public class TestBeanDeserializer extends BaseMapTest
     }
 
     static class MapDeserializerModifier extends BeanDeserializerModifier {
+        @Override
         public JsonDeserializer<?> modifyMapDeserializer(DeserializationConfig config, MapType valueType,
                 BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
             return (JsonDeserializer<?>) new StdDeserializer<Object>(Object.class) {
@@ -187,6 +190,7 @@ public class TestBeanDeserializer extends BaseMapTest
     }
 
     static class EnumDeserializerModifier extends BeanDeserializerModifier {
+        @Override
         public JsonDeserializer<?> modifyEnumDeserializer(DeserializationConfig config, JavaType valueType,
                 BeanDescription beanDesc, JsonDeserializer<?> deserializer) {
             return (JsonDeserializer<?>) new StdDeserializer<Object>(Object.class) {
@@ -199,6 +203,7 @@ public class TestBeanDeserializer extends BaseMapTest
     }
 
     static class KeyDeserializerModifier extends BeanDeserializerModifier {
+        @Override
         public KeyDeserializer modifyKeyDeserializer(DeserializationConfig config, JavaType valueType,
                 KeyDeserializer kd) {
             return new KeyDeserializer() {

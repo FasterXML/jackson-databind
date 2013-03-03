@@ -61,6 +61,7 @@ public abstract class SimpleBeanPropertyFilter
      */
     protected abstract boolean include(BeanPropertyWriter writer);
 
+    @Override
     public void serializeAsField(Object bean, JsonGenerator jgen,
             SerializerProvider provider, BeanPropertyWriter writer) throws Exception
     {
@@ -69,7 +70,7 @@ public abstract class SimpleBeanPropertyFilter
         }
     }
 
-    
+    @Override
     public void depositSchemaProperty(BeanPropertyWriter writer,
             ObjectNode propertiesNode, SerializerProvider provider)
         throws JsonMappingException
@@ -79,6 +80,7 @@ public abstract class SimpleBeanPropertyFilter
         }
     }
 
+    @Override
     public void depositSchemaProperty(BeanPropertyWriter writer,
             JsonObjectFormatVisitor objectVisitor, SerializerProvider provider)
         throws JsonMappingException

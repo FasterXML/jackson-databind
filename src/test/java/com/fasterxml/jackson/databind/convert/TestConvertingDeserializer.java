@@ -46,7 +46,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
             return new ConvertingBean(values[0], values[1]);
         }
     }
-
+    
     static class PointConverter implements Converter<int[], Point>
     {
         @Override public Point convert(int[] value) {
@@ -79,6 +79,25 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         public Map<String,Point> values;
     }
 
+    static class LowerCaser implements Converter<String, String>
+    {
+        @Override
+        public String convert(String value) {
+            return value.toLowerCase();
+        }
+        
+    }
+
+    static class LowerCaseText {
+        @JsonDeserialize(converter=LowerCaser.class)
+        public String text;
+    }
+
+    static class LowerCaseTextArray {
+        @JsonDeserialize(contentConverter=LowerCaser.class)
+        public String[] texts;
+    }
+     
     /*
     /**********************************************************
     /* Test methods
@@ -110,6 +129,23 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         assertNotNull(wrapper.value);
         assertEquals(3, wrapper.value.x);
         assertEquals(4, wrapper.value.y);
+    }
+
+    public void testPropertyAnnotationLowerCasing() throws Exception
+    {
+        LowerCaseText text = objectReader(LowerCaseText.class).readValue("{\"text\":\"Yay!\"}");
+        assertNotNull(text);
+        assertNotNull(text.text);
+        assertEquals("yay!", text.text);
+    }
+
+    public void testPropertyAnnotationArrayLC() throws Exception
+    {
+        LowerCaseTextArray texts = objectReader(LowerCaseTextArray.class).readValue("{\"texts\":[\"ABC\"]}");
+        assertNotNull(texts);
+        assertNotNull(texts.texts);
+        assertEquals(1, texts.texts.length);
+        assertEquals("abc", texts.texts[0]);
     }
 
     public void testPropertyAnnotationForArrays() throws Exception

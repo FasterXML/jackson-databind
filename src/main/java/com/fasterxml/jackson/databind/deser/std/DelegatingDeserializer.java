@@ -54,12 +54,14 @@ public abstract class DelegatingDeserializer
     /**********************************************************************
      */
 
+    @Override
     public void resolve(DeserializationContext ctxt) throws JsonMappingException {
         if (_delegatee instanceof ResolvableDeserializer) {
             ((ResolvableDeserializer) _delegatee).resolve(ctxt);
         }
     }
 
+    @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property)
         throws JsonMappingException

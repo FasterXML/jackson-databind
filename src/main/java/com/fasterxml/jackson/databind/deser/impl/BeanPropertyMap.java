@@ -152,11 +152,11 @@ public final class BeanPropertyMap
     /* Iterable, for convenient iterating over all properties
     /**********************************************************
      */
-    
+
     /**
      * Accessor for traversing over all contained properties.
      */
-//    @Override
+    @Override
     public Iterator<SettableBeanProperty> iterator() {
         return new IteratorImpl(_buckets);
     }
@@ -349,12 +349,12 @@ public final class BeanPropertyMap
             _nextBucketIndex = i;
         }
 
-//        @Override
+        @Override
         public boolean hasNext() {
             return _currentBucket != null;
         }
 
-//        @Override
+        @Override
         public SettableBeanProperty next()
         {
             Bucket curr = _currentBucket;
@@ -370,7 +370,7 @@ public final class BeanPropertyMap
             return curr.value;
         }
 
-//       @Override
+        @Override
         public void remove() {
             throw new UnsupportedOperationException();
         }

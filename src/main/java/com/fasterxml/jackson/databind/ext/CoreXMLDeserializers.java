@@ -49,7 +49,7 @@ public class CoreXMLDeserializers
      * Method called by {@link com.fasterxml.jackson.databind.deser.BasicDeserializerFactory}
      * to register deserializers this class provides.
      */
-//    @Override
+    @Override
     public Collection<StdDeserializer<?>> provide()
     {
         return Arrays.asList(new StdDeserializer<?>[] {

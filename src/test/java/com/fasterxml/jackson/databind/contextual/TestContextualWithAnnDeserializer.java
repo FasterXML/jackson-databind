@@ -51,7 +51,7 @@ public class TestContextualWithAnnDeserializer extends BaseMapTest
             return new StringValue(""+_fieldName+"="+jp.getText());
         }
 
-//      @Override
+        @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
             throws JsonMappingException
@@ -81,8 +81,8 @@ public class TestContextualWithAnnDeserializer extends BaseMapTest
         {
             return new StringValue(""+_fieldName+"="+jp.getText());
         }
-    
-//      @Override
+
+        @Override
         public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
                 BeanProperty property)
             throws JsonMappingException

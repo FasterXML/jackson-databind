@@ -19,7 +19,7 @@ public interface JsonNumberFormatVisitor extends JsonValueFormatVisitor
      */
     public static class Base extends JsonValueFormatVisitor.Base
         implements JsonNumberFormatVisitor {
-        //@Override
+        @Override
         public void numberType(JsonParser.NumberType type) { }
     }
 }

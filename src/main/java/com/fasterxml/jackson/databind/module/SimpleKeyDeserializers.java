@@ -49,7 +49,7 @@ public class SimpleKeyDeserializers
     /**********************************************************
      */
 
-//  @Override
+    @Override
     public KeyDeserializer findKeyDeserializer(JavaType type,
             DeserializationConfig config, BeanDescription beanDesc)
     {

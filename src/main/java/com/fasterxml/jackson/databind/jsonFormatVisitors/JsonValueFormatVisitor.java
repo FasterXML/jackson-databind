@@ -20,7 +20,9 @@ public interface JsonValueFormatVisitor {
      * of the interface, even if new methods are getting added.
      */
     public static class Base implements JsonValueFormatVisitor {
+        @Override
         public void format(JsonValueFormat format) { }
+        @Override
         public void enumTypes(Set<String> enums) { }
     }
 }

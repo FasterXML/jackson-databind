@@ -276,6 +276,7 @@ public class BeanAsArrayBuilderDeserializer
      * due to non-guaranteed ordering possibly some other properties
      * as well.
      */
+    @Override
     protected final Object _deserializeUsingPropertyBased(final JsonParser jp,
             final DeserializationContext ctxt)
         throws IOException, JsonProcessingException

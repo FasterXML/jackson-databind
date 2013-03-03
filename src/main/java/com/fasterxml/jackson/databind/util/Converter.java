@@ -1,8 +1,15 @@
 package com.fasterxml.jackson.databind.util;
 
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+
 /**
  * Helper interface for things that convert Objects of
  * one type to another.
+ *<p>
+ * NOTE: implementors are strongly encouraged to extend {@link StdConverter}
+ * instead of directly implementing {@link Converter}, since that can
+ * help with default implementation of typically boiler-plate code.
  *
  * @param <IN> Type of values converter takes
  * @param <OUT> Result type from conversion
@@ -18,6 +25,26 @@ public interface Converter<IN,OUT>
      */
     public OUT convert(IN value);
 
+    /**
+     * Method that can be used to find out actual input (source) type; this
+     * usually can be determined from type parameters, but may need
+     * to be implemented differently from programmatically defined
+     * converters (which can not change static type parameter bindings).
+     * 
+     * @since 2.2
+     */
+    public JavaType getInputType(TypeFactory typeFactory);
+
+    /**
+     * Method that can be used to find out actual output (target) type; this
+     * usually can be determined from type parameters, but may need
+     * to be implemented differently from programmatically defined
+     * converters (which can not change static type parameter bindings).
+     * 
+     * @since 2.2
+     */
+    public JavaType getOutputType(TypeFactory typeFactory);
+    
     /*
     /**********************************************************
     /* Helper class(es)

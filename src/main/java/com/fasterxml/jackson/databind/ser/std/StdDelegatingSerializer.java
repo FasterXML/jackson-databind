@@ -117,14 +117,7 @@ public class StdDelegatingSerializer
         // Otherwise, need to locate serializer to delegate to. For that we need type information...
         JavaType delegateType = _delegateType;
         if (delegateType == null) {
-            TypeFactory tf = provider.getTypeFactory();
-            JavaType implType = tf.constructType(_converter.getClass());
-            JavaType[] params = tf.findTypeParameters(implType, Converter.class);
-            if (params == null || params.length != 2) {
-                throw new JsonMappingException("Could not determine Converter parameterization for "
-                        +implType);
-            }
-            delegateType = params[1];
+            delegateType = _converter.getOutputType(provider.getTypeFactory());
         }
         // and then find the thing...
         return withDelegate(_converter, delegateType,

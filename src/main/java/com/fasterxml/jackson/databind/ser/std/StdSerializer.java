@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
 
 /**
@@ -246,14 +245,7 @@ public abstract class StdSerializer<T>
             Object convDef = intr.findSerializationContentConverter(prop.getMember());
             if (convDef != null) {
                 Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
-                TypeFactory tf = provider.getTypeFactory();
-                JavaType converterType = tf.constructType(conv.getClass());
-                JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
-                if (params == null || params.length != 2) {
-                    throw new JsonMappingException("Could not determine Converter parameterization for "
-                            +converterType);
-                }
-                JavaType delegateType = params[1];
+                JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
                 if (existingSerializer == null) {
                     existingSerializer = provider.findValueSerializer(delegateType, prop);
                 }

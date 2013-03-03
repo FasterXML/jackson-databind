@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.convert;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.util.Converter;
+import com.fasterxml.jackson.databind.util.StdConverter;
 
 public class TestConvertingDeserializer
 extends com.fasterxml.jackson.databind.BaseMapTest
@@ -39,7 +39,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         }
     }
 
-    static class ConvertingBeanConverter implements Converter<int[],ConvertingBean>
+    static class ConvertingBeanConverter extends StdConverter<int[],ConvertingBean>
     {
         @Override
         public ConvertingBean convert(int[] values) {
@@ -47,7 +47,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         }
     }
     
-    static class PointConverter implements Converter<int[], Point>
+    static class PointConverter extends StdConverter<int[], Point>
     {
         @Override public Point convert(int[] value) {
             return new Point(value[0], value[1]);
@@ -79,7 +79,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         public Map<String,Point> values;
     }
 
-    static class LowerCaser implements Converter<String, String>
+    static class LowerCaser extends StdConverter<String, String>
     {
         @Override
         public String convert(String value) {

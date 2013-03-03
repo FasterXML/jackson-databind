@@ -354,14 +354,7 @@ public final class DeserializerCache
             return (JsonDeserializer<Object>) _createDeserializer2(ctxt, factory, type, beanDesc);
         }
         // otherwise need to do bit of introspection
-        TypeFactory tf = ctxt.getTypeFactory();
-        JavaType converterType = tf.constructType(conv.getClass());
-        JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
-        if (params == null || params.length != 2) {
-            throw new JsonMappingException("Could not determine Converter parameterization for "
-                    +converterType);
-        }
-        JavaType delegateType = params[0];
+        JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
         return new StdDelegatingDeserializer<Object>(conv, delegateType,
                 _createDeserializer2(ctxt, factory, delegateType, beanDesc));
     }
@@ -371,7 +364,7 @@ public final class DeserializerCache
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
-    // If not, let's see which factory method to use:
+        // If not, let's see which factory method to use:
         if (type.isEnumType()) {
             return factory.createEnumDeserializer(ctxt, type, beanDesc);
         }
@@ -440,14 +433,7 @@ public final class DeserializerCache
         if (conv == null) {
             return deser;
         }
-        TypeFactory tf = ctxt.getTypeFactory();
-        JavaType converterType = tf.constructType(conv.getClass());
-        JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
-        if (params == null || params.length != 2) {
-            throw new JsonMappingException("Could not determine Converter parameterization for "
-                    +converterType);
-        }
-        JavaType delegateType = params[0];
+        JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
         return (JsonDeserializer<Object>) new StdDelegatingDeserializer<Object>(conv, delegateType, deser);
     }
 

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.util.Converter;
+import com.fasterxml.jackson.databind.util.StdConverter;
 
 /**
  * Test to check that customizations work as expected.
@@ -200,7 +200,7 @@ public class TestCustomDeserializers
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addDeserializer(Immutable.class,
             new StdDelegatingDeserializer<Immutable>(
-                new Converter<JsonNode, Immutable>() {
+                new StdConverter<JsonNode, Immutable>() {
                     @Override
                     public Immutable convert(JsonNode value)
                     {

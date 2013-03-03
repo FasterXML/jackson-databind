@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
@@ -21,7 +22,6 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ClassKey;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.*;
 
 /**
@@ -533,14 +533,7 @@ public abstract class BeanDeserializerBase
             Object convDef = intr.findDeserializationConverter(prop.getMember());
             if (convDef != null) {
                 Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
-                TypeFactory tf = ctxt.getTypeFactory();
-                JavaType converterType = tf.constructType(conv.getClass());
-                JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
-                if (params == null || params.length != 2) {
-                    throw new JsonMappingException("Could not determine Converter parameterization for "
-                            +converterType);
-                }
-                JavaType delegateType = params[0];
+                JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
                 JsonDeserializer<?> ser = ctxt.findContextualValueDeserializer(delegateType, prop);
                 return new StdDelegatingDeserializer<Object>(conv, delegateType, ser);
             }

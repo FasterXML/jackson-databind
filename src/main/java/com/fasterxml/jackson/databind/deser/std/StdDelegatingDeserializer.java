@@ -8,7 +8,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
 
 /**
@@ -102,17 +101,8 @@ public class StdDelegatingDeserializer<T>
             }
             return this;
         }
-
-        // First: figure out what is the fully generic delegate type:
-        TypeFactory tf = ctxt.getTypeFactory();
-        JavaType implType = tf.constructType(_converter.getClass());
-        JavaType[] params = tf.findTypeParameters(implType, Converter.class);
-        if (params == null || params.length != 2) {
-            throw new JsonMappingException("Could not determine Converter parameterization for "
-                    +implType);
-        }
-        // and then we can find serializer to delegate to, construct a new instance:
-        JavaType delegateType = params[0];
+        // Otherwise: figure out what is the fully generic delegate type, then find deserializer
+        JavaType delegateType = _converter.getInputType(ctxt.getTypeFactory());
         return withDelegate(_converter, delegateType,
                 ctxt.findContextualValueDeserializer(delegateType, property));
     }

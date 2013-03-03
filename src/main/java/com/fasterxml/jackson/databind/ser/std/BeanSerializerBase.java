@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -344,14 +343,7 @@ public abstract class BeanSerializerBase
             Object convDef = intr.findSerializationConverter(prop.getMember());
             if (convDef != null) {
                 Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
-                TypeFactory tf = provider.getTypeFactory();
-                JavaType converterType = tf.constructType(conv.getClass());
-                JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
-                if (params == null || params.length != 2) {
-                    throw new JsonMappingException("Could not determine Converter parameterization for "
-                            +converterType);
-                }
-                JavaType delegateType = params[1];
+                JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
                 JsonSerializer<?> ser = provider.findValueSerializer(delegateType, prop);
                 return new StdDelegatingSerializer(conv, delegateType, ser);
             }

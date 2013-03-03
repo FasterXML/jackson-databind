@@ -45,6 +45,8 @@ Other:
   based on experiences with external JSON Schema generator.
 * Version information accessed via code-generated access class, instead of reading
   VERSION.txt
+* Added 2 methods in Converter interface: getInputType(), getOutputType(),
+  to allow programmatic overrides (needed by JAXB annotation module)
 
 ------------------------------------------------------------------------
 === History: ===

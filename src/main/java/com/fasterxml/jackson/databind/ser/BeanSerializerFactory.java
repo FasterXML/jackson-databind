@@ -151,15 +151,7 @@ public class BeanSerializerFactory
         if (conv == null) { // no, simple:
             return (JsonSerializer<Object>) _createSerializer2(prov, type, beanDesc, staticTyping);
         }
-        // otherwise need to do bit of introspection
-        TypeFactory tf = prov.getTypeFactory();
-        JavaType converterType = tf.constructType(conv.getClass());
-        JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
-        if (params == null || params.length != 2) {
-            throw new JsonMappingException("Could not determine Converter parameterization for "
-                    +converterType);
-        }
-        JavaType delegateType = params[1];
+        JavaType delegateType = conv.getOutputType(prov.getTypeFactory());
         return new StdDelegatingSerializer(conv, delegateType,
                 _createSerializer2(prov, delegateType, beanDesc, true));
     }

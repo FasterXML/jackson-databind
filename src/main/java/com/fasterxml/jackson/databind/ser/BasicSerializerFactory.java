@@ -463,14 +463,7 @@ public abstract class BasicSerializerFactory
         if (conv == null) {
             return ser;
         }
-        TypeFactory tf = prov.getTypeFactory();
-        JavaType converterType = tf.constructType(conv.getClass());
-        JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
-        if (params == null || params.length != 2) {
-            throw new JsonMappingException("Could not determine Converter parameterization for "
-                    +converterType);
-        }
-        JavaType delegateType = params[1];
+        JavaType delegateType = conv.getOutputType(prov.getTypeFactory());
         return new StdDelegatingSerializer(conv, delegateType, ser);
     }
 

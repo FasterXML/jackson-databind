@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.Converter;
 
 /**
@@ -660,15 +659,7 @@ public abstract class StdDeserializer<T>
             Object convDef = intr.findDeserializationContentConverter(prop.getMember());
             if (convDef != null) {
                 Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
-                TypeFactory tf = ctxt.getTypeFactory();
-                JavaType converterType = tf.constructType(conv.getClass());
-                JavaType[] params = tf.findTypeParameters(converterType, Converter.class);
-                if (params == null || params.length != 2) {
-                    throw new JsonMappingException("Could not determine Converter parameterization for "
-                            +converterType);
-                }
-                // We need to use input type, as that's what deserializer needs to produce:
-                JavaType delegateType = params[0];
+                JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
                 if (existingDeserializer == null) {
                     existingDeserializer = ctxt.findContextualValueDeserializer(delegateType, prop);
                 }

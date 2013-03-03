@@ -30,12 +30,12 @@ public class TestCustomTypeIdResolver extends BaseMapTest
 
         public CustomResolver() { }
         
-//      @Override
+        @Override
         public Id getMechanism() {
             return Id.CUSTOM;
         }
 
-//      @Override
+        @Override
         public String idFromValue(Object value)
         {
             if (value.getClass() == CustomBean.class) {
@@ -44,19 +44,19 @@ public class TestCustomTypeIdResolver extends BaseMapTest
             return "unknown";
         }
 
-//      @Override
+        @Override
         public String idFromValueAndType(Object value, Class<?> type) {
             return idFromValue(value);
         }
-        
-//      @Override
+
+        @Override
         public void init(JavaType baseType) {
             if (initTypes != null) {
                 initTypes.add(baseType);
             }
         }
 
-//      @Override
+        @Override
         public JavaType typeFromId(String id)
         {
             if ("*".equals(id)) {
@@ -65,7 +65,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
             return null;
         }
 
-//      @Override
+        @Override
         public String idFromBaseType() {
             return "xxx";
         }

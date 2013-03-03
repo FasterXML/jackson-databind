@@ -113,7 +113,7 @@ public class TestExternalId extends BaseMapTest
             baseProperty = bp;
         }
 
-//      @Override
+        @Override
         @JsonProperty public String getBaseProperty() {
             return baseProperty;
         }
@@ -135,7 +135,7 @@ public class TestExternalId extends BaseMapTest
             baseProperty = bp;
         }
 
-//      @Override
+        @Override
         @JsonProperty public String getBaseProperty() {
             return baseProperty;
         }

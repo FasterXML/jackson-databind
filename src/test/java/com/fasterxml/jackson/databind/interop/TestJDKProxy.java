@@ -21,7 +21,9 @@ public class TestJDKProxy extends BaseMapTest
         public Planet() { }
         public Planet(String s) { name = s; }
         
+        @Override
         public String getName(){return name;}
+        @Override
         public String setName(String iName) {name = iName;
             return name;
         }
@@ -56,6 +58,7 @@ public class TestJDKProxy extends BaseMapTest
             public ProxyUtil(Object o) {
                 obj = o;
             }
+            @Override
             public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
                 Object result = null;
                 result = m.invoke(obj, args);

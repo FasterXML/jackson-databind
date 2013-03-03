@@ -49,7 +49,7 @@ public class TestHibernate
         Enhancer enh = new Enhancer();
         enh.setInterfaces(new Class[] { BeanInterfaceHib.class });
         enh.setCallback(new MethodInterceptor() {
-//          @Override
+            @Override
             public Object intercept(Object obj, Method method,
                     Object[] args, MethodProxy proxy)
                             throws Throwable

@@ -122,12 +122,14 @@ public class TestExternalizable extends BaseMapTest
             this.values = values;
         }
 
+        @Override
         public void readExternal(ObjectInput in) throws IOException
         {
 //            MapperHolder.mapper().readValue(
             MapperHolder.mapper().readerForUpdating(this).readValue(new ExternalizableInput(in));
         }
 
+        @Override
         public void writeExternal(ObjectOutput oo) throws IOException
         {
             MapperHolder.mapper().writeValue(new ExternalizableOutput(oo), this);

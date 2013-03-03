@@ -93,7 +93,7 @@ public class TestCustomSerializers
         SimpleModule module = new SimpleModule("test", Version.unknownVersion());
         module.addSerializer(new StdDelegatingSerializer(Immutable.class,
                 new Converter<Immutable, Map<String,Integer>>() {
-                    //@Override
+                    @Override
                     public Map<String, Integer> convert(Immutable value)
                     {
                         HashMap<String,Integer> map = new LinkedHashMap<String,Integer>();

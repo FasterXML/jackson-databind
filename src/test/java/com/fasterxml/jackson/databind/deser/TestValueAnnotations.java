@@ -34,7 +34,7 @@ public class TestValueAnnotations
 
         public RootStringImpl(String x) { _contents = x; }
 
-//      @Override
+        @Override
         public String contents() { return _contents; }
         public String contents2() { return _contents; }
     }
@@ -49,7 +49,7 @@ public class TestValueAnnotations
 
         public RootInterfaceImpl() { }
 
-//      @Override
+        @Override
         public String getA() { return a; }
     }
 

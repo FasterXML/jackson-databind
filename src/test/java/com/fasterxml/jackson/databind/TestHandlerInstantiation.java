@@ -121,12 +121,11 @@ public class TestHandlerInstantiation extends BaseMapTest
             _id = idForBean;
         }
         
-//      @Override
+        @Override
         public Id getMechanism() {
             return Id.CUSTOM;
         }
-
-//      @Override
+        @Override
         public String idFromValue(Object value)
         {
             if (value.getClass() == TypeIdBean.class) {
@@ -134,20 +133,17 @@ public class TestHandlerInstantiation extends BaseMapTest
             }
             return "unknown";
         }
-
-//      @Override
+        @Override
         public String idFromValueAndType(Object value, Class<?> type) {
             return idFromValue(value);
         }
-        
-//      @Override
+        @Override
         public void init(JavaType baseType) {
             if (initTypes != null) {
                 initTypes.add(baseType);
             }
         }
-
-//      @Override
+        @Override
         public JavaType typeFromId(String id)
         {
             if (id.equals(_id)) {
@@ -155,8 +151,7 @@ public class TestHandlerInstantiation extends BaseMapTest
             }
             return null;
         }
-
-//      @Override
+        @Override
         public String idFromBaseType() {
             return "xxx";
         }

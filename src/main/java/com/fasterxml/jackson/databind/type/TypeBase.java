@@ -61,7 +61,7 @@ public abstract class TypeBase
     /**********************************************************
      */
 
-//  @Override
+    @Override
     public void serializeWithType(JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException, JsonProcessingException
@@ -71,7 +71,7 @@ public abstract class TypeBase
         typeSer.writeTypeSuffixForScalar(this, jgen);
     }
 
-//  @Override
+    @Override
     public void serialize(JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonProcessingException
     {

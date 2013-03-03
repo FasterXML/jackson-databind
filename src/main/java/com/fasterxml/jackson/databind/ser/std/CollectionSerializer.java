@@ -29,7 +29,7 @@ public class CollectionSerializer
     /* Life-cycle
     /**********************************************************
      */
-    
+
     public CollectionSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
             BeanProperty property, JsonSerializer<Object> valueSerializer)
     {

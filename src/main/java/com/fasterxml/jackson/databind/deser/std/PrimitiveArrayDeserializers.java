@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
-import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
 
 /**
@@ -40,7 +39,7 @@ public class PrimitiveArrayDeserializers
         add(float.class, new FloatDeser());
         add(double.class, new DoubleDeser());
 
-        add(String.class, new StringDeser());
+        add(String.class, new StringArrayDeserializer());
         /* also: char[] is most likely only used with Strings; doesn't
          * seem to make sense to transfer as numbers
          */
@@ -105,60 +104,6 @@ public class PrimitiveArrayDeserializers
     /********************************************************
     */
 
-    @JacksonStdImpl
-    final static class StringDeser
-        extends Base<String[]>
-    {
-        private static final long serialVersionUID = 1L;
-
-        public StringDeser() { super(String[].class); }
-
-        @Override
-        public String[] deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-        {
-            // Ok: must point to START_ARRAY (or equivalent)
-            if (!jp.isExpectedStartArrayToken()) {
-                return handleNonArray(jp, ctxt);
-            }
-            final ObjectBuffer buffer = ctxt.leaseObjectBuffer();
-            Object[] chunk = buffer.resetAndStart();
-            int ix = 0;
-            JsonToken t;
-            
-            while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-                // Ok: no need to convert Strings, but must recognize nulls
-                String value = (t == JsonToken.VALUE_NULL) ? null : _parseString(jp, ctxt);
-                if (ix >= chunk.length) {
-                    chunk = buffer.appendCompletedChunk(chunk);
-                    ix = 0;
-                }
-                chunk[ix++] = value;
-            }
-            String[] result = buffer.completeAndClearBuffer(chunk, ix, String.class);
-            ctxt.returnObjectBuffer(buffer);
-            return result;
-        }
-    
-        private final String[] handleNonArray(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-        {
-            // [JACKSON-526]: implicit arrays from single values?
-            if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
-                // [JACKSON-620] Empty String can become null...
-                if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
-                        && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                    String str = jp.getText();
-                    if (str.length() == 0) {
-                        return null;
-                    }
-                }
-                throw ctxt.mappingException(_valueClass);
-            }
-            return new String[] { (jp.getCurrentToken() == JsonToken.VALUE_NULL) ? null : _parseString(jp, ctxt) };
-        }
-    }
-    
     @JacksonStdImpl
     final static class CharDeser
         extends Base<char[]>

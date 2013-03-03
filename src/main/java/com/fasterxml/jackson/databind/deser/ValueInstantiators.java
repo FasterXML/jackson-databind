@@ -38,7 +38,7 @@ public interface ValueInstantiators
      */
     public static class Base implements ValueInstantiators
     {
-//      @Override
+        @Override
         public ValueInstantiator findValueInstantiator(DeserializationConfig config,
                 BeanDescription beanDesc, ValueInstantiator defaultInstantiator) {
             return defaultInstantiator;

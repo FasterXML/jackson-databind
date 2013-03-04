@@ -554,7 +554,7 @@ public abstract class BeanDeserializerBase
     {
         ObjectIdReader oir = _objectIdReader;
         String[] ignorals = null;
-
+        
         // First: may have an override for Object Id:
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         final AnnotatedMember accessor = (property == null || intr == null)

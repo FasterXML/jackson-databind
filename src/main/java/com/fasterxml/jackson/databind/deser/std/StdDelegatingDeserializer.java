@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Converter;
 
@@ -27,7 +28,7 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public class StdDelegatingDeserializer<T>
     extends StdDeserializer<T>
-    implements ContextualDeserializer
+    implements ContextualDeserializer, ResolvableDeserializer
 {
     private static final long serialVersionUID = 1L;
 
@@ -86,6 +87,15 @@ public class StdDelegatingDeserializer<T>
     /* Contextualization
     /**********************************************************
      */
+
+    @Override
+    public void resolve(DeserializationContext ctxt)
+        throws JsonMappingException
+    {
+        if (_delegateDeserializer != null && _delegateDeserializer instanceof ResolvableDeserializer) {
+            ((ResolvableDeserializer) _delegateDeserializer).resolve(ctxt);
+        }
+    }
     
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)

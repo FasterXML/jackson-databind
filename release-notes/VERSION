@@ -1,9 +1,15 @@
 Project: jackson-databind
-Version: 2.1.4 (26-Feb-2013)
+Version: 2.1.5 (xx-xxx-xx)
 
 A patch release for 2.1 branch.
 
 Fixes:
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.1.4 (26-Feb-2013)
 
 * [JACKSON-887]: StackOverflow with parameterized sub-class field
  (reported by Alexander M)
@@ -19,10 +25,6 @@ Fixes:
  (reported by Eric T)
 * [#175]: NPE for JsonMappingException, if no path is specified
  (reported by bramp@github)
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.1.3 (19-Jan-2013)
 

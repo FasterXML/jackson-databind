@@ -81,9 +81,10 @@ public class TestFeatures
     }
 
     private static class StringListBean {
-        public List<String> values;
+        @SuppressWarnings("unused")
+        public Collection<String> values;
         
-        public StringListBean(List<String> v) { values = v; }
+        public StringListBean(Collection<String> v) { values = v; }
     }
     
     /*
@@ -253,6 +254,10 @@ public class TestFeatures
         // [Issue#180]
         final String EXP_STRINGS = "{\"values\":\"foo\"}";
         assertEquals(EXP_STRINGS, writer.writeValueAsString(new StringListBean(Collections.singletonList("foo"))));
+
+        final Set<String> SET = new HashSet<String>();
+        SET.add("foo");
+        assertEquals(EXP_STRINGS, writer.writeValueAsString(new StringListBean(SET)));
         
         // arrays:
         assertEquals("true", writer.writeValueAsString(new boolean[] { true }));

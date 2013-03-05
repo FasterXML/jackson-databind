@@ -5,6 +5,10 @@ A patch release for 2.1 branch.
 
 Fixes:
 
+* #180: WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED does not work for some types
+  of String Collections
+ (reported by arudnev@github)
+
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------

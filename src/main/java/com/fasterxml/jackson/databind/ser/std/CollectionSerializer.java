@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 
-
 /**
  * Fallback serializer for cases where Collection is not known to be
  * of type for which more specializer serializer exists (such as
@@ -58,7 +57,7 @@ public class CollectionSerializer
     /* Accessors
     /**********************************************************
      */
-    
+
     @Override
     public boolean isEmpty(Collection<?> value) {
         return (value == null) || value.isEmpty();

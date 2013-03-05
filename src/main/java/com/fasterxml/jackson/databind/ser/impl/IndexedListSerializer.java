@@ -40,6 +40,12 @@ public final class IndexedListSerializer
         return new IndexedListSerializer(this, property, vts, elementSerializer);
     }
 
+    /*
+    /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
+    
     @Override
     public boolean isEmpty(List<?> value) {
         return (value == null) || value.isEmpty();

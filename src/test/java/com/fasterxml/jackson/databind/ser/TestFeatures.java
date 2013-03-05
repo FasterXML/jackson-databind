@@ -79,6 +79,12 @@ public class TestFeatures
             wasClosed = true;
         }
     }
+
+    private static class StringListBean {
+        public List<String> values;
+        
+        public StringListBean(List<String> v) { values = v; }
+    }
     
     /*
     /**********************************************************
@@ -244,11 +250,15 @@ public class TestFeatures
         HashSet<Long> longs = new HashSet<Long>();
         longs.add(42L);
         assertEquals("42", writer.writeValueAsString(longs));
-
+        // [Issue#180]
+        final String EXP_STRINGS = "{\"values\":\"foo\"}";
+        assertEquals(EXP_STRINGS, writer.writeValueAsString(new StringListBean(Collections.singletonList("foo"))));
+        
         // arrays:
         assertEquals("true", writer.writeValueAsString(new boolean[] { true }));
         assertEquals("true", writer.writeValueAsString(new Boolean[] { Boolean.TRUE }));
         assertEquals("3", writer.writeValueAsString(new int[] { 3 }));
         assertEquals(quote("foo"), writer.writeValueAsString(new String[] { "foo" }));
+        
     }
 }

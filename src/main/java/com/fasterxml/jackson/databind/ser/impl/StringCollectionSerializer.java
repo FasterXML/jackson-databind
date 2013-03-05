@@ -115,6 +115,11 @@ public class StringCollectionSerializer
     public void serialize(Collection<String> value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
+        // [JACKSON-805]
+        if ((value.size() == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+            _serializeUnwrapped(value, jgen, provider);
+            return;
+        }      
         jgen.writeStartArray();
         if (_serializer == null) {
             serializeContents(value, jgen, provider);
@@ -123,7 +128,17 @@ public class StringCollectionSerializer
         }
         jgen.writeEndArray();
     }
-    
+
+    private final void _serializeUnwrapped(Collection<String> value, JsonGenerator jgen, SerializerProvider provider)
+        throws IOException, JsonGenerationException
+    {
+        if (_serializer == null) {
+            serializeContents(value, jgen, provider);
+        } else {
+            serializeUsingCustom(value, jgen, provider);
+        }
+    }
+
     @Override
     public void serializeWithType(Collection<String> value, JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)
@@ -137,7 +152,7 @@ public class StringCollectionSerializer
         }
         typeSer.writeTypeSuffixForArray(value, jgen);
     }
-    
+
     private final void serializeContents(Collection<String> value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {

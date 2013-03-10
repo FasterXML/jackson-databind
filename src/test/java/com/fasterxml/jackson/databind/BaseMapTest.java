@@ -119,6 +119,10 @@ public abstract class BaseMapTest
 
     private final static ObjectMapper SHARED_MAPPER = new ObjectMapper();
 
+    protected ObjectMapper objectMapper() {
+        return SHARED_MAPPER;
+    }
+    
     protected ObjectWriter objectWriter() {
         return SHARED_MAPPER.writer();
     }
@@ -170,12 +174,18 @@ public abstract class BaseMapTest
         return (Map<String,Object>) m.readValue(str, Map.class);
     }
 
+    protected <T> T readAndMapFromString(String input, Class<T> cls)
+        throws IOException
+    {
+        return readAndMapFromString(SHARED_MAPPER, input, cls);
+    }
+    
     protected <T> T readAndMapFromString(ObjectMapper m, String input, Class<T> cls)
         throws IOException
     {
         return (T) m.readValue("\""+input+"\"", cls);
     }
-
+    
     protected String serializeAsString(ObjectMapper m, Object value)
         throws IOException
     {
@@ -185,13 +195,13 @@ public abstract class BaseMapTest
     protected String serializeAsString(Object value)
         throws IOException
     {
-        return serializeAsString(new ObjectMapper(), value);
+        return serializeAsString(SHARED_MAPPER, value);
     }
 
     protected String asJSONObjectValueString(Object... args)
         throws IOException
     {
-        return asJSONObjectValueString(new ObjectMapper(), args);
+        return asJSONObjectValueString(SHARED_MAPPER, args);
     }
 
     protected String asJSONObjectValueString(ObjectMapper m, Object... args)

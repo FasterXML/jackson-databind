@@ -24,7 +24,7 @@ public class TestTreeDeserialization
     /* Unit tests
     /**********************************************************
      */
-    
+
     /**
      * This test checks that is possible to mix "regular" Java objects
      * and JsonNode.
@@ -94,5 +94,25 @@ public class TestTreeDeserialization
         assertEquals(1, out.size());
         String value = out.path("field").asText();
         assertNotNull(value);
+    }
+
+    // Issue#186
+    public void testNullHandling() throws Exception
+    {
+        // First, a stand-alone null
+        JsonNode n = objectReader().readTree("null");
+        assertNotNull(n);
+        assertTrue(n.isNull());
+
+        n = objectMapper().readTree("null");
+        assertNotNull(n);
+        assertTrue(n.isNull());
+        
+        // Then object property
+        ObjectNode root = (ObjectNode) objectReader().readTree("{\"x\":null}");
+        assertEquals(1, root.size());
+        n = root.get("x");
+        assertNotNull(n);
+        assertTrue(n.isNull());
     }
 }

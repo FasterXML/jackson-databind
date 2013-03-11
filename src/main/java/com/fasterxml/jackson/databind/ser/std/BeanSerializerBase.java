@@ -498,7 +498,47 @@ public abstract class BeanSerializerBase
         }
     }
 
-    private final void _serializeWithObjectId(Object bean,
+    protected final void _serializeWithObjectId(Object bean,
+            JsonGenerator jgen, SerializerProvider provider,
+            boolean startEndObject)
+        throws IOException, JsonGenerationException
+    {
+        final ObjectIdWriter w = _objectIdWriter;
+        WritableObjectId oid = provider.findObjectId(bean, w.generator);
+        Object id = oid.id;
+        
+        if (id != null) { // have seen before; serialize just id
+            oid.serializer.serialize(id, jgen, provider);
+            return;
+        }
+        // if not, bit more work:
+        oid.serializer = w.serializer;
+        oid.id = id = oid.generator.generateId(bean);
+        // possibly. Or maybe not:
+        if (w.alwaysAsId) { 
+            oid.serializer.serialize(id, jgen, provider);
+            return;
+        }
+        // If not, need to inject the id:
+        if (startEndObject) {
+            jgen.writeStartObject();
+        }
+        SerializedString name = w.propertyName;
+        if (name != null) {
+            jgen.writeFieldName(name);
+            w.serializer.serialize(id, jgen, provider);
+        }
+        if (_propertyFilterId != null) {
+            serializeFieldsFiltered(bean, jgen, provider);
+        } else {
+            serializeFields(bean, jgen, provider);
+        }
+        if (startEndObject) {
+            jgen.writeEndObject();
+        }
+    }
+    
+    protected final void _serializeWithObjectId(Object bean,
             JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException, JsonGenerationException

@@ -8,6 +8,8 @@ Fixes:
 * #180: WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED does not work for some types
   of String Collections
  (reported by arudnev@github)
+* #186: JsonNodeDeserializer sometimes produces null instead of NullNode
+ (reported by fge@github)
 * Improved robustness of BooleanNode, wrt multiple Jackson jars
 
 ------------------------------------------------------------------------

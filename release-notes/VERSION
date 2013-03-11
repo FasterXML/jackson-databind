@@ -4,43 +4,44 @@ New minor version.
 
 Fixes:
 
-* [Issue#118]: JsonTypeInfo.as.EXTERNAL_PROPERTY not working correctly
+#118: JsonTypeInfo.as.EXTERNAL_PROPERTY not working correctly
  with missing type id, scalar types
-* [Issue#130]: TimeZone not set for GregorianCalendar, even if configured
-* [Issue#144]: MissingNode.isValueNode() should return 'false'
+#130: TimeZone not set for GregorianCalendar, even if configured
+#144: MissingNode.isValueNode() should return 'false'
  (reported by 'fge@github')
-* [Issue#146]: Creator properties were not being renamed as expected
+#146: Creator properties were not being renamed as expected
  (contributed by Christoper C)
+#188: Problem with ObjectId serialization, 'alwaysAsId' references
 
 Improvements:
 
-* [#116]: JavaType implements `java.lang.reflect.Type` (as does `TypeReference`)
-* [#147]: Defer reporting of problems with missing creator parameters
+#116: JavaType implements `java.lang.reflect.Type` (as does `TypeReference`)
+#147: Defer reporting of problems with missing creator parameters
  (contributed by Christoper C)
-* [#155]: Make `ObjectNode` and `ArrayNode` final (other node types already were)
+#155: Make `ObjectNode` and `ArrayNode` final (other node types already were)
  (requested by fge@github)
-* [#161]: Add deserializer for java.util.concurrent.ArrayBlockingQueue
-* [#173]: Add 'JsonNode.traverse(ObjectCodec)' for convenience
+#161: Add deserializer for java.util.concurrent.ArrayBlockingQueue
+#173: Add 'JsonNode.traverse(ObjectCodec)' for convenience
 
 New features:
 
-* [#120]: Extend BeanDeserializerModifier to work with non-POJO deserializers
-* [#121]: Extend BeanSerializerModifier to work with non-POJO serializers
-* [#124]: Add support for serialization converters (@JsonSerializer(converter=...))
-* [#124]: Add support for deserialization converters (@JsonDeserializer(converter=...))
-* [#140]: Add 'SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN' to allow forcing
+#120: Extend BeanDeserializerModifier to work with non-POJO deserializers
+#121: Extend BeanSerializerModifier to work with non-POJO serializers
+#124: Add support for serialization converters (@JsonSerializer(converter=...))
+#124: Add support for deserialization converters (@JsonDeserializer(converter=...))
+#140: Add 'SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN' to allow forcing
   of non-scientific notation when serializing BigDecimals.
  (suggested by phedny@github)
-* [#148]: Add 'DeserializationFeature.FAIL_ON_INVALID_SUBTYPE`, which allows mapping
+#148: Add 'DeserializationFeature.FAIL_ON_INVALID_SUBTYPE`, which allows mapping
   entries with missing or invalid type id into null references (instead of failing).
   Also allows use of '@JsonTypeInfo.defaultImpl = NoClass.class' as alternative.
-* [#159]: Add more accessors in 'MappingIterator': getParser(), getParserSchema(),
+#159: Add more accessors in 'MappingIterator': getParser(), getParserSchema(),
   readAll()
  (suggested by Tom D)
 
 Other:
 
-* [#126]: Update JDK baseline to 1.6
+#126: Update JDK baseline to 1.6
 * API under 'com.fasterxml.jackson.databind.jsonFormatVisitors' changed significantly
   based on experiences with external JSON Schema generator.
 * Version information accessed via code-generated access class, instead of reading

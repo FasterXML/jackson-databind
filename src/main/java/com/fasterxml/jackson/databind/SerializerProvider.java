@@ -799,6 +799,7 @@ public abstract class SerializerProvider
      * @return Serializer if one can be found, null if not.
      */
     protected JsonSerializer<Object> _findExplicitUntypedSerializer(Class<?> runtimeType)
+		throws JsonMappingException
     {        
         // Fast lookup from local lookup thingy works?
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(runtimeType);
@@ -810,11 +811,7 @@ public abstract class SerializerProvider
         if (ser != null) {
             return ser;
         }
-        try {
-            return _createAndCacheUntypedSerializer(runtimeType);
-        } catch (Exception e) {
-            return null;
-        }
+        return _createAndCacheUntypedSerializer(runtimeType);
     }
 
     /*

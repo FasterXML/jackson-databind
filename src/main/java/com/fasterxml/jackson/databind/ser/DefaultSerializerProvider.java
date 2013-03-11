@@ -289,7 +289,13 @@ public abstract class DefaultSerializerProvider
      * implementations are to swallow exceptions if necessary.
      */
     public boolean hasSerializerFor(Class<?> cls) {
-        return _findExplicitUntypedSerializer(cls) != null;
+    	try {
+    		return _findExplicitUntypedSerializer(cls) != null;
+    	} catch (JsonMappingException e) {
+    		// usually bad practice, but here caller only asked if a serializer
+    		// could be found; for which exception is useless
+    		return false;
+    	}
     }
 
     /*

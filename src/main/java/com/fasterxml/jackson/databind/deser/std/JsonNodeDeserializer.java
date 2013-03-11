@@ -63,6 +63,11 @@ public class JsonNodeDeserializer
         }
     }
 
+    @Override
+    public JsonNode getNullValue() {
+    	return NullNode.getInstance();
+    }
+    
     /*
     /**********************************************************
     /* Specific instances for more accurate types

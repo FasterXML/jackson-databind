@@ -16,10 +16,12 @@ public final class BooleanNode
 {
     // // Just need two instances...
 
-    public final static BooleanNode TRUE = new BooleanNode();
-    public final static BooleanNode FALSE = new BooleanNode();
+    public final static BooleanNode TRUE = new BooleanNode(true);
+    public final static BooleanNode FALSE = new BooleanNode(false);
 
-    private BooleanNode() { }
+    private final boolean _value;
+    
+    private BooleanNode(boolean v) { _value = v; }
 
     public static BooleanNode getTrue() { return TRUE; }
     public static BooleanNode getFalse() { return FALSE; }
@@ -27,62 +29,66 @@ public final class BooleanNode
     public static BooleanNode valueOf(boolean b) { return b ? TRUE : FALSE; }
 
     @Override
-    public JsonNodeType getNodeType()
-    {
+    public JsonNodeType getNodeType() {
         return JsonNodeType.BOOLEAN;
     }
 
-    // Interesting... two choices...
     @Override public JsonToken asToken() {
-        return (this == TRUE) ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE;
+        return _value ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE;
     }
 
     @Override
     public boolean booleanValue() {
-        return (this == TRUE);
+        return _value;
     }
 
     @Override
     public String asText() {
-        return (this == TRUE) ? "true" : "false";
+        return _value ? "true" : "false";
     }
 
     @Override
     public boolean asBoolean() {
-        return (this == TRUE);
+        return _value;
     }
 
     @Override
     public boolean asBoolean(boolean defaultValue) {
-        return (this == TRUE);
+        return _value;
     }
     
     @Override
     public int asInt(int defaultValue) {
-        return (this == TRUE) ? 1 : 0;
+        return _value ? 1 : 0;
     }
     @Override
     public long asLong(long defaultValue) {
-        return (this == TRUE) ? 1L : 0L;
+        return _value ? 1L : 0L;
     }
     @Override
     public double asDouble(double defaultValue) {
-        return (this == TRUE) ? 1.0 : 0.0;
+        return _value ? 1.0 : 0.0;
     }
     
     @Override
     public final void serialize(JsonGenerator jg, SerializerProvider provider)
         throws IOException, JsonProcessingException
     {
-        jg.writeBoolean(this == TRUE);
+        jg.writeBoolean(_value);
     }
 
     @Override
     public boolean equals(Object o)
     {
-        /* Since there are only ever two instances in existence
-         * can do identity comparison
+    	/* 11-Mar-2013, tatu: Apparently ClassLoaders can manage to load
+    	 *    different instances, rendering identity comparisons broken.
+    	 *    So let's use value instead.
          */
-        return (o == this);
+    	if (o == this) return true;
+    	if (o == null) return false;
+    	if (o.getClass() != getClass()) {
+    		return false;
+    	}
+    	return (_value == ((BooleanNode) o)._value);
     }
 }

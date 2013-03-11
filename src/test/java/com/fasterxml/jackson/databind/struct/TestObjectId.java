@@ -129,12 +129,10 @@ public class TestObjectId extends BaseMapTest
         comp.add(e2);
 
         String json = MAPPER.writeValueAsString(comp);
-
-System.out.println("JSON: "+json);
         
         assertEquals("{\"employees\":["
                 +"{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
-                +"{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]},"
+                +"{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
                 +"]}",
                 json);
     }

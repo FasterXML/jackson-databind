@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.PropertyName;
 
 /**
  * Helper class used for aggregating information about a single
@@ -95,10 +96,10 @@ public class POJOPropertyBuilder
          */
         return getName().compareTo(other.getName());
     }
-    
+
     /*
     /**********************************************************
-    /* BeanPropertyDefinition implementation
+    /* BeanPropertyDefinition implementation, name/type
     /**********************************************************
      */
 
@@ -109,6 +110,25 @@ public class POJOPropertyBuilder
     public String getInternalName() { return _internalName; }
 
     @Override
+    public PropertyName getWrapperName() {
+    	/* 13-Mar-2013, tatu: Accessing via primary member SHOULD work,
+    	 *   due to annotation merging. However, I have seen some problems
+    	 *   with this access (for other annotations) so will leave full
+    	 *   traversal code in place just in case.
+    	 */
+    	AnnotatedMember member = getPrimaryMember();
+    	return (member == null) ? null : _annotationIntrospector.findWrapperName(member);
+    	/*
+        return fromMemberAnnotations(new WithMember<PropertyName>() {
+            @Override
+            public PropertyName withMember(AnnotatedMember member) {
+                return _annotationIntrospector.findWrapperName(member);
+            }
+        });
+        */
+    }
+
+    @Override
     public boolean isExplicitlyIncluded() {
         return _anyExplicitNames(_fields)
                 || _anyExplicitNames(_getters)
@@ -117,6 +137,11 @@ public class POJOPropertyBuilder
                 ;
     }
 
+    /*
+    /**********************************************************
+    /* BeanPropertyDefinition implementation, accessor access
+    /**********************************************************
+     */
     
     @Override
     public boolean hasGetter() { return _getters != null; }

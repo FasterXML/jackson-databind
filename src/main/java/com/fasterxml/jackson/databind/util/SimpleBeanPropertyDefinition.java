@@ -1,10 +1,9 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.databind.introspect.AnnotatedField;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
-import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.introspect.*;
 
 /**
  * Simple immutable {@link BeanPropertyDefinition} implementation that can
@@ -15,6 +14,8 @@ import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 public class SimpleBeanPropertyDefinition
     extends BeanPropertyDefinition
 {
+	protected final AnnotationIntrospector _introspector;
+	
     /**
      * Member that defines logical property. Assumption is that it
      * should be a 'simple' accessor; meaning a zero-argument getter,
@@ -29,16 +30,47 @@ public class SimpleBeanPropertyDefinition
     /* Construction
     /**********************************************************
      */
-    
+
+    /**
+     * @since 2.2 Use {@link #construct} instead
+     */
+    @Deprecated
     public SimpleBeanPropertyDefinition(AnnotatedMember member) {
-        this(member, member.getName());
+    	this(member, member.getName(), null);
     }
 
+    /**
+     * @since 2.2 Use {@link #construct} instead
+     */
+    @Deprecated
     public SimpleBeanPropertyDefinition(AnnotatedMember member, String name) {
+    	this(member, name, null);
+    }
+    
+    private SimpleBeanPropertyDefinition(AnnotatedMember member, String name,
+    		AnnotationIntrospector intr) {
+        _introspector = intr;
         _member = member;
         _name = name;
     }
 
+    /**
+     * @since 2.2
+     */
+    public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
+    		AnnotatedMember member) {
+    	return new SimpleBeanPropertyDefinition(member, member.getName(),
+    			config.getAnnotationIntrospector());
+    }
+    
+    /**
+     * @since 2.2
+     */
+    public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
+    		AnnotatedMember member, String name) {
+    	return new SimpleBeanPropertyDefinition(member, name, config.getAnnotationIntrospector());
+    }
+    
     /*
     /**********************************************************
     /* Fluent factories
@@ -50,7 +82,7 @@ public class SimpleBeanPropertyDefinition
         if (_name.equals(newName)) {
             return this;
         }
-        return new SimpleBeanPropertyDefinition(_member, newName);
+        return new SimpleBeanPropertyDefinition(_member, newName, _introspector);
     }
     
     /*
@@ -65,6 +97,11 @@ public class SimpleBeanPropertyDefinition
     @Override
     public String getInternalName() { return getName(); }
 
+    @Override
+    public PropertyName getWrapperName() {
+    	return (_introspector == null) ? null : _introspector.findWrapperName(_member);
+    }
+    
     // hmmh. what should we claim here?
     @Override
     public boolean isExplicitlyIncluded() { return false; }

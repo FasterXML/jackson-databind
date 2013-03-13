@@ -38,7 +38,7 @@ public interface BeanProperty extends Named
      * Method to get declared type of the property.
      */
     public JavaType getType();
-
+    
     /**
      * Whether value for property is marked as required using
      * annotations or associated schema.

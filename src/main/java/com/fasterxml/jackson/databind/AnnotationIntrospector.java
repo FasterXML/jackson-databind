@@ -33,7 +33,9 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * This way added methods will not break backwards compatibility of custom annotation
  * introspectors.
  */
-public abstract class AnnotationIntrospector implements Versioned
+@SuppressWarnings("serial")
+public abstract class AnnotationIntrospector
+    implements Versioned, java.io.Serializable
 {    
     /*
     /**********************************************************

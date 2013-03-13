@@ -109,14 +109,12 @@ public abstract class SettableBeanProperty
                 propDef.isRequired());
     }
 
-    /*
     @Deprecated // since 2.2
     protected SettableBeanProperty(String propName,
             JavaType type, TypeDeserializer typeDeser, Annotations contextAnnotations)
     {
         this(propName, type, typeDeser, contextAnnotations, false);
     }
-    */
     
     protected SettableBeanProperty(String propName,
             JavaType type, TypeDeserializer typeDeser, Annotations contextAnnotations,

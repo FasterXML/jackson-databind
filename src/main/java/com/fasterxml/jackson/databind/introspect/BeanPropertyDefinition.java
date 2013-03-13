@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.util.Named;
 
 /**
@@ -49,6 +50,13 @@ public abstract class BeanPropertyDefinition
      * annotations or naming strategy.
      */
     public abstract String getInternalName();
+    
+    /**
+     * Accessor for finding wrapper name to use for property (if any).
+     * 
+     * @since 2.2
+     */
+    public abstract PropertyName getWrapperName();
 
     /**
      * Accessor that can be called to check whether property was included

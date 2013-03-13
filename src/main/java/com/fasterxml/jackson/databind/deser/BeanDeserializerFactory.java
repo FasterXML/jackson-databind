@@ -402,7 +402,7 @@ public class BeanDeserializerFactory
          */
         AnnotatedMethod am = beanDesc.findMethod("initCause", INIT_CAUSE_PARAMS);
         if (am != null) { // should never be null
-            SimpleBeanPropertyDefinition propDef = new SimpleBeanPropertyDefinition(am, "cause");
+            SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(ctxt.getConfig(), am, "cause");
             SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, propDef,
                     am.getGenericParameterType(0));
             if (prop != null) {
@@ -644,7 +644,8 @@ public class BeanDeserializerFactory
                 } else {
                     genericType = m.getRawType();
                 }
-                SimpleBeanPropertyDefinition propDef = new SimpleBeanPropertyDefinition(m);
+                SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(
+                		ctxt.getConfig(), m);
                 builder.addBackReferenceProperty(name, constructSettableProperty(
                         ctxt, beanDesc, propDef, genericType));
             }

@@ -413,8 +413,8 @@ public class BeanSerializerFactory
             // last 2 nulls; don't know key, value serializers (yet)
             MapSerializer mapSer = MapSerializer.construct(/* ignored props*/ null, type, staticTyping,
                     typeSer, null, null);
-            BeanProperty.Std anyProp = new BeanProperty.Std(anyGetter.getName(), valueType,
-                    beanDesc.getClassAnnotations(), anyGetter);
+            BeanProperty.Std anyProp = new BeanProperty.Std(anyGetter.getName(), valueType, null,
+                    beanDesc.getClassAnnotations(), anyGetter, false);
             builder.setAnyGetter(new AnyGetterWriter(anyProp, anyGetter, mapSer));
         }
         // Next: need to gather view information, if any:
@@ -736,7 +736,8 @@ public class BeanSerializerFactory
             accessor.fixAccess();
         }
         JavaType type = accessor.getType(typeContext);
-        BeanProperty.Std property = new BeanProperty.Std(name, type, pb.getClassAnnotations(), accessor);
+        BeanProperty.Std property = new BeanProperty.Std(name, type, propDef.getWrapperName(),
+                pb.getClassAnnotations(), accessor, propDef.isRequired());
 
         // Does member specify a serializer? If so, let's use it.
         JsonSerializer<?> annotatedSerializer = findSerializerFromAnnotation(prov,

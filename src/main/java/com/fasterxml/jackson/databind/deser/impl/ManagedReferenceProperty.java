@@ -39,8 +39,8 @@ public final class ManagedReferenceProperty
             String refName, SettableBeanProperty backward,
             Annotations contextAnnotations, boolean isContainer)
     {
-        super(forward.getName(), forward.getType(), forward.getValueTypeDeserializer(),
-                contextAnnotations,
+        super(forward.getName(), forward.getType(), forward.getWrapperName(),
+                forward.getValueTypeDeserializer(), contextAnnotations,
                 forward.isRequired());
         _referenceName = refName;
         _managedProperty = forward;

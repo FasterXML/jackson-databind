@@ -111,13 +111,14 @@ public class POJOPropertyBuilder
 
     @Override
     public PropertyName getWrapperName() {
-    	/* 13-Mar-2013, tatu: Accessing via primary member SHOULD work,
-    	 *   due to annotation merging. However, I have seen some problems
-    	 *   with this access (for other annotations) so will leave full
-    	 *   traversal code in place just in case.
-    	 */
-    	AnnotatedMember member = getPrimaryMember();
-    	return (member == null) ? null : _annotationIntrospector.findWrapperName(member);
+        /* 13-Mar-2013, tatu: Accessing via primary member SHOULD work,
+         *   due to annotation merging. However, I have seen some problems
+         *   with this access (for other annotations) so will leave full
+         *   traversal code in place just in case.
+         */
+        AnnotatedMember member = getPrimaryMember();
+        return (member == null || _annotationIntrospector == null) ? null
+                : _annotationIntrospector.findWrapperName(member);
     	/*
         return fromMemberAnnotations(new WithMember<PropertyName>() {
             @Override

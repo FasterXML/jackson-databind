@@ -498,7 +498,7 @@ public abstract class BeanDeserializerBase
             AnnotatedWithParams delegateCreator = _valueInstantiator.getDelegateCreator();
             // Need to create a temporary property to allow contextual deserializers:
             BeanProperty.Std property = new BeanProperty.Std(null,
-                    delegateType, _classAnnotations, delegateCreator);
+                    delegateType, null, _classAnnotations, delegateCreator, false);
             _delegateDeserializer = findDeserializer(ctxt, delegateType, property);
         }
         

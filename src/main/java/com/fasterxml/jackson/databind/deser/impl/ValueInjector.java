@@ -27,7 +27,7 @@ public class ValueInjector
             Annotations contextAnnotations, AnnotatedMember mutator,
             Object valueId)
     {
-        super(propertyName, type, contextAnnotations, mutator);
+        super(propertyName, type, null, contextAnnotations, mutator, false);
         _valueId = valueId;
     }
 

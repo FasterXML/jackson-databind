@@ -7,21 +7,27 @@ package com.fasterxml.jackson.databind;
  * @since 2.1
  */
 public class PropertyName
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 7930806520033045126L;
+
+    private final static String _USE_DEFAULT = "";
+    private final static String _NO_NAME = "#disabled";
+
     /**
      * Special placeholder value that indicates that name to use should be
      * based on the standard heuristics. This can be different from returning
      * null, as null means "no information available, whereas this value
      * indicates explicit defaulting.
      */
-    public final static PropertyName USE_DEFAULT = new PropertyName("", null);
+    public final static PropertyName USE_DEFAULT = new PropertyName(_USE_DEFAULT, null);
 
     /**
      * Special placeholder value that indicates that there is no name associated.
      * Exact semantics to use (if any) depend on actual annotation in use, but
      * commonly this value disables behavior for which name would be needed.
      */
-    public final static PropertyName NO_NAME = new PropertyName(new String("#disabled"), null);
+    public final static PropertyName NO_NAME = new PropertyName(new String(_NO_NAME), null);
     
     /**
      * Basic name of the property.
@@ -44,6 +50,17 @@ public class PropertyName
         _namespace = namespace;
     }
 
+    // To support JDK serialization, recovery of Singleton instance
+    protected Object readResolve() {
+        if (_simpleName == null || _USE_DEFAULT.equals(_simpleName)) {
+            return USE_DEFAULT;
+        }
+        if (_simpleName.equals(_NO_NAME)) {
+            return NO_NAME;
+        }
+        return this;
+    }
+    
     public static PropertyName construct(String simpleName, String ns)
     {
         if (simpleName == null) {

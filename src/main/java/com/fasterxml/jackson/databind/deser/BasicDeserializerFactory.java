@@ -622,8 +622,15 @@ public abstract class BasicDeserializerFactory
         throws JsonMappingException
     {
         final DeserializationConfig config = ctxt.getConfig();
+        final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
+        Boolean b = (intr == null) ? null : intr.hasRequiredMarker(param);
+        // how to default? Other code assumes missing value means 'false', so:
+        boolean req = (b == null) ? false : b.booleanValue();
+
         JavaType t0 = config.getTypeFactory().constructType(param.getParameterType(), beanDesc.bindingsForBeanType());
-        BeanProperty.Std property = new BeanProperty.Std(name, t0, beanDesc.getClassAnnotations(), param);
+        BeanProperty.Std property = new BeanProperty.Std(name, t0,
+                intr.findWrapperName(param),
+                beanDesc.getClassAnnotations(), param, req);
         JavaType type = resolveType(ctxt, beanDesc, t0, param);
         if (type != t0) {
             property = property.withType(type);
@@ -639,14 +646,10 @@ public abstract class BasicDeserializerFactory
         if (typeDeser == null) {
             typeDeser = findTypeDeserializer(config, type);
         }
-        AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        Boolean b = (intr == null) ? null : intr.hasRequiredMarker(param);
-        // how to default? Other code assumes missing value means 'false', so:
-        boolean isRequired = (b == null) ? false : b.booleanValue();
 
-        CreatorProperty prop = new CreatorProperty(name, type, typeDeser,
-                beanDesc.getClassAnnotations(), param, index, injectableValueId,
-                isRequired);
+        CreatorProperty prop = new CreatorProperty(name, type, property.getWrapperName(),
+                typeDeser, beanDesc.getClassAnnotations(), param, index, injectableValueId,
+                property.isRequired());
         if (deser != null) {
             prop = prop.withValueDeserializer(deser);
         }

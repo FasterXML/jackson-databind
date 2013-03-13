@@ -37,6 +37,11 @@ public abstract class SettableBeanProperty
      * Base type for property; may be a supertype of actual value.
      */
     protected final JavaType _type;
+
+    /**
+     * @since 2.2
+     */
+    protected final PropertyName _wrapperName;
     
     /**
      * Class that contains this property (either class that declares
@@ -105,19 +110,19 @@ public abstract class SettableBeanProperty
     protected SettableBeanProperty(BeanPropertyDefinition propDef,
             JavaType type, TypeDeserializer typeDeser, Annotations contextAnnotations)
     {
-        this(propDef.getName(), type, typeDeser, contextAnnotations,
+        this(propDef.getName(), type, propDef.getWrapperName(), typeDeser, contextAnnotations,
                 propDef.isRequired());
     }
 
     @Deprecated // since 2.2
-    protected SettableBeanProperty(String propName,
-            JavaType type, TypeDeserializer typeDeser, Annotations contextAnnotations)
+    protected SettableBeanProperty(String propName, JavaType type, PropertyName wrapper,
+            TypeDeserializer typeDeser, Annotations contextAnnotations)
     {
-        this(propName, type, typeDeser, contextAnnotations, false);
+        this(propName, type, wrapper, typeDeser, contextAnnotations, false);
     }
     
-    protected SettableBeanProperty(String propName,
-            JavaType type, TypeDeserializer typeDeser, Annotations contextAnnotations,
+    protected SettableBeanProperty(String propName, JavaType type, PropertyName wrapper,
+            TypeDeserializer typeDeser, Annotations contextAnnotations,
             boolean isRequired)
     {
         /* 09-Jan-2009, tatu: Intern()ing makes sense since Jackson parsed
@@ -133,6 +138,7 @@ public abstract class SettableBeanProperty
             _propName = InternCache.instance.intern(propName);
         }
         _type = type;
+        _wrapperName = wrapper;
         _isRequired = isRequired;
         _contextAnnotations = contextAnnotations;
         _viewMatcher = null;
@@ -151,6 +157,7 @@ public abstract class SettableBeanProperty
     {
         _propName = src._propName;
         _type = src._type;
+        _wrapperName = src._wrapperName;
         _isRequired = src._isRequired;
         _contextAnnotations = src._contextAnnotations;
         _valueDeserializer = src._valueDeserializer;
@@ -169,6 +176,7 @@ public abstract class SettableBeanProperty
     {
         _propName = src._propName;
         _type = src._type;
+        _wrapperName = src._wrapperName;
         _isRequired = src._isRequired;
         _contextAnnotations = src._contextAnnotations;
         _valueTypeDeserializer = src._valueTypeDeserializer;
@@ -192,6 +200,7 @@ public abstract class SettableBeanProperty
     {
         _propName = newName;
         _type = src._type;
+        _wrapperName = src._wrapperName;
         _isRequired = src._isRequired;
         _contextAnnotations = src._contextAnnotations;
         _valueDeserializer = src._valueDeserializer;
@@ -263,6 +272,11 @@ public abstract class SettableBeanProperty
     @Override
     public JavaType getType() { return _type; }
 
+    @Override
+    public PropertyName getWrapperName() {
+        return _wrapperName;
+    }
+    
     @Override
     public abstract <A extends Annotation> A getAnnotation(Class<A> acls);
 

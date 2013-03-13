@@ -38,6 +38,14 @@ public interface BeanProperty extends Named
      * Method to get declared type of the property.
      */
     public JavaType getType();
+
+    /**
+     * If property is indicated to be wrapped, name of
+     * wrapper element to use.
+     * 
+     * @since 2.2
+     */
+    public PropertyName getWrapperName();
     
     /**
      * Whether value for property is marked as required using
@@ -95,6 +103,9 @@ public interface BeanProperty extends Named
     {
         protected final String _name;
         protected final JavaType _type;
+        protected final PropertyName _wrapperName;
+        
+        protected final boolean _isRequired;
 
         /**
          * Physical entity (field, method or constructor argument) that
@@ -109,16 +120,20 @@ public interface BeanProperty extends Named
          */
         protected final Annotations _contextAnnotations;
         
-        public Std(String name, JavaType type, Annotations contextAnnotations, AnnotatedMember member)
+        public Std(String name, JavaType type, PropertyName wrapperName,
+                Annotations contextAnnotations, AnnotatedMember member,
+                boolean isRequired)
         {
             _name = name;
             _type = type;
+            _wrapperName = wrapperName;
+            _isRequired = isRequired;
             _member = member;
             _contextAnnotations = contextAnnotations;
         }
         
         public Std withType(JavaType type) {
-            return new Std(_name, type, _contextAnnotations, _member);
+            return new Std(_name, type, _wrapperName, _contextAnnotations, _member, _isRequired);
         }
         
         @Override
@@ -142,9 +157,13 @@ public interface BeanProperty extends Named
         }
 
         @Override
+        public PropertyName getWrapperName() {
+            return _wrapperName;
+        }
+        
+        @Override
         public boolean isRequired() {
-            // !!! TODO (maybe): allow changing
-            return false;
+            return _isRequired;
         }
         
         @Override

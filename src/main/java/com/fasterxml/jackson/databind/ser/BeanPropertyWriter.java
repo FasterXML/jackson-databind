@@ -97,6 +97,13 @@ public class BeanPropertyWriter
     protected final SerializedString _name;
 
     /**
+     * Wrapper name to use for this element, if any
+     * 
+     * @since 2.2
+     */
+    protected final PropertyName _wrapperName;
+    
+    /**
      * Type to use for locating serializer; normally same as return
      * type of the accessor method, but may be overridden by annotations.
      */
@@ -184,6 +191,7 @@ public class BeanPropertyWriter
         _member = member;
         _contextAnnotations = contextAnnotations;
         _name = new SerializedString(propDef.getName());
+        _wrapperName = propDef.getWrapperName();
         _declaredType = declaredType;
         _serializer = (JsonSerializer<Object>) ser;
         _dynamicSerializers = (ser == null) ? PropertySerializerMap.emptyMap() : null;
@@ -218,6 +226,7 @@ public class BeanPropertyWriter
     protected BeanPropertyWriter(BeanPropertyWriter base, SerializedString name)
     {
         _name = name;
+        _wrapperName = base._wrapperName;
 
         _member = base._member;
         _contextAnnotations = base._contextAnnotations;
@@ -307,6 +316,11 @@ public class BeanPropertyWriter
     @Override
     public JavaType getType() {
         return _declaredType;
+    }
+
+    @Override
+    public PropertyName getWrapperName() {
+        return _wrapperName;
     }
 
     @Override

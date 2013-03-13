@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -56,8 +57,8 @@ public class CreatorProperty
             Annotations contextAnnotations, AnnotatedParameter param,
             int index, Object injectableValueId)
     {
-        this(name, type, typeDeser, contextAnnotations, param, index, injectableValueId,
-                true);
+        this(name, type, null, typeDeser, contextAnnotations, param, index,
+                injectableValueId, true);
     }
     
     /**
@@ -72,12 +73,13 @@ public class CreatorProperty
      *    method parameter; used for accessing annotations of the property
      * @param index Index of this property within creator invocatino
      */
-    public CreatorProperty(String name, JavaType type, TypeDeserializer typeDeser,
+    public CreatorProperty(String name, JavaType type, PropertyName wrapperName,
+            TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
             int index, Object injectableValueId,
             boolean isRequired)
     {
-        super(name, type, typeDeser, contextAnnotations, isRequired);
+        super(name, type, wrapperName, typeDeser, contextAnnotations, isRequired);
         _annotated = param;
         _creatorIndex = index;
         _injectableValueId = injectableValueId;

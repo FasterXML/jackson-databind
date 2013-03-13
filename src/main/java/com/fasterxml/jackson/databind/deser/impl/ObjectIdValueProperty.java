@@ -30,7 +30,7 @@ public final class ObjectIdValueProperty
     public ObjectIdValueProperty(ObjectIdReader objectIdReader,
             boolean isRequired)
     {
-        super(objectIdReader.propertyName, objectIdReader.idType, null, null,
+        super(objectIdReader.propertyName, objectIdReader.idType, null, null, null,
                 isRequired);
         _objectIdReader = objectIdReader;
         _valueDeserializer = objectIdReader.deserializer;

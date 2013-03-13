@@ -114,14 +114,19 @@ public class JacksonDeserializers
             JavaType intType = config.constructType(Integer.TYPE);
             JavaType longType = config.constructType(Long.TYPE);
             return  new CreatorProperty[] {
-                    new CreatorProperty("sourceRef", config.constructType(Object.class), null, null, null, 0, null, true),
-                    new CreatorProperty("byteOffset", longType, null, null, null, 1, null, true),
-                    new CreatorProperty("charOffset", longType, null, null, null, 2, null, true),
-                    new CreatorProperty("lineNr", intType, null, null, null, 3, null, true),
-                    new CreatorProperty("columnNr", intType, null, null, null, 4, null, true)
+                    creatorProp("sourceRef", config.constructType(Object.class), 0),
+                    creatorProp("byteOffset", longType, 1),
+                    creatorProp("charOffset", longType, 2),
+                    creatorProp("lineNr", intType, 3),
+                    creatorProp("columnNr", intType, 4)
             };
         }
 
+        private static CreatorProperty creatorProp(String name, JavaType type, int index) {
+            return new CreatorProperty(name, type, null,
+                    null, null, null, index, null, true);
+        }
+        
         @Override
         public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) {
             return new JsonLocation(args[0], _long(args[1]), _long(args[2]),

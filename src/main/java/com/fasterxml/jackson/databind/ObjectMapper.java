@@ -2213,8 +2213,22 @@ public class ObjectMapper
      * type.
      */
     public ObjectWriter writerWithType(Class<?> rootType) {
-        JavaType t = (rootType == null) ? null : _typeFactory.constructType(rootType);
-        return new ObjectWriter(this, getSerializationConfig(), t, /*PrettyPrinter*/null);
+        return new ObjectWriter(this, getSerializationConfig(),
+                // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
+                ((rootType == null) ? null :_typeFactory.constructType(rootType)),
+                /*PrettyPrinter*/null);
+    }
+
+    /**
+     * Factory method for constructing {@link ObjectWriter} that will
+     * serialize objects using specified root type, instead of actual
+     * runtime type of value. Type must be a super-type of runtime type.
+     */
+    public ObjectWriter writerWithType(TypeReference<?> rootType) {
+        return new ObjectWriter(this, getSerializationConfig(),
+                // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
+                ((rootType == null) ? null : _typeFactory.constructType(rootType)),
+                /*PrettyPrinter*/null);
     }
 
     /**
@@ -2224,16 +2238,6 @@ public class ObjectMapper
      */
     public ObjectWriter writerWithType(JavaType rootType) {
         return new ObjectWriter(this, getSerializationConfig(), rootType, /*PrettyPrinter*/null);
-    }
-
-    /**
-     * Factory method for constructing {@link ObjectWriter} that will
-     * serialize objects using specified root type, instead of actual
-     * runtime type of value. Type must be a super-type of runtime type.
-     */
-    public ObjectWriter writerWithType(TypeReference<?> rootType) {
-        JavaType t = (rootType == null) ? null : _typeFactory.constructType(rootType);
-        return new ObjectWriter(this, getSerializationConfig(), t, /*PrettyPrinter*/null);
     }
     
     /**

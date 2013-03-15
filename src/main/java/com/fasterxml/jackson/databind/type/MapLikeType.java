@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JavaType;
  */
 public class MapLikeType extends TypeBase
 {
-    private static final long serialVersionUID = -4720638149668688793L;
+    private static final long serialVersionUID = 416067702302823522L;
 
     /**
      * Type of keys of Map.
@@ -33,9 +33,9 @@ public class MapLikeType extends TypeBase
      */
 
     protected MapLikeType(Class<?> mapType, JavaType keyT, JavaType valueT,
-            Object valueHandler, Object typeHandler)
+            Object valueHandler, Object typeHandler, boolean asStatic)
     {
-        super(mapType, keyT.hashCode() ^ valueT.hashCode(), valueHandler, typeHandler);
+        super(mapType, keyT.hashCode() ^ valueT.hashCode(), valueHandler, typeHandler, asStatic);
         _keyType = keyT;
         _valueType = valueT;
     }
@@ -43,13 +43,12 @@ public class MapLikeType extends TypeBase
     public static MapLikeType construct(Class<?> rawType, JavaType keyT, JavaType valueT)
     {
         // nominally component types will be just Object.class
-        return new MapLikeType(rawType, keyT, valueT, null, null);
+        return new MapLikeType(rawType, keyT, valueT, null, null, false);
     }
 
     @Override
-    protected JavaType _narrow(Class<?> subclass)
-    {
-        return new MapLikeType(subclass, _keyType, _valueType, _valueHandler, _typeHandler);
+    protected JavaType _narrow(Class<?> subclass) {
+        return new MapLikeType(subclass, _keyType, _valueType, _valueHandler, _typeHandler, _asStatic);
     }
 
     @Override
@@ -60,7 +59,7 @@ public class MapLikeType extends TypeBase
             return this;
         }
         return new MapLikeType(_class, _keyType, _valueType.narrowBy(contentClass),
-               _valueHandler, _typeHandler);
+               _valueHandler, _typeHandler, _asStatic);
     }
 
     @Override
@@ -70,7 +69,7 @@ public class MapLikeType extends TypeBase
             return this;
         }
         return new MapLikeType(_class, _keyType, _valueType.widenBy(contentClass),
-                _valueHandler, _typeHandler);
+                _valueHandler, _typeHandler, _asStatic);
     }
     
     public JavaType narrowKey(Class<?> keySubclass)
@@ -80,7 +79,7 @@ public class MapLikeType extends TypeBase
             return this;
         }
         return new MapLikeType(_class, _keyType.narrowBy(keySubclass), _valueType,
-                _valueHandler, _typeHandler);
+                _valueHandler, _typeHandler, _asStatic);
     }
 
     public JavaType widenKey(Class<?> keySubclass)
@@ -90,33 +89,42 @@ public class MapLikeType extends TypeBase
             return this;
         }
         return new MapLikeType(_class, _keyType.widenBy(keySubclass), _valueType,
-                _valueHandler, _typeHandler);
+                _valueHandler, _typeHandler, _asStatic);
     }
     
     @Override
     public MapLikeType withTypeHandler(Object h)
     {
-        return new MapLikeType(_class, _keyType, _valueType, _valueHandler, h);
+        return new MapLikeType(_class, _keyType, _valueType, _valueHandler, h, _asStatic);
     }
 
     @Override
     public MapLikeType withContentTypeHandler(Object h)
     {
         return new MapLikeType(_class, _keyType, _valueType.withTypeHandler(h),
-                _valueHandler, _typeHandler);
+                _valueHandler, _typeHandler, _asStatic);
     }
 
     @Override
     public MapLikeType withValueHandler(Object h) {
-        return new MapLikeType(_class, _keyType, _valueType, h, _typeHandler);
+        return new MapLikeType(_class, _keyType, _valueType, h, _typeHandler, _asStatic);
     }
 
     @Override
     public MapLikeType withContentValueHandler(Object h) {
         return new MapLikeType(_class, _keyType, _valueType.withValueHandler(h),
-                _valueHandler, _typeHandler);
+                _valueHandler, _typeHandler, _asStatic);
     }
-    
+
+    @Override
+    public MapLikeType withStaticTyping() {
+        if (_asStatic) {
+            return this;
+        }
+        return new MapLikeType(_class, _keyType, _valueType.withStaticTyping(),
+                _valueHandler, _typeHandler, true);
+    }
+
     @Override
     protected String buildCanonicalName() {
         StringBuilder sb = new StringBuilder();
@@ -196,12 +204,12 @@ public class MapLikeType extends TypeBase
     public MapLikeType withKeyTypeHandler(Object h)
     {
         return new MapLikeType(_class, _keyType.withTypeHandler(h), _valueType,
-                _valueHandler, _typeHandler);
+                _valueHandler, _typeHandler, _asStatic);
     }
 
     public MapLikeType withKeyValueHandler(Object h) {
         return new MapLikeType(_class, _keyType.withValueHandler(h), _valueType,
-                _valueHandler, _typeHandler);
+                _valueHandler, _typeHandler, _asStatic);
     }
     
     /**
@@ -225,7 +233,7 @@ public class MapLikeType extends TypeBase
     {
         return "[map-like type; class "+_class.getName()+", "+_keyType+" -> "+_valueType+"]";
     }
-    
+
     @Override
     public boolean equals(Object o)
     {
@@ -238,5 +246,4 @@ public class MapLikeType extends TypeBase
             && _keyType.equals(other._keyType)
             && _valueType.equals(other._valueType);
     }
-    
 }

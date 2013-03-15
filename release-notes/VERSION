@@ -4,6 +4,7 @@ New minor version.
 
 Fixes:
 
+#23: Fixing typing of root-level collections
 #118: JsonTypeInfo.as.EXTERNAL_PROPERTY not working correctly
  with missing type id, scalar types
 #130: TimeZone not set for GregorianCalendar, even if configured

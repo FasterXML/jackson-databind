@@ -19,8 +19,7 @@ public abstract class JavaType
     implements java.io.Serializable, // 2.1
         java.lang.reflect.Type // 2.2
 {
-    // for 2.1.0:
-    private static final long serialVersionUID = -5321897246493723158L;
+    private static final long serialVersionUID = 6774285981275451126L;
 
     /**
      * This is the nominal type-erased Class that would be close to the
@@ -51,7 +50,15 @@ public abstract class JavaType
      * different kinds of handlers, with unrelated types.
      */
     protected final Object _typeHandler;
-    
+
+    /**
+     * Whether entities defined with this type should be handled using
+     * static typing (as opposed to dynamic runtime type) or not.
+     * 
+     * @since 2.2
+     */
+    protected final boolean _asStatic;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -64,18 +71,14 @@ public abstract class JavaType
      *   to hash code of the class name 
      */
     protected JavaType(Class<?> raw, int additionalHash,
-            Object valueHandler, Object typeHandler)
+            Object valueHandler, Object typeHandler, boolean asStatic)
     {
         _class = raw;
         _hashCode = raw.getName().hashCode() + additionalHash;
         _valueHandler = valueHandler;
         _typeHandler = typeHandler;
+        _asStatic = asStatic;
     }
-
-    /**
-     * Serialization method called when no additional type information is
-     * to be included in serialization.
-     */
     
     /**
      * "Copy method" that will construct a new instance that is identical to
@@ -109,6 +112,19 @@ public abstract class JavaType
      * @return Newly created type instance
      */
     public abstract JavaType withContentValueHandler(Object h);
+
+    /**
+     * Method that can be called to get a type instance that indicates
+     * that values of the type should be handled using "static typing" for purposes
+     * of serialization (as opposed to "dynamic" aka runtime typing):
+     * meaning that no runtime information is needed for determining serializers to use.
+     * The main use case is to allow forcing of specific root value serialization type,
+     * and specifically in resolving serializers for contained types (element types
+     * for arrays, Collections and Maps).
+     * 
+     * @since 2.2
+     */
+    public abstract JavaType withStaticTyping();
     
     /*
     /**********************************************************
@@ -286,6 +302,18 @@ public abstract class JavaType
      */
     @Override
     public boolean isMapLikeType() { return false; }
+
+    /**
+     * Accessor for checking whether handlers for dealing with values of
+     * this type should use static typing (as opposed to dynamic typing).
+     * Note that while value of 'true' does mean that static typing is to
+     * be used, value of 'false' may still be overridden by other settings.
+     * 
+     * @since 2.2
+     */
+    public final boolean useStaticType() {
+        return _asStatic;
+    }
     
     /*
     /**********************************************************

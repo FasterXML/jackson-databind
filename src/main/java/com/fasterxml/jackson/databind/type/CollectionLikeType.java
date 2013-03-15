@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.JavaType;
  */
 public class CollectionLikeType extends TypeBase
 {
-    private static final long serialVersionUID = -2079769185110719683L;
+    private static final long serialVersionUID = 4611641304150899138L;
 
     /**
      * Type of elements in collection
@@ -27,16 +27,16 @@ public class CollectionLikeType extends TypeBase
      */
 
     protected CollectionLikeType(Class<?> collT, JavaType elemT,
-            Object valueHandler, Object typeHandler)
+            Object valueHandler, Object typeHandler, boolean asStatic)
     {
-        super(collT, elemT.hashCode(), valueHandler, typeHandler);
+        super(collT, elemT.hashCode(), valueHandler, typeHandler, asStatic);
         _elementType = elemT;
     }
     
     @Override
     protected JavaType _narrow(Class<?> subclass) {
         return new CollectionLikeType(subclass, _elementType,
-                _valueHandler, _typeHandler);
+                _valueHandler, _typeHandler, _asStatic);
     }
 
     @Override
@@ -47,7 +47,8 @@ public class CollectionLikeType extends TypeBase
             return this;
         }
         return new CollectionLikeType(_class, _elementType.narrowBy(contentClass),
-                _valueHandler, _typeHandler);    }
+                _valueHandler, _typeHandler, _asStatic);
+    }
 
     @Override
     public JavaType widenContentsBy(Class<?> contentClass)
@@ -57,39 +58,48 @@ public class CollectionLikeType extends TypeBase
             return this;
         }
         return new CollectionLikeType(_class, _elementType.widenBy(contentClass),
-                _valueHandler, _typeHandler);
+                _valueHandler, _typeHandler, _asStatic);
     }
     
     public static CollectionLikeType construct(Class<?> rawType, JavaType elemT)
     {
         // nominally component types will be just Object.class
-        return new CollectionLikeType(rawType, elemT, null, null);
+        return new CollectionLikeType(rawType, elemT, null, null, false);
     }
 
     @Override
     public CollectionLikeType withTypeHandler(Object h)
     {
-        return new CollectionLikeType(_class, _elementType, _valueHandler, h);
+        return new CollectionLikeType(_class, _elementType, _valueHandler, h, _asStatic);
     }
 
     @Override
     public CollectionLikeType withContentTypeHandler(Object h)
     {
         return new CollectionLikeType(_class, _elementType.withTypeHandler(h),
-                _valueHandler, _typeHandler);
+                _valueHandler, _typeHandler, _asStatic);
     }
 
     @Override
     public CollectionLikeType withValueHandler(Object h) {
-        return new CollectionLikeType(_class, _elementType, h, _typeHandler);
+        return new CollectionLikeType(_class, _elementType, h, _typeHandler, _asStatic);
     }
 
     @Override
     public CollectionLikeType withContentValueHandler(Object h) {
         return new CollectionLikeType(_class, _elementType.withValueHandler(h),
-                _valueHandler, _typeHandler);
+                _valueHandler, _typeHandler, _asStatic);
     }
-    
+
+    @Override
+    public CollectionLikeType withStaticTyping() {
+        if (_asStatic) {
+            return this;
+        }
+        return new CollectionLikeType(_class, _elementType.withStaticTyping(),
+                _valueHandler, _typeHandler, true);
+    }
+
     /*
     /**********************************************************
     /* Public API

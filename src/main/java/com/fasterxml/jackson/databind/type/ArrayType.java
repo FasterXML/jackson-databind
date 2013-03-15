@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.JavaType;
 public final class ArrayType
     extends TypeBase
 {
-    private static final long serialVersionUID = -6866628807166594553L;
+    private static final long serialVersionUID = 9040058063449087477L;
 
     /**
      * Type of elements in the array.
@@ -25,12 +25,12 @@ public final class ArrayType
      * it is essentially immutable and thus can be shared.
      */
     protected final Object _emptyArray;
-
+    
     private ArrayType(JavaType componentType, Object emptyInstance,
-            Object valueHandler, Object typeHandler)
+            Object valueHandler, Object typeHandler, boolean asStatic)
     {
         super(emptyInstance.getClass(), componentType.hashCode(),
-                valueHandler, typeHandler);
+                valueHandler, typeHandler, asStatic);
         _componentType = componentType;
         _emptyArray = emptyInstance;
     }
@@ -45,7 +45,7 @@ public final class ArrayType
          * passing that in).
          */
         Object emptyInstance = Array.newInstance(componentType.getRawClass(), 0);
-        return new ArrayType(componentType, emptyInstance, null, null);
+        return new ArrayType(componentType, emptyInstance, null, null, false);
     }                                   
     
     @Override
@@ -54,7 +54,7 @@ public final class ArrayType
         if (h == _typeHandler) {
             return this;
         }
-        return new ArrayType(_componentType, _emptyArray, _valueHandler, h);
+        return new ArrayType(_componentType, _emptyArray, _valueHandler, h, _asStatic);
     }
 
     @Override
@@ -64,7 +64,7 @@ public final class ArrayType
             return this;
         }
         return new ArrayType(_componentType.withTypeHandler(h), _emptyArray,
-                _valueHandler, _typeHandler);
+                _valueHandler, _typeHandler, _asStatic);
     }
 
     @Override
@@ -72,7 +72,7 @@ public final class ArrayType
         if (h == _valueHandler) {
             return this;
         }
-        return new ArrayType(_componentType, _emptyArray, h, _typeHandler);
+        return new ArrayType(_componentType, _emptyArray, h, _typeHandler,_asStatic);
     }
 
     @Override
@@ -81,14 +81,23 @@ public final class ArrayType
             return this;
         }
         return new ArrayType(_componentType.withValueHandler(h), _emptyArray,
-                _valueHandler, _typeHandler);
+                _valueHandler, _typeHandler, _asStatic);
     }
-    
+
+    @Override
+    public ArrayType withStaticTyping() {
+        if (_asStatic) {
+            return this;
+        }
+        return new ArrayType(_componentType.withStaticTyping(),
+                _emptyArray, _valueHandler, _typeHandler, true);
+    }
+
     @Override
     protected String buildCanonicalName() {
         return _class.getName();
     }
-    
+
     /*
     /**********************************************************
     /* Methods for narrowing conversions

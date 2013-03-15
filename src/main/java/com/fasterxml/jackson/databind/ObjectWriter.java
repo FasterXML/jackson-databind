@@ -112,6 +112,9 @@ public class ObjectWriter
         _serializerFactory = mapper._serializerFactory;
         _jsonFactory = mapper._jsonFactory;
 
+        if (rootType != null) {
+            rootType = rootType.withStaticTyping();
+        }
         _rootType = rootType;
         _prettyPrinter = pp;
         _schema = null;
@@ -166,7 +169,7 @@ public class ObjectWriter
         _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
         _jsonFactory = base._jsonFactory;
-        
+
         _rootType = rootType;
         _rootSerializer = rootSer;
         _prettyPrinter = pp;
@@ -184,7 +187,7 @@ public class ObjectWriter
         _serializerFactory = base._serializerFactory;
         _jsonFactory = base._jsonFactory;
         _schema = base._schema;
-        
+
         _rootType = base._rootType;
         _rootSerializer = base._rootSerializer;
         _prettyPrinter = base._prettyPrinter;
@@ -356,10 +359,10 @@ public class ObjectWriter
      */
     public ObjectWriter withType(JavaType rootType)
     {
+        // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
+        rootType = rootType.withStaticTyping();
         JsonSerializer<Object> rootSer = _prefetchRootSerializer(_config, rootType);
-        return (rootType == _rootType) ? this
-        // type is stored here, no need to make a copy of config
-            : new ObjectWriter(this, _config, rootType, rootSer, _prettyPrinter, _schema);
+        return new ObjectWriter(this, _config, rootType, rootSer, _prettyPrinter, _schema);
     }    
 
     /**

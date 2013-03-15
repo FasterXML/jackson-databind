@@ -1,13 +1,12 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.ser;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestCollectionSerialization extends BaseMapTest
+public class TestTypedRootValueSerialization extends BaseMapTest
 {
     // [JACKSON-822]
     static interface Issue822Interface {
@@ -56,4 +55,13 @@ public class TestCollectionSerialization extends BaseMapTest
         assertEquals("[{\"a\":3}]", listJson);
     }
 
+    public void testTypedMaps() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String,Issue822Interface> map = new HashMap<String,Issue822Interface>();
+        map.put("a", new Issue822Impl());
+        String listJson = mapper.writerWithType(new TypeReference<Map<String,Issue822Interface>>(){})
+                .writeValueAsString(map);
+        assertEquals("{\"a\":{\"a\":3}}", listJson);
+    }
 }

@@ -506,6 +506,17 @@ public abstract class BasicSerializerFactory
         throws JsonMappingException
     {
         final SerializationConfig config = prov.getConfig();
+
+        /* [Issue#23], 15-Mar-2013, tatu: must force static handling of root value type,
+         *   with just one important exception: if value type is "untyped", let's
+         *   leave it as is; no clean way to make it work.
+         */
+        if (!staticTyping && type.useStaticType()) {
+            if (!type.isContainerType() || type.getContentType().getRawClass() != Object.class) {
+                staticTyping = true;
+            }
+        }
+        
         // Let's see what we can learn about element/content/value type, type serializer for it:
         JavaType elementType = type.getContentType();
         TypeSerializer elementTypeSerializer = createTypeSerializer(config,
@@ -960,15 +971,9 @@ public abstract class BasicSerializerFactory
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
         JsonSerialize.Typing t = intr.findSerializationTyping(beanDesc.getClassInfo());
         if (t != null) {
-            if (t == JsonSerialize.Typing.STATIC) {
-                return true;
-            }
-        } else {
-            if (config.isEnabled(MapperFeature.USE_STATIC_TYPING)) {
-                return true;
-            }
+            return (t == JsonSerialize.Typing.STATIC);
         }
-        return false;
+        return config.isEnabled(MapperFeature.USE_STATIC_TYPING);
     }
 
     protected Class<?> _verifyAsClass(Object src, String methodName, Class<?> noneClass)

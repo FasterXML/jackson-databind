@@ -518,7 +518,7 @@ public final class TypeFactory
         for (int i = 0, len = typeVars.length; i < len; ++i) {
             names[i] = typeVars[i].getName();
         }
-        JavaType resultType = new SimpleType(rawType, names, parameterTypes, null, null);
+        JavaType resultType = new SimpleType(rawType, names, parameterTypes, null, null, false);
         return resultType;
     } 
 

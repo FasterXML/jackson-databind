@@ -23,6 +23,15 @@ public class TestCollectionSerialization extends BaseMapTest
         public int getB() { return 9; }
     }
 
+    // First ensure that basic interface-override works:
+    public void testTypedSerialization() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        String singleJson = mapper.writerWithType(Issue822Interface.class).writeValueAsString(new Issue822Impl());
+        // start with specific value case:
+        assertEquals("{\"a\":3}", singleJson);
+    }
+    
     // [JACKSON-822]: ensure that type can be coerced
     public void testTypedArrays() throws Exception
     {
@@ -40,11 +49,6 @@ public class TestCollectionSerialization extends BaseMapTest
      // Work-around when real solution not yet implemented:        
 //        mapper.enable(MapperFeature.USE_STATIC_TYPING);
 
-        String singleJson = mapper.writerWithType(Issue822Interface.class).writeValueAsString(new Issue822Impl());
-        // start with specific value case:
-        assertEquals("{\"a\":3}", singleJson);
-
-        // then lists
         List<Issue822Interface> list = new ArrayList<Issue822Interface>();
         list.add(new Issue822Impl());
         String listJson = mapper.writerWithType(new TypeReference<List<Issue822Interface>>(){})

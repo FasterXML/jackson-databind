@@ -34,4 +34,12 @@ public class TestObjectWriter
         writer = writer.with((PrettyPrinter) null);
         assertEquals("{\"a\":1}", writer.writeValueAsString(data));
     }
-}
+
+    public void testPrefetch() throws Exception
+    {
+        ObjectWriter writer = objectWriter();
+        assertFalse(writer.hasPrefetchedSerializer());
+        writer = objectWriter().withType(String.class);
+        assertTrue(writer.hasPrefetchedSerializer());
+    }
+} 

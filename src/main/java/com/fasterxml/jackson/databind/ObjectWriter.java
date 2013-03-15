@@ -453,6 +453,18 @@ public class ObjectWriter
         return _config.getTypeFactory();
     }
 
+    /**
+     * Diagnostics method that can be called to check whether this writer
+     * has pre-fetched serializer to use: pre-fetching improves performance
+     * when writer instances are reused as it avoids a per-call serializer
+     * lookup.
+     * 
+     * @since 2.2
+     */
+    public boolean hasPrefetchedSerializer() {
+        return _rootSerializer != null;
+    }
+    
     /*
     /**********************************************************
     /* Serialization methods; ones from ObjectCodec first

@@ -382,15 +382,32 @@ public abstract class BasicDeserializerFactory
                 creators.setDefaultCreator(defaultCtor);
             }
         }
-        
+
+        String[] ctorPropNames = null;
+        AnnotatedConstructor propertyCtor = null;
+        for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
+            if (propDef.getConstructorParameter() != null) {
+                AnnotatedParameter param = propDef.getConstructorParameter();
+                AnnotatedWithParams owner = param.getOwner();
+                if (owner instanceof AnnotatedConstructor) {
+                    if (propertyCtor == null) {
+                        propertyCtor = (AnnotatedConstructor) owner;
+                        ctorPropNames = new String[propertyCtor.getParameterCount()];
+                    }
+                    ctorPropNames[param.getIndex()] = propDef.getName();
+                }
+            }
+        }
+
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             int argCount = ctor.getParameterCount();
-            boolean isCreator = intr.hasCreatorAnnotation(ctor);
+            boolean isCreator = intr.hasCreatorAnnotation(ctor) || ctor == propertyCtor;
             boolean isVisible =  vchecker.isCreatorVisible(ctor);
             // some single-arg constructors (String, number) are auto-detected
             if (argCount == 1) {
+                String name = ctor == propertyCtor ? ctorPropNames[0] : null;
                 _handleSingleArgumentConstructor(ctxt, beanDesc, vchecker, intr, creators,
-                        ctor, isCreator, isVisible);
+                        ctor, isCreator, isVisible, name);
                 continue;
             }
             if (!isCreator && !isVisible) {
@@ -408,8 +425,14 @@ public abstract class BasicDeserializerFactory
             CreatorProperty[] properties = new CreatorProperty[argCount];
             for (int i = 0; i < argCount; ++i) {
                 AnnotatedParameter param = ctor.getParameter(i);
-                PropertyName pn = (param == null) ? null : intr.findNameForDeserialization(param);
-                String name = (pn == null) ? null : pn.getSimpleName();
+                String name = null;
+                if (ctor == propertyCtor) {
+                    name = ctorPropNames[i];
+                }
+                if (name == null) {
+                    PropertyName pn = (param == null) ? null : intr.findNameForDeserialization(param);
+                    name = (pn == null) ? null : pn.getSimpleName();
+                }
                 Object injectId = intr.findInjectableValueId(param);
                 if (name != null && name.length() > 0) {
                     ++namedCount;
@@ -440,13 +463,15 @@ public abstract class BasicDeserializerFactory
     protected boolean _handleSingleArgumentConstructor(DeserializationContext ctxt,
             BeanDescription beanDesc, VisibilityChecker<?> vchecker,
             AnnotationIntrospector intr, CreatorCollector creators,
-            AnnotatedConstructor ctor, boolean isCreator, boolean isVisible)
+            AnnotatedConstructor ctor, boolean isCreator, boolean isVisible, String name)
         throws JsonMappingException
     {
         // note: if we do have parameter name, it'll be "property constructor":
         AnnotatedParameter param = ctor.getParameter(0);
-        PropertyName pn = (param == null) ? null : intr.findNameForDeserialization(param);
-        String name = (pn == null) ? null : pn.getSimpleName();
+        if (name == null) {
+            PropertyName pn = (param == null) ? null : intr.findNameForDeserialization(param);
+            name = (pn == null) ? null : pn.getSimpleName();
+        }
         Object injectId = intr.findInjectableValueId(param);
     
         if ((injectId != null) || (name != null && name.length() > 0)) { // property-based
@@ -491,7 +516,7 @@ public abstract class BasicDeserializerFactory
         }
         return false;
     }
-    
+
     protected void _addDeserializerFactoryMethods
         (DeserializationContext ctxt, BeanDescription beanDesc, VisibilityChecker<?> vchecker,
          AnnotationIntrospector intr, CreatorCollector creators)

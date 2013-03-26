@@ -146,6 +146,29 @@ public abstract class JsonNode
      */
     @Override
     public JsonNode get(String fieldName) { return null; }
+    /**
+     * This method is similar to {@link #get(String)}, except
+     * that instead of returning null if no such value exists (due
+     * to this node not being an object, or object not having value
+     * for the specified field),
+     * a "missing node" (node that returns true for
+     * {@link #isMissingNode}) will be returned. This allows for
+     * convenient and safe chained access via path calls.
+     */
+
+    @Override
+    public abstract JsonNode path(String fieldName);
+
+    /**
+     * This method is similar to {@link #get(int)}, except
+     * that instead of returning null if no such element exists (due
+     * to index being out of range, or this node not being an array),
+     * a "missing node" (node that returns true for
+     * {@link #isMissingNode}) will be returned. This allows for
+     * convenient and safe chained access via path calls.
+     */
+    @Override
+    public abstract JsonNode path(int index);
 
     @Override
     public Iterator<String> fieldNames() {
@@ -697,27 +720,6 @@ public abstract class JsonNode
     /* Public API, path handling
     /**********************************************************
      */
-
-    /**
-     * This method is similar to {@link #get(String)}, except
-     * that instead of returning null if no such value exists (due
-     * to this node not being an object, or object not having value
-     * for the specified field),
-     * a "missing node" (node that returns true for
-     * {@link #isMissingNode}) will be returned. This allows for
-     * convenient and safe chained access via path calls.
-     */
-    public abstract JsonNode path(String fieldName);
-
-    /**
-     * This method is similar to {@link #get(int)}, except
-     * that instead of returning null if no such element exists (due
-     * to index being out of range, or this node not being an array),
-     * a "missing node" (node that returns true for
-     * {@link #isMissingNode}) will be returned. This allows for
-     * convenient and safe chained access via path calls.
-     */
-    public abstract JsonNode path(int index);
 
     /**
      * Method that can be called on Object nodes, to access a property

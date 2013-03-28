@@ -70,6 +70,9 @@ public final class BigIntegerNode
     public BigInteger bigIntegerValue() { return _value; }
 
     @Override
+    public float floatValue() { return _value.floatValue(); }
+
+    @Override
     public double doubleValue() { return _value.doubleValue(); }
 
     @Override

@@ -64,16 +64,19 @@ public final class DoubleNode
     }
 
     @Override
-        public int intValue() { return (int) _value; }
+    public int intValue() { return (int) _value; }
 
     @Override
-        public long longValue() { return (long) _value; }
+    public long longValue() { return (long) _value; }
 
     @Override
-        public double doubleValue() { return _value; }
+    public float floatValue() { return (float) _value; }
+    
+    @Override
+    public double doubleValue() { return _value; }
 
     @Override
-        public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
+    public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
 
     @Override
     public BigInteger bigIntegerValue() {

@@ -369,8 +369,44 @@ public abstract class JsonNode
      */
     public int intValue() { return 0; }
 
+    /**
+     * Returns 64-bit long value for this node, <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true). For other
+     * types returns 0.
+     * For floating-point numbers, value is truncated using default
+     * Java coercion, similar to how cast from double to long operates.
+     *
+     * @return Long value this node contains, if any; 0 for non-number
+     *   nodes.
+     */
     public long longValue() { return 0L; }
+    
+    /**
+     * Returns 32-bit floating value for this node, <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true). For other
+     * types returns 0.0.
+     * For integer values, conversion is done using coercion; this means
+     * that an overflow is possible for `long` values
+     *
+     * @return 32-bit float value this node contains, if any; 0.0 for non-number nodes.
+     *
+     * @since 2.2
+     */
+    public float floatValue() { return 0.0f; }
+
+    /**
+     * Returns 64-bit floating point (double) value for this node, <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true). For other
+     * types returns 0.0.
+     * For integer values, conversion is done using coercion; this may result
+     * in overflows with {@link BigInteger} values.
+     *
+     * @return 64-bit double value this node contains, if any; 0.0 for non-number nodes.
+     *
+     * @since 2.2
+     */
     public double doubleValue() { return 0.0; }
+
     public BigDecimal decimalValue() { return BigDecimal.ZERO; }
     public BigInteger bigIntegerValue() { return BigInteger.ZERO; }
     

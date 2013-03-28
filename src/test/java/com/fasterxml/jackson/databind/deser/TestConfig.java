@@ -25,6 +25,10 @@ public class TestConfig
     }
 
     enum Alpha { A, B, C; }
+
+    public static class SimpleBean {
+        public int x, y;
+    }
     
     /*
     /**********************************************************
@@ -87,5 +91,14 @@ public class TestConfig
         m.configure(MapperFeature.USE_ANNOTATIONS, false);
         // should still use the basic name handling here
         assertEquals(Alpha.B, m.readValue(quote("B"), Alpha.class));
+    }
+
+    public void testNoAccessOverrides() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        m.disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS);
+        SimpleBean bean = m.readValue("{\"x\":1,\"y\":2}", SimpleBean.class);
+        assertEquals(1, bean.x);
+        assertEquals(2, bean.y);
     }
 }

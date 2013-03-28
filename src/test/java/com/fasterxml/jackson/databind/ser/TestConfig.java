@@ -36,6 +36,10 @@ public class TestConfig
     static class Indentable {
         public int a = 3;
     }
+
+    public static class SimpleBean {
+        public int x = 1;
+    }
     
     /*
     /**********************************************************
@@ -44,7 +48,7 @@ public class TestConfig
      */
 
     final static ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testDefaults()
     {
         SerializationConfig cfg = MAPPER.getSerializationConfig();
@@ -164,6 +168,13 @@ public class TestConfig
         assertEquals(INDENTED, sw.toString());
     }
 
+    public void testNoAccessOverrides() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        m.disable(MapperFeature.CAN_OVERRIDE_ACCESS_MODIFIERS);
+        assertEquals("{\"x\":1}", m.writeValueAsString(new SimpleBean()));
+    }
+    
     private final static String getLF() {
         return System.getProperty("line.separator");
     }

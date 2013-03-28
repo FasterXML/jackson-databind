@@ -49,6 +49,22 @@ public class TestConfig
 
     final static ObjectMapper MAPPER = new ObjectMapper();
 
+    /* Test to verify that we don't overflow number of features; if we
+     * hit the limit, need to change implementation -- this test just
+     * gives low-water mark
+     */
+    public void testEnumIndexes()
+    {
+        int max = 0;
+        
+        for (SerializationFeature f : SerializationFeature.values()) {
+            max = Math.max(max, f.ordinal());
+        }
+        if (max >= 31) { // 31 is actually ok; 32 not
+            fail("Max number of SerializationFeature enums reached: "+max);
+        }
+    }
+    
     public void testDefaults()
     {
         SerializationConfig cfg = MAPPER.getSerializationConfig();

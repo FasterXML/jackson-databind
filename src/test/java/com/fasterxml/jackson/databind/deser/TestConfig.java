@@ -36,6 +36,22 @@ public class TestConfig
     /**********************************************************
      */
 
+    /* Test to verify that we don't overflow number of features; if we
+     * hit the limit, need to change implementation -- this test just
+     * gives low-water mark
+     */
+    public void testEnumIndexes()
+    {
+        int max = 0;
+        
+        for (DeserializationFeature f : DeserializationFeature.values()) {
+            max = Math.max(max, f.ordinal());
+        }
+        if (max >= 31) { // 31 is actually ok; 32 not
+            fail("Max number of DeserializationFeature enums reached: "+max);
+        }
+    }
+    
     public void testDefaults()
     {
         ObjectMapper m = new ObjectMapper();

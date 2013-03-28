@@ -433,7 +433,16 @@ public class POJOPropertyBuilder
         _ctorParameters = _removeIgnored(_ctorParameters);
     }
 
-    public void removeNonVisible()
+    /**
+     * @deprecated Since 2.2, use variant that takes boolean argument
+     */
+    @Deprecated
+    public void removeNonVisible() {
+        removeNonVisible(false);
+    }
+    
+    
+    public void removeNonVisible(boolean force)
     {
         /* 21-Aug-2011, tatu: This is tricky part -- if and when allow
          *   non-visible property elements to be "pulled in" by visible
@@ -441,10 +450,14 @@ public class POJOPropertyBuilder
          *   For now, we will only do this to pull in setter or field used
          *   as setter, if an explicit getter is found.
          */
+        /*
+         * 28-Mar-2013, tatu: Also, as per [Issue#195], may force removal
+         *   if inferred properties are NOT supported.
+         */
         _getters = _removeNonVisible(_getters);
         _ctorParameters = _removeNonVisible(_ctorParameters);
 
-        if (_getters == null) {
+        if (force || (_getters == null)) {
             _fields = _removeNonVisible(_fields);
             _setters = _removeNonVisible(_setters);
         }

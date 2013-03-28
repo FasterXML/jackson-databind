@@ -114,36 +114,36 @@ public enum MapperFeature implements ConfigFeature
       */
      AUTO_DETECT_SETTERS(true),
      
-     /**
-      * Feature that determines whether getters (getter methods)
-      * can be auto-detected if there is no matching mutator (setter,
-      * constructor parameter or field) or not: if set to true,
-      * only getters that match a mutator are auto-discovered; if
-      * false, all auto-detectable getters can be discovered.
-      *<p>
-      * Feature is disabled by default.
-      */
-     REQUIRE_SETTERS_FOR_GETTERS(false),
+    /**
+     * Feature that determines whether getters (getter methods)
+     * can be auto-detected if there is no matching mutator (setter,
+     * constructor parameter or field) or not: if set to true,
+     * only getters that match a mutator are auto-discovered; if
+     * false, all auto-detectable getters can be discovered.
+     *<p>
+     * Feature is disabled by default.
+     */
+    REQUIRE_SETTERS_FOR_GETTERS(false),
 
-     /**
-      * Feature that determines whether otherwise regular "getter"
-      * methods (but only ones that handle Collections and Maps,
-      * not getters of other type)
-      * can be used for purpose of getting a reference to a Collection
-      * and Map to modify the property, without requiring a setter
-      * method.
-      * This is similar to how JAXB framework sets Collections and
-      * Maps: no setter is involved, just setter.
-      *<p>
-      * Note that such getters-as-setters methods have lower
-      * precedence than setters, so they are only used if no
-      * setter is found for the Map/Collection property.
-      *<p>
-      * Feature is enabled by default.
-      */
-     USE_GETTERS_AS_SETTERS(true),
+    /**
+     * Feature that determines whether otherwise regular "getter"
+     * methods (but only ones that handle Collections and Maps,
+     * not getters of other type)
+     * can be used for purpose of getting a reference to a Collection
+     * and Map to modify the property, without requiring a setter
+     * method.
+     * This is similar to how JAXB framework sets Collections and
+     * Maps: no setter is involved, just setter.
+     *<p>
+     * Note that such getters-as-setters methods have lower
+     * precedence than setters, so they are only used if no
+     * setter is found for the Map/Collection property.
+     *<p>
+     * Feature is enabled by default.
+     */
+    USE_GETTERS_AS_SETTERS(true),
 
-     /**
+    /**
      * Feature that determines whether method and field access
      * modifier settings can be overridden when accessing
      * properties. If enabled, method
@@ -155,6 +155,24 @@ public enum MapperFeature implements ConfigFeature
      */
     CAN_OVERRIDE_ACCESS_MODIFIERS(true),
 
+    /**
+     * Feature that determines whether member mutators (fields and
+     * setters) may be "pulled in" even if they are not visible,
+     * as long as there is a visible accessor (getter or field) with same name.
+     * For example: field "value" may be inferred as mutator,
+     * if there is visible or explicitly marked getter "getValue()".
+     * If enabled, inferring is enabled; otherwise (disabled) only visible and
+     * explicitly annotated accessors are ever used.
+     *<p>
+     * Note that 'getters' are never inferred and need to be either visible (including
+     * bean-style naming) or explicitly annotated.
+     *<p>
+     * Feature is enabled by default.
+     * 
+     * @since 2.2
+     */
+    INFER_PROPERTY_MUTATORS(true),
+    
     /*
     /******************************************************
     /* Type-handling features
@@ -243,7 +261,6 @@ public enum MapperFeature implements ConfigFeature
      * @since 2.1
      */
     USE_WRAPPER_NAME_AS_PROPERTY_NAME(false)
-    
     ;
 
     private final boolean _defaultState;

@@ -593,6 +593,8 @@ public class POJOPropertiesCollector
     protected void _removeUnwantedProperties()
     {
         Iterator<Map.Entry<String,POJOPropertyBuilder>> it = _properties.entrySet().iterator();
+        final boolean forceNonVisibleRemoval = !_config.isEnabled(MapperFeature.INFER_PROPERTY_MUTATORS);
+        
         while (it.hasNext()) {
             Map.Entry<String, POJOPropertyBuilder> entry = it.next();
             POJOPropertyBuilder prop = entry.getValue();
@@ -617,7 +619,7 @@ public class POJOPropertiesCollector
                 }
             }
             // and finally, handle removal of individual non-visible elements
-            prop.removeNonVisible();
+            prop.removeNonVisible(forceNonVisibleRemoval);
         }
     }
     

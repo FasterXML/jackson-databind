@@ -182,7 +182,7 @@ public class JsonNodeFactory
      * Factory method for getting an instance of JSON numeric value
      * that expresses given 32-bit floating point value
      */
-    public NumericNode numberNode(float v) { return DoubleNode.valueOf((double) v); }
+    public NumericNode numberNode(float v) { return FloatNode.valueOf((float) v); }
 
     /**
      * Alternate factory method that will handle wrapper value, which may
@@ -191,7 +191,7 @@ public class JsonNodeFactory
      * {@link NumericNode}, but just {@link ValueNode}.
      */
     public ValueNode numberNode(Float value) {
-        return (value == null) ? nullNode() : DoubleNode.valueOf(value.doubleValue());
+        return (value == null) ? nullNode() : FloatNode.valueOf(value.floatValue());
     }
     
     /**

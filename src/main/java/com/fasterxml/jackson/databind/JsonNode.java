@@ -247,10 +247,19 @@ public abstract class JsonNode
      */
     public boolean isLong() { return false; }
 
+    /**
+     * @since 2.2
+     */
+    public boolean isFloat() { return false; }
+
     public boolean isDouble() { return false; }
     public boolean isBigDecimal() { return false; }
     public boolean isBigInteger() { return false; }
 
+    /**
+     * Method that checks whether this node represents basic JSON String
+     * value.
+     */
     public final boolean isTextual() {
         return getNodeType() == JsonNodeType.STRING;
     }

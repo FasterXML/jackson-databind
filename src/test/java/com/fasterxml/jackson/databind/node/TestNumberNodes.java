@@ -94,6 +94,37 @@ public class TestNumberNodes extends NodeTestBase
         assertTrue(DoubleNode.valueOf(Long.MIN_VALUE).canConvertToLong());
     }
 
+    // @since 2.2
+    public void testFloat()
+    {
+        FloatNode n = FloatNode.valueOf(0.25f);
+        assertStandardEquals(n);
+        assertTrue(0 != n.hashCode());
+        assertEquals(JsonToken.VALUE_NUMBER_FLOAT, n.asToken());
+        assertEquals(JsonParser.NumberType.FLOAT, n.numberType());
+        assertEquals(0, n.intValue());
+        assertEquals(0.25, n.doubleValue());
+        assertEquals(0.25f, n.floatValue());
+        assertNotNull(n.decimalValue());
+        assertEquals(BigInteger.ZERO, n.bigIntegerValue());
+        assertEquals("0.25", n.asText());
+
+        // 1.6:
+        assertNodeNumbers(FloatNode.valueOf(4.5f), 4, 4.5f);
+
+        assertTrue(FloatNode.valueOf(0).canConvertToInt());
+        assertTrue(FloatNode.valueOf(Integer.MAX_VALUE).canConvertToInt());
+        assertTrue(FloatNode.valueOf(Integer.MIN_VALUE).canConvertToInt());
+
+        // rounding errors if we just add/sub 1... so:
+        assertFalse(FloatNode.valueOf(1000L + Integer.MAX_VALUE).canConvertToInt());
+        assertFalse(FloatNode.valueOf(-1000L + Integer.MIN_VALUE).canConvertToInt());
+
+        assertTrue(FloatNode.valueOf(0L).canConvertToLong());
+        assertTrue(FloatNode.valueOf(Integer.MAX_VALUE).canConvertToLong());
+        assertTrue(FloatNode.valueOf(Integer.MIN_VALUE).canConvertToLong());
+    }
+    
     public void testDecimalNode() throws Exception
     {
         DecimalNode n = DecimalNode.valueOf(BigDecimal.ONE);

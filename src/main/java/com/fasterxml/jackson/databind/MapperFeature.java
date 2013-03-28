@@ -172,6 +172,18 @@ public enum MapperFeature implements ConfigFeature
      * @since 2.2
      */
     INFER_PROPERTY_MUTATORS(true),
+
+    /**
+     * Feature that determines whether member fields declared as 'final' may
+     * be auto-detected to be used mutators (used to change value of the logical
+     * property) or not. If enabled, 'final' access modifier has no effect, and
+     * such fields may be detected according to usual visibility and inference
+     * rules; if disabled, such fields are NOT used as mutators except if
+     * explicitly annotated for such use.
+     *<p>
+     * Feature is enabled by default, for backwards compatibility reasons.
+     */
+    ALLOW_FINAL_FIELDS_AS_MUTATORS(true),
     
     /*
     /******************************************************

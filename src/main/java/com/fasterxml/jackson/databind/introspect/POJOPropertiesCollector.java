@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -353,6 +354,11 @@ public class POJOPropertiesCollector
     protected void _addFields()
     {
         final AnnotationIntrospector ai = _annotationIntrospector;
+        /* 28-Mar-2013, tatu: For deserialization we may also want to remove
+         *   final fields, as often they won't make very good mutators...
+         *   (although, maybe surprisingly, JVM _can_ force setting of such fields!)
+         */
+        final boolean pruneFinalFields = !_forSerialization && !_config.isEnabled(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
         
         for (AnnotatedField f : _classDef.fields()) {
             String implName = f.getName();
@@ -382,6 +388,15 @@ public class POJOPropertiesCollector
             }
             // and finally, may also have explicit ignoral
             boolean ignored = (ai != null) && ai.hasIgnoreMarker(f);
+            /* [Issue#190]: this is the place to prune final fields, if they are not
+             *  to be used as mutators. Must verify they are not explicitly included.
+             *  Also: if 'ignored' is set, need to included until a later point, to
+             *  avoid losing ignoral information.
+             */
+            if (pruneFinalFields && (explName == null) && !ignored && Modifier.isFinal(f.getModifiers())) {
+                continue;
+            }
+            
             _property(implName).addField(f, explName, visible, ignored);
         }
     }
@@ -594,7 +609,7 @@ public class POJOPropertiesCollector
     {
         Iterator<Map.Entry<String,POJOPropertyBuilder>> it = _properties.entrySet().iterator();
         final boolean forceNonVisibleRemoval = !_config.isEnabled(MapperFeature.INFER_PROPERTY_MUTATORS);
-        
+
         while (it.hasNext()) {
             Map.Entry<String, POJOPropertyBuilder> entry = it.next();
             POJOPropertyBuilder prop = entry.getValue();

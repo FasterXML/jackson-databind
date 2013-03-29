@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestInferredMutators
-    extends BaseMapTest
+public class TestInferredMutators extends BaseMapTest
 {
     public static class Point {
         private int x;
@@ -21,7 +20,7 @@ public class TestInferredMutators
 
         public int getX() { return x; }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests

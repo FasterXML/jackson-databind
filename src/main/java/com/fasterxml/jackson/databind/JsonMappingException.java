@@ -161,15 +161,15 @@ public class JsonMappingException
 
     public static JsonMappingException from(JsonParser jp, String msg)
     {
-        return new JsonMappingException(msg, jp.getTokenLocation());
+        return new JsonMappingException(msg, ((jp == null) ? null : jp.getTokenLocation()));
     }
 
     public static JsonMappingException from(JsonParser jp, String msg,
             Throwable problem)
     {
-        return new JsonMappingException(msg, jp.getTokenLocation(), problem);
+        return new JsonMappingException(msg, ((jp == null) ? null : jp.getTokenLocation()), problem);
     }
-
+    
     /**
      * Factory method used when "upgrading" an {@link IOException} into
      * {@link JsonMappingException}: usually only needed to comply with

@@ -388,7 +388,7 @@ public class ObjectReader
     public ObjectReader withRootName(String rootName) {
         return _with(_config.withRootName(rootName));
     }
-    
+
     /**
      * Method for constructing a new instance with configuration that
      * passes specified {@link FormatSchema} to {@link JsonParser} that
@@ -402,6 +402,7 @@ public class ObjectReader
         if (_schema == schema) {
             return this;
         }
+        _verifySchemaType(schema);
         return new ObjectReader(this, _config, _valueType, _rootDeserializer, _valueToUpdate,
                 schema, _injectableValues, _dataFormatReaders);
     }
@@ -1474,6 +1475,19 @@ public class ObjectReader
     /* Internal methods, other
     /**********************************************************
      */
+
+    /**
+     * @since 2.2
+     */
+    protected void _verifySchemaType(FormatSchema schema)
+    {
+        if (schema != null) {
+            if (!_jsonFactory.canUseSchema(schema)) {
+                    throw new IllegalArgumentException("Can not use FormatSchema of type "+schema.getClass().getName()
+                            +" for format "+_jsonFactory.getFormatName());
+            }
+        }
+    }
 
     /**
      * Internal helper method called to create an instance of {@link DeserializationContext}

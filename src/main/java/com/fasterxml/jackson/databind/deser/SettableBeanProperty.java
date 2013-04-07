@@ -426,6 +426,7 @@ public abstract class SettableBeanProperty
         if (_valueTypeDeserializer != null) {
             return _valueDeserializer.deserializeWithType(jp, ctxt, _valueTypeDeserializer);
         }
+if (_valueDeserializer == null) throw new JsonMappingException("No Value deserializer for '"+this._propName+"', type "+this._type);
         return _valueDeserializer.deserialize(jp, ctxt);
     }
     

@@ -30,6 +30,14 @@ public class TestFormatSchema extends BaseMapTest
     
     static class FactoryWithSchema extends JsonFactory
     {
+        @Override
+        public String getFormatName() { return "test"; }
+
+        @Override
+        public boolean canUseSchema(FormatSchema schema) {
+            return (schema instanceof MySchema);
+        }
+        
         private static final long serialVersionUID = 1L;
         @Override
         protected JsonParser _createParser(Reader r, IOContext ctxt)

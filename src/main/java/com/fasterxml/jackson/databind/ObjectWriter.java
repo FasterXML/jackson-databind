@@ -345,10 +345,13 @@ public class ObjectWriter
     
     public ObjectWriter withSchema(FormatSchema schema)
     {
-        return (_schema == schema) ? this :
-            new ObjectWriter(this, _config, _rootType, _rootSerializer, _prettyPrinter, schema);
+        if (_schema == schema) {
+            return this;
+        }
+        _verifySchemaType(schema);
+        return new ObjectWriter(this, _config, _rootType, _rootSerializer, _prettyPrinter, schema);
     }
-    
+
     /**
      * Method that will construct a new instance that uses specific type
      * as the root type for serialization, instead of runtime dynamic
@@ -645,7 +648,20 @@ public class ObjectWriter
     /* Internal methods
     /**********************************************************
      */
-    
+
+    /**
+     * @since 2.2
+     */
+    protected void _verifySchemaType(FormatSchema schema)
+    {
+        if (schema != null) {
+            if (!_jsonFactory.canUseSchema(schema)) {
+                    throw new IllegalArgumentException("Can not use FormatSchema of type "+schema.getClass().getName()
+                            +" for format "+_jsonFactory.getFormatName());
+            }
+        }
+    }
+
     /**
      * Method called to configure the generator as necessary and then
      * call write functionality

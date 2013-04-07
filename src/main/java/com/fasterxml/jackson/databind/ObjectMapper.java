@@ -2278,6 +2278,7 @@ public class ObjectMapper
      * @param schema Schema to pass to generator
      */
     public ObjectWriter writer(FormatSchema schema) {
+        _verifySchemaType(schema);
         return new ObjectWriter(this, getSerializationConfig(), schema);
     }
 
@@ -2393,6 +2394,7 @@ public class ObjectMapper
      * @param schema Schema to pass to parser
      */
     public ObjectReader reader(FormatSchema schema) {
+        _verifySchemaType(schema);
         return new ObjectReader(this, getDeserializationConfig(), null, null,
                 schema, _injectableValues);
     }
@@ -2904,5 +2906,18 @@ public class ObjectMapper
         }
         _rootDeserializers.put(valueType, deser);
         return deser;
+    }
+
+    /**
+     * @since 2.2
+     */
+    protected void _verifySchemaType(FormatSchema schema)
+    {
+        if (schema != null) {
+            if (!_jsonFactory.canUseSchema(schema)) {
+                    throw new IllegalArgumentException("Can not use FormatSchema of type "+schema.getClass().getName()
+                            +" for format "+_jsonFactory.getFormatName());
+            }
+        }
     }
 }

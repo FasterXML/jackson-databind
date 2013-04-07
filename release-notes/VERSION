@@ -25,6 +25,8 @@ Improvements:
 #173: Add 'JsonNode.traverse(ObjectCodec)' for convenience
 #194: Add `FloatNode` type in tree model (JsonNode)
  (requested by msteiger@github)
+#199: Allow deserializing `Iterable` instances (as basic `Collection`s)
+ (requested by electrum@github)
 
 New features:
 

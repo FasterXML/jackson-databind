@@ -142,7 +142,7 @@ public class BeanDeserializerFactory
          */
         if (type.isAbstract()) {
             // [JACKSON-41] (v1.6): Let's make it possible to materialize abstract types.
-            JavaType concreteType = materializeAbstractType(config, beanDesc);
+            JavaType concreteType = materializeAbstractType(ctxt, type, beanDesc);
             if (concreteType != null) {
                 /* important: introspect actual implementation (abstract class or
                  * interface doesn't have constructors, for one)
@@ -153,7 +153,7 @@ public class BeanDeserializerFactory
         }
 
         // Otherwise, may want to check handlers for standard types, from superclass:
-        JsonDeserializer<Object> deser = findStdDeserializer(config, type);
+        JsonDeserializer<Object> deser = findStdDeserializer(ctxt, type, beanDesc);
         if (deser != null) {
             return deser;
         }
@@ -183,21 +183,21 @@ public class BeanDeserializerFactory
      * deserializer registered for given type.
      */
     @SuppressWarnings("unchecked")
-    protected JsonDeserializer<Object> findStdDeserializer(DeserializationConfig config,
-            JavaType type)
+    protected JsonDeserializer<Object> findStdDeserializer(DeserializationContext ctxt,
+            JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
-        Class<?> cls = type.getRawClass();
         // note: we do NOT check for custom deserializers here; that's for sub-class to do
-        JsonDeserializer<?> deser = findDefaultSerializer(cls);
+        JsonDeserializer<?> deser = findDefaultDeserializer(ctxt, type, beanDesc);
         if (deser != null) {
             return (JsonDeserializer<Object>) deser;
         }
         
+        Class<?> cls = type.getRawClass();
         // [JACKSON-283]: AtomicReference is a rather special type...
         if (AtomicReference.class.isAssignableFrom(cls)) {
             // Must find parameterization
-            TypeFactory tf = config.getTypeFactory();
+            TypeFactory tf = ctxt.getTypeFactory();
             JavaType[] params = tf.findTypeParameters(type, AtomicReference.class);
             JavaType referencedType;
             if (params == null || params.length < 1) { // untyped (raw)
@@ -210,24 +210,22 @@ public class BeanDeserializerFactory
             return (JsonDeserializer<Object>)d2;
         }
         // [JACKSON-386]: External/optional type handlers are handled somewhat differently
-        JsonDeserializer<?> d = optionalHandlers.findDeserializer(type, config);
+        JsonDeserializer<?> d = optionalHandlers.findDeserializer(type, ctxt.getConfig());
         if (d != null) {
             return (JsonDeserializer<Object>)d;
         }
         return null;
     }
     
-    protected JavaType materializeAbstractType(DeserializationConfig config,
-            BeanDescription beanDesc)
+    protected JavaType materializeAbstractType(DeserializationContext ctxt,
+            JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
         final JavaType abstractType = beanDesc.getType();
-        
-        /* [JACKSON-502] (1.8): Now it is possible to have multiple resolvers too,
-         *   as they are registered via module interface.
-         */
+        // [JACKSON-502]: Now it is possible to have multiple resolvers too,
+        //   as they are registered via module interface.
         for (AbstractTypeResolver r : _factoryConfig.abstractTypeResolvers()) {
-            JavaType concrete = r.resolveAbstractType(config, abstractType);
+            JavaType concrete = r.resolveAbstractType(ctxt.getConfig(), abstractType);
             if (concrete != null) {
                 return concrete;
             }

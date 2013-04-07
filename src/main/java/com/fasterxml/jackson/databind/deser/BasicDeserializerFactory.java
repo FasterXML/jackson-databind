@@ -29,12 +29,16 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
  * no additional introspection or customizability of these types,
  * this factory is stateless.
  */
+@SuppressWarnings("serial")
 public abstract class BasicDeserializerFactory
     extends DeserializerFactory
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 1;
-
+    private final static Class<?> CLASS_OBJECT = Object.class;
+    private final static Class<?> CLASS_STRING = String.class;
+    private final static Class<?> CLASS_CHAR_BUFFER = CharSequence.class;
+    private final static Class<?> CLASS_ITERABLE = Iterable.class;
+    
     /**
      * Also special array deserializers for primitive array types.
      */
@@ -749,7 +753,7 @@ public abstract class BasicDeserializerFactory
     /* JsonDeserializerFactory impl: Collection(-like) deserializers
     /**********************************************************
      */
-    
+
     @Override
     public JsonDeserializer<?> createCollectionDeserializer(DeserializationContext ctxt,
             CollectionType type, BeanDescription beanDesc)
@@ -791,14 +795,11 @@ public abstract class BasicDeserializerFactory
          */
         if (deser == null) {
             if (type.isInterface() || type.isAbstract()) {
-                Class<?> collectionClass = type.getRawClass();
-                @SuppressWarnings({ "rawtypes" })
-                Class<? extends Collection> fallback = _collectionFallbacks.get(collectionClass.getName());
-                if (fallback == null) {
+                CollectionType implType = _mapAbstractCollectionType(type, config);
+                if (implType == null) {
                     throw new IllegalArgumentException("Can not find a deserializer for non-concrete Collection type "+type);
                 }
-                collectionClass = fallback;
-                type = (CollectionType) config.constructSpecializedType(type, collectionClass);
+                type = implType;
                 // But if so, also need to re-check creators...
                 beanDesc = config.introspectForCreation(type);
             }
@@ -824,6 +825,16 @@ public abstract class BasicDeserializerFactory
             }
         }
         return deser;
+    }
+
+    protected CollectionType _mapAbstractCollectionType(JavaType type, DeserializationConfig config)
+    {
+        Class<?> collectionClass = type.getRawClass();
+        collectionClass = _collectionFallbacks.get(collectionClass.getName());
+        if (collectionClass == null) {
+            return null;
+        }
+        return (CollectionType) config.constructSpecializedType(type, collectionClass);
     }
 
     protected JsonDeserializer<?> _findCustomCollectionDeserializer(CollectionType type,
@@ -1334,10 +1345,6 @@ public abstract class BasicDeserializerFactory
         return b.buildTypeDeserializer(config, contentType, subtypes);
     }
 
-    private final static Class<?> CLASS_OBJECT = Object.class;
-    private final static Class<?> CLASS_STRING = String.class;
-    private final static Class<?> CLASS_CHAR_BUFFER = CharSequence.class;
-
     /**
      * Helper method called to find one of default serializers for "well-known"
      * platform types: JDK-provided types, and small number of public Jackson
@@ -1345,8 +1352,11 @@ public abstract class BasicDeserializerFactory
      * 
      * @since 2.2
      */
-    public JsonDeserializer<?> findDefaultSerializer(Class<?> rawType)
+    public JsonDeserializer<?> findDefaultDeserializer(DeserializationContext ctxt,
+            JavaType type, BeanDescription beanDesc)
+        throws JsonMappingException
     {
+        Class<?> rawType = type.getRawClass();
         String clsName = rawType.getName();
         if (rawType.isPrimitive() || clsName.startsWith("java.")) {
             // Object ("untyped"), String equivalents:
@@ -1355,6 +1365,14 @@ public abstract class BasicDeserializerFactory
             }
             if (rawType == CLASS_STRING || rawType == CLASS_CHAR_BUFFER) {
                 return StringDeserializer.instance;
+            }
+            if (rawType == CLASS_ITERABLE) {
+                // [Issue#199]: Can and should 'upgrade' to a Collection type:
+                TypeFactory tf = ctxt.getTypeFactory();
+                JavaType elemType = (type.containedTypeCount() > 0) ? type.containedType(0) : TypeFactory.unknownType();
+                CollectionType ct = tf.constructCollectionType(Collection.class, elemType);
+                // Should we re-introspect beanDesc? For now let's not...
+                return createCollectionDeserializer(ctxt, ct, beanDesc);
             }
             // Primitives/wrappers, other Numbers:
             JsonDeserializer<?> deser = NumberDeserializers.find(rawType, clsName);

@@ -484,9 +484,7 @@ public class BeanDeserializer
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }
-
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        
         for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
             String propName = jp.getCurrentName();
             jp.nextToken();

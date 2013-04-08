@@ -129,7 +129,7 @@ public class JsonNodeFactory
      * Factory method for getting an instance of JSON numeric value
      * that expresses given 16-bit integer value
      */
-    public NumericNode numberNode(short v) { return IntNode.valueOf(v); }
+    public NumericNode numberNode(short v) { return ShortNode.valueOf(v); }
 
     /**
      * Alternate factory method that will handle wrapper value, which may
@@ -138,7 +138,7 @@ public class JsonNodeFactory
      * {@link NumericNode}, but just {@link ValueNode}.
      */
     public ValueNode numberNode(Short value) {
-        return (value == null) ? nullNode() : IntNode.valueOf(value.shortValue());
+        return (value == null) ? nullNode() : ShortNode.valueOf(value);
     }
     
     /**

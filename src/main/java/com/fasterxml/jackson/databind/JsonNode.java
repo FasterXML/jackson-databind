@@ -225,6 +225,18 @@ public abstract class JsonNode
 
     /**
      * Method that can be used to check whether contained value
+     * is a number represented as Java <code>short</code>.
+     * Note, however, that even if this method returns false, it
+     * is possible that conversion would be possible from other numeric
+     * types -- to check if this is possible, use
+     * {@link #canConvertToInt()} instead.
+     * 
+     * @return True if the value contained by this node is stored as Java short
+     */
+    public boolean isShort() { return false; }
+
+    /**
+     * Method that can be used to check whether contained value
      * is a number represented as Java <code>int</code>.
      * Note, however, that even if this method returns false, it
      * is possible that conversion would be possible from other numeric

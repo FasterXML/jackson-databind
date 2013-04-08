@@ -79,6 +79,9 @@ public final class IntNode
     }
 
     @Override
+    public short shortValue() { return (short) _value; }
+
+    @Override
     public int intValue() { return _value; }
 
     @Override

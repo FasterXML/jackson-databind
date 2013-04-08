@@ -56,6 +56,9 @@ public final class LongNode
     }
 
     @Override
+    public short shortValue() { return (short) _value; }
+
+    @Override
     public int intValue() { return (int) _value; }
 
     @Override

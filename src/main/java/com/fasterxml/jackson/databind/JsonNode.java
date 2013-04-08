@@ -367,6 +367,18 @@ public abstract class JsonNode
     public Number numberValue() { return null; }
 
     /**
+     * Returns 16-bit short value for this node, <b>if and only if</b>
+     * this node is numeric ({@link #isNumber} returns true). For other
+     * types returns 0.
+     * For floating-point numbers, value is truncated using default
+     * Java coercion, similar to how cast from double to short operates.
+     *
+     * @return Short value this node contains, if any; 0 for non-number
+     *   nodes.
+     */
+    public short shortValue() { return 0; }
+
+    /**
      * Returns integer value for this node, <b>if and only if</b>
      * this node is numeric ({@link #isNumber} returns true). For other
      * types returns 0.

@@ -552,6 +552,11 @@ public class TokenBuffer
      */
 
     @Override
+    public void writeNumber(short i) throws IOException, JsonGenerationException {
+        _append(JsonToken.VALUE_NUMBER_INT, Short.valueOf(i));
+    }
+
+    @Override
     public void writeNumber(int i) throws IOException, JsonGenerationException {
         _append(JsonToken.VALUE_NUMBER_INT, Integer.valueOf(i));
     }
@@ -1104,6 +1109,7 @@ public class TokenBuffer
         public NumberType getNumberType() throws IOException, JsonParseException
         {
             Number n = getNumberValue();
+            if (n instanceof Short) return NumberType.SHORT;
             if (n instanceof Integer) return NumberType.INT;
             if (n instanceof Long) return NumberType.LONG;
             if (n instanceof Double) return NumberType.DOUBLE;

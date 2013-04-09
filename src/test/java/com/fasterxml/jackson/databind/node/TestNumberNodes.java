@@ -20,8 +20,8 @@ public class TestNumberNodes extends NodeTestBase
         ShortNode n = ShortNode.valueOf((short) 1);
         assertStandardEquals(n);
         assertTrue(0 != n.hashCode());
-//        assertEquals(JsonToken.VALUE_NUMBER_SHORT, n.asToken());		// TODO: fix when available
-        assertEquals(JsonParser.NumberType.INT, n.numberType());
+        assertEquals(JsonToken.VALUE_NUMBER_INT, n.asToken());
+        assertEquals(JsonParser.NumberType.SHORT, n.numberType());
         assertEquals(1, n.intValue());
         assertEquals(1L, n.longValue());
         assertEquals(BigDecimal.ONE, n.decimalValue());

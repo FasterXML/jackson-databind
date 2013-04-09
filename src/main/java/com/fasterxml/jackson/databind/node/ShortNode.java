@@ -36,7 +36,7 @@ public final class ShortNode
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_INT; }
 
     @Override
-    public JsonParser.NumberType numberType() { return JsonParser.NumberType.INT; }	// TODO: should be SHORT
+    public JsonParser.NumberType numberType() { return JsonParser.NumberType.SHORT; }
 
 
     @Override

@@ -50,6 +50,10 @@ New features:
 #195: Add 'MapperFeature.INFER_PROPERTY_MUTATORS' (default: enabled) for finer
   control of what mutators are auto-detected.
  (requested by Dain S)
+#203: Added new features to support advanced date/time handling:
+  - SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS
+  - DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS
+  - DeserializationFeature.ADJUST_DATES_TO_CONTEXT_TIME_ZONE
 
 Other:
 

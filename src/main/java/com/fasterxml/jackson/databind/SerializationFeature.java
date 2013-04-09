@@ -57,7 +57,7 @@ public enum SerializationFeature implements ConfigFeature
     
     /*
     /******************************************************
-    /*  Error handling features
+    /* Error handling features
     /******************************************************
      */
     
@@ -266,6 +266,18 @@ public enum SerializationFeature implements ConfigFeature
     WRITE_BIGDECIMAL_AS_PLAIN(false),
     
     /**
+     * Feature that controls whether numeric timestamp values are
+     * to be written using nanosecond timestamps (enabled) or not (disabled);
+     * if disabled, standard millisecond timestamps are assumed.
+     * This is the counterpart to {@link DeserializationFeature#READ_DATE_TIMESTAMPS_AS_NANOSECONDS}.
+     *<p>
+     * Feature is disabled by default.
+     * 
+     * @since 2.2
+     */
+    WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS(false),    
+    
+    /**
      * Feature that determines whether {@link java.util.Map} entries are first
      * sorted by key before serialization or not: if enabled, additional sorting
      * step is performed if necessary (not necessary for {@link java.util.SortedMap}s),
@@ -274,6 +286,18 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default.
      */
     ORDER_MAP_ENTRIES_BY_KEYS(false),
+
+    /**
+     * Feature that specifies whether context provided {@link java.util.TimeZone}
+     * ({@link SerializerProvider#getTimeZone()} should be used to adjust Date/Time
+     * values on deserialization, even if value itself contains timezone information.
+     * If enabled, contextual <code>TimeZone</code> will essentially override any other
+     * TimeZone information; if disabled, it will only be used if value itself does not
+     * contain any TimeZone information.
+     * 
+     * @since 2.2
+     */
+    ADJUST_DATES_TO_CONTEXT_TIME_ZONE(true),
 
     /*
     /******************************************************

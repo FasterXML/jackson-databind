@@ -175,7 +175,7 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature is disabled by default.
      */
     ACCEPT_SINGLE_VALUE_AS_ARRAY(false),
-    
+
     /**
      * Feature to allow "unwrapping" root-level JSON value, to match setting of
      * {@link SerializationFeature#WRAP_ROOT_VALUE} used for serialization.
@@ -221,6 +221,18 @@ public enum DeserializationFeature implements ConfigFeature
      * @since 2.0
      */
     READ_UNKNOWN_ENUM_VALUES_AS_NULL(false),
+
+    /**
+     * Feature that controls whether numeric timestamp values are expected
+     * to be written using nanosecond timestamps (enabled) or not (disabled);
+     * if disabled, standard millisecond timestamps are assumed.
+     * This is the counterpart to {@link SerializationFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}.
+     *<p>
+     * Feature is disabled by default.
+     * 
+     * @since 2.2
+     */
+    READ_DATE_TIMESTAMPS_AS_NANOSECONDS(false),
 
     /*
     /******************************************************

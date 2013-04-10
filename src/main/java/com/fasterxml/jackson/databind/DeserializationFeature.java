@@ -224,15 +224,32 @@ public enum DeserializationFeature implements ConfigFeature
 
     /**
      * Feature that controls whether numeric timestamp values are expected
-     * to be written using nanosecond timestamps (enabled) or not (disabled);
-     * if disabled, standard millisecond timestamps are assumed.
+     * to be written using nanosecond timestamps (enabled) or not (disabled),
+     * <b>if and only if</b> datatype supports such resolution.
+     * Only newer datatypes (such as Java8 Date/Time) support such resolution --
+     * older types (pre-Java8 <b>java.util.Date</b> etc) and Joda do not --
+     * and this setting <b>has no effect</b> on such types.
+     *<p>
+     * If disabled, standard millisecond timestamps are assumed.
      * This is the counterpart to {@link SerializationFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}.
      *<p>
-     * Feature is disabled by default.
+     * Feature is enabled by default, to support most accurate time values possible.
      * 
      * @since 2.2
      */
-    READ_DATE_TIMESTAMPS_AS_NANOSECONDS(false),
+    READ_DATE_TIMESTAMPS_AS_NANOSECONDS(true),
+
+    /**
+     * Feature that specifies whether context provided {@link java.util.TimeZone}
+     * ({@link SerializerProvider#getTimeZone()} should be used to adjust Date/Time
+     * values on deserialization, even if value itself contains timezone information.
+     * If enabled, contextual <code>TimeZone</code> will essentially override any other
+     * TimeZone information; if disabled, it will only be used if value itself does not
+     * contain any TimeZone information.
+     * 
+     * @since 2.2
+     */
+    ADJUST_DATES_TO_CONTEXT_TIME_ZONE(true),
 
     /*
     /******************************************************

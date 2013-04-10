@@ -241,7 +241,7 @@ public enum DeserializationFeature implements ConfigFeature
 
     /**
      * Feature that specifies whether context provided {@link java.util.TimeZone}
-     * ({@link SerializerProvider#getTimeZone()} should be used to adjust Date/Time
+     * ({@link DeserializationContext#getTimeZone()} should be used to adjust Date/Time
      * values on deserialization, even if value itself contains timezone information.
      * If enabled, contextual <code>TimeZone</code> will essentially override any other
      * TimeZone information; if disabled, it will only be used if value itself does not

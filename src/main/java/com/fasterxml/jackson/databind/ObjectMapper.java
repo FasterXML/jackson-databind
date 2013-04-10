@@ -671,6 +671,25 @@ public class ObjectMapper
         return this;
     }
 
+    /**
+     * Convenience method for registering specified modules in order;
+     * functionally equivalent to:
+     *<pre>
+     *   for (Module module : modules) {
+     *      registerModule(module);
+     *   }
+     *</pre>
+     * 
+     * @since 2.2
+     */
+    public ObjectMapper registerModules(Module... modules)
+    {
+        for (Module module : modules) {
+            registerModule(module);
+        }
+        return this;
+    }
+    
     /*
     /**********************************************************
     /* Configuration: main config object access

@@ -492,7 +492,7 @@ public class ObjectMapper
     
     /*
     /**********************************************************
-    /* Module registration
+    /* Module registration, discovery
     /**********************************************************
      */
 
@@ -688,6 +688,64 @@ public class ObjectMapper
             registerModule(module);
         }
         return this;
+    }
+
+    /**
+     * Convenience method for registering specified modules in order;
+     * functionally equivalent to:
+     *<pre>
+     *   for (Module module : modules) {
+     *      registerModule(module);
+     *   }
+     *</pre>
+     * 
+     * @since 2.2
+     */
+    public ObjectMapper registerModules(Iterable<Module> modules)
+    {
+        for (Module module : modules) {
+            registerModule(module);
+        }
+        return this;
+    }
+    
+    /**
+     * Method for locating available methods, using JDK {@link ServiceLoader}
+     * facility, along with module-provided SPI.
+     * 
+     * @since 2.2
+     */
+    public List<Module> findModules() {
+        return findModules(null);
+    }
+
+    /**
+     * Method for locating available methods, using JDK {@link ServiceLoader}
+     * facility, along with module-provided SPI.
+     * 
+     * @since 2.2
+     */
+    public List<Module> findModules(ClassLoader classLoader)
+    {
+        ArrayList<Module> modules = new ArrayList<Module>();
+        ServiceLoader<Module> loader = (classLoader == null) ?
+                ServiceLoader.load(Module.class) : ServiceLoader.load(Module.class, classLoader);
+        for (Module module : loader) {
+            modules.add(module);
+        }
+        return modules;
+    }
+
+    /**
+     * Convenience method that is functionally equivalent to:
+     *<code>
+     *   mapper.registerModules(mapper.findModules());
+     *<code>
+     *
+     * @since 2.2
+     */
+    public ObjectMapper findAndRegisterModules() {
+        return registerModules(findModules());
     }
     
     /*

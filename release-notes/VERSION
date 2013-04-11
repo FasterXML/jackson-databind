@@ -52,6 +52,9 @@ New features:
 #195: Add 'MapperFeature.INFER_PROPERTY_MUTATORS' (default: enabled) for finer
   control of what mutators are auto-detected.
  (requested by Dain S)
+#198: Add SPI metadata, handling in ObjectMapper (findModules()), for
+  automatic registration of auto-detected extension modules
+ (suggested by 'beamerblvd@github')
 #203: Added new features to support advanced date/time handling:
   - SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS
   - DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS

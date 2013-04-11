@@ -28,6 +28,8 @@ Improvements:
  (requested by msteiger@github)
 #199: Allow deserializing `Iterable` instances (as basic `Collection`s)
  (requested by electrum@github)
+#206: Make 'ObjectMapper.createDeserializationContext()' overridable
+ (requested by noter@github)
 
 New features:
 

@@ -2757,7 +2757,7 @@ public class ObjectMapper
      * for deserializing a single root value.
      * Can be overridden if a custom context is needed.
      */
-    protected final DefaultDeserializationContext createDeserializationContext(JsonParser jp,
+    protected DefaultDeserializationContext createDeserializationContext(JsonParser jp,
             DeserializationConfig cfg)
     {
         return _deserializationContext.createInstance(cfg,

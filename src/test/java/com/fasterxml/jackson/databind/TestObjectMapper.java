@@ -3,8 +3,10 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -16,6 +18,16 @@ public class TestObjectMapper extends BaseMapTest
         public void setX(int v) { value = v; }
     }
 
+    // for [Issue#206]
+    @SuppressWarnings("serial")
+    static class CustomMapper extends ObjectMapper {
+        @Override
+        protected DefaultDeserializationContext createDeserializationContext(JsonParser jp,
+                DeserializationConfig cfg) {
+            return super.createDeserializationContext(jp, cfg);
+        }
+    }
+    
     /*
     /**********************************************************
     /* Test methods

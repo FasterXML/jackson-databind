@@ -712,6 +712,9 @@ public class ObjectMapper
     /**
      * Method for locating available methods, using JDK {@link ServiceLoader}
      * facility, along with module-provided SPI.
+     *<p>
+     * Note that method does not do any caching, so calls should be considered
+     * potentially expensive.
      * 
      * @since 2.2
      */
@@ -722,6 +725,9 @@ public class ObjectMapper
     /**
      * Method for locating available methods, using JDK {@link ServiceLoader}
      * facility, along with module-provided SPI.
+     *<p>
+     * Note that method does not do any caching, so calls should be considered
+     * potentially expensive.
      * 
      * @since 2.2
      */
@@ -741,6 +747,10 @@ public class ObjectMapper
      *<code>
      *   mapper.registerModules(mapper.findModules());
      *<code>
+     *<p>
+     * As with {@link #findModules()}, no caching is done for modules, so care
+     * needs to be taken to either create and share a single mapper instance;
+     * or to cache introspected set of modules.
      *
      * @since 2.2
      */

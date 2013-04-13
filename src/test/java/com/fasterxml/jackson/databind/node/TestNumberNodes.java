@@ -21,7 +21,7 @@ public class TestNumberNodes extends NodeTestBase
         assertStandardEquals(n);
         assertTrue(0 != n.hashCode());
         assertEquals(JsonToken.VALUE_NUMBER_INT, n.asToken());
-        assertEquals(JsonParser.NumberType.SHORT, n.numberType());
+        assertEquals(JsonParser.NumberType.INT, n.numberType());	// should be SHORT
         assertEquals(1, n.intValue());
         assertEquals(1L, n.longValue());
         assertEquals(BigDecimal.ONE, n.decimalValue());

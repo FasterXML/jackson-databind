@@ -1109,7 +1109,7 @@ public class TokenBuffer
         public NumberType getNumberType() throws IOException, JsonParseException
         {
             Number n = getNumberValue();
-            if (n instanceof Short) return NumberType.SHORT;
+            if (n instanceof Short) return NumberType.INT;		// should be SHORT
             if (n instanceof Integer) return NumberType.INT;
             if (n instanceof Long) return NumberType.LONG;
             if (n instanceof Double) return NumberType.DOUBLE;

@@ -72,7 +72,7 @@ public class NumberSerializers
         {
             JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
             if (v2 != null) {
-                v2.numberType(JsonParser.NumberType.SHORT);
+                v2.numberType(JsonParser.NumberType.INT);			// should be SHORT
             }
         }
     }

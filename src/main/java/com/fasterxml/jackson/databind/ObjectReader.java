@@ -1304,7 +1304,7 @@ public class ObjectReader
     /**
      * Method called to locate deserializer for the passed root-level value.
      */
-    protected final JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt,
+    protected JsonDeserializer<Object> _findRootDeserializer(DeserializationContext ctxt,
             JavaType valueType)
         throws JsonMappingException
     {
@@ -1336,7 +1336,7 @@ public class ObjectReader
      * by configuration. Method also is NOT to throw an exception if
      * access fails.
      */
-    protected final JsonDeserializer<Object> _prefetchRootDeserializer(
+    protected JsonDeserializer<Object> _prefetchRootDeserializer(
             DeserializationConfig config, JavaType valueType)
     {
         if (valueType == null || !_config.isEnabled(DeserializationFeature.EAGER_DESERIALIZER_FETCH)) {
@@ -1494,7 +1494,7 @@ public class ObjectReader
      * for deserializing a single root value.
      * Can be overridden if a custom context is needed.
      */
-    protected final DefaultDeserializationContext createDeserializationContext(JsonParser jp,
+    protected DefaultDeserializationContext createDeserializationContext(JsonParser jp,
             DeserializationConfig cfg) {
         // 04-Jan-2010, tatu: we do actually need the provider too... (for polymorphic deser)
         return _context.createInstance(cfg, jp, _injectableValues);

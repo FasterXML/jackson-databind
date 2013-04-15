@@ -767,7 +767,7 @@ public class ObjectWriter
      * by configuration. Method also is NOT to throw an exception if
      * access fails.
      */
-    protected final JsonSerializer<Object> _prefetchRootSerializer(
+    protected JsonSerializer<Object> _prefetchRootSerializer(
             SerializationConfig config, JavaType valueType)
     {
         if (valueType == null || !_config.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
@@ -787,7 +787,7 @@ public class ObjectWriter
      * 
      * @since 2.1
      */
-    private final void _configureJsonGenerator(JsonGenerator jgen)
+    private void _configureJsonGenerator(JsonGenerator jgen)
     {
         if (_prettyPrinter != null) {
             PrettyPrinter pp = _prettyPrinter;

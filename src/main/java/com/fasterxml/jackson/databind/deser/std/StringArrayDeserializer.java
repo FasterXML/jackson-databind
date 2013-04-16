@@ -12,16 +12,18 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
 
 /**
  * Separate implementation for serializing String arrays (instead of
- * using {@link ObjectArraySerializer}. Used if (and only if) no custom
- * value deserializers are used.
+ * using {@link ObjectArrayDeserializer}.
+ * Used if (and only if) no custom value deserializers are used.
  */
 @JacksonStdImpl
-final class StringArrayDeserializer
+public final class StringArrayDeserializer
     extends StdDeserializer<String[]>
     implements ContextualDeserializer
 {
-    private static final long serialVersionUID = -4286917407100819199L;
+    private static final long serialVersionUID = -7589512013334920693L;
 
+    public final static StringArrayDeserializer instance = new StringArrayDeserializer();
+    
     /**
      * Value serializer to use, if not the standard one (which is inlined)
      */
@@ -158,4 +160,3 @@ final class StringArrayDeserializer
         return this;
     }
 }
-    

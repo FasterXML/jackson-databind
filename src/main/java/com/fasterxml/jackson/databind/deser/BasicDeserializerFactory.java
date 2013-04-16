@@ -42,8 +42,7 @@ public abstract class BasicDeserializerFactory
     /**
      * Also special array deserializers for primitive array types.
      */
-    final protected static HashMap<JavaType,JsonDeserializer<Object>> _arrayDeserializers
-        = PrimitiveArrayDeserializers.getAll();
+//    final protected static HashMap<JavaType,JsonDeserializer<Object>> _arrayDeserializers = PrimitiveArrayDeserializers.getAll();
     
     /* We do some defaulting for abstract Map classes and
      * interfaces, to avoid having to use exact types or annotations in
@@ -706,12 +705,11 @@ public abstract class BasicDeserializerFactory
                 config, beanDesc, elemTypeDeser, contentDeser);
         if (deser == null) {
             if (contentDeser == null) {
-                // Maybe special array type, such as "primitive" arrays (int[] etc)
-                deser = _arrayDeserializers.get(elemType);
-                if (deser == null) {
-                    if (elemType.isPrimitive()) { // sanity check
-                        throw new IllegalArgumentException("Internal error: primitive type ("+type+") passed, no array deserializer found");
-                    }
+                Class<?> raw = elemType.getRawClass();
+                if (elemType.isPrimitive()) {
+                    return PrimitiveArrayDeserializers.forType(raw);
+                } else if (raw == String.class) {
+                    return StringArrayDeserializer.instance;
                 }
             }
             if (deser == null) {

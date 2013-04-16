@@ -35,12 +35,11 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * no additional introspection or customizability of these types,
  * this factory is essentially stateless.
  */
+@SuppressWarnings("serial")
 public abstract class BasicSerializerFactory
     extends SerializerFactory
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = -8456593361776004077L;
-
     /*
     /**********************************************************
     /* Configuration, lookup tables/maps
@@ -124,12 +123,6 @@ public abstract class BasicSerializerFactory
      * factory), new version created via copy-constructor (fluent-style)
      */
     protected final SerializerFactoryConfig _factoryConfig;
-    
-    /**
-     * Helper object used to deal with serializers for optional JDK types (like ones
-     * omitted from GAE, Android)
-     */
-    protected OptionalHandlerFactory optionalHandlers = OptionalHandlerFactory.instance;
 
     /*
     /**********************************************************
@@ -380,7 +373,7 @@ public abstract class BasicSerializerFactory
         }
         
         // Then check for optional/external serializers [JACKSON-386]
-        JsonSerializer<?> ser = optionalHandlers.findSerializer(prov.getConfig(), type);
+        JsonSerializer<?> ser = findOptionalStdSerializer(prov, type, beanDesc, staticTyping);
         if (ser != null) {
             return ser;
         }
@@ -398,6 +391,18 @@ public abstract class BasicSerializerFactory
             return DateSerializer.instance;
         }
         return null;
+    }
+
+    /**
+     * Overridable method called after checking all other types.
+     * 
+     * @since 2.2
+     */
+    protected JsonSerializer<?> findOptionalStdSerializer(SerializerProvider prov, 
+            JavaType type, BeanDescription beanDesc, boolean staticTyping)
+        throws JsonMappingException
+    {
+        return OptionalHandlerFactory.instance.findSerializer(prov.getConfig(), type);
     }
         
     /**

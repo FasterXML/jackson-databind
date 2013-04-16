@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
 import com.fasterxml.jackson.databind.deser.std.*;
-import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -91,11 +90,6 @@ public abstract class BasicDeserializerFactory
         _collectionFallbacks.put(java.util.Deque.class.getName(), LinkedList.class);
         _collectionFallbacks.put(java.util.NavigableSet.class.getName(), TreeSet.class);
     }
-
-    /**
-     * To support external/optional deserializers, we'll use a helper class
-     */
-    protected OptionalHandlerFactory optionalHandlers = OptionalHandlerFactory.instance;
     
     /*
     /**********************************************************

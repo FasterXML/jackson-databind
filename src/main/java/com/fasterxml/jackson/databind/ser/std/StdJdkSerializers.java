@@ -61,9 +61,9 @@ public class StdJdkSerializers
     }
 
     /*
-     ********************************************************
-     * Serializers for atomic types
-     ********************************************************
+    /**********************************************************
+    /* Serializers for atomic types
+    /**********************************************************
      */
 
     public final static class AtomicBooleanSerializer

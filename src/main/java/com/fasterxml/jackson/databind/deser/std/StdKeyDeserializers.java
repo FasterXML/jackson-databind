@@ -32,7 +32,7 @@ public class StdKeyDeserializers
     private static final long serialVersionUID = 923268084968181479L;
 
     /**
-     * @deprecated Since 2.2, just call {@link StdKeyDeserializer.StringKD} directly
+     * @deprecated Since 2.2, just call <code>StdKeyDeserializer.StringKD</code> directly
      */
     @Deprecated
     public static KeyDeserializer constructStringKeyDeserializer(DeserializationConfig config,

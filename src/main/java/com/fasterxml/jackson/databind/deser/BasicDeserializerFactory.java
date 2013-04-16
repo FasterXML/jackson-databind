@@ -87,13 +87,9 @@ public abstract class BasicDeserializerFactory
         _collectionFallbacks.put(SortedSet.class.getName(), TreeSet.class);
         _collectionFallbacks.put(Queue.class.getName(), LinkedList.class);
 
-        /* 11-Jan-2009, tatu: Let's see if we can still add support for
-         *    JDK 1.6 interfaces, even if we run on 1.5. Just need to be
-         *    more careful with typos, since compiler won't notice any
-         *    problems...
-         */
-        _collectionFallbacks.put("java.util.Deque", LinkedList.class);
-        _collectionFallbacks.put("java.util.NavigableSet", TreeSet.class);
+        // then 1.6 types:
+        _collectionFallbacks.put(java.util.Deque.class.getName(), LinkedList.class);
+        _collectionFallbacks.put(java.util.NavigableSet.class.getName(), TreeSet.class);
     }
 
     /**

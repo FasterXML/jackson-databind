@@ -39,7 +39,7 @@ public abstract class BasicSerializerFactory
     extends SerializerFactory
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = -1416617628045738132L;
+    private static final long serialVersionUID = -8456593361776004077L;
 
     /*
     /**********************************************************

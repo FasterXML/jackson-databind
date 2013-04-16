@@ -5,8 +5,8 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.KeyDeserializers;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
-import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
 
@@ -27,46 +27,16 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
  *</ul>
  */
 public class StdKeyDeserializers
+    implements KeyDeserializers, java.io.Serializable
 {
-    protected final HashMap<JavaType, KeyDeserializer> _keyDeserializers = new HashMap<JavaType, KeyDeserializer>();
+    private static final long serialVersionUID = 923268084968181479L;
 
-    protected StdKeyDeserializers()
-    {
-        add(new StdKeyDeserializer.BoolKD());
-        add(new StdKeyDeserializer.ByteKD());
-        add(new StdKeyDeserializer.CharKD());
-        add(new StdKeyDeserializer.ShortKD());
-        add(new StdKeyDeserializer.IntKD());
-        add(new StdKeyDeserializer.LongKD());
-        add(new StdKeyDeserializer.FloatKD());
-        add(new StdKeyDeserializer.DoubleKD());
-        add(new StdKeyDeserializer.DateKD());
-        add(new StdKeyDeserializer.CalendarKD());
-        add(new StdKeyDeserializer.UuidKD());
-        add(new StdKeyDeserializer.LocaleKD());
-    }
-
-    private void add(StdKeyDeserializer kdeser)
-    {
-        Class<?> keyClass = kdeser.getKeyClass();
-        /* As with other cases involving primitive types, we can use
-         * default TypeFactory ok, even if it's not our first choice:
-         */
-        _keyDeserializers.put(TypeFactory.defaultInstance().constructType(keyClass), kdeser);
-    }
-
-    public static HashMap<JavaType, KeyDeserializer> constructAll()
-    {
-        return new StdKeyDeserializers()._keyDeserializers;
-    }
-
-    /*
-    /**********************************************************
-    /* Dynamic factory methods
-    /**********************************************************
+    /**
+     * @deprecated Since 2.2, just call {@link StdKeyDeserializer.StringKD} directly
      */
-
-    public static KeyDeserializer constructStringKeyDeserializer(DeserializationConfig config, JavaType type) {
+    @Deprecated
+    public static KeyDeserializer constructStringKeyDeserializer(DeserializationConfig config,
+            JavaType type) {
         return StdKeyDeserializer.StringKD.forType(type.getRawClass());
     }
     
@@ -85,7 +55,8 @@ public class StdKeyDeserializers
         return new StdKeyDeserializer.DelegatingKD(type.getRawClass(), deser);
     }
     
-    public static KeyDeserializer findStringBasedKeyDeserializer(DeserializationConfig config, JavaType type)
+    public static KeyDeserializer findStringBasedKeyDeserializer(DeserializationConfig config,
+            JavaType type)
     {
         /* We don't need full deserialization information, just need to
          * know creators.
@@ -110,6 +81,63 @@ public class StdKeyDeserializers
             return new StdKeyDeserializer.StringFactoryKeyDeserializer(m);
         }
         // nope, no such luck...
+        return null;
+    }
+    
+    /*
+    /**********************************************************
+    /* KeyDeserializers implementation
+    /**********************************************************
+     */
+    
+    @Override
+    public KeyDeserializer findKeyDeserializer(JavaType type,
+            DeserializationConfig config, BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        Class<?> raw = type.getRawClass();
+        // First, common types; String/Object/UUID, Int/Long, Dates
+        if (raw == String.class || raw == Object.class) {
+            return StdKeyDeserializer.StringKD.forType(raw);
+        }
+        if (raw == UUID.class) {
+            return new StdKeyDeserializer.UuidKD();
+        }
+        if (raw == Integer.class) {
+            return new StdKeyDeserializer.IntKD();
+        }
+        if (raw == Long.class) {
+            return new StdKeyDeserializer.LongKD();
+        }
+        if (raw == Date.class) {
+            return new StdKeyDeserializer.DateKD();
+        }
+        if (raw == Calendar.class) {
+            return new StdKeyDeserializer.CalendarKD();
+        }
+        
+        // then less common ones...
+        if (raw == Boolean.class) {
+            return new StdKeyDeserializer.BoolKD();
+        }
+        if (raw == Byte.class) {
+            return new StdKeyDeserializer.ByteKD();
+        }
+        if (raw == Character.class) {
+            return new StdKeyDeserializer.CharKD();
+        }
+        if (raw == Short.class) {
+            return new StdKeyDeserializer.ShortKD();
+        }
+        if (raw == Float.class) {
+            return new StdKeyDeserializer.FloatKD();
+        }
+        if (raw == Double.class) {
+            return new StdKeyDeserializer.DoubleKD();
+        }
+        if (raw == Locale.class) {
+            return new StdKeyDeserializer.LocaleKD();
+        }
         return null;
     }
 }

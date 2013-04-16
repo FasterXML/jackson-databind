@@ -43,7 +43,7 @@ public abstract class StdKeyDeserializer
             throw ctxt.weirdKeyException(_keyClass, key, "not a valid representation: "+re.getMessage());
         }
         if (_keyClass.isEnum() && ctxt.getConfig().isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-        	return null;
+            return null;
         }
         throw ctxt.weirdKeyException(_keyClass, key, "not a valid representation");
     }

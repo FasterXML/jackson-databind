@@ -44,12 +44,6 @@ public abstract class BasicDeserializerFactory
      */
     final protected static HashMap<JavaType,JsonDeserializer<Object>> _arrayDeserializers
         = PrimitiveArrayDeserializers.getAll();
-
-    /**
-     * Set of available key deserializers is currently limited
-     * to standard types; and all known instances are stored in this map.
-     */
-    final protected static HashMap<JavaType, KeyDeserializer> _keyDeserializers = StdKeyDeserializers.constructAll();
     
     /* We do some defaulting for abstract Map classes and
      * interfaces, to avoid having to use exact types or annotations in
@@ -70,13 +64,13 @@ public abstract class BasicDeserializerFactory
          */
         _mapFallbacks.put("java.util.NavigableMap", TreeMap.class);
         try {
-            Class<?> key = Class.forName("java.util.concurrent.ConcurrentNavigableMap");
-            Class<?> value = Class.forName("java.util.concurrent.ConcurrentSkipListMap");
+            Class<?> key = java.util.concurrent.ConcurrentNavigableMap.class;
+            Class<?> value = java.util.concurrent.ConcurrentSkipListMap.class;
             @SuppressWarnings("unchecked")
                 Class<? extends Map<?,?>> mapValue = (Class<? extends Map<?,?>>) value;
             _mapFallbacks.put(key.getName(), mapValue);
-        } catch (ClassNotFoundException cnfe) { // occurs on 1.5
-        } catch (SecurityException se) { // might occur in applets, see stackoverflow.com/questions/12345068
+        } catch (Exception e) { // is this possible?
+            System.err.println("Problems with (optional) types: "+e);
         }
     }
 
@@ -129,7 +123,7 @@ public abstract class BasicDeserializerFactory
     protected BasicDeserializerFactory(DeserializerFactoryConfig config) {
         _factoryConfig = config;
     }
-
+    
     /**
      * Method for getting current {@link DeserializerFactoryConfig}.
       *<p>
@@ -1210,29 +1204,20 @@ public abstract class BasicDeserializerFactory
                 }
             }
         }
+        // the only non-standard thing is this:
         if (deser == null) {
-            // and if none found, standard ones:
-            Class<?> raw = type.getRawClass();
-            if (raw == String.class || raw == Object.class) {
-                deser = StdKeyDeserializers.constructStringKeyDeserializer(config, type);
-            } else {
-                // Most other keys are for limited number of static types
-                deser = _keyDeserializers.get(type);
-                if (deser == null) {
-                    // And then other one-offs; first, Enum:
-                    if (type.isEnumType()) {
-                        deser = _createEnumKeyDeserializer(ctxt, type);
-                    } else {
-                        // One more thing: can we find ctor(String) or valueOf(String)?
-                        deser = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
-                    }
-                }
+            if (type.isEnumType()) {
+                return _createEnumKeyDeserializer(ctxt, type);
             }
+            deser = StdKeyDeserializers.findStringBasedKeyDeserializer(config, type);
         }
+        
         // and then new with 2.2: ability to post-process it too (Issue#120)
-        if (_factoryConfig.hasDeserializerModifiers()) {
-            for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
-                deser = mod.modifyKeyDeserializer(config, type, deser);
+        if (deser != null) {
+            if (_factoryConfig.hasDeserializerModifiers()) {
+                for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                    deser = mod.modifyKeyDeserializer(config, type, deser);
+                }
             }
         }
         return deser;
@@ -1538,7 +1523,7 @@ public abstract class BasicDeserializerFactory
             	}
             }
         }
-    	TypeDeserializer valueTypeDeser;
+        TypeDeserializer valueTypeDeser;
 
         if (member instanceof AnnotatedMember) { // JAXB allows per-property annotations
             valueTypeDeser = findPropertyTypeDeserializer(ctxt.getConfig(),

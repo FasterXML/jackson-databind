@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.cfg;
 
 import com.fasterxml.jackson.databind.AbstractTypeResolver;
 import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.deser.std.StdKeyDeserializers;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 
 /**
@@ -13,10 +14,19 @@ public class DeserializerFactoryConfig
     private static final long serialVersionUID = 3683541151102256824L;
 
     protected final static Deserializers[] NO_DESERIALIZERS = new Deserializers[0];
-    protected final static KeyDeserializers[] NO_KEY_DESERIALIZERS = new KeyDeserializers[0];
     protected final static BeanDeserializerModifier[] NO_MODIFIERS = new BeanDeserializerModifier[0];
     protected final static AbstractTypeResolver[] NO_ABSTRACT_TYPE_RESOLVERS = new AbstractTypeResolver[0];
     protected final static ValueInstantiators[] NO_VALUE_INSTANTIATORS = new ValueInstantiators[0];
+
+    /**
+     * By default we plug default key deserializers using as "just another" set of
+     * of key deserializers.
+     * 
+     * @since 2.2
+     */
+    protected final static KeyDeserializers[] DEFAULT_KEY_DESERIALIZERS = new KeyDeserializers[] {
+        new StdKeyDeserializers()
+    };
     
     /**
      * List of providers for additional deserializers, checked before considering default
@@ -74,7 +84,7 @@ public class DeserializerFactoryConfig
         _additionalDeserializers = (allAdditionalDeserializers == null) ?
                 NO_DESERIALIZERS : allAdditionalDeserializers;
         _additionalKeyDeserializers = (allAdditionalKeyDeserializers == null) ?
-                NO_KEY_DESERIALIZERS : allAdditionalKeyDeserializers;
+                DEFAULT_KEY_DESERIALIZERS : allAdditionalKeyDeserializers;
         _modifiers = (modifiers == null) ? NO_MODIFIERS : modifiers;
         _abstractTypeResolvers = (atr == null) ? NO_ABSTRACT_TYPE_RESOLVERS : atr;
         _valueInstantiators = (vi == null) ? NO_VALUE_INSTANTIATORS : vi;

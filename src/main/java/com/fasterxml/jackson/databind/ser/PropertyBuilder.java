@@ -96,7 +96,7 @@ public class PropertyBuilder
                 } else {
                     // [JACKSON-531]: Allow comparison of arrays too...
                     if (valueToSuppress.getClass().isArray()) {
-                        valueToSuppress = Comparators.getArrayComparator(valueToSuppress);
+                        valueToSuppress = ArrayBuilders.getArrayComparator(valueToSuppress);
                     }
                 }
                 break;

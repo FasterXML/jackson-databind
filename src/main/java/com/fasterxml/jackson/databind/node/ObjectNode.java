@@ -578,6 +578,31 @@ public final class ObjectNode
      * 
      * @return This node (to allow chaining)
      */
+    public ObjectNode put(String fieldName, short v) {
+        _children.put(fieldName, numberNode(v));
+        return this;
+    }
+
+    /**
+     * Alternative method that we need to avoid bumping into NPE issues
+     * with auto-unboxing.
+     * 
+     * @return This node (to allow chaining)
+     */
+    public ObjectNode put(String fieldName, Short value) {
+        if (value == null) {
+            _children.put(fieldName, nullNode());
+        } else {
+            _children.put(fieldName, numberNode(value.shortValue()));
+        }
+        return this;
+    }
+
+    /**
+     * Method for setting value of a field to specified numeric value.
+     * 
+     * @return This node (to allow chaining)
+     */
     public ObjectNode put(String fieldName, int v) {
         _children.put(fieldName, numberNode(v));
         return this;

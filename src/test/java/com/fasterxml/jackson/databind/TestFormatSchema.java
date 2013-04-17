@@ -172,6 +172,9 @@ public class TestFormatSchema extends BaseMapTest
         public void writeNull() throws IOException, JsonGenerationException { }
 
         @Override
+        public void writeNumber(short v) throws IOException { }
+
+        @Override
         public void writeNumber(int v) throws IOException { }
 
         @Override

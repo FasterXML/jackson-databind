@@ -87,27 +87,6 @@ public class OptionalHandlerFactory
             return null;
         }
         return ((Deserializers) ob).findBeanDeserializer(type, config, beanDesc);
-
-        /*
-        @SuppressWarnings("unchecked")
-        Provider<StdDeserializer<?>> prov = (Provider<StdDeserializer<?>>) ob;
-        Collection<StdDeserializer<?>> entries = prov.provide();
-
-        // first, check for exact match (concrete)
-        for (StdDeserializer<?> deser : entries) {
-            if (rawType == deser.getValueClass()) {
-                return deser;
-            }
-        }
-        // if no match, check super-type match
-        for (StdDeserializer<?> deser : entries) {
-            if (deser.getValueClass().isAssignableFrom(rawType)) {
-                return deser;
-            }
-        }
-        // but maybe there's just no match to be found?
-        return null;
-        */
     }
     
     /*

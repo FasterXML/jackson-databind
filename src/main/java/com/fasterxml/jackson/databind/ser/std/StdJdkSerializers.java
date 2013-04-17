@@ -23,7 +23,7 @@ public class StdJdkSerializers
      * Method called by {@link BasicSerializerFactory} to access
      * all serializers this class provides.
      */
-    public Collection<Map.Entry<Class<?>, Object>> provide()
+    public static Collection<Map.Entry<Class<?>, Object>> all()
     {
         HashMap<Class<?>,Object> sers = new HashMap<Class<?>,Object>();
 

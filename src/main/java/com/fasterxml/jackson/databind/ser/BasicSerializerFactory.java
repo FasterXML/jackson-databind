@@ -90,11 +90,13 @@ public abstract class BasicSerializerFactory
         _concrete.put(java.util.Date.class.getName(), dateSer);
         // note: timestamps are very similar to java.util.Date, thus serialized as such
         _concrete.put(java.sql.Timestamp.class.getName(), dateSer);
-        _concrete.put(java.sql.Date.class.getName(), new SqlDateSerializer());
-        _concrete.put(java.sql.Time.class.getName(), new SqlTimeSerializer());
+        
+        // leave some of less commonly used ones as lazy, no point in proactive construction
+        _concreteLazy.put(java.sql.Date.class.getName(), SqlDateSerializer.class);
+        _concreteLazy.put(java.sql.Time.class.getName(), SqlTimeSerializer.class);
 
         // And then other standard non-structured JDK types
-        for (Map.Entry<Class<?>,Object> en : new StdJdkSerializers().provide()) {
+        for (Map.Entry<Class<?>,Object> en : StdJdkSerializers.all()) {
             Object value = en.getValue();
             if (value instanceof JsonSerializer<?>) {
                 _concrete.put(en.getKey().getName(), (JsonSerializer<?>) value);
@@ -292,19 +294,18 @@ public abstract class BasicSerializerFactory
         Class<?> raw = type.getRawClass();
         String clsName = raw.getName();
         JsonSerializer<?> ser = _concrete.get(clsName);
-        if (ser != null) {
-            return ser;
-        }
-        Class<? extends JsonSerializer<?>> serClass = _concreteLazy.get(clsName);
-        if (serClass != null) {
-            try {
-                return serClass.newInstance();
-            } catch (Exception e) {
-                throw new IllegalStateException("Failed to instantiate standard serializer (of type "+serClass.getName()+"): "
-                        +e.getMessage(), e);
+        if (ser == null) {
+            Class<? extends JsonSerializer<?>> serClass = _concreteLazy.get(clsName);
+            if (serClass != null) {
+                try {
+                    return serClass.newInstance();
+                } catch (Exception e) {
+                    throw new IllegalStateException("Failed to instantiate standard serializer (of type "+serClass.getName()+"): "
+                            +e.getMessage(), e);
+                }
             }
         }
-        return null;
+        return ser;
     }
 
     /**

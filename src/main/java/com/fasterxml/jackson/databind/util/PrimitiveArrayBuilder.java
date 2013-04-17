@@ -26,17 +26,17 @@ public abstract class PrimitiveArrayBuilder<T>
 
     // // // Data storage
 
-    T _freeBuffer;
+    protected T _freeBuffer;
 
-    Node<T> _bufferHead;
+    protected Node<T> _bufferHead;
 
-    Node<T> _bufferTail;
+    protected Node<T> _bufferTail;
 
     /**
      * Number of total buffered entries in this buffer, counting all instances
      * within linked list formed by following {@link #_bufferHead}.
      */
-    int _bufferedEntryCount;
+    protected int _bufferedEntryCount;
 
     // // // Recycled instances of sub-classes
 
@@ -45,9 +45,9 @@ public abstract class PrimitiveArrayBuilder<T>
     protected PrimitiveArrayBuilder() { }
 
     /*
-    ////////////////////////////////////////////////////////////////////////
-    // Public API
-    ////////////////////////////////////////////////////////////////////////
+    /**********************************************************
+    /* Public API
+    /**********************************************************
      */
 
     public T resetAndStart()
@@ -101,17 +101,17 @@ public abstract class PrimitiveArrayBuilder<T>
     }
 
     /*
-    ////////////////////////////////////////////////////////////////////////
-    // Abstract methods for sub-classes to implement
-    ////////////////////////////////////////////////////////////////////////
+    /**********************************************************
+    /* Abstract methods for sub-classes to implement
+    /**********************************************************
      */
 
     protected abstract T _constructArray(int len);
 
     /*
-    ////////////////////////////////////////////////////////////////////////
-    // Internal methods
-    ////////////////////////////////////////////////////////////////////////
+    /**********************************************************
+    /* Internal methods
+    /**********************************************************
      */
 
     protected void _reset()
@@ -126,9 +126,9 @@ public abstract class PrimitiveArrayBuilder<T>
     }
 
     /*
-    ////////////////////////////////////////////////////////////////////////
-    // Helper classes
-    ////////////////////////////////////////////////////////////////////////
+    /**********************************************************
+    /* Helper classes
+    /**********************************************************
      */
 
     /**

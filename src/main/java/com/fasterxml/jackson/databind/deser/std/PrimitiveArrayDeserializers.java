@@ -130,10 +130,10 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
     }
 
     /*
-    /********************************************************
+    /**********************************************************
     /* Actual deserializers: primivate array desers
-    /********************************************************
-    */
+    /**********************************************************
+     */
 
     @JacksonStdImpl
     final static class BooleanDeser

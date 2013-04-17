@@ -82,7 +82,7 @@ public abstract class BasicSerializerFactory
         final JsonSerializer<?> ns = new NumberSerializers.NumberSerializer();
         _concrete.put(BigInteger.class.getName(), ns);
         _concrete.put(BigDecimal.class.getName(), ns);
-        
+
         // Other discrete non-container types:
         // First, Date/Time zoo:
         _concrete.put(Calendar.class.getName(), CalendarSerializer.instance);
@@ -402,7 +402,7 @@ public abstract class BasicSerializerFactory
             JavaType type, BeanDescription beanDesc, boolean staticTyping)
         throws JsonMappingException
     {
-        return OptionalHandlerFactory.instance.findSerializer(prov.getConfig(), type);
+        return OptionalHandlerFactory.instance.findSerializer(prov.getConfig(), type, beanDesc);
     }
         
     /**

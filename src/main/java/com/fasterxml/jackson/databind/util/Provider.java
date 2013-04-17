@@ -10,7 +10,10 @@ import java.util.*;
  * @author tatu
  *
  * @param <T> Type of objects provided
+ * 
+ * @since 2.2 Not really needed that much, will be eventually removed
  */
+@Deprecated
 public interface Provider<T>
 {
     /**

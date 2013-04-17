@@ -221,7 +221,7 @@ public class BeanDeserializerFactory
             JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
-        return OptionalHandlerFactory.instance.findDeserializer(type, ctxt.getConfig());
+        return OptionalHandlerFactory.instance.findDeserializer(type, ctxt.getConfig(), beanDesc);
     }
     
     protected JavaType materializeAbstractType(DeserializationContext ctxt,

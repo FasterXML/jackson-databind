@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
 import com.fasterxml.jackson.databind.ser.BasicSerializerFactory;
-import com.fasterxml.jackson.databind.util.Provider;
 
 /**
  * Class that providers access to serializers user for non-structured JDK types that
@@ -19,13 +18,11 @@ import com.fasterxml.jackson.databind.util.Provider;
  * others explicit serializers.
  */
 public class StdJdkSerializers
-    implements Provider<Map.Entry<Class<?>,Object>>
 {
     /**
      * Method called by {@link BasicSerializerFactory} to access
      * all serializers this class provides.
      */
-    @Override
     public Collection<Map.Entry<Class<?>, Object>> provide()
     {
         HashMap<Class<?>,Object> sers = new HashMap<Class<?>,Object>();

@@ -1,11 +1,8 @@
 package com.fasterxml.jackson.databind.ext;
 
-import java.util.Collection;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.util.Provider;
+import com.fasterxml.jackson.databind.deser.Deserializers;
+import com.fasterxml.jackson.databind.ser.Serializers;
 
 /**
  * Helper class used for isolating details of handling optional+external types
@@ -16,7 +13,7 @@ import com.fasterxml.jackson.databind.util.Provider;
 public class OptionalHandlerFactory
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = -7103336512296456640L;
+    private static final long serialVersionUID = 1;
 
     /* 1.6.1+ To make 2 main "optional" handler groups (javax.xml.stream)
      * more dynamic, we better only figure out handlers completely dynamically, if and
@@ -44,7 +41,8 @@ public class OptionalHandlerFactory
     /**********************************************************
      */
     
-    public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type)
+    public JsonSerializer<?> findSerializer(SerializationConfig config, JavaType type,
+            BeanDescription beanDesc)
     {
         Class<?> rawType = type.getRawClass();
         String className = rawType.getName();
@@ -63,27 +61,12 @@ public class OptionalHandlerFactory
         if (ob == null) { // could warn, if we had logging system (j.u.l?)
             return null;
         }
-        @SuppressWarnings("unchecked")
-        Provider<Map.Entry<Class<?>,JsonSerializer<?>>> prov = (Provider<Map.Entry<Class<?>,JsonSerializer<?>>>) ob;
-        Collection<Map.Entry<Class<?>,JsonSerializer<?>>> entries = prov.provide();
-
-        // first, check for exact match (concrete)
-        for (Map.Entry<Class<?>,JsonSerializer<?>> entry : entries) {
-            if (rawType == entry.getKey()) {
-                return entry.getValue();
-            }
-        }
-        // if no match, check super-type match
-        for (Map.Entry<Class<?>,JsonSerializer<?>> entry : entries) {
-            if (entry.getKey().isAssignableFrom(rawType)) {
-                return entry.getValue();
-            }
-        }
-        // but maybe there's just no match to be found?
-        return null;
+        return ((Serializers) ob).findSerializer(config, type, beanDesc);
     }
 
-    public JsonDeserializer<?> findDeserializer(JavaType type, DeserializationConfig config)
+    public JsonDeserializer<?> findDeserializer(JavaType type, DeserializationConfig config,
+            BeanDescription beanDesc)
+        throws JsonMappingException
     {
         Class<?> rawType = type.getRawClass();
         String className = rawType.getName();
@@ -103,6 +86,9 @@ public class OptionalHandlerFactory
         if (ob == null) { // could warn, if we had logging system (j.u.l?)
             return null;
         }
+        return ((Deserializers) ob).findBeanDeserializer(type, config, beanDesc);
+
+        /*
         @SuppressWarnings("unchecked")
         Provider<StdDeserializer<?>> prov = (Provider<StdDeserializer<?>>) ob;
         Collection<StdDeserializer<?>> entries = prov.provide();
@@ -121,6 +107,7 @@ public class OptionalHandlerFactory
         }
         // but maybe there's just no match to be found?
         return null;
+        */
     }
     
     /*

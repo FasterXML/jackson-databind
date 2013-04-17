@@ -11,19 +11,18 @@ import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
-import com.fasterxml.jackson.databind.util.Provider;
 
 /**
  * Container deserializers that handle "core" XML types: ones included in standard
- * JDK 1.5. Types are directly needed by JAXB, and are thus supported within core
- * mapper package, not in "xc" package.
+ * JDK 1.5. Types are directly needed by JAXB, but may be unavailable on some
+ * limited platforms; hence separate out from basic deserializer factory.
  */
 public class CoreXMLDeserializers
-    implements Provider<StdDeserializer<?>>
+    extends Deserializers.Base
 {
     /**
      * Data type factories are thread-safe after instantiation (and
@@ -38,27 +37,24 @@ public class CoreXMLDeserializers
             throw new RuntimeException(e);
         }
     }
-    
-    /*
-    /**********************************************************
-    /* Provider implementation
-    /**********************************************************
-     */
 
-    /**
-     * Method called by {@link com.fasterxml.jackson.databind.deser.BasicDeserializerFactory}
-     * to register deserializers this class provides.
-     */
     @Override
-    public Collection<StdDeserializer<?>> provide()
+    public JsonDeserializer<?> findBeanDeserializer(JavaType type,
+        DeserializationConfig config, BeanDescription beanDesc)
     {
-        return Arrays.asList(new StdDeserializer<?>[] {
-            new DurationDeserializer()
-            ,new GregorianCalendarDeserializer()
-            ,new QNameDeserializer()
-        });
+        Class<?> raw = type.getRawClass();
+        if (raw == QName.class) {
+            return QNameDeserializer.instance;
+        }
+        if (raw == XMLGregorianCalendar.class) {
+            return GregorianCalendarDeserializer.instance;
+        }
+        if (raw == Duration.class) {
+            return DurationDeserializer.instance;
+        }
+        return null;
     }
-    
+
     /*
     /**********************************************************
     /* Concrete deserializers
@@ -69,6 +65,7 @@ public class CoreXMLDeserializers
         extends FromStringDeserializer<Duration>
     {
         private static final long serialVersionUID = 1L;
+        public final static DurationDeserializer instance = new DurationDeserializer();
         public DurationDeserializer() { super(Duration.class); }
     
         @Override
@@ -83,6 +80,7 @@ public class CoreXMLDeserializers
         extends StdScalarDeserializer<XMLGregorianCalendar>
     {
         private static final long serialVersionUID = 1L;
+        public final static GregorianCalendarDeserializer instance = new GregorianCalendarDeserializer();
         public GregorianCalendarDeserializer() { super(XMLGregorianCalendar.class); }
         
         @Override
@@ -107,6 +105,9 @@ public class CoreXMLDeserializers
         extends FromStringDeserializer<QName>
     {
         private static final long serialVersionUID = 1L;
+        public final static QNameDeserializer instance = new QNameDeserializer();
+        
+        
         public QNameDeserializer() { super(QName.class); }
         
         @Override

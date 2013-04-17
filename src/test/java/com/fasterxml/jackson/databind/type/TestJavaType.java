@@ -15,6 +15,13 @@ public class TestJavaType
 
     static class SubType extends BaseType { }
     
+    static enum MyEnum { A, B; }
+    static enum MyEnum2 {
+        A(1), B(2);
+        
+        private MyEnum2(int value) { }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -148,6 +155,15 @@ public class TestJavaType
         } catch (IllegalArgumentException e) {
             verifyException(e, "for a Collection");
         }
+    }
+
+    public void testEnumType()
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        assertTrue(tf.constructType(MyEnum.class).isEnumType());
+        assertTrue(tf.constructType(MyEnum2.class).isEnumType());
+        assertTrue(tf.constructType(MyEnum.A.getClass()).isEnumType());
+        assertTrue(tf.constructType(MyEnum2.A.getClass()).isEnumType());
     }
 
     public void testClassKey()

@@ -252,25 +252,29 @@ public class TokenBuffer
                 break;
             case VALUE_NUMBER_INT:
                 {
-                    Number n = (Number) segment.get(ptr);
-                    if (n instanceof BigInteger) {
+                    Object n = segment.get(ptr);
+                    if (n instanceof Integer) {
+                        jgen.writeNumber((Integer) n);
+                    } else if (n instanceof BigInteger) {
                         jgen.writeNumber((BigInteger) n);
                     } else if (n instanceof Long) {
-                        jgen.writeNumber(n.longValue());
+                        jgen.writeNumber((Long) n);
+                    } else if (n instanceof Short) {
+                        jgen.writeNumber((Short) n);
                     } else {
-                        jgen.writeNumber(n.intValue());
+                        jgen.writeNumber(((Number) n).intValue());
                     }
                 }
                 break;
             case VALUE_NUMBER_FLOAT:
                 {
                     Object n = segment.get(ptr);
-                    if (n instanceof BigDecimal) {
+                    if (n instanceof Double) {
+                        jgen.writeNumber(((Double) n).doubleValue());
+                    } else if (n instanceof BigDecimal) {
                         jgen.writeNumber((BigDecimal) n);
                     } else if (n instanceof Float) {
                         jgen.writeNumber(((Float) n).floatValue());
-                    } else if (n instanceof Double) {
-                        jgen.writeNumber(((Double) n).doubleValue());
                     } else if (n == null) {
                         jgen.writeNull();
                     } else if (n instanceof String) {
@@ -1109,13 +1113,13 @@ public class TokenBuffer
         public NumberType getNumberType() throws IOException, JsonParseException
         {
             Number n = getNumberValue();
-            if (n instanceof Short) return NumberType.INT;		// should be SHORT
             if (n instanceof Integer) return NumberType.INT;
             if (n instanceof Long) return NumberType.LONG;
             if (n instanceof Double) return NumberType.DOUBLE;
             if (n instanceof BigDecimal) return NumberType.BIG_DECIMAL;
-            if (n instanceof Float) return NumberType.FLOAT;
             if (n instanceof BigInteger) return NumberType.BIG_INTEGER;
+            if (n instanceof Float) return NumberType.FLOAT;
+            if (n instanceof Short) return NumberType.INT;       // should be SHORT
             return null;
         }
 

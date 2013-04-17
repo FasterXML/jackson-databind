@@ -30,6 +30,8 @@ Improvements:
  (requested by electrum@github)
 #206: Make 'ObjectMapper.createDeserializationContext()' overridable
  (requested by noter@github)
+#207: Add explicit support for `short` datatypes, for tree model
+ (contributed by msteiger@github)
 
 New features:
 

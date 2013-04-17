@@ -68,6 +68,9 @@ public final class DecimalNode
     public Number numberValue() { return _value; }
 
     @Override
+    public short shortValue() { return _value.shortValue(); }
+
+    @Override
     public int intValue() { return _value.intValue(); }
 
     @Override

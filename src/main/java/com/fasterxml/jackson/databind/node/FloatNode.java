@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * 
  * @since 2.2
  */
-public class FloatNode extends NumericNode
+public final class FloatNode extends NumericNode
 {
     protected final float _value;
 
@@ -63,6 +63,9 @@ public class FloatNode extends NumericNode
     public Number numberValue() {
         return Float.valueOf(_value);
     }
+
+    @Override
+    public short shortValue() { return (short) _value; }
 
     @Override
     public int intValue() { return (int) _value; }

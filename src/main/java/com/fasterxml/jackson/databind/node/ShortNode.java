@@ -10,29 +10,12 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 
 /**
- * Numeric node that contains simple 32-bit integer values.
+ * Numeric node that contains simple 16-bit integer values.
  */
-public final class IntNode
+public final class ShortNode
     extends NumericNode
 {
-    // // // Let's cache small set of common value
-
-    final static int MIN_CANONICAL = -1;
-    final static int MAX_CANONICAL = 10;
-
-    private final static IntNode[] CANONICALS;
-    static {
-        int count = MAX_CANONICAL - MIN_CANONICAL + 1;
-        CANONICALS = new IntNode[count];
-        for (int i = 0; i < count; ++i) {
-            CANONICALS[i] = new IntNode(MIN_CANONICAL + i);
-        }
-    }
-
-    /**
-     * Integer value this node contains
-     */
-    final int _value;
+    final short _value;
 
     /* 
     ************************************************
@@ -40,60 +23,51 @@ public final class IntNode
     ************************************************
     */
 
-    public IntNode(int v) { _value = v; }
+    public ShortNode(short v) { _value = v; }
 
-    public static IntNode valueOf(int i) {
-        if (i > MAX_CANONICAL || i < MIN_CANONICAL) return new IntNode(i);
-        return CANONICALS[i - MIN_CANONICAL];
-    }
+    public static ShortNode valueOf(short l) { return new ShortNode(l); }
 
     /* 
-    /**********************************************************
-    /* BaseJsonNode extended API
-    /**********************************************************
-     */
+    ************************************************
+    * Overridden JsonNode methods
+    ************************************************
+    */
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_NUMBER_INT; }
 
     @Override
-    public JsonParser.NumberType numberType() { return JsonParser.NumberType.INT; }
+    public JsonParser.NumberType numberType() { return JsonParser.NumberType.INT; }			// should be SHORT
 
-    /* 
-    /**********************************************************
-    /* Overrridden JsonNode methods
-    /**********************************************************
-     */
 
     @Override
     public boolean isIntegralNumber() { return true; }
 
     @Override
-    public boolean isInt() { return true; }
+    public boolean isShort() { return true; }
 
     @Override public boolean canConvertToInt() { return true; }
     @Override public boolean canConvertToLong() { return true; }
     
     @Override
     public Number numberValue() {
-        return Integer.valueOf(_value);
+        return Short.valueOf(_value);
     }
 
     @Override
-    public short shortValue() { return (short) _value; }
+    public short shortValue() { return _value; }
 
     @Override
     public int intValue() { return _value; }
 
     @Override
-    public long longValue() { return (long) _value; }
+    public long longValue() { return _value; }
 
     @Override
-    public float floatValue() { return (float) _value; }
-    
-    @Override
-    public double doubleValue() { return (double) _value; }
+    public float floatValue() { return _value; }
 
-    
+    @Override
+    public double doubleValue() { return _value; }
+
     @Override
     public BigDecimal decimalValue() { return BigDecimal.valueOf(_value); }
 
@@ -125,9 +99,11 @@ public final class IntNode
         if (o.getClass() != getClass()) { // final class, can do this
             return false;
         }
-        return ((IntNode) o)._value == _value;
+        return ((ShortNode) o)._value == _value;
     }
 
     @Override
-        public int hashCode() { return _value; }
+    public int hashCode() {
+        return _value;
+    }
 }

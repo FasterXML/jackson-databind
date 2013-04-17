@@ -29,8 +29,8 @@ public class NumberSerializers
         allDeserializers.put(Long.TYPE.getName(), LongSerializer.instance);
         allDeserializers.put(Byte.class.getName(), IntLikeSerializer.instance);
         allDeserializers.put(Byte.TYPE.getName(), IntLikeSerializer.instance);
-        allDeserializers.put(Short.class.getName(), IntLikeSerializer.instance);
-        allDeserializers.put(Short.TYPE.getName(), IntLikeSerializer.instance);
+        allDeserializers.put(Short.class.getName(), ShortSerializer.instance);
+        allDeserializers.put(Short.TYPE.getName(), ShortSerializer.instance);
 
         // Numbers, limited length floating point
         allDeserializers.put(Float.class.getName(), FloatSerializer.instance);
@@ -45,6 +45,38 @@ public class NumberSerializers
     /**********************************************************
      */
 
+    @JacksonStdImpl
+    public final static class ShortSerializer
+        extends StdScalarSerializer<Short>
+    {
+        final static ShortSerializer instance = new ShortSerializer();
+    
+        public ShortSerializer() { super(Short.class); }
+        
+        @Override
+        public void serialize(Short value, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException, JsonGenerationException
+        {
+            jgen.writeNumber(value.shortValue());
+        }
+    
+        @Override
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
+        {
+            return createSchemaNode("number", true);		// msteiger: maybe "integer" or "short" ?
+        }
+        
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
+                throws JsonMappingException
+        {
+            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
+            if (v2 != null) {
+                v2.numberType(JsonParser.NumberType.INT);			// should be SHORT
+            }
+        }
+    }
+    
     /**
      * This is the special serializer for regular {@link java.lang.Integer}s
      * (and primitive ints)

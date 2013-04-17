@@ -15,7 +15,31 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class TestNumberNodes extends NodeTestBase
 {
-    public void testInt()
+    public void testShort()
+    {
+        ShortNode n = ShortNode.valueOf((short) 1);
+        assertStandardEquals(n);
+        assertTrue(0 != n.hashCode());
+        assertEquals(JsonToken.VALUE_NUMBER_INT, n.asToken());
+        assertEquals(JsonParser.NumberType.INT, n.numberType());	// should be SHORT
+        assertEquals(1, n.intValue());
+        assertEquals(1L, n.longValue());
+        assertEquals(BigDecimal.ONE, n.decimalValue());
+        assertEquals(BigInteger.ONE, n.bigIntegerValue());
+        assertEquals("1", n.asText());
+
+        assertNodeNumbers(n, 1, 1.0);
+
+        assertTrue(ShortNode.valueOf((short) 0).canConvertToInt());
+        assertTrue(ShortNode.valueOf(Short.MAX_VALUE).canConvertToInt());
+        assertTrue(ShortNode.valueOf(Short.MIN_VALUE).canConvertToInt());
+
+        assertTrue(ShortNode.valueOf((short) 0).canConvertToLong());
+        assertTrue(ShortNode.valueOf(Short.MAX_VALUE).canConvertToLong());
+        assertTrue(ShortNode.valueOf(Short.MIN_VALUE).canConvertToLong());
+    }
+    
+	public void testInt()
     {
         IntNode n = IntNode.valueOf(1);
         assertStandardEquals(n);

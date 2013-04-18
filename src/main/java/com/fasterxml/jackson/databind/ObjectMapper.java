@@ -718,7 +718,7 @@ public class ObjectMapper
      * 
      * @since 2.2
      */
-    public List<Module> findModules() {
+    public static List<Module> findModules() {
         return findModules(null);
     }
 
@@ -731,7 +731,7 @@ public class ObjectMapper
      * 
      * @since 2.2
      */
-    public List<Module> findModules(ClassLoader classLoader)
+    public static List<Module> findModules(ClassLoader classLoader)
     {
         ArrayList<Module> modules = new ArrayList<Module>();
         ServiceLoader<Module> loader = (classLoader == null) ?

@@ -1218,7 +1218,7 @@ public class ObjectMapper
      * 
      * @param v Base64 variant to use
      * 
-     * @returns This mapper, for convenience to allow chaining
+     * @return This mapper, for convenience to allow chaining
      * 
      * @since 2.1
      */

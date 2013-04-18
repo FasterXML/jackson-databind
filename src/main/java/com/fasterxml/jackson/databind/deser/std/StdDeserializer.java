@@ -645,7 +645,7 @@ public abstract class StdDeserializer<T>
      * indicating that a converter is to be used for contained values (contents
      * of structured types; array/List/Map values)
      * 
-     * @param existingSerializer (optional) configured content
+     * @param existingDeserializer (optional) configured content
      *    serializer if one already exists.
      * 
      * @since 2.2

@@ -187,6 +187,8 @@ public abstract class JsonNode
      * Return the type of this node
      *
      * @return the node type as a {@link JsonNodeType} enum value
+     *
+     * @since 2.2
      */
     public abstract JsonNodeType getNodeType();
 
@@ -203,8 +205,7 @@ public abstract class JsonNode
     }
 
     /**
-     * @return True if this node represents a numeric JSON
-     *   value
+     * @return True if this node represents a numeric JSON value
      */
     public final boolean isNumber() {
         return getNodeType() == JsonNodeType.NUMBER;

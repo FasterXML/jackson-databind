@@ -103,6 +103,12 @@ public class StdKeyDeserializers
         if (raw == UUID.class) {
             return new StdKeyDeserializer.UuidKD();
         }
+        
+        // 23-Apr-2013, tatu: Map primitive types, just in case one was given
+        if (raw.isPrimitive()) {
+            raw = ClassUtil.wrapperType(raw);
+        }
+        
         if (raw == Integer.class) {
             return new StdKeyDeserializer.IntKD();
         }

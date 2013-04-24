@@ -33,7 +33,7 @@ public class MapDeserializer
     // // Configuration: typing, deserializers
 
     protected final JavaType _mapType;
-    
+
     /**
      * Key deserializer to use; either passed via constructor
      * (when indicated by annotations), or resolved when
@@ -49,7 +49,7 @@ public class MapDeserializer
      * If both are true, can optimize handling.
      */
     protected boolean _standardStringKey;
-    
+
     /**
      * Value deserializer.
      */
@@ -72,7 +72,7 @@ public class MapDeserializer
      * to be used for deserializing from JSON Object.
      */
     protected JsonDeserializer<Object> _delegateDeserializer;
-    
+
     /**
      * If the Map is to be instantiated using non-default constructor
      * or factory method
@@ -80,7 +80,7 @@ public class MapDeserializer
      * this creator is used for instantiation.
      */
     protected PropertyBasedCreator _propertyBasedCreator;    
-    
+
     // // Any properties to ignore if seen?
     
     protected HashSet<String> _ignorableProperties;
@@ -164,7 +164,7 @@ public class MapDeserializer
         return new MapDeserializer(this,
                 keyDeser, (JsonDeserializer<Object>) valueDeser, valueTypeDeser, ignorable);
     }
-    
+
     /**
      * Helper method used to check whether we can just use the default key
      * deserialization, where JSON String becomes Java String.

@@ -1,6 +1,15 @@
-Version: 2.2.0 (22-Apr-2013)
+Project: jackson-databind
+Version: 2.2.1 (xx-Apr-2013)
 
-New minor version.
+Changes:
+
+- Minor fix to handle primitive types for key deserializer lookups
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.2.0 (22-Apr-2013)
 
 Fixes:
 
@@ -71,10 +80,6 @@ Other:
   VERSION.txt
 * Added 2 methods in Converter interface: getInputType(), getOutputType(),
   to allow programmatic overrides (needed by JAXB annotation module)
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.1.4 (26-Feb-2013)
 

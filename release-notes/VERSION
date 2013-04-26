@@ -1,8 +1,10 @@
 Project: jackson-databind
-Version: 2.2.1 (xx-Apr-2013)
+Version: 2.2.1 (xx-May-2013)
 
 Changes:
 
+#214: Problem with LICENSE, NOTICE, Android packaging
+ (reported by thierryd@github)
 - Minor fix to handle primitive types for key deserializer lookups
 
 ------------------------------------------------------------------------

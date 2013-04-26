@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.struct;
 
 import com.fasterxml.jackson.annotation.*;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
 
 /**

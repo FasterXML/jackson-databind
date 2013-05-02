@@ -31,6 +31,7 @@ public class TestReadValues extends BaseMapTest
         final String JSON = "{\"a\":3}{\"a\":27}  ";
         Iterator<Bean> it = MAPPER.reader(Bean.class).readValues(JSON);
 
+        assertNotNull(((MappingIterator<?>) it).getCurrentLocation());
         assertTrue(it.hasNext());
         Bean b = it.next();
         assertEquals(3, b.a);
@@ -45,11 +46,13 @@ public class TestReadValues extends BaseMapTest
         final String JSON = "{\"a\":3}{\"a\":27}  ";
         Iterator<Map<?,?>> it = MAPPER.reader(Map.class).readValues(JSON);
 
+        assertNotNull(((MappingIterator<?>) it).getCurrentLocation());
         assertTrue(it.hasNext());
         Map<?,?> map = it.next();
         assertEquals(1, map.size());
         assertEquals(Integer.valueOf(3), map.get("a"));
         assertTrue(it.hasNext());
+        assertNotNull(((MappingIterator<?>) it).getCurrentLocation());
         map = it.next();
         assertEquals(1, map.size());
         assertEquals(Integer.valueOf(27), map.get("a"));

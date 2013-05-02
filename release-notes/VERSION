@@ -6,6 +6,8 @@ Changes:
 #214: Problem with LICENSE, NOTICE, Android packaging
  (reported by thierryd@github)
 - Minor fix to handle primitive types for key deserializer lookups
+- Add convenience method `MappingIterator.getCurrentLocation()`
+ (suggested by Tomdz@github)
 
 ------------------------------------------------------------------------
 === History: ===

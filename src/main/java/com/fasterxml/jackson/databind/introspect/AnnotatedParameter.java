@@ -148,7 +148,7 @@ public final class AnnotatedParameter
         throw new UnsupportedOperationException("Cannot call getValue() on constructor parameter of "
                 +getDeclaringClass().getName());
     }
-    
+
     /*
     /**********************************************************
     /* Extended API

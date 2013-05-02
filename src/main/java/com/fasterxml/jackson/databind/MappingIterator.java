@@ -249,4 +249,18 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
     public FormatSchema getParserSchema() {
     	return _parser.getSchema();
     }
+
+    /**
+     * Convenience method, functionally equivalent to:
+     *<code>
+     *   iterator.getParser().getCurrentLocation()
+     *</code>
+     * 
+     * @return Location of the input stream of the underlying parser
+     * 
+     * @since 2.2.1
+     */
+    public JsonLocation getCurrentLocation() {
+        return _parser.getCurrentLocation();
+    }
 }

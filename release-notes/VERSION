@@ -1,5 +1,5 @@
 Project: jackson-databind
-Version: 2.1.5 (xx-xxx-xx)
+Version: 2.1.5 (02-May-2013)
 
 A patch release for 2.1 branch.
 
@@ -10,7 +10,8 @@ Fixes:
  (reported by arudnev@github)
 * #186: JsonNodeDeserializer sometimes produces null instead of NullNode
  (reported by fge@github)
-* #197:
+* #197: NPE thrown when using JsonCreator and JsonSubTypes in a Class Hierarchy 
+ (reported by jojenki@github)
 * Improved robustness of BooleanNode, wrt multiple Jackson jars
 
 ------------------------------------------------------------------------

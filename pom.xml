@@ -35,7 +35,7 @@
     <connection>scm:git:git@github.com:FasterXML/jackson-databind.git</connection>
     <developerConnection>scm:git:git@github.com:FasterXML/jackson-databind.git</developerConnection>
     <url>http://github.com/FasterXML/jackson-databind</url>
-    <tag>HEAD</tag>
+    <tag>jackson-databind-2.2.1</tag>
   </scm>
 
   <properties>

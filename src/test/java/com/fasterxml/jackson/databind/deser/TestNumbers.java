@@ -103,7 +103,7 @@ public class TestNumbers
         try {
             mapper.readValue(json, MyBeanHolder.class);
             fail("should have raised exception");
-        } catch (JsonParseException e) {
+        } catch (JsonProcessingException e) {
             verifyException(e, "not numeric");
         }
     }
@@ -114,7 +114,7 @@ public class TestNumbers
         try {
             MyBeanHolder result = mapper.readValue(json, MyBeanHolder.class);
             fail("should have raised exception instead value was set to " + result.defaultValue.value.decimal.toString());
-        } catch (JsonParseException e) {
+        } catch (JsonProcessingException e) {
             verifyException(e, "not numeric");
         }
     }

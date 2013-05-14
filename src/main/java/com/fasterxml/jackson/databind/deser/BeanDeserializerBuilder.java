@@ -108,6 +108,8 @@ public class BeanDeserializerBuilder
     protected BeanDeserializerBuilder(BeanDeserializerBuilder src)
     {
         _beanDesc = src._beanDesc;
+        _defaultViewInclusion = src._defaultViewInclusion;
+
         _anySetter = src._anySetter;
         _ignoreAllUnknown = src._ignoreAllUnknown;
 
@@ -117,7 +119,10 @@ public class BeanDeserializerBuilder
         // Hmmh. Should we create defensive copies here? For now, not yet
         _ignorableProps = src._ignorableProps;        
         _valueInstantiator = src._valueInstantiator;
-        _defaultViewInclusion = src._defaultViewInclusion;
+        _objectIdReader = src._objectIdReader;
+        
+        _buildMethod = src._buildMethod;
+        _builderConfig = src._builderConfig;
     }
 
     private static HashMap<String, SettableBeanProperty> _copy(HashMap<String, SettableBeanProperty> src)
@@ -241,10 +246,9 @@ public class BeanDeserializerBuilder
         _objectIdReader = r;
     }
 
-    public void setPOJOBuilder(AnnotatedMethod buildMethod,
-            JsonPOJOBuilder.Value config) {
-    	_buildMethod = buildMethod;
-    	_builderConfig = config;
+    public void setPOJOBuilder(AnnotatedMethod buildMethod, JsonPOJOBuilder.Value config) {
+        _buildMethod = buildMethod;
+        _builderConfig = config;
     }
     
     /*

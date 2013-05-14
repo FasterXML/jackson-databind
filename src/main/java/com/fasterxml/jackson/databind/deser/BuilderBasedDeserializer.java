@@ -42,14 +42,14 @@ public class BuilderBasedDeserializer
             HashSet<String> ignorableProps, boolean ignoreAllUnknown,
             boolean hasViews)
     {
-    	super(builder, beanDesc, properties, backRefs,
-    			ignorableProps, ignoreAllUnknown, hasViews);
-    	_buildMethod = builder.getBuildMethod();
-    	// 05-Mar-2012, tatu: Can not really make Object Ids work with builders, not yet anyway
-    	if (_objectIdReader != null) {
-    	    throw new IllegalArgumentException("Can not use Object Id with Builder-based deserialization (type "
-    	            +beanDesc.getType()+")");
-    	}
+        super(builder, beanDesc, properties, backRefs,
+                ignorableProps, ignoreAllUnknown, hasViews);
+        _buildMethod = builder.getBuildMethod();
+        // 05-Mar-2012, tatu: Can not really make Object Ids work with builders, not yet anyway
+        if (_objectIdReader != null) {
+            throw new IllegalArgumentException("Can not use Object Id with Builder-based deserialization (type "
+                    +beanDesc.getType()+")");
+        }
     }
 
     /**
@@ -68,7 +68,7 @@ public class BuilderBasedDeserializer
     }
     
     protected BuilderBasedDeserializer(BuilderBasedDeserializer src, NameTransformer unwrapper) {
-    	super(src, unwrapper);
+        super(src, unwrapper);
         _buildMethod = src._buildMethod;
     }
 
@@ -119,10 +119,10 @@ public class BuilderBasedDeserializer
     {
         try {
             return _buildMethod.getMember().invoke(builder);
-    	} catch (Exception e) {
-    	    wrapInstantiationProblem(e, ctxt);
-    	    return null;
-    	}
+        } catch (Exception e) {
+            wrapInstantiationProblem(e, ctxt);
+            return null;
+        }
     }
     
     /**

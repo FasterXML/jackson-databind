@@ -79,7 +79,7 @@ public class StdValueInstantiator
                 : config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
         _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.toString();
     }
-    
+
     /**
      * Copy-constructor that sub-classes can use when creating new instances
      * by fluent-style construction

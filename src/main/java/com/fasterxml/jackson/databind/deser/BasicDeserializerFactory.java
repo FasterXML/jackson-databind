@@ -67,7 +67,7 @@ public abstract class BasicDeserializerFactory
             @SuppressWarnings("unchecked")
                 Class<? extends Map<?,?>> mapValue = (Class<? extends Map<?,?>>) value;
             _mapFallbacks.put(key.getName(), mapValue);
-        } catch (Exception e) { // is this possible?
+        } catch (Throwable e) { // is this possible?
             System.err.println("Problems with (optional) types: "+e);
         }
     }
@@ -87,8 +87,12 @@ public abstract class BasicDeserializerFactory
         _collectionFallbacks.put(Queue.class.getName(), LinkedList.class);
 
         // then 1.6 types:
-        _collectionFallbacks.put(java.util.Deque.class.getName(), LinkedList.class);
-        _collectionFallbacks.put(java.util.NavigableSet.class.getName(), TreeSet.class);
+        /* 17-May-2013, tatu: [Issue#216] Should be fine to use straight Class references EXCEPT
+         *   that some godforsaken platforms (... looking at you, Android) do not
+         *   include these. So, use "soft" references...
+         */
+        _collectionFallbacks.put("java.util.Deque", LinkedList.class);
+        _collectionFallbacks.put("java.util.NavigableSet", TreeSet.class);
     }
     
     /*

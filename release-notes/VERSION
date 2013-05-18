@@ -5,6 +5,7 @@ Changes:
 
 #214: Problem with LICENSE, NOTICE, Android packaging
  (reported by thierryd@github)
+#216: Problems with Android, 1.6-only types
 #217: JsonProcessingExceptions not all wrapped as expected
  (reported by karldmoore@github)
 #220: ContainerNode missing 'createNumber(BigInteger)'

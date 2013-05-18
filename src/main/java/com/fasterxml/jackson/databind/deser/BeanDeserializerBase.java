@@ -1306,35 +1306,33 @@ public abstract class BeanDeserializerBase
             DeserializationContext ctxt)
         throws IOException
     {
-		t = throwOrReturnThrowable(t, ctxt);
         // [JACKSON-55] Need to add reference information
-        throw JsonMappingException.wrapWithPath(t, bean, fieldName);
+        throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
     }
 
     public void wrapAndThrow(Throwable t, Object bean, int index, DeserializationContext ctxt)
         throws IOException
     {
-		t = throwOrReturnThrowable(t, ctxt);
         // [JACKSON-55] Need to add reference information
-        throw JsonMappingException.wrapWithPath(t, bean, index);
+        throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, index);
     }
-	
-	private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt) 
-		throws IOException
-	{
-	    /* 05-Mar-2009, tatu: But one nasty edge is when we get
+
+    private Throwable throwOrReturnThrowable(Throwable t, DeserializationContext ctxt) 
+        throws IOException
+    {
+        /* 05-Mar-2009, tatu: But one nasty edge is when we get
          *   StackOverflow: usually due to infinite loop. But that
-         *   usually gets hidden within an InvocationTargetException...
+         *   often gets hidden within an InvocationTargetException...
          */
-		while (t instanceof InvocationTargetException && t.getCause() != null) {
+        while (t instanceof InvocationTargetException && t.getCause() != null) {
             t = t.getCause();
         }
-        // Errors and "plain" IOExceptions to be passed as is
+        // Errors to be passed as is
         if (t instanceof Error) {
             throw (Error) t;
         }
         boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
-        // Ditto for IOExceptions; except we may want to wrap json exceptions
+        // Ditto for IOExceptions; except we may want to wrap JSON exceptions
         if (t instanceof IOException) {
             if (!wrap || !(t instanceof JsonProcessingException)) {
                 throw (IOException) t;
@@ -1344,8 +1342,8 @@ public abstract class BeanDeserializerBase
                 throw (RuntimeException) t;
             }
         }
-		return t;
-	}
+        return t;
+    }
 
     protected void wrapInstantiationProblem(Throwable t, DeserializationContext ctxt)
         throws IOException

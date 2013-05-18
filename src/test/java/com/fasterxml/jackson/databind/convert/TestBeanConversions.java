@@ -94,8 +94,8 @@ public class TestBeanConversions
         // then bad conversion
         try {
             MAPPER.readValue("{\"boolProp\":\"foobar\"}", BooleanBean.class);
-        } catch (JsonProcessingException e) {
-            verifyException(e, "foobar");
+        } catch (JsonMappingException e) {
+            verifyException(e, "from String value 'foobar'");
         }
     }
 

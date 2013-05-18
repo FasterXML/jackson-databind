@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import java.util.Date;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -216,7 +216,7 @@ public class TestExternalId extends BaseMapTest
             return new Date(rawDate);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests, serialization

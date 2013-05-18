@@ -589,6 +589,7 @@ public class BeanPropertyWriter
             } else { // can NOT suppress entries in tabular output
                 jgen.writeNull();
             }
+            return;
         }
         // otherwise find serializer to use
         JsonSerializer<Object> ser = _serializer;

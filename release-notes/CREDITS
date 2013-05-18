@@ -72,3 +72,11 @@ kelaneren@github:
 Eric Tschetter (cheddar@github):
   * Reported issues #166, #167, #170 (regressions from 1.9.x to 2.x)
    (2.1.4)
+
+Thierry D (thierryd@github)
+  * Reported #214: Problem with LICENSE, NOTICE, Android packaging
+   (2.2.2)
+
+Luke G-H (lukegh@github)
+  * Reported #223: Duplicated nulls with @JsonFormat(shape=Shape.ARRAY)
+   (2.2.2)

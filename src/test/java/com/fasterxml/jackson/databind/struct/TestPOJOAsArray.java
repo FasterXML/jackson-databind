@@ -70,7 +70,7 @@ public class TestPOJOAsArray extends BaseMapTest
     static class A {
         public B value = new B();
     }
-    
+
     @JsonPropertyOrder(alphabetic=true)
     static class B {
         public int x = 1;
@@ -81,6 +81,13 @@ public class TestPOJOAsArray extends BaseMapTest
     @JsonFormat(shape=Shape.ARRAY)
     static class SingleBean {
         public String name = "foo";
+    }
+
+    @JsonPropertyOrder(alphabetic=true)
+    @JsonFormat(shape=Shape.ARRAY)
+    static class TwoStringsBean {
+        public String bar = null;
+        public String foo = "bar";
     }
     
     /*
@@ -136,7 +143,13 @@ public class TestPOJOAsArray extends BaseMapTest
         String json = MAPPER.writeValueAsString(new FlatPojo("Bubba", 1, 2, false));
         // will have wrapper POJO, then POJO-as-array..
         assertEquals("[false,\"Bubba\",1,2]", json);
-    }    
+    }
+
+    // [Issue#223]
+    public void testNullColumn() throws Exception
+    {
+        assertEquals("[null,\"bar\"]", MAPPER.writeValueAsString(new TwoStringsBean()));
+    }
 
     /*
     /*****************************************************

@@ -12,9 +12,10 @@ import java.math.BigInteger;
  */
 public class JsonNodeFactory
     implements java.io.Serializable // since 2.1
+        ,JsonNodeCreator // since 2.3
 {
-    // for 2.1:
-    private static final long serialVersionUID = 2323165117839546871L;
+    // with 2.2
+    private static final long serialVersionUID = -3271940633258788634L;
 
     private final boolean _cfgBigDecimalExact;
 
@@ -93,6 +94,7 @@ public class JsonNodeFactory
      * Factory method for getting an instance of JSON boolean value
      * (either literal 'true' or 'false')
      */
+    @Override
     public BooleanNode booleanNode(boolean v) {
         return v ? BooleanNode.getTrue() : BooleanNode.getFalse();
     }
@@ -101,6 +103,7 @@ public class JsonNodeFactory
      * Factory method for getting an instance of JSON null node (which
      * represents literal null value)
      */
+    @Override
     public NullNode nullNode() { return NullNode.getInstance(); }
 
     /*
@@ -113,6 +116,7 @@ public class JsonNodeFactory
      * Factory method for getting an instance of JSON numeric value
      * that expresses given 8-bit value
      */
+    @Override
     public NumericNode numberNode(byte v) { return IntNode.valueOf(v); }
 
     /**
@@ -121,6 +125,7 @@ public class JsonNodeFactory
      * Due to possibility of null, returning type is not guaranteed to be
      * {@link NumericNode}, but just {@link ValueNode}.
      */
+    @Override
     public ValueNode numberNode(Byte value) {
         return (value == null) ? nullNode() : IntNode.valueOf(value.intValue());
     }
@@ -129,6 +134,7 @@ public class JsonNodeFactory
      * Factory method for getting an instance of JSON numeric value
      * that expresses given 16-bit integer value
      */
+    @Override
     public NumericNode numberNode(short v) { return ShortNode.valueOf(v); }
 
     /**
@@ -137,6 +143,7 @@ public class JsonNodeFactory
      * Due to possibility of null, returning type is not guaranteed to be
      * {@link NumericNode}, but just {@link ValueNode}.
      */
+    @Override
     public ValueNode numberNode(Short value) {
         return (value == null) ? nullNode() : ShortNode.valueOf(value);
     }
@@ -145,6 +152,7 @@ public class JsonNodeFactory
      * Factory method for getting an instance of JSON numeric value
      * that expresses given 32-bit integer value
      */
+    @Override
     public NumericNode numberNode(int v) { return IntNode.valueOf(v); }
 
     /**
@@ -153,6 +161,7 @@ public class JsonNodeFactory
      * Due to possibility of null, returning type is not guaranteed to be
      * {@link NumericNode}, but just {@link ValueNode}.
      */
+    @Override
     public ValueNode numberNode(Integer value) {
         return (value == null) ? nullNode() : IntNode.valueOf(value.intValue());
     }
@@ -161,6 +170,7 @@ public class JsonNodeFactory
      * Factory method for getting an instance of JSON numeric value
      * that expresses given 64-bit integer value
      */
+    @Override
     public NumericNode numberNode(long v) { return LongNode.valueOf(v); }
 
     /**
@@ -168,6 +178,7 @@ public class JsonNodeFactory
      * Due to possibility of null, returning type is not guaranteed to be
      * {@link NumericNode}, but just {@link ValueNode}.
      */
+    @Override
     public ValueNode numberNode(Long value) {
         return (value == null) ? nullNode() : LongNode.valueOf(value.longValue());
     }
@@ -176,12 +187,14 @@ public class JsonNodeFactory
      * Factory method for getting an instance of JSON numeric value
      * that expresses given unlimited range integer value
      */
+    @Override
     public NumericNode numberNode(BigInteger v) { return BigIntegerNode.valueOf(v); }
 
     /**
      * Factory method for getting an instance of JSON numeric value
      * that expresses given 32-bit floating point value
      */
+    @Override
     public NumericNode numberNode(float v) { return FloatNode.valueOf((float) v); }
 
     /**
@@ -190,6 +203,7 @@ public class JsonNodeFactory
      * Due to possibility of null, returning type is not guaranteed to be
      * {@link NumericNode}, but just {@link ValueNode}.
      */
+    @Override
     public ValueNode numberNode(Float value) {
         return (value == null) ? nullNode() : FloatNode.valueOf(value.floatValue());
     }
@@ -198,6 +212,7 @@ public class JsonNodeFactory
      * Factory method for getting an instance of JSON numeric value
      * that expresses given 64-bit floating point value
      */
+    @Override
     public NumericNode numberNode(double v) { return DoubleNode.valueOf(v); }
 
     /**
@@ -206,6 +221,7 @@ public class JsonNodeFactory
      * Due to possibility of null, returning type is not guaranteed to be
      * {@link NumericNode}, but just {@link ValueNode}.
      */
+    @Override
     public ValueNode numberNode(Double value) {
         return (value == null) ? nullNode() : DoubleNode.valueOf(value.doubleValue());
     }
@@ -220,6 +236,7 @@ public class JsonNodeFactory
      *
      * @see #JsonNodeFactory(boolean)
      */
+    @Override
     public NumericNode numberNode(BigDecimal v)
     {
         /*
@@ -252,6 +269,7 @@ public class JsonNodeFactory
      * Factory method for constructing a node that represents JSON
      * String value
      */
+    @Override
     public TextNode textNode(String text) { return TextNode.valueOf(text); }
 
     /**
@@ -259,6 +277,7 @@ public class JsonNodeFactory
      * binary data, and will get serialized as equivalent base64-encoded
      * String value
      */
+    @Override
     public BinaryNode binaryNode(byte[] data) { return BinaryNode.valueOf(data); }
 
     /**
@@ -266,6 +285,7 @@ public class JsonNodeFactory
      * binary data, and will get serialized as equivalent base64-encoded
      * String value
      */
+    @Override
     public BinaryNode binaryNode(byte[] data, int offset, int length) {
         return BinaryNode.valueOf(data, offset, length);
     }
@@ -279,11 +299,13 @@ public class JsonNodeFactory
     /**
      * Factory method for constructing an empty JSON Array node
      */
+    @Override
     public ArrayNode arrayNode() { return new ArrayNode(this); }
 
     /**
      * Factory method for constructing an empty JSON Object ("struct") node
      */
+    @Override
     public ObjectNode objectNode() { return new ObjectNode(this); }
 
     /**
@@ -292,6 +314,13 @@ public class JsonNodeFactory
      * using data binding, usually as JSON Objects, but in some
      * cases as JSON Strings or other node types.
      */
+    @Override
+    public ValueNode pojoNode(Object pojo) { return new POJONode(pojo); }
+
+    /**
+     * @deprecated Since 2.3 Use {@link #pojoNode} instead.
+     */
+    @Deprecated
     public POJONode POJONode(Object pojo) { return new POJONode(pojo); }
 }
 

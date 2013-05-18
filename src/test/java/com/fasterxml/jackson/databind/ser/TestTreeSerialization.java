@@ -58,7 +58,7 @@ public class TestTreeSerialization
         ObjectMapper mapper = new ObjectMapper();
         // also need tree mapper to construct tree to serialize
         ObjectNode n = mapper.getNodeFactory().objectNode();
-        n.set("pojo", mapper.getNodeFactory().POJONode("abc"));
+        n.set("pojo", mapper.getNodeFactory().pojoNode("abc"));
         StringWriter sw = new StringWriter();
         JsonGenerator jg = mapper.getFactory().createGenerator(sw);
         mapper.writeTree(jg, n);
@@ -73,7 +73,7 @@ public class TestTreeSerialization
     {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode n = mapper.getNodeFactory().objectNode();
-        n.set("pojo", mapper.getNodeFactory().POJONode(new int[] { 1, 2, 3 }));
+        n.set("pojo", mapper.getNodeFactory().pojoNode(new int[] { 1, 2, 3 }));
         StringWriter sw = new StringWriter();
         JsonGenerator jg = mapper.getFactory().createGenerator(sw);
         mapper.writeTree(jg, n);
@@ -96,7 +96,7 @@ public class TestTreeSerialization
         ObjectMapper mapper = new ObjectMapper();
         // also need tree mapper to construct tree to serialize
         ObjectNode n = mapper.getNodeFactory().objectNode();
-        n.set("pojo", mapper.getNodeFactory().POJONode(new Bean()));
+        n.set("pojo", mapper.getNodeFactory().pojoNode(new Bean()));
         StringWriter sw = new StringWriter();
         JsonGenerator jg = mapper.getFactory().createGenerator(sw);
         mapper.writeTree(jg, n);

@@ -275,7 +275,7 @@ abstract class BaseNodeDeserializer
                     return nodeFactory.binaryNode((byte[]) ob);
                 }
                 // any other special handling needed?
-                return nodeFactory.POJONode(ob);
+                return nodeFactory.pojoNode(ob);
             }
 
         case VALUE_STRING:

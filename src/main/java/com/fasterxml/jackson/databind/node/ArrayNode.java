@@ -336,7 +336,7 @@ public final class ArrayNode
         if (value == null) {
             addNull();
         } else {
-            _add(POJONode(value));
+            _add(pojoNode(value));
         }
         return this;
     }
@@ -536,7 +536,7 @@ public final class ArrayNode
         if (value == null) {
             return insertNull(index);
         }
-        return _insert(index, POJONode(value));
+        return _insert(index, pojoNode(value));
     }
 
     /**

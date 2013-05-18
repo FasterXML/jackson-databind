@@ -9,6 +9,8 @@ Tatu Saloranta, tatu.saloranta@iki.fi: author
 Pascal Glinas:
   * Contributed fixes to 'MappingIterator' handling (Pull#58 and Pull#59)
    (2.1.0)
+  * Reported #220: ContainerNode missing 'createNumber(BigInteger)'
+   (2.2.2)
 
 Joern Huxhorn:
   * Suggested [JACKSON-636]: Add 'SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS' to allow

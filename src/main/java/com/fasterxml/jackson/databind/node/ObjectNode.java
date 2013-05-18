@@ -560,7 +560,7 @@ public final class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode putPOJO(String fieldName, Object pojo) {
-        _children.put(fieldName, POJONode(pojo));
+        _children.put(fieldName, pojoNode(pojo));
         return this;
     }
 

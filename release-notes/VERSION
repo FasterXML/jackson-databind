@@ -5,6 +5,8 @@ Changes:
 
 #214: Problem with LICENSE, NOTICE, Android packaging
  (reported by thierryd@github)
+#220: ContainerNode missing 'createNumber(BigInteger)'
+ (reported by Pascal G)
 #223: Duplicated nulls with @JsonFormat(shape=Shape.ARRAY)
  (reported by lukegh@github)
 - Minor fix to handle primitive types for key deserializer lookups

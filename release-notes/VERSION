@@ -12,6 +12,9 @@ Changes:
  (reported by Pascal G)
 #223: Duplicated nulls with @JsonFormat(shape=Shape.ARRAY)
  (reported by lukegh@github)
+#226: Field mapping fail on deserialization to common referenced object when
+  @JsonUnwrapped is used
+ (reported by ikvia@github)
 #232: Converting bound BigDecimal value to tree fails with WRITE_BIGDECIMAL_AS_PLAIN
  (reported by celkings@github)
 - Minor fix to handle primitive types for key deserializer lookups

@@ -121,6 +121,23 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
         public int value;
     }
 
+    // For [Issue#226]
+    static class Parent {
+        @JsonUnwrapped(prefix="c1.")
+        public Child c1;
+        @JsonUnwrapped(prefix="c2.")
+        public Child c2;
+      }
+
+    static class Child {
+        @JsonUnwrapped(prefix="sc2.")
+        public SubChild sc1;
+      }
+
+    static class SubChild {
+        public String value;
+    }
+    
     // // // Reuse mapper to keep tests bit faster
 
     private final ObjectMapper MAPPER = new ObjectMapper();
@@ -205,5 +222,28 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
         assertNotNull(root.misc);
         assertEquals("Joe", root.general.names.name);
         assertEquals(42, root.misc.value);
+    }
+
+    public void testIssue226() throws Exception
+    {
+        Parent input = new Parent();
+        input.c1 = new Child();
+        input.c1.sc1 = new SubChild();
+        input.c1.sc1.value = "a";
+        input.c2 = new Child();
+        input.c2.sc1 = new SubChild();
+        input.c2.sc1.value = "b";
+
+        String json = MAPPER.writeValueAsString(input);
+
+        Parent output = MAPPER.readValue(json, Parent.class);
+        assertNotNull(output.c1);
+        assertNotNull(output.c2);
+
+        assertNotNull(output.c1.sc1);
+        assertNotNull(output.c2.sc1);
+        
+        assertEquals("a", output.c1.sc1.value);
+        assertEquals("b", output.c2.sc1.value);
     }
 }

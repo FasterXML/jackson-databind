@@ -17,9 +17,14 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  */
 public class UnwrappedPropertyHandler
 {
-    protected final ArrayList<SettableBeanProperty> _properties = new ArrayList<SettableBeanProperty>();
-    
-    public UnwrappedPropertyHandler()  { }
+    protected final List<SettableBeanProperty> _properties;
+
+    public UnwrappedPropertyHandler()  {
+        _properties = new ArrayList<SettableBeanProperty>();
+   }
+    protected UnwrappedPropertyHandler(List<SettableBeanProperty> props)  {
+        _properties = props;
+    }
 
     public void addProperty(SettableBeanProperty property) {
         _properties.add(property);
@@ -27,12 +32,8 @@ public class UnwrappedPropertyHandler
 
     public UnwrappedPropertyHandler renameAll(NameTransformer transformer)
     {
-        ArrayList<SettableBeanProperty> oldProps = new ArrayList<SettableBeanProperty>(_properties);
-        Iterator<SettableBeanProperty> it = oldProps.iterator();
-        _properties.clear();
-
-        while (it.hasNext()) {
-            SettableBeanProperty prop = it.next();
+        ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(_properties.size());
+        for (SettableBeanProperty prop : _properties) {
             String newName = transformer.transform(prop.getName());
             prop = prop.withName(newName);
             JsonDeserializer<?> deser = prop.getValueDeserializer();
@@ -44,9 +45,9 @@ public class UnwrappedPropertyHandler
                     prop = prop.withValueDeserializer(newDeser);
                 }
             }
-            _properties.add(prop);
+            newProps.add(prop);
         }
-        return this;
+        return new UnwrappedPropertyHandler(newProps);
     }
     
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt, Object bean,

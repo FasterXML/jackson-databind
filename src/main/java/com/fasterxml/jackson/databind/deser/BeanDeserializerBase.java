@@ -291,7 +291,7 @@ public abstract class BeanDeserializerBase
 
         _nonStandardCreation = src._nonStandardCreation;
         UnwrappedPropertyHandler uph = src._unwrappedPropertyHandler;
-        
+
         if (unwrapper != null) {
             // delegate further unwraps, if any
             if (uph != null) { // got handler, delegate

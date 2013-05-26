@@ -25,11 +25,12 @@ public class UnwrappedPropertyHandler
         _properties.add(property);
     }
 
-    public void renameAll(NameTransformer transformer)
+    public UnwrappedPropertyHandler renameAll(NameTransformer transformer)
     {
         ArrayList<SettableBeanProperty> oldProps = new ArrayList<SettableBeanProperty>(_properties);
         Iterator<SettableBeanProperty> it = oldProps.iterator();
         _properties.clear();
+
         while (it.hasNext()) {
             SettableBeanProperty prop = it.next();
             String newName = transformer.transform(prop.getName());
@@ -45,6 +46,7 @@ public class UnwrappedPropertyHandler
             }
             _properties.add(prop);
         }
+        return this;
     }
     
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt, Object bean,

@@ -22,14 +22,14 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
     }
 
     static class Parent {
-        @JsonUnwrapped(prefix="c1")
+        @JsonUnwrapped(prefix="c1.")
         public Child c1;
-        @JsonUnwrapped(prefix="c2")
+        @JsonUnwrapped(prefix="c2.")
         public Child c2;
       }
 
     static class Child {
-        @JsonUnwrapped(prefix="sc2")
+        @JsonUnwrapped(prefix="sc2.")
         public SubChild sc1;
       }
 
@@ -78,7 +78,7 @@ public class TestUnwrappedWithPrefix extends BaseMapTest
         input.c2.sc1.value = "b";
 
         String json = MAPPER.writeValueAsString(input);
-//System.out.println("JSON -> "+json);
+System.out.println("JSON -> "+json);
 
         Parent output = MAPPER.readValue(json, Parent.class);
         assertNotNull(output.c1);

@@ -281,7 +281,7 @@ public abstract class BeanDeserializerBase
         _valueInstantiator = src._valueInstantiator;
         _delegateDeserializer = src._delegateDeserializer;
         _propertyBasedCreator = src._propertyBasedCreator;
-        
+
         _backRefs = src._backRefs;
         _ignorableProps = src._ignorableProps;
         _ignoreAllUnknown = (unwrapper != null) || src._ignoreAllUnknown;
@@ -290,18 +290,19 @@ public abstract class BeanDeserializerBase
         _objectIdReader = src._objectIdReader;
 
         _nonStandardCreation = src._nonStandardCreation;
-        _unwrappedPropertyHandler = src._unwrappedPropertyHandler;
-
+        UnwrappedPropertyHandler uph = src._unwrappedPropertyHandler;
+        
         if (unwrapper != null) {
             // delegate further unwraps, if any
-            if (_unwrappedPropertyHandler != null) { // got handler, delegate
-                _unwrappedPropertyHandler.renameAll(unwrapper);
+            if (uph != null) { // got handler, delegate
+                uph = uph.renameAll(unwrapper);
             }
             // and handle direct unwrapping as well:
             _beanProperties = src._beanProperties.renameAll(unwrapper);
         } else {
             _beanProperties = src._beanProperties;
         }
+        _unwrappedPropertyHandler = uph;
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 

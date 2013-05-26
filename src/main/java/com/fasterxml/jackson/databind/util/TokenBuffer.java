@@ -1126,7 +1126,25 @@ public class TokenBuffer
         @Override
         public final Number getNumberValue() throws IOException, JsonParseException {
             _checkIsNumber();
-            return (Number) _currentObject();
+            Object value = _currentObject();
+            if (value instanceof Number) {
+                return (Number) value;
+            }
+            // Difficult to really support numbers-as-Strings; but let's try.
+            // NOTE: no access to DeserializationConfig, unfortunately, so can not
+            // try to determine Double/BigDecimal preference...
+            if (value instanceof String) {
+                String str = (String) value;
+                if (str.indexOf('.') >= 0) {
+                    return Double.parseDouble(str);
+                }
+                return Long.parseLong(str);
+            }
+            if (value == null) {
+                return null;
+            }
+            throw new IllegalStateException("Internal error: entry should be a Number, but is of type "
+                    +value.getClass().getName());
         }
         
         /*

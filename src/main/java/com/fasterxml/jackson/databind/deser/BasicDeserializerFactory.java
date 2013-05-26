@@ -67,7 +67,7 @@ public abstract class BasicDeserializerFactory
             @SuppressWarnings("unchecked")
                 Class<? extends Map<?,?>> mapValue = (Class<? extends Map<?,?>>) value;
             _mapFallbacks.put(key.getName(), mapValue);
-        } catch (Throwable e) { // is this possible?
+        } catch (Throwable e) { // some class loading problems are Errors, others Exceptions
             System.err.println("Problems with (optional) types: "+e);
         }
     }

@@ -260,7 +260,13 @@ public enum SerializationFeature implements ConfigFeature
      * Feature that determines whether {@link java.math.BigDecimal} entries are
      * serialized using {@link java.math.BigDecimal#toPlainString()} to prevent
      * values to be written using scientific notation.
-     * <p>
+     *<p>
+     * NOTE: since this feature typically requires use of
+     * {@link com.fasterxml.jackson.core.JsonGenerator#writeNumber(String)}
+     * ot may cause compatibility problems since not all {@link com.fasterxml.jackson.core.JsonGenerator}
+     * implementations support such mode of output: usually only text-based formats
+     * support it.
+     *<p>
      * Feature is disabled by default.
      */
     WRITE_BIGDECIMAL_AS_PLAIN(false),

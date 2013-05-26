@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.node;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -195,6 +197,21 @@ public class TestConversions extends BaseMapTest
         JsonNode n = node.get("pojo");
         assertTrue(n.isPojo());
         assertSame(MARKER, ((POJONode) n).getPojo());
+    }
+
+    // [Issue#232]
+    public void testBigDecimalAsPlainStringTreeConversion()
+        throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
+        Map<String, Object> map = new HashMap<String, Object>();
+        String PI_STR = "3.00000000";
+        map.put("pi", new BigDecimal(PI_STR));
+        JsonNode tree = mapper.valueToTree(map);
+        assertNotNull(tree);
+        assertEquals(1, tree.size());
+        assertTrue(tree.has("pi"));
     }
 }
 

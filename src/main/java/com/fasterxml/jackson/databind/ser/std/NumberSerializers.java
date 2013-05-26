@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Container class for serializers used for handling standard JDK-provided types.
@@ -273,10 +274,13 @@ public class NumberSerializers
             // As per [JACKSON-423], handling for BigInteger and BigDecimal was missing!
             if (value instanceof BigDecimal) {
                 if (provider.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN)) {
-                    jgen.writeNumber(((BigDecimal) value).toPlainString());
-                } else {
-                    jgen.writeNumber((BigDecimal) value);
+                    // [Issue#232]: Ok, rather clumsy, but let's try to work around the problem with:
+                    if (!(jgen instanceof TokenBuffer)) {
+                        jgen.writeNumber(((BigDecimal) value).toPlainString());
+                        return;
+                    }
                 }
+                jgen.writeNumber((BigDecimal) value);
             } else if (value instanceof BigInteger) {
                 jgen.writeNumber((BigInteger) value);
                 

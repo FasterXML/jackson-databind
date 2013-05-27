@@ -70,7 +70,7 @@ public abstract class SettableBeanProperty
      * polymorphic handling), this is the type deserializer
      * used to handle type resolution.
      */
-    protected TypeDeserializer _valueTypeDeserializer;
+    protected final TypeDeserializer _valueTypeDeserializer;
     
     /**
      * Object used to figure out value to be used when 'null' literal is encountered in JSON.
@@ -78,6 +78,24 @@ public abstract class SettableBeanProperty
      * be a non-null value (like Integer.valueOf(0) for int).
      */
     protected final NullProvider _nullProvider;
+
+    /**
+     * Whether value of this property has been marked as required.
+     * Retained since it will be needed when traversing type hierarchy
+     * for producing schemas (and other similar tasks); currently not
+     * used for serialization.
+     * 
+     * @since 2.2
+     */
+    protected final boolean _isRequired;
+
+    /*
+    /**********************************************************
+    /* Configuration that is not yet immutable; generally assigned
+    /* during initialization process but can not be passed to
+    /* constructor.
+    /**********************************************************
+     */
 
     /**
      * If property represents a managed (forward) reference
@@ -92,6 +110,8 @@ public abstract class SettableBeanProperty
      * Helper object used for checking whether this property is to
      * be included in the active view, if property is view-specific;
      * null otherwise.
+     *<p>
+     * TODO: should try to make immutable.
      */
     protected ViewMatcher _viewMatcher;
     
@@ -100,18 +120,10 @@ public abstract class SettableBeanProperty
      * when all properties have been collected. Order of entries
      * is arbitrary, but once indexes are assigned they are not
      * changed.
+     *<p>
+     * TODO: should try to make immutable if at all possible
      */
     protected int _propertyIndex = -1;
-
-    /**
-     * Whether value of this property has been marked as required.
-     * Retained since it will be needed when traversing type hierarchy
-     * for producing schemas (and other similar tasks); currently not
-     * used for serialization.
-     * 
-     * @since 2.2
-     */
-    protected final boolean _isRequired;
     
     /*
     /**********************************************************

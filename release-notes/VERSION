@@ -1,10 +1,8 @@
 Project: jackson-databind
-Version: 2.2.1 (03-May-2013)
+Version: 2.2.2 (26-May-2013)
 
 Changes:
 
-#214: Problem with LICENSE, NOTICE, Android packaging
- (reported by thierryd@github)
 #216: Problems with Android, 1.6-only types
 #217: JsonProcessingExceptions not all wrapped as expected
  (reported by karldmoore@github)
@@ -24,6 +22,11 @@ Changes:
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
+
+2.2.1 (03-May-2013)
+
+#214: Problem with LICENSE, NOTICE, Android packaging
+ (reported by thierryd@github)
 
 2.2.0 (22-Apr-2013)
 

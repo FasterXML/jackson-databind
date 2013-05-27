@@ -77,12 +77,14 @@ public abstract class SettableBeanProperty
      * For most types simply Java null, but for primitive types must
      * be a non-null value (like Integer.valueOf(0) for int).
      */
-    protected NullProvider _nullProvider;
+    protected final NullProvider _nullProvider;
 
     /**
      * If property represents a managed (forward) reference
      * (see [JACKSON-235]), we will need name of reference for
      * later linking.
+     *<p>
+     * TODO: should try to make immutable.
      */
     protected String _managedReferenceName;
 
@@ -152,6 +154,7 @@ public abstract class SettableBeanProperty
         _isRequired = isRequired;
         _contextAnnotations = contextAnnotations;
         _viewMatcher = null;
+        _nullProvider = null;
 
         // 30-Jan-2012, tatu: Important: contextualize TypeDeserializer now...
         if (typeDeser != null) {
@@ -237,7 +240,7 @@ public abstract class SettableBeanProperty
 
     /**
      * Fluent factory method for constructing and returning a new instance
-     * with specified propert name.
+     * with specified property name.
      * Note that this method should NOT change configuration of this instance.
      * 
      * @param newName Name to use for the new instance.

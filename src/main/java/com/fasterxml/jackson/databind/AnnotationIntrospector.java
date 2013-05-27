@@ -161,7 +161,7 @@ public abstract class AnnotationIntrospector
      * Method called by framework to determine whether given annotation
      * is handled by this introspector.
      *
-     * @deprecated Not used since 2.0; deprecated sicne 2.1
+     * @deprecated Not used since 2.0; deprecated since 2.1
      */
     @Deprecated
     public boolean isHandled(Annotation ann) {

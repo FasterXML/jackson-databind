@@ -508,7 +508,7 @@ public class JacksonAnnotationIntrospector
         }
         return null;
     }
-    
+
     @Override
     public String findSerializationName(AnnotatedField af)
     {

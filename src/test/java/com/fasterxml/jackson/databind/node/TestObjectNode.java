@@ -229,4 +229,24 @@ public class TestObjectNode
         assertEquals(3, root3.size());
         assertEquals(1, root3.path("a").intValue());
     }
+
+    // [Issue#237] (databind): support DeserializationFeature#FAIL_ON_READING_DUP_TREE_KEY
+    public void testFailOnDupKeys() throws Exception
+    {
+        final String DUP_JSON = "{ \"a\":1, \"a\":2 }";
+        
+        // first: verify defaults:
+        ObjectMapper mapper = new ObjectMapper();
+        assertFalse(mapper.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY));
+        ObjectNode root = (ObjectNode) mapper.readTree(DUP_JSON);
+        assertEquals(2, root.path("a").asInt());
+        
+        // and then enable checks:
+        try {
+            mapper.reader(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY).readTree(DUP_JSON);
+            fail("Should have thrown exception!");
+        } catch (JsonMappingException e) {
+            verifyException(e, "duplicate field 'a'");
+        }
+    }
 }

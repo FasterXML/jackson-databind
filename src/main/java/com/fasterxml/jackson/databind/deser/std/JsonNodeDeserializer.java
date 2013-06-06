@@ -161,6 +161,19 @@ abstract class BaseNodeDeserializer
     }
     
     /**
+     * 
+     * @deprecated Since 2.3, use the overloaded variant
+     */
+    @Deprecated
+    protected void _handleDuplicateField(String fieldName, ObjectNode objectNode,
+                                         JsonNode oldValue, JsonNode newValue)
+        throws JsonProcessingException
+    {
+        // By default, we don't do anything
+        ;
+    }
+
+    /**
      * Method called when there is a duplicate value for a field.
      * By default we don't care, and the last value is used.
      * Can be overridden to provide alternate handling, such as throwing
@@ -173,12 +186,18 @@ abstract class BaseNodeDeserializer
      *   was added
      * @param newValue Newly added value just added to the object node
      */
-    protected void _handleDuplicateField(String fieldName, ObjectNode objectNode,
-                                         JsonNode oldValue, JsonNode newValue)
+    protected void _handleDuplicateField(JsonParser jp, DeserializationContext ctxt,
+            JsonNodeFactory nodeFactory,
+            String fieldName, ObjectNode objectNode,
+            JsonNode oldValue, JsonNode newValue)
         throws JsonProcessingException
     {
-        // By default, we don't do anything
-        ;
+        // [Issue#237]: Report an error if asked to do so:
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)) {
+            _reportProblem(jp, "Duplicate field '"+fieldName+"' for ObjectNode: not allowed when FAIL_ON_READING_DUP_TREE_KEY enabled");
+        }
+        // Backwards-compatibility; call in case it's overloaded
+        _handleDuplicateField(fieldName, objectNode, oldValue, newValue);
     }
     
     /*
@@ -214,7 +233,8 @@ abstract class BaseNodeDeserializer
             }
             JsonNode old = node.replace(fieldName, value);
             if (old != null) {
-                _handleDuplicateField(fieldName, node, old, value);
+                _handleDuplicateField(jp, ctxt, nodeFactory,
+                        fieldName, node, old, value);
             }
         }
         return node;

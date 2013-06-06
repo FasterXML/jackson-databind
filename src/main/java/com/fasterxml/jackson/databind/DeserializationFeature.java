@@ -139,6 +139,21 @@ public enum DeserializationFeature implements ConfigFeature
      * @since 2.2
      */
     FAIL_ON_INVALID_SUBTYPE(true),
+
+    /**
+     * Feature that determines what happens when reading JSON content into tree
+     * ({@link com.fasterxml.jackson.core.TreeNode}) and a duplicate key
+     * is encountered (property name that was already seen for the JSON Object).
+     * If enabled, {@link JsonMappingException} will be thrown; if disabled, no exception
+     * is thrown and the new (later) value overwrites the earlier value.
+     *<p>
+     * Note that this property does NOT affect other aspects of data-binding; that is,
+     * no detection is done with respect to POJO properties or {@link java.util.Map}
+     * keys. New features may be added to control additional cases.
+     * 
+     * @since 2.3
+     */
+    FAIL_ON_READING_DUP_TREE_KEY(false),
     
     /**
      * Feature that determines whether Jackson code should catch

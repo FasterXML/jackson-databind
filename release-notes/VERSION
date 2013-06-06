@@ -1,7 +1,13 @@
 Project: jackson-databind
-Version: 2.2.2 (26-May-2013)
+Version: 2.3.0 (xx-xxx-2013)
 
-Changes:
+New minor version.
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.2.2 (26-May-2013)
 
 #216: Problems with Android, 1.6-only types
 #217: JsonProcessingExceptions not all wrapped as expected
@@ -18,10 +24,6 @@ Changes:
 - Minor fix to handle primitive types for key deserializer lookups
 - Add convenience method `MappingIterator.getCurrentLocation()`
  (suggested by Tomdz@github)
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.2.1 (03-May-2013)
 

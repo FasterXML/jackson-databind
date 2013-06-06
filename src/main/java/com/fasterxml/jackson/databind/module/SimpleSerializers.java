@@ -41,6 +41,13 @@ public class SimpleSerializers
      */
     protected HashMap<ClassKey,JsonSerializer<?>> _interfaceMappings = null;
 
+    /**
+     * Flag to help find "generic" enum serializer, if one has been registered.
+     * 
+     * @since 2.3
+     */
+    protected boolean _hasEnumSerializer = false;
+    
     /*
     /**********************************************************
     /* Life-cycle, construction and configuring
@@ -90,23 +97,6 @@ public class SimpleSerializers
             addSerializer(ser);
         }
     }
-
-    private void _addSerializer(Class<?> cls, JsonSerializer<?> ser)
-    {
-        ClassKey key = new ClassKey(cls);
-        // Interface or class type?
-        if (cls.isInterface()) {
-            if (_interfaceMappings == null) {
-                _interfaceMappings = new HashMap<ClassKey,JsonSerializer<?>>();
-            }
-            _interfaceMappings.put(key, ser);
-        } else { // nope, class:
-            if (_classMappings == null) {
-                _classMappings = new HashMap<ClassKey,JsonSerializer<?>>();
-            }
-            _classMappings.put(key, ser);
-        }
-    }
     
     /*
     /**********************************************************
@@ -121,7 +111,7 @@ public class SimpleSerializers
         Class<?> cls = type.getRawClass();
         ClassKey key = new ClassKey(cls);
         JsonSerializer<?> ser = null;
-
+        
         // First: direct match?
         if (cls.isInterface()) {
             if (_interfaceMappings != null) {
@@ -136,6 +126,16 @@ public class SimpleSerializers
                 if (ser != null) {
                     return ser;
                 }
+
+                // [Issue#227]: Handle registration of plain `Enum` serializer
+                if (_hasEnumSerializer && type.isEnumType()) {
+                    key.reset(Enum.class);
+                    ser = _classMappings.get(key);
+                    if (ser != null) {
+                        return ser;
+                    }
+                }
+                
                 // If not direct match, maybe super-class match?
                 for (Class<?> curr = cls; (curr != null); curr = curr.getSuperclass()) {
                     key.reset(curr);
@@ -222,5 +222,25 @@ public class SimpleSerializers
             }
         }
         return null;
+    }
+
+    protected void _addSerializer(Class<?> cls, JsonSerializer<?> ser)
+    {
+        ClassKey key = new ClassKey(cls);
+        // Interface or class type?
+        if (cls.isInterface()) {
+            if (_interfaceMappings == null) {
+                _interfaceMappings = new HashMap<ClassKey,JsonSerializer<?>>();
+            }
+            _interfaceMappings.put(key, ser);
+        } else { // nope, class:
+            if (_classMappings == null) {
+                _classMappings = new HashMap<ClassKey,JsonSerializer<?>>();
+            }
+            _classMappings.put(key, ser);
+            if (cls == Enum.class) {
+                _hasEnumSerializer = true;
+            }
+        }
     }
 }

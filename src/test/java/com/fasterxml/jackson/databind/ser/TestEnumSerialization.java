@@ -8,12 +8,13 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 /**
@@ -140,6 +141,17 @@ public class TestEnumSerialization
     {
         A, B;
     }
+
+    @SuppressWarnings("rawtypes")
+    static class LowerCasingEnumSerializer extends StdSerializer<Enum>
+    {
+        public LowerCasingEnumSerializer() { super(Enum.class); }
+        @Override
+        public void serialize(Enum value, JsonGenerator jgen,
+                SerializerProvider provider) throws IOException {
+            jgen.writeString(value.name().toLowerCase());
+        }
+    }
     
     /*
     /**********************************************************
@@ -230,7 +242,7 @@ public class TestEnumSerialization
         String json = mapper.writeValueAsString(bean);
         assertEquals("{\"map\":{\"b\":3}}", json);
     }
-    
+
     // [JACKSON-684]
     public void testAsIndex() throws Exception
     {
@@ -270,6 +282,17 @@ public class TestEnumSerialization
         } catch (JsonMappingException e) {
             verifyException(e, "Unsupported serialization shape");
         }
+    }
+    
+    // [Issue#227]
+    public void testGenericEnumSerializer() throws Exception
+    {
+        // By default, serialize using name
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule("foobar");
+        module.addSerializer(Enum.class, new LowerCasingEnumSerializer());
+        mapper.registerModule(module);
+        assertEquals(quote("b"), mapper.writeValueAsString(TestEnum.B));
     }
 }
 

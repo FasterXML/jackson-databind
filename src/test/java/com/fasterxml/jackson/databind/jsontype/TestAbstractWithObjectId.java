@@ -63,6 +63,6 @@ public class TestAbstractWithObjectId extends BaseMapTest
 
         assertNotNull(result);
         // see what we get back
-        System.out.println("deserialised list size = " + result.size());
+        assertEquals(2, result.size());
     }
 }

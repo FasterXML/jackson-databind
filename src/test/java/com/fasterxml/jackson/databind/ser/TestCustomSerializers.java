@@ -9,6 +9,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Element;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -47,6 +48,31 @@ public class TestCustomSerializers
         protected int y() { return 7; }
     }
 
+    /**
+     * Trivial simple custom escape definition set.
+     */
+    @SuppressWarnings("serial")
+    static class CustomEscapes extends CharacterEscapes
+    {
+        private final int[] _asciiEscapes;
+
+        public CustomEscapes() {
+            _asciiEscapes = standardAsciiEscapesForJSON();
+            _asciiEscapes['a'] = 'A'; // to basically give us "\A" instead of 'a'
+            _asciiEscapes['b'] = CharacterEscapes.ESCAPE_STANDARD; // too force "\u0062"
+        }
+        
+        @Override
+        public int[] getEscapeCodesForAscii() {
+            return _asciiEscapes;
+        }
+
+        @Override
+        public SerializableString getEscapeSequence(int ch) {
+            return null;
+        }
+    }
+    
     /*
     /**********************************************************
     /* Unit tests
@@ -104,5 +130,13 @@ public class TestCustomSerializers
         }));
         mapper.registerModule(module);
         assertEquals("{\"x\":3,\"y\":7}", mapper.writeValueAsString(new Immutable()));
+    }
+
+    // [Issue#215]: Allow registering CharacterEscapes via ObjectWriter
+    public void testCustomEscapes() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        assertEquals(quote("foo\\u0062\\Ar"),
+                mapper.writer(new CustomEscapes()).writeValueAsString("foobar"));
     }
 }

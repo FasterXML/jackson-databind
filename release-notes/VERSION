@@ -3,6 +3,8 @@ Version: 2.3.0 (xx-xxx-2013)
 
 New minor version.
 
+#215: Allow registering custom `CharacterEscapes` to use for serialization,
+ via `ObjectWriter.with(CharacterEscapes)` (and `ObjectMapper.writer(CharacterEscapes)`)
 #227: Allow "generic" Enum serializers, deserializers, via `SimpleModule`
 #237: Add `DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY` to optionally
   throw `JsonMappingException` on duplicate keys, tree model (`JsonNode`)

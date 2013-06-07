@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
@@ -94,6 +95,14 @@ public class ObjectWriter
      */
     protected final FormatSchema _schema;
     
+    /**
+     * Caller may want to specify character escaping details, either as
+     * defaults, or on call-by-call basis.
+     * 
+     * @since 2.3
+     */
+    protected final CharacterEscapes _characterEscapes;
+
     /*
     /**********************************************************
     /* Life-cycle, constructors
@@ -118,6 +127,7 @@ public class ObjectWriter
         _rootType = rootType;
         _prettyPrinter = pp;
         _schema = null;
+        _characterEscapes = null;
 
         _rootSerializer = _prefetchRootSerializer(config, rootType);
     }
@@ -137,6 +147,7 @@ public class ObjectWriter
         _rootSerializer = null;
         _prettyPrinter = null;
         _schema = null;
+        _characterEscapes = null;
     }
 
     /**
@@ -155,6 +166,7 @@ public class ObjectWriter
         _rootSerializer = null;
         _prettyPrinter = null;
         _schema = s;
+        _characterEscapes = null;
     }
     
     /**
@@ -162,7 +174,7 @@ public class ObjectWriter
      */
     protected ObjectWriter(ObjectWriter base, SerializationConfig config,
             JavaType rootType, JsonSerializer<Object> rootSer,
-            PrettyPrinter pp, FormatSchema s)
+            PrettyPrinter pp, FormatSchema s, CharacterEscapes escapes)
     {
         _config = config;
 
@@ -174,6 +186,7 @@ public class ObjectWriter
         _rootSerializer = rootSer;
         _prettyPrinter = pp;
         _schema = s;
+        _characterEscapes = escapes;
     }
 
     /**
@@ -187,6 +200,7 @@ public class ObjectWriter
         _serializerFactory = base._serializerFactory;
         _jsonFactory = base._jsonFactory;
         _schema = base._schema;
+        _characterEscapes = base._characterEscapes;
 
         _rootType = base._rootType;
         _rootSerializer = base._rootSerializer;
@@ -318,7 +332,8 @@ public class ObjectWriter
         if (pp == null) {
             pp = NULL_PRETTY_PRINTER;
         }
-        return new ObjectWriter(this, _config, _rootType, _rootSerializer, pp, _schema);
+        return new ObjectWriter(this, _config, _rootType, _rootSerializer,
+                pp, _schema, _characterEscapes);
     }
 
     /**
@@ -349,7 +364,8 @@ public class ObjectWriter
             return this;
         }
         _verifySchemaType(schema);
-        return new ObjectWriter(this, _config, _rootType, _rootSerializer, _prettyPrinter, schema);
+        return new ObjectWriter(this, _config, _rootType, _rootSerializer,
+                _prettyPrinter, schema, _characterEscapes);
     }
 
     /**
@@ -365,7 +381,8 @@ public class ObjectWriter
         // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
         rootType = rootType.withStaticTyping();
         JsonSerializer<Object> rootSer = _prefetchRootSerializer(_config, rootType);
-        return new ObjectWriter(this, _config, rootType, rootSer, _prettyPrinter, _schema);
+        return new ObjectWriter(this, _config, rootType, rootSer,
+                _prettyPrinter, _schema, _characterEscapes);
     }    
 
     /**
@@ -413,6 +430,17 @@ public class ObjectWriter
     public ObjectWriter with(Base64Variant b64variant) {
         SerializationConfig newConfig = _config.with(b64variant);
         return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+    }
+
+    /**
+     * @since 2.3
+     */
+    public ObjectWriter with(CharacterEscapes escapes) {
+        if (_characterEscapes == escapes) {
+            return this;
+        }
+        return new ObjectWriter(this, _config, _rootType, _rootSerializer,
+                _prettyPrinter, _schema, escapes);
     }
     
     /*
@@ -804,6 +832,9 @@ public class ObjectWriter
             }
         } else if (_config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
             jgen.useDefaultPrettyPrinter();
+        }
+        if (_characterEscapes != null) {
+            jgen.setCharacterEscapes(_characterEscapes);
         }
         // [JACKSON-520]: add support for pass-through schema:
         if (_schema != null) {

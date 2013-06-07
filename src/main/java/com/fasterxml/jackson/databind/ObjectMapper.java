@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
@@ -2281,8 +2282,7 @@ public class ObjectMapper
      * null passed, using timestamp (64-bit number.
      */
     public ObjectWriter writer(DateFormat df) {
-        return new ObjectWriter(this,
-                getSerializationConfig().with(df));
+        return new ObjectWriter(this, getSerializationConfig().with(df));
     }
     
     /**
@@ -2378,6 +2378,17 @@ public class ObjectMapper
     public ObjectWriter writer(Base64Variant defaultBase64) {
         return new ObjectWriter(this, getSerializationConfig().with(defaultBase64));
     }
+
+    /**
+     * Factory method for constructing {@link ObjectReader} that will
+     * use specified character escaping details for output.
+     * 
+     * @since 2.3
+     */
+    public ObjectWriter writer(CharacterEscapes escapes) {
+        return writer().with(escapes);
+    }
+
     
     /*
     /**********************************************************
@@ -2514,7 +2525,7 @@ public class ObjectMapper
     public ObjectReader reader(Base64Variant defaultBase64) {
         return new ObjectReader(this, getDeserializationConfig().with(defaultBase64));
     }
-    
+
     /*
     /**********************************************************
     /* Extended Public API: convenience type conversion

@@ -131,6 +131,15 @@ public class EnumResolver<T extends Enum<T>>
         return _enums[index];
     }
 
+    public List<T> getEnums()
+    {
+        ArrayList<T> enums = new ArrayList<T>(_enums.length);
+        for (T e : _enums) {
+            enums.add(e);
+        }
+        return enums;
+    }
+    
     public Class<T> getEnumClass() { return _enumClass; }
 
     public int lastValidIndex() { return _enums.length-1; }

@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.io.IOException;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @SuppressWarnings("serial")
 public class TestEnumDeserialization
@@ -28,14 +30,14 @@ public class TestEnumDeserialization
     /**
      * Alternative version that annotates which deserializer to use
      */
-    @JsonDeserialize(using=DummySerializer.class)
+    @JsonDeserialize(using=DummyDeserializer.class)
     enum AnnotatedTestEnum {
         JACKSON, RULES, OK;
     }
 
-    public static class DummySerializer extends StdDeserializer<Object>
+    public static class DummyDeserializer extends StdDeserializer<Object>
     {
-        public DummySerializer() { super(Object.class); }
+        public DummyDeserializer() { super(Object.class); }
         @Override
         public Object deserialize(JsonParser jp, DeserializationContext ctxt)
         {
@@ -43,6 +45,16 @@ public class TestEnumDeserialization
         }
     }
 
+    public static class LcEnumDeserializer extends StdDeserializer<TestEnum>
+    {
+        public LcEnumDeserializer() { super(TestEnum.class); }
+        @Override
+        public TestEnum deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        {
+            return TestEnum.valueOf(jp.getText().toUpperCase());
+        }
+    }
+    
     protected enum EnumWithCreator {
         A, B;
 
@@ -326,10 +338,19 @@ public class TestEnumDeserialization
     // [Issue#141]: allow mapping of empty String into null
     public void testEnumsWithEmpty() throws Exception
     {
-       final ObjectMapper m = new ObjectMapper();
-       m.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-       TestEnum result = m.readValue("\"\"", TestEnum.class);
+       final ObjectMapper mapper = new ObjectMapper();
+       mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+       TestEnum result = mapper.readValue("\"\"", TestEnum.class);
        assertNull(result);
     }
 
+    public void testGenericEnumDeserialization() throws Exception
+    {
+       final ObjectMapper mapper = new ObjectMapper();
+       SimpleModule module = new SimpleModule("foobar");
+       module.addDeserializer(Enum.class, new LcEnumDeserializer());
+       mapper.registerModule(module);
+       // not sure this is totally safe but...
+       assertEquals(TestEnum.JACKSON, mapper.readValue(quote("jackson"), TestEnum.class));
+    }
 }

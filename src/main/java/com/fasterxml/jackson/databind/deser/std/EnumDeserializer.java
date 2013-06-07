@@ -89,7 +89,7 @@ public class EnumDeserializer
                 }
                 if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                     throw ctxt.weirdStringException(name, _resolver.getEnumClass(),
-                            "value not one of declared Enum instance names");
+                            "value not one of declared Enum instance names: "+_resolver.getEnums());
                 }
             }
             return result;

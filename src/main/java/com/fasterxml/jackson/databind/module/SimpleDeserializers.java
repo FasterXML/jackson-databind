@@ -24,6 +24,13 @@ public class SimpleDeserializers
 
     protected HashMap<ClassKey,JsonDeserializer<?>> _classMappings = null;
 
+    /**
+     * Flag to help find "generic" enum deserializer, if one has been registered.
+     * 
+     * @since 2.3
+     */
+    protected boolean _hasEnumDeserializer = false;
+    
     /*
     /**********************************************************
     /* Life-cycle, construction and configuring
@@ -46,6 +53,10 @@ public class SimpleDeserializers
             _classMappings = new HashMap<ClassKey,JsonDeserializer<?>>();
         }
         _classMappings.put(key, deser);
+        // [Issue#227]: generic Enum deserializer?
+        if (forClass == Enum.class) {
+            _hasEnumDeserializer = true;
+        }
     }
 
     /**
@@ -110,7 +121,16 @@ public class SimpleDeserializers
             DeserializationConfig config, BeanDescription beanDesc)
         throws JsonMappingException
     {
-        return (_classMappings == null) ? null : _classMappings.get(new ClassKey(type));
+        if (_classMappings == null) {
+            return null;
+        }
+        JsonDeserializer<?> deser = _classMappings.get(new ClassKey(type));
+        if (deser == null) {
+            if (_hasEnumDeserializer && type.isEnum()) {
+                deser = _classMappings.get(new ClassKey(Enum.class));
+            }
+        }
+        return deser;
     }
 
     @Override

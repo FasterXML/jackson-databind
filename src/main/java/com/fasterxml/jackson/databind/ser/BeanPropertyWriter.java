@@ -419,6 +419,19 @@ public class BeanPropertyWriter
     public boolean hasSerializer() { return _serializer != null; }
     public boolean hasNullSerializer() { return _nullSerializer != null; }
 
+    /**
+     * Accessor that will return true if this bean property has to support
+     * "unwrapping"; ability to replace POJO structural wrapping with optional
+     * name prefix and/or suffix (or in some cases, just removal of wrapper name).
+     *<p>
+     * Default implementation simply returns false.
+     * 
+     * @since 2.3
+     */
+    public boolean isUnwrapping() {
+        return false;
+    }
+    
     public boolean willSuppressNulls() { return _suppressNulls; }
     
     // Needed by BeanSerializer#getSchema

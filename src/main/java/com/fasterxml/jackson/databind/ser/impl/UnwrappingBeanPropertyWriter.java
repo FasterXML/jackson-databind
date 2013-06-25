@@ -57,6 +57,11 @@ public class UnwrappingBeanPropertyWriter
     /* Overrides
     /**********************************************************
      */
+
+    @Override
+    public boolean isUnwrapping() {
+        return true;
+    }
     
     @Override
     public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov)

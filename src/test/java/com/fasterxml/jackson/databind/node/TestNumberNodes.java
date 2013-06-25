@@ -179,6 +179,28 @@ public class TestNumberNodes extends NodeTestBase
         assertTrue(DecimalNode.valueOf(BigDecimal.valueOf(Long.MIN_VALUE)).canConvertToLong());
     }
 
+    public void testPathologicallyLongDecimalNodes()
+    {
+        /*
+         * We cannot test each and every decimal value, so we pick one...
+         */
+        final String s1 = "28728731.298098213e-237987123";
+        final String s2 = "287287.31298098213e-237987121";
+        final String s3 = "28728731298098213e-237987132";
+
+        final DecimalNode d1 = DecimalNode.valueOf(new BigDecimal(s1));
+        final DecimalNode d2 = DecimalNode.valueOf(new BigDecimal(s2));
+        final DecimalNode d3 = DecimalNode.valueOf(new BigDecimal(s3));
+
+        assertEquals(d1.hashCode(), d2.hashCode());
+        assertEquals(d2.hashCode(), d3.hashCode());
+
+        assertTrue(d1.equals(d2));
+        assertTrue(d2.equals(d1));
+        assertTrue(d1.equals(d3));
+        assertTrue(d2.equals(d3));
+    }
+
     public void testBigIntegerNode() throws Exception
     {
         BigIntegerNode n = BigIntegerNode.valueOf(BigInteger.ONE);

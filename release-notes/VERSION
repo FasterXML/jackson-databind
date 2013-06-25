@@ -8,6 +8,7 @@ New minor version.
 #227: Allow "generic" Enum serializers, deserializers, via `SimpleModule`
 #237: Add `DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY` to optionally
   throw `JsonMappingException` on duplicate keys, tree model (`JsonNode`)
+- Add 'BeanPropertyWriter.isUnwrapping()' for future needs (by Afterburner)
 
 ------------------------------------------------------------------------
 === History: ===

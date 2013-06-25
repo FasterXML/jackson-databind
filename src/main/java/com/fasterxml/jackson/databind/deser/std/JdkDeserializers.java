@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.*;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 /**
  * Container class that contains serializers for JDK types that
@@ -35,6 +37,7 @@ public class JdkDeserializers
                 Pattern.class,
                 Locale.class,
                 InetAddress.class,
+                InetSocketAddress.class,
                 Charset.class,
                 AtomicBoolean.class,
                 Class.class,
@@ -62,6 +65,7 @@ public class JdkDeserializers
             PatternDeserializer.instance,
             LocaleDeserializer.instance,
             InetAddressDeserializer.instance,
+            InetSocketAddressDeserializer.instance,
             CharsetDeserializer.instance,
             
             // other types:
@@ -106,6 +110,9 @@ public class JdkDeserializers
         }
         if (rawType == InetAddress.class) {
             return InetAddressDeserializer.instance;
+        }
+        if (rawType == InetSocketAddress.class) {
+            return InetSocketAddressDeserializer.instance;
         }
         if (rawType == Charset.class) {
             return CharsetDeserializer.instance;
@@ -270,6 +277,49 @@ public class JdkDeserializers
             throws IOException
         {
             return InetAddress.getByName(value);
+        }
+    }
+
+    /**
+     * Deserializer for {@link InetSocketAddress}.
+     *
+     * @see <a href="https://github.com/FasterXML/jackson-databind/issues/48">Issue 48</a>.
+     */
+    protected static class InetSocketAddressDeserializer
+            extends FromStringDeserializer<InetSocketAddress>
+    {
+        public final static InetSocketAddressDeserializer instance = new InetSocketAddressDeserializer();
+
+        public InetSocketAddressDeserializer() { super(InetSocketAddress.class); }
+
+        @Override
+        protected InetSocketAddress _deserialize(String value, DeserializationContext ctxt)
+                throws IOException
+        {
+            if (value.startsWith("[")) {
+                // bracketed IPv6 (with port number)
+
+                int i = value.lastIndexOf(']');
+                if (i == -1) {
+                    throw new InvalidFormatException(
+                            "Bracketed IPv6 address must contain closing bracket.",
+                            value, InetSocketAddress.class);
+                }
+
+                int j = value.indexOf(':', i);
+                int port = j > -1 ? Integer.parseInt(value.substring(j + 1)) : 0;
+                return new InetSocketAddress(value.substring(0, i + 1), port);
+            } else {
+                int i = value.indexOf(':');
+                if (i != -1 && value.indexOf(':', i + 1) == -1) {
+                    // host:port
+                    int port = Integer.parseInt(value.substring(i));
+                    return new InetSocketAddress(value.substring(0, i), port);
+                } else {
+                    // host or unbracketed IPv6, without port number
+                    return new InetSocketAddress(value, 0);
+                }
+            }
         }
     }
 

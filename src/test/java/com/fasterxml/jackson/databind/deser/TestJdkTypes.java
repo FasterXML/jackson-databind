@@ -222,6 +222,26 @@ public class TestJdkTypes extends BaseMapTest
         assertEquals(HOST, address.getHostName());
     }
 
+    public void testInetSocketAddress() throws IOException
+    {
+        InetSocketAddress address = mapper.readValue(quote("127.0.0.1"), InetSocketAddress.class);
+        assertEquals("127.0.0.1", address.getAddress().getHostAddress());
+
+        InetSocketAddress ip6 = mapper.readValue(
+                quote("2001:db8:85a3:8d3:1319:8a2e:370:7348"), InetSocketAddress.class);
+        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getAddress().getHostAddress());
+
+        InetSocketAddress ip6port = mapper.readValue(
+                quote("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"), InetSocketAddress.class);
+        assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6port.getAddress().getHostAddress());
+        assertEquals(443, ip6port.getPort());
+
+        // should we try resolving host names? That requires connectivity...
+        final String HOST = "www.ning.com";
+        address = mapper.readValue(quote(HOST), InetSocketAddress.class);
+        assertEquals(HOST, address.getHostName());
+    }
+
     // [JACKSON-597]
     public void testClass() throws IOException
     {

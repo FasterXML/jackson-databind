@@ -9,8 +9,29 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 
 /**
- * Numeric node that contains values that do not fit in simple
- * integer (int, long) or floating point (double) values.
+ * Numeric node for large decimal numeric values
+ *
+ * <p>The numeric value is stored as a {@link BigDecimal}, with all its
+ * pecularities; the first of which is that two instances of BigDecimal with the
+ * same <i>numeric</i> value may not be {@link Object#equals(Object) equal}. For
+ * instance:</p>
+ *
+ * <pre>
+ *     new BigDecimal("1.0").equals(new BigDecimal("1")); // returns false
+ * </pre>
+ *
+ * <p>However:</p>
+ *
+ * <pre>
+ *     new BigDecimal("1.0").compareTo(new BigDecimal("1")); // returns 0
+ * </pre>
+ *
+ * <p>In order to respect the {@code .equals()/.hashCode()} contract that all
+ * other {@link JsonNode} implementations do, {@link #hashCode()} is implemented
+ * by returning the hashcode of this BigDecimal's {@link
+ * BigDecimal#doubleValue() .doubleValue()}, which returns the same value for
+ * two instances which are numerically equal, and {@link #equals(Object)} is
+ * implemented by the means of {@link BigDecimal#compareTo(Object)}.</p>
  */
 public final class DecimalNode
     extends NumericNode
@@ -109,9 +130,11 @@ public final class DecimalNode
         if (o.getClass() != getClass()) { // final class, can do this
             return false;
         }
-        return ((DecimalNode) o)._value.equals(_value);
+        return ((DecimalNode) o)._value.compareTo(_value) == 0;
     }
 
     @Override
-    public int hashCode() { return _value.hashCode(); }
+    public int hashCode() {
+        return Double.valueOf(_value.doubleValue()).hashCode();
+    }
 }

@@ -4,6 +4,7 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
+import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.databind.*;
 
 public class TestStringConversions
@@ -38,6 +39,12 @@ public class TestStringConversions
         byte[] input = new byte[] { 1, 2, 3, 4, 5, 6, 7 };
         String encoded = MAPPER.convertValue(input, String.class);
         assertNotNull(encoded);
+
+        assertEquals("AQIDBAUGBw==", encoded);
+
+        // plus, ensure this is consistent:
+        assertEquals(Base64Variants.MIME.encode(input), encoded);
+
         byte[] result = MAPPER.convertValue(encoded, byte[].class);
         assertArrayEquals(input, result);
     }

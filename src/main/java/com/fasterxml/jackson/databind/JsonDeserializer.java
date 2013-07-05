@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Collection;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.deser.BeanDeserializerFactory;
+import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -250,6 +252,19 @@ public abstract class JsonDeserializer<T>
      */
     public JsonDeserializer<?> getDelegatee() {
         return null;
+    }
+
+    
+    /**
+     * Method needed by {@link BeanDeserializerFactory} to properly link
+     * managed- and back-reference pairs.
+     * 
+     * @since 2.2 (was moved out of <code>BeanDeserializerBase</code>)
+     */
+    public SettableBeanProperty findBackReference(String refName)
+    {
+        throw new IllegalArgumentException("Can not handle managed/back reference '"+refName
+                +"': type: value deserializer of type "+getClass().getName()+" does not support them");
     }
     
     /*

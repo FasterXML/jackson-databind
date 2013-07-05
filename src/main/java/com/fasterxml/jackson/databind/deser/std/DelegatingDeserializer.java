@@ -82,6 +82,12 @@ public abstract class DelegatingDeserializer
         return newDelegatingInstance(newDelegatee);
     }
 
+    @Override
+    public SettableBeanProperty findBackReference(String logicalName) {
+        // [Issue#253]: Hope this works....
+        return _delegatee.findBackReference(logicalName);
+    }
+    
     /*
     /**********************************************************************
     /* Overridden deserialization methods

@@ -16,7 +16,6 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
-import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -634,8 +633,11 @@ public abstract class BeanDeserializerBase
             return prop;
         }
         JsonDeserializer<?> valueDeser = prop.getValueDeserializer();
-        SettableBeanProperty backProp = null;
-        boolean isContainer = false;
+        SettableBeanProperty backProp = valueDeser.findBackReference(refName);
+
+        // 04-Jul-2013, tatu: Before 'findBackReference()' in 'JsonDeserializer' had to cast;
+        //   became unwieldy with delegating deserializer etc
+        /*
         if (valueDeser instanceof BeanDeserializerBase) {
             backProp = ((BeanDeserializerBase) valueDeser).findBackReference(refName);
         } else if (valueDeser instanceof ContainerDeserializerBase<?>) {
@@ -655,6 +657,7 @@ public abstract class BeanDeserializerBase
                     +"': type for value deserializer is not BeanDeserializer or ContainerDeserializerBase, but "
                     +valueDeser.getClass().getName());
         }
+        */
         if (backProp == null) {
             throw new IllegalArgumentException("Can not handle managed/back reference '"+refName+"': no back reference property found from type "
                     +prop.getType());
@@ -662,6 +665,7 @@ public abstract class BeanDeserializerBase
         // also: verify that type is compatible
         JavaType referredType = _beanType;
         JavaType backRefType = backProp.getType();
+        boolean isContainer = prop.getType().isContainerType();
         if (!backRefType.getRawClass().isAssignableFrom(referredType.getRawClass())) {
             throw new IllegalArgumentException("Can not handle managed/back reference '"+refName+"': back reference type ("
                     +backRefType.getRawClass().getName()+") not compatible with managed type ("
@@ -821,11 +825,11 @@ public abstract class BeanDeserializerBase
         }
         return prop;
     }
-    
     /**
      * Method needed by {@link BeanDeserializerFactory} to properly link
      * managed- and back-reference pairs.
      */
+    @Override
     public SettableBeanProperty findBackReference(String logicalName)
     {
         if (_backRefs == null) {

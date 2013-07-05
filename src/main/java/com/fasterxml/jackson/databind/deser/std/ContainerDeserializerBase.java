@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 
 /**
  * Intermediate base deserializer class that adds more shared accessor
@@ -17,6 +18,22 @@ public abstract class ContainerDeserializerBase<T>
         super(selfType);
     }
 
+    /*
+    /**********************************************************
+    /* Overrides
+    /**********************************************************
+     */
+    
+    @Override
+    public SettableBeanProperty findBackReference(String refName) {
+        JsonDeserializer<Object> valueDeser = getContentDeserializer();
+        if (valueDeser == null) {
+            throw new IllegalArgumentException("Can not handle managed/back reference '"+refName
+                    +"': type: container deserializer of type "+getClass().getName()+" returned null for 'getContentDeserializer()'");
+        }
+        return valueDeser.findBackReference(refName);
+    }
+    
     /*
     /**********************************************************
     /* Extended API

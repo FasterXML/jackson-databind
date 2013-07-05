@@ -72,8 +72,8 @@ public class AbstractDeserializer
      * Method called by <code>BeanDeserializer</code> to resolve back reference
      * part of managed references.
      */
-    public SettableBeanProperty findBackReference(String logicalName)
-    {
+    @Override
+    public SettableBeanProperty findBackReference(String logicalName) {
         return (_backRefProperties == null) ? null : _backRefProperties.get(logicalName);
     }
     

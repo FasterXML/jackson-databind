@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -83,6 +84,19 @@ public class TestJdkTypes
     {
         assertEquals(quote("127.0.0.1"), MAPPER.writeValueAsString(InetAddress.getByName("127.0.0.1")));
         assertEquals(quote("ning.com"), MAPPER.writeValueAsString(InetAddress.getByName("ning.com")));
+    }
+
+    public void testInetSocketAddress() throws IOException
+    {
+        assertEquals(
+                quote("127.0.0.1:8080"),
+                MAPPER.writeValueAsString(new InetSocketAddress("127.0.0.1", 8080)));
+        assertEquals(
+                quote("ning.com:6667"),
+                MAPPER.writeValueAsString(new InetSocketAddress("ning.com", 6667)));
+        assertEquals(
+                quote("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"),
+                MAPPER.writeValueAsString(new InetSocketAddress("2001:db8:85a3:8d3:1319:8a2e:370:7348", 443)));
     }
 
     // [JACKSON-597]

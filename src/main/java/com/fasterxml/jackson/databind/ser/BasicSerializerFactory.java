@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -363,6 +364,9 @@ public abstract class BasicSerializerFactory
         // One unfortunate special case, as per [JACKSON-484]
         if (InetAddress.class.isAssignableFrom(raw)) {
             return InetAddressSerializer.instance;
+        }
+        if (InetSocketAddress.class.isAssignableFrom(raw)) {
+            return InetSocketAddressSerializer.instance;
         }
         // ... and another one, [JACKSON-522], for TimeZone
         if (TimeZone.class.isAssignableFrom(raw)) {

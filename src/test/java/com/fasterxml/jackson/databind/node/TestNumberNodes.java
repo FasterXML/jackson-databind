@@ -227,8 +227,8 @@ public class TestNumberNodes extends NodeTestBase
         ObjectMapper mapper = new ObjectMapper()
                 .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
                 .enable(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
-        final String JSON = "{\"x\":1e2}";
-        final JsonNode node = mapper.readTree(JSON);
+        final String INPUT = "{\"x\":1e2}";
+        final JsonNode node = mapper.readTree(INPUT);
         String result = mapper.writeValueAsString(node);
         assertEquals("{\"x\":100}", result);
     }

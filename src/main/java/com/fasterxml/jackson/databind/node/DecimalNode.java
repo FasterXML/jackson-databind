@@ -5,7 +5,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 
 /**
@@ -116,10 +118,16 @@ public final class DecimalNode
     }
 
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
+    public final void serialize(JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonProcessingException
     {
-        jg.writeNumber(_value);
+        if (provider.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN)) {
+            if (!(jgen instanceof TokenBuffer)) { // [Issue#232]
+                jgen.writeNumber(((BigDecimal) _value).toPlainString());
+                return;
+            }
+        }
+        jgen.writeNumber(_value);
     }
 
     @Override

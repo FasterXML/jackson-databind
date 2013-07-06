@@ -6,8 +6,7 @@ import java.math.BigInteger;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 
 /**
  * Basic tests for {@link JsonNode} implementations that
@@ -245,4 +244,14 @@ public class TestNumberNodes extends NodeTestBase
         assertTrue(BigIntegerNode.valueOf(BigInteger.valueOf(Long.MIN_VALUE)).canConvertToLong());
     }
 
+    public void testBigDecimalAsPlain() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper()
+	    .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
+	    .enable(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
+        final String INPUT = "{\"x\":1e2}";
+        final JsonNode node = mapper.readTree(INPUT);
+        String result = mapper.writeValueAsString(node);
+        assertEquals("{\"x\":100}", result);
+    }
 }

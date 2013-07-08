@@ -5,10 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.util.TokenBuffer;
-
+import com.fasterxml.jackson.databind.*;
 
 /**
  * Numeric node that contains values that do not fit in simple
@@ -100,12 +97,16 @@ public final class DecimalNode
     public final void serialize(JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonProcessingException
     {
+        // 07-Jul-2013, tatu: Should be handled by propagating setting to JsonGenerator
+        //    so this should not be needed:
+        /*
         if (provider.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN)) {
             if (!(jgen instanceof TokenBuffer)) { // [Issue#232]
                 jgen.writeNumber(((BigDecimal) _value).toPlainString());
                 return;
             }
         }
+        */
         jgen.writeNumber(_value);
     }
 

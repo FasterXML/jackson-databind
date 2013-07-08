@@ -63,18 +63,18 @@ public class ObjectReader
     /**
      * Factory used for constructing {@link JsonGenerator}s
      */
-    protected final JsonFactory _jsonFactory;
-    
+    protected final JsonFactory _parserFactory;
+
     /**
      * Flag that indicates whether root values are expected to be unwrapped or not
      */
     protected final boolean _unwrapRoot;
-    
+
     /*
     /**********************************************************
     /* Configuration that can be changed during building
     /**********************************************************
-     */   
+     */
 
     /**
      * Declared type of value to instantiate during deserialization.
@@ -130,13 +130,13 @@ public class ObjectReader
      * @since 2.1
      */
     protected final DataFormatReaders _dataFormatReaders;
-    
+
     /*
     /**********************************************************
     /* Caching
     /**********************************************************
      */
-    
+
     /**
      * Root-level cached deserializers
      */
@@ -172,7 +172,7 @@ public class ObjectReader
         _config = config;
         _context = mapper._deserializationContext;
         _rootDeserializers = mapper._rootDeserializers;
-        _jsonFactory = mapper._jsonFactory;
+        _parserFactory = mapper._jsonFactory;
         _rootNames = mapper._rootNames;
         _valueType = valueType;
         _valueToUpdate = valueToUpdate;
@@ -199,7 +199,7 @@ public class ObjectReader
         _context = base._context;
 
         _rootDeserializers = base._rootDeserializers;
-        _jsonFactory = base._jsonFactory;
+        _parserFactory = base._parserFactory;
         _rootNames = base._rootNames;
 
         _valueType = valueType;
@@ -223,7 +223,7 @@ public class ObjectReader
         _context = base._context;
 
         _rootDeserializers = base._rootDeserializers;
-        _jsonFactory = base._jsonFactory;
+        _parserFactory = base._parserFactory;
         _rootNames = base._rootNames;
 
         _valueType = base._valueType;
@@ -241,7 +241,7 @@ public class ObjectReader
         _context = base._context;
 
         _rootDeserializers = base._rootDeserializers;
-        _jsonFactory = f;
+        _parserFactory = f;
         _rootNames = base._rootNames;
 
         _valueType = base._valueType;
@@ -365,7 +365,7 @@ public class ObjectReader
      * @since 2.1
      */
     public ObjectReader with(JsonFactory f) {
-        if (f == _jsonFactory) {
+        if (f == _parserFactory) {
             return this;
         }
         ObjectReader r = new ObjectReader(this, f);
@@ -581,7 +581,7 @@ public class ObjectReader
     }
 
     public boolean isEnabled(JsonParser.Feature f) {
-        return _jsonFactory.isEnabled(f);
+        return _parserFactory.isEnabled(f);
     }
 
     /**
@@ -596,7 +596,7 @@ public class ObjectReader
      */
     @Override
     public JsonFactory getFactory() {
-        return _jsonFactory;
+        return _parserFactory;
     }
     
     /**
@@ -605,7 +605,7 @@ public class ObjectReader
     @Deprecated
     @Override
     public JsonFactory getJsonFactory() {
-        return _jsonFactory;
+        return _parserFactory;
     }
 
     public TypeFactory getTypeFactory() {
@@ -795,7 +795,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(src), false);
         }
-        return (T) _bindAndClose(_jsonFactory.createParser(src), _valueToUpdate);
+        return (T) _bindAndClose(_parserFactory.createParser(src), _valueToUpdate);
     }
 
     /**
@@ -811,7 +811,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        return (T) _bindAndClose(_jsonFactory.createParser(src), _valueToUpdate);
+        return (T) _bindAndClose(_parserFactory.createParser(src), _valueToUpdate);
     }
     
     /**
@@ -827,7 +827,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        return (T) _bindAndClose(_jsonFactory.createParser(src), _valueToUpdate);
+        return (T) _bindAndClose(_parserFactory.createParser(src), _valueToUpdate);
     }
 
     /**
@@ -843,7 +843,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(src, 0, src.length);
         }
-        return (T) _bindAndClose(_jsonFactory.createParser(src), _valueToUpdate);
+        return (T) _bindAndClose(_parserFactory.createParser(src), _valueToUpdate);
     }
 
     /**
@@ -859,7 +859,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(src, offset, length);
         }
-        return (T) _bindAndClose(_jsonFactory.createParser(src, offset, length), _valueToUpdate);
+        return (T) _bindAndClose(_parserFactory.createParser(src, offset, length), _valueToUpdate);
     }
     
     @SuppressWarnings("unchecked")
@@ -869,7 +869,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
         }
-        return (T) _bindAndClose(_jsonFactory.createParser(src), _valueToUpdate);
+        return (T) _bindAndClose(_parserFactory.createParser(src), _valueToUpdate);
     }
 
     /**
@@ -885,7 +885,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return (T) _detectBindAndClose(_dataFormatReaders.findFormat(_inputStream(src)), true);
         }
-        return (T) _bindAndClose(_jsonFactory.createParser(src), _valueToUpdate);
+        return (T) _bindAndClose(_parserFactory.createParser(src), _valueToUpdate);
     }
 
     /**
@@ -920,7 +920,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return _detectBindAndCloseAsTree(in);
         }
-        return _bindAndCloseAsTree(_jsonFactory.createParser(in));
+        return _bindAndCloseAsTree(_parserFactory.createParser(in));
     }
     
     /**
@@ -938,7 +938,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(r);
         }
-        return _bindAndCloseAsTree(_jsonFactory.createParser(r));
+        return _bindAndCloseAsTree(_parserFactory.createParser(r));
     }
 
     /**
@@ -956,7 +956,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
-        return _bindAndCloseAsTree(_jsonFactory.createParser(json));
+        return _bindAndCloseAsTree(_parserFactory.createParser(json));
     }
 
     /*
@@ -1012,7 +1012,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src), false);
         }
-        return _bindAndReadValues(_jsonFactory.createParser(src), _valueToUpdate);
+        return _bindAndReadValues(_parserFactory.createParser(src), _valueToUpdate);
     }
     
     /**
@@ -1024,7 +1024,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        JsonParser jp = _jsonFactory.createParser(src);
+        JsonParser jp = _parserFactory.createParser(src);
         if (_schema != null) {
             jp.setSchema(_schema);
         }
@@ -1045,7 +1045,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
-        JsonParser jp = _jsonFactory.createParser(json);
+        JsonParser jp = _parserFactory.createParser(json);
         if (_schema != null) {
             jp.setSchema(_schema);
         }
@@ -1064,7 +1064,7 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             return _detectBindAndReadValues(_dataFormatReaders.findFormat(src, offset, length), false);
         }
-        return _bindAndReadValues(_jsonFactory.createParser(src), _valueToUpdate);
+        return _bindAndReadValues(_parserFactory.createParser(src), _valueToUpdate);
     }
 
     /**
@@ -1085,7 +1085,7 @@ public class ObjectReader
             return _detectBindAndReadValues(
                     _dataFormatReaders.findFormat(_inputStream(src)), false);
         }
-        return _bindAndReadValues(_jsonFactory.createParser(src), _valueToUpdate);
+        return _bindAndReadValues(_parserFactory.createParser(src), _valueToUpdate);
     }
 
     /**
@@ -1100,7 +1100,7 @@ public class ObjectReader
             return _detectBindAndReadValues(
                     _dataFormatReaders.findFormat(_inputStream(src)), true);
         }
-        return _bindAndReadValues(_jsonFactory.createParser(src), _valueToUpdate);
+        return _bindAndReadValues(_parserFactory.createParser(src), _valueToUpdate);
     }
 
     /*
@@ -1482,9 +1482,9 @@ public class ObjectReader
     protected void _verifySchemaType(FormatSchema schema)
     {
         if (schema != null) {
-            if (!_jsonFactory.canUseSchema(schema)) {
+            if (!_parserFactory.canUseSchema(schema)) {
                     throw new IllegalArgumentException("Can not use FormatSchema of type "+schema.getClass().getName()
-                            +" for format "+_jsonFactory.getFormatName());
+                            +" for format "+_parserFactory.getFormatName());
             }
         }
     }

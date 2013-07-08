@@ -231,5 +231,8 @@ public class TestNumberNodes extends NodeTestBase
         final JsonNode node = mapper.readTree(INPUT);
         String result = mapper.writeValueAsString(node);
         assertEquals("{\"x\":100}", result);
+
+        // also via ObjectWriter:
+        assertEquals("{\"x\":100}", mapper.writer().writeValueAsString(node));
     }
 }

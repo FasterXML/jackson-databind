@@ -2719,6 +2719,10 @@ public class ObjectMapper
         if (cfg.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
             jgen.useDefaultPrettyPrinter();
         }
+        // [Issue#232]
+        if (cfg.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN)) {
+            jgen.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        }
         // [JACKSON-282]: consider Closeable
         if (cfg.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _configAndWriteCloseable(jgen, value, cfg);
@@ -2748,6 +2752,11 @@ public class ObjectMapper
         if (cfg.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
             jgen.useDefaultPrettyPrinter();
         }
+        // [Issue#232]
+        if (cfg.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN)) {
+            jgen.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
+        }
+
         // [JACKSON-282]: consider Closeable
         if (cfg.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
             _configAndWriteCloseable(jgen, value, cfg);
@@ -2824,7 +2833,7 @@ public class ObjectMapper
             }
         }
     }
-
+    
     /*
     /**********************************************************
     /* Internal methods for deserialization, overridable

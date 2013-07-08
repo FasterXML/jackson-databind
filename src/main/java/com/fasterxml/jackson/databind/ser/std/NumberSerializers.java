@@ -273,6 +273,9 @@ public class NumberSerializers
         {
             // As per [JACKSON-423], handling for BigInteger and BigDecimal was missing!
             if (value instanceof BigDecimal) {
+                // 07-Jul-2013, tatu: Should be handled by propagating setting to JsonGenerator
+                //    so this should not be needed:
+                /*
                 if (provider.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN)) {
                     // [Issue#232]: Ok, rather clumsy, but let's try to work around the problem with:
                     if (!(jgen instanceof TokenBuffer)) {
@@ -280,6 +283,7 @@ public class NumberSerializers
                         return;
                     }
                 }
+                */
                 jgen.writeNumber((BigDecimal) value);
             } else if (value instanceof BigInteger) {
                 jgen.writeNumber((BigInteger) value);

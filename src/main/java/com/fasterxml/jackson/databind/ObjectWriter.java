@@ -32,7 +32,7 @@ public class ObjectWriter
     implements Versioned,
         java.io.Serializable // since 2.1
 {
-    private static final long serialVersionUID = -7024829992408267532L;
+    private static final long serialVersionUID = -7040667122552707164L;
 
     /**
      * We need to keep track of explicit disabling of pretty printing;
@@ -58,11 +58,11 @@ public class ObjectWriter
     /**
      * Factory used for constructing {@link JsonGenerator}s
      */
-    protected final JsonFactory _jsonFactory;
-    
+    protected final JsonFactory _generatorFactory;
+
     /*
     /**********************************************************
-    /* Configuration that can be changed during building
+    /* Configuration that can be changed via mutant factories
     /**********************************************************
      */
 
@@ -105,6 +105,17 @@ public class ObjectWriter
 
     /*
     /**********************************************************
+    /* Derived settings
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.3
+     */
+    protected final boolean  _cfgBigDecimalAsPlain;
+
+    /*
+    /**********************************************************
     /* Life-cycle, constructors
     /**********************************************************
      */
@@ -116,10 +127,11 @@ public class ObjectWriter
             JavaType rootType, PrettyPrinter pp)
     {
         _config = config;
+        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
 
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
-        _jsonFactory = mapper._jsonFactory;
+        _generatorFactory = mapper._jsonFactory;
 
         if (rootType != null) {
             rootType = rootType.withStaticTyping();
@@ -138,10 +150,11 @@ public class ObjectWriter
     protected ObjectWriter(ObjectMapper mapper, SerializationConfig config)
     {
         _config = config;
+        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
 
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
-        _jsonFactory = mapper._jsonFactory;
+        _generatorFactory = mapper._jsonFactory;
 
         _rootType = null;
         _rootSerializer = null;
@@ -157,10 +170,11 @@ public class ObjectWriter
             FormatSchema s)
     {
         _config = config;
+        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
 
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
-        _jsonFactory = mapper._jsonFactory;
+        _generatorFactory = mapper._jsonFactory;
 
         _rootType = null;
         _rootSerializer = null;
@@ -177,10 +191,11 @@ public class ObjectWriter
             PrettyPrinter pp, FormatSchema s, CharacterEscapes escapes)
     {
         _config = config;
+        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
 
         _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
-        _jsonFactory = base._jsonFactory;
+        _generatorFactory = base._generatorFactory;
 
         _rootType = rootType;
         _rootSerializer = rootSer;
@@ -195,10 +210,11 @@ public class ObjectWriter
     protected ObjectWriter(ObjectWriter base, SerializationConfig config)
     {
         _config = config;
+        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
 
         _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
-        _jsonFactory = base._jsonFactory;
+        _generatorFactory = base._generatorFactory;
         _schema = base._schema;
         _characterEscapes = base._characterEscapes;
 
@@ -458,7 +474,7 @@ public class ObjectWriter
     }
 
     public boolean isEnabled(JsonParser.Feature f) {
-        return _jsonFactory.isEnabled(f);
+        return _generatorFactory.isEnabled(f);
     }
 
     /**
@@ -473,14 +489,14 @@ public class ObjectWriter
      */
     @Deprecated
     public JsonFactory getJsonFactory() {
-        return _jsonFactory;
+        return _generatorFactory;
     }
 
     /**
      * @since 2.2
      */
     public JsonFactory getFactory() {
-        return _jsonFactory;
+        return _generatorFactory;
     }
     
     public TypeFactory getTypeFactory() {
@@ -542,7 +558,7 @@ public class ObjectWriter
     public void writeValue(File resultFile, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(_jsonFactory.createGenerator(resultFile, JsonEncoding.UTF8), value);
+        _configAndWriteValue(_generatorFactory.createGenerator(resultFile, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -559,7 +575,7 @@ public class ObjectWriter
     public void writeValue(OutputStream out, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(_jsonFactory.createGenerator(out, JsonEncoding.UTF8), value);
+        _configAndWriteValue(_generatorFactory.createGenerator(out, JsonEncoding.UTF8), value);
     }
 
     /**
@@ -575,7 +591,7 @@ public class ObjectWriter
     public void writeValue(Writer w, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        _configAndWriteValue(_jsonFactory.createGenerator(w), value);
+        _configAndWriteValue(_generatorFactory.createGenerator(w), value);
     }
 
     /**
@@ -590,9 +606,9 @@ public class ObjectWriter
         throws JsonProcessingException
     {        
         // alas, we have to pull the recycler directly here...
-        SegmentedStringWriter sw = new SegmentedStringWriter(_jsonFactory._getBufferRecycler());
+        SegmentedStringWriter sw = new SegmentedStringWriter(_generatorFactory._getBufferRecycler());
         try {
-            _configAndWriteValue(_jsonFactory.createGenerator(sw), value);
+            _configAndWriteValue(_generatorFactory.createGenerator(sw), value);
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -613,9 +629,9 @@ public class ObjectWriter
     public byte[] writeValueAsBytes(Object value)
         throws JsonProcessingException
     {
-        ByteArrayBuilder bb = new ByteArrayBuilder(_jsonFactory._getBufferRecycler());
+        ByteArrayBuilder bb = new ByteArrayBuilder(_generatorFactory._getBufferRecycler());
         try {
-            _configAndWriteValue(_jsonFactory.createGenerator(bb, JsonEncoding.UTF8), value);
+            _configAndWriteValue(_generatorFactory.createGenerator(bb, JsonEncoding.UTF8), value);
         } catch (JsonProcessingException e) { // to support [JACKSON-758]
             throw e;
         } catch (IOException e) { // shouldn't really happen, but is declared as possibility so:
@@ -683,9 +699,9 @@ public class ObjectWriter
     protected void _verifySchemaType(FormatSchema schema)
     {
         if (schema != null) {
-            if (!_jsonFactory.canUseSchema(schema)) {
+            if (!_generatorFactory.canUseSchema(schema)) {
                     throw new IllegalArgumentException("Can not use FormatSchema of type "+schema.getClass().getName()
-                            +" for format "+_jsonFactory.getFormatName());
+                            +" for format "+_generatorFactory.getFormatName());
             }
         }
     }
@@ -839,6 +855,9 @@ public class ObjectWriter
         // [JACKSON-520]: add support for pass-through schema:
         if (_schema != null) {
             jgen.setSchema(_schema);
+        }
+        if (_cfgBigDecimalAsPlain) { // should only set if explicitly set; this should work for now:
+            jgen.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
         }
     }
 }

@@ -8,15 +8,10 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 /**
  * Container class that contains serializers for JDK types that
@@ -47,34 +42,6 @@ public class JdkDeserializers
         for (Class<?> cls : numberTypes) {
             _classNames.add(cls.getName());
         }
-    }
-
-    /**
-     * @deprecated Since 2.2 -- use {@link #find} instead.
-     */
-    @Deprecated
-    public static StdDeserializer<?>[] all()
-    {
-        return new StdDeserializer[] {
-            // from String types:
-            UUIDDeserializer.instance,
-            URLDeserializer.instance,
-            URIDeserializer.instance,
-            FileDeserializer.instance,
-            CurrencyDeserializer.instance,
-            PatternDeserializer.instance,
-            LocaleDeserializer.instance,
-            InetAddressDeserializer.instance,
-            InetSocketAddressDeserializer.instance,
-            CharsetDeserializer.instance,
-            
-            // other types:
-
-            // (note: AtomicInteger/Long work due to single-arg constructor;
-            AtomicBooleanDeserializer.instance,
-            ClassDeserializer.instance,
-            StackTraceElementDeserializer.instance
-        };
     }
 
     public static JsonDeserializer<?> find(Class<?> rawType, String clsName)
@@ -262,83 +229,6 @@ public class JdkDeserializers
         }
     }
     
-    /**
-     * As per [JACKSON-484], also need special handling for InetAddress...
-     */
-    protected static class InetAddressDeserializer
-        extends FromStringDeserializer<InetAddress>
-    {
-        public final static InetAddressDeserializer instance = new InetAddressDeserializer();
-
-        public InetAddressDeserializer() { super(InetAddress.class); }
-    
-        @Override
-        protected InetAddress _deserialize(String value, DeserializationContext ctxt)
-            throws IOException
-        {
-            return InetAddress.getByName(value);
-        }
-    }
-
-    /**
-     * Deserializer for {@link InetSocketAddress}.
-     *
-     * @see <a href="https://github.com/FasterXML/jackson-databind/issues/48">Issue 48</a>
-     */
-    protected static class InetSocketAddressDeserializer
-            extends FromStringDeserializer<InetSocketAddress>
-    {
-        public final static InetSocketAddressDeserializer instance = new InetSocketAddressDeserializer();
-
-        public InetSocketAddressDeserializer() { super(InetSocketAddress.class); }
-
-        @Override
-        protected InetSocketAddress _deserialize(String value, DeserializationContext ctxt)
-                throws IOException
-        {
-            if (value.startsWith("[")) {
-                // bracketed IPv6 (with port number)
-
-                int i = value.lastIndexOf(']');
-                if (i == -1) {
-                    throw new InvalidFormatException(
-                            "Bracketed IPv6 address must contain closing bracket.",
-                            value, InetSocketAddress.class);
-                }
-
-                int j = value.indexOf(':', i);
-                int port = j > -1 ? Integer.parseInt(value.substring(j + 1)) : 0;
-                return new InetSocketAddress(value.substring(0, i + 1), port);
-            } else {
-                int i = value.indexOf(':');
-                if (i != -1 && value.indexOf(':', i + 1) == -1) {
-                    // host:port
-                    int port = Integer.parseInt(value.substring(i));
-                    return new InetSocketAddress(value.substring(0, i), port);
-                } else {
-                    // host or unbracketed IPv6, without port number
-                    return new InetSocketAddress(value, 0);
-                }
-            }
-        }
-    }
-
-    // [JACKSON-789]
-    protected static class CharsetDeserializer
-        extends FromStringDeserializer<Charset>
-    {
-        public final static CharsetDeserializer instance = new CharsetDeserializer();
-
-        public CharsetDeserializer() { super(Charset.class); }
-    
-        @Override
-        protected Charset _deserialize(String value, DeserializationContext ctxt)
-            throws IOException
-        {
-            return Charset.forName(value);
-        }
-    }
-
     public static class FileDeserializer
         extends FromStringDeserializer<File>
     {
@@ -350,123 +240,6 @@ public class JdkDeserializers
         protected File _deserialize(String value, DeserializationContext ctxt)
         {
             return new File(value);
-        }
-    }
-    
-    /*
-    /**********************************************************
-    /* AtomicXxx types
-    /**********************************************************
-     */
-    
-    public static class AtomicReferenceDeserializer
-        extends StdScalarDeserializer<AtomicReference<?>>
-        implements ContextualDeserializer
-    {
-        /**
-         * Type of value that we reference
-         */
-        protected final JavaType _referencedType;
-        
-        protected final JsonDeserializer<?> _valueDeserializer;
-        
-        /**
-         * @param referencedType Parameterization of this reference
-         */
-        public AtomicReferenceDeserializer(JavaType referencedType) {
-            this(referencedType, null);
-        }
-        
-        public AtomicReferenceDeserializer(JavaType referencedType,
-                JsonDeserializer<?> deser)
-        {
-            super(AtomicReference.class);
-            _referencedType = referencedType;
-            _valueDeserializer = deser;
-        }
-        
-        @Override
-        public AtomicReference<?> deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-        {
-            return new AtomicReference<Object>(_valueDeserializer.deserialize(jp, ctxt));
-        }
-        
-        @Override
-        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-                BeanProperty property) throws JsonMappingException
-        {
-            JsonDeserializer<?> deser = _valueDeserializer;
-            if (deser != null) {
-                return this;
-            }
-            return new AtomicReferenceDeserializer(_referencedType,
-                    ctxt.findContextualValueDeserializer(_referencedType, property));
-        }
-    }
-
-    public static class AtomicBooleanDeserializer
-        extends StdScalarDeserializer<AtomicBoolean>
-    {
-        public final static AtomicBooleanDeserializer instance = new AtomicBooleanDeserializer();
-
-        public AtomicBooleanDeserializer() { super(AtomicBoolean.class); }
-        
-        @Override
-        public AtomicBoolean deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-        {
-            // 16-Dec-2010, tatu: Should we actually convert null to null AtomicBoolean?
-            return new AtomicBoolean(_parseBooleanPrimitive(jp, ctxt));
-        }
-    }
-    
-    /*
-    /**********************************************************
-    /* Deserializers for other JDK types
-    /**********************************************************
-     */
-
-    public static class StackTraceElementDeserializer
-        extends StdScalarDeserializer<StackTraceElement>
-    {
-        public final static StackTraceElementDeserializer instance = new StackTraceElementDeserializer();
-
-        public StackTraceElementDeserializer() { super(StackTraceElement.class); }
-    
-        @Override
-        public StackTraceElement deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-        {
-            JsonToken t = jp.getCurrentToken();
-            // Must get an Object
-            if (t == JsonToken.START_OBJECT) {
-                String className = "", methodName = "", fileName = "";
-                int lineNumber = -1;
-    
-                while ((t = jp.nextValue()) != JsonToken.END_OBJECT) {
-                    String propName = jp.getCurrentName();
-                    if ("className".equals(propName)) {
-                        className = jp.getText();
-                    } else if ("fileName".equals(propName)) {
-                        fileName = jp.getText();
-                    } else if ("lineNumber".equals(propName)) {
-                        if (t.isNumeric()) {
-                            lineNumber = jp.getIntValue();
-                        } else {
-                            throw JsonMappingException.from(jp, "Non-numeric token ("+t+") for property 'lineNumber'");
-                        }
-                    } else if ("methodName".equals(propName)) {
-                        methodName = jp.getText();
-                    } else if ("nativeMethod".equals(propName)) {
-                        // no setter, not passed via constructor: ignore
-                    } else {
-                        handleUnknownProperty(jp, ctxt, _valueClass, propName);
-                    }
-                }
-                return new StackTraceElement(className, methodName, fileName, lineNumber);
-            }
-            throw ctxt.mappingException(_valueClass, t);
         }
     }
 }

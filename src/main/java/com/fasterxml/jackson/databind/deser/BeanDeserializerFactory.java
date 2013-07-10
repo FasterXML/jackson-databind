@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.deser.impl.*;
-import com.fasterxml.jackson.databind.deser.std.JdkDeserializers;
+import com.fasterxml.jackson.databind.deser.std.AtomicReferenceDeserializer;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -207,7 +207,7 @@ public class BeanDeserializerFactory
             } else {
                 referencedType = params[0];
             }
-            return new JdkDeserializers.AtomicReferenceDeserializer(referencedType);
+            return new AtomicReferenceDeserializer(referencedType);
         }
         return findOptionalStdDeserializer(ctxt, type, beanDesc);
     }

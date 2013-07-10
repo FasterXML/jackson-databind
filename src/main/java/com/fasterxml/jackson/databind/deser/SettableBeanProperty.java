@@ -62,8 +62,10 @@ public abstract class SettableBeanProperty
     
     /**
      * Deserializer used for handling property value.
+     *<p>
+     * NOTE: has been immutable since 2.3
      */
-    protected JsonDeserializer<Object> _valueDeserializer;
+    protected final JsonDeserializer<Object> _valueDeserializer;
 
     /**
      * If value will contain type information (to support
@@ -144,7 +146,7 @@ public abstract class SettableBeanProperty
     {
         this(propName, type, wrapper, typeDeser, contextAnnotations, false);
     }
-    
+
     protected SettableBeanProperty(String propName, JavaType type, PropertyName wrapper,
             TypeDeserializer typeDeser, Annotations contextAnnotations,
             boolean isRequired)
@@ -176,6 +178,30 @@ public abstract class SettableBeanProperty
         _valueDeserializer = MISSING_VALUE_DESERIALIZER;
     }
 
+    /**
+     * Constructor only used by {@link ObjectIdValueProperty}.
+     * 
+     * @since 2.3
+     */
+    protected SettableBeanProperty(String propName, JavaType type, 
+            boolean isRequired, JsonDeserializer<Object> valueDeser)
+    {
+        // as with above ctor, intern()ing probably fine
+        if (propName == null || propName.length() == 0) {
+            _propName = "";
+        } else {
+            _propName = InternCache.instance.intern(propName);
+        }
+        _type = type;
+        _wrapperName = null;
+        _isRequired = isRequired;
+        _contextAnnotations = null;
+        _viewMatcher = null;
+        _nullProvider = null;
+        _valueTypeDeserializer = null;
+        _valueDeserializer = valueDeser;
+    }
+    
     /**
      * Basic copy-constructor for sub-classes to use.
      */

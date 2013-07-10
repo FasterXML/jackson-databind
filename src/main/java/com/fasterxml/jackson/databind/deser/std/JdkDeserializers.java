@@ -283,7 +283,7 @@ public class JdkDeserializers
     /**
      * Deserializer for {@link InetSocketAddress}.
      *
-     * @see <a href="https://github.com/FasterXML/jackson-databind/issues/48">Issue 48</a>.
+     * @see <a href="https://github.com/FasterXML/jackson-databind/issues/48">Issue 48</a>
      */
     protected static class InetSocketAddressDeserializer
             extends FromStringDeserializer<InetSocketAddress>

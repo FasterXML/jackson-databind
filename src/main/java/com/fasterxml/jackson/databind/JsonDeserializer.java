@@ -82,9 +82,11 @@ public abstract class JsonDeserializer<T>
      * used, {@link #deserialize(JsonParser, DeserializationContext)}),
      * which takes in initialized value instance, to be
      * configured and/or populated by deserializer.
-     * Method is not necessarily used for all supported types; most commonly
-     * it is used
-     * for Collections and Maps.
+     * Method is not necessarily used (or supported) by all types
+     * (it will not work for immutable types, for obvious reasons):
+     * most commonly it is used for Collections and Maps.
+     * It may be used both with "updating readers" (for POJOs) and
+     * when Collections and Maps use "getter as setter".
      *<p>
      * Default implementation just throws
      * {@link UnsupportedOperationException}, to indicate that types
@@ -92,7 +94,7 @@ public abstract class JsonDeserializer<T>
      * update-existing-value operation (esp. immutable types)
      */
     public T deserialize(JsonParser jp, DeserializationContext ctxt,
-                         T intoValue)
+            T intoValue)
         throws IOException, JsonProcessingException
     {
         throw new UnsupportedOperationException("Can not update object of type "

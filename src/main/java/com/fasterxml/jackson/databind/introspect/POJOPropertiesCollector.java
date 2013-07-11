@@ -498,7 +498,7 @@ public class POJOPropertiesCollector
         }
         String implName; // from naming convention
         boolean visible;
-        
+
         PropertyName pn = (ai == null) ? null : ai.findNameForSerialization(m);
         String explName = (pn == null) ? null : pn.getSimpleName();
         if (explName == null) { // no explicit name; must follow naming convention

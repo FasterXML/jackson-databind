@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.util.BeanUtil;
 
 /**
  * Helper class used for aggregating information about a single
@@ -186,6 +187,20 @@ public class POJOPropertyBuilder
                 if (nextClass.isAssignableFrom(getterClass)) { // getter more specific
                     continue;
                 }
+            }
+            /* [Issue#238]: Also, regular getters have precedence over "is-getters", so
+             *   latter can be skipped to resolve otherwise conflict.
+             *   This is bit ugly as we have to re-process naming (as determination of type
+             *   is not retained), but should work.
+             */
+            boolean thisIsGetter = BeanUtil.okNameForIsGetter(getter, getter.getName()) != null;
+            boolean nextIsGetter = BeanUtil.okNameForIsGetter(nextGetter, nextGetter.getName()) != null;
+            
+            if (thisIsGetter != nextIsGetter) {
+                if (thisIsGetter) {
+                    getter = nextGetter;
+                } 
+                continue;
             }
             throw new IllegalArgumentException("Conflicting getter definitions for property \""+getName()+"\": "
                     +getter.getFullName()+" vs "+nextGetter.getFullName());

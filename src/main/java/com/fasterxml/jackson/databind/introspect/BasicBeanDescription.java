@@ -463,8 +463,18 @@ public class BasicBeanDescription extends BeanDescription
         if (_annotationIntrospector.hasCreatorAnnotation(am)) {
             return true;
         }
-        if ("valueOf".equals(am.getName())) {
+        final String name = am.getName();
+        if ("valueOf".equals(name)) {
             return true;
+        }
+        // [Issue#208] Also accept "fromString()", if takes String or CharSequence
+        if ("fromString".equals(name)) {
+            if (1 == am.getParameterCount()) {
+                Class<?> cls = am.getRawParameterType(0);
+                if (cls == String.class || CharSequence.class.isAssignableFrom(cls)) {
+                    return true;
+                }
+            }
         }
         return false;
     }

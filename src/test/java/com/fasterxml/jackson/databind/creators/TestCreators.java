@@ -168,6 +168,20 @@ public class TestCreators
         @JsonCreator
         public static NoArgFactoryBean create() { return new NoArgFactoryBean(123); }
     }
+
+    // [Issue#208]
+    static class FromStringBean {
+        protected String value;
+
+        private FromStringBean(String s, boolean x) {
+            value = s;
+        }
+
+        // should be recognized as implicit factory method
+        public static FromStringBean fromString(String s) {
+            return new FromStringBean(s, false);
+        }
+    }
     
     /*
     /**********************************************************
@@ -334,6 +348,13 @@ public class TestCreators
         assertEquals(str, bean.value);
     }
 
+    public void testStringFactoryAlt() throws Exception
+    {
+        String str = "xyz";
+        FromStringBean bean = MAPPER.readValue(quote(str), FromStringBean.class);
+        assertEquals(str, bean.value);
+    }
+        
     public void testConstructorCreator() throws Exception
     {
         CreatorBean bean = MAPPER.readValue

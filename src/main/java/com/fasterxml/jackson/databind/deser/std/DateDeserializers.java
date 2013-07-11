@@ -41,25 +41,6 @@ public class DateDeserializers
         }
     }
 
-    /**
-     * @deprecated Since 2.2 -- use {@link #find} instead.
-     */
-    @Deprecated
-    public static StdDeserializer<?>[] all()
-    {
-        return  new StdDeserializer[] {
-            CalendarDeserializer.instance, // for nominal type of java.util.Calendar
-            DateDeserializer.instance,
-            /* 24-Jan-2010, tatu: When including type information, we may
-             *    know that we specifically need GregorianCalendar...
-             */
-            CalendarDeserializer.gregorianInstance,
-            SqlDateDeserializer.instance,
-            TimestampDeserializer.instance,
-            TimeZoneDeserializer.instance
-        };
-    }
-
     public static JsonDeserializer<?> find(Class<?> rawType, String clsName)
     {
         if (!_classNames.contains(clsName)) {

@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
 
 public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
 {
@@ -31,30 +32,5 @@ public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
         InputStream in = new ByteBufferBackedInputStream(copy);
         gen.writeBinary(in, copy.remaining());
         in.close();
-    }
-
-    public class ByteBufferBackedInputStream extends InputStream
-    {
-        protected final ByteBuffer _buffer;
-
-        public ByteBufferBackedInputStream(ByteBuffer buf) {
-            _buffer = buf;
-        }
-
-        @Override
-        public int read() throws IOException {
-            return _buffer.hasRemaining() ? (_buffer.get() & 0xFF) : -1;
-        }
-
-        @Override
-        public int read(byte[] bytes, int off, int len) throws IOException
-        {
-            if (!_buffer.hasRemaining()) {
-                return -1;
-            }
-            len = Math.min(len, _buffer.remaining());
-            _buffer.get(bytes, off, len);
-            return len;
-        }
     }
 }

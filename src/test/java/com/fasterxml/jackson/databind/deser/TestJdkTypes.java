@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.*;
 import java.net.*;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Currency;
 import java.util.List;
@@ -70,7 +71,7 @@ public class TestJdkTypes extends BaseMapTest
     /**********************************************************
      */
     
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
      * Related to issues [JACKSON-155], [#170].
@@ -82,8 +83,8 @@ public class TestJdkTypes extends BaseMapTest
         String abs = src.getAbsolutePath();
 
         // escape backslashes (for portability with windows)
-        String json = mapper.writeValueAsString(abs);
-        File result = mapper.readValue(json, File.class);
+        String json = MAPPER.writeValueAsString(abs);
+        File result = MAPPER.readValue(json, File.class);
         assertEquals(abs, result.getAbsolutePath());
 
         // Then #170
@@ -101,8 +102,8 @@ public class TestJdkTypes extends BaseMapTest
         /* Ok: easiest way is to just serialize first; problem
          * is the backslash
          */
-        String json = mapper.writeValueAsString(exp);
-        Pattern result = mapper.readValue(json, Pattern.class);
+        String json = MAPPER.writeValueAsString(exp);
+        Pattern result = MAPPER.readValue(json, Pattern.class);
         assertEquals(exp.pattern(), result.pattern());
     }
 
@@ -117,9 +118,9 @@ public class TestJdkTypes extends BaseMapTest
      */
     public void testLocale() throws IOException
     {
-        assertEquals(new Locale("en"), mapper.readValue(quote("en"), Locale.class));
-        assertEquals(new Locale("es", "ES"), mapper.readValue(quote("es_ES"), Locale.class));
-        assertEquals(new Locale("FI", "fi", "savo"), mapper.readValue(quote("fi_FI_savo"), Locale.class));
+        assertEquals(new Locale("en"), MAPPER.readValue(quote("en"), Locale.class));
+        assertEquals(new Locale("es", "ES"), MAPPER.readValue(quote("es_ES"), Locale.class));
+        assertEquals(new Locale("FI", "fi", "savo"), MAPPER.readValue(quote("fi_FI_savo"), Locale.class));
     }
 
     /**
@@ -128,14 +129,14 @@ public class TestJdkTypes extends BaseMapTest
     public void testNullForPrimitives() throws IOException
     {
         // by default, ok to rely on defaults
-        PrimitivesBean bean = mapper.readValue("{\"intValue\":null, \"booleanValue\":null, \"doubleValue\":null}",
+        PrimitivesBean bean = MAPPER.readValue("{\"intValue\":null, \"booleanValue\":null, \"doubleValue\":null}",
                 PrimitivesBean.class);
         assertNotNull(bean);
         assertEquals(0, bean.intValue);
         assertEquals(false, bean.booleanValue);
         assertEquals(0.0, bean.doubleValue);
 
-        bean = mapper.readValue("{\"byteValue\":null, \"longValue\":null, \"floatValue\":null}",
+        bean = MAPPER.readValue("{\"byteValue\":null, \"longValue\":null, \"floatValue\":null}",
                 PrimitivesBean.class);
         assertNotNull(bean);
         assertEquals((byte) 0, bean.byteValue);
@@ -205,7 +206,7 @@ public class TestJdkTypes extends BaseMapTest
      */
     public void testCharSequence() throws IOException
     {
-        CharSequence cs = mapper.readValue("\"abc\"", CharSequence.class);
+        CharSequence cs = MAPPER.readValue("\"abc\"", CharSequence.class);
         assertEquals(String.class, cs.getClass());
         assertEquals("abc", cs.toString());
     }
@@ -213,32 +214,32 @@ public class TestJdkTypes extends BaseMapTest
     // [JACKSON-484]
     public void testInetAddress() throws IOException
     {
-        InetAddress address = mapper.readValue(quote("127.0.0.1"), InetAddress.class);
+        InetAddress address = MAPPER.readValue(quote("127.0.0.1"), InetAddress.class);
         assertEquals("127.0.0.1", address.getHostAddress());
 
         // should we try resolving host names? That requires connectivity... 
         final String HOST = "www.ning.com";
-        address = mapper.readValue(quote(HOST), InetAddress.class);
+        address = MAPPER.readValue(quote(HOST), InetAddress.class);
         assertEquals(HOST, address.getHostName());
     }
 
     public void testInetSocketAddress() throws IOException
     {
-        InetSocketAddress address = mapper.readValue(quote("127.0.0.1"), InetSocketAddress.class);
+        InetSocketAddress address = MAPPER.readValue(quote("127.0.0.1"), InetSocketAddress.class);
         assertEquals("127.0.0.1", address.getAddress().getHostAddress());
 
-        InetSocketAddress ip6 = mapper.readValue(
+        InetSocketAddress ip6 = MAPPER.readValue(
                 quote("2001:db8:85a3:8d3:1319:8a2e:370:7348"), InetSocketAddress.class);
         assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6.getAddress().getHostAddress());
 
-        InetSocketAddress ip6port = mapper.readValue(
+        InetSocketAddress ip6port = MAPPER.readValue(
                 quote("[2001:db8:85a3:8d3:1319:8a2e:370:7348]:443"), InetSocketAddress.class);
         assertEquals("2001:db8:85a3:8d3:1319:8a2e:370:7348", ip6port.getAddress().getHostAddress());
         assertEquals(443, ip6port.getPort());
 
         // should we try resolving host names? That requires connectivity...
         final String HOST = "www.ning.com";
-        address = mapper.readValue(quote(HOST), InetSocketAddress.class);
+        address = MAPPER.readValue(quote(HOST), InetSocketAddress.class);
         assertEquals(HOST, address.getHostName());
     }
 
@@ -263,9 +264,9 @@ public class TestJdkTypes extends BaseMapTest
     // [JACKSON-605]
     public void testClassWithParams() throws IOException
     {
-        String json = mapper.writeValueAsString(new ParamClassBean("Foobar"));
+        String json = MAPPER.writeValueAsString(new ParamClassBean("Foobar"));
 
-        ParamClassBean result = mapper.readValue(json, ParamClassBean.class);
+        ParamClassBean result = MAPPER.readValue(json, ParamClassBean.class);
         assertEquals("Foobar", result.name);
         assertSame(String.class, result.clazz);
     }
@@ -276,24 +277,24 @@ public class TestJdkTypes extends BaseMapTest
         WrappersBean bean;
 
         // by default, ok to rely on defaults
-        bean = mapper.readValue("{\"booleanValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"booleanValue\":\"\"}", WrappersBean.class);
         assertNull(bean.booleanValue);
-        bean = mapper.readValue("{\"byteValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"byteValue\":\"\"}", WrappersBean.class);
         assertNull(bean.byteValue);
 
         // char/Character is different... not sure if this should work or not:
-        bean = mapper.readValue("{\"charValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"charValue\":\"\"}", WrappersBean.class);
         assertNull(bean.charValue);
 
-        bean = mapper.readValue("{\"shortValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"shortValue\":\"\"}", WrappersBean.class);
         assertNull(bean.shortValue);
-        bean = mapper.readValue("{\"intValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"intValue\":\"\"}", WrappersBean.class);
         assertNull(bean.intValue);
-        bean = mapper.readValue("{\"longValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"longValue\":\"\"}", WrappersBean.class);
         assertNull(bean.longValue);
-        bean = mapper.readValue("{\"floatValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"floatValue\":\"\"}", WrappersBean.class);
         assertNull(bean.floatValue);
-        bean = mapper.readValue("{\"doubleValue\":\"\"}", WrappersBean.class);
+        bean = MAPPER.readValue("{\"doubleValue\":\"\"}", WrappersBean.class);
         assertNull(bean.doubleValue);
     }
 
@@ -302,21 +303,21 @@ public class TestJdkTypes extends BaseMapTest
     public void testEmptyStringForPrimitives() throws IOException
     {
         PrimitivesBean bean;
-        bean = mapper.readValue("{\"booleanValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"booleanValue\":\"\"}", PrimitivesBean.class);
         assertFalse(bean.booleanValue);
-        bean = mapper.readValue("{\"byteValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"byteValue\":\"\"}", PrimitivesBean.class);
         assertEquals((byte) 0, bean.byteValue);
-        bean = mapper.readValue("{\"charValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"charValue\":\"\"}", PrimitivesBean.class);
         assertEquals((char) 0, bean.charValue);
-        bean = mapper.readValue("{\"shortValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"shortValue\":\"\"}", PrimitivesBean.class);
         assertEquals((short) 0, bean.shortValue);
-        bean = mapper.readValue("{\"intValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"intValue\":\"\"}", PrimitivesBean.class);
         assertEquals(0, bean.intValue);
-        bean = mapper.readValue("{\"longValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"longValue\":\"\"}", PrimitivesBean.class);
         assertEquals(0L, bean.longValue);
-        bean = mapper.readValue("{\"floatValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"floatValue\":\"\"}", PrimitivesBean.class);
         assertEquals(0.0f, bean.floatValue);
-        bean = mapper.readValue("{\"doubleValue\":\"\"}", PrimitivesBean.class);
+        bean = MAPPER.readValue("{\"doubleValue\":\"\"}", PrimitivesBean.class);
         assertEquals(0.0, bean.doubleValue);
     }
 
@@ -325,12 +326,12 @@ public class TestJdkTypes extends BaseMapTest
     public void testUntypedWithJsonArrays() throws Exception
     {
         // by default we get:
-        Object ob = mapper.readValue("[1]", Object.class);
+        Object ob = MAPPER.readValue("[1]", Object.class);
         assertTrue(ob instanceof List<?>);
 
         // but can change to produce Object[]:
-        mapper.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
-        ob = mapper.readValue("[1]", Object.class);
+        MAPPER.configure(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY, true);
+        ob = MAPPER.readValue("[1]", Object.class);
         assertEquals(Object[].class, ob.getClass());
     }
 
@@ -338,7 +339,7 @@ public class TestJdkTypes extends BaseMapTest
     public void testLongToBoolean() throws Exception
     {
         long value = 1L + Integer.MAX_VALUE;
-        BooleanBean b = mapper.readValue("{\"primitive\" : "+value+", \"wrapper\":"+value+", \"ctor\":"+value+"}",
+        BooleanBean b = MAPPER.readValue("{\"primitive\" : "+value+", \"wrapper\":"+value+", \"ctor\":"+value+"}",
                     BooleanBean.class);
         assertEquals(Boolean.TRUE, b.wrapper);
         assertTrue(b.primitive);
@@ -349,7 +350,7 @@ public class TestJdkTypes extends BaseMapTest
     public void testCharset() throws Exception
     {
         Charset UTF8 = Charset.forName("UTF-8");
-        assertSame(UTF8, mapper.readValue(quote("UTF-8"), Charset.class));
+        assertSame(UTF8, MAPPER.readValue(quote("UTF-8"), Charset.class));
     }
 
     // [JACKSON-888]
@@ -361,8 +362,8 @@ public class TestJdkTypes extends BaseMapTest
         } catch (Exception e) {
             elem = e.getStackTrace()[0];
         }
-        String json = mapper.writeValueAsString(elem);
-        StackTraceElement back = mapper.readValue(json, StackTraceElement.class);
+        String json = MAPPER.writeValueAsString(elem);
+        StackTraceElement back = MAPPER.readValue(json, StackTraceElement.class);
         
         assertEquals("testStackTraceElement", back.getMethodName());
         assertEquals(elem.getLineNumber(), back.getLineNumber());
@@ -370,5 +371,19 @@ public class TestJdkTypes extends BaseMapTest
         assertEquals(elem.isNativeMethod(), back.isNativeMethod());
         assertTrue(back.getClassName().endsWith("TestJdkTypes"));
         assertFalse(back.isNativeMethod());
+    }
+
+    // [Issue#239]
+    public void testByteBuffer() throws Exception
+    {
+        byte[] INPUT = new byte[] { 1, 3, 9, -1, 6 };
+        String exp = MAPPER.writeValueAsString(INPUT);
+        ByteBuffer result = MAPPER.readValue(exp,  ByteBuffer.class); 
+        assertNotNull(result);
+        assertEquals(INPUT.length, result.remaining());
+        for (int i = 0; i < INPUT.length; ++i) {
+            assertEquals(INPUT[i], result.get());
+        }
+        assertEquals(0, result.remaining());
     }
 }

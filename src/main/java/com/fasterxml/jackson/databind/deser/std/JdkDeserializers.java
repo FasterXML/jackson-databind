@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,8 +37,8 @@ public class JdkDeserializers
                 Charset.class,
                 AtomicBoolean.class,
                 Class.class,
-                StackTraceElement.class
-
+                StackTraceElement.class,
+                ByteBuffer.class
         };
         for (Class<?> cls : numberTypes) {
             _classNames.add(cls.getName());
@@ -82,7 +83,7 @@ public class JdkDeserializers
             return InetSocketAddressDeserializer.instance;
         }
         if (rawType == Charset.class) {
-            return CharsetDeserializer.instance;
+            return new CharsetDeserializer();
         }
         if (rawType == Class.class) {
             return ClassDeserializer.instance;
@@ -93,6 +94,9 @@ public class JdkDeserializers
         if (rawType == AtomicBoolean.class) {
             // (note: AtomicInteger/Long work due to single-arg constructor. For now?
             return AtomicBooleanDeserializer.instance;
+        }
+        if (rawType == ByteBuffer.class) {
+            return new ByteBufferDeserializer();
         }
         // should never occur
         throw new IllegalArgumentException("Internal error: can't find deserializer for "+clsName);

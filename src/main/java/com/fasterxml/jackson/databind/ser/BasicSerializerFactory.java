@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -361,21 +362,6 @@ public abstract class BasicSerializerFactory
         throws JsonMappingException
     {
         Class<?> raw = type.getRawClass();
-        // One unfortunate special case, as per [JACKSON-484]
-        if (InetAddress.class.isAssignableFrom(raw)) {
-            return InetAddressSerializer.instance;
-        }
-        if (InetSocketAddress.class.isAssignableFrom(raw)) {
-            return InetSocketAddressSerializer.instance;
-        }
-        // ... and another one, [JACKSON-522], for TimeZone
-        if (TimeZone.class.isAssignableFrom(raw)) {
-            return TimeZoneSerializer.instance;
-        }
-        // and yet one more [JACKSON-789]
-        if (java.nio.charset.Charset.class.isAssignableFrom(raw)) {
-            return ToStringSerializer.instance;
-        }
         
         // Then check for optional/external serializers [JACKSON-386]
         JsonSerializer<?> ser = findOptionalStdSerializer(prov, type, beanDesc, staticTyping);
@@ -383,17 +369,32 @@ public abstract class BasicSerializerFactory
             return ser;
         }
         
-        if (Number.class.isAssignableFrom(raw)) {
-            return NumberSerializers.NumberSerializer.instance;
-        }
-        if (Enum.class.isAssignableFrom(raw)) {
-            return buildEnumSerializer(prov.getConfig(), type, beanDesc);
-        }
         if (Calendar.class.isAssignableFrom(raw)) {
             return CalendarSerializer.instance;
         }
         if (java.util.Date.class.isAssignableFrom(raw)) {
             return DateSerializer.instance;
+        }
+        if (ByteBuffer.class.isAssignableFrom(raw)) {
+            return ByteBufferSerializer.instance;
+        }
+        if (InetAddress.class.isAssignableFrom(raw)) {
+            return InetAddressSerializer.instance;
+        }
+        if (InetSocketAddress.class.isAssignableFrom(raw)) {
+            return InetSocketAddressSerializer.instance;
+        }
+        if (TimeZone.class.isAssignableFrom(raw)) {
+            return TimeZoneSerializer.instance;
+        }
+        if (java.nio.charset.Charset.class.isAssignableFrom(raw)) {
+            return ToStringSerializer.instance;
+        }
+        if (Number.class.isAssignableFrom(raw)) {
+            return NumberSerializers.NumberSerializer.instance;
+        }
+        if (Enum.class.isAssignableFrom(raw)) {
+            return buildEnumSerializer(prov.getConfig(), type, beanDesc);
         }
         return null;
     }

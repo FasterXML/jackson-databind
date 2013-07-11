@@ -4,6 +4,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -112,5 +113,19 @@ public class TestJdkTypes
     public void testCharset() throws IOException
     {
         assertEquals(quote("UTF-8"), MAPPER.writeValueAsString(Charset.forName("UTF-8")));
+    }
+
+    // [Issue#239]: Support serialization of ByteBuffer
+    public void testByteBuffer() throws IOException
+    {
+        final byte[] INPUT_BYTES = new byte[] { 1, 2, 3, 4, 5 };
+        String exp = MAPPER.writeValueAsString(INPUT_BYTES);
+        ByteBuffer bbuf = ByteBuffer.wrap(INPUT_BYTES);
+        assertEquals(exp, MAPPER.writeValueAsString(bbuf));
+
+        // so far so good, but must ensure Native buffers also work:
+        ByteBuffer bbuf2 = ByteBuffer.allocateDirect(5);
+        bbuf2.put(INPUT_BYTES);
+        assertEquals(exp, MAPPER.writeValueAsString(bbuf2));
     }
 }

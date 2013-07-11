@@ -47,7 +47,7 @@ public class StdJdkSerializers
         sers.put(AtomicInteger.class, AtomicIntegerSerializer.class);
         sers.put(AtomicLong.class, AtomicLongSerializer.class);
         
-        // then types that need specialized serializers
+        // then other types that need specialized serializers
         sers.put(File.class, FileSerializer.class);
         sers.put(Class.class, ClassSerializer.class);
 
@@ -170,72 +170,6 @@ public class StdJdkSerializers
                 throws JsonMappingException
         {
             visitor.expectAnyFormat(typeHint);
-        }
-    }
-    
-    /*
-    /**********************************************************
-    /* Specialized serializers, referential types
-    /**********************************************************
-     */
-
-    /**
-     * For now, File objects get serialized by just outputting
-     * absolute (but not canonical) name as String value
-     */
-    public final static class FileSerializer
-        extends StdScalarSerializer<File>
-    {
-        public FileSerializer() { super(File.class); }
-
-        @Override
-        public void serialize(File value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
-            jgen.writeString(value.getAbsolutePath());
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            return createSchemaNode("string", true);
-        }
-        
-        @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
-        {
-            visitor.expectStringFormat(typeHint);
-        }
-    }
-
-    /**
-     * Also: default bean access will not do much good with Class.class. But
-     * we can just serialize the class name and that should be enough.
-     */
-    public final static class ClassSerializer
-        extends StdScalarSerializer<Class<?>>
-    {
-        public ClassSerializer() { super(Class.class, false); }
-
-        @Override
-        public void serialize(Class<?> value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
-            jgen.writeString(value.getName());
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            return createSchemaNode("string", true);
-        }
-        
-        @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
-        {
-            visitor.expectStringFormat(typeHint);
         }
     }
 }

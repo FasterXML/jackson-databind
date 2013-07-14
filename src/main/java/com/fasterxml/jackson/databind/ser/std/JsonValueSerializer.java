@@ -240,20 +240,33 @@ public class JsonValueSerializer
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException
     {
-        return (_valueSerializer instanceof SchemaAware) ?
-                ((SchemaAware) _valueSerializer).getSchema(provider, null) :
-                    com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
+        if (_valueSerializer instanceof SchemaAware) {
+            return ((SchemaAware)_valueSerializer).getSchema(provider, null);
+        }
+        return com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
     }
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        if (_valueSerializer != null) {
-            _valueSerializer.acceptJsonFormatVisitor(visitor, null); 
-        } else {
-            visitor.expectAnyFormat(typeHint);
-    	}
+        JsonSerializer<Object> ser = _valueSerializer;
+        if (ser == null) {
+            if (typeHint == null) {
+                if (_property != null) {
+                    typeHint = _property.getType();
+                }
+                if (typeHint == null) {
+                    typeHint = visitor.getProvider().constructType(_accessorMethod.getReturnType());
+                }
+            }
+            ser = visitor.getProvider().findTypedValueSerializer(typeHint, false, _property);
+            if (ser == null) {
+                visitor.expectAnyFormat(typeHint);
+                return;
+            }
+        }
+        ser.acceptJsonFormatVisitor(visitor, null); 
     }
 
     protected boolean isNaturalTypeWithStdHandling(Class<?> rawType, JsonSerializer<?> ser)

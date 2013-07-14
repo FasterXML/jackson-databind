@@ -4,6 +4,8 @@ Version: 2.2.3 (xx-xxx-2013)
 #251: SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN ignored with JsonNode
   serialization
  (reported by fge@github)
+#259: Fix a problem with JSON Schema generation for `@JsonValue`
+ (reported by Lior L)
 
 ------------------------------------------------------------------------
 === History: ===

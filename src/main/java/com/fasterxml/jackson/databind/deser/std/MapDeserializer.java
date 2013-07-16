@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 
 /**
- * Basic serializer that can take Json "Object" structure and
+ * Basic serializer that can take JSON Object structure and
  * construct a {@link java.util.Map} instance, with typed contents.
  *<p>
  * Note: for untyped content (one indicated by passing Object.class
@@ -28,6 +28,8 @@ public class MapDeserializer
     extends ContainerDeserializerBase<Map<Object,Object>>
     implements ContextualDeserializer, ResolvableDeserializer
 {
+    private static final long serialVersionUID = 1L;
+
     // // Configuration: typing, deserializers
 
     protected final JavaType _mapType;

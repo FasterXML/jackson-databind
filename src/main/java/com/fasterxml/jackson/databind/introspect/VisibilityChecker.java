@@ -232,16 +232,15 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
         }
 
 	/*
-        /********************************************************
+     /********************************************************
 	/* Builder/fluent methods for instantiating configured
 	/* instances
 	/********************************************************
 	 */
 
-//      @Override
 	public Std with(JsonAutoDetect ann)
 	{
-            Std curr = this;
+	    Std curr = this;
 	    if (ann != null) {
     	    curr = curr.withGetterVisibility(ann.getterVisibility());
     	    curr = curr.withIsGetterVisibility(ann.isGetterVisibility());
@@ -252,7 +251,6 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
 	    return curr;
 	}
 
-//      @Override
 	public Std with(Visibility v)
 	{
 	    if (v == Visibility.DEFAULT) {
@@ -261,7 +259,6 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
 	    return new Std(v);
 	}
 
-//      @Override
 	public Std withVisibility(PropertyAccessor method, Visibility v)
 	{
 	    switch (method) {
@@ -275,119 +272,105 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
 	        return withFieldVisibility(v);
 	    case IS_GETTER:
 	        return withIsGetterVisibility(v);
-            case ALL:
-                return with(v);
-            //case NONE:
+	    case ALL:
+	        return with(v);
+	    case NONE:
             // break;
 	    }
-            return this;
+	    return this;
 	}
 	
-//      @Override
 	public Std withGetterVisibility(Visibility v) {
 	    if (v == Visibility.DEFAULT)  v = DEFAULT._getterMinLevel;
             if (_getterMinLevel == v) return this;
 	    return new Std(v, _isGetterMinLevel, _setterMinLevel, _creatorMinLevel, _fieldMinLevel);
 	}
 
-//      @Override
-        public Std withIsGetterVisibility(Visibility v) {
-            if (v == Visibility.DEFAULT)  v = DEFAULT._isGetterMinLevel;
-            if (_isGetterMinLevel == v) return this;
-            return new Std(_getterMinLevel, v, _setterMinLevel, _creatorMinLevel, _fieldMinLevel);
-        }
-		
-//      @Override
-	public Std withSetterVisibility(Visibility v) {
-            if (v == Visibility.DEFAULT)  v = DEFAULT._setterMinLevel;
-            if (_setterMinLevel == v) return this;
-            return new Std(_getterMinLevel, _isGetterMinLevel, v, _creatorMinLevel, _fieldMinLevel);
+	public Std withIsGetterVisibility(Visibility v) {
+	    if (v == Visibility.DEFAULT)  v = DEFAULT._isGetterMinLevel;
+	    if (_isGetterMinLevel == v) return this;
+	    return new Std(_getterMinLevel, v, _setterMinLevel, _creatorMinLevel, _fieldMinLevel);
 	}
 
-//      @Override
+	public Std withSetterVisibility(Visibility v) {
+	    if (v == Visibility.DEFAULT)  v = DEFAULT._setterMinLevel;
+	    if (_setterMinLevel == v) return this;
+	    return new Std(_getterMinLevel, _isGetterMinLevel, v, _creatorMinLevel, _fieldMinLevel);
+	}
+
 	public Std withCreatorVisibility(Visibility v) {
-            if (v == Visibility.DEFAULT)  v = DEFAULT._creatorMinLevel;
-            if (_creatorMinLevel == v) return this;
+	    if (v == Visibility.DEFAULT)  v = DEFAULT._creatorMinLevel;
+	    if (_creatorMinLevel == v) return this;
 	    return new Std(_getterMinLevel, _isGetterMinLevel, _setterMinLevel, v, _fieldMinLevel);
 	}
 
-//      @Override
 	public Std withFieldVisibility(Visibility v) {
-            if (v == Visibility.DEFAULT)  v = DEFAULT._fieldMinLevel;
-            if (_fieldMinLevel == v) return this;
+	    if (v == Visibility.DEFAULT)  v = DEFAULT._fieldMinLevel;
+	    if (_fieldMinLevel == v) return this;
 	    return new Std(_getterMinLevel, _isGetterMinLevel, _setterMinLevel, _creatorMinLevel, v);
 	}
 		
-        /*
-        /********************************************************
-        /* Public API impl
-        /********************************************************
-         */
+	/*
+    /********************************************************
+    /* Public API impl
+    /********************************************************
+     */
 
-//	@Override
 	public boolean isCreatorVisible(Member m) {
 	    return _creatorMinLevel.isVisible(m);
     	}
     
-//      @Override
     	public boolean isCreatorVisible(AnnotatedMember m) {
     	    return isCreatorVisible(m.getMember());
     	}
     
-//      @Override
     	public boolean isFieldVisible(Field f) {
     	    return _fieldMinLevel.isVisible(f);
     	}
     
-//      @Override
     	public boolean isFieldVisible(AnnotatedField f) {
     	    return isFieldVisible(f.getAnnotated());
     	}
     
-//      @Override
     	public boolean isGetterVisible(Method m) {
     	    return _getterMinLevel.isVisible(m);
     	}    
 
-//      @Override
-        public boolean isGetterVisible(AnnotatedMethod m) {
+    	public boolean isGetterVisible(AnnotatedMethod m) {
     	    return isGetterVisible(m.getAnnotated());
     	}
 
-//      @Override
-        public boolean isIsGetterVisible(Method m) {
-            return _isGetterMinLevel.isVisible(m);
-        }    
+    	public boolean isIsGetterVisible(Method m) {
+    	    return _isGetterMinLevel.isVisible(m);
+    	}
 
-//      @Override
-        public boolean isIsGetterVisible(AnnotatedMethod m) {
-            return isIsGetterVisible(m.getAnnotated());
-        }
+    	public boolean isIsGetterVisible(AnnotatedMethod m) {
+    	    return isIsGetterVisible(m.getAnnotated());
+    	}
 
-//      @Override
-        public boolean isSetterVisible(Method m) {
-            return _setterMinLevel.isVisible(m);
-        }
+    	public boolean isSetterVisible(Method m) {
+    	    return _setterMinLevel.isVisible(m);
+    	}
     
-//      @Override
-        public boolean isSetterVisible(AnnotatedMethod m) {
-            return isSetterVisible(m.getAnnotated());
-        }
+    	public boolean isSetterVisible(AnnotatedMethod m) {
+    	    return isSetterVisible(m.getAnnotated());
+    	}
 
-        /*
-        /********************************************************
-        /* Standard methods
-        /********************************************************
-         */
-        @Override
-        public String toString() {
-            return new StringBuilder("[Visibility:")
-                .append(" getter: ").append(_getterMinLevel)
-                .append(", isGetter: ").append(_isGetterMinLevel)
-                .append(", setter: ").append(_setterMinLevel)
-                .append(", creator: ").append(_creatorMinLevel)
-                .append(", field: ").append(_fieldMinLevel)
-                .append("]").toString();
-        }
+    	/*
+     /********************************************************
+     /* Standard methods
+     /********************************************************
+      */
+
+    	@Override
+    	public String toString() {
+    	    return new StringBuilder("[Visibility:")
+    	    .append(" getter: ").append(_getterMinLevel)
+    	    .append(", isGetter: ").append(_isGetterMinLevel)
+    	    .append(", setter: ").append(_setterMinLevel)
+    	    .append(", creator: ").append(_creatorMinLevel)
+    	    .append(", field: ").append(_fieldMinLevel)
+    	    .append("]").toString();
+    	}
     }
 }

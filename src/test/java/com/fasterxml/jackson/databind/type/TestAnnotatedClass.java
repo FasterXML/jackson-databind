@@ -61,7 +61,6 @@ public class TestAnnotatedClass
         @SuppressWarnings("unused")
         private long bar;
 
-        @SuppressWarnings("unused")
         @JsonProperty
         private String props;
     }

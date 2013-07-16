@@ -36,7 +36,6 @@ public class TestSerAnyGetter
 
     private static class PrivateThing
     {
-        @SuppressWarnings("unused")
         @JsonAnyGetter
         public Map<?,?> getProperties()
         {

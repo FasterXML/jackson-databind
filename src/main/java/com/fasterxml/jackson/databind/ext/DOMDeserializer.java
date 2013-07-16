@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
  * Nominal type can be either {@link org.w3c.dom.Node} or
  * {@link org.w3c.dom.Document}.
  */
+@SuppressWarnings("serial")
 public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
 {
     final static DocumentBuilderFactory _parserFactory;
@@ -47,6 +48,8 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     
     public static class NodeDeserializer extends DOMDeserializer<Node>
     {
+        private static final long serialVersionUID = 1L;
+
         public NodeDeserializer() { super(Node.class); }
         @Override
         public Node _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {
@@ -56,6 +59,8 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
 
     public static class DocumentDeserializer extends DOMDeserializer<Document>
     {
+        private static final long serialVersionUID = 1L;
+
         public DocumentDeserializer() { super(Document.class); }
         @Override
         public Document _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException {

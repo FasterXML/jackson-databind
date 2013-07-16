@@ -57,9 +57,8 @@ public class TestViewSerialization
      * a property
      */
     static class ImplicitBean {
-    	@SuppressWarnings("unused")
-    	@JsonView(ViewA.class)
-    	private int a = 1;
+        @JsonView(ViewA.class)
+        private int a = 1;
     }
 
     static class VisibilityBean {
@@ -73,8 +72,8 @@ public class TestViewSerialization
     public static class WebView { }
     public static class OtherView { }
     public static class Foo {
-      @JsonView(WebView.class)
-      public int getFoo() { return 3; }
+        @JsonView(WebView.class)
+        public int getFoo() { return 3; }
     }
     
     /*

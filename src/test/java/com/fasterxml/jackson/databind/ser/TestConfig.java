@@ -29,7 +29,7 @@ public class TestConfig
 
     static class AnnoBean {
         public int getX() { return 1; }
-        @SuppressWarnings("unused") @JsonProperty("y")
+        @JsonProperty("y")
         private int getY() { return 2; }
     }
 

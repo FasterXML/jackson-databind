@@ -72,9 +72,8 @@ public class TestFieldSerialization
         @JsonProperty("foo")
         public int _z;
 
-        @SuppressWarnings("unused")
         @JsonSerialize
-            private int foo;
+        private int foo;
     }
 
     public static class DupFieldBean2

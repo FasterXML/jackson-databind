@@ -128,6 +128,7 @@ public class BuilderBasedDeserializer
     /**
      * Main deserialization method for bean-based objects (POJOs).
      */
+    @SuppressWarnings("incomplete-switch")
     @Override
     public final Object deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
@@ -392,6 +393,7 @@ public class BuilderBasedDeserializer
         return _valueInstantiator.createFromString(ctxt, jp.getText());
     }
 
+    @SuppressWarnings("incomplete-switch")
     public Object deserializeFromNumber(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -439,6 +441,7 @@ public class BuilderBasedDeserializer
      * Method called to deserialize POJO value from a JSON floating-point
      * number.
      */
+    @SuppressWarnings("incomplete-switch")
     public Object deserializeFromDouble(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -794,6 +797,7 @@ public class BuilderBasedDeserializer
         return bean;
     }
 
+    @SuppressWarnings("resource")
     protected Object deserializeUsingPropertyBasedWithUnwrapped(JsonParser jp,
     		DeserializationContext ctxt)
         throws IOException, JsonProcessingException

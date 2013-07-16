@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.util.ObjectBuffer;
 public class UntypedObjectDeserializer
     extends StdDeserializer<Object>
 {
+    private static final long serialVersionUID = 1L;
+
     private final static Object[] NO_OBJECTS = new Object[0];
     
     public UntypedObjectDeserializer() { super(Object.class); }
@@ -35,6 +37,7 @@ public class UntypedObjectDeserializer
     /**********************************************************
      */
     
+    @SuppressWarnings("incomplete-switch")
     @Override
     public Object deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
@@ -86,6 +89,7 @@ public class UntypedObjectDeserializer
         throw ctxt.mappingException(Object.class);
     }
 
+    @SuppressWarnings("incomplete-switch")
     @Override
     public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)

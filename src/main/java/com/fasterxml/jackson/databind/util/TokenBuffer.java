@@ -803,6 +803,7 @@ public class TokenBuffer
     /**********************************************************
      */
 
+    @SuppressWarnings("incomplete-switch")
     protected final static class Parser
         extends ParserMinimalBase
     {
@@ -980,7 +981,7 @@ public class TokenBuffer
         /* Public API, access to token information, text
         /**********************************************************
          */
-        
+
         @Override
         public String getText()
         {

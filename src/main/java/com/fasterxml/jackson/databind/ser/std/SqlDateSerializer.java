@@ -40,6 +40,6 @@ public class SqlDateSerializer
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
     {
-    	visitor.expectStringFormat(typeHint).format(JsonValueFormat.DATE_TIME);
+        visitor.expectStringFormat(typeHint).format(JsonValueFormat.DATE_TIME);
     }
 }

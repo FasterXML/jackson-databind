@@ -57,6 +57,7 @@ public class ManualObjectWriterPerf
                 value = inputValue2;
                 break;
             default:
+                out.close();
                 throw new Error();
             }
             msecs = testSer(REPS, value, writer, out);

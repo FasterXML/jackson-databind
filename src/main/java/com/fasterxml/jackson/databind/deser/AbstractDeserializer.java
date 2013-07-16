@@ -158,6 +158,7 @@ public class AbstractDeserializer
                 return Boolean.FALSE;
             }
             break;
+        default:
         }
         return null;
     }

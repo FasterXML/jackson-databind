@@ -64,6 +64,7 @@ public final class TextNode
     public byte[] getBinaryValue(Base64Variant b64variant)
         throws IOException
     {
+        @SuppressWarnings("resource")
         ByteArrayBuilder builder = new ByteArrayBuilder(100);
         final String str = _value;
         int ptr = 0;

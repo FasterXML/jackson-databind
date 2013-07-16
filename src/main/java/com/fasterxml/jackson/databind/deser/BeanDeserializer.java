@@ -148,7 +148,8 @@ public class BeanDeserializer
                 return deserializeWithObjectId(jp, ctxt);
             }
             return deserializeFromObject(jp, ctxt);
-	}
+        default:
+        }
         throw ctxt.mappingException(getBeanClass());
     }
 
@@ -455,7 +456,8 @@ public class BeanDeserializer
                 }
             }
             return _valueInstantiator.createFromLong(ctxt, jp.getLongValue());
-    	}
+        default:
+        }
         // actually, could also be BigInteger, so:
         if (_delegateDeserializer != null) {
             Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
@@ -487,6 +489,7 @@ public class BeanDeserializer
                 }
             }
             return _valueInstantiator.createFromDouble(ctxt, jp.getDoubleValue());
+        default:
         }
         // actually, could also be BigDecimal, so:
         if (_delegateDeserializer != null) {

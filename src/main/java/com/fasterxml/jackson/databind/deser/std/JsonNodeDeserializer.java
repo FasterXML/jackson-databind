@@ -15,6 +15,8 @@ import com.fasterxml.jackson.databind.node.*;
 public class JsonNodeDeserializer
     extends BaseNodeDeserializer<JsonNode>
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Singleton instance of generic deserializer for {@link JsonNode}.
      * Only used for types other than JSON Object and Array.
@@ -77,6 +79,8 @@ public class JsonNodeDeserializer
     final static class ObjectDeserializer
         extends BaseNodeDeserializer<ObjectNode>
     {
+        private static final long serialVersionUID = 1L;
+
         protected final static ObjectDeserializer _instance = new ObjectDeserializer();
 
         protected ObjectDeserializer() {
@@ -129,6 +133,7 @@ public class JsonNodeDeserializer
  * Base class for all actual {@link JsonNode} deserializer
  * implementations
  */
+@SuppressWarnings("serial")
 abstract class BaseNodeDeserializer<N extends JsonNode>
     extends StdDeserializer<N>
 {

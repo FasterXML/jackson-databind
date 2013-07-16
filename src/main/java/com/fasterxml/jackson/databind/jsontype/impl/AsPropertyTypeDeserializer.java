@@ -90,6 +90,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         return _deserializeTypedUsingDefaultImpl(jp, ctxt, tb);
     }
 
+    @SuppressWarnings("resource")
     protected final Object _deserializeTypedForId(JsonParser jp, DeserializationContext ctxt,
             TokenBuffer tb)
         throws IOException, JsonProcessingException
@@ -167,6 +168,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      * a "natural" value, and one that would be acceptable as the
      * result value (compatible with declared base type)
      */
+    @SuppressWarnings("incomplete-switch")
     protected Object _deserializeIfNatural(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {

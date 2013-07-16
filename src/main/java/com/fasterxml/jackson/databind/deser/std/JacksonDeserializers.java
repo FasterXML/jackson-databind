@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 /**
  * Container class for core Jackson type deserializers.
  */
+@SuppressWarnings("serial")
 public class JacksonDeserializers
 {
     public static StdDeserializer<?>[] all()

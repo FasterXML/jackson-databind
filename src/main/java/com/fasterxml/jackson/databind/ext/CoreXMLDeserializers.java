@@ -68,6 +68,8 @@ public class CoreXMLDeserializers
     public static class DurationDeserializer
         extends FromStringDeserializer<Duration>
     {
+        private static final long serialVersionUID = 1L;
+
         public DurationDeserializer() { super(Duration.class); }
     
         @Override
@@ -81,6 +83,8 @@ public class CoreXMLDeserializers
     public static class GregorianCalendarDeserializer
         extends StdScalarDeserializer<XMLGregorianCalendar>
     {
+        private static final long serialVersionUID = 1L;
+
         public GregorianCalendarDeserializer() { super(XMLGregorianCalendar.class); }
         
         @Override
@@ -104,6 +108,8 @@ public class CoreXMLDeserializers
     public static class QNameDeserializer
         extends FromStringDeserializer<QName>
     {
+        private static final long serialVersionUID = 1L;
+
         public QNameDeserializer() { super(QName.class); }
         
         @Override

@@ -634,30 +634,6 @@ public abstract class BeanDeserializerBase
         }
         JsonDeserializer<?> valueDeser = prop.getValueDeserializer();
         SettableBeanProperty backProp = valueDeser.findBackReference(refName);
-
-        // 04-Jul-2013, tatu: Before 'findBackReference()' in 'JsonDeserializer' had to cast;
-        //   became unwieldy with delegating deserializer etc
-        /*
-        if (valueDeser instanceof BeanDeserializerBase) {
-            backProp = ((BeanDeserializerBase) valueDeser).findBackReference(refName);
-        } else if (valueDeser instanceof ContainerDeserializerBase<?>) {
-            JsonDeserializer<?> contentDeser = ((ContainerDeserializerBase<?>) valueDeser).getContentDeserializer();
-            if (!(contentDeser instanceof BeanDeserializerBase)) {
-                String deserName = (contentDeser == null) ? "NULL" : contentDeser.getClass().getName();
-                throw new IllegalArgumentException("Can not handle managed/back reference '"+refName
-                        +"': value deserializer is of type ContainerDeserializerBase, but content type is not handled by a BeanDeserializer "
-                        +" (instead it's of type "+deserName+")");
-            }
-            backProp = ((BeanDeserializerBase) contentDeser).findBackReference(refName);
-            isContainer = true;
-        } else if (valueDeser instanceof AbstractDeserializer) {
-            backProp = ((AbstractDeserializer) valueDeser).findBackReference(refName);
-        } else {
-            throw new IllegalArgumentException("Can not handle managed/back reference '"+refName
-                    +"': type for value deserializer is not BeanDeserializer or ContainerDeserializerBase, but "
-                    +valueDeser.getClass().getName());
-        }
-        */
         if (backProp == null) {
             throw new IllegalArgumentException("Can not handle managed/back reference '"+refName+"': no back reference property found from type "
                     +prop.getType());

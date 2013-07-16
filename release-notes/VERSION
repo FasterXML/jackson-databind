@@ -17,6 +17,7 @@ New minor version.
  (suggested by mckamey@github)
 #253: `DelegatingDeserializer` causes problems for Managed/BackReferences
  (reported by bfelaco@github)
+[JACKSON-890]: Support managed/back-references for polymorphic (abstract) types
 - Add 'BeanPropertyWriter.isUnwrapping()' for future needs (by Afterburner)
 
 ------------------------------------------------------------------------

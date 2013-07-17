@@ -10,7 +10,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Tests for github ussues #138
+ * Tests for github issues #138
  * https://github.com/FasterXML/jackson-databind/issues/138
  */
 public class TestObjectIdSerialization extends BaseMapTest {
@@ -36,8 +36,6 @@ public class TestObjectIdSerialization extends BaseMapTest {
         public int id;
 
         @JsonIdentityReference(alwaysAsId = true)
-        // NOTE: uncommenting this makes test pass:
-//        @com.fasterxml.jackson.databind.annotation.JsonSerialize(contentAs = Obj.class)
         public Set<Obj> objs = new LinkedHashSet<Obj>();
 
         public SetContainer() { }

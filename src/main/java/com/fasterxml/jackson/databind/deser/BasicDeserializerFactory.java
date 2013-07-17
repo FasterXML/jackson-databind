@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
+import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
  * Abstract factory base class that can provide deserializers for standard
@@ -37,6 +38,12 @@ public abstract class BasicDeserializerFactory
     private final static Class<?> CLASS_STRING = String.class;
     private final static Class<?> CLASS_CHAR_BUFFER = CharSequence.class;
     private final static Class<?> CLASS_ITERABLE = Iterable.class;
+
+    /**
+     * We need a placeholder for creator properties that don't have name
+     * but are marked with `@JsonWrapped` annotation.
+     */
+    protected final static String UNWRAPPED_CREATOR_PARAM_NAME = new String("@JsonUnwrapped");
     
     /**
      * Also special array deserializers for primitive array types.
@@ -431,8 +438,17 @@ public abstract class BasicDeserializerFactory
                 } else if (injectId != null) {
                     ++injectCount;
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
-                } else if (nonAnnotatedParam == null) {
-                    nonAnnotatedParam = param;
+                } else {
+                    NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
+                    if (unwrapper != null) {
+                        properties[i] = constructCreatorProperty(ctxt, beanDesc,
+                                UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
+                        ++namedCount;
+                    } else {
+                        if (nonAnnotatedParam == null) {
+                            nonAnnotatedParam = param;
+                        }
+                    }
                 }
             }
 
@@ -560,8 +576,16 @@ public abstract class BasicDeserializerFactory
                 } else if (injectId != null) {
                     ++injectCount;
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
-                } else if (nonAnnotatedParam == null) {
-                    nonAnnotatedParam = param;
+                } else {
+                    NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
+                    if (unwrapper != null) {
+                        properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
+                        ++namedCount;
+                    } else {
+                        if (nonAnnotatedParam == null) {
+                            nonAnnotatedParam = param;
+                        }
+                    }
                 }
             }
 

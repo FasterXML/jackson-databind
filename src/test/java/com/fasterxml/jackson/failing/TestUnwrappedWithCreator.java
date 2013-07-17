@@ -6,14 +6,14 @@ import com.fasterxml.jackson.databind.*;
 
 public class TestUnwrappedWithCreator extends BaseMapTest
 {
-    class JAddress {
+    static class JAddress {
         private String address;
         private String city;
         private String state;
          
         @JsonCreator
         public JAddress(
-                @JsonProperty("address1") String address,
+                @JsonProperty("address") String address,
                 @JsonProperty("city") String city,
                 @JsonProperty("state") String state
         ){
@@ -27,10 +27,10 @@ public class TestUnwrappedWithCreator extends BaseMapTest
         public String getState() { return state; }
     }
 
-    class JPerson {
-        private String name;
-        private JAddress address;
-        private String alias;
+    static class JPerson {
+        private String _name;
+        private JAddress _address;
+        private String _alias;
          
         @JsonCreator
         public JPerson(
@@ -38,31 +38,34 @@ public class TestUnwrappedWithCreator extends BaseMapTest
         @JsonUnwrapped JAddress address,
         @JsonProperty("alias") String alias
         ) {
-            this.name = name;
-            this.address = address;
-            this.alias = alias;
+            _name = name;
+            _address = address;
+            _alias = alias;
         }
          
         public String getName() {
-            return name;
+            return _name;
         }
          
         @JsonUnwrapped public JAddress getAddress() {
-            return address;
+            return _address;
         }
          
-        public String getAlias() {
-            return alias;
-        }
+        public String getAlias() { return _alias; }
     }
          
     public void testReadWriteJson() throws Exception
     {
-        JPerson person = new JPerson("MyName", new JAddress("main street", "springfield", null), null);
+        JPerson person = new JPerson("MyName", new JAddress("main street", "springfield", "WA"), "bubba");
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(person);
-        System.out.println(json);
-        JPerson obj = mapper.readValue(json, JPerson.class);
-        assertNotNull(obj);
+        JPerson result = mapper.readValue(json, JPerson.class);
+        assertNotNull(result);
+        assertEquals(person._name, result._name);
+        assertNotNull(result._address);
+        assertEquals(person._address.city, result._address.city);
+
+        // and see that round-tripping works
+        assertEquals(json, mapper.writeValueAsString(result));
     }
 }

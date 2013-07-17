@@ -106,13 +106,16 @@ public class UnrecognizedPropertyException
                 sb.append(" (").append(len).append(" known properties: ");
                 Iterator<Object> it = _propertyIds.iterator();
                 while (it.hasNext()) {
-                    sb.append(", \"");
+                    sb.append('"');
                     sb.append(String.valueOf(it.next()));
                     sb.append('"');
                     // one other thing: limit max length
                     if (sb.length() > MAX_DESC_LENGTH) {
                         sb.append(" [truncated]");
                         break;
+                    }
+                    if (it.hasNext()) {
+                        sb.append(", ");
                     }
                 }
             }

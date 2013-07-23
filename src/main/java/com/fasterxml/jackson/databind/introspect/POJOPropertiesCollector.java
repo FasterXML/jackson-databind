@@ -687,7 +687,7 @@ public class POJOPropertiesCollector
                 // replace the creatorProperty too, if there is one
                 if (_creatorProperties != null) {
                     for (int i = 0; i < _creatorProperties.size(); ++i) {
-                        if (_creatorProperties.get(i).getInternalName() == prop.getInternalName()) {
+                        if (_creatorProperties.get(i).getInternalName().equals(prop.getInternalName())) {
                             _creatorProperties.set(i, prop);
                             break;
                         }

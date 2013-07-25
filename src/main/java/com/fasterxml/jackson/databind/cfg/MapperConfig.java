@@ -78,6 +78,7 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
         }
         return flags;
     }
+
     /*
     /**********************************************************
     /* Life-cycle: factory methods

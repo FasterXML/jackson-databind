@@ -147,6 +147,7 @@ public class TestEnumDeserialization
         } catch (JsonMappingException jex) {
             verifyException(jex, "value not one of declared");
         }
+        jp.close();
     }
 
     /**

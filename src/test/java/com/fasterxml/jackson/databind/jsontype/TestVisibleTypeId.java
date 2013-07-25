@@ -1,9 +1,10 @@
 package com.fasterxml.jackson.databind.jsontype;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeId;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -115,55 +116,72 @@ public class TestVisibleTypeId extends BaseMapTest
         @JsonTypeId
         public String getType2() { return "type2"; };
     }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "name")
+    @JsonSubTypes({ @JsonSubTypes.Type(value=I263Impl.class) })
+    public static abstract class I263Base {
+        @JsonTypeId
+        public abstract String getName();
+    }
+
+    @JsonPropertyOrder({ "age", "name" })
+    @JsonTypeName("bob")
+    public static class I263Impl extends I263Base
+    {
+        @Override
+        public String getName() { return "bob"; }
+        
+        public int age = 41;
+    }
     
     /*
     /**********************************************************
-    /* Unit tests
+    /* Unit tests, success
     /**********************************************************
      */
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testVisibleWithProperty() throws Exception
     {
-        String json = mapper.writeValueAsString(new PropertyBean());
+        String json = MAPPER.writeValueAsString(new PropertyBean());
         // just default behavior:
         assertEquals("{\"type\":\"BaseType\",\"a\":3}", json);
         // but then expect to read it back
-        PropertyBean result = mapper.readValue(json, PropertyBean.class);
+        PropertyBean result = MAPPER.readValue(json, PropertyBean.class);
         assertEquals("BaseType", result.type);
 
         // also, should work with order reversed
-        result = mapper.readValue("{\"a\":7, \"type\":\"BaseType\"}", PropertyBean.class);
+        result = MAPPER.readValue("{\"a\":7, \"type\":\"BaseType\"}", PropertyBean.class);
         assertEquals(7, result.a);
         assertEquals("BaseType", result.type);
     }
 
     public void testVisibleWithWrapperArray() throws Exception
     {
-        String json = mapper.writeValueAsString(new WrapperArrayBean());
+        String json = MAPPER.writeValueAsString(new WrapperArrayBean());
         // just default behavior:
         assertEquals("[\"ArrayType\",{\"a\":1}]", json);
         // but then expect to read it back
-        WrapperArrayBean result = mapper.readValue(json, WrapperArrayBean.class);
+        WrapperArrayBean result = MAPPER.readValue(json, WrapperArrayBean.class);
         assertEquals("ArrayType", result.type);
         assertEquals(1, result.a);
     }
 
     public void testVisibleWithWrapperObject() throws Exception
     {
-        String json = mapper.writeValueAsString(new WrapperObjectBean());
+        String json = MAPPER.writeValueAsString(new WrapperObjectBean());
         assertEquals("{\"ObjectType\":{\"a\":2}}", json);
         // but then expect to read it back
-        WrapperObjectBean result = mapper.readValue(json, WrapperObjectBean.class);
+        WrapperObjectBean result = MAPPER.readValue(json, WrapperObjectBean.class);
         assertEquals("ObjectType", result.type);
     }
 
     public void testVisibleWithExternalId() throws Exception
     {
-        String json = mapper.writeValueAsString(new ExternalIdWrapper());
+        String json = MAPPER.writeValueAsString(new ExternalIdWrapper());
         // but then expect to read it back
-        ExternalIdWrapper result = mapper.readValue(json, ExternalIdWrapper.class);
+        ExternalIdWrapper result = MAPPER.readValue(json, ExternalIdWrapper.class);
         assertEquals("ExternalType", result.bean.type);
         assertEquals(2, result.bean.a);
     }
@@ -173,35 +191,50 @@ public class TestVisibleTypeId extends BaseMapTest
     public void testTypeIdFromProperty() throws Exception
     {
         assertEquals("{\"type\":\"SomeType\",\"a\":3}",
-                mapper.writeValueAsString(new TypeIdFromFieldProperty()));
+                MAPPER.writeValueAsString(new TypeIdFromFieldProperty()));
     }
 
     public void testTypeIdFromArray() throws Exception
     {
         assertEquals("[\"SomeType\",{\"a\":3}]",
-                mapper.writeValueAsString(new TypeIdFromFieldArray()));
+                MAPPER.writeValueAsString(new TypeIdFromFieldArray()));
     }
 
     public void testTypeIdFromObject() throws Exception
     {
         assertEquals("{\"SomeType\":{\"a\":3}}",
-                mapper.writeValueAsString(new TypeIdFromMethodObject()));
+                MAPPER.writeValueAsString(new TypeIdFromMethodObject()));
     }
 
     public void testTypeIdFromExternal() throws Exception
     {
-        String json = mapper.writeValueAsString(new ExternalIdWrapper2());
+        String json = MAPPER.writeValueAsString(new ExternalIdWrapper2());
         // Implementation detail: type id written AFTER value, due to constraints
         assertEquals("{\"bean\":{\"a\":2},\"type\":\"SomeType\"}", json);
         
     }
-
-    // Failing cases
+    
+    public void testIssue263() throws Exception
+    {
+        // first, serialize:
+        assertEquals("{\"name\":\"bob\",\"age\":41}", MAPPER.writeValueAsString(new I263Impl()));
+        
+        // then bring back:
+        I263Base result = MAPPER.readValue("{\"age\":19,\"name\":\"bob\"}", I263Base.class);
+        assertTrue(result instanceof I263Impl);
+        assertEquals(19, ((I263Impl) result).age);
+    }
+    
+    /*
+    /**********************************************************
+    /* Unit tests, fails
+    /**********************************************************
+     */
 
     public void testInvalidMultipleTypeIds() throws Exception
     {
         try {
-            mapper.writeValueAsString(new MultipleIds());
+            MAPPER.writeValueAsString(new MultipleIds());
             fail("Should have failed");
         } catch (JsonMappingException e) {
             verifyException(e, "multiple type ids");

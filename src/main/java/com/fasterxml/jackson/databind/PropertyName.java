@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.core.util.InternCache;
+
 /**
  * Simple value class used for containing names of properties as defined
  * by annotations (and possibly other configuration sources).
@@ -71,6 +73,19 @@ public class PropertyName
         }
         return new PropertyName(simpleName, ns);
     }
+
+    public PropertyName internSimpleName()
+    {
+        if (_simpleName.length() == 0) { // empty String is canonical already
+            return this;
+        }
+        String interned = InternCache.instance.intern(_simpleName);
+        if (interned == _simpleName) { // was already interned
+            return this;
+        }
+        return new PropertyName(interned, _namespace);
+    }
+
     
     /**
      * Fluent factory method for constructing an instance with different

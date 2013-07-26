@@ -41,7 +41,7 @@ public abstract class SettableBeanProperty
      * Logical name of the property (often but not always derived
      * from the setter method name)
      */
-    protected final String _propName;
+    protected final PropertyName _propName;
 
     /**
      * Base type for property; may be a supertype of actual value.
@@ -144,24 +144,30 @@ public abstract class SettableBeanProperty
     protected SettableBeanProperty(String propName, JavaType type, PropertyName wrapper,
             TypeDeserializer typeDeser, Annotations contextAnnotations)
     {
-        this(propName, type, wrapper, typeDeser, contextAnnotations, false);
+        this(new PropertyName(propName), type, wrapper, typeDeser, contextAnnotations, false);
     }
 
+    @Deprecated // since 2.3
     protected SettableBeanProperty(String propName, JavaType type, PropertyName wrapper,
             TypeDeserializer typeDeser, Annotations contextAnnotations,
             boolean isRequired)
     {
-        /* 09-Jan-2009, tatu: Intern()ing makes sense since Jackson parsed
-         *   field names are (usually) interned too, hence lookups will be faster.
-         */
+        this(new PropertyName(propName), type, wrapper, typeDeser, contextAnnotations, isRequired);
+    }
+    
+    protected SettableBeanProperty(PropertyName propName, JavaType type, PropertyName wrapper,
+            TypeDeserializer typeDeser, Annotations contextAnnotations,
+            boolean isRequired)
+    {
+        // 09-Jan-2009, tatu: Intern()ing makes sense since Jackson parsed
+        //  field names are (usually) interned too, hence lookups will be faster.
         // 23-Oct-2009, tatu: should this be disabled wrt [JACKSON-180]?
-        /*   Probably need not, given that namespace of field/method names
-         *   is not unbounded, unlike potential JSON names.
-         */
-        if (propName == null || propName.length() == 0) {
-            _propName = "";
+        //   Probably need not, given that namespace of field/method names
+        //   is not unbounded, unlike potential JSON names.
+        if (propName == null) {
+            _propName = PropertyName.NO_NAME;
         } else {
-            _propName = InternCache.instance.intern(propName);
+            _propName = propName.internSimpleName();
         }
         _type = type;
         _wrapperName = wrapper;
@@ -187,10 +193,10 @@ public abstract class SettableBeanProperty
             boolean isRequired, JsonDeserializer<Object> valueDeser)
     {
         // as with above ctor, intern()ing probably fine
-        if (propName == null || propName.length() == 0) {
-            _propName = "";
+        if (propName == null) {
+            _propName = PropertyName.NO_NAME;
         } else {
-            _propName = InternCache.instance.intern(propName);
+            _propName = new PropertyName(propName).internSimpleName();
         }
         _type = type;
         _wrapperName = null;
@@ -246,10 +252,15 @@ public abstract class SettableBeanProperty
         _viewMatcher = src._viewMatcher;
     }
 
+    @Deprecated // since 2.3
+    protected SettableBeanProperty(SettableBeanProperty src, String newName) {
+        this(src, new PropertyName(newName));
+    }
+    
     /**
      * Copy-with-deserializer-change constructor for sub-classes to use.
      */
-    protected SettableBeanProperty(SettableBeanProperty src, String newName)
+    protected SettableBeanProperty(SettableBeanProperty src, PropertyName newName)
     {
         _propName = newName;
         _type = src._type;
@@ -317,12 +328,11 @@ public abstract class SettableBeanProperty
      */
     
     @Override
-    public final String getName() { return _propName; }
+    public final String getName() { return _propName.getSimpleName(); }
 
     @Override
     public PropertyName getFullName() {
-        // !!! TODO: impl properly
-        return new PropertyName(_propName);
+        return _propName;
     }
     
     @Override

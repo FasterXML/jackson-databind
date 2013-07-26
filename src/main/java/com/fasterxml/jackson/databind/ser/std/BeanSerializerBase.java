@@ -369,7 +369,8 @@ public abstract class BeanSerializerBase
             if (objectIdInfo == null) {
                 // no ObjectId override, but maybe ObjectIdRef?
                 if (oiw != null) {
-                    objectIdInfo = intr.findObjectReferenceInfo(accessor, new ObjectIdInfo("", null, null));
+                    objectIdInfo = intr.findObjectReferenceInfo(accessor,
+                            new ObjectIdInfo(PropertyName.NO_NAME, null, null));
                     oiw = _objectIdWriter.withAlwaysAsId(objectIdInfo.getAlwaysAsId());
                 }
             } else {
@@ -386,7 +387,7 @@ public abstract class BeanSerializerBase
                 JavaType idType = provider.getTypeFactory().findTypeParameters(type, ObjectIdGenerator.class)[0];
                 // Property-based generator is trickier
                 if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
-                    String propName = objectIdInfo.getPropertyName();
+                    String propName = objectIdInfo.getPropertyName().getSimpleName();
                     BeanPropertyWriter idProp = null;
 
                     for (int i = 0, len = _props.length ;; ++i) {
@@ -414,7 +415,7 @@ public abstract class BeanSerializerBase
                     }
                     idType = idProp.getType();
                     gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
-                    oiw = ObjectIdWriter.construct(idType, null, gen, objectIdInfo.getAlwaysAsId());
+                    oiw = ObjectIdWriter.construct(idType, (PropertyName) null, gen, objectIdInfo.getAlwaysAsId());
                 } else { // other types need to be simpler
                     gen = provider.objectIdGeneratorInstance(accessor, objectIdInfo);
                     oiw = ObjectIdWriter.construct(idType, objectIdInfo.getPropertyName(), gen,

@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.databind.PropertyName;
 
 /**
  * Container object that encapsulates information usually
@@ -10,16 +11,21 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator;
  */
 public class ObjectIdInfo
 {
-    protected final String _propertyName;
+    protected final PropertyName _propertyName;
     protected final Class<? extends ObjectIdGenerator<?>> _generator;
     protected final Class<?> _scope;
     protected final boolean _alwaysAsId;
 
-    public ObjectIdInfo(String prop, Class<?> scope, Class<? extends ObjectIdGenerator<?>> gen) {
-        this(prop, scope, gen, false);
+    public ObjectIdInfo(PropertyName name, Class<?> scope, Class<? extends ObjectIdGenerator<?>> gen) {
+        this(name, scope, gen, false);
     }
 
-    protected ObjectIdInfo(String prop, Class<?> scope, Class<? extends ObjectIdGenerator<?>> gen,
+    @Deprecated // since 2.3
+    public ObjectIdInfo(String name, Class<?> scope, Class<? extends ObjectIdGenerator<?>> gen) {
+        this(new PropertyName(name), scope, gen, false);
+    }
+    
+    protected ObjectIdInfo(PropertyName prop, Class<?> scope, Class<? extends ObjectIdGenerator<?>> gen,
             boolean alwaysAsId)
     {
         _propertyName = prop;
@@ -35,7 +41,7 @@ public class ObjectIdInfo
         return new ObjectIdInfo(_propertyName, _scope, _generator, state);
     }
     
-    public String getPropertyName() { return _propertyName; }
+    public PropertyName getPropertyName() { return _propertyName; }
     public Class<?> getScope() { return _scope; }
     public Class<? extends ObjectIdGenerator<?>> getGeneratorType() { return _generator; }
     public boolean getAlwaysAsId() { return _alwaysAsId; }

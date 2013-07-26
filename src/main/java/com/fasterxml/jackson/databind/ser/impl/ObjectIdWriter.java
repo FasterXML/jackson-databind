@@ -18,7 +18,7 @@ public final class ObjectIdWriter
      * other entity.
      */
     public final SerializedString propertyName;
-    
+
     /**
      * Blueprint generator instance: actual instance will be
      * fetched from {@link SerializerProvider} using this as
@@ -61,7 +61,17 @@ public final class ObjectIdWriter
      * Factory method called by {@link com.fasterxml.jackson.databind.ser.std.BeanSerializerBase}
      * with the initial information based on standard settings for the type
      * for which serializer is being built.
+     * 
+     * @since 2.3
      */
+    public static ObjectIdWriter construct(JavaType idType, PropertyName propName,
+            ObjectIdGenerator<?> generator, boolean alwaysAsId)
+    {
+        String simpleName = (propName == null) ? null : propName.getSimpleName();
+        return construct(idType, simpleName, generator, alwaysAsId);
+    }
+    
+    @Deprecated // since 2.3
     public static ObjectIdWriter construct(JavaType idType, String propName,
             ObjectIdGenerator<?> generator, boolean alwaysAsId)
     {

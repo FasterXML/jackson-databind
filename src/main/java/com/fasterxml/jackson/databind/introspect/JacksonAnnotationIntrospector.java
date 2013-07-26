@@ -429,7 +429,9 @@ public class JacksonAnnotationIntrospector
         if (info == null || info.generator() == ObjectIdGenerators.None.class) {
             return null;
         }
-        return new ObjectIdInfo(info.property(), info.scope(), info.generator());
+        // In future may need to allow passing namespace?
+        PropertyName name = new PropertyName(info.property());
+        return new ObjectIdInfo(name, info.scope(), info.generator());
     }
 
     @Override

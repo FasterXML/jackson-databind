@@ -368,7 +368,7 @@ public class BeanDeserializerFactory
 
         // Just one special case: Property-based generator is trickier
         if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
-            String propName = objectIdInfo.getPropertyName();
+            PropertyName propName = objectIdInfo.getPropertyName();
             idProp = builder.findProperty(propName);
             if (idProp == null) {
                 throw new IllegalArgumentException("Invalid Object Id definition for "

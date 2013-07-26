@@ -570,7 +570,7 @@ public abstract class BeanDeserializerBase
                 SettableBeanProperty idProp;
                 ObjectIdGenerator<?> idGen;
                 if (implClass == ObjectIdGenerators.PropertyGenerator.class) {
-                    String propName = objectIdInfo.getPropertyName();
+                    PropertyName propName = objectIdInfo.getPropertyName();
                     idProp = findProperty(propName);
                     if (idProp == null) {
                         throw new IllegalArgumentException("Invalid Object Id definition for "
@@ -783,6 +783,12 @@ public abstract class BeanDeserializerBase
         return _propertyBasedCreator.properties().iterator();
     }
 
+    public SettableBeanProperty findProperty(PropertyName propertyName)
+    {
+        // TODO: start matching full name?
+        return findProperty(propertyName.getSimpleName());
+    }
+    
     /**
      * Accessor for finding the property with given name, if POJO
      * has one. Name used is the external name, i.e. name used
@@ -885,7 +891,7 @@ public abstract class BeanDeserializerBase
     protected Object deserializeWithObjectId(JsonParser jp, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
     {
-        final String idPropName = _objectIdReader.propertyName;
+        final String idPropName = _objectIdReader.propertyName.getSimpleName();
         // First, the simple case: we point to the Object Id property
         if (idPropName.equals(jp.getCurrentName())) {
             return deserializeFromObject(jp, ctxt);

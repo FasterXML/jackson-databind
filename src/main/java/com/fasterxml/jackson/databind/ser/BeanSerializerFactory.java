@@ -457,7 +457,7 @@ public class BeanSerializerFactory
 
         // Just one special case: Property-based generator is trickier
         if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
-            String propName = objectIdInfo.getPropertyName();
+            String propName = objectIdInfo.getPropertyName().getSimpleName();
             BeanPropertyWriter idProp = null;
 
             for (int i = 0, len = props.size() ;; ++i) {
@@ -481,7 +481,7 @@ public class BeanSerializerFactory
             JavaType idType = idProp.getType();
             gen = new PropertyBasedObjectIdGenerator(objectIdInfo, idProp);
             // one more thing: must ensure that ObjectIdWriter does not actually write the value:
-            return ObjectIdWriter.construct(idType, null, gen, objectIdInfo.getAlwaysAsId());
+            return ObjectIdWriter.construct(idType, (PropertyName) null, gen, objectIdInfo.getAlwaysAsId());
             
         } 
         // other types are simpler

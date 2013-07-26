@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.util.InternCache;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.NullProvider;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -189,14 +188,14 @@ public abstract class SettableBeanProperty
      * 
      * @since 2.3
      */
-    protected SettableBeanProperty(String propName, JavaType type, 
+    protected SettableBeanProperty(PropertyName propName, JavaType type, 
             boolean isRequired, JsonDeserializer<Object> valueDeser)
     {
         // as with above ctor, intern()ing probably fine
         if (propName == null) {
             _propName = PropertyName.NO_NAME;
         } else {
-            _propName = new PropertyName(propName).internSimpleName();
+            _propName = propName.internSimpleName();
         }
         _type = type;
         _wrapperName = null;

@@ -50,6 +50,7 @@ public class UnwrappedPropertyHandler
         return new UnwrappedPropertyHandler(newProps);
     }
     
+    @SuppressWarnings("resource")
     public Object processUnwrapped(JsonParser originalParser, DeserializationContext ctxt, Object bean,
             TokenBuffer buffered)
         throws IOException, JsonProcessingException

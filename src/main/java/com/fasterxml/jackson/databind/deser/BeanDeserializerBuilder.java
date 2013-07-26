@@ -269,14 +269,38 @@ public class BeanDeserializerBuilder
         return _properties.values().iterator();
     }
 
-    public SettableBeanProperty findProperty(String propertyName) {
-    	return _properties.get(propertyName);
+    /**
+     * @since 2.3
+     */
+    public SettableBeanProperty findProperty(PropertyName propertyName) {
+        return _properties.get(propertyName.getSimpleName());
     }
-    
-    public boolean hasProperty(String propertyName) {
+
+    @Deprecated // since 2.3
+    public SettableBeanProperty findProperty(String propertyName) {
+        return _properties.get(propertyName);
+    }
+
+    /**
+     * @since 2.3
+     */
+    public boolean hasProperty(PropertyName propertyName) {
         return findProperty(propertyName) != null;
     }
     
+    @Deprecated // since 2.3
+    public boolean hasProperty(String propertyName) {
+        return findProperty(propertyName) != null;
+    }
+
+    /**
+     * @since 2.3
+     */
+    public SettableBeanProperty removeProperty(PropertyName name) {
+        return _properties.remove(name.getSimpleName());
+    }
+    
+    @Deprecated // since 2.3
     public SettableBeanProperty removeProperty(String name) {
         return _properties.remove(name);
     }

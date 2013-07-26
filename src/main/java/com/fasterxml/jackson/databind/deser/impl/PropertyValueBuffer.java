@@ -99,7 +99,7 @@ public final class PropertyValueBuffer
      */
     public boolean readIdProperty(String propName) throws IOException
     {
-        if ((_objectIdReader != null) && propName.equals(_objectIdReader.propertyName)) {
+        if ((_objectIdReader != null) && propName.equals(_objectIdReader.propertyName.getSimpleName())) {
             _idValue = _objectIdReader.deserializer.deserialize(_parser, _context);
             return true;
         }

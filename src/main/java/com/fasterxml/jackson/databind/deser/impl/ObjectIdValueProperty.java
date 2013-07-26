@@ -41,14 +41,20 @@ public final class ObjectIdValueProperty
         _objectIdReader = src._objectIdReader;
     }
 
-    protected ObjectIdValueProperty(ObjectIdValueProperty src, String newName) {
+    @Deprecated // since 2.3
+    protected ObjectIdValueProperty(ObjectIdValueProperty src, PropertyName newName) {
         super(src, newName);
         _objectIdReader = src._objectIdReader;
+    }
+    
+    @Deprecated // since 2.3
+    protected ObjectIdValueProperty(ObjectIdValueProperty src, String newName) {
+        this(src, new PropertyName(newName));
     }
 
     @Override
     public ObjectIdValueProperty withName(String newName) {
-        return new ObjectIdValueProperty(this, newName);
+        return new ObjectIdValueProperty(this, new PropertyName(newName));
     }
 
     @Override

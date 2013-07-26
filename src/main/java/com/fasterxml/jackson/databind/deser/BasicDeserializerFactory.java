@@ -730,9 +730,7 @@ public abstract class BasicDeserializerFactory
                     return StringArrayDeserializer.instance;
                 }
             }
-            if (deser == null) {
-                deser = new ObjectArrayDeserializer(type, contentDeser, elemTypeDeser);
-            }
+            deser = new ObjectArrayDeserializer(type, contentDeser, elemTypeDeser);
         }
         // and then new with 2.2: ability to post-process it too (Issue#120)
         if (_factoryConfig.hasDeserializerModifiers()) {

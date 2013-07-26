@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
@@ -1018,6 +1017,7 @@ public class ObjectReader
     /**
      * Overloaded version of {@link #readValue(InputStream)}.
      */
+    @SuppressWarnings("resource")
     public <T> MappingIterator<T> readValues(Reader src)
         throws IOException, JsonProcessingException
     {
@@ -1039,6 +1039,7 @@ public class ObjectReader
      * 
      * @param json String that contains JSON content to parse
      */
+    @SuppressWarnings("resource")
     public <T> MappingIterator<T> readValues(String json)
         throws IOException, JsonProcessingException
     {
@@ -1406,6 +1407,7 @@ public class ObjectReader
     /**********************************************************
      */
     
+    @SuppressWarnings("resource")
     protected Object _detectBindAndClose(byte[] src, int offset, int length) throws IOException
     {
         DataFormatReaders.Match match = _dataFormatReaders.findFormat(src, offset, length);
@@ -1416,6 +1418,7 @@ public class ObjectReader
         return match.getReader()._bindAndClose(jp, _valueToUpdate);
     }
 
+    @SuppressWarnings("resource")
     protected Object _detectBindAndClose(DataFormatReaders.Match match, boolean forceClosing)
         throws IOException
     {
@@ -1432,6 +1435,7 @@ public class ObjectReader
         return match.getReader()._bindAndClose(p, _valueToUpdate);
     }
 
+    @SuppressWarnings("resource")
     protected <T> MappingIterator<T> _detectBindAndReadValues(DataFormatReaders.Match match, boolean forceClosing)
         throws IOException, JsonProcessingException
     {
@@ -1448,6 +1452,7 @@ public class ObjectReader
         return match.getReader()._bindAndReadValues(p, _valueToUpdate);
     }
     
+    @SuppressWarnings("resource")
     protected JsonNode _detectBindAndCloseAsTree(InputStream in) throws IOException
     {
         DataFormatReaders.Match match = _dataFormatReaders.findFormat(in);

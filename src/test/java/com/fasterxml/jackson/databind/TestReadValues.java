@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@SuppressWarnings("resource")
 public class TestReadValues extends BaseMapTest
 {
     /*
@@ -25,7 +26,7 @@ public class TestReadValues extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testRootBeans() throws Exception
     {
         final String JSON = "{\"a\":3}{\"a\":27}  ";

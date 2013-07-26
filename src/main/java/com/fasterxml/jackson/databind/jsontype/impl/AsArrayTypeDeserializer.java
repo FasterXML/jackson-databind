@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -17,8 +16,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * the same, regardless of structure used for actual value: wrapping
  * is done using a 2-element JSON Array where type id is the first
  * element, and actual object data as second element.
- * 
- * @author tatu
  */
 public class AsArrayTypeDeserializer
     extends TypeDeserializerBase
@@ -94,6 +91,7 @@ public class AsArrayTypeDeserializer
      * subtype deserializer to use, and calls it to do actual
      * deserialization.
      */
+    @SuppressWarnings("resource")
     private final Object _deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -103,7 +101,6 @@ public class AsArrayTypeDeserializer
         // Minor complication: we may need to merge type id in?
         if (_typeIdVisible && jp.getCurrentToken() == JsonToken.START_OBJECT) {
             // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
-            @SuppressWarnings("resource")
             TokenBuffer tb = new TokenBuffer(null);
             tb.writeStartObject(); // recreate START_OBJECT
             tb.writeFieldName(_typePropertyName);

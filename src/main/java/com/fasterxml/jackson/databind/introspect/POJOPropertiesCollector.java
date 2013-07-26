@@ -589,7 +589,7 @@ public class POJOPropertiesCollector
         }
         AnnotatedMember prev = _injectables.put(id, m);
         if (prev != null) {
-            String type = (id == null) ? "[null]" : id.getClass().getName();
+            String type = id.getClass().getName();
             throw new IllegalArgumentException("Duplicate injectable value with id '"
                     +String.valueOf(id)+"' (of type "+type+")");
         }

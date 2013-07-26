@@ -13,7 +13,6 @@ import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Instantiatable;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
-
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -602,6 +601,7 @@ public class ObjectWriter
      *<p>
      * Note: prior to version 2.1, throws clause included {@link IOException}; 2.1 removed it.
      */
+    @SuppressWarnings("resource")
     public String writeValueAsString(Object value)
         throws JsonProcessingException
     {        
@@ -626,6 +626,7 @@ public class ObjectWriter
      *<p>
      * Note: prior to version 2.1, throws clause included {@link IOException}; 2.1 removed it.
      */
+    @SuppressWarnings("resource")
     public byte[] writeValueAsBytes(Object value)
         throws JsonProcessingException
     {

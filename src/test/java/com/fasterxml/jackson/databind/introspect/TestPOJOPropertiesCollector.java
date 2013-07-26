@@ -180,6 +180,23 @@ public class TestPOJOPropertiesCollector
            return (String) additionalProperties.get("name");
         }
     }
+
+    static class PropDescBean
+    {
+        public final static String A_DESC = "That's A!";
+
+        @JsonPropertyDescription(A_DESC)
+        public String a;
+
+        protected int b;
+        
+        public String getA() { return a; }
+
+        public void setA(String a) { this.a = a; }
+
+        @JsonProperty(required=true)
+        public int getB() { return b; }
+    }
     
     /*
     /**********************************************************
@@ -390,10 +407,43 @@ public class TestPOJOPropertiesCollector
 
     public void testJackson744() throws Exception
     {
-        BasicBeanDescription beanDesc = mapper.getDeserializationConfig().introspect(mapper.constructType(Issue744Bean.class));
+        BeanDescription beanDesc = mapper.getDeserializationConfig().introspect(mapper.constructType(Issue744Bean.class));
         assertNotNull(beanDesc);
         AnnotatedMethod setter = beanDesc.findAnySetter();
         assertNotNull(setter);
+    }
+
+    // [Issue#269]: Support new @JsonPropertyDescription
+    public void testPropertyDesc() throws Exception
+    {
+        // start via deser
+        BeanDescription beanDesc = mapper.getDeserializationConfig().introspect(mapper.constructType(PropDescBean.class));
+        _verifyPropertyDesc(beanDesc);
+        // and then via ser:
+        beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(PropDescBean.class));
+        _verifyPropertyDesc(beanDesc);
+    }
+
+    private void _verifyPropertyDesc(BeanDescription beanDesc)
+    {
+        assertNotNull(beanDesc);
+        List<BeanPropertyDefinition> props = beanDesc.findProperties();
+        assertEquals(2, props.size());
+        for (BeanPropertyDefinition prop : props) {
+            String name = prop.getName();
+            final PropertyMetadata md = prop.getMetadata();
+            if ("a".equals(name)) {
+                assertFalse(md.isRequired());
+                assertNull(md.getRequired());
+                assertEquals(PropDescBean.A_DESC, md.getDescription());
+            } else if ("b".equals(name)) {
+                assertTrue(md.isRequired());
+                assertEquals(Boolean.TRUE, md.getRequired());
+                assertNull(md.getDescription());
+            } else {
+                fail("Unrecognized property '"+name+"'");
+            }
+        }
     }
     
     /*

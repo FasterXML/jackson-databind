@@ -384,17 +384,23 @@ public class POJOPropertyBuilder
 
     @Override
     public PropertyMetadata getMetadata() {
-        return PropertyMetadata.construct(_isRequired(), _findDescription());
+        final Boolean b = _findRequired();
+        final String desc = _findDescription();
+        if (b == null) {
+            return (desc == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL
+                    : PropertyMetadata.STD_REQUIRED_OR_OPTIONAL.withDescription(desc);
+        }
+        return PropertyMetadata.construct(b.booleanValue(), _findDescription());
     }
 
-    protected boolean _isRequired() {
+    protected Boolean _findRequired() {
         Boolean b = fromMemberAnnotations(new WithMember<Boolean>() {
             @Override
             public Boolean withMember(AnnotatedMember member) {
                 return _annotationIntrospector.hasRequiredMarker(member);
             }
         });
-        return (b != null) && b.booleanValue();
+        return b;
     }
     
     protected String _findDescription() {

@@ -110,7 +110,7 @@ public interface BeanProperty extends Named
      */
     public static class Std implements BeanProperty
     {
-        protected final String _name;
+        protected final PropertyName _name;
         protected final JavaType _type;
         protected final PropertyName _wrapperName;
         
@@ -128,8 +128,8 @@ public interface BeanProperty extends Named
          * if no annotations were found
          */
         protected final Annotations _contextAnnotations;
-        
-        public Std(String name, JavaType type, PropertyName wrapperName,
+
+        public Std(PropertyName name, JavaType type, PropertyName wrapperName,
                 Annotations contextAnnotations, AnnotatedMember member,
                 boolean isRequired)
         {
@@ -139,6 +139,15 @@ public interface BeanProperty extends Named
             _isRequired = isRequired;
             _member = member;
             _contextAnnotations = contextAnnotations;
+        }
+
+        @Deprecated // since 2.3
+        public Std(String name, JavaType type, PropertyName wrapperName,
+                Annotations contextAnnotations, AnnotatedMember member,
+                boolean isRequired)
+        {
+            this(new PropertyName(name), type, wrapperName, contextAnnotations,
+                    member, isRequired);
         }
         
         public Std withType(JavaType type) {
@@ -157,12 +166,12 @@ public interface BeanProperty extends Named
         
         @Override
         public String getName() {
-            return _name;
+            return _name.getSimpleName();
         }
 
         @Override
         public PropertyName getFullName() {
-            return new PropertyName(_name);
+            return _name;
         }
         
         @Override

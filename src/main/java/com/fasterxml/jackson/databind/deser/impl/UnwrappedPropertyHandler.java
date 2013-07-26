@@ -35,7 +35,7 @@ public class UnwrappedPropertyHandler
         ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(_properties.size());
         for (SettableBeanProperty prop : _properties) {
             String newName = transformer.transform(prop.getName());
-            prop = prop.withName(newName);
+            prop = prop.withSimpleName(newName);
             JsonDeserializer<?> deser = prop.getValueDeserializer();
             if (deser != null) {
                 @SuppressWarnings("unchecked")

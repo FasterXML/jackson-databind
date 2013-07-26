@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -123,7 +124,7 @@ public class JacksonDeserializers
         }
 
         private static CreatorProperty creatorProp(String name, JavaType type, int index) {
-            return new CreatorProperty(name, type, null,
+            return new CreatorProperty(new PropertyName(name), type, null,
                     null, null, null, index, null, true);
         }
         

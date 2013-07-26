@@ -40,6 +40,8 @@ public abstract class BeanSerializerBase
     implements ContextualSerializer, ResolvableSerializer,
         JsonFormatVisitable, SchemaAware
 {
+    protected final static PropertyName NAME_FOR_OBJECT_REF = new PropertyName("#object-ref");
+    
     final protected static BeanPropertyWriter[] NO_PROPS = new BeanPropertyWriter[0];
 
     /*
@@ -350,7 +352,7 @@ public abstract class BeanSerializerBase
         }
         return null;
     }
-    
+
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
@@ -370,7 +372,7 @@ public abstract class BeanSerializerBase
                 // no ObjectId override, but maybe ObjectIdRef?
                 if (oiw != null) {
                     objectIdInfo = intr.findObjectReferenceInfo(accessor,
-                            new ObjectIdInfo(PropertyName.NO_NAME, null, null));
+                            new ObjectIdInfo(NAME_FOR_OBJECT_REF, null, null));
                     oiw = _objectIdWriter.withAlwaysAsId(objectIdInfo.getAlwaysAsId());
                 }
             } else {

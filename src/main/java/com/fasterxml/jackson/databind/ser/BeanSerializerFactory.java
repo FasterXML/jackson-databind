@@ -413,7 +413,9 @@ public class BeanSerializerFactory
             // last 2 nulls; don't know key, value serializers (yet)
             MapSerializer mapSer = MapSerializer.construct(/* ignored props*/ null, type, staticTyping,
                     typeSer, null, null);
-            BeanProperty.Std anyProp = new BeanProperty.Std(anyGetter.getName(), valueType, null,
+            // TODO: can we find full PropertyName?
+            PropertyName name = new PropertyName(anyGetter.getName());
+            BeanProperty.Std anyProp = new BeanProperty.Std(name, valueType, null,
                     beanDesc.getClassAnnotations(), anyGetter, false);
             builder.setAnyGetter(new AnyGetterWriter(anyProp, anyGetter, mapSer));
         }
@@ -731,7 +733,7 @@ public class BeanSerializerFactory
             PropertyBuilder pb, boolean staticTyping, AnnotatedMember accessor)
         throws JsonMappingException
     {
-        final String name = propDef.getName();
+        final PropertyName name = propDef.getFullName();
         if (prov.canOverrideAccessModifiers()) {
             accessor.fixAccess();
         }

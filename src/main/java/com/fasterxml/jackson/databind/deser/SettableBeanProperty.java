@@ -296,8 +296,22 @@ public abstract class SettableBeanProperty
      * @return Newly constructed instance, if property name differs from the
      *   one used for this instance; or 'this' if not.
      */
-    public abstract SettableBeanProperty withName(String newName);
+    public abstract SettableBeanProperty withName(PropertyName newName);
+
+    /**
+     * @since 2.3
+     */
+    public SettableBeanProperty withSimpleName(String simpleName) {
+        PropertyName n = (_propName == null)
+                ? new PropertyName(simpleName) : _propName.withSimpleName(simpleName);
+        return (n == _propName) ? this : withName(n);
+    }
     
+    @Deprecated // since 2.3 -- use 'withSimpleName' instead if need be
+    public SettableBeanProperty withName(String simpleName) {
+        return withName(new PropertyName(simpleName));
+    }
+
     public void setManagedReferenceName(String n) {
         _managedReferenceName = n;
     }
@@ -327,7 +341,9 @@ public abstract class SettableBeanProperty
      */
     
     @Override
-    public final String getName() { return _propName.getSimpleName(); }
+    public final String getName() {
+        return _propName.getSimpleName();
+    }
 
     @Override
     public PropertyName getFullName() {

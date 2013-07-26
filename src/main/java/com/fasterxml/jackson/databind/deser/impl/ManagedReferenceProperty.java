@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -39,7 +40,7 @@ public final class ManagedReferenceProperty
             String refName, SettableBeanProperty backward,
             Annotations contextAnnotations, boolean isContainer)
     {
-        super(forward.getName(), forward.getType(), forward.getWrapperName(),
+        super(forward.getFullName(), forward.getType(), forward.getWrapperName(),
                 forward.getValueTypeDeserializer(), contextAnnotations,
                 forward.isRequired());
         _referenceName = refName;
@@ -57,7 +58,7 @@ public final class ManagedReferenceProperty
         _backProperty = src._backProperty;
     }
 
-    protected ManagedReferenceProperty(ManagedReferenceProperty src, String newName) {
+    protected ManagedReferenceProperty(ManagedReferenceProperty src, PropertyName newName) {
         super(src, newName);
         _referenceName = src._referenceName;
         _isContainer = src._isContainer;
@@ -66,7 +67,7 @@ public final class ManagedReferenceProperty
     }
 
     @Override
-    public ManagedReferenceProperty withName(String newName) {
+    public ManagedReferenceProperty withName(PropertyName newName) {
         return new ManagedReferenceProperty(this, newName);
     }
     

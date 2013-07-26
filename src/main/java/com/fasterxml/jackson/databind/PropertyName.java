@@ -14,7 +14,7 @@ public class PropertyName
     private static final long serialVersionUID = 7930806520033045126L;
 
     private final static String _USE_DEFAULT = "";
-    private final static String _NO_NAME = "#disabled";
+    private final static String _NO_NAME = "";
 
     /**
      * Special placeholder value that indicates that name to use should be
@@ -57,7 +57,7 @@ public class PropertyName
         if (_simpleName == null || _USE_DEFAULT.equals(_simpleName)) {
             return USE_DEFAULT;
         }
-        if (_simpleName.equals(_NO_NAME)) {
+        if (_simpleName.equals(_NO_NAME) && _namespace == null) {
             return NO_NAME;
         }
         return this;
@@ -135,6 +135,16 @@ public class PropertyName
         return _simpleName.length() > 0;
     }
 
+    /**
+     * @since 2.3
+     */
+    public boolean hasSimpleName(String str) {
+        if (str == null) {
+            return _simpleName == null;
+        }
+        return str.equals(_simpleName);
+    }
+    
     public boolean hasNamespace() {
         return _namespace != null;
     }

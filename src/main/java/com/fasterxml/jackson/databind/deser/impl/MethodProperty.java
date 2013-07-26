@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -46,7 +47,7 @@ public final class MethodProperty
         _setter = src._setter;
     }
 
-    protected MethodProperty(MethodProperty src, String newName) {
+    protected MethodProperty(MethodProperty src, PropertyName newName) {
         super(src, newName);
         _annotated = src._annotated;
         _setter = src._setter;
@@ -62,7 +63,7 @@ public final class MethodProperty
     }
     
     @Override
-    public MethodProperty withName(String newName) {
+    public MethodProperty withName(PropertyName newName) {
         return new MethodProperty(this, newName);
     }
     

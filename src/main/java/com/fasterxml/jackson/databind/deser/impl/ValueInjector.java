@@ -2,10 +2,10 @@ package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
 
-
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.util.Annotations;
 
@@ -23,12 +23,20 @@ public class ValueInjector
      */
     protected final Object _valueId;
 
-    public ValueInjector(String propertyName, JavaType type,
+    public ValueInjector(PropertyName propName, JavaType type,
             Annotations contextAnnotations, AnnotatedMember mutator,
             Object valueId)
     {
-        super(propertyName, type, null, contextAnnotations, mutator, false);
+        super(propName, type, null, contextAnnotations, mutator, false);
         _valueId = valueId;
+    }
+
+    @Deprecated // since 2.3
+    public ValueInjector(String propName, JavaType type,
+            Annotations contextAnnotations, AnnotatedMember mutator,
+            Object valueId)
+    {
+        this(new PropertyName(propName), type, contextAnnotations, mutator, valueId);
     }
 
     public Object findValue(DeserializationContext context, Object beanInstance)

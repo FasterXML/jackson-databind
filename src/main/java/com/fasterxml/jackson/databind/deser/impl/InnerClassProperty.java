@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -49,14 +50,14 @@ public final class InnerClassProperty
         _creator = src._creator;
     }
 
-    protected InnerClassProperty(InnerClassProperty src, String newName) {
+    protected InnerClassProperty(InnerClassProperty src, PropertyName newName) {
         super(src, newName);
         _delegate = src._delegate.withName(newName);
         _creator = src._creator;
     }
 
     @Override
-    public InnerClassProperty withName(String newName) {
+    public InnerClassProperty withName(PropertyName newName) {
         return new InnerClassProperty(this, newName);
     }
 

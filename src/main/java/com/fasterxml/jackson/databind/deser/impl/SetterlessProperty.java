@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
@@ -49,14 +50,14 @@ public final class SetterlessProperty
         _getter = src._getter;
     }
 
-    protected SetterlessProperty(SetterlessProperty src, String newName) {
+    protected SetterlessProperty(SetterlessProperty src, PropertyName newName) {
         super(src, newName);
         _annotated = src._annotated;
         _getter = src._getter;
     }
 
     @Override
-    public SetterlessProperty withName(String newName) {
+    public SetterlessProperty withName(PropertyName newName) {
         return new SetterlessProperty(this, newName);
     }
     

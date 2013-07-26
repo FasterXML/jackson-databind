@@ -43,7 +43,7 @@ public abstract class BasicDeserializerFactory
      * We need a placeholder for creator properties that don't have name
      * but are marked with `@JsonWrapped` annotation.
      */
-    protected final static String UNWRAPPED_CREATOR_PARAM_NAME = new String("@JsonUnwrapped");
+    protected final static PropertyName UNWRAPPED_CREATOR_PARAM_NAME = new PropertyName("@JsonUnwrapped");
     
     /**
      * Also special array deserializers for primitive array types.
@@ -381,7 +381,7 @@ public abstract class BasicDeserializerFactory
             }
         }
 
-        String[] ctorPropNames = null;
+        PropertyName[] ctorPropNames = null;
         AnnotatedConstructor propertyCtor = null;
         for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
             if (propDef.getConstructorParameter() != null) {
@@ -390,9 +390,9 @@ public abstract class BasicDeserializerFactory
                 if (owner instanceof AnnotatedConstructor) {
                     if (propertyCtor == null) {
                         propertyCtor = (AnnotatedConstructor) owner;
-                        ctorPropNames = new String[propertyCtor.getParameterCount()];
+                        ctorPropNames = new PropertyName[propertyCtor.getParameterCount()];
                     }
-                    ctorPropNames[param.getIndex()] = propDef.getName();
+                    ctorPropNames[param.getIndex()] = propDef.getFullName();
                 }
             }
         }
@@ -403,7 +403,7 @@ public abstract class BasicDeserializerFactory
             boolean isVisible =  vchecker.isCreatorVisible(ctor);
             // some single-arg constructors (String, number) are auto-detected
             if (argCount == 1) {
-                String name = ctor == propertyCtor ? ctorPropNames[0] : null;
+                PropertyName name = (ctor == propertyCtor) ? ctorPropNames[0] : null;
                 _handleSingleArgumentConstructor(ctxt, beanDesc, vchecker, intr, creators,
                         ctor, isCreator, isVisible, name);
                 continue;
@@ -423,19 +423,18 @@ public abstract class BasicDeserializerFactory
             CreatorProperty[] properties = new CreatorProperty[argCount];
             for (int i = 0; i < argCount; ++i) {
                 AnnotatedParameter param = ctor.getParameter(i);
-                String name = null;
+                PropertyName name = null;
                 if (ctor == propertyCtor) {
                     name = ctorPropNames[i];
                 }
                 if (name == null) {
-                    PropertyName pn = (param == null) ? null : intr.findNameForDeserialization(param);
-                    name = (pn == null) ? null : pn.getSimpleName();
+                    name = (param == null) ? null : intr.findNameForDeserialization(param);
                 }
                 Object injectId = intr.findInjectableValueId(param);
-                if (name != null && name.length() > 0) {
+                if (name != null && name.hasSimpleName()) {
                     ++namedCount;
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
-                } else if (injectId != null) {
+                } else if (injectId != null) { // injectable
                     ++injectCount;
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
                 } else {
@@ -470,18 +469,18 @@ public abstract class BasicDeserializerFactory
     protected boolean _handleSingleArgumentConstructor(DeserializationContext ctxt,
             BeanDescription beanDesc, VisibilityChecker<?> vchecker,
             AnnotationIntrospector intr, CreatorCollector creators,
-            AnnotatedConstructor ctor, boolean isCreator, boolean isVisible, String name)
+            AnnotatedConstructor ctor, boolean isCreator, boolean isVisible,
+            PropertyName name)
         throws JsonMappingException
     {
         // note: if we do have parameter name, it'll be "property constructor":
         AnnotatedParameter param = ctor.getParameter(0);
         if (name == null) {
-            PropertyName pn = (param == null) ? null : intr.findNameForDeserialization(param);
-            name = (pn == null) ? null : pn.getSimpleName();
+            name = (param == null) ? null : intr.findNameForDeserialization(param);
         }
         Object injectId = intr.findInjectableValueId(param);
     
-        if ((injectId != null) || (name != null && name.length() > 0)) { // property-based
+        if ((injectId != null) || (name != null && name.hasSimpleName())) { // property-based
             // We know there's a name and it's only 1 parameter.
             CreatorProperty[] properties = new CreatorProperty[1];
             properties[0] = constructCreatorProperty(ctxt, beanDesc, name, 0, param, injectId);
@@ -567,10 +566,9 @@ public abstract class BasicDeserializerFactory
             int injectCount = 0;            
             for (int i = 0; i < argCount; ++i) {
                 AnnotatedParameter param = factory.getParameter(i);
-                PropertyName pn = (param == null) ? null : intr.findNameForDeserialization(param);
-                String name = (pn == null) ? null : pn.getSimpleName();
+                PropertyName name = (param == null) ? null : intr.findNameForDeserialization(param);
                 Object injectId = intr.findInjectableValueId(param);
-                if (name != null && name.length() > 0) {
+                if (name != null && name.hasSimpleName()) {
                     ++namedCount;
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
                 } else if (injectId != null) {
@@ -656,7 +654,7 @@ public abstract class BasicDeserializerFactory
      * factory method)
      */
     protected CreatorProperty constructCreatorProperty(DeserializationContext ctxt,
-            BeanDescription beanDesc, String name, int index,
+            BeanDescription beanDesc, PropertyName name, int index,
             AnnotatedParameter param,
             Object injectableValueId)
         throws JsonMappingException

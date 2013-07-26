@@ -36,7 +36,7 @@ public class SimpleBeanPropertyDefinition
      */
     @Deprecated
     public SimpleBeanPropertyDefinition(AnnotatedMember member) {
-    	this(member, member.getName(), null);
+        this(member, member.getName(), null);
     }
 
     /**
@@ -44,7 +44,7 @@ public class SimpleBeanPropertyDefinition
      */
     @Deprecated
     public SimpleBeanPropertyDefinition(AnnotatedMember member, String name) {
-    	this(member, name, null);
+        this(member, name, null);
     }
     
     private SimpleBeanPropertyDefinition(AnnotatedMember member, String name,
@@ -79,11 +79,16 @@ public class SimpleBeanPropertyDefinition
      */
 
     @Override
-    public SimpleBeanPropertyDefinition withName(String newName) {
+    public SimpleBeanPropertyDefinition withSimpleName(String newName) {
         if (_name.equals(newName)) {
             return this;
         }
         return new SimpleBeanPropertyDefinition(_member, newName, _introspector);
+    }
+
+    @Override
+    public SimpleBeanPropertyDefinition withName(PropertyName newName) {
+        return withSimpleName(newName.getSimpleName());
     }
     
     /*
@@ -96,11 +101,14 @@ public class SimpleBeanPropertyDefinition
     public String getName() { return _name; }
 
     @Override
+    public PropertyName getFullName() { return new PropertyName(_name); }
+    
+    @Override
     public String getInternalName() { return getName(); }
 
     @Override
     public PropertyName getWrapperName() {
-    	return (_introspector == null) ? null : _introspector.findWrapperName(_member);
+        return (_introspector == null) ? null : _introspector.findWrapperName(_member);
     }
     
     // hmmh. what should we claim here?

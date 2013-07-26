@@ -31,6 +31,8 @@ public abstract class BeanDeserializerBase
 {
     private static final long serialVersionUID = -2038793552422727904L;
 
+    protected final static PropertyName TEMP_PROPERTY_NAME = new PropertyName("#temporary-name");
+
     /*
     /**********************************************************
     /* Information regarding type being deserialized
@@ -495,7 +497,7 @@ public abstract class BeanDeserializerBase
             }
             AnnotatedWithParams delegateCreator = _valueInstantiator.getDelegateCreator();
             // Need to create a temporary property to allow contextual deserializers:
-            BeanProperty.Std property = new BeanProperty.Std(null,
+            BeanProperty.Std property = new BeanProperty.Std(TEMP_PROPERTY_NAME,
                     delegateType, null, _classAnnotations, delegateCreator, false);
             _delegateDeserializer = findDeserializer(ctxt, delegateType, property);
         }

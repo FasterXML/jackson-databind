@@ -179,14 +179,22 @@ public class BeanDeserializerBuilder
         //   For now, won't add, since it is inferred, not explicit...
     }
 
-    public void addInjectable(String propertyName, JavaType propertyType,
+    @Deprecated // since 2.3
+    public void addInjectable(String propName, JavaType propType,
+            Annotations contextAnnotations, AnnotatedMember member,
+            Object valueId)
+    {
+        addInjectable(new PropertyName(propName), propType, contextAnnotations, member, valueId);
+    }
+    
+    public void addInjectable(PropertyName propName, JavaType propType,
             Annotations contextAnnotations, AnnotatedMember member,
             Object valueId)
     {
         if (_injectables == null) {
             _injectables = new ArrayList<ValueInjector>();
         }
-        _injectables.add(new ValueInjector(propertyName, propertyType,
+        _injectables.add(new ValueInjector(propName, propType,
                 contextAnnotations, member, valueId));
     }
     

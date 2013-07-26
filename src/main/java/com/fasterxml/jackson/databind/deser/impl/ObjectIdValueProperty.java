@@ -53,8 +53,8 @@ public final class ObjectIdValueProperty
     }
 
     @Override
-    public ObjectIdValueProperty withName(String newName) {
-        return new ObjectIdValueProperty(this, new PropertyName(newName));
+    public ObjectIdValueProperty withName(PropertyName newName) {
+        return new ObjectIdValueProperty(this, newName);
     }
 
     @Override

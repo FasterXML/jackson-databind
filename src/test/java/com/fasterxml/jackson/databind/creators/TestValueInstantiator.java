@@ -109,7 +109,7 @@ public class TestValueInstantiator extends BaseMapTest
         @Override
         public CreatorProperty[] getFromObjectArguments(DeserializationConfig config) {
             return  new CreatorProperty[] {
-                    new CreatorProperty("type", config.constructType(Class.class), null,
+                    new CreatorProperty(new PropertyName("type"), config.constructType(Class.class), null,
                             null, null, null, 0, null, true)
             };
         }
@@ -138,7 +138,7 @@ public class TestValueInstantiator extends BaseMapTest
         @Override
         public CreatorProperty[] getFromObjectArguments(DeserializationConfig config) {
             return  new CreatorProperty[] {
-                    new CreatorProperty("name", config.constructType(String.class), null,
+                    new CreatorProperty(new PropertyName("name"), config.constructType(String.class), null,
                             null, null, null, 0, null, true)
             };
         }
@@ -366,7 +366,7 @@ public class TestValueInstantiator extends BaseMapTest
                     @Override
                     public CreatorProperty[] getFromObjectArguments(DeserializationConfig config) {
                         return  new CreatorProperty[] {
-                                new CreatorProperty("secret", config.constructType(String.class), null,
+                                new CreatorProperty(new PropertyName("secret"), config.constructType(String.class), null,
                                         null, null, null, 0, null, true)
                         };
                     }

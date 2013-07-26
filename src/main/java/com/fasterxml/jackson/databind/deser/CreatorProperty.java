@@ -48,18 +48,6 @@ public class CreatorProperty
      * @since 2.1
      */
     protected final int _creatorIndex;
-
-    /**
-     * @deprecated Since 2.2: use the method that takes <code>isRequired</code> property
-     */
-    @Deprecated
-    public CreatorProperty(String name, JavaType type, TypeDeserializer typeDeser,
-            Annotations contextAnnotations, AnnotatedParameter param,
-            int index, Object injectableValueId)
-    {
-        this(name, type, null, typeDeser, contextAnnotations, param, index,
-                injectableValueId, true);
-    }
     
     /**
      * @param name Name of the logical property
@@ -71,9 +59,11 @@ public class CreatorProperty
      *    this property)
      * @param param Representation of property, constructor or factory
      *    method parameter; used for accessing annotations of the property
-     * @param index Index of this property within creator invocatino
+     * @param index Index of this property within creator invocation
+     * 
+     * @since 2.3
      */
-    public CreatorProperty(String name, JavaType type, PropertyName wrapperName,
+    public CreatorProperty(PropertyName name, JavaType type, PropertyName wrapperName,
             TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
             int index, Object injectableValueId,
@@ -85,11 +75,30 @@ public class CreatorProperty
         _injectableValueId = injectableValueId;
     }
 
-    protected CreatorProperty(CreatorProperty src, String newName) {
+    @Deprecated // since 2.3
+    public CreatorProperty(String name, JavaType type, PropertyName wrapperName,
+            TypeDeserializer typeDeser,
+            Annotations contextAnnotations, AnnotatedParameter param,
+            int index, Object injectableValueId,
+            boolean isRequired)
+    {
+        this(new PropertyName(name), type, wrapperName, typeDeser,
+                contextAnnotations, param, index, injectableValueId, isRequired);
+    }
+    
+    /**
+     * @since 2.3
+     */
+    protected CreatorProperty(CreatorProperty src, PropertyName newName) {
         super(src, newName);
         _annotated = src._annotated;
         _creatorIndex = src._creatorIndex;
         _injectableValueId = src._injectableValueId;
+    }
+
+    @Deprecated // since 2.3
+    protected CreatorProperty(CreatorProperty src, String newName) {
+        this(src, new PropertyName(newName));
     }
     
     protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser) {
@@ -100,7 +109,7 @@ public class CreatorProperty
     }
 
     @Override
-    public CreatorProperty withName(String newName) {
+    public CreatorProperty withName(PropertyName newName) {
         return new CreatorProperty(this, newName);
     }
     

@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -50,7 +51,7 @@ public final class FieldProperty
         _field = src._field;
     }
 
-    protected FieldProperty(FieldProperty src, String newName) {
+    protected FieldProperty(FieldProperty src, PropertyName newName) {
         super(src, newName);
         _annotated = src._annotated;
         _field = src._field;
@@ -71,7 +72,7 @@ public final class FieldProperty
     }
     
     @Override
-    public FieldProperty withName(String newName) {
+    public FieldProperty withName(PropertyName newName) {
         return new FieldProperty(this, newName);
     }
     

@@ -667,7 +667,7 @@ public class POJOPropertiesCollector
                 if (renamed == null) {
                     renamed = new LinkedList<POJOPropertyBuilder>();
                 }
-                prop = prop.withName(newName);
+                prop = prop.withSimpleName(newName);
                 renamed.add(prop);
                 it.remove();
             }
@@ -702,36 +702,41 @@ public class POJOPropertiesCollector
         POJOPropertyBuilder[] props = _properties.values().toArray(new POJOPropertyBuilder[_properties.size()]);
         _properties.clear();
         for (POJOPropertyBuilder prop : props) {
-            String name = prop.getName();
+            PropertyName fullName = prop.getFullName();
+            String rename = null;
             if (_forSerialization) {
                 if (prop.hasGetter()) {
-                    name = naming.nameForGetterMethod(_config, prop.getGetter(), name);
+                    rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
                 } else if (prop.hasField()) {
-                    name = naming.nameForField(_config, prop.getField(), name);
+                    rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName());
                 }
             } else {
                 if (prop.hasSetter()) {
-                    name = naming.nameForSetterMethod(_config, prop.getSetter(), name);
+                    rename = naming.nameForSetterMethod(_config, prop.getSetter(), fullName.getSimpleName());
                 } else if (prop.hasConstructorParameter()) {
-                    name = naming.nameForConstructorParameter(_config, prop.getConstructorParameter(), name);
+                    rename = naming.nameForConstructorParameter(_config, prop.getConstructorParameter(), fullName.getSimpleName());
                 } else if (prop.hasField()) {
-                    name = naming.nameForField(_config, prop.getField(), name);
+                    rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName());
                 } else if (prop.hasGetter()) {
                     /* Plus, when getter-as-setter is used, need to convert that too..
                      * (should we verify that's enabled? For now, assume it's ok always)
                      */
-                    name = naming.nameForGetterMethod(_config, prop.getGetter(), name);
+                    rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
                 }
             }
-            if (!name.equals(prop.getName())) {
-                prop = prop.withName(name);
+            final String simpleName;
+            if (rename != null && !fullName.hasSimpleName(rename)) {
+                prop = prop.withSimpleName(rename);
+                simpleName = rename;
+            } else {
+                simpleName = fullName.getSimpleName();
             }
             /* As per [JACKSON-687], need to consider case where there may already be
              * something in there...
              */
-            POJOPropertyBuilder old = _properties.get(name);
+            POJOPropertyBuilder old = _properties.get(simpleName);
             if (old == null) {
-                _properties.put(name, prop);
+                _properties.put(simpleName, prop);
             } else {
                 old.addAll(prop);
             }
@@ -756,12 +761,11 @@ public class POJOPropertiesCollector
             if (wrapperName == null || !wrapperName.hasSimpleName()) {
                 continue;
             }
-            String name = wrapperName.getSimpleName();
-            if (!name.equals(prop.getName())) {
+            if (!wrapperName.equals(prop.getFullName())) {
                 if (renamed == null) {
                     renamed = new LinkedList<POJOPropertyBuilder>();
                 }
-                prop = prop.withName(name);
+                prop = prop.withName(wrapperName);
                 renamed.add(prop);
                 it.remove();
             }
@@ -795,8 +799,8 @@ public class POJOPropertiesCollector
     {
         POJOPropertyBuilder prop = _properties.get(implName);
         if (prop == null) {
-            prop = new POJOPropertyBuilder(implName, _annotationIntrospector,
-                    _forSerialization);
+            prop = new POJOPropertyBuilder(new PropertyName(implName),
+                    _annotationIntrospector, _forSerialization);
             _properties.put(implName, prop);
         }
         return prop;

@@ -25,13 +25,13 @@ public class POJOPropertyBuilder
      * renaming (by new instance being constructed using
      * a new name)
      */
-    protected final String _name;
+    protected final PropertyName _name;
 
     /**
      * Original internal name, derived from accessor, of this
      * property. Will not be changed by renaming.
      */
-    protected final String _internalName;
+    protected final PropertyName _internalName;
 
     protected Linked<AnnotatedField> _fields;
     
@@ -40,8 +40,8 @@ public class POJOPropertyBuilder
     protected Linked<AnnotatedMethod> _getters;
 
     protected Linked<AnnotatedMethod> _setters;
-    
-    public POJOPropertyBuilder(String internalName,
+
+    public POJOPropertyBuilder(PropertyName internalName,
             AnnotationIntrospector annotationIntrospector, boolean forSerialization)
     {
         _internalName = internalName;
@@ -50,7 +50,14 @@ public class POJOPropertyBuilder
         _forSerialization = forSerialization;
     }
 
-    public POJOPropertyBuilder(POJOPropertyBuilder src, String newName)
+    @Deprecated // since 2.3
+    public POJOPropertyBuilder(String simpleInternalName,
+            AnnotationIntrospector annotationIntrospector, boolean forSerialization)
+    {
+        this(new PropertyName(simpleInternalName), annotationIntrospector, forSerialization);
+    }
+    
+    public POJOPropertyBuilder(POJOPropertyBuilder src, PropertyName newName)
     {
         _internalName = src._internalName;
         _name = newName;
@@ -69,8 +76,15 @@ public class POJOPropertyBuilder
      */
 
     @Override
-    public POJOPropertyBuilder withName(String newName) {
+    public POJOPropertyBuilder withName(PropertyName newName) {
         return new POJOPropertyBuilder(this, newName);
+    }
+
+    @Override
+    public POJOPropertyBuilder withSimpleName(String newSimpleName)
+    {
+        PropertyName newName = _name.withSimpleName(newSimpleName);
+        return (newName == _name) ? this : new POJOPropertyBuilder(this, newName);
     }
     
     /*
@@ -105,17 +119,24 @@ public class POJOPropertyBuilder
      */
 
     @Override
-    public String getName() { return _name; }
+    public String getName() {
+        return (_name == null) ? null : _name.getSimpleName();
+    }
 
     @Override
-    public String getInternalName() { return _internalName; }
+    public PropertyName getFullName() {
+        return _name;
+    }
+    
+    @Override
+    public String getInternalName() { return _internalName.getSimpleName(); }
 
     @Override
     public PropertyName getWrapperName() {
         /* 13-Mar-2013, tatu: Accessing via primary member SHOULD work,
          *   due to annotation merging. However, I have seen some problems
-         *   with this access (for other annotations) so will leave full
-         *   traversal code in place just in case.
+         *   with this access (for other annotations)... so if this should
+         *   occur, try commenting out full traversal code
          */
         AnnotatedMember member = getPrimaryMember();
         return (member == null || _annotationIntrospector == null) ? null

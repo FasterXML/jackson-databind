@@ -23,13 +23,28 @@ public abstract class BeanPropertyDefinition
     /**********************************************************
      */
 
+    @Deprecated // since 2.3
+    public BeanPropertyDefinition withName(String newName) {
+        return withSimpleName(newName);
+    }
+    
     /**
      * Method that can be used to create a definition with
      * same settings as this one, but with different
      * (external) name; that is, one for which
      * {@link #getName()} would return <code>newName</code>.
+     * 
+     * @since 2.3
      */
-    public abstract BeanPropertyDefinition withName(String newName);
+    public abstract BeanPropertyDefinition withName(PropertyName newName);
+
+    /**
+     * Alternate "mutant factory" that will only change simple name, but
+     * leave other optional parts (like namespace) as is.
+     * 
+     * @since 2.3
+     */
+    public abstract BeanPropertyDefinition withSimpleName(String newSimpleName);
     
     /*
     /**********************************************************
@@ -43,6 +58,8 @@ public abstract class BeanPropertyDefinition
     @Override // from Named
     public abstract String getName();
 
+    public abstract PropertyName getFullName();
+    
     /**
      * Accessor that can be used to determine implicit name from underlying
      * element(s) before possible renaming. This is the "internal"

@@ -107,7 +107,7 @@ public final class BeanPropertyMap
         while (it.hasNext()) {
             SettableBeanProperty prop = it.next();
             String newName = transformer.transform(prop.getName());
-            prop = prop.withName(newName);
+            prop = prop.withSimpleName(newName);
             JsonDeserializer<?> deser = prop.getValueDeserializer();
             if (deser != null) {
                 @SuppressWarnings("unchecked")

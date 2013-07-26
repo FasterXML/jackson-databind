@@ -126,6 +126,7 @@ public class TestObjectMapperBeanSerializer
 
         //END OF TOKEN PARSING
         assertNull(jp.nextToken());
+        jp.close();
     }
 
     private static enum EFixtureEnum

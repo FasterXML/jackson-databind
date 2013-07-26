@@ -309,6 +309,7 @@ public class TestTreeMapperDeserializer
         assertEquals(4, result.size());
 
         assertNull(mapper.readTree(jp));
+        jp.close();
     }
 
     public void testMultiple() throws Exception
@@ -335,6 +336,7 @@ public class TestTreeMapperDeserializer
         assertEquals(3, result.size());
 
         assertNull(mapper.readTree(jp));
+        jp.close();
     }
 
     /**

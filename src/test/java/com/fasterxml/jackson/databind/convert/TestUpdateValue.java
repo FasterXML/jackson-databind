@@ -104,6 +104,7 @@ public class TestUpdateValue extends BaseMapTest
     }
 
     // Test for [JACKSON-717] -- ensure 'readValues' also does update
+    @SuppressWarnings("resource")
     public void testUpdateSequence() throws Exception
     {
         XYBean toUpdate = new XYBean();

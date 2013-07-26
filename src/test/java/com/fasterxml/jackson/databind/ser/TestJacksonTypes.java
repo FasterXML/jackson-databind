@@ -40,8 +40,10 @@ public class TestJacksonTypes
         while (jp.nextToken() != null) {
             tb.copyCurrentEvent(jp);
         }
+        jp.close();
         // Then serialize as String
         String str = serializeAsString(tb);
+        tb.close();
         // and verify it looks ok
         verifyJsonSpecSampleDoc(createParserUsingReader(str), true);
     }

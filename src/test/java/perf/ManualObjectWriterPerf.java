@@ -34,6 +34,7 @@ public class ManualObjectWriterPerf
         final long[] times = new long[TYPES];
 
         while (true) {
+            @SuppressWarnings("resource")
             final NopOutputStream out = new NopOutputStream();
             try {  Thread.sleep(100L); } catch (InterruptedException ie) { }
             int round = (i++ % TYPES);

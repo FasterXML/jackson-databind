@@ -60,6 +60,7 @@ public class TestUntypedSerialization
             
             assertEquals(JsonToken.END_ARRAY, jp.nextToken());
             assertNull(jp.nextToken());
+            jp.close();
         }
     }
 
@@ -98,6 +99,7 @@ public class TestUntypedSerialization
             assertEquals(JsonToken.END_OBJECT, jp.nextToken());
 
             assertNull(jp.nextToken());
+            jp.close();
         }
     }
 }

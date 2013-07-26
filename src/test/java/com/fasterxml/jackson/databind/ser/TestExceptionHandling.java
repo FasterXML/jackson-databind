@@ -6,7 +6,6 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-
 import com.fasterxml.jackson.test.BaseTest;
 import com.fasterxml.jackson.test.BrokenStringWriter;
 
@@ -81,6 +80,7 @@ public class TestExceptionHandling
      * Unit test for verifying that regular IOExceptions are not wrapped
      * but are passed through as is.
      */
+    @SuppressWarnings("resource")
     public void testExceptionWithSimpleMapper()
         throws Exception
     {
@@ -94,6 +94,7 @@ public class TestExceptionHandling
         }
     }
 
+    @SuppressWarnings("resource")
     public void testExceptionWithMapperAndGenerator()
         throws Exception
     {
@@ -110,6 +111,7 @@ public class TestExceptionHandling
         }
     }
 
+    @SuppressWarnings("resource")
     public void testExceptionWithGeneratorMapping()
         throws Exception
     {

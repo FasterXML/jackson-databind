@@ -438,6 +438,7 @@ public class TestSimpleTypes
             Integer result = MAPPER.readValue(jp, Integer.class);
             assertEquals(Integer.valueOf(i), result);
         }
+        jp.close();
     }
 }
 

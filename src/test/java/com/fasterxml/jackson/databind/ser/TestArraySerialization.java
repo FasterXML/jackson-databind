@@ -35,6 +35,7 @@ public class TestArraySerialization
         assertEquals(str, jp.getText());
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
         assertNull(jp.nextToken());
+        jp.close();
     }
     
     public void testIntArray() throws Exception
@@ -65,6 +66,7 @@ public class TestArraySerialization
                 assertEquals(i, jp.getIntValue());
             }
             assertToken(JsonToken.END_ARRAY, jp.nextToken());
+            jp.close();
         }
     }
     

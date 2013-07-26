@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.*;
 
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
@@ -62,6 +61,7 @@ public class TestExceptionHandling
         }
     }
 
+    @SuppressWarnings("resource")
     public void testExceptionWithIncomplete()
         throws Exception
     {
@@ -104,6 +104,7 @@ public class TestExceptionHandling
         if (t != null) {
             fail("Expected current token to be null after end-of-stream, was: "+t);
         }
+        jp.close();
     }
 
     /*

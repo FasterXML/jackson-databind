@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -152,6 +151,7 @@ public class TestFeatures
     }
 
     // Test for [JACKSON-282]
+    @SuppressWarnings("resource")
     public void testCloseCloseable() throws IOException
     {
         ObjectMapper m = new ObjectMapper();

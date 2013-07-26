@@ -36,5 +36,6 @@ public class TestBlocking
         } catch (IOException ioe) {
             verifyException(ioe, "Unexpected end-of-input: expected close marker for ARRAY");
         }
+        jp.close();
     }
 }

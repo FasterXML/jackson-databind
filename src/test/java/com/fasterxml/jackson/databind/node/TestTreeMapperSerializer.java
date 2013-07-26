@@ -189,6 +189,7 @@ public class TestTreeMapperSerializer
         
         assertEquals(JsonToken.END_ARRAY, jp.nextToken());
         assertNull(jp.nextToken());
+        jp.close();
     }
 
     private void verifyFromMap(String input)
@@ -219,5 +220,6 @@ public class TestTreeMapperSerializer
         assertEquals(JsonToken.END_OBJECT, jp.nextToken());
         
         assertNull(jp.nextToken());
+        jp.close();
     }
 }

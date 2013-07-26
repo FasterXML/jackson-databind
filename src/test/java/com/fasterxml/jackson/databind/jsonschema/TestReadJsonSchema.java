@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonschema.JsonSchema;
 
 /**
- * Trivial test to ensure {@link JsonSchema} can be also deserialized
+ * Trivial test to ensure <code>JsonSchema</code> can be also deserialized
  */
 @SuppressWarnings("deprecation")
 public class TestReadJsonSchema

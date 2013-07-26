@@ -11,12 +11,13 @@ public class TestBuilderMethods extends BaseMapTest
 {
     static class SimpleBuilder
     {
-    	public int x;
-    	
-    	public SimpleBuilder withX(int x) {
-    		this.x = x;
-    		return this;
-    	}
+        public int x;
+
+        @SuppressWarnings("hiding")
+        public SimpleBuilder withX(int x) {
+    		    this.x = x;
+    		    return this;
+        }
     }
 
     /*

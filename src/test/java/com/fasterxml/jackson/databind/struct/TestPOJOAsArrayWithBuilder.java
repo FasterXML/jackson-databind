@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.struct;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -30,11 +29,13 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
     {
         public int x, y;
         
+        @SuppressWarnings("hiding")
         public SimpleBuilderXY withX(int x) {
             this.x = x;
             return this;
         }
 
+        @SuppressWarnings("hiding")
         public SimpleBuilderXY withY(int y) {
             this.y = y;
             return this;

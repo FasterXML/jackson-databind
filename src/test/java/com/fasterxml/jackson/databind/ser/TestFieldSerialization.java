@@ -84,6 +84,7 @@ public class TestFieldSerialization
         public int _z;
     }
 
+    @SuppressWarnings("hiding")
     public static class OkDupFieldBean
         extends SimpleFieldBean
     {

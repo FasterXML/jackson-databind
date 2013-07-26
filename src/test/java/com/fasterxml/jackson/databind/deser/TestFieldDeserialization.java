@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 
@@ -70,6 +69,7 @@ public class TestFieldDeserialization
         @JsonProperty("x")
         protected int myX = 10;
 
+        @SuppressWarnings("hiding")
         public int y = 11;
     }
     

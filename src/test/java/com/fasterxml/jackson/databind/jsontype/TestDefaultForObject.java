@@ -269,6 +269,7 @@ public class TestDefaultForObject
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         assertNull(jp.nextToken());
         jp.close();
+        buf.close();
 
         // then as an array:
         buf = new TokenBuffer(mapper);
@@ -285,6 +286,7 @@ public class TestDefaultForObject
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
         assertNull(jp.nextToken());
         jp.close();
+        buf.close();
 
         // and finally as scalar
         buf = new TokenBuffer(mapper);
@@ -298,6 +300,7 @@ public class TestDefaultForObject
         assertEquals(321, jp.getIntValue());
         assertNull(jp.nextToken());
         jp.close();
+        buf.close();
     }
 
     /**

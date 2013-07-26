@@ -89,6 +89,7 @@ public class TestArrayNode
 
         n.removeAll();
         assertEquals(0, n.size());
+        jg.close();
     }
 
     public void testAdds()

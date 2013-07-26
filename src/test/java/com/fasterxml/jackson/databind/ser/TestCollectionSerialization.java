@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -187,9 +186,11 @@ public class TestCollectionSerialization
                 assertEquals(i, jp.getIntValue());
             }
             assertToken(JsonToken.END_ARRAY, jp.nextToken());
+            jp.close();
         }
     }
 
+    @SuppressWarnings("resource")
     public void testBigCollection()
         throws IOException
     {

@@ -9,11 +9,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
@@ -1145,6 +1143,7 @@ public abstract class BeanDeserializerBase
      * stored in their entirety in given {@link TokenBuffer}
      * (as field entries, name and value).
      */
+    @SuppressWarnings("resource")
     protected Object handleUnknownProperties(DeserializationContext ctxt, Object bean, TokenBuffer unknownTokens)
         throws IOException, JsonProcessingException
     {
@@ -1196,6 +1195,7 @@ public abstract class BeanDeserializerBase
      *   (in addition to buffered properties); if null, all properties are passed
      *   in buffer
      */
+    @SuppressWarnings("resource")
     protected Object handlePolymorphic(JsonParser jp, DeserializationContext ctxt,                                          
             Object bean, TokenBuffer unknownTokens)
         throws IOException, JsonProcessingException

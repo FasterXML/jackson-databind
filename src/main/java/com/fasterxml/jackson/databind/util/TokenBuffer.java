@@ -180,6 +180,7 @@ public class TokenBuffer
      * 
      * @return This buffer
      */
+    @SuppressWarnings("resource")
     public TokenBuffer append(TokenBuffer other)
         throws IOException, JsonGenerationException
     {
@@ -303,6 +304,7 @@ public class TokenBuffer
     }
 
     @Override
+    @SuppressWarnings("resource")
     public String toString()
     {
         // Let's print up to 100 first tokens...
@@ -1163,6 +1165,7 @@ public class TokenBuffer
         }
 
         @Override
+        @SuppressWarnings("resource")
         public byte[] getBinaryValue(Base64Variant b64variant) throws IOException, JsonParseException
         {
             // First: maybe we some special types?

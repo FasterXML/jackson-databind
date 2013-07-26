@@ -314,6 +314,12 @@ public class BeanPropertyWriter
     }
 
     @Override
+    public PropertyName getFullName() {
+        // !!! TODO: impl properly
+        return new PropertyName(_name.getValue());
+    }
+    
+    @Override
     public JavaType getType() {
         return _declaredType;
     }

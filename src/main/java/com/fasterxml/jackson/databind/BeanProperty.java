@@ -33,7 +33,16 @@ public interface BeanProperty extends Named
      */
     @Override
     public String getName();
-    
+
+    /**
+     * Method for getting full name definition, including possible
+     * format-specific additional properties (such as namespace when
+     * using XML backend).
+     * 
+     * @since 2.3
+     */
+    public PropertyName getFullName();
+
     /**
      * Method to get declared type of the property.
      */
@@ -151,6 +160,11 @@ public interface BeanProperty extends Named
             return _name;
         }
 
+        @Override
+        public PropertyName getFullName() {
+            return new PropertyName(_name);
+        }
+        
         @Override
         public JavaType getType() {
             return _type;

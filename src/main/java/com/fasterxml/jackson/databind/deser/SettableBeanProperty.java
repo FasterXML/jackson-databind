@@ -320,6 +320,12 @@ public abstract class SettableBeanProperty
     public final String getName() { return _propName; }
 
     @Override
+    public PropertyName getFullName() {
+        // !!! TODO: impl properly
+        return new PropertyName(_propName);
+    }
+    
+    @Override
     public boolean isRequired() { return _isRequired; }
     
     @Override

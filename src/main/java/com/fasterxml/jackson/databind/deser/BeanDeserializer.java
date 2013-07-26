@@ -327,6 +327,7 @@ public class BeanDeserializer
      * as well.
      */
     @Override
+    @SuppressWarnings("resource")
     protected Object _deserializeUsingPropertyBased(final JsonParser jp, final DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     { 
@@ -468,6 +469,7 @@ public class BeanDeserializer
      * Method called when there are declared "unwrapped" properties
      * which need special handling
      */
+    @SuppressWarnings("resource")
     protected Object deserializeWithUnwrapped(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -524,6 +526,7 @@ public class BeanDeserializer
         return bean;
     }    
 
+    @SuppressWarnings("resource")
     protected Object deserializeWithUnwrapped(JsonParser jp, DeserializationContext ctxt, Object bean)
         throws IOException, JsonProcessingException
     {

@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -53,6 +52,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      * for may be anywhere...
      */
     @Override
+    @SuppressWarnings("resource")
     public Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -114,6 +114,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     }
     
     // off-lined to keep main method lean and mean...
+    @SuppressWarnings("resource")
     protected Object _deserializeTypedUsingDefaultImpl(JsonParser jp,
             DeserializationContext ctxt, TokenBuffer tb)
         throws IOException, JsonProcessingException

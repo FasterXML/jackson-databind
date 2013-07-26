@@ -130,13 +130,11 @@ public abstract class AsArraySerializerBase<T>
         // 18-Feb-2013, tatu: May have a content converter:
         ser = findConvertingContentSerializer(provider, property, ser);
         if (ser == null) {
-            if (ser == null) {
-                // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
-                //   we can consider it a static case as well.
-                if (_elementType != null) {
-                    if (_staticTyping || hasContentTypeAnnotation(provider, property)) {
-                        ser = provider.findValueSerializer(_elementType, property);
-                    }
+            // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
+            //   we can consider it a static case as well.
+            if (_elementType != null) {
+                if (_staticTyping || hasContentTypeAnnotation(provider, property)) {
+                    ser = provider.findValueSerializer(_elementType, property);
                 }
             }
         } else {

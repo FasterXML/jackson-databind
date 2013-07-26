@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
@@ -92,6 +91,7 @@ public class AsWrapperTypeDeserializer
      * subtype deserializer to use, and calls it to do actual
      * deserialization.
      */
+    @SuppressWarnings("resource")
     private final Object _deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -112,7 +112,6 @@ public class AsWrapperTypeDeserializer
         // Minor complication: we may need to merge type id in?
         if (_typeIdVisible && jp.getCurrentToken() == JsonToken.START_OBJECT) {
             // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
-            @SuppressWarnings("resource")
             TokenBuffer tb = new TokenBuffer(null);
             tb.writeStartObject(); // recreate START_OBJECT
             tb.writeFieldName(_typePropertyName);

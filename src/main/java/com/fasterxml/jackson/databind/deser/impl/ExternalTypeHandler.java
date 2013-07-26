@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -124,6 +123,7 @@ public class ExternalTypeHandler
         return true;
     }
     
+    @SuppressWarnings("resource")
     public Object complete(JsonParser jp, DeserializationContext ctxt, Object bean)
         throws IOException, JsonProcessingException
     {
@@ -212,11 +212,11 @@ public class ExternalTypeHandler
         return bean;
     }
 
+    @SuppressWarnings("resource")
     protected final Object _deserialize(JsonParser jp, DeserializationContext ctxt,
             int index, String typeId)
         throws IOException, JsonProcessingException
     {
-        @SuppressWarnings("resource")
         TokenBuffer merged = new TokenBuffer(jp.getCodec());
         merged.writeStartArray();
         merged.writeString(typeId);
@@ -230,7 +230,8 @@ public class ExternalTypeHandler
         p2.nextToken();
         return _properties[index].getProperty().deserialize(p2, ctxt);
     }
-    
+
+    @SuppressWarnings("resource")
     protected final void _deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
             Object bean, int index, String typeId)
         throws IOException, JsonProcessingException
@@ -238,7 +239,6 @@ public class ExternalTypeHandler
         /* Ok: time to mix type id, value; and we will actually use "wrapper-array"
          * style to ensure we can handle all kinds of JSON constructs.
          */
-        @SuppressWarnings("resource")
         TokenBuffer merged = new TokenBuffer(jp.getCodec());
         merged.writeStartArray();
         merged.writeString(typeId);

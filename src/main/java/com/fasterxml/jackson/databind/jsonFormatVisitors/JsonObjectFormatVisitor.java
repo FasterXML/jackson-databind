@@ -41,7 +41,7 @@ public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializer
         public void setProvider(SerializerProvider p) { _provider = p; }
 
         @Override
-        public void property(BeanProperty writer) throws JsonMappingException { }
+        public void property(BeanProperty prop) throws JsonMappingException { }
 
         @Override
         public void property(String name, JsonFormatVisitable handler,
@@ -52,7 +52,7 @@ public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializer
         public void property(String name) throws JsonMappingException { }
 
         @Override
-        public void optionalProperty(BeanProperty writer)
+        public void optionalProperty(BeanProperty prop)
                 throws JsonMappingException { }
 
         @Override

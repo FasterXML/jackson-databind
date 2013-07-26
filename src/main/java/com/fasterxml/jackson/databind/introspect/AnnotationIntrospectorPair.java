@@ -7,7 +7,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -463,6 +462,16 @@ public class AnnotationIntrospectorPair
         return name;
     }
     
+    @Override
+    public String findPropertyDescription(Annotated ann)
+    {
+        String result = _primary.findPropertyDescription(ann);
+        if (result == null) {
+            result = _secondary.findPropertyDescription(ann);
+        }
+        return result;
+    }
+
     // // // Serialization: class annotations
 
     @Override

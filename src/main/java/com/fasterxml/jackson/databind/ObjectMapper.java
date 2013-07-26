@@ -1919,7 +1919,7 @@ public class ObjectMapper
      * @param fromValue Bean value to convert
      * @return Root node of the resulting JSON tree
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "resource" })
     public <T extends JsonNode> T valueToTree(Object fromValue)
         throws IllegalArgumentException
     {
@@ -2202,6 +2202,7 @@ public class ObjectMapper
      *<p>
      * Note: prior to version 2.1, throws clause included {@link IOException}; 2.1 removed it.
      */
+    @SuppressWarnings("resource")
     public String writeValueAsString(Object value)
         throws JsonProcessingException
     {        
@@ -2226,6 +2227,7 @@ public class ObjectMapper
      *<p>
      * Note: prior to version 2.1, throws clause included {@link IOException}; 2.1 removed it.
      */
+    @SuppressWarnings("resource")
     public byte[] writeValueAsBytes(Object value)
         throws JsonProcessingException
     {
@@ -2577,6 +2579,7 @@ public class ObjectMapper
      * caller must use explicit <code>writeValue</code> and
      * <code>readValue</code> methods.
      */
+    @SuppressWarnings("resource")
     protected Object _convert(Object fromValue, JavaType toValueType)
         throws IllegalArgumentException
     {        

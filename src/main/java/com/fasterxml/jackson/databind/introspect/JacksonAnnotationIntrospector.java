@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.Version;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -454,6 +452,13 @@ public class JacksonAnnotationIntrospector
         return (ann == null)  ? null : new JsonFormat.Value(ann);
     }
 
+    @Override
+    public String findPropertyDescription(Annotated annotated)
+    {
+        JsonPropertyDescription desc = annotated.getAnnotation(JsonPropertyDescription.class);
+        return (desc == null) ? null : desc.value();
+    }
+    
     /*
     /**********************************************************
     /* Serialization: class annotations

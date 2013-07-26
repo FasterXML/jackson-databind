@@ -532,6 +532,20 @@ public abstract class AnnotationIntrospector
     public PropertyName findWrapperName(Annotated ann) {
         return null;
     }
+
+    /**
+     * Method used to check whether specified property member (accessor
+     * or mutator) defines human-readable description to use for documentation.
+     * There are no further definitions for contents; for example, whether
+     * these may be marked up using HTML is not defined.
+     * 
+     * @return Human-readable description, if any.
+     * 
+     * @since 2.3
+     */
+    public String findPropertyDescription(Annotated ann) {
+        return null;
+    }
     
     /*
     /**********************************************************

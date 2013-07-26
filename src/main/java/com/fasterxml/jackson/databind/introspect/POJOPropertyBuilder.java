@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.PropertyMetadata;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.util.BeanUtil;
 
@@ -382,7 +383,11 @@ public class POJOPropertyBuilder
     }
 
     @Override
-    public boolean isRequired() {
+    public PropertyMetadata getMetadata() {
+        return PropertyMetadata.construct(_isRequired(), _findDescription());
+    }
+
+    protected boolean _isRequired() {
         Boolean b = fromMemberAnnotations(new WithMember<Boolean>() {
             @Override
             public Boolean withMember(AnnotatedMember member) {
@@ -391,7 +396,16 @@ public class POJOPropertyBuilder
         });
         return (b != null) && b.booleanValue();
     }
-
+    
+    protected String _findDescription() {
+        return fromMemberAnnotations(new WithMember<String>() {
+            @Override
+            public String withMember(AnnotatedMember member) {
+                return _annotationIntrospector.findPropertyDescription(member);
+            }
+        });
+    }
+    
     @Override
     public ObjectIdInfo findObjectIdInfo() {
         return fromMemberAnnotations(new WithMember<ObjectIdInfo>() {

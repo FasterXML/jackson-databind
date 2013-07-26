@@ -376,7 +376,7 @@ public class BeanDeserializerBuilder
              *   but no easy access. But hard to see id property being optional,
              *   so let's consider required at this point.
              */
-            ObjectIdValueProperty prop = new ObjectIdValueProperty(_objectIdReader, true);
+            ObjectIdValueProperty prop = new ObjectIdValueProperty(_objectIdReader, PropertyMetadata.STD_REQUIRED);
             propertyMap = propertyMap.withProperty(prop);
         }
         
@@ -437,7 +437,8 @@ public class BeanDeserializerBuilder
              *   but no easy access. But hard to see id property being optional,
              *   so let's consider required at this point.
              */
-            ObjectIdValueProperty prop = new ObjectIdValueProperty(_objectIdReader, true);
+            ObjectIdValueProperty prop = new ObjectIdValueProperty(_objectIdReader,
+                    PropertyMetadata.STD_REQUIRED);
             propertyMap = propertyMap.withProperty(prop);
         }
         

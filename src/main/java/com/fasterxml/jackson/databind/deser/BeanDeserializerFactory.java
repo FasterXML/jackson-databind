@@ -695,7 +695,8 @@ public class BeanDeserializerFactory
         // we know it's a 2-arg method, second arg is the value
         JavaType type = beanDesc.bindingsForBeanType().resolveType(setter.getGenericParameterType(1));
         BeanProperty.Std property = new BeanProperty.Std(new PropertyName(setter.getName()),
-                type, null, beanDesc.getClassAnnotations(), setter, false);
+                type, null, beanDesc.getClassAnnotations(), setter,
+                PropertyMetadata.STD_OPTIONAL);
         type = resolveType(ctxt, beanDesc, type, setter);
 
         /* AnySetter can be annotated with @JsonClass (etc) just like a
@@ -736,7 +737,7 @@ public class BeanDeserializerFactory
 
         BeanProperty.Std property = new BeanProperty.Std(propDef.getFullName(),
                 t0, propDef.getWrapperName(),
-                beanDesc.getClassAnnotations(), mutator, propDef.isRequired());
+                beanDesc.getClassAnnotations(), mutator, propDef.getMetadata());
         JavaType type = resolveType(ctxt, beanDesc, t0, mutator);
         // did type change?
         if (type != t0) {

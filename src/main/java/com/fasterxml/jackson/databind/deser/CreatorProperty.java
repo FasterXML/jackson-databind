@@ -5,10 +5,10 @@ import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.PropertyMetadata;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
@@ -67,9 +67,9 @@ public class CreatorProperty
             TypeDeserializer typeDeser,
             Annotations contextAnnotations, AnnotatedParameter param,
             int index, Object injectableValueId,
-            boolean isRequired)
+            PropertyMetadata metadata)
     {
-        super(name, type, wrapperName, typeDeser, contextAnnotations, isRequired);
+        super(name, type, wrapperName, typeDeser, contextAnnotations, metadata);
         _annotated = param;
         _creatorIndex = index;
         _injectableValueId = injectableValueId;
@@ -83,7 +83,8 @@ public class CreatorProperty
             boolean isRequired)
     {
         this(new PropertyName(name), type, wrapperName, typeDeser,
-                contextAnnotations, param, index, injectableValueId, isRequired);
+                contextAnnotations, param, index, injectableValueId,
+                PropertyMetadata.construct(isRequired, null));
     }
     
     /**

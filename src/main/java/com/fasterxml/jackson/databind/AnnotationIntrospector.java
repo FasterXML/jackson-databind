@@ -488,7 +488,7 @@ public abstract class AnnotationIntrospector
      */
     @Deprecated
     public JsonFormat.Value findFormat(AnnotatedMember member) {
-        return null;
+        return findFormat((Annotated) member);
     }
 
     /**
@@ -500,9 +500,6 @@ public abstract class AnnotationIntrospector
      * @since 2.1
      */
     public JsonFormat.Value findFormat(Annotated memberOrClass) {
-        if (memberOrClass instanceof AnnotatedMember) {
-            return findFormat((AnnotatedMember) memberOrClass);
-        }
         return null;
     }
     

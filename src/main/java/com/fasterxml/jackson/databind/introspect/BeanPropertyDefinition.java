@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanProperty;
+import com.fasterxml.jackson.databind.PropertyMetadata;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.util.Named;
 
@@ -75,6 +76,15 @@ public abstract class BeanPropertyDefinition
      */
     public abstract PropertyName getWrapperName();
 
+    /**
+     * Method for accessing additional metadata.
+     * NOTE: will never return null, so deferencing return value
+     * is safe.
+     * 
+     * @since 2.3
+     */
+    public abstract PropertyMetadata getMetadata();
+    
     /**
      * Accessor that can be called to check whether property was included
      * due to an explicit marker (usually annotation), or just by naming
@@ -186,7 +196,8 @@ public abstract class BeanPropertyDefinition
      * fail deserialization), or handled by other means (by providing default
      * value)
      */
-    public boolean isRequired() {
-        return false;
+    public final boolean isRequired() {
+        PropertyMetadata md = getMetadata();
+        return (md != null)  && md.isRequired();
     }
 }

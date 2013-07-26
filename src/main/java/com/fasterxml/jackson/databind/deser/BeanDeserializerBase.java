@@ -343,7 +343,7 @@ public abstract class BeanDeserializerBase
              *   but no easy access. But hard to see id property being optional,
              *   so let's consider required at this point.
              */
-            ObjectIdValueProperty idProp = new ObjectIdValueProperty(oir, true);
+            ObjectIdValueProperty idProp = new ObjectIdValueProperty(oir, PropertyMetadata.STD_REQUIRED);
             _beanProperties = src._beanProperties.withProperty(idProp);
         }
     }
@@ -498,7 +498,8 @@ public abstract class BeanDeserializerBase
             AnnotatedWithParams delegateCreator = _valueInstantiator.getDelegateCreator();
             // Need to create a temporary property to allow contextual deserializers:
             BeanProperty.Std property = new BeanProperty.Std(TEMP_PROPERTY_NAME,
-                    delegateType, null, _classAnnotations, delegateCreator, false);
+                    delegateType, null, _classAnnotations, delegateCreator,
+                    PropertyMetadata.STD_OPTIONAL);
             _delegateDeserializer = findDeserializer(ctxt, delegateType, property);
         }
         

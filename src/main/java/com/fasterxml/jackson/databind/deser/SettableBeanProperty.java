@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ViewMatcher;
 
 /**
- * Base class for deserilizable properties of a bean: contains
+ * Base class for deserializable properties of a bean: contains
  * both type and name definitions, and reflection-based set functionality.
  * Concrete sub-classes implement details, so that field- and
  * setter-backed properties, as well as a few more esoteric variations,
@@ -81,14 +81,13 @@ public abstract class SettableBeanProperty
     protected final NullProvider _nullProvider;
 
     /**
-     * Whether value of this property has been marked as required.
-     * Retained since it will be needed when traversing type hierarchy
-     * for producing schemas (and other similar tasks); currently not
-     * used for serialization.
+     * Additional optional property metadata, such as whether
+     * property is required, and whether there is additional
+     * human-readable description
      * 
-     * @since 2.2
+     * @since 2.3
      */
-    protected final boolean _isRequired;
+    protected final PropertyMetadata _metadata;
 
     /*
     /**********************************************************
@@ -135,15 +134,16 @@ public abstract class SettableBeanProperty
     protected SettableBeanProperty(BeanPropertyDefinition propDef,
             JavaType type, TypeDeserializer typeDeser, Annotations contextAnnotations)
     {
-        this(propDef.getName(), type, propDef.getWrapperName(), typeDeser, contextAnnotations,
-                propDef.isRequired());
+        this(propDef.getFullName(), type, propDef.getWrapperName(), typeDeser,
+                contextAnnotations, propDef.getMetadata());
     }
 
     @Deprecated // since 2.2
     protected SettableBeanProperty(String propName, JavaType type, PropertyName wrapper,
             TypeDeserializer typeDeser, Annotations contextAnnotations)
     {
-        this(new PropertyName(propName), type, wrapper, typeDeser, contextAnnotations, false);
+        this(new PropertyName(propName), type, wrapper, typeDeser, contextAnnotations,
+                PropertyMetadata.STD_OPTIONAL);
     }
 
     @Deprecated // since 2.3
@@ -151,12 +151,13 @@ public abstract class SettableBeanProperty
             TypeDeserializer typeDeser, Annotations contextAnnotations,
             boolean isRequired)
     {
-        this(new PropertyName(propName), type, wrapper, typeDeser, contextAnnotations, isRequired);
+        this(new PropertyName(propName), type, wrapper, typeDeser, contextAnnotations,
+                PropertyMetadata.construct(isRequired, null));
     }
     
     protected SettableBeanProperty(PropertyName propName, JavaType type, PropertyName wrapper,
             TypeDeserializer typeDeser, Annotations contextAnnotations,
-            boolean isRequired)
+            PropertyMetadata metadata)
     {
         // 09-Jan-2009, tatu: Intern()ing makes sense since Jackson parsed
         //  field names are (usually) interned too, hence lookups will be faster.
@@ -170,7 +171,7 @@ public abstract class SettableBeanProperty
         }
         _type = type;
         _wrapperName = wrapper;
-        _isRequired = isRequired;
+        _metadata = metadata;
         _contextAnnotations = contextAnnotations;
         _viewMatcher = null;
         _nullProvider = null;
@@ -189,7 +190,7 @@ public abstract class SettableBeanProperty
      * @since 2.3
      */
     protected SettableBeanProperty(PropertyName propName, JavaType type, 
-            boolean isRequired, JsonDeserializer<Object> valueDeser)
+            PropertyMetadata metadata, JsonDeserializer<Object> valueDeser)
     {
         // as with above ctor, intern()ing probably fine
         if (propName == null) {
@@ -199,7 +200,7 @@ public abstract class SettableBeanProperty
         }
         _type = type;
         _wrapperName = null;
-        _isRequired = isRequired;
+        _metadata = metadata;
         _contextAnnotations = null;
         _viewMatcher = null;
         _nullProvider = null;
@@ -215,7 +216,7 @@ public abstract class SettableBeanProperty
         _propName = src._propName;
         _type = src._type;
         _wrapperName = src._wrapperName;
-        _isRequired = src._isRequired;
+        _metadata = src._metadata;
         _contextAnnotations = src._contextAnnotations;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
@@ -234,7 +235,7 @@ public abstract class SettableBeanProperty
         _propName = src._propName;
         _type = src._type;
         _wrapperName = src._wrapperName;
-        _isRequired = src._isRequired;
+        _metadata = src._metadata;
         _contextAnnotations = src._contextAnnotations;
         _valueTypeDeserializer = src._valueTypeDeserializer;
         _managedReferenceName = src._managedReferenceName;
@@ -264,7 +265,7 @@ public abstract class SettableBeanProperty
         _propName = newName;
         _type = src._type;
         _wrapperName = src._wrapperName;
-        _isRequired = src._isRequired;
+        _metadata = src._metadata;
         _contextAnnotations = src._contextAnnotations;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;
@@ -351,7 +352,10 @@ public abstract class SettableBeanProperty
     }
     
     @Override
-    public boolean isRequired() { return _isRequired; }
+    public boolean isRequired() { return _metadata.isRequired(); }
+
+    @Override
+    public PropertyMetadata getMetadata() { return _metadata; }
     
     @Override
     public JavaType getType() { return _type; }

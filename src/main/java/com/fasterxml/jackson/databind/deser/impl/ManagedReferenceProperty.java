@@ -42,7 +42,7 @@ public final class ManagedReferenceProperty
     {
         super(forward.getFullName(), forward.getType(), forward.getWrapperName(),
                 forward.getValueTypeDeserializer(), contextAnnotations,
-                forward.isRequired());
+                forward.getMetadata());
         _referenceName = refName;
         _managedProperty = forward;
         _backProperty = backward;

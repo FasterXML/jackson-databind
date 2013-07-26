@@ -5,7 +5,6 @@ import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -24,13 +23,13 @@ public final class ObjectIdValueProperty
 
     @Deprecated // since 2.2
     public ObjectIdValueProperty(ObjectIdReader objectIdReader) {
-        this(objectIdReader, true);
+        this(objectIdReader, PropertyMetadata.STD_REQUIRED);
     }
     
     public ObjectIdValueProperty(ObjectIdReader objectIdReader,
-            boolean isRequired)
+            PropertyMetadata metadata)
     {
-        super(objectIdReader.propertyName, objectIdReader.idType, isRequired,
+        super(objectIdReader.propertyName, objectIdReader.idType, metadata,
                 objectIdReader.deserializer);
         _objectIdReader = objectIdReader;
     }

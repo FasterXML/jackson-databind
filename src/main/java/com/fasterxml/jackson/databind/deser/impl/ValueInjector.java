@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.PropertyMetadata;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -27,7 +28,8 @@ public class ValueInjector
             Annotations contextAnnotations, AnnotatedMember mutator,
             Object valueId)
     {
-        super(propName, type, null, contextAnnotations, mutator, false);
+        super(propName, type, null, contextAnnotations, mutator,
+                PropertyMetadata.STD_OPTIONAL);
         _valueId = valueId;
     }
 

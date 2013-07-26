@@ -55,6 +55,13 @@ public interface BeanProperty extends Named
      * @since 2.2
      */
     public PropertyName getWrapperName();
+
+    /**
+     * Accessor for additional optional information about property.
+     * 
+     * @since 2.3
+     */
+    public PropertyMetadata getMetadata();
     
     /**
      * Whether value for property is marked as required using
@@ -113,8 +120,8 @@ public interface BeanProperty extends Named
         protected final PropertyName _name;
         protected final JavaType _type;
         protected final PropertyName _wrapperName;
-        
-        protected final boolean _isRequired;
+
+        protected final PropertyMetadata _metadata;
 
         /**
          * Physical entity (field, method or constructor argument) that
@@ -131,12 +138,12 @@ public interface BeanProperty extends Named
 
         public Std(PropertyName name, JavaType type, PropertyName wrapperName,
                 Annotations contextAnnotations, AnnotatedMember member,
-                boolean isRequired)
+                PropertyMetadata metadata)
         {
             _name = name;
             _type = type;
             _wrapperName = wrapperName;
-            _isRequired = isRequired;
+            _metadata = metadata;
             _member = member;
             _contextAnnotations = contextAnnotations;
         }
@@ -147,11 +154,12 @@ public interface BeanProperty extends Named
                 boolean isRequired)
         {
             this(new PropertyName(name), type, wrapperName, contextAnnotations,
-                    member, isRequired);
+                    member,
+                    isRequired ? PropertyMetadata.STD_REQUIRED : PropertyMetadata.STD_OPTIONAL);
         }
         
         public Std withType(JavaType type) {
-            return new Std(_name, type, _wrapperName, _contextAnnotations, _member, _isRequired);
+            return new Std(_name, type, _wrapperName, _contextAnnotations, _member, _metadata);
         }
         
         @Override
@@ -186,7 +194,12 @@ public interface BeanProperty extends Named
         
         @Override
         public boolean isRequired() {
-            return _isRequired;
+            return _metadata.isRequired();
+        }
+
+        @Override
+        public PropertyMetadata getMetadata() {
+            return _metadata;
         }
         
         @Override

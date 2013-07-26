@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.util;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.PropertyMetadata;
 import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -114,6 +115,15 @@ public class SimpleBeanPropertyDefinition
     // hmmh. what should we claim here?
     @Override
     public boolean isExplicitlyIncluded() { return false; }
+
+    /**
+     * We will indicate that property is optional, since there is nothing
+     * to indicate whether it might be required.
+     */
+    @Override
+    public PropertyMetadata getMetadata() {
+        return PropertyMetadata.STD_OPTIONAL;
+    }
     
     /*
     /**********************************************************

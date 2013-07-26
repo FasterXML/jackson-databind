@@ -126,7 +126,7 @@ public class BeanPropertyWriter
      * is null), we will use a lookup structure for storing dynamically
      * resolved mapping from type(s) to serializer(s).
      */
-    protected PropertySerializerMap _dynamicSerializers;
+    protected transient PropertySerializerMap _dynamicSerializers;
 
     /**
      * Whether null values are to be suppressed (nothing written out if
@@ -165,15 +165,12 @@ public class BeanPropertyWriter
     protected JavaType _nonTrivialBaseType;
 
     /**
-     * Whether value of this property has been marked as required.
-     * Retained since it will be needed when traversing type hierarchy
-     * for producing schemas (and other similar tasks); currently not
-     * used for serialization.
+     * Additional information about property
      * 
-     * @since 2.2
+     * @since 2.3
      */
-    protected final boolean _isRequired;
-    
+    protected final PropertyMetadata _metadata;
+
     /*
     /**********************************************************
     /* Construction, configuration
@@ -187,7 +184,6 @@ public class BeanPropertyWriter
             JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue)
     {
-        
         _member = member;
         _contextAnnotations = contextAnnotations;
         _name = new SerializedString(propDef.getName());
@@ -197,7 +193,7 @@ public class BeanPropertyWriter
         _dynamicSerializers = (ser == null) ? PropertySerializerMap.emptyMap() : null;
         _typeSerializer = typeSer;
         _cfgSerializationType = serType;
-        _isRequired = propDef.isRequired();
+        _metadata = propDef.getMetadata();
 
         if (member instanceof AnnotatedField) {
             _accessorMethod = null;
@@ -246,7 +242,7 @@ public class BeanPropertyWriter
         _includeInViews = base._includeInViews;
         _typeSerializer = base._typeSerializer;
         _nonTrivialBaseType = base._nonTrivialBaseType;
-        _isRequired = base._isRequired;
+        _metadata = base._metadata;
     }
 
     public BeanPropertyWriter rename(NameTransformer transformer) {
@@ -331,7 +327,12 @@ public class BeanPropertyWriter
 
     @Override
     public boolean isRequired() {
-        return _isRequired;
+        return _metadata.isRequired();
+    }
+
+    @Override
+    public PropertyMetadata getMetadata() {
+        return _metadata;
     }
     
     @Override
@@ -489,7 +490,7 @@ public class BeanPropertyWriter
      */
     @Deprecated
     protected boolean isRequired(AnnotationIntrospector intr) {
-        return _isRequired;
+        return _metadata.isRequired();
     }
 
     /*

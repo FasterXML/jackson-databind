@@ -7,19 +7,22 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 
 public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializerProvider
 {
+    /**
+     * Callback method called when a POJO property is being traversed.
+     */
     public void property(BeanProperty writer) throws JsonMappingException;
-    public void property(String name, JsonFormatVisitable handler, JavaType propertyTypeHint) throws JsonMappingException;
 
-    @Deprecated
-    public void property(String name) throws JsonMappingException;
+    /**
+     * Callback method called when a non-POJO property (typically something
+     * like an Enum entry of {@link java.util.EnumMap} type) is being
+     * traversed. With POJOs, {@link #property(BeanProperty)} is called instead.
+     */
+    public void property(String name, JsonFormatVisitable handler, JavaType propertyTypeHint) throws JsonMappingException;
 
     public void optionalProperty(BeanProperty writer) throws JsonMappingException;
     public void optionalProperty(String name, JsonFormatVisitable handler,
             JavaType propertyTypeHint)
         throws JsonMappingException;
-
-    @Deprecated
-    public void optionalProperty(String name) throws JsonMappingException;
 
     /**
      * Default "empty" implementation, useful as the base to start on;
@@ -47,10 +50,6 @@ public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializer
         public void property(String name, JsonFormatVisitable handler,
                 JavaType propertyTypeHint) throws JsonMappingException { }
 
-        @Deprecated
-        @Override
-        public void property(String name) throws JsonMappingException { }
-
         @Override
         public void optionalProperty(BeanProperty prop)
                 throws JsonMappingException { }
@@ -58,9 +57,5 @@ public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializer
         @Override
         public void optionalProperty(String name, JsonFormatVisitable handler,
                 JavaType propertyTypeHint) throws JsonMappingException { }
-
-        @Deprecated
-        @Override
-        public void optionalProperty(String name) throws JsonMappingException { }
     }
 }

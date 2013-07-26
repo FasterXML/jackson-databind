@@ -661,14 +661,19 @@ public abstract class BasicDeserializerFactory
     {
         final DeserializationConfig config = ctxt.getConfig();
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
-        Boolean b = (intr == null) ? null : intr.hasRequiredMarker(param);
-        // how to default? Other code assumes missing value means 'false', so:
-        boolean req = (b == null) ? false : b.booleanValue();
+        PropertyMetadata metadata;
 
+        {
+            Boolean b = (intr == null) ? null : intr.hasRequiredMarker(param);
+            boolean req = (b != null && b.booleanValue());
+            String desc = (intr == null) ? null : intr.findPropertyDescription(param);
+            metadata = PropertyMetadata.construct(req, desc);
+        }
+            
         JavaType t0 = config.getTypeFactory().constructType(param.getParameterType(), beanDesc.bindingsForBeanType());
         BeanProperty.Std property = new BeanProperty.Std(name, t0,
                 intr.findWrapperName(param),
-                beanDesc.getClassAnnotations(), param, req);
+                beanDesc.getClassAnnotations(), param, metadata);
         JavaType type = resolveType(ctxt, beanDesc, t0, param);
         if (type != t0) {
             property = property.withType(type);
@@ -687,7 +692,7 @@ public abstract class BasicDeserializerFactory
 
         CreatorProperty prop = new CreatorProperty(name, type, property.getWrapperName(),
                 typeDeser, beanDesc.getClassAnnotations(), param, index, injectableValueId,
-                property.isRequired());
+                metadata);
         if (deser != null) {
             prop = prop.withValueDeserializer(deser);
         }

@@ -444,11 +444,6 @@ public class JacksonAnnotationIntrospector
     }
     
     @Override
-    public JsonFormat.Value findFormat(AnnotatedMember member) {
-        return findFormat(member);
-    }
-    
-    @Override
     public JsonFormat.Value findFormat(Annotated annotated) {
         JsonFormat ann = annotated.getAnnotation(JsonFormat.class);
         return (ann == null)  ? null : new JsonFormat.Value(ann);

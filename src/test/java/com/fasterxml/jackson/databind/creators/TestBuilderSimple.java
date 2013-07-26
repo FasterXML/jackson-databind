@@ -22,23 +22,24 @@ public class TestBuilderSimple extends BaseMapTest
         }
     }
 
+    @SuppressWarnings("hiding")
     static class SimpleBuilderXY
     {
-    	public int x, y;
+        public int x, y;
     	
-    	public SimpleBuilderXY withX(int x) {
-    		this.x = x;
-    		return this;
-    	}
+        public SimpleBuilderXY withX(int x) {
+    		    this.x = x;
+    		    return this;
+        }
 
-    	public SimpleBuilderXY withY(int y) {
-    		this.y = y;
-    		return this;
-    	}
+        public SimpleBuilderXY withY(int y) {
+    		    this.y = y;
+    		    return this;
+        }
 
-    	public ValueClassXY build() {
-    		return new ValueClassXY(x, y);
-    	}
+        public ValueClassXY build() {
+    		    return new ValueClassXY(x, y);
+        }
     }
 
     // // 3-property value, with more varied builder
@@ -55,26 +56,27 @@ public class TestBuilderSimple extends BaseMapTest
         }
     }
 
+    @SuppressWarnings("hiding")
     static class BuildABC
     {
-    	public int a; // to be used as is
-    	private int b, c;
+        public int a; // to be used as is
+        private int b, c;
     	
-    	@JsonProperty("b")
-    	public BuildABC assignB(int b) {
-    		this.b = b;
-    		return this;
-    	}
+        @JsonProperty("b")
+        public BuildABC assignB(int b) {
+            this.b = b;
+            return this;
+        }
 
-    	// Also ok NOT to return 'this'
-    	@JsonSetter("c")
-    	public void c(int c) {
-    		this.c = c;
-    	}
+        // Also ok NOT to return 'this'
+        @JsonSetter("c")
+        public void c(int c) {
+            this.c = c;
+        }
 
-    	public ValueClassABC build() {
-    		return new ValueClassABC(a, b, c);
-    	}
+        public ValueClassABC build() {
+            return new ValueClassABC(a, b, c);
+        }
     }
 
     // // Then Builder that is itself immutable

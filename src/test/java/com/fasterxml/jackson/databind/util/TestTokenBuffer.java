@@ -179,6 +179,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         // then content check too:
         verifyJsonSpecSampleDoc(tb.asParser(), true);
         tb.close();
+        jp.close();
     }
 
     public void testAppend() throws IOException
@@ -208,6 +209,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
         jp.close();
         buf1.close();
+        buf2.close();
     }
     
     /*
@@ -258,12 +260,14 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         assertTrue(jp.isClosed());
         jp.close();
         buf.close();
+        seq.close();
     }
     
     /**
      * Test to verify that TokenBuffer and JsonParserSequence work together
      * as expected.
      */
+    @SuppressWarnings("resource")
     public void testWithMultipleJsonParserSequences() throws IOException
     {
         TokenBuffer buf1 = new TokenBuffer(null);

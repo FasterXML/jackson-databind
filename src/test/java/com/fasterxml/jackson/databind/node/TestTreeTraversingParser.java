@@ -161,6 +161,7 @@ public class TestTreeTraversingParser
         assertToken(JsonToken.END_ARRAY, jp.nextToken());
 
         assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        jp.close();
     }
     
     /**
@@ -172,8 +173,8 @@ public class TestTreeTraversingParser
         ObjectMapper m = new ObjectMapper();
         JsonNode tree = m.readTree(SAMPLE_DOC_JSON_SPEC);
         JsonParser jp = tree.traverse();
-
         verifyJsonSpecSampleDoc(jp, true);
+        jp.close();
     }
 
     public void testBinaryPojo() throws Exception
@@ -189,6 +190,7 @@ public class TestTreeTraversingParser
         assertArrayEquals(inputBinary, data);
         Object pojo = jp.getEmbeddedObject();
         assertSame(data, pojo);
+        jp.close();
     }
 
     public void testBinaryNode() throws Exception
@@ -208,6 +210,7 @@ public class TestTreeTraversingParser
         assertEquals("APs=", jp.getText());
 
         assertNull(jp.nextToken());
+        jp.close();
     }
 
     public void testTextAsBinary() throws Exception
@@ -233,6 +236,7 @@ public class TestTreeTraversingParser
         } catch (JsonParseException e) {
             verifyException(e, "Illegal character");
         }
+        jp.close();
     }
 
     /**

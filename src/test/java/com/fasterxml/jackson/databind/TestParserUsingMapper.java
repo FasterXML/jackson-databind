@@ -6,7 +6,6 @@ import java.io.StringReader;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestParserUsingMapper  extends com.fasterxml.jackson.test.BaseTest
@@ -149,6 +148,7 @@ public class TestParserUsingMapper  extends com.fasterxml.jackson.test.BaseTest
         jp.close();
     }
 
+    @SuppressWarnings("resource")
     public void testPojoReadingFailing()
         throws IOException
     {

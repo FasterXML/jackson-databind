@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ext;
 import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ext.CoreXMLDeserializers;
 
@@ -84,6 +83,7 @@ public class TestCoreXMLTypes
      */
     
     // First things first: must be able to load the deserializers...
+    @SuppressWarnings("unused")
     public void testDeserializerLoading()
     {
         new CoreXMLDeserializers.DurationDeserializer();

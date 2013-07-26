@@ -108,6 +108,7 @@ public class TestExternalizable extends BaseMapTest
     }
     
 //    @com.fasterxml.jackson.annotation.JsonFormat(shape=com.fasterxml.jackson.annotation.JsonFormat.Shape.ARRAY)
+    @SuppressWarnings("resource")
     static class MyPojo implements Externalizable
     {
         public int id;

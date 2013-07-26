@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -375,6 +374,7 @@ public class TestPOJOPropertiesCollector
         assertNotNull(beanDesc);
     }
 
+    @SuppressWarnings("hiding")
     public void testJackson703() throws Exception
     {
     	// note: need a separate mapper, need to reconfigure
@@ -402,16 +402,16 @@ public class TestPOJOPropertiesCollector
     /**********************************************************
      */
 
-    protected POJOPropertiesCollector collector(ObjectMapper mapper,
+    protected POJOPropertiesCollector collector(ObjectMapper m0,
             Class<?> cls, boolean forSerialization)
     {
         BasicClassIntrospector bci = new BasicClassIntrospector();
         // no real difference between serialization, deserialization, at least here
         if (forSerialization) {
-            return bci.collectProperties(mapper.getSerializationConfig(),
-                    mapper.constructType(cls), null, true, "set");
+            return bci.collectProperties(m0.getSerializationConfig(),
+                    m0.constructType(cls), null, true, "set");
         }
-        return bci.collectProperties(mapper.getDeserializationConfig(),
-                mapper.constructType(cls), null, false, "set");
+        return bci.collectProperties(m0.getDeserializationConfig(),
+                m0.constructType(cls), null, false, "set");
     }
 }

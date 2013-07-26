@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.util.*;
 
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -52,8 +51,10 @@ public class TestJacksonTypes
         // First, try standard sample doc:
         TokenBuffer result = m.readValue(SAMPLE_DOC_JSON_SPEC, TokenBuffer.class);
         verifyJsonSpecSampleDoc(result.asParser(), true);
+        result.close();
     }
 
+    @SuppressWarnings("resource")
     public void testTokenBufferWithSequence() throws Exception
     {
         ObjectMapper m = new ObjectMapper();

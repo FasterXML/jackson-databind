@@ -45,6 +45,7 @@ public class TestTreeSerialization
         assertEquals(1, ob.size());
         List<Object> list = (List<Object>) ob.get("arr");
         assertEquals(0, list.size());
+        jg.close();
     }
 
     /**
@@ -65,6 +66,7 @@ public class TestTreeSerialization
         Map<String,Object> result = (Map<String,Object>) mapper.readValue(sw.toString(), Map.class);
         assertEquals(1, result.size());
         assertEquals("abc", result.get("pojo"));
+        jg.close();
     }
 
     @SuppressWarnings("unchecked")
@@ -87,6 +89,7 @@ public class TestTreeSerialization
         for (int i = 0; i < 3; ++i) {
             assertEquals(Integer.valueOf(i+1), list.get(i));
         }
+        jg.close();
     }
 
     @SuppressWarnings("unchecked")
@@ -108,5 +111,6 @@ public class TestTreeSerialization
         assertEquals(2, bean.size());
         assertEquals("y", bean.get("x"));
         assertEquals(Integer.valueOf(13), bean.get("y"));
+        jg.close();
     }
 }

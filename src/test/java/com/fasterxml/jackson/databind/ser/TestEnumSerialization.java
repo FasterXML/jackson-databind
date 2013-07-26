@@ -202,9 +202,9 @@ public class TestEnumSerialization
     public void testEnumsWithJsonValueUsingMixin() throws Exception
     {
         // can't share, as new mix-ins are added
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixInAnnotations(TestEnum.class, ToStringMixin.class);
-        assertEquals("\"b\"", mapper.writeValueAsString(TestEnum.B));
+        ObjectMapper m = new ObjectMapper();
+        m.addMixInAnnotations(TestEnum.class, ToStringMixin.class);
+        assertEquals("\"b\"", m.writeValueAsString(TestEnum.B));
     }
 
     /**
@@ -219,19 +219,19 @@ public class TestEnumSerialization
     // [JACKSON-212]
     public void testToStringEnum() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
-        assertEquals("\"b\"", mapper.writeValueAsString(LowerCaseEnum.B));
+        ObjectMapper m = new ObjectMapper();
+        m.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+        assertEquals("\"b\"", m.writeValueAsString(LowerCaseEnum.B));
     }
 
     // [JACKSON-212]
     public void testToStringEnumWithEnumMap() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
-        EnumMap<LowerCaseEnum,String> m = new EnumMap<LowerCaseEnum,String>(LowerCaseEnum.class);
-        m.put(LowerCaseEnum.C, "value");
-        assertEquals("{\"c\":\"value\"}", mapper.writeValueAsString(m));
+        ObjectMapper m = new ObjectMapper();
+        m.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+        EnumMap<LowerCaseEnum,String> enums = new EnumMap<LowerCaseEnum,String>(LowerCaseEnum.class);
+        enums.put(LowerCaseEnum.C, "value");
+        assertEquals("{\"c\":\"value\"}", m.writeValueAsString(enums));
     }
 
     // [JACKSON-576]
@@ -247,13 +247,13 @@ public class TestEnumSerialization
     public void testAsIndex() throws Exception
     {
         // By default, serialize using name
-        ObjectMapper mapper = new ObjectMapper();
-        assertFalse(mapper.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX));
-        assertEquals(quote("B"), mapper.writeValueAsString(TestEnum.B));
+        ObjectMapper m = new ObjectMapper();
+        assertFalse(m.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX));
+        assertEquals(quote("B"), m.writeValueAsString(TestEnum.B));
 
         // but we can change (dynamically, too!) it to be number-based
-        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
-        assertEquals("1", mapper.writeValueAsString(TestEnum.B));
+        m.enable(SerializationFeature.WRITE_ENUMS_USING_INDEX);
+        assertEquals("1", m.writeValueAsString(TestEnum.B));
     }
 
     // [JACKSON-757]
@@ -288,11 +288,11 @@ public class TestEnumSerialization
     public void testGenericEnumSerializer() throws Exception
     {
         // By default, serialize using name
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper m = new ObjectMapper();
         SimpleModule module = new SimpleModule("foobar");
         module.addSerializer(Enum.class, new LowerCasingEnumSerializer());
-        mapper.registerModule(module);
-        assertEquals(quote("b"), mapper.writeValueAsString(TestEnum.B));
+        m.registerModule(module);
+        assertEquals(quote("b"), m.writeValueAsString(TestEnum.B));
     }
 }
 

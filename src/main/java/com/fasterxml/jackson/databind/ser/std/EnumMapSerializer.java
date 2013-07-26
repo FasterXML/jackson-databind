@@ -347,8 +347,7 @@ public class EnumMapSerializer
              if (enumType == null) {
                  throw new IllegalStateException("Can not resolve Enum type of EnumMap: "+typeHint);
              }
-             JsonSerializer<?> enumSer = (enumType == null) ? null :
-                 visitor.getProvider().findValueSerializer(enumType, _property);
+             JsonSerializer<?> enumSer = visitor.getProvider().findValueSerializer(enumType, _property);
              if (!(enumSer instanceof EnumSerializer)) {
                  throw new IllegalStateException("Can not resolve Enum type of EnumMap: "+typeHint);
              }

@@ -47,8 +47,8 @@ public class AsArrayTypeSerializer
         } else {
             jgen.writeStartArray();
             jgen.writeString(typeId);
-            jgen.writeStartObject();
         }
+        jgen.writeStartObject();
     }
 
     @Override
@@ -62,8 +62,8 @@ public class AsArrayTypeSerializer
         } else {
             jgen.writeStartArray();
             jgen.writeString(typeId);
-            jgen.writeStartObject();
         }
+        jgen.writeStartObject();
     }
     
     @Override
@@ -76,8 +76,8 @@ public class AsArrayTypeSerializer
         } else {
             jgen.writeStartArray();
             jgen.writeString(typeId);
-            jgen.writeStartArray();
         }
+        jgen.writeStartArray();
     }
 
     @Override
@@ -91,8 +91,8 @@ public class AsArrayTypeSerializer
         } else {
             jgen.writeStartArray();
             jgen.writeString(typeId);
-            jgen.writeStartArray();
         }
+        jgen.writeStartArray();
     }
     
     @Override
@@ -134,8 +134,8 @@ public class AsArrayTypeSerializer
     public void writeTypeSuffixForObject(Object value, JsonGenerator jgen)
             throws IOException, JsonProcessingException
     {
+        jgen.writeEndObject();
         if (!jgen.canWriteTypeId()) {
-            jgen.writeEndObject();
             jgen.writeEndArray();
         }
     }
@@ -144,9 +144,9 @@ public class AsArrayTypeSerializer
     public void writeTypeSuffixForArray(Object value, JsonGenerator jgen)
             throws IOException, JsonProcessingException
     {
+        // first array caller needs to close, then wrapper array
+        jgen.writeEndArray();
         if (!jgen.canWriteTypeId()) {
-            // wrapper array first, and then array caller needs to close
-            jgen.writeEndArray();
             jgen.writeEndArray();
         }
     }
@@ -176,8 +176,8 @@ public class AsArrayTypeSerializer
         } else {
             jgen.writeStartArray();
             jgen.writeString(typeId);
-            jgen.writeStartObject();
         }
+        jgen.writeStartObject();
     }
     
     @Override
@@ -189,8 +189,8 @@ public class AsArrayTypeSerializer
         } else {
             jgen.writeStartArray();
             jgen.writeString(typeId);
-            jgen.writeStartArray();
         }
+        jgen.writeStartArray();
     }
 
     @Override

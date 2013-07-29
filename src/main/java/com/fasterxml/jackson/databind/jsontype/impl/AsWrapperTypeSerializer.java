@@ -40,6 +40,7 @@ public class AsWrapperTypeSerializer
         final String typeId = idFromValue(value);
         if (jgen.canWriteTypeId()) {
             jgen.writeTypeId(typeId);
+            jgen.writeStartObject();
         } else {
             // wrapper
             jgen.writeStartObject();
@@ -56,6 +57,7 @@ public class AsWrapperTypeSerializer
         final String typeId = idFromValueAndType(value, type);
         if (jgen.canWriteTypeId()) {
             jgen.writeTypeId(typeId);
+            jgen.writeStartObject();
         } else {
             // wrapper
             jgen.writeStartObject();
@@ -71,6 +73,7 @@ public class AsWrapperTypeSerializer
         final String typeId = idFromValue(value);
         if (jgen.canWriteTypeId()) {
             jgen.writeTypeId(typeId);
+            jgen.writeStartObject();
         } else {
             // can still wrap ok
             jgen.writeStartObject();
@@ -87,6 +90,7 @@ public class AsWrapperTypeSerializer
         final String typeId = idFromValueAndType(value, type);
         if (jgen.canWriteTypeId()) {
             jgen.writeTypeId(typeId);
+            jgen.writeStartObject();
         } else {
             // can still wrap ok
             jgen.writeStartObject();
@@ -128,9 +132,9 @@ public class AsWrapperTypeSerializer
     public void writeTypeSuffixForObject(Object value, JsonGenerator jgen)
         throws IOException, JsonProcessingException
     {
+        // first close JSON Object caller used
+        jgen.writeEndObject();
         if (!jgen.canWriteTypeId()) {
-            // first close JSON Object caller used
-            jgen.writeEndObject();
             // and then wrapper
             jgen.writeEndObject();
         }
@@ -140,9 +144,9 @@ public class AsWrapperTypeSerializer
     public void writeTypeSuffixForArray(Object value, JsonGenerator jgen)
         throws IOException, JsonProcessingException
     {
+        // first close array caller needed
+        jgen.writeEndArray();
         if (!jgen.canWriteTypeId()) {
-            // first close array caller needed
-            jgen.writeEndArray();
             // then wrapper object
             jgen.writeEndObject();
         }
@@ -168,24 +172,38 @@ public class AsWrapperTypeSerializer
     public void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId)
         throws IOException, JsonProcessingException
     {
-        jgen.writeStartObject();
-        jgen.writeObjectFieldStart(typeId);
+        if (jgen.canWriteTypeId()) {
+            jgen.writeTypeId(typeId);
+            jgen.writeStartObject();
+        } else {
+            jgen.writeStartObject();
+            jgen.writeObjectFieldStart(typeId);
+        }
     }
     
     @Override
     public void writeCustomTypePrefixForArray(Object value, JsonGenerator jgen, String typeId)
         throws IOException, JsonProcessingException
     {
-        jgen.writeStartObject();
-        jgen.writeArrayFieldStart(typeId);
+        if (jgen.canWriteTypeId()) {
+            jgen.writeTypeId(typeId);
+            jgen.writeStartArray();
+        } else {
+            jgen.writeStartObject();
+            jgen.writeArrayFieldStart(typeId);
+        }
     }
 
     @Override
     public void writeCustomTypePrefixForScalar(Object value, JsonGenerator jgen, String typeId)
         throws IOException, JsonProcessingException
     {
-        jgen.writeStartObject();
-        jgen.writeFieldName(typeId);
+        if (jgen.canWriteTypeId()) {
+            jgen.writeTypeId(typeId);
+        } else {
+            jgen.writeStartObject();
+            jgen.writeFieldName(typeId);
+        }
     }
 
     @Override

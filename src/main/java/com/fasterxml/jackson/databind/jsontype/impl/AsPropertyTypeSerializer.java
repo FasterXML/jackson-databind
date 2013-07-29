@@ -48,6 +48,7 @@ public class AsPropertyTypeSerializer
         final String typeId = idFromValue(value);
         if (jgen.canWriteTypeId()) {
             jgen.writeTypeId(typeId);
+            jgen.writeStartObject();
         } else {
             jgen.writeStartObject();
             jgen.writeStringField(_typePropertyName, typeId);
@@ -61,6 +62,7 @@ public class AsPropertyTypeSerializer
         final String typeId = idFromValueAndType(value, type);
         if (jgen.canWriteTypeId()) {
             jgen.writeTypeId(typeId);
+            jgen.writeStartObject();
         } else {
             jgen.writeStartObject();
             jgen.writeStringField(_typePropertyName, typeId);
@@ -99,6 +101,7 @@ public class AsPropertyTypeSerializer
     {
         if (jgen.canWriteTypeId()) {
             jgen.writeTypeId(typeId);
+            jgen.writeStartObject();
         } else {
             jgen.writeStartObject();
             jgen.writeStringField(_typePropertyName, typeId);

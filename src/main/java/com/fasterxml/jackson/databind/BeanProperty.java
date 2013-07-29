@@ -104,7 +104,7 @@ public interface BeanProperty extends Named
      */
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
         throws JsonMappingException;
-    
+
     /*
     /**********************************************************
     /* Helper classes

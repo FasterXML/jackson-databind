@@ -18,6 +18,9 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  * Note that implementation of serialization is bit cumbersome as we must
  * serialized external type id AFTER object; this because callback only
  * occurs after field name has been written.
+ *<p>
+ * Also note that this type of type id inclusion will NOT try to make use
+ * of native Type Ids, even if those exist.
  */
 public class AsExternalTypeSerializer
    extends TypeSerializerBase

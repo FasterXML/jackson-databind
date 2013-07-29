@@ -78,9 +78,8 @@ public class AsPropertyTypeSerializer
     public void writeTypeSuffixForObject(Object value, JsonGenerator jgen)
         throws IOException, JsonProcessingException
     {
-        if (!jgen.canWriteTypeId()) {
-            jgen.writeEndObject();
-        }
+        // always need to close, regardless of whether its native type id or not
+        jgen.writeEndObject();
     }
 
     //public void writeTypeSuffixForArray(Object value, JsonGenerator jgen)
@@ -112,8 +111,6 @@ public class AsPropertyTypeSerializer
     public void writeCustomTypeSuffixForObject(Object value, JsonGenerator jgen, String typeId)
         throws IOException, JsonProcessingException
     {
-        if (!jgen.canWriteTypeId()) {
-            jgen.writeEndObject();
-        }
+        jgen.writeEndObject();
     }
 }

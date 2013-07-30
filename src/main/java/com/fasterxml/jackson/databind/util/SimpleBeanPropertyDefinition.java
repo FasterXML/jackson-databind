@@ -79,6 +79,12 @@ public class SimpleBeanPropertyDefinition
     /**********************************************************
      */
 
+    @Deprecated // since 2.3
+    @Override
+    public SimpleBeanPropertyDefinition withName(String newName) {
+        return withSimpleName(newName);
+    }
+
     @Override
     public SimpleBeanPropertyDefinition withSimpleName(String newName) {
         if (_name.equals(newName)) {

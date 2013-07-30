@@ -76,6 +76,12 @@ public class POJOPropertyBuilder
     /**********************************************************
      */
 
+    @Deprecated // since 2.3
+    @Override
+    public POJOPropertyBuilder withName(String newName) {
+        return withSimpleName(newName);
+    }
+
     @Override
     public POJOPropertyBuilder withName(PropertyName newName) {
         return new POJOPropertyBuilder(this, newName);

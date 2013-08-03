@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -202,5 +201,32 @@ public abstract class TypeDeserializerBase
             }
             return _defaultImplDeserializer;
         }
+    }
+
+    /**
+     * Helper method called when {@link JsonParser} indicates that it can use
+     * so-called native type ids. Assumption from there is that only native
+     * type ids are to be used.
+     * 
+     * @since 2.3
+     */
+    protected Object _deserializeWithNativeTypeId(JsonParser jp, DeserializationContext ctxt)
+        throws IOException, JsonProcessingException
+    {
+        final String typeId = jp.getTypeId();
+        JsonDeserializer<Object> deser;
+        if (typeId == null) {
+            if (_defaultImpl != null) {
+                deser = _findDefaultImplDeserializer(ctxt);
+            } else {
+                throw ctxt.mappingException("No (native) type id found when one was expected for polymorphic type handling");
+            }
+        } else {
+            deser = _findDeserializer(ctxt, typeId);
+        }
+        /* 02-Aug-2013, tatu: What if type id is marked as "visible"? Should we try to
+         *  inject it in, as with non-native type ids? For now, let's not.
+         */
+        return deser.deserialize(jp, ctxt);
     }
 }

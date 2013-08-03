@@ -56,6 +56,11 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     public Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
+        // 02-Aug-2013, tatu: May need to use native type ids
+        if (jp.canReadTypeId()) {
+            return _deserializeWithNativeTypeId(jp, ctxt);
+        }
+        
         // but first, sanity check to ensure we have START_OBJECT or FIELD_NAME
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.START_OBJECT) {

@@ -16,8 +16,6 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * the same, regardless of structure used for actual value: wrapping
  * is done using a single-element JSON Object where type id is the key,
  * and actual object data as the value.
- * 
- * @author tatu
  */
 public class AsWrapperTypeDeserializer
     extends TypeDeserializerBase
@@ -95,6 +93,11 @@ public class AsWrapperTypeDeserializer
     private final Object _deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
+        // 02-Aug-2013, tatu: May need to use native type ids
+        if (jp.canReadTypeId()) {
+            return _deserializeWithNativeTypeId(jp, ctxt);
+        }
+
         // first, sanity checks
         if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
             throw ctxt.wrongTokenException(jp, JsonToken.START_OBJECT,

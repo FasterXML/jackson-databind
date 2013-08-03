@@ -95,6 +95,10 @@ public class AsArrayTypeDeserializer
     private final Object _deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
+        // 02-Aug-2013, tatu: May need to use native type ids
+        if (jp.canReadTypeId()) {
+            return _deserializeWithNativeTypeId(jp, ctxt);
+        }
         boolean hadStartArray = jp.isExpectedStartArrayToken();
         String typeId = _locateTypeId(jp, ctxt);
         JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);

@@ -5,6 +5,11 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
+/**
+ * Visitor called when properties of a type that maps to JSON Object
+ * are being visited: this usually means POJOs, but sometimes other
+ * types use it too (like {@link java.util.EnumMap}).
+ */
 public interface JsonObjectFormatVisitor extends JsonFormatVisitorWithSerializerProvider
 {
     /**

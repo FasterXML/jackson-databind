@@ -1948,6 +1948,10 @@ public class ObjectMapper
      * it could serialize an instance of given Class.
      * Check is done
      * by checking whether a serializer can be found for the type.
+     *<p>
+     * NOTE: since this method does NOT throw exceptions, but internal
+     * processing may, caller usually has little information as to why
+     * serialization would fail.
      *
      * @return True if mapper can find a serializer for instances of
      *  given class (potentially serializable), false otherwise (not

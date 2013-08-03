@@ -366,6 +366,50 @@ public class BeanPropertyWriter
 
     /*
     /**********************************************************
+    /* Legacy support for JsonFormatVisitable
+    /**********************************************************
+     */
+
+    /**
+     * Attempt to add the output of the given {@link BeanPropertyWriter} in the given {@link ObjectNode}.
+     * Otherwise, add the default schema {@link JsonNode} in place of the writer's output
+     * 
+     * @param propertiesNode Node which the given property would exist within
+     * @param provider Provider that can be used for accessing dynamic aspects of serialization
+     *  processing
+     *  
+     *  {@link BeanPropertyFilter#depositSchemaProperty(BeanPropertyWriter, ObjectNode, SerializerProvider)}
+     * 
+     * @since 2.1
+     */
+    @SuppressWarnings("deprecation")
+    public void depositSchemaProperty(ObjectNode propertiesNode, SerializerProvider provider)
+        throws JsonMappingException
+    {
+        JavaType propType = getSerializationType();
+        // 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas it doesn't...
+        Type hint = (propType == null) ? getGenericPropertyType() : propType.getRawClass();
+        JsonNode schemaNode;
+        // Maybe it already has annotated/statically configured serializer?
+        JsonSerializer<Object> ser = getSerializer();
+        if (ser == null) { // nope
+            Class<?> serType = getRawSerializationType();
+            if (serType == null) {
+                serType = getPropertyType();
+            }
+            ser = provider.findValueSerializer(serType, this);
+        }
+        boolean isOptional = !isRequired();
+        if (ser instanceof SchemaAware) {
+            schemaNode =  ((SchemaAware) ser).getSchema(provider, hint, isOptional) ;
+        } else {  
+            schemaNode = com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode(); 
+        }
+        propertiesNode.put(getName(), schemaNode);
+    }
+    
+    /*
+    /**********************************************************
     /* Managing and accessing of opaque internal settings
     /* (used by extensions)
     /**********************************************************
@@ -491,50 +535,6 @@ public class BeanPropertyWriter
     @Deprecated
     protected boolean isRequired(AnnotationIntrospector intr) {
         return _metadata.isRequired();
-    }
-
-    /*
-    /**********************************************************
-    /* Legacy support for JsonFormatVisitable
-    /**********************************************************
-     */
-
-    /**
-     * Attempt to add the output of the given {@link BeanPropertyWriter} in the given {@link ObjectNode}.
-     * Otherwise, add the default schema {@link JsonNode} in place of the writer's output
-     * 
-     * @param propertiesNode Node which the given property would exist within
-     * @param provider Provider that can be used for accessing dynamic aspects of serialization
-     *  processing
-     *  
-     *  {@link BeanPropertyFilter#depositSchemaProperty(BeanPropertyWriter, ObjectNode, SerializerProvider)}
-     * 
-     * @since 2.1
-     */
-    @SuppressWarnings("deprecation")
-    public void depositSchemaProperty(ObjectNode propertiesNode, SerializerProvider provider)
-        throws JsonMappingException
-    {
-        JavaType propType = getSerializationType();
-        // 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas it doesn't...
-        Type hint = (propType == null) ? getGenericPropertyType() : propType.getRawClass();
-        JsonNode schemaNode;
-        // Maybe it already has annotated/statically configured serializer?
-        JsonSerializer<Object> ser = getSerializer();
-        if (ser == null) { // nope
-            Class<?> serType = getRawSerializationType();
-            if (serType == null) {
-                serType = getPropertyType();
-            }
-            ser = provider.findValueSerializer(serType, this);
-        }
-        boolean isOptional = !isRequired();
-        if (ser instanceof SchemaAware) {
-            schemaNode =  ((SchemaAware) ser).getSchema(provider, hint, isOptional) ;
-        } else {  
-            schemaNode = com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode(); 
-        }
-        propertiesNode.put(getName(), schemaNode);
     }
     
     /*

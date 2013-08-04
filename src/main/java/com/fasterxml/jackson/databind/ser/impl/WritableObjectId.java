@@ -29,7 +29,12 @@ public final class WritableObjectId
         throws IOException, JsonGenerationException
     {
         if (id != null && (idWritten || w.alwaysAsId)) {
-            w.serializer.serialize(id, jgen, provider);
+            // 03-Aug-2013, tatu: Prefer Native Object Ids if available
+            if (jgen.canWriteObjectId()) {
+                jgen.writeObjectRef(String.valueOf(id));
+            } else {
+                w.serializer.serialize(id, jgen, provider);
+            }
             return true;
         }
         return false;
@@ -39,12 +44,23 @@ public final class WritableObjectId
         return (id = generator.generateId(forPojo));
     }
 
+    /**
+     * Method called to output Object Id as specified.
+     */
     public void writeAsField(JsonGenerator jgen, SerializerProvider provider,
             ObjectIdWriter w)
         throws IOException, JsonGenerationException
     {
-        SerializedString name = w.propertyName;
         idWritten = true;
+
+        // 03-Aug-2013, tatu: Prefer Native Object Ids if available
+        if (jgen.canWriteObjectId()) {
+            // Need to assume String(ified) ids, for now... could add 'long' variant?
+            jgen.writeObjectId(String.valueOf(id));
+            return;
+        }
+        
+        SerializedString name = w.propertyName;
         if (name != null) {
             jgen.writeFieldName(name);
             w.serializer.serialize(id, jgen, provider);

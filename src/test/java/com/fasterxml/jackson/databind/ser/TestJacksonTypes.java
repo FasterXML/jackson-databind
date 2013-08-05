@@ -36,7 +36,7 @@ public class TestJacksonTypes
     {
         // First, copy events from known good source (StringReader)
         JsonParser jp = createParserUsingReader(SAMPLE_DOC_JSON_SPEC);
-        TokenBuffer tb = new TokenBuffer(null);
+        TokenBuffer tb = new TokenBuffer(null, false);
         while (jp.nextToken() != null) {
             tb.copyCurrentEvent(jp);
         }

@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.JsonNode;
  * accessing contents of JSON tree in alternate form (stream of tokens).
  * Useful when a streaming source is expected by code, such as data binding
  * functionality.
- * 
- * @author tatu
  */
 public class TreeTraversingParser extends ParserMinimalBase
 {

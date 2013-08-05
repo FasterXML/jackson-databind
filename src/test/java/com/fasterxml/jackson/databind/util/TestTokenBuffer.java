@@ -18,7 +18,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
      */
     public void testSimpleWrites() throws IOException
     {
-        TokenBuffer buf = new TokenBuffer(null); // no ObjectCodec
+        TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
 
         // First, with empty buffer
         JsonParser jp = buf.asParser();
@@ -51,7 +51,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
 
     public void testSimpleArray() throws IOException
     {
-        TokenBuffer buf = new TokenBuffer(null); // no ObjectCodec
+        TokenBuffer buf = new TokenBuffer(null, false); // no ObjectCodec
 
         // First, empty array
         assertTrue(buf.getOutputContext().inRoot());
@@ -72,7 +72,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         buf.close();
 
         // Then one with simple contents
-        buf = new TokenBuffer(null);
+        buf = new TokenBuffer(null, false);
         buf.writeStartArray();
         buf.writeBoolean(true);
         buf.writeNull();
@@ -88,7 +88,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         buf.close();
 
         // And finally, with array-in-array
-        buf = new TokenBuffer(null);
+        buf = new TokenBuffer(null, false);
         buf.writeStartArray();
         buf.writeStartArray();
         buf.writeBinary(new byte[3]);
@@ -112,7 +112,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
 
     public void testSimpleObject() throws IOException
     {
-        TokenBuffer buf = new TokenBuffer(null);
+        TokenBuffer buf = new TokenBuffer(null, false);
 
         // First, empty JSON Object
         assertTrue(buf.getOutputContext().inRoot());
@@ -133,7 +133,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         buf.close();
 
         // Then one with simple contents
-        buf = new TokenBuffer(null);
+        buf = new TokenBuffer(null, false);
         buf.writeStartObject();
         buf.writeNumberField("num", 1.25);
         buf.writeEndObject();
@@ -168,7 +168,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
     {
         // First, copy events from known good source (StringReader)
         JsonParser jp = createParserUsingReader(SAMPLE_DOC_JSON_SPEC);
-        TokenBuffer tb = new TokenBuffer(null);
+        TokenBuffer tb = new TokenBuffer(null, false);
         while (jp.nextToken() != null) {
             tb.copyCurrentEvent(jp);
         }
@@ -184,12 +184,12 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
 
     public void testAppend() throws IOException
     {
-        TokenBuffer buf1 = new TokenBuffer(null);
+        TokenBuffer buf1 = new TokenBuffer(null, false);
         buf1.writeStartObject();
         buf1.writeFieldName("a");
         buf1.writeBoolean(true);
         
-        TokenBuffer buf2 = new TokenBuffer(null);
+        TokenBuffer buf2 = new TokenBuffer(null, false);
         buf2.writeFieldName("b");
         buf2.writeNumber(13);
         buf2.writeEndObject();
@@ -221,7 +221,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
     public void testWithJsonParserSequenceSimple() throws IOException
     {
         // Let's join a TokenBuffer with JsonParser first
-        TokenBuffer buf = new TokenBuffer(null);
+        TokenBuffer buf = new TokenBuffer(null, false);
         buf.writeStartArray();
         buf.writeString("test");
         JsonParser jp = createParserUsingReader("[ true, null ]");
@@ -270,13 +270,13 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
     @SuppressWarnings("resource")
     public void testWithMultipleJsonParserSequences() throws IOException
     {
-        TokenBuffer buf1 = new TokenBuffer(null);
+        TokenBuffer buf1 = new TokenBuffer(null, false);
         buf1.writeStartArray();
-        TokenBuffer buf2 = new TokenBuffer(null);
+        TokenBuffer buf2 = new TokenBuffer(null, false);
         buf2.writeString("a");
-        TokenBuffer buf3 = new TokenBuffer(null);
+        TokenBuffer buf3 = new TokenBuffer(null, false);
         buf3.writeNumber(13);
-        TokenBuffer buf4 = new TokenBuffer(null);
+        TokenBuffer buf4 = new TokenBuffer(null, false);
         buf4.writeEndArray();
 
         JsonParserSequence seq1 = JsonParserSequence.createFlattened(buf1.asParser(), buf2.asParser());

@@ -1924,7 +1924,7 @@ public class ObjectMapper
         throws IllegalArgumentException
     {
         if (fromValue == null) return null;
-        TokenBuffer buf = new TokenBuffer(this);
+        TokenBuffer buf = new TokenBuffer(this, false);
         JsonNode result;
         try {
             writeValue(buf, fromValue);
@@ -2602,7 +2602,7 @@ public class ObjectMapper
         /* Then use TokenBuffer, which is a JsonGenerator:
          * (see [JACKSON-175])
          */
-        TokenBuffer buf = new TokenBuffer(this);
+        TokenBuffer buf = new TokenBuffer(this, false);
         try {
             // inlined 'writeValue' with minor changes:
             // first: disable wrapping when writing

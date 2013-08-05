@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.*;
 
+import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
 import com.fasterxml.jackson.databind.util.NameTransformer;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Abstract factory base class that can provide deserializers for standard
@@ -297,7 +299,10 @@ public abstract class BasicDeserializerFactory
             BeanDescription beanDesc)
         throws JsonMappingException
     {
-        return JacksonDeserializers.findValueInstantiator(config, beanDesc);
+        if (beanDesc.getBeanClass() == JsonLocation.class) {
+            return JsonLocationInstantiator.instance;
+        }
+        return null;
     }
 
     /**
@@ -1388,7 +1393,12 @@ public abstract class BasicDeserializerFactory
         }
         if (clsName.startsWith("com.fasterxml.")) {
             // and a few Jackson types as well:
-            return JacksonDeserializers.find(rawType);
+            if (rawType == TokenBuffer.class) {
+                return TokenBufferDeserializer.instance;
+            }
+            if (JavaType.class.isAssignableFrom(rawType)) {
+                return JavaTypeDeserializer.instance;
+            }
         }
         return null;
     }

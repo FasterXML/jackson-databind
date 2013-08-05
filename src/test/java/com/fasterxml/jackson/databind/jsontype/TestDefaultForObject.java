@@ -254,7 +254,7 @@ public class TestDefaultForObject
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
 
         // Ok, first test JSON Object containing buffer:
-        TokenBuffer buf = new TokenBuffer(mapper);
+        TokenBuffer buf = new TokenBuffer(mapper, false);
         buf.writeStartObject();
         buf.writeNumberField("num", 42);
         buf.writeEndObject();
@@ -272,7 +272,7 @@ public class TestDefaultForObject
         buf.close();
 
         // then as an array:
-        buf = new TokenBuffer(mapper);
+        buf = new TokenBuffer(mapper, false);
         buf.writeStartArray();
         buf.writeBoolean(true);
         buf.writeEndArray();
@@ -289,7 +289,7 @@ public class TestDefaultForObject
         buf.close();
 
         // and finally as scalar
-        buf = new TokenBuffer(mapper);
+        buf = new TokenBuffer(mapper, false);
         buf.writeNumber(321);
         json = mapper.writeValueAsString(new ObjectHolder(buf));
         holder = mapper.readValue(json, ObjectHolder.class);

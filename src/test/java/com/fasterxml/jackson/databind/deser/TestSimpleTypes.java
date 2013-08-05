@@ -363,13 +363,13 @@ public class TestSimpleTypes
         // [JACKSON-393] fix:
 
         // first, null should come as null
-        TokenBuffer buf = new TokenBuffer(null);
+        TokenBuffer buf = new TokenBuffer(null, false);
         buf.writeObject(null);
         assertNull(MAPPER.readValue(buf.asParser(), UUID.class));
         buf.close();
 
         // then, UUID itself come as is:
-        buf = new TokenBuffer(null);
+        buf = new TokenBuffer(null, false);
         buf.writeObject(value);
         assertSame(value, MAPPER.readValue(buf.asParser(), UUID.class));
 
@@ -396,13 +396,13 @@ public class TestSimpleTypes
         assertEquals(value, MAPPER.readValue("\""+value.toString()+"\"", URL.class));
 
         // trivial case; null to null, embedded URL to URL
-        TokenBuffer buf = new TokenBuffer(null);
+        TokenBuffer buf = new TokenBuffer(null, false);
         buf.writeObject(null);
         assertNull(MAPPER.readValue(buf.asParser(), URL.class));
         buf.close();
 
         // then, UUID itself come as is:
-        buf = new TokenBuffer(null);
+        buf = new TokenBuffer(null, false);
         buf.writeObject(value);
         assertSame(value, MAPPER.readValue(buf.asParser(), URL.class));
         buf.close();

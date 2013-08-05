@@ -28,7 +28,7 @@ public class TokenBuffer
  */
     extends JsonGenerator
 {
-    protected final static int DEFAULT_PARSER_FEATURES = JsonParser.Feature.collectDefaults();
+    protected final static int DEFAULT_GENERATOR_FEATURES = JsonGenerator.Feature.collectDefaults();
 
     /*
     /**********************************************************
@@ -53,6 +53,11 @@ public class TokenBuffer
     protected int _generatorFeatures;
 
     protected boolean _closed;
+
+    /**
+     * @since 2.3
+     */
+    protected final boolean _hasNativeTypeIds;
     
     /*
     /**********************************************************
@@ -94,17 +99,46 @@ public class TokenBuffer
      * @param codec Object codec to use for stream-based object
      *   conversion through parser/generator interfaces. If null,
      *   such methods can not be used.
+     *   
+     * @deprecated since 2.3 preferred variant is one that takes {@link JsonParser} or additional boolean parameter.
      */
-    public TokenBuffer(ObjectCodec codec)
+    @Deprecated
+    public TokenBuffer(ObjectCodec codec) {
+        this(codec, false);
+    }
+
+    /**
+     * @param codec Object codec to use for stream-based object
+     *   conversion through parser/generator interfaces. If null,
+     *   such methods can not be used.
+     * @param nativeTypeIds Whether resulting {@link JsonParser} (if created)
+     *   is considered to support native type ids
+     */
+    public TokenBuffer(ObjectCodec codec, boolean nativeTypeIds)
     {
         _objectCodec = codec;
-        _generatorFeatures = DEFAULT_PARSER_FEATURES;
+        _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
         _writeContext = JsonWriteContext.createRootContext();
         // at first we have just one segment
         _first = _last = new Segment();
         _appendOffset = 0;
+        _hasNativeTypeIds = nativeTypeIds;
     }
 
+    /**
+     * @since 2.3
+     */
+    public TokenBuffer(JsonParser jp)
+    {
+        _objectCodec = jp.getCodec();
+        _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
+        _writeContext = JsonWriteContext.createRootContext();
+        // at first we have just one segment
+        _first = _last = new Segment();
+        _appendOffset = 0;
+        _hasNativeTypeIds = jp.canReadTypeId();
+    }
+    
     @Override
     public Version version() {
         return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
@@ -683,6 +717,9 @@ public class TokenBuffer
     @Override
     public void copyCurrentEvent(JsonParser jp) throws IOException, JsonProcessingException
     {
+        if (_hasNativeTypeIds) {
+            _copyTypeId(jp);
+        }
         switch (jp.getCurrentToken()) {
         case START_OBJECT:
             writeStartObject();
@@ -740,6 +777,9 @@ public class TokenBuffer
             writeNull();
             break;
         case VALUE_EMBEDDED_OBJECT:
+            if (_hasNativeTypeIds) {
+                _copyTypeId(jp);
+            }
             writeObject(jp.getEmbeddedObject());
             break;
         default:
@@ -747,6 +787,14 @@ public class TokenBuffer
         }
     }
 
+    protected void _copyTypeId(JsonParser jp) throws IOException, JsonProcessingException
+    {
+        String typeId = jp.getTypeId();
+        if (typeId != null) {
+            writeTypeId(typeId);
+        }
+    }
+    
     @Override
     public void copyCurrentStructure(JsonParser jp) throws IOException, JsonProcessingException {
         JsonToken t = jp.getCurrentToken();
@@ -760,6 +808,9 @@ public class TokenBuffer
 
         switch (t) {
         case START_ARRAY:
+            if (_hasNativeTypeIds) {
+                _copyTypeId(jp);
+            }
             writeStartArray();
             while (jp.nextToken() != JsonToken.END_ARRAY) {
                 copyCurrentStructure(jp);
@@ -767,6 +818,9 @@ public class TokenBuffer
             writeEndArray();
             break;
         case START_OBJECT:
+            if (_hasNativeTypeIds) {
+                _copyTypeId(jp);
+            }
             writeStartObject();
             while (jp.nextToken() != JsonToken.END_OBJECT) {
                 copyCurrentStructure(jp);
@@ -826,8 +880,19 @@ public class TokenBuffer
     protected final static class Parser
         extends ParserMinimalBase
     {
+        /*
+        /**********************************************************
+        /* Configuration
+        /**********************************************************
+         */
+
         protected ObjectCodec _codec;
 
+        /**
+         * @since 2.3
+         */
+        protected final boolean _hasNativeTypeIds;
+        
         /*
         /**********************************************************
         /* Parsing state
@@ -861,14 +926,23 @@ public class TokenBuffer
         /* Construction, init
         /**********************************************************
          */
-        
-        public Parser(Segment firstSeg, ObjectCodec codec)
+
+        @Deprecated // since 2.3
+        public Parser(Segment firstSeg, ObjectCodec codec) {
+            this(firstSeg, codec, false);
+        }
+
+        /**
+         * @since 2.3
+         */
+        public Parser(Segment firstSeg, ObjectCodec codec, boolean hasNativeTypeIds)
         {
             super(0);
             _segment = firstSeg;
             _segmentPtr = -1; // not yet read
             _codec = codec;
             _parsingContext = JsonReadContext.createRootContext(-1, -1);
+            _hasNativeTypeIds = hasNativeTypeIds;
         }
 
         public void setLocation(JsonLocation l) {
@@ -1148,7 +1222,7 @@ public class TokenBuffer
             throw new IllegalStateException("Internal error: entry should be a Number, but is of type "
                     +value.getClass().getName());
         }
-        
+
         /*
         /**********************************************************
         /* Public API, access to token information, other
@@ -1195,7 +1269,8 @@ public class TokenBuffer
         }
 
         @Override
-        public int readBinaryValue(Base64Variant b64variant, OutputStream out) throws IOException, JsonParseException
+        public int readBinaryValue(Base64Variant b64variant, OutputStream out)
+            throws IOException, JsonParseException
         {
             byte[] data = getBinaryValue(b64variant);
             if (data != null) {
@@ -1203,6 +1278,27 @@ public class TokenBuffer
                 return data.length;
             }
             return 0;
+        }
+
+        /*
+        /**********************************************************
+        /* Public API, native ids
+        /**********************************************************
+         */
+
+        @Override
+        public boolean canReadTypeId() {
+            return _hasNativeTypeIds;
+        }
+
+        @Override
+        public String getTypeId() throws IOException, JsonParseException
+        {
+            if (!_hasNativeTypeIds) {
+                return super.getTypeId();
+            }
+            // !! TODO
+            return null;
         }
         
         /*

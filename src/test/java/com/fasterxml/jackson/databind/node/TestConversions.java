@@ -156,7 +156,7 @@ public class TestConversions extends BaseMapTest
 
     public void testEmbeddedObject() throws Exception
     {
-        TokenBuffer buf = new TokenBuffer(MAPPER);
+        TokenBuffer buf = new TokenBuffer(MAPPER, false);
         buf.writeObject(new byte[3]);
         JsonNode node = MAPPER.readTree(buf.asParser());
         buf.close();
@@ -170,7 +170,7 @@ public class TestConversions extends BaseMapTest
 
     public void testEmbeddedObjectInArray() throws Exception
     {
-        TokenBuffer buf = new TokenBuffer(MAPPER);
+        TokenBuffer buf = new TokenBuffer(MAPPER, false);
         buf.writeStartArray();
         buf.writeObject(MARKER);
         buf.writeEndArray();
@@ -185,7 +185,7 @@ public class TestConversions extends BaseMapTest
 
     public void testEmbeddedObjectInObject() throws Exception
     {
-        TokenBuffer buf = new TokenBuffer(MAPPER);
+        TokenBuffer buf = new TokenBuffer(MAPPER, false);
         buf.writeStartObject();
         buf.writeFieldName("pojo");
         buf.writeObject(MARKER);

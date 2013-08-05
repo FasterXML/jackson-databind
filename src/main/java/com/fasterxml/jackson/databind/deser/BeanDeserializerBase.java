@@ -900,14 +900,14 @@ public abstract class BeanDeserializerBase
             return deserializeFromObject(jp, ctxt);
         }
         // otherwise need to reorder things
-        TokenBuffer tmpBuffer = new TokenBuffer(jp.getCodec());
+        TokenBuffer tmpBuffer = new TokenBuffer(jp);
         TokenBuffer mergedBuffer = null;
         for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
             String propName = jp.getCurrentName();
             // when we match the id property, can start merging
             if (mergedBuffer == null) {
                 if (idPropName.equals(propName)) {
-                    mergedBuffer = new TokenBuffer(jp.getCodec());
+                    mergedBuffer = new TokenBuffer(jp);
                     mergedBuffer.writeFieldName(propName);
                     jp.nextToken();
                     mergedBuffer.copyCurrentStructure(jp);

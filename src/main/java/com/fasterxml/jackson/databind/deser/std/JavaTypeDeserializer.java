@@ -14,6 +14,8 @@ import com.fasterxml.jackson.databind.JavaType;
 public class JavaTypeDeserializer
     extends StdScalarDeserializer<JavaType>
 {
+    private static final long serialVersionUID = 1;
+
     public final static JavaTypeDeserializer instance = new JavaTypeDeserializer();
     
     public JavaTypeDeserializer() { super(JavaType.class); }

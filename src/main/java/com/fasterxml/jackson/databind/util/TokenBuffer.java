@@ -1341,9 +1341,10 @@ public class TokenBuffer
          */
         private final static JsonToken[] TOKEN_TYPES_BY_INDEX;
         static {
-            // ... here we know that there are <= 16 values in JsonToken enum
+            // ... here we know that there are <= 15 values in JsonToken enum
             TOKEN_TYPES_BY_INDEX = new JsonToken[16];
             JsonToken[] t = JsonToken.values();
+            // and reserve entry 0 for "not available"
             System.arraycopy(t, 1, TOKEN_TYPES_BY_INDEX, 1, Math.min(15, t.length - 1));
         }
 

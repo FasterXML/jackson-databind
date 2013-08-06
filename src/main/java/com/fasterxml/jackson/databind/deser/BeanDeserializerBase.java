@@ -234,7 +234,7 @@ public abstract class BeanDeserializerBase
                 && (_injectables == null)
                 && !_needViewProcesing
                 // also, may need to reorder stuff if we expect Object Id:
-                && (_objectIdReader != null)
+                && (_objectIdReader == null)
                 ;
     }
 
@@ -621,7 +621,6 @@ public abstract class BeanDeserializerBase
         return contextual;
     }
 
-    
     /**
      * Helper method called to see if given property is part of 'managed' property
      * pair (managed + back reference), and if so, handle resolution details.
@@ -867,20 +866,46 @@ public abstract class BeanDeserializerBase
             TypeDeserializer typeDeserializer)
         throws IOException, JsonProcessingException
     {
-        /* 16-Feb-2012, tatu: ObjectId may be used as well... need to check
-         *    that first
-         */
+        // 16-Feb-2012, tatu: ObjectId may be used as well... need to check that first
         if (_objectIdReader != null) {
             JsonToken t = jp.getCurrentToken();
             // should be good enough check; we only care about Strings, integral numbers:
             if (t != null && t.isScalarValue()) {
                 return deserializeFromObjectId(jp, ctxt);
             }
+            // 05-Aug-2013, tatu: Further, may use native Object Id
+            if (jp.canReadObjectId()) {
+                Object id = jp.getObjectId();
+                if (id != null) {
+                    Object ob = typeDeserializer.deserializeTypedFromObject(jp, ctxt);
+                    return _handleTypedObjectId(jp, ctxt, ob, id);
+                }
+            }
         }
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
     }
 
+    /**
+     * Offlined method called to handle "native" Object Id that has been read
+     * and known to be associated with given deserialized POJO.
+     * 
+     * @since 2.3
+     */
+    protected Object _handleTypedObjectId(JsonParser jp, DeserializationContext ctxt,
+            Object pojo, Object id)
+        throws IOException, JsonProcessingException
+    {
+        ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator);
+        roid.bindItem(pojo);
+        // also: may need to set a property value as well
+        SettableBeanProperty idProp = _objectIdReader.idProperty;
+        if (idProp != null) {
+            return idProp.setAndReturn(pojo, id);
+        }
+        return pojo;
+    }
+    
     // NOTE: currently only used by standard BeanDeserializer (not Builder-based)
     /**
      * Alternative deserialization method used when we expect to see Object Id;
@@ -896,7 +921,9 @@ public abstract class BeanDeserializerBase
     {
         final String idPropName = _objectIdReader.propertyName.getSimpleName();
         // First, the simple case: we point to the Object Id property
-        if (idPropName.equals(jp.getCurrentName())) {
+        if (idPropName.equals(jp.getCurrentName())
+                // 05-Aug-2013, tatu: Or might point to a native Object Id
+                || jp.canReadObjectId()) {
             return deserializeFromObject(jp, ctxt);
         }
         // otherwise need to reorder things
@@ -1115,7 +1142,7 @@ public abstract class BeanDeserializerBase
      */
 
     protected void injectValues(DeserializationContext ctxt, Object bean)
-            throws IOException, JsonProcessingException
+        throws IOException, JsonProcessingException
     {
         for (ValueInjector injector : _injectables) {
             injector.inject(ctxt, bean);

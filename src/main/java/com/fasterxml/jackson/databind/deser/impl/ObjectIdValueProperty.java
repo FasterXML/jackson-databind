@@ -82,7 +82,7 @@ public final class ObjectIdValueProperty
             Object instance)
         throws IOException, JsonProcessingException
     {
-    	deserializeSetAndReturn(jp, ctxt, instance);
+        deserializeSetAndReturn(jp, ctxt, instance);
     }
 
     @Override
@@ -101,11 +101,10 @@ public final class ObjectIdValueProperty
         }
         return instance;
     }
-    
-    
+
     @Override
     public void set(Object instance, Object value) throws IOException {
-    	setAndReturn(instance, value);
+        setAndReturn(instance, value);
     }
 
     @Override

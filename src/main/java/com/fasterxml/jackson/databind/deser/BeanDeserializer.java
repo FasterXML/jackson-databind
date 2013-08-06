@@ -276,6 +276,12 @@ public class BeanDeserializer
             return deserializeFromObjectUsingNonDefault(jp, ctxt);
         }
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
+        if (jp.canReadObjectId()) {
+            Object id = jp.getObjectId();
+            if (id != null) {
+                _handleTypedObjectId(jp, ctxt, bean, id);
+            }
+        }
         if (_injectables != null) {
             injectValues(ctxt, bean);
         }

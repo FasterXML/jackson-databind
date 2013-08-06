@@ -331,13 +331,12 @@ public abstract class BeanDeserializerBase
         _needViewProcesing = src._needViewProcesing;
         _serializationShape = src._serializationShape;
 
-        _vanillaProcessing = src._vanillaProcessing;
-
         // then actual changes:
         _objectIdReader = oir;
 
         if (oir == null) {
             _beanProperties = src._beanProperties;
+            _vanillaProcessing = src._vanillaProcessing;
         } else {
             /* 18-Nov-2012, tatu: May or may not have annotations for id property;
              *   but no easy access. But hard to see id property being optional,
@@ -345,6 +344,7 @@ public abstract class BeanDeserializerBase
              */
             ObjectIdValueProperty idProp = new ObjectIdValueProperty(oir, PropertyMetadata.STD_REQUIRED);
             _beanProperties = src._beanProperties.withProperty(idProp);
+            _vanillaProcessing = false;
         }
     }
 

@@ -169,7 +169,7 @@ public class AbstractDeserializer
     protected Object _deserializeFromObjectId(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
-        Object id = _objectIdReader.deserializer.deserialize(jp, ctxt);
+        Object id = _objectIdReader.readObjectReference(jp, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator);
         // do we have it resolved?
         Object pojo = roid.item;

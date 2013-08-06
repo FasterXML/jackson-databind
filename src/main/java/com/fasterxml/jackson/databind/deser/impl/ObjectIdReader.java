@@ -1,19 +1,22 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import java.io.IOException;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 
 /**
  * Object that knows how to serialize Object Ids.
  */
-public final class ObjectIdReader
+public class ObjectIdReader
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    public final JavaType idType;
+    protected final JavaType _idType;
 
     public final PropertyName propertyName;
     
@@ -27,7 +30,7 @@ public final class ObjectIdReader
     /**
      * Deserializer used for deserializing id values.
      */
-    public final JsonDeserializer<Object> deserializer;
+    protected final JsonDeserializer<Object> _deserializer;
 
     public final SettableBeanProperty idProperty;
     
@@ -41,10 +44,10 @@ public final class ObjectIdReader
     protected ObjectIdReader(JavaType t, PropertyName propName, ObjectIdGenerator<?> gen,
             JsonDeserializer<?> deser, SettableBeanProperty idProp)
     {
-        idType = t;
+        _idType = t;
         propertyName = propName;
         generator = gen;
-        deserializer = (JsonDeserializer<Object>) deser;
+        _deserializer = (JsonDeserializer<Object>) deser;
         idProperty = idProp;
     }
 
@@ -73,5 +76,31 @@ public final class ObjectIdReader
             SettableBeanProperty idProp)
     {
         return construct(idType, new PropertyName(propName), generator, deser, idProp);
+    }
+
+    /*
+    /**********************************************************
+    /* API
+    /**********************************************************
+     */
+
+    public JsonDeserializer<?> getDeserializer() {
+        return _deserializer;
+    }
+
+    public JavaType getIdType() {
+        return _idType;
+    }
+    
+    /**
+     * Method called to read value that is expected to be an Object Reference
+     * (that is, value of an Object Id used to refer to another object).
+     * 
+     * @since 2.3
+     */
+    public Object readObjectReference(JsonParser jp, DeserializationContext ctxt)
+        throws IOException, JsonProcessingException
+    {
+        return _deserializer.deserialize(jp, ctxt);
     }
 }

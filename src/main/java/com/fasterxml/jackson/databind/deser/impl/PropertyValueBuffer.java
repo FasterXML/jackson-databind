@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser.impl;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParser;
-
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.SettableAnyProperty;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
@@ -100,7 +99,7 @@ public final class PropertyValueBuffer
     public boolean readIdProperty(String propName) throws IOException
     {
         if ((_objectIdReader != null) && propName.equals(_objectIdReader.propertyName.getSimpleName())) {
-            _idValue = _objectIdReader.deserializer.deserialize(_parser, _context);
+            _idValue = _objectIdReader.readObjectReference(_parser, _context);
             return true;
         }
         return false;

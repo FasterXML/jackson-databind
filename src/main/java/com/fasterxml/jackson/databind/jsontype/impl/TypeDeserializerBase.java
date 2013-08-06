@@ -213,15 +213,16 @@ public abstract class TypeDeserializerBase
     protected Object _deserializeWithNativeTypeId(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
-        final String typeId = jp.getTypeId();
+        final Object typeId0 = jp.getTypeId();
         JsonDeserializer<Object> deser;
-        if (typeId == null) {
+        if (typeId0 == null) {
             if (_defaultImpl != null) {
                 deser = _findDefaultImplDeserializer(ctxt);
             } else {
                 throw ctxt.mappingException("No (native) type id found when one was expected for polymorphic type handling");
             }
         } else {
+            String typeId = (typeId0 instanceof String) ? (String) typeId0 : String.valueOf(typeId0);
             deser = _findDeserializer(ctxt, typeId);
         }
         /* 02-Aug-2013, tatu: What if type id is marked as "visible"? Should we try to

@@ -58,6 +58,11 @@ public class TokenBuffer
      * @since 2.3
      */
     protected final boolean _hasNativeTypeIds;
+
+    /**
+     * @since 2.3
+     */
+    protected final boolean _hasNativeObjectIds;
     
     /*
     /**********************************************************
@@ -81,6 +86,18 @@ public class TokenBuffer
      */
     protected int _appendOffset;
 
+    /**
+     * If native type ids supported, this is the id for following
+     * value (or first token of one) to be written.
+     */
+    protected Object _typeId;
+
+    /**
+     * If native object ids supported, this is the id for following
+     * value (or first token of one) to be written.
+     */
+    protected Object _objectId;
+    
     /*
     /**********************************************************
     /* Output state
@@ -111,10 +128,10 @@ public class TokenBuffer
      * @param codec Object codec to use for stream-based object
      *   conversion through parser/generator interfaces. If null,
      *   such methods can not be used.
-     * @param nativeTypeIds Whether resulting {@link JsonParser} (if created)
-     *   is considered to support native type ids
+     * @param hasNativeIds Whether resulting {@link JsonParser} (if created)
+     *   is considered to support native type and object ids
      */
-    public TokenBuffer(ObjectCodec codec, boolean nativeTypeIds)
+    public TokenBuffer(ObjectCodec codec, boolean hasNativeIds)
     {
         _objectCodec = codec;
         _generatorFeatures = DEFAULT_GENERATOR_FEATURES;
@@ -122,7 +139,8 @@ public class TokenBuffer
         // at first we have just one segment
         _first = _last = new Segment();
         _appendOffset = 0;
-        _hasNativeTypeIds = nativeTypeIds;
+        _hasNativeTypeIds = hasNativeIds;
+        _hasNativeObjectIds = hasNativeIds;
     }
 
     /**
@@ -137,6 +155,8 @@ public class TokenBuffer
         _first = _last = new Segment();
         _appendOffset = 0;
         _hasNativeTypeIds = jp.canReadTypeId();
+        // !!! TODO
+        _hasNativeObjectIds = false;
     }
     
     @Override
@@ -707,7 +727,33 @@ public class TokenBuffer
     public int writeBinary(Base64Variant b64variant, InputStream data, int dataLength) {
         throw new UnsupportedOperationException();
     }
+
+    /*
+    /***********************************************************
+    /* JsonGenerator implementation: native ids
+    /***********************************************************
+     */
+
+    @Override
+    public boolean canWriteTypeId() {
+        return _hasNativeTypeIds;
+    }
+
+    @Override
+    public boolean canWriteObjectId() {
+        return _hasNativeObjectIds;
+    }
     
+    @Override
+    public void writeTypeId(Object id) {
+        _typeId = id;
+    }
+    
+    @Override
+    public void writeObjectId(Object id) {
+        _objectId = id;
+    }
+
     /*
     /**********************************************************
     /* JsonGenerator implementation; pass-through copy
@@ -719,6 +765,9 @@ public class TokenBuffer
     {
         if (_hasNativeTypeIds) {
             _copyTypeId(jp);
+        }
+        if (_hasNativeObjectIds) {
+            _copyObjectId(jp);
         }
         switch (jp.getCurrentToken()) {
         case START_OBJECT:
@@ -777,9 +826,6 @@ public class TokenBuffer
             writeNull();
             break;
         case VALUE_EMBEDDED_OBJECT:
-            if (_hasNativeTypeIds) {
-                _copyTypeId(jp);
-            }
             writeObject(jp.getEmbeddedObject());
             break;
         default:
@@ -787,12 +833,23 @@ public class TokenBuffer
         }
     }
 
-    protected void _copyTypeId(JsonParser jp) throws IOException, JsonProcessingException
+    protected final void _copyTypeId(JsonParser jp) throws IOException, JsonProcessingException
     {
-        String typeId = jp.getTypeId();
-        if (typeId != null) {
-            writeTypeId(typeId);
+        Object id = jp.getTypeId();
+        if (id != null) {
+            writeTypeId(id);
         }
+    }
+
+    protected final void _copyObjectId(JsonParser jp) throws IOException, JsonProcessingException
+    {
+        // !!! TODO
+        /*
+        Object id = jp.getObjectId();
+        if (id != null) {
+            writeObjectId(id);
+        }
+        */
     }
     
     @Override
@@ -811,6 +868,9 @@ public class TokenBuffer
             if (_hasNativeTypeIds) {
                 _copyTypeId(jp);
             }
+            if (_hasNativeObjectIds) {
+                _copyObjectId(jp);
+            }
             writeStartArray();
             while (jp.nextToken() != JsonToken.END_ARRAY) {
                 copyCurrentStructure(jp);
@@ -820,6 +880,9 @@ public class TokenBuffer
         case START_OBJECT:
             if (_hasNativeTypeIds) {
                 _copyTypeId(jp);
+            }
+            if (_hasNativeObjectIds) {
+                _copyObjectId(jp);
             }
             writeStartObject();
             while (jp.nextToken() != JsonToken.END_OBJECT) {
@@ -837,7 +900,9 @@ public class TokenBuffer
     /* Internal methods
     /**********************************************************
      */
-    protected final void _append(JsonToken type) {
+
+    protected final void _append(JsonToken type)
+    {
         Segment next = _last.append(_appendOffset, type);
         if (next == null) {
             ++_appendOffset;
@@ -847,7 +912,8 @@ public class TokenBuffer
         }
     }
 
-    protected final void _append(JsonToken type, Object value) {
+    protected final void _append(JsonToken type, Object value)
+    {
         Segment next = _last.append(_appendOffset, type, value);
         if (next == null) {
             ++_appendOffset;
@@ -857,7 +923,8 @@ public class TokenBuffer
         }
     }
 
-    protected final void _appendRaw(int rawType, Object value) {
+    protected final void _appendRaw(int rawType, Object value)
+    {
         Segment next = _last.appendRaw(_appendOffset, rawType, value);
         if (next == null) {
             ++_appendOffset;
@@ -1292,7 +1359,7 @@ public class TokenBuffer
         }
 
         @Override
-        public String getTypeId() throws IOException, JsonParseException
+        public Object getTypeId() throws IOException, JsonParseException
         {
             if (!_hasNativeTypeIds) {
                 return super.getTypeId();

@@ -180,11 +180,9 @@ public class PropertyBuilder
         /* [JACKSON-114]: if using static typing, declared type is known
          * to be the type...
          */
-        if (!useStaticTyping) {
-            JsonSerialize.Typing typing = _annotationIntrospector.findSerializationTyping(a);
-            if (typing != null) {
-                useStaticTyping = (typing == JsonSerialize.Typing.STATIC);
-            }
+        JsonSerialize.Typing typing = _annotationIntrospector.findSerializationTyping(a);
+        if (typing != null && typing != JsonSerialize.Typing.DEFAULT_TYPING) {
+            useStaticTyping = (typing == JsonSerialize.Typing.STATIC);
         }
         return useStaticTyping ? declaredType : null;
     }
@@ -194,7 +192,7 @@ public class PropertyBuilder
     /* Helper methods for default value handling
     /**********************************************************
      */
-    
+
     protected Object getDefaultBean()
     {
         if (_defaultBean == null) {

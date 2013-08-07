@@ -101,8 +101,13 @@ public @interface JsonSerialize
      * Whether type detection used is dynamic or static: that is,
      * whether actual runtime type is used (dynamic), or just the
      * declared type (static).
+     *<p>
+     * Note that Jackson 2.3 changed default to <code>DEFAULT_TYPING</code>,
+     * which is roughly same as saying "whatever".
+     * This is important as it allows avoiding accidental overrides
+     * at property level.
      */
-    public Typing typing() default Typing.DYNAMIC;
+    public Typing typing() default Typing.DEFAULT_TYPING;
 
     // // // Annotations for specifying intermediate Converters (2.2+)
     
@@ -137,12 +142,16 @@ public @interface JsonSerialize
      * and "properties that have non-default value" (i.e. default value
      * being property setting for a Bean constructed with default no-arg
      * constructor, often null).
+     *<p>
+     * Note that Jackson 2.3 changed default to <code>DEFAULT_INCLUSION</code>,
+     * which is roughly same as saying "whatever". This is important because
+     * it allows hierarchic default values to be used.
      *
      * @deprecated As of Jackson 2.0, this annotation has been replaced
      *    by {@link com.fasterxml.jackson.annotation.JsonInclude}
      */
     @Deprecated
-    public Inclusion include() default Inclusion.ALWAYS;
+    public Inclusion include() default Inclusion.DEFAULT_INCLUSION;
     
     /*
     /**********************************************************
@@ -197,7 +206,15 @@ public @interface JsonSerialize
          * <ul>
          *  For other types, non-null values are to be included.
          */
-        NON_EMPTY
+        NON_EMPTY,
+
+        /**
+         * Pseudo-value that is used to indicate
+         * "use whatever is default used at higher level".
+         * 
+         * @since 2.3
+         */
+        DEFAULT_INCLUSION
         ;
     }
 
@@ -218,7 +235,15 @@ public @interface JsonSerialize
          * Value that indicates that the static declared type is to
          * be used.
          */
-        STATIC
+        STATIC,
+        
+        /**
+         * Pseudo-value that is used to indicate
+         * "use whatever is default used at higher level".
+         * 
+         * @since 2.3
+         */
+        DEFAULT_TYPING
         ;
     }
 }

@@ -336,6 +336,8 @@ public class JacksonAnnotationIntrospector
                 return JsonInclude.Include.NON_DEFAULT;
             case NON_EMPTY:
                 return JsonInclude.Include.NON_EMPTY;
+            case DEFAULT_INCLUSION: // since 2.3 -- fall through, use default
+                break;
             }
         }
         return defValue;

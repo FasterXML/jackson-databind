@@ -981,7 +981,7 @@ public abstract class BasicSerializerFactory
         }
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
         JsonSerialize.Typing t = intr.findSerializationTyping(beanDesc.getClassInfo());
-        if (t != null) {
+        if (t != null && t != JsonSerialize.Typing.DEFAULT_TYPING) {
             return (t == JsonSerialize.Typing.STATIC);
         }
         return config.isEnabled(MapperFeature.USE_STATIC_TYPING);

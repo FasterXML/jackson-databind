@@ -84,7 +84,7 @@ public class ObjectIdReader
     /**********************************************************
      */
 
-    public JsonDeserializer<?> getDeserializer() {
+    public JsonDeserializer<Object> getDeserializer() {
         return _deserializer;
     }
 

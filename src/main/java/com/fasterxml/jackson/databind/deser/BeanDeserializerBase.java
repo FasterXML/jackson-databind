@@ -889,13 +889,29 @@ public abstract class BeanDeserializerBase
     /**
      * Offlined method called to handle "native" Object Id that has been read
      * and known to be associated with given deserialized POJO.
-     * 
+     *
      * @since 2.3
      */
     protected Object _handleTypedObjectId(JsonParser jp, DeserializationContext ctxt,
-            Object pojo, Object id)
+            Object pojo, Object rawId)
         throws IOException, JsonProcessingException
     {
+        /* 07-Aug-2013, tatu: One more challenge: type of id may not be type
+         *   of property we are expecting later on; specifically, numeric ids
+         *   vs Strings.
+         */
+        JsonDeserializer<Object> idDeser = _objectIdReader.getDeserializer();
+        final Object id;
+
+        // Ok, this is bit ridiculous; let's see if conversion is needed:
+        if ((idDeser instanceof StdDeserializer)
+            && ((StdDeserializer<?>) idDeser).getValueClass() == rawId.getClass()) {
+            // nope: already same type
+            id = rawId;
+        } else {
+            id = _convertObjectId(jp, ctxt, rawId, idDeser);
+        }
+
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator);
         roid.bindItem(pojo);
         // also: may need to set a property value as well
@@ -905,7 +921,37 @@ public abstract class BeanDeserializerBase
         }
         return pojo;
     }
-    
+
+    /**
+     * Helper method we need to do necessary conversion from whatever native object id
+     * type is, into declared type that Jackson internals expect. This may be
+     * simple cast (for String ids), or something more complicated; in latter
+     * case we may need to create bogus content buffer to allow use of
+     * id deserializer.
+     *
+     * @since 2.3
+     */
+    protected Object _convertObjectId(JsonParser jp, DeserializationContext ctxt,
+            Object rawId, JsonDeserializer<Object> idDeser)
+        throws IOException, JsonProcessingException
+    {
+        @SuppressWarnings("resource") // no need to close really
+        TokenBuffer buf = new TokenBuffer(jp);
+        if (rawId instanceof String) {
+            buf.writeString((String) rawId);
+        } else if (rawId instanceof Long) {
+            buf.writeNumber(((Long) rawId).longValue());
+        } else if (rawId instanceof Integer) {
+            buf.writeNumber(((Integer) rawId).intValue());
+        } else {
+            // should we worry about UUIDs? They should be fine, right?
+            buf.writeObject(rawId);
+        }
+        JsonParser bufParser = buf.asParser();
+        bufParser.nextToken();
+        return idDeser.deserialize(bufParser, ctxt);
+    }
+
     // NOTE: currently only used by standard BeanDeserializer (not Builder-based)
     /**
      * Alternative deserialization method used when we expect to see Object Id;

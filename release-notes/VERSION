@@ -19,6 +19,9 @@ New minor version.
  (reported by bfelaco@github)
 #269: Add support for new `@JsonPropertyDescription` via `AnnotationIntrospector`
  as well as `BeanProperty.getMedata().getDescription()`
+#270: Add `SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID` to allow use of equality
+ (instead of identity) for figuring out when to use Object Id
+ (requested by beku8@github)
 [JACKSON-890]: Support managed/back-references for polymorphic (abstract) types
 - Add 'BeanPropertyWriter.isUnwrapping()' for future needs (by Afterburner)
 

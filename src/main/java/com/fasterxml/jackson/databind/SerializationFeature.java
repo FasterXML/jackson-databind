@@ -318,7 +318,20 @@ public enum SerializationFeature implements ConfigFeature
      * 
      * @since 2.1
      */
-    EAGER_SERIALIZER_FETCH(true)    
+    EAGER_SERIALIZER_FETCH(true),
+
+    /**
+     * Feature that determines whether Object Identity is compared using
+     * true JVM-level identity of Object (false); or, <code>equals()</code> method.
+     * Latter is sometimes useful when dealing with Database-bound objects with
+     * ORM libraries (like Hibernate).
+     *<p>
+     * Feature is disabled by default; meaning that strict identity is used, not
+     * <code>equals()</code>
+     * 
+     * @since 2.3
+     */
+    USE_EQUALITY_FOR_OBJECT_ID(false)
     ;
 
     private final boolean _defaultState;

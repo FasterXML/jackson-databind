@@ -46,7 +46,7 @@ public abstract class DefaultSerializerProvider
      * Per-serialization map Object Ids that have seen so far, iff
      * Object Id handling is enabled.
      */
-    protected transient IdentityHashMap<Object, WritableObjectId> _seenObjectIds;
+    protected transient Map<Object, WritableObjectId> _seenObjectIds;
     
     protected transient ArrayList<ObjectIdGenerator<?>> _objectIdGenerators;
     
@@ -341,7 +341,7 @@ public abstract class DefaultSerializerProvider
             ObjectIdGenerator<?> generatorType)
     {
         if (_seenObjectIds == null) {
-            _seenObjectIds = new IdentityHashMap<Object,WritableObjectId>();
+            _seenObjectIds = _createObjectIdMap();
         } else {
             WritableObjectId oid = _seenObjectIds.get(forPojo);
             if (oid != null) {
@@ -371,6 +371,24 @@ public abstract class DefaultSerializerProvider
         return oid;
     }
 
+    /**
+     * Overridable helper method used for creating {@link java.util.Map}
+     * used for storing mappings from serializable objects to their
+     * Object Ids.
+     * 
+     * @since 2.3
+     */
+    protected Map<Object,WritableObjectId> _createObjectIdMap()
+    {
+        /* 06-Aug-2013, tatu: We may actually want to use equality,
+         *   instead of identity... so:
+         */
+        if (isEnabled(SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID)) {
+            return new HashMap<Object,WritableObjectId>();
+        }
+        return new IdentityHashMap<Object,WritableObjectId>();
+    }
+    
     /*
     /**********************************************************
     /* Factory method impls

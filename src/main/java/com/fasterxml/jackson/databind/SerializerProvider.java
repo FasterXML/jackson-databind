@@ -343,7 +343,7 @@ public abstract class SerializerProvider
      * exists or not.
      */
     public abstract WritableObjectId findObjectId(Object forPojo,
-            ObjectIdGenerator<?> generatorType);
+        ObjectIdGenerator<?> generatorType);
     
     /*
     /**********************************************************

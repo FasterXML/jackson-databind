@@ -15,6 +15,9 @@ New minor version.
 #238: Allow existence of overlapping getter, is-getter (choose 'regular' getter)
 #239: Support `ByteBuffer`
  (suggested by mckamey@github)
+#240: Make sure `@JsonSerialize.include` does not accidentally override
+  class inclusion settings
+ (requested by thierryhenrio@github)
 #253: `DelegatingDeserializer` causes problems for Managed/BackReferences
  (reported by bfelaco@github)
 #269: Add support for new `@JsonPropertyDescription` via `AnnotationIntrospector`

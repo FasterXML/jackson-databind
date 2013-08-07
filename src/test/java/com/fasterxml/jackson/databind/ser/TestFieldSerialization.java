@@ -111,6 +111,20 @@ public class TestFieldSerialization
         @JsonProperty("z") public int getZ() { return z+1; }
     }
 
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    public class Item240 {
+        @JsonProperty
+        private String id;
+        // only include annotation to ensure it won't override settings
+        @JsonSerialize(typing=JsonSerialize.Typing.STATIC)
+        private String state;
+
+        public Item240(String id, String state) {
+            this.id = id;
+            this.state = state;
+        }
+    }
+    
     /*
     /**********************************************************
     /* Main tests, success
@@ -118,7 +132,7 @@ public class TestFieldSerialization
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testSimpleAutoDetect() throws Exception
     {
         SimpleFieldBean bean = new SimpleFieldBean();
@@ -186,6 +200,12 @@ public class TestFieldSerialization
         assertEquals(Integer.valueOf(2), json.get("y"));
     }
 
+    public void testIssue240() throws Exception
+    {
+        Item240 bean = new Item240("a12", null);
+        assertEquals(MAPPER.writeValueAsString(bean), "{\"id\":\"a12\"}");
+    }
+    
     /*
     /**********************************************************
     /* Main tests, failure cases

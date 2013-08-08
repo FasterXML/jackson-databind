@@ -104,7 +104,7 @@ public final class POJONode
         throws IOException, JsonProcessingException
     {
         if (_value == null) {
-            jg.writeNull();
+            provider.defaultSerializeNull(jg);
         } else {
             jg.writeObject(_value);
         }

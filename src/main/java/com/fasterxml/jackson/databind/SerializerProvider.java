@@ -148,6 +148,13 @@ public abstract class SerializerProvider
      */
     protected DateFormat _dateFormat;
 
+    /**
+     * Flag set to indicate that we are using vanilla null value serialization
+     * 
+     * @since 2.3
+     */
+    protected final boolean _stdNullValueSerializer;
+    
     /*
     /**********************************************************
     /* Life-cycle
@@ -169,6 +176,9 @@ public abstract class SerializerProvider
         _rootNames = new RootNameLookup();
 
         _serializationView = null;
+
+        // not relevant for blueprint instance, could set either way:
+        _stdNullValueSerializer = true;
     }
 
     /**
@@ -189,6 +199,7 @@ public abstract class SerializerProvider
         _unknownTypeSerializer = src._unknownTypeSerializer;
         _keySerializer = src._keySerializer;
         _nullValueSerializer = src._nullValueSerializer;
+        _stdNullValueSerializer = (_nullValueSerializer == DEFAULT_NULL_KEY_SERIALIZER);
         _nullKeySerializer = src._nullKeySerializer;
         _rootNames = src._rootNames;
 
@@ -223,7 +234,11 @@ public abstract class SerializerProvider
     /**
      * Method that can be used to specify serializer that will be
      * used to write JSON values matching Java null values
-     * instead of default one (which simply writes JSON null)
+     * instead of default one (which simply writes JSON null).
+     *<p>
+     * Note that you can get finer control over serializer to use by overriding
+     * {@link #findNullValueSerializer}, which gets called once per each
+     * property.
      */
     public void setNullValueSerializer(JsonSerializer<Object> nvs)
     {
@@ -597,11 +612,12 @@ public abstract class SerializerProvider
 
     /**
      * Method called to get the serializer to use for serializing null
-     * property values.
+     * values for specified property.
      *<p>
      * Default implementation simply calls {@link #getDefaultNullValueSerializer()};
      * can be overridden to add custom null serialization for properties
-     * of certain type or name.
+     * of certain type or name. This gives method full granularity to basically
+     * override null handling for any specific property or class of properties.
      * 
      * @since 2.0
      */
@@ -664,7 +680,11 @@ public abstract class SerializerProvider
         throws IOException, JsonProcessingException
     {
         if (value == null) {
-            _nullValueSerializer.serialize(null, jgen, this);
+            if (_stdNullValueSerializer) { // minor perf optimization
+                jgen.writeNull();
+            } else {
+                _nullValueSerializer.serialize(null, jgen, this);
+            }
         } else {
             Class<?> cls = value.getClass();
             findTypedValueSerializer(cls, true, null).serialize(value, jgen, this);
@@ -684,7 +704,11 @@ public abstract class SerializerProvider
             /* Note: can't easily check for suppression at this point
              * any more; caller must check it.
              */
-            _nullValueSerializer.serialize(null, jgen, this);
+            if (_stdNullValueSerializer) { // minor perf optimization
+                jgen.writeNull();
+            } else {
+                _nullValueSerializer.serialize(null, jgen, this);
+            }
         } else {
             Class<?> cls = value.getClass();
             findTypedValueSerializer(cls, true, null).serialize(value, jgen, this);
@@ -766,7 +790,11 @@ public abstract class SerializerProvider
     public final void defaultSerializeNull(JsonGenerator jgen)
         throws IOException, JsonProcessingException
     {
-        _nullValueSerializer.serialize(null, jgen, this);
+        if (_stdNullValueSerializer) { // minor perf optimization
+            jgen.writeNull();
+        } else {
+            _nullValueSerializer.serialize(null, jgen, this);
+        }
     }
 
     /*

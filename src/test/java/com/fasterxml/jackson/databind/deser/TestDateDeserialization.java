@@ -37,7 +37,7 @@ public class TestDateDeserialization
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testDateUtil() throws Exception
     {
         long now = 123456789L;
@@ -63,6 +63,12 @@ public class TestDateDeserialization
         String json = quote(String.valueOf(now));
         java.util.Date value = MAPPER.readValue(json, java.util.Date.class);
         assertEquals(now, value.getTime());
+
+        // #267: should handle negative timestamps too; like 12 hours before 1.1.1970
+        long before = - (24 * 3600 * 1000L);
+        json = quote(String.valueOf(before));
+        value = MAPPER.readValue(json, java.util.Date.class);
+        assertEquals(before, value.getTime());
     }
 
     public void testDateUtilRFC1123() throws Exception

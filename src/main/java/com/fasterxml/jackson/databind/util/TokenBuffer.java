@@ -424,6 +424,17 @@ public class TokenBuffer
     }
 
     @Override
+    public int getFeatureMask() {
+        return _generatorFeatures;
+    }
+
+    @Override
+    public JsonGenerator setFeatureMask(int mask) {
+        _generatorFeatures = mask;
+        return this;
+    }
+    
+    @Override
     public JsonGenerator useDefaultPrettyPrinter() {
         // No-op: we don't indent
         return this;

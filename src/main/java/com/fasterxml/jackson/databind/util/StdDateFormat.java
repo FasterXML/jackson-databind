@@ -245,7 +245,8 @@ public class StdDateFormat
             }
         }
         if (i < 0) { // all digits
-            if (NumberInput.inLongRange(dateStr, false)) {
+            // let's just assume negative numbers are fine (can't be RFC-1123 anyway); check length for positive
+            if (dateStr.charAt(0) == '-' || NumberInput.inLongRange(dateStr, false)) {
                 return new Date(Long.parseLong(dateStr));
             }
         }

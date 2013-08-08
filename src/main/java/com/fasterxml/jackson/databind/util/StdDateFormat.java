@@ -237,7 +237,12 @@ public class StdDateFormat
         int i = dateStr.length();
         while (--i >= 0) {
             char ch = dateStr.charAt(i);
-            if (ch < '0' || ch > '9') break;
+            if (ch < '0' || ch > '9') {
+                // 07-Aug-2013, tatu: And #267 points out that negative numbers should also work
+                if (i > 0 || ch != '-') {
+                    break;
+                }
+            }
         }
         if (i < 0) { // all digits
             if (NumberInput.inLongRange(dateStr, false)) {

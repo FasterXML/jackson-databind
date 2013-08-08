@@ -6,6 +6,8 @@ Version: 2.2.3 (xx-xxx-2013)
  (reported by fge@github)
 #259: Fix a problem with JSON Schema generation for `@JsonValue`
  (reported by Lior L)
+#267: Handle negative, stringified timestamps
+ (reported by Drecth@github)
 #281: Make `NullNode` use configured null-value serializer
 
 ------------------------------------------------------------------------

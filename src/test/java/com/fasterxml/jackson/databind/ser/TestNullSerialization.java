@@ -4,6 +4,7 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class TestNullSerialization
     extends BaseMapTest
@@ -38,7 +39,7 @@ public class TestNullSerialization
         public DefaultSerializerProvider createInstance(SerializationConfig config, SerializerFactory jsf) {
             return new MyNullProvider(this, config, jsf);
         }
-        
+
         @Override
         public JsonSerializer<Object> findNullValueSerializer(BeanProperty property)
             throws JsonMappingException
@@ -77,4 +78,22 @@ public class TestNullSerialization
         assertEquals("{\"name\":\"foobar\"}", m.writeValueAsString(new Bean1()));
         assertEquals("{\"type\":null}", m.writeValueAsString(new Bean2()));
     }
+
+    // #281
+    public void testCustomNullForTrees() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        ObjectNode root = m.createObjectNode();
+        root.putNull("a");
+
+        // by default, null is... well, null
+        assertEquals("{\"a\":null}", m.writeValueAsString(root));
+
+        // but then we can customize it:
+        DefaultSerializerProvider prov = new MyNullProvider();
+        prov.setNullValueSerializer(new NullSerializer());
+        m.setSerializerProvider(prov);
+        assertEquals("{\"a\":\"foobar\"}", m.writeValueAsString(root));
+    }
+
 }

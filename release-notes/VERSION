@@ -25,6 +25,7 @@ New minor version.
 #270: Add `SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID` to allow use of equality
  (instead of identity) for figuring out when to use Object Id
  (requested by beku8@github)
+#281: Make `NullNode` use configured null value serializer
 [JACKSON-890]: Support managed/back-references for polymorphic (abstract) types
 - Add 'BeanPropertyWriter.isUnwrapping()' for future needs (by Afterburner)
 

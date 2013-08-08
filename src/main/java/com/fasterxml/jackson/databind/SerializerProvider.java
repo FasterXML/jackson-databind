@@ -590,8 +590,9 @@ public abstract class SerializerProvider
      */
     public JsonSerializer<Object> findNullKeySerializer(JavaType serializationType,
             BeanProperty property)
-        throws JsonMappingException {
-        return getDefaultNullKeySerializer();
+        throws JsonMappingException
+    {
+        return _nullKeySerializer;
     }
 
     /**
@@ -606,7 +607,7 @@ public abstract class SerializerProvider
      */
     public JsonSerializer<Object> findNullValueSerializer(BeanProperty property)
         throws JsonMappingException {
-        return getDefaultNullValueSerializer();
+        return _nullValueSerializer;
     }
 
     /**
@@ -663,7 +664,7 @@ public abstract class SerializerProvider
         throws IOException, JsonProcessingException
     {
         if (value == null) {
-            getDefaultNullValueSerializer().serialize(null, jgen, this);
+            _nullValueSerializer.serialize(null, jgen, this);
         } else {
             Class<?> cls = value.getClass();
             findTypedValueSerializer(cls, true, null).serialize(value, jgen, this);
@@ -683,7 +684,7 @@ public abstract class SerializerProvider
             /* Note: can't easily check for suppression at this point
              * any more; caller must check it.
              */
-            getDefaultNullValueSerializer().serialize(null, jgen, this);
+            _nullValueSerializer.serialize(null, jgen, this);
         } else {
             Class<?> cls = value.getClass();
             findTypedValueSerializer(cls, true, null).serialize(value, jgen, this);
@@ -765,7 +766,7 @@ public abstract class SerializerProvider
     public final void defaultSerializeNull(JsonGenerator jgen)
         throws IOException, JsonProcessingException
     {
-        getDefaultNullValueSerializer().serialize(null, jgen, this);
+        _nullValueSerializer.serialize(null, jgen, this);
     }
 
     /*

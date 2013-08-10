@@ -629,7 +629,6 @@ public abstract class BeanSerializerBase
         /* note: almost verbatim copy of "serializeFields"; copied (instead of merged)
          * so that old method need not add check for existence of filter.
          */
-        
         final BeanPropertyWriter[] props;
         if (_filteredProps != null && provider.getActiveView() != null) {
             props = _filteredProps;
@@ -642,7 +641,6 @@ public abstract class BeanSerializerBase
             serializeFields(bean, jgen, provider);
             return;
         }
-        
         int i = 0;
         try {
             for (final int len = props.length; i < len; ++i) {

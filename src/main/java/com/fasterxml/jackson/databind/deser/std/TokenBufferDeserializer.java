@@ -34,9 +34,10 @@ public class TokenBufferDeserializer
     public TokenBuffer deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
-        TokenBuffer tb = new TokenBuffer(jp);
-        // quite simple, given that TokenBuffer is a JsonGenerator:
-        tb.copyCurrentStructure(jp);
-        return tb;
+        return createBufferInstance(jp).deserialize(jp, ctxt);
+    }
+
+    protected TokenBuffer createBufferInstance(JsonParser jp) {
+        return new TokenBuffer(jp);
     }
 }

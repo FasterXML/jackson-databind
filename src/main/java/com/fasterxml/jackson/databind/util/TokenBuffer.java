@@ -3,12 +3,14 @@ package com.fasterxml.jackson.databind.util;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.TreeMap;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
+import com.fasterxml.jackson.databind.DeserializationContext;
 
 /**
  * Utility class used for efficient storage of {@link JsonToken}
@@ -57,12 +59,17 @@ public class TokenBuffer
     /**
      * @since 2.3
      */
-    protected final boolean _hasNativeTypeIds;
+    protected boolean _hasNativeTypeIds;
 
     /**
      * @since 2.3
      */
-    protected final boolean _hasNativeObjectIds;
+    protected boolean _hasNativeObjectIds;
+
+    /**
+     * @since 2.3
+     */
+    protected boolean _mayHaveNativeIds;
     
     /*
     /**********************************************************
@@ -97,7 +104,12 @@ public class TokenBuffer
      * value (or first token of one) to be written.
      */
     protected Object _objectId;
-    
+
+    /**
+     * Do we currnetly have a native type or object id buffered?
+     */
+    protected boolean _hasNativeId = false;
+
     /*
     /**********************************************************
     /* Output state
@@ -141,6 +153,8 @@ public class TokenBuffer
         _appendOffset = 0;
         _hasNativeTypeIds = hasNativeIds;
         _hasNativeObjectIds = hasNativeIds;
+
+        _mayHaveNativeIds = _hasNativeTypeIds | _hasNativeObjectIds;
     }
 
     /**
@@ -155,8 +169,8 @@ public class TokenBuffer
         _first = _last = new Segment();
         _appendOffset = 0;
         _hasNativeTypeIds = jp.canReadTypeId();
-        // !!! TODO
-        _hasNativeObjectIds = false;
+        _hasNativeObjectIds = jp.canReadObjectId();
+        _mayHaveNativeIds = _hasNativeTypeIds | _hasNativeObjectIds;
     }
     
     @Override
@@ -194,7 +208,7 @@ public class TokenBuffer
      */
     public JsonParser asParser(ObjectCodec codec)
     {
-        return new Parser(_first, codec);
+        return new Parser(_first, codec, _hasNativeTypeIds, _hasNativeObjectIds);
     }
 
     /**
@@ -203,7 +217,7 @@ public class TokenBuffer
      */
     public JsonParser asParser(JsonParser src)
     {
-        Parser p = new Parser(_first, src.getCodec());
+        Parser p = new Parser(_first, src.getCodec(), _hasNativeTypeIds, _hasNativeObjectIds);
         p.setLocation(src.getTokenLocation());
         return p;
     }
@@ -238,9 +252,18 @@ public class TokenBuffer
     public TokenBuffer append(TokenBuffer other)
         throws IOException, JsonGenerationException
     {
+        // Important? If source has native ids, need to store
+        if (!_hasNativeTypeIds) {  
+            _hasNativeTypeIds = other.canWriteTypeId();
+        }
+        if (!_hasNativeObjectIds) {
+            _hasNativeObjectIds = other.canWriteObjectId();
+        }
+        _mayHaveNativeIds = _hasNativeTypeIds | _hasNativeObjectIds;
+        
         JsonParser jp = other.asParser();
         while (jp.nextToken() != null) {
-            this.copyCurrentEvent(jp);
+            copyCurrentStructure(jp);
         }
         return this;
     }
@@ -261,15 +284,30 @@ public class TokenBuffer
         Segment segment = _first;
         int ptr = -1;
 
+        final boolean checkIds = _mayHaveNativeIds;
+        boolean hasIds = checkIds && (segment.hasIds());
+
         while (true) {
             if (++ptr >= Segment.TOKENS_PER_SEGMENT) {
                 ptr = 0;
                 segment = segment.next();
                 if (segment == null) break;
+                hasIds = checkIds && (segment.hasIds());
             }
             JsonToken t = segment.type(ptr);
             if (t == null) break;
 
+            if (hasIds) {
+                Object id = segment.findObjectId(ptr);
+                if (id != null) {
+                    jgen.writeObjectId(id);
+                }
+                id = segment.findTypeId(ptr);
+                if (id != null) {
+                    jgen.writeTypeId(id);
+                }
+            }
+            
             // Note: copied from 'copyCurrentEvent'...
             switch (t) {
             case START_OBJECT:
@@ -357,6 +395,18 @@ public class TokenBuffer
         }
     }
 
+    /**
+     * Helper method used by standard deserializer.
+     * 
+     * @since 2.3
+     */
+    public TokenBuffer deserialize(JsonParser jp, DeserializationContext ctxt)
+        throws IOException, JsonProcessingException
+    {
+        copyCurrentStructure(jp);
+        return this;
+    }
+    
     @Override
     @SuppressWarnings("resource")
     public String toString()
@@ -366,14 +416,26 @@ public class TokenBuffer
 
         StringBuilder sb = new StringBuilder();
         sb.append("[TokenBuffer: ");
+
+        /*
+sb.append("NativeTypeIds=").append(_hasNativeTypeIds).append(",");
+sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
+*/
+        
         JsonParser jp = asParser();
         int count = 0;
+        final boolean hasNativeIds = _hasNativeTypeIds || _hasNativeObjectIds;
 
         while (true) {
             JsonToken t;
             try {
                 t = jp.nextToken();
                 if (t == null) break;
+
+                if (hasNativeIds) {
+                    _appendNativeIds(sb);
+                }
+                        
                 if (count < MAX_COUNT) {
                     if (count > 0) {
                         sb.append(", ");
@@ -397,7 +459,19 @@ public class TokenBuffer
         sb.append(']');
         return sb.toString();
     }
-        
+
+    private final void _appendNativeIds(StringBuilder sb)
+    {
+        Object objectId = _last.findObjectId(_appendOffset-1);
+        if (objectId != null) {
+            sb.append("[objectId=").append(String.valueOf(objectId)).append(']');
+        }
+        Object typeId = _last.findTypeId(_appendOffset-1);
+        if (typeId != null) {
+            sb.append("[typeId=").append(String.valueOf(typeId)).append(']');
+        }
+    }
+    
     /*
     /**********************************************************
     /* JsonGenerator implementation: configuration
@@ -758,11 +832,13 @@ public class TokenBuffer
     @Override
     public void writeTypeId(Object id) {
         _typeId = id;
+        _hasNativeId = true;
     }
     
     @Override
     public void writeObjectId(Object id) {
         _objectId = id;
+        _hasNativeId = true;
     }
 
     /*
@@ -774,11 +850,8 @@ public class TokenBuffer
     @Override
     public void copyCurrentEvent(JsonParser jp) throws IOException, JsonProcessingException
     {
-        if (_hasNativeTypeIds) {
-            _copyTypeId(jp);
-        }
-        if (_hasNativeObjectIds) {
-            _copyObjectId(jp);
+        if (_mayHaveNativeIds) {
+            _checkNativeIds(jp);
         }
         switch (jp.getCurrentToken()) {
         case START_OBJECT:
@@ -843,45 +916,28 @@ public class TokenBuffer
             throw new RuntimeException("Internal error: should never end up through this code path");
         }
     }
-
-    protected final void _copyTypeId(JsonParser jp) throws IOException, JsonProcessingException
-    {
-        Object id = jp.getTypeId();
-        if (id != null) {
-            writeTypeId(id);
-        }
-    }
-
-    protected final void _copyObjectId(JsonParser jp) throws IOException, JsonProcessingException
-    {
-        // !!! TODO
-        /*
-        Object id = jp.getObjectId();
-        if (id != null) {
-            writeObjectId(id);
-        }
-        */
-    }
     
     @Override
-    public void copyCurrentStructure(JsonParser jp) throws IOException, JsonProcessingException {
+    public void copyCurrentStructure(JsonParser jp) throws IOException, JsonProcessingException
+    {
         JsonToken t = jp.getCurrentToken();
 
         // Let's handle field-name separately first
         if (t == JsonToken.FIELD_NAME) {
+            if (_mayHaveNativeIds) {
+                _checkNativeIds(jp);
+            }
             writeFieldName(jp.getCurrentName());
             t = jp.nextToken();
             // fall-through to copy the associated value
         }
 
+        if (_mayHaveNativeIds) {
+            _checkNativeIds(jp);
+        }
+        
         switch (t) {
         case START_ARRAY:
-            if (_hasNativeTypeIds) {
-                _copyTypeId(jp);
-            }
-            if (_hasNativeObjectIds) {
-                _copyObjectId(jp);
-            }
             writeStartArray();
             while (jp.nextToken() != JsonToken.END_ARRAY) {
                 copyCurrentStructure(jp);
@@ -889,12 +945,6 @@ public class TokenBuffer
             writeEndArray();
             break;
         case START_OBJECT:
-            if (_hasNativeTypeIds) {
-                _copyTypeId(jp);
-            }
-            if (_hasNativeObjectIds) {
-                _copyObjectId(jp);
-            }
             writeStartObject();
             while (jp.nextToken() != JsonToken.END_OBJECT) {
                 copyCurrentStructure(jp);
@@ -903,6 +953,17 @@ public class TokenBuffer
             break;
         default: // others are simple:
             copyCurrentEvent(jp);
+        }
+    }
+
+    
+    private final void _checkNativeIds(JsonParser jp) throws IOException, JsonProcessingException
+    {
+        if ((_typeId = jp.getTypeId()) != null) {
+            _hasNativeId = true;
+        }
+        if ((_objectId = jp.getObjectId()) != null) {
+            _hasNativeId = true;
         }
     }
     
@@ -914,7 +975,9 @@ public class TokenBuffer
 
     protected final void _append(JsonToken type)
     {
-        Segment next = _last.append(_appendOffset, type);
+        Segment next = _hasNativeId
+                ? _last.append(_appendOffset, type, _objectId, _typeId)
+                : _last.append(_appendOffset, type);
         if (next == null) {
             ++_appendOffset;
         } else {
@@ -925,7 +988,9 @@ public class TokenBuffer
 
     protected final void _append(JsonToken type, Object value)
     {
-        Segment next = _last.append(_appendOffset, type, value);
+        Segment next = _hasNativeId
+                ? _last.append(_appendOffset, type, value, _objectId, _typeId)
+                : _last.append(_appendOffset, type, value);
         if (next == null) {
             ++_appendOffset;
         } else {
@@ -936,7 +1001,9 @@ public class TokenBuffer
 
     protected final void _appendRaw(int rawType, Object value)
     {
-        Segment next = _last.appendRaw(_appendOffset, rawType, value);
+        Segment next = _hasNativeId
+                ? _last.appendRaw(_appendOffset, rawType, value, _objectId, _typeId)
+                : _last.appendRaw(_appendOffset, rawType, value);
         if (next == null) {
             ++_appendOffset;
         } else {
@@ -944,7 +1011,7 @@ public class TokenBuffer
             _appendOffset = 1;
         }
     }
-    
+
     protected void _reportUnsupportedOperation() {
         throw new UnsupportedOperationException("Called operation not supported for TokenBuffer");
     }
@@ -970,6 +1037,13 @@ public class TokenBuffer
          * @since 2.3
          */
         protected final boolean _hasNativeTypeIds;
+
+        /**
+         * @since 2.3
+         */
+        protected final boolean _hasNativeObjectIds;
+
+        protected final boolean _hasNativeIds;
         
         /*
         /**********************************************************
@@ -1006,14 +1080,16 @@ public class TokenBuffer
          */
 
         @Deprecated // since 2.3
-        public Parser(Segment firstSeg, ObjectCodec codec) {
-            this(firstSeg, codec, false);
+        protected Parser(Segment firstSeg, ObjectCodec codec) {
+            this(firstSeg, codec, false, false);
         }
 
         /**
          * @since 2.3
          */
-        public Parser(Segment firstSeg, ObjectCodec codec, boolean hasNativeTypeIds)
+        public Parser(Segment firstSeg, ObjectCodec codec,
+                boolean hasNativeTypeIds,
+                boolean hasNativeObjectIds)
         {
             super(0);
             _segment = firstSeg;
@@ -1021,6 +1097,8 @@ public class TokenBuffer
             _codec = codec;
             _parsingContext = JsonReadContext.createRootContext(-1, -1);
             _hasNativeTypeIds = hasNativeTypeIds;
+            _hasNativeObjectIds = hasNativeObjectIds;
+            _hasNativeIds = (hasNativeTypeIds | hasNativeObjectIds);
         }
 
         public void setLocation(JsonLocation l) {
@@ -1365,18 +1443,23 @@ public class TokenBuffer
          */
 
         @Override
+        public boolean canReadObjectId() {
+            return _hasNativeObjectIds;
+        }
+
+        @Override
         public boolean canReadTypeId() {
             return _hasNativeTypeIds;
         }
 
         @Override
-        public Object getTypeId() throws IOException, JsonParseException
-        {
-            if (!_hasNativeTypeIds) {
-                return super.getTypeId();
-            }
-            // !! TODO
-            return null;
+        public Object getTypeId() {
+            return _segment.findTypeId(_segmentPtr);
+        }
+
+        @Override
+        public Object getObjectId() {
+            return _segment.findObjectId(_segmentPtr);
         }
         
         /*
@@ -1443,6 +1526,11 @@ public class TokenBuffer
 
         protected final Object[] _tokens = new Object[TOKENS_PER_SEGMENT];
 
+        /**
+         * Lazily constructed Map for storing native type and object ids, if any
+         */
+        protected TreeMap<Integer,Object> _nativeIds;
+        
         public Segment() { }
 
         // // // Accessors
@@ -1472,9 +1560,34 @@ public class TokenBuffer
         }
 
         public Segment next() { return _next; }
+
+        /**
+         * Accessor for checking whether this segment may have native
+         * type or object ids.
+         */
+        public boolean hasIds() {
+            return _nativeIds != null;
+        }
         
         // // // Mutators
 
+        /*
+
+    protected final void _appendNativeIds(int offset)
+    {
+        Segment seg = _last;
+        _hasNativeId = false;
+        if (_objectId != null) {
+            seg.assignObjectId(offset, _objectId);
+            _objectId = null;
+        }
+        if (_typeId != null) {
+            seg.assignTypeId(offset, _typeId);
+            _typeId = null;
+        }
+    }
+         */
+        
         public Segment append(int index, JsonToken tokenType)
         {
             if (index < TOKENS_PER_SEGMENT) {
@@ -1483,6 +1596,18 @@ public class TokenBuffer
             }
             _next = new Segment();
             _next.set(0, tokenType);
+            return _next;
+        }
+
+        public Segment append(int index, JsonToken tokenType,
+                Object objectId, Object typeId)
+        {
+            if (index < TOKENS_PER_SEGMENT) {
+                set(index, tokenType, objectId, typeId);
+                return null;
+            }
+            _next = new Segment();
+            _next.set(0, tokenType, objectId, typeId);
             return _next;
         }
 
@@ -1497,6 +1622,18 @@ public class TokenBuffer
             return _next;
         }
 
+        public Segment append(int index, JsonToken tokenType, Object value,
+                Object objectId, Object typeId)
+        {
+            if (index < TOKENS_PER_SEGMENT) {
+                set(index, tokenType, value, objectId, typeId);
+                return null;
+            }
+            _next = new Segment();
+            _next.set(0, tokenType, value, objectId, typeId);
+            return _next;
+        }
+
         public Segment appendRaw(int index, int rawTokenType, Object value)
         {
             if (index < TOKENS_PER_SEGMENT) {
@@ -1507,8 +1644,20 @@ public class TokenBuffer
             _next.set(0, rawTokenType, value);
             return _next;
         }
-        
-        public void set(int index, JsonToken tokenType)
+
+        public Segment appendRaw(int index, int rawTokenType, Object value,
+                Object objectId, Object typeId)
+        {
+            if (index < TOKENS_PER_SEGMENT) {
+                set(index, rawTokenType, value, objectId, typeId);
+                return null;
+            }
+            _next = new Segment();
+            _next.set(0, rawTokenType, value, objectId, typeId);
+            return _next;
+        }
+
+        private void set(int index, JsonToken tokenType)
         {
             /* Assumption here is that there are no overwrites, just appends;
              * and so no masking is needed (nor explicit setting of null)
@@ -1520,17 +1669,37 @@ public class TokenBuffer
             _tokenTypes |= typeCode;
         }
 
-        public void set(int index, JsonToken tokenType, Object value)
+        private void set(int index, JsonToken tokenType,
+                Object objectId, Object typeId)
         {
-            _tokens[index] = value;
             long typeCode = tokenType.ordinal();
-            /* Assumption here is that there are no overwrites, just appends;
-             * and so no masking is needed
-             */
             if (index > 0) {
                 typeCode <<= (index << 2);
             }
             _tokenTypes |= typeCode;
+            assignNativeIds(index, objectId, typeId);
+        }
+
+        private void set(int index, JsonToken tokenType, Object value)
+        {
+            _tokens[index] = value;
+            long typeCode = tokenType.ordinal();
+            if (index > 0) {
+                typeCode <<= (index << 2);
+            }
+            _tokenTypes |= typeCode;
+        }
+
+        private void set(int index, JsonToken tokenType, Object value,
+                Object objectId, Object typeId)
+        {
+            _tokens[index] = value;
+            long typeCode = tokenType.ordinal();
+            if (index > 0) {
+                typeCode <<= (index << 2);
+            }
+            _tokenTypes |= typeCode;
+            assignNativeIds(index, objectId, typeId);
         }
 
         private void set(int index, int rawTokenType, Object value)
@@ -1542,5 +1711,48 @@ public class TokenBuffer
             }
             _tokenTypes |= typeCode;
         }
+
+        private void set(int index, int rawTokenType, Object value,
+                Object objectId, Object typeId)
+        {
+            _tokens[index] = value;
+            long typeCode = (long) rawTokenType;
+            if (index > 0) {
+                typeCode <<= (index << 2);
+            }
+            _tokenTypes |= typeCode;
+            assignNativeIds(index, objectId, typeId);
+        }
+
+        private final void assignNativeIds(int index,
+                Object objectId, Object typeId)
+        {
+            if (_nativeIds == null) {
+                _nativeIds = new TreeMap<Integer,Object>();
+            }
+            if (objectId != null) {
+                _nativeIds.put(_objectIdIndex(index), objectId);
+            }
+            if (typeId != null) {
+                _nativeIds.put(_typeIdIndex(index), typeId);
+            }
+        }
+
+        /**
+         * @since 2.3
+         */
+        public Object findObjectId(int index) {
+            return (_nativeIds == null) ? null : _nativeIds.get(_objectIdIndex(index));
+        }
+        
+        /**
+         * @since 2.3
+         */
+        public Object findTypeId(int index) {
+            return (_nativeIds == null) ? null : _nativeIds.get(_typeIdIndex(index));
+        }
+
+        private final int _typeIdIndex(int i) { return i+i; }
+        private final int _objectIdIndex(int i) { return i+i+1; }
     }
 }

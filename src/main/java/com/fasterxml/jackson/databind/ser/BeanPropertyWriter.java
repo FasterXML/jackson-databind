@@ -593,6 +593,21 @@ public class BeanPropertyWriter
     }
 
     /**
+     * Method called to indicate that serialization of a field was omitted
+     * due to filtering, in cases where backend data format does not allow
+     * basic omission.
+     * 
+     * @since 2.3
+     */
+    public void serializeAsOmittedField(Object bean, JsonGenerator jgen, SerializerProvider prov)
+        throws Exception
+    {
+        if (!jgen.canOmitFields()) {
+            jgen.writeOmittedField(_name.getValue());
+        }
+    }
+    
+    /**
      * Alternative to {@link #serializeAsField} that is used when a POJO
      * is serialized as JSON Array; the difference is that no field names
      * are written.

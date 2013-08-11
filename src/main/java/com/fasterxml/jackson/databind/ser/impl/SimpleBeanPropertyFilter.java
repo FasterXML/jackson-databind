@@ -68,7 +68,7 @@ public abstract class SimpleBeanPropertyFilter
         if (include(writer)) {
             writer.serializeAsField(bean, jgen, provider);
         } else if (!jgen.canOmitFields()) { // since 2.3
-            writer.serializeAsPlaceholder(bean, jgen, provider);
+            writer.serializeAsOmittedField(bean, jgen, provider);
         }
     }
 

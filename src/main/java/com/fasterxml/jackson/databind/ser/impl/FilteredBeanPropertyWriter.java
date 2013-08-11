@@ -62,6 +62,8 @@ public abstract class FilteredBeanPropertyWriter
             Class<?> activeView = prov.getActiveView();
             if (activeView == null || _view.isAssignableFrom(activeView)) {
                 _delegate.serializeAsField(bean, jgen, prov);
+            } else {
+                _delegate.serializeAsOmittedField(bean, jgen, prov);
             }
         }
 
@@ -118,6 +120,7 @@ public abstract class FilteredBeanPropertyWriter
                 }
                 // not included, bail out:
                 if (i == len) {
+                    _delegate.serializeAsOmittedField(bean, jgen, prov);
                     return;
                 }
             }

@@ -123,7 +123,10 @@ public abstract class StdDeserializer<T>
                 return true;
             }
             if ("false".equals(text) || text.length() == 0) {
-                return Boolean.FALSE;
+                return false;
+            }
+            if (_hasTextualNull(text)) {
+                return false;
             }
             throw ctxt.weirdStringException(text, _valueClass, "only \"true\" or \"false\" recognized");
         }
@@ -164,6 +167,9 @@ public abstract class StdDeserializer<T>
             if (text.length() == 0) {
                 return (Boolean) getEmptyValue();
             }
+            if (_hasTextualNull(text)) {
+                return (Boolean) getNullValue();
+            }
             throw ctxt.weirdStringException(text, _valueClass, "only \"true\" or \"false\" recognized");
         }
         // Otherwise, no can do:
@@ -193,6 +199,9 @@ public abstract class StdDeserializer<T>
         }
         if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
             String text = jp.getText().trim();
+            if (_hasTextualNull(text)) {
+                return (Byte) getNullValue();
+            }
             int value;
             try {
                 int len = text.length();
@@ -230,6 +239,9 @@ public abstract class StdDeserializer<T>
                 int len = text.length();
                 if (len == 0) {
                     return (Short) getEmptyValue();
+                }
+                if (_hasTextualNull(text)) {
+                    return (Short) getNullValue();
                 }
                 value = NumberInput.parseInt(text);
             } catch (IllegalArgumentException iae) {
@@ -269,10 +281,10 @@ public abstract class StdDeserializer<T>
             return jp.getIntValue();
         }
         if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
-            /* 31-Dec-2009, tatus: Should improve handling of overflow
-             *   values... but this'll have to do for now
-             */
             String text = jp.getText().trim();
+            if (_hasTextualNull(text)) {
+                return 0;
+            }
             try {
                 int len = text.length();
                 if (len > 9) {
@@ -309,6 +321,9 @@ public abstract class StdDeserializer<T>
             String text = jp.getText().trim();
             try {
                 int len = text.length();
+                if (_hasTextualNull(text)) {
+                    return (Integer) getNullValue();
+                }
                 if (len > 9) {
                     long l = Long.parseLong(text);
                     if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
@@ -348,6 +363,9 @@ public abstract class StdDeserializer<T>
             if (text.length() == 0) {
                 return (Long) getEmptyValue();
             }
+            if (_hasTextualNull(text)) {
+                return (Long) getNullValue();
+            }
             try {
                 return Long.valueOf(NumberInput.parseLong(text));
             } catch (IllegalArgumentException iae) { }
@@ -369,7 +387,7 @@ public abstract class StdDeserializer<T>
         }
         if (t == JsonToken.VALUE_STRING) {
             String text = jp.getText().trim();
-            if (text.length() == 0) {
+            if (text.length() == 0 || _hasTextualNull(text)) {
                 return 0L;
             }
             try {
@@ -397,6 +415,9 @@ public abstract class StdDeserializer<T>
             String text = jp.getText().trim();
             if (text.length() == 0) {
                 return (Float) getEmptyValue();
+            }
+            if (_hasTextualNull(text)) {
+                return (Float) getNullValue();
             }
             switch (text.charAt(0)) {
             case 'I':
@@ -437,7 +458,7 @@ public abstract class StdDeserializer<T>
         }
         if (t == JsonToken.VALUE_STRING) {
             String text = jp.getText().trim();
-            if (text.length() == 0) {
+            if (text.length() == 0 || _hasTextualNull(text)) {
                 return 0.0f;
             }
             switch (text.charAt(0)) {
@@ -482,6 +503,9 @@ public abstract class StdDeserializer<T>
             if (text.length() == 0) {
                 return (Double) getEmptyValue();
             }
+            if (_hasTextualNull(text)) {
+                return (Double) getNullValue();
+            }
             switch (text.charAt(0)) {
             case 'I':
                 if ("Infinity".equals(text) || "INF".equals(text)) {
@@ -523,7 +547,7 @@ public abstract class StdDeserializer<T>
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
             String text = jp.getText().trim();
-            if (text.length() == 0) {
+            if (text.length() == 0 || _hasTextualNull(text)) {
                 return 0.0;
             }
             switch (text.charAt(0)) {
@@ -573,6 +597,9 @@ public abstract class StdDeserializer<T>
                 if (value.length() == 0) {
                     return (Date) getEmptyValue();
                 }
+                if (_hasTextualNull(value)) {
+                    return (java.util.Date) getNullValue();
+                }
                 return ctxt.parseDate(value);
             } catch (IllegalArgumentException iae) {
                 throw ctxt.weirdStringException(value, _valueClass,
@@ -610,6 +637,18 @@ public abstract class StdDeserializer<T>
             return value;
         }
         throw ctxt.mappingException(String.class, jp.getCurrentToken());
+    }
+
+    /**
+     * Helper method called to determine if we are seeing String value of
+     * "null", and, further, that it should be coerced to null just like
+     * null token.
+     * 
+     * @since 2.3
+     */
+    protected boolean _hasTextualNull(String value)
+    {
+        return "null".equals(value);
     }
     
     /*

@@ -931,11 +931,11 @@ public abstract class BeanDeserializerBase
      *
      * @since 2.3
      */
+    @SuppressWarnings("resource") // TokenBuffers don't need close, nor parser thereof
     protected Object _convertObjectId(JsonParser jp, DeserializationContext ctxt,
             Object rawId, JsonDeserializer<Object> idDeser)
         throws IOException, JsonProcessingException
     {
-        @SuppressWarnings("resource") // no need to close really
         TokenBuffer buf = new TokenBuffer(jp);
         if (rawId instanceof String) {
             buf.writeString((String) rawId);

@@ -26,12 +26,11 @@ public final class ObjectIdValueProperty
         this(objectIdReader, PropertyMetadata.STD_REQUIRED);
     }
     
-    @SuppressWarnings("unchecked")
     public ObjectIdValueProperty(ObjectIdReader objectIdReader,
             PropertyMetadata metadata)
     {
         super(objectIdReader.propertyName, objectIdReader.getIdType(), metadata,
-                (JsonDeserializer<Object>) objectIdReader.getDeserializer());
+                objectIdReader.getDeserializer());
         _objectIdReader = objectIdReader;
     }
 

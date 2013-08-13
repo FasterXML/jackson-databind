@@ -173,6 +173,10 @@ public final class TypeFactory
      */
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass)
     {
+        // simple optimization to avoid costly introspection if type-erased type does NOT differ
+        if (baseType.getRawClass() == subclass) {
+            return baseType;
+        }
         // Currently only SimpleType instances can become something else
         if (baseType instanceof SimpleType) {
             // and only if subclass is an array, Collection or Map

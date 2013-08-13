@@ -97,6 +97,10 @@ public abstract class DatabindContext
      * type parameter (if any)
      */
     public JavaType constructSpecializedType(JavaType baseType, Class<?> subclass) {
+        // simple optimization to avoid costly introspection if type-erased type does NOT differ
+        if (baseType.getRawClass() == subclass) {
+            return baseType;
+        }
         return getConfig().constructSpecializedType(baseType, subclass);
     }
 

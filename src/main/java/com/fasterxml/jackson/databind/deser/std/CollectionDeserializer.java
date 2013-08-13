@@ -114,7 +114,6 @@ public class CollectionDeserializer
         return new CollectionDeserializer(_collectionType,
                 (JsonDeserializer<Object>) vd, vtd,
                 _valueInstantiator, (JsonDeserializer<Object>) dd);
-                
     }
     
     /*

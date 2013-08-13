@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ser.std.CollectionSerializer;
 public class StdContainerSerializers
 {
     protected StdContainerSerializers() { }
-    
+
     /**
      * @since 2.1
      */
@@ -24,7 +24,7 @@ public class StdContainerSerializers
     {
         return new IndexedListSerializer(elemType, staticTyping, vts, null, valueSerializer);
     }
-    
+
     /**
      * @since 2.1
      */

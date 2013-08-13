@@ -10,6 +10,8 @@ New minor version.
 #215: Allow registering custom `CharacterEscapes` to use for serialization,
  via `ObjectWriter.with(CharacterEscapes)` (and `ObjectMapper.writer(CharacterEscapes)`)
 #227: Allow "generic" Enum serializers, deserializers, via `SimpleModule`
+#234: Incorrect type information for deeply nested Maps
+ (reported by Andrei P)
 #237: Add `DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY` to optionally
   throw `JsonMappingException` on duplicate keys, tree model (`JsonNode`)
 #238: Allow existence of overlapping getter, is-getter (choose 'regular' getter)

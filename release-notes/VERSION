@@ -1,6 +1,7 @@
 Project: jackson-databind
 Version: 2.2.3 (xx-xxx-2013)
 
+#234: Problems with serializing types for deeply nested generic Maps, default typing 
 #251: SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN ignored with JsonNode
   serialization
  (reported by fge@github)

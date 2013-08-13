@@ -47,7 +47,6 @@ public final class NullNode
     public final void serialize(JsonGenerator jg, SerializerProvider provider)
         throws IOException, JsonProcessingException
     {
-System.err.println("DEBUG: serialize null...");
         provider.defaultSerializeNull(jg);
     }
 

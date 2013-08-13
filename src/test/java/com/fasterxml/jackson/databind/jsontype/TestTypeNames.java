@@ -68,7 +68,18 @@ public class TestTypeNames extends BaseMapTest
         input.put("ama", new Dog("Amadeus", 13));
         String json = m.writeValueAsString(input);
         AnimalMap output = m.readValue(json, AnimalMap.class);
-        assertEquals(input, output);
+        assertNotNull(output);
+        assertEquals(AnimalMap.class, output.getClass());
+        assertEquals(input.size(), output.size());
+
+        // for some reason, straight comparison won't work...
+        for (String name : input.keySet()) {
+            Animal in = input.get(name);
+            Animal out = output.get(name);
+            if (!in.equals(out)) {
+                fail("Animal in input was ["+in+"]; output not matching: ["+out+"]");
+            }
+        }
     }
 }
 
@@ -96,6 +107,10 @@ class Animal
         return name.equals(((Animal) o).name);
     }
 
+    @Override
+    public String toString() {
+        return getClass().toString() + "('"+name+"')";
+    }
 }
 
 class Dog extends Animal
@@ -130,6 +145,11 @@ abstract class Cat extends Animal {
     @Override
     public boolean equals(Object o) {
         return super.equals(o) && ((Cat) o).purrs == purrs;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString()+"(purrs: "+purrs+")";
     }
 }
 

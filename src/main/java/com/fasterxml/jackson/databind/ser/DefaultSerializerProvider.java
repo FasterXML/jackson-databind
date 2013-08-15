@@ -91,7 +91,7 @@ public abstract class DefaultSerializerProvider
         }
         Class<?> cls = value.getClass();
         // true, since we do want to cache root-level typed serializers (ditto for null property)
-        JsonSerializer<Object> ser = findTypedValueSerializer(cls, true, null);
+        final JsonSerializer<Object> ser = findTypedValueSerializer(cls, true, null);
 
         // Ok: should we wrap result in an additional property ("root name")?
         final boolean wrap;

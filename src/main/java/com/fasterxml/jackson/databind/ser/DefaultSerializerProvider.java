@@ -85,34 +85,31 @@ public abstract class DefaultSerializerProvider
     public void serializeValue(JsonGenerator jgen, Object value)
         throws IOException, JsonGenerationException
     {
-        JsonSerializer<Object> ser;
+        if (value == null) {
+            _serializeNull(jgen);
+            return;
+        }
+        Class<?> cls = value.getClass();
+        // true, since we do want to cache root-level typed serializers (ditto for null property)
+        JsonSerializer<Object> ser = findTypedValueSerializer(cls, true, null);
+
+        // Ok: should we wrap result in an additional property ("root name")?
+        String rootName = _config.getRootName();
         final boolean wrap;
-
-        if (value == null) { // no type provided; must just use the default null serializer
-            ser = getDefaultNullValueSerializer();
-            wrap = false; // no name to use for wrapping; can't do!
-        } else {
-            Class<?> cls = value.getClass();
-            // true, since we do want to cache root-level typed serializers (ditto for null property)
-            ser = findTypedValueSerializer(cls, true, null);
-
-            // Ok: should we wrap result in an additional property ("root name")?
-            String rootName = _config.getRootName();
-            if (rootName == null) { // not explicitly specified
-                // [JACKSON-163]
-                wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
-                if (wrap) {
-                    jgen.writeStartObject();
-                    jgen.writeFieldName(_rootNames.findRootName(value.getClass(), _config));
-                }
-            } else if (rootName.length() == 0) {
-                wrap = false;
-            } else { // [JACKSON-764]
-                // empty String means explicitly disabled; non-empty that it is enabled
-                wrap = true;
+        if (rootName == null) { // not explicitly specified
+            // [JACKSON-163]
+            wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
+            if (wrap) {
                 jgen.writeStartObject();
-                jgen.writeFieldName(rootName);
+                jgen.writeFieldName(_rootNames.findRootName(value.getClass(), _config));
             }
+        } else if (rootName.length() == 0) {
+            wrap = false;
+        } else { // [JACKSON-764]
+            // empty String means explicitly disabled; non-empty that it is enabled
+            wrap = true;
+            jgen.writeStartObject();
+            jgen.writeFieldName(rootName);
         }
         try {
             ser.serialize(value, jgen, this);
@@ -144,25 +141,21 @@ public abstract class DefaultSerializerProvider
     public void serializeValue(JsonGenerator jgen, Object value, JavaType rootType)
         throws IOException, JsonGenerationException
     {
-        final boolean wrap;
-
-        JsonSerializer<Object> ser;
         if (value == null) {
-            ser = getDefaultNullValueSerializer();
-            wrap = false;
-        } else {
-            // Let's ensure types are compatible at this point
-            if (!rootType.getRawClass().isAssignableFrom(value.getClass())) {
-                _reportIncompatibleRootType(value, rootType);
-            }
-            // root value, not reached via property:
-            ser = findTypedValueSerializer(rootType, true, null);
-            // [JACKSON-163]
-            wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
-            if (wrap) {
-                jgen.writeStartObject();
-                jgen.writeFieldName(_rootNames.findRootName(rootType, _config));
-            }
+            _serializeNull(jgen);
+            return;
+        }
+        // Let's ensure types are compatible at this point
+        if (!rootType.getRawClass().isAssignableFrom(value.getClass())) {
+            _reportIncompatibleRootType(value, rootType);
+        }
+        // root value, not reached via property:
+        JsonSerializer<Object> ser = findTypedValueSerializer(rootType, true, null);
+        // [JACKSON-163]
+        final boolean wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
+        if (wrap) {
+            jgen.writeStartObject();
+            jgen.writeFieldName(_rootNames.findRootName(rootType, _config));
         }
         try {
             ser.serialize(value, jgen, this);
@@ -196,27 +189,24 @@ public abstract class DefaultSerializerProvider
             JsonSerializer<Object> ser)
         throws IOException, JsonGenerationException
     {
-        final boolean wrap;
-
         if (value == null) {
-            ser = getDefaultNullValueSerializer();
-            wrap = false;
-        } else {
-            // Let's ensure types are compatible at this point
-            if (rootType != null) {
-                if (!rootType.getRawClass().isAssignableFrom(value.getClass())) {
-                    _reportIncompatibleRootType(value, rootType);
-                }
+            _serializeNull(jgen);
+            return;
+        }
+        // Let's ensure types are compatible at this point
+        if (rootType != null) {
+            if (!rootType.getRawClass().isAssignableFrom(value.getClass())) {
+                _reportIncompatibleRootType(value, rootType);
             }
-            // root value, not reached via property:
-            if (ser == null) {
-                ser = findTypedValueSerializer(rootType, true, null);
-            }
-            wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
-            if (wrap) {
-                jgen.writeStartObject();
-                jgen.writeFieldName(_rootNames.findRootName(rootType, _config));
-            }
+        }
+        // root value, not reached via property:
+        if (ser == null) {
+            ser = findTypedValueSerializer(rootType, true, null);
+        }
+        final boolean wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
+        if (wrap) {
+            jgen.writeStartObject();
+            jgen.writeFieldName(_rootNames.findRootName(rootType, _config));
         }
         try {
             ser.serialize(value, jgen, this);
@@ -233,7 +223,29 @@ public abstract class DefaultSerializerProvider
             throw new JsonMappingException(msg, e);
         }
     }
-    
+
+    /**
+     * Helper method called when root value to serialize is null
+     * 
+     * @since 2.3
+     */
+    protected void _serializeNull(JsonGenerator jgen)
+        throws IOException, JsonGenerationException
+    {
+        JsonSerializer<Object> ser = getDefaultNullValueSerializer();
+        try {
+            ser.serialize(null, jgen, this);
+        } catch (IOException ioe) { // no wrapping for IO (and derived)
+            throw ioe;
+        } catch (Exception e) { // but others do need to be, to get path etc
+            String msg = e.getMessage();
+            if (msg == null) {
+                msg = "[no message for "+e.getClass().getName()+"]";
+            }
+            throw new JsonMappingException(msg, e);
+        }
+    }
+
     /**
      * The method to be called by {@link ObjectMapper} and {@link ObjectWriter}
      * to generate <a href="http://json-schema.org/">JSON schema</a> for

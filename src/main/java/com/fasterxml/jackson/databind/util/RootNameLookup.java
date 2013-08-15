@@ -19,7 +19,7 @@ public class RootNameLookup
      * For efficient operation, let's try to minimize number of times we
      * need to introspect root element name to use.
      */
-    protected LRUMap<ClassKey,SerializedString> _rootNames;
+    protected transient LRUMap<ClassKey,SerializedString> _rootNames;
 
     public RootNameLookup() { }
 
@@ -28,16 +28,18 @@ public class RootNameLookup
         return findRootName(rootType.getRawClass(), config);
     }
 
-    public synchronized SerializedString findRootName(Class<?> rootType, MapperConfig<?> config)
+    public SerializedString findRootName(Class<?> rootType, MapperConfig<?> config)
     {
         ClassKey key = new ClassKey(rootType);
 
-        if (_rootNames == null) {
-            _rootNames = new LRUMap<ClassKey,SerializedString>(20, 200);
-        } else {
-            SerializedString name = _rootNames.get(key);
-            if (name != null) {
-                return name;
+        synchronized (this) {
+            if (_rootNames == null) {
+                _rootNames = new LRUMap<ClassKey,SerializedString>(20, 200);
+            } else {
+                SerializedString name = _rootNames.get(key);
+                if (name != null) {
+                    return name;
+                }
             }
         }
         BeanDescription beanDesc = config.introspectClassAnnotations(rootType);
@@ -53,7 +55,9 @@ public class RootNameLookup
             nameStr = pname.getSimpleName();
         }
         SerializedString name = new SerializedString(nameStr);
-        _rootNames.put(key, name);
+        synchronized (this) {
+            _rootNames.put(key, name);
+        }
         return name;
     }
 }

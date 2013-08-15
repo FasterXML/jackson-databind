@@ -94,8 +94,8 @@ public abstract class DefaultSerializerProvider
         JsonSerializer<Object> ser = findTypedValueSerializer(cls, true, null);
 
         // Ok: should we wrap result in an additional property ("root name")?
-        String rootName = _config.getRootName();
         final boolean wrap;
+        String rootName = _config.getRootName();
         if (rootName == null) { // not explicitly specified
             // [JACKSON-163]
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
@@ -151,11 +151,24 @@ public abstract class DefaultSerializerProvider
         }
         // root value, not reached via property:
         JsonSerializer<Object> ser = findTypedValueSerializer(rootType, true, null);
-        // [JACKSON-163]
-        final boolean wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
-        if (wrap) {
+
+        // Ok: should we wrap result in an additional property ("root name")?
+        final boolean wrap;
+        String rootName = _config.getRootName();
+        if (rootName == null) { // not explicitly specified
+            // [JACKSON-163]
+            wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
+            if (wrap) {
+                jgen.writeStartObject();
+                jgen.writeFieldName(_rootNames.findRootName(value.getClass(), _config));
+            }
+        } else if (rootName.length() == 0) {
+            wrap = false;
+        } else { // [JACKSON-764]
+            // empty String means explicitly disabled; non-empty that it is enabled
+            wrap = true;
             jgen.writeStartObject();
-            jgen.writeFieldName(_rootNames.findRootName(rootType, _config));
+            jgen.writeFieldName(rootName);
         }
         try {
             ser.serialize(value, jgen, this);
@@ -194,19 +207,30 @@ public abstract class DefaultSerializerProvider
             return;
         }
         // Let's ensure types are compatible at this point
-        if (rootType != null) {
-            if (!rootType.getRawClass().isAssignableFrom(value.getClass())) {
-                _reportIncompatibleRootType(value, rootType);
-            }
+        if ((rootType != null) && !rootType.getRawClass().isAssignableFrom(value.getClass())) {
+            _reportIncompatibleRootType(value, rootType);
         }
         // root value, not reached via property:
         if (ser == null) {
             ser = findTypedValueSerializer(rootType, true, null);
         }
-        final boolean wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
-        if (wrap) {
+        // Ok: should we wrap result in an additional property ("root name")?
+        final boolean wrap;
+        String rootName = _config.getRootName();
+        if (rootName == null) { // not explicitly specified
+            // [JACKSON-163]
+            wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
+            if (wrap) {
+                jgen.writeStartObject();
+                jgen.writeFieldName(_rootNames.findRootName(value.getClass(), _config));
+            }
+        } else if (rootName.length() == 0) {
+            wrap = false;
+        } else { // [JACKSON-764]
+            // empty String means explicitly disabled; non-empty that it is enabled
+            wrap = true;
             jgen.writeStartObject();
-            jgen.writeFieldName(_rootNames.findRootName(rootType, _config));
+            jgen.writeFieldName(rootName);
         }
         try {
             ser.serialize(value, jgen, this);

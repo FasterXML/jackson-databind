@@ -2,7 +2,7 @@
 
 This project contains the general-purpose data-binding functionality
 and tree-model for [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome)
-It builds on [core streaming parser/generator](https://github.com/FasterXML/jackson-core) package,
+It builds on [core streaming parser/generator](../../../jackson-core) package,
 and uses [Jackson Annotations](../../../jackson-annotations) for configuration.
 
 While the original use case for Jackson was JSON data-binding, it can now be used for other data formats as well, as long as parser and generator implementations exist.
@@ -33,12 +33,12 @@ If so, also add:
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-annotations</artifactId>
-  <version>2.2.0</version>
+  <version>2.2.2</version>
 </dependency>
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
-  <version>2.2.0</version>
+  <version>2.2.2</version>
 </dependency>
 ```
 
@@ -54,8 +54,8 @@ Databind jar is also a functional OSGi bundle, with proper import/export declara
 
 # Use It!
 
-More comprehensive documentation can be found from XXX
-While wiki contains more documentation, here are brief introductionary tutorials, in recommended order of reading.
+More comprehensive documentation can be found from [Jackson-docs](../../../jackson-docs) repository; as well as from [Wiki](../../wiki) of this project.
+But here are brief introductionary tutorials, in recommended order of reading.
 
 ## 1 minute tutorial: POJOs to JSON and back
 

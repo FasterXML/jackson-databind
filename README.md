@@ -3,22 +3,12 @@
 This project contains the general-purpose data-binding functionality
 and tree-model for [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome)
 It builds on [core streaming parser/generator](https://github.com/FasterXML/jackson-core) package,
-and uses [Jackson Annotations](https://github.com/FasterXML//jackson-annotations) for configuration.
+and uses [Jackson Annotations](../../../jackson-annotations) for configuration.
 
-While the original use case for Jackson was JSON data-binding,
-it can now be used for other data formats as well, as long as
-parser and generator implementations exist.
-Naming of classes uses word 'JSON' in many places even though there is no
-actual hard dependency to JSON format.
+While the original use case for Jackson was JSON data-binding, it can now be used for other data formats as well, as long as parser and generator implementations exist.
+Naming of classes uses word 'JSON' in many places even though there is no actual hard dependency to JSON format.
 
 [![Build Status](https://fasterxml.ci.cloudbees.com/job/jackson-databind-master/badge/icon)](https://fasterxml.ci.cloudbees.com/job/jackson-databind-master/)
-### Differences from Jackson 1.x
-
-Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository
-Main differences compared to 1.0 "mapper" jar are:
-
-* Maven build instead of Ant
-* Java package is now `com.fasterxml.jackson.databind` (instead of `org.codehaus.jackson.map`)
 
 -----
 
@@ -64,6 +54,7 @@ Databind jar is also a functional OSGi bundle, with proper import/export declara
 
 # Use It!
 
+More comprehensive documentation can be found from XXX
 While wiki contains more documentation, here are brief introductionary tutorials, in recommended order of reading.
 
 ## 1 minute tutorial: POJOs to JSON and back
@@ -368,6 +359,16 @@ One additional limitation exists for so-called core components (streaming api, j
 * Jackson-databind (this package) depends on the other two (annotations, streaming).
 
 This means that anything that has to rely on additional APIs or libraries needs to be built as an extension, usually a Jackson module.
+
+-----
+
+# Differences from Jackson 1.x
+
+Project contains versions 2.0 and above: source code for earlier (1.x) versions is available from [Codehaus](http://jackson.codehaus.org) SVN repository
+Main differences compared to 1.0 "mapper" jar are:
+
+* Maven build instead of Ant
+* Java package is now `com.fasterxml.jackson.databind` (instead of `org.codehaus.jackson.map`)
 
 -----
 

@@ -68,9 +68,18 @@ While wiki contains more documentation, here are brief introductionary tutorials
 
 ## 1 minute tutorial: POJOs to JSON and back
 
-The most common usage is to take piece of JSON, and construct a Plain Old Java Object ("POJO") out of it. So let's start there.
+The most common usage is to take piece of JSON, and construct a Plain Old Java Object ("POJO") out of it. So let's start there. With simple 2-property POJO like this:
 
-All data binding starts with a `com.fasterxml.jackson.databind.ObjectMapper` instance, so let's construct one:
+```java
+// Note: can use getters/setters as well; here we just use public fields directly:
+public class MyValue {
+  public String name;
+  public int age;
+  // NOTE: if using getters/setters, can keep fields `protected` or `private`
+}
+```
+
+we will need a `com.fasterxml.jackson.databind.ObjectMapper` instance, used for all data-b inding, so let's construct one:
 
 ```java
 ObjectMapper mapper = new ObjectMapper(); // create once, reuse

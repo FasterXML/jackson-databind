@@ -72,7 +72,7 @@ public abstract class JsonDeserializer<T>
      * @param ctxt Context that can be used to access information about
      *   this deserialization activity.
      *
-     * @return Deserializer value
+     * @return Deserialized value
      */
     public abstract T deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException;

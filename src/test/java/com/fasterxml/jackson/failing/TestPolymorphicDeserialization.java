@@ -10,6 +10,12 @@ import org.junit.Test;
 /**
  * Reproduction of [https://github.com/FasterXML/jackson-databind/issues/283],
  * contributed by Eric T.
+ *<p>
+ * Problem here is that although explicit concrete class is indicated, polymorphic
+ * deserializer comes to different conclusion (using default implementation class),
+ * resulting in a <code>ClassCastException</code>.
+ * Whether this is wrong, and if so, can we fix it, is unknown at this point
+ * (2.3.0-SNAPSHOT): quite possibly this can not be changed.
  */
 public class TestPolymorphicDeserialization extends BaseMapTest
 {

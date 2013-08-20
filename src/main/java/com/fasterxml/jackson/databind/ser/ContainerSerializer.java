@@ -98,7 +98,7 @@ public abstract class ContainerSerializer<T>
      * not).
      */
     public abstract boolean hasSingleElement(T value);
-    
+
     /**
      * Method that needs to be implemented to allow construction of a new
      * serializer object with given {@link TypeSerializer}, used when

@@ -889,18 +889,20 @@ public abstract class BeanDeserializerBase
     {
         // 16-Feb-2012, tatu: ObjectId may be used as well... need to check that first
         if (_objectIdReader != null) {
-            JsonToken t = jp.getCurrentToken();
-            // should be good enough check; we only care about Strings, integral numbers:
-            if (t != null && t.isScalarValue()) {
-                return deserializeFromObjectId(jp, ctxt);
-            }
-            // 05-Aug-2013, tatu: Further, may use native Object Id
+            // 05-Aug-2013, tatu: May use native Object Id
             if (jp.canReadObjectId()) {
                 Object id = jp.getObjectId();
                 if (id != null) {
                     Object ob = typeDeserializer.deserializeTypedFromObject(jp, ctxt);
                     return _handleTypedObjectId(jp, ctxt, ob, id);
                 }
+            }
+            // or, Object Ids Jackson explicitly sets
+            JsonToken t = jp.getCurrentToken();
+            // for now (2.2.x) we only allow scalar types (Strings, integral numbers):
+            // NOTE: may  need to allow handling of structured values in future for JSOG
+            if (t != null && t.isScalarValue()) {
+                return deserializeFromObjectId(jp, ctxt);
             }
         }
         // In future could check current token... for now this should be enough:

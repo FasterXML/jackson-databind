@@ -5,7 +5,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
@@ -133,7 +132,9 @@ public abstract class AsArraySerializerBase<T>
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
             if (_elementType != null) {
-                if (_staticTyping || hasContentTypeAnnotation(provider, property)) {
+                // 20-Aug-2013, tatu: Need to avoid trying to access serializer for java.lang.Object tho
+                if ((_staticTyping && _elementType.getRawClass() != Object.class)
+                        || hasContentTypeAnnotation(provider, property)) {
                     ser = provider.findValueSerializer(_elementType, property);
                 }
             }

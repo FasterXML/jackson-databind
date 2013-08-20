@@ -162,6 +162,11 @@ public class MapSerializer
         // If value type is final, it's same as forcing static value typing:
         if (!staticValueType) {
             staticValueType = (valueType != null && valueType.isFinal());
+        } else {
+            // also: Object.class can not be handled as static, ever
+            if (valueType.getRawClass() == Object.class) {
+                staticValueType = false;
+            }
         }
         return new MapSerializer(ignoredEntries, keyType, valueType, staticValueType, vts,
                 keySerializer, valueSerializer);
@@ -177,7 +182,7 @@ public class MapSerializer
         }
         return result;
     }
-    
+
     /*
     /**********************************************************
     /* Post-processing (contextualization)
@@ -220,7 +225,9 @@ public class MapSerializer
         if (ser == null) {
             // 30-Sep-2012, tatu: One more thing -- if explicit content type is annotated,
             //   we can consider it a static case as well.
-            if (_valueTypeIsStatic || hasContentTypeAnnotation(provider, property)) {
+            // 20-Aug-2013, tatu: Need to avoid trying to access serializer for java.lang.Object tho
+            if ((_valueTypeIsStatic && _valueType.getRawClass() != Object.class)
+                    || hasContentTypeAnnotation(provider, property)) {
                 ser = provider.findValueSerializer(_valueType, property);
             }
         } else if (ser instanceof ContextualSerializer) {

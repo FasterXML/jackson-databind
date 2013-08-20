@@ -10,6 +10,8 @@ Version: 2.2.3 (xx-xxx-2013)
 #267: Handle negative, stringified timestamps
  (reported by Drecth@github)
 #281: Make `NullNode` use configured null-value serializer
+#287: Fix problems with converters, Maps with Object values
+ (reported by antubis@github)
 
 ------------------------------------------------------------------------
 === History: ===

@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.util.RootNameLookup;
 public abstract class SerializerProvider
     extends DatabindContext
 {
+    @Deprecated // since 2.3, not used by anything it seems
     protected final static JavaType TYPE_OBJECT = TypeFactory.defaultInstance().uncheckedSimpleType(Object.class);
 
     /**
@@ -48,7 +49,10 @@ public abstract class SerializerProvider
     public final static JsonSerializer<Object> DEFAULT_NULL_KEY_SERIALIZER =
         new FailingSerializer("Null key for a Map not allowed in JSON (use a converting NullKeySerializer?)");
 
-    public final static JsonSerializer<Object> DEFAULT_UNKNOWN_SERIALIZER = new UnknownSerializer();
+    /**
+     * NOTE: changed to <code>protected</code> for 2.3; no need to be publicly available.
+     */
+    protected final static JsonSerializer<Object> DEFAULT_UNKNOWN_SERIALIZER = new UnknownSerializer();
 
     /*
     /**********************************************************

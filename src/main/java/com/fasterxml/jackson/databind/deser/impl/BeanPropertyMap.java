@@ -210,7 +210,7 @@ public final class BeanPropertyMap
      */
 
     public int size() { return _size; }
-    
+
     public SettableBeanProperty find(String key)
     {
         int index = key.hashCode() & _hashMask;
@@ -232,6 +232,21 @@ public final class BeanPropertyMap
         return _findWithEquals(key, index);
     }
 
+    /**
+     * @since 2.3
+     */
+    public SettableBeanProperty find(int propertyIndex)
+    {
+        for (int i = 0, end = _buckets.length; i < end; ++i) {
+            for (Bucket bucket = _buckets[i]; bucket != null; bucket = bucket.next) {
+                if (bucket.index == propertyIndex) {
+                    return bucket.value;
+                }
+            }
+        }
+        return null;
+    }
+    
     /**
      * Specialized method that can be used to replace an existing entry
      * (note: entry MUST exist; otherwise exception is thrown) with

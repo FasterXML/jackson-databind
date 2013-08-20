@@ -127,11 +127,20 @@ public final class PropertyBasedCreator
     public Collection<SettableBeanProperty> properties() {
         return _properties.values();
     }
-    
+
     public SettableBeanProperty findCreatorProperty(String name) {
         return _properties.get(name);
     }
 
+    public SettableBeanProperty findCreatorProperty(int propertyIndex) {
+        for (SettableBeanProperty prop : _properties.values()) {
+            if (prop.getPropertyIndex() == propertyIndex) {
+                return prop;
+            }
+        }
+        return null;
+    }
+    
     /*
     /**********************************************************
     /* Building process

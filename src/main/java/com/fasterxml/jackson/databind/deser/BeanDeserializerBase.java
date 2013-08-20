@@ -807,6 +807,23 @@ public abstract class BeanDeserializerBase
         }
         return prop;
     }
+
+    /**
+     * Alternate find method that tries to locate a property with given
+     * <code>property index</code>
+     * 
+     * @since 2.3
+     */
+    public SettableBeanProperty findProperty(int propertyIndex)
+    {
+        SettableBeanProperty prop = (_beanProperties == null) ?
+                null : _beanProperties.find(propertyIndex);
+        if (prop == null && _propertyBasedCreator != null) {
+            prop = _propertyBasedCreator.findCreatorProperty(propertyIndex);
+        }
+        return prop;
+    }
+    
     /**
      * Method needed by {@link BeanDeserializerFactory} to properly link
      * managed- and back-reference pairs.

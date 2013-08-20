@@ -810,7 +810,11 @@ public abstract class BeanDeserializerBase
 
     /**
      * Alternate find method that tries to locate a property with given
-     * <code>property index</code>
+     * <code>property index</code>.
+     * Note that access by index is not necessarily faster than by name,
+     * since properties are not directly indexable; however, for most
+     * instances difference is not significant as number of properties
+     * is low.
      * 
      * @since 2.3
      */

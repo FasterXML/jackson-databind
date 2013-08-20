@@ -218,7 +218,7 @@ public class TestJdkTypes extends BaseMapTest
         assertEquals("127.0.0.1", address.getHostAddress());
 
         // should we try resolving host names? That requires connectivity... 
-        final String HOST = "www.ning.com";
+        final String HOST = "google.com";
         address = MAPPER.readValue(quote(HOST), InetAddress.class);
         assertEquals(HOST, address.getHostName());
     }

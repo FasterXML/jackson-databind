@@ -12,6 +12,8 @@ Version: 2.2.3 (xx-xxx-2013)
 #281: Make `NullNode` use configured null-value serializer
 #287: Fix problems with converters, Maps with Object values
  (reported by antubis@github)
+#288: Fix problem with serialization converters assigned with annotations
+ (reported by cemo@github)
 
 ------------------------------------------------------------------------
 === History: ===

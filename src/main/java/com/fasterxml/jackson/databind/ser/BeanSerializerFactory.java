@@ -142,7 +142,7 @@ public class BeanSerializerFactory
             staticTyping = false;
         } else { // changes; assume static typing; plus, need to re-introspect if class differs
             staticTyping = true;
-            if (type.getRawClass() != origType.getRawClass()) {
+            if (!type.hasRawClass(origType.getRawClass())) {
                 beanDesc = config.introspect(type);
             }
         }
@@ -152,6 +152,10 @@ public class BeanSerializerFactory
             return (JsonSerializer<Object>) _createSerializer2(prov, type, beanDesc, staticTyping);
         }
         JavaType delegateType = conv.getOutputType(prov.getTypeFactory());
+        // One more twist, as per [Issue#288]; probably need to get new BeanDesc
+        if (!delegateType.hasRawClass(type.getRawClass())) {
+            beanDesc = config.introspect(delegateType);
+        }
         return new StdDelegatingSerializer(conv, delegateType,
                 _createSerializer2(prov, delegateType, beanDesc, true));
     }

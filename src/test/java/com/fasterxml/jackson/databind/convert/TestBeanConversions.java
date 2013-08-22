@@ -6,7 +6,9 @@ import java.util.Map;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.util.StdConverter;
 
 public class TestBeanConversions
     extends com.fasterxml.jackson.databind.BaseMapTest
@@ -62,6 +64,33 @@ public class TestBeanConversions
         public Leaf(int v) { value = v; }
     }
     
+    // [Issue#288]
+
+    @JsonSerialize(converter = ConvertingBeanConverter.class)
+    static class ConvertingBean { 
+       public int x, y; 
+       public ConvertingBean(int v1, int v2) {
+          x = v1;
+          y = v2;
+       }
+    }
+
+    public static class DummyBean {
+       public final int a, b;
+       public DummyBean(int v1, int v2) {
+          a = v1 * 2;
+          b = v2 * 2;
+       }
+    }
+
+    static class ConvertingBeanConverter extends StdConverter<ConvertingBean, DummyBean>
+    {
+       @Override
+       public DummyBean convert(ConvertingBean cb) {
+          return new DummyBean(cb.x, cb.y);
+       }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -217,4 +246,11 @@ public class TestBeanConversions
         assertNotNull(m);
         assertEquals(0, m.size());
     }
+
+    public void testConversionIssue288() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new ConvertingBean(1, 2));
+        // must be  {"a":2,"b":4}
+        assertEquals("{\"a\":2,\"b\":4}", json);
+     }
 }

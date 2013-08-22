@@ -319,6 +319,16 @@ public abstract class SerializerProvider
     }
 
     /**
+     * "Bulk" access method for checking that all features specified by
+     * mask are enabled.
+     * 
+     * @since 2.3
+     */
+    public final boolean hasSerializationFeatures(int featureMask) {
+        return _config.hasSerializationFeatures(featureMask);
+    }
+    
+    /**
      * Convenience method for accessing provider to find serialization filters used,
      * equivalent to calling:
      *<pre>

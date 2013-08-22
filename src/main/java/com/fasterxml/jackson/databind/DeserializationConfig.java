@@ -468,15 +468,25 @@ public final class DeserializationConfig
         return (_deserFeatures & f.getMask()) != 0;
     }
 
+    /**
+     * "Bulk" access method for checking that all features specified by
+     * mask are enabled.
+     * 
+     * @since 2.3
+     */
+    public final boolean hasDeserializationFeatures(int featureMask) {
+        return (_deserFeatures & featureMask) == featureMask;
+    }
+
+    public final int getDeserializationFeatures() {
+        return _deserFeatures;
+    }
+
     /*
     /**********************************************************
     /* Other configuration
     /**********************************************************
      */
-
-    public final int getDeserializationFeatures() {
-        return _deserFeatures;
-    }
     
     /**
      * Method for getting head of the problem handler chain. May be null,

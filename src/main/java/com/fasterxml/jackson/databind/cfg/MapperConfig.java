@@ -110,6 +110,16 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public final boolean isEnabled(MapperFeature f) {
         return (_mapperFeatures & f.getMask()) != 0;
     }
+
+    /**
+     * "Bulk" access method for checking that all features specified by
+     * mask are enabled.
+     * 
+     * @since 2.3
+     */
+    public final boolean hasMapperFeatures(int featureMask) {
+        return (_mapperFeatures & featureMask) == featureMask;
+    }
     
     /**
      * Method for determining whether annotation processing is enabled or not

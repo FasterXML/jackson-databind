@@ -452,7 +452,17 @@ public final class SerializationConfig
     public final boolean isEnabled(SerializationFeature f) {
         return (_serFeatures & f.getMask()) != 0;
     }
-    
+
+    /**
+     * "Bulk" access method for checking that all features specified by
+     * mask are enabled.
+     * 
+     * @since 2.3
+     */
+    public final boolean hasSerializationFeatures(int featureMask) {
+        return (_serFeatures & featureMask) == featureMask;
+    }
+
     public final int getSerializationFeatures() {
         return _serFeatures;
     }

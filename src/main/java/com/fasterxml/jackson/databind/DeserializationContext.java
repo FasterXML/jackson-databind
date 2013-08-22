@@ -219,6 +219,16 @@ public abstract class DeserializationContext
     }
 
     /**
+     * "Bulk" access method for checking that all features specified by
+     * mask are enabled.
+     * 
+     * @since 2.3
+     */
+    public final boolean hasDeserializationFeatures(int featureMask) {
+        return _config.hasDeserializationFeatures(featureMask);
+    }
+    
+    /**
      * Method for accessing the currently active parser.
      * May be different from the outermost parser
      * when content is buffered.

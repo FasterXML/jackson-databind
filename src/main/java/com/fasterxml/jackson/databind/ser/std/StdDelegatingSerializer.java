@@ -99,7 +99,7 @@ public class StdDelegatingSerializer
     {
         if ((_delegateSerializer != null)
                 && (_delegateSerializer instanceof ResolvableSerializer)) {
-                ((ResolvableSerializer) _delegateSerializer).resolve(provider);
+            ((ResolvableSerializer) _delegateSerializer).resolve(provider);
         }
     }
 

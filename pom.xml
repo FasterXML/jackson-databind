@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.fasterxml</groupId>
     <artifactId>oss-parent</artifactId>
-    <version>10</version>
+    <version>11</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>
@@ -69,12 +69,12 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.2.2</version>
+      <version>2.2.3</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.2.2</version>
+      <version>2.2.3</version>
     </dependency>
 
     <!-- and for testing, JUnit is needed, as well as quite a few

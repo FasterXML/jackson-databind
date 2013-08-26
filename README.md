@@ -1,9 +1,10 @@
 # Overview
 
 This project contains the general-purpose data-binding functionality
-and tree-model for [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome)
+and tree-model for [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome),
 It builds on [core streaming parser/generator](../../../jackson-core) package,
 and uses [Jackson Annotations](../../../jackson-annotations) for configuration.
+Project is licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 While the original use case for Jackson was JSON data-binding, it can now be used for other data formats as well, as long as parser and generator implementations exist.
 Naming of classes uses word 'JSON' in many places even though there is no actual hard dependency to JSON format.

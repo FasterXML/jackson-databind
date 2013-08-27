@@ -310,7 +310,7 @@ public class FactoryBean
 }
 ```
 
-Note that use of a "creator method" does not preclude use of setters: you
+Note that use of a "creator method" (`@JsonCreator` with `@JsonProperty` annotated arguments) does not preclude use of setters: you
 can mix and match properties from constructor/factory method with ones that
 are set via setters or directly using fields.
 

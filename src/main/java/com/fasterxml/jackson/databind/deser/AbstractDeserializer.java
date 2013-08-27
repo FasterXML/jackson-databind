@@ -28,7 +28,7 @@ public class AbstractDeserializer
     protected final ObjectIdReader _objectIdReader;
 
     protected final Map<String, SettableBeanProperty> _backRefProperties;
-    
+
     // support for "native" types, which require special care:
     
     protected final boolean _acceptString;
@@ -49,6 +49,29 @@ public class AbstractDeserializer
         _acceptDouble = (cls == Double.TYPE) || cls.isAssignableFrom(Double.class);
     }
 
+    protected AbstractDeserializer(BeanDescription beanDesc)
+    {
+        _baseType = beanDesc.getType();
+        _objectIdReader = null;
+        _backRefProperties = null;
+        Class<?> cls = _baseType.getRawClass();
+        _acceptString = cls.isAssignableFrom(String.class);
+        _acceptBoolean = (cls == Boolean.TYPE) || cls.isAssignableFrom(Boolean.class);
+        _acceptInt = (cls == Integer.TYPE) || cls.isAssignableFrom(Integer.class);
+        _acceptDouble = (cls == Double.TYPE) || cls.isAssignableFrom(Double.class);
+    }
+    
+    /**
+     * Factory method used when constructing instances for non-POJO types, like
+     * {@link java.util.Map}s.
+     * 
+     * @since 2.3
+     */
+    public static AbstractDeserializer constructForNonPOJO(BeanDescription beanDesc)
+    {
+        return new AbstractDeserializer(beanDesc);
+    }
+    
     /*
     /**********************************************************
     /* Public accessors

@@ -783,25 +783,32 @@ public abstract class BasicDeserializerFactory
             if (type.isInterface() || type.isAbstract()) {
                 CollectionType implType = _mapAbstractCollectionType(type, config);
                 if (implType == null) {
-                    throw new IllegalArgumentException("Can not find a deserializer for non-concrete Collection type "+type);
-                }
-                type = implType;
-                // But if so, also need to re-check creators...
-                beanDesc = config.introspectForCreation(type);
-            }
-            ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
-            if (!inst.canCreateUsingDefault()) {
-                // [Issue#161]: No default constructor for ArrayBlockingQueue...
-                if (type.getRawClass() == ArrayBlockingQueue.class) {
-                    return new ArrayBlockingQueueDeserializer(type, contentDeser, contentTypeDeser, inst, null);
+                    // [Issue#292]: Actually, may be fine, but only if polymorphich deser enabled
+                    if (type.getTypeHandler() == null) {
+                        throw new IllegalArgumentException("Can not find a deserializer for non-concrete Collection type "+type);
+                    }
+                    deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
+                } else {
+                    type = implType;
+                    // But if so, also need to re-check creators...
+                    beanDesc = config.introspectForCreation(type);
                 }
             }
-            // 13-Dec-2010, tatu: Can use more optimal deserializer if content type is String, so:
-            if (contentType.getRawClass() == String.class) {
-                // no value type deserializer because Strings are one of natural/native types:
-                deser = new StringCollectionDeserializer(type, contentDeser, inst);
-            } else {
-                deser = new CollectionDeserializer(type, contentDeser, contentTypeDeser, inst);
+            if (deser == null) {
+                ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
+                if (!inst.canCreateUsingDefault()) {
+                    // [Issue#161]: No default constructor for ArrayBlockingQueue...
+                    if (type.getRawClass() == ArrayBlockingQueue.class) {
+                        return new ArrayBlockingQueueDeserializer(type, contentDeser, contentTypeDeser, inst, null);
+                    }
+                }
+                // 13-Dec-2010, tatu: Can use more optimal deserializer if content type is String, so:
+                if (contentType.getRawClass() == String.class) {
+                    // no value type deserializer because Strings are one of natural/native types:
+                    deser = new StringCollectionDeserializer(type, contentDeser, inst);
+                } else {
+                    deser = new CollectionDeserializer(type, contentDeser, contentTypeDeser, inst);
+                }
             }
         }
         // and then new with 2.2: ability to post-process it too (Issue#120)
@@ -910,7 +917,7 @@ public abstract class BasicDeserializerFactory
         if (contentTypeDeser == null) {
             contentTypeDeser = findTypeDeserializer(config, contentType);
         }
-
+        
         // 23-Nov-2010, tatu: Custom deserializer?
         JsonDeserializer<?> deser = _findCustomMapDeserializer(type, config, beanDesc,
                 keyDes, contentTypeDeser, contentDeser);
@@ -941,18 +948,25 @@ public abstract class BasicDeserializerFactory
                 if (type.isInterface() || type.isAbstract()) {
                     @SuppressWarnings("rawtypes")
                     Class<? extends Map> fallback = _mapFallbacks.get(mapClass.getName());
-                    if (fallback == null) {
-                        throw new IllegalArgumentException("Can not find a deserializer for non-concrete Map type "+type);
+                    if (fallback != null) {
+                        mapClass = fallback;
+                        type = (MapType) config.constructSpecializedType(type, mapClass);
+                        // But if so, also need to re-check creators...
+                        beanDesc = config.introspectForCreation(type);
+                    } else {
+                        // [Issue#292]: Actually, may be fine, but only if polymorphich deser enabled
+                        if (type.getTypeHandler() == null) {
+                            throw new IllegalArgumentException("Can not find a deserializer for non-concrete Map type "+type);
+                        }
+                        deser = AbstractDeserializer.constructForNonPOJO(beanDesc);
                     }
-                    mapClass = fallback;
-                    type = (MapType) config.constructSpecializedType(type, mapClass);
-                    // But if so, also need to re-check creators...
-                    beanDesc = config.introspectForCreation(type);
                 }
-                ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
-                MapDeserializer md = new MapDeserializer(type, inst, keyDes, contentDeser, contentTypeDeser);
-                md.setIgnorableProperties(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()));
-                deser = md;
+                if (deser == null) {
+                    ValueInstantiator inst = findValueInstantiator(ctxt, beanDesc);
+                    MapDeserializer md = new MapDeserializer(type, inst, keyDes, contentDeser, contentTypeDeser);
+                    md.setIgnorableProperties(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()));
+                    deser = md;
+                }
             }
         }
         // and then new with 2.2: ability to post-process it too (Issue#120)
@@ -1524,10 +1538,10 @@ public abstract class BasicDeserializerFactory
             // probably only occurs if 'property' is null anyway
             valueTypeDeser = findTypeDeserializer(ctxt.getConfig(), type);
         }
-    	if (valueTypeDeser != null) {
+        if (valueTypeDeser != null) {
             type = type.withTypeHandler(valueTypeDeser);
-    	}
-    	return type;
+        }
+        return type;
     }
     
     protected EnumResolver<?> constructEnumResolver(Class<?> enumClass,

@@ -1,7 +1,7 @@
 # Overview
 
 This project contains the general-purpose data-binding functionality
-and tree-model for [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome)
+and tree-model for [Jackson Data Processor](http://wiki.fasterxml.com/JacksonHome).
 It builds on [core streaming parser/generator](../../../jackson-core) package,
 and uses [Jackson Annotations](../../../jackson-annotations) for configuration.
 
@@ -22,11 +22,11 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.2.0</version>
+  <version>2.2.2</version>
 </dependency>
 ```
 
-Since package also depends on '''jackson-core''' and '''jackson-databind''' packages, you will need to download these if not using Maven; and you may also want to add them as Maven dependency to ensure that compatible versions are used.
+Since package also depends on `jackson-core` and `jackson-databind` packages, you will need to download these if not using Maven; and you may also want to add them as Maven dependency to ensure that compatible versions are used.
 If so, also add:
 
 ```xml

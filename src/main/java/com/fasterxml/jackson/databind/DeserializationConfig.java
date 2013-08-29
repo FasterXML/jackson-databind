@@ -156,7 +156,7 @@ public final class DeserializationConfig
     /* Life-cycle, factory methods from MapperConfig
     /**********************************************************
      */
-
+    
     @Override
     public DeserializationConfig with(MapperFeature... features)
     {
@@ -178,7 +178,20 @@ public final class DeserializationConfig
         return (newMapperFlags == _mapperFeatures) ? this :
             new DeserializationConfig(this, newMapperFlags, _deserFeatures);
     }
-    
+
+    @Override
+    public DeserializationConfig with(MapperFeature feature, boolean state)
+    {
+        int newMapperFlags;
+        if (state) {
+            newMapperFlags = _mapperFeatures | feature.getMask();
+        } else {
+            newMapperFlags = _mapperFeatures & ~feature.getMask();
+        }
+        return (newMapperFlags == _mapperFeatures) ? this :
+            new DeserializationConfig(this, newMapperFlags, _deserFeatures);
+    }
+
     @Override
     public DeserializationConfig with(ClassIntrospector ci) {
         return _withBase(_base.withClassIntrospector(ci));

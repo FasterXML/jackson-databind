@@ -221,6 +221,27 @@ public class ObjectWriter
         _rootSerializer = base._rootSerializer;
         _prettyPrinter = base._prettyPrinter;
     }
+
+    /**
+     * @since 2.3
+     */
+    protected ObjectWriter(ObjectWriter base, JsonFactory f)
+    {
+        // may need to override ordering, based on data format capabilities
+        _config = base._config
+            .with(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, f.requiresPropertyOrdering());
+        _cfgBigDecimalAsPlain = base._cfgBigDecimalAsPlain;
+
+        _serializerProvider = base._serializerProvider;
+        _serializerFactory = base._serializerFactory;
+        _generatorFactory = base._generatorFactory;
+        _schema = base._schema;
+        _characterEscapes = base._characterEscapes;
+
+        _rootType = base._rootType;
+        _rootSerializer = base._rootSerializer;
+        _prettyPrinter = base._prettyPrinter;
+    }
     
     /**
      * Method that will return version information stored in and read from jar
@@ -457,7 +478,16 @@ public class ObjectWriter
         return new ObjectWriter(this, _config, _rootType, _rootSerializer,
                 _prettyPrinter, _schema, escapes);
     }
-    
+
+    /**
+     * @since 2.3
+     */
+    public ObjectWriter with(JsonFactory f) {
+        if (f == _generatorFactory) {
+            return this;
+        }
+        return new ObjectWriter(this, f);
+    }    
     /*
     /**********************************************************
     /* Simple accessors

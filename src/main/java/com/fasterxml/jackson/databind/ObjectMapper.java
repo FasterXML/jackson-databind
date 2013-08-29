@@ -431,10 +431,18 @@ public class ObjectMapper
         _rootNames = new RootNameLookup();
         // and default type factory is shared one
         _typeFactory = TypeFactory.defaultInstance();
+        
         _serializationConfig = new SerializationConfig(DEFAULT_BASE,
                     _subtypeResolver, _mixInAnnotations);
         _deserializationConfig = new DeserializationConfig(DEFAULT_BASE,
                     _subtypeResolver, _mixInAnnotations);
+
+        // Some overrides we may need
+        final boolean needOrder = _jsonFactory.requiresPropertyOrdering();
+        if (needOrder ^ _serializationConfig.isEnabled(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)) {
+            configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, needOrder);
+        }
+        
         _serializerProvider = (sp == null) ? new DefaultSerializerProvider.Impl() : sp;
         _deserializationContext = (dc == null) ?
                 new DefaultDeserializationContext.Impl(BeanDeserializerFactory.instance) : dc;

@@ -236,7 +236,9 @@ public class ObjectReader
 
     protected ObjectReader(ObjectReader base, JsonFactory f)
     {
-        _config = base._config;
+        // may need to override ordering, based on data format capabilities
+        _config = base._config
+            .with(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, f.requiresPropertyOrdering());
         _context = base._context;
 
         _rootDeserializers = base._rootDeserializers;

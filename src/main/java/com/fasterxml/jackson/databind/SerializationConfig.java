@@ -181,6 +181,19 @@ public final class SerializationConfig
     }
 
     @Override
+    public SerializationConfig with(MapperFeature feature, boolean state)
+    {
+        int newMapperFlags;
+        if (state) {
+            newMapperFlags = _mapperFeatures | feature.getMask();
+        } else {
+            newMapperFlags = _mapperFeatures & ~feature.getMask();
+        }
+        return (newMapperFlags == _mapperFeatures) ? this :
+            new SerializationConfig(this, newMapperFlags, _serFeatures);
+    }
+    
+    @Override
     public SerializationConfig with(AnnotationIntrospector ai) {
         return _withBase(_base.withAnnotationIntrospector(ai));
     }

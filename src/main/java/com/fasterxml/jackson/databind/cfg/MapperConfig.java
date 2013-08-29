@@ -96,6 +96,11 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * mapper features disabled.
      */
     public abstract T without(MapperFeature... features);
+
+    /**
+     * @since 2.3
+     */
+    public abstract T with(MapperFeature feature, boolean state);
     
     /*
     /**********************************************************

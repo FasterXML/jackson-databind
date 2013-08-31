@@ -185,9 +185,10 @@ public abstract class AsArraySerializerBase<T>
         serializeContents(value, jgen, provider);
         jgen.writeEndArray();
     }
-    
+
+    // Note: was 'final' modifier in 2.2 and before; no real need to be, removed
     @Override
-    public final void serializeWithType(T value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(T value, JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException, JsonGenerationException
     {

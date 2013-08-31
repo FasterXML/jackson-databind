@@ -36,7 +36,7 @@ public abstract class BaseJsonNode
         }
         return value;
     }
-
+    
     /*
     /**********************************************************
     /* Support for traversal-as-stream

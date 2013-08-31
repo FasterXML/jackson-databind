@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind.node;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -24,6 +22,12 @@ public final class ArrayNode
 
     public ArrayNode(JsonNodeFactory nc) { super(nc); }
 
+    @Override
+    protected JsonNode _find(JsonPointer ptr)
+    {
+        return get(ptr.getMatchingIndex());
+    }
+    
     // note: co-variant to allow caller-side type safety
     @SuppressWarnings("unchecked")
     @Override

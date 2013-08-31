@@ -1,8 +1,6 @@
 package com.fasterxml.jackson.databind.node;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -29,6 +27,12 @@ public final class ObjectNode
 
     public ObjectNode(JsonNodeFactory nc) { super(nc); }
 
+    @Override
+    protected JsonNode _find(JsonPointer ptr)
+    {
+        return get(ptr.getMatchingProperty());
+    }
+    
     /* Question: should this delegate to `JsonNodeFactory`? It does not absolutely
      * have to, as long as sub-types override the method but...
      */

@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.util.EmptyIterator;
@@ -175,6 +176,19 @@ public abstract class JsonNode
         return EmptyIterator.instance();
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public final <T extends TreeNode> T find(JsonPointer ptr)
+    {
+        // Basically: value nodes only match if we have "empty" path left
+        if (ptr.matches()) {
+            return (T) this;
+        }
+        return (T) _find(ptr);
+    }
+
+    protected abstract JsonNode _find(JsonPointer ptr);
+    
     /*
     /**********************************************************
     /* Public API, type introspection

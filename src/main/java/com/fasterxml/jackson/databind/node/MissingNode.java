@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.node;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -33,7 +32,7 @@ public final class MissingNode
     public <T extends JsonNode> T deepCopy() { return (T) this; }
     
     public static MissingNode getInstance() { return instance; }
-
+    
     @Override
     public JsonNodeType getNodeType()
     {

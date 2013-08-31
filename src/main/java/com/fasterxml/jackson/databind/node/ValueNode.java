@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -19,6 +18,12 @@ public abstract class ValueNode
 {
     protected ValueNode() { }
 
+    @Override
+    protected JsonNode _find(JsonPointer ptr)
+    {
+        return MissingNode.getInstance();
+    }
+    
     /**
      * All current value nodes are immutable, so we can just return
      * them as is.

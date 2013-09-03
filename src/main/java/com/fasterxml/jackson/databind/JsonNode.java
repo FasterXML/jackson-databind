@@ -70,7 +70,7 @@ public abstract class JsonNode
 //    public abstract JsonParser.NumberType numberType();
 
 //    public abstract JsonParser traverse();
-    
+
     @Override
     public int size() { return 0; }
 
@@ -187,6 +187,11 @@ public abstract class JsonNode
         return (T) _find(ptr);
     }
 
+    @Override
+    public final <T extends TreeNode> T find(String jsonPtrExpr) {
+        return find(JsonPointer.compile(jsonPtrExpr));
+    }
+    
     protected abstract JsonNode _find(JsonPointer ptr);
     
     /*

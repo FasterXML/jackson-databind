@@ -6,4 +6,5 @@ public class TestJsonPointer
     extends BaseMapTest
 {
     // !!! TODO
+    public void testIt() { }
 }

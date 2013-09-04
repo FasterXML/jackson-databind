@@ -185,7 +185,6 @@ public abstract class JsonNode
             return this;
         }
         JsonNode n = _at(ptr);
-System.err.println(" at, n (from "+getClass().getName()+") = "+n);
         if (n == null) {
             return MissingNode.getInstance();
         }

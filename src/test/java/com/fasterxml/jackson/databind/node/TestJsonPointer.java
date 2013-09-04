@@ -20,7 +20,15 @@ public class TestJsonPointer
         assertTrue(n.isNumber());
         assertEquals(SAMPLE_SPEC_VALUE_WIDTH, n.asInt());
 
+        // ok also with implicit compile() for pointer:
         assertEquals(SAMPLE_SPEC_VALUE_HEIGHT,
-                SAMPLE_ROOT.at(JsonPointer.compile("/Image/Height")).asInt());
+                SAMPLE_ROOT.at("/Image/Height").asInt());
+
+        assertEquals(SAMPLE_SPEC_VALUE_TN_ID3,
+                SAMPLE_ROOT.at(JsonPointer.compile("/Image/IDs/2")).asInt());
+
+        // and then check that "missing" paths are ok too but
+        assertTrue(SAMPLE_ROOT.at("/Image/Depth").isMissingNode());
+        assertTrue(SAMPLE_ROOT.at("/Image/1").isMissingNode());
     }
 }

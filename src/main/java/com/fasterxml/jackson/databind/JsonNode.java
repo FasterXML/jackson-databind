@@ -8,6 +8,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.core.TreeNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.util.EmptyIterator;
 
 /**
@@ -176,23 +177,27 @@ public abstract class JsonNode
         return EmptyIterator.instance();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public final <T extends TreeNode> T find(JsonPointer ptr)
+    public final JsonNode at(JsonPointer ptr)
     {
         // Basically: value nodes only match if we have "empty" path left
         if (ptr.matches()) {
-            return (T) this;
+            return this;
         }
-        return (T) _find(ptr);
+        JsonNode n = _at(ptr);
+System.err.println(" at, n (from "+getClass().getName()+") = "+n);
+        if (n == null) {
+            return MissingNode.getInstance();
+        }
+        return n.at(ptr.tail());
     }
 
     @Override
-    public final <T extends TreeNode> T find(String jsonPtrExpr) {
-        return find(JsonPointer.compile(jsonPtrExpr));
+    public final JsonNode at(String jsonPtrExpr) {
+        return at(JsonPointer.compile(jsonPtrExpr));
     }
-    
-    protected abstract JsonNode _find(JsonPointer ptr);
+
+    protected abstract JsonNode _at(JsonPointer ptr);
     
     /*
     /**********************************************************

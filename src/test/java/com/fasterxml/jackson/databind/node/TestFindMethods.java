@@ -4,7 +4,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class TestFindMethods
@@ -68,6 +67,6 @@ public class TestFindMethods
         final String SAMPLE = "{ \"a\" : { \"value\" : 3 },"
             +"\"array\" : [ { \"b\" : 3 }, {\"value\" : 42}, { \"other\" : true } ]"
             +"}";
-        return new ObjectMapper().readTree(SAMPLE);
+        return objectMapper().readTree(SAMPLE);
     }
 }

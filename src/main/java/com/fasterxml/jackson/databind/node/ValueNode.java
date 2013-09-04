@@ -19,8 +19,9 @@ public abstract class ValueNode
     protected ValueNode() { }
 
     @Override
-    protected JsonNode _find(JsonPointer ptr)
-    {
+    protected JsonNode _at(JsonPointer ptr) {
+        // will only allow direct matches, but no traversal through
+        // (base class checks for direct match)
         return MissingNode.getInstance();
     }
     

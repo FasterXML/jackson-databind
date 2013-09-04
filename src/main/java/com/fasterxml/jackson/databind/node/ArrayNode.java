@@ -23,8 +23,7 @@ public final class ArrayNode
     public ArrayNode(JsonNodeFactory nc) { super(nc); }
 
     @Override
-    protected JsonNode _find(JsonPointer ptr)
-    {
+    protected JsonNode _at(JsonPointer ptr) {
         return get(ptr.getMatchingIndex());
     }
     

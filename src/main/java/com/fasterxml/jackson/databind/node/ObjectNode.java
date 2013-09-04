@@ -28,11 +28,10 @@ public final class ObjectNode
     public ObjectNode(JsonNodeFactory nc) { super(nc); }
 
     @Override
-    protected JsonNode _find(JsonPointer ptr)
-    {
+    protected JsonNode _at(JsonPointer ptr) {
         return get(ptr.getMatchingProperty());
     }
-    
+
     /* Question: should this delegate to `JsonNodeFactory`? It does not absolutely
      * have to, as long as sub-types override the method but...
      */

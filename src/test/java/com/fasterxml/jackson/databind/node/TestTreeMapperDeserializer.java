@@ -6,30 +6,26 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.test.BaseTest;
 
 /**
  * This unit test suite tries to verify that ObjectMapper
  * can properly parse JSON and bind contents into appropriate
  * JsonNode instances.
  */
-public class TestTreeMapperDeserializer
-    extends BaseTest
+public class TestTreeMapperDeserializer extends BaseMapTest
 {
 	public void testSimple()
         throws Exception
     {
         final String JSON = SAMPLE_DOC_JSON_SPEC;
 
-        ObjectMapper mapper = new ObjectMapper();
-
         for (int type = 0; type < 2; ++type) {
             JsonNode result;
 
             if (type == 0) {
-                result = mapper.readTree(new StringReader(JSON));
+                result = objectMapper().readTree(new StringReader(JSON));
             } else {
-                result = mapper.readTree(JSON);
+                result = objectMapper().readTree(JSON);
             }
 
             assertType(result, ObjectNode.class);
@@ -96,8 +92,7 @@ public class TestTreeMapperDeserializer
     public void testBoolean()
         throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode result = mapper.readTree("true\n");
+        JsonNode result = objectMapper().readTree("true\n");
         assertFalse(result.isNull());
         assertFalse(result.isNumber());
         assertFalse(result.isTextual());
@@ -115,9 +110,8 @@ public class TestTreeMapperDeserializer
     public void testDouble()
         throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         double value = 3.04;
-        JsonNode result = mapper.readTree(String.valueOf(value));
+        JsonNode result = objectMapper().readTree(String.valueOf(value));
         assertTrue(result.isNumber());
         assertFalse(result.isNull());
         assertType(result, DoubleNode.class);
@@ -142,9 +136,8 @@ public class TestTreeMapperDeserializer
     public void testInt()
         throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         int value = -90184;
-        JsonNode result = mapper.readTree(String.valueOf(value));
+        JsonNode result = objectMapper().readTree(String.valueOf(value));
         assertTrue(result.isNumber());
         assertTrue(result.isIntegralNumber());
         assertTrue(result.isInt());
@@ -166,13 +159,11 @@ public class TestTreeMapperDeserializer
         assertEquals(result, IntNode.valueOf(value));
     }
 
-    public void testLong()
-        throws Exception
+    public void testLong() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         // need to use something being 32-bit value space
         long value = 12345678L << 32;
-        JsonNode result = mapper.readTree(String.valueOf(value));
+        JsonNode result = objectMapper().readTree(String.valueOf(value));
         assertTrue(result.isNumber());
         assertTrue(result.isIntegralNumber());
         assertTrue(result.isLong());
@@ -193,11 +184,9 @@ public class TestTreeMapperDeserializer
         assertEquals(result, LongNode.valueOf(value));
     }
 
-    public void testNull()
-        throws Exception
+    public void testNull() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode result = mapper.readTree("   null ");
+        JsonNode result = objectMapper().readTree("   null ");
         // should not get java null, but NullNode...
         assertNotNull(result);
         assertTrue(result.isNull());
@@ -239,8 +228,7 @@ public class TestTreeMapperDeserializer
 
     public void testSimpleArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayNode result = mapper.createArrayNode();
+        ArrayNode result = objectMapper().createArrayNode();
 
         assertTrue(result.isArray());
         assertType(result, ArrayNode.class);
@@ -272,7 +260,7 @@ public class TestTreeMapperDeserializer
         assertTrue(result.path(-100).isMissingNode());
 
         // then construct and compare
-        ArrayNode array2 = mapper.createArrayNode();
+        ArrayNode array2 = objectMapper().createArrayNode();
         array2.addNull();
         array2.add(false);
         assertEquals(result, array2);
@@ -301,14 +289,13 @@ public class TestTreeMapperDeserializer
             +"\"name\": \"xyz\", \"type\": 1, \"url\" : null }\n  "
             ;
         JsonFactory jf = new JsonFactory();
-        ObjectMapper mapper = new ObjectMapper();
         JsonParser jp = jf.createParser(new StringReader(JSON));
-        JsonNode result = mapper.readTree(jp);
+        JsonNode result = objectMapper().readTree(jp);
 
         assertTrue(result.isObject());
         assertEquals(4, result.size());
 
-        assertNull(mapper.readTree(jp));
+        assertNull(objectMapper().readTree(jp));
         jp.close();
     }
 
@@ -316,8 +303,8 @@ public class TestTreeMapperDeserializer
     {
         String JSON = "12  \"string\" [ 1, 2, 3 ]";
         JsonFactory jf = new JsonFactory();
-        ObjectMapper mapper = new ObjectMapper();
         JsonParser jp = jf.createParser(new StringReader(JSON));
+        final ObjectMapper mapper = objectMapper();
         JsonNode result = mapper.readTree(jp);
 
         assertTrue(result.isIntegralNumber());
@@ -348,8 +335,7 @@ public class TestTreeMapperDeserializer
         throws Exception
     {
         String JSON = "[ { }, [ ] ]";
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode result = mapper.readTree(new StringReader(JSON));
+        JsonNode result = objectMapper().readTree(new StringReader(JSON));
 
         assertTrue(result.isContainerNode());
         assertTrue(result.isArray());
@@ -408,10 +394,9 @@ public class TestTreeMapperDeserializer
 
     public void testArray() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         final String JSON = "[[[-0.027512,51.503221],[-0.008497,51.503221],[-0.008497,51.509744],[-0.027512,51.509744]]]";
 
-        JsonNode n = mapper.readTree(JSON);
+        JsonNode n = objectMapper().readTree(JSON);
         assertNotNull(n);
         assertTrue(n.isArray());
         ArrayNode an = (ArrayNode) n;

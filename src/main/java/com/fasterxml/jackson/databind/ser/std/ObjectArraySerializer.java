@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -151,8 +150,8 @@ public class ObjectArraySerializer
                     ser = provider.findValueSerializer(_elementType, property);
                 }
             }
-        } else if (ser instanceof ContextualSerializer) {
-            ser = ((ContextualSerializer) ser).createContextual(provider, property);
+        } else {
+            ser = provider.handleContextualization(ser, property);
         }
         return withResolved(property, vts, ser);
     }

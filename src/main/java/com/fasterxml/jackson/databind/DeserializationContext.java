@@ -473,6 +473,16 @@ public abstract class DeserializationContext
     /**********************************************************
      */
 
+    /**
+     * Method that should be called to take of possible calls to resolve
+     * {@link ContextualDeserializer} with given property context (if any;
+     * none for root-value deserializers).
+     * 
+     * @param property Property for which deserializer is used, if any; null
+     *    when deserializing root values
+     * 
+     * @since 2.3
+     */
     public JsonDeserializer<?> handleContextualization(JsonDeserializer<?> deser,
             BeanProperty property)
         throws JsonMappingException
@@ -485,8 +495,7 @@ public abstract class DeserializationContext
         }
         return deser;
     }
-           
-    
+
     /*
     /**********************************************************
     /* Parsing methods that may use reusable/-cyclable objects

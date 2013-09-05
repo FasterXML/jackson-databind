@@ -230,16 +230,16 @@ public class MapSerializer
                     || hasContentTypeAnnotation(provider, property)) {
                 ser = provider.findValueSerializer(_valueType, property);
             }
-        } else if (ser instanceof ContextualSerializer) {
-            ser = ((ContextualSerializer) ser).createContextual(provider, property);
+        } else {
+            ser = provider.handleContextualization(ser, property);
         }
         if (keySer == null) {
             keySer = _keySerializer;
         }
         if (keySer == null) {
             keySer = provider.findKeySerializer(_keyType, property);
-        } else if (keySer instanceof ContextualSerializer) {
-            keySer = ((ContextualSerializer) keySer).createContextual(provider, property);
+        } else {
+            keySer = provider.handleContextualization(keySer, property);
         }
         HashSet<String> ignored = this._ignoredEntries;
         AnnotationIntrospector intr = provider.getAnnotationIntrospector();

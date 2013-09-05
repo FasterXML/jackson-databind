@@ -6,7 +6,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
@@ -399,6 +398,7 @@ public abstract class SerializerProvider
      *   accessing suitable serializer; including that of not
      *   finding any serializer
      */
+    @SuppressWarnings("unchecked")
     public JsonSerializer<Object> findValueSerializer(Class<?> valueType,
             BeanProperty property)
         throws JsonMappingException
@@ -431,7 +431,7 @@ public abstract class SerializerProvider
             }
         }
         // at this point, resolution has occured, but not contextualization
-        return _handleContextual(ser, property);
+        return (JsonSerializer<Object>) handleContextualization(ser, property);
     }
 
     /**
@@ -444,6 +444,7 @@ public abstract class SerializerProvider
      *   serializer is needed: annotations of the property (or bean that contains it)
      *   may be checked to create contextual serializers.
      */
+    @SuppressWarnings("unchecked")
     public JsonSerializer<Object> findValueSerializer(JavaType valueType, BeanProperty property)
         throws JsonMappingException
     {
@@ -470,7 +471,7 @@ public abstract class SerializerProvider
                 }
             }
         }
-        return _handleContextual(ser, property);
+        return (JsonSerializer<Object>) handleContextualization(ser, property);
     }
     
     /**
@@ -677,6 +678,35 @@ public abstract class SerializerProvider
             Object serDef)
         throws JsonMappingException;
 
+    /*
+    /**********************************************************
+    /* Support for contextualization
+    /**********************************************************
+     */
+
+    /**
+     * Method that should be called to take of possible calls to resolve
+     * {@link ContextualSerializer} with given property context (if any;
+     * none for root-value serializers).
+     * 
+     * @param property Property for which serializer is used, if any; null
+     *    when serializing root values
+     * 
+     * @since 2.3
+     */
+    public JsonSerializer<?> handleContextualization(JsonSerializer<?> ser,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        if (ser == null) {
+            return ser;
+        }
+        if (ser instanceof ContextualSerializer) {
+            ser = ((ContextualSerializer) ser).createContextual(this, property);
+        }
+        return ser;
+    }
+    
     /*
     /********************************************************
     /* Convenience methods
@@ -920,6 +950,7 @@ public abstract class SerializerProvider
      * Helper method called to resolve and contextualize given
      * serializer, if and as necessary.
      */
+    @SuppressWarnings("unchecked")
     protected JsonSerializer<Object> _handleContextualResolvable(JsonSerializer<?> ser,
             BeanProperty property)
         throws JsonMappingException
@@ -927,7 +958,7 @@ public abstract class SerializerProvider
         if (ser instanceof ResolvableSerializer) {
             ((ResolvableSerializer) ser).resolve(this);
         }
-        return _handleContextual(ser, property);
+        return (JsonSerializer<Object>) handleContextualization(ser, property);
     }
 
     @SuppressWarnings("unchecked")
@@ -936,17 +967,6 @@ public abstract class SerializerProvider
     {
         if (ser instanceof ResolvableSerializer) {
             ((ResolvableSerializer) ser).resolve(this);
-        }
-        return (JsonSerializer<Object>) ser;
-    }
-    
-    @SuppressWarnings("unchecked")
-    protected JsonSerializer<Object> _handleContextual(JsonSerializer<?> ser,
-            BeanProperty property)
-        throws JsonMappingException
-    {
-        if (ser instanceof ContextualSerializer) {
-            ser = ((ContextualSerializer) ser).createContextual(this, property);
         }
         return (JsonSerializer<Object>) ser;
     }

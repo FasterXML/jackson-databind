@@ -132,8 +132,8 @@ public class JsonValueSerializer
                 boolean forceTypeInformation = isNaturalTypeWithStdHandling(t.getRawClass(), ser);
                 return withResolved(property, ser, forceTypeInformation);
             }
-        } else if (ser instanceof ContextualSerializer) {
-            ser = ((ContextualSerializer) ser).createContextual(provider, property);
+        } else {
+            ser = provider.handleContextualization(ser, property);
             return withResolved(property, ser, _forceTypeInformation);
         }
         return this;

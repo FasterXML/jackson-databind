@@ -139,9 +139,7 @@ public abstract class AsArraySerializerBase<T>
                 }
             }
         } else {
-            if (ser instanceof ContextualSerializer) {
-                ser = ((ContextualSerializer) ser).createContextual(provider, property);
-            }
+            ser = provider.handleContextualization(ser, property);
         }
         if ((ser != _elementSerializer) || (property != _property) || _valueTypeSerializer != typeSer) {
             return withResolved(property, typeSer, ser);

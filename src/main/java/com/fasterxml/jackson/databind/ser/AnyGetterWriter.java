@@ -48,6 +48,6 @@ public class AnyGetterWriter
     // Note: NOT part of ResolvableSerializer...
     public void resolve(SerializerProvider provider) throws JsonMappingException
     {
-        _serializer = (MapSerializer) _serializer.createContextual(provider, _property);
+        _serializer = (MapSerializer) provider.handleContextualization(_serializer, _property);
     }
 }

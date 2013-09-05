@@ -91,8 +91,8 @@ public final class IndexedStringListSerializer
         ser = findConvertingContentSerializer(provider, property, ser);
         if (ser == null) {
             ser = provider.findValueSerializer(String.class, property);
-        } else if (ser instanceof ContextualSerializer) {
-            ser = ((ContextualSerializer) ser).createContextual(provider, property);
+        } else {
+            ser = provider.handleContextualization(ser, property);
         }
         // Optimization: default serializer just writes String, so we can avoid a call:
         if (isDefaultSerializer(ser)) {

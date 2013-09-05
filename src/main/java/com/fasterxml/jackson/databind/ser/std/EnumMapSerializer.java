@@ -133,8 +133,8 @@ public class EnumMapSerializer
             if (_staticTyping) {
                 return withValueSerializer(property, provider.findValueSerializer(_valueType, property));
             }
-        } else if (_valueSerializer instanceof ContextualSerializer) {
-            ser = ((ContextualSerializer) ser).createContextual(provider, property);
+        } else {
+            ser = provider.handleContextualization(ser, property);
         }
         if (ser != _valueSerializer) {
             return withValueSerializer(property, ser);

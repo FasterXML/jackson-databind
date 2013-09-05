@@ -754,15 +754,12 @@ public class BeanSerializerFactory
         if (annotatedSerializer instanceof ResolvableSerializer) {
             ((ResolvableSerializer) annotatedSerializer).resolve(prov);
         }
-        if (annotatedSerializer instanceof ContextualSerializer) {
-            annotatedSerializer = ((ContextualSerializer) annotatedSerializer).createContextual(prov, property);
-        }
+        annotatedSerializer = prov.handleContextualization(annotatedSerializer, property);
         // And how about polymorphic typing? First special to cover JAXB per-field settings:
         TypeSerializer contentTypeSer = null;
         if (ClassUtil.isCollectionMapOrArray(type.getRawClass())) {
             contentTypeSer = findPropertyContentTypeSerializer(type, prov.getConfig(), accessor);
         }
-
         // and if not JAXB collection/array with annotations, maybe regular type info?
         TypeSerializer typeSer = findPropertyTypeSerializer(type, prov.getConfig(), accessor);
         BeanPropertyWriter pbw = pb.buildWriter(propDef, type, annotatedSerializer,

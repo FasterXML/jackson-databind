@@ -150,9 +150,7 @@ public class CollectionDeserializer
             valueDeser = ctxt.findContextualValueDeserializer(
                     _collectionType.getContentType(), property);
         } else { // if directly assigned, probably not yet contextual, so:
-            if (valueDeser instanceof ContextualDeserializer) {
-                valueDeser = ((ContextualDeserializer) valueDeser).createContextual(ctxt, property);
-            }
+            valueDeser = ctxt.handleContextualization(valueDeser, property);
         }
         // and finally, type deserializer needs context as well
         TypeDeserializer valueTypeDeser = _valueTypeDeserializer;

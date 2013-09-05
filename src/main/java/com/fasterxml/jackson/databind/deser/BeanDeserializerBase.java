@@ -439,11 +439,9 @@ public abstract class BeanDeserializerBase
                 prop = prop.withValueDeserializer(deser);
             } else { // may need contextual version
                 JsonDeserializer<Object> deser = prop.getValueDeserializer();
-                if (deser instanceof ContextualDeserializer) {
-                    JsonDeserializer<?> cd = ((ContextualDeserializer) deser).createContextual(ctxt, prop);
-                    if (cd != deser) {
-                        prop = prop.withValueDeserializer(cd);
-                    }
+                JsonDeserializer<?> cd = ctxt.handleContextualization(deser, prop);
+                if (cd != deser) {
+                    prop = prop.withValueDeserializer(cd);
                 }
             }
             // [JACKSON-235]: need to link managed references with matching back references

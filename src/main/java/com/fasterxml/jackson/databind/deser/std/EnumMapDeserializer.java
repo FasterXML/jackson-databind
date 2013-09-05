@@ -107,9 +107,7 @@ public class EnumMapDeserializer
         if (vd == null) {
             vd = ctxt.findContextualValueDeserializer(_mapType.getContentType(), property);
         } else { // if directly assigned, probably not yet contextual, so:
-            if (vd instanceof ContextualDeserializer) {
-                vd = ((ContextualDeserializer) vd).createContextual(ctxt, property);
-            }
+            vd = ctxt.handleContextualization(vd, property);
         }
         TypeDeserializer vtd = _valueTypeDeserializer;
         if (vtd != null) {

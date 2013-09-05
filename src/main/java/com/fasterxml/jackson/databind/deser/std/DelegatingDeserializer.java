@@ -66,13 +66,14 @@ public abstract class DelegatingDeserializer
             BeanProperty property)
         throws JsonMappingException
     {
-        JsonDeserializer<?> del = _delegatee;
-        if (del instanceof ContextualDeserializer) {
-            del = ((ContextualDeserializer) del).createContextual(ctxt, property);
+        JsonDeserializer<?> del = ctxt.handleContextualization(_delegatee, property);
+        if (del == _delegatee) {
+            return this;
         }
-        return _createContextual(ctxt, property, del);
+        return newDelegatingInstance(del);
     }
 
+    /* Removed in 2.3.0
     protected JsonDeserializer<?> _createContextual(DeserializationContext ctxt,
             BeanProperty property, JsonDeserializer<?> newDelegatee)
     {
@@ -81,6 +82,7 @@ public abstract class DelegatingDeserializer
         }
         return newDelegatingInstance(newDelegatee);
     }
+    */
 
     @Override
     public SettableBeanProperty findBackReference(String logicalName) {

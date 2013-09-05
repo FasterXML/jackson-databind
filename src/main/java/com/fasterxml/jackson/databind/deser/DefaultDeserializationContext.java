@@ -29,7 +29,7 @@ public abstract class DefaultDeserializationContext
     private static final long serialVersionUID = 1L;
 
     protected transient LinkedHashMap<ObjectIdGenerator.IdKey, ReadableObjectId> _objectIds;
-    
+
     /**
      * Constructor that will pass specified deserializer factory and
      * cache: cache may be null (in which case default implementation

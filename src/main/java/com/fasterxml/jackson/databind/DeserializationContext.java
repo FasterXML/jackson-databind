@@ -7,7 +7,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
@@ -315,9 +314,7 @@ public abstract class DeserializationContext
         JsonDeserializer<Object> deser = _cache.findValueDeserializer(this,
                 _factory, type);
         if (deser != null) {
-            if (deser instanceof ContextualDeserializer) {
-                deser = (JsonDeserializer<Object>)((ContextualDeserializer) deser).createContextual(this, property);
-            }
+            deser = (JsonDeserializer<Object>) handleContextualization(deser, property);
         }
         return deser;
     }
@@ -327,16 +324,14 @@ public abstract class DeserializationContext
      */
     @SuppressWarnings("unchecked")
     public final JsonDeserializer<Object> findRootValueDeserializer(JavaType type)
-            throws JsonMappingException
+        throws JsonMappingException
     {
         JsonDeserializer<Object> deser = _cache.findValueDeserializer(this,
                 _factory, type);
         if (deser == null) { // can this occur?
             return null;
         }
-        if (deser instanceof ContextualDeserializer) {
-            deser = (JsonDeserializer<Object>)((ContextualDeserializer) deser).createContextual(this, null);
-        }
+        deser = (JsonDeserializer<Object>) handleContextualization(deser, null);
         TypeDeserializer typeDeser = _factory.findTypeDeserializer(_config, type);
         if (typeDeser != null) {
             // important: contextualize to indicate this is for root value
@@ -403,20 +398,6 @@ public abstract class DeserializationContext
         // By default, delegate to ClassUtil: can be overridden with custom handling
         return ClassUtil.findClass(className);
     }
-    
-    /*
-    /**********************************************************
-    /* Extended API: handler instantiation
-    /**********************************************************
-     */
-
-    public abstract JsonDeserializer<Object> deserializerInstance(Annotated annotated,
-            Object deserDef)
-        throws JsonMappingException;
-
-    public abstract KeyDeserializer keyDeserializerInstance(Annotated annotated,
-            Object deserDef)
-        throws JsonMappingException;
 
     /*
     /**********************************************************
@@ -470,6 +451,42 @@ public abstract class DeserializationContext
         return _arrayBuilders;
     }
 
+    /*
+    /**********************************************************
+    /* Extended API: handler instantiation
+    /**********************************************************
+     */
+
+    public abstract JsonDeserializer<Object> deserializerInstance(Annotated annotated,
+            Object deserDef)
+        throws JsonMappingException;
+
+    public abstract KeyDeserializer keyDeserializerInstance(Annotated annotated,
+            Object deserDef)
+        throws JsonMappingException;
+
+    /*
+    /**********************************************************
+    /* Extended API: resolving contextual deserializers; called
+    /* by structured deserializers for their value/component
+    /* deserializers
+    /**********************************************************
+     */
+
+    public JsonDeserializer<?> handleContextualization(JsonDeserializer<?> deser,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        if (deser == null) {
+            return deser;
+        }
+        if (deser instanceof ContextualDeserializer) {
+            deser = ((ContextualDeserializer) deser).createContextual(this, property);
+        }
+        return deser;
+    }
+           
+    
     /*
     /**********************************************************
     /* Parsing methods that may use reusable/-cyclable objects

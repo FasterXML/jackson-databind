@@ -60,7 +60,7 @@ public abstract class BeanDeserializerModifier
             BeanDescription beanDesc, List<BeanPropertyDefinition> propDefs) {
         return propDefs;
     }
-    
+
     /**
      * Method called by {@link BeanDeserializerFactory} when it has collected
      * basic information such as tentative list of properties to deserialize.

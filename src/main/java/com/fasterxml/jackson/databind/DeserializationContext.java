@@ -314,7 +314,7 @@ public abstract class DeserializationContext
         JsonDeserializer<Object> deser = _cache.findValueDeserializer(this,
                 _factory, type);
         if (deser != null) {
-            deser = (JsonDeserializer<Object>) handleContextualization(deser, property);
+            deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, property);
         }
         return deser;
     }
@@ -331,7 +331,7 @@ public abstract class DeserializationContext
         if (deser == null) { // can this occur?
             return null;
         }
-        deser = (JsonDeserializer<Object>) handleContextualization(deser, null);
+        deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, null);
         TypeDeserializer typeDeser = _factory.findTypeDeserializer(_config, type);
         if (typeDeser != null) {
             // important: contextualize to indicate this is for root value
@@ -474,16 +474,16 @@ public abstract class DeserializationContext
      */
 
     /**
-     * Method that should be called to take of possible calls to resolve
-     * {@link ContextualDeserializer} with given property context (if any;
-     * none for root-value deserializers).
+     * Method called for primary property deserializers (ones
+     * directly created to deal with an annotatable POJO property),
+     * to handle details of resolving
+     * {@link ContextualDeserializer} with given property context.
      * 
-     * @param property Property for which deserializer is used, if any; null
-     *    when deserializing root values
+     * @param property Property for which the given primary deserializer is used; never null.
      * 
      * @since 2.3
      */
-    public JsonDeserializer<?> handleContextualization(JsonDeserializer<?> deser,
+    public JsonDeserializer<?> handlePrimaryContextualization(JsonDeserializer<?> deser,
             BeanProperty property)
         throws JsonMappingException
     {
@@ -495,6 +495,34 @@ public abstract class DeserializationContext
         return deser;
     }
 
+    /**
+     * Method called for secondary property deserializers (ones
+     * NOT directly created to deal with an annotatable POJO property,
+     * but instead created as a component -- such as value deserializers
+     * for structured types, or deserializers for root values)
+     * to handle details of resolving
+     * {@link ContextualDeserializer} with given property context.
+     * Given that these serializers are not directly related to given property
+     * (or, in case of root value property, to any property), annotations
+     * accessible may or may not be relevant.
+     * 
+     * @param property Property for which deserializer is used, if any; null
+     *    when deserializing root values
+     * 
+     * @since 2.3
+     */
+    public JsonDeserializer<?> handleSecondaryContextualization(JsonDeserializer<?> deser,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        if (deser != null) {
+            if (deser instanceof ContextualDeserializer) {
+                deser = ((ContextualDeserializer) deser).createContextual(this, property);
+            }
+        }
+        return deser;
+    }
+    
     /*
     /**********************************************************
     /* Parsing methods that may use reusable/-cyclable objects

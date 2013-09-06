@@ -93,7 +93,7 @@ public class ObjectArrayDeserializer
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(_arrayType.getContentType(), property);
         } else { // if directly assigned, probably not yet contextual, so:
-            deser = ctxt.handleContextualization(deser, property);
+            deser = ctxt.handleSecondaryContextualization(deser, property);
         }
         TypeDeserializer elemTypeDeser = _elementTypeDeserializer;
         if (elemTypeDeser != null) {

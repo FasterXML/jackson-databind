@@ -109,7 +109,7 @@ public final class StringCollectionDeserializer
                 valueDeser = ctxt.findContextualValueDeserializer( _collectionType.getContentType(), property);
             }
         } else { // if directly assigned, probably not yet contextual, so:
-            valueDeser = ctxt.handleContextualization(valueDeser, property);
+            valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property);
         } 
         if (isDefaultDeserializer(valueDeser)) {
             valueDeser = null;

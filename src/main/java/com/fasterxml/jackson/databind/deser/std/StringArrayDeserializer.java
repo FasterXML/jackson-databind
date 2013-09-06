@@ -146,7 +146,7 @@ public final class StringArrayDeserializer
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(ctxt.constructType(String.class), property);
         } else { // if directly assigned, probably not yet contextual, so:
-            deser = ctxt.handleContextualization(deser, property);
+            deser = ctxt.handleSecondaryContextualization(deser, property);
         }
         // Ok ok: if all we got is the default String deserializer, can just forget about it
         if (deser != null && this.isDefaultDeserializer(deser)) {

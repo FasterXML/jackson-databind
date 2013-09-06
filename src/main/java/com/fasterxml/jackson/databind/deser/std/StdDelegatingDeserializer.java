@@ -102,7 +102,7 @@ public class StdDelegatingDeserializer<T>
     {
         // First: if already got serializer to delegate to, contextualize it:
         if (_delegateDeserializer != null) {
-            JsonDeserializer<?> deser = ctxt.handleContextualization(_delegateDeserializer, property);
+            JsonDeserializer<?> deser = ctxt.handleSecondaryContextualization(_delegateDeserializer, property);
             if (deser != _delegateDeserializer) {
                 return withDelegate(_converter, _delegateType, deser);
             }

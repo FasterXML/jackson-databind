@@ -14,8 +14,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  * type handling deserialization. If so, there is no real deserializer associated
  * with nominal type, just {@link TypeDeserializer}; and any calls that do not
  * pass such resolver will result in an error.
- * 
- * @author tatu
  */
 public class AbstractDeserializer
     extends JsonDeserializer<Object>
@@ -78,6 +76,11 @@ public class AbstractDeserializer
     /**********************************************************
      */
 
+    @Override
+    public Class<?> handledType() {
+        return _baseType.getRawClass();
+    }
+    
     @Override
     public boolean isCachable() { return true; }
     

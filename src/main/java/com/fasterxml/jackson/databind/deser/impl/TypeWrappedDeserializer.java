@@ -30,6 +30,11 @@ public final class TypeWrappedDeserializer
     }
 
     @Override
+    public Class<?> handledType() {
+        return _deserializer.handledType();
+    }
+    
+    @Override
     public Object deserialize(JsonParser jp, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
     {

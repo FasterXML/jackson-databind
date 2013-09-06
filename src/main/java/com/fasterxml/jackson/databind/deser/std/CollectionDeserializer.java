@@ -79,7 +79,7 @@ public class CollectionDeserializer
             ValueInstantiator valueInstantiator,
             JsonDeserializer<Object> delegateDeser)
     {
-        super(collectionType.getRawClass());
+        super(collectionType);
         _collectionType = collectionType;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
@@ -93,7 +93,7 @@ public class CollectionDeserializer
      */
     protected CollectionDeserializer(CollectionDeserializer src)
     {
-        super(src._valueClass);
+        super(src._collectionType);
         _collectionType = src._collectionType;
         _valueDeserializer = src._valueDeserializer;
         _valueTypeDeserializer = src._valueTypeDeserializer;

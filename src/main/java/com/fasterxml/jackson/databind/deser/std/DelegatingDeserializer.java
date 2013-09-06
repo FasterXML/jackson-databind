@@ -42,8 +42,9 @@ public abstract class DelegatingDeserializer
     
     private static Class<?> _figureType(JsonDeserializer<?> deser)
     {
-        if (deser instanceof StdDeserializer<?>) {
-            return ((StdDeserializer<?>) deser).getValueClass();
+        Class<?> cls = deser.handledType();
+        if (cls != null) {
+            return cls;
         }
         return Object.class;
     }

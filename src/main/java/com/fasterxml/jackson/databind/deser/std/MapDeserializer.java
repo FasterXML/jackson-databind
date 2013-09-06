@@ -95,7 +95,7 @@ public class MapDeserializer
             KeyDeserializer keyDeser, JsonDeserializer<Object> valueDeser,
             TypeDeserializer valueTypeDeser)
     {
-        super(Map.class);
+        super(mapType);
         _mapType = mapType;
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;
@@ -113,7 +113,7 @@ public class MapDeserializer
      */
     protected MapDeserializer(MapDeserializer src)
     {
-        super(src._valueClass);
+        super(src._mapType);
         _mapType = src._mapType;
         _keyDeserializer = src._keyDeserializer;
         _valueDeserializer = src._valueDeserializer;
@@ -133,7 +133,7 @@ public class MapDeserializer
             TypeDeserializer valueTypeDeser,
             HashSet<String> ignorable)
     {
-        super(src._valueClass);
+        super(src._mapType);
         _mapType = src._mapType;
         _keyDeserializer = keyDeser;
         _valueDeserializer = valueDeser;

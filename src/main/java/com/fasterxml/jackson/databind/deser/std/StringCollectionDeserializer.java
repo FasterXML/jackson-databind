@@ -65,7 +65,7 @@ public final class StringCollectionDeserializer
             ValueInstantiator valueInstantiator, JsonDeserializer<?> delegateDeser,
             JsonDeserializer<?> valueDeser)
     {
-        super(collectionType.getRawClass());
+        super(collectionType);
         _collectionType = collectionType;
         _valueDeserializer = (JsonDeserializer<String>) valueDeser;
         _valueInstantiator = valueInstantiator;

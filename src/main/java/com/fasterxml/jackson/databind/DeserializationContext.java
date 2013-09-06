@@ -487,11 +487,10 @@ public abstract class DeserializationContext
             BeanProperty property)
         throws JsonMappingException
     {
-        if (deser == null) {
-            return deser;
-        }
-        if (deser instanceof ContextualDeserializer) {
-            deser = ((ContextualDeserializer) deser).createContextual(this, property);
+        if (deser != null) {
+            if (deser instanceof ContextualDeserializer) {
+                deser = ((ContextualDeserializer) deser).createContextual(this, property);
+            }
         }
         return deser;
     }

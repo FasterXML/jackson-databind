@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.node.*;
@@ -146,6 +145,11 @@ abstract class BaseNodeDeserializer
     @Override
     public JsonNode getNullValue() {
         return NullNode.getInstance();
+    }
+
+    @Override
+    public Class<?> handledType() {
+        return JsonNode.class;
     }
 
     /*
@@ -339,7 +343,7 @@ abstract class BaseNodeDeserializer
         //case END_OBJECT:
         //case END_ARRAY:
         default:
-            throw ctxt.mappingException(getValueClass());
+            throw ctxt.mappingException(handledType());
         }
     }
 }

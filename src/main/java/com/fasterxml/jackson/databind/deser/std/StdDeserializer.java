@@ -6,7 +6,6 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.io.NumberInput;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -38,6 +37,17 @@ public abstract class StdDeserializer<T>
     protected StdDeserializer(JavaType valueType) {
         _valueClass = (valueType == null) ? null : valueType.getRawClass();
     }
+
+    /*
+    /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
+    
+    @Override
+    public Class<?> handledType() {
+        return _valueClass;
+    }
     
     /*
     /**********************************************************
@@ -45,7 +55,11 @@ public abstract class StdDeserializer<T>
     /**********************************************************
      */
 
-    public Class<?> getValueClass() { return _valueClass; }
+    /**
+     * @deprecated Since 2.3 use {@link #handledType} instead
+     */
+    @Deprecated
+    public final Class<?> getValueClass() { return _valueClass; }
 
     /**
      * Exact structured type deserializer handles, if known.

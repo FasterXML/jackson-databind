@@ -715,6 +715,11 @@ public abstract class BeanDeserializerBase
     @Override
     public boolean isCachable() { return true; }
 
+    @Override
+    public Class<?> handledType() {
+        return _beanType.getRawClass();
+    }
+    
     /**
      * Overridden to return true for those instances that are
      * handling value for which Object Identity handling is enabled
@@ -748,10 +753,15 @@ public abstract class BeanDeserializerBase
         }
         return names;
     }
-    
+
+    /**
+     * @deprecated Since 2.3, use {@link #handledType()} instead
+     */
+    @Deprecated
     public final Class<?> getBeanClass() { return _beanType.getRawClass(); }
 
-    @Override public JavaType getValueType() { return _beanType; }
+    @Override
+    public JavaType getValueType() { return _beanType; }
 
     /**
      * Accessor for iterating over properties this deserializer uses; with
@@ -925,8 +935,7 @@ public abstract class BeanDeserializerBase
         final Object id;
 
         // Ok, this is bit ridiculous; let's see if conversion is needed:
-        if ((idDeser instanceof StdDeserializer)
-            && ((StdDeserializer<?>) idDeser).getValueClass() == rawId.getClass()) {
+        if (idDeser.handledType() == rawId.getClass()) {
             // nope: already same type
             id = rawId;
         } else {

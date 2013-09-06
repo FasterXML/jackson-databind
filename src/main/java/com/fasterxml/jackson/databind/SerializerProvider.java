@@ -698,11 +698,10 @@ public abstract class SerializerProvider
             BeanProperty property)
         throws JsonMappingException
     {
-        if (ser == null) {
-            return ser;
-        }
-        if (ser instanceof ContextualSerializer) {
-            ser = ((ContextualSerializer) ser).createContextual(this, property);
+        if (ser != null) {
+            if (ser instanceof ContextualSerializer) {
+                ser = ((ContextualSerializer) ser).createContextual(this, property);
+            }
         }
         return ser;
     }

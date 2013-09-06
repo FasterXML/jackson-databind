@@ -13,6 +13,15 @@ import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 public abstract class ContainerDeserializerBase<T>
     extends StdDeserializer<T>
 {
+    protected ContainerDeserializerBase(JavaType selfType)
+    {
+        super(selfType);
+    }
+
+    /**
+     * @deprecated Since 2.3 use one that takes {@link JavaType}
+     */
+    @Deprecated
     protected ContainerDeserializerBase(Class<?> selfType)
     {
         super(selfType);

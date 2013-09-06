@@ -61,7 +61,7 @@ public class ObjectArrayDeserializer
     public ObjectArrayDeserializer(ArrayType arrayType,
             JsonDeserializer<Object> elemDeser, TypeDeserializer elemTypeDeser)
     {
-        super(Object[].class);
+        super(arrayType);
         _arrayType = arrayType;
         _elementClass = arrayType.getContentType().getRawClass();
         _untyped = (_elementClass == Object.class);

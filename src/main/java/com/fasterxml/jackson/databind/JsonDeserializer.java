@@ -160,6 +160,20 @@ public abstract class JsonDeserializer<T>
     /* Other accessors
     /**********************************************************
      */
+
+    /**
+     * Method for accessing type of values this deserializer produces.
+     * Note that this information is not guaranteed to be exact -- it
+     * may be a more generic (super-type) -- but it should not be
+     * incorrect (return a non-related type).
+     *<p>
+     * Default implementation will return null, which means almost same
+     * same as returning <code>Object.class</code> would; that is, that
+     * nothing is known about handled type.
+     *<p>
+     * @since 2.3
+     */
+    public Class<?> handledType() { return null; }
     
     /**
      * Method that can be called to determine value to be used for

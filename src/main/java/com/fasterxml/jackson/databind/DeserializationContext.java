@@ -475,7 +475,7 @@ public abstract class DeserializationContext
 
     /**
      * Method called for primary property deserializers (ones
-     * directly created to deal with an annotatable POJO property),
+     * directly created to deserialize values of a POJO property),
      * to handle details of resolving
      * {@link ContextualDeserializer} with given property context.
      * 
@@ -502,7 +502,7 @@ public abstract class DeserializationContext
      * for structured types, or deserializers for root values)
      * to handle details of resolving
      * {@link ContextualDeserializer} with given property context.
-     * Given that these serializers are not directly related to given property
+     * Given that these deserializers are not directly related to given property
      * (or, in case of root value property, to any property), annotations
      * accessible may or may not be relevant.
      * 

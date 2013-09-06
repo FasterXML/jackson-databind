@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
@@ -431,7 +432,7 @@ public abstract class SerializerProvider
             }
         }
         // at this point, resolution has occured, but not contextualization
-        return (JsonSerializer<Object>) handleContextualization(ser, property);
+        return (JsonSerializer<Object>) handleSecondaryContextualization(ser, property);
     }
 
     /**
@@ -471,7 +472,69 @@ public abstract class SerializerProvider
                 }
             }
         }
-        return (JsonSerializer<Object>) handleContextualization(ser, property);
+        return (JsonSerializer<Object>) handleSecondaryContextualization(ser, property);
+    }
+
+    /**
+     * Similar to {@link #findValueSerializer(JavaType, BeanProperty)}, but used
+     * when finding "primary" property value serializer (one directly handling
+     * value of the property). Difference has to do with contextual resolution,
+     * and method(s) called: this method should only be called when caller is
+     * certain that this is the primary property value serializer.
+     * 
+     * @param property Property that is being handled; will never be null, and its
+     *    type has to match <code>valueType</code> parameter.
+     * 
+     * @since 2.3
+     */
+    @SuppressWarnings("unchecked")
+    public JsonSerializer<Object> findPrimaryPropertySerializer(JavaType valueType, BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        if (ser == null) {
+            ser = _serializerCache.untypedValueSerializer(valueType);
+            if (ser == null) {
+                ser = _createAndCacheUntypedSerializer(valueType);
+                if (ser == null) {
+                    ser = getUnknownTypeSerializer(valueType.getRawClass());
+                    // Should this be added to lookups?
+                    if (CACHE_UNKNOWN_MAPPINGS) {
+                        _serializerCache.addAndResolveNonTypedSerializer(valueType, ser, this);
+                    }
+                    return ser;
+                }
+            }
+        }
+        return (JsonSerializer<Object>) handlePrimaryContextualization(ser, property);
+    }
+
+    /**
+     * @since 2.3
+     */
+    @SuppressWarnings("unchecked")
+    public JsonSerializer<Object> findPrimaryPropertySerializer(Class<?> valueType,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        if (ser == null) {
+            ser = _serializerCache.untypedValueSerializer(valueType);
+            if (ser == null) {
+                ser = _serializerCache.untypedValueSerializer(_config.constructType(valueType));
+                if (ser == null) {
+                    ser = _createAndCacheUntypedSerializer(valueType);
+                    if (ser == null) {
+                        ser = getUnknownTypeSerializer(valueType);
+                        if (CACHE_UNKNOWN_MAPPINGS) {
+                            _serializerCache.addAndResolveNonTypedSerializer(valueType, ser, this);
+                        }
+                        return ser;
+                    }
+                }
+            }
+        }
+        return (JsonSerializer<Object>) handlePrimaryContextualization(ser, property);
     }
     
     /**
@@ -685,16 +748,44 @@ public abstract class SerializerProvider
      */
 
     /**
-     * Method that should be called to take of possible calls to resolve
-     * {@link ContextualSerializer} with given property context (if any;
-     * none for root-value serializers).
+     * Method called for primary property serializers (ones
+     * directly created to serialize values of a POJO property),
+     * to handle details of resolving
+     * {@link ContextualSerializer} with given property context.
      * 
-     * @param property Property for which serializer is used, if any; null
-     *    when serializing root values
+     * @param property Property for which the given primary serializer is used; never null.
      * 
      * @since 2.3
      */
-    public JsonSerializer<?> handleContextualization(JsonSerializer<?> ser,
+    public JsonSerializer<?> handlePrimaryContextualization(JsonSerializer<?> ser,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        if (ser != null) {
+            if (ser instanceof ContextualSerializer) {
+                ser = ((ContextualSerializer) ser).createContextual(this, property);
+            }
+        }
+        return ser;
+    }
+
+    /**
+     * Method called for secondary property serializers (ones
+     * NOT directly created to serialize values of a POJO property
+     * but instead created as a dependant serializer -- such as value serializers
+     * for structured types, or serializers for root values)
+     * to handle details of resolving
+     * {@link ContextualDeserializer} with given property context.
+     * Given that these serializers are not directly related to given property
+     * (or, in case of root value property, to any property), annotations
+     * accessible may or may not be relevant.
+     * 
+     * @param property Property for which serializer is used, if any; null
+     *    when deserializing root values
+     * 
+     * @since 2.3
+     */
+    public JsonSerializer<?> handleSecondaryContextualization(JsonSerializer<?> ser,
             BeanProperty property)
         throws JsonMappingException
     {
@@ -957,7 +1048,7 @@ public abstract class SerializerProvider
         if (ser instanceof ResolvableSerializer) {
             ((ResolvableSerializer) ser).resolve(this);
         }
-        return (JsonSerializer<Object>) handleContextualization(ser, property);
+        return (JsonSerializer<Object>) handleSecondaryContextualization(ser, property);
     }
 
     @SuppressWarnings("unchecked")

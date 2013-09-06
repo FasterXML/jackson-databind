@@ -748,13 +748,14 @@ public class BeanSerializerFactory
         // Does member specify a serializer? If so, let's use it.
         JsonSerializer<?> annotatedSerializer = findSerializerFromAnnotation(prov,
                 accessor);
-        /* 02-Feb-2012, tatu: Unlike most other codepaths, Serializer produced
+        /* 02-Feb-2012, tatu: Unlike most other code paths, serializer produced
          *  here will NOT be resolved or contextualized, unless done here, so:
          */
         if (annotatedSerializer instanceof ResolvableSerializer) {
             ((ResolvableSerializer) annotatedSerializer).resolve(prov);
         }
-        annotatedSerializer = prov.handleContextualization(annotatedSerializer, property);
+        // 05-Sep-2013, tatu: should be primary property serializer so:
+        annotatedSerializer = prov.handlePrimaryContextualization(annotatedSerializer, property);
         // And how about polymorphic typing? First special to cover JAXB per-field settings:
         TypeSerializer contentTypeSer = null;
         if (ClassUtil.isCollectionMapOrArray(type.getRawClass())) {

@@ -134,7 +134,7 @@ public class EnumMapSerializer
                 return withValueSerializer(property, provider.findValueSerializer(_valueType, property));
             }
         } else {
-            ser = provider.handleContextualization(ser, property);
+            ser = provider.handleSecondaryContextualization(ser, property);
         }
         if (ser != _valueSerializer) {
             return withValueSerializer(property, ser);

@@ -92,7 +92,7 @@ public class StringCollectionSerializer
         if (ser == null) {
             ser = provider.findValueSerializer(String.class, property);
         } else {
-            ser = provider.handleContextualization(ser, property);
+            ser = provider.handleSecondaryContextualization(ser, property);
         }
         // Optimization: default serializer just writes String, so we can avoid a call:
         if (isDefaultSerializer(ser)) {

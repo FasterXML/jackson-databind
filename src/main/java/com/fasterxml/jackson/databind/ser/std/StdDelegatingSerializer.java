@@ -110,7 +110,7 @@ public class StdDelegatingSerializer
         // First: if already got serializer to delegate to, contextualize it:
         if (_delegateSerializer != null) {
             if (_delegateSerializer instanceof ContextualSerializer) {
-                JsonSerializer<?> ser = provider.handleContextualization(_delegateSerializer, property);
+                JsonSerializer<?> ser = provider.handleSecondaryContextualization(_delegateSerializer, property);
                 if (ser == _delegateSerializer) {
                     return this;
                 }

@@ -139,7 +139,7 @@ public abstract class AsArraySerializerBase<T>
                 }
             }
         } else {
-            ser = provider.handleContextualization(ser, property);
+            ser = provider.handleSecondaryContextualization(ser, property);
         }
         if ((ser != _elementSerializer) || (property != _property) || _valueTypeSerializer != typeSer) {
             return withResolved(property, typeSer, ser);
@@ -265,7 +265,7 @@ public abstract class AsArraySerializerBase<T>
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider) throws JsonMappingException
     {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSerializer(type, provider, _property);
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
         // did we get a new map of serializers? If so, start using it
         if (map != result.map) {
             _dynamicSerializers = result.map;
@@ -276,7 +276,7 @@ public abstract class AsArraySerializerBase<T>
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             JavaType type, SerializerProvider provider) throws JsonMappingException
     {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSerializer(type, provider, _property);
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
         if (map != result.map) {
             _dynamicSerializers = result.map;
         }

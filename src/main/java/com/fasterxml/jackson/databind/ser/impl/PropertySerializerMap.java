@@ -27,11 +27,16 @@ public abstract class PropertySerializerMap
     public abstract JsonSerializer<Object> serializerFor(Class<?> type);
 
     /**
-     * Method called if initial lookup fails; will both find serializer
-     * and construct new map instance if warranted, and return both
+     * Method called if initial lookup fails, when looking for a non-primary
+     * serializer (one that is not directly attached to a property).
+     * Will both find serializer
+     * and construct new map instance if warranted, and return both.
+     * 
+     * @since 2.3
+     * 
      * @throws JsonMappingException 
      */
-    public final SerializerAndMapResult findAndAddSerializer(Class<?> type,
+    public final SerializerAndMapResult findAndAddSecondarySerializer(Class<?> type,
             SerializerProvider provider, BeanProperty property)
         throws JsonMappingException
     {
@@ -39,7 +44,7 @@ public abstract class PropertySerializerMap
         return new SerializerAndMapResult(serializer, newWith(type, serializer));
     }
 
-    public final SerializerAndMapResult findAndAddSerializer(JavaType type,
+    public final SerializerAndMapResult findAndAddSecondarySerializer(JavaType type,
             SerializerProvider provider, BeanProperty property)
         throws JsonMappingException
     {
@@ -47,6 +52,32 @@ public abstract class PropertySerializerMap
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
 
+    /**
+     * Method called if initial lookup fails, when looking for a primary
+     * serializer (one that is directly attached to a property).
+     * Will both find serializer
+     * and construct new map instance if warranted, and return both.
+     * 
+     * @since 2.3
+     * 
+     * @throws JsonMappingException 
+     */
+    public final SerializerAndMapResult findAndAddPrimarySerializer(Class<?> type,
+            SerializerProvider provider, BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> serializer = provider.findPrimaryPropertySerializer(type, property);
+        return new SerializerAndMapResult(serializer, newWith(type, serializer));
+    }
+
+    public final SerializerAndMapResult findAndAddPrimarySerializer(JavaType type,
+            SerializerProvider provider, BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> serializer = provider.findPrimaryPropertySerializer(type, property);
+        return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
+    }
+    
     public abstract PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer);
     
     public static PropertySerializerMap emptyMap() {

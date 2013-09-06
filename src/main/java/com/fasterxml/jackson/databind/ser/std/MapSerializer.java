@@ -231,7 +231,7 @@ public class MapSerializer
                 ser = provider.findValueSerializer(_valueType, property);
             }
         } else {
-            ser = provider.handleContextualization(ser, property);
+            ser = provider.handleSecondaryContextualization(ser, property);
         }
         if (keySer == null) {
             keySer = _keySerializer;
@@ -239,7 +239,7 @@ public class MapSerializer
         if (keySer == null) {
             keySer = provider.findKeySerializer(_keyType, property);
         } else {
-            keySer = provider.handleContextualization(keySer, property);
+            keySer = provider.handleSecondaryContextualization(keySer, property);
         }
         HashSet<String> ignored = this._ignoredEntries;
         AnnotationIntrospector intr = provider.getAnnotationIntrospector();
@@ -536,7 +536,7 @@ public class MapSerializer
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             Class<?> type, SerializerProvider provider) throws JsonMappingException
     {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSerializer(type, provider, _property);
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
         // did we get a new map of serializers? If so, start using it
         if (map != result.map) {
             _dynamicValueSerializers = result.map;
@@ -547,7 +547,7 @@ public class MapSerializer
     protected final JsonSerializer<Object> _findAndAddDynamic(PropertySerializerMap map,
             JavaType type, SerializerProvider provider) throws JsonMappingException
     {
-        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSerializer(type, provider, _property);
+        PropertySerializerMap.SerializerAndMapResult result = map.findAndAddSecondarySerializer(type, provider, _property);
         if (map != result.map) {
             _dynamicValueSerializers = result.map;
         }

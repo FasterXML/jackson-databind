@@ -124,16 +124,18 @@ public class JsonValueSerializer
                  *   serializer from value serializer; but, alas, there's no access
                  *   to serializer factory at this point... 
                  */
+                // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
+                ser = provider.findPrimaryPropertySerializer(t, _property);
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer
                  */
-                ser = provider.findTypedValueSerializer(t, false, _property);
                 boolean forceTypeInformation = isNaturalTypeWithStdHandling(t.getRawClass(), ser);
                 return withResolved(property, ser, forceTypeInformation);
             }
         } else {
-            ser = provider.handleContextualization(ser, property);
+            // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
+            ser = provider.handlePrimaryContextualization(ser, property);
             return withResolved(property, ser, _forceTypeInformation);
         }
         return this;

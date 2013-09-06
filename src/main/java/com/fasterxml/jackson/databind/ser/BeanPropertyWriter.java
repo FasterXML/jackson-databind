@@ -689,9 +689,9 @@ public class BeanPropertyWriter
         PropertySerializerMap.SerializerAndMapResult result;
         if (_nonTrivialBaseType != null) {
             JavaType t = provider.constructSpecializedType(_nonTrivialBaseType, type);
-            result = map.findAndAddSerializer(t, provider, this);
+            result = map.findAndAddPrimarySerializer(t, provider, this);
         } else {
-            result = map.findAndAddSerializer(type, provider, this);
+            result = map.findAndAddPrimarySerializer(type, provider, this);
         }
         // did we get a new map of serializers? If so, start using it
         if (map != result.map) {

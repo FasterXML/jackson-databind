@@ -48,6 +48,7 @@ public class AnyGetterWriter
     // Note: NOT part of ResolvableSerializer...
     public void resolve(SerializerProvider provider) throws JsonMappingException
     {
-        _serializer = (MapSerializer) provider.handleContextualization(_serializer, _property);
+        // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
+        _serializer = (MapSerializer) provider.handlePrimaryContextualization(_serializer, _property);
     }
 }

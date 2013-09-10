@@ -1832,6 +1832,23 @@ public class ObjectMapper
         }
     }
 
+    /*
+    /**********************************************************
+    /* Public API (from TreeCodec via ObjectCodec): Tree Model support
+    /**********************************************************
+     */
+
+    @Override
+    public void writeTree(JsonGenerator jgen, TreeNode rootNode)
+        throws IOException, JsonProcessingException
+    {
+        SerializationConfig config = getSerializationConfig();
+        _serializerProvider(config).serializeValue(jgen, rootNode);
+        if (config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
+            jgen.flush();
+        }
+    }
+    
     /**
      * Method to serialize given JSON Tree, using generator
      * provided.
@@ -1845,13 +1862,7 @@ public class ObjectMapper
             jgen.flush();
         }
     }
-
-    /*
-    /**********************************************************
-    /* Public API (from ObjectCodec): Tree Model support
-    /**********************************************************
-     */
-
+    
     /**
      *<p>
      * Note: return type is co-variant, as basic ObjectCodec

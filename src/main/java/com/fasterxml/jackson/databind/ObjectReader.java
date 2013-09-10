@@ -698,25 +698,6 @@ public class ObjectReader
     public <T> T readValue(JsonParser jp, JavaType valueType) throws IOException, JsonProcessingException {
         return (T) withType(valueType).readValue(jp);
     }
-    
-    /**
-     * Convenience method that binds content read using given parser, using
-     * configuration of this reader, except that content is bound as
-     * JSON tree instead of configured root value type.
-     *<p>
-     * Note: if an object was specified with {@link #withValueToUpdate}, it
-     * will be ignored.
-     *<p>
-     * NOTE: this method never tries to auto-detect format, since actual
-     * (data-format specific) parser is given.
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends TreeNode> T readTree(JsonParser jp)
-        throws IOException, JsonProcessingException
-    {
-        return (T) _bindAsTree(jp);
-    }
 
     /**
      * Convenience method that is equivalent to:
@@ -775,6 +756,50 @@ public class ObjectReader
     public <T> Iterator<T> readValues(JsonParser jp, JavaType valueType)
         throws IOException, JsonProcessingException {
         return withType(valueType).readValues(jp);
+    }
+
+    /*
+    /**********************************************************
+    /* TreeCodec impl
+    /**********************************************************
+     */
+
+    @Override
+    public JsonNode createArrayNode() {
+        return _config.getNodeFactory().arrayNode();
+    }
+
+    @Override
+    public JsonNode createObjectNode() {
+        return _config.getNodeFactory().objectNode();
+    }
+
+    @Override
+    public JsonParser treeAsTokens(TreeNode n) {
+        return new TreeTraversingParser((JsonNode) n, this);
+    }
+     /**
+      * Convenience method that binds content read using given parser, using
+      * configuration of this reader, except that content is bound as
+      * JSON tree instead of configured root value type.
+      *<p>
+      * Note: if an object was specified with {@link #withValueToUpdate}, it
+      * will be ignored.
+      *<p>
+      * NOTE: this method never tries to auto-detect format, since actual
+      * (data-format specific) parser is given.
+      */
+     @SuppressWarnings("unchecked")
+     @Override
+     public <T extends TreeNode> T readTree(JsonParser jp)
+         throws IOException, JsonProcessingException
+     {
+         return (T) _bindAsTree(jp);
+     }
+     
+    @Override
+    public void writeTree(JsonGenerator jgen, TreeNode rootNode) {
+        throw new UnsupportedOperationException();
     }
     
     /*
@@ -1111,21 +1136,6 @@ public class ObjectReader
     /* Implementation of rest of ObjectCodec methods
     /**********************************************************
      */
-    
-    @Override
-    public JsonNode createArrayNode() {
-        return _config.getNodeFactory().arrayNode();
-    }
-
-    @Override
-    public JsonNode createObjectNode() {
-        return _config.getNodeFactory().objectNode();
-    }
-
-    @Override
-    public JsonParser treeAsTokens(TreeNode n) {
-        return new TreeTraversingParser((JsonNode) n, this);
-    }
 
     @Override
     public <T> T treeToValue(TreeNode n, Class<T> valueType)
@@ -1138,8 +1148,8 @@ public class ObjectReader
         } catch (IOException e) { // should not occur, no real i/o...
             throw new IllegalArgumentException(e.getMessage(), e);
         }
-    }
-
+    }    
+    
     @Override
     public void writeValue(JsonGenerator jgen, Object value) throws IOException, JsonProcessingException
     {

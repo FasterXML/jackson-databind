@@ -74,7 +74,10 @@ public abstract class DelegatingDeserializer
         return newDelegatingInstance(del);
     }
 
-    /* Removed in 2.3.0
+    /**
+     * @deprecated Since 2.3, use {@link #newDelegatingInstance} instead
+     */
+    @Deprecated
     protected JsonDeserializer<?> _createContextual(DeserializationContext ctxt,
             BeanProperty property, JsonDeserializer<?> newDelegatee)
     {
@@ -83,14 +86,13 @@ public abstract class DelegatingDeserializer
         }
         return newDelegatingInstance(newDelegatee);
     }
-    */
 
     @Override
     public SettableBeanProperty findBackReference(String logicalName) {
         // [Issue#253]: Hope this works....
         return _delegatee.findBackReference(logicalName);
     }
-    
+
     /*
     /**********************************************************************
     /* Overridden deserialization methods

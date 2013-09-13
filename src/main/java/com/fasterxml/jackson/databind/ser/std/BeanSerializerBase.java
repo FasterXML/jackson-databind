@@ -139,7 +139,17 @@ public abstract class BeanSerializerBase
         _serializationShape = src._serializationShape;
     }
 
-    protected BeanSerializerBase(BeanSerializerBase src, ObjectIdWriter objectIdWriter)
+    protected BeanSerializerBase(BeanSerializerBase src,
+            ObjectIdWriter objectIdWriter)
+    {
+        this(src, objectIdWriter, src._propertyFilterId);
+    }
+    
+    /**
+     * @since 2.3
+     */
+    protected BeanSerializerBase(BeanSerializerBase src,
+            ObjectIdWriter objectIdWriter, Object filterId)
     {
         super(src._handledType);
         _props = src._props;
@@ -148,7 +158,7 @@ public abstract class BeanSerializerBase
         _typeId = src._typeId;
         _anyGetterWriter = src._anyGetterWriter;
         _objectIdWriter = objectIdWriter;
-        _propertyFilterId = src._propertyFilterId;
+        _propertyFilterId = filterId;
         _serializationShape = src._serializationShape;
     }
 
@@ -187,7 +197,7 @@ public abstract class BeanSerializerBase
     }
     
     /**
-     * Fluent factory used for creating a new instance with different
+     * Mutant factory used for creating a new instance with different
      * {@link ObjectIdWriter}.
      * 
      * @since 2.0
@@ -195,7 +205,7 @@ public abstract class BeanSerializerBase
     public abstract BeanSerializerBase withObjectIdWriter(ObjectIdWriter objectIdWriter);
 
     /**
-     * Fluent factory used for creating a new instance with additional
+     * Mutant factory used for creating a new instance with additional
      * set of properties to ignore (from properties this instance otherwise has)
      * 
      * @since 2.0
@@ -203,13 +213,21 @@ public abstract class BeanSerializerBase
     protected abstract BeanSerializerBase withIgnorals(String[] toIgnore);
 
     /**
-     * Fluent factory for creating a variant that output POJO as a
+     * Mutant factory for creating a variant that output POJO as a
      * JSON Array. Implementations may ignore this request if output
      * as array is not possible (either at all, or reliably).
      * 
      * @since 2.1
      */
     protected abstract BeanSerializerBase asArraySerializer();
+
+    /**
+     * Mutant factory used for creating a new instance with different
+     * {@link JsonFilter}.
+     * 
+     * @since 2.3
+     */
+    protected abstract BeanSerializerBase withFilterId(Object filterId);
     
     /**
      * Copy-constructor that is useful for sub-classes that just want to
@@ -360,6 +378,7 @@ public abstract class BeanSerializerBase
     {
         ObjectIdWriter oiw = _objectIdWriter;
         String[] ignorals = null;
+        Object newFilterId = null;
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         final AnnotatedMember accessor = (property == null || intr == null)
                 ? null : property.getMember();
@@ -424,6 +443,15 @@ public abstract class BeanSerializerBase
                             objectIdInfo.getAlwaysAsId());
                 }
             }
+            
+            // Or change Filter Id in use?
+            Object filterId = intr.findFilterId(accessor);
+            if (filterId != null) {
+                // but only consider case of adding a new filter id (no removal via annotation)
+                if (_propertyFilterId == null || !filterId.equals(_propertyFilterId)) {
+                    newFilterId = filterId;
+                }
+            }
         }
         // either way, need to resolve serializer:
         BeanSerializerBase contextual = this;
@@ -438,6 +466,10 @@ public abstract class BeanSerializerBase
         if (ignorals != null && ignorals.length != 0) {
             contextual = contextual.withIgnorals(ignorals);
         }
+        if (newFilterId != null) {
+            contextual = contextual.withFilterId(newFilterId);
+        }
+        
         // One more thing: are we asked to serialize POJO as array?
         JsonFormat.Shape shape = null;
         if (accessor != null) {

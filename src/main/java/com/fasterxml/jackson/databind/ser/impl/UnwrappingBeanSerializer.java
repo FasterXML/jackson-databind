@@ -32,11 +32,18 @@ public class UnwrappingBeanSerializer
         _nameTransformer = transformer;
     }
 
-    public UnwrappingBeanSerializer(UnwrappingBeanSerializer src, ObjectIdWriter objectIdWriter) {    
+    public UnwrappingBeanSerializer(UnwrappingBeanSerializer src,
+            ObjectIdWriter objectIdWriter) {
         super(src, objectIdWriter);
         _nameTransformer = src._nameTransformer;
     }
 
+    public UnwrappingBeanSerializer(UnwrappingBeanSerializer src,
+            ObjectIdWriter objectIdWriter, Object filterId) {
+        super(src, objectIdWriter, filterId);
+        _nameTransformer = src._nameTransformer;
+    }
+    
     protected UnwrappingBeanSerializer(UnwrappingBeanSerializer src, String[] toIgnore) {
         super(src, toIgnore);
         _nameTransformer = src._nameTransformer;
@@ -60,12 +67,17 @@ public class UnwrappingBeanSerializer
     }
 
     @Override
-    public UnwrappingBeanSerializer withObjectIdWriter(ObjectIdWriter objectIdWriter) {
+    public BeanSerializerBase withObjectIdWriter(ObjectIdWriter objectIdWriter) {
         return new UnwrappingBeanSerializer(this, objectIdWriter);
     }
 
     @Override
-    protected UnwrappingBeanSerializer withIgnorals(String[] toIgnore) {
+    protected BeanSerializerBase withFilterId(Object filterId) {
+        return new UnwrappingBeanSerializer(this, _objectIdWriter, filterId);
+    }
+    
+    @Override
+    protected BeanSerializerBase withIgnorals(String[] toIgnore) {
         return new UnwrappingBeanSerializer(this, toIgnore);
     }
 

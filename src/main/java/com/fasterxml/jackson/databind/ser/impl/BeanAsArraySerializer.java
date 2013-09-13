@@ -4,10 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
@@ -59,7 +56,6 @@ public class BeanAsArraySerializer
     /**********************************************************
      */
 
-
     public BeanAsArraySerializer(BeanSerializerBase src) {    
         super(src, (ObjectIdWriter) null);
         _defaultSerializer = src;
@@ -70,6 +66,12 @@ public class BeanAsArraySerializer
         _defaultSerializer = src;
     }
 
+    protected BeanAsArraySerializer(BeanSerializerBase src,
+            ObjectIdWriter oiw, Object filterId) {
+        super(src, oiw, filterId);
+        _defaultSerializer = src;
+    }
+    
     /*
     /**********************************************************
     /* Life-cycle: factory methods, fluent factories
@@ -95,6 +97,11 @@ public class BeanAsArraySerializer
         return _defaultSerializer.withObjectIdWriter(objectIdWriter);
     }
 
+    @Override
+    protected BeanSerializerBase withFilterId(Object filterId) {
+        return new BeanAsArraySerializer(this, _objectIdWriter, filterId);
+    }
+    
     @Override
     protected BeanAsArraySerializer withIgnorals(String[] toIgnore) {
         return new BeanAsArraySerializer(this, toIgnore);

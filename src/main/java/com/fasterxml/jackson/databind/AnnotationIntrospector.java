@@ -262,13 +262,21 @@ public abstract class AnnotationIntrospector
     }
 
     /**
+     * @deprecated Since 2.3: use the one that takes generic {@link Annotated}
+     */
+    @Deprecated
+    public Object findFilterId(AnnotatedClass ac) {
+        return findFilterId((Annotated) ac);
+    }
+
+    /**
      * Method for finding if annotated class has associated filter; and if so,
      * to return id that is used to locate filter.
      * 
      * @return Id of the filter to use for filtering properties of annotated
      *    class, if any; or null if none found.
      */
-    public Object findFilterId(AnnotatedClass ac) {
+    public Object findFilterId(Annotated ann) {
         return null;
     }
 

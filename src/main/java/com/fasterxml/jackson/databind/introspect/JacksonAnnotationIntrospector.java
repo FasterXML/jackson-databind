@@ -93,10 +93,23 @@ public class JacksonAnnotationIntrospector
         return (ignore == null) ? null : ignore.value();
     }
 
+    /**
+     * @deprecated Use {@link #findFilterId(Annotated)} instead
+     */
+    @Deprecated
     @Override
-    public Object findFilterId(AnnotatedClass ac)
+    public Object findFilterId(AnnotatedClass ac) {
+        return _findFilterId(ac);
+    }
+    
+    @Override
+    public Object findFilterId(Annotated a) {
+        return _findFilterId(a);
+    }
+
+    protected final Object _findFilterId(Annotated a)
     {
-        JsonFilter ann = ac.getAnnotation(JsonFilter.class);
+        JsonFilter ann = a.getAnnotation(JsonFilter.class);
         if (ann != null) {
             String id = ann.value();
             // Empty String is same as not having annotation, to allow overrides

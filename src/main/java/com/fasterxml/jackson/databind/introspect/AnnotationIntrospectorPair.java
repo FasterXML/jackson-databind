@@ -140,6 +140,7 @@ public class AnnotationIntrospectorPair
         return result;
     }
 
+    @Deprecated
     @Override
     public Object findFilterId(AnnotatedClass ac)
     {
@@ -150,6 +151,16 @@ public class AnnotationIntrospectorPair
         return id;
     }
 
+    @Override
+    public Object findFilterId(Annotated ann)
+    {
+        Object id = _primary.findFilterId(ann);
+        if (id == null) {
+            id = _secondary.findFilterId(ann);
+        }
+        return id;
+    }
+    
     @Override
     public Object findNamingStrategy(AnnotatedClass ac)
     {

@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.BeanAsArraySerializer;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
@@ -53,14 +52,15 @@ public class BeanSerializer
         super(src);
     }
 
-    protected BeanSerializer(BeanSerializerBase src, ObjectIdWriter objectIdWriter) {
-        super(src, objectIdWriter);
+    protected BeanSerializer(BeanSerializerBase src,
+            ObjectIdWriter objectIdWriter, Object filterId) {
+        super(src, objectIdWriter, filterId);
     }
 
     protected BeanSerializer(BeanSerializerBase src, String[] toIgnore) {
         super(src, toIgnore);
     }
-    
+
     /*
     /**********************************************************
     /* Life-cycle: factory methods, fluent factories
@@ -82,12 +82,17 @@ public class BeanSerializer
     }
 
     @Override
-    public BeanSerializer withObjectIdWriter(ObjectIdWriter objectIdWriter) {
-        return new BeanSerializer(this, objectIdWriter);
+    public BeanSerializerBase withObjectIdWriter(ObjectIdWriter objectIdWriter) {
+        return new BeanSerializer(this, objectIdWriter, _propertyFilterId);
     }
 
     @Override
-    protected BeanSerializer withIgnorals(String[] toIgnore) {
+    protected BeanSerializerBase withFilterId(Object filterId) {
+        return new BeanSerializer(this, _objectIdWriter, filterId);
+    }
+
+    @Override
+    protected BeanSerializerBase withIgnorals(String[] toIgnore) {
         return new BeanSerializer(this, toIgnore);
     }
 

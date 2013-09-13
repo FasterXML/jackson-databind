@@ -27,7 +27,8 @@ New minor version.
 #270: Add `SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID` to allow use of equality
  (instead of identity) for figuring out when to use Object Id
  (requested by beku8@github)
-#277 Make `TokenBuffer` support new native type and object ids
+#277: Make `TokenBuffer` support new native type and object ids
+#306: Allow use of `@JsonFilter` for properties, not just classes 
 [JACKSON-890]: Support managed/back-references for polymorphic (abstract) types
 - Add 'BeanPropertyWriter.isUnwrapping()' for future needs (by Afterburner)
 - Add coercions from String "null" (as if null token was parsed) for primitives/Wrappers.

@@ -141,7 +141,7 @@ public class TestFiltering extends BaseMapTest
     {
         FilterProvider prov = new SimpleFilterProvider()
             .addFilter("RootFilter", SimpleBeanPropertyFilter.filterOutAllExcept("a"))
-            .addFilter("minimal", SimpleBeanPropertyFilter.filterOutAllExcept("b"));
+            .addFilter("b", SimpleBeanPropertyFilter.filterOutAllExcept("b"));
 
         assertEquals("{\"first\":{\"a\":\"a\"},\"second\":{\"b\":\"b\"}}",
                 MAPPER.writer(prov).writeValueAsString(new FilteredProps()));

@@ -13,8 +13,6 @@ public class TestIssueGH113 extends BaseMapTest
         public final static String ID = "id";
 
         private String id;
-        public Animal() {
-        }
 
         @JsonCreator
         public Animal(@JsonProperty(ID) String id) {
@@ -29,10 +27,6 @@ public class TestIssueGH113 extends BaseMapTest
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Dog extends Animal {
-        public Dog() {
-            super();
-        }
-
         @JsonCreator
         public Dog(@JsonProperty(ID) String id) {
             super(id);
@@ -56,10 +50,10 @@ public class TestIssueGH113 extends BaseMapTest
     public void testSubtypes() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-
         String id = "nice dogy";
-        String serializedDog = mapper.writeValueAsString(new AnimalWrapper(new Dog(id)));
-        AnimalWrapper wrapper = mapper.readValue(serializedDog, AnimalWrapper.class);
+        String json = mapper.writeValueAsString(new AnimalWrapper(new Dog(id)));
+//System.err.println("JSON = "+json);
+        AnimalWrapper wrapper = mapper.readValue(json, AnimalWrapper.class);
         assertEquals(id, wrapper.getAnimal().getId());
     }
 }

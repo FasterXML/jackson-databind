@@ -51,42 +51,54 @@ public class TestFiltering extends BaseMapTest
         public void setUserPassword(String value) {
             this.userPassword = value;
         }
-
     }    
+
+    // [Issue#306]: JsonFilter for properties, too!
+
+    @JsonPropertyOrder(alphabetic=true)
+    static class FilteredProps
+    {
+        // will default to using "RootFilter", only including 'a'
+        public Bean first = new Bean();
+
+        // but minimal includes 'b'
+        @JsonFilter("b")
+        public Bean second = new Bean();
+    }
+    
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testSimpleInclusionFilter() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
                 SimpleBeanPropertyFilter.filterOutAllExcept("a"));
-        assertEquals("{\"a\":\"a\"}", mapper.writer(prov).writeValueAsString(new Bean()));
+        assertEquals("{\"a\":\"a\"}", MAPPER.writer(prov).writeValueAsString(new Bean()));
 
         // [JACKSON-504]: also verify it works via mapper
-        mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         mapper.setFilters(prov);
         assertEquals("{\"a\":\"a\"}", mapper.writeValueAsString(new Bean()));
     }
 
     public void testSimpleExclusionFilter() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         FilterProvider prov = new SimpleFilterProvider().addFilter("RootFilter",
                 SimpleBeanPropertyFilter.serializeAllExcept("a"));
-        assertEquals("{\"b\":\"b\"}", mapper.writer(prov).writeValueAsString(new Bean()));
+        assertEquals("{\"b\":\"b\"}", MAPPER.writer(prov).writeValueAsString(new Bean()));
     }
 
     // should handle missing case gracefully
     public void testMissingFilter() throws Exception
     {
         // First: default behavior should be to throw an exception
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            mapper.writeValueAsString(new Bean());
+            MAPPER.writeValueAsString(new Bean());
             fail("Should have failed without configured filter");
         } catch (JsonMappingException e) { // should be resolved to a MappingException (internally may be something else)
             verifyException(e, "Can not resolve BeanPropertyFilter with id 'RootFilter'");
@@ -94,6 +106,7 @@ public class TestFiltering extends BaseMapTest
         
         // but when changing behavior, should work difference
         SimpleFilterProvider fp = new SimpleFilterProvider().setFailOnUnknownId(false);
+        ObjectMapper mapper = new ObjectMapper();
         mapper.setFilters(fp);
         String json = mapper.writeValueAsString(new Bean());
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", json);
@@ -102,11 +115,10 @@ public class TestFiltering extends BaseMapTest
     // defaulting, as per [JACKSON-449]
     public void testDefaultFilter() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         FilterProvider prov = new SimpleFilterProvider().setDefaultFilter(SimpleBeanPropertyFilter.filterOutAllExcept("b"));
-        assertEquals("{\"b\":\"b\"}", mapper.writer(prov).writeValueAsString(new Bean()));
+        assertEquals("{\"b\":\"b\"}", MAPPER.writer(prov).writeValueAsString(new Bean()));
     }
-
+    
     // [Issue#89] combining @JsonIgnore, @JsonProperty
     public void testIssue89() throws Exception
     {
@@ -122,5 +134,16 @@ public class TestFiltering extends BaseMapTest
         Pod pod2 = mapper.readValue("{\"username\":\"Bill\",\"user_password\":\"foo!\"}", Pod.class);
         assertEquals("Bill", pod2.username);
         assertEquals("foo!", pod2.userPassword);
+    }
+
+    // Wrt [Issue#306]
+    public void testFilterOnProperty() throws Exception
+    {
+        FilterProvider prov = new SimpleFilterProvider()
+            .addFilter("RootFilter", SimpleBeanPropertyFilter.filterOutAllExcept("a"))
+            .addFilter("minimal", SimpleBeanPropertyFilter.filterOutAllExcept("b"));
+
+        assertEquals("{\"first\":{\"a\":\"a\"},\"second\":{\"b\":\"b\"}}",
+                MAPPER.writer(prov).writeValueAsString(new FilteredProps()));
     }
 }

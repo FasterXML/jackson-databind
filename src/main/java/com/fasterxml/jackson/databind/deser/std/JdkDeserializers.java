@@ -107,7 +107,7 @@ public class JdkDeserializers
     /* Deserializer implementations: from-String deserializers
     /**********************************************************
      */
-    
+
     public static class UUIDDeserializer
         extends FromStringDeserializer<UUID>
     {
@@ -116,12 +116,75 @@ public class JdkDeserializers
         public UUIDDeserializer() { super(UUID.class); }
 
         @Override
-        protected UUID _deserialize(String value, DeserializationContext ctxt)
+        protected UUID _deserialize(String id, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
         {
-            return UUID.fromString(value);
+            // Adapter from java-uuid-generator (https://github.com/cowtowncoder/java-uuid-generator)
+            // which is 5x faster than UUID.fromString(value), as oper "ManualReadPerfWithUUID"
+            if (id.length() != 36) {
+                _badFormat(id);
+            }
+
+            long lo, hi;
+            lo = hi = 0;
+            
+            for (int i = 0, j = 0; i < 36; ++j) {
+              
+                // Need to bypass hyphens:
+                switch (i) {
+                case 8:
+                case 13:
+                case 18:
+                case 23:
+                    if (id.charAt(i) != '-') {
+                        _badFormat(id);
+                    }
+                    ++i;
+                }
+                int curr;
+                char c = id.charAt(i);
+
+                if (c >= '0' && c <= '9') {
+                    curr = (c - '0');
+                } else if (c >= 'a' && c <= 'f') {
+                    curr = (c - 'a' + 10);
+                } else if (c >= 'A' && c <= 'F') {
+                    curr = (c - 'A' + 10);
+                } else {
+                    curr = _badChar(id, i, c);
+                }
+                curr = (curr << 4);
+
+                c = id.charAt(++i);
+
+                if (c >= '0' && c <= '9') {
+                    curr |= (c - '0');
+                } else if (c >= 'a' && c <= 'f') {
+                    curr |= (c - 'a' + 10);
+                } else if (c >= 'A' && c <= 'F') {
+                    curr |= (c - 'A' + 10);
+                } else {
+                    curr = _badChar(id, i, c);
+                }
+                if (j < 8) {
+                   hi = (hi << 8) | curr;
+                } else {
+                   lo = (lo << 8) | curr;
+                }
+                ++i;
+            }      
+            return new UUID(hi, lo);
         }
-    
+
+        private int _badChar(String uuidStr, int index, char c) {
+            throw new NumberFormatException("Non-hex character at #"+index+": '"+c
+                    +"' (value 0x"+Integer.toHexString(c)+") for UUID String '"+uuidStr+"'");
+        }
+
+        private void _badFormat(String uuidStr) {
+            throw new NumberFormatException("UUID has to be represented by the standard 36-char representation");
+        }
+        
         @Override
         protected UUID _deserializeEmbedded(Object ob, DeserializationContext ctxt)
             throws IOException, JsonProcessingException

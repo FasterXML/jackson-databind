@@ -655,7 +655,8 @@ public abstract class BeanSerializerBase
      * {@link BeanPropertyFilter} that needs to be called to determine
      * which properties are to be serialized (and possibly how)
      */
-    protected void serializeFieldsFiltered(Object bean, JsonGenerator jgen, SerializerProvider provider)
+    protected void serializeFieldsFiltered(Object bean, JsonGenerator jgen,
+            SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
         /* note: almost verbatim copy of "serializeFields"; copied (instead of merged)

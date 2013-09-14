@@ -7,6 +7,13 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 
+/**
+ * Specialized {@link JsonSerializer} to output {@link java.util.UUID}s.
+ * Beyond optimized access and writing of textual representation (which
+ * is the default handling in most cases), it will alternatively
+ * allow serialization using raw binary output (as 16-byte block)
+ * if underlying data format has efficient means to access that.
+ */
 public class UUIDSerializer
     extends StdScalarSerializer<UUID>
 {

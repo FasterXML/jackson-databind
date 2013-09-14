@@ -1,9 +1,11 @@
 package com.fasterxml.jackson.databind.util;
 
 import java.io.*;
+import java.util.UUID;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
 {
@@ -109,7 +111,7 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         jp.close();
         buf.close();
     }
-
+    
     public void testSimpleObject() throws IOException
     {
         TokenBuffer buf = new TokenBuffer(null, false);
@@ -210,6 +212,21 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
         jp.close();
         buf1.close();
         buf2.close();
+    }
+
+    // Since 2.3 had big changes to UUID handling, let's verify we can
+    // deal with
+    public void testWithUUID() throws IOException
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        TokenBuffer buf = new TokenBuffer(mapper, false); // no ObjectCodec
+        UUID uuid = UUID.fromString("76e6d183-5f68-4afa-b94a-922c1fdb83f8");
+        mapper.writeValue(buf, uuid);
+        buf.close();
+
+        // and bring it back
+        UUID out = mapper.readValue(buf.asParser(), UUID.class);
+        assertEquals(uuid, out);
     }
     
     /*

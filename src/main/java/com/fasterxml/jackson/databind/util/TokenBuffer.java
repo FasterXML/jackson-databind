@@ -528,6 +528,20 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
     /*
     /**********************************************************
+    /* JsonGenerator implementation: capability introspection
+    /**********************************************************
+     */
+    
+    /**
+     * Since we can efficiently store <code>byte[]</code>, yes.
+     */
+    @Override
+    public boolean canWriteBinaryNatively() {
+        return true;
+    }
+    
+    /*
+    /**********************************************************
     /* JsonGenerator implementation: low-level output handling
     /**********************************************************
      */

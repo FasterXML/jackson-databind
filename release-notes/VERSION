@@ -29,6 +29,8 @@ New minor version.
  (requested by beku8@github)
 #277: Make `TokenBuffer` support new native type and object ids
 #306: Allow use of `@JsonFilter` for properties, not just classes 
+#308: Improve serialization and deserialization speed of `java.util.UUID` by 4x
+ (suggested by David P)
 [JACKSON-890]: Support managed/back-references for polymorphic (abstract) types
 - Add 'BeanPropertyWriter.isUnwrapping()' for future needs (by Afterburner)
 - Add coercions from String "null" (as if null token was parsed) for primitives/Wrappers.

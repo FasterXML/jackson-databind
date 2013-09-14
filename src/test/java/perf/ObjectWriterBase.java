@@ -1,14 +1,16 @@
 package perf;
 
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
-public class ManualObjectWriterPerf
+abstract class ObjectWriterBase<T1,T2>
 {
     protected int hash;
     
-    private <T1, T2> void test(ObjectMapper mapper,
-            T1 inputValue1, Class<T1> inputClass1,
-            T2 inputValue2, Class<T2> inputClass2)
+    protected void test(ObjectMapper mapper,
+            String desc1, T1 inputValue1, Class<T1> inputClass1,
+            String desc2, T2 inputValue2, Class<T2> inputClass2)
         throws Exception
     {
         final int REPS;
@@ -45,20 +47,19 @@ public class ManualObjectWriterPerf
             long msecs;
             ObjectWriter writer;
             Object value;
-            
             switch (round) {
             case 0:
-                msg = "JSON-as-Object";
+                msg = desc1;
                 writer = jsonWriter;
                 value = inputValue1;
                 break;
             case 1:
-                msg = "JSON-as-Array";
+                msg = desc2;
                 writer = arrayWriter;
                 value = inputValue2;
                 break;
             default:
-            	out.close(); // silly eclipse juno
+               out.close(); // silly eclipse juno
                 throw new Error();
             }
             msecs = testSer(REPS, value, writer, out);
@@ -89,7 +90,7 @@ public class ManualObjectWriterPerf
         }
     }
 
-    private final long testSer(int REPS, Object value, ObjectWriter writer, NopOutputStream out) throws Exception
+    protected final long testSer(int REPS, Object value, ObjectWriter writer, NopOutputStream out) throws Exception
     {
         long start = System.currentTimeMillis();
         while (--REPS >= 0) {
@@ -97,18 +98,5 @@ public class ManualObjectWriterPerf
         }
         hash = out.size();
         return System.currentTimeMillis() - start;
-    }
-
-    public static void main(String[] args) throws Exception
-    {
-        if (args.length != 0) {
-            System.err.println("Usage: java ...");
-            System.exit(1);
-        }
-        Record input1 = new Record(44, "BillyBob", "Bumbler", 'm', true);
-        RecordAsArray input2 = new RecordAsArray(44, "BillyBob", "Bumbler", 'm', true);
-        ObjectMapper m = new ObjectMapper();
-        new ManualObjectWriterPerf().test(m,
-                input1, Record.class, input2, RecordAsArray.class);
     }
 }

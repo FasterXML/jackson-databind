@@ -56,6 +56,10 @@ public abstract class StdScalarSerializer<T>
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        visitor.expectAnyFormat(typeHint);
+        if (visitor != null) {
+            // 13-Sep-2013, tatu: Let's assume it's usually a String, right?
+//            visitor.expectAnyFormat(typeHint);
+            visitor.expectStringFormat(typeHint);
+        }
     }
 }

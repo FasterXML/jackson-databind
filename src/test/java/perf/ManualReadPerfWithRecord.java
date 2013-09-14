@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.*;
  */
 public class ManualReadPerfWithRecord extends ObjectReaderBase
 {
- 
     public static void main(String[] args) throws Exception
     {
         if (args.length != 0) {

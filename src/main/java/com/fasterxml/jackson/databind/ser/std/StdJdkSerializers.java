@@ -34,7 +34,7 @@ public class StdJdkSerializers
         sers.put(java.net.URI.class, sls);
 
         sers.put(Currency.class, sls);
-        sers.put(UUID.class, sls);
+        sers.put(UUID.class, new UUIDSerializer());
         sers.put(java.util.regex.Pattern.class, sls);
         sers.put(Locale.class, sls);
 

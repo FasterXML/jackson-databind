@@ -86,3 +86,8 @@ Luke G-H (lukegh@github)
 Karl Moore (karldmoore@github)
   * Reported #217: JsonProcessingExceptions not all wrapped as expected
    (2.2.2)
+
+David Phillips:
+  * Requested #308: Improve serialization and deserialization speed of `java.util.UUID`
+   (2.3.0)
+

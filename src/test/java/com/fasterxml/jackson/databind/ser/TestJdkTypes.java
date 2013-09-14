@@ -128,4 +128,27 @@ public class TestJdkTypes
         bbuf2.put(INPUT_BYTES);
         assertEquals(exp, MAPPER.writeValueAsString(bbuf2));
     }
+
+    // Verify that efficient UUID codec won't mess things up:
+    public void testUUIDs() throws IOException
+    {
+        // first, couple of generated UUIDs:
+        for (String value : new String[] {
+                "76e6d183-5f68-4afa-b94a-922c1fdb83f8",
+                "00000007-0000-0000-0000-000000000000"
+        }) {
+            UUID uuid = UUID.fromString(value);
+            assertEquals(quote(uuid.toString()), MAPPER.writeValueAsString(value));
+        }
+        // then use templating; note that these are not exactly valid UUIDs
+        // wrt spec (type bits etc), but JDK UUID should deal ok
+        final String TEMPL = "00000000-0000-0000-0000-000000000000";
+        final String chars = "123456789abcdef";
+
+        for (int i = 0; i < chars.length(); ++i) {
+            String value = TEMPL.replace('0', chars.charAt(i));
+            UUID uuid = UUID.fromString(value);
+            assertEquals(quote(uuid.toString()), MAPPER.writeValueAsString(value));
+        }
+    }
 }

@@ -1,11 +1,10 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.UUID;
 
+import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 
@@ -27,7 +26,7 @@ public class UUIDDeserializer
     }
 
     public final static UUIDDeserializer instance = new UUIDDeserializer();
-    
+
     public UUIDDeserializer() { super(UUID.class); }
 
     @Override
@@ -37,6 +36,13 @@ public class UUIDDeserializer
         // Adapted from java-uuid-generator (https://github.com/cowtowncoder/java-uuid-generator)
         // which is 5x faster than UUID.fromString(value), as oper "ManualReadPerfWithUUID"
         if (id.length() != 36) {
+            /* 14-Sep-2013, tatu: One trick we do allow, Base64-encoding, since we know
+             *   length it must have...
+             */
+            if (id.length() == 24) {
+                byte[] stuff = Base64Variants.getDefaultVariant().decode(id);
+                return _fromBytes(stuff, ctxt);
+            }
             _badFormat(id);
         }
 
@@ -60,7 +66,22 @@ public class UUIDDeserializer
 
         return new UUID(hi, lo);
     }
+    
+    @Override
+    protected UUID _deserializeEmbedded(Object ob, DeserializationContext ctxt)
+        throws IOException, JsonProcessingException
+    {
+        if (ob instanceof byte[]) {
+            return _fromBytes((byte[]) ob, ctxt);
+        }
+        super._deserializeEmbedded(ob, ctxt);
+        return null; // never gets here
+    }
 
+    private void _badFormat(String uuidStr) {
+        throw new NumberFormatException("UUID has to be represented by the standard 36-char representation");
+    }
+    
     static int intFromChars(String str, int index) {
         return (byteFromChars(str, index) << 24)
                 +(byteFromChars(str, index+2) << 16)
@@ -93,27 +114,31 @@ public class UUIDDeserializer
         throw new NumberFormatException("Non-hex character '"+c+"', not valid character for a UUID String"
                 +"' (value 0x"+Integer.toHexString(c)+") for UUID String \""+uuidStr+"\"");
     }
-
-    private void _badFormat(String uuidStr) {
-        throw new NumberFormatException("UUID has to be represented by the standard 36-char representation");
-    }
     
-    @Override
-    protected UUID _deserializeEmbedded(Object ob, DeserializationContext ctxt)
+    private UUID _fromBytes(byte[] bytes, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
-        if (ob instanceof byte[]) {
-            byte[] bytes = (byte[]) ob;
-            if (bytes.length != 16) {
-                ctxt.mappingException("Can only construct UUIDs from 16 byte arrays; got "+bytes.length+" bytes");
-            }
-            // clumsy, but should work for now...
-            DataInputStream in = new DataInputStream(new ByteArrayInputStream(bytes));
-            long l1 = in.readLong();
-            long l2 = in.readLong();
-            return new UUID(l1, l2);
+        if (bytes.length != 16) {
+            ctxt.mappingException("Can only construct UUIDs from byte[16]; got "+bytes.length+" bytes");
         }
-        super._deserializeEmbedded(ob, ctxt);
-        return null; // never gets here
+        return new UUID(_long(bytes, 0), _long(bytes, 8));
+    }
+
+    private static long _long(byte[] b, int offset)
+    {
+        long l1 = ((long) _int(b, offset)) << 32;
+        long l2 = _int(b, offset+4);
+        // faster to just do it than check if it has sign
+        l2 = (l2 << 32) >>> 32; // to get rid of sign
+        return l1 | l2;
+    }
+
+    private static int _int(byte[] b, int offset)
+    {
+        return (b[offset] << 24)
+                | ((b[offset+1] & 0xFF) << 16)
+                | ((b[offset+2] & 0xFF) << 8)
+                | (b[offset+3] & 0xFF)
+                ;
     }
 }

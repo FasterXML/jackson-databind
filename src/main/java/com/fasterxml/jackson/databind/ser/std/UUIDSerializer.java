@@ -39,7 +39,14 @@ public class UUIDSerializer
     public void serialize(UUID value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
-        // UUID.toString() works ok but we can make it go faster...
+        // First: perhaps we could serialize it as raw binary data?
+        if (jgen.canWriteBinaryNatively()) {
+            jgen.writeBinary(_asBytes(value));
+            return;
+        }
+        
+        // UUID.toString() works ok functionally, but we can make it go much faster
+        // (by 4x with micro-benchmark)
 
         final char[] ch = new char[36];
         final long msb = value.getMostSignificantBits();
@@ -73,5 +80,25 @@ public class UUIDSerializer
         ch[++offset] = HEX_CHARS[(bits >> 4) & 0xF];
         ch[++offset] = HEX_CHARS[bits  & 0xF];
 
+    }
+
+    private final static byte[] _asBytes(UUID uuid)
+    {
+        byte[] buffer = new byte[16];
+        long hi = uuid.getMostSignificantBits();
+        long lo = uuid.getLeastSignificantBits();
+        _appendInt((int) (hi >> 32), buffer, 0);
+        _appendInt((int) hi, buffer, 4);
+        _appendInt((int) (lo >> 32), buffer, 8);
+        _appendInt((int) lo, buffer, 12);
+        return buffer;
+    }
+
+    private final static void _appendInt(int value, byte[] buffer, int offset)
+    {
+        buffer[offset] = (byte) (value >> 24);
+        buffer[++offset] = (byte) (value >> 16);
+        buffer[++offset] = (byte) (value >> 8);
+        buffer[++offset] = (byte) value;
     }
 }

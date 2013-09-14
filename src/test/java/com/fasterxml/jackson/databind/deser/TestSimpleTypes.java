@@ -357,6 +357,7 @@ public class TestSimpleTypes
 
     public void testUUID() throws Exception
     {
+        final String NULL_UUID = "00000000-0000-0000-0000-000000000000";
         // first, couple of generated UUIDs:
         for (String value : new String[] {
                 "76e6d183-5f68-4afa-b94a-922c1fdb83f8",
@@ -366,12 +367,13 @@ public class TestSimpleTypes
                 "82994ac2-7b23-49f2-8cc5-e24cf6ed77be",
                 "00000007-0000-0000-0000-000000000000"
         }) {
-            assertEquals(UUID.fromString(value),
+            UUID uuid = UUID.fromString(value);
+            assertEquals(uuid,
                     MAPPER.readValue(quote(value), UUID.class));
         }
         // then use templating; note that these are not exactly valid UUIDs
         // wrt spec (type bits etc), but JDK UUID should deal ok
-        final String TEMPL = "00000000-0000-0000-0000-000000000000";
+        final String TEMPL = NULL_UUID;
         final String chars = "123456789abcdefABCDEF";
 
         for (int i = 0; i < chars.length(); ++i) {
@@ -379,6 +381,11 @@ public class TestSimpleTypes
             assertEquals(UUID.fromString(value).toString(),
                     MAPPER.readValue(quote(value), UUID.class).toString());
         }
+
+        // also: see if base64 encoding works as expected
+        String base64 = Base64Variants.getDefaultVariant().encode(new byte[16]);
+        assertEquals(UUID.fromString(NULL_UUID),
+                MAPPER.readValue(quote(base64), UUID.class));
     }
 
     public void testUUIDAux() throws Exception

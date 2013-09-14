@@ -219,14 +219,24 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
     public void testWithUUID() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
-        TokenBuffer buf = new TokenBuffer(mapper, false); // no ObjectCodec
-        UUID uuid = UUID.fromString("76e6d183-5f68-4afa-b94a-922c1fdb83f8");
-        mapper.writeValue(buf, uuid);
-        buf.close();
 
-        // and bring it back
-        UUID out = mapper.readValue(buf.asParser(), UUID.class);
-        assertEquals(uuid, out);
+        for (String value : new String[] {
+                "00000007-0000-0000-0000-000000000000",
+                "76e6d183-5f68-4afa-b94a-922c1fdb83f8",
+                "540a88d1-e2d8-4fb1-9396-9212280d0a7f",
+                "2c9e441d-1cd0-472d-9bab-69838f877574",
+                "591b2869-146e-41d7-8048-e8131f1fdec5",
+                "82994ac2-7b23-49f2-8cc5-e24cf6ed77be",
+        }) {
+            TokenBuffer buf = new TokenBuffer(mapper, false); // no ObjectCodec
+            UUID uuid = UUID.fromString(value);
+            mapper.writeValue(buf, uuid);
+            buf.close();
+    
+            // and bring it back
+            UUID out = mapper.readValue(buf.asParser(), UUID.class);
+            assertEquals(uuid.toString(), out.toString());
+        }
     }
     
     /*

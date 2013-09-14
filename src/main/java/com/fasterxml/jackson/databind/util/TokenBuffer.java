@@ -1584,23 +1584,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
         
         // // // Mutators
-
-        /*
-
-    protected final void _appendNativeIds(int offset)
-    {
-        Segment seg = _last;
-        _hasNativeId = false;
-        if (_objectId != null) {
-            seg.assignObjectId(offset, _objectId);
-            _objectId = null;
-        }
-        if (_typeId != null) {
-            seg.assignTypeId(offset, _typeId);
-            _typeId = null;
-        }
-    }
-         */
         
         public Segment append(int index, JsonToken tokenType)
         {

@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.*;
 public class UUIDSerializer
     extends StdScalarSerializer<UUID>
 {
-    final static char[] HEX_CHARS = "01234567890abcdef".toCharArray();
+    final static char[] HEX_CHARS = "0123456789abcdef".toCharArray();
     
     public UUIDSerializer() { super(UUID.class); }
 

@@ -357,10 +357,30 @@ public class TestSimpleTypes
 
     public void testUUID() throws Exception
     {
-        UUID value = UUID.fromString("76e6d183-5f68-4afa-b94a-922c1fdb83f8");
-        assertEquals(value, MAPPER.readValue("\""+value.toString()+"\"", UUID.class));
+        // first, couple of generated UUIDs:
+        for (String value : new String[] {
+                "76e6d183-5f68-4afa-b94a-922c1fdb83f8",
+                "00000007-0000-0000-0000-000000000000"
+        }) {
+            assertEquals(UUID.fromString(value),
+                    MAPPER.readValue(quote(value), UUID.class));
+        }
+        // then use templating; note that these are not exactly valid UUIDs
+        // wrt spec (type bits etc), but JDK UUID should deal ok
+        final String TEMPL = "00000000-0000-0000-0000-000000000000";
+        final String chars = "123456789abcdefABCDEF";
 
+        for (int i = 0; i < chars.length(); ++i) {
+            String value = TEMPL.replace('0', chars.charAt(i));
+            assertEquals(UUID.fromString(value).toString(),
+                    MAPPER.readValue(quote(value), UUID.class).toString());
+        }
+    }
+
+    public void testUUIDAux() throws Exception
+    {
         // [JACKSON-393] fix:
+        final UUID value = UUID.fromString("76e6d183-5f68-4afa-b94a-922c1fdb83f8");
 
         // first, null should come as null
         TokenBuffer buf = new TokenBuffer(null, false);

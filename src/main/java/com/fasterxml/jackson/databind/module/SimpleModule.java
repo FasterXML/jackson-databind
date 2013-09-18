@@ -67,6 +67,11 @@ public class SimpleModule
      * Set of subtypes to register, if any.
      */
     protected LinkedHashSet<NamedType> _subtypes = null;
+
+    /**
+     * @since 2.3
+     */
+    protected PropertyNamingStrategy _namingStrategy = null;
     
     /*
     /**********************************************************
@@ -210,6 +215,14 @@ public class SimpleModule
      */
     public SimpleModule setSerializerModifier(BeanSerializerModifier mod) {
         _serializerModifier = mod;
+        return this;
+    }
+
+    /**
+     * @since 2.3
+     */
+    protected SimpleModule setNamingStrategy(PropertyNamingStrategy naming) {
+        _namingStrategy = naming;
         return this;
     }
     
@@ -385,6 +398,9 @@ public class SimpleModule
         }
         if (_subtypes != null && _subtypes.size() > 0) {
             context.registerSubtypes(_subtypes.toArray(new NamedType[_subtypes.size()]));
+        }
+        if (_namingStrategy != null) {
+            context.setNamingStrategy(_namingStrategy);
         }
         if (_mixins != null) {
             for (Map.Entry<Class<?>,Class<?>> entry : _mixins.entrySet()) {

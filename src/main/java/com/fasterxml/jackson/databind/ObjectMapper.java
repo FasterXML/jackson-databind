@@ -676,6 +676,11 @@ public class ObjectMapper
             public void addDeserializationProblemHandler(DeserializationProblemHandler handler) {
                 mapper.addHandler(handler);
             }
+
+            @Override
+            public void setNamingStrategy(PropertyNamingStrategy naming) {
+                mapper.setPropertyNamingStrategy(naming);
+            }
         });
         return this;
     }

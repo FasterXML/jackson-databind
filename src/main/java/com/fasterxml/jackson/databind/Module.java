@@ -281,5 +281,13 @@ public abstract class Module
          * @param handler The deserialization problem handler
          */
         public void addDeserializationProblemHandler(DeserializationProblemHandler handler);
+
+        /**
+         * Method that may be used to override naming strategy that is used
+         * by {@link ObjectMapper}.
+         * 
+         * @since 2.3
+         */
+        public void setNamingStrategy(PropertyNamingStrategy naming);
     }
 }

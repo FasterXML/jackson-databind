@@ -58,7 +58,7 @@ public class TestSerializationOrder
     static class OrderMixIn { }
 
     @JsonPropertyOrder(value={"a","b","x","z"})
-    static class BeanFor268 { // testing [JACKSON-268]
+    static class BeanFor268 {
     	@JsonProperty("a") public String xA = "a";
     	@JsonProperty("z") public String aZ = "z";
     	@JsonProperty("b") public String xB() { return "b"; }
@@ -71,6 +71,22 @@ public class TestSerializationOrder
         public int b = 2;
         public int a = 1;
     }
+
+    // For [Issue#311]
+    @JsonPropertyOrder(alphabetic = true)
+    public class BeanForGH311 {
+        private final int a;
+        private final int b;
+
+        @JsonCreator
+        public BeanForGH311(@JsonProperty("b") int b, @JsonProperty("a") int a) { //b and a are out of order, although alphabetic = true
+            this.a = a;
+            this.b = b;
+        }
+
+        public int getA() { return a; }
+        public int getB() { return b; }
+    }
     
     /*
     /*********************************************
@@ -78,20 +94,22 @@ public class TestSerializationOrder
     /*********************************************
      */
 
+    final ObjectMapper MAPPER = new ObjectMapper();
+    
     // Test for [JACKSON-170]
     public void testImplicitOrderByCreator() throws Exception
     {
-        assertEquals("{\"c\":1,\"a\":2,\"b\":0}", serializeAsString(new BeanWithCreator(1, 2)));
+        assertEquals("{\"c\":1,\"a\":2,\"b\":0}", MAPPER.writeValueAsString(new BeanWithCreator(1, 2)));
     }
 
     public void testExplicitOrder() throws Exception
     {
-        assertEquals("{\"c\":3,\"a\":1,\"b\":2,\"d\":4}", serializeAsString(new BeanWithOrder(1, 2, 3, 4)));
+        assertEquals("{\"c\":3,\"a\":1,\"b\":2,\"d\":4}", MAPPER.writeValueAsString(new BeanWithOrder(1, 2, 3, 4)));
     }
 
     public void testAlphabeticOrder() throws Exception
     {
-        assertEquals("{\"d\":4,\"a\":1,\"b\":2,\"c\":3}", serializeAsString(new SubBeanWithOrder(1, 2, 3, 4)));
+        assertEquals("{\"d\":4,\"a\":1,\"b\":2,\"c\":3}", MAPPER.writeValueAsString(new SubBeanWithOrder(1, 2, 3, 4)));
     }
 
 
@@ -99,21 +117,31 @@ public class TestSerializationOrder
     {
         ObjectMapper m = new ObjectMapper();
         m.addMixInAnnotations(BeanWithOrder.class, OrderMixIn.class);
-        assertEquals("{\"b\":2,\"a\":1,\"c\":3,\"d\":4}", serializeAsString(m, new BeanWithOrder(1, 2, 3, 4)));
+        assertEquals("{\"b\":2,\"a\":1,\"c\":3,\"d\":4}",
+                serializeAsString(m, new BeanWithOrder(1, 2, 3, 4)));
     }
 
-    // Test for [JACKSON-268]
     public void testOrderWrt268() throws Exception
     {
         assertEquals("{\"a\":\"a\",\"b\":\"b\",\"x\":\"x\",\"z\":\"z\"}",
-        		serializeAsString(new BeanFor268()));
+                MAPPER.writeValueAsString(new BeanFor268()));
     }
 
-    // Test for [JACKSON-459]
     public void testOrderWithFeature() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         m.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
-        assertEquals("{\"a\":1,\"b\":2,\"c\":3,\"d\":4}", serializeAsString(m, new BeanFor459()));
+        assertEquals("{\"a\":1,\"b\":2,\"c\":3,\"d\":4}",
+                m.writeValueAsString(new BeanFor459()));
+    }
+
+    // [Issue#311]
+
+    public void testAlphaAndCreatorOrdering() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        m.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
+        String json = m.writeValueAsString(new BeanForGH311(1, 2));
+        assertEquals("{\"a\":1,\"b\":2}", json);
     }
 }

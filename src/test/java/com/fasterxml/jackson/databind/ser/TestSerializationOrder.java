@@ -141,7 +141,7 @@ public class TestSerializationOrder
     {
         ObjectMapper m = new ObjectMapper();
         m.configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true);
-        String json = m.writeValueAsString(new BeanForGH311(1, 2));
+        String json = m.writeValueAsString(new BeanForGH311(2, 1));
         assertEquals("{\"a\":1,\"b\":2}", json);
     }
 }

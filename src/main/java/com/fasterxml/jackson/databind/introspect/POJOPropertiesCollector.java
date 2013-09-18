@@ -331,7 +331,23 @@ public class POJOPropertiesCollector
         }
         // And secondly by sorting Creator properties before other unordered properties
         if (_creatorProperties != null) {
-            for (POJOPropertyBuilder prop : _creatorProperties) {
+            /* As per [Issue#311], this is bit delicate; but if alphabetic ordering
+             * is mandated, at least ensure creator properties are in alphabetic
+             * order. Related question of creator vs non-creator is punted for now,
+             * so creator properties still fully predate non-creator ones.
+             */
+            Collection<POJOPropertyBuilder> cr;
+            if (sort) {
+                TreeMap<String, POJOPropertyBuilder> sorted =
+                        new TreeMap<String,POJOPropertyBuilder>();
+                for (POJOPropertyBuilder prop : _creatorProperties) {
+                    sorted.put(prop.getName(), prop);
+                }
+                cr = sorted.values();
+            } else {
+                cr = _creatorProperties;
+            }
+            for (POJOPropertyBuilder prop : cr) {
                 ordered.put(prop.getName(), prop);
             }
         }

@@ -67,17 +67,17 @@ public class BeanUtil
 
     public static String okNameForSetter(AnnotatedMethod am)
     {
-    	String name = okNameForMutator(am, "set");
-    	if (name != null) {
-	        // 26-Nov-2009 [JACSON-103], need to suppress this internal groovy method
-	        if ("metaClass".equals(name)) {
-	            if (isGroovyMetaClassSetter(am)) {
-	                return null;
-	            }
-	        }
-	        return name;
-    	}
-    	return null;
+        String name = okNameForMutator(am, "set");
+        if (name != null) {
+            // 26-Nov-2009 [JACSON-103], need to suppress this internal groovy method
+            if ("metaClass".equals(name)) {
+                if (isGroovyMetaClassSetter(am)) {
+                    return null;
+                }
+            }
+            return name;
+        }
+        return null;
     }
 
     public static String okNameForMutator(AnnotatedMethod am, String prefix)

@@ -758,6 +758,9 @@ public class POJOPropertiesCollector
                 continue;
             }
             PropertyName wrapperName = _annotationIntrospector.findWrapperName(member);
+            // One trickier part (wrt [Issue#24] of JAXB annotations: wrapper that
+            // indicates use of actual property... But hopefully has been taken care
+            // of previously
             if (wrapperName == null || !wrapperName.hasSimpleName()) {
                 continue;
             }

@@ -53,10 +53,15 @@ public class BeanSerializer
     }
 
     protected BeanSerializer(BeanSerializerBase src,
+            ObjectIdWriter objectIdWriter) {
+        super(src, objectIdWriter);
+    }
+
+    protected BeanSerializer(BeanSerializerBase src,
             ObjectIdWriter objectIdWriter, Object filterId) {
         super(src, objectIdWriter, filterId);
     }
-
+    
     protected BeanSerializer(BeanSerializerBase src, String[] toIgnore) {
         super(src, toIgnore);
     }

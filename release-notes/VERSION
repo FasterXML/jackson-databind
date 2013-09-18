@@ -31,6 +31,7 @@ New minor version.
 #306: Allow use of `@JsonFilter` for properties, not just classes 
 #308: Improve serialization and deserialization speed of `java.util.UUID` by 4x
  (suggested by David P)
+#310: Improve `java.util.UUID` serialization with binary codecs, to use "raw" form.
 #311: Make sure that "creator properties" are alphabetically ordered too, if
   so requested.
 [JACKSON-890]: Support managed/back-references for polymorphic (abstract) types

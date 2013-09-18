@@ -526,7 +526,7 @@ public class BeanSerializerFactory
      */
     protected Object findFilterId(SerializationConfig config, BeanDescription beanDesc)
     {
-        return config.getAnnotationIntrospector().findFilterId(beanDesc.getClassInfo());
+        return config.getAnnotationIntrospector().findFilterId((Annotated)beanDesc.getClassInfo());
     }
     
     /*

@@ -5,6 +5,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -405,7 +407,18 @@ public class BeanPropertyWriter
         } else {  
             schemaNode = com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode(); 
         }
-        propertiesNode.put(getName(), schemaNode);
+        if (isUnwrapping()) {
+            JsonNode props = schemaNode.get("properties");
+            if (props != null) {
+                Iterator<Entry<String, JsonNode>> it = props.fields();
+                while (it.hasNext()) {
+                    Entry<String,JsonNode> entry = it.next();
+                    propertiesNode.put(entry.getKey(), entry.getValue());
+                }
+            }
+        } else {
+            propertiesNode.put(getName(), schemaNode);
+        }
     }
     
     /*

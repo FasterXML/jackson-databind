@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.jsonschema;
 import java.util.Collection;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -92,6 +92,18 @@ public class TestGenerateJsonSchema
     @JsonSerializableSchema(id="myType")
     public class BeanWithId {
         public String value;
+    }
+
+    static class UnwrappingRoot
+    {
+        public int age;
+
+        @JsonUnwrapped
+        public Name name;
+    }
+
+    static class Name {
+        public String firstName, lastName;
     }
     
     /*
@@ -223,4 +235,16 @@ public class TestGenerateJsonSchema
         assertEquals("{'type':'object','id':'myType','properties':{'value':{'type':'string'}}}",
                 json);
     }
+
+    // [Issue#271]
+    public void testUnwrapping()  throws Exception
+    {
+        JsonSchema jsonSchema = MAPPER.generateJsonSchema(UnwrappingRoot.class);
+        String json = jsonSchema.toString().replaceAll("\"", "'");
+        String EXP = "{'type':'object',"
+                +"'properties':{'age':{'type':'integer'},"
+                +"'firstName':{'type':'string'},'lastName':{'type':'string'}}}";
+        assertEquals(EXP, json);
+    }
+
 }

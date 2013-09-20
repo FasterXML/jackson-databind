@@ -27,6 +27,7 @@ New minor version.
 #270: Add `SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID` to allow use of equality
  (instead of identity) for figuring out when to use Object Id
  (requested by beku8@github)
+#271: Support handling of `@JsonUnwrapped` for in-built JSON Schema generation
 #277: Make `TokenBuffer` support new native type and object ids
 #302: Add `setNamingStrategy` in `Module.SetupContext`
  (suggested by Miguel C)

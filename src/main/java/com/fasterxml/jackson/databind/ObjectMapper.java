@@ -1908,7 +1908,7 @@ public class ObjectMapper
      * Convenience conversion method that will bind data given JSON tree
      * contains into specific value (usually bean) type.
      *<p>
-     * Equivalent to:
+     * Functionally equivalent to:
      *<pre>
      *   objectMapper.convertValue(n, valueClass);
      *</pre>

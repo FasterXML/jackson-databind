@@ -757,17 +757,21 @@ public abstract class BeanSerializerBase
         throws JsonMappingException
     {
         //deposit your output format 
-        JsonObjectFormatVisitor objectVisitor = (visitor == null) ? null : visitor.expectObjectFormat(typeHint);
-        if (objectVisitor != null) {
-            if (_propertyFilterId != null) {
-                BeanPropertyFilter filter = findFilter(visitor.getProvider());
-                for (int i = 0; i < _props.length; i++) {
-                    filter.depositSchemaProperty(_props[i], objectVisitor, visitor.getProvider());
-                }
-            } else {
-                for (int i = 0; i < _props.length; i++) {
-                    _props[i].depositSchemaProperty(objectVisitor);
-                }
+        if (visitor == null) {
+            return;
+        }
+        JsonObjectFormatVisitor objectVisitor = visitor.expectObjectFormat(typeHint);
+        if (objectVisitor == null) {
+            return;
+        }
+        if (_propertyFilterId != null) {
+            BeanPropertyFilter filter = findFilter(visitor.getProvider());
+            for (int i = 0; i < _props.length; i++) {
+                filter.depositSchemaProperty(_props[i], objectVisitor, visitor.getProvider());
+            }
+        } else {
+            for (int i = 0; i < _props.length; i++) {
+                _props[i].depositSchemaProperty(objectVisitor);
             }
         }
     }

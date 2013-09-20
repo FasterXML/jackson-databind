@@ -1,11 +1,16 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -119,6 +124,24 @@ public class UnwrappingBeanPropertyWriter
                 t = NameTransformer.chainedTransformer(t, ((UnwrappingBeanSerializer) _serializer)._nameTransformer);
             }
             _serializer = _serializer.unwrappingSerializer(t);
+        }
+    }
+
+    // Override needed to support legacy JSON Schema generator
+    @Override
+    protected void _depositSchemaProperty(ObjectNode propertiesNode, JsonNode schemaNode)
+    {
+        JsonNode props = schemaNode.get("properties");
+        if (props != null) {
+            Iterator<Entry<String, JsonNode>> it = props.fields();
+            while (it.hasNext()) {
+                Entry<String,JsonNode> entry = it.next();
+                String name = entry.getKey();
+                if (_nameTransformer != null) {
+                    name = _nameTransformer.transform(name);
+                }
+                propertiesNode.put(name, entry.getValue());
+            }
         }
     }
     

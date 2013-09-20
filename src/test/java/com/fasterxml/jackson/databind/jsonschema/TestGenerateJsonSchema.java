@@ -98,12 +98,12 @@ public class TestGenerateJsonSchema
     {
         public int age;
 
-        @JsonUnwrapped
+        @JsonUnwrapped(prefix="name.")
         public Name name;
     }
 
     static class Name {
-        public String firstName, lastName;
+        public String first, last;
     }
     
     /*
@@ -133,7 +133,7 @@ public class TestGenerateJsonSchema
         assertNotNull(jsonSchema.toString());
         assertNotNull(JsonSchema.getDefaultSchemaNode());
 
-	ObjectNode root = jsonSchema.getSchemaNode();
+        ObjectNode root = jsonSchema.getSchemaNode();
         assertEquals("object", root.get("type").asText());
         assertEquals(false, root.path("required").booleanValue());
         JsonNode propertiesSchema = root.get("properties");
@@ -243,7 +243,7 @@ public class TestGenerateJsonSchema
         String json = jsonSchema.toString().replaceAll("\"", "'");
         String EXP = "{'type':'object',"
                 +"'properties':{'age':{'type':'integer'},"
-                +"'firstName':{'type':'string'},'lastName':{'type':'string'}}}";
+                +"'name.first':{'type':'string'},'name.last':{'type':'string'}}}";
         assertEquals(EXP, json);
     }
 

@@ -156,17 +156,6 @@ public abstract class AnnotationIntrospector
     /* Meta-annotations (annotations for annotation types)
     /**********************************************************
      */
-    
-    /**
-     * Method called by framework to determine whether given annotation
-     * is handled by this introspector.
-     *
-     * @deprecated Not used since 2.0; deprecated since 2.1
-     */
-    @Deprecated
-    public boolean isHandled(Annotation ann) {
-        return false;
-    }
 
     /**
      * Method for checking whether given annotation is considered an
@@ -482,21 +471,6 @@ public abstract class AnnotationIntrospector
      */
     public Class<?>[] findViews(Annotated a) {
         return null;
-    }
-
-    /**
-     * Method for finding format annotations for given member.
-     * Return value is typically used by serializers and/or
-     * deserializers to customize presentation aspects of the
-     * serialized value.
-     * 
-     * @since 2.0
-     * 
-     * @deprecated Since 2.1, use {@link #findFormat(Annotated)} instead.
-     */
-    @Deprecated
-    public JsonFormat.Value findFormat(AnnotatedMember member) {
-        return findFormat((Annotated) member);
     }
 
     /**
@@ -1127,28 +1101,5 @@ public abstract class AnnotationIntrospector
      */
     public boolean hasCreatorAnnotation(Annotated a) {
         return false;
-    }
-
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
-    /**
-     * Old version of {@link AnnotationIntrospectorPair}.
-     * 
-     * @deprecated Starting with 2.1, use {@link AnnotationIntrospectorPair} instead.
-     */
-    @Deprecated
-    public static class Pair
-        extends AnnotationIntrospectorPair
-    {
-        private static final long serialVersionUID = 1L;
-
-        @Deprecated
-        public Pair(AnnotationIntrospector p, AnnotationIntrospector s) {
-            super(p, s);
-        }
     }
 }

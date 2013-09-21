@@ -34,6 +34,15 @@ public class JacksonAnnotationIntrospector
         return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
     }
     
+    /**
+     *
+     * @deprecated Not used since 2.0; deprecated since 2.1; moved from {@link AnnotationIntrospector} in 2.3
+     */
+    @Deprecated
+    public boolean isHandled(Annotation ann) {
+        return false;
+    }
+    
     /*
     /**********************************************************
     /* General annotation properties

@@ -693,12 +693,6 @@ public class AnnotationIntrospectorPair
     /* Deprecated methods
     /******************************************************
      */
-    
-    @Deprecated
-    @Override
-    public boolean isHandled(Annotation ann) {
-        return _primary.isHandled(ann) || _secondary.isHandled(ann);
-    }
 
     // // // Deserialization: property annotations
 

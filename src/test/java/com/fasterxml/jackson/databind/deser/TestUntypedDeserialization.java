@@ -4,11 +4,14 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -49,6 +52,40 @@ public class TestUntypedDeserialization
             throws IOException, JsonProcessingException
         {
             return value;
+        }
+    }
+
+    @SuppressWarnings("serial")
+    static class ListDeserializer extends StdDeserializer<List<Object>>
+    {
+        public ListDeserializer() { super(List.class); }
+
+        @Override
+        public List<Object> deserialize(JsonParser jp, DeserializationContext ctxt)
+            throws IOException
+        {
+            ArrayList<Object> list = new ArrayList<Object>();
+            while (jp.nextValue() != JsonToken.END_ARRAY) {
+                list.add("X"+jp.getText());
+            }
+            return list;
+        }
+    }
+
+    @SuppressWarnings("serial")
+    static class MapDeserializer extends StdDeserializer<Map<String,Object>>
+    {
+        public MapDeserializer() { super(Map.class); }
+
+        @Override
+        public Map<String,Object> deserialize(JsonParser jp, DeserializationContext ctxt)
+            throws IOException
+        {
+            Map<String,Object> map = new LinkedHashMap<String,Object>();
+            while (jp.nextValue() != JsonToken.END_OBJECT) {
+                map.put(jp.getCurrentName(), "Y"+jp.getText());
+            }
+            return map;
         }
     }
     
@@ -133,7 +170,7 @@ public class TestUntypedDeserialization
         assertEquals(Long.valueOf(VALUE), n);
     }
 
-    public void testUntypedWithCustomDesers() throws IOException
+    public void testUntypedWithCustomScalarDesers() throws IOException
     {
         SimpleModule m = new SimpleModule("test-module");
         m.addDeserializer(String.class, new UCStringDeserializer());
@@ -152,5 +189,37 @@ public class TestUntypedDeserialization
         assertNotNull(value);
         assertTrue(value instanceof Number);
         assertEquals(Integer.valueOf(13), value);
+    }
+
+    public void testUntypedWithListDeser() throws IOException
+    {
+        SimpleModule m = new SimpleModule("test-module");
+        m.addDeserializer(List.class, new ListDeserializer());
+        final ObjectMapper mapper = new ObjectMapper()
+            .registerModule(m);
+
+        // And then list...
+        Object ob = mapper.readValue("[1, 2, true]", Object.class);
+        assertTrue(ob instanceof List<?>);
+        List<?> l = (List<?>) ob;
+        assertEquals(3, l.size());
+        assertEquals("X1", l.get(0));
+        assertEquals("X2", l.get(1));
+        assertEquals("Xtrue", l.get(2));
+    }
+
+    public void testUntypedWithMapDeser() throws IOException
+    {
+        SimpleModule m = new SimpleModule("test-module");
+        m.addDeserializer(Map.class, new MapDeserializer());
+        final ObjectMapper mapper = new ObjectMapper()
+            .registerModule(m);
+
+        // And then list...
+        Object ob = mapper.readValue("{\"a\":true}", Object.class);
+        assertTrue(ob instanceof Map<?,?>);
+        Map<?,?> map = (Map<?,?>) ob;
+        assertEquals(1, map.size());
+        assertEquals("Ytrue", map.get("a"));
     }
 }

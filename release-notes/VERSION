@@ -22,6 +22,7 @@ New minor version.
  (requested by thierryhenrio@github)
 #253: `DelegatingDeserializer` causes problems for Managed/BackReferences
  (reported by bfelaco@github)
+#257: Make `UntypedObjectDeserializer` support overides for `List`, `Map` etc
 #269: Add support for new `@JsonPropertyDescription` via `AnnotationIntrospector`
  as well as `BeanProperty.getMedata().getDescription()`
 #270: Add `SerializationFeature.USE_EQUALITY_FOR_OBJECT_ID` to allow use of equality

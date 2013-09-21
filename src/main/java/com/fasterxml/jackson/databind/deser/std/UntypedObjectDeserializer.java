@@ -160,12 +160,20 @@ public class UntypedObjectDeserializer
         throws IOException, JsonProcessingException
     {
         switch (jp.getCurrentToken()) {
+        case FIELD_NAME:
         case START_OBJECT:
+            if (_mapDeserializer != null) {
+                return _mapDeserializer.deserialize(jp, ctxt);
+            }
             return mapObject(jp, ctxt);
         case START_ARRAY:
+            if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
+                return mapArrayToArray(jp, ctxt);
+            }
+            if (_listDeserializer != null) {
+                return _listDeserializer.deserialize(jp, ctxt);
+            }
             return mapArray(jp, ctxt);
-        case FIELD_NAME:
-            return mapObject(jp, ctxt);
         case VALUE_EMBEDDED_OBJECT:
             return jp.getEmbeddedObject();
         case VALUE_STRING:
@@ -175,6 +183,9 @@ public class UntypedObjectDeserializer
             return jp.getText();
 
         case VALUE_NUMBER_INT:
+            if (_numberDeserializer != null) {
+                return _numberDeserializer.deserialize(jp, ctxt);
+            }
             /* [JACKSON-100]: caller may want to get all integral values
              * returned as BigInteger, for consistency
              */
@@ -184,6 +195,9 @@ public class UntypedObjectDeserializer
             return jp.getNumberValue(); // should be optimal, whatever it is
 
         case VALUE_NUMBER_FLOAT:
+            if (_numberDeserializer != null) {
+                return _numberDeserializer.deserialize(jp, ctxt);
+            }
             /* [JACKSON-72]: need to allow overriding the behavior regarding
              *   which type to use
              */
@@ -233,6 +247,9 @@ public class UntypedObjectDeserializer
             return jp.getText();
 
         case VALUE_NUMBER_INT:
+            if (_numberDeserializer != null) {
+                return _numberDeserializer.deserialize(jp, ctxt);
+            }
             // For [JACKSON-100], see above:
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
                 return jp.getBigIntegerValue();
@@ -244,6 +261,9 @@ public class UntypedObjectDeserializer
             return jp.getNumberValue();
 
         case VALUE_NUMBER_FLOAT:
+            if (_numberDeserializer != null) {
+                return _numberDeserializer.deserialize(jp, ctxt);
+            }
             // For [JACKSON-72], see above
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                 return jp.getDecimalValue();
@@ -276,9 +296,6 @@ public class UntypedObjectDeserializer
     protected Object mapArray(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
-        if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
-            return mapArrayToArray(jp, ctxt);
-        }
         // Minor optimization to handle small lists (default size for ArrayList is 10)
         if (jp.nextToken()  == JsonToken.END_ARRAY) {
             return new ArrayList<Object>(4);

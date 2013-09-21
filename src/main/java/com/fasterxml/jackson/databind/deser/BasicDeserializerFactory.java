@@ -1382,7 +1382,7 @@ public abstract class BasicDeserializerFactory
         if (rawType.isPrimitive() || clsName.startsWith("java.")) {
             // Object ("untyped"), String equivalents:
             if (rawType == CLASS_OBJECT) {
-                return UntypedObjectDeserializer.instance;
+                return new UntypedObjectDeserializer();
             }
             if (rawType == CLASS_STRING || rawType == CLASS_CHAR_BUFFER) {
                 return StringDeserializer.instance;

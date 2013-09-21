@@ -5,9 +5,12 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
  * Unit tests for verifying "old" data binding from JSON to JDK objects;
@@ -16,9 +19,47 @@ import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 public class TestUntypedDeserialization
     extends com.fasterxml.jackson.test.BaseTest
 {
+    @SuppressWarnings("serial")
+    static class UCStringDeserializer
+        extends StdScalarDeserializer<String>
+    {
+        public UCStringDeserializer() { super(String.class); }
+
+        @Override
+        public String deserialize(JsonParser jp, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException
+        {
+            return jp.getText().toUpperCase();
+        }
+    }
+
+    @SuppressWarnings("serial")
+    static class CustomNumberDeserializer
+        extends StdScalarDeserializer<Number>
+    {
+        protected final Integer value;
+        
+        public CustomNumberDeserializer(int nr) {
+            super(Number.class);
+            value = nr;
+        }
+
+        @Override
+        public Number deserialize(JsonParser jp, DeserializationContext ctxt)
+            throws IOException, JsonProcessingException
+        {
+            return value;
+        }
+    }
+    
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+
     @SuppressWarnings("unchecked")
-    public void testSampleDoc()
-        throws Exception
+    public void testSampleDoc() throws Exception
     {
         final String JSON = SAMPLE_DOC_JSON_SPEC;
 
@@ -90,5 +131,26 @@ public class TestUntypedDeserialization
         assertNotNull(n);
         assertSame(Long.class, n.getClass());
         assertEquals(Long.valueOf(VALUE), n);
+    }
+
+    public void testUntypedWithCustomDesers() throws IOException
+    {
+        SimpleModule m = new SimpleModule("test-module");
+        m.addDeserializer(String.class, new UCStringDeserializer());
+        m.addDeserializer(Number.class, new CustomNumberDeserializer(13));
+        final ObjectMapper mapper = new ObjectMapper()
+            .registerModule(m);
+
+        Object ob = mapper.readValue("{\"a\":\"b\", \"nr\":1 }", Object.class);
+        assertTrue(ob instanceof Map);
+        Object value = ((Map<?,?>) ob).get("a");
+        assertNotNull(value);
+        assertTrue(value instanceof String);
+        assertEquals("B", value);
+
+        value = ((Map<?,?>) ob).get("nr");
+        assertNotNull(value);
+        assertTrue(value instanceof Number);
+        assertEquals(Integer.valueOf(13), value);
     }
 }

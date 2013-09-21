@@ -264,7 +264,6 @@ public class ExternalTypeHandler
         private final ArrayList<ExtTypedProperty> _properties = new ArrayList<ExtTypedProperty>();
         private final HashMap<String, Integer> _nameToPropertyIndex = new HashMap<String, Integer>();
 
-        // note: signature changed between 2.1.0 and 2.1.1 (alas!)
         public void addExternal(SettableBeanProperty property, TypeDeserializer typeDeser)
         {
             Integer index = _properties.size();

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -59,7 +60,7 @@ public class UnwrappingBeanPropertyWriter
 
     /*
     /**********************************************************
-    /* Overrides
+    /* Overrides, public methods
     /**********************************************************
      */
 
@@ -127,6 +128,28 @@ public class UnwrappingBeanPropertyWriter
         }
     }
 
+    /*
+    /**********************************************************
+    /* Overrides: schema generation
+    /**********************************************************
+     */
+
+    // TODO: if/how to change this? Base class has this
+/*    
+    @Override
+    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
+        throws JsonMappingException
+    {
+        if (objectVisitor != null) {
+            if (isRequired()) {
+                objectVisitor.property(this); 
+            } else {
+                objectVisitor.optionalProperty(this);
+            }
+        }
+    }
+    */
+    
     // Override needed to support legacy JSON Schema generator
     @Override
     protected void _depositSchemaProperty(ObjectNode propertiesNode, JsonNode schemaNode)
@@ -144,6 +167,12 @@ public class UnwrappingBeanPropertyWriter
             }
         }
     }
+
+    /*
+    /**********************************************************
+    /* Overrides: internal, other
+    /**********************************************************
+     */
     
     // need to override as we must get unwrapping instance...
     @Override

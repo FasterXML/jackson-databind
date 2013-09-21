@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.jsontype;
+package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;

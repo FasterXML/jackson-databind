@@ -147,7 +147,6 @@ public class AbstractDeserializer
     /**********************************************************
      */
     
-    @SuppressWarnings("incomplete-switch")
     protected Object _deserializeIfNatural(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
@@ -157,33 +156,34 @@ public class AbstractDeserializer
          * Finally, we may have to consider possibility of custom handlers for
          * these values: but for now this should work ok.
          */
-        switch (jp.getCurrentToken()) {
-        case VALUE_STRING:
-            if (_acceptString) {
-                return jp.getText();
+        /* 21-Sep-2013, tatu: It may seem odd that I'm not using a switch here.
+         *   But turns out that a switch on an enum generates an inner class...
+         *   crazy! So this is to avoid that, simply since new class weighs about 1kB
+         *   after compression.
+         */
+        final JsonToken t = jp.getCurrentToken();
+        if (t.isScalarValue()) {
+            if (t == JsonToken.VALUE_STRING) {
+                if (_acceptString) {
+                    return jp.getText();
+                }
+            } else if (t == JsonToken.VALUE_NUMBER_INT) {
+                if (_acceptInt) {
+                    return jp.getIntValue();
+                }
+            } else if (t == JsonToken.VALUE_NUMBER_FLOAT) {
+                if (_acceptDouble) {
+                    return Double.valueOf(jp.getDoubleValue());
+                }
+            } else if (t == JsonToken.VALUE_TRUE) {
+                if (_acceptBoolean) {
+                    return Boolean.TRUE;
+                }
+            } else if (t == JsonToken.VALUE_FALSE) {
+                if (_acceptBoolean) {
+                    return Boolean.FALSE;
+                }
             }
-            break;
-        case VALUE_NUMBER_INT:
-            if (_acceptInt) {
-                return jp.getIntValue();
-            }
-            break;
-
-        case VALUE_NUMBER_FLOAT:
-            if (_acceptDouble) {
-                return Double.valueOf(jp.getDoubleValue());
-            }
-            break;
-        case VALUE_TRUE:
-            if (_acceptBoolean) {
-                return Boolean.TRUE;
-            }
-            break;
-        case VALUE_FALSE:
-            if (_acceptBoolean) {
-                return Boolean.FALSE;
-            }
-            break;
         }
         return null;
     }

@@ -107,14 +107,7 @@ public class CreatorCollector
      * @param creator Creator method; no-arguments constructor or static
      *   factory method.
      */
-    public void setDefaultCreator(AnnotatedWithParams creator)
-    {
-        // !!! TODO: 23-Jul-2012, tatu: Should change to directly change things
-        //    here in future; but for backwards compatibility, can't do that yet
-        if (creator instanceof AnnotatedConstructor) {
-            setDefaultConstructor((AnnotatedConstructor) creator);
-            return;
-        }
+    public void setDefaultCreator(AnnotatedWithParams creator) {
         _defaultConstructor = _fixAccess(creator);
     }
     

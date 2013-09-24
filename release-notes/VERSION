@@ -5,6 +5,8 @@ New minor version.
 
 #48: Add support for `InetSocketAddress`
  (contributed by Nick T)
+#152: Add support for traversing `JsonNode` with (new!) `JsonPointer` implementation
+ (suggested by fge@github)
 #208: Accept "fromString()" as an implicit Creator (factory) method (alias for "valueOf()")
  (requested by David P)
 #215: Allow registering custom `CharacterEscapes` to use for serialization,

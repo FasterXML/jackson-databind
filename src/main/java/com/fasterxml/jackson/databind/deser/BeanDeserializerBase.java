@@ -578,7 +578,7 @@ public abstract class BeanDeserializerBase
                     idProp = findProperty(propName);
                     if (idProp == null) {
                         throw new IllegalArgumentException("Invalid Object Id definition for "
-                                +getBeanClass().getName()+": can not find property with name '"+propName+"'");
+                                +handledType().getName()+": can not find property with name '"+propName+"'");
                     }
                     idType = idProp.getType();
                     idGen = new PropertyBasedObjectIdGenerator(objectIdInfo.getScope());

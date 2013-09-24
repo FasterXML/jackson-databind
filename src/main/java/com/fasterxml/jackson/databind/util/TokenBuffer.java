@@ -1236,7 +1236,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             if (_currToken == JsonToken.START_OBJECT || _currToken == JsonToken.START_ARRAY) {
                 ctxt = ctxt.getParent();
             }
-            ctxt.setCurrentName(name);
+            try {
+                ctxt.setCurrentName(name);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         
         /*

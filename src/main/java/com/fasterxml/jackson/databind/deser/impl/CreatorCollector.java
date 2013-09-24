@@ -97,14 +97,6 @@ public class CreatorCollector
     /* Setters
     /**********************************************************
      */
-
-    /**
-     * @deprecated since 2.1, use {@link #setDefaultCreator} instead.
-     */
-    @Deprecated
-    public void setDefaultConstructor(AnnotatedConstructor ctor) {
-        _defaultConstructor = _fixAccess(ctor);
-    }
     
     /**
      * Method called to indicate the default creator: no-arguments

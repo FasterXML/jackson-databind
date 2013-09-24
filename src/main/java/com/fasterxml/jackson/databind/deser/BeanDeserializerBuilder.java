@@ -225,15 +225,6 @@ public class BeanDeserializerBuilder
         addProperty(prop);
     }
 
-    /**
-     * @deprecated since 2.1, override {@link #addCreatorProperty(SettableBeanProperty)} instead.
-     */
-    @Deprecated
-    public void addCreatorProperty(BeanPropertyDefinition propDef)
-    {
-        // do nothing
-    }
-    
     public void setAnySetter(SettableAnyProperty s)
     {
         if (_anySetter != null && s != null) {

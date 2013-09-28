@@ -16,8 +16,8 @@ import com.fasterxml.jackson.databind.SerializationConfig;
  * polymorphic type handling.
  *<p>
  * Builder is first initialized by calling {@link #init} method, and then
- * configured using <code>setXxx</code> (and <code>registerXxx</code>)
- * methods. Finally, after calling all configuration methods,
+ * configured using 'set' methods like {@link #inclusion}.
+ * Finally, after calling all configuration methods,
  * {@link #buildTypeSerializer} or {@link #buildTypeDeserializer}
  * will be called to get actual type resolver constructed
  * and used for resolving types for configured base type and its
@@ -36,8 +36,6 @@ import com.fasterxml.jackson.databind.SerializationConfig;
  * create builders are only made when builders are certainly needed; whereas
  * in second case builder has to first verify whether type information is
  * applicable for given type, and if not, just return null to indicate this.
- * 
- * @author tatu
  */
 public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
 {
@@ -115,7 +113,7 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      * @param includeAs Mechanism used for including type metadata in JSON
      * 
      * @return Resulting builder instance (usually this builder,
-     *   but not necessarily)
+     *   but may be a newly constructed instance for immutable builders}
      */
     public T inclusion(As includeAs);
 
@@ -131,19 +129,25 @@ public interface TypeResolverBuilder<T extends TypeResolverBuilder<T>>
      *    type information
      * 
      * @return Resulting builder instance (usually this builder,
-     *   but not necessarily)
+     *   but may be a newly constructed instance for immutable builders}
      */
     public T typeProperty(String propName);
 
     /**
      * Method for specifying default implementation to use if type id 
      * is either not available, or can not be resolved.
+     * 
+     * @return Resulting builder instance (usually this builder,
+     *   but may be a newly constructed instance for immutable builders}
      */
     public T defaultImpl(Class<?> defaultImpl);
 
     /**
      * Method for specifying whether type id should be visible to
      * {@link com.fasterxml.jackson.databind.JsonDeserializer}s or not.
+     * 
+     * @return Resulting builder instance (usually this builder,
+     *   but may be a newly constructed instance for immutable builders}
      * 
      * @since 2.0
      */

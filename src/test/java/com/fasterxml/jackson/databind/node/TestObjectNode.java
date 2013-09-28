@@ -25,7 +25,8 @@ public class TestObjectNode
         assertTrue(n.path("a").isMissingNode());
 
         TextNode text = TextNode.valueOf("x");
-        n.set("a", text);
+        assertSame(n, n.set("a", text));
+        
         assertEquals(1, n.size());
         assertTrue(n.elements().hasNext());
         assertTrue(n.fields().hasNext());

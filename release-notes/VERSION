@@ -34,6 +34,8 @@ New minor version.
 #277: Make `TokenBuffer` support new native type and object ids
 #302: Add `setNamingStrategy` in `Module.SetupContext`
  (suggested by Miguel C)
+#305: Add support for accessing `TypeFactory` via `TypeIdResolverBase`
+ (not yet via `TypeIdResolver` interface), other configuration
 #306: Allow use of `@JsonFilter` for properties, not just classes 
 #308: Improve serialization and deserialization speed of `java.util.UUID` by 4x
  (suggested by David P)

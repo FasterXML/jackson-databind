@@ -103,9 +103,12 @@ public class BeanDeserializer
 
     /**
      * Main deserialization method for bean-based objects (POJOs).
+     *<p>
+     * NOTE: was declared 'final' in 2.2; should NOT be to let extensions
+     * like Afterburner change definition.
      */
     @Override
-    public final Object deserialize(JsonParser jp, DeserializationContext ctxt)
+    public Object deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
         JsonToken t = jp.getCurrentToken();
@@ -123,7 +126,7 @@ public class BeanDeserializer
         return _deserializeOther(jp, ctxt, t);
     }
 
-    private final Object _deserializeOther(JsonParser jp, DeserializationContext ctxt,
+    protected final Object _deserializeOther(JsonParser jp, DeserializationContext ctxt,
             JsonToken t)
         throws IOException, JsonProcessingException
     {

@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.jsontype.impl;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
@@ -117,26 +117,33 @@ public class TypeNameIdResolver
     }
     
     @Override
-    public JavaType typeFromId(String id)
-        throws IllegalArgumentException
+    public JavaType typeFromId(String id) {
+        return _idToType.get(id);
+    }    
+
+    @Override
+    public JavaType typeFromId(DatabindContext context, String id) {
+        return _typeFromId(id);
+    }
+    
+    protected JavaType _typeFromId(String id)
     {
-        JavaType t = _idToType.get(id);
         /* Now: if no type is found, should we try to locate it by
          * some other means? (specifically, if in same package as base type,
          * could just try Class.forName)
          * For now let's not add any such workarounds; can add if need be
          */
-        return t;
+        return _idToType.get(id);
     }    
-
+    
     @Override
     public String toString()
     {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append('[').append(getClass().getName());
-    	sb.append("; id-to-type=").append(_idToType);
-    	sb.append(']');
-    	return sb.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append('[').append(getClass().getName());
+        sb.append("; id-to-type=").append(_idToType);
+        sb.append(']');
+        return sb.toString();
     }
     
     /*

@@ -90,7 +90,7 @@ public class TestNumberNodes extends NodeTestBase
         assertTrue(LongNode.valueOf(Long.MIN_VALUE).canConvertToLong());
     }
 
-    public void testDouble()
+    public void testDouble() throws Exception
     {
         DoubleNode n = DoubleNode.valueOf(0.25);
         assertStandardEquals(n);
@@ -115,6 +115,12 @@ public class TestNumberNodes extends NodeTestBase
         assertTrue(DoubleNode.valueOf(0L).canConvertToLong());
         assertTrue(DoubleNode.valueOf(Long.MAX_VALUE).canConvertToLong());
         assertTrue(DoubleNode.valueOf(Long.MIN_VALUE).canConvertToLong());
+
+        JsonNode num = objectMapper().readTree(" -0.0");
+        assertTrue(num.isDouble());
+        n = (DoubleNode) num;
+        assertEquals(-0.0, n.doubleValue());
+        assertEquals("-0.0", String.valueOf(n.doubleValue()));
     }
 
     // @since 2.2

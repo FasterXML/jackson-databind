@@ -10,6 +10,12 @@ import com.fasterxml.jackson.databind.JavaType;
  * {@link com.fasterxml.jackson.databind.jsontype.TypeDeserializer}) for converting
  * between type and matching id; id is stored in JSON and needed for
  * creating instances of proper subtypes when deserializing values.
+ *<p>
+ * NOTE: it is <b>strongly</b> recommended that developers always extend
+ * abstract base class {@link com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase}
+ * instead of directly implementing this interface; this helps prevent
+ * breakage in case new methds need to be added in this interface (something
+ * we try to avoid doing; but which may be necessary in some cases).
  */
 public interface TypeIdResolver
 {

@@ -1,8 +1,9 @@
 package com.fasterxml.jackson.databind.node;
 
-import java.io.*;
-
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 
 /**
  * This unit test suite tries to verify that JsonNode-based trees
@@ -114,5 +115,25 @@ public class TestTreeDeserialization
         n = root.get("x");
         assertNotNull(n);
         assertTrue(n.isNull());
+    }
+
+    final static class CovarianceBean {
+        ObjectNode _object;
+        ArrayNode _array;
+
+        public void setObject(ObjectNode n) { _object = n; }
+        public void setArray(ArrayNode n) { _array = n; }
+    }
+
+    public void testNullHandlingCovariance() throws Exception
+    {
+        String JSON = "{\"object\" : null, \"array\" : null }";
+        CovarianceBean bean = objectMapper().readValue(JSON, CovarianceBean.class);
+
+        ObjectNode on = bean._object;
+        assertNull(on);
+
+        ArrayNode an = bean._array;
+        assertNull(an);
     }
 }

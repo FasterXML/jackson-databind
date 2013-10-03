@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.node.*;
  */
 @SuppressWarnings("serial")
 public class JsonNodeDeserializer
-    extends BaseNodeDeserializer
+    extends BaseNodeDeserializer<JsonNode>
 {
     /**
      * Singleton instance of generic deserializer for {@link JsonNode}.
@@ -21,7 +21,7 @@ public class JsonNodeDeserializer
      */
     private final static JsonNodeDeserializer instance = new JsonNodeDeserializer();
 
-    protected JsonNodeDeserializer() { }
+    protected JsonNodeDeserializer() { super(JsonNode.class); }
 
     /**
      * Factory method for accessing deserializer for specific node type
@@ -43,6 +43,11 @@ public class JsonNodeDeserializer
     /* Actual deserializer implementations
     /**********************************************************
      */
+
+    @Override
+    public JsonNode getNullValue() {
+        return NullNode.getInstance();
+    }
 
     /**
      * Implementation that will produce types of any JSON nodes; not just one
@@ -70,13 +75,13 @@ public class JsonNodeDeserializer
      */
 
     final static class ObjectDeserializer
-        extends BaseNodeDeserializer
+        extends BaseNodeDeserializer<ObjectNode>
     {
         private static final long serialVersionUID = 1L;
 
         protected final static ObjectDeserializer _instance = new ObjectDeserializer();
 
-        protected ObjectDeserializer() { }
+        protected ObjectDeserializer() { super(ObjectNode.class); }
 
         public static ObjectDeserializer getInstance() { return _instance; }
         
@@ -96,13 +101,13 @@ public class JsonNodeDeserializer
     }
         
     final static class ArrayDeserializer
-        extends BaseNodeDeserializer
+        extends BaseNodeDeserializer<ArrayNode>
     {
         private static final long serialVersionUID = 1L;
 
         protected final static ArrayDeserializer _instance = new ArrayDeserializer();
 
-        protected ArrayDeserializer() { }
+        protected ArrayDeserializer() { super(ArrayNode.class); }
 
         public static ArrayDeserializer getInstance() { return _instance; }
         
@@ -123,12 +128,12 @@ public class JsonNodeDeserializer
  * implementations
  */
 @SuppressWarnings("serial")
-abstract class BaseNodeDeserializer
-    extends StdDeserializer<JsonNode>
+abstract class BaseNodeDeserializer<T extends JsonNode>
+    extends StdDeserializer<T>
 {
-    public BaseNodeDeserializer()
+    public BaseNodeDeserializer(Class<T> vc)
     {
-        super(JsonNode.class);
+        super(vc);
     }
     
     @Override
@@ -140,16 +145,6 @@ abstract class BaseNodeDeserializer
          * a priori. So:
          */
         return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
-    }
-
-    @Override
-    public JsonNode getNullValue() {
-        return NullNode.getInstance();
-    }
-
-    @Override
-    public Class<?> handledType() {
-        return JsonNode.class;
     }
 
     /*

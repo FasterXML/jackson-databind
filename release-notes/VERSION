@@ -42,6 +42,8 @@ New minor version.
 #310: Improve `java.util.UUID` serialization with binary codecs, to use "raw" form.
 #311: Make sure that "creator properties" are alphabetically ordered too, if
   so requested.
+#317: Fix `JsonNode` support for nulls bound to `ObjectNode`, `ArrayNode`
+ (contributed by Seth P)
 [JACKSON-890]: Support managed/back-references for polymorphic (abstract) types
 - Add 'BeanPropertyWriter.isUnwrapping()' for future needs (by Afterburner)
 - Add coercions from String "null" (as if null token was parsed) for primitives/Wrappers.

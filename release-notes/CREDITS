@@ -91,3 +91,6 @@ David Phillips:
   * Requested #308: Improve serialization and deserialization speed of `java.util.UUID`
    (2.3.0)
 
+Seth Pellegrino (jivesoft):
+  * Contributed #317: Fix `JsonNode` support for nulls bound to	`ObjectNode`, `ArrayNode`
+   (2.3.0)

@@ -23,7 +23,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     extends MapperConfig<T>
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = -8378230381628000111L;
+    private static final long serialVersionUID = 6062961959359172474L;
 
     private final static int DEFAULT_MAPPER_FEATURES = collectFeatureDefaults(MapperFeature.class);
 
@@ -59,7 +59,15 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * is defined), meaning that all properties are to be included.
      */
     protected final Class<?> _view;
-    
+
+    /**
+     * Contextual attributes accessible (get and set) during processing,
+     * on per-call basis.
+     * 
+     * @since 2.3
+     */
+    protected final ContextAttributes _attributes;
+
     /*
     /**********************************************************
     /* Construction
@@ -78,6 +86,8 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _subtypeResolver = str;
         _rootName = null;
         _view = null;
+        // default to "no attributes"
+        _attributes = ContextAttributes.getEmpty();
     }
     
     /**
@@ -91,6 +101,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
         _view = src._view;
+        _attributes = src._attributes;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, BaseSettings base)
@@ -100,6 +111,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
         _view = src._view;
+        _attributes = src._attributes;
     }
     
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, int mapperFeatures)
@@ -109,6 +121,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
         _view = src._view;
+        _attributes = src._attributes;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, SubtypeResolver str) {
@@ -117,6 +130,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _subtypeResolver = str;
         _rootName = src._rootName;
         _view = src._view;
+        _attributes = src._attributes;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, String rootName) {
@@ -125,6 +139,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _subtypeResolver = src._subtypeResolver;
         _rootName = rootName;
         _view = src._view;
+        _attributes = src._attributes;
     }
 
     protected MapperConfigBase(MapperConfigBase<CFG,T> src, Class<?> view)
@@ -134,6 +149,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
         _view = view;
+        _attributes = src._attributes;
     }
 
     /**
@@ -146,6 +162,20 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
         _subtypeResolver = src._subtypeResolver;
         _rootName = src._rootName;
         _view = src._view;
+        _attributes = src._attributes;
+    }
+
+    /**
+     * @since 2.3
+     */
+    protected MapperConfigBase(MapperConfigBase<CFG,T> src, ContextAttributes attr)
+    {
+        super(src);
+        _mixInAnnotations = src._mixInAnnotations;
+        _subtypeResolver = src._subtypeResolver;
+        _rootName = src._rootName;
+        _view = src._view;
+        _attributes = attr;
     }
     
     /*
@@ -290,6 +320,44 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
      * default {@link Base64Variant} to use with base64-encoded binary values.
      */
     public abstract T with(Base64Variant base64);
+
+    /**
+     * Method for constructing an instance that has specified
+     * contextual attributes.
+     * 
+     * @since 2.3
+     */
+    public abstract T with(ContextAttributes attrs);
+
+    /**
+     * Method for constructing an instance that has only specified
+     * attributes, removing any attributes that exist before the call.
+     * 
+     * @since 2.3
+     */
+    public T withAttributes(Map<Object,Object> attributes) {
+        return with(getAttributes().withSharedAttributes(attributes));
+    }
+    
+    /**
+     * Method for constructing an instance that has specified
+     * value for attribute for given key.
+     * 
+     * @since 2.3
+     */
+    public T withAttribute(Object key, Object value) {
+        return with(getAttributes().withSharedAttribute(key, value));
+    }
+
+    /**
+     * Method for constructing an instance that has no
+     * value for attribute for given key.
+     * 
+     * @since 2.3
+     */
+    public T withoutAttribute(Object key) {
+        return with(getAttributes().withoutSharedAttribute(key));
+    }
     
     /*
     /**********************************************************
@@ -314,6 +382,11 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     @Override
     public final Class<?> getActiveView() {
         return _view;
+    }
+
+    @Override
+    public final ContextAttributes getAttributes() {
+        return _attributes;
     }
     
     /*

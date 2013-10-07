@@ -27,7 +27,7 @@ public class TestJDKSerialization extends BaseMapTest
         public int getY() { return y; }
         public void setY(int y) { this.y = y; }
     }
-    
+
     /*
     /**********************************************************
     /* Tests for individual objects

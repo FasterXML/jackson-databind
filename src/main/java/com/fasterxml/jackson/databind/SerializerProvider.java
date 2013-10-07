@@ -6,6 +6,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -83,7 +84,7 @@ public abstract class SerializerProvider
 
     /*
     /**********************************************************
-    /* Helper objects for caching
+    /* Helper objects for caching, reuse
     /**********************************************************
      */
     
@@ -96,6 +97,13 @@ public abstract class SerializerProvider
      * Helper object for keeping track of introspected root names
      */
     final protected RootNameLookup _rootNames;
+    
+    /**
+     * Lazily-constructed holder for per-call attributes.
+     * 
+     * @since 2.3
+     */
+    protected transient ContextAttributes _attributes;
     
     /*
     /**********************************************************
@@ -180,6 +188,7 @@ public abstract class SerializerProvider
         _rootNames = new RootNameLookup();
 
         _serializationView = null;
+        _attributes = null;
 
         // not relevant for blueprint instance, could set either way:
         _stdNullValueSerializer = true;
@@ -213,6 +222,7 @@ public abstract class SerializerProvider
         _knownSerializers = _serializerCache.getReadOnlyLookupMap();
 
         _serializationView = config.getActiveView();
+        _attributes = config.getAttributes();
     }
     
     /*
@@ -299,7 +309,25 @@ public abstract class SerializerProvider
      */
     @Deprecated
     public final Class<?> getSerializationView() { return _serializationView; }
-    
+
+    /*
+    /**********************************************************
+    /* Generic attributes (2.3+)
+    /**********************************************************
+     */
+
+    @Override
+    public Object getAttribute(Object key) {
+        return _attributes.getAttribute(key);
+    }
+
+    @Override
+    public SerializerProvider setAttribute(Object key, Object value)
+    {
+        _attributes = _attributes.withPerCallAttribute(key, value);
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Access to general configuration

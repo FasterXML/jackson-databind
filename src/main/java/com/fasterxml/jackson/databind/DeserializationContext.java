@@ -7,6 +7,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
@@ -118,6 +119,13 @@ public abstract class DeserializationContext
     protected transient ObjectBuffer _objectBuffer;
 
     protected transient DateFormat _dateFormat;
+
+    /**
+     * Lazily-constructed holder for per-call attributes.
+     * 
+     * @since 2.3
+     */
+    protected transient ContextAttributes _attributes;
     
     /*
     /**********************************************************
@@ -142,6 +150,7 @@ public abstract class DeserializationContext
         _config = null;
         _injectableValues = null;
         _view = null;
+        _attributes = null;
     }
 
     protected DeserializationContext(DeserializationContext src,
@@ -155,8 +164,12 @@ public abstract class DeserializationContext
         _view = src._view;
         _parser = src._parser;
         _injectableValues = src._injectableValues;
+        _attributes = src._attributes;
     }
-    
+
+    /**
+     * Constructor used for creating actual per-call instances.
+     */
     protected DeserializationContext(DeserializationContext src,
             DeserializationConfig config, JsonParser jp,
             InjectableValues injectableValues)
@@ -169,6 +182,7 @@ public abstract class DeserializationContext
         _view = config.getActiveView();
         _parser = jp;
         _injectableValues = injectableValues;
+        _attributes = config.getAttributes();
     }
 
     /*
@@ -191,6 +205,24 @@ public abstract class DeserializationContext
     @Override
     public final TypeFactory getTypeFactory() {
         return _config.getTypeFactory();
+    }
+
+    /*
+    /**********************************************************
+    /* Generic attributes (2.3+)
+    /**********************************************************
+     */
+
+    @Override
+    public Object getAttribute(Object key) {
+        return _attributes.getAttribute(key);
+    }
+
+    @Override
+    public DeserializationContext setAttribute(Object key, Object value)
+    {
+        _attributes = _attributes.withPerCallAttribute(key, value);
+        return this;
     }
     
     /*

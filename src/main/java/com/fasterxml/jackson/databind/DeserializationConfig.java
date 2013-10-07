@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
+import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfigBase;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
@@ -147,6 +148,17 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
     }
+
+    /**
+     * @since 2.3
+     */
+    protected DeserializationConfig(DeserializationConfig src, ContextAttributes attrs)
+    {
+        super(src, attrs);
+        _deserFeatures = src._deserFeatures;
+        _problemHandlers = src._problemHandlers;
+        _nodeFactory = src._nodeFactory;
+    }
     
     // for unit tests only:
     protected BaseSettings getBaseSettings() { return _base; }
@@ -282,6 +294,11 @@ public final class DeserializationConfig
     @Override
     public DeserializationConfig with(Base64Variant base64) {
         return _withBase(_base.with(base64));
+    }
+
+    @Override
+    public DeserializationConfig with(ContextAttributes attrs) {
+        return (attrs == _attributes) ? this : new DeserializationConfig(this, attrs);
     }
     
     private final DeserializationConfig _withBase(BaseSettings newBase) {

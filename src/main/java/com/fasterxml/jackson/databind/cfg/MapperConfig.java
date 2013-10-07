@@ -345,7 +345,16 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
     public Base64Variant getBase64Variant() {
         return _base.getBase64Variant();
     }
-    
+
+    /**
+     * Method for accessing per-instance shared (baseline/default)
+     * attribute values; these are used as the basis for per-call
+     * attributes.
+     * 
+     * @since 2.3
+     */
+    public abstract ContextAttributes getAttributes();
+
     /*
     /**********************************************************
     /* Methods for instantiating handlers

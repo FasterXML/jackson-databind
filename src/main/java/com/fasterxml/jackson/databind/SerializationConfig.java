@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.Base64Variant;
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
+import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfigBase;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
@@ -139,6 +140,17 @@ public final class SerializationConfig
     protected SerializationConfig(SerializationConfig src, Map<ClassKey,Class<?>> mixins)
     {
         super(src, mixins);
+        _serFeatures = src._serFeatures;
+        _serializationInclusion = src._serializationInclusion;
+        _filterProvider = src._filterProvider;
+    }
+
+    /**
+     * @since 2.1
+     */
+    protected SerializationConfig(SerializationConfig src, ContextAttributes attrs)
+    {
+        super(src, attrs);
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
@@ -295,6 +307,11 @@ public final class SerializationConfig
     @Override
     public SerializationConfig with(Base64Variant base64) {
         return _withBase(_base.with(base64));
+    }
+
+    @Override
+    public SerializationConfig with(ContextAttributes attrs) {
+        return (attrs == _attributes) ? this : new SerializationConfig(this, attrs);
     }
     
     private final SerializationConfig _withBase(BaseSettings newBase) {

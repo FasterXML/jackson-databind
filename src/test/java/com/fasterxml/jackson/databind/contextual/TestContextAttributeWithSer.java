@@ -51,26 +51,37 @@ public class TestContextAttributeWithSer extends BaseMapTest
     
     public void testSimplePerCall() throws Exception
     {
+        final String EXP = aposToQuotes("[{'value':'0:a'},{'value':'1:b'}]");
         ObjectWriter w = MAPPER.writer();
-        String json = w.writeValueAsString(new TestPOJO[] {
-                new TestPOJO("a"),
-                new TestPOJO("b") });
-        assertEquals(aposToQuotes("[{'value':'0:a'},{'value':'1:b'}]"), json);
+        final TestPOJO[] INPUT = new TestPOJO[] {
+                new TestPOJO("a"), new TestPOJO("b") };
+        assertEquals(EXP, w.writeValueAsString(INPUT));
+
+        // also: ensure that we don't retain per-call state accidentally:
+        assertEquals(EXP, w.writeValueAsString(INPUT));
     }
 
     public void testSimpleDefaults() throws Exception
     {
+        final String EXP = aposToQuotes("{'value':'3:xyz'}");
+        final TestPOJO INPUT = new TestPOJO("xyz");
         String json = MAPPER.writer().withAttribute(KEY, Integer.valueOf(3))
-                .writeValueAsString(new TestPOJO("xyz"));
-        assertEquals(aposToQuotes("{'value':'3:xyz'}"), json);
+                .writeValueAsString(INPUT);
+        assertEquals(EXP, json);
+
+        String json2 = MAPPER.writer().withAttribute(KEY, Integer.valueOf(3))
+                .writeValueAsString(INPUT);
+        assertEquals(EXP, json2);
     }
 
     public void testHierarchic() throws Exception
     {
+        final TestPOJO[] INPUT = new TestPOJO[] { new TestPOJO("a"), new TestPOJO("b") };
+        final String EXP = aposToQuotes("[{'value':'2:a'},{'value':'3:b'}]");
         ObjectWriter w = MAPPER.writer().withAttribute(KEY, Integer.valueOf(2));
-        String json = w.writeValueAsString(new TestPOJO[] {
-                new TestPOJO("a"),
-                new TestPOJO("b") });
-        assertEquals(aposToQuotes("[{'value':'2:a'},{'value':'3:b'}]"), json);
+        assertEquals(EXP, w.writeValueAsString(INPUT));
+
+        // and verify state clearing:
+        assertEquals(EXP, w.writeValueAsString(INPUT));
     }
 }

@@ -2,9 +2,7 @@ package com.fasterxml.jackson.databind.contextual;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
@@ -51,27 +49,47 @@ public class TestContextAttributeWithDeser extends BaseMapTest
     
     public void testSimplePerCall() throws Exception
     {
-        TestPOJO[] pojos = MAPPER.reader(TestPOJO[].class)
-            .readValue(aposToQuotes("[{'value':'a'},{'value':'b'}]"));
+        final String INPUT = aposToQuotes("[{'value':'a'},{'value':'b'}]");
+        TestPOJO[] pojos = MAPPER.reader(TestPOJO[].class).readValue(INPUT);
         assertEquals(2, pojos.length);
         assertEquals("a/0", pojos[0].value);
         assertEquals("b/1", pojos[1].value);
+
+        // and verify that state does not linger
+        TestPOJO[] pojos2 = MAPPER.reader(TestPOJO[].class).readValue(INPUT);
+        assertEquals(2, pojos2.length);
+        assertEquals("a/0", pojos2[0].value);
+        assertEquals("b/1", pojos2[1].value);
     }
 
     public void testSimpleDefaults() throws Exception
     {
+        final String INPUT = aposToQuotes("{'value':'x'}");
         TestPOJO pojo = MAPPER.reader(TestPOJO.class)
                 .withAttribute(KEY, Integer.valueOf(3))
-                .readValue(aposToQuotes("{'value':'x'}"));
+                .readValue(INPUT);
         assertEquals("x/3", pojo.value);
+
+        // as above, should not carry on state
+        TestPOJO pojo2 = MAPPER.reader(TestPOJO.class)
+                .withAttribute(KEY, Integer.valueOf(3))
+                .readValue(INPUT);
+        assertEquals("x/3", pojo2.value);
     }
 
     public void testHierarchic() throws Exception
     {
+        final String INPUT = aposToQuotes("[{'value':'x'},{'value':'y'}]");
         ObjectReader r = MAPPER.reader(TestPOJO[].class).withAttribute(KEY, Integer.valueOf(2));
-        TestPOJO[] pojos = r.readValue(aposToQuotes("[{'value':'x'},{'value':'y'}]"));
+        TestPOJO[] pojos = r.readValue(INPUT);
         assertEquals(2, pojos.length);
         assertEquals("x/2", pojos[0].value);
         assertEquals("y/3", pojos[1].value);
+
+        // and once more to verify transiency of per-call state
+        TestPOJO[] pojos2 = r.readValue(INPUT);
+        assertEquals(2, pojos2.length);
+        assertEquals("x/2", pojos2[0].value);
+        assertEquals("y/3", pojos2[1].value);
     }
 }

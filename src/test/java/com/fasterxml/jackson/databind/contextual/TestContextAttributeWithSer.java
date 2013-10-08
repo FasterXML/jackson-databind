@@ -28,8 +28,8 @@ public class TestContextAttributeWithSer extends BaseMapTest
                 I = Integer.valueOf(0);
             }
             int i = I.intValue();
-            jgen.writeString("" +i+":"+value);
             provider.setAttribute(KEY, Integer.valueOf(i + 1));
+            jgen.writeString("" +i+":"+value);
         }
     }
 

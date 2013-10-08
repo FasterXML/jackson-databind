@@ -44,6 +44,8 @@ New minor version.
   so requested.
 #317: Fix `JsonNode` support for nulls bound to `ObjectNode`, `ArrayNode`
  (contributed by Seth P)
+#319: Add support for per-call ("contextual") attributes, with defaulting,
+ to allow keeping track of state during (de)serialization
 [JACKSON-890]: Support managed/back-references for polymorphic (abstract) types
 - Add 'BeanPropertyWriter.isUnwrapping()' for future needs (by Afterburner)
 - Add coercions from String "null" (as if null token was parsed) for primitives/Wrappers.

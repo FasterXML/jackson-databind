@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
+import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.*;
@@ -2419,6 +2420,15 @@ public class ObjectMapper
         return writer().with(escapes);
     }
 
+    /**
+     * Factory method for constructing {@link ObjectWriter} that will
+     * use specified default attributes.
+     * 
+     * @since 2.3
+     */
+    public ObjectWriter writer(ContextAttributes attrs) {
+        return new ObjectWriter(this, getSerializationConfig().with(attrs));
+    }
     
     /*
     /**********************************************************
@@ -2556,6 +2566,16 @@ public class ObjectMapper
         return new ObjectReader(this, getDeserializationConfig().with(defaultBase64));
     }
 
+    /**
+     * Factory method for constructing {@link ObjectReader} that will
+     * use specified default attributes.
+     * 
+     * @since 2.3
+     */
+    public ObjectReader reader(ContextAttributes attrs) {
+        return new ObjectReader(this, getDeserializationConfig().with(attrs));
+    }
+    
     /*
     /**********************************************************
     /* Extended Public API: convenience type conversion

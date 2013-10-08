@@ -514,7 +514,7 @@ public final class SerializationConfig
     public FilterProvider getFilterProvider() {
         return _filterProvider;
     }
-
+    
     /*
     /**********************************************************
     /* Introspection methods

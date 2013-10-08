@@ -4,6 +4,7 @@ import java.io.*;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
@@ -566,6 +568,38 @@ public class ObjectReader
         return new ObjectReader(this, _config, _valueType, _rootDeserializer, _valueToUpdate,
                 _schema, _injectableValues, readers);
     }
+
+    /**
+     * @since 2.3
+     */
+    public ObjectReader with(ContextAttributes attrs) {
+        DeserializationConfig newConfig = _config.with(attrs);
+        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    }
+
+    /**
+     * @since 2.3
+     */
+    public ObjectReader withAttributes(Map<Object,Object> attrs) {
+        DeserializationConfig newConfig = _config.withAttributes(attrs);
+        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    }
+
+    /**
+     * @since 2.3
+     */
+    public ObjectReader withAttribute(Object key, Object value) {
+        DeserializationConfig newConfig = _config.withAttribute(key, value);
+        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    }
+
+    /**
+     * @since 2.3
+     */
+    public ObjectReader withoutAttribute(Object key) {
+        DeserializationConfig newConfig = _config.withoutAttribute(key);
+        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    }
     
     /*
     /**********************************************************
@@ -611,6 +645,13 @@ public class ObjectReader
 
     public TypeFactory getTypeFactory() {
         return _config.getTypeFactory();
+    }
+
+    /**
+     * @since 2.3
+     */
+    public ContextAttributes getAttributes() {
+        return _config.getAttributes();
     }
     
     /*

@@ -159,10 +159,10 @@ public abstract class BaseMapTest
         // just for fun, let's also call hash code...
         o.hashCode();
     }
-    
+
     /*
     /**********************************************************
-    /* Helper methods
+    /* Helper methods, serialization
     /**********************************************************
      */
 
@@ -172,18 +172,6 @@ public abstract class BaseMapTest
     {
         String str = m.writeValueAsString(value);
         return (Map<String,Object>) m.readValue(str, Map.class);
-    }
-
-    protected <T> T readAndMapFromString(String input, Class<T> cls)
-        throws IOException
-    {
-        return readAndMapFromString(SHARED_MAPPER, input, cls);
-    }
-    
-    protected <T> T readAndMapFromString(ObjectMapper m, String input, Class<T> cls)
-        throws IOException
-    {
-        return (T) m.readValue("\""+input+"\"", cls);
     }
     
     protected String serializeAsString(ObjectMapper m, Object value)
@@ -214,6 +202,30 @@ public abstract class BaseMapTest
         return m.writeValueAsString(map);
     }
 
+    /*
+    /**********************************************************
+    /* Helper methods, deserialization
+    /**********************************************************
+     */
+    
+    protected <T> T readAndMapFromString(String input, Class<T> cls)
+        throws IOException
+    {
+        return readAndMapFromString(SHARED_MAPPER, input, cls);
+    }
+    
+    protected <T> T readAndMapFromString(ObjectMapper m, String input, Class<T> cls)
+        throws IOException
+    {
+        return (T) m.readValue("\""+input+"\"", cls);
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods, other
+    /**********************************************************
+     */
+    
     protected TimeZone getUTCTimeZone() {
         return TimeZone.getTimeZone("GMT");
     }
@@ -224,5 +236,9 @@ public abstract class BaseMapTest
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    protected String aposToQuotes(String json) {
+        return json.replace("'", "\"");
     }
 }

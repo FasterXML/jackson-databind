@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.io.*;
 import java.text.DateFormat;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.core.*;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Instantiatable;
 import com.fasterxml.jackson.core.util.MinimalPrettyPrinter;
+import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
@@ -488,6 +490,39 @@ public class ObjectWriter
         }
         return new ObjectWriter(this, f);
     }    
+
+    /**
+     * @since 2.3
+     */
+    public ObjectWriter with(ContextAttributes attrs) {
+        SerializationConfig newConfig = _config.with(attrs);
+        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+    }
+
+    /**
+     * @since 2.3
+     */
+    public ObjectWriter withAttributes(Map<Object,Object> attrs) {
+        SerializationConfig newConfig = _config.withAttributes(attrs);
+        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+    }
+
+    /**
+     * @since 2.3
+     */
+    public ObjectWriter withAttribute(Object key, Object value) {
+        SerializationConfig newConfig = _config.withAttribute(key, value);
+        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+    }
+
+    /**
+     * @since 2.3
+     */
+    public ObjectWriter withoutAttribute(Object key) {
+        SerializationConfig newConfig = _config.withoutAttribute(key);
+        return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
+    }
+    
     /*
     /**********************************************************
     /* Simple accessors
@@ -542,6 +577,13 @@ public class ObjectWriter
      */
     public boolean hasPrefetchedSerializer() {
         return _rootSerializer != null;
+    }
+
+    /**
+     * @since 2.3
+     */
+    public ContextAttributes getAttributes() {
+        return _config.getAttributes();
     }
     
     /*

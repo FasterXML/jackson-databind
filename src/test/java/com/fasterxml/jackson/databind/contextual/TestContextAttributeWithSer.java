@@ -52,8 +52,10 @@ public class TestContextAttributeWithSer extends BaseMapTest
     public void testSimplePerCall() throws Exception
     {
         ObjectWriter w = MAPPER.writer();
-        String json = w.writeValueAsString(new TestPOJO("def"));
-        assertEquals("", json);
+        String json = w.writeValueAsString(new TestPOJO[] {
+                new TestPOJO("a"),
+                new TestPOJO("b") });
+        assertEquals(aposToQuotes("[{'value':'0:a'},{'value':'1:b'}]"), json);
     }
 
     public void testSimpleDefaults() throws Exception
@@ -65,9 +67,10 @@ public class TestContextAttributeWithSer extends BaseMapTest
 
     public void testHierarchic() throws Exception
     {
-        ObjectWriter w = MAPPER.writer().withAttribute(KEY, Integer.valueOf(3));
-        String json = w.writeValueAsString(new TestPOJO("abc"));
-        assertEquals("", json);
-        
+        ObjectWriter w = MAPPER.writer().withAttribute(KEY, Integer.valueOf(2));
+        String json = w.writeValueAsString(new TestPOJO[] {
+                new TestPOJO("a"),
+                new TestPOJO("b") });
+        assertEquals(aposToQuotes("[{'value':'2:a'},{'value':'3:b'}]"), json);
     }
 }

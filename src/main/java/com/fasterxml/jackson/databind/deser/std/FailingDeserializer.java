@@ -1,9 +1,8 @@
-package com.fasterxml.jackson.databind.jsontype.impl;
+package com.fasterxml.jackson.databind.deser.std;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 /**
  * Special bogus "serializer" that will throw

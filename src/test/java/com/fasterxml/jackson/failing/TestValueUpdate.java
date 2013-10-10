@@ -1,12 +1,11 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.test.BaseTest;
 
-public class TestValueUpdate
-    extends BaseTest
+public class TestValueUpdate extends BaseTest
 {
     static class Bean
     {
@@ -37,6 +36,7 @@ public class TestValueUpdate
         }
     }
 
+    // [Issue#318] (and Scala module issue #83]
     public void testValueUpdateWithCreator() throws Exception
     {
         Bean bean = new Bean("abc", "def");

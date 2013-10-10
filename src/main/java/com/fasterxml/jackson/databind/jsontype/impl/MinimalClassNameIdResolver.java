@@ -18,7 +18,7 @@ public class MinimalClassNameIdResolver
      * Same as {@link #_basePackageName}, but includes trailing dot.
      */
     protected final String _basePackagePrefix;
-    
+
     protected MinimalClassNameIdResolver(JavaType baseType, TypeFactory typeFactory)
     {
         super(baseType, typeFactory);

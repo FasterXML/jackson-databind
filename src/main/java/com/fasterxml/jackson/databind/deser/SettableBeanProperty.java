@@ -6,11 +6,11 @@ import java.lang.annotation.Annotation;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.NullProvider;
+import com.fasterxml.jackson.databind.deser.std.FailingDeserializer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.jsontype.impl.FailingDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.ViewMatcher;
 

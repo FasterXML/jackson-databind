@@ -63,10 +63,7 @@ public class PropertyBuilder
          */
         throw new IllegalStateException();
     }
-    
-    /*
-     */
-    
+
     /**
      * @param contentTypeSer Optional explicit type information serializer
      *    to use for contained values (only used for properties that are

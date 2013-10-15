@@ -238,7 +238,7 @@ public abstract class BasicSerializerFactory
         }
         return (JsonSerializer<Object>) ser;
     }
-    
+
     /**
      * Method called to construct a type serializer for values with given declared
      * base type. This is called for values other than those of bean property
@@ -272,10 +272,6 @@ public abstract class BasicSerializerFactory
     /* Additional API for other core classes
     /**********************************************************
      */
-
-    public final JsonSerializer<?> getNullSerializer() {
-        return NullSerializer.instance;
-    }    
 
     protected abstract Iterable<Serializers> customSerializers();
     

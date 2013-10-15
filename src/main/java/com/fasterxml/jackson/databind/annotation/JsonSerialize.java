@@ -62,8 +62,10 @@ public @interface JsonSerialize
 
     /**
      * Serializer class to use for serializing nulls for properties that
-     * are annotated (or for types that are annotated), instead of the
+     * are annotated, instead of the
      * default null serializer.
+     * Note that using this property when annotation types (classes) has
+     * no effect currently (it is possible this could be improved in future).
      * 
      * @since 2.3
      */

@@ -109,6 +109,16 @@ public class TestEnumDeserialization
         }
     }
 
+    // [Issue#324]: exception from creator method
+    protected enum TestEnum324
+    {
+        A, B;
+        
+        @JsonCreator public static TestEnum324 creator(String arg) {
+            throw new RuntimeException("Foobar!");
+        }
+    }
+    
     /*
     /**********************************************************
     /* Tests
@@ -331,8 +341,7 @@ public class TestEnumDeserialization
     // [JACKSON-834]
     public void testEnumsFromInts() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        TestEnumFor834 res = mapper.readValue("1 ", TestEnumFor834.class);
+        TestEnumFor834 res = MAPPER.readValue("1 ", TestEnumFor834.class);
         assertSame(TestEnumFor834.ENUM_A, res);
     }
 
@@ -353,5 +362,16 @@ public class TestEnumDeserialization
        mapper.registerModule(module);
        // not sure this is totally safe but...
        assertEquals(TestEnum.JACKSON, mapper.readValue(quote("jackson"), TestEnum.class));
+    }
+    
+    // [Issue#324]
+    public void testExceptionFromCreator() throws Exception
+    {
+        try {
+            /*TestEnum324 e =*/ MAPPER.readValue(quote("xyz"), TestEnum324.class);
+            fail("Should throw exception");
+        } catch (JsonMappingException e) {
+            verifyException(e, "foobar");
+        }
     }
 }

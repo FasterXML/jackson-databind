@@ -161,9 +161,12 @@ public class EnumDeserializer
             try {
                 return _factory.invoke(_enumClass, value);
             } catch (Exception e) {
-                ClassUtil.unwrapAndThrowAsIAE(e);
+                Throwable t = ClassUtil.getRootCause(e);
+                if (t instanceof IOException) {
+                    throw (IOException) t;
+                }
+                throw ctxt.instantiationException(_enumClass, t);
             }
-            return null;
         }
     }
 }

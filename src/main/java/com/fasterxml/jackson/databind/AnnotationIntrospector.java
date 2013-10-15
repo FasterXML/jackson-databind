@@ -565,6 +565,16 @@ public abstract class AnnotationIntrospector
     public Object findContentSerializer(Annotated am) {
         return null;
     }
+
+    /**
+     * Method for getting a serializer definition for serializer to use
+     * for nulls (null values) of associated property or type.
+     * 
+     * @since 2.3
+     */
+    public Object findNullSerializer(Annotated am) {
+        return null;
+    }
     
     /**
      * Method for checking whether given annotated entity (class, method,

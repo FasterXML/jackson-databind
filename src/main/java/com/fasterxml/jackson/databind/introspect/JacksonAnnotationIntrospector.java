@@ -337,7 +337,20 @@ public class JacksonAnnotationIntrospector
         }
         return null;
     }
-    
+
+    @Override
+    public Object findNullSerializer(Annotated a)
+    {
+        JsonSerialize ann = a.getAnnotation(JsonSerialize.class);
+        if (ann != null) {
+            Class<? extends JsonSerializer<?>> serClass = ann.nullsUsing();
+            if (serClass != JsonSerializer.None.class) {
+                return serClass;
+            }
+        }
+        return null;
+    }
+
     @Override
     public JsonInclude.Include findSerializationInclusion(Annotated a, JsonInclude.Include defValue)
     {

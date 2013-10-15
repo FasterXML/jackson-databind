@@ -318,13 +318,22 @@ public class AnnotationIntrospectorPair
         }
         return result;
     }
-
     @Override
     public Object findContentSerializer(Annotated a)
     {
         Object result = _primary.findContentSerializer(a);
         if (result == null || result == JsonSerializer.None.class || result == NoClass.class) {
             result = _secondary.findContentSerializer(a);
+        }
+        return result;
+    }
+    
+    @Override
+    public Object findNullSerializer(Annotated a)
+    {
+        Object result = _primary.findNullSerializer(a);
+        if (result == null || result == JsonSerializer.None.class || result == NoClass.class) {
+            result = _secondary.findNullSerializer(a);
         }
         return result;
     }

@@ -4,6 +4,7 @@ import java.io.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class TestNullSerialization
@@ -50,16 +51,27 @@ public class TestNullSerialization
             return super.findNullValueSerializer(property);
         }
     }
+
+    static class BeanWithNullProps
+    {
+        @JsonSerialize(nullsUsing=NullSerializer.class)
+        public String a = null;
+    }
+
+    @JsonSerialize(nullsUsing=NullSerializer.class)
+    static class NullValuedType { }
     
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = objectMapper();
     
     public void testSimple() throws Exception
     {
-        assertEquals("null", new ObjectMapper().writeValueAsString(null));
+        assertEquals("null", MAPPER.writeValueAsString(null));
     }
 
     public void testOverriddenDefaultNulls() throws Exception
@@ -82,18 +94,28 @@ public class TestNullSerialization
     // #281
     public void testCustomNullForTrees() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        ObjectNode root = m.createObjectNode();
+        ObjectNode root = MAPPER.createObjectNode();
         root.putNull("a");
 
         // by default, null is... well, null
-        assertEquals("{\"a\":null}", m.writeValueAsString(root));
+        assertEquals("{\"a\":null}", MAPPER.writeValueAsString(root));
 
         // but then we can customize it:
         DefaultSerializerProvider prov = new MyNullProvider();
         prov.setNullValueSerializer(new NullSerializer());
+        ObjectMapper m = new ObjectMapper();
         m.setSerializerProvider(prov);
         assertEquals("{\"a\":\"foobar\"}", m.writeValueAsString(root));
     }
 
+    public void testNullSerializerViaClass() throws Exception
+    {
+        assertEquals("[\"foobar\"]",
+                MAPPER.writeValueAsString(new NullValuedType[] { new NullValuedType() }));
+    }
+
+    public void testNullSerializerForProperty() throws Exception
+    {
+        assertEquals("{\"a\":\"foobar\"}", MAPPER.writeValueAsString(new BeanWithNullProps()));
+    }
 }

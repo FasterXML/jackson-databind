@@ -59,7 +59,17 @@ public @interface JsonSerialize
      */
     public Class<? extends JsonSerializer<?>> keyUsing()
         default JsonSerializer.None.class;
-    
+
+    /**
+     * Serializer class to use for serializing nulls for properties that
+     * are annotated (or for types that are annotated), instead of the
+     * default null serializer.
+     * 
+     * @since 2.3
+     */
+    public Class<? extends JsonSerializer<?>> nullsUsing()
+        default JsonSerializer.None.class;
+
     // // // Annotations for type handling, explicit declaration
     // // // (type used for choosing deserializer, if not explicitly
     // // // specified)

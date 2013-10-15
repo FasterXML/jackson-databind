@@ -46,16 +46,38 @@ public class PropertyBuilder
     public Annotations getClassAnnotations() {
         return _beanDesc.getClassAnnotations();
     }
+
+    /**
+     * @deprecated Since 2.3, use variant that takes {@link SerializerProvider} as
+     *   first argument -- to be removed from 2.4
+     */
+    @Deprecated
+    protected final BeanPropertyWriter buildWriter(BeanPropertyDefinition propDef,
+            JavaType declaredType, JsonSerializer<?> ser,
+            TypeSerializer typeSer, TypeSerializer contentTypeSer,
+            AnnotatedMember am, boolean defaultUseStaticTyping)
+    {
+        /* We will only retain this method until 2.4; left for now to explicitly
+         * cause compilation/linking issue iff anyone has overridden the method
+         * (hopefully not)
+         */
+        throw new IllegalStateException();
+    }
+    
+    /*
+     */
     
     /**
      * @param contentTypeSer Optional explicit type information serializer
      *    to use for contained values (only used for properties that are
      *    of container type)
      */
-    protected BeanPropertyWriter buildWriter(BeanPropertyDefinition propDef,
+    protected BeanPropertyWriter buildWriter(SerializerProvider prov,
+            BeanPropertyDefinition propDef,
             JavaType declaredType, JsonSerializer<?> ser,
             TypeSerializer typeSer, TypeSerializer contentTypeSer,
             AnnotatedMember am, boolean defaultUseStaticTyping)
+        throws JsonMappingException
     {
         // do we have annotation that forces type to use (to declared type or its super type)?
         JavaType serializationType = findSerializationType(am, defaultUseStaticTyping, declaredType);
@@ -118,10 +140,15 @@ public class PropertyBuilder
                 break;
             }
         }
-
         BeanPropertyWriter bpw = new BeanPropertyWriter(propDef,
                 am, _beanDesc.getClassAnnotations(), declaredType,
                 ser, typeSer, serializationType, suppressNulls, valueToSuppress);
+
+        // 14-Oct-2013, tatu: And how about custom null serializer?
+        Object serDef = _annotationIntrospector.findNullSerializer(am);
+        if (serDef != null) {
+            bpw.assignNullSerializer(prov.serializerInstance(am, serDef));
+        }
         
         // [JACKSON-132]: Unwrapping
         NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(am);

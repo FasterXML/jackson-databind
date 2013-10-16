@@ -130,11 +130,12 @@ public class TestJsonSerialize
     /**********************************************************
      */
 
+    final ObjectMapper MAPPER = objectMapper();
+    
     @SuppressWarnings("unchecked")
     public void testSimpleValueDefinition() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, new WrapperClassForAs());
+        Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForAs());
         assertEquals(1, result.size());
         Object ob = result.get("value");
         // Should see only "x", not "y"
@@ -145,9 +146,8 @@ public class TestJsonSerialize
 
     public void testBrokenAnnotation() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         try {
-            serializeAsString(m, new BrokenClass());
+            serializeAsString(MAPPER, new BrokenClass());
         } catch (Exception e) {
             verifyException(e, "not a super-type of");
         }
@@ -156,8 +156,7 @@ public class TestJsonSerialize
     @SuppressWarnings("unchecked")
     public void testStaticTypingForClass() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, new WrapperClassForStaticTyping());
+        Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForStaticTyping());
         assertEquals(1, result.size());
         Object ob = result.get("value");
         // Should see only "x", not "y"
@@ -169,8 +168,7 @@ public class TestJsonSerialize
     @SuppressWarnings("unchecked")
     public void testMixedTypingForClass() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        Map<String,Object> result = writeAndMap(m, new WrapperClassForStaticTyping2());
+        Map<String,Object> result = writeAndMap(MAPPER, new WrapperClassForStaticTyping2());
         assertEquals(2, result.size());
 
         Object obStatic = result.get("staticValue");
@@ -222,10 +220,9 @@ public class TestJsonSerialize
         assertEquals("[{\"x\":3}]", serializeAsString(m, array));
     }
 
-    public void testProblem294() throws Exception
+    public void testIssue294() throws Exception
     {
         assertEquals("{\"id\":\"fooId\",\"bar\":\"barId\"}",
-                new ObjectMapper().writeValueAsString(new Foo294("fooId", "barId")));
+                MAPPER.writeValueAsString(new Foo294("fooId", "barId")));
     }
-    
 }

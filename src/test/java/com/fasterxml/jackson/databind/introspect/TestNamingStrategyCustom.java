@@ -1,9 +1,9 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.introspect;
 
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
+import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
  * was added in Jackson 1.8, as per [JACKSON-178].
  */
 @SuppressWarnings("serial")
-public class TestNamingStrategy extends BaseMapTest
+public class TestNamingStrategyCustom extends BaseMapTest
 {
     /*
     /**********************************************************************

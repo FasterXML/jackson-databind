@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.introspect;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,28 +6,21 @@ import java.util.List;
 import org.junit.Test;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.TestNamingStrategy.PersonBean;
+import com.fasterxml.jackson.databind.introspect.TestNamingStrategyCustom.PersonBean;
 
 /**
  * Unit tests to verify functioning of 
  * {@link PropertyNamingStrategy#CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES} 
- * inside the context of an ObjectMapper.
- * CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES was added in Jackson 1.9, 
- * as per [JACKSON-598].
- * 
  * and
- * 
- * Unit test to verify translations of 
  * {@link PropertyNamingStrategy#PASCAL_CASE_TO_CAMEL_CASE } 
- * outside the context of an ObjectMapper.
- * PASCAL_CASE_TO_CAMEL_CASE was added in Jackson 2.1.0, 
+ * inside the context of an ObjectMapper.
+ * PASCAL_CASE_TO_CAMEL_CASE was added in Jackson 2.1,
  * as per [JACKSON-63].
- * 
- * @since 2.1.0
  */
-public class TestStdNamingStrategies extends BaseMapTest
+public class TestNamingStrategyStd extends BaseMapTest
 {
     /*
     /**********************************************************

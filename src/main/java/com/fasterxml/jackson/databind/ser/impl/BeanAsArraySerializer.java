@@ -160,6 +160,7 @@ public class BeanAsArraySerializer
     /* Field serialization methods
     /**********************************************************
      */
+
     private boolean hasSingleElement(SerializerProvider provider) {
         final BeanPropertyWriter[] props;
         if (_filteredProps != null && provider.getActiveView() != null) {

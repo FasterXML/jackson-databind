@@ -3,12 +3,10 @@ package com.fasterxml.jackson.databind.ser.impl;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
-import com.fasterxml.jackson.databind.ser.BeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.*;
 
 /**
  * Simple {@link BeanPropertyFilter} implementation that only uses property name
@@ -91,7 +89,7 @@ public abstract class SimpleBeanPropertyFilter
             writer.depositSchemaProperty(objectVisitor);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Sub-classes

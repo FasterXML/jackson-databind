@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * synchronization issues.
  */
 public class BeanPropertyWriter
+    extends PropertyWriter
     implements BeanProperty
 {
     /**
@@ -303,12 +304,14 @@ public class BeanPropertyWriter
     /* BeanProperty impl
     /**********************************************************
      */
-    
+
+    // Note: also part of 'PropertyWriter'
     @Override
     public String getName() {
         return _name.getValue();
     }
 
+    // Note: also part of 'PropertyWriter'
     @Override
     public PropertyName getFullName() {
         // !!! TODO: impl properly
@@ -348,63 +351,6 @@ public class BeanPropertyWriter
     @Override
     public AnnotatedMember getMember() {
         return _member;
-    }
-
-    @Override
-    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
-        throws JsonMappingException
-    {
-        if (objectVisitor != null) {
-            if (isRequired()) {
-                objectVisitor.property(this); 
-            } else {
-                objectVisitor.optionalProperty(this);
-            }
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* Legacy support for JsonFormatVisitable
-    /**********************************************************
-     */
-
-    /**
-     * Attempt to add the output of the given {@link BeanPropertyWriter} in the given {@link ObjectNode}.
-     * Otherwise, add the default schema {@link JsonNode} in place of the writer's output
-     * 
-     * @param propertiesNode Node which the given property would exist within
-     * @param provider Provider that can be used for accessing dynamic aspects of serialization
-     *  processing
-     *  
-     *  {@link BeanPropertyFilter#depositSchemaProperty(BeanPropertyWriter, ObjectNode, SerializerProvider)}
-     * 
-     * @since 2.1
-     */
-    @SuppressWarnings("deprecation")
-    public void depositSchemaProperty(ObjectNode propertiesNode, SerializerProvider provider)
-        throws JsonMappingException
-    {
-        JavaType propType = getSerializationType();
-        // 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas it doesn't...
-        Type hint = (propType == null) ? getGenericPropertyType() : propType.getRawClass();
-        JsonNode schemaNode;
-        // Maybe it already has annotated/statically configured serializer?
-        JsonSerializer<Object> ser = getSerializer();
-        if (ser == null) { // nope
-            Class<?> serType = getRawSerializationType();
-            if (serType == null) {
-                serType = getPropertyType();
-            }
-            ser = provider.findValueSerializer(serType, this);
-        }
-        boolean isOptional = !isRequired();
-        if (ser instanceof SchemaAware) {
-            schemaNode =  ((SchemaAware) ser).getSchema(provider, hint, isOptional) ;
-        } else {  
-            schemaNode = com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode(); 
-        }
-        _depositSchemaProperty(propertiesNode, schemaNode);
     }
 
     // @since 2.3 -- needed so it can be overridden by unwrapping writer
@@ -544,7 +490,7 @@ public class BeanPropertyWriter
     
     /*
     /**********************************************************
-    /* Serialization functionality
+    /* PropertyWriter methods (serialization)
     /**********************************************************
      */
 
@@ -553,6 +499,7 @@ public class BeanPropertyWriter
      * within given bean, and to serialize it as a JSON Object field
      * using appropriate serializer.
      */
+    @Override
     public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov)
         throws Exception
     {
@@ -604,6 +551,7 @@ public class BeanPropertyWriter
      * 
      * @since 2.3
      */
+    @Override
     public void serializeAsOmittedField(Object bean, JsonGenerator jgen, SerializerProvider prov)
         throws Exception
     {
@@ -619,6 +567,7 @@ public class BeanPropertyWriter
      * 
      * @since 2.1
      */
+    @Override
     public void serializeAsColumn(Object bean, JsonGenerator jgen, SerializerProvider prov)
         throws Exception
     {
@@ -672,6 +621,7 @@ public class BeanPropertyWriter
      * 
      * @since 2.1
      */
+    @Override
     public void serializeAsPlaceholder(Object bean, JsonGenerator jgen, SerializerProvider prov)
         throws Exception
     {
@@ -680,6 +630,65 @@ public class BeanPropertyWriter
         } else {
             jgen.writeNull();
         }
+    }
+
+    /*
+    /**********************************************************
+    /* PropertyWriter methods (schema generation)
+    /**********************************************************
+     */
+
+    // Also part of BeanProperty implementation
+    @Override
+    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
+        throws JsonMappingException
+    {
+        if (objectVisitor != null) {
+            if (isRequired()) {
+                objectVisitor.property(this); 
+            } else {
+                objectVisitor.optionalProperty(this);
+            }
+        }
+    }
+
+    // // // Legacy support for JsonFormatVisitable
+
+    /**
+     * Attempt to add the output of the given {@link BeanPropertyWriter} in the given {@link ObjectNode}.
+     * Otherwise, add the default schema {@link JsonNode} in place of the writer's output
+     * 
+     * @param propertiesNode Node which the given property would exist within
+     * @param provider Provider that can be used for accessing dynamic aspects of serialization
+     *  processing
+     * 
+     * @since 2.1
+     */
+    @SuppressWarnings("deprecation")
+    @Override
+    public void depositSchemaProperty(ObjectNode propertiesNode, SerializerProvider provider)
+        throws JsonMappingException
+    {
+        JavaType propType = getSerializationType();
+        // 03-Dec-2010, tatu: SchemaAware REALLY should use JavaType, but alas it doesn't...
+        Type hint = (propType == null) ? getGenericPropertyType() : propType.getRawClass();
+        JsonNode schemaNode;
+        // Maybe it already has annotated/statically configured serializer?
+        JsonSerializer<Object> ser = getSerializer();
+        if (ser == null) { // nope
+            Class<?> serType = getRawSerializationType();
+            if (serType == null) {
+                serType = getPropertyType();
+            }
+            ser = provider.findValueSerializer(serType, this);
+        }
+        boolean isOptional = !isRequired();
+        if (ser instanceof SchemaAware) {
+            schemaNode =  ((SchemaAware) ser).getSchema(provider, hint, isOptional) ;
+        } else {  
+            schemaNode = com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode(); 
+        }
+        _depositSchemaProperty(propertiesNode, schemaNode);
     }
     
     /*

@@ -11,6 +11,11 @@ import com.fasterxml.jackson.databind.ser.*;
 /**
  * Simple {@link BeanPropertyFilter} implementation that only uses property name
  * to determine whether to serialize property as is, or to filter it out.
+ *<p>
+ * Use of this class as the base implementation for any custom
+ * {@link BeanPropertyFilter} implementations is strongly encouraged,
+ * because it can provide default implementation for any methods that may
+ * be added in {@link BeanPropertyFilter} (as unfortunate as additions may be).
  */
 public abstract class SimpleBeanPropertyFilter
     implements BeanPropertyFilter // sub-classes must also implement java.io.Serializable

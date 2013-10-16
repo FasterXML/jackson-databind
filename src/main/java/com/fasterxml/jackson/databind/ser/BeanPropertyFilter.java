@@ -23,14 +23,21 @@ public interface BeanPropertyFilter
      * given bean property value: the usual choices are to either filter out (i.e.
      * do nothing) or write using given {@link BeanPropertyWriter}, although filters
      * can choose other to do something different altogether.
+     *<p>
+     * Typical implementation is something like:
+     *<pre>
+     * if (include(writer)) {
+     *      writer.serializeAsField(pojo, jgen, prov);
+     * }
+     *</pre>
      * 
-     * @param bean Bean of which property value to serialize
+     * @param pojo Object that contains property value to serialize
      * @param jgen Generator use for serializing value
      * @param prov Provider that can be used for accessing dynamic aspects of serialization
      *    processing
      * @param writer Default bean property serializer to use
      */
-    public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov,
+    public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider prov,
             BeanPropertyWriter writer)
         throws Exception;
     
@@ -46,13 +53,16 @@ public interface BeanPropertyFilter
      * }
      *</pre>
      * 
-     * @param writer Bean property serializer to use to create schema value
+     * @param writer Bean property writer to use to create schema value
      * @param propertiesNode Node which the given property would exist within
      * @param provider Provider that can be used for accessing dynamic aspects of serialization
      * 	processing
      * 
      * @since 2.1
+     * @deprecated Since 2.3: new code should use the alternative <code>depositSchemaProperty</code>
+     *   method
      */
+    @Deprecated
     public void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode,
             SerializerProvider provider)
         throws JsonMappingException;

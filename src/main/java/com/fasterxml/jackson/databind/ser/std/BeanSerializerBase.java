@@ -713,7 +713,8 @@ public abstract class BeanSerializerBase
         // But whether unknown ids are ok just depends on filter provider; if we get null that's fine
         return filter;
     }
-    
+
+    @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException

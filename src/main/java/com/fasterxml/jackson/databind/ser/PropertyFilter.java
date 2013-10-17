@@ -11,13 +11,18 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * using {@link com.fasterxml.jackson.annotation.JsonFilter})
  * for filtering bean properties to serialize.
  *<p>
- * Starting with version 2.3 this class is deprecated; use
- * {@link PropertyFilter} instead.
+ * Note that this is the replacement for <code>BeanPropertyFilter</code>,
+ * which is replaced because it was too closely bound to Bean properties
+ * and would not work with {@link java.util.Map}s or "any getters".
+ *<p>
+ * Note that since this is an interface, it is
+ * strongly recommended that custom implementations extend
+ * {@link com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter},
+ * to avoid backwards compatibility issues in case interface needs to change.
  * 
- * @deprecated Since 2.3: use {@link PropertyFilter} instead.
+ * @since 2.3
  */
-@Deprecated
-public interface BeanPropertyFilter
+public interface PropertyFilter
 {
     /**
      * Method called by {@link BeanSerializer} to let filter decide what to do with
@@ -39,7 +44,7 @@ public interface BeanPropertyFilter
      * @param writer Default bean property serializer to use
      */
     public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider prov,
-            BeanPropertyWriter writer)
+            PropertyWriter writer)
         throws Exception;
     
     /**
@@ -59,12 +64,11 @@ public interface BeanPropertyFilter
      * @param provider Provider that can be used for accessing dynamic aspects of serialization
      * 	processing
      * 
-     * @since 2.1
      * @deprecated Since 2.3: new code should use the alternative <code>depositSchemaProperty</code>
      *   method
      */
     @Deprecated
-    public void depositSchemaProperty(BeanPropertyWriter writer, ObjectNode propertiesNode,
+    public void depositSchemaProperty(PropertyWriter writer, ObjectNode propertiesNode,
             SerializerProvider provider)
         throws JsonMappingException;
     
@@ -85,10 +89,8 @@ public interface BeanPropertyFilter
      * the property's existence
      * @param provider Provider that can be used for accessing dynamic aspects of serialization
      * 	processing
-     * 
-     * @since 2.1
      */
-    public void depositSchemaProperty(BeanPropertyWriter writer, JsonObjectFormatVisitor objectVisitor,
+    public void depositSchemaProperty(PropertyWriter writer, JsonObjectFormatVisitor objectVisitor,
             SerializerProvider provider)
         throws JsonMappingException;
 }

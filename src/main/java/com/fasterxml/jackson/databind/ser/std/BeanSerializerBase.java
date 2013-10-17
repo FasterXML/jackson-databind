@@ -652,7 +652,7 @@ public abstract class BeanSerializerBase
 
     /**
      * Alternative serialization method that gets called when there is a
-     * {@link BeanPropertyFilter} that needs to be called to determine
+     * {@link PropertyFilter} that needs to be called to determine
      * which properties are to be serialized (and possibly how)
      */
     protected void serializeFieldsFiltered(Object bean, JsonGenerator jgen,
@@ -668,7 +668,7 @@ public abstract class BeanSerializerBase
         } else {
             props = _props;
         }
-        final BeanPropertyFilter filter = findFilter(provider);
+        final PropertyFilter filter = findFilter(provider);
         // better also allow missing filter actually..
         if (filter == null) {
             serializeFields(bean, jgen, provider);
@@ -700,16 +700,16 @@ public abstract class BeanSerializerBase
      * Helper method used to locate filter that is needed, based on filter id
      * this serializer was constructed with.
      */
-    protected BeanPropertyFilter findFilter(SerializerProvider provider)
+    protected PropertyFilter findFilter(SerializerProvider provider)
         throws JsonMappingException
     {
         final Object filterId = _propertyFilterId;
         FilterProvider filters = provider.getFilterProvider();
         // Not ok to miss the provider, if a filter is declared to be needed.
         if (filters == null) {
-            throw new JsonMappingException("Can not resolve BeanPropertyFilter with id '"+filterId+"'; no FilterProvider configured");
+            throw new JsonMappingException("Can not resolve PropertyFilter with id '"+filterId+"'; no FilterProvider configured");
         }
-        BeanPropertyFilter filter = filters.findFilter(filterId);
+        PropertyFilter filter = filters.findPropertyFilter(filterId);
         // But whether unknown ids are ok just depends on filter provider; if we get null that's fine
         return filter;
     }
@@ -733,7 +733,7 @@ public abstract class BeanSerializerBase
         //todo: should the classname go in the title?
         //o.put("title", _className);
         ObjectNode propertiesNode = o.objectNode();
-        final BeanPropertyFilter filter;
+        final PropertyFilter filter;
         if (_propertyFilterId != null) {
             filter = findFilter(provider);
         } else {
@@ -766,7 +766,7 @@ public abstract class BeanSerializerBase
             return;
         }
         if (_propertyFilterId != null) {
-            BeanPropertyFilter filter = findFilter(visitor.getProvider());
+            PropertyFilter filter = findFilter(visitor.getProvider());
             for (int i = 0; i < _props.length; i++) {
                 filter.depositSchemaProperty(_props[i], objectVisitor, visitor.getProvider());
             }

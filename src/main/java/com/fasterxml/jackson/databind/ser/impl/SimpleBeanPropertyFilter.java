@@ -9,16 +9,18 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor
 import com.fasterxml.jackson.databind.ser.*;
 
 /**
- * Simple {@link BeanPropertyFilter} implementation that only uses property name
+ * Simple {@link PropertyFilter} implementation that only uses property name
  * to determine whether to serialize property as is, or to filter it out.
  *<p>
  * Use of this class as the base implementation for any custom
- * {@link BeanPropertyFilter} implementations is strongly encouraged,
+ * {@link PropertyFilter} implementations is strongly encouraged,
  * because it can provide default implementation for any methods that may
- * be added in {@link BeanPropertyFilter} (as unfortunate as additions may be).
+ * be added in {@link PropertyFilter} (as unfortunate as additions may be).
  */
+@SuppressWarnings("deprecation")
 public abstract class SimpleBeanPropertyFilter
-    implements BeanPropertyFilter // sub-classes must also implement java.io.Serializable
+    implements BeanPropertyFilter, PropertyFilter
+        // sub-classes must also implement java.io.Serializable
 {
     /*
     /**********************************************************
@@ -52,6 +54,40 @@ public abstract class SimpleBeanPropertyFilter
         return new SerializeExceptFilter(properties);
     }
 
+    /**
+     * Helper method to ease transition from {@link BeanPropertyWriter} into
+     * {@link PropertyWriter}
+     * 
+     * @since 2.3
+     */
+    public static PropertyFilter from(final BeanPropertyFilter src)
+    {
+        return new PropertyFilter() {
+            @Override
+            public void serializeAsField(Object pojo, JsonGenerator jgen,
+                    SerializerProvider prov, PropertyWriter writer)
+                throws Exception {
+                src.serializeAsField(pojo, jgen, prov, (BeanPropertyWriter) writer);
+            }
+
+            @Deprecated
+            @Override
+            public void depositSchemaProperty(PropertyWriter writer,
+                    ObjectNode propertiesNode, SerializerProvider provider)
+                throws JsonMappingException {
+                src.depositSchemaProperty((BeanPropertyWriter) writer, propertiesNode, provider);
+            }
+
+            @Override
+            public void depositSchemaProperty(PropertyWriter writer,
+                    JsonObjectFormatVisitor objectVisitor,
+                SerializerProvider provider) throws JsonMappingException {
+                src.depositSchemaProperty((BeanPropertyWriter) writer, objectVisitor, provider);
+            }
+            
+        };
+    }
+
     /*
     /**********************************************************
     /* Methods for sub-classes
@@ -64,6 +100,17 @@ public abstract class SimpleBeanPropertyFilter
      */
     protected abstract boolean include(BeanPropertyWriter writer);
 
+    /**
+     * @since 2.3
+     */
+    protected abstract boolean include(PropertyWriter writer);
+
+    /*
+    /**********************************************************
+    /* BeanPropertyFilter implementation
+    /**********************************************************
+     */
+    
     @Override
     public void serializeAsField(Object bean, JsonGenerator jgen,
             SerializerProvider provider, BeanPropertyWriter writer) throws Exception
@@ -89,6 +136,45 @@ public abstract class SimpleBeanPropertyFilter
     public void depositSchemaProperty(BeanPropertyWriter writer,
             JsonObjectFormatVisitor objectVisitor, SerializerProvider provider)
         throws JsonMappingException
+    {
+        if (include(writer)) {
+            writer.depositSchemaProperty(objectVisitor);
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* PropertyFilter implementation
+    /**********************************************************
+     */
+    
+    @Override
+    public void serializeAsField(Object pojo, JsonGenerator jgen,
+            SerializerProvider provider, PropertyWriter writer)
+        throws Exception
+    {
+        if (include(writer)) {
+            writer.serializeAsField(pojo, jgen, provider);
+        } else if (!jgen.canOmitFields()) { // since 2.3
+            writer.serializeAsOmittedField(pojo, jgen, provider);
+        }
+    }
+
+    @Deprecated
+    @Override
+    public void depositSchemaProperty(PropertyWriter writer,
+            ObjectNode propertiesNode, SerializerProvider provider)
+            throws JsonMappingException
+    {
+        if (include(writer)) {
+            writer.depositSchemaProperty(propertiesNode, provider);
+        }
+    }
+
+    @Override
+    public void depositSchemaProperty(PropertyWriter writer,
+            JsonObjectFormatVisitor objectVisitor,
+            SerializerProvider provider) throws JsonMappingException 
     {
         if (include(writer)) {
             writer.depositSchemaProperty(objectVisitor);
@@ -124,6 +210,11 @@ public abstract class SimpleBeanPropertyFilter
         protected boolean include(BeanPropertyWriter writer) {
             return _propertiesToInclude.contains(writer.getName());
         }
+
+        @Override
+        protected boolean include(PropertyWriter writer) {
+            return _propertiesToInclude.contains(writer.getName());
+        }
     }
 
     /**
@@ -144,6 +235,11 @@ public abstract class SimpleBeanPropertyFilter
 
         @Override
         protected boolean include(BeanPropertyWriter writer) {
+            return !_propertiesToExclude.contains(writer.getName());
+        }
+
+        @Override
+        protected boolean include(PropertyWriter writer) {
             return !_propertiesToExclude.contains(writer.getName());
         }
     }

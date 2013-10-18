@@ -147,7 +147,10 @@ public enum SerializationFeature implements ConfigFeature
      * or as something else (usually textual representation).
      * If textual representation is used, the actual format is
      * one returned by a call to
-     * {@link com.fasterxml.jackson.databind.SerializationConfig#getDateFormat}.
+     * {@link com.fasterxml.jackson.databind.SerializationConfig#getDateFormat}:
+     * the default setting being {@link com.fasterxml.jackson.databind.util.StdDateFormat},
+     * which corresponds to format String of "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+     * (see {@link java.text.DateFormat} for details of format Strings).
      *<p>
      * Note: whether this feature affects handling of other date-related
      * types depend on handlers of those types, although ideally they

@@ -27,29 +27,29 @@ public abstract class PropertySerializerMap
     public abstract JsonSerializer<Object> serializerFor(Class<?> type);
 
     /**
-     * Method called if initial lookup fails, when looking for a non-primary
-     * serializer (one that is not directly attached to a property).
-     * Will both find serializer
-     * and construct new map instance if warranted, and return both.
-     * 
-     * @since 2.3
-     * 
-     * @throws JsonMappingException 
+     * @deprecated Since 2.3; use either <code>findAndAddPrimarySerializer</code> or
+     *    <code>findAndAddSecondarySerializer</code>.
+     *    To be removed from 2.4
      */
-    public final SerializerAndMapResult findAndAddSecondarySerializer(Class<?> type,
+    @Deprecated
+    public final SerializerAndMapResult findAndAddSerializer(Class<?> type,
             SerializerProvider provider, BeanProperty property)
         throws JsonMappingException
     {
-        JsonSerializer<Object> serializer = provider.findValueSerializer(type, property);
-        return new SerializerAndMapResult(serializer, newWith(type, serializer));
+        return findAndAddSecondarySerializer(type, provider, property);
     }
 
-    public final SerializerAndMapResult findAndAddSecondarySerializer(JavaType type,
+    /**
+     * @deprecated Since 2.3; use either <code>findAndAddPrimarySerializer</code> or
+     *    <code>findAndAddSecondarySerializer</code>.
+     *    To be removed from 2.4
+     */
+    @Deprecated
+    public final SerializerAndMapResult findAndAddSerializer(JavaType type,
             SerializerProvider provider, BeanProperty property)
         throws JsonMappingException
     {
-        JsonSerializer<Object> serializer = provider.findValueSerializer(type, property);
-        return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
+        return findAndAddSecondarySerializer(type, provider, property);
     }
 
     /**
@@ -75,6 +75,32 @@ public abstract class PropertySerializerMap
         throws JsonMappingException
     {
         JsonSerializer<Object> serializer = provider.findPrimaryPropertySerializer(type, property);
+        return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
+    }
+    
+    /**
+     * Method called if initial lookup fails, when looking for a non-primary
+     * serializer (one that is not directly attached to a property).
+     * Will both find serializer
+     * and construct new map instance if warranted, and return both.
+     * 
+     * @since 2.3
+     * 
+     * @throws JsonMappingException 
+     */
+    public final SerializerAndMapResult findAndAddSecondarySerializer(Class<?> type,
+            SerializerProvider provider, BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> serializer = provider.findValueSerializer(type, property);
+        return new SerializerAndMapResult(serializer, newWith(type, serializer));
+    }
+
+    public final SerializerAndMapResult findAndAddSecondarySerializer(JavaType type,
+            SerializerProvider provider, BeanProperty property)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> serializer = provider.findValueSerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
     

@@ -776,6 +776,19 @@ public abstract class SerializerProvider
      */
 
     /**
+     * @deprecated Since 2.3 (and to be removed from 2.4); use
+     *   {@link #handlePrimaryContextualization} or {@link #handleSecondaryContextualization}
+     *   instead
+     */
+    @Deprecated
+    public JsonSerializer<?> handleContextualization(JsonSerializer<?> ser,
+            BeanProperty property)
+        throws JsonMappingException
+    {
+        return handleSecondaryContextualization(ser, property);
+    }
+    
+    /**
      * Method called for primary property serializers (ones
      * directly created to serialize values of a POJO property),
      * to handle details of resolving

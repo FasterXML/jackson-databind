@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,14 +44,15 @@ public class TestPropertyConflicts extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = objectMapper();
     
     // for [JACKSON-694]
     public void testFailWithDupProps() throws Exception
     {
         BeanWithConflict bean = new BeanWithConflict();
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            String json = mapper.writeValueAsString(bean);
+            String json = MAPPER.writeValueAsString(bean);
             fail("Should have failed due to conflicting accessor definitions; got JSON = "+json);
         } catch (JsonProcessingException e) {
             verifyException(e, "Conflicting getter definitions");
@@ -60,7 +63,6 @@ public class TestPropertyConflicts extends BaseMapTest
     public void testRegularAndIsGetter() throws Exception
     {
         // first, serialize without probs:
-        final ObjectMapper MAPPER = new ObjectMapper();
         assertEquals("{\"value\":4}", MAPPER.writeValueAsString(new Getters1A()));
         assertEquals("{\"value\":4}", MAPPER.writeValueAsString(new Getters1B()));
 

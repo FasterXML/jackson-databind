@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.filter;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -10,14 +10,8 @@ import com.fasterxml.jackson.databind.ser.impl.*;
  * Tests for verifying that bean property filtering using JsonFilter
  * works as expected.
  */
-public class TestFiltering extends BaseMapTest
+public class TestJsonFilter extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper types
-    /**********************************************************
-     */
-
     @JsonFilter("RootFilter")
     static class Bean {
         public String a = "a";
@@ -101,7 +95,7 @@ public class TestFiltering extends BaseMapTest
             MAPPER.writeValueAsString(new Bean());
             fail("Should have failed without configured filter");
         } catch (JsonMappingException e) { // should be resolved to a MappingException (internally may be something else)
-            verifyException(e, "Can not resolve BeanPropertyFilter with id 'RootFilter'");
+            verifyException(e, "Can not resolve PropertyFilter with id 'RootFilter'");
         }
         
         // but when changing behavior, should work difference

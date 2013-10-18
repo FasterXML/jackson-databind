@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -15,6 +14,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import com.fasterxml.jackson.databind.ser.PropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -415,7 +415,7 @@ public class MapSerializer
      */
     protected void serializeFieldsUsing(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider,
             JsonSerializer<Object> ser)
-            throws IOException, JsonGenerationException
+        throws IOException, JsonGenerationException
     {
         final JsonSerializer<Object> keySerializer = _keySerializer;
         final HashSet<String> ignored = _ignoredEntries;
@@ -451,6 +451,66 @@ public class MapSerializer
         }
     }
 
+    /**
+     * Helper method used when we have a JSON Filter to use for potentially
+     * filtering out Map entries.
+     *<p>
+     * NOTE: initially only called externally, by <code>AnyGetterWriter</code>
+     * 
+     * @since 2.3
+     */
+    public void serializeFilteredFields(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider,
+            PropertyFilter filter)
+        throws IOException, JsonGenerationException
+    {
+        final HashSet<String> ignored = _ignoredEntries;
+        final boolean skipNulls = !provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
+
+        PropertySerializerMap serializers = _dynamicValueSerializers;
+        final MapProperty prop = new MapProperty(_valueTypeSerializer);
+
+        for (Map.Entry<?,?> entry : value.entrySet()) {
+            // First, serialize key
+            final Object keyElem = entry.getKey();
+            final Object valueElem = entry.getValue();
+            JsonSerializer<Object> keySer;
+            if (keyElem == null) {
+                keySer = provider.findNullKeySerializer(_keyType, _property);
+            } else {
+                // [JACKSON-314] skip entries with null values?
+                if (skipNulls && valueElem == null) continue;
+                // One twist: is entry ignorable? If so, skip
+                if (ignored != null && ignored.contains(keyElem)) continue;
+                keySer = _keySerializer;
+            }
+            JsonSerializer<Object> valueSer;
+            // And then value
+            if (valueElem == null) {
+                valueSer = provider.getDefaultNullValueSerializer();
+            } else {
+                Class<?> cc = valueElem.getClass();
+                valueSer = serializers.serializerFor(cc);
+                if (valueSer == null) {
+                    if (_valueType.hasGenericTypes()) {
+                        valueSer = _findAndAddDynamic(serializers,
+                                provider.constructSpecializedType(_valueType, cc), provider);
+                    } else {
+                        valueSer = _findAndAddDynamic(serializers, cc, provider);
+                    }
+                    serializers = _dynamicValueSerializers;
+                }
+            }
+            prop.reset(keyElem, valueElem, keySer, valueSer);
+            try {
+                filter.serializeAsField(value, jgen, provider, prop);
+            } catch (Exception e) {
+                // [JACKSON-55] Need to add reference information
+                String keyDesc = ""+keyElem;
+                wrapAndThrow(provider, e, value, keyDesc);
+            }
+        }
+    }
+    
     protected void serializeTypedFields(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {

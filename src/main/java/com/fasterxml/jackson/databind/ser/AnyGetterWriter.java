@@ -45,6 +45,24 @@ public class AnyGetterWriter
         _serializer.serializeFields((Map<?,?>) value, jgen, provider);
     }
 
+    /**
+     * @since 2.3
+     */
+    public void getAndFilter(Object bean, JsonGenerator jgen, SerializerProvider provider,
+            PropertyFilter filter)
+        throws Exception
+        {
+            Object value = _accessor.getValue(bean);
+            if (value == null) {
+                return;
+            }
+            if (!(value instanceof Map<?,?>)) {
+                throw new JsonMappingException("Value returned by 'any-getter' ("
+                        +_accessor.getName()+"()) not java.util.Map but "+value.getClass().getName());
+            }
+            _serializer.serializeFilteredFields((Map<?,?>) value, jgen, provider, filter);
+        }
+    
     // Note: NOT part of ResolvableSerializer...
     public void resolve(SerializerProvider provider) throws JsonMappingException
     {

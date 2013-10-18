@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.filter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,24 +13,24 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 /**
- * Currently (1.8) generic filtering does not work for "any getter": it should,
- * ideally, so here's the test.
+ * Unit tests for ensuring that entries accessible via "any filter"
+ * can also be filtered with JSON Filter functionality.
  */
-public class TestSerializationFiltering extends BaseMapTest
+public class TestAnyGetterFiltering extends BaseMapTest
 {
     @JsonFilter("anyFilter")
     public static class AnyBean
     {
         private Map<String, String> properties = new HashMap<String, String>();
         {
-          properties.put("a", "1");
-          properties.put("b", "2");
+            properties.put("a", "1");
+            properties.put("b", "2");
         }
 
         @JsonAnyGetter
         public Map<String, String> anyProperties()
         {
-          return properties;
+            return properties;
         }
     }
 
@@ -46,6 +46,6 @@ public class TestSerializationFiltering extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         FilterProvider prov = new SimpleFilterProvider().addFilter("anyFilter",
                 SimpleBeanPropertyFilter.filterOutAllExcept("b"));
-        assertEquals("{\"a\":\"1\"}", mapper.writer(prov).writeValueAsString(new AnyBean()));
+        assertEquals("{\"b\":\"2\"}", mapper.writer(prov).writeValueAsString(new AnyBean()));
     }
 }

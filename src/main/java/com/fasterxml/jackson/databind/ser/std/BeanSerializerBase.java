@@ -683,7 +683,7 @@ public abstract class BeanSerializerBase
                 }
             }
             if (_anyGetterWriter != null) {
-                _anyGetterWriter.getAndSerialize(bean, jgen, provider);
+                _anyGetterWriter.getAndFilter(bean, jgen, provider, filter);
             }
         } catch (Exception e) {
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();

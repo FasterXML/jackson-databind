@@ -51,7 +51,7 @@ New minor version.
 #324: Make sure to throw `JsonMappingException` from `EnumDeserializer` creator,
   not `IllegalArgumentException`
  (reported by beverku@github)
-
+#326: Support `@JsonFilter` for "any getter" properties
 [JACKSON-890]: Support managed/back-references for polymorphic (abstract) types
 - Add 'BeanPropertyWriter.isUnwrapping()' for future needs (by Afterburner)
 - Add coercions from String "null" (as if null token was parsed) for primitives/Wrappers.

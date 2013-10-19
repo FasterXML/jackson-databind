@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.filter;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
@@ -11,6 +10,9 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 public class TestMapFiltering extends BaseMapTest
 {
+    @SuppressWarnings("serial")
+    static class FilteredBean extends LinkedHashMap<String,Integer> { }
+    
     static class MapBean {
         @JsonFilter("filterX")
         public Map<String,Integer> values;
@@ -28,15 +30,26 @@ public class TestMapFiltering extends BaseMapTest
     /* Unit tests
     /**********************************************************
      */
+
+    final ObjectMapper MAPPER = objectMapper();
     
-    // should also work for @JsonAnyGetter, as per [JACKSON-516]
-    public void testAnyGetterFiltering() throws Exception
+    public void testMapFilteringViaProps() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",
                 SimpleBeanPropertyFilter.filterOutAllExcept("b"));
         assertEquals(aposToQuotes("{'values':{'b':5}}"),
-                mapper.writer(prov).writeValueAsString(new MapBean()));
+                MAPPER.writer(prov).writeValueAsString(new MapBean()));
     }
 
+    public void testMapFilteringViaClass() throws Exception
+    {
+        FilteredBean bean = new FilteredBean();
+        bean.put("a", 4);
+        bean.put("b", 3);
+        FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",
+                SimpleBeanPropertyFilter.filterOutAllExcept("b"));
+        assertEquals(aposToQuotes("{'b':3}"),
+                MAPPER.writer(prov).writeValueAsString(bean));
+    }
+    
 }

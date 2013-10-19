@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.PropertyFilter;
 import com.fasterxml.jackson.databind.util.Converter;
 
 /**
@@ -253,5 +255,24 @@ public abstract class StdSerializer<T>
             }
         }
         return existingSerializer;
+    }
+
+    /**
+     * Helper method used to locate filter that is needed, based on filter id
+     * this serializer was constructed with.
+     * 
+     * @since 2.3
+     */
+    protected PropertyFilter findFilter(SerializerProvider provider, Object filterId)
+        throws JsonMappingException
+    {
+        FilterProvider filters = provider.getFilterProvider();
+        // Not ok to miss the provider, if a filter is declared to be needed.
+        if (filters == null) {
+            throw new JsonMappingException("Can not resolve PropertyFilter with id '"+filterId+"'; no FilterProvider configured");
+        }
+        PropertyFilter filter = filters.findPropertyFilter(filterId);
+        // But whether unknown ids are ok just depends on filter provider; if we get null that's fine
+        return filter;
     }
 }

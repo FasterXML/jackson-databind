@@ -7,6 +7,7 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
@@ -77,7 +78,14 @@ public class MapSerializer
      * runtime value types to serializers are stored in this object.
      */
     protected PropertySerializerMap _dynamicValueSerializers;
-    
+
+    /**
+     * Id of the property filter to use, if any; null if none.
+     *
+     * @since 2.3
+     */
+    protected final Object _filterId;
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -100,6 +108,7 @@ public class MapSerializer
         _valueSerializer = (JsonSerializer<Object>) valueSerializer;
         _dynamicValueSerializers = PropertySerializerMap.emptyMap();
         _property = null;
+        _filterId = null;
     }
 
     @SuppressWarnings("unchecked")
@@ -117,6 +126,7 @@ public class MapSerializer
         _valueSerializer = (JsonSerializer<Object>) valueSerializer;
         _dynamicValueSerializers = src._dynamicValueSerializers;
         _property = property;
+        _filterId = src._filterId;
     }
 
     protected MapSerializer(MapSerializer src, TypeSerializer vts)
@@ -131,6 +141,22 @@ public class MapSerializer
         _valueSerializer = src._valueSerializer;
         _dynamicValueSerializers = src._dynamicValueSerializers;
         _property = src._property;
+        _filterId = src._filterId;
+    }
+
+    protected MapSerializer(MapSerializer src, Object filterId)
+    {
+        super(Map.class, false);
+        _ignoredEntries = src._ignoredEntries;
+        _keyType = src._keyType;
+        _valueType = src._valueType;
+        _valueTypeIsStatic = src._valueTypeIsStatic;
+        _valueTypeSerializer = src._valueTypeSerializer;
+        _keySerializer = src._keySerializer;
+        _valueSerializer = src._valueSerializer;
+        _dynamicValueSerializers = src._dynamicValueSerializers;
+        _property = src._property;
+        _filterId = filterId;
     }
     
     @Override
@@ -144,6 +170,10 @@ public class MapSerializer
             HashSet<String> ignored)
     {
         return new MapSerializer(this, property, keySerializer, valueSerializer, ignored);
+    }
+
+    public MapSerializer withFilterId(Object filterId) {
+        return (_filterId == filterId) ? this : new MapSerializer(this, filterId);
     }
     
     public static MapSerializer construct(String[] ignoredList, JavaType mapType,
@@ -252,7 +282,16 @@ public class MapSerializer
                 }
             }
         }
-        return withResolved(property, keySer, ser, ignored);
+        MapSerializer mser =  withResolved(property, keySer, ser, ignored);
+
+        // [Issue#307]: allow filtering
+        if (property != null) {
+            Object filterId = intr.findFilterId(property.getMember());
+            if (filterId != null) {
+                mser = mser.withFilterId(filterId);
+            }
+        }
+        return mser;
     }
     
     /*
@@ -313,6 +352,10 @@ public class MapSerializer
     {
         jgen.writeStartObject();
         if (!value.isEmpty()) {
+            if (_filterId != null) {
+                serializeFilteredFields(value, jgen, provider, findFilter(provider, _filterId));
+                return;
+            }
             if (provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value);
             }

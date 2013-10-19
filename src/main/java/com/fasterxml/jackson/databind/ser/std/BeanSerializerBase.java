@@ -66,7 +66,7 @@ public abstract class BeanSerializerBase
      * annotated properties
      */
     final protected AnyGetterWriter _anyGetterWriter;
-    
+
     /**
      * Id of the bean property filter to use, if any; null if none.
      */
@@ -668,7 +668,7 @@ public abstract class BeanSerializerBase
         } else {
             props = _props;
         }
-        final PropertyFilter filter = findFilter(provider);
+        final PropertyFilter filter = findFilter(provider, _propertyFilterId);
         // better also allow missing filter actually..
         if (filter == null) {
             serializeFields(bean, jgen, provider);
@@ -696,24 +696,6 @@ public abstract class BeanSerializerBase
         }
     }
 
-    /**
-     * Helper method used to locate filter that is needed, based on filter id
-     * this serializer was constructed with.
-     */
-    protected PropertyFilter findFilter(SerializerProvider provider)
-        throws JsonMappingException
-    {
-        final Object filterId = _propertyFilterId;
-        FilterProvider filters = provider.getFilterProvider();
-        // Not ok to miss the provider, if a filter is declared to be needed.
-        if (filters == null) {
-            throw new JsonMappingException("Can not resolve PropertyFilter with id '"+filterId+"'; no FilterProvider configured");
-        }
-        PropertyFilter filter = filters.findPropertyFilter(filterId);
-        // But whether unknown ids are ok just depends on filter provider; if we get null that's fine
-        return filter;
-    }
-
     @Deprecated
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
@@ -735,7 +717,7 @@ public abstract class BeanSerializerBase
         ObjectNode propertiesNode = o.objectNode();
         final PropertyFilter filter;
         if (_propertyFilterId != null) {
-            filter = findFilter(provider);
+            filter = findFilter(provider, _propertyFilterId);
         } else {
             filter = null;
         }
@@ -766,7 +748,7 @@ public abstract class BeanSerializerBase
             return;
         }
         if (_propertyFilterId != null) {
-            PropertyFilter filter = findFilter(visitor.getProvider());
+            PropertyFilter filter = findFilter(visitor.getProvider(), _propertyFilterId);
             for (int i = 0; i < _props.length; i++) {
                 filter.depositSchemaProperty(_props[i], objectVisitor, visitor.getProvider());
             }

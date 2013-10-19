@@ -728,9 +728,10 @@ public abstract class BasicSerializerFactory
                 ser = new EnumMapSerializer(type.getContentType(), staticTyping, enums,
                     elementTypeSerializer, elementValueSerializer);
             } else {
+                Object filterId = findFilterId(config, beanDesc);
                 ser = MapSerializer.construct(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()),
                     type, staticTyping, elementTypeSerializer,
-                    keySerializer, elementValueSerializer);
+                    keySerializer, elementValueSerializer, filterId);
             }
         }
         // [Issue#120]: Allow post-processing
@@ -948,6 +949,15 @@ public abstract class BasicSerializerFactory
         return null;
     }
 
+    /**
+     * Method called to find filter that is configured to be used with bean
+     * serializer being built, if any.
+     */
+    protected Object findFilterId(SerializationConfig config, BeanDescription beanDesc)
+    {
+        return config.getAnnotationIntrospector().findFilterId((Annotated)beanDesc.getClassInfo());
+    }
+    
     /**
      * @deprecated Since 2.1: use method without 'property'
      */

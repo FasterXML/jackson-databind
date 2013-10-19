@@ -405,7 +405,7 @@ public class BeanSerializerFactory
         builder.setFilterId(findFilterId(config, beanDesc));
         
         AnnotatedMember anyGetter = beanDesc.findAnyGetter();
-        if (anyGetter != null) { // since 1.6
+        if (anyGetter != null) {
             if (config.canOverrideAccessModifiers()) {
                 anyGetter.fixAccess();
             }
@@ -415,8 +415,9 @@ public class BeanSerializerFactory
             JavaType valueType = type.getContentType();
             TypeSerializer typeSer = createTypeSerializer(config, valueType);
             // last 2 nulls; don't know key, value serializers (yet)
+            // TODO: support '@JsonIgnoreProperties' with any setter?
             MapSerializer mapSer = MapSerializer.construct(/* ignored props*/ null, type, staticTyping,
-                    typeSer, null, null);
+                    typeSer, null, null, /*filterId*/ null);
             // TODO: can we find full PropertyName?
             PropertyName name = new PropertyName(anyGetter.getName());
             BeanProperty.Std anyProp = new BeanProperty.Std(name, valueType, null,
@@ -518,15 +519,6 @@ public class BeanSerializerFactory
 
     protected BeanSerializerBuilder constructBeanSerializerBuilder(BeanDescription beanDesc) {
         return new BeanSerializerBuilder(beanDesc);
-    }
-
-    /**
-     * Method called to find filter that is configured to be used with bean
-     * serializer being built, if any.
-     */
-    protected Object findFilterId(SerializationConfig config, BeanDescription beanDesc)
-    {
-        return config.getAnnotationIntrospector().findFilterId((Annotated)beanDesc.getClassInfo());
     }
     
     /*

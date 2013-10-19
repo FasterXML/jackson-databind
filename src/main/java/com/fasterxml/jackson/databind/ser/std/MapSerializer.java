@@ -7,7 +7,6 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonMapFormatVisitor;
@@ -172,13 +171,32 @@ public class MapSerializer
         return new MapSerializer(this, property, keySerializer, valueSerializer, ignored);
     }
 
+    /**
+     * @since 2.3
+     */
     public MapSerializer withFilterId(Object filterId) {
         return (_filterId == filterId) ? this : new MapSerializer(this, filterId);
     }
-    
+
+    /**
+     * @deprecated Since 2.3 use the method that takes `filterId`
+     */
+    @Deprecated
     public static MapSerializer construct(String[] ignoredList, JavaType mapType,
             boolean staticValueType, TypeSerializer vts,
             JsonSerializer<Object> keySerializer, JsonSerializer<Object> valueSerializer)
+    {
+        return construct(ignoredList, mapType, staticValueType, vts,
+                keySerializer, valueSerializer);
+    }
+
+    /**
+     * @since 2.3
+     */
+    public static MapSerializer construct(String[] ignoredList, JavaType mapType,
+            boolean staticValueType, TypeSerializer vts,
+            JsonSerializer<Object> keySerializer, JsonSerializer<Object> valueSerializer,
+            Object filterId)
     {
         HashSet<String> ignoredEntries = toSet(ignoredList);
         JavaType keyType, valueType;
@@ -198,8 +216,12 @@ public class MapSerializer
                 staticValueType = false;
             }
         }
-        return new MapSerializer(ignoredEntries, keyType, valueType, staticValueType, vts,
+        MapSerializer ser = new MapSerializer(ignoredEntries, keyType, valueType, staticValueType, vts,
                 keySerializer, valueSerializer);
+        if (filterId != null) {
+            ser = ser.withFilterId(filterId);
+        }
+        return ser;
     }
 
     private static HashSet<String> toSet(String[] ignoredEntries) {

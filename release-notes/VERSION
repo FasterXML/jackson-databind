@@ -37,6 +37,7 @@ New minor version.
 #305: Add support for accessing `TypeFactory` via `TypeIdResolverBase`
  (not yet via `TypeIdResolver` interface), other configuration
 #306: Allow use of `@JsonFilter` for properties, not just classes 
+#307: Allow use of `@JsonFilter` for Maps in addition to POJOs
 #308: Improve serialization and deserialization speed of `java.util.UUID` by 4x
  (suggested by David P)
 #310: Improve `java.util.UUID` serialization with binary codecs, to use "raw" form.

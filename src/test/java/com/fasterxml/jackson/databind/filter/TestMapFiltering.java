@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 public class TestMapFiltering extends BaseMapTest
 {
     @SuppressWarnings("serial")
+    @JsonFilter("filterForMaps")
     static class FilteredBean extends LinkedHashMap<String,Integer> { }
     
     static class MapBean {
@@ -46,7 +47,7 @@ public class TestMapFiltering extends BaseMapTest
         FilteredBean bean = new FilteredBean();
         bean.put("a", 4);
         bean.put("b", 3);
-        FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",
+        FilterProvider prov = new SimpleFilterProvider().addFilter("filterForMaps",
                 SimpleBeanPropertyFilter.filterOutAllExcept("b"));
         assertEquals(aposToQuotes("{'b':3}"),
                 MAPPER.writer(prov).writeValueAsString(bean));

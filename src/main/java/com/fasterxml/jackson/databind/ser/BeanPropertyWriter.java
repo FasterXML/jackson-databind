@@ -661,11 +661,9 @@ public class BeanPropertyWriter
      * @param propertiesNode Node which the given property would exist within
      * @param provider Provider that can be used for accessing dynamic aspects of serialization
      *  processing
-     * 
-     * @since 2.1
      */
-    @SuppressWarnings("deprecation")
     @Override
+    @Deprecated
     public void depositSchemaProperty(ObjectNode propertiesNode, SerializerProvider provider)
         throws JsonMappingException
     {

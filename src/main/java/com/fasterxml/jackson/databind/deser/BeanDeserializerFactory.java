@@ -532,28 +532,10 @@ public class BeanDeserializerFactory
         // At which point we still have all kinds of properties; not all with mutators:
         for (BeanPropertyDefinition propDef : propDefs) {
             SettableBeanProperty prop = null;
-            if (propDef.hasConstructorParameter()) {
-                /* [JACKSON-700] If property is passed via constructor parameter, we must
-                 *   handle things in special way. Not sure what is the most optimal way...
-                 *   for now, let's just call a (new) method in builder, which does nothing.
-                 */
-                // but let's call a method just to allow custom builders to be aware...
-                final String name = propDef.getName();
-                if (creatorProps != null) {
-                    for (SettableBeanProperty cp : creatorProps) {
-                        if (name.equals(cp.getName())) {
-                            prop = cp;
-                            break;
-                        }
-                    }
-                }
-                if (prop == null) {
-                    throw ctxt.mappingException("Could not find creator property with name '"
-                    		+name+"' (in class "+beanDesc.getBeanClass().getName()+")");
-                }
-                builder.addCreatorProperty(prop);
-                continue;
-            }
+            /* 18-Oct-2013, tatu: Although constructor parameters have highest precedence,
+             *   we need to do linkage (as per [Issue#318]), and so need to start with
+             *   other types, and only then create constructor parameter, if any.
+             */
             if (propDef.hasSetter()) {
                 Type propertyType = propDef.getSetter().getGenericParameterType(0);
                 prop = constructSettableProperty(ctxt, beanDesc, propDef, propertyType);
@@ -572,6 +554,34 @@ public class BeanDeserializerFactory
                     prop = constructSetterlessProperty(ctxt, beanDesc, propDef);
                 }
             }
+            if (propDef.hasConstructorParameter()) {
+                /* [JACKSON-700] If property is passed via constructor parameter, we must
+                 *   handle things in special way. Not sure what is the most optimal way...
+                 *   for now, let's just call a (new) method in builder, which does nothing.
+                 */
+                // but let's call a method just to allow custom builders to be aware...
+                final String name = propDef.getName();
+                CreatorProperty cprop = null;
+                if (creatorProps != null) {
+                    for (SettableBeanProperty cp : creatorProps) {
+                        if (name.equals(cp.getName())) {
+                            cprop = (CreatorProperty) cp;
+                            break;
+                        }
+                    }
+                }
+                if (cprop == null) {
+                    throw ctxt.mappingException("Could not find creator property with name '"
+                              +name+"' (in class "+beanDesc.getBeanClass().getName()+")");
+                }
+                if (prop != null) {
+                    cprop = cprop.withFallbackSetter(prop);
+                }
+                prop = cprop;
+                builder.addCreatorProperty(cprop);
+                continue;
+            }
+            
             if (prop != null) {
                 Class<?>[] views = propDef.findViews();
                 if (views == null) {
@@ -728,7 +738,7 @@ public class BeanDeserializerFactory
         throws JsonMappingException
     {
         // need to ensure method is callable (for non-public)
-        AnnotatedMember mutator = propDef.getMutator();
+        AnnotatedMember mutator = propDef.getNonConstructorMutator();
         if (ctxt.canOverrideAccessModifiers()) {
             mutator.fixAccess();
         }

@@ -190,7 +190,8 @@ public class POJOPropertiesCollector
      * Accessor to find out whether type specified requires inclusion
      * of Object Identifier.
      */
-    public ObjectIdInfo getObjectIdInfo() {
+    public ObjectIdInfo getObjectIdInfo()
+    {
         if (_annotationIntrospector == null) {
             return null;
         }
@@ -206,7 +207,7 @@ public class POJOPropertiesCollector
      */
     public Class<?> findPOJOBuilderClass()
     {
-    	return _annotationIntrospector.findPOJOBuilder(_classDef);
+        return _annotationIntrospector.findPOJOBuilder(_classDef);
     }
     
     // for unit tests:

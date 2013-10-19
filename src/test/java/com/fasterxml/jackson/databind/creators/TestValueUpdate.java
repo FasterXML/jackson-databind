@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.creators;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

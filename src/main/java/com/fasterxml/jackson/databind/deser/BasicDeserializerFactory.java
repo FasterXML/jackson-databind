@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 /**
  * Abstract factory base class that can provide deserializers for standard
  * JDK classes, including collection classes and simple heuristics for
- * "upcasting" commmon collection interface types
+ * "upcasting" common collection interface types
  * (such as {@link java.util.Collection}).
  *<p>
  * Since all simple deserializers are eagerly instantiated, and there is
@@ -46,11 +46,6 @@ public abstract class BasicDeserializerFactory
      * but are marked with `@JsonWrapped` annotation.
      */
     protected final static PropertyName UNWRAPPED_CREATOR_PARAM_NAME = new PropertyName("@JsonUnwrapped");
-    
-    /**
-     * Also special array deserializers for primitive array types.
-     */
-//    final protected static HashMap<JavaType,JsonDeserializer<Object>> _arrayDeserializers = PrimitiveArrayDeserializers.getAll();
     
     /* We do some defaulting for abstract Map classes and
      * interfaces, to avoid having to use exact types or annotations in
@@ -416,6 +411,7 @@ public abstract class BasicDeserializerFactory
             if (!isCreator && !isVisible) {
                 continue;
             }
+
             // [JACKSON-541] improved handling a bit so:
             // 2 or more args; all params must have name annotations
             // ... or @JacksonInject (or equivalent)

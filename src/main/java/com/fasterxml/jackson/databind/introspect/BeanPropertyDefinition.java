@@ -140,6 +140,11 @@ public abstract class BeanPropertyDefinition
     public abstract AnnotatedMember getMutator();
 
     /**
+     * @since 2.3
+     */
+    public abstract AnnotatedMember getNonConstructorMutator();
+    
+    /**
      * Method used to find the property member (getter, setter, field) that has
      * the highest precedence in current context (getter method when serializing,
      * if available, and so forth), if any.

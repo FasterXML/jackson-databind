@@ -1,16 +1,12 @@
 package com.fasterxml.jackson.databind.ser;
 
-import java.io.*;
-
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.test.BaseTest;
 
 public class TestArraySerialization
-    extends BaseTest
+    extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = objectMapper();
     
     public void testLongStringArray() throws Exception
     {
@@ -40,9 +36,8 @@ public class TestArraySerialization
     
     public void testIntArray() throws Exception
     {
-        StringWriter sw = new StringWriter();
-        MAPPER.writeValue(sw, new int[] { 1, 2, 3, -7 });
-        assertEquals("[1,2,3,-7]", sw.toString().trim());
+        String json = MAPPER.writeValueAsString(new int[] { 1, 2, 3, -7 });
+        assertEquals("[1,2,3,-7]", json);
     }
 
     public void testBigIntArray() throws Exception
@@ -72,29 +67,25 @@ public class TestArraySerialization
     
     public void testLongArray() throws Exception
     {
-        StringWriter sw = new StringWriter();
-        MAPPER.writeValue(sw, new long[] { Long.MIN_VALUE, 0, Long.MAX_VALUE });
-        assertEquals("["+Long.MIN_VALUE+",0,"+Long.MAX_VALUE+"]", sw.toString().trim());
+        String json = MAPPER.writeValueAsString(new long[] { Long.MIN_VALUE, 0, Long.MAX_VALUE });
+        assertEquals("["+Long.MIN_VALUE+",0,"+Long.MAX_VALUE+"]", json);
     }
 
     public void testStringArray() throws Exception
     {
-        StringWriter sw = new StringWriter();
-        MAPPER.writeValue(sw, new String[] { "a", "\"foo\"", null });
-        assertEquals("[\"a\",\"\\\"foo\\\"\",null]", sw.toString().trim());
+        String json = MAPPER.writeValueAsString(new String[] { "a", "\"foo\"", null });
+        assertEquals("[\"a\",\"\\\"foo\\\"\",null]", json);
     }
 
     public void testDoubleArray() throws Exception
     {
-        StringWriter sw = new StringWriter();
-        MAPPER.writeValue(sw, new double[] { 1.01, 2.0, -7, Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY });
-        assertEquals("[1.01,2.0,-7.0,\"NaN\",\"-Infinity\",\"Infinity\"]", sw.toString().trim());
+        String json = MAPPER.writeValueAsString(new double[] { 1.01, 2.0, -7, Double.NaN, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY });
+        assertEquals("[1.01,2.0,-7.0,\"NaN\",\"-Infinity\",\"Infinity\"]", json);
     }
 
     public void testFloatArray() throws Exception
     {
-        StringWriter sw = new StringWriter();
-        MAPPER.writeValue(sw, new float[] { 1.01f, 2.0f, -7f, Float.NaN, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY });
-        assertEquals("[1.01,2.0,-7.0,\"NaN\",\"-Infinity\",\"Infinity\"]", sw.toString().trim());
+        String json = MAPPER.writeValueAsString(new float[] { 1.01f, 2.0f, -7f, Float.NaN, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY });
+        assertEquals("[1.01,2.0,-7.0,\"NaN\",\"-Infinity\",\"Infinity\"]", json);
     }
 }

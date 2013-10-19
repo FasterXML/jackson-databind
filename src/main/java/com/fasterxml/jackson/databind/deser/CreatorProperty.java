@@ -22,7 +22,7 @@ import com.fasterxml.jackson.databind.util.Annotations;
  * should never be called -- instead, value must separately passed.
  *<p>
  * Note on injectable values: unlike with other mutators, where
- * deserializer and injecting are separate, here we deal the two as related
+ * deserializer and injecting are separate, here we treat the two as related
  * things. This is necessary to add proper priority, as well as to simplify
  * coordination.
  */
@@ -48,6 +48,16 @@ public class CreatorProperty
      * @since 2.1
      */
     protected final int _creatorIndex;
+
+    /**
+     * In special cases, when implementing "updateValue", we can not use
+     * constructors or factory methods, but have to fall back on using a
+     * setter (or mutable field property). If so, this refers to that fallback
+     * accessor
+     * 
+     * @since 2.3
+     */
+    protected final SettableBeanProperty _fallbackSetter;
     
     /**
      * @param name Name of the logical property
@@ -73,6 +83,7 @@ public class CreatorProperty
         _annotated = param;
         _creatorIndex = index;
         _injectableValueId = injectableValueId;
+        _fallbackSetter = null;
     }
 
     @Deprecated // since 2.3
@@ -95,20 +106,33 @@ public class CreatorProperty
         _annotated = src._annotated;
         _creatorIndex = src._creatorIndex;
         _injectableValueId = src._injectableValueId;
+        _fallbackSetter = src._fallbackSetter;
     }
 
     @Deprecated // since 2.3
     protected CreatorProperty(CreatorProperty src, String newName) {
         this(src, new PropertyName(newName));
     }
-    
+
     protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser) {
         super(src, deser);
         _annotated = src._annotated;
         _creatorIndex = src._creatorIndex;
         _injectableValueId = src._injectableValueId;
+        _fallbackSetter = src._fallbackSetter;
     }
 
+    /**
+     * @since 2.3
+     */
+    protected CreatorProperty(CreatorProperty src, SettableBeanProperty fallbackSetter) {
+        super(src);
+        _annotated = src._annotated;
+        _creatorIndex = src._creatorIndex;
+        _injectableValueId = src._injectableValueId;
+        _fallbackSetter = fallbackSetter;
+    }
+    
     @Override
     public CreatorProperty withName(PropertyName newName) {
         return new CreatorProperty(this, newName);
@@ -119,6 +143,10 @@ public class CreatorProperty
         return new CreatorProperty(this, deser);
     }
 
+    public CreatorProperty withFallbackSetter(SettableBeanProperty fallbackSetter) {
+        return new CreatorProperty(this, fallbackSetter);
+    }
+    
     /**
      * Method that can be called to locate value to be injected for this
      * property, if it is configured for this.
@@ -189,13 +217,21 @@ public class CreatorProperty
         /* Hmmmh. Should we return quietly (NOP), or error?
          * Perhaps better to throw an exception, since it's generally an error.
          */
-        throw new IllegalStateException("Method should never be called on a "+getClass().getName());
+        if (_fallbackSetter == null) {
+            throw new IllegalStateException("No fallback setter/field defined: can not use creator property for "
+                    +getClass().getName());
+        }
+        _fallbackSetter.set(instance, value);
     }
 
     @Override
     public Object setAndReturn(Object instance, Object value) throws IOException
     {
-        return instance;
+        if (_fallbackSetter == null) {
+            throw new IllegalStateException("No fallback setter/field defined: can not use creator property for "
+                    +getClass().getName());
+        }
+        return _fallbackSetter.setAndReturn(instance, value);
     }
     
     @Override

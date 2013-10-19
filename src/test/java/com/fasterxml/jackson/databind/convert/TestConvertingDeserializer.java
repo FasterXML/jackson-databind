@@ -47,7 +47,7 @@ extends com.fasterxml.jackson.databind.BaseMapTest
         }
     }
     
-    static class PointConverter extends StdConverter<int[], Point>
+    private static class PointConverter extends StdConverter<int[], Point>
     {
         @Override public Point convert(int[] value) {
             return new Point(value[0], value[1]);

@@ -46,6 +46,7 @@ New minor version.
  new `@JsonSerialize(nullsUsing=xxx)` annotation property
 #317: Fix `JsonNode` support for nulls bound to `ObjectNode`, `ArrayNode`
  (contributed by Seth P)
+#318: Problems with `ObjectMapper.updateValue()`, creator property-backed accessors
 #319: Add support for per-call ("contextual") attributes, with defaulting,
  to allow keeping track of state during (de)serialization
 #324: Make sure to throw `JsonMappingException` from `EnumDeserializer` creator,

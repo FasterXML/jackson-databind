@@ -219,6 +219,15 @@ public class SimpleBeanPropertyDefinition
     }
 
     @Override
+    public AnnotatedMember getNonConstructorMutator() {
+        AnnotatedMember acc = getSetter();
+        if (acc == null) {
+            acc = getField();
+        }
+        return acc;
+    }
+
+    @Override
     public AnnotatedMember getPrimaryMember() {
         return _member;
     }

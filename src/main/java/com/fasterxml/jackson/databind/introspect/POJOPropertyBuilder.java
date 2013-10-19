@@ -342,7 +342,16 @@ public class POJOPropertyBuilder
         }
         return m;
     }
-    
+
+    @Override
+    public AnnotatedMember getNonConstructorMutator() {
+        AnnotatedMember m = getSetter();
+        if (m == null) {
+            m = getField();
+        }
+        return m;
+    }
+
     @Override
     public AnnotatedMember getPrimaryMember() {
         if (_forSerialization) {
@@ -503,7 +512,6 @@ public class POJOPropertyBuilder
         removeNonVisible(false);
     }
     
-    
     public void removeNonVisible(boolean force)
     {
         /* 21-Aug-2011, tatu: This is tricky part -- if and when allow
@@ -549,7 +557,7 @@ public class POJOPropertyBuilder
                 AnnotationMap ann = _mergeAnnotations(0, _fields, _ctorParameters, _setters);
                 _fields = _fields.withValue(_fields.value.withAnnotations(ann));
             }
-        } else {
+        } else { // for deserialization
             if (_ctorParameters != null) {
                 AnnotationMap ann = _mergeAnnotations(0, _ctorParameters, _setters, _fields, _getters);
                 _ctorParameters = _ctorParameters.withValue(_ctorParameters.value.withAnnotations(ann));

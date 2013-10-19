@@ -34,16 +34,21 @@ public class TestJDKSerialization extends BaseMapTest
     /**********************************************************
      */
 
+    /* 18-Oct-2013, tatu: Not sure why, but looks like sharing the default
+     *   ObjectMapper here can lead to strange unit test suite failures, so
+     *   let's create a private copy for this class only.
+     */
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testConfigs() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
-        byte[] base = jdkSerialize(mapper.getDeserializationConfig().getBaseSettings());
+        byte[] base = jdkSerialize(MAPPER.getDeserializationConfig().getBaseSettings());
         assertNotNull(jdkDeserialize(base));
 
         // first things first: underlying BaseSettings
         
-        DeserializationConfig origDC = mapper.getDeserializationConfig();
-        SerializationConfig origSC = mapper.getSerializationConfig();
+        DeserializationConfig origDC = MAPPER.getDeserializationConfig();
+        SerializationConfig origSC = MAPPER.getSerializationConfig();
         byte[] dcBytes = jdkSerialize(origDC);
         byte[] scBytes = jdkSerialize(origSC);
 
@@ -57,7 +62,7 @@ public class TestJDKSerialization extends BaseMapTest
 
     public void testObjectWriter() throws IOException
     {
-        ObjectWriter origWriter = new ObjectMapper().writer();
+        ObjectWriter origWriter = MAPPER.writer();
         final String EXP_JSON = "{\"x\":2,\"y\":3}";
         final MyPojo p = new MyPojo(2, 3);
         assertEquals(EXP_JSON, origWriter.writeValueAsString(p));
@@ -68,7 +73,7 @@ public class TestJDKSerialization extends BaseMapTest
     
     public void testObjectReader() throws IOException
     {
-        ObjectReader origReader = new ObjectMapper().reader(MyPojo.class);
+        ObjectReader origReader = MAPPER.reader(MyPojo.class);
         final String JSON = "{\"x\":1,\"y\":2}";
         MyPojo p1 = origReader.readValue(JSON);
         assertEquals(2, p1.y);
@@ -80,12 +85,11 @@ public class TestJDKSerialization extends BaseMapTest
 
     public void testObjectMapper() throws IOException
     {
-        ObjectMapper mapper = new ObjectMapper();
         final String EXP_JSON = "{\"x\":2,\"y\":3}";
         final MyPojo p = new MyPojo(2, 3);
-        assertEquals(EXP_JSON, mapper.writeValueAsString(p));
+        assertEquals(EXP_JSON, MAPPER.writeValueAsString(p));
 
-        byte[] bytes = jdkSerialize(mapper);
+        byte[] bytes = jdkSerialize(MAPPER);
         ObjectMapper mapper2 = jdkDeserialize(bytes);
         assertEquals(EXP_JSON, mapper2.writeValueAsString(p));
         MyPojo p2 = mapper2.readValue(EXP_JSON, MyPojo.class);

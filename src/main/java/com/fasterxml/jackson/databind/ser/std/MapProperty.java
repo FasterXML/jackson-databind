@@ -100,10 +100,13 @@ public class MapProperty extends PropertyWriter
     public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
         throws JsonMappingException
     {
+        // !!! TODO
     }
 
     @Override
+    @Deprecated
     public void depositSchemaProperty(ObjectNode propertiesNode,
             SerializerProvider provider) throws JsonMappingException {
+        // !!! TODO
     }
 }

@@ -19,12 +19,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 public class TestTypedContainerSerialization
 	extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper types
-    /**********************************************************
-     */
-
     @JsonTypeInfo(use = Id.NAME, include = As.PROPERTY, property = "object-type")
     @JsonSubTypes( { @Type(value = Dog.class, name = "doggy"),
         @Type(value = Cat.class, name = "kitty") })
@@ -107,11 +101,11 @@ public class TestTypedContainerSerialization
 
     /*
     /**********************************************************
-    /* Unit tests
+    /* Test methods
     /**********************************************************
      */
 	
-    public void testIssue265() throws Exception
+    public void testPolymorphicWithContainer() throws Exception
     {
 		Dog dog = new Dog("medor");
 		dog.setBoneCount(3);

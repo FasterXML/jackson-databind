@@ -53,8 +53,15 @@ public class TestUnwrappedWithCreator extends BaseMapTest
          
         public String getAlias() { return _alias; }
     }
-         
-    public void testReadWriteJson() throws Exception
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+
+    // For [Issue#265] / [Scala#90]
+    public void testUnwrappedWithCreator() throws Exception
     {
         JPerson person = new JPerson("MyName", new JAddress("main street", "springfield", "WA"), "bubba");
         ObjectMapper mapper = new ObjectMapper();

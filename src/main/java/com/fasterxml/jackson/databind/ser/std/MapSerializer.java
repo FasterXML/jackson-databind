@@ -187,7 +187,7 @@ public class MapSerializer
             JsonSerializer<Object> keySerializer, JsonSerializer<Object> valueSerializer)
     {
         return construct(ignoredList, mapType, staticValueType, vts,
-                keySerializer, valueSerializer);
+                keySerializer, valueSerializer, null);
     }
 
     /**

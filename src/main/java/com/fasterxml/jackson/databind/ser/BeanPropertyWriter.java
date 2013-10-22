@@ -565,10 +565,10 @@ public class BeanPropertyWriter
      * is serialized as JSON Array; the difference is that no field names
      * are written.
      * 
-     * @since 2.1
+     * @since 2.3
      */
     @Override
-    public void serializeAsColumn(Object bean, JsonGenerator jgen, SerializerProvider prov)
+    public void serializeAsElement(Object bean, JsonGenerator jgen, SerializerProvider prov)
         throws Exception
     {
         Object value = get(bean);
@@ -631,7 +631,7 @@ public class BeanPropertyWriter
             jgen.writeNull();
         }
     }
-
+    
     /*
     /**********************************************************
     /* PropertyWriter methods (schema generation)

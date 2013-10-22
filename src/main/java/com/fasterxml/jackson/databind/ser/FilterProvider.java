@@ -37,9 +37,16 @@ public abstract class FilterProvider
      * method, then wrap filter if one found as {@link PropertyFilter}.
      * It should be overridden by up-to-date implementations
      * 
+     * @param filterId Id of the filter to fetch
+     * @param valueToFilter Object being filtered (usually POJO, but may be a {@link java.util.Map},
+     *   or in future a container), <b>if available</b>; not available when generating
+     *   schemas.
+     * 
+     * @return Filter to use, if any.
+     * 
      * @since 2.3
      */
-    public PropertyFilter findPropertyFilter(Object filterId)
+    public PropertyFilter findPropertyFilter(Object filterId, Object valueToFilter)
     {
         @SuppressWarnings("deprecation")
         BeanPropertyFilter old = findFilter(filterId);

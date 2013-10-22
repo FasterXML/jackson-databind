@@ -172,7 +172,7 @@ public class SimpleFilterProvider
     }
     
     @Override
-    public PropertyFilter findPropertyFilter(Object filterId)
+    public PropertyFilter findPropertyFilter(Object filterId, Object valueToFilter)
     {
         PropertyFilter f = _filtersById.get(filterId);
         if (f == null) {

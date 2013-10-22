@@ -440,7 +440,7 @@ public abstract class BasicDeserializerFactory
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
                 } else {
                     NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
-                    if (unwrapper != null) {
+                    if (unwrapper != null) { // [Issue#265]: allow unwrapped properties
                         properties[i] = constructCreatorProperty(ctxt, beanDesc,
                                 UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
                         ++namedCount;

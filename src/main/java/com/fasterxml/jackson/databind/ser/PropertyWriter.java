@@ -53,11 +53,16 @@ public abstract class PropertyWriter
      */
 
     /**
-     * Serialization method called when output is to be done in tabular format, omitting
-     * property names. Note that this mode of operation is independent of underlying
-     * data format; so it is typically NOT called for fully tabular formats such as CSV.
+     * Serialization method called when output is to be done as an array,
+     * that is, not using property names. This is needed when serializing
+     * container ({@link java.util.Collection}, array) types,
+     * or POJOs using <code>tabular</code> ("as array") output format.
+     *<p>
+     * Note that this mode of operation is independent of underlying
+     * data format; so it is typically NOT called for fully tabular formats such as CSV,
+     * where logical output is still as form of POJOs.
      */
-    public abstract void serializeAsColumn(Object pojo, JsonGenerator jgen, SerializerProvider prov)
+    public abstract void serializeAsElement(Object pojo, JsonGenerator jgen, SerializerProvider prov)
         throws Exception;
 
     /**

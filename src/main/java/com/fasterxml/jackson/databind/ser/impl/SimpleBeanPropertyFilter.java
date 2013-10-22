@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.ser.*;
  * because it can provide default implementation for any methods that may
  * be added in {@link PropertyFilter} (as unfortunate as additions may be).
  */
-@SuppressWarnings("deprecation")
 public abstract class SimpleBeanPropertyFilter
     implements BeanPropertyFilter, PropertyFilter
         // sub-classes must also implement java.io.Serializable
@@ -60,6 +59,7 @@ public abstract class SimpleBeanPropertyFilter
      * 
      * @since 2.3
      */
+    @SuppressWarnings("deprecation")
     public static PropertyFilter from(final BeanPropertyFilter src)
     {
         return new PropertyFilter() {
@@ -70,7 +70,6 @@ public abstract class SimpleBeanPropertyFilter
                 src.serializeAsField(pojo, jgen, prov, (BeanPropertyWriter) writer);
             }
 
-            @Deprecated
             @Override
             public void depositSchemaProperty(PropertyWriter writer,
                     ObjectNode propertiesNode, SerializerProvider provider)
@@ -83,6 +82,14 @@ public abstract class SimpleBeanPropertyFilter
                     JsonObjectFormatVisitor objectVisitor,
                 SerializerProvider provider) throws JsonMappingException {
                 src.depositSchemaProperty((BeanPropertyWriter) writer, objectVisitor, provider);
+            }
+
+            @Override
+            public void serializeAsElement(Object elementValue,
+                    JsonGenerator jgen, SerializerProvider prov,
+                    PropertyWriter writer) throws Exception {
+                // not needed; element filtering only available through new interfaces
+                throw new UnsupportedOperationException();
             }
             
         };
@@ -105,12 +112,23 @@ public abstract class SimpleBeanPropertyFilter
      */
     protected abstract boolean include(PropertyWriter writer);
 
+    /**
+     * Method that defines what to do with container elements;
+     * default implementation simply writes them out.
+     * 
+     * @since 2.3
+     */
+    protected boolean includeElement(Object elementValue) {
+        return true;
+    }
+    
     /*
     /**********************************************************
-    /* BeanPropertyFilter implementation
+    /* BeanPropertyFilter (deprecated) implementation
     /**********************************************************
      */
     
+    @Deprecated
     @Override
     public void serializeAsField(Object bean, JsonGenerator jgen,
             SerializerProvider provider, BeanPropertyWriter writer) throws Exception
@@ -122,6 +140,7 @@ public abstract class SimpleBeanPropertyFilter
         }
     }
 
+    @Deprecated
     @Override
     public void depositSchemaProperty(BeanPropertyWriter writer,
             ObjectNode propertiesNode, SerializerProvider provider)
@@ -132,6 +151,7 @@ public abstract class SimpleBeanPropertyFilter
         }
     }
 
+    @Deprecated
     @Override
     public void depositSchemaProperty(BeanPropertyWriter writer,
             JsonObjectFormatVisitor objectVisitor, SerializerProvider provider)
@@ -160,6 +180,16 @@ public abstract class SimpleBeanPropertyFilter
         }
     }
 
+    @Override
+    public void serializeAsElement(Object elementValue, JsonGenerator jgen, SerializerProvider provider,
+            PropertyWriter writer)
+        throws Exception
+    {
+        if (includeElement(elementValue)) {
+            writer.serializeAsElement(elementValue, jgen, provider);
+        }
+    }
+    
     @Deprecated
     @Override
     public void depositSchemaProperty(PropertyWriter writer,
@@ -223,7 +253,10 @@ public abstract class SimpleBeanPropertyFilter
      */
     public static class SerializeExceptFilter
         extends SimpleBeanPropertyFilter
+        implements java.io.Serializable
     {
+        private static final long serialVersionUID = 1L;
+
         /**
          * Set of property names to filter out.
          */

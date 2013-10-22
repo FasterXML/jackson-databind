@@ -25,9 +25,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public interface PropertyFilter
 {
     /**
-     * Method called by {@link BeanSerializer} to let filter decide what to do with
-     * given bean property value: the usual choices are to either filter out (i.e.
-     * do nothing) or write using given {@link BeanPropertyWriter}, although filters
+     * Method called by {@link BeanSerializer} to let the filter decide what to do with
+     * given bean property value:
+     * the usual choices are to either filter out (i.e.
+     * do nothing) or write using given {@link PropertyWriter}, although filters
      * can choose other to do something different altogether.
      *<p>
      * Typical implementation is something like:
@@ -41,9 +42,33 @@ public interface PropertyFilter
      * @param jgen Generator use for serializing value
      * @param prov Provider that can be used for accessing dynamic aspects of serialization
      *    processing
-     * @param writer Default bean property serializer to use
+     * @param writer Object called to do actual serialization of the field, if not filtered out
      */
     public void serializeAsField(Object pojo, JsonGenerator jgen, SerializerProvider prov,
+            PropertyWriter writer)
+        throws Exception;
+
+    /**
+     * Method called by container to let the filter decide what to do with given element
+     * value: 
+     * the usual choices are to either filter out (i.e.
+     * do nothing) or write using given {@link PropertyWriter}, although filters
+     * can choose other to do something different altogether.
+     *<p>
+     * Typical implementation is something like:
+     *<pre>
+     * if (include(writer)) {
+     *      writer.serializeAsElement(pojo, jgen, prov);
+     * }
+     *</pre>
+     * 
+     * @param elementValue Element value being serializerd
+     * @param jgen Generator use for serializing value
+     * @param prov Provider that can be used for accessing dynamic aspects of serialization
+     *    processing
+     * @param writer Object called to do actual serialization of the field, if not filtered out
+     */
+    public void serializeAsElement(Object elementValue, JsonGenerator jgen, SerializerProvider prov,
             PropertyWriter writer)
         throws Exception;
     

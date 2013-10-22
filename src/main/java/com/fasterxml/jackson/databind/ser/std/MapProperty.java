@@ -79,7 +79,7 @@ public class MapProperty extends PropertyWriter
     }
 
     @Override
-    public void serializeAsColumn(Object pojo, JsonGenerator jgen,
+    public void serializeAsElement(Object pojo, JsonGenerator jgen,
             SerializerProvider provider) throws Exception
     {
         if (_typeSerializer == null) {
@@ -88,7 +88,7 @@ public class MapProperty extends PropertyWriter
             _valueSerializer.serializeWithType(_value, jgen, provider, _typeSerializer);
         }
     }
-
+    
     @Override
     public void serializeAsPlaceholder(Object pojo, JsonGenerator jgen,
             SerializerProvider provider) throws Exception

@@ -115,10 +115,11 @@ public class TypeNameIdResolver
         }
         return idFromValue(value);
     }
-    
+
+    @Deprecated
     @Override
     public JavaType typeFromId(String id) {
-        return _idToType.get(id);
+        return _typeFromId(id);
     }    
 
     @Override

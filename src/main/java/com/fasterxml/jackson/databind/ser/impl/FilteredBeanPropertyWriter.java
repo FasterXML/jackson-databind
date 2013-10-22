@@ -68,12 +68,12 @@ public abstract class FilteredBeanPropertyWriter
         }
 
         @Override
-        public void serializeAsColumn(Object bean, JsonGenerator jgen, SerializerProvider prov)
+        public void serializeAsElement(Object bean, JsonGenerator jgen, SerializerProvider prov)
             throws Exception
         {
             Class<?> activeView = prov.getActiveView();
             if (activeView == null || _view.isAssignableFrom(activeView)) {
-                _delegate.serializeAsColumn(bean, jgen, prov);
+                _delegate.serializeAsElement(bean, jgen, prov);
             } else {
                 _delegate.serializeAsPlaceholder(bean, jgen, prov);
             }
@@ -128,7 +128,7 @@ public abstract class FilteredBeanPropertyWriter
         }
 
         @Override
-        public void serializeAsColumn(Object bean, JsonGenerator jgen, SerializerProvider prov)
+        public void serializeAsElement(Object bean, JsonGenerator jgen, SerializerProvider prov)
             throws Exception
         {
             final Class<?> activeView = prov.getActiveView();
@@ -143,7 +143,7 @@ public abstract class FilteredBeanPropertyWriter
                     return;
                 }
             }
-            _delegate.serializeAsColumn(bean, jgen, prov);
+            _delegate.serializeAsElement(bean, jgen, prov);
         }
     }
 }

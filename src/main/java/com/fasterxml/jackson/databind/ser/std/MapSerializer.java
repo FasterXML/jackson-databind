@@ -375,7 +375,8 @@ public class MapSerializer
         jgen.writeStartObject();
         if (!value.isEmpty()) {
             if (_filterId != null) {
-                serializeFilteredFields(value, jgen, provider, findFilter(provider, _filterId));
+                serializeFilteredFields(value, jgen, provider,
+                        findPropertyFilter(provider, _filterId, value));
                 return;
             }
             if (provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {

@@ -668,7 +668,7 @@ public abstract class BeanSerializerBase
         } else {
             props = _props;
         }
-        final PropertyFilter filter = findFilter(provider, _propertyFilterId);
+        final PropertyFilter filter = findPropertyFilter(provider, _propertyFilterId, bean);
         // better also allow missing filter actually..
         if (filter == null) {
             serializeFields(bean, jgen, provider);
@@ -717,7 +717,7 @@ public abstract class BeanSerializerBase
         ObjectNode propertiesNode = o.objectNode();
         final PropertyFilter filter;
         if (_propertyFilterId != null) {
-            filter = findFilter(provider, _propertyFilterId);
+            filter = findPropertyFilter(provider, _propertyFilterId, null);
         } else {
             filter = null;
         }
@@ -748,7 +748,8 @@ public abstract class BeanSerializerBase
             return;
         }
         if (_propertyFilterId != null) {
-            PropertyFilter filter = findFilter(visitor.getProvider(), _propertyFilterId);
+            PropertyFilter filter = findPropertyFilter(visitor.getProvider(),
+                    _propertyFilterId, null);
             for (int i = 0; i < _props.length; i++) {
                 filter.depositSchemaProperty(_props[i], objectVisitor, visitor.getProvider());
             }

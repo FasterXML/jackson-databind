@@ -188,7 +188,7 @@ public class BeanAsArraySerializer
                 if (prop == null) { // can have nulls in filtered list; but if so, MUST write placeholders
                     jgen.writeNull();
                 } else {
-                    prop.serializeAsColumn(bean, jgen, provider);
+                    prop.serializeAsElement(bean, jgen, provider);
                 }
             }
             // NOTE: any getters can not be supported either

@@ -263,7 +263,8 @@ public abstract class StdSerializer<T>
      * 
      * @since 2.3
      */
-    protected PropertyFilter findFilter(SerializerProvider provider, Object filterId)
+    protected PropertyFilter findPropertyFilter(SerializerProvider provider,
+            Object filterId, Object valueToFilter)
         throws JsonMappingException
     {
         FilterProvider filters = provider.getFilterProvider();
@@ -271,7 +272,7 @@ public abstract class StdSerializer<T>
         if (filters == null) {
             throw new JsonMappingException("Can not resolve PropertyFilter with id '"+filterId+"'; no FilterProvider configured");
         }
-        PropertyFilter filter = filters.findPropertyFilter(filterId);
+        PropertyFilter filter = filters.findPropertyFilter(filterId, valueToFilter);
         // But whether unknown ids are ok just depends on filter provider; if we get null that's fine
         return filter;
     }

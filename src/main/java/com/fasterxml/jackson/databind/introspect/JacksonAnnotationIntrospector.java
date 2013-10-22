@@ -540,6 +540,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    @Deprecated
     public String findSerializationName(AnnotatedField af)
     {
         JsonProperty pann = af.getAnnotation(JsonProperty.class);
@@ -555,6 +556,7 @@ public class JacksonAnnotationIntrospector
     }
     
     @Override
+    @Deprecated
     public String findSerializationName(AnnotatedMethod am)
     {
         // @JsonGetter is most specific, has precedence
@@ -755,6 +757,7 @@ public class JacksonAnnotationIntrospector
         return null;
     }
     
+    @Deprecated
     @Override
     public String findDeserializationName(AnnotatedMethod am)
     {
@@ -780,6 +783,7 @@ public class JacksonAnnotationIntrospector
         return null;
     }
 
+    @Deprecated
     @Override
     public String findDeserializationName(AnnotatedField af)
     {
@@ -798,6 +802,8 @@ public class JacksonAnnotationIntrospector
         }
         return null;
     }
+
+    @Deprecated
     @Override
     public String findDeserializationName(AnnotatedParameter param)
     {

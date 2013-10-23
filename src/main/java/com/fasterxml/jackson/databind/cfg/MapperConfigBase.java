@@ -388,7 +388,7 @@ public abstract class MapperConfigBase<CFG extends ConfigFeature,
     public final ContextAttributes getAttributes() {
         return _attributes;
     }
-    
+
     /*
     /**********************************************************
     /* ClassIntrospector.MixInResolver impl:

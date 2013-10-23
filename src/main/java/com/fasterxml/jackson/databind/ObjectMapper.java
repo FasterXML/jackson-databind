@@ -261,8 +261,7 @@ public class ObjectMapper
      * you can think of it as injecting annotations between the target
      * class and its sub-classes (or interfaces)
      */
-    protected final HashMap<ClassKey,Class<?>> _mixInAnnotations
-        = new HashMap<ClassKey,Class<?>>();
+    protected final HashMap<ClassKey,Class<?>> _mixInAnnotations;
     
     /*
     /**********************************************************
@@ -390,6 +389,7 @@ public class ObjectMapper
         _typeFactory = src._typeFactory;
         _serializationConfig = src._serializationConfig;
         HashMap<ClassKey,Class<?>> mixins = new HashMap<ClassKey,Class<?>>(src._mixInAnnotations);
+        _mixInAnnotations = mixins;
         _serializationConfig = new SerializationConfig(src._serializationConfig, mixins);
         _deserializationConfig = new DeserializationConfig(src._deserializationConfig, mixins);
         _serializerProvider = src._serializerProvider;
@@ -432,11 +432,13 @@ public class ObjectMapper
         _rootNames = new RootNameLookup();
         // and default type factory is shared one
         _typeFactory = TypeFactory.defaultInstance();
-        
+
+        HashMap<ClassKey,Class<?>> mixins = new HashMap<ClassKey,Class<?>>();
+        _mixInAnnotations = mixins;
         _serializationConfig = new SerializationConfig(DEFAULT_BASE,
-                    _subtypeResolver, _mixInAnnotations);
+                    _subtypeResolver, mixins);
         _deserializationConfig = new DeserializationConfig(DEFAULT_BASE,
-                    _subtypeResolver, _mixInAnnotations);
+                    _subtypeResolver, mixins);
 
         // Some overrides we may need
         final boolean needOrder = _jsonFactory.requiresPropertyOrdering();

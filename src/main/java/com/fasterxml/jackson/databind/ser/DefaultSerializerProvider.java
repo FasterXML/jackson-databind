@@ -2,12 +2,11 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -316,6 +315,11 @@ public abstract class DefaultSerializerProvider
         visitor.setProvider(this);
         findValueSerializer(javaType, null).acceptJsonFormatVisitor(visitor, javaType);
     }
+
+    @Deprecated // since 2.3; use the overloaded variant
+    public boolean hasSerializerFor(Class<?> cls) {
+        return hasSerializerFor(cls, null);
+    }
     
     /**
      * Method that can be called to see if this serializer provider
@@ -324,15 +328,22 @@ public abstract class DefaultSerializerProvider
      * Note that no Exceptions are thrown, including unchecked ones:
      * implementations are to swallow exceptions if necessary.
      */
-    public boolean hasSerializerFor(Class<?> cls)
+    public boolean hasSerializerFor(Class<?> cls, AtomicReference<Throwable> cause)
     {
         try {
-            return _findExplicitUntypedSerializer(cls) != null;
+            JsonSerializer<?> ser = _findExplicitUntypedSerializer(cls);
+            return (ser != null);
         } catch (JsonMappingException e) {
-            // usually bad practice, but here caller only asked if a serializer
-            // could be found; for which exception is useless
-            return false;
+            if (cause != null) {
+                cause.set(e);
+            }
+        } catch (RuntimeException e) {
+            if (cause == null) { // earlier behavior
+                throw e;
+            }
+            cause.set(e);
         }
+        return false;
     }
 
     /*

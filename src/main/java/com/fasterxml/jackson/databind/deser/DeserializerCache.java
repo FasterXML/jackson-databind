@@ -139,17 +139,16 @@ public final class DeserializerCache
         throws JsonMappingException
     {
         JsonDeserializer<Object> deser = _findCachedDeserializer(propertyType);
-        if (deser != null) {
-            return deser;
-        }
-        // If not, need to request factory to construct (or recycle)
-        deser = _createAndCacheValueDeserializer(ctxt, factory, propertyType);
         if (deser == null) {
-            /* Should we let caller handle it? Let's have a helper method
-             * decide it; can throw an exception, or return a valid
-             * deserializer
-             */
-            deser = _handleUnknownValueDeserializer(propertyType);
+            // If not, need to request factory to construct (or recycle)
+            deser = _createAndCacheValueDeserializer(ctxt, factory, propertyType);
+            if (deser == null) {
+                /* Should we let caller handle it? Let's have a helper method
+                 * decide it; can throw an exception, or return a valid
+                 * deserializer
+                 */
+                deser = _handleUnknownValueDeserializer(propertyType);
+            }
         }
         return deser;
     }
@@ -184,17 +183,14 @@ public final class DeserializerCache
      */
     public boolean hasValueDeserializerFor(DeserializationContext ctxt,
             DeserializerFactory factory, JavaType type)
+        throws JsonMappingException
     {
         /* Note: mostly copied from findValueDeserializer, except for
          * handling of unknown types
          */
         JsonDeserializer<Object> deser = _findCachedDeserializer(type);
         if (deser == null) {
-            try {
-                deser = _createAndCacheValueDeserializer(ctxt, factory, type);
-            } catch (Exception e) {
-                return false;
-            }
+            deser = _createAndCacheValueDeserializer(ctxt, factory, type);
         }
         return (deser != null);
     }

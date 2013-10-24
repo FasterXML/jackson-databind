@@ -6,6 +6,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
@@ -1985,9 +1986,20 @@ public class ObjectMapper
      *  serializable)
      */
     public boolean canSerialize(Class<?> type) {
-        return _serializerProvider(getSerializationConfig()).hasSerializerFor(type);
+        return _serializerProvider(getSerializationConfig()).hasSerializerFor(type, null);
     }
 
+    /**
+     * Method similar to {@link #canSerialize(Class)} but that can return
+     * actual {@link Throwable} that was thrown when trying to construct
+     * serializer: this may be useful in figuring out what the actual problem is.
+     * 
+     * @since 2.3
+     */
+    public boolean canSerialize(Class<?> type, AtomicReference<Throwable> cause) {
+        return _serializerProvider(getSerializationConfig()).hasSerializerFor(type, cause);
+    }
+    
     /**
      * Method that can be called to check whether mapper thinks
      * it could deserialize an Object of given type.
@@ -2001,9 +2013,22 @@ public class ObjectMapper
     public boolean canDeserialize(JavaType type)
     {
         return createDeserializationContext(null,
-                getDeserializationConfig()).hasValueDeserializerFor(type);
+                getDeserializationConfig()).hasValueDeserializerFor(type, null);
     }
 
+    /**
+     * Method similar to {@link #canDeserialize(JavaType)} but that can return
+     * actual {@link Throwable} that was thrown when trying to construct
+     * serializer: this may be useful in figuring out what the actual problem is.
+     * 
+     * @since 2.3
+     */
+    public boolean canDeserialize(JavaType type, AtomicReference<Throwable> cause)
+    {
+        return createDeserializationContext(null,
+                getDeserializationConfig()).hasValueDeserializerFor(type, cause);
+    }
+    
     /*
     /**********************************************************
     /* Extended Public API, deserialization,

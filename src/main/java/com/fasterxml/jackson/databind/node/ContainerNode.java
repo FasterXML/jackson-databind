@@ -85,7 +85,9 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     @Override
     public final NumericNode numberNode(int v) { return _nodeFactory.numberNode(v); }
     @Override
-    public final NumericNode numberNode(long v) { return _nodeFactory.numberNode(v); }
+    public final NumericNode numberNode(long v) {
+        return _nodeFactory.numberNode(v);
+    }
 
     // was missing from 2.2 and before
     @Override

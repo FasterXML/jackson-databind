@@ -54,6 +54,7 @@ New minor version.
   not `IllegalArgumentException`
  (reported by beverku@github)
 #326: Support `@JsonFilter` for "any getter" properties
+#334: Make `ArrayNode`, `ObjectNode` non-final again
 [JACKSON-890]: Support managed/back-references for polymorphic (abstract) types
 - Add 'BeanPropertyWriter.isUnwrapping()' for future needs (by Afterburner)
 - Add coercions from String "null" (as if null token was parsed) for primitives/Wrappers.

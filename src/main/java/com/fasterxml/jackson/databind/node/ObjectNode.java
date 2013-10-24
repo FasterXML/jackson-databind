@@ -17,8 +17,10 @@ import java.util.Map;
 
 /**
  * Node that maps to JSON Object structures in JSON content.
+ *<p>
+ * Note: class was <code>final</code> temporarily for Jackson 2.2.
  */
-public final class ObjectNode
+public class ObjectNode
     extends ContainerNode<ObjectNode>
 {
     // Note: LinkedHashMap for backwards compatibility
@@ -537,7 +539,7 @@ public final class ObjectNode
     public ArrayNode putArray(String fieldName)
     {
         ArrayNode n  = arrayNode();
-        _children.put(fieldName, n);
+        _put(fieldName, n);
         return n;
     }
 
@@ -554,8 +556,8 @@ public final class ObjectNode
      */
     public ObjectNode putObject(String fieldName)
     {
-        ObjectNode n  = objectNode();
-        _children.put(fieldName, n);
+        ObjectNode n = objectNode();
+        _put(fieldName, n);
         return n;
     }
 
@@ -563,8 +565,7 @@ public final class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode putPOJO(String fieldName, Object pojo) {
-        _children.put(fieldName, pojoNode(pojo));
-        return this;
+        return _put(fieldName, pojoNode(pojo));
     }
 
     /**
@@ -582,8 +583,7 @@ public final class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, short v) {
-        _children.put(fieldName, numberNode(v));
-        return this;
+        return _put(fieldName, numberNode(v));
     }
 
     /**
@@ -592,13 +592,9 @@ public final class ObjectNode
      * 
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Short value) {
-        if (value == null) {
-            _children.put(fieldName, nullNode());
-        } else {
-            _children.put(fieldName, numberNode(value.shortValue()));
-        }
-        return this;
+    public ObjectNode put(String fieldName, Short v) {
+        return _put(fieldName, (v == null) ? nullNode()
+                : numberNode(v.shortValue()));
     }
 
     /**
@@ -607,8 +603,7 @@ public final class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, int v) {
-        _children.put(fieldName, numberNode(v));
-        return this;
+        return _put(fieldName, numberNode(v));
     }
 
     /**
@@ -617,13 +612,9 @@ public final class ObjectNode
      * 
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Integer value) {
-        if (value == null) {
-            _children.put(fieldName, nullNode());
-        } else {
-            _children.put(fieldName, numberNode(value.intValue()));
-        }
-        return this;
+    public ObjectNode put(String fieldName, Integer v) {
+        return _put(fieldName, (v == null) ? nullNode()
+                : numberNode(v.intValue()));
     }
     
     /**
@@ -632,8 +623,7 @@ public final class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, long v) {
-        _children.put(fieldName, numberNode(v));
-        return this;
+        return _put(fieldName, numberNode(v));
     }
 
     /**
@@ -642,13 +632,9 @@ public final class ObjectNode
      * 
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Long value) {
-        if (value == null) {
-            _children.put(fieldName, nullNode());
-        } else {
-            _children.put(fieldName, numberNode(value.longValue()));
-        }
-        return this;
+    public ObjectNode put(String fieldName, Long v) {
+        return _put(fieldName, (v == null) ? nullNode()
+                : numberNode(v.longValue()));
     }
     
     /**
@@ -657,8 +643,7 @@ public final class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, float v) {
-        _children.put(fieldName, numberNode(v));
-        return this;
+        return _put(fieldName, numberNode(v));
     }
 
     /**
@@ -667,13 +652,9 @@ public final class ObjectNode
      * 
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Float value) {
-        if (value == null) {
-            _children.put(fieldName, nullNode());
-        } else {
-            _children.put(fieldName, numberNode(value.floatValue()));
-        }
-        return this;
+    public ObjectNode put(String fieldName, Float v) {
+        return _put(fieldName, (v == null) ? nullNode()
+                : numberNode(v.floatValue()));
     }
     
     /**
@@ -682,8 +663,7 @@ public final class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, double v) {
-        _children.put(fieldName, numberNode(v));
-        return this;
+        return _put(fieldName, numberNode(v));
     }
 
     /**
@@ -692,13 +672,9 @@ public final class ObjectNode
      * 
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Double value) {
-        if (value == null) {
-            _children.put(fieldName, nullNode());
-        } else {
-            _children.put(fieldName, numberNode(value.doubleValue()));
-        }
-        return this;
+    public ObjectNode put(String fieldName, Double v) {
+        return _put(fieldName, (v == null) ? nullNode()
+                : numberNode(v.doubleValue()));
     }
     
     /**
@@ -707,12 +683,8 @@ public final class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, BigDecimal v) {
-        if (v == null) {
-            putNull(fieldName);
-        } else {
-            _children.put(fieldName, numberNode(v));
-        }
-        return this;
+        return _put(fieldName, (v == null) ? nullNode()
+                : numberNode(v));
     }
 
     /**
@@ -721,12 +693,8 @@ public final class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, String v) {
-        if (v == null) {
-            putNull(fieldName);
-        } else {
-            _children.put(fieldName, textNode(v));
-        }
-        return this;
+        return _put(fieldName, (v == null) ? nullNode()
+                : textNode(v));
     }
 
     /**
@@ -735,8 +703,7 @@ public final class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, boolean v) {
-        _children.put(fieldName, booleanNode(v));
-        return this;
+        return _put(fieldName, booleanNode(v));
     }
 
     /**
@@ -745,13 +712,9 @@ public final class ObjectNode
      * 
      * @return This node (to allow chaining)
      */
-    public ObjectNode put(String fieldName, Boolean value) {
-        if (value == null) {
-            _children.put(fieldName, nullNode());
-        } else {
-            _children.put(fieldName, booleanNode(value.booleanValue()));
-        }
-        return this;
+    public ObjectNode put(String fieldName, Boolean v) {
+        return _put(fieldName, (v == null) ? nullNode()
+                : booleanNode(v.booleanValue()));
     }
     
     /**
@@ -760,14 +723,10 @@ public final class ObjectNode
      * @return This node (to allow chaining)
      */
     public ObjectNode put(String fieldName, byte[] v) {
-        if (v == null) {
-            _children.put(fieldName, nullNode());
-        } else {
-            _children.put(fieldName, binaryNode(v));
-        }
-        return this;
+        return _put(fieldName, (v == null) ? nullNode()
+                : binaryNode(v));
     }
-
+    
     /*
     /**********************************************************
     /* Standard methods
@@ -810,5 +769,17 @@ public final class ObjectNode
         }
         sb.append("}");
         return sb.toString();
+    }
+
+    /*
+    /**********************************************************
+    /* Internal methods (overridable)
+    /**********************************************************
+     */
+
+    protected ObjectNode _put(String fieldName, JsonNode value)
+    {
+        _children.put(fieldName, value);
+        return this;
     }
 }

@@ -13,9 +13,11 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Node class that represents Arrays mapped from Json content.
+ * Node class that represents Arrays mapped from JSON content.
+ *<p>
+ * Note: class was <code>final</code> temporarily for Jackson 2.2.
  */
-public final class ArrayNode
+public class ArrayNode
     extends ContainerNode<ArrayNode>
 {
     private final List<JsonNode> _children = new ArrayList<JsonNode>();
@@ -753,17 +755,17 @@ public final class ArrayNode
 
     /*
     /**********************************************************
-    /* Internal methods
+    /* Internal methods (overridable)
     /**********************************************************
      */
 
-    private ArrayNode _add(JsonNode node)
+    protected ArrayNode _add(JsonNode node)
     {
         _children.add(node);
         return this;
     }
 
-    private ArrayNode _insert(int index, JsonNode node)
+    protected ArrayNode _insert(int index, JsonNode node)
     {
         if (index < 0) {
             _children.add(0, node);

@@ -83,7 +83,7 @@ public class JsonNodeFactory
     {
         return bigDecimalExact ? decimalsAsIs : decimalsNormalized;
     }
-
+    
     /*
     /**********************************************************
     /* Factory methods for literal values
@@ -171,8 +171,13 @@ public class JsonNodeFactory
      * that expresses given 64-bit integer value
      */
     @Override
-    public NumericNode numberNode(long v) { return LongNode.valueOf(v); }
-
+    public NumericNode numberNode(long v) {
+        if (_inIntRange(v)) {
+            return IntNode.valueOf((int) v);
+        }
+        return LongNode.valueOf(v);
+    }
+    
     /**
      * Alternate factory method that will handle wrapper value, which may be null.
      * Due to possibility of null, returning type is not guaranteed to be
@@ -180,7 +185,11 @@ public class JsonNodeFactory
      */
     @Override
     public ValueNode numberNode(Long value) {
-        return (value == null) ? nullNode() : LongNode.valueOf(value.longValue());
+        long l = value.longValue();
+        if (_inIntRange(l)) {
+            return IntNode.valueOf((int) l);
+        }
+        return (value == null) ? nullNode() : LongNode.valueOf(l);
     }
     
     /**
@@ -322,5 +331,18 @@ public class JsonNodeFactory
      */
     @Deprecated
     public POJONode POJONode(Object pojo) { return new POJONode(pojo); }
+
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+    
+    protected boolean _inIntRange(long l)
+    {
+        int i = (int) l;
+        long l2 = (long) i;
+        return (l2 == l);
+    }
 }
 

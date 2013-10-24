@@ -241,4 +241,19 @@ public class TestNumberNodes extends NodeTestBase
         // also via ObjectWriter:
         assertEquals("{\"x\":100}", mapper.writer().writeValueAsString(node));
     }
+
+    // Related to [Issue#333]
+    public void testCanonicalNumbers() throws Exception
+    {
+        JsonNodeFactory f = new JsonNodeFactory();
+        NumericNode n = f.numberNode(123);
+        assertTrue(n.isInt());
+        n = f.numberNode(1L + Integer.MAX_VALUE);
+        assertFalse(n.isInt());
+        assertTrue(n.isLong());
+        // but "too small" number will be 'int'...
+        n = f.numberNode(123L);
+        assertTrue(n.isInt());
+        assertFalse(n.isLong());
+    }
 }

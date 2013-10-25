@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.*;
  * Numeric node that contains values that do not fit in simple
  * integer (int, long) or floating point (double) values.
  */
-public final class DecimalNode
+public class DecimalNode
     extends NumericNode
 {
     public static final DecimalNode ZERO = new DecimalNode(BigDecimal.ZERO);
@@ -115,7 +115,7 @@ public final class DecimalNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != getClass()) { // final class, can do this
+        if (!(o instanceof DecimalNode)) {
             return false;
         }
         return ((DecimalNode) o)._value.equals(_value);

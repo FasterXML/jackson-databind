@@ -11,12 +11,12 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * Value node that contains Base64 encoded binary value, which will be
  * output and stored as Json String value.
  */
-public final class BinaryNode
+public class BinaryNode
     extends ValueNode
 {
     final static BinaryNode EMPTY_BINARY_NODE = new BinaryNode(new byte[0]);
 
-    final byte[] _data;
+    protected final byte[] _data;
 
     public BinaryNode(byte[] data)
     {
@@ -100,7 +100,7 @@ public final class BinaryNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != getClass()) { // final class, can do this
+        if (!(o instanceof BinaryNode)) {
             return false;
         }
         return Arrays.equals(((BinaryNode) o)._data, _data);

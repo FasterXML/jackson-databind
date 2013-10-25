@@ -9,9 +9,9 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 /**
  * This concrete value class is used to contain boolean (true / false)
  * values. Only two instances are ever created, to minimize memory
- * usage
+ * usage.
  */
-public final class BooleanNode
+public class BooleanNode
     extends ValueNode
 {
     // // Just need two instances...
@@ -80,15 +80,15 @@ public final class BooleanNode
     @Override
     public boolean equals(Object o)
     {
-    	/* 11-Mar-2013, tatu: Apparently ClassLoaders can manage to load
-    	 *    different instances, rendering identity comparisons broken.
-    	 *    So let's use value instead.
+        /* 11-Mar-2013, tatu: Apparently ClassLoaders can manage to load
+         *    different instances, rendering identity comparisons broken.
+         *    So let's use value instead.
          */
-    	if (o == this) return true;
-    	if (o == null) return false;
-    	if (o.getClass() != getClass()) {
-    		return false;
-    	}
-    	return (_value == ((BooleanNode) o)._value);
+        if (o == this) return true;
+        if (o == null) return false;
+        if (!(o instanceof BooleanNode)) {
+            return false;
+        }
+        return (_value == ((BooleanNode) o)._value);
     }
 }

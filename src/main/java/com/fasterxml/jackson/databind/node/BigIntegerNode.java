@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 /**
  * Numeric node that contains simple 64-bit integer values.
  */
-public final class BigIntegerNode
+public class BigIntegerNode
     extends NumericNode
 {
     private final static BigInteger MIN_INTEGER = BigInteger.valueOf(Integer.MIN_VALUE);
@@ -109,7 +109,7 @@ public final class BigIntegerNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != getClass()) { // final class, can do this
+        if (!(o instanceof BigIntegerNode)) {
             return false;
         }
         return ((BigIntegerNode) o)._value.equals(_value);

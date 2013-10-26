@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 /**
  * Numeric node that contains simple 32-bit integer values.
  */
-public final class IntNode
+public class IntNode
     extends NumericNode
 {
     // // // Let's cache small set of common value
@@ -32,7 +32,7 @@ public final class IntNode
     /**
      * Integer value this node contains
      */
-    final int _value;
+    protected final int _value;
 
     /* 
     ************************************************
@@ -122,10 +122,10 @@ public final class IntNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != getClass()) { // final class, can do this
-            return false;
+        if (o instanceof IntNode) {
+            return ((IntNode) o)._value == _value;
         }
-        return ((IntNode) o)._value == _value;
+        return false;
     }
 
     @Override

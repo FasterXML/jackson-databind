@@ -725,12 +725,20 @@ public class ArrayNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (getClass() != o.getClass()) {
-            return false;
+        if (o instanceof ArrayNode) {
+            return _children.equals(((ArrayNode) o)._children);
         }
-        return _children.equals(((ArrayNode) o)._children);
+        return false;
     }
 
+    /**
+     * @since 2.3
+     */
+    protected boolean _childrenEqual(ArrayNode other)
+    {
+        return _children.equals(other._children);
+    }
+    
     @Override
     public int hashCode()
     {

@@ -115,10 +115,10 @@ public class DecimalNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (!(o instanceof DecimalNode)) {
-            return false;
+        if (o instanceof DecimalNode) {
+            return ((DecimalNode) o)._value.equals(_value);
         }
-        return ((DecimalNode) o)._value.equals(_value);
+        return false;
     }
 
     @Override

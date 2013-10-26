@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 /**
  * Value node that contains a text value.
  */
-public final class TextNode
+public class TextNode
     extends ValueNode
 {
     final static int INT_SPACE = ' ';
@@ -228,10 +228,10 @@ public final class TextNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != getClass()) { // final class, can do this
-            return false;
+        if (o instanceof TextNode) {
+            return ((TextNode) o)._value.equals(_value);
         }
-        return ((TextNode) o)._value.equals(_value);
+        return false;
     }
     
     @Override

@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 /**
  * Numeric node that contains simple 64-bit integer values.
  */
-public final class LongNode
+public class LongNode
     extends NumericNode
 {
-    final long _value;
+    protected final long _value;
 
     /* 
     ************************************************
@@ -98,10 +98,10 @@ public final class LongNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != getClass()) { // final class, can do this
-            return false;
+        if (o instanceof LongNode) {
+            return ((LongNode) o)._value == _value;
         }
-        return ((LongNode) o)._value == _value;
+        return false;
     }
 
     @Override

@@ -80,7 +80,7 @@ public final class MissingNode
         /* Hmmh. Since there's just a singleton instance, this
          * fails in all cases but with identity comparison.
          * However: if this placeholder value was to be considered
-         * similar to Sql NULL, it shouldn't even equal itself?
+         * similar to SQL NULL, it shouldn't even equal itself?
          * That might cause problems when dealing with collections
          * like Sets... so for now, let's let identity comparison
          * return true.

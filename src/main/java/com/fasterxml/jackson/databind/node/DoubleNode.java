@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * Numeric node that contains 64-bit ("double precision")
  * floating point values simple 32-bit integer values.
  */
-public final class DoubleNode
+public class DoubleNode
     extends NumericNode
 {
     protected final double _value;
@@ -103,14 +103,13 @@ public final class DoubleNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != getClass()) { // final class, can do this
-            return false;
+        if (o instanceof DoubleNode) {
+            // We must account for NaNs: NaN does not equal NaN, therefore we have
+            // to use Double.compare().
+            final double otherValue = ((DoubleNode) o)._value;
+            return Double.compare(_value, otherValue) == 0;
         }
-
-        // We must account for NaNs: NaN does not equal NaN, therefore we have
-        // to use Double.compare().
-        final double otherValue = ((DoubleNode) o)._value;
-        return Double.compare(_value, otherValue) == 0;
+        return false;
     }
 
     @Override

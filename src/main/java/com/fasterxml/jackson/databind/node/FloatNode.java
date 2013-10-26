@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * 
  * @since 2.2
  */
-public final class FloatNode extends NumericNode
+public class FloatNode extends NumericNode
 {
     protected final float _value;
 
@@ -104,14 +104,13 @@ public final class FloatNode extends NumericNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != getClass()) { // final class, can do this
-            return false;
+        if (o instanceof FloatNode) {
+            // We must account for NaNs: NaN does not equal NaN, therefore we have
+            // to use Double.compare().
+            final float otherValue = ((FloatNode) o)._value;
+            return Float.compare(_value, otherValue) == 0;
         }
-
-        // We must account for NaNs: NaN does not equal NaN, therefore we have
-        // to use Double.compare().
-        final float otherValue = ((FloatNode) o)._value;
-        return Float.compare(_value, otherValue) == 0;
+        return false;
     }
 
     @Override

@@ -738,12 +738,18 @@ public class ObjectNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        
-        // minor improvement, wrt [Issue#70]
-        if (getClass() != o.getClass()) {
-            return false;
+        if (o instanceof ObjectNode) {
+            return _childrenEqual((ObjectNode) o);
         }
-        return _children.equals(((ObjectNode) o)._children);
+        return false;
+    }
+
+    /**
+     * @since 2.3
+     */
+    protected boolean _childrenEqual(ObjectNode other)
+    {
+        return _children.equals(other._children);
     }
     
     @Override

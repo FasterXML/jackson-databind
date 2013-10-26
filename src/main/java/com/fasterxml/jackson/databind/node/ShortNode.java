@@ -12,10 +12,10 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 /**
  * Numeric node that contains simple 16-bit integer values.
  */
-public final class ShortNode
+public class ShortNode
     extends NumericNode
 {
-    final short _value;
+    protected final short _value;
 
     /* 
     ************************************************
@@ -96,10 +96,10 @@ public final class ShortNode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != getClass()) { // final class, can do this
-            return false;
+        if (o instanceof ShortNode) {
+            return ((ShortNode) o)._value == _value;
         }
-        return ((ShortNode) o)._value == _value;
+        return false;
     }
 
     @Override

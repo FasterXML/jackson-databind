@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
  * a JSON constructed through data mapping (usually done by
  * calling {@link com.fasterxml.jackson.databind.ObjectMapper}).
  */
-public final class POJONode
+public class POJONode
     extends ValueNode
 {
     protected final Object _value;
@@ -132,16 +132,23 @@ public final class POJONode
     {
         if (o == this) return true;
         if (o == null) return false;
-        if (o.getClass() != getClass()) { // final class, can do this
-            return false;
+        if (o instanceof POJONode) {
+            return _pojoEquals((POJONode) o);
         }
-        POJONode other = (POJONode) o;
+        return false;
+    }
+
+    /**
+     * @since 2.3
+     */
+    protected boolean _pojoEquals(POJONode other)
+    {
         if (_value == null) {
             return other._value == null;
         }
         return _value.equals(other._value);
     }
-
+    
     @Override
     public int hashCode() { return _value.hashCode(); }
 

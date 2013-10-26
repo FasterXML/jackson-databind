@@ -186,6 +186,14 @@ public final class AnnotatedClass
     }
 
     @Override
+    public Iterable<Annotation> annotations() {
+        if (_classAnnotations == null) {
+            return Collections.emptyList();
+        }
+        return _classAnnotations.annotations();
+    }
+    
+    @Override
     protected AnnotationMap getAllAnnotations() {
         if (_classAnnotations == null) {
             resolveClassAnnotations();

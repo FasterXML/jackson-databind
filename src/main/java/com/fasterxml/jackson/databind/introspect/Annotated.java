@@ -73,6 +73,18 @@ public abstract class Annotated
      */
     public abstract Class<?> getRawType();
 
+    /**
+     * Accessor that can be used to iterate over all the annotations
+     * associated with annotated component.
+     * 
+     * @since 2.3
+     */
+    public abstract Iterable<Annotation> annotations();
+
+    /**
+     * Internal helper method used to access annotation information;
+     * not exposed to developers since instances are mutable.
+     */
     protected abstract AnnotationMap getAllAnnotations();
 }
 

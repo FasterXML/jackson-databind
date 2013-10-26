@@ -31,6 +31,16 @@ public final class AnnotationMap implements Annotations
         return (A) _annotations.get(cls);
     }
 
+    /**
+     * @since 2.3
+     */
+    public Iterable<Annotation> annotations() {
+        if (_annotations == null || _annotations.size() == 0) {
+            return Collections.emptyList();
+        }
+        return _annotations.values();
+    }
+    
     public static AnnotationMap merge(AnnotationMap primary, AnnotationMap secondary)
     {
         if (primary == null || primary._annotations == null || primary._annotations.isEmpty()) {

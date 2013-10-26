@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Member;
+import java.util.Collections;
 
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -32,6 +33,14 @@ public abstract class AnnotatedMember
 
     public abstract Member getMember();
 
+    @Override
+    public Iterable<Annotation> annotations() {
+        if (_annotations == null) {
+            return Collections.emptyList();
+        }
+        return _annotations.annotations();
+    }
+    
     @Override
     protected AnnotationMap getAllAnnotations() {
         return _annotations;

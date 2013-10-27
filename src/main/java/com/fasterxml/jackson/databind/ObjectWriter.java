@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
@@ -743,9 +744,19 @@ public class ObjectWriter
     }
     
     public boolean canSerialize(Class<?> type) {
-        return _serializerProvider(_config).hasSerializerFor(type);
+        return _serializerProvider(_config).hasSerializerFor(type, null);
     }
 
+    /**
+     * Method for checking whether instances of given type can be serialized,
+     * and optionally why (as per {@link Throwable} returned).
+     * 
+     * @since 2.3
+     */
+    public boolean canSerialize(Class<?> type, AtomicReference<Throwable> cause) {
+        return _serializerProvider(_config).hasSerializerFor(type, cause);
+    }
+    
     /*
     /**********************************************************
     /* Overridable helper methods

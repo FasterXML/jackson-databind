@@ -13,12 +13,6 @@ import com.fasterxml.jackson.databind.*;
 public class TestAnyProperties
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Annotated helper classes
-    /**********************************************************
-     */
-
     static class MapImitator
     {
         HashMap<String,Object> _map;
@@ -100,7 +94,7 @@ public class TestAnyProperties
         }
     }
 
-    public class Bean797Base
+    static class Bean797Base
     {
         @JsonAnyGetter
         public Map<String, JsonNode> getUndefinedProperties() {
@@ -108,11 +102,36 @@ public class TestAnyProperties
         }
     }
 
-    public class Bean797BaseImpl extends Bean797Base
+    static class Bean797BaseImpl extends Bean797Base
     {
         @Override
         public Map<String, JsonNode> getUndefinedProperties() {
             return new HashMap<String, JsonNode>();
+        }
+    }
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+    static abstract class Base { }
+
+    static class Impl extends Base {
+        public String value;
+        
+        public Impl() { }
+        public Impl(String v) { value = v; }
+    }
+
+    static class PolyAnyBean
+    {
+        protected Map<String,Base> props = new HashMap<String,Base>();
+        
+        @JsonAnyGetter
+        public Map<String,Base> props() {
+            return props;
+        }
+
+        @JsonAnySetter
+        public void prop(String name, Base value) {
+            props.put(name, value);
         }
     }
     
@@ -184,6 +203,23 @@ public class TestAnyProperties
         assertEquals("{}", json);
     }
 
+    // [Issue#337]
+    public void testPolymorphic() throws Exception
+    {
+        PolyAnyBean input = new PolyAnyBean();
+        input.props.put("a", new Impl("xyz"));
+        String json = MAPPER.writeValueAsString(input);
+        
+//        System.err.println("JSON: "+json);
+
+        PolyAnyBean result = MAPPER.readValue(json, PolyAnyBean.class);
+        assertEquals(1, result.props.size());
+        Base ob = result.props.get("a");
+        assertNotNull(ob);
+        assertTrue(ob instanceof Impl);
+        assertEquals("xyz", ((Impl) ob).value);
+    }
+    
     /*
     /**********************************************************
     /* Private helper methods

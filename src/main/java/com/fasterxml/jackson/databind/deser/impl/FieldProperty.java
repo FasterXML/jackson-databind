@@ -26,16 +26,14 @@ public final class FieldProperty
 {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * Transient since there is no need to persist; only needed during
-     * construction of objects.
-     */
-    protected final AnnotatedField _annotated;
+    final protected AnnotatedField _annotated;
 
     /**
      * Actual field to set when deserializing this property.
+     * Transient since there is no need to persist; only needed during
+     * construction of objects.
      */
-    protected final transient Field _field;
+    final protected transient Field _field;
     
     public FieldProperty(BeanPropertyDefinition propDef, JavaType type,
             TypeDeserializer typeDeser, Annotations contextAnnotations, AnnotatedField field)

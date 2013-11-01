@@ -4,11 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 
 /**
@@ -19,8 +15,11 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
  * !!! Note: might make sense to refactor to share some code
  * with {@link SettableBeanProperty}?
  */
-public final class SettableAnyProperty
+public class SettableAnyProperty
+    implements java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+    
     /**
      * Method used for setting "any" properties, along with annotation
      * information. Retained to allow contextualization of any properties.
@@ -29,10 +28,13 @@ public final class SettableAnyProperty
     
     /**
      * Physical JDK object used for assigning properties.
+     *<p>
+     * NOTE: must be marked transient since it is not serializable,
+     * in case these are to be serialized
      */
-    final protected Method _setter;
+    protected final transient Method _setter;
 
-    final protected JavaType _type;
+    protected final JavaType _type;
 
     protected JsonDeserializer<Object> _valueDeserializer;
 
@@ -88,7 +90,7 @@ public final class SettableAnyProperty
         set(instance, propName, deserialize(jp, ctxt));
     }
 
-    public final Object deserialize(JsonParser jp, DeserializationContext ctxt)
+    public Object deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
         JsonToken t = jp.getCurrentToken();
@@ -98,7 +100,7 @@ public final class SettableAnyProperty
         return _valueDeserializer.deserialize(jp, ctxt);
     }
 
-    public final void set(Object instance, String propName, Object value)
+    public void set(Object instance, String propName, Object value)
         throws IOException
     {
         try {
@@ -152,4 +154,18 @@ public final class SettableAnyProperty
     private String getClassName() { return _setter.getDeclaringClass().getName(); }
 
     @Override public String toString() { return "[any property on class "+getClassName()+"]"; }
+
+    /*
+    /**********************************************************
+    /* JDK serialization handling
+    /**********************************************************
+     */
+
+    // TODO (2.3): handle restoring of reference to any-setter method
+    
+/*
+    Object readResolve() {
+        return new SettableAnyProperty(this, _annotated.getAnnotated());
+    }
+    */
 }

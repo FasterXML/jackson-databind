@@ -120,7 +120,9 @@ public class ISO8601Utils {
      * @return the parsed date
      * @throws IllegalArgumentException if the date is not in the appropriate format
      */
-    public static Date parse(String date) {
+    public static Date parse(String date)
+    {
+        Exception fail = null;
         try {
             int offset = 0;
 
@@ -178,12 +180,15 @@ public class ISO8601Utils {
 
             return calendar.getTime();
         } catch (IndexOutOfBoundsException e) {
-            throw new IllegalArgumentException("Failed to parse date " + date, e);
+            fail = e;
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Failed to parse date " + date, e);
+            fail = e;
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Failed to parse date " + date, e);
+            fail = e;
         }
+        String input = (date == null) ? null : ('"'+date+"'");
+        throw new IllegalArgumentException("Failed to parse date ["+input
+                +"]: "+fail.getMessage(), fail);
     }
 
     /**

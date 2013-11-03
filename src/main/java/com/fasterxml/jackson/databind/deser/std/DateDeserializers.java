@@ -46,7 +46,7 @@ public class DateDeserializers
         if (!_classNames.contains(clsName)) {
             return null;
         }
-        // Start with most common types; int, boolean, long, double
+        // Start with the most common type
         if (rawType == Calendar.class) {
             return CalendarDeserializer.instance;
         }

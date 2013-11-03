@@ -266,6 +266,22 @@ public class StdDateFormat
 
     /*
     /**********************************************************
+    /* Std overrides
+    /**********************************************************
+     */
+    
+    @Override
+    public String toString() {
+        String str = "DateFormat "+getClass().getName();
+        TimeZone tz = _timezone;
+        if (tz != null) {
+            str += " (timezone: "+tz+")";
+        }
+        return str;
+    }
+    
+    /*
+    /**********************************************************
     /* Helper methods
     /**********************************************************
      */

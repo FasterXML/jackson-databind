@@ -41,12 +41,24 @@ public class ISO8601DateFormat extends DateFormat
     {
         // index must be set to other than 0, I would swear this requirement is not there in
         // some version of jdk 6.
+        /* 03-Nov-2013, tatu: I can't see this having any direct effect
+         *   here... I am guessing it marks things as consumed but why?
+         */
         pos.setIndex(source.length());
         return ISO8601Utils.parse(source);
     }
 
     @Override
     public Object clone() {
-        return this;    // jackson calls clone everytime. We are threadsafe so just returns the instance
+        /* Jackson calls clone for every call. Since this instance is
+         * immutable (and hence thread-safe)
+         * we can just return this instance
+         */
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName();
     }
 }

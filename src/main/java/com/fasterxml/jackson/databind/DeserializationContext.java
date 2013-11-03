@@ -595,7 +595,8 @@ public abstract class DeserializationContext
         throws IllegalArgumentException
     {
         try {
-            return getDateFormat().parse(dateStr);
+            DateFormat df = getDateFormat();
+            return df.parse(dateStr);
         } catch (ParseException e) {
             throw new IllegalArgumentException("Failed to parse Date value '"+dateStr+"': "+e.getMessage());
         }

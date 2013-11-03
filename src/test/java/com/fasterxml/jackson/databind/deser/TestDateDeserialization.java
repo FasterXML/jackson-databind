@@ -4,10 +4,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.util.ISO8601Utils;
 
 public class TestDateDeserialization
     extends BaseMapTest
@@ -159,9 +159,12 @@ public class TestDateDeserialization
     // [Issue#338]
     public void testDateUtilISO8601NoMilliseconds() throws Exception
     {
-        String inputStr = "2013-10-31T17:27:00";
-        Date inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        final String INPUT_STR = "2013-10-31T17:27:00";
+        Date inputDate;
+        Calendar c;
+        
+        inputDate = MAPPER.readValue(quote(INPUT_STR), java.util.Date.class);
+        c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         c.setTime(inputDate);
         assertEquals(2013, c.get(Calendar.YEAR));
         assertEquals(Calendar.OCTOBER, c.get(Calendar.MONTH));
@@ -170,6 +173,21 @@ public class TestDateDeserialization
         assertEquals(27, c.get(Calendar.MINUTE));
         assertEquals(0, c.get(Calendar.SECOND));
         assertEquals(0, c.get(Calendar.MILLISECOND));
+
+        // 03-Nov-2013, tatu: This wouldn't work, and is the nominal reason
+        //    for #338 I thinl
+        /*
+        inputDate =  ISO8601Utils.parse(INPUT_STR);
+        c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        c.setTime(inputDate);
+        assertEquals(2013, c.get(Calendar.YEAR));
+        assertEquals(Calendar.OCTOBER, c.get(Calendar.MONTH));
+        assertEquals(31, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(17, c.get(Calendar.HOUR_OF_DAY));
+        assertEquals(27, c.get(Calendar.MINUTE));
+        assertEquals(0, c.get(Calendar.SECOND));
+        assertEquals(0, c.get(Calendar.MILLISECOND));
+        */
     }
     
     public void testDateUtilISO8601JustDate() throws Exception

@@ -156,6 +156,22 @@ public class TestDateDeserialization
         assertEquals(0, c.get(Calendar.MILLISECOND));
     }
 
+    // [Issue#338]
+    public void testDateUtilISO8601NoMilliseconds() throws Exception
+    {
+        String inputStr = "2013-10-31T17:27:00";
+        Date inputDate = MAPPER.readValue(quote(inputStr), java.util.Date.class);
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        c.setTime(inputDate);
+        assertEquals(2013, c.get(Calendar.YEAR));
+        assertEquals(Calendar.OCTOBER, c.get(Calendar.MONTH));
+        assertEquals(31, c.get(Calendar.DAY_OF_MONTH));
+        assertEquals(17, c.get(Calendar.HOUR_OF_DAY));
+        assertEquals(27, c.get(Calendar.MINUTE));
+        assertEquals(0, c.get(Calendar.SECOND));
+        assertEquals(0, c.get(Calendar.MILLISECOND));
+    }
+    
     public void testDateUtilISO8601JustDate() throws Exception
     {
         // Plain date (no time)

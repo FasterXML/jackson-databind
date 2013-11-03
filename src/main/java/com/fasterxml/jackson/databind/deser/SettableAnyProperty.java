@@ -6,6 +6,7 @@ import java.lang.reflect.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
  * Class that represents a "wildcard" set method which can be used
@@ -38,27 +39,45 @@ public class SettableAnyProperty
 
     protected JsonDeserializer<Object> _valueDeserializer;
 
+    protected final TypeDeserializer _valueTypeDeserializer;
+    
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
+    @Deprecated // since 2.3
     public SettableAnyProperty(BeanProperty property, AnnotatedMethod setter, JavaType type,
             JsonDeserializer<Object> valueDeser) {
-        this(property, setter.getAnnotated(), type, valueDeser);
+        this(property, setter, type, valueDeser, null);
     }
 
+    public SettableAnyProperty(BeanProperty property, AnnotatedMethod setter, JavaType type,
+            JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
+    {
+        this(property, setter.getAnnotated(), type, valueDeser, typeDeser);
+    }
+    
+    @Deprecated // since 2.3
     public SettableAnyProperty(BeanProperty property, Method rawSetter, JavaType type,
             JsonDeserializer<Object> valueDeser) {
+        this(property, rawSetter, type, valueDeser, null);
+    }
+    
+    public SettableAnyProperty(BeanProperty property, Method rawSetter, JavaType type,
+            JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
+    {
         _property = property;
         _type = type;
         _setter = rawSetter;
         _valueDeserializer = valueDeser;
+        _valueTypeDeserializer = typeDeser;
     }
 
     public SettableAnyProperty withValueDeserializer(JsonDeserializer<Object> deser) {
-        return new SettableAnyProperty(_property, _setter, _type, deser);
+        return new SettableAnyProperty(_property, _setter, _type,
+                deser, _valueTypeDeserializer);
     }
     
     /*
@@ -96,6 +115,9 @@ public class SettableAnyProperty
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.VALUE_NULL) {
             return null;
+        }
+        if (_valueTypeDeserializer != null) {
+            return _valueDeserializer.deserializeWithType(jp, ctxt, _valueTypeDeserializer);
         }
         return _valueDeserializer.deserialize(jp, ctxt);
     }

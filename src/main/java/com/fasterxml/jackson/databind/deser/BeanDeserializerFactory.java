@@ -715,14 +715,13 @@ public class BeanDeserializerFactory
          * be done at a later point.
          */
         JsonDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt, setter);
-        if (deser != null) {
-            return new SettableAnyProperty(property, setter, type, deser);
-        }
         /* Otherwise, method may specify more specific (sub-)class for
          * value (no need to check if explicit deser was specified):
          */
         type = modifyTypeByAnnotation(ctxt, setter, type);
-        return new SettableAnyProperty(property, setter, type, null);
+        TypeDeserializer typeDeser = type.getTypeHandler();
+        return new SettableAnyProperty(property, setter, type,
+                deser, typeDeser);
     }
 
     /**

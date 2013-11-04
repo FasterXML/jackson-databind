@@ -207,7 +207,10 @@ public class BeanDeserializerFactory
             } else {
                 referencedType = params[0];
             }
-            return new AtomicReferenceDeserializer(referencedType);
+            TypeDeserializer valueTypeDeser = findTypeDeserializer(ctxt.getConfig(), referencedType);
+            BeanDescription refdDesc = ctxt.getConfig().introspectClassAnnotations(referencedType);
+            deser = findDeserializerFromAnnotation(ctxt, refdDesc.getClassInfo());
+            return new AtomicReferenceDeserializer(referencedType, valueTypeDeser, deser);
         }
         return findOptionalStdDeserializer(ctxt, type, beanDesc);
     }
@@ -719,6 +722,9 @@ public class BeanDeserializerFactory
          * value (no need to check if explicit deser was specified):
          */
         type = modifyTypeByAnnotation(ctxt, setter, type);
+        if (deser == null) {
+            deser = type.getValueHandler();
+        }
         TypeDeserializer typeDeser = type.getTypeHandler();
         return new SettableAnyProperty(property, setter, type,
                 deser, typeDeser);

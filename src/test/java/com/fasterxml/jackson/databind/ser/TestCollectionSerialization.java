@@ -11,19 +11,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class TestCollectionSerialization
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
     enum Key { A, B, C };
 
     // Field-based simple bean with a single property, "values"
     final static class CollectionBean
     {
         @JsonProperty // not required
-            public Collection<Object> values;
+        public Collection<Object> values;
 
         public CollectionBean(Collection<Object> c) { values = c; }
     }

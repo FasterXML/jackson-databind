@@ -2,36 +2,43 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.util.concurrent.atomic.*;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestSimpleAtomicTypes
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
+    private final ObjectMapper MAPPER = objectMapper();
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+    
     public void testAtomicBoolean() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        AtomicBoolean b = mapper.readValue("true", AtomicBoolean.class);
+        AtomicBoolean b = MAPPER.readValue("true", AtomicBoolean.class);
         assertTrue(b.get());
     }
 
     public void testAtomicInt() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        AtomicInteger value = mapper.readValue("13", AtomicInteger.class);
+        AtomicInteger value = MAPPER.readValue("13", AtomicInteger.class);
         assertEquals(13, value.get());
     }
 
     public void testAtomicLong() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        AtomicLong value = mapper.readValue("12345678901", AtomicLong.class);
+        AtomicLong value = MAPPER.readValue("12345678901", AtomicLong.class);
         assertEquals(12345678901L, value.get());
     }
 
     public void testAtomicReference() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        AtomicReference<long[]> value = mapper.readValue("[1,2]",
+        AtomicReference<long[]> value = MAPPER.readValue("[1,2]",
                 new com.fasterxml.jackson.core.type.TypeReference<AtomicReference<long[]>>() { });
         Object ob = value.get();
         assertNotNull(ob);

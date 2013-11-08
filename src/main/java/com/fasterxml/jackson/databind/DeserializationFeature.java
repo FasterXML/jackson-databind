@@ -150,11 +150,24 @@ public enum DeserializationFeature implements ConfigFeature
      * Note that this property does NOT affect other aspects of data-binding; that is,
      * no detection is done with respect to POJO properties or {@link java.util.Map}
      * keys. New features may be added to control additional cases.
+     *<p>
+     * Feature is disabled by default so that no exception is thrown.
      * 
      * @since 2.3
      */
     FAIL_ON_READING_DUP_TREE_KEY(false),
-    
+
+    /**
+     * Feature that determines what happens when a property that has been explicitly
+     * marked as ignorable is encountered in input: if feature is enabled,
+     * {@link JsonMappingException} is thrown; if false, property is quietly skipped.
+     *<p>
+     * Feature is disabled by default so that no exception is thrown.
+     *
+     * @since 2.3
+     */
+    FAIL_ON_IGNORED_PROPERTIES(false),
+
     /**
      * Feature that determines whether Jackson code should catch
      * and wrap {@link Exception}s (but never {@link Error}s!)

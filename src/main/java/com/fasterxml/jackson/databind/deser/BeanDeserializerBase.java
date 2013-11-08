@@ -9,13 +9,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
+
+import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.exc.IgnoredPropertyException;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.type.ClassKey;
@@ -29,7 +30,7 @@ public abstract class BeanDeserializerBase
     implements ContextualDeserializer, ResolvableDeserializer,
         java.io.Serializable // since 2.1
 {
-    private static final long serialVersionUID = -2038793552422727904L;
+    private static final long serialVersionUID = 2960120955735322578L;
 
     protected final static PropertyName TEMP_PROPERTY_NAME = new PropertyName("#temporary-name");
 
@@ -1229,37 +1230,13 @@ public abstract class BeanDeserializerBase
     }
     
     /**
-     * Method called when a JSON property is encountered that has not matching
-     * setter, any-setter or field, and thus can not be assigned.
-     */
-    @Override
-    protected void handleUnknownProperty(JsonParser jp, DeserializationContext ctxt,
-            Object beanOrClass, String propName)
-        throws IOException, JsonProcessingException
-    {
-        /* 22-Aug-2010, tatu: Caller now mostly checks for ignorable properties, so
-         *    following should not be necessary. However, "handleUnknownProperties()" seems
-         *    to still possibly need it so it is left for now.
-         */
-        // If registered as ignorable, skip
-        if (_ignoreAllUnknown ||
-            (_ignorableProps != null && _ignorableProps.contains(propName))) {
-            jp.skipChildren();
-            return;
-        }
-        /* Otherwise use default handling (call handler(s); if not
-         * handled, throw exception or skip depending on settings)
-         */
-        super.handleUnknownProperty(jp, ctxt, beanOrClass, propName);
-    }
-
-    /**
      * Method called to handle set of one or more unknown properties,
      * stored in their entirety in given {@link TokenBuffer}
      * (as field entries, name and value).
      */
     @SuppressWarnings("resource")
-    protected Object handleUnknownProperties(DeserializationContext ctxt, Object bean, TokenBuffer unknownTokens)
+    protected Object handleUnknownProperties(DeserializationContext ctxt,
+            Object bean, TokenBuffer unknownTokens)
         throws IOException, JsonProcessingException
     {
         // First: add closing END_OBJECT as marker
@@ -1285,7 +1262,7 @@ public abstract class BeanDeserializerBase
         throws IOException, JsonProcessingException
     {
         if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-            jp.skipChildren();
+            handleIgnoredProperty(jp, ctxt, bean, propName);
         } else if (_anySetter != null) {
             try {
                // should we consider return type of any setter?
@@ -1299,6 +1276,43 @@ public abstract class BeanDeserializerBase
         }
     }
 
+    /**
+     * Method called when a JSON property is encountered that has not matching
+     * setter, any-setter or field, and thus can not be assigned.
+     */
+    @Override
+    protected void handleUnknownProperty(JsonParser jp, DeserializationContext ctxt,
+            Object beanOrClass, String propName)
+        throws IOException, JsonProcessingException
+    {
+        if (_ignoreAllUnknown) {
+            jp.skipChildren();
+            return;
+        }
+        if (_ignorableProps != null && _ignorableProps.contains(propName)) {
+            handleIgnoredProperty(jp, ctxt, beanOrClass, propName);
+        }
+        // Otherwise use default handling (call handler(s); if not
+        // handled, throw exception or skip depending on settings)
+        super.handleUnknownProperty(jp, ctxt, beanOrClass, propName);
+    }
+
+    /**
+     * Method called when an explicitly ignored property (one specified with a
+     * name to match, either by property annotation or class annotation) is encountered.
+     * 
+     * @since 2.3
+     */
+    protected void handleIgnoredProperty(JsonParser jp, DeserializationContext ctxt,
+            Object beanOrClass, String propName)
+        throws IOException, JsonProcessingException
+    {
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES)) {
+            throw IgnoredPropertyException.from(jp, beanOrClass, propName, getKnownPropertyNames());
+        }
+        jp.skipChildren();
+    }
+    
     /**
      * Method called in cases where we may have polymorphic deserialization
      * case: that is, type of Creator-constructed bean is not the type

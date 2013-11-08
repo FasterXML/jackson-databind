@@ -212,22 +212,11 @@ public class BeanDeserializer
                 }
                 continue;
             }
-            /* As per [JACKSON-313], things marked as ignorable should not be
-             * passed to any setter
-             */
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
-            } else if (_anySetter != null) {
-                _anySetter.deserializeAndSet(jp, ctxt, bean, propName);
-                continue;
-            } else {
-                // Unknown: let's call handler method
-                handleUnknownProperty(jp, ctxt, bean, propName);
-            }
+            handleUnknownVanilla(jp, ctxt, bean, propName);
         }
         return bean;
     }
-    
+
     /*
     /**********************************************************
     /* Concrete deserialization methods
@@ -307,22 +296,7 @@ public class BeanDeserializer
                 }
                 continue;
             }
-            /* As per [JACKSON-313], things marked as ignorable should not be
-             * passed to any setter
-             */
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
-            } else if (_anySetter != null) {
-                try {
-                    _anySetter.deserializeAndSet(jp, ctxt, bean, propName);
-                } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
-                }
-                continue;
-            } else {
-                // Unknown: let's call handler method
-                handleUnknownProperty(jp, ctxt, bean, propName);         
-            }
+            handleUnknownVanilla(jp, ctxt, bean, propName);
         }
         return bean;
     }
@@ -389,7 +363,7 @@ public class BeanDeserializer
             // As per [JACKSON-313], things marked as ignorable should not be
             // passed to any setter
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
+                handleIgnoredProperty(jp, ctxt, handledType(), propName);
                 continue;
             }
             // "any property"?
@@ -452,18 +426,7 @@ public class BeanDeserializer
                 }
                 continue;
             }
-            /* As per [JACKSON-313], things marked as ignorable should not be
-             * passed to any setter
-             */
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
-            } else if (_anySetter != null) {
-                _anySetter.deserializeAndSet(jp, ctxt, bean, propName);
-                continue;
-            } else {
-                // Unknown: let's call handler method
-                handleUnknownProperty(jp, ctxt, bean, propName);
-            }
+            handleUnknownVanilla(jp, ctxt, bean, propName);
         }
         return bean;
     }
@@ -514,7 +477,7 @@ public class BeanDeserializer
             }
             // ignorable things should be ignored
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
+                handleIgnoredProperty(jp, ctxt, bean, propName);
                 continue;
             }
             // but... others should be passed to unwrapped property deserializers
@@ -563,7 +526,7 @@ public class BeanDeserializer
                 continue;
             }
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
+                handleIgnoredProperty(jp, ctxt, bean, propName);
                 continue;
             }
             // but... others should be passed to unwrapped property deserializers
@@ -638,7 +601,7 @@ public class BeanDeserializer
              * passed to any setter
              */
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
+                handleIgnoredProperty(jp, ctxt, handledType(), propName);
                 continue;
             }
             tokens.writeFieldName(propName);
@@ -704,7 +667,7 @@ public class BeanDeserializer
             }
             // ignorable things should be ignored
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
+                handleIgnoredProperty(jp, ctxt, bean, propName);
                 continue;
             }
             // but others are likely to be part of external type id thingy...
@@ -794,7 +757,7 @@ public class BeanDeserializer
              * passed to any setter
              */
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
+                handleIgnoredProperty(jp, ctxt, handledType(), propName);
                 continue;
             }
             // "any property"?

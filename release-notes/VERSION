@@ -59,6 +59,10 @@ New minor version.
 #334: Make `ArrayNode`, `ObjectNode` non-final again
 #337: `AnySetter` does not support polymorphic types
  (reported by askvortsov@github)
+#340: AtomicReference not working with polymorphic types
+#342: Add `DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES` to make `ObjectMapper`
+  throw exception when encountering explicitly ignored properties
+ (requested by Ruslan M)
 [JACKSON-890]: Support managed/back-references for polymorphic (abstract) types
 - Add 'BeanPropertyWriter.isUnwrapping()' for future needs (by Afterburner)
 - Add coercions from String "null" (as if null token was parsed) for primitives/Wrappers.

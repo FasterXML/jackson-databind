@@ -37,6 +37,7 @@ public class ClassNameIdResolver
         return _idFrom(value, type);
     }
 
+    @Deprecated // since 2.3
     @Override
     public JavaType typeFromId(String id) {
         return _typeFromId(id, _typeFactory);

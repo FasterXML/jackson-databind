@@ -39,7 +39,7 @@ public class TestExceptionHandling
         if (exc == null) {
             fail("Should have failed binding");
         }
-        assertEquals("bar", exc.getUnrecognizedPropertyName());
+        assertEquals("bar", exc.getPropertyName());
         assertEquals(Bean.class, exc.getReferringClass());
         // also: should get list of known properties
         verifyException(exc, "propX");

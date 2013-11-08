@@ -7,17 +7,18 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
- * Specialized {@link JsonMappingException} sub-class specifically used
- * to indicate problems due to encountering a JSON property that could
- * not be mapped to an Object property (via getter, constructor argument
- * or field).
+ * Specialized {@link JsonMappingException} sub-class used to indicate
+ * case where an explicitly ignored property is encountered, and mapper
+ * is configured to consider this an error.
+ * 
+ * @since 2.3
  */
-public class UnrecognizedPropertyException
+public class IgnoredPropertyException
     extends PropertyBindingException
 {
     private static final long serialVersionUID = 1L;
 
-    public UnrecognizedPropertyException(String msg, JsonLocation loc,
+    public IgnoredPropertyException(String msg, JsonLocation loc,
             Class<?> referringClass, String propName,
             Collection<Object> propertyIds)
     {
@@ -34,7 +35,7 @@ public class UnrecognizedPropertyException
      * @param propertyIds (optional, null if not available) Set of properties that
      *    type would recognize, if completely known: null if set can not be determined.
      */
-    public static UnrecognizedPropertyException from(JsonParser jp,
+    public static IgnoredPropertyException from(JsonParser jp,
             Object fromObjectOrClass, String propertyName,
             Collection<Object> propertyIds)
     {
@@ -47,19 +48,12 @@ public class UnrecognizedPropertyException
         } else {
             ref = fromObjectOrClass.getClass();
         }
-        String msg = "Unrecognized field \""+propertyName+"\" (class "+ref.getName()+"), not marked as ignorable";
-        UnrecognizedPropertyException e = new UnrecognizedPropertyException(msg,
+        String msg = "Ignored field \""+propertyName+"\" (class "+ref.getName()
+                +") encountered; mapper configured not to allow this";
+        IgnoredPropertyException e = new IgnoredPropertyException(msg,
                 jp.getCurrentLocation(), ref, propertyName, propertyIds);
         // but let's also ensure path includes this last (missing) segment
         e.prependPath(fromObjectOrClass, propertyName);
         return e;
     }
-
-    /**
-     * @deprecated Since 2.3, use {@link #getPropertyName} instead.
-     */
-    @Deprecated // since 2.3
-    public String getUnrecognizedPropertyName() {
-        return getPropertyName();
-    }    
 }

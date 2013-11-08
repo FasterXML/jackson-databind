@@ -185,11 +185,12 @@ public class JsonNodeFactory
      */
     @Override
     public ValueNode numberNode(Long value) {
-        long l = value.longValue();
-        if (_inIntRange(l)) {
-            return IntNode.valueOf((int) l);
+        if (value == null) {
+            return nullNode();
         }
-        return (value == null) ? nullNode() : LongNode.valueOf(l);
+        long l = value.longValue();
+        return _inIntRange(l)
+                ? IntNode.valueOf((int) l) : LongNode.valueOf(l);
     }
     
     /**

@@ -11,13 +11,7 @@ import com.fasterxml.jackson.databind.*;
 public class TestAnnotationIgnore
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
-    /// Class for testing {@link JsonIgnore} annotations with setters
+    // Class for testing {@link JsonIgnore} annotations with setters
     final static class SizeClassIgnore
     {
         int _x = 0;
@@ -34,16 +28,26 @@ public class TestAnnotationIgnore
         }
     }
 
+    @JsonIgnoreProperties({ "z" })
+    final static class NoYOrZ
+    {
+        public int x;
+
+        @JsonIgnore
+        public int y = 1;
+    }
+    
     /*
     /**********************************************************
-    /* Unit tests
+    /* Test methods
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = objectMapper();
+    
     public void testSimpleIgnore() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        SizeClassIgnore result = m.readValue
+        SizeClassIgnore result = MAPPER.readValue
             ("{ \"x\":1, \"y\" : 2 }",
              SizeClassIgnore.class);
         // x should be set, y not
@@ -51,4 +55,30 @@ public class TestAnnotationIgnore
         assertEquals(0, result._y);
     }
 
+    public void testFailOnIgnore() throws Exception
+    {
+        ObjectReader r = MAPPER.reader(NoYOrZ.class);
+        
+        // First, fine to get "x":
+        NoYOrZ result = r.readValue(aposToQuotes("{'x':3}"));
+        assertEquals(3, result.x);
+        assertEquals(1, result.y);
+
+        // but not 'y'
+        r = r.with(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES);
+        try {
+            result = r.readValue(aposToQuotes("{'x':3, 'y':4}"));
+            fail("Should fail");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Ignored field");
+        }
+
+        // or 'z'
+        try {
+            result = r.readValue(aposToQuotes("{'z':2 }"));
+            fail("Should fail");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Ignored field");
+        }
+    }
 }

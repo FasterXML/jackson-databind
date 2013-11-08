@@ -227,16 +227,7 @@ public class BuilderBasedDeserializer
                 }
                 continue;
             }
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
-            } else if (_anySetter != null) {
-                // should we try to get return value of any setter too?
-                _anySetter.deserializeAndSet(jp, ctxt, builder, propName);
-                continue;
-            } else {
-                // Unknown: let's call handler method
-                handleUnknownProperty(jp, ctxt, builder, propName);
-            }
+            handleUnknownVanilla(jp, ctxt, handledType(), propName);
         }
         return builder;
     }
@@ -308,22 +299,7 @@ public class BuilderBasedDeserializer
                 }
                 continue;
             }
-            /* As per [JACKSON-313], things marked as ignorable should not be
-             * passed to any setter
-             */
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
-            } else if (_anySetter != null) {
-                try {
-                    _anySetter.deserializeAndSet(jp, ctxt, bean, propName);
-                } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
-                }
-                continue;
-            } else {
-                // Unknown: let's call handler method
-                handleUnknownProperty(jp, ctxt, bean, propName);         
-            }
+            handleUnknownVanilla(jp, ctxt, bean, propName);
         }
         return bean;
     }
@@ -391,7 +367,7 @@ public class BuilderBasedDeserializer
             // As per [JACKSON-313], things marked as ignorable should not be
             // passed to any setter
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
+                handleIgnoredProperty(jp, ctxt, handledType(), propName);
                 continue;
             }
             // "any property"?
@@ -454,18 +430,7 @@ public class BuilderBasedDeserializer
                 }
                 continue;
             }
-            /* As per [JACKSON-313], things marked as ignorable should not be
-             * passed to any setter
-             */
-            if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
-            } else if (_anySetter != null) {
-                _anySetter.deserializeAndSet(jp, ctxt, bean, propName);
-                continue;
-            } else {
-                // Unknown: let's call handler method
-                handleUnknownProperty(jp, ctxt, bean, propName);
-            }
+            handleUnknownVanilla(jp, ctxt, bean, propName);
         }
         return bean;
     }
@@ -518,7 +483,7 @@ public class BuilderBasedDeserializer
             }
             // ignorable things should be ignored
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
+                handleIgnoredProperty(jp, ctxt, bean, propName);
                 continue;
             }
             // but... others should be passed to unwrapped property deserializers
@@ -568,7 +533,7 @@ public class BuilderBasedDeserializer
                 continue;
             }
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
+                handleIgnoredProperty(jp, ctxt, bean, propName);
                 continue;
             }
             // but... others should be passed to unwrapped property deserializers
@@ -639,11 +604,8 @@ public class BuilderBasedDeserializer
                 buffer.bufferProperty(prop, prop.deserialize(jp, ctxt));
                 continue;
             }
-            /* As per [JACKSON-313], things marked as ignorable should not be
-             * passed to any setter
-             */
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
+                handleIgnoredProperty(jp, ctxt, handledType(), propName);
                 continue;
             }
             tokens.writeFieldName(propName);
@@ -706,7 +668,7 @@ public class BuilderBasedDeserializer
             }
             // ignorable things should be ignored
             if (_ignorableProps != null && _ignorableProps.contains(propName)) {
-                jp.skipChildren();
+                handleIgnoredProperty(jp, ctxt, bean, propName);
                 continue;
             }
             // but others are likely to be part of external type id thingy...

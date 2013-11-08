@@ -3,9 +3,8 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -76,27 +75,21 @@ public class AtomicReferenceDeserializer
     public AtomicReference<?> deserialize(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
+        /* 06-Nov-2013, tatu: Looks like the only way to make polymorphic deser to work
+         *   correctly is to add support here; problem being that handler is not available
+         *   for nominal type of AtomicReference but only "contained" type...
+         */
+        if (_valueTypeDeserializer != null) {
+            return new AtomicReference<Object>(_valueDeserializer.deserializeWithType(jp, ctxt, _valueTypeDeserializer));
+        }
         return new AtomicReference<Object>(_valueDeserializer.deserialize(jp, ctxt));
     }
-    
+
     @Override
-    public AtomicReference<?> deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
+    public Object[] deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+            TypeDeserializer typeDeserializer)
         throws IOException, JsonProcessingException
     {
-        final JsonToken t = jp.getCurrentToken();
-        if (t == JsonToken.VALUE_NULL) {
-            return getNullValue();
-        }
-        /* 03-Nov-2013, tatu: This gets rather tricky with "natural" types
-         *   (String, Integer, Boolean), which do NOT include type information.
-         *   These might actually be handled ok except that nominal type here
-         *   is `Optional`, so special handling is not invoked; instead, need
-         *   to do a work-around here.
-         */
-        if (t != null && t.isScalarValue()) {
-            return deserialize(jp, ctxt);
-        }
-        Object refd = _valueTypeDeserializer.deserializeTypedFromAny(jp, ctxt);
-        return new AtomicReference<Object>(refd);
+        return (Object[]) typeDeserializer.deserializeTypedFromAny(jp, ctxt);
     }
 }

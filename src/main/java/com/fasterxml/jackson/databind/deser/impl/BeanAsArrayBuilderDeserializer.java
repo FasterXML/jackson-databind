@@ -18,14 +18,14 @@ public class BeanAsArrayBuilderDeserializer
     /**
      * Deserializer we delegate operations that we can not handle.
      */
-    protected final BeanDeserializerBase _delegate;
+    final protected BeanDeserializerBase _delegate;
 
     /**
      * Properties in order expected to be found in JSON array.
      */
-    protected final SettableBeanProperty[] _orderedProperties;
+    final protected SettableBeanProperty[] _orderedProperties;
 
-    protected final AnnotatedMethod _buildMethod;
+    final protected AnnotatedMethod _buildMethod;
         
     /*
     /**********************************************************

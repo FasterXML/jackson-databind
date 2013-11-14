@@ -69,12 +69,12 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
-      <version>2.3.0-rc1</version>
+      <version>2.3.0</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.3.0-rc1</version>
+      <version>2.3.0</version>
     </dependency>
 
     <!-- and for testing, JUnit is needed, as well as quite a few
@@ -126,8 +126,8 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
         <configuration>
           <links>
             <link>http://docs.oracle.com/javase/6/docs/api/</link>
-            <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.2.0/</link>
-            <link>http://fasterxml.github.com/jackson-core/javadoc/2.2.0/</link>
+            <link>http://fasterxml.github.com/jackson-annotations/javadoc/2.3.0/</link>
+            <link>http://fasterxml.github.com/jackson-core/javadoc/2.3.0/</link>
           </links>
         </configuration>
       </plugin>

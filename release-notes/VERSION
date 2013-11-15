@@ -1,7 +1,11 @@
 Project: jackson-databind
-Version: 2.3.0 (13-Nov-2013)
+Version: 2.3.1 (xx-Dec-2013)
 
-New minor version.
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.3.0 (13-Nov-2013)
 
 #48: Add support for `InetSocketAddress`
  (contributed by Nick T)

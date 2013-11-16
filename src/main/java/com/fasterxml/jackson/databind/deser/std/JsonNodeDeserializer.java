@@ -255,6 +255,7 @@ abstract class BaseNodeDeserializer
     {
         switch (jp.getCurrentToken()) {
         case START_OBJECT:
+        case END_OBJECT: // for empty JSON Objects we may point to this
             return deserializeObject(jp, ctxt, nodeFactory);
 
         case START_ARRAY:

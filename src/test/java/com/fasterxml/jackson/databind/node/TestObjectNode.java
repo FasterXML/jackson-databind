@@ -3,7 +3,10 @@ package com.fasterxml.jackson.databind.node;
 import java.math.BigDecimal;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
  * Additional tests for {@link ObjectNode} container class.
@@ -11,8 +14,45 @@ import com.fasterxml.jackson.databind.*;
 public class TestObjectNode
     extends BaseMapTest
 {
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    @JsonDeserialize(as = DataImpl.class)
+    public interface Data {
+    }
 
+    public static class DataImpl implements Data
+    {
+        protected JsonNode root;
+
+        @JsonCreator
+        public DataImpl(JsonNode n) {
+            root = n;
+        }
+        
+        @JsonValue
+        public JsonNode value() { return root; }
+        
+        /*
+        public Wrapper(ObjectNode n) { root = n; }
+        
+        @JsonValue
+        public ObjectNode value() { return root; }
+        */
+    }
+    
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+    
+    private final ObjectMapper MAPPER = objectMapper();
+
+    // for [Issue#346]
+    public void testEmptyNodeAsValue() throws Exception
+    {
+        Data w = MAPPER.readValue("{}", Data.class);
+        assertNotNull(w);
+    }
+    
     public void testBasics()
     {
         ObjectNode n = new ObjectNode(JsonNodeFactory.instance);

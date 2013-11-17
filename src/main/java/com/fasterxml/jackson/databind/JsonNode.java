@@ -177,6 +177,16 @@ public abstract class JsonNode
         return EmptyIterator.instance();
     }
 
+    /**
+     * Method for locating node specified by given JSON pointer instances.
+     * Method will never return null; if no matching node exists, 
+     *   will return a node for which {@link #isMissingNode()} returns true.
+     * 
+     * @return Node that matches given JSON Pointer: if no match exists,
+     *   will return a node for which {@link #isMissingNode()} returns true.
+     * 
+     * @since 2.3
+     */
     @Override
     public final JsonNode at(JsonPointer ptr)
     {
@@ -191,6 +201,24 @@ public abstract class JsonNode
         return n.at(ptr.tail());
     }
 
+    /**
+     * Convenience method that is functionally equivalent to:
+     *<pre>
+     *   return at(JsonPointer.valueOf(jsonPointerExpression));
+     *</pre>
+     *<p>
+     * Note that if the same expression is used often, it is preferable to construct
+     * {@link JsonPointer} instance once and reuse it: this method will not perform
+     * any caching of compiled expressions.
+     * 
+     * @param jsonPtrExpr Expression to compile as a {@link JsonPointer}
+     *   instance
+     * 
+     * @return Node that matches given JSON Pointer: if no match exists,
+     *   will return a node for which {@link TreeNode#isMissingNode()} returns true.
+     * 
+     * @since 2.3
+     */
     @Override
     public final JsonNode at(String jsonPtrExpr) {
         return at(JsonPointer.compile(jsonPtrExpr));

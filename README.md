@@ -23,7 +23,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.2.2</version>
+  <version>2.3.0</version>
 </dependency>
 ```
 
@@ -34,12 +34,12 @@ If so, also add:
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-annotations</artifactId>
-  <version>2.2.2</version>
+  <version>2.3.0</version>
 </dependency>
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
-  <version>2.2.2</version>
+  <version>2.3.0</version>
 </dependency>
 ```
 

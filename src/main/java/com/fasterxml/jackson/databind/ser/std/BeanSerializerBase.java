@@ -223,7 +223,7 @@ public abstract class BeanSerializerBase
 
     /**
      * Mutant factory used for creating a new instance with different
-     * {@link JsonFilter}.
+     * filter id (used with <code>JsonFilter</code> annotation)
      * 
      * @since 2.3
      */

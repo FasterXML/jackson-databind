@@ -185,7 +185,7 @@ public abstract class SettableBeanProperty
     }
 
     /**
-     * Constructor only used by {@link ObjectIdValueProperty}.
+     * Constructor only used by {@link com.fasterxml.jackson.databind.deser.impl.ObjectIdValueProperty}.
      * 
      * @since 2.3
      */

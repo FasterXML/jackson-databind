@@ -7,9 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 
 import com.fasterxml.jackson.core.*;
 
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
@@ -20,7 +18,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * one that only uses core JDK types; wrappers, Maps and Lists.
  */
 public class TestUntypedDeserialization
-    extends com.fasterxml.jackson.test.BaseTest
+    extends BaseMapTest
 {
     @SuppressWarnings("serial")
     static class UCStringDeserializer
@@ -151,6 +149,22 @@ public class TestUntypedDeserialization
         // and that's all folks!
     }
 
+    public void testNestedUntypes() throws IOException
+    {
+        ObjectMapper mapper = objectMapper();
+        Object root = mapper.readValue(aposToQuotes("{'a':3,'b':[1,2]}"),
+                Object.class);
+        assertTrue(root instanceof Map<?,?>);
+        Map<?,?> map = (Map<?,?>) root;
+        assertEquals(2, map.size());
+        assertEquals(Integer.valueOf(3), map.get("a"));
+        Object ob = map.get("b");
+        assertTrue(ob instanceof List<?>);
+        List<?> l = (List<?>) ob;
+        assertEquals(2, l.size());
+        assertEquals(Integer.valueOf(2), l.get(1));
+    }
+    
     // [JACKSON-839]: allow 'upgrade' of big integers into Long, BigInteger
     public void testObjectSerializeWithLong() throws IOException
     {

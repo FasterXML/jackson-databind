@@ -146,11 +146,16 @@ public class TestAnyProperties
     public void testSimpleMapImitation() throws Exception
     {
         MapImitator mapHolder = MAPPER.readValue
-            ("{ \"a\" : 3, \"b\" : true }", MapImitator.class);
+            ("{ \"a\" : 3, \"b\" : true, \"c\":[1,2,3] }", MapImitator.class);
         Map<String,Object> result = mapHolder._map;
-        assertEquals(2, result.size());
+        assertEquals(3, result.size());
         assertEquals(Integer.valueOf(3), result.get("a"));
         assertEquals(Boolean.TRUE, result.get("b"));
+        Object ob = result.get("c");
+        assertTrue(ob instanceof List<?>);
+        List<?> l = (List<?>)ob;
+        assertEquals(3, l.size());
+        assertEquals(Integer.valueOf(3), l.get(2));
     }
 
     public void testSimpleTyped() throws Exception

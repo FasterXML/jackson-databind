@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 
 /**
@@ -75,11 +76,11 @@ public abstract class StdDeserializer<T>
      * {@link JacksonStdImpl} annotation on deserializer class.
      */
     protected boolean isDefaultDeserializer(JsonDeserializer<?> deserializer) {
-        return (deserializer != null && deserializer.getClass().getAnnotation(JacksonStdImpl.class) != null);
+        return ClassUtil.isJacksonStdImpl(deserializer);
     }
 
     protected boolean isDefaultKeyDeserializer(KeyDeserializer keyDeser) {
-        return (keyDeser != null && keyDeser.getClass().getAnnotation(JacksonStdImpl.class) != null);
+        return ClassUtil.isJacksonStdImpl(keyDeser);
     }
     
     /*

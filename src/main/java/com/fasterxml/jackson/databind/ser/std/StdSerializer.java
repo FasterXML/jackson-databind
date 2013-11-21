@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.PropertyFilter;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 
 /**
@@ -225,7 +226,7 @@ public abstract class StdSerializer<T>
      * {@link JacksonStdImpl} annotation on serializer class.
      */
     protected boolean isDefaultSerializer(JsonSerializer<?> serializer) {
-        return (serializer != null && serializer.getClass().getAnnotation(JacksonStdImpl.class) != null);
+        return ClassUtil.isJacksonStdImpl(serializer);
     }
 
     /**

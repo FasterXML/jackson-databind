@@ -213,6 +213,9 @@ public final class BeanPropertyMap
 
     public SettableBeanProperty find(String key)
     {
+        if (key == null) {
+            throw new IllegalArgumentException("Can not pass null property name");
+        }
         int index = key.hashCode() & _hashMask;
         Bucket bucket = _buckets[index];
         // Let's unroll first lookup since that is null or match in 90+% cases

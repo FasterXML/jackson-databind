@@ -31,10 +31,10 @@ public abstract class DeserializationProblemHandler
      * Content (supposedly) matching the property are accessible via
      * parser that can be obtained from passed deserialization context.
      * Handler can also choose to skip the content; if so, it MUST return
-     * true to indicate it did handle property succesfully.
+     * true to indicate it did handle property successfully.
      * Skipping is usually done like so:
      *<pre>
-     *  ctxt.getParser().skipChildren();
+     *  jp.skipChildren();
      *</pre>
      *<p>
      * Note: version 1.2 added new deserialization feature

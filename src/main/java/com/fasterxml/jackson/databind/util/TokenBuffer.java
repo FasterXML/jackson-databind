@@ -1026,6 +1026,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
     }
 
+    @Override
     protected void _reportUnsupportedOperation() {
         throw new UnsupportedOperationException("Called operation not supported for TokenBuffer");
     }

@@ -58,7 +58,7 @@ public final class TypeFactory
     protected final static SimpleType CORE_TYPE_BOOL = new SimpleType(Boolean.TYPE);
     protected final static SimpleType CORE_TYPE_INT = new SimpleType(Integer.TYPE);
     protected final static SimpleType CORE_TYPE_LONG = new SimpleType(Long.TYPE);
-    
+
     /**
      * Since type resolution can be expensive (specifically when resolving
      * actual generic types), we will use small cache to avoid repetitive

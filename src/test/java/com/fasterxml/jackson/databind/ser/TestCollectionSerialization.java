@@ -127,7 +127,25 @@ public class TestCollectionSerialization
 
         public int getX() { return 13; }
     }
-    
+
+    // [Issue#358]
+    static class A {
+        public String unexpected = "Bye.";
+    }
+
+    static class B {
+        @JsonSerialize(as = Iterable.class, contentUsing = ASerializer.class)
+        public List<A> list = Arrays.asList(new A());
+    }
+    static class ASerializer extends JsonSerializer<A> {
+        @Override
+        public void serialize(A a, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
+            jsonGenerator.writeStartArray();
+            jsonGenerator.writeString("Hello world.");
+            jsonGenerator.writeEndArray();
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -348,5 +366,11 @@ public class TestCollectionSerialization
         // 876:
         assertEquals("[1,2,3]",
                 MAPPER.writeValueAsString(new IntIterable()));
+    }
+    
+    // [Issue#358]
+    public void testIterable358() throws Exception {
+        String json = MAPPER.writeValueAsString(new B());
+        assertEquals("{\"list\":[[\"Hello world.\"]]}", json);
     }
 }

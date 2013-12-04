@@ -94,3 +94,7 @@ David Phillips:
 Seth Pellegrino (jivesoft):
   * Contributed #317: Fix `JsonNode` support for nulls bound to	`ObjectNode`, `ArrayNode`
    (2.3.0)
+
+Florian Schoppmann (fschopp@github)
+  * Reported #358: `IterableSerializer` ignoring	annotated content serializer
+   (2.3.1)

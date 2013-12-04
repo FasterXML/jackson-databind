@@ -4,6 +4,8 @@ Version: 2.3.1 (xx-Dec-2013)
 #346: Fix problem deserializing `ObjectNode`, with @JsonCreator, empty
   JSON Object
  (reported by gaff78@github)
+#358: `IterableSerializer` ignoring annotated content serializer
+ (reported by Florian S)
 
 ------------------------------------------------------------------------
 === History: ===

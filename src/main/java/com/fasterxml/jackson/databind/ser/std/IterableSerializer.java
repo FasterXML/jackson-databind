@@ -48,7 +48,16 @@ public class IterableSerializer
 
     @Override
     public boolean hasSingleElement(Iterable<?> value) {
-        // no really good way to determine (without consuming iterator), so:
+        // we can do it actually (fixed in 2.3.1)
+        if (value != null) {
+            Iterator<?> it = value.iterator();
+            if (it.hasNext()) {
+                it.next();
+                if (!it.hasNext()) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
     
@@ -66,10 +75,12 @@ public class IterableSerializer
                 Object elem = it.next();
                 if (elem == null) {
                     provider.defaultSerializeNull(jgen);
-                } else {
+                    continue;
+                }
+                JsonSerializer<Object> currSerializer = _elementSerializer;
+                if (currSerializer == null) {
                     // Minor optimization to avoid most lookups:
                     Class<?> cc = elem.getClass();
-                    JsonSerializer<Object> currSerializer;
                     if (cc == prevClass) {
                         currSerializer = prevSerializer;
                     } else {
@@ -77,11 +88,11 @@ public class IterableSerializer
                         prevSerializer = currSerializer;
                         prevClass = cc;
                     }
-                    if (typeSer == null) {
-                        currSerializer.serialize(elem, jgen, provider);
-                    } else {
-                        currSerializer.serializeWithType(elem, jgen, provider, typeSer);
-                    }
+                }
+                if (typeSer == null) {
+                    currSerializer.serialize(elem, jgen, provider);
+                } else {
+                    currSerializer.serializeWithType(elem, jgen, provider, typeSer);
                 }
             } while (it.hasNext());
         }

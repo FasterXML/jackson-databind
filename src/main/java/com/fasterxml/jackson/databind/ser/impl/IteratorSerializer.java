@@ -5,7 +5,6 @@ import java.util.Iterator;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -62,10 +61,12 @@ public class IteratorSerializer
                 Object elem = value.next();
                 if (elem == null) {
                     provider.defaultSerializeNull(jgen);
-                } else {
+                    continue;
+                }
+                JsonSerializer<Object> currSerializer = _elementSerializer;
+                if (currSerializer == null) {
                     // Minor optimization to avoid most lookups:
                     Class<?> cc = elem.getClass();
-                    JsonSerializer<Object> currSerializer;
                     if (cc == prevClass) {
                         currSerializer = prevSerializer;
                     } else {
@@ -73,11 +74,11 @@ public class IteratorSerializer
                         prevSerializer = currSerializer;
                         prevClass = cc;
                     }
-                    if (typeSer == null) {
-                        currSerializer.serialize(elem, jgen, provider);
-                    } else {
-                        currSerializer.serializeWithType(elem, jgen, provider, typeSer);
-                    }
+                }
+                if (typeSer == null) {
+                    currSerializer.serialize(elem, jgen, provider);
+                } else {
+                    currSerializer.serializeWithType(elem, jgen, provider, typeSer);
                 }
             } while (value.hasNext());
         }

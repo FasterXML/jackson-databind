@@ -1938,9 +1938,16 @@ public class ObjectMapper
 
     /**
      * Reverse of {@link #treeToValue}; given a value (usually bean), will
-     * construct equivalent JSON Tree representation. Functionally same
-     * as if serializing value into JSON and parsing JSON as tree, but
+     * construct equivalent JSON Tree representation. Functionally similar
+     * to serializing value into JSON and parsing JSON as tree, but
      * more efficient.
+     *<p>
+     * NOTE: one known difference from actual serialization is that so-called
+     * "raw values" are not supported -- since they are opaque sequence of
+     * bytes to include (which may or may not be supported by the backend)
+     * they can not be converted using this method. It may be possible to
+     * support conversions using full serialization, if raw values must be
+     * preserved.
      * 
      * @param <T> Actual node type; usually either basic {@link JsonNode} or
      *  {@link com.fasterxml.jackson.databind.node.ObjectNode}

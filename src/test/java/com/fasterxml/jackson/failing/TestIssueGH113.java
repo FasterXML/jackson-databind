@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
+/**
+ * Test(s) for [Issue#113], problems with polymorphic types, JsonCreator.
+ */
 public class TestIssueGH113 extends BaseMapTest
 {
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
  * Specialized {@link JsonSerializer} to output {@link java.util.UUID}s.
@@ -41,8 +42,15 @@ public class UUIDSerializer
     {
         // First: perhaps we could serialize it as raw binary data?
         if (jgen.canWriteBinaryNatively()) {
-            jgen.writeBinary(_asBytes(value));
-            return;
+            /* 07-Dec-2013, tatu: One nasty case; that of TokenBuffer. While it can
+             *   technically retain binary data, we do not want to do use binary
+             *   with it, as that results in UUIDs getting converted to Base64 for
+             *   most conversions.
+             */
+            if (!(jgen instanceof TokenBuffer)) {
+                jgen.writeBinary(_asBytes(value));
+                return;
+            }
         }
         
         // UUID.toString() works ok functionally, but we can make it go much faster

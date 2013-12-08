@@ -237,11 +237,11 @@ public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
             UUID out = mapper.readValue(buf.asParser(), UUID.class);
             assertEquals(uuid.toString(), out.toString());
 
-            // second part: ensure it's written as binary...
+            // second part: As per [#362], should NOT use binary with TokenBuffer
             JsonParser jp = buf.asParser();
-            assertEquals(JsonToken.VALUE_EMBEDDED_OBJECT, jp.nextToken());
-            byte[] raw = jp.getBinaryValue();
-            assertEquals(16, raw.length);
+            assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
+            String str = jp.getText();
+            assertEquals(value, str);
             jp.close();
         }
     }

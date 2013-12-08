@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.*;
 public class TestJdkTypes
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = objectMapper();
     
     /**
      * Unit test to catch bug [JACKSON-8].
@@ -144,6 +144,10 @@ public class TestJdkTypes
             UUID uuid = UUID.fromString(value);
             String json = MAPPER.writeValueAsString(uuid);
             assertEquals(quote(uuid.toString()), json);
+
+            // Also, wrt [#362], should convert cleanly
+            String str = MAPPER.convertValue(uuid, String.class);
+            assertEquals(value, str);
         }
         
         // then use templating; note that these are not exactly valid UUIDs

@@ -6,6 +6,8 @@ Version: 2.3.1 (xx-Dec-2013)
  (reported by gaff78@github)
 #358: `IterableSerializer` ignoring annotated content serializer
  (reported by Florian S)
+#362: UUID output as Base64 String with ObjectMapper.convertValue()
+ (reported by jknack@github)
 
 ------------------------------------------------------------------------
 === History: ===

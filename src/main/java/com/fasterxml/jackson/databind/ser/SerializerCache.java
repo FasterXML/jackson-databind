@@ -33,7 +33,7 @@ public final class SerializerCache
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
      */
-    private ReadOnlyClassToSerializerMap _readOnlyMap = null;
+    private volatile ReadOnlyClassToSerializerMap _readOnlyMap = null;
 
     public SerializerCache() { }
 
@@ -43,11 +43,13 @@ public final class SerializerCache
      */
     public ReadOnlyClassToSerializerMap getReadOnlyLookupMap()
     {
-        ReadOnlyClassToSerializerMap m;
-        synchronized (this) {
-            m = _readOnlyMap;
-            if (m == null) {
-                _readOnlyMap = m = ReadOnlyClassToSerializerMap.from(_sharedMap);
+        ReadOnlyClassToSerializerMap m = _readOnlyMap;
+        if(m == null) {
+            synchronized (this) {
+                m = _readOnlyMap;
+                if (m == null) {
+                    _readOnlyMap = m = ReadOnlyClassToSerializerMap.from(_sharedMap);
+                }
             }
         }
         return m.instance();

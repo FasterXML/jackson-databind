@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.*;
 /**
  * Test(s) for [Issue#113], problems with polymorphic types, JsonCreator.
  */
-public class TestIssueGH113 extends BaseMapTest
+public class TestCreatorWithPolymorphic113 extends BaseMapTest
 {
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "_class")

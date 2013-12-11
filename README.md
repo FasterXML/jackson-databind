@@ -116,7 +116,7 @@ If you have POJO values, you need to indicate actual type (note: this is NOT nee
 
 ```java
 Map<String, ResultValue> results = mapper.readValue(jsonSource,
-   new TypeReference<String, ResultValue>() { } );
+   new TypeReference<Map<String, ResultValue>>() { } );
 // why extra work? Java Type Erasure will prevent type detection otherwise
 ```
 

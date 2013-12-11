@@ -10,6 +10,8 @@ Version: 2.3.1 (xx-Dec-2013)
  (contributed by stuartwdouglas@github)
 #362: UUID output as Base64 String with ObjectMapper.convertValue()
  (reported by jknack@github)
+- Fix for [jackson-module-afterburner#38]: need to remove @JacksonStdImpl from
+  `RawSerializer`, to avoid accidental removal of proper handling.
 
 ------------------------------------------------------------------------
 === History: ===

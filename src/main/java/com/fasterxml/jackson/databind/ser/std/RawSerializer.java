@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * This is a simple dummy serializer that will just output raw values by calling
  * toString() on value to serialize.
  */
-@JacksonStdImpl
 public class RawSerializer<T>
     extends StdSerializer<T>
 {

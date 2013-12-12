@@ -5,6 +5,7 @@ import java.lang.reflect.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -106,7 +107,15 @@ public class SettableAnyProperty
                                         Object instance, String propName)
         throws IOException, JsonProcessingException
     {
-        set(instance, propName, deserialize(jp, ctxt));
+        try {
+            set(instance, propName, deserialize(jp, ctxt));
+        } catch (UnresolvedForwardReference reference) {
+            if (!(_valueDeserializer.getObjectIdReader() != null)) {
+                throw JsonMappingException.from(jp, "Unresolved forward reference but no identity info.", reference);
+            }
+            AnySetterReferring referring = new AnySetterReferring(instance, propName, reference.getUnresolvedId());
+            reference.getRoid().appendReferring(referring);
+        }
     }
 
     public Object deserialize(JsonParser jp, DeserializationContext ctxt)
@@ -176,6 +185,30 @@ public class SettableAnyProperty
     private String getClassName() { return _setter.getDeclaringClass().getName(); }
 
     @Override public String toString() { return "[any property on class "+getClassName()+"]"; }
+
+    private class AnySetterReferring implements Referring {
+        private Object _pojo;
+        private String _propName;
+        private Object _unresolvedId;
+
+        public AnySetterReferring(Object instance, String propName, Object id)
+        {
+            _pojo = instance;
+            _propName = propName;
+            _unresolvedId = id;
+        }
+
+        @Override
+        public void handleResolvedForwardReference(Object id, Object value)
+            throws IOException
+        {
+            if (!id.equals(_unresolvedId)) {
+                throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id.toString()
+                        + "] that wasn't previously registered.");
+            }
+            set(_pojo, _propName, value);
+        }
+    }
 
     /*
     /**********************************************************

@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
-import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
+import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 
@@ -371,6 +371,11 @@ public class MapDeserializer
         final KeyDeserializer keyDes = _keyDeserializer;
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
+
+        MapReferring referringAccumulator = null;
+        if(valueDes.getObjectIdReader() != null){
+            referringAccumulator = new MapReferring(result);
+        }
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             // Must point to field name
             String fieldName = jp.getCurrentName();
@@ -381,20 +386,24 @@ public class MapDeserializer
                 jp.skipChildren();
                 continue;
             }
-            // Note: must handle null explicitly here; value deserializers won't
-            Object value;            
-            if (t == JsonToken.VALUE_NULL) {
-                value = null;
-            } else if (typeDeser == null) {
-                value = valueDes.deserialize(jp, ctxt);
-            } else {
-                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+            try{
+                // Note: must handle null explicitly here; value deserializers won't
+                Object value;
+                if (t == JsonToken.VALUE_NULL) {
+                    value = null;
+                } else if (typeDeser == null) {
+                    value = valueDes.deserialize(jp, ctxt);
+                } else {
+                    value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                }
+                /* !!! 23-Dec-2008, tatu: should there be an option to verify
+                 *   that there are no duplicate field names? (and/or what
+                 *   to do, keep-first or keep-last)
+                 */
+                result.put(key, value);
+            } catch(UnresolvedForwardReference reference) {
+                handleUnresolvedReference(jp, referringAccumulator, key, reference);
             }
-            /* !!! 23-Dec-2008, tatu: should there be an option to verify
-             *   that there are no duplicate field names? (and/or what
-             *   to do, keep-first or keep-last)
-             */
-            result.put(key, value);
         }
     }
 
@@ -413,6 +422,10 @@ public class MapDeserializer
         }
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
+        MapReferring referringAccumulator = null;
+        if(valueDes.getObjectIdReader() != null){
+            referringAccumulator = new MapReferring(result);
+        }
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             // Must point to field name
             String fieldName = jp.getCurrentName();
@@ -422,16 +435,20 @@ public class MapDeserializer
                 jp.skipChildren();
                 continue;
             }
-            // Note: must handle null explicitly here; value deserializers won't
-            Object value;            
-            if (t == JsonToken.VALUE_NULL) {
-                value = null;
-            } else if (typeDeser == null) {
-                value = valueDes.deserialize(jp, ctxt);
-            } else {
-                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+            try {
+                // Note: must handle null explicitly here; value deserializers won't
+                Object value;
+                if (t == JsonToken.VALUE_NULL) {
+                    value = null;
+                } else if (typeDeser == null) {
+                    value = valueDes.deserialize(jp, ctxt);
+                } else {
+                    value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                }
+                result.put(fieldName, value);
+            } catch (UnresolvedForwardReference reference) {
+                handleUnresolvedReference(jp, referringAccumulator, fieldName, reference);
             }
-            result.put(fieldName, value);
         }
     }
     
@@ -515,5 +532,43 @@ public class MapDeserializer
             throw (IOException) t;
         }
         throw JsonMappingException.wrapWithPath(t, ref, null);
+    }
+
+    private void handleUnresolvedReference(JsonParser jp, MapReferring referring, Object key,
+            UnresolvedForwardReference reference)
+        throws JsonMappingException
+    {
+        if (referring == null) {
+            throw JsonMappingException.from(jp, "Unresolved forward reference but no identity info.", reference);
+        }
+        referring.flagUnresolved(reference.getUnresolvedId(), key);
+        reference.getRoid().appendReferring(referring);
+    }
+
+    private final class MapReferring implements Referring {
+        private Map<Object,Object> _accumulator = new HashMap<Object,Object>();
+        private Map<Object,Object> _result;
+
+        public MapReferring(Map<Object,Object> result)
+        {
+            _result = result;
+        }
+
+        @Override
+        public void handleResolvedForwardReference(Object id, Object value)
+            throws IOException
+        {
+            if (!_accumulator.containsKey(id)) {
+                throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
+                        + "] that wasn't previously seen as unresolved.");
+            }
+            Object key = _accumulator.get(id);
+            _result.put(key, value);
+        }
+
+        public void flagUnresolved(Object id, Object key)
+        {
+            _accumulator.put(id, key);
+        }
     }
 }

@@ -1053,8 +1053,8 @@ public abstract class BeanDeserializerBase
         // do we have it resolved?
         Object pojo = roid.item;
         if (pojo == null) { // not yet; should wait...
-            throw new IllegalStateException("Could not resolve Object Id ["+id+"] (for "
-                    +_beanType+") -- unresolved forward-reference?");
+            throw new UnresolvedForwardReference("Could not resolve Object Id ["+id+"] (for "
+                    +_beanType+").", jp.getCurrentLocation(), roid);
         }
         return pojo;
     }

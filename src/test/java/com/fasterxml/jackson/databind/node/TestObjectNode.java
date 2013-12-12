@@ -269,4 +269,24 @@ public class TestObjectNode
         assertEquals(3, root3.size());
         assertEquals(1, root3.path("a").intValue());
     }
+
+    public void testEqualityWrtOrder() throws Exception
+    {
+        ObjectNode ob1 = MAPPER.createObjectNode();
+        ObjectNode ob2 = MAPPER.createObjectNode();
+
+        // same contents, different insertion order; should not matter
+        
+        ob1.put("a", 1);
+        ob1.put("b", 2);
+        ob1.put("c", 3);
+
+        ob2.put("b", 2);
+        ob2.put("c", 3);
+        ob2.put("a", 1);
+
+        assertTrue(ob1.equals(ob2));
+        assertTrue(ob2.equals(ob1));
+    }
+    
 }

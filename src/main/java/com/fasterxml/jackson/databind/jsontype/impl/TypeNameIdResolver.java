@@ -82,7 +82,7 @@ public class TypeNameIdResolver
     @Override
     public String idFromValue(Object value)
     {
-        Class<?> cls = value.getClass();
+        Class<?> cls = _typeFactory.constructType(value.getClass()).getRawClass();
         final String key = cls.getName();
         String name;
         synchronized (_typeToId) {

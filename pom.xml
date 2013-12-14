@@ -131,6 +131,23 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
           </links>
         </configuration>
       </plugin>
+
+      <!-- May want to configure debug info -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <optimize>true</optimize>
+          <!-- 13-Dec-2013, tatu: For 2.3, minimized size; for 2.4+ may change settings
+            -->
+          <debug>true</debug>
+<!--
+          <debuglevel>lines,source,vars</debuglevel>
+-->
+          <debuglevel>lines,source</debuglevel>
+        </configuration>
+      </plugin>
+
       <plugin>
         <!-- Inherited from oss-base. Generate PackageVersion.java.-->
         <groupId>com.google.code.maven-replacer-plugin</groupId>

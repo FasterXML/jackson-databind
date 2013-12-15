@@ -79,6 +79,8 @@ public class StdTypeResolverBuilder
         switch (_includeAs) {
         case WRAPPER_ARRAY:
             return new AsArrayTypeSerializer(idRes, null);
+        case EXISTING_PROPERTY:
+          return null;
         case PROPERTY:
             return new AsPropertyTypeSerializer(idRes, null,
                     _typeProperty);
@@ -106,6 +108,7 @@ public class StdTypeResolverBuilder
         case WRAPPER_ARRAY:
             return new AsArrayTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, _defaultImpl);
+        case EXISTING_PROPERTY:
         case PROPERTY:
             return new AsPropertyTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, _defaultImpl);

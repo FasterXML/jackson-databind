@@ -372,9 +372,10 @@ public class MapDeserializer
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
-        MapReferring referringAccumulator = null;
-        if(valueDes.getObjectIdReader() != null){
-            referringAccumulator = new MapReferring(result);
+        MapReferringAccumuator referringAccumulator = null;
+        boolean useObjectId = valueDes.getObjectIdReader() != null;
+        if (useObjectId) {
+            referringAccumulator = new MapReferringAccumuator(result);
         }
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             // Must point to field name
@@ -400,7 +401,11 @@ public class MapDeserializer
                  *   that there are no duplicate field names? (and/or what
                  *   to do, keep-first or keep-last)
                  */
-                result.put(key, value);
+                if (useObjectId) {
+                    referringAccumulator.put(key, value);
+                } else {
+                    result.put(key, value);
+                }
             } catch(UnresolvedForwardReference reference) {
                 handleUnresolvedReference(jp, referringAccumulator, key, reference);
             }
@@ -422,9 +427,10 @@ public class MapDeserializer
         }
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        MapReferring referringAccumulator = null;
-        if(valueDes.getObjectIdReader() != null){
-            referringAccumulator = new MapReferring(result);
+        MapReferringAccumuator referringAccumulator = null;
+        boolean useObjectId = valueDes.getObjectIdReader() != null;
+        if (useObjectId) {
+            referringAccumulator = new MapReferringAccumuator(result);
         }
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             // Must point to field name
@@ -445,7 +451,11 @@ public class MapDeserializer
                 } else {
                     value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
                 }
-                result.put(fieldName, value);
+                if (useObjectId) {
+                    referringAccumulator.put(fieldName, value);
+                } else {
+                    result.put(fieldName, value);
+                }
             } catch (UnresolvedForwardReference reference) {
                 handleUnresolvedReference(jp, referringAccumulator, fieldName, reference);
             }
@@ -534,41 +544,92 @@ public class MapDeserializer
         throw JsonMappingException.wrapWithPath(t, ref, null);
     }
 
-    private void handleUnresolvedReference(JsonParser jp, MapReferring referring, Object key,
+    private void handleUnresolvedReference(JsonParser jp, MapReferringAccumuator accumulator, Object key,
             UnresolvedForwardReference reference)
         throws JsonMappingException
     {
-        if (referring == null) {
+        if (accumulator == null) {
             throw JsonMappingException.from(jp, "Unresolved forward reference but no identity info.", reference);
         }
-        referring.flagUnresolved(reference.getUnresolvedId(), key);
+        Referring referring = accumulator.handleUnresolvedReference(reference, key);
         reference.getRoid().appendReferring(referring);
     }
 
-    private final class MapReferring implements Referring {
-        private Map<Object,Object> _accumulator = new HashMap<Object,Object>();
+    private final class MapReferringAccumuator  {
         private Map<Object,Object> _result;
+        /**
+         * A list of {@link UnresolvedId} to maintain ordering.
+         */
+        private List<UnresolvedId> _accumulator = new ArrayList<UnresolvedId>();
 
-        public MapReferring(Map<Object,Object> result)
+        public MapReferringAccumuator(Map<Object, Object> result)
         {
             _result = result;
         }
 
-        @Override
-        public void handleResolvedForwardReference(Object id, Object value)
-            throws IOException
+        public void put(Object key, Object value)
         {
-            if (!_accumulator.containsKey(id)) {
-                throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
-                        + "] that wasn't previously seen as unresolved.");
+            if (_accumulator.isEmpty()) {
+                _result.put(key, value);
+            } else {
+                UnresolvedId unresolvedId = _accumulator.get(_accumulator.size() - 1);
+                unresolvedId._next.put(key, value);
             }
-            Object key = _accumulator.get(id);
-            _result.put(key, value);
         }
 
-        public void flagUnresolved(Object id, Object key)
+        public Referring handleUnresolvedReference(UnresolvedForwardReference reference, Object key)
         {
-            _accumulator.put(id, key);
+            UnresolvedId id = new UnresolvedId(key, reference.getUnresolvedId(), reference.getLocation());
+            _accumulator.add(id);
+            return id;
+        }
+
+        public void resolveForwardReference(Object id, Object value)
+            throws IOException
+        {
+            Iterator<UnresolvedId> iterator = _accumulator.iterator();
+            // Resolve ordering after resolution of an id. This mean either:
+            // 1- adding to the result map in case of the first unresolved id.
+            // 2- merge the content of the resolved id with its previous unresolved id.
+            Map<Object,Object> previous = _result;
+            while (iterator.hasNext()) {
+                UnresolvedId unresolvedId = iterator.next();
+                if (unresolvedId._id.equals(id)) {
+                    iterator.remove();
+                    previous.put(unresolvedId._key, value);
+                    previous.putAll(unresolvedId._next);
+                    return;
+                }
+                previous = unresolvedId._next;
+            }
+
+            throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
+                    + "] that wasn't previously seen as unresolved.");
+        }
+
+        /**
+         * Helper class to maintain processing order of value. The resolved
+         * object associated with {@link #_id} comes before the values in
+         * {@link _next}.
+         */
+        private final class UnresolvedId extends Referring {
+            private final Object _id;
+            private final Map<Object, Object> _next = new LinkedHashMap<Object, Object>();
+            private final Object _key;
+
+            private UnresolvedId(Object key, Object id, JsonLocation location)
+            {
+                super(location);
+                _key = key;
+                _id = id;
+            }
+
+            @Override
+            public void handleResolvedForwardReference(Object id, Object value)
+                throws IOException
+            {
+                resolveForwardReference(id, value);
+            }
         }
     }
 }

@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.databind.struct;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -271,14 +273,58 @@ public class TestObjectIdDeserialization extends BaseMapTest
     public void testUnresolvedForwardReference()
         throws Exception
     {
-        String json = "{\"employees\":[" + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[3]},"
-                + "{\"id\":2,\"name\":\"Second\",\"manager\":3,\"reports\":[]}" + "]}";
+        String json = "{\"employees\":[" 
+                      + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[3]},"
+                      + "{\"id\":2,\"name\":\"Second\",\"manager\":3,\"reports\":[]}" 
+                      + "]}";
         try {
             mapper.readValue(json, Company.class);
             fail("Should have thrown.");
         } catch (UnresolvedForwardReference exception) {
             // Expected
         }
+    }
+
+    public void testKeepCollectionOrdering()
+        throws Exception
+    {
+        String json = "{\"employees\":[2,1,"
+                + "{\"id\":1,\"name\":\"First\",\"manager\":2,\"reports\":[]},"
+                + "{\"id\":2,\"name\":\"Second\",\"manager\":null,\"reports\":[1]}"
+                + "]}";
+        Company company = mapper.readValue(json, Company.class);
+        assertEquals(4, company.employees.size());
+        // Deser must keep object ordering.
+        Employee firstEmployee = company.employees.get(1);
+        Employee secondEmployee = company.employees.get(0);
+        assertEquals(1, firstEmployee.id);
+        assertEquals(2, secondEmployee.id);
+        assertEquals(secondEmployee, firstEmployee.manager); // Ensure that forward reference was properly resolved.
+        assertEquals(firstEmployee, secondEmployee.reports.get(0)); // And that back reference is also properly resolved.
+    }
+
+    public void testKeepMapOrdering()
+        throws Exception
+    {
+        String json = "{\"employees\":{"
+                      + "\"1\":2, \"2\":1,"
+                      + "\"3\":{\"id\":1,\"name\":\"First\",\"manager\":2,\"reports\":[]},"
+                      + "\"4\":{\"id\":2,\"name\":\"Second\",\"manager\":null,\"reports\":[1]}"
+                      + "}}";
+        MappedCompany company = mapper.readValue(json, MappedCompany.class);
+        assertEquals(4, company.employees.size());
+        Employee firstEmployee = company.employees.get(2);
+        Employee secondEmployee = company.employees.get(1);
+        assertEquals(1, firstEmployee.id);
+        assertEquals(2, secondEmployee.id);
+        assertEquals(secondEmployee, firstEmployee.manager); // Ensure that forward reference was properly resolved.
+        assertEquals(firstEmployee, secondEmployee.reports.get(0)); // And that back reference is also properly resolved.
+        // Deser must keep object ordering. Not sure if it's really important for maps, but...
+        Iterator<Entry<Integer,Employee>> iterator = company.employees.entrySet().iterator();
+        assertEquals(secondEmployee, iterator.next().getValue());
+        assertEquals(firstEmployee, iterator.next().getValue());
+        assertEquals(firstEmployee, iterator.next().getValue());
+        assertEquals(secondEmployee, iterator.next().getValue());
     }
 
     /*

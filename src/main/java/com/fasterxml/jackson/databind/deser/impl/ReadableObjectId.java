@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import com.fasterxml.jackson.core.JsonLocation;
+
 /**
  * Simple value container for containing information about single Object Id
  * during deserialization
@@ -70,8 +72,20 @@ public class ReadableObjectId
     /**********************************************************
      */
 
-    public interface Referring {
-        void handleResolvedForwardReference(Object id, Object value)
+    public static abstract class Referring {
+        private final JsonLocation _location;
+
+        protected Referring(JsonLocation location)
+        {
+            _location = location;
+        }
+
+        public JsonLocation getLocation()
+        {
+            return _location;
+        }
+
+        public abstract void handleResolvedForwardReference(Object id, Object value)
             throws IOException;
     }
 }

@@ -94,7 +94,7 @@ public abstract class DefaultDeserializationContext
                     Referring referring = iterator.next();
                     // TODO add proper info (class + json loc).
                     // Modify jackson-annotation to permit access to information of IdKey.
-                    exception.addUnresolvedId(roid.id, null, null);
+                    exception.addUnresolvedId(roid.id, null, referring.getLocation());
                 }
             }
         }

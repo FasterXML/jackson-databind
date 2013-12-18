@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.deser.impl;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 
+import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -82,7 +83,8 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty {
             if (!usingIdentityInfo) {
                 throw JsonMappingException.from(jp, "Unresolved forward reference but no identity info.", reference);
             }
-            reference.getRoid().appendReferring(new PropertyReferring(instance, reference.getUnresolvedId()));
+            reference.getRoid().appendReferring(
+                    new PropertyReferring(instance, reference.getUnresolvedId(), reference.getLocation()));
             return null;
         }
     }
@@ -101,12 +103,13 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty {
         return _forward.setAndReturn(instance, value);
     }
 
-    public final class PropertyReferring implements Referring {
+    public final class PropertyReferring extends Referring {
         public final Object _pojo;
         private Object _unresolvedId;
 
-        public PropertyReferring(Object ob, Object id)
+        public PropertyReferring(Object ob, Object id, JsonLocation location)
         {
+            super(location);
             _pojo = ob;
             _unresolvedId = id;
         }

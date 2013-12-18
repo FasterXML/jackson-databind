@@ -113,7 +113,8 @@ public class SettableAnyProperty
             if (!(_valueDeserializer.getObjectIdReader() != null)) {
                 throw JsonMappingException.from(jp, "Unresolved forward reference but no identity info.", reference);
             }
-            AnySetterReferring referring = new AnySetterReferring(instance, propName, reference.getUnresolvedId());
+            AnySetterReferring referring = new AnySetterReferring(instance, propName, reference.getUnresolvedId(),
+                    reference.getLocation());
             reference.getRoid().appendReferring(referring);
         }
     }
@@ -186,13 +187,14 @@ public class SettableAnyProperty
 
     @Override public String toString() { return "[any property on class "+getClassName()+"]"; }
 
-    private class AnySetterReferring implements Referring {
+    private class AnySetterReferring extends Referring {
         private Object _pojo;
         private String _propName;
         private Object _unresolvedId;
 
-        public AnySetterReferring(Object instance, String propName, Object id)
+        public AnySetterReferring(Object instance, String propName, Object id, JsonLocation location)
         {
+            super(location);
             _pojo = instance;
             _propName = propName;
             _unresolvedId = id;

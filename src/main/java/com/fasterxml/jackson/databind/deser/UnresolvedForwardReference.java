@@ -1,18 +1,40 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 
+/**
+ * Exception thrown during deserialization when there are object id that can't
+ * be resolved.
+ * 
+ * @author pgelinas
+ */
 public final class UnresolvedForwardReference extends JsonMappingException {
+
     private static final long serialVersionUID = -5097969645059502061L;
-    private final ReadableObjectId _roid;
+    private ReadableObjectId _roid;
+    private List<UnresolvedId> _unresolvedIds;
 
     public UnresolvedForwardReference(String msg, JsonLocation loc, ReadableObjectId roid)
     {
         super(msg, loc);
         _roid = roid;
     }
+
+    public UnresolvedForwardReference(String msg)
+    {
+        super(msg);
+        _unresolvedIds = new ArrayList<UnresolvedId>();
+    }
+
+    // ******************************
+    // ****** Accessor methods ******
+    // ******************************
 
     public ReadableObjectId getRoid()
     {
@@ -22,5 +44,55 @@ public final class UnresolvedForwardReference extends JsonMappingException {
     public Object getUnresolvedId()
     {
         return _roid.id;
+    }
+
+    /**
+     * Helper class
+     * 
+     * @author pgelinas
+     */
+    private static class UnresolvedId {
+        private Object _id;
+        private JsonLocation _location;
+        private Class<?> _type;
+
+        public UnresolvedId(Object id, Class<?> type, JsonLocation where)
+        {
+            _id = id;
+            _type = type;
+            _location = where;
+        }
+
+        @Override
+        public String toString()
+        {
+            return String.format("Object id [%s] (for %s) at %s", _id, _type, _location);
+        }
+    }
+
+    public void addUnresolvedId(Object id, Class<?> type, JsonLocation where)
+    {
+        _unresolvedIds.add(new UnresolvedId(id, type, where));
+    }
+
+    @Override
+    public String getMessage()
+    {
+        String msg = super.getMessage();
+        if (_unresolvedIds == null) {
+            return msg;
+        }
+
+        StringBuilder sb = new StringBuilder(msg);
+        Iterator<UnresolvedId> iterator = _unresolvedIds.iterator();
+        while (iterator.hasNext()) {
+            UnresolvedId unresolvedId = iterator.next();
+            sb.append(unresolvedId.toString());
+            if (iterator.hasNext()) {
+                sb.append(", ");
+            }
+        }
+        sb.append('.');
+        return sb.toString();
     }
 }

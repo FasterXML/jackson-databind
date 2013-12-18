@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 import com.fasterxml.jackson.databind.struct.TestObjectId.Company;
 import com.fasterxml.jackson.databind.struct.TestObjectId.Employee;
 
@@ -265,6 +266,19 @@ public class TestObjectIdDeserialization extends BaseMapTest
         String json = "{\"@id\":1, \"foo\":2, \"bar\":{\"@id\":2, \"foo\":1}}";
         AnySetterObjectId value = mapper.readValue(json, AnySetterObjectId.class);
         assertSame(value.values.get("bar"), value.values.get("foo"));
+    }
+
+    public void testUnresolvedForwardReference()
+        throws Exception
+    {
+        String json = "{\"employees\":[" + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[3]},"
+                + "{\"id\":2,\"name\":\"Second\",\"manager\":3,\"reports\":[]}" + "]}";
+        try {
+            mapper.readValue(json, Company.class);
+            fail("Should have thrown.");
+        } catch (UnresolvedForwardReference exception) {
+            // Expected
+        }
     }
 
     /*

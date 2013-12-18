@@ -3006,6 +3006,7 @@ public class ObjectMapper
                 } else {
                     result = deser.deserialize(jp, ctxt);
                 }
+                ctxt.checkUnresolvedObjectId();
             }
             // Need to consume the token too
             jp.clearCurrentToken();

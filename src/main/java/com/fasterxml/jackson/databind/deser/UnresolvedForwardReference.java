@@ -51,7 +51,7 @@ public final class UnresolvedForwardReference extends JsonMappingException {
      * 
      * @author pgelinas
      */
-    private static class UnresolvedId {
+    public static class UnresolvedId {
         private Object _id;
         private JsonLocation _location;
         private Class<?> _type;
@@ -61,6 +61,21 @@ public final class UnresolvedForwardReference extends JsonMappingException {
             _id = id;
             _type = type;
             _location = where;
+        }
+        
+        public Object getId()
+        {
+            return _id;
+        }
+        
+        public Class<?> getType()
+        {
+            return _type;
+        }
+        
+        public JsonLocation getLocation()
+        {
+            return _location;
         }
 
         @Override
@@ -75,6 +90,10 @@ public final class UnresolvedForwardReference extends JsonMappingException {
         _unresolvedIds.add(new UnresolvedId(id, type, where));
     }
 
+    public List<UnresolvedId> getUnresolvedIds(){
+        return _unresolvedIds;
+    }
+    
     @Override
     public String getMessage()
     {

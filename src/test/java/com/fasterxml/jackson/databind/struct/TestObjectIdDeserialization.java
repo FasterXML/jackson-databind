@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.struct;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
+import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference.UnresolvedId;
 import com.fasterxml.jackson.databind.struct.TestObjectId.Company;
 import com.fasterxml.jackson.databind.struct.TestObjectId.Employee;
 
@@ -282,6 +284,14 @@ public class TestObjectIdDeserialization extends BaseMapTest
             fail("Should have thrown.");
         } catch (UnresolvedForwardReference exception) {
             // Expected
+            List<UnresolvedId> unresolvedIds = exception.getUnresolvedIds();
+            assertEquals(2, unresolvedIds.size());
+            UnresolvedId firstUnresolvedId = unresolvedIds.get(0);
+            assertEquals(3, firstUnresolvedId.getId());
+            assertEquals(Employee.class, firstUnresolvedId.getType());
+            UnresolvedId secondUnresolvedId = unresolvedIds.get(1);
+            assertEquals(firstUnresolvedId.getId(), secondUnresolvedId.getId());
+            assertEquals(firstUnresolvedId.getType(), secondUnresolvedId.getType());
         }
     }
 

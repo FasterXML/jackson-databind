@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.struct;
 
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -132,6 +133,18 @@ public class TestObjectIdDeserialization extends BaseMapTest
 
         static enum FooEnum {
             A, B
+        }
+    }
+
+    static class DefensiveCompany {
+        public List<DefensiveEmployee> employees;
+
+        static class DefensiveEmployee extends Employee {
+
+            public void setReports(List<DefensiveEmployee> reports)
+            {
+                this.reports = new ArrayList<TestObjectId.Employee>(reports);
+            }
         }
     }
 
@@ -304,10 +317,23 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertEmployees(firstEmployee, secondEmployee);
     }
 
+    public void testForwardReferenceWithDefensiveCopy()
+        throws Exception
+    {
+        String json = "{\"employees\":[" + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}" + "]}";
+        DefensiveCompany company = mapper.readValue(json, DefensiveCompany.class);
+        assertEquals(2, company.employees.size());
+        Employee firstEmployee = company.employees.get(0);
+        Employee secondEmployee = company.employees.get(1);
+        assertEmployees(firstEmployee, secondEmployee);
+    }
+
     private void assertEmployees(Employee firstEmployee, Employee secondEmployee)
     {
         assertEquals(1, firstEmployee.id);
         assertEquals(2, secondEmployee.id);
+        assertEquals(1, firstEmployee.reports.size());
         assertSame(secondEmployee, firstEmployee.reports.get(0)); // Ensure that forward reference was properly resolved and in order.
         assertSame(firstEmployee, secondEmployee.manager); // And that back reference is also properly resolved.
     }

@@ -195,25 +195,8 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertSame(result.node, result.node.next.node);
     }
 
-    public void testLateForwardReferenceInCollection() throws Exception
-    {
-        String json = "{\"employees\":["
-                      + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
-                      + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
-                      + "]}";
-        Company company = mapper.readValue(json, Company.class);
-        assertEquals(2, company.employees.size());
-        // Deser must keep object ordering.
-        Employee firstEmployee = company.employees.get(0);
-        Employee secondEmployee = company.employees.get(1);
-        assertEquals(1, firstEmployee.id);
-        assertEquals(2, secondEmployee.id);
-        assertSame(secondEmployee, firstEmployee.reports.get(0)); // Ensure that forward reference was properly resolved and in order.
-        assertSame(firstEmployee, secondEmployee.manager); // And that back reference is also properly resolved.
-    }
-
-    // Variant of before but forward reference is not "wrapped" inside a collection, might be easier to fix first.
-    public void testLateForwardReference() throws Exception
+    public void testForwardReference()
+        throws Exception
     {
         String json = "{\"employees\":["
                       + "{\"id\":1,\"name\":\"First\",\"manager\":2,\"reports\":[]},"
@@ -221,7 +204,6 @@ public class TestObjectIdDeserialization extends BaseMapTest
                       + "]}";
         Company company = mapper.readValue(json, Company.class);
         assertEquals(2, company.employees.size());
-        // Deser must keep object ordering.
         Employee firstEmployee = company.employees.get(0);
         Employee secondEmployee = company.employees.get(1);
         assertEquals(1, firstEmployee.id);
@@ -230,34 +212,52 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertEquals(firstEmployee, secondEmployee.reports.get(0)); // And that back reference is also properly resolved.
     }
 
-    public void testLateForwardReferenceInMap() throws Exception
+    public void testForwardReferenceInCollection()
+        throws Exception
+    {
+        String json = "{\"employees\":["
+                      + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                      + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                      + "]}";
+        Company company = mapper.readValue(json, Company.class);
+        assertEquals(2, company.employees.size());
+        Employee firstEmployee = company.employees.get(0);
+        Employee secondEmployee = company.employees.get(1);
+        assertEmployees(firstEmployee, secondEmployee);
+    }
+
+    public void testForwardReferenceInMap()
+        throws Exception
     {
         String json = "{\"employees\":{"
-                      + "\"1\":{\"id\":1,\"name\":\"First\",\"manager\":2,\"reports\":[]},"
+                      + "\"1\":{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
                       + "\"2\": 2,"
-                      + "\"3\":{\"id\":2,\"name\":\"Second\",\"manager\":null,\"reports\":[1]}"
+                      + "\"3\":{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
                       + "}}";
         MappedCompany company = mapper.readValue(json, MappedCompany.class);
         assertEquals(3, company.employees.size());
-        // Deser must keep object ordering.
         Employee firstEmployee = company.employees.get(1);
         Employee secondEmployee = company.employees.get(3);
-        assertEquals(1, firstEmployee.id);
-        assertEquals(2, secondEmployee.id);
-        assertEquals(secondEmployee, firstEmployee.manager); // Ensure that forward reference was properly resolved.
-        assertEquals(firstEmployee, secondEmployee.reports.get(0)); // And that back reference is also properly resolved.
+        assertEmployees(firstEmployee, secondEmployee);
     }
 
-    public void testLateForwardReferenceInArray() throws Exception {
+    public void testForwardReferenceInArray()
+        throws Exception
+    {
         String json = "{\"employees\":["
                       + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
-                      + "2,{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                      + "2,"
+                      +"{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
                       + "]}";
         ArrayCompany company = mapper.readValue(json, ArrayCompany.class);
         assertEquals(3, company.employees.length);
-        // Deser must keep object ordering.
         Employee firstEmployee = company.employees[0];
         Employee secondEmployee = company.employees[1];
+        assertEmployees(firstEmployee, secondEmployee);
+    }
+
+    private void assertEmployees(Employee firstEmployee, Employee secondEmployee)
+    {
         assertEquals(1, firstEmployee.id);
         assertEquals(2, secondEmployee.id);
         assertSame(secondEmployee, firstEmployee.reports.get(0)); // Ensure that forward reference was properly resolved and in order.
@@ -289,18 +289,17 @@ public class TestObjectIdDeserialization extends BaseMapTest
         throws Exception
     {
         String json = "{\"employees\":[2,1,"
-                + "{\"id\":1,\"name\":\"First\",\"manager\":2,\"reports\":[]},"
-                + "{\"id\":2,\"name\":\"Second\",\"manager\":null,\"reports\":[1]}"
+                + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
                 + "]}";
         Company company = mapper.readValue(json, Company.class);
         assertEquals(4, company.employees.size());
         // Deser must keep object ordering.
         Employee firstEmployee = company.employees.get(1);
         Employee secondEmployee = company.employees.get(0);
-        assertEquals(1, firstEmployee.id);
-        assertEquals(2, secondEmployee.id);
-        assertEquals(secondEmployee, firstEmployee.manager); // Ensure that forward reference was properly resolved.
-        assertEquals(firstEmployee, secondEmployee.reports.get(0)); // And that back reference is also properly resolved.
+        assertSame(firstEmployee, company.employees.get(2));
+        assertSame(secondEmployee, company.employees.get(3));
+        assertEmployees(firstEmployee, secondEmployee);
     }
 
     public void testKeepMapOrdering()
@@ -308,23 +307,21 @@ public class TestObjectIdDeserialization extends BaseMapTest
     {
         String json = "{\"employees\":{"
                       + "\"1\":2, \"2\":1,"
-                      + "\"3\":{\"id\":1,\"name\":\"First\",\"manager\":2,\"reports\":[]},"
-                      + "\"4\":{\"id\":2,\"name\":\"Second\",\"manager\":null,\"reports\":[1]}"
+                      + "\"3\":{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                      + "\"4\":{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
                       + "}}";
         MappedCompany company = mapper.readValue(json, MappedCompany.class);
         assertEquals(4, company.employees.size());
         Employee firstEmployee = company.employees.get(2);
         Employee secondEmployee = company.employees.get(1);
-        assertEquals(1, firstEmployee.id);
-        assertEquals(2, secondEmployee.id);
-        assertEquals(secondEmployee, firstEmployee.manager); // Ensure that forward reference was properly resolved.
-        assertEquals(firstEmployee, secondEmployee.reports.get(0)); // And that back reference is also properly resolved.
-        // Deser must keep object ordering. Not sure if it's really important for maps, but...
+        assertEmployees(firstEmployee, secondEmployee);
+        // Deser must keep object ordering. Not sure if it's really important for maps,
+        // but since default map is LinkedHashMap might as well ensure it does...
         Iterator<Entry<Integer,Employee>> iterator = company.employees.entrySet().iterator();
-        assertEquals(secondEmployee, iterator.next().getValue());
-        assertEquals(firstEmployee, iterator.next().getValue());
-        assertEquals(firstEmployee, iterator.next().getValue());
-        assertEquals(secondEmployee, iterator.next().getValue());
+        assertSame(secondEmployee, iterator.next().getValue());
+        assertSame(firstEmployee, iterator.next().getValue());
+        assertSame(firstEmployee, iterator.next().getValue());
+        assertSame(secondEmployee, iterator.next().getValue());
     }
 
     /*

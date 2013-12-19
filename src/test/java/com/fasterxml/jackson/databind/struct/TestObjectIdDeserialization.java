@@ -1,10 +1,12 @@
 package com.fasterxml.jackson.databind.struct;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
@@ -14,6 +16,7 @@ import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference.UnresolvedId;
 import com.fasterxml.jackson.databind.struct.TestObjectId.Company;
 import com.fasterxml.jackson.databind.struct.TestObjectId.Employee;
+import com.fasterxml.jackson.databind.struct.TestObjectIdDeserialization.EnumMapCompany.FooEnum;
 
 /**
  * Unit test to verify handling of Object Id deserialization
@@ -118,6 +121,18 @@ public class TestObjectIdDeserialization extends BaseMapTest
 
     static class ArrayCompany {
         public Employee[] employees;
+    }
+
+    static class ArrayBlockingQueueCompany {
+        public ArrayBlockingQueue<Employee> employees;
+    }
+
+    static class EnumMapCompany {
+        public EnumMap<FooEnum,Employee> employees;
+
+        static enum FooEnum {
+            A, B
+        }
     }
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
@@ -255,6 +270,37 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertEquals(3, company.employees.length);
         Employee firstEmployee = company.employees[0];
         Employee secondEmployee = company.employees[1];
+        assertEmployees(firstEmployee, secondEmployee);
+    }
+
+    // Do a specific test for ArrayBlockingQueue since it has its own deser.
+    public void testForwardReferenceInQueue()
+        throws Exception
+    {
+        String json = "{\"employees\":["
+                      + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                      + "2,"
+                      +"{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                      + "]}";
+        ArrayBlockingQueueCompany company = mapper.readValue(json, ArrayBlockingQueueCompany.class);
+        assertEquals(3, company.employees.size());
+        Employee firstEmployee = company.employees.take();
+        Employee secondEmployee = company.employees.take();
+        assertEmployees(firstEmployee, secondEmployee);
+    }
+
+    public void testForwardReferenceInEnumMap()
+        throws Exception
+   {
+        String json = "{\"employees\":{"
+                      + "\"A\":{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                      + "\"B\": 2,"
+                      + "\"C\":{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                      + "}}";
+        EnumMapCompany company = mapper.readValue(json, EnumMapCompany.class);
+        assertEquals(3, company.employees.size());
+        Employee firstEmployee = company.employees.get(FooEnum.A);
+        Employee secondEmployee = company.employees.get(FooEnum.B);
         assertEmployees(firstEmployee, secondEmployee);
     }
 

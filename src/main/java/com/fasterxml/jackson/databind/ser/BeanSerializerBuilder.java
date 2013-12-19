@@ -170,15 +170,15 @@ public class BeanSerializerBuilder
     public JsonSerializer<?> build()
     {
         BeanPropertyWriter[] properties;
-        // No properties or any getter? No real serializer; caller gets to handle
+        // No properties, any getter or object id writer?
+        // No real serializer; caller gets to handle
         if (_properties == null || _properties.isEmpty()) {
-            if (_anyGetter == null) {
+            if (_anyGetter == null && _objectIdWriter == null) {
                 return null;
             }
             properties = NO_PROPERTIES;
         } else {
             properties = _properties.toArray(new BeanPropertyWriter[_properties.size()]);
-            
         }
         return new BeanSerializer(_beanDesc.getType(), this,
                 properties, _filteredProperties);

@@ -12,6 +12,8 @@ Version: 2.3.1 (xx-Dec-2013)
  (reported by jknack@github)
 #367: Make `TypeNameIdResolver` call `TypeResolver` for resolving base type
  (suggested by Ben F)
+#370: Fail to add Object Id for POJO with no properties
+ (reported by jh3141@github)
 - Fix for [jackson-module-afterburner#38]: need to remove @JacksonStdImpl from
   `RawSerializer`, to avoid accidental removal of proper handling.
 

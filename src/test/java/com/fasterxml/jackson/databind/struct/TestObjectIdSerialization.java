@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -146,7 +145,11 @@ public class TestObjectIdSerialization extends BaseMapTest
         public int value;
         public int customId;
     }
-    
+
+    // [Issue#370]
+    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
+    public static class EmptyObject { }
+
     /*
     /*****************************************************
     /* Unit tests, external id serialization
@@ -155,7 +158,7 @@ public class TestObjectIdSerialization extends BaseMapTest
 
     private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"value\":13,\"next\":1}";
     
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = objectMapper();
 
     public void testSimpleSerializationClass() throws Exception
     {
@@ -186,6 +189,14 @@ public class TestObjectIdSerialization extends BaseMapTest
         json = MAPPER.writeValueAsString(src);
         assertEquals(EXP_SIMPLE_INT_PROP, json);
     }
+
+    // [Issue#370]
+    public void testEmptyObjectWithId() throws Exception
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(new EmptyObject());
+        assertEquals(aposToQuotes("{'@id':1}"), json);
+    }    
 
     /*
     /*****************************************************

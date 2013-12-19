@@ -435,7 +435,7 @@ public class BeanSerializerFactory
         }
         
         JsonSerializer<Object> ser = (JsonSerializer<Object>) builder.build();
-
+        
         /* However, after all modifications: no properties, no serializer
          * (note; as per [JACKSON-670], check was moved later on from an earlier location)
          */

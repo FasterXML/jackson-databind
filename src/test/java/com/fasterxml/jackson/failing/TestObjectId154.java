@@ -22,10 +22,10 @@ public class TestObjectId154 extends BaseMapTest
     {
         final ObjectMapper mapper = new ObjectMapper();
 
-        Foo foo = new Foo();
         Bar bar = new Bar();
-        foo.ref = bar;
+        Foo foo = new Foo();
         bar.next = foo;
+        foo.ref = bar;
 
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(bar);
 

@@ -85,7 +85,7 @@ public abstract class JsonSerializer<T>
     public JsonSerializer<T> replaceDelegatee(JsonSerializer<?> delegatee) {
         throw new UnsupportedOperationException();
     }
-    
+
     /*
     /**********************************************************
     /* Serialization methods

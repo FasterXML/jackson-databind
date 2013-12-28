@@ -752,7 +752,7 @@ public abstract class StdDeserializer<T>
         throws IOException, JsonProcessingException
     {
         if (instanceOrClass == null) {
-            instanceOrClass = getValueClass();
+            instanceOrClass = handledType();
         }
         // Maybe we have configured handler(s) to take care of it?
         if (ctxt.handleUnknownProperty(jp, this, instanceOrClass, propName)) {

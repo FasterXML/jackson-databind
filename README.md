@@ -23,7 +23,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.3.0</version>
+  <version>2.3.1</version>
 </dependency>
 ```
 
@@ -32,6 +32,7 @@ If so, also add:
 
 ```xml
 <dependency>
+  <!-- note: typically only ".0" patch version exists for core annotations
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-annotations</artifactId>
   <version>2.3.0</version>
@@ -39,7 +40,7 @@ If so, also add:
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
-  <version>2.3.0</version>
+  <version>2.3.1</version>
 </dependency>
 ```
 

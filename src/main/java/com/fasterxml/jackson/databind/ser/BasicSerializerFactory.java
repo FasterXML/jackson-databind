@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.impl.IndexedListSerializer;
 import com.fasterxml.jackson.databind.ser.impl.IndexedStringListSerializer;
 import com.fasterxml.jackson.databind.ser.impl.StringArraySerializer;
 import com.fasterxml.jackson.databind.ser.impl.StringCollectionSerializer;
@@ -620,7 +621,7 @@ public abstract class BasicSerializerFactory
                 if (!enumType.isEnumType()) {
                     enumType = null;
                 }
-                ser = StdContainerSerializers.enumSetSerializer(enumType);
+                ser = buildEnumSetSerializer(enumType);
             } else {
                 Class<?> elementRaw = type.getContentType().getRawClass();
                 if (isIndexedList(raw)) {
@@ -630,7 +631,7 @@ public abstract class BasicSerializerFactory
                             ser = IndexedStringListSerializer.instance;
                         }
                     } else {
-                        ser = StdContainerSerializers.indexedListSerializer(type.getContentType(), staticTyping,
+                        ser = buildIndexedListSerializer(type.getContentType(), staticTyping,
                             elementTypeSerializer, elementValueSerializer);
                     }
                 } else if (elementRaw == String.class) {
@@ -640,7 +641,7 @@ public abstract class BasicSerializerFactory
                     }
                 }
                 if (ser == null) {
-                    ser = StdContainerSerializers.collectionSerializer(type.getContentType(), staticTyping,
+                    ser = buildCollectionSerializer(type.getContentType(), staticTyping,
                             elementTypeSerializer, elementValueSerializer);
                 }
             }
@@ -653,12 +654,31 @@ public abstract class BasicSerializerFactory
         }
         return ser;
     }
-    
+
+    /*
+    /**********************************************************
+    /* Factory methods, for Collections
+    /**********************************************************
+     */
+
     protected boolean isIndexedList(Class<?> cls)
     {
         return RandomAccess.class.isAssignableFrom(cls);
     }
-    
+
+    public  ContainerSerializer<?> buildIndexedListSerializer(JavaType elemType,
+            boolean staticTyping, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
+        return new IndexedListSerializer(elemType, staticTyping, vts, null, valueSerializer);
+    }
+    public ContainerSerializer<?> buildCollectionSerializer(JavaType elemType,
+            boolean staticTyping, TypeSerializer vts, JsonSerializer<Object> valueSerializer) {
+        return new CollectionSerializer(elemType, staticTyping, vts, null, valueSerializer);
+    }
+
+    public JsonSerializer<?> buildEnumSetSerializer(JavaType enumType) {
+        return new EnumSetSerializer(enumType, null);
+    }
+
     /*
     /**********************************************************
     /* Factory methods, for Maps

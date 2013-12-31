@@ -729,61 +729,18 @@ public abstract class AnnotationIntrospector
      * 
      * @since 2.1
      */
-    public PropertyName findNameForSerialization(Annotated a)
-    {
-        // [Issue#69], need bit of delegation 
-        // !!! TODO: in 2.2, remove old methods?
-        String name;
-        if (a instanceof AnnotatedField) {
-            name = findSerializationName((AnnotatedField) a);
-        } else if (a instanceof AnnotatedMethod) {
-            name = findSerializationName((AnnotatedMethod) a);
-        } else {
-            name = null;
-        }
+    public PropertyName findNameForSerialization(Annotated a) {
+        /*
         if (name != null) {
             if (name.length() == 0) { // empty String means 'default'
                 return PropertyName.USE_DEFAULT;
             }
             return new PropertyName(name);
         }
-        return null;
-    }
-    
-    /**
-     * Method for checking whether given method has an annotation
-     * that suggests property name associated with method that
-     * may be a "getter". Should return null if no annotation
-     * is found; otherwise a non-null String.
-     * If non-null value is returned, it is used as the property
-     * name, except for empty String ("") which is taken to mean
-     * "use standard bean name detection if applicable;
-     * method name if not".
-     * 
-     * @deprecated Since 2.1 should use {@link #findNameForSerialization} instead
-     */
-    @Deprecated
-    public String findSerializationName(AnnotatedMethod am) {
+        */
         return null;
     }
 
-    /**
-     * Method for checking whether given member field represent
-     * a serializable logical property; and if so, returns the
-     * name of that property.
-     * Should return null if no annotation is found (indicating it
-     * is not a serializable field); otherwise a non-null String.
-     * If non-null value is returned, it is used as the property
-     * name, except for empty String ("") which is taken to mean
-     * "use the field name as is".
-     * 
-     * @deprecated Since 2.1 should use {@link #findNameForSerialization} instead
-     */
-    @Deprecated
-    public String findSerializationName(AnnotatedField af) {
-        return null;
-    }
-    
     /**
      * Method for checking whether given method has an annotation
      * that suggests that the return value of annotated method
@@ -1003,73 +960,15 @@ public abstract class AnnotationIntrospector
      * 
      * @since 2.1
      */
-    public PropertyName findNameForDeserialization(Annotated a)
-    {
-        // [Issue#69], need bit of delegation 
-        // !!! TODO: in 2.2, remove old methods?
-        String name;
-        if (a instanceof AnnotatedField) {
-            name = findDeserializationName((AnnotatedField) a);
-        } else if (a instanceof AnnotatedMethod) {
-            name = findDeserializationName((AnnotatedMethod) a);
-        } else if (a instanceof AnnotatedParameter) {
-            name = findDeserializationName((AnnotatedParameter) a);
-        } else {
-            name = null;
-        }
+    public PropertyName findNameForDeserialization(Annotated a) {
+        /*
         if (name != null) {
             if (name.length() == 0) { // empty String means 'default'
                 return PropertyName.USE_DEFAULT;
             }
             return new PropertyName(name);
         }
-        return null;
-    }
-    
-    /**
-     * Method for checking whether given method has an annotation
-     * that suggests property name associated with method that
-     * may be a "setter". Should return null if no annotation
-     * is found; otherwise a non-null String.
-     * If non-null value is returned, it is used as the property
-     * name, except for empty String ("") which is taken to mean
-     * "use standard bean name detection if applicable;
-     * method name if not".
-     * 
-     * @deprecated Since 2.1 should use {@link #findNameForDeserialization} instead
-     */
-    @Deprecated
-    public String findDeserializationName(AnnotatedMethod am) {
-        return null;
-    }
-
-    /**
-     * Method for checking whether given member field represent
-     * a deserializable logical property; and if so, returns the
-     * name of that property.
-     * Should return null if no annotation is found (indicating it
-     * is not a deserializable field); otherwise a non-null String.
-     * If non-null value is returned, it is used as the property
-     * name, except for empty String ("") which is taken to mean
-     * "use the field name as is".
-     * 
-     * @deprecated Since 2.1 should use {@link #findNameForDeserialization} instead
-     */
-    @Deprecated
-    public String findDeserializationName(AnnotatedField af) {
-        return null;
-    }
-
-    /**
-     * Method for checking whether given set of annotations indicates
-     * property name for associated parameter.
-     * No actual parameter object can be passed since JDK offers no
-     * representation; just annotations.
-     * 
-     * @deprecated Since 2.1 should use {@link #findNameForDeserialization} instead
-     */
-    @Deprecated
-    public String findDeserializationName(AnnotatedParameter param) {
+        */
         return null;
     }
     

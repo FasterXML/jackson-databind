@@ -33,16 +33,7 @@ public class JacksonAnnotationIntrospector
     public Version version() {
         return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
     }
-    
-    /**
-     *
-     * @deprecated Not used since 2.0; deprecated since 2.1; moved from {@link AnnotationIntrospector} in 2.3
-     */
-    @Deprecated
-    public boolean isHandled(Annotation ann) {
-        return false;
-    }
-    
+
     /*
     /**********************************************************
     /* General annotation properties
@@ -103,7 +94,7 @@ public class JacksonAnnotationIntrospector
     }
 
     /**
-     * @deprecated Use {@link #findFilterId(Annotated)} instead
+     * @deprecated (since 2.3) Use {@link #findFilterId(Annotated)} instead
      */
     @Deprecated
     @Override
@@ -520,67 +511,29 @@ public class JacksonAnnotationIntrospector
     @Override
     public PropertyName findNameForSerialization(Annotated a)
     {
-        // [Issue#69], need bit of delegation 
-        // !!! TODO: in 2.2, remove old methods?
-        String name;
-        if (a instanceof AnnotatedField) {
-            name = findSerializationName((AnnotatedField) a);
-        } else if (a instanceof AnnotatedMethod) {
-            name = findSerializationName((AnnotatedMethod) a);
+        String name = null;
+
+        JsonGetter jg = a.getAnnotation(JsonGetter.class);
+        if (jg != null) {
+            name = jg.value();
         } else {
-            name = null;
-        }
-        if (name != null) {
-            if (name.length() == 0) { // empty String means 'default'
-                return PropertyName.USE_DEFAULT;
+            JsonProperty pann = a.getAnnotation(JsonProperty.class);
+            if (pann != null) {
+                name = pann.value();
+            } else if (a.hasAnnotation(JsonSerialize.class) || a.hasAnnotation(JsonView.class)) {
+                name = "";
+            } else {
+                return null;
             }
-            return new PropertyName(name);
         }
-        return null;
+        if (name.length() == 0) { // empty String means 'default'
+            return PropertyName.USE_DEFAULT;
+        }
+        return new PropertyName(name);
     }
 
     @Override
-    @Deprecated
-    public String findSerializationName(AnnotatedField af)
-    {
-        JsonProperty pann = af.getAnnotation(JsonProperty.class);
-        if (pann != null) {
-            return pann.value();
-        }
-        // Also: having JsonSerialize implies it is such a property
-        // 09-Apr-2010, tatu: Ditto for JsonView
-        if (af.hasAnnotation(JsonSerialize.class) || af.hasAnnotation(JsonView.class)) {
-            return "";
-        }
-        return null;
-    }
-    
-    @Override
-    @Deprecated
-    public String findSerializationName(AnnotatedMethod am)
-    {
-        // @JsonGetter is most specific, has precedence
-        JsonGetter ann = am.getAnnotation(JsonGetter.class);
-        if (ann != null) {
-            return ann.value();
-        }
-        JsonProperty pann = am.getAnnotation(JsonProperty.class);
-        if (pann != null) {
-            return pann.value();
-        }
-        /* 22-May-2009, tatu: And finally, JsonSerialize implies
-         *   that there is a property, although doesn't define name
-         */
-        // 09-Apr-2010, tatu: Ditto for JsonView
-        if (am.hasAnnotation(JsonSerialize.class) || am.hasAnnotation(JsonView.class)) {
-            return "";
-        }
-        return null;
-    }
-
-    @Override
-    public boolean hasAsValueAnnotation(AnnotatedMethod am)
-    {
+    public boolean hasAsValueAnnotation(AnnotatedMethod am) {
         JsonValue ann = am.getAnnotation(JsonValue.class);
         // value of 'false' means disabled...
         return (ann != null && ann.value());
@@ -736,88 +689,30 @@ public class JacksonAnnotationIntrospector
     @Override
     public PropertyName findNameForDeserialization(Annotated a)
     {
-        // [Issue#69], need bit of delegation 
-        // !!! TODO: in 2.2, remove old methods?
         String name;
-        if (a instanceof AnnotatedField) {
-            name = findDeserializationName((AnnotatedField) a);
-        } else if (a instanceof AnnotatedMethod) {
-            name = findDeserializationName((AnnotatedMethod) a);
-        } else if (a instanceof AnnotatedParameter) {
-            name = findDeserializationName((AnnotatedParameter) a);
-        } else {
-            name = null;
-        }
-        if (name != null) {
-            if (name.length() == 0) { // empty String means 'default'
-                return PropertyName.USE_DEFAULT;
-            }
-            return new PropertyName(name);
-        }
-        return null;
-    }
-    
-    @Deprecated
-    @Override
-    public String findDeserializationName(AnnotatedMethod am)
-    {
+
         // @JsonSetter has precedence over @JsonProperty, being more specific
-        JsonSetter ann = am.getAnnotation(JsonSetter.class);
-        if (ann != null) {
-            return ann.value();
-        }
-        JsonProperty pann = am.getAnnotation(JsonProperty.class);
-        if (pann != null) {
-            return pann.value();
-        }
-        // @JsonSerialize implies that there is a property, but no name
-        // 09-Apr-2010, tatu: Ditto for JsonView
-        // 19-Oct-2011, tatu: And JsonBackReference/JsonManagedReference
-    	if (am.hasAnnotation(JsonDeserialize.class)
-    	        || am.hasAnnotation(JsonView.class)
-                || am.hasAnnotation(JsonBackReference.class)
-                || am.hasAnnotation(JsonManagedReference.class)
-    	        ) {
-            return "";
-        }
-        return null;
-    }
-
-    @Deprecated
-    @Override
-    public String findDeserializationName(AnnotatedField af)
-    {
-        JsonProperty pann = af.getAnnotation(JsonProperty.class);
-        if (pann != null) {
-            return pann.value();
-        }
-        // Also: having JsonDeserialize implies it is such a property
-        // 09-Apr-2010, tatu: Ditto for JsonView
-        if (af.hasAnnotation(JsonDeserialize.class)
-                || af.hasAnnotation(JsonView.class)
-                || af.hasAnnotation(JsonBackReference.class)
-                || af.hasAnnotation(JsonManagedReference.class)
-                ) {
-            return "";
-        }
-        return null;
-    }
-
-    @Deprecated
-    @Override
-    public String findDeserializationName(AnnotatedParameter param)
-    {
-        if (param != null) {
-            JsonProperty pann = param.getAnnotation(JsonProperty.class);
+        // @JsonDeserialize implies that there is a property, but no name
+        JsonSetter js = a.getAnnotation(JsonSetter.class);
+        if (js != null) {
+            name = js.value();
+        } else {
+            JsonProperty pann = a.getAnnotation(JsonProperty.class);
             if (pann != null) {
-                return pann.value();
+                name = pann.value();
+            } else if (a.hasAnnotation(JsonDeserialize.class)
+                    || a.hasAnnotation(JsonView.class)
+                    || a.hasAnnotation(JsonBackReference.class)
+                    || a.hasAnnotation(JsonManagedReference.class)) {
+                    name = "";
+            } else {
+                return null;
             }
-            /* And can not use JsonDeserialize as we can not use
-             * name auto-detection (names of local variables including
-             * parameters are not necessarily preserved in bytecode)
-             */
         }
-        return null;
+        if (name.length() == 0) { // empty String means 'default'
+            return PropertyName.USE_DEFAULT;
+        }
+        return new PropertyName(name);
     }
     
     @Override

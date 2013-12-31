@@ -162,7 +162,7 @@ public class UnwrappingBeanPropertyWriter
                 if (_nameTransformer != null) {
                     name = _nameTransformer.transform(name);
                 }
-                propertiesNode.put(name, entry.getValue());
+                propertiesNode.set(name, entry.getValue());
             }
         }
     }

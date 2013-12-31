@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.std.ArraySerializerBase;
@@ -177,8 +176,7 @@ public class StringArraySerializer
         }
     }
 
-    private void serializeContentsSlow(String[] value, JsonGenerator jgen, SerializerProvider provider,
-            JsonSerializer<Object> ser)
+    private void serializeContentsSlow(String[] value, JsonGenerator jgen, SerializerProvider provider, JsonSerializer<Object> ser)
         throws IOException, JsonGenerationException
     {
         for (int i = 0, len = value.length; i < len; ++i) {
@@ -192,16 +190,12 @@ public class StringArraySerializer
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-    {
-        ObjectNode o = createSchemaNode("array", true);
-        o.put("items", createSchemaNode("string"));
-        return o;
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
+        return createSchemaNode("array", true).set("items", createSchemaNode("string"));
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {
         if (visitor != null) {
             JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);

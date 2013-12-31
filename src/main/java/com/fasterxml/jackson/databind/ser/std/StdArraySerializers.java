@@ -42,8 +42,7 @@ public class StdArraySerializers
      * Accessor for checking to see if there is a standard serializer for
      * given primitive value type.
      */
-    public static JsonSerializer<?> findStandardImpl(Class<?> cls)
-    {
+    public static JsonSerializer<?> findStandardImpl(Class<?> cls) {
         return _arraySerializers.get(cls.getName());
     }
     
@@ -57,8 +56,7 @@ public class StdArraySerializers
      * Intermediate base class used for cases where we may add
      * type information (excludes boolean/int/double arrays).
      */
-    protected abstract static class TypedPrimitiveArraySerializer<T>
-        extends ArraySerializerBase<T>
+    protected abstract static class TypedPrimitiveArraySerializer<T> extends ArraySerializerBase<T>
     {
         /**
          * Type serializer to use for values, if any.
@@ -84,8 +82,7 @@ public class StdArraySerializers
      */
 
     @JacksonStdImpl
-    public final static class BooleanArraySerializer
-        extends ArraySerializerBase<boolean[]>
+    public final static class BooleanArraySerializer extends ArraySerializerBase<boolean[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Boolean.class);
@@ -135,7 +132,7 @@ public class StdArraySerializers
         public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         {
             ObjectNode o = createSchemaNode("array", true);
-            o.put("items", createSchemaNode("boolean"));
+            o.set("items", createSchemaNode("boolean"));
             return o;
         }
 
@@ -160,8 +157,7 @@ public class StdArraySerializers
      * NOTE: since it is NOT serialized as an array, can not use AsArraySerializer as base
      */
     @JacksonStdImpl
-    public final static class ByteArraySerializer
-        extends StdSerializer<byte[]>
+    public final static class ByteArraySerializer extends StdSerializer<byte[]>
     {
         public ByteArraySerializer() {
             super(byte[].class);
@@ -196,8 +192,7 @@ public class StdArraySerializers
         {
             ObjectNode o = createSchemaNode("array", true);
             ObjectNode itemSchema = createSchemaNode("string"); //binary values written as strings?
-            o.put("items", itemSchema);
-            return o;
+            return o.set("items", itemSchema);
         }
         
         @Override
@@ -214,8 +209,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class ShortArraySerializer
-        extends TypedPrimitiveArraySerializer<short[]>
+    public final static class ShortArraySerializer extends TypedPrimitiveArraySerializer<short[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Short.TYPE);
@@ -274,8 +268,7 @@ public class StdArraySerializers
         {
             //no "short" type defined by json
             ObjectNode o = createSchemaNode("array", true);
-            o.put("items", createSchemaNode("integer"));
-            return o;
+            return o.set("items", createSchemaNode("integer"));
         }
         
         @Override
@@ -299,8 +292,7 @@ public class StdArraySerializers
      * NOTE: since it is NOT serialized as an array, can not use AsArraySerializer as base
      */
     @JacksonStdImpl
-    public final static class CharArraySerializer
-        extends StdSerializer<char[]>
+    public final static class CharArraySerializer extends StdSerializer<char[]>
     {
         public CharArraySerializer() { super(char[].class); }
         
@@ -354,8 +346,7 @@ public class StdArraySerializers
             ObjectNode o = createSchemaNode("array", true);
             ObjectNode itemSchema = createSchemaNode("string");
             itemSchema.put("type", "string");
-            o.put("items", itemSchema);
-            return o;
+            return o.set("items", itemSchema);
         }
         
         @Override
@@ -372,8 +363,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class IntArraySerializer
-        extends ArraySerializerBase<int[]>
+    public final static class IntArraySerializer extends ArraySerializerBase<int[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Integer.TYPE);
@@ -420,16 +410,12 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            ObjectNode o = createSchemaNode("array", true);
-            o.put("items", createSchemaNode("integer"));
-            return o;
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
+            return createSchemaNode("array", true).set("items", createSchemaNode("integer"));
         }
         
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -441,8 +427,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class LongArraySerializer
-        extends TypedPrimitiveArraySerializer<long[]>
+    public final static class LongArraySerializer extends TypedPrimitiveArraySerializer<long[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Long.TYPE);
@@ -500,9 +485,8 @@ public class StdArraySerializers
         @Override
         public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         {
-            ObjectNode o = createSchemaNode("array", true);
-            o.put("items", createSchemaNode("number", true));
-            return o;
+            return createSchemaNode("array", true)
+                .set("items", createSchemaNode("number", true));
         }
 
         @Override
@@ -519,8 +503,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class FloatArraySerializer
-        extends TypedPrimitiveArraySerializer<float[]>
+    public final static class FloatArraySerializer extends TypedPrimitiveArraySerializer<float[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Float.TYPE);
@@ -577,16 +560,12 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            ObjectNode o = createSchemaNode("array", true);
-            o.put("items", createSchemaNode("number"));
-            return o;
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
+            return createSchemaNode("array", true).set("items", createSchemaNode("number"));
         }
         
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
@@ -598,8 +577,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class DoubleArraySerializer
-        extends ArraySerializerBase<double[]>
+    public final static class DoubleArraySerializer extends ArraySerializerBase<double[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Double.TYPE);
@@ -646,11 +624,8 @@ public class StdArraySerializers
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            ObjectNode o = createSchemaNode("array", true);
-            o.put("items", createSchemaNode("number"));
-            return o;
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
+            return createSchemaNode("array", true).set("items", createSchemaNode("number"));
         }
         
         @Override

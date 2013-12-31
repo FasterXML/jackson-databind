@@ -23,7 +23,7 @@ public class EnumMapDeserializer
     extends StdDeserializer<EnumMap<?,?>>
     implements ContextualDeserializer
 {
-    private static final long serialVersionUID = 1518773374647478964L;
+    private static final long serialVersionUID = 4564890642370311174L;
 
     protected final JavaType _mapType;
     
@@ -45,18 +45,7 @@ public class EnumMapDeserializer
     /**********************************************************
      */
 
-    /**
-     * @deprecated Since 2.1.3 -- use variant that takes one more argument.
-     */
-    @Deprecated
-    public EnumMapDeserializer(JavaType mapType,
-            JsonDeserializer<?> keyDeserializer, JsonDeserializer<?> valueDeser) {
-        this(mapType, keyDeserializer, valueDeser, null);
-    }
-    
-    public EnumMapDeserializer(JavaType mapType,
-            JsonDeserializer<?> keyDeserializer, JsonDeserializer<?> valueDeser,
-            TypeDeserializer valueTypeDeser)
+    public EnumMapDeserializer(JavaType mapType, JsonDeserializer<?> keyDeserializer, JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser)
     {
         super(EnumMap.class);
         _mapType = mapType;
@@ -66,26 +55,12 @@ public class EnumMapDeserializer
         _valueTypeDeserializer = valueTypeDeser;
     }
 
-    /**
-     * @deprecated Since 2.1.3 -- use variant that takes one more argument.
-     */
-    @Deprecated
-    public EnumMapDeserializer withResolved(JsonDeserializer<?> keyDeserializer,
-            JsonDeserializer<?> valueDeserializer)
+    public EnumMapDeserializer withResolved(JsonDeserializer<?> keyDeserializer, JsonDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser)
     {
-        return withResolved(keyDeserializer, valueDeserializer, null);
-    } 
-    
-    public EnumMapDeserializer withResolved(JsonDeserializer<?> keyDeserializer,
-            JsonDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser)
-    {
-        if ((keyDeserializer == _keyDeserializer)
-                && (valueDeserializer == _valueDeserializer)
-                && (valueTypeDeser == _valueTypeDeserializer)) {
+        if ((keyDeserializer == _keyDeserializer) && (valueDeserializer == _valueDeserializer) && (valueTypeDeser == _valueTypeDeserializer)) {
             return this;
         }
-        return new EnumMapDeserializer(_mapType,
-                keyDeserializer, valueDeserializer, _valueTypeDeserializer);
+        return new EnumMapDeserializer(_mapType, keyDeserializer, valueDeserializer, _valueTypeDeserializer);
     }
     
     /**
@@ -93,8 +68,7 @@ public class EnumMapDeserializer
      * when it is known for which property deserializer is needed for.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException
     {
         // note: instead of finding key deserializer, with enums we actually
         // work with regular deserializers (less code duplication; but not
@@ -130,8 +104,7 @@ public class EnumMapDeserializer
      */
 
     @Override
-    public EnumMap<?,?> deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public EnumMap<?,?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException
     {
         // Ok: must point to START_OBJECT
         if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
@@ -180,8 +153,7 @@ public class EnumMapDeserializer
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer)
+   public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
         throws IOException, JsonProcessingException
     {
         // In future could check current token... for now this should be enough:

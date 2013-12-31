@@ -407,15 +407,13 @@ public class ObjectNode
      * @param value to set field to; if null, will be converted
      *   to a {@link NullNode} first  (to remove field entry, call
      *   {@link #remove} instead)
-     *<p>
-     * NOTE: this method will be <b>deprecated</b> in 2.2; and should
-     * be replace with either
-     * {@link #set(String,JsonNode)} or {@link #replace(String,JsonNode)},
-     * depending on which return value is desired for possible chaining.
      *   
      * @return Old value of the field, if any; null if there was no
      *   old value.
+     *   
+     * @deprecated Since 2.4 use either {@link #set(String,JsonNode)} or {@link #replace(String,JsonNode)},
      */
+    @Deprecated
     public JsonNode put(String fieldName, JsonNode value)
     {
         if (value == null) { // let's not store 'raw' nulls but nodes
@@ -431,8 +429,7 @@ public class ObjectNode
      * 
      * @return Value of specified field, if it existed; null if not
      */
-    public JsonNode remove(String fieldName)
-    {
+    public JsonNode remove(String fieldName) {
         return _children.remove(fieldName);
     }
 
@@ -466,14 +463,14 @@ public class ObjectNode
     /**
      * Method for adding given properties to this object node, overriding
      * any existing values for those properties.
-     *<p>
-     * NOTE: this method will be <b>deprecated</b> in 2.2; and should
-     * be replace with {@link #setAll(Map)}.
      * 
      * @param properties Properties to add
      * 
      * @return This node after adding/replacing property values (to allow chaining)
+     * 
+     * @deprecated Since 2.4 use {@link #setAll(Map)},
      */
+    @Deprecated
     public JsonNode putAll(Map<String,JsonNode> properties) {
         return setAll(properties);
     }
@@ -481,14 +478,14 @@ public class ObjectNode
     /**
      * Method for adding all properties of the given Object, overriding
      * any existing values for those properties.
-     *<p>
-     * NOTE: this method will be <b>deprecated</b> in 2.2; and should
-     * be replace with {@link #setAll(ObjectNode)}.
      * 
      * @param other Object of which properties to add to this object
      * 
      * @return This node (to allow chaining)
+     * 
+     * @deprecated Since 2.4 use {@link #setAll(ObjectNode)},
      */
+    @Deprecated
     public JsonNode putAll(ObjectNode other) {
         return setAll(other);
     }

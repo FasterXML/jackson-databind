@@ -492,20 +492,6 @@ public abstract class BasicSerializerFactory
      */
 
     /**
-     * Deprecated method; final to help identify problems with sub-classes,
-     * as this method will NOT be called any more in 2.1
-     * 
-     * @deprecated Since 2.1 (removed 'property' argument)
-     */
-    @Deprecated
-    protected final JsonSerializer<?> buildContainerSerializer(SerializerProvider prov,
-            JavaType type, BeanDescription beanDesc, BeanProperty property, boolean staticTyping)
-        throws JsonMappingException
-    {
-        return  buildContainerSerializer(prov, type, beanDesc, staticTyping);
-    }
-    
-    /**
      * @since 2.1
      */
     protected JsonSerializer<?> buildContainerSerializer(SerializerProvider prov,
@@ -596,24 +582,6 @@ public abstract class BasicSerializerFactory
         return null;
     }
 
-    /**
-     * Deprecated method; final to help identify problems with sub-classes,
-     * as this method will NOT be called any more in 2.1
-     * 
-     * @deprecated Since 2.1
-     */
-    @Deprecated
-    protected final JsonSerializer<?> buildCollectionSerializer(SerializationConfig config,
-            CollectionType type,
-            BeanDescription beanDesc, BeanProperty property,
-            boolean staticTyping,
-            TypeSerializer elementTypeSerializer, JsonSerializer<Object> elementValueSerializer) 
-        throws JsonMappingException
-    {
-        return buildCollectionSerializer(config, type, beanDesc,
-                staticTyping, elementTypeSerializer, elementValueSerializer);
-    }
-    
     /**
      * Helper method that handles configuration details when constructing serializers for
      * {@link java.util.List} types that support efficient by-index access
@@ -953,21 +921,10 @@ public abstract class BasicSerializerFactory
      * Method called to find filter that is configured to be used with bean
      * serializer being built, if any.
      */
-    protected Object findFilterId(SerializationConfig config, BeanDescription beanDesc)
-    {
+    protected Object findFilterId(SerializationConfig config, BeanDescription beanDesc) {
         return config.getAnnotationIntrospector().findFilterId((Annotated)beanDesc.getClassInfo());
     }
-    
-    /**
-     * @deprecated Since 2.1: use method without 'property'
-     */
-    @Deprecated
-    protected final  boolean usesStaticTyping(SerializationConfig config,
-            BeanDescription beanDesc, TypeSerializer typeSer, BeanProperty property)
-    {
-        return usesStaticTyping(config, beanDesc, typeSer);
-    }
-    
+
     /**
      * Helper method to check whether global settings and/or class
      * annotations for the bean class indicate that static typing

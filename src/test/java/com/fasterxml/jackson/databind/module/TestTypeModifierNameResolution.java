@@ -20,12 +20,14 @@ public class TestTypeModifierNameResolution extends BaseTest {
 	static class MyTypeImpl implements MyType {
 		private String data;
 
+		@Override
 		public String getData() {
-			return data;
+		    return data;
 		}
 
+		@Override
 		public void setData(String data) {
-			this.data = data;
+		    this.data = data;
 		}
 	}
 

@@ -356,7 +356,7 @@ public class BeanPropertyWriter
     // @since 2.3 -- needed so it can be overridden by unwrapping writer
     protected void _depositSchemaProperty(ObjectNode propertiesNode, JsonNode schemaNode)
     {
-        propertiesNode.put(getName(), schemaNode);
+        propertiesNode.set(getName(), schemaNode);
     }
     
     /*

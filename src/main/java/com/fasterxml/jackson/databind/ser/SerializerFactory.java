@@ -43,17 +43,6 @@ public abstract class SerializerFactory
      */
 
     /**
-     * @deprecated Since 2.1: need to use the new variant without 'property'
-     *    argument (since one won't be passed)
-     */
-    @Deprecated
-    public JsonSerializer<Object> createSerializer(SerializerProvider prov,
-            JavaType baseType, BeanProperty property)
-        throws JsonMappingException {
-        return createSerializer(prov, baseType);
-    }
-    
-    /**
       * Method called to create (or, for immutable serializers, reuse) a serializer for given type. 
       * 
       * @param prov Provider that needs to be used to resolve annotation-provided
@@ -93,14 +82,4 @@ public abstract class SerializerFactory
     public abstract JsonSerializer<Object> createKeySerializer(SerializationConfig config,
             JavaType baseType, JsonSerializer<Object> defaultImpl)
         throws JsonMappingException;
-
-    /**
-     * @deprecated Since 2.2, use one that takes additional <code>defaultImpl</code> parameter
-     */
-    @Deprecated
-    public JsonSerializer<Object> createKeySerializer(SerializationConfig config,
-            JavaType baseType)
-        throws JsonMappingException {
-        return createKeySerializer(config, baseType, null);
-    }
 }

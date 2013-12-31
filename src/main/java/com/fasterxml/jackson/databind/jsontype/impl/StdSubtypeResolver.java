@@ -29,8 +29,7 @@ public class StdSubtypeResolver
      */
 
     @Override    
-    public void registerSubtypes(NamedType... types)
-    {
+    public void registerSubtypes(NamedType... types) {
         if (_registeredSubtypes == null) {
             _registeredSubtypes = new LinkedHashSet<NamedType>();
         }
@@ -40,24 +39,12 @@ public class StdSubtypeResolver
     }
 
     @Override
-    public void registerSubtypes(Class<?>... classes)
-    {
+    public void registerSubtypes(Class<?>... classes) {
         NamedType[] types = new NamedType[classes.length];
         for (int i = 0, len = classes.length; i < len; ++i) {
             types[i] = new NamedType(classes[i]);
         }
         registerSubtypes(types);
-    }
-
-    /**
-     * @deprecated Since 2.1
-     */
-    @Deprecated
-    @Override
-    public Collection<NamedType> collectAndResolveSubtypes(AnnotatedMember property,
-        MapperConfig<?> config, AnnotationIntrospector ai)
-    {
-        return collectAndResolveSubtypes(property, config, ai, null);
     }
     
     /**

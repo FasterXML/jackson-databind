@@ -44,44 +44,7 @@ public class NumberDeserializers
         }
     }
 
-    /**
-     * @deprecated Since 2.2 -- use {@link #find} instead.
-     */
-    @Deprecated
-    public static StdDeserializer<?>[] all()
-    {
-        return new StdDeserializer<?>[] {
-                // primitive-wrappers (simple):
-                new BooleanDeserializer(Boolean.class, null),
-                new ByteDeserializer(Byte.class, null),
-                new ShortDeserializer(Short.class, null),
-                new CharacterDeserializer(Character.class, null),
-                new IntegerDeserializer(Integer.class, null),
-                new LongDeserializer(Long.class, null),
-                new FloatDeserializer(Float.class, null),
-                new DoubleDeserializer(Double.class, null),
-
-                /* And actual primitives: difference is the way nulls are to be
-                 * handled...
-                 */
-                new BooleanDeserializer(Boolean.TYPE, Boolean.FALSE),
-                new ByteDeserializer(Byte.TYPE, Byte.valueOf((byte)(0))),
-                new ShortDeserializer(Short.TYPE, Short.valueOf((short)0)),
-                new CharacterDeserializer(Character.TYPE, Character.valueOf('\0')),
-                new IntegerDeserializer(Integer.TYPE, Integer.valueOf(0)),
-                new LongDeserializer(Long.TYPE, Long.valueOf(0L)),
-                new FloatDeserializer(Float.TYPE, Float.valueOf(0.0f)),
-                new DoubleDeserializer(Double.TYPE, Double.valueOf(0.0)),
-                
-                // and related
-                new NumberDeserializer(),
-                new BigDecimalDeserializer(),
-                new BigIntegerDeserializer()
-        };
-    }
-    
-    public static JsonDeserializer<?> find(Class<?> rawType, String clsName)
-    {
+    public static JsonDeserializer<?> find(Class<?> rawType, String clsName) {
         if (rawType.isPrimitive()) {
             if (rawType == Integer.TYPE) {
                 return IntegerDeserializer.primitiveInstance;
@@ -163,8 +126,7 @@ public class NumberDeserializers
 
         protected final T _nullValue;
         
-        protected PrimitiveOrWrapperDeserializer(Class<T> vc, T nvl)
-        {
+        protected PrimitiveOrWrapperDeserializer(Class<T> vc, T nvl) {
             super(vc);
             _nullValue = nvl;
         }

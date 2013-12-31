@@ -22,13 +22,6 @@ public abstract class SubtypeResolver
     public abstract void registerSubtypes(NamedType... types);
 
     public abstract void registerSubtypes(Class<?>... classes);
-    
-    /**
-     * @deprecated Since 2.1: use variant that takes in property type.
-     */
-    @Deprecated
-    public abstract Collection<NamedType> collectAndResolveSubtypes(AnnotatedMember property,
-            MapperConfig<?> config, AnnotationIntrospector ai);
 
     /**
      * Method for finding out all reachable subtypes for a property specified

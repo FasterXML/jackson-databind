@@ -241,24 +241,10 @@ public class BeanSerializerFactory
      */
 
     /**
-     * Deprecated method; final to help identify problems with sub-classes,
-     * as this method will NOT be called any more in 2.1
-     * 
-     * @deprecated Since 2.1 (use variant without 'property' argument).
-     */
-    @Deprecated
-    public final JsonSerializer<Object> findBeanSerializer(SerializerProvider prov,
-            JavaType type, BeanDescription beanDesc, BeanProperty property)
-        throws JsonMappingException {
-        return findBeanSerializer(prov, type, beanDesc);
-    }
-    
-    /**
      * Method that will try to construct a {@link BeanSerializer} for
      * given class. Returns null if no properties are found.
      */
-    public JsonSerializer<Object> findBeanSerializer(SerializerProvider prov,
-            JavaType type, BeanDescription beanDesc)
+    public JsonSerializer<Object> findBeanSerializer(SerializerProvider prov, JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
         // First things first: we know some types are not beans...
@@ -272,16 +258,6 @@ public class BeanSerializerFactory
         return constructBeanSerializer(prov, beanDesc);
     }
 
-    /**
-     * @deprecated Since 2.1
-     */
-    @Deprecated
-    public final TypeSerializer findPropertyTypeSerializer(JavaType baseType,
-            SerializationConfig config, AnnotatedMember accessor, BeanProperty property)
-        throws JsonMappingException {
-        return findPropertyTypeSerializer(baseType, config, accessor);
-    }
-    
     /**
      * Method called to create a type information serializer for values of given
      * non-container property
@@ -339,20 +315,6 @@ public class BeanSerializerFactory
     /**********************************************************
      */
 
-    /**
-     * Deprecated method; final to help identify problems with sub-classes,
-     * as this method will NOT be called any more in 2.1
-     * 
-     * @deprecated Since 2.1, do not pass 'property' argument
-     */
-    @Deprecated
-    protected final JsonSerializer<Object> constructBeanSerializer(SerializerProvider prov,
-            BeanDescription beanDesc, BeanProperty property)
-        throws JsonMappingException
-    {
-        return constructBeanSerializer(prov, beanDesc);
-    }
-    
     /**
      * Method called to construct serializer for serializing specified bean type.
      * 

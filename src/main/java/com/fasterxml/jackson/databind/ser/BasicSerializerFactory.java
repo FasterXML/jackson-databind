@@ -18,10 +18,7 @@ import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import com.fasterxml.jackson.databind.ser.impl.IndexedListSerializer;
-import com.fasterxml.jackson.databind.ser.impl.IndexedStringListSerializer;
-import com.fasterxml.jackson.databind.ser.impl.StringArraySerializer;
-import com.fasterxml.jackson.databind.ser.impl.StringCollectionSerializer;
+import com.fasterxml.jackson.databind.ser.impl.*;
 import com.fasterxml.jackson.databind.ser.std.*;
 import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -798,10 +795,9 @@ public abstract class BasicSerializerFactory
             valueType = TypeFactory.unknownType();
         }
         TypeSerializer vts = createTypeSerializer(config, valueType);
-        return StdContainerSerializers.iteratorSerializer(valueType,
-                usesStaticTyping(config, beanDesc, vts), vts);
+        return new IteratorSerializer(valueType, staticTyping || usesStaticTyping(config, beanDesc, vts), vts, null);
     }
-    
+
     protected JsonSerializer<?> buildIterableSerializer(SerializationConfig config,
             JavaType type, BeanDescription beanDesc,
             boolean staticTyping)
@@ -813,8 +809,7 @@ public abstract class BasicSerializerFactory
             valueType = TypeFactory.unknownType();
         }
         TypeSerializer vts = createTypeSerializer(config, valueType);
-        return StdContainerSerializers.iterableSerializer(valueType,
-                usesStaticTyping(config, beanDesc, vts), vts);
+        return new IterableSerializer(valueType, staticTyping || usesStaticTyping(config, beanDesc, vts), vts, null);
     }
     
     protected JsonSerializer<?> buildEnumSerializer(SerializationConfig config,

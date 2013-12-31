@@ -795,7 +795,7 @@ public abstract class BasicSerializerFactory
             valueType = TypeFactory.unknownType();
         }
         TypeSerializer vts = createTypeSerializer(config, valueType);
-        return new IteratorSerializer(valueType, staticTyping || usesStaticTyping(config, beanDesc, vts), vts, null);
+        return new IteratorSerializer(valueType, staticTyping, vts, null);
     }
 
     protected JsonSerializer<?> buildIterableSerializer(SerializationConfig config,
@@ -809,7 +809,7 @@ public abstract class BasicSerializerFactory
             valueType = TypeFactory.unknownType();
         }
         TypeSerializer vts = createTypeSerializer(config, valueType);
-        return new IterableSerializer(valueType, staticTyping || usesStaticTyping(config, beanDesc, vts), vts, null);
+        return new IterableSerializer(valueType, staticTyping, vts, null);
     }
     
     protected JsonSerializer<?> buildEnumSerializer(SerializationConfig config,

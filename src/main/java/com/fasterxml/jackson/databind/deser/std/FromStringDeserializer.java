@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -24,10 +25,11 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
 {
     public static Class<?>[] types() {
         return new Class<?>[] {
+            File.class,
             URL.class,
             URI.class,
             Class.class,
-            File.class,
+            JavaType.class,
             Currency.class,
             Pattern.class,
             Locale.class,
@@ -62,6 +64,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             kind = Std.STD_URI;
         } else if (rawType == Class.class) {
             kind = Std.STD_CLASS;
+        } else if (rawType == JavaType.class) {
+            kind = Std.STD_JAVA_TYPE;
         } else if (rawType == Currency.class) {
             kind = Std.STD_CURRENCY;
         } else if (rawType == Pattern.class) {
@@ -148,12 +152,13 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         public final static int STD_URL = 2;
         public final static int STD_URI = 3;
         public final static int STD_CLASS = 4;
-        public final static int STD_CURRENCY = 5;
-        public final static int STD_PATTERN = 6;
-        public final static int STD_LOCALE = 7;
-        public final static int STD_CHARSET = 8;
-        public final static int STD_INET_ADDRESS = 9;
-        public final static int STD_INET_SOCKET_ADDRESS = 10;
+        public final static int STD_JAVA_TYPE = 5;
+        public final static int STD_CURRENCY = 6;
+        public final static int STD_PATTERN = 7;
+        public final static int STD_LOCALE = 8;
+        public final static int STD_CHARSET = 9;
+        public final static int STD_INET_ADDRESS = 10;
+        public final static int STD_INET_SOCKET_ADDRESS = 11;
         
         protected final int _kind;
         
@@ -178,6 +183,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 } catch (Exception e) {
                     throw ctxt.instantiationException(_valueClass, ClassUtil.getRootCause(e));
                 }
+            case STD_JAVA_TYPE:
+                return ctxt.getTypeFactory().constructFromCanonical(value);
             case STD_CURRENCY:
                 // will throw IAE if unknown:
                 return Currency.getInstance(value);

@@ -5,17 +5,14 @@ import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
 
-public class CharsetDeserializer
-    extends FromStringDeserializer<Charset>
+public class CharsetDeserializer extends FromStringDeserializer<Charset>
 {
     private static final long serialVersionUID = 1L;
 
     public CharsetDeserializer() { super(Charset.class); }
 
     @Override
-    protected Charset _deserialize(String value, DeserializationContext ctxt)
-        throws IOException
-    {
+    protected Charset _deserialize(String value, DeserializationContext ctxt) throws IOException {
         return Charset.forName(value);
     }
 }

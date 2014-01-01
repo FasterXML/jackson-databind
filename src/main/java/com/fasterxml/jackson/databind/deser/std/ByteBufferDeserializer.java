@@ -14,18 +14,13 @@ public class ByteBufferDeserializer extends StdScalarDeserializer<ByteBuffer>
     protected ByteBufferDeserializer() { super(ByteBuffer.class); }
 
     @Override
-    public ByteBuffer deserialize(JsonParser parser, DeserializationContext cx)
-        throws IOException, JsonProcessingException
-    {
+    public ByteBuffer deserialize(JsonParser parser, DeserializationContext cx) throws IOException {
         byte[] b = parser.getBinaryValue();
         return ByteBuffer.wrap(b);
     }
 
     @Override
-    public ByteBuffer deserialize(JsonParser jp, DeserializationContext ctxt,
-            ByteBuffer intoValue)
-        throws IOException, JsonProcessingException
-    {
+    public ByteBuffer deserialize(JsonParser jp, DeserializationContext ctxt, ByteBuffer intoValue) throws IOException {
         // Let's actually read in streaming manner...
         OutputStream out = new ByteBufferBackedOutputStream(intoValue);
         jp.readBinaryValue(ctxt.getBase64Variant(), out);

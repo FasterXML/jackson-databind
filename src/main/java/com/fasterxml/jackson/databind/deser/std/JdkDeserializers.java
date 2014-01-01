@@ -85,14 +85,14 @@ public class JdkDeserializers
             return new CharsetDeserializer();
         }
         if (rawType == Class.class) {
-            return ClassDeserializer.instance;
+            return new ClassDeserializer();
         }
         if (rawType == StackTraceElement.class) {
-            return StackTraceElementDeserializer.instance;
+            return new StackTraceElementDeserializer();
         }
         if (rawType == AtomicBoolean.class) {
             // (note: AtomicInteger/Long work due to single-arg constructor. For now?
-            return AtomicBooleanDeserializer.instance;
+            return new AtomicBooleanDeserializer();
         }
         if (rawType == ByteBuffer.class) {
             return new ByteBufferDeserializer();

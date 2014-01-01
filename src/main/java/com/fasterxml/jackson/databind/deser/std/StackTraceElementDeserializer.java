@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
@@ -13,13 +13,10 @@ public class StackTraceElementDeserializer
 {
     private static final long serialVersionUID = 1L;
 
-    public final static StackTraceElementDeserializer instance = new StackTraceElementDeserializer();
-
     public StackTraceElementDeserializer() { super(StackTraceElement.class); }
 
     @Override
-    public StackTraceElement deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public StackTraceElement deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         // Must get an Object

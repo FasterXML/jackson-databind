@@ -16,19 +16,11 @@ public abstract class StdScalarDeserializer<T> extends StdDeserializer<T>
 {
     private static final long serialVersionUID = 1L;
 
-    protected StdScalarDeserializer(Class<?> vc) {
-        super(vc);
-    }
-
-    protected StdScalarDeserializer(JavaType valueType) {
-        super(valueType);
-    }
+    protected StdScalarDeserializer(Class<?> vc) { super(vc); }
+    protected StdScalarDeserializer(JavaType valueType) { super(valueType); }
     
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
-    {
+    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
         return typeDeserializer.deserializeTypedFromScalar(jp, ctxt);
     }
 }

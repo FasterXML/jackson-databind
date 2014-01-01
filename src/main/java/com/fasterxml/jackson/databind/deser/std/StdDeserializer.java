@@ -46,9 +46,7 @@ public abstract class StdDeserializer<T>
      */
     
     @Override
-    public Class<?> handledType() {
-        return _valueClass;
-    }
+    public Class<?> handledType() { return _valueClass; }
     
     /*
     /**********************************************************
@@ -95,9 +93,8 @@ public abstract class StdDeserializer<T>
      * this method if they are to handle type information.
      */
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
+        throws IOException
     {
         return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
     }
@@ -111,7 +108,7 @@ public abstract class StdDeserializer<T>
      */
 
     protected final boolean _parseBooleanPrimitive(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.VALUE_TRUE) {
@@ -150,7 +147,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final Boolean _parseBoolean(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.VALUE_TRUE) {
@@ -192,7 +189,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final boolean _parseBooleanFromNumber(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+            throws IOException
     {
         if (jp.getNumberType() == NumberType.LONG) {
             return (jp.getLongValue() == 0L) ? Boolean.FALSE : Boolean.TRUE;
@@ -206,7 +203,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected Byte _parseByte(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
@@ -241,7 +238,7 @@ public abstract class StdDeserializer<T>
     }
     
     protected Short _parseShort(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
@@ -275,7 +272,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final short _parseShortPrimitive(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         int value = _parseIntPrimitive(jp, ctxt);
         // So far so good: but does it fit?
@@ -287,7 +284,7 @@ public abstract class StdDeserializer<T>
     }
     
     protected final int _parseIntPrimitive(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         JsonToken t = jp.getCurrentToken();
 
@@ -326,7 +323,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final Integer _parseInteger(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) { // coercing should work too
@@ -362,8 +359,7 @@ public abstract class StdDeserializer<T>
         throw ctxt.mappingException(_valueClass, t);
     }
 
-    protected final Long _parseLong(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    protected final Long _parseLong(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         JsonToken t = jp.getCurrentToken();
     
@@ -394,7 +390,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final long _parseLongPrimitive(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) {
@@ -417,7 +413,7 @@ public abstract class StdDeserializer<T>
     }
     
     protected final Float _parseFloat(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // We accept couple of different types; obvious ones first:
         JsonToken t = jp.getCurrentToken();
@@ -464,7 +460,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final float _parseFloatPrimitive(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         
@@ -506,7 +502,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final Double _parseDouble(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         
@@ -551,7 +547,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected final double _parseDoublePrimitive(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // We accept couple of different types; obvious ones first:
         JsonToken t = jp.getCurrentToken();
@@ -595,7 +591,7 @@ public abstract class StdDeserializer<T>
     }
 
     protected java.util.Date _parseDate(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.VALUE_NUMBER_INT) {
@@ -645,7 +641,7 @@ public abstract class StdDeserializer<T>
      * @since 2.1
      */
     protected final String _parseString(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         String value = jp.getValueAsString();
         if (value != null) {
@@ -747,9 +743,8 @@ public abstract class StdDeserializer<T>
      *   If null, will assume type is what {@link #getValueClass} returns.
      * @param propName Name of the property that can not be mapped
      */
-    protected void handleUnknownProperty(JsonParser jp, DeserializationContext ctxt,
-            Object instanceOrClass, String propName)
-        throws IOException, JsonProcessingException
+    protected void handleUnknownProperty(JsonParser jp, DeserializationContext ctxt, Object instanceOrClass, String propName)
+        throws IOException
     {
         if (instanceOrClass == null) {
             instanceOrClass = handledType();

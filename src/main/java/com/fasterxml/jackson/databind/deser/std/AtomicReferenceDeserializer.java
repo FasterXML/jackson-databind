@@ -31,8 +31,7 @@ public class AtomicReferenceDeserializer
         this(referencedType, null, null);
     }
     
-    public AtomicReferenceDeserializer(JavaType referencedType,
-            TypeDeserializer typeDeser, JsonDeserializer<?> deser)
+    public AtomicReferenceDeserializer(JavaType referencedType, TypeDeserializer typeDeser, JsonDeserializer<?> deser)
     {
         super(AtomicReference.class);
         _referencedType = referencedType;
@@ -40,11 +39,8 @@ public class AtomicReferenceDeserializer
         _valueTypeDeserializer = typeDeser;
     }
 
-    public AtomicReferenceDeserializer withResolved(TypeDeserializer typeDeser,
-            JsonDeserializer<?> valueDeser)
-    {
-        return new AtomicReferenceDeserializer(_referencedType,
-                typeDeser, valueDeser);
+    public AtomicReferenceDeserializer withResolved(TypeDeserializer typeDeser, JsonDeserializer<?> valueDeser) {
+        return new AtomicReferenceDeserializer(_referencedType, typeDeser, valueDeser);
     }
     
     // Added in 2.3
@@ -54,8 +50,7 @@ public class AtomicReferenceDeserializer
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException
     {
         JsonDeserializer<?> deser = _valueDeserializer;
         TypeDeserializer typeDeser = _valueTypeDeserializer;

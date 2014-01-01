@@ -10,13 +10,10 @@ public class AtomicBooleanDeserializer extends StdScalarDeserializer<AtomicBoole
 {
     private static final long serialVersionUID = 1L;
 
-    public final static AtomicBooleanDeserializer instance = new AtomicBooleanDeserializer();
-
     public AtomicBooleanDeserializer() { super(AtomicBoolean.class); }
-    
+
     @Override
     public AtomicBoolean deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        // 16-Dec-2010, tatu: Should we actually convert null to null AtomicBoolean?
         return new AtomicBoolean(_parseBooleanPrimitive(jp, ctxt));
     }
 }

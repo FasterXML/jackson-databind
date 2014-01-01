@@ -9,19 +9,14 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
 @JacksonStdImpl
-public class ClassDeserializer
-    extends StdScalarDeserializer<Class<?>>
+public class ClassDeserializer extends StdScalarDeserializer<Class<?>>
 {
     private static final long serialVersionUID = 1L;
-
-    public final static ClassDeserializer instance = new ClassDeserializer();
     
     public ClassDeserializer() { super(Class.class); }
 
     @Override
-    public Class<?> deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
+    public Class<?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         JsonToken curr = jp.getCurrentToken();
         // Currently will only accept if given simple class name
         if (curr == JsonToken.VALUE_STRING) {

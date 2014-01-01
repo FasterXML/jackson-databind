@@ -70,8 +70,7 @@ public class PropertyBuilder
      *    of container type)
      */
     protected BeanPropertyWriter buildWriter(SerializerProvider prov,
-            BeanPropertyDefinition propDef,
-            JavaType declaredType, JsonSerializer<?> ser,
+            BeanPropertyDefinition propDef, JavaType declaredType, JsonSerializer<?> ser,
             TypeSerializer typeSer, TypeSerializer contentTypeSer,
             AnnotatedMember am, boolean defaultUseStaticTyping)
         throws JsonMappingException

@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 public class InetAddressSerializer
     extends StdScalarSerializer<InetAddress>
 {
-    public final static InetAddressSerializer instance = new InetAddressSerializer();
-    
     public InetAddressSerializer() { super(InetAddress.class); }
 
     @Override
@@ -37,9 +35,7 @@ public class InetAddressSerializer
     }
 
     @Override
-    public void serializeWithType(InetAddress value, JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+    public void serializeWithType(InetAddress value, JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer) throws IOException, JsonGenerationException
     {
         // Better ensure we don't use specific sub-classes...
         typeSer.writeTypePrefixForScalar(value, jgen, InetAddress.class);

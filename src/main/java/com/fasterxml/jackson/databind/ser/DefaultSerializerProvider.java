@@ -5,8 +5,9 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-import com.fasterxml.jackson.core.JsonGenerationException;
+
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -81,8 +82,7 @@ public abstract class DefaultSerializerProvider
      * this provider has access to (via caching and/or creating new serializers
      * as need be).
      */
-    public void serializeValue(JsonGenerator jgen, Object value)
-        throws IOException, JsonGenerationException
+    public void serializeValue(JsonGenerator jgen, Object value) throws IOException
     {
         if (value == null) {
             _serializeNull(jgen);
@@ -137,8 +137,7 @@ public abstract class DefaultSerializerProvider
      * @param rootType Type to use for locating serializer to use, instead of actual
      *    runtime type. Must be actual type, or one of its super types
      */
-    public void serializeValue(JsonGenerator jgen, Object value, JavaType rootType)
-        throws IOException, JsonGenerationException
+    public void serializeValue(JsonGenerator jgen, Object value, JavaType rootType) throws IOException
     {
         if (value == null) {
             _serializeNull(jgen);
@@ -197,9 +196,7 @@ public abstract class DefaultSerializerProvider
      * 
      * @since 2.1
      */
-    public void serializeValue(JsonGenerator jgen, Object value, JavaType rootType,
-            JsonSerializer<Object> ser)
-        throws IOException, JsonGenerationException
+    public void serializeValue(JsonGenerator jgen, Object value, JavaType rootType, JsonSerializer<Object> ser) throws IOException
     {
         if (value == null) {
             _serializeNull(jgen);
@@ -252,8 +249,7 @@ public abstract class DefaultSerializerProvider
      * 
      * @since 2.3
      */
-    protected void _serializeNull(JsonGenerator jgen)
-        throws IOException, JsonGenerationException
+    protected void _serializeNull(JsonGenerator jgen) throws IOException
     {
         JsonSerializer<Object> ser = getDefaultNullValueSerializer();
         try {
@@ -384,8 +380,7 @@ public abstract class DefaultSerializerProvider
      */
     
     @Override
-    public WritableObjectId findObjectId(Object forPojo,
-            ObjectIdGenerator<?> generatorType)
+    public WritableObjectId findObjectId(Object forPojo, ObjectIdGenerator<?> generatorType)
     {
         if (_seenObjectIds == null) {
             _seenObjectIds = _createObjectIdMap();
@@ -443,9 +438,7 @@ public abstract class DefaultSerializerProvider
      */
     
     @Override
-    public JsonSerializer<Object> serializerInstance(Annotated annotated,
-            Object serDef)
-        throws JsonMappingException
+    public JsonSerializer<Object> serializerInstance(Annotated annotated, Object serDef) throws JsonMappingException
     {
         if (serDef == null) {
             return null;
@@ -491,20 +484,17 @@ public abstract class DefaultSerializerProvider
      * Concrete implementation that defines factory method(s),
      * defined as final.
      */
-    public final static class Impl extends DefaultSerializerProvider
-    {
+    public final static class Impl extends DefaultSerializerProvider {
         private static final long serialVersionUID = 1L;
 
         public Impl() { super(); }
 
-        protected Impl(SerializerProvider src,
-                SerializationConfig config,SerializerFactory f) {
+        protected Impl(SerializerProvider src, SerializationConfig config,SerializerFactory f) {
             super(src, config, f);
         }
 
         @Override
-        public Impl createInstance(SerializationConfig config,
-                SerializerFactory jsf) {
+        public Impl createInstance(SerializationConfig config, SerializerFactory jsf) {
             return new Impl(this, config, jsf);
         }
     }

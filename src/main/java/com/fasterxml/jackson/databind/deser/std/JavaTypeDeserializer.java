@@ -11,19 +11,14 @@ import com.fasterxml.jackson.databind.JavaType;
 /**
  * Deserializer for {@link JavaType} values.
  */
-public class JavaTypeDeserializer
-    extends StdScalarDeserializer<JavaType>
+public class JavaTypeDeserializer extends StdScalarDeserializer<JavaType>
 {
     private static final long serialVersionUID = 1;
-
-    public final static JavaTypeDeserializer instance = new JavaTypeDeserializer();
     
     public JavaTypeDeserializer() { super(JavaType.class); }
     
     @Override
-    public JavaType deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
+    public JavaType deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         JsonToken curr = jp.getCurrentToken();
         // Usually should just get string value:
         if (curr == JsonToken.VALUE_STRING) {

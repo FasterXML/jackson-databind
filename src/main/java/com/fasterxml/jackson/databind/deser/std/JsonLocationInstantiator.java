@@ -16,8 +16,6 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
  */
 public class JsonLocationInstantiator extends ValueInstantiator
 {
-    public final static JsonLocationInstantiator instance = new JsonLocationInstantiator();
-    
     @Override
     public String getValueTypeDesc() {
         return JsonLocation.class.getName();
@@ -53,6 +51,7 @@ public class JsonLocationInstantiator extends ValueInstantiator
     private final static long _long(Object o) {
         return (o == null) ? 0L : ((Number) o).longValue();
     }
+
     private final static int _int(Object o) {
         return (o == null) ? 0 : ((Number) o).intValue();
     }

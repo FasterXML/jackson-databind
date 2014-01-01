@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
 
 public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
 {
-    public final static ByteBufferSerializer instance = new ByteBufferSerializer();
-
     public ByteBufferSerializer() { super(ByteBuffer.class); }
 
     @Override

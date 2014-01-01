@@ -370,16 +370,16 @@ public abstract class BasicSerializerFactory
             return DateSerializer.instance;
         }
         if (ByteBuffer.class.isAssignableFrom(raw)) {
-            return ByteBufferSerializer.instance;
+            return new ByteBufferSerializer();
         }
         if (InetAddress.class.isAssignableFrom(raw)) {
-            return InetAddressSerializer.instance;
+            return new InetAddressSerializer();
         }
         if (InetSocketAddress.class.isAssignableFrom(raw)) {
-            return InetSocketAddressSerializer.instance;
+            return new InetSocketAddressSerializer();
         }
         if (TimeZone.class.isAssignableFrom(raw)) {
-            return TimeZoneSerializer.instance;
+            return new TimeZoneSerializer();
         }
         if (java.nio.charset.Charset.class.isAssignableFrom(raw)) {
             return ToStringSerializer.instance;
@@ -414,9 +414,7 @@ public abstract class BasicSerializerFactory
      * function is usually something else. The reason for
      */
     protected final JsonSerializer<?> findSerializerByAddonType(SerializationConfig config,
-            JavaType javaType, BeanDescription beanDesc,
-            boolean staticTyping)
-        throws JsonMappingException
+            JavaType javaType, BeanDescription beanDesc, boolean staticTyping) throws JsonMappingException
     {
         Class<?> type = javaType.getRawClass();
 

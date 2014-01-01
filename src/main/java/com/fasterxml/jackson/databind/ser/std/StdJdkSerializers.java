@@ -69,22 +69,17 @@ public class StdJdkSerializers
         public AtomicBooleanSerializer() { super(AtomicBoolean.class, false); }
     
         @Override
-        public void serialize(AtomicBoolean value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
+        public void serialize(AtomicBoolean value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
             jgen.writeBoolean(value.get());
         }
     
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("boolean", true);
         }
         
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
-        {
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
             visitor.expectBooleanFormat(typeHint);
         }
     }
@@ -95,21 +90,17 @@ public class StdJdkSerializers
         public AtomicIntegerSerializer() { super(AtomicInteger.class, false); }
     
         @Override
-        public void serialize(AtomicInteger value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
+        public void serialize(AtomicInteger value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
             jgen.writeNumber(value.get());
         }
     
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("integer", true);
         }
         
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
         {
             JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
             if (v2 != null) {
@@ -124,15 +115,12 @@ public class StdJdkSerializers
         public AtomicLongSerializer() { super(AtomicLong.class, false); }
     
         @Override
-        public void serialize(AtomicLong value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
+        public void serialize(AtomicLong value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
             jgen.writeNumber(value.get());
         }
     
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("integer", true);
         }
         
@@ -153,15 +141,12 @@ public class StdJdkSerializers
         public AtomicReferenceSerializer() { super(AtomicReference.class, false); }
 
         @Override
-        public void serialize(AtomicReference<?> value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
+        public void serialize(AtomicReference<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
             provider.defaultSerializeValue(value.get(), jgen);
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("any", true);
         }
         

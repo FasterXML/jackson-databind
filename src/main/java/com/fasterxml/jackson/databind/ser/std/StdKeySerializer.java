@@ -17,17 +17,12 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
  * serializer, when serializing {@link java.util.Map}s to JSON
  * Objects.
  */
-public class StdKeySerializer
-    extends StdSerializer<Object>
+public class StdKeySerializer extends StdSerializer<Object>
 {
-    final static StdKeySerializer instace = new StdKeySerializer();
-
     public StdKeySerializer() { super(Object.class); }
     
     @Override
-    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
-    {
+    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
         if (value instanceof Date) {
             provider.defaultSerializeDateKey((Date) value, jgen);
         } else {
@@ -36,16 +31,12 @@ public class StdKeySerializer
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
-    {
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
         return createSchemaNode("string");
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
-    {
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
         visitor.expectStringFormat(typeHint);
     }
 }

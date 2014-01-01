@@ -35,7 +35,6 @@ public interface ContextualSerializer
      * 
      * @throws JsonMappingException
      */
-    public JsonSerializer<?> createContextual(SerializerProvider prov,
-            BeanProperty property)
+    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
         throws JsonMappingException;
 }

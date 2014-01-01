@@ -16,13 +16,10 @@ import java.net.InetSocketAddress;
 public class InetSocketAddressSerializer
     extends StdScalarSerializer<InetSocketAddress>
 {
-    public final static InetSocketAddressSerializer instance = new InetSocketAddressSerializer();
-
     public InetSocketAddressSerializer() { super(InetSocketAddress.class); }
 
     @Override
-    public void serialize(InetSocketAddress value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serialize(InetSocketAddress value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException
     {
         InetAddress addr = value.getAddress();
         String str = addr == null ? value.getHostName() : addr.toString().trim();
@@ -42,9 +39,7 @@ public class InetSocketAddressSerializer
     }
 
     @Override
-    public void serializeWithType(InetSocketAddress value, JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+    public void serializeWithType(InetSocketAddress value, JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer) throws IOException, JsonGenerationException
     {
         // Better ensure we don't use specific sub-classes...
         typeSer.writeTypePrefixForScalar(value, jgen, InetSocketAddress.class);

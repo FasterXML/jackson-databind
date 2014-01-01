@@ -21,19 +21,13 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * source {@link JsonParser} supports them.
  */
 @JacksonStdImpl
-public class TokenBufferDeserializer
-    extends StdScalarDeserializer<TokenBuffer>
-{
+public class TokenBufferDeserializer extends StdScalarDeserializer<TokenBuffer> {
     private static final long serialVersionUID = 1L;
-
-    public final static TokenBufferDeserializer instance = new TokenBufferDeserializer();
     
     public TokenBufferDeserializer() { super(TokenBuffer.class); }
 
     @Override
-    public TokenBuffer deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
+    public TokenBuffer deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         return createBufferInstance(jp).deserialize(jp, ctxt);
     }
 

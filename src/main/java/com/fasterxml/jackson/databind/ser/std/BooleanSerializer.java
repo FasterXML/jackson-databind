@@ -27,30 +27,25 @@ public final class BooleanSerializer
      * Whether type serialized is primitive (boolean) or wrapper
      * (java.lang.Boolean); if true, former, if false, latter.
      */
-    final boolean _forPrimitive;
+    protected final boolean _forPrimitive;
 
-    public BooleanSerializer(boolean forPrimitive)
-    {
+    public BooleanSerializer(boolean forPrimitive) {
         super(Boolean.class);
         _forPrimitive = forPrimitive;
     }
 
     @Override
-    public void serialize(Boolean value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
-    {
+    public void serialize(Boolean value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
         jgen.writeBoolean(value.booleanValue());
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-    {
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
         return createSchemaNode("boolean", !_forPrimitive);
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {
         if (visitor != null) {
             visitor.expectBooleanFormat(typeHint);

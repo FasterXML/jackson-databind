@@ -91,15 +91,13 @@ public class NumberSerializers
         public IntegerSerializer() { super(Integer.class); }
     
         @Override
-        public void serialize(Integer value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+        public void serialize(Integer value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException
         {
             jgen.writeNumber(value.intValue());
         }
     
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("integer", true);
         }
         
@@ -128,21 +126,17 @@ public class NumberSerializers
         public IntLikeSerializer() { super(Number.class); }
         
         @Override
-        public void serialize(Number value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
+        public void serialize(Number value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
             jgen.writeNumber(value.intValue());
         }
     
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("integer", true);
         }
         
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
         {
             JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
             if (v2 != null) {
@@ -160,22 +154,18 @@ public class NumberSerializers
         public LongSerializer() { super(Long.class); }
         
         @Override
-        public void serialize(Long value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+        public void serialize(Long value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException
         {
             jgen.writeNumber(value.longValue());
         }
     
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("number", true);
         }
         
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
-        {
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
             JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
             if (v2 != null) {
                 v2.numberType(JsonParser.NumberType.LONG);
@@ -192,21 +182,17 @@ public class NumberSerializers
         public FloatSerializer() { super(Float.class); }
         
         @Override
-        public void serialize(Float value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
+        public void serialize(Float value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
             jgen.writeNumber(value.floatValue());
         }
     
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("number", true);
         }
         
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
         {
             JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
             if (v2 != null) {
@@ -231,21 +217,17 @@ public class NumberSerializers
         public DoubleSerializer() { super(Double.class); }
     
         @Override
-        public void serialize(Double value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
+        public void serialize(Double value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
             jgen.writeNumber(value.doubleValue());
         }
     
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("number", true);
         }
         
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
         {
             JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
             if (v2 != null) {
@@ -307,8 +289,7 @@ public class NumberSerializers
         }
     
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             return createSchemaNode("number", true);
         }
         

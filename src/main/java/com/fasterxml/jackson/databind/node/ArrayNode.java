@@ -49,28 +49,24 @@ public class ArrayNode
      */
 
     @Override
-    public JsonNodeType getNodeType()
-    {
+    public JsonNodeType getNodeType() {
         return JsonNodeType.ARRAY;
     }
 
     @Override public JsonToken asToken() { return JsonToken.START_ARRAY; }
 
     @Override
-    public int size()
-    {
+    public int size() {
         return _children.size();
     }
 
     @Override
-    public Iterator<JsonNode> elements()
-    {
+    public Iterator<JsonNode> elements() {
         return _children.iterator();
     }
 
     @Override
-    public JsonNode get(int index)
-    {
+    public JsonNode get(int index) {
         if (index >= 0 && index < _children.size()) {
             return _children.get(index);
         }
@@ -84,8 +80,7 @@ public class ArrayNode
     public JsonNode path(String fieldName) { return MissingNode.getInstance(); }
 
     @Override
-    public JsonNode path(int index)
-    {
+    public JsonNode path(int index) {
         if (index >= 0 && index < _children.size()) {
             return _children.get(index);
         }
@@ -99,8 +94,7 @@ public class ArrayNode
      */
 
     @Override
-    public void serialize(JsonGenerator jg, SerializerProvider provider)
-        throws IOException, JsonProcessingException
+    public void serialize(JsonGenerator jg, SerializerProvider provider) throws IOException, JsonProcessingException
     {
         jg.writeStartArray();
         for (JsonNode n : _children) {
@@ -115,8 +109,7 @@ public class ArrayNode
     }
 
     @Override
-    public void serializeWithType(JsonGenerator jg, SerializerProvider provider,
-            TypeSerializer typeSer)
+    public void serializeWithType(JsonGenerator jg, SerializerProvider provider, TypeSerializer typeSer)
         throws IOException, JsonProcessingException
     {
         typeSer.writeTypePrefixForArray(this, jg);
@@ -734,14 +727,12 @@ public class ArrayNode
     /**
      * @since 2.3
      */
-    protected boolean _childrenEqual(ArrayNode other)
-    {
+    protected boolean _childrenEqual(ArrayNode other) {
         return _children.equals(other._children);
     }
     
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return _children.hashCode();
     }
 
@@ -767,8 +758,7 @@ public class ArrayNode
     /**********************************************************
      */
 
-    protected ArrayNode _add(JsonNode node)
-    {
+    protected ArrayNode _add(JsonNode node) {
         _children.add(node);
         return this;
     }

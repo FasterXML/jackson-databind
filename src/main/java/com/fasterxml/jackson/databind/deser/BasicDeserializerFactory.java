@@ -295,7 +295,7 @@ public abstract class BasicDeserializerFactory
         throws JsonMappingException
     {
         if (beanDesc.getBeanClass() == JsonLocation.class) {
-            return JsonLocationInstantiator.instance;
+            return new JsonLocationInstantiator();
         }
         return null;
     }
@@ -1404,10 +1404,10 @@ public abstract class BasicDeserializerFactory
         if (clsName.startsWith("com.fasterxml.")) {
             // and a few Jackson types as well:
             if (rawType == TokenBuffer.class) {
-                return TokenBufferDeserializer.instance;
+                return new TokenBufferDeserializer();
             }
             if (JavaType.class.isAssignableFrom(rawType)) {
-                return JavaTypeDeserializer.instance;
+                return new JavaTypeDeserializer();
             }
         }
         return null;

@@ -36,16 +36,11 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     
     @Override
     public TypeDeserializer forProperty(BeanProperty prop) {
-        if (prop == _property) { // usually if it's null
-            return this;
-        }
-        return new AsPropertyTypeDeserializer(this, prop);
+        return (prop == _property) ? this : new AsPropertyTypeDeserializer(this, prop);
     }
     
     @Override
-    public As getTypeInclusion() {
-        return As.PROPERTY;
-    }
+    public As getTypeInclusion() { return As.PROPERTY; }
 
     /**
      * This is the trickiest thing to handle, since property we are looking
@@ -53,8 +48,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      */
     @Override
     @SuppressWarnings("resource")
-    public Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         // 02-Aug-2013, tatu: May need to use native type ids
         if (jp.canReadTypeId()) {
@@ -96,9 +90,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     }
 
     @SuppressWarnings("resource")
-    protected final Object _deserializeTypedForId(JsonParser jp, DeserializationContext ctxt,
-            TokenBuffer tb)
-        throws IOException, JsonProcessingException
+    protected final Object _deserializeTypedForId(JsonParser jp, DeserializationContext ctxt, TokenBuffer tb) throws IOException
     {
         String typeId = jp.getText();
         JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
@@ -120,9 +112,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     
     // off-lined to keep main method lean and mean...
     @SuppressWarnings("resource")
-    protected Object _deserializeTypedUsingDefaultImpl(JsonParser jp,
-            DeserializationContext ctxt, TokenBuffer tb)
-        throws IOException, JsonProcessingException
+    protected Object _deserializeTypedUsingDefaultImpl(JsonParser jp, DeserializationContext ctxt, TokenBuffer tb) throws IOException
     {
         // As per [JACKSON-614], may have default implementation to use
         JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);
@@ -153,9 +143,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
      * no negative side effects (at least within existing unit test suite).
      */
     @Override
-    public Object deserializeTypedFromAny(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
+    public Object deserializeTypedFromAny(JsonParser jp, DeserializationContext ctxt) throws IOException {
         /* [JACKSON-387]: Sometimes, however, we get an array wrapper; specifically
          *   when an array or list has been serialized with type information.
          */

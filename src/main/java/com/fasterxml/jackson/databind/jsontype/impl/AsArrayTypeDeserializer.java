@@ -35,24 +35,18 @@ public class AsArrayTypeDeserializer
     
     @Override
     public TypeDeserializer forProperty(BeanProperty prop) {
-        if (prop == _property) { // usually if it's null
-            return this;
-        }
-        return new AsArrayTypeDeserializer(this, prop);
+        // usually if it's null:
+        return (prop == _property) ? this : new AsArrayTypeDeserializer(this, prop);
     }
     
     @Override
-    public As getTypeInclusion() {
-        return As.WRAPPER_ARRAY;
-    }
+    public As getTypeInclusion() { return As.WRAPPER_ARRAY; }
 
     /**
      * Method called when actual object is serialized as JSON Array.
      */
     @Override
-    public Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
+    public Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt) throws IOException {
         return _deserialize(jp, ctxt);
     }
 
@@ -60,23 +54,17 @@ public class AsArrayTypeDeserializer
      * Method called when actual object is serialized as JSON Object
      */
     @Override
-    public Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
+    public Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt) throws IOException {
         return _deserialize(jp, ctxt);
     }
     
     @Override
-    public Object deserializeTypedFromScalar(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
+    public Object deserializeTypedFromScalar(JsonParser jp, DeserializationContext ctxt) throws IOException {
         return _deserialize(jp, ctxt);
     }    
 
     @Override
-    public Object deserializeTypedFromAny(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
+    public Object deserializeTypedFromAny(JsonParser jp, DeserializationContext ctxt) throws IOException {
         return _deserialize(jp, ctxt);
     }    
     
@@ -92,8 +80,7 @@ public class AsArrayTypeDeserializer
      * deserialization.
      */
     @SuppressWarnings("resource")
-    private final Object _deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    private final Object _deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         // 02-Aug-2013, tatu: May need to use native type ids
         if (jp.canReadTypeId()) {
@@ -121,8 +108,7 @@ public class AsArrayTypeDeserializer
         return value;
     }    
     
-    protected final String _locateTypeId(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    protected final String _locateTypeId(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         if (!jp.isExpectedStartArrayToken()) {
             // [JACKSON-712] Need to allow even more customized handling, if something unexpected seen...

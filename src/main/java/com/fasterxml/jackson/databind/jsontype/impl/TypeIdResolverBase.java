@@ -29,20 +29,17 @@ public abstract class TypeIdResolverBase
         this(null, null);
     }
     
-    protected TypeIdResolverBase(JavaType baseType, TypeFactory typeFactory)
-    {
+    protected TypeIdResolverBase(JavaType baseType, TypeFactory typeFactory) {
         _baseType = baseType;
         _typeFactory = typeFactory;
     }
 
+    // Standard type id resolvers do not need this: only useful for custom ones.
     @Override
-    public void init(JavaType bt) {
-        // Standard type id resolvers do not need this: only useful for custom ones.
-    }
+    public void init(JavaType bt) { }
 
     @Override
-    public String idFromBaseType()
-    {
+    public String idFromBaseType() {
         /* By default we will just defer to regular handling, handing out the
          * base type; and since there is no value, must just pass null here
          * assuming that implementations can deal with it.

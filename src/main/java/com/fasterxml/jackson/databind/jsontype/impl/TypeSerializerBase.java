@@ -10,7 +10,7 @@ public abstract class TypeSerializerBase extends TypeSerializer
     protected final TypeIdResolver _idResolver;
 
     protected final BeanProperty _property;
-    
+
     protected TypeSerializerBase(TypeIdResolver idRes, BeanProperty property)
     {
         _idResolver = idRes;

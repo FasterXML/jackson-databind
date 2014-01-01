@@ -16,26 +16,22 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
  * just use a wrapping array with type information as the first element
  * and value as second.
  */
-public class AsWrapperTypeSerializer
-    extends TypeSerializerBase
+public class AsWrapperTypeSerializer extends TypeSerializerBase
 {
-    public AsWrapperTypeSerializer(TypeIdResolver idRes, BeanProperty property)
-    {
+    public AsWrapperTypeSerializer(TypeIdResolver idRes, BeanProperty property) {
         super(idRes, property);
     }
 
     @Override
     public AsWrapperTypeSerializer forProperty(BeanProperty prop) {
-        if (_property == prop) return this;
-        return new AsWrapperTypeSerializer(this._idResolver, prop);
+        return (_property == prop) ? this : new AsWrapperTypeSerializer(this._idResolver, prop);
     }
     
     @Override
     public As getTypeInclusion() { return As.WRAPPER_OBJECT; }
     
     @Override
-    public void writeTypePrefixForObject(Object value, JsonGenerator jgen)
-        throws IOException, JsonProcessingException
+    public void writeTypePrefixForObject(Object value, JsonGenerator jgen) throws IOException
     {
         final String typeId = idFromValue(value);
         if (jgen.canWriteTypeId()) {
@@ -50,9 +46,7 @@ public class AsWrapperTypeSerializer
     }
 
     @Override
-    public void writeTypePrefixForObject(Object value, JsonGenerator jgen,
-            Class<?> type)
-        throws IOException, JsonProcessingException
+    public void writeTypePrefixForObject(Object value, JsonGenerator jgen, Class<?> type) throws IOException
     {
         final String typeId = idFromValueAndType(value, type);
         if (jgen.canWriteTypeId()) {
@@ -67,8 +61,7 @@ public class AsWrapperTypeSerializer
     }
     
     @Override
-    public void writeTypePrefixForArray(Object value, JsonGenerator jgen)
-        throws IOException, JsonProcessingException
+    public void writeTypePrefixForArray(Object value, JsonGenerator jgen) throws IOException
     {
         final String typeId = idFromValue(value);
         if (jgen.canWriteTypeId()) {
@@ -83,9 +76,7 @@ public class AsWrapperTypeSerializer
     }
 
     @Override
-    public void writeTypePrefixForArray(Object value, JsonGenerator jgen,
-            Class<?> type)
-        throws IOException, JsonProcessingException
+    public void writeTypePrefixForArray(Object value, JsonGenerator jgen, Class<?> type) throws IOException
     {
         final String typeId = idFromValueAndType(value, type);
         if (jgen.canWriteTypeId()) {
@@ -100,9 +91,7 @@ public class AsWrapperTypeSerializer
     }
 
     @Override
-    public void writeTypePrefixForScalar(Object value, JsonGenerator jgen)
-        throws IOException, JsonProcessingException
-    {
+    public void writeTypePrefixForScalar(Object value, JsonGenerator jgen) throws IOException {
         final String typeId = idFromValue(value);
         if (jgen.canWriteTypeId()) {
             jgen.writeTypeId(typeId);
@@ -114,9 +103,7 @@ public class AsWrapperTypeSerializer
     }
 
     @Override
-    public void writeTypePrefixForScalar(Object value, JsonGenerator jgen,
-            Class<?> type)
-        throws IOException, JsonProcessingException
+    public void writeTypePrefixForScalar(Object value, JsonGenerator jgen, Class<?> type) throws IOException
     {
         final String typeId = idFromValueAndType(value, type);
         if (jgen.canWriteTypeId()) {
@@ -129,8 +116,7 @@ public class AsWrapperTypeSerializer
     }
     
     @Override
-    public void writeTypeSuffixForObject(Object value, JsonGenerator jgen)
-        throws IOException, JsonProcessingException
+    public void writeTypeSuffixForObject(Object value, JsonGenerator jgen) throws IOException
     {
         // first close JSON Object caller used
         jgen.writeEndObject();
@@ -141,8 +127,7 @@ public class AsWrapperTypeSerializer
     }
 
     @Override
-    public void writeTypeSuffixForArray(Object value, JsonGenerator jgen)
-        throws IOException, JsonProcessingException
+    public void writeTypeSuffixForArray(Object value, JsonGenerator jgen) throws IOException
     {
         // first close array caller needed
         jgen.writeEndArray();
@@ -153,9 +138,7 @@ public class AsWrapperTypeSerializer
     }
     
     @Override
-    public void writeTypeSuffixForScalar(Object value, JsonGenerator jgen)
-        throws IOException, JsonProcessingException
-    {
+    public void writeTypeSuffixForScalar(Object value, JsonGenerator jgen) throws IOException {
         if (!jgen.canWriteTypeId()) {
             // just need to close the wrapper object
             jgen.writeEndObject();
@@ -169,9 +152,7 @@ public class AsWrapperTypeSerializer
      */
     
     @Override
-    public void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId)
-        throws IOException, JsonProcessingException
-    {
+    public void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId) throws IOException {
         if (jgen.canWriteTypeId()) {
             jgen.writeTypeId(typeId);
             jgen.writeStartObject();
@@ -182,9 +163,7 @@ public class AsWrapperTypeSerializer
     }
     
     @Override
-    public void writeCustomTypePrefixForArray(Object value, JsonGenerator jgen, String typeId)
-        throws IOException, JsonProcessingException
-    {
+    public void writeCustomTypePrefixForArray(Object value, JsonGenerator jgen, String typeId) throws IOException {
         if (jgen.canWriteTypeId()) {
             jgen.writeTypeId(typeId);
             jgen.writeStartArray();
@@ -195,9 +174,7 @@ public class AsWrapperTypeSerializer
     }
 
     @Override
-    public void writeCustomTypePrefixForScalar(Object value, JsonGenerator jgen, String typeId)
-        throws IOException, JsonProcessingException
-    {
+    public void writeCustomTypePrefixForScalar(Object value, JsonGenerator jgen, String typeId) throws IOException {
         if (jgen.canWriteTypeId()) {
             jgen.writeTypeId(typeId);
         } else {
@@ -207,24 +184,21 @@ public class AsWrapperTypeSerializer
     }
 
     @Override
-    public void writeCustomTypeSuffixForObject(Object value, JsonGenerator jgen, String typeId)
-            throws IOException, JsonProcessingException {
+    public void writeCustomTypeSuffixForObject(Object value, JsonGenerator jgen, String typeId) throws IOException {
         if (!jgen.canWriteTypeId()) {
             writeTypeSuffixForObject(value, jgen); // standard impl works fine
         }
     }
 
     @Override
-    public void writeCustomTypeSuffixForArray(Object value, JsonGenerator jgen, String typeId)
-            throws IOException, JsonProcessingException {
+    public void writeCustomTypeSuffixForArray(Object value, JsonGenerator jgen, String typeId) throws IOException {
         if (!jgen.canWriteTypeId()) {
             writeTypeSuffixForArray(value, jgen); // standard impl works fine
         }
     }
 
     @Override
-    public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator jgen, String typeId)
-            throws IOException, JsonProcessingException {
+    public void writeCustomTypeSuffixForScalar(Object value, JsonGenerator jgen, String typeId) throws IOException {
         if (!jgen.canWriteTypeId()) {
             writeTypeSuffixForScalar(value, jgen); // standard impl works fine
         }

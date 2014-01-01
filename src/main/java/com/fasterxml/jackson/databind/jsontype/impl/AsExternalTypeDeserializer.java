@@ -30,8 +30,7 @@ public class AsExternalTypeDeserializer extends AsArrayTypeDeserializer
     }
     
     @Override
-    public TypeDeserializer forProperty(BeanProperty prop)
-    {
+    public TypeDeserializer forProperty(BeanProperty prop) {
         if (prop == _property) { // usually if it's null
             return this;
         }
@@ -39,7 +38,5 @@ public class AsExternalTypeDeserializer extends AsArrayTypeDeserializer
     }
     
     @Override
-    public As getTypeInclusion() {
-        return As.EXTERNAL_PROPERTY;
-    }
+    public As getTypeInclusion() { return As.EXTERNAL_PROPERTY; }
 }

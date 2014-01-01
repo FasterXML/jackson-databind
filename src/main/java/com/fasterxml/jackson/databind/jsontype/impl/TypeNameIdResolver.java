@@ -9,8 +9,7 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 
-public class TypeNameIdResolver
-    extends TypeIdResolverBase
+public class TypeNameIdResolver extends TypeIdResolverBase
 {
     protected final MapperConfig<?> _config;
     
@@ -33,8 +32,7 @@ public class TypeNameIdResolver
         _idToType = idToType;
     }
  
-    public static TypeNameIdResolver construct(MapperConfig<?> config,
-            JavaType baseType,
+    public static TypeNameIdResolver construct(MapperConfig<?> config, JavaType baseType,
             Collection<NamedType> subtypes, boolean forSer, boolean forDeser)
     {
         // sanity check
@@ -105,8 +103,7 @@ public class TypeNameIdResolver
     }
 
     @Override
-    public String idFromValueAndType(Object value, Class<?> type)
-    {
+    public String idFromValueAndType(Object value, Class<?> type) {
         /* 18-Jan-2013, tatu: We may be called with null value occasionally
          *   it seems; nothing much we can figure out that way.
          */
@@ -127,8 +124,7 @@ public class TypeNameIdResolver
         return _typeFromId(id);
     }
     
-    protected JavaType _typeFromId(String id)
-    {
+    protected JavaType _typeFromId(String id) {
         /* Now: if no type is found, should we try to locate it by
          * some other means? (specifically, if in same package as base type,
          * could just try Class.forName)
@@ -138,8 +134,7 @@ public class TypeNameIdResolver
     }    
     
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append('[').append(getClass().getName());
         sb.append("; id-to-type=").append(_idToType);

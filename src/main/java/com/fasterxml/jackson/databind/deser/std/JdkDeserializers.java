@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -20,11 +17,7 @@ public class JdkDeserializers
         // note: can skip primitive types; other ways to check them:
         Class<?>[] types = new Class<?>[] {
                 UUID.class,
-                InetAddress.class,
-                InetSocketAddress.class,
-                Charset.class,
                 AtomicBoolean.class,
-                Class.class,
                 StackTraceElement.class,
                 ByteBuffer.class
         };
@@ -47,18 +40,6 @@ public class JdkDeserializers
         }
         if (rawType == UUID.class) {
             return new UUIDDeserializer();
-        }
-        if (rawType == InetAddress.class) {
-            return new InetAddressDeserializer();
-        }
-        if (rawType == InetSocketAddress.class) {
-            return new InetSocketAddressDeserializer();
-        }
-        if (rawType == Charset.class) {
-            return new CharsetDeserializer();
-        }
-        if (rawType == Class.class) {
-            return new ClassDeserializer();
         }
         if (rawType == StackTraceElement.class) {
             return new StackTraceElementDeserializer();

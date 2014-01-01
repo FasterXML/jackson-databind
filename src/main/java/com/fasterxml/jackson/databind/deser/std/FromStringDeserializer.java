@@ -1,14 +1,19 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Currency;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Base class for simple deserializers that only accept JSON String
@@ -21,10 +26,14 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         return new Class<?>[] {
             URL.class,
             URI.class,
+            Class.class,
             File.class,
             Currency.class,
             Pattern.class,
             Locale.class,
+            Charset.class,
+            InetAddress.class,
+            InetSocketAddress.class,
         };
     }
     
@@ -51,12 +60,20 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             kind = Std.STD_URL;
         } else if (rawType == URI.class) {
             kind = Std.STD_URI;
+        } else if (rawType == Class.class) {
+            kind = Std.STD_CLASS;
         } else if (rawType == Currency.class) {
             kind = Std.STD_CURRENCY;
         } else if (rawType == Pattern.class) {
             kind = Std.STD_PATTERN;
         } else if (rawType == Locale.class) {
             kind = Std.STD_LOCALE;
+        } else if (rawType == Charset.class) {
+            kind = Std.STD_CHARSET;
+        } else if (rawType == InetAddress.class) {
+            kind = Std.STD_INET_ADDRESS;
+        } else if (rawType == InetSocketAddress.class) {
+            kind = Std.STD_INET_SOCKET_ADDRESS;
         } else {
             return null;
         }
@@ -130,9 +147,13 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         public final static int STD_FILE = 1;
         public final static int STD_URL = 2;
         public final static int STD_URI = 3;
-        public final static int STD_CURRENCY = 4;
-        public final static int STD_PATTERN = 5;
-        public final static int STD_LOCALE = 6;
+        public final static int STD_CLASS = 4;
+        public final static int STD_CURRENCY = 5;
+        public final static int STD_PATTERN = 6;
+        public final static int STD_LOCALE = 7;
+        public final static int STD_CHARSET = 8;
+        public final static int STD_INET_ADDRESS = 9;
+        public final static int STD_INET_SOCKET_ADDRESS = 10;
         
         protected final int _kind;
         
@@ -151,6 +172,12 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 return new URL(value);
             case STD_URI:
                 return URI.create(value);
+            case STD_CLASS:
+                try {
+                    return ctxt.findClass(value);
+                } catch (Exception e) {
+                    throw ctxt.instantiationException(_valueClass, ClassUtil.getRootCause(e));
+                }
             case STD_CURRENCY:
                 // will throw IAE if unknown:
                 return Currency.getInstance(value);
@@ -171,6 +198,35 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                     }
                     String second = value.substring(0, ix);
                     return new Locale(first, second, value.substring(ix+1));
+                }
+            case STD_CHARSET:
+                return Charset.forName(value);
+            case STD_INET_ADDRESS:
+                return InetAddress.getByName(value);
+            case STD_INET_SOCKET_ADDRESS:
+                if (value.startsWith("[")) {
+                    // bracketed IPv6 (with port number)
+
+                    int i = value.lastIndexOf(']');
+                    if (i == -1) {
+                        throw new InvalidFormatException(
+                                "Bracketed IPv6 address must contain closing bracket.",
+                                value, InetSocketAddress.class);
+                    }
+
+                    int j = value.indexOf(':', i);
+                    int port = j > -1 ? Integer.parseInt(value.substring(j + 1)) : 0;
+                    return new InetSocketAddress(value.substring(0, i + 1), port);
+                } else {
+                    int i = value.indexOf(':');
+                    if (i != -1 && value.indexOf(':', i + 1) == -1) {
+                        // host:port
+                        int port = Integer.parseInt(value.substring(i));
+                        return new InetSocketAddress(value.substring(0, i), port);
+                    } else {
+                        // host or unbracketed IPv6, without port number
+                        return new InetSocketAddress(value, 0);
+                    }
                 }
             }
             throw new IllegalArgumentException();

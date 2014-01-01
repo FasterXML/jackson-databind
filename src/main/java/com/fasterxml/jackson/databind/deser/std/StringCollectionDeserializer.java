@@ -144,7 +144,7 @@ public final class StringCollectionDeserializer
     @SuppressWarnings("unchecked")
     @Override
     public Collection<String> deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_delegateDeserializer != null) {
             return (Collection<String>) _valueInstantiator.createUsingDelegate(ctxt,
@@ -157,7 +157,7 @@ public final class StringCollectionDeserializer
     @Override
     public Collection<String> deserialize(JsonParser jp, DeserializationContext ctxt,
                                           Collection<String> result)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // Ok: must point to START_ARRAY
         if (!jp.isExpectedStartArrayToken()) {
@@ -176,8 +176,7 @@ public final class StringCollectionDeserializer
     }
     
     private Collection<String> deserializeUsingCustom(JsonParser jp, DeserializationContext ctxt,
-            Collection<String> result, final JsonDeserializer<String> deser)
-        throws IOException, JsonProcessingException
+            Collection<String> result, final JsonDeserializer<String> deser) throws IOException
     {
         JsonToken t;
         while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
@@ -194,10 +193,7 @@ public final class StringCollectionDeserializer
     }
     
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
-    {
+    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromArray(jp, ctxt);
     }
@@ -207,9 +203,7 @@ public final class StringCollectionDeserializer
      * throw an exception, or try to handle value as if member of implicit
      * array, depending on configuration.
      */
-    private final Collection<String> handleNonArray(JsonParser jp, DeserializationContext ctxt,
-            Collection<String> result)
-        throws IOException, JsonProcessingException
+    private final Collection<String> handleNonArray(JsonParser jp, DeserializationContext ctxt, Collection<String> result) throws IOException
     {
         // [JACKSON-526]: implicit arrays from single values?
         if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {

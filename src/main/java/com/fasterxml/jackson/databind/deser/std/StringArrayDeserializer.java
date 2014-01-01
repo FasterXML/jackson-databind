@@ -41,8 +41,7 @@ public final class StringArrayDeserializer
     }
    
     @Override
-    public String[] deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public String[] deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!jp.isExpectedStartArrayToken()) {
@@ -82,8 +81,7 @@ public final class StringArrayDeserializer
     /**
      * Offlined version used when we do not use the default deserialization method.
      */
-    protected final String[] _deserializeCustom(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+    protected final String[] _deserializeCustom(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         final ObjectBuffer buffer = ctxt.leaseObjectBuffer();
         Object[] chunk = buffer.resetAndStart();
@@ -107,15 +105,11 @@ public final class StringArrayDeserializer
     }
     
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-        TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
-    {
+    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
         return typeDeserializer.deserializeTypedFromArray(jp, ctxt);
     }
 
-    private final String[] handleNonArray(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    private final String[] handleNonArray(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         // [JACKSON-526]: implicit arrays from single values?
         if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {
@@ -137,8 +131,7 @@ public final class StringArrayDeserializer
      * of String values, or if we have to use separate value deserializer.
      */
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
-            BeanProperty property) throws JsonMappingException
+    public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) throws JsonMappingException
     {
         JsonDeserializer<?> deser = _elementDeserializer;
         // #125: May have a content converter

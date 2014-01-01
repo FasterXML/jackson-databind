@@ -156,8 +156,7 @@ public class UntypedObjectDeserializer
      */
     
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         switch (jp.getCurrentToken()) {
         case FIELD_NAME:
@@ -222,9 +221,7 @@ public class UntypedObjectDeserializer
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         switch (t) {
@@ -293,8 +290,7 @@ public class UntypedObjectDeserializer
     /**
      * Method called to map a JSON Array into a Java value.
      */
-    protected Object mapArray(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    protected Object mapArray(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         // Minor optimization to handle small lists (default size for ArrayList is 10)
         if (jp.nextToken()  == JsonToken.END_ARRAY) {
@@ -322,8 +318,7 @@ public class UntypedObjectDeserializer
     /**
      * Method called to map a JSON Object into a Java value.
      */
-    protected Object mapObject(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    protected Object mapObject(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.START_OBJECT) {
@@ -366,8 +361,7 @@ public class UntypedObjectDeserializer
     /**
      * Method called to map a JSON Array into a Java Object array (Object[]).
      */
-    protected Object[] mapArrayToArray(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    protected Object[] mapArrayToArray(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         // Minor optimization to handle small lists (default size for ArrayList is 10)
         if (jp.nextToken()  == JsonToken.END_ARRAY) {

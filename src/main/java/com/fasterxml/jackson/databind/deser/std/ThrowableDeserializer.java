@@ -26,8 +26,7 @@ public class ThrowableDeserializer
     /************************************************************
      */
 
-    public ThrowableDeserializer(BeanDeserializer baseDeserializer)
-    {
+    public ThrowableDeserializer(BeanDeserializer baseDeserializer) {
         super(baseDeserializer);
         // need to disable this, since we do post-processing
         _vanillaProcessing = false;
@@ -36,14 +35,12 @@ public class ThrowableDeserializer
     /**
      * Alternative constructor used when creating "unwrapping" deserializers
      */
-    protected ThrowableDeserializer(BeanDeserializer src, NameTransformer unwrapper)
-    {
+    protected ThrowableDeserializer(BeanDeserializer src, NameTransformer unwrapper) {
         super(src, unwrapper);
     }
     
     @Override
-    public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper)
-    {
+    public JsonDeserializer<Object> unwrappingDeserializer(NameTransformer unwrapper) {
         if (getClass() != ThrowableDeserializer.class) {
             return this;
         }
@@ -62,8 +59,7 @@ public class ThrowableDeserializer
      */
 
     @Override
-    public Object deserializeFromObject(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public Object deserializeFromObject(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         // 30-Sep-2010, tatu: Need to allow use of @JsonCreator, so:
         if (_propertyBasedCreator != null) { // proper @JsonCreator

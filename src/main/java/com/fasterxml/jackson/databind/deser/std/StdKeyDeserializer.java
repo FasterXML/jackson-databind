@@ -253,14 +253,16 @@ public abstract class StdKeyDeserializer
     final static class LocaleKD extends StdKeyDeserializer {
         private static final long serialVersionUID = 1L;
 
-        protected JdkDeserializers.LocaleDeserializer _localeDeserializer;
+        protected FromStringDeserializer<?> _deser;
 
-        LocaleKD() { super(Locale.class); _localeDeserializer = new JdkDeserializers.LocaleDeserializer();}
+        LocaleKD() { super(Locale.class);
+            _deser = FromStringDeserializer.findDeserializer(Locale.class);
+        }
 
         @Override
-        protected Locale _parse(String key, DeserializationContext ctxt) throws JsonMappingException {
+        protected Object _parse(String key, DeserializationContext ctxt) throws JsonMappingException {
             try {
-                return _localeDeserializer._deserialize(key,ctxt);
+                return _deser._deserialize(key, ctxt);
             } catch (IOException e) {
                 throw ctxt.weirdKeyException(_keyClass, key, "unable to parse key as locale");
             }

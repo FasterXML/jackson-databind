@@ -9,8 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 @JacksonStdImpl
-public final class StringDeserializer
-    extends StdScalarDeserializer<String>
+public final class StringDeserializer extends StdScalarDeserializer<String>
 {
     private static final long serialVersionUID = 1L;
 
@@ -22,8 +21,7 @@ public final class StringDeserializer
     public StringDeserializer() { super(String.class); }
 
     @Override
-    public String deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public String deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         // 22-Sep-2012, tatu: For 2.1, use this new method, may force coercion:
         String text = jp.getValueAsString();
@@ -49,10 +47,7 @@ public final class StringDeserializer
     // 1.6: since we can never have type info ("natural type"; String, Boolean, Integer, Double):
     // (is it an error to even call this version?)
     @Override
-    public String deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
-    {
+    public String deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
         return deserialize(jp, ctxt);
     }
 }

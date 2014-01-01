@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -27,7 +27,7 @@ public class TokenBufferDeserializer extends StdScalarDeserializer<TokenBuffer> 
     public TokenBufferDeserializer() { super(TokenBuffer.class); }
 
     @Override
-    public TokenBuffer deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public TokenBuffer deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         return createBufferInstance(jp).deserialize(jp, ctxt);
     }
 

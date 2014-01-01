@@ -16,13 +16,11 @@ public class InetSocketAddressDeserializer
 {
     private static final long serialVersionUID = 1L;
 
-    public final static InetSocketAddressDeserializer instance = new InetSocketAddressDeserializer();
-
     public InetSocketAddressDeserializer() { super(InetSocketAddress.class); }
 
     @Override
     protected InetSocketAddress _deserialize(String value, DeserializationContext ctxt)
-            throws IOException
+        throws IOException
     {
         if (value.startsWith("[")) {
             // bracketed IPv6 (with port number)

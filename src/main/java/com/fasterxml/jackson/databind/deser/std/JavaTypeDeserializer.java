@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
@@ -18,7 +17,7 @@ public class JavaTypeDeserializer extends StdScalarDeserializer<JavaType>
     public JavaTypeDeserializer() { super(JavaType.class); }
     
     @Override
-    public JavaType deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+    public JavaType deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         JsonToken curr = jp.getCurrentToken();
         // Usually should just get string value:
         if (curr == JsonToken.VALUE_STRING) {

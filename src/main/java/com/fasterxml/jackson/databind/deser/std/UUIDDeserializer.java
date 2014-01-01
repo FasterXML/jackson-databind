@@ -5,33 +5,27 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import com.fasterxml.jackson.core.Base64Variants;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 
-public class UUIDDeserializer
-    extends FromStringDeserializer<UUID>
+public class UUIDDeserializer extends FromStringDeserializer<UUID>
 {
     private static final long serialVersionUID = 1L;
 
     final static int[] HEX_DIGITS = new int[127];
     static {
         Arrays.fill(HEX_DIGITS, -1);
-        for (int i = 0; i < 10; ++i) {
-            HEX_DIGITS['0' + i] = i;
-        }
+        for (int i = 0; i < 10; ++i) { HEX_DIGITS['0' + i] = i; }
         for (int i = 0; i < 6; ++i) {
             HEX_DIGITS['a' + i] = 10 + i;
             HEX_DIGITS['A' + i] = 10 + i;
         }
     }
 
-    public final static UUIDDeserializer instance = new UUIDDeserializer();
-
     public UUIDDeserializer() { super(UUID.class); }
 
     @Override
-    protected UUID _deserialize(String id, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    protected UUID _deserialize(String id, DeserializationContext ctxt) throws IOException
     {
         // Adapted from java-uuid-generator (https://github.com/cowtowncoder/java-uuid-generator)
         // which is 5x faster than UUID.fromString(value), as oper "ManualReadPerfWithUUID"
@@ -68,8 +62,7 @@ public class UUIDDeserializer
     }
     
     @Override
-    protected UUID _deserializeEmbedded(Object ob, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    protected UUID _deserializeEmbedded(Object ob, DeserializationContext ctxt) throws IOException
     {
         if (ob instanceof byte[]) {
             return _fromBytes((byte[]) ob, ctxt);
@@ -83,10 +76,7 @@ public class UUIDDeserializer
     }
     
     static int intFromChars(String str, int index) {
-        return (byteFromChars(str, index) << 24)
-                +(byteFromChars(str, index+2) << 16)
-                +(byteFromChars(str, index+4) << 8)
-                + byteFromChars(str, index+6);
+        return (byteFromChars(str, index) << 24) + (byteFromChars(str, index+2) << 16) + (byteFromChars(str, index+4) << 8) + byteFromChars(str, index+6);
     }
     
     static int shortFromChars(String str, int index) {
@@ -115,17 +105,14 @@ public class UUIDDeserializer
                 +"' (value 0x"+Integer.toHexString(c)+") for UUID String \""+uuidStr+"\"");
     }
     
-    private UUID _fromBytes(byte[] bytes, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
+    private UUID _fromBytes(byte[] bytes, DeserializationContext ctxt) throws IOException {
         if (bytes.length != 16) {
             ctxt.mappingException("Can only construct UUIDs from byte[16]; got "+bytes.length+" bytes");
         }
         return new UUID(_long(bytes, 0), _long(bytes, 8));
     }
 
-    private static long _long(byte[] b, int offset)
-    {
+    private static long _long(byte[] b, int offset) {
         long l1 = ((long) _int(b, offset)) << 32;
         long l2 = _int(b, offset+4);
         // faster to just do it than check if it has sign
@@ -133,12 +120,7 @@ public class UUIDDeserializer
         return l1 | l2;
     }
 
-    private static int _int(byte[] b, int offset)
-    {
-        return (b[offset] << 24)
-                | ((b[offset+1] & 0xFF) << 16)
-                | ((b[offset+2] & 0xFF) << 8)
-                | (b[offset+3] & 0xFF)
-                ;
+    private static int _int(byte[] b, int offset) {
+        return (b[offset] << 24) | ((b[offset+1] & 0xFF) << 16) | ((b[offset+2] & 0xFF) << 8) | (b[offset+3] & 0xFF);
     }
 }

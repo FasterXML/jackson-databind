@@ -5,11 +5,8 @@ import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -21,7 +18,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 public class ArrayBlockingQueueDeserializer
     extends CollectionDeserializer
 {
-    private static final long serialVersionUID = 5471961369237518580L;
+    private static final long serialVersionUID = 1;
 
     /*
     /**********************************************************
@@ -73,8 +70,7 @@ public class ArrayBlockingQueueDeserializer
     
     @SuppressWarnings("unchecked")
     @Override
-    public Collection<Object> deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public Collection<Object> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         if (_delegateDeserializer != null) {
             return (Collection<Object>) _valueInstantiator.createUsingDelegate(ctxt,
@@ -90,9 +86,7 @@ public class ArrayBlockingQueueDeserializer
     }
 
     @Override
-    public Collection<Object> deserialize(JsonParser jp, DeserializationContext ctxt,
-            Collection<Object> result0)
-        throws IOException, JsonProcessingException
+    public Collection<Object> deserialize(JsonParser jp, DeserializationContext ctxt, Collection<Object> result0) throws IOException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!jp.isExpectedStartArrayToken()) {
@@ -124,10 +118,7 @@ public class ArrayBlockingQueueDeserializer
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
-    {
+    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromArray(jp, ctxt);
     }

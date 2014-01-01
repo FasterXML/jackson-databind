@@ -3,11 +3,8 @@ package com.fasterxml.jackson.databind.jsontype;
 /**
  * Simple container class for types with optional logical name, used
  * as external identifier
- * 
- * @author tatu
  */
-public final class NamedType
-    implements java.io.Serializable
+public final class NamedType implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -18,8 +15,7 @@ public final class NamedType
     
     public NamedType(Class<?> c) { this(c, null); }
     
-    public NamedType(Class<?> c, String name)
-    {
+    public NamedType(Class<?> c, String name) {
         _class = c;
         _hashCode = c.getName().hashCode();
         setName(name);
@@ -27,9 +23,7 @@ public final class NamedType
 
     public Class<?> getType() { return _class; }
     public String getName() { return _name; }
-    public void setName(String name) {
-        _name = (name == null || name.length() == 0) ? null : name;
-    }
+    public void setName(String name) { _name = (name == null || name.length() == 0) ? null : name; }
 
     public boolean hasName() { return _name != null; }
     
@@ -37,8 +31,7 @@ public final class NamedType
      * Equality is defined based on class only, not on name
      */
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (o == this) return true;
         if (o == null) return false;
         if (o.getClass() != getClass()) return false;

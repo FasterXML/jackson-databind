@@ -13,8 +13,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * {@link com.fasterxml.jackson.databind.JsonSerializer}s using proper contextual
  * calls, to add type information using mechanism type serializer was
  * configured with.
- * 
- * @author tatu
  */
 public abstract class TypeSerializer
 {
@@ -77,8 +75,7 @@ public abstract class TypeSerializer
      *   to be written
      * @param jgen Generator to use for writing type information
      */
-    public abstract void writeTypePrefixForScalar(Object value, JsonGenerator jgen)
-        throws IOException, JsonProcessingException;
+    public abstract void writeTypePrefixForScalar(Object value, JsonGenerator jgen) throws IOException;
 
     /**
      * Method called to write initial part of type information for given
@@ -91,8 +88,7 @@ public abstract class TypeSerializer
      *   to be written
      * @param jgen Generator to use for writing type information
      */
-    public abstract void writeTypePrefixForObject(Object value, JsonGenerator jgen)
-        throws IOException, JsonProcessingException;
+    public abstract void writeTypePrefixForObject(Object value, JsonGenerator jgen) throws IOException;
 
     /**
      * Method called to write initial part of type information for given
@@ -105,8 +101,7 @@ public abstract class TypeSerializer
      *   to be written
      * @param jgen Generator to use for writing type information
      */
-    public abstract void writeTypePrefixForArray(Object value, JsonGenerator jgen)
-        throws IOException, JsonProcessingException;
+    public abstract void writeTypePrefixForArray(Object value, JsonGenerator jgen) throws IOException;
     
     /**
      * Method called after value has been serialized, to close any scopes opened
@@ -114,8 +109,7 @@ public abstract class TypeSerializer
      * Actual action to take may depend on various factors, but has to match with
      * action {@link #writeTypePrefixForScalar} did (close array or object; or do nothing).
      */
-    public abstract void writeTypeSuffixForScalar(Object value, JsonGenerator jgen)
-        throws IOException, JsonProcessingException;
+    public abstract void writeTypeSuffixForScalar(Object value, JsonGenerator jgen) throws IOException;
 
     /**
      * Method called after value has been serialized, to close any scopes opened
@@ -123,8 +117,7 @@ public abstract class TypeSerializer
      * It needs to write closing END_OBJECT marker, and any other decoration
      * that needs to be matched.
      */
-    public abstract void writeTypeSuffixForObject(Object value, JsonGenerator jgen)
-        throws IOException, JsonProcessingException;
+    public abstract void writeTypeSuffixForObject(Object value, JsonGenerator jgen) throws IOException;
 
     /**
      * Method called after value has been serialized, to close any scopes opened
@@ -132,18 +125,14 @@ public abstract class TypeSerializer
      * It needs to write closing END_ARRAY marker, and any other decoration
      * that needs to be matched.
      */
-    public abstract void writeTypeSuffixForArray(Object value, JsonGenerator jgen)
-        throws IOException, JsonProcessingException;
+    public abstract void writeTypeSuffixForArray(Object value, JsonGenerator jgen) throws IOException;
 
     /**
      * Alternative version of the prefix-for-scalar method, which is given
      * actual type to use (instead of using exact type of the value); typically
      * a super type of actual value type
      */
-    public void writeTypePrefixForScalar(Object value, JsonGenerator jgen,
-            Class<?> type)
-        throws IOException, JsonProcessingException
-    {
+    public void writeTypePrefixForScalar(Object value, JsonGenerator jgen, Class<?> type) throws IOException {
         writeTypePrefixForScalar(value, jgen);
     }
 
@@ -152,10 +141,7 @@ public abstract class TypeSerializer
      * actual type to use (instead of using exact type of the value); typically
      * a super type of actual value type
      */
-    public void writeTypePrefixForObject(Object value, JsonGenerator jgen,
-            Class<?> type)
-        throws IOException, JsonProcessingException
-    {
+    public void writeTypePrefixForObject(Object value, JsonGenerator jgen, Class<?> type) throws IOException {
         writeTypePrefixForObject(value, jgen);
     }
 
@@ -164,10 +150,7 @@ public abstract class TypeSerializer
      * actual type to use (instead of using exact type of the value); typically
      * a super type of actual value type
      */
-    public void writeTypePrefixForArray(Object value, JsonGenerator jgen,
-            Class<?> type)
-        throws IOException, JsonProcessingException
-    {
+    public void writeTypePrefixForArray(Object value, JsonGenerator jgen, Class<?> type) throws IOException {
         writeTypePrefixForArray(value, jgen);
     }
 
@@ -190,9 +173,7 @@ public abstract class TypeSerializer
      * @param jgen Generator to use for writing type information
      * @param typeId Exact type id to use
      */
-    public abstract void writeCustomTypePrefixForScalar(Object value, JsonGenerator jgen,
-            String typeId)
-        throws IOException, JsonProcessingException;
+    public abstract void writeCustomTypePrefixForScalar(Object value, JsonGenerator jgen, String typeId) throws IOException, JsonProcessingException;
     
     /**
      * Method called to write initial part of type information for given
@@ -207,24 +188,13 @@ public abstract class TypeSerializer
      * @param jgen Generator to use for writing type information
      * @param typeId Exact type id to use
      */
-    public abstract void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen,
-            String typeId)
-        throws IOException, JsonProcessingException;
+    public abstract void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId) throws IOException;
     
-    public abstract void writeCustomTypePrefixForArray(Object value, JsonGenerator jgen,
-            String typeId)
-        throws IOException, JsonProcessingException;
+    public abstract void writeCustomTypePrefixForArray(Object value, JsonGenerator jgen, String typeId) throws IOException;
 
-    public abstract void writeCustomTypeSuffixForScalar(Object value, JsonGenerator jgen,
-            String typeId)
-        throws IOException, JsonProcessingException;
+    public abstract void writeCustomTypeSuffixForScalar(Object value, JsonGenerator jgen, String typeId) throws IOException;
 
-    public abstract void writeCustomTypeSuffixForObject(Object value, JsonGenerator jgen,
-            String typeId)
-        throws IOException, JsonProcessingException;
+    public abstract void writeCustomTypeSuffixForObject(Object value, JsonGenerator jgen, String typeId) throws IOException;
 
-    public abstract void writeCustomTypeSuffixForArray(Object value, JsonGenerator jgen,
-            String typeId)
-        throws IOException, JsonProcessingException;
-
+    public abstract void writeCustomTypeSuffixForArray(Object value, JsonGenerator jgen, String typeId) throws IOException;
 }

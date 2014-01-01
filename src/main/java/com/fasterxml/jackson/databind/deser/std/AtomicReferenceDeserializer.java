@@ -72,9 +72,7 @@ public class AtomicReferenceDeserializer
     }
 
     @Override
-    public AtomicReference<?> deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
+    public AtomicReference<?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
         /* 06-Nov-2013, tatu: Looks like the only way to make polymorphic deser to work
          *   correctly is to add support here; problem being that handler is not available
          *   for nominal type of AtomicReference but only "contained" type...
@@ -87,9 +85,7 @@ public class AtomicReferenceDeserializer
 
     @Override
     public Object[] deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
-    {
+            TypeDeserializer typeDeserializer) throws IOException {
         return (Object[]) typeDeserializer.deserializeTypedFromAny(jp, ctxt);
     }
 }

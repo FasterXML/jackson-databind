@@ -88,9 +88,7 @@ public abstract class TypeDeserializer
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */
-    public abstract Object deserializeTypedFromObject(JsonParser jp,
-            DeserializationContext ctxt)
-        throws IOException, JsonProcessingException;
+    public abstract Object deserializeTypedFromObject(JsonParser jp, DeserializationContext ctxt) throws IOException;
 
     /**
      * Method called to let this type deserializer handle 
@@ -101,9 +99,7 @@ public abstract class TypeDeserializer
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */
-    public abstract Object deserializeTypedFromArray(JsonParser jp,
-            DeserializationContext ctxt)
-        throws IOException, JsonProcessingException;
+    public abstract Object deserializeTypedFromArray(JsonParser jp, DeserializationContext ctxt) throws IOException;
 
     /**
      * Method called to let this type deserializer handle 
@@ -115,9 +111,7 @@ public abstract class TypeDeserializer
      * call it with JSON data to deserializer (which does not contain
      * type information).
      */
-    public abstract Object deserializeTypedFromScalar(JsonParser jp,
-            DeserializationContext ctxt)
-        throws IOException, JsonProcessingException;
+    public abstract Object deserializeTypedFromScalar(JsonParser jp, DeserializationContext ctxt) throws IOException;
 
     /**
      * Method called to let this type deserializer handle 
@@ -128,9 +122,7 @@ public abstract class TypeDeserializer
      * using JSON node representation, or "untyped" Java object
      * (which may be Map, Collection, wrapper/primitive etc).
      */
-    public abstract Object deserializeTypedFromAny(JsonParser jp,
-            DeserializationContext ctxt)
-        throws IOException, JsonProcessingException;
+    public abstract Object deserializeTypedFromAny(JsonParser jp, DeserializationContext ctxt) throws IOException;
 
     /*
     /**********************************************************
@@ -143,17 +135,12 @@ public abstract class TypeDeserializer
      * a "natural" value, and one that would be acceptable as the
      * result value (compatible with declared base type)
      */
-    public static Object deserializeIfNatural(JsonParser jp, DeserializationContext ctxt,
-            JavaType baseType)
-        throws IOException, JsonProcessingException
-    {
+    public static Object deserializeIfNatural(JsonParser jp, DeserializationContext ctxt, JavaType baseType) throws IOException {
         return deserializeIfNatural(jp, ctxt, baseType.getRawClass());
     }
     
     @SuppressWarnings("incomplete-switch")
-    public static Object deserializeIfNatural(JsonParser jp, DeserializationContext ctxt,
-            Class<?> base)
-        throws IOException, JsonProcessingException
+    public static Object deserializeIfNatural(JsonParser jp, DeserializationContext ctxt, Class<?> base) throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         if (t == null) {

@@ -24,6 +24,12 @@
   </scm>
 
   <properties>
+    <!-- for 2.4, includes full debug info -->
+    <javac.debuglevel>lines,source,vars</javac.debuglevel>
+
+    <!--
+     | Configuration properties for the OSGi maven-bundle-plugin
+    -->
     <osgi.export>
 com.fasterxml.jackson.databind,
 com.fasterxml.jackson.databind.annotation,
@@ -133,21 +139,6 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
       </plugin>
 
       <!-- May want to configure debug info -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <optimize>true</optimize>
-          <!-- 13-Dec-2013, tatu: Add full debug info back for 2.4; 2.3 had less (and 15% smaller jar)
-            -->
-          <debug>true</debug>
-          <debuglevel>lines,source,vars</debuglevel>
-<!--
-          <debuglevel>lines,source</debuglevel>
--->
-        </configuration>
-      </plugin>
-
       <plugin>
         <!-- Inherited from oss-base. Generate PackageVersion.java.-->
         <groupId>com.google.code.maven-replacer-plugin</groupId>

@@ -176,7 +176,7 @@ public class NumberDeserializers
     }
 
     @JacksonStdImpl
-    public final static class ByteDeserializer
+    public static class ByteDeserializer
         extends PrimitiveOrWrapperDeserializer<Byte>
     {
         private static final long serialVersionUID = 1L;
@@ -198,7 +198,7 @@ public class NumberDeserializers
     }
 
     @JacksonStdImpl
-    public final static class ShortDeserializer
+    public static class ShortDeserializer
         extends PrimitiveOrWrapperDeserializer<Short>
     {
         private static final long serialVersionUID = 1L;
@@ -220,7 +220,7 @@ public class NumberDeserializers
     }
 
     @JacksonStdImpl
-    public final static class CharacterDeserializer
+    public static class CharacterDeserializer
         extends PrimitiveOrWrapperDeserializer<Character>
     {
         private static final long serialVersionUID = 1L;
@@ -315,7 +315,7 @@ public class NumberDeserializers
     }
 
     @JacksonStdImpl
-    public final static class FloatDeserializer
+    public static class FloatDeserializer
         extends PrimitiveOrWrapperDeserializer<Float>
     {
         private static final long serialVersionUID = 1L;
@@ -340,7 +340,7 @@ public class NumberDeserializers
     }
 
     @JacksonStdImpl
-    public final static class DoubleDeserializer
+    public static class DoubleDeserializer
         extends PrimitiveOrWrapperDeserializer<Double>
     {
         private static final long serialVersionUID = 1L;
@@ -383,7 +383,7 @@ public class NumberDeserializers
      */
     @SuppressWarnings("serial")
     @JacksonStdImpl
-    public final static class NumberDeserializer
+    public static class NumberDeserializer
         extends StdScalarDeserializer<Number>
     {
         public final static NumberDeserializer instance = new NumberDeserializer();

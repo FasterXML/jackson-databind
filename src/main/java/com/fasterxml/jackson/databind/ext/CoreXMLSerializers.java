@@ -36,15 +36,13 @@ public class CoreXMLSerializers extends Serializers.Base
             return ToStringSerializer.instance;
         }
         if (XMLGregorianCalendar.class.isAssignableFrom(raw)) {
-            return XMLGregorianCalendarSerializer.instance;
+            return new XMLGregorianCalendarSerializer();
         }
         return null;
     }
 
     public static class XMLGregorianCalendarSerializer extends StdSerializer<XMLGregorianCalendar>
     {
-        public final static XMLGregorianCalendarSerializer instance = new XMLGregorianCalendarSerializer();
-        
         public XMLGregorianCalendarSerializer() {
             super(XMLGregorianCalendar.class);
         }
@@ -61,9 +59,7 @@ public class CoreXMLSerializers extends Serializers.Base
         }
 
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
-        {
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
             CalendarSerializer.instance.acceptJsonFormatVisitor(visitor, null);
         }
     }

@@ -7,11 +7,8 @@ import com.fasterxml.jackson.databind.ser.Serializers;
 /**
  * Helper class used for isolating details of handling optional+external types
  * (javax.xml classes) from standard factories that offer them.
- * 
- * @author tatu
  */
-public class OptionalHandlerFactory
-    implements java.io.Serializable
+public class OptionalHandlerFactory implements java.io.Serializable
 {
     private static final long serialVersionUID = 1;
 
@@ -99,8 +96,7 @@ public class OptionalHandlerFactory
     {
         try {
             return Class.forName(className).newInstance();
-        }
-        catch (LinkageError e) { }
+        } catch (LinkageError e) { }
         // too many different kinds to enumerate here:
         catch (Exception e) { }
         return null;
@@ -170,5 +166,4 @@ public class OptionalHandlerFactory
         }
         return false;
     }
-    
 }

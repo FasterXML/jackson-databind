@@ -15,13 +15,11 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
-public class DOMSerializer
-    extends StdSerializer<Node>
+public class DOMSerializer extends StdSerializer<Node>
 {
     protected final DOMImplementationLS _domImpl;
 
-    public DOMSerializer()
-    {
+    public DOMSerializer() {
         super(Node.class);
         DOMImplementationRegistry registry;
         try {
@@ -42,16 +40,13 @@ public class DOMSerializer
     }
 
 	@Override
-    public JsonNode getSchema(SerializerProvider provider, java.lang.reflect.Type typeHint)
-    {
+    public JsonNode getSchema(SerializerProvider provider, java.lang.reflect.Type typeHint) {
         // Well... it is serialized as String
         return createSchemaNode("string", true);
     }
 
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
-    {
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
         if (visitor != null) visitor.expectAnyFormat(typeHint);
     }
 }

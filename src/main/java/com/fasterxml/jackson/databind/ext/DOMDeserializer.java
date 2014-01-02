@@ -32,8 +32,7 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     @Override
     public abstract T _deserialize(String value, DeserializationContext ctxt);
 
-    protected final Document parse(String value) throws IllegalArgumentException
-    {
+    protected final Document parse(String value) throws IllegalArgumentException {
         try {
             return _parserFactory.newDocumentBuilder().parse(new InputSource(new StringReader(value)));
         } catch (Exception e) {
@@ -47,8 +46,7 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
     /**********************************************************
      */
     
-    public static class NodeDeserializer extends DOMDeserializer<Node>
-    {
+    public static class NodeDeserializer extends DOMDeserializer<Node> {
         private static final long serialVersionUID = 1L;
         public NodeDeserializer() { super(Node.class); }
         @Override
@@ -57,8 +55,7 @@ public abstract class DOMDeserializer<T> extends FromStringDeserializer<T>
         }
     }    
 
-    public static class DocumentDeserializer extends DOMDeserializer<Document>
-    {
+    public static class DocumentDeserializer extends DOMDeserializer<Document> {
         private static final long serialVersionUID = 1L;
         public DocumentDeserializer() { super(Document.class); }
         @Override

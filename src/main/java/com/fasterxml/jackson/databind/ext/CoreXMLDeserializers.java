@@ -59,7 +59,15 @@ public class CoreXMLDeserializers extends Deserializers.Base
     protected final static int TYPE_DURATION = 1;
     protected final static int TYPE_G_CALENDAR = 2;
     protected final static int TYPE_QNAME = 3;
-    
+
+    /**
+     * Combo-deserializer that supports deserialization of somewhat optional
+     * javax.xml types {@link QName}, {@link Duration} and {@link XMLGregorianCalendar}.
+     * Combined into a single class to eliminate bunch of one-off implementation
+     * classes, to reduce resulting jar size (mostly).
+     * 
+     * @since 2.4
+     */
     public static class Std extends FromStringDeserializer<Object>
     {
         private static final long serialVersionUID = 1L;

@@ -3,10 +3,7 @@ package com.fasterxml.jackson.databind.ext;
 import java.io.IOException;
 import java.util.*;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.Duration;
-import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.datatype.*;
 import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.core.*;
@@ -14,15 +11,13 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.Deserializers;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 
 /**
  * Container deserializers that handle "core" XML types: ones included in standard
  * JDK 1.5. Types are directly needed by JAXB, but may be unavailable on some
  * limited platforms; hence separate out from basic deserializer factory.
  */
-public class CoreXMLDeserializers
-    extends Deserializers.Base
+public class CoreXMLDeserializers extends Deserializers.Base
 {
     /**
      * Data type factories are thread-safe after instantiation (and
@@ -44,13 +39,13 @@ public class CoreXMLDeserializers
     {
         Class<?> raw = type.getRawClass();
         if (raw == QName.class) {
-            return QNameDeserializer.instance;
+            return new Std(raw, TYPE_QNAME);
         }
         if (raw == XMLGregorianCalendar.class) {
-            return GregorianCalendarDeserializer.instance;
+            return new Std(raw, TYPE_G_CALENDAR);
         }
         if (raw == Duration.class) {
-            return DurationDeserializer.instance;
+            return new Std(raw, TYPE_DURATION);
         }
         return null;
     }
@@ -61,60 +56,52 @@ public class CoreXMLDeserializers
     /**********************************************************
      */
 
-    public static class DurationDeserializer
-        extends FromStringDeserializer<Duration>
-    {
-        private static final long serialVersionUID = 1L;
-        public final static DurationDeserializer instance = new DurationDeserializer();
-        public DurationDeserializer() { super(Duration.class); }
+    protected final static int TYPE_DURATION = 1;
+    protected final static int TYPE_G_CALENDAR = 2;
+    protected final static int TYPE_QNAME = 3;
     
-        @Override
-        protected Duration _deserialize(String value, DeserializationContext ctxt)
-            throws IllegalArgumentException
-        {
-            return _dataTypeFactory.newDuration(value);
-        }
-    }
-
-    public static class GregorianCalendarDeserializer
-        extends StdScalarDeserializer<XMLGregorianCalendar>
+    public static class Std extends FromStringDeserializer<Object>
     {
         private static final long serialVersionUID = 1L;
-        public final static GregorianCalendarDeserializer instance = new GregorianCalendarDeserializer();
-        public GregorianCalendarDeserializer() { super(XMLGregorianCalendar.class); }
-        
+
+        protected final int _kind;
+
+        public Std(Class<?> raw, int kind) {
+            super(raw);
+            _kind = kind;
+        }
+
         @Override
-        public XMLGregorianCalendar deserialize(JsonParser jp, DeserializationContext ctxt)
+        public Object deserialize(JsonParser jp, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
         {
-            Date d = _parseDate(jp, ctxt);
-            if (d == null) {
-                return null;
+            // For most types, use super impl; but not for GregorianCalendar
+            if (_kind == TYPE_G_CALENDAR) {
+                Date d = _parseDate(jp, ctxt);
+                if (d == null) {
+                    return null;
+                }
+                GregorianCalendar calendar = new GregorianCalendar();
+                calendar.setTime(d);
+                TimeZone tz = ctxt.getTimeZone();
+                if (tz != null) {
+                    calendar.setTimeZone(tz);
+                }
+                return _dataTypeFactory.newXMLGregorianCalendar(calendar);
             }
-            GregorianCalendar calendar = new GregorianCalendar();
-            calendar.setTime(d);
-            TimeZone tz = ctxt.getTimeZone();
-            if (tz != null) {
-                calendar.setTimeZone(tz);
-            }
-            return _dataTypeFactory.newXMLGregorianCalendar(calendar);
+            return super.deserialize(jp, ctxt);
         }
-    }
 
-    public static class QNameDeserializer
-        extends FromStringDeserializer<QName>
-    {
-        private static final long serialVersionUID = 1L;
-        public final static QNameDeserializer instance = new QNameDeserializer();
-        
-        
-        public QNameDeserializer() { super(QName.class); }
-        
         @Override
-        protected QName _deserialize(String value, DeserializationContext ctxt)
-            throws IllegalArgumentException
+        protected Object _deserialize(String value, DeserializationContext ctxt) throws IllegalArgumentException
         {
-            return QName.valueOf(value);
+            switch (_kind) {
+            case TYPE_DURATION:
+                return _dataTypeFactory.newDuration(value);
+            case TYPE_QNAME:
+                return QName.valueOf(value);
+            }
+            throw new IllegalStateException();
         }
     }
 }

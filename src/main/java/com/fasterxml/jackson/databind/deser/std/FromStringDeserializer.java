@@ -96,7 +96,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
     
     @SuppressWarnings("unchecked")
     @Override
-    public final T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         // 22-Sep-2012, tatu: For 2.1, use this new method, may force coercion:
         String text = jp.getValueAsString();

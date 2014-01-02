@@ -93,9 +93,7 @@ public abstract class StdDeserializer<T>
      * this method if they are to handle type information.
      */
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
-        throws IOException
-    {
+    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
         return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
     }
     
@@ -107,19 +105,13 @@ public abstract class StdDeserializer<T>
     /**********************************************************
      */
 
-    protected final boolean _parseBooleanPrimitive(JsonParser jp, DeserializationContext ctxt)
-        throws IOException
+    protected final boolean _parseBooleanPrimitive(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         JsonToken t = jp.getCurrentToken();
-        if (t == JsonToken.VALUE_TRUE) {
-            return true;
-        }
-        if (t == JsonToken.VALUE_FALSE) {
-            return false;
-        }
-        if (t == JsonToken.VALUE_NULL) {
-            return false;
-        }
+        if (t == JsonToken.VALUE_TRUE) return true;
+        if (t == JsonToken.VALUE_FALSE) return false;
+        if (t == JsonToken.VALUE_NULL) return false;
+
         // [JACKSON-78]: should accept ints too, (0 == false, otherwise true)
         if (t == JsonToken.VALUE_NUMBER_INT) {
             // 11-Jan-2012, tatus: May be outside of int...

@@ -8,6 +8,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Currency;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.*;
@@ -34,6 +35,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             Pattern.class,
             Locale.class,
             Charset.class,
+            TimeZone.class,
             InetAddress.class,
             InetSocketAddress.class,
         };
@@ -74,6 +76,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             kind = Std.STD_LOCALE;
         } else if (rawType == Charset.class) {
             kind = Std.STD_CHARSET;
+        } else if (rawType == TimeZone.class) {
+            kind = Std.STD_TIME_ZONE;
         } else if (rawType == InetAddress.class) {
             kind = Std.STD_INET_ADDRESS;
         } else if (rawType == InetSocketAddress.class) {
@@ -157,9 +161,10 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         public final static int STD_PATTERN = 7;
         public final static int STD_LOCALE = 8;
         public final static int STD_CHARSET = 9;
-        public final static int STD_INET_ADDRESS = 10;
-        public final static int STD_INET_SOCKET_ADDRESS = 11;
-        
+        public final static int STD_TIME_ZONE = 10;
+        public final static int STD_INET_ADDRESS = 11;
+        public final static int STD_INET_SOCKET_ADDRESS = 12;
+
         protected final int _kind;
         
         protected Std(Class<?> valueType, int kind) {
@@ -208,6 +213,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 }
             case STD_CHARSET:
                 return Charset.forName(value);
+            case STD_TIME_ZONE:
+                return TimeZone.getTimeZone(value);
             case STD_INET_ADDRESS:
                 return InetAddress.getByName(value);
             case STD_INET_SOCKET_ADDRESS:

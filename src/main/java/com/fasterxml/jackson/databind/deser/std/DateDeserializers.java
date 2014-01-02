@@ -34,7 +34,6 @@ public class DateDeserializers
             java.sql.Date.class,
             java.util.Date.class,
             Timestamp.class,
-            TimeZone.class
         };
         for (Class<?> cls : numberTypes) {
             _classNames.add(cls.getName());
@@ -58,9 +57,6 @@ public class DateDeserializers
         }
         if (rawType == Timestamp.class) {
             return TimestampDeserializer.instance;
-        }
-        if (rawType == TimeZone.class) {
-            return TimeZoneDeserializer.instance;
         }
         if (rawType == GregorianCalendar.class) {
             return CalendarDeserializer.gregorianInstance;
@@ -316,30 +312,6 @@ public class DateDeserializers
             throws IOException, JsonProcessingException
         {
             return new Timestamp(_parseDate(jp, ctxt).getTime());
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* Deserializer implementations for Date-related types
-    /**********************************************************
-     */
-    
-    /**
-     * As per [JACKSON-522], also need special handling for TimeZones
-     */
-    protected static class TimeZoneDeserializer
-        extends FromStringDeserializer<TimeZone>
-    {
-        public final static TimeZoneDeserializer instance = new TimeZoneDeserializer();
-
-        public TimeZoneDeserializer() { super(TimeZone.class); }
-
-        @Override
-        protected TimeZone _deserialize(String value, DeserializationContext ctxt)
-            throws IOException
-        {
-            return TimeZone.getTimeZone(value);
         }
     }
 }

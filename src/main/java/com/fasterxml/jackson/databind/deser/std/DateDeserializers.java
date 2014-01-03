@@ -42,27 +42,25 @@ public class DateDeserializers
 
     public static JsonDeserializer<?> find(Class<?> rawType, String clsName)
     {
-        if (!_classNames.contains(clsName)) {
-            return null;
+        if (_classNames.contains(clsName)) {
+            // Start with the most common type
+            if (rawType == Calendar.class) {
+                return new CalendarDeserializer();
+            }
+            if (rawType == java.util.Date.class) {
+                return DateDeserializer.instance;
+            }
+            if (rawType == java.sql.Date.class) {
+                return new SqlDateDeserializer();
+            }
+            if (rawType == Timestamp.class) {
+                return new TimestampDeserializer();
+            }
+            if (rawType == GregorianCalendar.class) {
+                return new CalendarDeserializer(GregorianCalendar.class);
+            }
         }
-        // Start with the most common type
-        if (rawType == Calendar.class) {
-            return CalendarDeserializer.instance;
-        }
-        if (rawType == java.util.Date.class) {
-            return DateDeserializer.instance;
-        }
-        if (rawType == java.sql.Date.class) {
-            return SqlDateDeserializer.instance;
-        }
-        if (rawType == Timestamp.class) {
-            return TimestampDeserializer.instance;
-        }
-        if (rawType == GregorianCalendar.class) {
-            return CalendarDeserializer.gregorianInstance;
-        }
-        // should never occur
-        throw new IllegalArgumentException("Internal error: can't find deserializer for "+clsName);
+        return null;
     }
     
     /*
@@ -170,12 +168,8 @@ public class DateDeserializers
      */
     
     @JacksonStdImpl
-    public static class CalendarDeserializer
-        extends DateBasedDeserializer<Calendar>
+    public static class CalendarDeserializer extends DateBasedDeserializer<Calendar>
     {
-        public final static CalendarDeserializer instance = new CalendarDeserializer();
-        public final static CalendarDeserializer gregorianInstance = new CalendarDeserializer(GregorianCalendar.class);
-        
         /**
          * We may know actual expected type; if so, it will be
          * used for instantiation.
@@ -203,8 +197,7 @@ public class DateDeserializers
         }
         
         @Override
-        public Calendar deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public Calendar deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             Date d = _parseDate(jp, ctxt);
             if (d == null) {
@@ -234,8 +227,7 @@ public class DateDeserializers
      * {@link DeserializationContext#parseDate} that this basic
      * deserializer calls.
      */
-    public static class DateDeserializer
-        extends DateBasedDeserializer<Date>
+    public static class DateDeserializer extends DateBasedDeserializer<Date>
     {
         public final static DateDeserializer instance = new DateDeserializer();
 
@@ -250,9 +242,7 @@ public class DateDeserializers
         }
         
         @Override
-        public java.util.Date deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-        {
+        public java.util.Date deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             return _parseDate(jp, ctxt);
         }
     }
@@ -264,8 +254,6 @@ public class DateDeserializers
     public static class SqlDateDeserializer
         extends DateBasedDeserializer<java.sql.Date>
     {
-        public final static SqlDateDeserializer instance = new SqlDateDeserializer();
-
         public SqlDateDeserializer() { super(java.sql.Date.class); }
         public SqlDateDeserializer(SqlDateDeserializer src, DateFormat df, String formatString) {
             super(src, df, formatString);
@@ -277,9 +265,7 @@ public class DateDeserializers
         }
         
         @Override
-        public java.sql.Date deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-        {
+        public java.sql.Date deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             Date d = _parseDate(jp, ctxt);
             return (d == null) ? null : new java.sql.Date(d.getTime());
         }
@@ -292,11 +278,8 @@ public class DateDeserializers
      * {@link DeserializationContext#parseDate} that this basic
      * deserializer calls.
      */
-    public static class TimestampDeserializer
-        extends DateBasedDeserializer<Timestamp>
+    public static class TimestampDeserializer extends DateBasedDeserializer<Timestamp>
     {
-        public final static TimestampDeserializer instance = new TimestampDeserializer();
-
         public TimestampDeserializer() { super(Timestamp.class); }
         public TimestampDeserializer(TimestampDeserializer src, DateFormat df, String formatString) {
             super(src, df, formatString);
@@ -308,8 +291,7 @@ public class DateDeserializers
         }
         
         @Override
-        public java.sql.Timestamp deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public java.sql.Timestamp deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             return new Timestamp(_parseDate(jp, ctxt).getTime());
         }

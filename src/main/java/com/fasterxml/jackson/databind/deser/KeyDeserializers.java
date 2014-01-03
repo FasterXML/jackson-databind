@@ -13,7 +13,5 @@ import com.fasterxml.jackson.databind.*;
  */
 public interface KeyDeserializers
 {
-    public KeyDeserializer findKeyDeserializer(JavaType type,
-            DeserializationConfig config, BeanDescription beanDesc)
-        throws JsonMappingException;
+    public KeyDeserializer findKeyDeserializer(JavaType type, DeserializationConfig config, BeanDescription beanDesc) throws JsonMappingException;
 }

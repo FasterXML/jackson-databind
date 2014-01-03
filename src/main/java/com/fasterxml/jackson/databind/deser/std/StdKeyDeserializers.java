@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.deser.std;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.KeyDeserializers;
@@ -92,58 +91,17 @@ public class StdKeyDeserializers
     
     @Override
     public KeyDeserializer findKeyDeserializer(JavaType type,
-            DeserializationConfig config, BeanDescription beanDesc)
-        throws JsonMappingException
+            DeserializationConfig config, BeanDescription beanDesc) throws JsonMappingException
     {
         Class<?> raw = type.getRawClass();
         // First, common types; String/Object/UUID, Int/Long, Dates
         if (raw == String.class || raw == Object.class) {
             return StdKeyDeserializer.StringKD.forType(raw);
         }
-        if (raw == UUID.class) {
-            return new StdKeyDeserializer.UuidKD();
-        }
-        
         // 23-Apr-2013, tatu: Map primitive types, just in case one was given
         if (raw.isPrimitive()) {
             raw = ClassUtil.wrapperType(raw);
         }
-        
-        if (raw == Integer.class) {
-            return new StdKeyDeserializer.IntKD();
-        }
-        if (raw == Long.class) {
-            return new StdKeyDeserializer.LongKD();
-        }
-        if (raw == Date.class) {
-            return new StdKeyDeserializer.DateKD();
-        }
-        if (raw == Calendar.class) {
-            return new StdKeyDeserializer.CalendarKD();
-        }
-        
-        // then less common ones...
-        if (raw == Boolean.class) {
-            return new StdKeyDeserializer.BoolKD();
-        }
-        if (raw == Byte.class) {
-            return new StdKeyDeserializer.ByteKD();
-        }
-        if (raw == Character.class) {
-            return new StdKeyDeserializer.CharKD();
-        }
-        if (raw == Short.class) {
-            return new StdKeyDeserializer.ShortKD();
-        }
-        if (raw == Float.class) {
-            return new StdKeyDeserializer.FloatKD();
-        }
-        if (raw == Double.class) {
-            return new StdKeyDeserializer.DoubleKD();
-        }
-        if (raw == Locale.class) {
-            return new StdKeyDeserializer.LocaleKD();
-        }
-        return null;
+        return StdKeyDeserializer.forType(raw);
     }
 }

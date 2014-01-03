@@ -49,84 +49,62 @@ public abstract class ValueInstantiator
      * be created.
      */
     public boolean canInstantiate() {
-        return
-             canCreateUsingDefault()
-             || canCreateUsingDelegate()
-             || canCreateFromObjectWith()
-             || canCreateFromString()
-             || canCreateFromInt()
-             || canCreateFromLong()
-             || canCreateFromDouble()
-             || canCreateFromBoolean()
-             ;
+        return canCreateUsingDefault() || canCreateUsingDelegate()
+             || canCreateFromObjectWith() || canCreateFromString()
+             || canCreateFromInt() || canCreateFromLong()
+             || canCreateFromDouble() || canCreateFromBoolean();
     }    
     
     /**
      * Method that can be called to check whether a String-based creator
      * is available for this instantiator
      */
-    public boolean canCreateFromString() {
-        return false;
-    }
+    public boolean canCreateFromString() { return false; }
 
     /**
      * Method that can be called to check whether an integer (int, Integer) based
      * creator is available to use (to call {@link #createFromInt}).
      */
-    public boolean canCreateFromInt() {
-        return false;
-    }
+    public boolean canCreateFromInt() { return false; }
 
     /**
      * Method that can be called to check whether a long (long, Long) based
      * creator is available to use (to call {@link #createFromLong}).
      */
-    public boolean canCreateFromLong() {
-        return false;
-    }
+    public boolean canCreateFromLong() { return false; }
 
     /**
      * Method that can be called to check whether a double (double / Double) based
      * creator is available to use (to call {@link #createFromDouble}).
      */
-    public boolean canCreateFromDouble() {
-        return false;
-    }
+    public boolean canCreateFromDouble() { return false; }
 
     /**
      * Method that can be called to check whether a double (boolean / Boolean) based
      * creator is available to use (to call {@link #createFromDouble}).
      */
-    public boolean canCreateFromBoolean() {
-        return false;
-    }
+    public boolean canCreateFromBoolean() { return false; }
     
     /**
      * Method that can be called to check whether a default creator (constructor,
      * or no-arg static factory method)
      * is available for this instantiator
      */
-    public boolean canCreateUsingDefault() {
-        return getDefaultCreator() != null;
-    }
+    public boolean canCreateUsingDefault() {  return getDefaultCreator() != null; }
 
     /**
      * Method that can be called to check whether a delegate-based creator (single-arg
      * constructor or factory method)
      * is available for this instantiator
      */
-    public boolean canCreateUsingDelegate() {
-        return false;
-    }
+    public boolean canCreateUsingDelegate() { return false; }
 
     /**
      * Method that can be called to check whether a property-based creator
      * (argument-taking constructor or factory method)
      * is available to instantiate values from JSON Object
      */
-    public boolean canCreateFromObjectWith() {
-        return false;
-    }
+    public boolean canCreateFromObjectWith() { return false; }
 
     /**
      * Method called to determine types of instantiation arguments
@@ -138,9 +116,7 @@ public abstract class ValueInstantiator
      * NOTE: all properties will be of type
      * {@link com.fasterxml.jackson.databind.deser.CreatorProperty}.
      */
-    public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) {
-        return null;
-    }
+    public SettableBeanProperty[] getFromObjectArguments(DeserializationConfig config) { return null; }
 
     /**
      * Method that can be used to determine what is the type of delegate
@@ -149,9 +125,7 @@ public abstract class ValueInstantiator
      * specified type (using standard deserializer for that type), and
      * pass that to instantiator.
      */
-    public JavaType getDelegateType(DeserializationConfig config) {
-        return null;
-    }
+    public JavaType getDelegateType(DeserializationConfig config) { return null; }
     
     /*
     /**********************************************************
@@ -185,8 +159,7 @@ public abstract class ValueInstantiator
      */
     public Object createFromObjectWith(DeserializationContext ctxt, Object[] args)
         throws IOException, JsonProcessingException {
-        throw new JsonMappingException("Can not instantiate value of type "
-                +getValueTypeDesc()+" with arguments");
+        throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()+" with arguments");
     }
 
     /**
@@ -194,10 +167,8 @@ public abstract class ValueInstantiator
      * an intermediate "delegate" value to pass to createor method
      */
     public Object createUsingDelegate(DeserializationContext ctxt, Object delegate)
-        throws IOException, JsonProcessingException
-    {
-        throw new JsonMappingException("Can not instantiate value of type "
-                +getValueTypeDesc()+" using delegate");
+        throws IOException, JsonProcessingException {
+        throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()+" using delegate");
     }
     
     /*
@@ -253,9 +224,7 @@ public abstract class ValueInstantiator
      * That is, even if {@link #canCreateUsingDefault()} returns true,
      * this method may return null .
      */
-    public AnnotatedWithParams getDefaultCreator() {
-        return null;
-    }
+    public AnnotatedWithParams getDefaultCreator() { return null; }
     
     /**
      * Method that can be called to try to access member (constructor,
@@ -265,9 +234,7 @@ public abstract class ValueInstantiator
      * That is, even if {@link #canCreateUsingDelegate()} returns true,
      * this method may return null .
      */
-    public AnnotatedWithParams getDelegateCreator() {
-        return null;
-    }
+    public AnnotatedWithParams getDelegateCreator() { return null; }
 
     /**
      * Method that can be called to try to access member (constructor,
@@ -278,15 +245,11 @@ public abstract class ValueInstantiator
      * That is, even if {@link #canCreateFromObjectWith()} returns true,
      * this method may return null .
      */
-    public AnnotatedWithParams getWithArgsCreator() {
-        return null;
-    }
+    public AnnotatedWithParams getWithArgsCreator() { return null; }
 
     /**
      * If an incomplete creator was found, this is the first parameter that
      * needs further annotation to help make the creator complete.
      */
-    public AnnotatedParameter getIncompleteParameter() {
-        return null;
-    }
+    public AnnotatedParameter getIncompleteParameter() { return null; }
 }

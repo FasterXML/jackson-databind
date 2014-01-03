@@ -29,15 +29,6 @@ public class StdKeyDeserializers
     implements KeyDeserializers, java.io.Serializable
 {
     private static final long serialVersionUID = 923268084968181479L;
-
-    /**
-     * @deprecated Since 2.2, just call <code>StdKeyDeserializer.StringKD</code> directly
-     */
-    @Deprecated
-    public static KeyDeserializer constructStringKeyDeserializer(DeserializationConfig config,
-            JavaType type) {
-        return StdKeyDeserializer.StringKD.forType(type.getRawClass());
-    }
     
     public static KeyDeserializer constructEnumKeyDeserializer(EnumResolver<?> enumResolver) {
         return new StdKeyDeserializer.EnumKD(enumResolver, null);
@@ -94,10 +85,6 @@ public class StdKeyDeserializers
             DeserializationConfig config, BeanDescription beanDesc) throws JsonMappingException
     {
         Class<?> raw = type.getRawClass();
-        // First, common types; String/Object/UUID, Int/Long, Dates
-        if (raw == String.class || raw == Object.class) {
-            return StdKeyDeserializer.StringKD.forType(raw);
-        }
         // 23-Apr-2013, tatu: Map primitive types, just in case one was given
         if (raw.isPrimitive()) {
             raw = ClassUtil.wrapperType(raw);

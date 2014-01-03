@@ -17,7 +17,11 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
 
 /**
- * Base class for simple key deserializers.
+ * Default {@link KeyDeserializer} implementation used for most {@link java.util.Map}
+ * types Jackson supports.
+ * Implemented as "chameleon" (or swiss pocket knife) class; not particularly elegant,
+ * but helps reduce number of classes and jar size (class metadata adds significant
+ * per-class overhead; much more than bytecode).
  */
 @JacksonStdImpl
 public class StdKeyDeserializer extends KeyDeserializer
@@ -59,10 +63,11 @@ public class StdKeyDeserializer extends KeyDeserializer
     public static StdKeyDeserializer forType(Class<?> raw)
     {
         int kind;
-        FromStringDeserializer<?> deser = null;
 
         // first common types:
-        if (raw == UUID.class) {
+        if (raw == String.class || raw == Object.class) {
+            return StringKD.forType(raw);
+        } else if (raw == UUID.class) {
             kind = TYPE_UUID;
         } else if (raw == Integer.class) {
             kind = TYPE_INT;
@@ -86,12 +91,12 @@ public class StdKeyDeserializer extends KeyDeserializer
         } else if (raw == Double.class) {
             kind = TYPE_DOUBLE;
         } else if (raw == Locale.class) {
-            kind = TYPE_LOCALE;
-            deser = FromStringDeserializer.findDeserializer(Locale.class);
+            FromStringDeserializer<?> deser = FromStringDeserializer.findDeserializer(Locale.class);
+            return new StdKeyDeserializer(TYPE_LOCALE, raw, deser);
         } else {
             return null;
         }
-        return new StdKeyDeserializer(kind, raw, deser);
+        return new StdKeyDeserializer(kind, raw);
     }
     
     @Override

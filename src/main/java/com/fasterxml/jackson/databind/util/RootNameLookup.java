@@ -10,8 +10,7 @@ import com.fasterxml.jackson.databind.type.ClassKey;
 /**
  * Helper class for caching resolved root names.
  */
-public class RootNameLookup
-    implements java.io.Serializable
+public class RootNameLookup implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -23,8 +22,7 @@ public class RootNameLookup
 
     public RootNameLookup() { }
 
-    public SerializedString findRootName(JavaType rootType, MapperConfig<?> config)
-    {
+    public SerializedString findRootName(JavaType rootType, MapperConfig<?> config) {
         return findRootName(rootType.getRawClass(), config);
     }
 

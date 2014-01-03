@@ -4,18 +4,22 @@ package com.fasterxml.jackson.databind.util;
  * Helper class used for checking whether a property is visible
  * in the active view
  */
-public abstract class ViewMatcher
+public class ViewMatcher implements java.io.Serializable
 {
-    public abstract boolean isVisibleForView(Class<?> activeView);
+    private static final long serialVersionUID = 1L;
+
+    protected final static ViewMatcher EMPTY = new ViewMatcher();
+    
+    public boolean isVisibleForView(Class<?> activeView) { return false; }
 
     public static ViewMatcher construct(Class<?>[] views)
     {
         if (views == null) {
-            return Empty.instance;
+            return EMPTY;
         }
         switch (views.length) {
         case 0:
-            return Empty.instance;
+            return EMPTY;
         case 1:
             return new Single(views[0]);
         }
@@ -28,20 +32,7 @@ public abstract class ViewMatcher
     /**********************************************************
      */
 
-    private final static class Empty extends ViewMatcher
-        implements java.io.Serializable
-    {
-        private static final long serialVersionUID = 1L;
-
-        final static Empty instance = new Empty();
-        @Override
-        public boolean isVisibleForView(Class<?> activeView) {
-            return false;
-        }
-    }
-
     private final static class Single extends ViewMatcher
-        implements java.io.Serializable
     {
         private static final long serialVersionUID = 1L;
 

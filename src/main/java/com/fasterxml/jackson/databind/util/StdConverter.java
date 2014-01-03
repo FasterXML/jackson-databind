@@ -18,7 +18,7 @@ public abstract class StdConverter<IN,OUT>
     /* Partial Converter API implementation
     /**********************************************************
      */
-    
+
     @Override
     public abstract OUT convert(IN value);
 

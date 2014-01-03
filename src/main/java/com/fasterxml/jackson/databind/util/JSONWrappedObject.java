@@ -14,11 +14,8 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * function name and parenthesis are used with JSONP).
  * 
  * @see com.fasterxml.jackson.databind.util.JSONPObject
- * 
- * @author tatu
  */
-public class JSONWrappedObject
-    implements JsonSerializable
+public class JSONWrappedObject implements JsonSerializable
 {
     /**
      * Literal String to output before serialized value.

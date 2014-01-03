@@ -27,9 +27,7 @@ public class ISO8601Utils {
     /**
      * Accessor for static GMT timezone instance.
      */
-    public static TimeZone timeZoneGMT() {
-        return TIMEZONE_GMT;
-    }
+    public static TimeZone timeZoneGMT() { return TIMEZONE_GMT; }
 
     /*
     /**********************************************************

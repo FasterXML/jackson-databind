@@ -9,8 +9,7 @@ import java.util.*;
  * Helper class used to resolve String values (either JSON Object field
  * names or regular String values) into Java Enum instances.
  */
-public class EnumResolver<T extends Enum<T>>
-    implements java.io.Serializable
+public class EnumResolver<T extends Enum<T>> implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -118,21 +117,16 @@ public class EnumResolver<T extends Enum<T>>
         return constructUsingMethod(enumCls, accessor);
     }
     
-    public T findEnum(String key)
-    {
-        return _enumsById.get(key);
-    }
+    public T findEnum(String key) { return _enumsById.get(key); }
 
-    public T getEnum(int index)
-    {
+    public T getEnum(int index) {
         if (index < 0 || index >= _enums.length) {
             return null;
         }
         return _enums[index];
     }
 
-    public List<T> getEnums()
-    {
+    public List<T> getEnums() {
         ArrayList<T> enums = new ArrayList<T>(_enums.length);
         for (T e : _enums) {
             enums.add(e);

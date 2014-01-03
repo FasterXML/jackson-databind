@@ -25,22 +25,17 @@ public final class ClassUtil
      * @param endBefore Super-type to NOT include in results, if any; when
      *    encountered, will be ignored (and no super types are checked).
      */
-    public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore)
-    {
+    public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore) {
         return findSuperTypes(cls, endBefore, new ArrayList<Class<?>>(8));
     }
     
-    public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore, List<Class<?>> result)
-    {
+    public static List<Class<?>> findSuperTypes(Class<?> cls, Class<?> endBefore, List<Class<?>> result) {
         _addSuperTypes(cls, endBefore, result, false);
         return result;
     }
     
-    private static void _addSuperTypes(Class<?> cls, Class<?> endBefore, Collection<Class<?>> result, boolean addClassItself)
-    {
-        if (cls == endBefore || cls == null || cls == Object.class) {
-            return;
-        }
+    private static void _addSuperTypes(Class<?> cls, Class<?> endBefore, Collection<Class<?>> result, boolean addClassItself) {
+        if (cls == endBefore || cls == null || cls == Object.class) { return; }
         if (addClassItself) {
             if (result.contains(cls)) { // already added, no need to check supers
                 return;

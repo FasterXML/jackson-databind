@@ -29,16 +29,14 @@ public class ISO8601DateFormat extends DateFormat
     }
 
     @Override
-    public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition)
-    {
+    public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
         String value = ISO8601Utils.format(date);
         toAppendTo.append(value);
         return toAppendTo;
     }
 
     @Override
-    public Date parse(String source, ParsePosition pos)
-    {
+    public Date parse(String source, ParsePosition pos) {
         // index must be set to other than 0, I would swear this requirement is not there in
         // some version of jdk 6.
         /* 03-Nov-2013, tatu: I can't see this having any direct effect
@@ -58,7 +56,5 @@ public class ISO8601DateFormat extends DateFormat
     }
 
     @Override
-    public String toString() {
-        return getClass().getName();
-    }
+    public String toString() { return getClass().getName(); }
 }

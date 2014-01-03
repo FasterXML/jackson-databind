@@ -8,32 +8,21 @@ import java.nio.ByteBuffer;
  * Simple {@link InputStream} implementation that exposes currently
  * available content of a {@link ByteBuffer}.
  */
-public class ByteBufferBackedInputStream extends InputStream
-{
-    protected final ByteBuffer _buffer;
+public class ByteBufferBackedInputStream extends InputStream {
+    protected final ByteBuffer _b;
 
-    public ByteBufferBackedInputStream(ByteBuffer buf) {
-        _buffer = buf;
-    }
+    public ByteBufferBackedInputStream(ByteBuffer buf) { _b = buf; }
 
-    @Override
-    public int available() {
-        return _buffer.remaining();
-    }
+    @Override public int available() { return _b.remaining(); }
     
     @Override
-    public int read() throws IOException {
-        return _buffer.hasRemaining() ? (_buffer.get() & 0xFF) : -1;
-    }
+    public int read() throws IOException { return _b.hasRemaining() ? (_b.get() & 0xFF) : -1; }
 
     @Override
-    public int read(byte[] bytes, int off, int len) throws IOException
-    {
-        if (!_buffer.hasRemaining()) {
-            return -1;
-        }
-        len = Math.min(len, _buffer.remaining());
-        _buffer.get(bytes, off, len);
+    public int read(byte[] bytes, int off, int len) throws IOException {
+        if (!_b.hasRemaining()) return -1;
+        len = Math.min(len, _b.remaining());
+        _b.get(bytes, off, len);
         return len;
     }
 }

@@ -138,24 +138,16 @@ public class SimpleBeanPropertyDefinition
      */
 
     @Override
-    public boolean hasGetter() {
-        return (getGetter() != null);
-    }
+    public boolean hasGetter() { return (getGetter() != null); }
 
     @Override
-    public boolean hasSetter() {
-        return (getSetter() != null);
-    }
+    public boolean hasSetter() { return (getSetter() != null); }
 
     @Override
-    public boolean hasField() {
-        return (_member instanceof AnnotatedField);
-    }
+    public boolean hasField() { return (_member instanceof AnnotatedField); }
 
     @Override
-    public boolean hasConstructorParameter() {
-        return (_member instanceof AnnotatedParameter);
-    }
+    public boolean hasConstructorParameter() { return (_member instanceof AnnotatedParameter); }
     
     @Override
     public AnnotatedMethod getGetter() {
@@ -177,14 +169,12 @@ public class SimpleBeanPropertyDefinition
 
     @Override
     public AnnotatedField getField() {
-        return (_member instanceof AnnotatedField) ?
-                (AnnotatedField) _member : null;
+        return (_member instanceof AnnotatedField) ? (AnnotatedField) _member : null;
     }
 
     @Override
     public AnnotatedParameter getConstructorParameter() {
-        return (_member instanceof AnnotatedParameter) ?
-                (AnnotatedParameter) _member : null;
+        return (_member instanceof AnnotatedParameter) ? (AnnotatedParameter) _member : null;
     }
 
     /**
@@ -228,7 +218,5 @@ public class SimpleBeanPropertyDefinition
     }
 
     @Override
-    public AnnotatedMember getPrimaryMember() {
-        return _member;
-    }
+    public AnnotatedMember getPrimaryMember() { return _member; }
 }

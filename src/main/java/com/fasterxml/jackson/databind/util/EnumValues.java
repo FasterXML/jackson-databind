@@ -11,9 +11,6 @@ import com.fasterxml.jackson.databind.*;
  */
 public final class EnumValues
 {
-    /**
-     * @since 2.2
-     */
     private final Class<Enum<?>> _enumClass;
     
     /**
@@ -28,8 +25,7 @@ public final class EnumValues
         _values = new EnumMap(v);
     }
 
-    public static EnumValues construct(Class<Enum<?>> enumClass, AnnotationIntrospector intr)
-    {
+    public static EnumValues construct(Class<Enum<?>> enumClass, AnnotationIntrospector intr) {
         return constructFromName(enumClass, intr);
     }
 
@@ -67,30 +63,16 @@ public final class EnumValues
         throw new IllegalArgumentException("Can not determine enum constants for Class "+enumClass.getName());
     }
 
-    public SerializedString serializedValueFor(Enum<?> key)
-    {
-        return _values.get(key);
-    }
-    
-    public Collection<SerializedString> values() {
-        return _values.values();
-    }
+    public SerializedString serializedValueFor(Enum<?> key) { return _values.get(key); }
+    public Collection<SerializedString> values() { return _values.values(); }
 
     /**
-     * Method used for serialization and introspection by core Jackson
-     * code.
-     * 
-     * @since 2.1
+     * Method used for serialization and introspection by core Jackson code.
      */
-    public EnumMap<?,SerializedString> internalMap() {
-        return _values;
-    }
+    public EnumMap<?,SerializedString> internalMap() { return _values; }
 
     /**
      * @since 2.2
      */
-    public Class<Enum<?>> getEnumClass() {
-        return _enumClass;
-    }
-    
+    public Class<Enum<?>> getEnumClass() { return _enumClass; }
 }

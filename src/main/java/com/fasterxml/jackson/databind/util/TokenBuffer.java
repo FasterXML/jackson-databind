@@ -91,7 +91,7 @@ public class TokenBuffer
     /**
      * Offset within last segment, 
      */
-    protected int _appendOffset;
+    protected int _appendAt;
 
     /**
      * If native type ids supported, this is the id for following
@@ -150,7 +150,7 @@ public class TokenBuffer
         _writeContext = JsonWriteContext.createRootContext(null);
         // at first we have just one segment
         _first = _last = new Segment();
-        _appendOffset = 0;
+        _appendAt = 0;
         _hasNativeTypeIds = hasNativeIds;
         _hasNativeObjectIds = hasNativeIds;
 
@@ -167,7 +167,7 @@ public class TokenBuffer
         _writeContext = JsonWriteContext.createRootContext(null);
         // at first we have just one segment
         _first = _last = new Segment();
-        _appendOffset = 0;
+        _appendAt = 0;
         _hasNativeTypeIds = jp.canReadTypeId();
         _hasNativeObjectIds = jp.canReadObjectId();
         _mayHaveNativeIds = _hasNativeTypeIds | _hasNativeObjectIds;
@@ -462,11 +462,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
     private final void _appendNativeIds(StringBuilder sb)
     {
-        Object objectId = _last.findObjectId(_appendOffset-1);
+        Object objectId = _last.findObjectId(_appendAt-1);
         if (objectId != null) {
             sb.append("[objectId=").append(String.valueOf(objectId)).append(']');
         }
-        Object typeId = _last.findTypeId(_appendOffset-1);
+        Object typeId = _last.findTypeId(_appendAt-1);
         if (typeId != null) {
             sb.append("[typeId=").append(String.valueOf(typeId)).append(']');
         }
@@ -990,39 +990,39 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     protected final void _append(JsonToken type)
     {
         Segment next = _hasNativeId
-                ? _last.append(_appendOffset, type, _objectId, _typeId)
-                : _last.append(_appendOffset, type);
+                ? _last.append(_appendAt, type, _objectId, _typeId)
+                : _last.append(_appendAt, type);
         if (next == null) {
-            ++_appendOffset;
+            ++_appendAt;
         } else {
             _last = next;
-            _appendOffset = 1; // since we added first at 0
+            _appendAt = 1; // since we added first at 0
         }
     }
 
     protected final void _append(JsonToken type, Object value)
     {
         Segment next = _hasNativeId
-                ? _last.append(_appendOffset, type, value, _objectId, _typeId)
-                : _last.append(_appendOffset, type, value);
+                ? _last.append(_appendAt, type, value, _objectId, _typeId)
+                : _last.append(_appendAt, type, value);
         if (next == null) {
-            ++_appendOffset;
+            ++_appendAt;
         } else {
             _last = next;
-            _appendOffset = 1;
+            _appendAt = 1;
         }
     }
 
     protected final void _appendRaw(int rawType, Object value)
     {
         Segment next = _hasNativeId
-                ? _last.appendRaw(_appendOffset, rawType, value, _objectId, _typeId)
-                : _last.appendRaw(_appendOffset, rawType, value);
+                ? _last.appendRaw(_appendAt, rawType, value, _objectId, _typeId)
+                : _last.appendRaw(_appendAt, rawType, value);
         if (next == null) {
-            ++_appendOffset;
+            ++_appendAt;
         } else {
             _last = next;
-            _appendOffset = 1;
+            _appendAt = 1;
         }
     }
 
@@ -1714,8 +1714,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             _tokenTypes |= typeCode;
         }
 
-        private void set(int index, int rawTokenType, Object value,
-                Object objectId, Object typeId)
+        private void set(int index, int rawTokenType, Object value, Object objectId, Object typeId)
         {
             _tokens[index] = value;
             long typeCode = (long) rawTokenType;
@@ -1726,8 +1725,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             assignNativeIds(index, objectId, typeId);
         }
 
-        private final void assignNativeIds(int index,
-                Object objectId, Object typeId)
+        private final void assignNativeIds(int index, Object objectId, Object typeId)
         {
             if (_nativeIds == null) {
                 _nativeIds = new TreeMap<Integer,Object>();

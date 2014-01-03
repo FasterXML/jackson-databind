@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.cfg;
 
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import com.fasterxml.jackson.databind.util.ArrayIterator;
 
 /**
  * Configuration settings container class for
@@ -80,20 +81,9 @@ public final class SerializerFactoryConfig
     }
 
     public boolean hasSerializers() { return _additionalSerializers.length > 0; }
-
     public boolean hasKeySerializers() { return _additionalKeySerializers.length > 0; }
-    
     public boolean hasSerializerModifiers() { return _modifiers.length > 0; }
-    
-    public Iterable<Serializers> serializers() {
-        return ArrayBuilders.arrayAsIterable(_additionalSerializers);
-    }
-
-    public Iterable<Serializers> keySerializers() {
-        return ArrayBuilders.arrayAsIterable(_additionalKeySerializers);
-    }
-    
-    public Iterable<BeanSerializerModifier> serializerModifiers() {
-        return ArrayBuilders.arrayAsIterable(_modifiers);
-    }
+    public Iterable<Serializers> serializers() { return new ArrayIterator<Serializers>(_additionalSerializers); }
+    public Iterable<Serializers> keySerializers() { return new ArrayIterator<Serializers>(_additionalKeySerializers); }
+    public Iterable<BeanSerializerModifier> serializerModifiers() { return new ArrayIterator<BeanSerializerModifier>(_modifiers); }
 }

@@ -9,6 +9,8 @@ import java.util.*;
  * reuse scheme, which assumes that caller knows not to use instances
  * concurrently (which works ok with primitive arrays since they can
  * not contain other non-primitive types).
+ * Also note that instances are not thread safe; the intent is that
+ * a builder is constructed on per-call (deserialization) basis.
  */
 public final class ArrayBuilders
 {
@@ -294,65 +296,5 @@ public final class ArrayBuilders
         }
         result[0] = element;
         return result;
-    }
-    
-    /**
-     * Helper method for exposing contents of arrays using a read-only iterator
-     */
-    public static <T> Iterator<T> arrayAsIterator(T[] array)
-    {
-        return new ArrayIterator<T>(array);
-    }
-
-    public static <T> Iterable<T> arrayAsIterable(T[] array)
-    {
-        return new ArrayIterator<T>(array);
-    }
-
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
-    /**
-     * Iterator implementation used to efficiently expose contents of an
-     * Array as read-only iterator.
-     */
-    private final static class ArrayIterator<T>
-        implements Iterator<T>, Iterable<T>
-    {
-        private final T[] _array;
-        
-        private int _index;
-
-        public ArrayIterator(T[] array) {
-            _array = array;
-            _index = 0;
-        }
-        
-       @Override
-        public boolean hasNext() {
-            return _index < _array.length;
-        }
-
-        @Override
-        public T next()
-        {
-            if (_index >= _array.length) {
-                throw new NoSuchElementException();
-            }
-            return _array[_index++];
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Iterator<T> iterator() {
-            return this;
-        }
     }
 }

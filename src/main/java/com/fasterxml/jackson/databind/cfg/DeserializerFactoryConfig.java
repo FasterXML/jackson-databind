@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.AbstractTypeResolver;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.std.StdKeyDeserializers;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
+import com.fasterxml.jackson.databind.util.ArrayIterator;
 
 /**
  * Configuration settings container class for {@link DeserializerFactory}.
@@ -185,22 +186,22 @@ public class DeserializerFactoryConfig
     public boolean hasValueInstantiators() { return _valueInstantiators.length > 0; }
     
     public Iterable<Deserializers> deserializers() {
-        return ArrayBuilders.arrayAsIterable(_additionalDeserializers);
+        return new ArrayIterator<Deserializers>(_additionalDeserializers);
     }
 
     public Iterable<KeyDeserializers> keyDeserializers() {
-        return ArrayBuilders.arrayAsIterable(_additionalKeyDeserializers);
+        return new ArrayIterator<KeyDeserializers>(_additionalKeyDeserializers);
     }
     
     public Iterable<BeanDeserializerModifier> deserializerModifiers() {
-        return ArrayBuilders.arrayAsIterable(_modifiers);
+        return new ArrayIterator<BeanDeserializerModifier>(_modifiers);
     }
 
     public Iterable<AbstractTypeResolver> abstractTypeResolvers() {
-        return ArrayBuilders.arrayAsIterable(_abstractTypeResolvers);
+        return new ArrayIterator<AbstractTypeResolver>(_abstractTypeResolvers);
     }
 
     public Iterable<ValueInstantiators> valueInstantiators() {
-        return ArrayBuilders.arrayAsIterable(_valueInstantiators);
+        return new ArrayIterator<ValueInstantiators>(_valueInstantiators);
     }
 }

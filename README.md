@@ -32,7 +32,7 @@ If so, also add:
 
 ```xml
 <dependency>
-  <!-- note: typically only ".0" patch version exists for core annotations
+  <!-- note: typically only ".0" patch version exists for core annotations -->
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-annotations</artifactId>
   <version>2.3.0</version>

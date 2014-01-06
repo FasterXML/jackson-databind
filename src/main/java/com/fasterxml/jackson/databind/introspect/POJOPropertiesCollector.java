@@ -701,7 +701,7 @@ public class POJOPropertiesCollector
                     old.addAll(prop);
                 }
                 // replace the creatorProperty too, if there is one
-                updateCreatorProperty(prop);
+                _updateCreatorProperty(prop, _creatorProperties);
             }
         }
     }
@@ -749,8 +749,8 @@ public class POJOPropertiesCollector
             } else {
                 old.addAll(prop);
             }
-
-            updateCreatorProperty(prop);
+            // replace the creatorProperty too, if there is one
+            _updateCreatorProperty(prop, _creatorProperties);
         }
     }
 
@@ -853,11 +853,11 @@ public class POJOPropertiesCollector
                     _config.canOverrideAccessModifiers());
     }
 
-    private void updateCreatorProperty(POJOPropertyBuilder prop) {
-        if (_creatorProperties != null) {
-            for (int i = 0; i < _creatorProperties.size(); ++i) {
-                if (_creatorProperties.get(i).getInternalName().equals(prop.getInternalName())) {
-                    _creatorProperties.set(i, prop);
+    protected void _updateCreatorProperty(POJOPropertyBuilder prop, List<POJOPropertyBuilder> creatorProperties) {
+        if (creatorProperties != null) {
+            for (int i = 0, len = creatorProperties.size(); i < len; ++i) {
+                if (creatorProperties.get(i).getInternalName().equals(prop.getInternalName())) {
+                    creatorProperties.set(i, prop);
                     break;
                 }
             }

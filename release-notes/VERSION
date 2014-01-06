@@ -3,6 +3,9 @@ Version: 2.3.2 (xx-xxx-2014)
 
 #378: Fix a problem with custom enum deserializer construction
  (reported by BokoEnos@github)
+#379: Fix a problem with (re)naming of Creator properties; needed to make
+ Paranamer module work with NamingStrategy.
+ (reported by Chris P, cpilsworth@github)
 
 ------------------------------------------------------------------------
 === History: ===

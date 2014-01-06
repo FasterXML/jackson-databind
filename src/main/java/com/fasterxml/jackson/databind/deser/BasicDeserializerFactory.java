@@ -1269,7 +1269,7 @@ public abstract class BasicDeserializerFactory
         // 23-Nov-2010, tatu: Custom deserializer?
         JsonDeserializer<?> custom = _findCustomEnumDeserializer(enumClass, config, beanDesc);
         if (custom != null) {
-            return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, des);
+            return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, custom);
         }
 
         EnumResolver<?> enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueMethod());

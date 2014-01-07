@@ -1,8 +1,11 @@
 package com.fasterxml.jackson.databind.deser;
 
-import com.fasterxml.jackson.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
  * Test for [JACKSON-429]
@@ -27,6 +30,26 @@ public class TestIgnoredTypes extends BaseMapTest
         public IgnoredType ignored;
     }
 
+    // // And test for mix-in annotations
+    
+    @JsonIgnoreType
+    static class Person {
+        public String name;
+        public Person() { }
+        public Person(String name) {
+            this.name = name;
+        }
+    }
+
+    static class PersonWrapper {
+        public int value = 1;
+        public Person person = new Person("Foo");
+    }
+    
+    @JsonIgnoreType
+    static abstract class PersonMixin {
+    }
+    
     /*
     /**********************************************************
     /* Unit tests
@@ -45,5 +68,26 @@ public class TestIgnoredTypes extends BaseMapTest
         bean = mapper.readValue("{ \"ignored\":[1,2,{}], \"value\":9 }", NonIgnoredType.class);
         assertNotNull(bean);
         assertEquals(9, bean.value);
+    }
+
+    public void testSingleWithMixins() throws Exception {
+        SimpleModule module = new SimpleModule();
+        module.setMixInAnnotation(Person.class, PersonMixin.class);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(module);
+        PersonWrapper input = new PersonWrapper();
+        String json = mapper.writeValueAsString(input);
+        assertEquals("{\"value\":1}", json);
+    }
+    
+    public void testListWithMixins() throws Exception {
+        SimpleModule module = new SimpleModule();
+        module.setMixInAnnotation(Person.class, PersonMixin.class);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(module);
+        List<Person> persons = new ArrayList<Person>();
+        persons.add(new Person("Bob"));
+        String json = mapper.writeValueAsString(persons);
+        assertEquals("[{\"name\":\"Bob\"}]", json);
     }
 }

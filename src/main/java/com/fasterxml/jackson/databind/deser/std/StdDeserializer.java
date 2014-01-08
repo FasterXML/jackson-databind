@@ -134,6 +134,17 @@ public abstract class StdDeserializer<T>
             }
             throw ctxt.weirdStringException(text, _valueClass, "only \"true\" or \"false\" recognized");
         }
+        // Issue#381
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final boolean parsed = _parseBooleanPrimitive(jp, ctxt);
+            t = jp.nextToken();
+            if (t != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'boolean' value but there was more than a single value in the array");
+            }            
+            return parsed;            
+        }
         // Otherwise, no can do:
         throw ctxt.mappingException(_valueClass, t);
     }
@@ -175,6 +186,17 @@ public abstract class StdDeserializer<T>
                 return (Boolean) getNullValue();
             }
             throw ctxt.weirdStringException(text, _valueClass, "only \"true\" or \"false\" recognized");
+        }
+        // Issue#381
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final Boolean parsed = _parseBoolean(jp, ctxt);
+            t = jp.nextToken();
+            if (t != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'Boolean' value but there was more than a single value in the array");
+            }            
+            return parsed;            
         }
         // Otherwise, no can do:
         throw ctxt.mappingException(_valueClass, t);
@@ -226,6 +248,17 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_NULL) {
             return (Byte) getNullValue();
         }
+        // Issue#381
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final Byte parsed = _parseByte(jp, ctxt);
+            t = jp.nextToken();
+            if (t != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'Byte' value but there was more than a single value in the array");
+            }            
+            return parsed;            
+        }
         throw ctxt.mappingException(_valueClass, t);
     }
     
@@ -259,6 +292,17 @@ public abstract class StdDeserializer<T>
         }
         if (t == JsonToken.VALUE_NULL) {
             return (Short) getNullValue();
+        }
+        // Issue#381
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final Short parsed = _parseShort(jp, ctxt);
+            t = jp.nextToken();
+            if (t != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'Short' value but there was more than a single value in the array");
+            }            
+            return parsed;            
         }
         throw ctxt.mappingException(_valueClass, t);
     }
@@ -310,6 +354,17 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_NULL) {
             return 0;
         }
+        // Issue#381
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final int parsed = _parseIntPrimitive(jp, ctxt);
+            t = jp.nextToken();
+            if (t != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'int' value but there was more than a single value in the array");
+            }            
+            return parsed;            
+        }
         // Otherwise, no can do:
         throw ctxt.mappingException(_valueClass, t);
     }
@@ -347,6 +402,17 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_NULL) {
             return (Integer) getNullValue();
         }
+        // Issue#381
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final Integer parsed = _parseInteger(jp, ctxt);
+            t = jp.nextToken();
+            if (t != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'Integer' value but there was more than a single value in the array");
+            }            
+            return parsed;            
+        }
         // Otherwise, no can do:
         throw ctxt.mappingException(_valueClass, t);
     }
@@ -377,6 +443,17 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_NULL) {
             return (Long) getNullValue();
         }
+        // Issue#381
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final Long parsed = _parseLong(jp, ctxt);
+            t = jp.nextToken();
+            if (t != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'Long' value but there was more than a single value in the array");
+            }            
+            return parsed;            
+        }
         // Otherwise, no can do:
         throw ctxt.mappingException(_valueClass, t);
     }
@@ -400,6 +477,17 @@ public abstract class StdDeserializer<T>
         }
         if (t == JsonToken.VALUE_NULL) {
             return 0L;
+        }
+        // Issue#381
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final long parsed = _parseLongPrimitive(jp, ctxt);
+            t = jp.nextToken();
+            if (t != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'long' value but there was more than a single value in the array");
+            }            
+            return parsed;            
         }
         throw ctxt.mappingException(_valueClass, t);
     }
@@ -447,6 +535,17 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_NULL) {
             return (Float) getNullValue();
         }
+        // Issue#381
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final Float parsed = _parseFloat(jp, ctxt);
+            t = jp.nextToken();
+            if (t != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'Byte' value but there was more than a single value in the array");
+            }            
+            return parsed;            
+        }
         // Otherwise, no can do:
         throw ctxt.mappingException(_valueClass, t);
     }
@@ -488,6 +587,17 @@ public abstract class StdDeserializer<T>
         }
         if (t == JsonToken.VALUE_NULL) {
             return 0.0f;
+        }
+        // Issue#381
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final float parsed = _parseFloatPrimitive(jp, ctxt);
+            t = jp.nextToken();
+            if (t != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'float' value but there was more than a single value in the array");
+            }            
+            return parsed;            
         }
         // Otherwise, no can do:
         throw ctxt.mappingException(_valueClass, t);
@@ -534,6 +644,17 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_NULL) {
             return (Double) getNullValue();
         }
+        // Issue#381
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final Double parsed = _parseDouble(jp, ctxt);
+            t = jp.nextToken();
+            if (t != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'Double' value but there was more than a single value in the array");
+            }            
+            return parsed;            
+        }
             // Otherwise, no can do:
         throw ctxt.mappingException(_valueClass, t);
     }
@@ -578,6 +699,17 @@ public abstract class StdDeserializer<T>
         if (t == JsonToken.VALUE_NULL) {
             return 0.0;
         }
+        // Issue#381
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final double parsed = _parseDoublePrimitive(jp, ctxt);
+            t = jp.nextToken();
+            if (t != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'Byte' value but there was more than a single value in the array");
+            }            
+            return parsed;            
+        }
             // Otherwise, no can do:
         throw ctxt.mappingException(_valueClass, t);
     }
@@ -609,6 +741,17 @@ public abstract class StdDeserializer<T>
                         "not a valid representation (error: "+iae.getMessage()+")");
             }
         }
+        // Issue#381
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final Date parsed = _parseDate(jp, ctxt);
+            t = jp.nextToken();
+            if (t != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'java.util.Date' value but there was more than a single value in the array");
+            }            
+            return parsed;            
+        }
         throw ctxt.mappingException(_valueClass, t);
     }
 
@@ -635,6 +778,16 @@ public abstract class StdDeserializer<T>
     protected final String _parseString(JsonParser jp, DeserializationContext ctxt)
         throws IOException
     {
+        // Issue#381
+        if (jp.getCurrentToken() == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final String parsed = _parseString(jp, ctxt);
+            if (jp.nextToken() != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'String' value but there was more than a single value in the array");
+            }            
+            return parsed;            
+        }
         String value = jp.getValueAsString();
         if (value != null) {
             return value;

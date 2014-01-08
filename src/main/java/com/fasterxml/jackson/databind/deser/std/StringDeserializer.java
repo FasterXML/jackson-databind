@@ -5,6 +5,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -23,6 +24,16 @@ public final class StringDeserializer extends StdScalarDeserializer<String>
     @Override
     public String deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
+        // Issue#381
+        if (jp.getCurrentToken() == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final String parsed = _parseString(jp, ctxt);
+            if (jp.nextToken() != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                        "Attempted to unwrap single value array for single 'String' value but there was more than a single value in the array");
+            }            
+            return parsed;            
+        }
         // 22-Sep-2012, tatu: For 2.1, use this new method, may force coercion:
         String text = jp.getValueAsString();
         if (text != null) {

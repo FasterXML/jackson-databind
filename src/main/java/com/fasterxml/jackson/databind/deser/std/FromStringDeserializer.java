@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -98,6 +99,16 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
     @Override
     public T deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
+        // Issue#381
+        if (jp.getCurrentToken() == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final T value = deserialize(jp, ctxt);
+            if (jp.nextToken() != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                                "Attempted to unwrap single value array for single '" + _valueClass.getName() + "' value but there was more than a single value in the array");
+            }
+            return value;
+        }
         // 22-Sep-2012, tatu: For 2.1, use this new method, may force coercion:
         String text = jp.getValueAsString();
         if (text != null) { // has String representation

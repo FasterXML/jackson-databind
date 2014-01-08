@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -143,18 +144,32 @@ public class DateDeserializers
         protected java.util.Date _parseDate(JsonParser jp, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
         {
-            if (_customFormat != null && jp.getCurrentToken() == JsonToken.VALUE_STRING) {
-                String str = jp.getText().trim();
-                if (str.length() == 0) {
-                    return (Date) getEmptyValue();
-                }
-                synchronized (_customFormat) {
-                    try {
-                        return _customFormat.parse(str);
-                    } catch (ParseException e) {
-                        throw new IllegalArgumentException("Failed to parse Date value '"+str
-                                +"' (format: \""+_formatString+"\"): "+e.getMessage());
+            if (_customFormat != null) {
+                JsonToken t = jp.getCurrentToken();
+                if (t == JsonToken.VALUE_STRING) {
+                    String str = jp.getText().trim();
+                    if (str.length() == 0) {
+                        return (Date) getEmptyValue();
                     }
+                    synchronized (_customFormat) {
+                        try {
+                            return _customFormat.parse(str);
+                        } catch (ParseException e) {
+                            throw new IllegalArgumentException("Failed to parse Date value '"+str
+                                    +"' (format: \""+_formatString+"\"): "+e.getMessage());
+                        }
+                    }
+                }
+                // Issue#381
+                if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                    jp.nextToken();
+                    final Date parsed = _parseDate(jp, ctxt);
+                    t = jp.nextToken();
+                    if (t != JsonToken.END_ARRAY) {
+                        throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                                "Attempted to unwrap single value array for single 'java.util.Date' value but there was more than a single value in the array");
+                    }            
+                    return parsed;            
                 }
             }
             return super._parseDate(jp, ctxt);

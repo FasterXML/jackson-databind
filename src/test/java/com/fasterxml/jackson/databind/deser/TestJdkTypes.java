@@ -451,105 +451,107 @@ public class TestJdkTypes extends BaseMapTest
     }
 
     public void testSingleElementArrayException() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
         try {
-            MAPPER.readValue("[42]", Integer.class);
+            mapper.readValue("[42]", Integer.class);
             fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
         } catch (JsonMappingException exp) {
             //Exception was thrown correctly
         }
         try {
-            MAPPER.readValue("[42]", Integer.TYPE);
-            fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
-        } catch (JsonMappingException exp) {
-            //Exception was thrown correctly
-        }
-
-        try {
-            MAPPER.readValue("[42.273]", Double.class);
-            fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
-        } catch (JsonMappingException exp) {
-            //Exception was thrown correctly
-        }
-        try {
-            MAPPER.readValue("[42.2723]", Double.TYPE);
+            mapper.readValue("[42]", Integer.TYPE);
             fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
         } catch (JsonMappingException exp) {
             //Exception was thrown correctly
         }
 
         try {
-            MAPPER.readValue("[42342342342342]", Long.class);
+            mapper.readValue("[42.273]", Double.class);
             fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
         } catch (JsonMappingException exp) {
             //Exception was thrown correctly
         }
         try {
-            MAPPER.readValue("[42342342342342342]", Long.TYPE);
-            fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
-        } catch (JsonMappingException exp) {
-            //Exception was thrown correctly
-        }
-
-        try {
-            MAPPER.readValue("[42]", Short.class);
-            fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
-        } catch (JsonMappingException exp) {
-            //Exception was thrown correctly
-        }
-        try {
-            MAPPER.readValue("[42]", Short.TYPE);
+            mapper.readValue("[42.2723]", Double.TYPE);
             fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
         } catch (JsonMappingException exp) {
             //Exception was thrown correctly
         }
 
         try {
-            MAPPER.readValue("[327.2323]", Float.class);
+            mapper.readValue("[42342342342342]", Long.class);
             fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
         } catch (JsonMappingException exp) {
             //Exception was thrown correctly
         }
         try {
-            MAPPER.readValue("[82.81902]", Float.TYPE);
-            fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
-        } catch (JsonMappingException exp) {
-            //Exception was thrown correctly
-        }
-
-        try {
-            MAPPER.readValue("[22]", Byte.class);
-            fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
-        } catch (JsonMappingException exp) {
-            //Exception was thrown correctly
-        }
-        try {
-            MAPPER.readValue("[22]", Byte.TYPE);
+            mapper.readValue("[42342342342342342]", Long.TYPE);
             fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
         } catch (JsonMappingException exp) {
             //Exception was thrown correctly
         }
 
         try {
-            MAPPER.readValue("['d']", Character.class);
+            mapper.readValue("[42]", Short.class);
             fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
         } catch (JsonMappingException exp) {
             //Exception was thrown correctly
         }
         try {
-            MAPPER.readValue("['d']", Character.TYPE);
+            mapper.readValue("[42]", Short.TYPE);
             fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
         } catch (JsonMappingException exp) {
             //Exception was thrown correctly
         }
 
         try {
-            MAPPER.readValue("[true]", Boolean.class);
+            mapper.readValue("[327.2323]", Float.class);
             fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
         } catch (JsonMappingException exp) {
             //Exception was thrown correctly
         }
         try {
-            MAPPER.readValue("[true]", Boolean.TYPE);
+            mapper.readValue("[82.81902]", Float.TYPE);
+            fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
+        } catch (JsonMappingException exp) {
+            //Exception was thrown correctly
+        }
+
+        try {
+            mapper.readValue("[22]", Byte.class);
+            fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
+        } catch (JsonMappingException exp) {
+            //Exception was thrown correctly
+        }
+        try {
+            mapper.readValue("[22]", Byte.TYPE);
+            fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
+        } catch (JsonMappingException exp) {
+            //Exception was thrown correctly
+        }
+
+        try {
+            mapper.readValue("['d']", Character.class);
+            fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
+        } catch (JsonMappingException exp) {
+            //Exception was thrown correctly
+        }
+        try {
+            mapper.readValue("['d']", Character.TYPE);
+            fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
+        } catch (JsonMappingException exp) {
+            //Exception was thrown correctly
+        }
+
+        try {
+            mapper.readValue("[true]", Boolean.class);
+            fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
+        } catch (JsonMappingException exp) {
+            //Exception was thrown correctly
+        }
+        try {
+            mapper.readValue("[true]", Boolean.TYPE);
             fail("Single value array didn't throw an exception when DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
         } catch (JsonMappingException exp) {
             //Exception was thrown correctly

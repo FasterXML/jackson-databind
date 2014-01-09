@@ -126,6 +126,7 @@ public class TestEnumDeserialization
      */
 
     protected final ObjectMapper MAPPER = new ObjectMapper();
+    
 
     public void testSimple() throws Exception
     {
@@ -372,6 +373,25 @@ public class TestEnumDeserialization
             fail("Should throw exception");
         } catch (JsonMappingException e) {
             verifyException(e, "foobar");
+        }
+    }
+    
+    // [Issue#381]
+    public void testUnwrappedEnum() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        
+        assertEquals(TestEnum.JACKSON, mapper.readValue("[" + quote("JACKSON") + "]", TestEnum.class));
+    }
+    
+    public void testUnwrappedEnumException() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        try {
+            assertEquals(TestEnum.JACKSON, mapper.readValue("[" + quote("JACKSON") + "]", TestEnum.class));
+            fail("Exception was not thrown on deserializing a single array element of type enum");
+        } catch (JsonMappingException exp) {
+            //exception as thrown correctly
         }
     }
 }

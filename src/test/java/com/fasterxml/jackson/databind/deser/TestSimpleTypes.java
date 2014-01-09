@@ -75,6 +75,25 @@ public class TestSimpleTypes
         assertNotNull(array);
         assertEquals(1, array.length);
         assertFalse(array[0]);
+        
+        // [Issue#381]
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        result = mapper.readValue(new StringReader("{\"v\":[true]}"), BooleanBean.class);
+        assertTrue(result._v);
+        
+        result = mapper.readValue(new StringReader("{\"v\":[null]}"), BooleanBean.class);
+        assertNotNull(result);
+        assertFalse(result._v);
+        
+        result = mapper.readValue(new StringReader("[{\"v\":[null]}]"), BooleanBean.class);
+        assertNotNull(result);
+        assertFalse(result._v);
+        
+        array = mapper.readValue(new StringReader("[ [ null ] ]"), boolean[].class);
+        assertNotNull(array);
+        assertEquals(1, array.length);
+        assertFalse(array[0]);
     }
 
     public void testIntPrimitive() throws Exception
@@ -89,6 +108,25 @@ public class TestSimpleTypes
 
         // should work with arrays too..
         int[] array = MAPPER.readValue(new StringReader("[ null ]"), int[].class);
+        assertNotNull(array);
+        assertEquals(1, array.length);
+        assertEquals(0, array[0]);
+        
+        // [Issue#381]
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        
+        result = mapper.readValue(new StringReader("{\"v\":[3]}"), IntBean.class);
+        assertEquals(3, result._v);
+        
+        result = mapper.readValue(new StringReader("[{\"v\":[3]}]"), IntBean.class);
+        assertEquals(3, result._v);
+        
+        result = mapper.readValue(new StringReader("{\"v\":[null]}"), IntBean.class);
+        assertNotNull(result);
+        assertEquals(0, result._v);
+
+        array = mapper.readValue(new StringReader("[ [ null ] ]"), int[].class);
         assertNotNull(array);
         assertEquals(1, array.length);
         assertEquals(0, array[0]);
@@ -441,8 +479,29 @@ public class TestSimpleTypes
 
     public void testURI() throws Exception
     {
+        final ObjectMapper mapper = new ObjectMapper();
+        
         URI value = new URI("http://foo.com");
-        assertEquals(value, MAPPER.readValue("\""+value.toString()+"\"", URI.class));
+        assertEquals(value, mapper.readValue("\""+value.toString()+"\"", URI.class));
+        
+        //[Issue#381]
+        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        try {            
+            assertEquals(value, mapper.readValue("[\""+value.toString()+"\"]", URI.class));
+            fail("Did not throw exception for single value array when UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
+        } catch (JsonMappingException exp) {
+            //exception thrown successfully
+        }
+        
+        try {
+            assertEquals(value, mapper.readValue("[\""+value.toString()+"\",\""+value.toString()+"\"]", URI.class));
+            fail("Did not throw exception for single value array when there were multiple values");
+        } catch (JsonMappingException exp) {
+            //exception thrown successfully
+        }
+        
+        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        assertEquals(value, mapper.readValue("[\""+value.toString()+"\"]", URI.class));
     }
 
     /*

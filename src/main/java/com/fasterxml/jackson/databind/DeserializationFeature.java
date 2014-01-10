@@ -12,6 +12,10 @@ import com.fasterxml.jackson.databind.cfg.ConfigFeature;
  * In first case these defaults must follow "config-then-use" patterns
  * (i.e. defined once, not changed afterwards); all per-call
  * changes must be done using {@link ObjectReader}.
+ *<p>
+ * Note that features that do not indicate version of inclusion
+ * were available in Jackson 2.0 (or earlier); only later additions
+ * indicate version of inclusion.
  */
 public enum DeserializationFeature implements ConfigFeature
 {
@@ -209,7 +213,9 @@ public enum DeserializationFeature implements ConfigFeature
      * values to the corresponding value type.  This is basically the opposite of the {@link #ACCEPT_SINGLE_VALUE_AS_ARRAY}
      * feature.  If more than one value is found in the array, a JsonMappingException is thrown.
      * <p>
-     * Feature is disabled by default
+     * Feature is disabled by default.
+     * 
+     * @since 2.4
      */
     UNWRAP_SINGLE_VALUE_ARRAYS(false),
 

@@ -1,6 +1,9 @@
 Project: jackson-databind
 Version: 2.4.0 (xx-xxx-2014)
 
+#381: Allow inlining/unwrapping of value from single-component JSON array
+ (contributed by yinzara@github)
+
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------

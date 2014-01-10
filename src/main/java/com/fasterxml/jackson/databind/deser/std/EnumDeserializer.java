@@ -111,6 +111,19 @@ public class EnumDeserializer
             }
             return result;
         }
+        
+        // Issue#381
+        if (curr == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+            jp.nextToken();
+            final Enum<?> parsed = deserialize(jp, ctxt);
+            curr = jp.nextToken();
+            if (curr != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY,
+                        "Attempted to unwrap single value array for single '" + _resolver.getEnumClass().getName() + "' value but there was more than a single value in the array");
+            }
+            return parsed;
+        }
+
         throw ctxt.mappingException(_resolver.getEnumClass());
     }
 

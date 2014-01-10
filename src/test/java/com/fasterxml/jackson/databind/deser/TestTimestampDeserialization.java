@@ -25,6 +25,23 @@ public class TestTimestampDeserialization
 
         assertEquals("Date: expect "+value+" ("+value.getTime()+"), got "+result+" ("+result.getTime()+")", value.getTime(), result.getTime());
     }
+    
+    public void testTimestampUtilSingleElementArray() throws Exception
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        
+        long now = System.currentTimeMillis();
+        java.sql.Timestamp value = new java.sql.Timestamp(now);
+
+        // First from long
+        assertEquals(value, mapper.readValue("["+now+"]", java.sql.Timestamp.class));
+
+        String dateStr = serializeTimestampAsString(value);
+        java.sql.Timestamp result = mapper.readValue("[\""+dateStr+"\"]", java.sql.Timestamp.class);
+
+        assertEquals("Date: expect "+value+" ("+value.getTime()+"), got "+result+" ("+result.getTime()+")", value.getTime(), result.getTime());
+    }
 
     /*
     /**********************************************************

@@ -75,6 +75,32 @@ public class TestSimpleTypes
         assertNotNull(array);
         assertEquals(1, array.length);
         assertFalse(array[0]);
+        
+        // [Issue#381]
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        result = mapper.readValue(new StringReader("{\"v\":[true]}"), BooleanBean.class);
+        assertTrue(result._v);
+        
+        try {
+            mapper.readValue(new StringReader("[{\"v\":[true,true]}]"), BooleanBean.class);
+            fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
+        } catch (JsonMappingException exp) {
+            //threw exception as required
+        }
+        
+        result = mapper.readValue(new StringReader("{\"v\":[null]}"), BooleanBean.class);
+        assertNotNull(result);
+        assertFalse(result._v);
+        
+        result = mapper.readValue(new StringReader("[{\"v\":[null]}]"), BooleanBean.class);
+        assertNotNull(result);
+        assertFalse(result._v);
+        
+        array = mapper.readValue(new StringReader("[ [ null ] ]"), boolean[].class);
+        assertNotNull(array);
+        assertEquals(1, array.length);
+        assertFalse(array[0]);
     }
 
     public void testIntPrimitive() throws Exception
@@ -89,6 +115,40 @@ public class TestSimpleTypes
 
         // should work with arrays too..
         int[] array = MAPPER.readValue(new StringReader("[ null ]"), int[].class);
+        assertNotNull(array);
+        assertEquals(1, array.length);
+        assertEquals(0, array[0]);
+        
+        // [Issue#381]
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        try {
+            mapper.readValue(new StringReader("{\"v\":[3]}"), IntBean.class);
+            fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
+        } catch (JsonMappingException exp) {
+            //Correctly threw exception
+        }
+        
+        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        
+        result = mapper.readValue(new StringReader("{\"v\":[3]}"), IntBean.class);
+        assertEquals(3, result._v);
+        
+        result = mapper.readValue(new StringReader("[{\"v\":[3]}]"), IntBean.class);
+        assertEquals(3, result._v);
+        
+        try {
+            mapper.readValue(new StringReader("[{\"v\":[3,3]}]"), IntBean.class);
+            fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
+        } catch (JsonMappingException exp) {
+            //threw exception as required
+        }
+        
+        result = mapper.readValue(new StringReader("{\"v\":[null]}"), IntBean.class);
+        assertNotNull(result);
+        assertEquals(0, result._v);
+
+        array = mapper.readValue(new StringReader("[ [ null ] ]"), int[].class);
         assertNotNull(array);
         assertEquals(1, array.length);
         assertEquals(0, array[0]);
@@ -111,6 +171,40 @@ public class TestSimpleTypes
         assertNotNull(array);
         assertEquals(1, array.length);
         assertEquals(0.0, array[0]);
+        
+        // [Issue#381]
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        try {
+            mapper.readValue(new StringReader("{\"v\":[" + value + "]}"), DoubleBean.class);
+            fail("Did not throw exception when reading a value from a single value array with the UNWRAP_SINGLE_VALUE_ARRAYS feature disabled");
+        } catch (JsonMappingException exp) {
+            //Correctly threw exception
+        }
+        
+        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        
+        result = mapper.readValue(new StringReader("{\"v\":[" + value + "]}"), DoubleBean.class);
+        assertEquals(value, result._v);
+        
+        result = mapper.readValue(new StringReader("[{\"v\":[" + value + "]}]"), DoubleBean.class);
+        assertEquals(value, result._v);
+        
+        try {
+            mapper.readValue(new StringReader("[{\"v\":[" + value + "," + value + "]}]"), DoubleBean.class);
+            fail("Did not throw exception while reading a value from a multi value array with UNWRAP_SINGLE_VALUE_ARRAY feature enabled");
+        } catch (JsonMappingException exp) {
+            //threw exception as required
+        }
+        
+        result = mapper.readValue(new StringReader("{\"v\":[null]}"), DoubleBean.class);
+        assertNotNull(result);
+        assertEquals(0d, result._v);
+
+        array = mapper.readValue(new StringReader("[ [ null ] ]"), double[].class);
+        assertNotNull(array);
+        assertEquals(1, array.length);
+        assertEquals(0d, array[0]);
     }
 
     public void testDoublePrimitiveNonNumeric() throws Exception
@@ -327,36 +421,130 @@ public class TestSimpleTypes
         String result = MAPPER.readValue(new StringReader("\""+value+"\""), String.class);
         assertEquals(value, result);
     }
+    
+    public void testSingleStringWrapped() throws Exception
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        
+        String value = "FOO!";
+        try {
+            mapper.readValue(new StringReader("[\""+value+"\"]"), String.class);
+            fail("Exception not thrown when attempting to unwrap a single value 'String' array into a simple String");
+        } catch (JsonMappingException exp) {
+            //exception thrown correctly
+        }
+        
+        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        
+        try {
+            mapper.readValue(new StringReader("[\""+value+"\",\""+value+"\"]"), String.class);
+            fail("Exception not thrown when attempting to unwrap a single value 'String' array that contained more than one value into a simple String");
+        } catch (JsonMappingException exp) {
+            //exception thrown correctly
+        }
+        
+        String result = mapper.readValue(new StringReader("[\""+value+"\"]"), String.class);
+        assertEquals(value, result);
+    }
 
     public void testNull() throws Exception
     {
         // null doesn't really have a type, fake by assuming Object
         Object result = MAPPER.readValue("   null", Object.class);
         assertNull(result);
-    }
+    }  
 
     public void testClass() throws Exception
     {
-        Class<?> result = MAPPER.readValue("\"java.lang.String\"", Class.class);
+        final ObjectMapper mapper = new ObjectMapper();        
+        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);        
+        
+        Class<?> result = mapper.readValue(quote(String.class.getName()), Class.class);
+        assertEquals(String.class, result);
+        
+        //[Issue#381]
+        try {
+            mapper.readValue("[" + quote(String.class.getName()) + "]", Class.class);
+            fail("Did not throw exception when UNWRAP_SINGLE_VALUE_ARRAYS feature was disabled and attempted to read a Class array containing one element");
+        } catch (JsonMappingException exp) {
+            
+        }
+        
+        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        
+        try {
+           mapper.readValue("[" + quote(Object.class.getName()) + "," + quote(Object.class.getName()) +"]", Class.class); 
+           fail("Did not throw exception when UNWRAP_SINGLE_VALUE_ARRAYS feature was enabled and attempted to read a Class array containing two elements");
+        } catch (JsonMappingException exp) {
+            
+        }               
+        result = mapper.readValue("[" + quote(String.class.getName()) + "]", Class.class);
         assertEquals(String.class, result);
     }
 
     public void testBigDecimal() throws Exception
     {
+        final ObjectMapper mapper = objectMapper();
+        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        
         BigDecimal value = new BigDecimal("0.001");
-        BigDecimal result = MAPPER.readValue(new StringReader(value.toString()), BigDecimal.class);
+        BigDecimal result = mapper.readValue(value.toString(), BigDecimal.class);
         assertEquals(value, result);
+        
+        //Issue#381
+        try {
+            mapper.readValue("[" + value.toString() + "]", BigDecimal.class);
+            fail("Exception was not thrown when attempting to read a single value array of BigDecimal when UNWRAP_SINGLE_VALUE_ARRAYS feature is disabled");
+        } catch (JsonMappingException exp) {
+            //Exception was thrown correctly
+        }
+        
+        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        result = mapper.readValue("[" + value.toString() + "]", BigDecimal.class);
+        assertEquals(value, result);
+        
+        try {
+            mapper.readValue("[" + value.toString() + "," + value.toString() + "]", BigDecimal.class);
+            fail("Exception was not thrown when attempting to read a muti value array of BigDecimal when UNWRAP_SINGLE_VALUE_ARRAYS feature is enabled");
+        } catch (JsonMappingException exp) {
+            //Exception was thrown correctly
+        }
     }
 
     public void testBigInteger() throws Exception
     {
+        final ObjectMapper mapper = objectMapper();
+        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        
         BigInteger value = new BigInteger("-1234567890123456789012345567809");
-        BigInteger result = MAPPER.readValue(new StringReader(value.toString()), BigInteger.class);
+        BigInteger result = mapper.readValue(new StringReader(value.toString()), BigInteger.class);
         assertEquals(value, result);
+        
+        //Issue#381
+        try {
+            mapper.readValue("[" + value.toString() + "]", BigInteger.class);
+            fail("Exception was not thrown when attempting to read a single value array of BigInteger when UNWRAP_SINGLE_VALUE_ARRAYS feature is disabled");
+        } catch (JsonMappingException exp) {
+            //Exception was thrown correctly
+        }
+        
+        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        result = mapper.readValue("[" + value.toString() + "]", BigInteger.class);
+        assertEquals(value, result);
+        
+        try {
+            mapper.readValue("[" + value.toString() + "," + value.toString() + "]", BigInteger.class);
+            fail("Exception was not thrown when attempting to read a muti value array of BigInteger when UNWRAP_SINGLE_VALUE_ARRAYS feature is enabled");
+        } catch (JsonMappingException exp) {
+            //Exception was thrown correctly
+        }        
     }
 
     public void testUUID() throws Exception
     {
+        final ObjectMapper mapper = objectMapper();
+        
         final String NULL_UUID = "00000000-0000-0000-0000-000000000000";
         // first, couple of generated UUIDs:
         for (String value : new String[] {
@@ -367,9 +555,31 @@ public class TestSimpleTypes
                 "82994ac2-7b23-49f2-8cc5-e24cf6ed77be",
                 "00000007-0000-0000-0000-000000000000"
         }) {
+            
+            mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+            
             UUID uuid = UUID.fromString(value);
             assertEquals(uuid,
-                    MAPPER.readValue(quote(value), UUID.class));
+                    mapper.readValue(quote(value), UUID.class));
+            
+            try {
+                mapper.readValue("[" + quote(value) + "]", UUID.class);
+                fail("Exception was not thrown when UNWRAP_SINGLE_VALUE_ARRAYS is disabled and attempted to read a single value array as a single element");
+            } catch (JsonMappingException exp) {
+                //Exception thrown successfully
+            }
+            
+            mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+            
+            assertEquals(uuid,
+                    mapper.readValue("[" + quote(value) + "]", UUID.class));
+            
+            try {
+                mapper.readValue("[" + quote(value) + "," + quote(value) + "]", UUID.class);
+                fail("Exception was not thrown when UNWRAP_SINGLE_VALUE_ARRAYS is enabled and attempted to read a multi value array as a single element");
+            } catch (JsonMappingException exp) {
+                //Exception thrown successfully
+            }
         }
         // then use templating; note that these are not exactly valid UUIDs
         // wrt spec (type bits etc), but JDK UUID should deal ok
@@ -379,13 +589,13 @@ public class TestSimpleTypes
         for (int i = 0; i < chars.length(); ++i) {
             String value = TEMPL.replace('0', chars.charAt(i));
             assertEquals(UUID.fromString(value).toString(),
-                    MAPPER.readValue(quote(value), UUID.class).toString());
+                    mapper.readValue(quote(value), UUID.class).toString());
         }
 
         // also: see if base64 encoding works as expected
         String base64 = Base64Variants.getDefaultVariant().encode(new byte[16]);
         assertEquals(UUID.fromString(NULL_UUID),
-                MAPPER.readValue(quote(base64), UUID.class));
+                mapper.readValue(quote(base64), UUID.class));
     }
 
     public void testUUIDAux() throws Exception
@@ -441,8 +651,29 @@ public class TestSimpleTypes
 
     public void testURI() throws Exception
     {
+        final ObjectMapper mapper = new ObjectMapper();
+        
         URI value = new URI("http://foo.com");
-        assertEquals(value, MAPPER.readValue("\""+value.toString()+"\"", URI.class));
+        assertEquals(value, mapper.readValue("\""+value.toString()+"\"", URI.class));
+        
+        //[Issue#381]
+        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        try {            
+            assertEquals(value, mapper.readValue("[\""+value.toString()+"\"]", URI.class));
+            fail("Did not throw exception for single value array when UNWRAP_SINGLE_VALUE_ARRAYS is disabled");
+        } catch (JsonMappingException exp) {
+            //exception thrown successfully
+        }
+        
+        try {
+            assertEquals(value, mapper.readValue("[\""+value.toString()+"\",\""+value.toString()+"\"]", URI.class));
+            fail("Did not throw exception for single value array when there were multiple values");
+        } catch (JsonMappingException exp) {
+            //exception thrown successfully
+        }
+        
+        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        assertEquals(value, mapper.readValue("[\""+value.toString()+"\"]", URI.class));
     }
 
     /*

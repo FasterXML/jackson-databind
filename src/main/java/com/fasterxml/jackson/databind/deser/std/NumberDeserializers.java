@@ -238,10 +238,9 @@ public class NumberDeserializers
             throws IOException, JsonProcessingException
         {
             JsonToken t = jp.getCurrentToken();
-            int value;
-
+            
             if (t == JsonToken.VALUE_NUMBER_INT) { // ok iff ascii value
-                value = jp.getIntValue();
+                int value = jp.getIntValue();
                 if (value >= 0 && value <= 0xFFFF) {
                     return Character.valueOf((char) value);
                 }
@@ -254,7 +253,21 @@ public class NumberDeserializers
                 // actually, empty should become null?
                 if (text.length() == 0) {
                     return (Character) getEmptyValue();
+                }               
+            } else if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                //Issue#381
+                jp.nextToken();
+                final Character value = deserialize(jp, ctxt);
+                if (jp.nextToken() != JsonToken.END_ARRAY) {
+                    throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                            "Attempted to unwrap single value array for single '" + _valueClass.getName() + "' value but there was more than a single value in the array"
+                            );
                 }
+                return value;
+            } else if (t == JsonToken.VALUE_NULL && !_valueClass.isPrimitive()) {
+                //Issue#unreported
+                //  This handles the case where the value required is the Character wrapper class and the token is the null token
+                return getEmptyValue();
             }
             throw ctxt.mappingException(_valueClass, t);
         }
@@ -436,6 +449,17 @@ public class NumberDeserializers
                     throw ctxt.weirdStringException(text, _valueClass, "not a valid number");
                 }
             }
+            
+            if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                jp.nextToken();
+                final Number value = deserialize(jp, ctxt);
+                if (jp.nextToken() != JsonToken.END_ARRAY) {
+                    throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+                            "Attempted to unwrap single value array for single '" + _valueClass.getName() + "' value but there was more than a single value in the array"
+                            );
+                }
+                return value;
+            }
             // Otherwise, no can do:
             throw ctxt.mappingException(_valueClass, t);
         }
@@ -502,10 +526,19 @@ public class NumberDeserializers
                  * Could do by calling BigDecimal.toBigIntegerExact()
                  */
                 return jp.getDecimalValue().toBigInteger();
+            } else if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                jp.nextToken();
+                final BigInteger value = deserialize(jp, ctxt);
+                if (jp.nextToken() != JsonToken.END_ARRAY) {
+                    throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY,
+                        "Attempted to unwrap single value array for single 'BigInteger' value but there was more than a single value in the array"
+                    );
+                }
+                return value;
             } else if (t != JsonToken.VALUE_STRING) { // let's do implicit re-parse
                 // String is ok too, can easily convert; otherwise, no can do:
                 throw ctxt.mappingException(_valueClass, t);
-            }
+            }            
             text = jp.getText().trim();
             if (text.length() == 0) {
                 return null;
@@ -546,6 +579,17 @@ public class NumberDeserializers
                 } catch (IllegalArgumentException iae) {
                     throw ctxt.weirdStringException(text, _valueClass, "not a valid representation");
                 }
+            }
+            
+            if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                jp.nextToken();
+                final BigDecimal value = deserialize(jp, ctxt);
+                if (jp.nextToken() != JsonToken.END_ARRAY) {
+                    throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY,
+                        "Attempted to unwrap single value array for single 'BigDecimal' value but there was more than a single value in the array"
+                    );
+                }
+                return value;
             }
             // Otherwise, no can do:
             throw ctxt.mappingException(_valueClass, t);

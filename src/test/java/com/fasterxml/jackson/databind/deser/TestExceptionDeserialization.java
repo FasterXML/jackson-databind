@@ -97,4 +97,45 @@ public class TestExceptionDeserialization
         Exception exc = MAPPER.readValue("{\"suppressed\":[]}", IOException.class);
         assertNotNull(exc);
     }
+    
+    // [Issue#381]
+    public void testSingleValueArrayDeserialization() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        final IOException exp;
+        try {
+            throw new IOException("testing");
+        } catch (IOException internal) {
+            exp = internal;
+        }
+        final String value = "[" + mapper.writeValueAsString(exp) + "]";
+        
+        final IOException cloned = mapper.readValue(value, IOException.class);
+        assertEquals(exp.getMessage(), cloned.getMessage());    
+        
+        assertEquals(exp.getStackTrace().length, cloned.getStackTrace().length);
+        for (int i = 0; i < exp.getStackTrace().length; i ++) {
+            assertEquals(exp.getStackTrace()[i], cloned.getStackTrace()[i]);
+        }
+    }
+    
+    public void testSingleValueArrayDeserializationException() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
+        
+        final IOException exp;
+        try {
+            throw new IOException("testing");
+        } catch (IOException internal) {
+            exp = internal;
+        }
+        final String value = "[" + mapper.writeValueAsString(exp) + "]";
+        
+        try {
+            mapper.readValue(value, IOException.class);
+            fail("Exception not thrown when attempting to deserialize an IOException wrapped in a single value array with UNWRAP_SINGLE_VALUE_ARRAYS disabled");
+        } catch (JsonMappingException exp2) {
+            //Exception thrown correctly
+        }
+    }
 }

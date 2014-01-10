@@ -203,6 +203,15 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature is disabled by default.
      */
     ACCEPT_SINGLE_VALUE_AS_ARRAY(false),
+    
+    /**
+     * Feature that determines whether it is acceptable to coerce single value array (in JSON)
+     * values to the corresponding value type.  This is basically the opposite of the {@link #ACCEPT_SINGLE_VALUE_AS_ARRAY}
+     * feature.  If more than one value is found in the array, a JsonMappingException is thrown.
+     * <p>
+     * Feature is disabled by default
+     */
+    UNWRAP_SINGLE_VALUE_ARRAYS(false),
 
     /**
      * Feature to allow "unwrapping" root-level JSON value, to match setting of

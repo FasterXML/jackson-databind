@@ -209,7 +209,9 @@ public enum DeserializationFeature implements ConfigFeature
      * values to the corresponding value type.  This is basically the opposite of the {@link #ACCEPT_SINGLE_VALUE_AS_ARRAY}
      * feature.  If more than one value is found in the array, a JsonMappingException is thrown.
      * <p>
+     * 
      * Feature is disabled by default
+     * @since 2.4
      */
     UNWRAP_SINGLE_VALUE_ARRAYS(false),
 

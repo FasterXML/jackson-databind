@@ -4,15 +4,11 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
-
 import com.fasterxml.jackson.databind.*;
 
 /**
  * Unit tests to verify that Java/JSON scalar values (non-structured values)
  * are handled properly with respect to additional type information.
- * 
- * @since 1.5
- * @author tatu
  */
 public class TestDefaultForScalars
     extends BaseMapTest

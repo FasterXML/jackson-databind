@@ -41,6 +41,18 @@ public class TestSimpleTypes
         float _v;
         void setV(float v) { _v = v; }
     }
+    
+    final static class CharacterBean {
+        char _v;
+        void setV(char v) { _v = v; }
+        char getV() { return _v; }
+    }
+    
+    final static class CharacterWrapperBean {
+        Character _v;
+        void setV(Character v) { _v = v; }
+        Character getV() { return _v; }
+    }
 
     /**
      * Also, let's ensure that it's ok to override methods.
@@ -305,6 +317,24 @@ public class TestSimpleTypes
         // But can also pass in ascii code
         result = MAPPER.readValue(new StringReader(" "+((int) 'X')), Character.class);
         assertEquals(Character.valueOf('X'), result);
+        
+        final CharacterWrapperBean wrapper = MAPPER.readValue(new StringReader("{\"v\":null}"), CharacterWrapperBean.class);
+        assertNotNull(wrapper);
+        assertNull(wrapper.getV());
+        
+        final ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);
+            mapper.readValue("{\"v\":null}", CharacterBean.class);
+            fail("Attempting to deserialize a 'null' JSON reference into a 'char' property did not throw an exception");
+        } catch (JsonMappingException exp) {
+            //Exception thrown as required
+        }
+        
+        mapper.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES);  
+        final CharacterBean charBean = MAPPER.readValue(new StringReader("{\"v\":null}"), CharacterBean.class);
+        assertNotNull(wrapper);
+        assertEquals('\u0000', charBean.getV());
     }
 
     public void testIntWrapper() throws Exception

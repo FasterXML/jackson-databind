@@ -41,7 +41,7 @@ Raymond Myers:
   (2.0.0)
 
 Ryan Gardner:
- * Contributed [pull-5] -- Add support for maps with java.util.Locale keys
+ * Contributed #5 -- Add support for maps with java.util.Locale keys
     to the set of StdKeyDeserializers
   (2.0.1)
 
@@ -54,21 +54,21 @@ Duncan Atkinson:
   (2.1.0)
 
 Mark Wolfe:
- * Suggested [Issue#45]: Add `@JsonNaming()` for per-class naming strategy overrides
+ * Suggested #45: Add `@JsonNaming()` for per-class naming strategy overrides
   (2.1.0)
 
 Dmitry Katsubo:
- * Contributed patch for [Issue#65]: Add getters to `ObjectMapper`, DeserializationContext,
+ * Contributed patch for #65: Add getters to `ObjectMapper`, DeserializationContext,
    DeserializationFactory.
   (2.1.0)
 
 Francis Galiegue:
- * Reported [Issue#93] (and suggested fix): bug in `ObjectMapper.setAll(...)'
+ * Reported #93 (and suggested fix): bug in `ObjectMapper.setAll(...)'
   implementation
   (2.1.1)
 
 kelaneren@github:
- * Reported [Issue#157], contributed unit test: NPE when registering same module twice.
+ * Reported #157, contributed unit test: NPE when registering same module twice.
   (2.1.4)
 
 Eric Tschetter (cheddar@github):
@@ -98,3 +98,7 @@ Seth Pellegrino (jivesoft):
 Florian Schoppmann (fschopp@github)
   * Reported #358: `IterableSerializer` ignoring	annotated content serializer
    (2.3.1)
+
+Matthew Morrissette:
+  * Contributed #381: Allow inlining/unwrapping of value from single-component JSON array
+   (2.4.0)

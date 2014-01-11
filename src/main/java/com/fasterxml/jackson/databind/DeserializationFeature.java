@@ -12,6 +12,10 @@ import com.fasterxml.jackson.databind.cfg.ConfigFeature;
  * In first case these defaults must follow "config-then-use" patterns
  * (i.e. defined once, not changed afterwards); all per-call
  * changes must be done using {@link ObjectReader}.
+ *<p>
+ * Note that features that do not indicate version of inclusion
+ * were available in Jackson 2.0 (or earlier); only later additions
+ * indicate version of inclusion.
  */
 public enum DeserializationFeature implements ConfigFeature
 {

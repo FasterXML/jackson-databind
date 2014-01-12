@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
 /**
  * Default {@link TypeResolverBuilder} implementation.
- *
- * @author tatu
  */
 public class StdTypeResolverBuilder
     implements TypeResolverBuilder<StdTypeResolverBuilder>
@@ -68,13 +66,12 @@ public class StdTypeResolverBuilder
         return this;
     }
 
+    @SuppressWarnings("incomplete-switch")
     @Override
     public TypeSerializer buildTypeSerializer(SerializationConfig config,
             JavaType baseType, Collection<NamedType> subtypes)
     {
-        if (_idType == JsonTypeInfo.Id.NONE) {
-            return null;
-        }
+        if (_idType == JsonTypeInfo.Id.NONE) { return null; }
         TypeIdResolver idRes = idResolver(config, baseType, subtypes, true, false);
         switch (_includeAs) {
         case WRAPPER_ARRAY:
@@ -91,13 +88,12 @@ public class StdTypeResolverBuilder
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
 
+    @SuppressWarnings("incomplete-switch")
     @Override
     public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
             JavaType baseType, Collection<NamedType> subtypes)
     {
-        if (_idType == JsonTypeInfo.Id.NONE) {
-            return null;
-        }
+        if (_idType == JsonTypeInfo.Id.NONE) { return null; }
 
         TypeIdResolver idRes = idResolver(config, baseType, subtypes, false, true);
         
@@ -139,8 +135,7 @@ public class StdTypeResolverBuilder
      * (property name to use for type id when using "as-property" inclusion).
      */
     @Override
-    public StdTypeResolverBuilder typeProperty(String typeIdPropName)
-    {
+    public StdTypeResolverBuilder typeProperty(String typeIdPropName) {
         // ok to have null/empty; will restore to use defaults
         if (typeIdPropName == null || typeIdPropName.length() == 0) {
             typeIdPropName = _idType.getDefaultPropertyName();
@@ -150,8 +145,7 @@ public class StdTypeResolverBuilder
     }
 
     @Override
-    public StdTypeResolverBuilder defaultImpl(Class<?> defaultImpl)
-    {
+    public StdTypeResolverBuilder defaultImpl(Class<?> defaultImpl) {
         _defaultImpl = defaultImpl;
         return this;
     }
@@ -168,13 +162,9 @@ public class StdTypeResolverBuilder
     /**********************************************************
      */
 
+    @Override public Class<?> getDefaultImpl() { return _defaultImpl; }
+
     public String getTypeProperty() { return _typeProperty; }
-
-    @Override
-    public Class<?> getDefaultImpl() {
-        return _defaultImpl;
-    }
-
     public boolean isTypeIdVisible() { return _typeIdVisible; }
     
     /*
@@ -189,16 +179,11 @@ public class StdTypeResolverBuilder
      * given configuration.
      */
     protected TypeIdResolver idResolver(MapperConfig<?> config,
-            JavaType baseType, Collection<NamedType> subtypes,
-            boolean forSer, boolean forDeser)
+            JavaType baseType, Collection<NamedType> subtypes, boolean forSer, boolean forDeser)
     {
         // Custom id resolver?
-        if (_customIdResolver != null) {
-            return _customIdResolver;
-        }
-        if (_idType == null) {
-            throw new IllegalStateException("Can not build, 'init()' not yet called");
-        }
+        if (_customIdResolver != null) { return _customIdResolver; }
+        if (_idType == null) throw new IllegalStateException("Can not build, 'init()' not yet called");
         switch (_idType) {
         case CLASS:
             return new ClassNameIdResolver(baseType, config.getTypeFactory());

@@ -366,7 +366,7 @@ public class BeanDeserializerFactory
         }
         Class<?> implClass = objectIdInfo.getGeneratorType();
         JavaType idType;
-    	SettableBeanProperty idProp;
+        SettableBeanProperty idProp;
         ObjectIdGenerator<?> gen;
 
         // Just one special case: Property-based generator is trickier

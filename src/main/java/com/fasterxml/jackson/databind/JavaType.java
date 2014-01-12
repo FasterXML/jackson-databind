@@ -19,7 +19,7 @@ public abstract class JavaType
     implements java.io.Serializable, // 2.1
         java.lang.reflect.Type // 2.2
 {
-    private static final long serialVersionUID = 6774285981275451126L;
+    private static final long serialVersionUID = 1;
 
     /**
      * This is the nominal type-erased Class that would be close to the
@@ -30,7 +30,7 @@ public abstract class JavaType
      */
     protected final Class<?> _class;
 
-    protected final int _hashCode;
+    protected final int _hash;
 
     /**
      * Optional handler (codec) that can be attached to indicate 
@@ -74,7 +74,7 @@ public abstract class JavaType
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
         _class = raw;
-        _hashCode = raw.getName().hashCode() + additionalHash;
+        _hash = raw.getName().hashCode() + additionalHash;
         _valueHandler = valueHandler;
         _typeHandler = typeHandler;
         _asStatic = asStatic;
@@ -231,9 +231,7 @@ public abstract class JavaType
      * true if instantiation of this Type is given (type-erased) Class.
      */
     @Override
-    public final boolean hasRawClass(Class<?> clz) {
-        return _class == clz;
-    }
+    public final boolean hasRawClass(Class<?> clz) { return _class == clz; }
 
     @Override
     public boolean isAbstract() {
@@ -254,16 +252,11 @@ public abstract class JavaType
         /* 19-Feb-2010, tatus: Holy mackarel; primitive types
          *    have 'abstract' flag set...
          */
-        if (_class.isPrimitive()) {
-            return true;
-        }
-        return false;
+        return _class.isPrimitive();
     }
 
     @Override
-    public boolean isThrowable() {
-        return Throwable.class.isAssignableFrom(_class);
-    }
+    public boolean isThrowable() { return Throwable.class.isAssignableFrom(_class); }
 
     @Override
     public boolean isArrayType() { return false; }
@@ -311,9 +304,7 @@ public abstract class JavaType
      * 
      * @since 2.2
      */
-    public final boolean useStaticType() {
-        return _asStatic;
-    }
+    public final boolean useStaticType() { return _asStatic; }
     
     /*
     /**********************************************************
@@ -322,10 +313,7 @@ public abstract class JavaType
      */
 
     @Override
-    public boolean hasGenericTypes()
-    {
-        return containedTypeCount() > 0;
-    }
+    public boolean hasGenericTypes() { return containedTypeCount() > 0; }
 
     @Override
     public JavaType getKeyType() { return null; }
@@ -422,8 +410,7 @@ public abstract class JavaType
     /**********************************************************
      */
 
-    protected void _assertSubclass(Class<?> subclass, Class<?> superClass)
-    {
+    protected void _assertSubclass(Class<?> subclass, Class<?> superClass) {
         if (!_class.isAssignableFrom(subclass)) {
             throw new IllegalArgumentException("Class "+subclass.getName()+" is not assignable to "+_class.getName());
         }
@@ -442,5 +429,5 @@ public abstract class JavaType
     public abstract boolean equals(Object o);
 
     @Override
-    public final int hashCode() { return _hashCode; }
+    public final int hashCode() { return _hash; }
 }

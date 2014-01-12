@@ -1,6 +1,8 @@
 Project: jackson-databind
 Version: 2.4.0 (xx-xxx-2014)
 
+#88: Prevent use of type information for `JsonNode` via default typing
+ (reported by electricmonk@github)
 #381: Allow inlining/unwrapping of value from single-component JSON array
  (contributed by yinzara@github)
 

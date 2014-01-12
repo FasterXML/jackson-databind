@@ -72,6 +72,11 @@ public class ObjectMapper
      * to specify what kind of types (classes) default typing should
      * be used for. It will only be used if no explicit type information
      * is found, but this enumeration further limits subset of those types.
+     *<p>
+     * Since 2.4 there are special exceptions for JSON Tree model
+     * types (sub-types of {@link TreeNode}: default typing is never
+     * applied to them
+     * (see <a href="https://github.com/FasterXML/jackson-databind/issues/88">Issue#88</a> for details)
      */
     public enum DefaultTyping {
         /**
@@ -87,6 +92,8 @@ public class ObjectMapper
          * properties with declared type of {@link java.lang.Object}
          * or an abstract type (abstract class or interface).
          * Note that this does <b>not</b> include array types.
+         *<p>
+         * Since 2.4, this does NOT apply to {@link TreeNode} and its subtypes.
          */
         OBJECT_AND_NON_CONCRETE,
 
@@ -94,6 +101,8 @@ public class ObjectMapper
          * Value that means that default typing will be used for
          * all types covered by {@link #OBJECT_AND_NON_CONCRETE}
          * plus all array types for them.
+         *<p>
+         * Since 2.4, this does NOT apply to {@link TreeNode} and its subtypes.
          */
         NON_CONCRETE_AND_ARRAYS,
         
@@ -103,6 +112,8 @@ public class ObjectMapper
          * "natural" types (String, Boolean, Integer, Double), which
          * can be correctly inferred from JSON; as well as for
          * all arrays of non-final types.
+         *<p>
+         * Since 2.4, this does NOT apply to {@link TreeNode} and its subtypes.
          */
         NON_FINAL
     }
@@ -163,12 +174,15 @@ public class ObjectMapper
                 }
                 // fall through
             case OBJECT_AND_NON_CONCRETE:
-                return (t.getRawClass() == Object.class) || !t.isConcrete();
+                return (t.getRawClass() == Object.class) || !t.isConcrete()
+                        // [Issue#88] Should not apply to JSON tree models:
+                        || TreeNode.class.isAssignableFrom(t.getRawClass());
             case NON_FINAL:
                 while (t.isArrayType()) {
                     t = t.getContentType();
                 }
-                return !t.isFinal(); // includes Object.class
+                // [Issue#88] Should not apply to JSON tree models:
+                return !t.isFinal() && !TreeNode.class.isAssignableFrom(t.getRawClass());
             default:
             //case JAVA_LANG_OBJECT:
                 return (t.getRawClass() == Object.class);

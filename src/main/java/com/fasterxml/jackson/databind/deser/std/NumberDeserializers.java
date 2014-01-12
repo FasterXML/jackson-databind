@@ -264,10 +264,6 @@ public class NumberDeserializers
                             );
                 }
                 return value;
-            } else if (t == JsonToken.VALUE_NULL && !_valueClass.isPrimitive()) {
-                //Issue#unreported
-                //  This handles the case where the value required is the Character wrapper class and the token is the null token
-                return getEmptyValue();
             }
             throw ctxt.mappingException(_valueClass, t);
         }

@@ -21,12 +21,11 @@ import com.fasterxml.jackson.databind.util.ViewMatcher;
  * setter-backed properties, as well as a few more esoteric variations,
  * can be handled.
  */
+@SuppressWarnings("serial")
 public abstract class SettableBeanProperty
     implements BeanProperty,
         java.io.Serializable
 {
-    private static final long serialVersionUID = -1026580169193933453L;
-
     /**
      * To avoid nasty NPEs, let's use a placeholder for _valueDeserializer,
      * if real deserializer is not (yet) available.

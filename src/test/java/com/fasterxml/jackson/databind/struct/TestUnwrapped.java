@@ -75,17 +75,16 @@ public class TestUnwrapped extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper mapper = new ObjectMapper();
-    
-    public void testSimpleUnwrappingSerialize() throws Exception
-    {
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
+    public void testSimpleUnwrappingSerialize() throws Exception {
         assertEquals("{\"name\":\"Tatu\",\"x\":1,\"y\":2}",
-                mapper.writeValueAsString(new Unwrapping("Tatu", 1, 2)));
+                MAPPER.writeValueAsString(new Unwrapping("Tatu", 1, 2)));
     }
-    public void testDeepUnwrappingSerialize() throws Exception
-    {
+
+    public void testDeepUnwrappingSerialize() throws Exception {
         assertEquals("{\"name\":\"Tatu\",\"x\":1,\"y\":2}",
-                mapper.writeValueAsString(new DeepUnwrapping("Tatu", 1, 2)));
+                MAPPER.writeValueAsString(new DeepUnwrapping("Tatu", 1, 2)));
     }
 
     /*
@@ -93,10 +92,10 @@ public class TestUnwrapped extends BaseMapTest
     /* Tests, deserialization
     /**********************************************************
      */
-    
+
     public void testSimpleUnwrappedDeserialize() throws Exception
     {
-        Unwrapping bean = mapper.readValue("{\"name\":\"Tatu\",\"y\":7,\"x\":-13}",
+        Unwrapping bean = MAPPER.readValue("{\"name\":\"Tatu\",\"y\":7,\"x\":-13}",
                 Unwrapping.class);
         assertEquals("Tatu", bean.name);
         Location loc = bean.location;
@@ -104,10 +103,10 @@ public class TestUnwrapped extends BaseMapTest
         assertEquals(-13, loc.x);
         assertEquals(7, loc.y);
     }
-    
+
     public void testDoubleUnwrapping() throws Exception
     {
-        TwoUnwrappedProperties bean = mapper.readValue("{\"first\":\"Joe\",\"y\":7,\"last\":\"Smith\",\"x\":-13}",
+        TwoUnwrappedProperties bean = MAPPER.readValue("{\"first\":\"Joe\",\"y\":7,\"last\":\"Smith\",\"x\":-13}",
                 TwoUnwrappedProperties.class);
         Location loc = bean.location;
         assertNotNull(loc);
@@ -118,10 +117,10 @@ public class TestUnwrapped extends BaseMapTest
         assertEquals("Joe", name.first);
         assertEquals("Smith", name.last);
     }
-    
+
     public void testDeepUnwrapping() throws Exception
     {
-        DeepUnwrapping bean = mapper.readValue("{\"x\":3,\"name\":\"Bob\",\"y\":27}",
+        DeepUnwrapping bean = MAPPER.readValue("{\"x\":3,\"name\":\"Bob\",\"y\":27}",
                 DeepUnwrapping.class);
         Unwrapping uw = bean.unwrapped;
         assertNotNull(uw);
@@ -131,10 +130,10 @@ public class TestUnwrapped extends BaseMapTest
         assertEquals(3, loc.x);
         assertEquals(27, loc.y);
     }
-    
+
     public void testUnwrappedDeserializeWithCreator() throws Exception
     {
-        UnwrappingWithCreator bean = mapper.readValue("{\"x\":1,\"y\":2,\"name\":\"Tatu\"}",
+        UnwrappingWithCreator bean = MAPPER.readValue("{\"x\":1,\"y\":2,\"name\":\"Tatu\"}",
                 UnwrappingWithCreator.class);
         assertEquals("Tatu", bean.name);
         Location loc = bean.location;

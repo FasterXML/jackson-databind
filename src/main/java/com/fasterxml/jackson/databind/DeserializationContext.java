@@ -685,11 +685,8 @@ public abstract class DeserializationContext
         return mappingException(targetClass, _parser.getCurrentToken());
     }
 
-    public JsonMappingException mappingException(Class<?> targetClass, JsonToken token)
-    {
-        String clsName = _calcName(targetClass);
-        return JsonMappingException.from(_parser,
-                "Can not deserialize instance of "+clsName+" out of "+token+" token");
+    public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {
+        return JsonMappingException.from(_parser, "Can not deserialize instance of "+_calcName(targetClass)+" out of "+token+" token");
     }
     
     /**
@@ -705,11 +702,9 @@ public abstract class DeserializationContext
      * to indicate problem with physically constructing instance of
      * specified class (missing constructor, exception from constructor)
      */
-    public JsonMappingException instantiationException(Class<?> instClass, Throwable t)
-    {
+    public JsonMappingException instantiationException(Class<?> instClass, Throwable t) {
         return JsonMappingException.from(_parser,
-                "Can not construct instance of "+instClass.getName()+", problem: "+t.getMessage(),
-                t);
+                "Can not construct instance of "+instClass.getName()+", problem: "+t.getMessage(), t);
     }
 
     public JsonMappingException instantiationException(Class<?> instClass, String msg) {
@@ -768,8 +763,7 @@ public abstract class DeserializationContext
      * Object field name was not in format to be able to deserialize specified
      * key type.
      */
-    public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue, String msg)
-    {
+    public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue, String msg) {
         return InvalidFormatException.from(_parser,
                 "Can not construct Map key of type "+keyClass.getName()+" from String \""+_desc(keyValue)+"\": "+msg,
                 keyValue, keyClass);
@@ -779,8 +773,7 @@ public abstract class DeserializationContext
      * Helper method for indicating that the current token was expected to be another
      * token.
      */
-    public JsonMappingException wrongTokenException(JsonParser jp, JsonToken expToken, String msg)
-    {
+    public JsonMappingException wrongTokenException(JsonParser jp, JsonToken expToken, String msg) {
         return JsonMappingException.from(jp, "Unexpected token ("+jp.getCurrentToken()+"), expected "+expToken+": "+msg);
     }
 
@@ -788,13 +781,11 @@ public abstract class DeserializationContext
      * Helper method for constructing exception to indicate that given
      * type id (parsed from JSON) could not be converted to a Java type.
      */
-    public JsonMappingException unknownTypeException(JavaType type, String id)
-    {
+    public JsonMappingException unknownTypeException(JavaType type, String id) {
         return JsonMappingException.from(_parser, "Could not resolve type id '"+id+"' into a subtype of "+type);
     }
 
-    public JsonMappingException endOfInputException(Class<?> instClass)
-    {
+    public JsonMappingException endOfInputException(Class<?> instClass) {
         return JsonMappingException.from(_parser, "Unexpected end-of-input when trying to deserialize a "
                 +instClass.getName());
     }
@@ -820,8 +811,7 @@ public abstract class DeserializationContext
         return df;
     }
 
-    protected String determineClassName(Object instance)
-    {
+    protected String determineClassName(Object instance) {
         return ClassUtil.getClassDescription(instance);
     }
     
@@ -831,24 +821,22 @@ public abstract class DeserializationContext
     /**********************************************************
      */
 
-    protected String _calcName(Class<?> cls)
-    {
+    protected String _calcName(Class<?> cls) {
         if (cls.isArray()) {
             return _calcName(cls.getComponentType())+"[]";
         }
         return cls.getName();
     }
     
-    protected String _valueDesc()
-    {
+    protected String _valueDesc() {
         try {
             return _desc(_parser.getText());
         } catch (Exception e) {
             return "[N/A]";
         }
     }
-    protected String _desc(String desc)
-    {
+
+    protected String _desc(String desc) {
         // !!! should we quote it? (in case there are control chars, linefeeds)
         if (desc.length() > MAX_ERROR_STR_LEN) {
             desc = desc.substring(0, MAX_ERROR_STR_LEN) + "]...[" + desc.substring(desc.length() - MAX_ERROR_STR_LEN);

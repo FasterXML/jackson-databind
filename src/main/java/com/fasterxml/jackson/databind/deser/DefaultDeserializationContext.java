@@ -86,15 +86,12 @@ public abstract class DefaultDeserializationContext
         for (Entry<IdKey,ReadableObjectId> entry : _objectIds.entrySet()) {
             ReadableObjectId roid = entry.getValue();
             if(roid.hasReferringProperties()){
-                IdKey key = entry.getKey();
                 if(exception == null){
                     exception = new UnresolvedForwardReference("Unresolved forward references for: ");
                 }
                 for (Iterator<Referring> iterator = roid.referringProperties(); iterator.hasNext();) {
                     Referring referring = iterator.next();
-                    // TODO add proper info (class + json loc).
-                    // Modify jackson-annotation to permit access to information of IdKey.
-                    exception.addUnresolvedId(roid.id, null, referring.getLocation());
+                    exception.addUnresolvedId(roid.id, referring.getBeanType(), referring.getLocation());
                 }
             }
         }

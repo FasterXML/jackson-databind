@@ -109,7 +109,7 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty {
 
         public PropertyReferring(Object ob, Object id, JsonLocation location)
         {
-            super(location);
+            super(location, _type.getRawClass());
             _pojo = ob;
             _unresolvedId = id;
         }

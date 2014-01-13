@@ -363,7 +363,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
             assertEquals(Employee.class, firstUnresolvedId.getType());
             UnresolvedId secondUnresolvedId = unresolvedIds.get(1);
             assertEquals(firstUnresolvedId.getId(), secondUnresolvedId.getId());
-            assertEquals(firstUnresolvedId.getType(), secondUnresolvedId.getType());
+            assertEquals(Employee.class, secondUnresolvedId.getType());
         }
     }
 

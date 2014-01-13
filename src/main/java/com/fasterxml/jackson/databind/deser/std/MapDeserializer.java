@@ -619,7 +619,7 @@ public class MapDeserializer
 
             private UnresolvedId(Object key, Object id, JsonLocation location)
             {
-                super(location);
+                super(location, _mapType.getContentType().getRawClass());
                 _key = key;
                 _id = id;
             }

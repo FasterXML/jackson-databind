@@ -74,16 +74,16 @@ public class ReadableObjectId
 
     public static abstract class Referring {
         private final JsonLocation _location;
+        private final Class<?> _beanType;
 
-        protected Referring(JsonLocation location)
+        public Referring(JsonLocation location, Class<?> beanType)
         {
             _location = location;
+            _beanType = beanType;
         }
 
-        public JsonLocation getLocation()
-        {
-            return _location;
-        }
+        public JsonLocation getLocation() { return _location; }
+        public Class<?> getBeanType() { return _beanType; }
 
         public abstract void handleResolvedForwardReference(Object id, Object value)
             throws IOException;

@@ -194,7 +194,7 @@ public class SettableAnyProperty
 
         public AnySetterReferring(Object instance, String propName, Object id, JsonLocation location)
         {
-            super(location);
+            super(location, _type.getRawClass());
             _pojo = instance;
             _propName = propName;
             _unresolvedId = id;

@@ -352,7 +352,7 @@ public class CollectionDeserializer
 
             private UnresolvedId(Object id, JsonLocation location)
             {
-                super(location);
+                super(location, _collectionType.getContentType().getRawClass());
                 _id = id;
             }
 

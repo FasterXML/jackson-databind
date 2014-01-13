@@ -63,20 +63,15 @@ public final class UnresolvedForwardReference extends JsonMappingException {
             _location = where;
         }
         
-        public Object getId()
-        {
-            return _id;
-        }
-        
-        public Class<?> getType()
-        {
-            return _type;
-        }
-        
-        public JsonLocation getLocation()
-        {
-            return _location;
-        }
+        /**
+         * The id which is unresolved.
+         */
+        public Object getId() { return _id; }
+        /**
+         * The type of object which was expected.
+         */
+        public Class<?> getType() { return _type; }
+        public JsonLocation getLocation() { return _location; }
 
         @Override
         public String toString()

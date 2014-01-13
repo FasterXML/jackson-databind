@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.deser.impl.FailingDeserializer;
 import com.fasterxml.jackson.databind.deser.impl.NullProvider;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -106,6 +107,13 @@ public abstract class SettableBeanProperty
     protected String _managedReferenceName;
 
     /**
+     * This is the information for object identity associated with the property.
+     * <p>
+     * TODO: should try to make immutable.
+     */
+    protected ObjectIdInfo _objectIdInfo;
+
+    /**
      * Helper object used for checking whether this property is to
      * be included in the active view, if property is view-specific;
      * null otherwise.
@@ -123,7 +131,7 @@ public abstract class SettableBeanProperty
      * TODO: should try to make immutable if at all possible
      */
     protected int _propertyIndex = -1;
-    
+
     /*
     /**********************************************************
     /* Life-cycle (construct & configure)
@@ -315,7 +323,11 @@ public abstract class SettableBeanProperty
     public void setManagedReferenceName(String n) {
         _managedReferenceName = n;
     }
-    
+
+    public void setObjectIdInfo(ObjectIdInfo objectIdInfo) {
+        _objectIdInfo = objectIdInfo;
+    }
+
     public void setViews(Class<?>[] views) {
         if (views == null) {
             _viewMatcher = null;
@@ -397,6 +409,8 @@ public abstract class SettableBeanProperty
     }
 
     public String getManagedReferenceName() { return _managedReferenceName; }
+
+    public ObjectIdInfo getObjectIdInfo() { return _objectIdInfo; }
 
     public boolean hasValueDeserializer() {
         return (_valueDeserializer != null) && (_valueDeserializer != MISSING_VALUE_DESERIALIZER);

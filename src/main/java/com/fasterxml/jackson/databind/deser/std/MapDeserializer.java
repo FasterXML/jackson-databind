@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
-import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
+import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 
@@ -371,6 +371,12 @@ public class MapDeserializer
         final KeyDeserializer keyDes = _keyDeserializer;
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
+
+        MapReferringAccumuator referringAccumulator = null;
+        boolean useObjectId = valueDes.getObjectIdReader() != null;
+        if (useObjectId) {
+            referringAccumulator = new MapReferringAccumuator(result);
+        }
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             // Must point to field name
             String fieldName = jp.getCurrentName();
@@ -381,20 +387,28 @@ public class MapDeserializer
                 jp.skipChildren();
                 continue;
             }
-            // Note: must handle null explicitly here; value deserializers won't
-            Object value;            
-            if (t == JsonToken.VALUE_NULL) {
-                value = null;
-            } else if (typeDeser == null) {
-                value = valueDes.deserialize(jp, ctxt);
-            } else {
-                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+            try{
+                // Note: must handle null explicitly here; value deserializers won't
+                Object value;
+                if (t == JsonToken.VALUE_NULL) {
+                    value = null;
+                } else if (typeDeser == null) {
+                    value = valueDes.deserialize(jp, ctxt);
+                } else {
+                    value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                }
+                /* !!! 23-Dec-2008, tatu: should there be an option to verify
+                 *   that there are no duplicate field names? (and/or what
+                 *   to do, keep-first or keep-last)
+                 */
+                if (useObjectId) {
+                    referringAccumulator.put(key, value);
+                } else {
+                    result.put(key, value);
+                }
+            } catch(UnresolvedForwardReference reference) {
+                handleUnresolvedReference(jp, referringAccumulator, key, reference);
             }
-            /* !!! 23-Dec-2008, tatu: should there be an option to verify
-             *   that there are no duplicate field names? (and/or what
-             *   to do, keep-first or keep-last)
-             */
-            result.put(key, value);
         }
     }
 
@@ -413,6 +427,11 @@ public class MapDeserializer
         }
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
+        MapReferringAccumuator referringAccumulator = null;
+        boolean useObjectId = valueDes.getObjectIdReader() != null;
+        if (useObjectId) {
+            referringAccumulator = new MapReferringAccumuator(result);
+        }
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             // Must point to field name
             String fieldName = jp.getCurrentName();
@@ -422,16 +441,24 @@ public class MapDeserializer
                 jp.skipChildren();
                 continue;
             }
-            // Note: must handle null explicitly here; value deserializers won't
-            Object value;            
-            if (t == JsonToken.VALUE_NULL) {
-                value = null;
-            } else if (typeDeser == null) {
-                value = valueDes.deserialize(jp, ctxt);
-            } else {
-                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+            try {
+                // Note: must handle null explicitly here; value deserializers won't
+                Object value;
+                if (t == JsonToken.VALUE_NULL) {
+                    value = null;
+                } else if (typeDeser == null) {
+                    value = valueDes.deserialize(jp, ctxt);
+                } else {
+                    value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                }
+                if (useObjectId) {
+                    referringAccumulator.put(fieldName, value);
+                } else {
+                    result.put(fieldName, value);
+                }
+            } catch (UnresolvedForwardReference reference) {
+                handleUnresolvedReference(jp, referringAccumulator, fieldName, reference);
             }
-            result.put(fieldName, value);
         }
     }
     
@@ -515,5 +542,94 @@ public class MapDeserializer
             throw (IOException) t;
         }
         throw JsonMappingException.wrapWithPath(t, ref, null);
+    }
+
+    private void handleUnresolvedReference(JsonParser jp, MapReferringAccumuator accumulator, Object key,
+            UnresolvedForwardReference reference)
+        throws JsonMappingException
+    {
+        if (accumulator == null) {
+            throw JsonMappingException.from(jp, "Unresolved forward reference but no identity info.", reference);
+        }
+        Referring referring = accumulator.handleUnresolvedReference(reference, key);
+        reference.getRoid().appendReferring(referring);
+    }
+
+    private final class MapReferringAccumuator  {
+        private Map<Object,Object> _result;
+        /**
+         * A list of {@link UnresolvedId} to maintain ordering.
+         */
+        private List<UnresolvedId> _accumulator = new ArrayList<UnresolvedId>();
+
+        public MapReferringAccumuator(Map<Object, Object> result)
+        {
+            _result = result;
+        }
+
+        public void put(Object key, Object value)
+        {
+            if (_accumulator.isEmpty()) {
+                _result.put(key, value);
+            } else {
+                UnresolvedId unresolvedId = _accumulator.get(_accumulator.size() - 1);
+                unresolvedId._next.put(key, value);
+            }
+        }
+
+        public Referring handleUnresolvedReference(UnresolvedForwardReference reference, Object key)
+        {
+            UnresolvedId id = new UnresolvedId(key, reference.getUnresolvedId(), reference.getLocation());
+            _accumulator.add(id);
+            return id;
+        }
+
+        public void resolveForwardReference(Object id, Object value)
+            throws IOException
+        {
+            Iterator<UnresolvedId> iterator = _accumulator.iterator();
+            // Resolve ordering after resolution of an id. This mean either:
+            // 1- adding to the result map in case of the first unresolved id.
+            // 2- merge the content of the resolved id with its previous unresolved id.
+            Map<Object,Object> previous = _result;
+            while (iterator.hasNext()) {
+                UnresolvedId unresolvedId = iterator.next();
+                if (unresolvedId._id.equals(id)) {
+                    iterator.remove();
+                    previous.put(unresolvedId._key, value);
+                    previous.putAll(unresolvedId._next);
+                    return;
+                }
+                previous = unresolvedId._next;
+            }
+
+            throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
+                    + "] that wasn't previously seen as unresolved.");
+        }
+
+        /**
+         * Helper class to maintain processing order of value. The resolved
+         * object associated with {@link #_id} comes before the values in
+         * {@link _next}.
+         */
+        private final class UnresolvedId extends Referring {
+            private final Object _id;
+            private final Map<Object, Object> _next = new LinkedHashMap<Object, Object>();
+            private final Object _key;
+
+            private UnresolvedId(Object key, Object id, JsonLocation location)
+            {
+                super(location, _mapType.getContentType().getRawClass());
+                _key = key;
+                _id = id;
+            }
+
+            @Override
+            public void handleResolvedForwardReference(Object id, Object value)
+                throws IOException
+            {
+                resolveForwardReference(id, value);
+            }
+        }
     }
 }

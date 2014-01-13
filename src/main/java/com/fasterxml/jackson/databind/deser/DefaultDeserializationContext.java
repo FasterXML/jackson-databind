@@ -1,15 +1,17 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-
+import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
 import com.fasterxml.jackson.core.JsonParser;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
+import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -73,6 +75,31 @@ public abstract class DefaultDeserializationContext
         return entry;
     }
     
+    @Override
+    public void checkUnresolvedObjectId() throws UnresolvedForwardReference
+    {
+        if(_objectIds == null){
+            return;
+        }
+
+        UnresolvedForwardReference exception = null;
+        for (Entry<IdKey,ReadableObjectId> entry : _objectIds.entrySet()) {
+            ReadableObjectId roid = entry.getValue();
+            if(roid.hasReferringProperties()){
+                if(exception == null){
+                    exception = new UnresolvedForwardReference("Unresolved forward references for: ");
+                }
+                for (Iterator<Referring> iterator = roid.referringProperties(); iterator.hasNext();) {
+                    Referring referring = iterator.next();
+                    exception.addUnresolvedId(roid.id, referring.getBeanType(), referring.getLocation());
+                }
+            }
+        }
+        if(exception != null){
+            throw exception;
+        }
+    }
+
     /*
     /**********************************************************
     /* Abstract methods impls, other factory methods

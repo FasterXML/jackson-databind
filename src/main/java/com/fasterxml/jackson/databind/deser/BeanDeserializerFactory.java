@@ -781,6 +781,10 @@ public class BeanDeserializerFactory
         if (ref != null && ref.isManagedReference()) {
             prop.setManagedReferenceName(ref.getName());
         }
+        ObjectIdInfo objectIdInfo = propDef.findObjectIdInfo();
+        if(objectIdInfo != null){
+            prop.setObjectIdInfo(objectIdInfo);
+        }
         return prop;
     }
 

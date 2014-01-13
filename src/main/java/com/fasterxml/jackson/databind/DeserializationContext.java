@@ -423,6 +423,15 @@ public abstract class DeserializationContext
     public abstract ReadableObjectId findObjectId(Object id,
             ObjectIdGenerator<?> generator);
 
+    /**
+     * Method called to ensure that every object id encounter during processing
+     * are resolved.
+     * 
+     * @throws UnresolvedForwardReference
+     */
+    public abstract void checkUnresolvedObjectId()
+        throws UnresolvedForwardReference;
+
     /*
     /**********************************************************
     /* Public API, type handling

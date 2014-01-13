@@ -65,7 +65,7 @@ public class TestObjectId extends BaseMapTest
 
     @JsonIdentityInfo(property="id",
             generator=ObjectIdGenerators.PropertyGenerator.class)
-    static class Employee {
+    public static class Employee {
         public int id;
      
         public String name;

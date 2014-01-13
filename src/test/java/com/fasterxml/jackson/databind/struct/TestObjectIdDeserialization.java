@@ -1,9 +1,20 @@
 package com.fasterxml.jackson.databind.struct;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
+import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference.UnresolvedId;
+import com.fasterxml.jackson.databind.struct.TestObjectId.Company;
+import com.fasterxml.jackson.databind.struct.TestObjectId.Employee;
 
 /**
  * Unit test to verify handling of Object Id deserialization
@@ -102,6 +113,22 @@ public class TestObjectIdDeserialization extends BaseMapTest
         }
     }
     
+    static class MappedCompany {
+        public Map<Integer, Employee> employees;
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+    static class AnySetterObjectId {
+        private Map<String, AnySetterObjectId> values = new HashMap<String, AnySetterObjectId>();
+
+        @JsonAnySetter
+        public void anySet(String field, AnySetterObjectId value) {
+            // Ensure that it is never called with null because of unresolved reference.
+            assertNotNull(value);
+            values.put(field, value);
+        }
+    }
+
     private final ObjectMapper mapper = new ObjectMapper();
     
     /*
@@ -166,7 +193,130 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertEquals(7, result.node.value);
         assertSame(result.node, result.node.next.node);
     }
-    
+
+    public void testForwardReference()
+        throws Exception
+    {
+        String json = "{\"employees\":["
+                      + "{\"id\":1,\"name\":\"First\",\"manager\":2,\"reports\":[]},"
+                      + "{\"id\":2,\"name\":\"Second\",\"manager\":null,\"reports\":[1]}"
+                      + "]}";
+        Company company = mapper.readValue(json, Company.class);
+        assertEquals(2, company.employees.size());
+        Employee firstEmployee = company.employees.get(0);
+        Employee secondEmployee = company.employees.get(1);
+        assertEquals(1, firstEmployee.id);
+        assertEquals(2, secondEmployee.id);
+        assertEquals(secondEmployee, firstEmployee.manager); // Ensure that forward reference was properly resolved.
+        assertEquals(firstEmployee, secondEmployee.reports.get(0)); // And that back reference is also properly resolved.
+    }
+
+    public void testForwardReferenceInCollection()
+        throws Exception
+    {
+        String json = "{\"employees\":["
+                      + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                      + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                      + "]}";
+        Company company = mapper.readValue(json, Company.class);
+        assertEquals(2, company.employees.size());
+        Employee firstEmployee = company.employees.get(0);
+        Employee secondEmployee = company.employees.get(1);
+        assertEmployees(firstEmployee, secondEmployee);
+    }
+
+    public void testForwardReferenceInMap()
+        throws Exception
+    {
+        String json = "{\"employees\":{"
+                      + "\"1\":{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                      + "\"2\": 2,"
+                      + "\"3\":{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                      + "}}";
+        MappedCompany company = mapper.readValue(json, MappedCompany.class);
+        assertEquals(3, company.employees.size());
+        Employee firstEmployee = company.employees.get(1);
+        Employee secondEmployee = company.employees.get(3);
+        assertEmployees(firstEmployee, secondEmployee);
+    }
+
+    private void assertEmployees(Employee firstEmployee, Employee secondEmployee)
+    {
+        assertEquals(1, firstEmployee.id);
+        assertEquals(2, secondEmployee.id);
+        assertEquals(1, firstEmployee.reports.size());
+        assertSame(secondEmployee, firstEmployee.reports.get(0)); // Ensure that forward reference was properly resolved and in order.
+        assertSame(firstEmployee, secondEmployee.manager); // And that back reference is also properly resolved.
+    }
+
+    public void testForwardReferenceAnySetterCombo() throws Exception {
+        String json = "{\"@id\":1, \"foo\":2, \"bar\":{\"@id\":2, \"foo\":1}}";
+        AnySetterObjectId value = mapper.readValue(json, AnySetterObjectId.class);
+        assertSame(value.values.get("bar"), value.values.get("foo"));
+    }
+
+    public void testUnresolvedForwardReference()
+        throws Exception
+    {
+        String json = "{\"employees\":[" 
+                      + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[3]},"
+                      + "{\"id\":2,\"name\":\"Second\",\"manager\":3,\"reports\":[]}" 
+                      + "]}";
+        try {
+            mapper.readValue(json, Company.class);
+            fail("Should have thrown.");
+        } catch (UnresolvedForwardReference exception) {
+            // Expected
+            List<UnresolvedId> unresolvedIds = exception.getUnresolvedIds();
+            assertEquals(2, unresolvedIds.size());
+            UnresolvedId firstUnresolvedId = unresolvedIds.get(0);
+            assertEquals(3, firstUnresolvedId.getId());
+            assertEquals(Employee.class, firstUnresolvedId.getType());
+            UnresolvedId secondUnresolvedId = unresolvedIds.get(1);
+            assertEquals(firstUnresolvedId.getId(), secondUnresolvedId.getId());
+            assertEquals(Employee.class, secondUnresolvedId.getType());
+        }
+    }
+
+    public void testKeepCollectionOrdering()
+        throws Exception
+    {
+        String json = "{\"employees\":[2,1,"
+                + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                + "]}";
+        Company company = mapper.readValue(json, Company.class);
+        assertEquals(4, company.employees.size());
+        // Deser must keep object ordering.
+        Employee firstEmployee = company.employees.get(1);
+        Employee secondEmployee = company.employees.get(0);
+        assertSame(firstEmployee, company.employees.get(2));
+        assertSame(secondEmployee, company.employees.get(3));
+        assertEmployees(firstEmployee, secondEmployee);
+    }
+
+    public void testKeepMapOrdering()
+        throws Exception
+    {
+        String json = "{\"employees\":{"
+                      + "\"1\":2, \"2\":1,"
+                      + "\"3\":{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
+                      + "\"4\":{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
+                      + "}}";
+        MappedCompany company = mapper.readValue(json, MappedCompany.class);
+        assertEquals(4, company.employees.size());
+        Employee firstEmployee = company.employees.get(2);
+        Employee secondEmployee = company.employees.get(1);
+        assertEmployees(firstEmployee, secondEmployee);
+        // Deser must keep object ordering. Not sure if it's really important for maps,
+        // but since default map is LinkedHashMap might as well ensure it does...
+        Iterator<Entry<Integer,Employee>> iterator = company.employees.entrySet().iterator();
+        assertSame(secondEmployee, iterator.next().getValue());
+        assertSame(firstEmployee, iterator.next().getValue());
+        assertSame(firstEmployee, iterator.next().getValue());
+        assertSame(secondEmployee, iterator.next().getValue());
+    }
+
     /*
     /*****************************************************
     /* Unit tests, custom (property-based) id deserialization

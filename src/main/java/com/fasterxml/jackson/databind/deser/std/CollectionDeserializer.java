@@ -7,7 +7,9 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
+import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
 import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
@@ -217,18 +219,33 @@ public class CollectionDeserializer
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         JsonToken t;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
-
+        CollectionReferringAccumulator referringAccumulator = null;
+        if(valueDes.getObjectIdReader() != null){
+            referringAccumulator = new CollectionReferringAccumulator(result);
+        }
         while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-            Object value;
-            
-            if (t == JsonToken.VALUE_NULL) {
-                value = null;
-            } else if (typeDeser == null) {
-                value = valueDes.deserialize(jp, ctxt);
-            } else {
-                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+            try {
+                Object value;
+                if (t == JsonToken.VALUE_NULL) {
+                    value = null;
+                } else if (typeDeser == null) {
+                    value = valueDes.deserialize(jp, ctxt);
+                } else {
+                    value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                }
+                if (referringAccumulator != null) {
+                    referringAccumulator.add(value);
+                } else {
+                    result.add(value);
+                }
+            } catch (UnresolvedForwardReference reference) {
+                if (referringAccumulator == null) {
+                    throw JsonMappingException
+                            .from(jp, "Unresolved forward reference but no identity info.", reference);
+                }
+                Referring ref = referringAccumulator.handleUnresolvedReference(reference);
+                reference.getRoid().appendReferring(ref);
             }
-            result.add(value);
         }
         return result;
     }
@@ -272,4 +289,79 @@ public class CollectionDeserializer
         return result;
     }
 
+    public final class CollectionReferringAccumulator {
+        private Collection<Object> _result;
+        /**
+         * A list of {@link UnresolvedId} to maintain ordering.
+         */
+        private List<UnresolvedId> _accumulator = new ArrayList<UnresolvedId>();
+
+        public CollectionReferringAccumulator(Collection<Object> result)
+        {
+            _result = result;
+        }
+
+        public void add(Object value)
+        {
+            if (_accumulator.isEmpty()) {
+                _result.add(value);
+            } else {
+                UnresolvedId unresolvedId = _accumulator.get(_accumulator.size() - 1);
+                unresolvedId._next.add(value);
+            }
+        }
+
+        public Referring handleUnresolvedReference(UnresolvedForwardReference reference)
+        {
+            UnresolvedId id = new UnresolvedId(reference.getUnresolvedId(), reference.getLocation());
+            _accumulator.add(id);
+            return id;
+        }
+
+        public void resolveForwardReference(Object id, Object value)
+            throws IOException
+        {
+            Iterator<UnresolvedId> iterator = _accumulator.iterator();
+            // Resolve ordering after resolution of an id. This mean either:
+            // 1- adding to the result collection in case of the first unresolved id.
+            // 2- merge the content of the resolved id with its previous unresolved id.
+            Collection<Object> previous = _result;
+            while (iterator.hasNext()) {
+                UnresolvedId unresolvedId = iterator.next();
+                if (unresolvedId._id.equals(id)) {
+                    iterator.remove();
+                    previous.add(value);
+                    previous.addAll(unresolvedId._next);
+                    return;
+                }
+                previous = unresolvedId._next;
+            }
+
+            throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
+                    + "] that wasn't previously seen as unresolved.");
+        }
+
+        /**
+         * Helper class to maintain processing order of value. The resolved
+         * object associated with {@link #_id} comes before the values in
+         * {@link _next}.
+         */
+        private final class UnresolvedId extends Referring {
+            private final Object _id;
+            private final List<Object> _next = new ArrayList<Object>();
+
+            private UnresolvedId(Object id, JsonLocation location)
+            {
+                super(location, _collectionType.getContentType().getRawClass());
+                _id = id;
+            }
+
+            @Override
+            public void handleResolvedForwardReference(Object id, Object value)
+                throws IOException
+            {
+                resolveForwardReference(id, value);
+            }
+        }
+    }
 }

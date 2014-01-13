@@ -450,6 +450,11 @@ public abstract class BeanDeserializerBase
             }
             // [JACKSON-235]: need to link managed references with matching back references
             prop = _resolveManagedReferenceProperty(ctxt, prop);
+
+            // issue #351: need to wrap properties that require object id resolution.
+            if (!(prop instanceof ManagedReferenceProperty)) {
+                prop = _resolvedObjectIdProperty(ctxt, prop);
+            }
             // [JACKSON-132]: support unwrapped values (via @JsonUnwrapped)
             SettableBeanProperty u = _resolveUnwrappedProperty(ctxt, prop);
             if (u != null) {
@@ -651,6 +656,22 @@ public abstract class BeanDeserializerBase
         }
         return new ManagedReferenceProperty(prop, refName, backProp,
                 _classAnnotations, isContainer);
+    }
+
+    /**
+     * Method that wraps given property with {@link ObjectIdReferenceProperty}
+     * in case where object id resolution is required.
+     */
+    protected SettableBeanProperty _resolvedObjectIdProperty(DeserializationContext ctxt, SettableBeanProperty prop)
+    {
+        ObjectIdInfo objectIdInfo = prop.getObjectIdInfo();
+        JsonDeserializer<Object> valueDeser = prop.getValueDeserializer();
+        ObjectIdReader objectIdReader = valueDeser.getObjectIdReader();
+        if (objectIdInfo == null && objectIdReader == null) {
+            return prop;
+        }
+
+        return new ObjectIdReferenceProperty(prop, objectIdInfo);
     }
 
     /**
@@ -1053,8 +1074,8 @@ public abstract class BeanDeserializerBase
         // do we have it resolved?
         Object pojo = roid.item;
         if (pojo == null) { // not yet; should wait...
-            throw new IllegalStateException("Could not resolve Object Id ["+id+"] (for "
-                    +_beanType+") -- unresolved forward-reference?");
+            throw new UnresolvedForwardReference("Could not resolve Object Id ["+id+"] (for "
+                    +_beanType+").", jp.getCurrentLocation(), roid);
         }
         return pojo;
     }

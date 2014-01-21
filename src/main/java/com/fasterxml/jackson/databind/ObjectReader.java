@@ -9,7 +9,6 @@ import java.util.TimeZone;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
@@ -1421,7 +1420,7 @@ public class ObjectReader
     {
         String expName = _config.getRootName();
         if (expName == null) {
-            SerializedString sstr = _rootNames.findRootName(rootType, _config);
+            SerializableString sstr = _rootNames.findRootName(rootType, _config);
             expName = sstr.getValue();
         }
         if (jp.getCurrentToken() != JsonToken.START_OBJECT) {

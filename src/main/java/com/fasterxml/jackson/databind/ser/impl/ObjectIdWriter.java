@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-
+import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
 
@@ -17,7 +17,7 @@ public final class ObjectIdWriter
      * only write references, but id property is handled by some
      * other entity.
      */
-    public final SerializedString propertyName;
+    public final SerializableString propertyName;
 
     /**
      * Blueprint generator instance: actual instance will be
@@ -47,7 +47,7 @@ public final class ObjectIdWriter
      */
 
     @SuppressWarnings("unchecked")
-    protected ObjectIdWriter(JavaType t, SerializedString propName,
+    protected ObjectIdWriter(JavaType t, SerializableString propName,
             ObjectIdGenerator<?> gen, JsonSerializer<?> ser, boolean alwaysAsId)
     {
         idType = t;
@@ -75,7 +75,7 @@ public final class ObjectIdWriter
     public static ObjectIdWriter construct(JavaType idType, String propName,
             ObjectIdGenerator<?> generator, boolean alwaysAsId)
     {
-        SerializedString serName = (propName == null) ? null : new SerializedString(propName);
+        SerializableString serName = (propName == null) ? null : new SerializedString(propName);
         return new ObjectIdWriter(idType, serName, generator, null, alwaysAsId);
     }
 

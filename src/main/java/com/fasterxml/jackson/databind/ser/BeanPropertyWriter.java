@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -29,8 +30,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * code and this is to reduce likelihood of data corruption and
  * synchronization issues.
  */
-public class BeanPropertyWriter
-    extends PropertyWriter
+public class BeanPropertyWriter extends PropertyWriter
     implements BeanProperty
 {
     /**
@@ -95,7 +95,7 @@ public class BeanPropertyWriter
      * Logical name of the property; will be used as the field name
      * under which value for the property is written.
      */
-    protected final SerializedString _name;
+    protected final SerializableString _name;
 
     /**
      * Wrapper name to use for this element, if any
@@ -220,7 +220,7 @@ public class BeanPropertyWriter
         this(base, base._name);
     }
 
-    protected BeanPropertyWriter(BeanPropertyWriter base, SerializedString name)
+    protected BeanPropertyWriter(BeanPropertyWriter base, SerializableString name)
     {
         _name = name;
         _wrapperName = base._wrapperName;
@@ -416,7 +416,7 @@ public class BeanPropertyWriter
     /**********************************************************
      */
 
-    public SerializedString getSerializedName() { return _name; }
+    public SerializableString getSerializedName() { return _name; }
     
     public boolean hasSerializer() { return _serializer != null; }
     public boolean hasNullSerializer() { return _nullSerializer != null; }

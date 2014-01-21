@@ -40,7 +40,7 @@ public class UnwrappingBeanPropertyWriter
     }
 
     private UnwrappingBeanPropertyWriter(UnwrappingBeanPropertyWriter base, NameTransformer transformer,
-            SerializedString name) {
+            SerializableString name) {
         super(base, name);
         _nameTransformer = transformer;
     }

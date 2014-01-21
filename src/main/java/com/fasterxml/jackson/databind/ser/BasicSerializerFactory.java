@@ -694,9 +694,7 @@ public abstract class BasicSerializerFactory
         for (Serializers serializers : customSerializers()) {
             ser = serializers.findMapSerializer(config, type, beanDesc,
                     keySerializer, elementTypeSerializer, elementValueSerializer);
-            if (ser != null) {
-                break;
-            }
+            if (ser != null) { break; }
         }
         if (ser == null) {
             if (EnumMap.class.isAssignableFrom(type.getRawClass())) {
@@ -706,7 +704,7 @@ public abstract class BasicSerializerFactory
                 if (keyType.isEnumType()) { // non-enum if we got it as type erased class (from instance)
                     @SuppressWarnings("unchecked")
                     Class<Enum<?>> enumClass = (Class<Enum<?>>) keyType.getRawClass();
-                    enums = EnumValues.construct(enumClass, config.getAnnotationIntrospector());
+                    enums = EnumValues.construct(config, enumClass);
                 }
                 ser = new EnumMapSerializer(type.getContentType(), staticTyping, enums,
                     elementTypeSerializer, elementValueSerializer);

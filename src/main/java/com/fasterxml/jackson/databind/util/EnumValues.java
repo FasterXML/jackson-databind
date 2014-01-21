@@ -2,8 +2,9 @@ package com.fasterxml.jackson.databind.util;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * Helper class used for storing String serializations of
@@ -14,22 +15,25 @@ public final class EnumValues
     private final Class<Enum<?>> _enumClass;
     
     /**
-     * Since 1.7, we are storing values as SerializedStrings, to further
-     * speed up serialization.
+     * Use a more optimized String value here, to possibly speed up
+     * serialization.
      */
-    private final EnumMap<?,SerializedString> _values;
+    private final EnumMap<?,SerializableString> _values;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private EnumValues(Class<Enum<?>> enumClass, Map<Enum<?>,SerializedString> v) {
+    private EnumValues(Class<Enum<?>> enumClass, Map<Enum<?>,SerializableString> v) {
         _enumClass = enumClass;
         _values = new EnumMap(v);
     }
 
-    public static EnumValues construct(Class<Enum<?>> enumClass, AnnotationIntrospector intr) {
-        return constructFromName(enumClass, intr);
+    public static EnumValues construct(SerializationConfig config, Class<Enum<?>> enumClass) {
+        if (config.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
+            return constructFromToString(config, enumClass);
+        }
+        return constructFromName(config, enumClass);
     }
 
-    public static EnumValues constructFromName(Class<Enum<?>> enumClass, AnnotationIntrospector intr)
+    public static EnumValues constructFromName(MapperConfig<?> config, Class<Enum<?>> enumClass)
     {
         /* [JACKSON-214]: Enum types with per-instance sub-classes
          *   need special handling
@@ -38,38 +42,38 @@ public final class EnumValues
         Enum<?>[] values = cls.getEnumConstants();
         if (values != null) {
             // Type juggling... unfortunate
-            Map<Enum<?>,SerializedString> map = new HashMap<Enum<?>,SerializedString>();
+            Map<Enum<?>,SerializableString> map = new HashMap<Enum<?>,SerializableString>();
             for (Enum<?> en : values) {
-                String value = intr.findEnumValue(en);
-                map.put(en, new SerializedString(value));
+                String value = config.getAnnotationIntrospector().findEnumValue(en);
+                map.put(en, config.compileString(value));
             }
             return new EnumValues(enumClass, map);
         }
         throw new IllegalArgumentException("Can not determine enum constants for Class "+enumClass.getName());
     }
 
-    public static EnumValues constructFromToString(Class<Enum<?>> enumClass, AnnotationIntrospector intr)
+    public static EnumValues constructFromToString(MapperConfig<?> config, Class<Enum<?>> enumClass)
     {
         Class<? extends Enum<?>> cls = ClassUtil.findEnumType(enumClass);
         Enum<?>[] values = cls.getEnumConstants();
         if (values != null) {
             // Type juggling... unfortunate
-            Map<Enum<?>,SerializedString> map = new HashMap<Enum<?>,SerializedString>();
+            Map<Enum<?>,SerializableString> map = new HashMap<Enum<?>,SerializableString>();
             for (Enum<?> en : values) {
-                map.put(en, new SerializedString(en.toString()));
+                map.put(en, config.compileString(en.toString()));
             }
             return new EnumValues(enumClass, map);
         }
         throw new IllegalArgumentException("Can not determine enum constants for Class "+enumClass.getName());
     }
 
-    public SerializedString serializedValueFor(Enum<?> key) { return _values.get(key); }
-    public Collection<SerializedString> values() { return _values.values(); }
+    public SerializableString serializedValueFor(Enum<?> key) { return _values.get(key); }
+    public Collection<SerializableString> values() { return _values.values(); }
 
     /**
      * Method used for serialization and introspection by core Jackson code.
      */
-    public EnumMap<?,SerializedString> internalMap() { return _values; }
+    public EnumMap<?,SerializableString> internalMap() { return _values; }
 
     /**
      * @since 2.2

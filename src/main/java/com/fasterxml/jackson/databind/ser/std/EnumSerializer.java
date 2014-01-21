@@ -7,7 +7,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.SerializedString;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -80,21 +79,9 @@ public class EnumSerializer
             BeanDescription beanDesc, JsonFormat.Value format)
     {
         // [JACKSON-212]: If toString() is to be used instead, leave EnumValues null
-        AnnotationIntrospector intr = config.getAnnotationIntrospector();
-        EnumValues v = config.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
-            ? EnumValues.constructFromToString(enumClass, intr) : EnumValues.constructFromName(enumClass, intr);
+        EnumValues v = EnumValues.construct(config, enumClass);
         Boolean serializeAsIndex = _isShapeWrittenUsingIndex(enumClass, format, true);
         return new EnumSerializer(v, serializeAsIndex);
-    }
-    
-    /**
-     * @deprecated Since 2.1 use the variant that takes in <code>format</code> argument.
-     */
-    @Deprecated
-    public static EnumSerializer construct(Class<Enum<?>> enumClass, SerializationConfig config,
-            BeanDescription beanDesc)
-    {
-        return construct(enumClass, config, beanDesc, beanDesc.findExpectedFormat(null));
     }
 
     /**
@@ -103,8 +90,7 @@ public class EnumSerializer
      * choice here, however.
      */
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov,
-            BeanProperty property) throws JsonMappingException
+    public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException
     {
         if (property != null) {
             JsonFormat.Value format = prov.getAnnotationIntrospector().findFormat((Annotated) property.getMember());
@@ -156,7 +142,7 @@ public class EnumSerializer
             JavaType type = provider.constructType(typeHint);
             if (type.isEnumType()) {
                 ArrayNode enumNode = objectNode.putArray("enum");
-                for (SerializedString value : _values.values()) {
+                for (SerializableString value : _values.values()) {
                     enumNode.add(value.getValue());
                 }
             }
@@ -179,7 +165,7 @@ public class EnumSerializer
     		if (typeHint != null && stringVisitor != null) {
     			if (typeHint.isEnumType()) {
     				Set<String> enums = new LinkedHashSet<String>();
-    				for (SerializedString value : _values.values()) {
+    				for (SerializableString value : _values.values()) {
     					enums.add(value.getValue());
     				}
     				stringVisitor.enumTypes(enums);

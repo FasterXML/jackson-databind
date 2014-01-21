@@ -6,6 +6,8 @@ import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.Base64Variant;
+import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -165,6 +167,31 @@ public abstract class MapperConfig<T extends MapperConfig<T>>
      * is expected or not.
      */
     public abstract boolean useRootWrapping();
+
+    /*
+    /**********************************************************
+    /* Configuration: factory methods
+    /**********************************************************
+     */
+
+    /**
+     * Method for constructing a specialized textual object that can typically
+     * be serialized faster than basic {@link java.lang.String} (depending
+     * on escaping needed if any, char-to-byte encoding if needed).
+     * 
+     * @param src Text to represent
+     * 
+     * @return Optimized text object constructed
+     * 
+     * @since 2.4
+     */
+    public SerializableString compileString(String src) {
+        /* 20-Jan-2014, tatu: For now we will just construct it directly, but
+         *    for 2.4 need to allow overriding to support non-standard extensions
+         *    to be used by extensions like Afterburner.
+         */
+        return new SerializedString(src);
+    }
     
     /*
     /**********************************************************

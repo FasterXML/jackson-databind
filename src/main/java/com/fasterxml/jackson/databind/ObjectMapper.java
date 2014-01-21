@@ -9,13 +9,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
-import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
+
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -3061,7 +3062,7 @@ public class ObjectMapper
     {
         String expName = config.getRootName();
         if (expName == null) {
-            SerializedString sstr = _rootNames.findRootName(rootType, config);
+            SerializableString sstr = _rootNames.findRootName(rootType, config);
             expName = sstr.getValue();
         }
         if (jp.getCurrentToken() != JsonToken.START_OBJECT) {

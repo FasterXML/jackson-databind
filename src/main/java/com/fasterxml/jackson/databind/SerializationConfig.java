@@ -37,8 +37,8 @@ public final class SerializationConfig
     extends MapperConfigBase<SerializationFeature, SerializationConfig>
     implements java.io.Serializable // since 2.1
 {
-    // for 2.1.0:
-    private static final long serialVersionUID = 8849092838541724233L;
+    // Valid as of 2.4
+    private static final long serialVersionUID = -1278867172535832879L;
 
     /**
      * Set of features enabled; actual type (kind of features)
@@ -85,8 +85,7 @@ public final class SerializationConfig
         _filterProvider = src._filterProvider;
     }
 
-    private SerializationConfig(SerializationConfig src,
-            int mapperFeatures, int serFeatures)
+    private SerializationConfig(SerializationConfig src, int mapperFeatures, int serFeatures)
     {
         super(src, mapperFeatures);
         _serFeatures = serFeatures;

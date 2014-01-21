@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.core.io.SerializedString;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -353,7 +352,7 @@ public class EnumMapSerializer
              }
              keyEnums = ((EnumSerializer) enumSer).getEnumValues();
         }
-        for (Map.Entry<?,SerializedString> entry : keyEnums.internalMap().entrySet()) {
+        for (Map.Entry<?,SerializableString> entry : keyEnums.internalMap().entrySet()) {
             String name = entry.getValue().getValue();
             // should all have the same type, so:
             if (ser == null) {

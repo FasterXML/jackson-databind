@@ -3,9 +3,10 @@ package com.fasterxml.jackson.databind.ser.impl;
 import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.SerializableString;
 
 import com.fasterxml.jackson.databind.SerializerProvider;
 
@@ -60,7 +61,7 @@ public final class WritableObjectId
             return;
         }
         
-        SerializedString name = w.propertyName;
+        SerializableString name = w.propertyName;
         if (name != null) {
             jgen.writeFieldName(name);
             w.serializer.serialize(id, jgen, provider);

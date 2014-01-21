@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
-import com.fasterxml.jackson.core.io.SerializedString;
+import com.fasterxml.jackson.core.SerializableString;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
@@ -18,23 +18,23 @@ public class RootNameLookup implements java.io.Serializable
      * For efficient operation, let's try to minimize number of times we
      * need to introspect root element name to use.
      */
-    protected transient LRUMap<ClassKey,SerializedString> _rootNames;
+    protected transient LRUMap<ClassKey,SerializableString> _rootNames;
 
     public RootNameLookup() { }
 
-    public SerializedString findRootName(JavaType rootType, MapperConfig<?> config) {
+    public SerializableString findRootName(JavaType rootType, MapperConfig<?> config) {
         return findRootName(rootType.getRawClass(), config);
     }
 
-    public SerializedString findRootName(Class<?> rootType, MapperConfig<?> config)
+    public SerializableString findRootName(Class<?> rootType, MapperConfig<?> config)
     {
         ClassKey key = new ClassKey(rootType);
 
         synchronized (this) {
             if (_rootNames == null) {
-                _rootNames = new LRUMap<ClassKey,SerializedString>(20, 200);
+                _rootNames = new LRUMap<ClassKey,SerializableString>(20, 200);
             } else {
-                SerializedString name = _rootNames.get(key);
+                SerializableString name = _rootNames.get(key);
                 if (name != null) {
                     return name;
                 }
@@ -52,7 +52,7 @@ public class RootNameLookup implements java.io.Serializable
         } else {
             nameStr = pname.getSimpleName();
         }
-        SerializedString name = new SerializedString(nameStr);
+        SerializableString name = config.compileString(nameStr);
         synchronized (this) {
             _rootNames.put(key, name);
         }

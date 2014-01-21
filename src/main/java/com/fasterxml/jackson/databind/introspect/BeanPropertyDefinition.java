@@ -25,9 +25,7 @@ public abstract class BeanPropertyDefinition
      */
 
     @Deprecated // since 2.3
-    public BeanPropertyDefinition withName(String newName) {
-        return withSimpleName(newName);
-    }
+    public BeanPropertyDefinition withName(String newName) { return withSimpleName(newName); }
     
     /**
      * Method that can be used to create a definition with
@@ -102,12 +100,8 @@ public abstract class BeanPropertyDefinition
     /**********************************************************
      */
 
-    public boolean couldDeserialize() {
-        return getMutator() != null;
-    }
-    public boolean couldSerialize() {
-        return getAccessor() != null;
-    }
+    public boolean couldDeserialize() { return getMutator() != null; }
+    public boolean couldSerialize() { return getAccessor() != null; }
     
     /*
     /**********************************************************
@@ -151,9 +145,7 @@ public abstract class BeanPropertyDefinition
      * 
      * @since 2.1
      */
-    public AnnotatedMember getPrimaryMember() {
-        return null;
-    }
+    public AnnotatedMember getPrimaryMember() { return null; }
     
     /*
     /**********************************************************
@@ -173,27 +165,21 @@ public abstract class BeanPropertyDefinition
      * Method used to find whether property is part of a bi-directional
      * reference.
      */
-    public AnnotationIntrospector.ReferenceProperty findReferenceType() {
-        return null;
-    }
+    public AnnotationIntrospector.ReferenceProperty findReferenceType() { return null; }
 
     /**
      * Method used to check whether this logical property has a marker
      * to indicate it should be used as the type id for polymorphic type
      * handling.
      */
-    public boolean isTypeId() {
-        return false;
-    }
+    public boolean isTypeId() { return false; }
 
     /**
      * Method used to check whether this logical property indicates that
      * value POJOs should be written using additional Object Identifier
      * (or, when multiple references exist, all but first AS Object Identifier).
      */
-    public ObjectIdInfo findObjectIdInfo() {
-        return null;
-    }
+    public ObjectIdInfo findObjectIdInfo() { return null; }
     
     /**
      * Method used to check if this property is expected to have a value;

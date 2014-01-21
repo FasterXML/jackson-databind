@@ -177,7 +177,7 @@ public class BeanPropertyWriter extends PropertyWriter
     /* Construction, configuration
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     public BeanPropertyWriter(BeanPropertyDefinition propDef,
             AnnotatedMember member, Annotations contextAnnotations,

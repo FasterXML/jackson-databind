@@ -22,9 +22,8 @@ public abstract class InjectableValues
      * @param beanInstance Bean instance that contains property to inject,
      *    if available; null if bean has not yet been constructed.
      */
-    public abstract Object findInjectableValue(Object valueId,
-            DeserializationContext ctxt, BeanProperty forProperty,
-            Object beanInstance);
+    public abstract Object findInjectableValue(Object valueId, DeserializationContext ctxt,
+            BeanProperty forProperty, Object beanInstance);
 
     /*
     /**********************************************************
@@ -52,22 +51,19 @@ public abstract class InjectableValues
             _values = values;
         }
 
-        public Std addValue(String key, Object value)
-        {
+        public Std addValue(String key, Object value) {
             _values.put(key, value);
             return this;
         }
 
-        public Std addValue(Class<?> classKey, Object value)
-        {
+        public Std addValue(Class<?> classKey, Object value) {
             _values.put(classKey.getName(), value);
             return this;
         }
         
         @Override
-        public Object findInjectableValue(Object valueId,
-                DeserializationContext ctxt, BeanProperty forProperty,
-                Object beanInstance)
+        public Object findInjectableValue(Object valueId, DeserializationContext ctxt,
+                BeanProperty forProperty, Object beanInstance)
         {
             if (!(valueId instanceof String)) {
                 String type = (valueId == null) ? "[null]" : valueId.getClass().getName();
@@ -76,8 +72,7 @@ public abstract class InjectableValues
             String key = (String) valueId;
             Object ob = _values.get(key);
             if (ob == null && !_values.containsKey(key)) {
-                throw new IllegalArgumentException("No injectable id with value '"+key+"' found (for property '"
-                        +forProperty.getName()+"')");
+                throw new IllegalArgumentException("No injectable id with value '"+key+"' found (for property '"+forProperty.getName()+"')");
             }
             return ob;
         }

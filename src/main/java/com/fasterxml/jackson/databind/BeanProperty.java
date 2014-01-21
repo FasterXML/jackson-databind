@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.util.Named;
  * Bean properties are logical entities that represent data
  * that Java objects (POJOs (Plain Old Java Objects), sometimes also called "beans")
  * contain; and that are accessed using accessors (methods like getters
- * and setters, fields, contstructor parametrers).
+ * and setters, fields, constructor parametrers).
  * Instances allow access to annotations directly associated
  * to property (via field or method), as well as contextual
  * annotations (annotations for class that contains properties).
@@ -172,40 +172,13 @@ public interface BeanProperty extends Named
             return (_contextAnnotations == null) ? null : _contextAnnotations.get(acls);
         }
         
-        @Override
-        public String getName() {
-            return _name.getSimpleName();
-        }
-
-        @Override
-        public PropertyName getFullName() {
-            return _name;
-        }
-        
-        @Override
-        public JavaType getType() {
-            return _type;
-        }
-
-        @Override
-        public PropertyName getWrapperName() {
-            return _wrapperName;
-        }
-        
-        @Override
-        public boolean isRequired() {
-            return _metadata.isRequired();
-        }
-
-        @Override
-        public PropertyMetadata getMetadata() {
-            return _metadata;
-        }
-        
-        @Override
-        public AnnotatedMember getMember() {
-            return _member;
-        }
+        @Override public String getName() { return _name.getSimpleName(); }
+        @Override public PropertyName getFullName() { return _name; }
+        @Override public JavaType getType() { return _type; }
+        @Override public PropertyName getWrapperName() { return _wrapperName; }
+        @Override public boolean isRequired() { return _metadata.isRequired(); }
+        @Override public PropertyMetadata getMetadata() { return _metadata; }
+        @Override public AnnotatedMember getMember() { return _member; }
 
         /**
          * Implementation of this method throws
@@ -215,8 +188,7 @@ public interface BeanProperty extends Named
          */
         @Override
         public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor) {
-            throw new UnsupportedOperationException("Instances of "+getClass().getName()
-                    +" should not get visited");
+            throw new UnsupportedOperationException("Instances of "+getClass().getName()+" should not get visited");
         }
     }
 }

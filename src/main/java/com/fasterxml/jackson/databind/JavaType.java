@@ -143,9 +143,7 @@ public abstract class JavaType
     public JavaType narrowBy(Class<?> subclass)
     {
         // First: if same raw class, just return this instance
-        if (subclass == _class) {
-            return this;
-        }
+        if (subclass == _class) { return this; }
         // Otherwise, ensure compatibility
         _assertSubclass(subclass, _class);
         JavaType result = _narrow(subclass);
@@ -190,12 +188,9 @@ public abstract class JavaType
      * If class is same as the current raw class, instance itself is
      * returned.
      */
-    public JavaType widenBy(Class<?> superclass)
-    {
+    public JavaType widenBy(Class<?> superclass) {
         // First: if same raw class, just return this instance
-        if (superclass == _class) {
-            return this;
-        }
+        if (superclass == _class) { return this; }
         // Otherwise, ensure compatibility
         _assertSubclass(_class, superclass);
         return _widen(superclass);
@@ -208,9 +203,7 @@ public abstract class JavaType
      * Default implementation is just to call {@link #_narrow}, since
      * underlying type construction is usually identical
      */
-    protected JavaType _widen(Class<?> superclass) {
-        return _narrow(superclass);
-    }
+    protected JavaType _widen(Class<?> superclass) { return _narrow(superclass); }
 
     public abstract JavaType narrowContentsBy(Class<?> contentClass);
 

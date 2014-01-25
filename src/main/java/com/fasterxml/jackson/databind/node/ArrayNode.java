@@ -87,6 +87,20 @@ public class ArrayNode
         return MissingNode.getInstance();
     }
     
+    @Override
+    protected JsonNode _add(JsonPointer ptr, JsonNode value) {
+        if (ptr.getMatchingProperty().equals("-")) {
+            return add(value);
+        } else {
+            return insert(ptr.getMatchingIndex(), value);
+        }
+    }
+
+    @Override
+    protected JsonNode _remove(JsonPointer ptr) {
+        return remove(ptr.getMatchingIndex());
+    }
+
     /*
     /**********************************************************
     /* Public API, serialization

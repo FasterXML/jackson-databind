@@ -226,6 +226,42 @@ public abstract class JsonNode
 
     protected abstract JsonNode _at(JsonPointer ptr);
     
+    /**
+     * Method for adding or updating the value at a given JSON pointer.
+     * 
+     * @return This node, to allow chaining
+     * @since 2.4
+     */
+    public JsonNode add(JsonPointer ptr, JsonNode value) {
+        if (ptr.matches()) {
+            return this;
+        } else if (ptr.tail().matches()) {
+            return _add(ptr, value);
+        } else {
+            return add(ptr.tail(), value);
+        }
+    }
+
+    protected abstract JsonNode _add(JsonPointer ptr, JsonNode value);
+
+    /**
+     * Method for removing the value at a given JSON pointer.
+     * 
+     * @return Node removed, if any; null if none
+     * @since 2.4
+     */
+    public JsonNode remove(JsonPointer ptr) {
+        if (ptr.matches()) {
+            return null;
+        } else if (ptr.tail().matches()) {
+            return _remove(ptr);
+        } else {
+            return remove(ptr.tail());
+        }
+    }
+
+    protected abstract JsonNode _remove(JsonPointer ptr);
+
     /*
     /**********************************************************
     /* Public API, type introspection

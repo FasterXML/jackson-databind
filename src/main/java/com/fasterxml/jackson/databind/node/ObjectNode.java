@@ -106,6 +106,16 @@ public class ObjectNode
         return MissingNode.getInstance();
     }
 
+    @Override
+    protected JsonNode _add(JsonPointer ptr, JsonNode value) {
+        return set(ptr.getMatchingProperty(), value);
+    }
+
+    @Override
+    protected JsonNode _remove(JsonPointer ptr) {
+        return remove(ptr.getMatchingProperty());
+    }
+
     /**
      * Method to use for accessing all fields (with both names
      * and values) of this JSON Object.

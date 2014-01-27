@@ -220,8 +220,7 @@ public class BeanPropertyWriter extends PropertyWriter
         this(base, base._name);
     }
 
-    protected BeanPropertyWriter(BeanPropertyWriter base, SerializableString name)
-    {
+    protected BeanPropertyWriter(BeanPropertyWriter base, SerializableString name) {
         _name = name;
         _wrapperName = base._wrapperName;
 
@@ -259,8 +258,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * 
      * @since 2.0
      */
-    public void assignSerializer(JsonSerializer<Object> ser)
-    {
+    public void assignSerializer(JsonSerializer<Object> ser) {
         // may need to disable check in future?
         if (_serializer != null && _serializer != ser) {
             throw new IllegalStateException("Can not override serializer");
@@ -273,8 +271,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * 
      * @since 2.0
      */
-    public void assignNullSerializer(JsonSerializer<Object> nullSer)
-    {
+    public void assignNullSerializer(JsonSerializer<Object> nullSer) {
         // may need to disable check in future?
         if (_nullSerializer != null && _nullSerializer != nullSer) {
             throw new IllegalStateException("Can not override null serializer");
@@ -306,37 +303,17 @@ public class BeanPropertyWriter extends PropertyWriter
      */
 
     // Note: also part of 'PropertyWriter'
-    @Override
-    public String getName() {
-        return _name.getValue();
-    }
+    @Override public String getName() { return _name.getValue(); }
 
     // Note: also part of 'PropertyWriter'
-    @Override
-    public PropertyName getFullName() {
-        // !!! TODO: impl properly
+    @Override public PropertyName getFullName() { // !!! TODO: impl properly
         return new PropertyName(_name.getValue());
     }
     
-    @Override
-    public JavaType getType() {
-        return _declaredType;
-    }
-
-    @Override
-    public PropertyName getWrapperName() {
-        return _wrapperName;
-    }
-
-    @Override
-    public boolean isRequired() {
-        return _metadata.isRequired();
-    }
-
-    @Override
-    public PropertyMetadata getMetadata() {
-        return _metadata;
-    }
+    @Override public JavaType getType() { return _declaredType; }
+    @Override public PropertyName getWrapperName() { return _wrapperName; }
+    @Override public boolean isRequired() { return _metadata.isRequired(); }
+    @Override public PropertyMetadata getMetadata() { return _metadata; }
     
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
@@ -348,14 +325,10 @@ public class BeanPropertyWriter extends PropertyWriter
         return _contextAnnotations.get(acls);
     }
 
-    @Override
-    public AnnotatedMember getMember() {
-        return _member;
-    }
+    @Override public AnnotatedMember getMember() { return _member; }
 
     // @since 2.3 -- needed so it can be overridden by unwrapping writer
-    protected void _depositSchemaProperty(ObjectNode propertiesNode, JsonNode schemaNode)
-    {
+    protected void _depositSchemaProperty(ObjectNode propertiesNode, JsonNode schemaNode) {
         propertiesNode.set(getName(), schemaNode);
     }
     
@@ -371,12 +344,8 @@ public class BeanPropertyWriter extends PropertyWriter
      * 
      * @return Value of the setting, if any; null if none.
      */
-    public Object getInternalSetting(Object key)
-    {
-        if (_internalSettings == null) {
-            return null;
-        }
-        return _internalSettings.get(key);
+    public Object getInternalSetting(Object key)  {
+        return (_internalSettings == null) ? null : _internalSettings.get(key);
     }
     
     /**
@@ -384,8 +353,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * 
      * @return Old value of the setting, if any (null if none)
      */
-    public Object setInternalSetting(Object key, Object value)
-    {
+    public Object setInternalSetting(Object key, Object value) {
         if (_internalSettings == null) {
             _internalSettings = new HashMap<Object,Object>();
         }
@@ -397,8 +365,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * 
      * @return Existing value of the setting, if any (null if none)
      */
-    public Object removeInternalSetting(Object key)
-    {
+    public Object removeInternalSetting(Object key) {
         Object removed = null;
         if (_internalSettings != null) {
             removed = _internalSettings.remove(key);
@@ -430,31 +397,21 @@ public class BeanPropertyWriter extends PropertyWriter
      * 
      * @since 2.3
      */
-    public boolean isUnwrapping() {
-        return false;
-    }
+    public boolean isUnwrapping() { return false; }
     
     public boolean willSuppressNulls() { return _suppressNulls; }
     
     // Needed by BeanSerializer#getSchema
-    public JsonSerializer<Object> getSerializer() {
-        return _serializer;
-    }
+    public JsonSerializer<Object> getSerializer() { return _serializer; }
 
-    public JavaType getSerializationType() {
-        return _cfgSerializationType;
-    }
+    public JavaType getSerializationType() { return _cfgSerializationType; }
 
     public Class<?> getRawSerializationType() {
         return (_cfgSerializationType == null) ? null : _cfgSerializationType.getRawClass();
     }
     
-    public Class<?> getPropertyType() 
-    {
-        if (_accessorMethod != null) {
-            return _accessorMethod.getReturnType();
-        }
-        return _field.getType();
+    public Class<?> getPropertyType() {
+        return (_accessorMethod != null) ? _accessorMethod.getReturnType() : _field.getType();
     }
 
     /**
@@ -462,8 +419,7 @@ public class BeanPropertyWriter extends PropertyWriter
      *
      * @return The property type, or null if not found.
      */
-    public Type getGenericPropertyType()
-    {
+    public Type getGenericPropertyType() {
         if (_accessorMethod != null) {
             return _accessorMethod.getGenericReturnType();
         }
@@ -484,9 +440,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * @deprecated since 2.2, use {@link #isRequired()} instead.
      */
     @Deprecated
-    protected boolean isRequired(AnnotationIntrospector intr) {
-        return _metadata.isRequired();
-    }
+    protected boolean isRequired(AnnotationIntrospector intr) { return _metadata.isRequired(); }
     
     /*
     /**********************************************************
@@ -500,8 +454,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * using appropriate serializer.
      */
     @Override
-    public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov)
-        throws Exception
+    public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception
     {
         Object value = get(bean);
         // Null handling is bit different, check that first
@@ -516,10 +469,10 @@ public class BeanPropertyWriter extends PropertyWriter
         JsonSerializer<Object> ser = _serializer;
         if (ser == null) {
             Class<?> cls = value.getClass();
-            PropertySerializerMap map = _dynamicSerializers;
-            ser = map.serializerFor(cls);
+            PropertySerializerMap m = _dynamicSerializers;
+            ser = m.serializerFor(cls);
             if (ser == null) {
-                ser = _findAndAddDynamic(map, cls, prov);
+                ser = _findAndAddDynamic(m, cls, prov);
             }
         }
         // and then see if we must suppress certain values (default, empty)
@@ -552,8 +505,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * @since 2.3
      */
     @Override
-    public void serializeAsOmittedField(Object bean, JsonGenerator jgen, SerializerProvider prov)
-        throws Exception
+    public void serializeAsOmittedField(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception
     {
         if (!jgen.canOmitFields()) {
             jgen.writeOmittedField(_name.getValue());
@@ -728,15 +680,11 @@ public class BeanPropertyWriter extends PropertyWriter
         return _field.get(bean);
     }
 
-    protected void _handleSelfReference(Object bean, JsonSerializer<?> ser)
-        throws JsonMappingException
-    {
+    protected void _handleSelfReference(Object bean, JsonSerializer<?> ser) throws JsonMappingException {
         /* 05-Feb-2012, tatu: Usually a problem, but NOT if we are handling
          *    object id; this may be the case for BeanSerializers at least.
          */
-        if (ser.usesObjectId()) {
-            return;
-        }
+        if (ser.usesObjectId()) { return; }
         throw new JsonMappingException("Direct self-reference leading to cycle");
     }
 

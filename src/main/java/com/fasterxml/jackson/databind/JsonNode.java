@@ -225,20 +225,31 @@ public abstract class JsonNode
     }
 
     protected abstract JsonNode _at(JsonPointer ptr);
-    
+
     /**
      * Method for adding or updating the value at a given JSON pointer.
      * 
-     * @return This node, to allow chaining
+     * @return This node to allow chaining or {@code value} if {@code ptr} is "/".
+     * @throws IllegalArgumentException if the path is invalid (e.g. empty, contains a name instead of an index)
+     * @throws UnsupportedOperationException if the targeted node does not support updates
      * @since 2.4
      */
-    public JsonNode add(JsonPointer ptr, JsonNode value) {
+    public final JsonNode add(JsonPointer ptr, JsonNode value) {
+        // In recursion we only match parent nodes, so this was an attempt to add to an empty pointer
         if (ptr.matches()) {
-            return this;
+            throw new IllegalArgumentException("Cannot add to an empty path");
+        }
+
+        // FIXME Should mayMatchProperty check for empty strings?
+        if (ptr.getMatchingProperty().length() == 0 && !ptr.mayMatchElement()) {
+            // No possible match, return value as the new root element
+            return value;
         } else if (ptr.tail().matches()) {
+            // Matched the parent node (hopefully a container)
             return _add(ptr, value);
         } else {
-            return add(ptr.tail(), value);
+            // Need to consume more of the pointer
+            return _at(ptr).add(ptr.tail(), value);
         }
     }
 
@@ -248,15 +259,17 @@ public abstract class JsonNode
      * Method for removing the value at a given JSON pointer.
      * 
      * @return Node removed, if any; null if none
+     * @throws IllegalArgumentException if the path is invalid
+     * @throws UnsupportedOperationException if the targeted node does not support removal
      * @since 2.4
      */
-    public JsonNode remove(JsonPointer ptr) {
+    public final JsonNode remove(JsonPointer ptr) {
         if (ptr.matches()) {
-            return null;
+            return this;
         } else if (ptr.tail().matches()) {
             return _remove(ptr);
         } else {
-            return remove(ptr.tail());
+            return _at(ptr).remove(ptr.tail());
         }
     }
 

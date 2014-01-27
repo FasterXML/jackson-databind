@@ -108,12 +108,22 @@ public class ObjectNode
 
     @Override
     protected JsonNode _add(JsonPointer ptr, JsonNode value) {
-        return set(ptr.getMatchingProperty(), value);
+        // FIXME Should we be able to use mayMatchProperty?
+        if (ptr.getMatchingProperty().length() > 0) {
+            return set(ptr.getMatchingProperty(), value);
+        } else {
+            throw new IllegalArgumentException("invalid object property: " + ptr);
+        }
     }
 
     @Override
     protected JsonNode _remove(JsonPointer ptr) {
-        return remove(ptr.getMatchingProperty());
+        // FIXME Should we be able to use mayMatchProperty?
+        if (ptr.getMatchingProperty().length() > 0) {
+            return remove(ptr.getMatchingProperty());
+        } else {
+            throw new IllegalArgumentException("invalid object property: " + ptr);
+        }
     }
 
     /**

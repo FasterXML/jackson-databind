@@ -89,16 +89,22 @@ public class ArrayNode
     
     @Override
     protected JsonNode _add(JsonPointer ptr, JsonNode value) {
-        if (ptr.getMatchingProperty().equals("-")) {
+        if (ptr.mayMatchElement()) {
+            return insert(ptr.getMatchingIndex(), value);
+        } else if (ptr.getMatchingProperty().equals("-")) {
             return add(value);
         } else {
-            return insert(ptr.getMatchingIndex(), value);
+            throw new IllegalArgumentException("invalid array element: " + ptr);
         }
     }
 
     @Override
     protected JsonNode _remove(JsonPointer ptr) {
-        return remove(ptr.getMatchingIndex());
+        if (ptr.mayMatchElement()) {
+            return remove(ptr.getMatchingIndex());
+        } else {
+            throw new IllegalArgumentException("invalid array element: " + ptr);
+        }
     }
 
     /*

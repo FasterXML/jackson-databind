@@ -111,13 +111,13 @@ public abstract class ValueNode
     @Override
     protected JsonNode _add(JsonPointer ptr, JsonNode value)
     {
-        return this;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     protected JsonNode _remove(JsonPointer ptr)
     {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /*

@@ -6,6 +6,8 @@ Version: 2.3.2 (xx-xxx-2014)
 #379: Fix a problem with (re)naming of Creator properties; needed to make
  Paranamer module work with NamingStrategy.
  (reported by Chris P, cpilsworth@github)
+- Added `BeanSerializerBase._serializeObjectId()` needed by modules that
+  override standard BeanSerializer; specifically, XML module.
 
 ------------------------------------------------------------------------
 === History: ===

@@ -148,7 +148,7 @@ public abstract class DelegatingDeserializer
     public Collection<Object> getKnownPropertyNames() { return _delegatee.getKnownPropertyNames(); }
     
     @Override
-    public boolean isCachable() { return false; }
+    public boolean isCachable() { return _delegatee.isCachable(); }
 
     @Override
     public ObjectIdReader getObjectIdReader() { return _delegatee.getObjectIdReader(); }

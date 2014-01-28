@@ -7,9 +7,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -581,6 +579,15 @@ public abstract class BeanSerializerBase
             w.serializer.serialize(id, jgen, provider);
             return;
         }
+
+        _serializeObjectId(bean, jgen, provider, typeSer, objectId);
+    }
+
+    protected  void _serializeObjectId(Object bean,
+            JsonGenerator jgen,SerializerProvider provider,
+            TypeSerializer typeSer, WritableObjectId objectId)
+        throws IOException, JsonProcessingException, JsonGenerationException {
+        final ObjectIdWriter w = _objectIdWriter;
         String typeStr = (_typeId == null) ? null :_customTypeId(bean);
         if (typeStr == null) {
             typeSer.writeTypePrefixForObject(bean, jgen);

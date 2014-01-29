@@ -1,9 +1,7 @@
 package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.core.JsonPointer;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -20,7 +18,7 @@ public class TestRemoveByPointer extends BaseMapTest {
     // TODO It would be nice to have a "TestNode" to isolate implementations in the base class
 
     public void testRemoveEmpty() {
-        JsonNode n = new ArrayNode(JsonNodeFactory.instance);
+        JsonNode n = objectMapper().createArrayNode();
         assertEquals(n, n.remove(JsonPointer.compile("")));
     }
 
@@ -32,7 +30,7 @@ public class TestRemoveByPointer extends BaseMapTest {
     
     public void testRemoveArrayRootPath() {
         try {
-            JsonNode n = new ArrayNode(JsonNodeFactory.instance);
+            JsonNode n = objectMapper().createArrayNode();
             assertEquals(n, n.remove(JsonPointer.compile("/")));
             fail();
         } catch (IllegalArgumentException expected) {
@@ -40,7 +38,7 @@ public class TestRemoveByPointer extends BaseMapTest {
     }
     
     public void testRemoveArrayDepth1() {
-        JsonNode n = new ArrayNode(JsonNodeFactory.instance).add(1).add(2).add(3);
+        JsonNode n = objectMapper().createArrayNode().add(1).add(2).add(3);
         
         n.remove(JsonPointer.compile("/1"));
         assertEquals(1, n.get(0).asInt());
@@ -48,8 +46,8 @@ public class TestRemoveByPointer extends BaseMapTest {
     }
     
     public void testRemoveArrayDepth2() {
-        JsonNode n = new ObjectNode(JsonNodeFactory.instance);
-        ((ObjectNode) n).set("a", new ArrayNode(JsonNodeFactory.instance).add(1).add(2).add(3));
+        ObjectNode n = objectMapper().createObjectNode();
+        n.set("a", n.arrayNode().add(1).add(2).add(3));
         
         n.remove(JsonPointer.compile("/a/1"));
         assertEquals(1, n.at("/a/0").asInt());
@@ -64,7 +62,7 @@ public class TestRemoveByPointer extends BaseMapTest {
 
     public void testObjectRemoveRootPath() {
         try {
-            JsonNode n = new ObjectNode(JsonNodeFactory.instance);
+            JsonNode n = objectMapper().createObjectNode();
             assertEquals(n, n.remove(JsonPointer.compile("/")));
             fail();
         } catch (IllegalArgumentException expected) {
@@ -72,13 +70,14 @@ public class TestRemoveByPointer extends BaseMapTest {
     }
     
     public void testRemoveObjectDepth1() {
-        JsonNode n = new ObjectNode(JsonNodeFactory.instance).set("i", new IntNode(1));
+        ObjectNode n = objectMapper().createObjectNode();
+        n.set("i", n.numberNode(1));
         assertEquals(1,  n.remove(JsonPointer.compile("/i")).asInt());
     }
     
     public void testRemoveObjectDepth2() {
-        JsonNode n = new ObjectNode(JsonNodeFactory.instance);
-        ((ObjectNode) n).set("o", new ObjectNode(JsonNodeFactory.instance).set("i", new IntNode(1)));
+        ObjectNode n = objectMapper().createObjectNode();
+        n.set("o", n.objectNode().set("i", n.numberNode(1)));
         assertEquals(1, n.remove(JsonPointer.compile("/o/i")).asInt());
     }
     
@@ -90,7 +89,7 @@ public class TestRemoveByPointer extends BaseMapTest {
     
     public void testValueRemoveRootPath() {
         try {
-            JsonNode n = new IntNode(1);
+            NumericNode n = objectMapper().getNodeFactory().numberNode(1);
             assertEquals(n, n.remove(JsonPointer.compile("/")));
             fail();
         } catch (UnsupportedOperationException expected) {

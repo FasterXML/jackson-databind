@@ -2,17 +2,14 @@ package com.fasterxml.jackson.databind;
 
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Basic tests to ensure we can add into the tree using JSON pointers.
  */
 public class TestAddByPointer extends BaseMapTest {
- 
-    private final JsonNode ONE = new IntNode(1);
-    
+
     /*
     /**********************************************************
     /* JsonNode
@@ -23,16 +20,17 @@ public class TestAddByPointer extends BaseMapTest {
 
     public void testAddEmpty() {
         try {
-            JsonNode n = new ArrayNode(JsonNodeFactory.instance);
-            n.add(JsonPointer.compile(""), ONE);
+            ArrayNode n = objectMapper().createArrayNode();
+            n.add(JsonPointer.compile(""), n.numberNode(1));
             fail();
         } catch (IllegalArgumentException expected) {
         }
     }
 
     public void testAddRootPath() {
-        JsonNode n = new ArrayNode(JsonNodeFactory.instance);
-        assertEquals(ONE, n.add(JsonPointer.compile("/"), ONE));
+        ArrayNode n = objectMapper().createArrayNode();
+        JsonNode v = n.numberNode(1);
+        assertEquals(v, n.add(JsonPointer.compile("/"), v));
     }
     
     /*
@@ -42,28 +40,28 @@ public class TestAddByPointer extends BaseMapTest {
      */
     
     public void testAddArrayDepth1() {
-        JsonNode n = new ArrayNode(JsonNodeFactory.instance);
+        ArrayNode n = objectMapper().createArrayNode();
         
-        n.add(JsonPointer.compile("/0"), new IntNode(1));
+        n.add(JsonPointer.compile("/0"), n.numberNode(1));
         assertEquals(1, n.get(0).asInt());
         
-        n.add(JsonPointer.compile("/0"), new IntNode(2));
+        n.add(JsonPointer.compile("/0"), n.numberNode(2));
         assertEquals(2, n.get(0).asInt());
         assertEquals(1, n.get(1).asInt());
         
-        n.add(JsonPointer.compile("/-"), new IntNode(3)); // special case: append
+        n.add(JsonPointer.compile("/-"), n.numberNode(3)); // special case: append
         assertEquals(2, n.get(0).asInt());
         assertEquals(1, n.get(1).asInt());
         assertEquals(3, n.get(2).asInt());
     }
     
     public void testAddArrayDepth2() {
-        JsonNode n = new ObjectNode(JsonNodeFactory.instance);
-        ((ObjectNode) n).set("a", new ArrayNode(JsonNodeFactory.instance));
+        ObjectNode n = objectMapper().createObjectNode();
+        n.set("a", n.arrayNode());
         JsonPointer A_APPEND = JsonPointer.compile("/a/-");
-        n.add(A_APPEND, new IntNode(1));
-        n.add(A_APPEND, new IntNode(2));
-        n.add(A_APPEND, new IntNode(3));
+        n.add(A_APPEND, n.numberNode(1));
+        n.add(A_APPEND, n.numberNode(2));
+        n.add(A_APPEND, n.numberNode(3));
         assertEquals(1, n.at("/a/0").asInt());
         assertEquals(2, n.at("/a/1").asInt());
         assertEquals(3, n.at("/a/2").asInt());
@@ -76,8 +74,8 @@ public class TestAddByPointer extends BaseMapTest {
      */
     public void testAddInvalidArrayElementPointer() {
         try {
-            JsonNode n = new ArrayNode(JsonNodeFactory.instance);
-            n.add(JsonPointer.compile("/a"), ONE);
+            ArrayNode n = objectMapper().createArrayNode();
+            n.add(JsonPointer.compile("/a"), n.numberNode(1));
             fail();
         } catch (IllegalArgumentException expected) {
         }
@@ -90,15 +88,15 @@ public class TestAddByPointer extends BaseMapTest {
      */
     
     public void testAddObjectDepth1() {
-        JsonNode n = new ObjectNode(JsonNodeFactory.instance);
-        n.add(JsonPointer.compile("/a"), ONE);
+        ObjectNode n = objectMapper().createObjectNode();
+        n.add(JsonPointer.compile("/a"), n.numberNode(1));
         assertEquals(1, n.get("a").asInt());
     }
     
     public void testAddObjectDepth2() {
-        JsonNode n = new ObjectNode(JsonNodeFactory.instance);
-        ((ObjectNode) n).set("o", new ObjectNode(JsonNodeFactory.instance));
-        n.add(JsonPointer.compile("/o/i"), ONE);
+        ObjectNode n = objectMapper().createObjectNode();
+        n.set("o", n.objectNode());
+        n.add(JsonPointer.compile("/o/i"), n.numberNode(1));
         assertEquals(1, n.at("/o/i").asInt());
     }
     
@@ -110,7 +108,8 @@ public class TestAddByPointer extends BaseMapTest {
 
     public void testAddValue() {
         try {
-            ONE.add(JsonPointer.compile("/0"), ONE);
+            NumericNode n = objectMapper().getNodeFactory().numberNode(1);
+            n.add(JsonPointer.compile("/0"), objectMapper().getNodeFactory().numberNode(2));
             fail();
         } catch (UnsupportedOperationException expected) {
         }

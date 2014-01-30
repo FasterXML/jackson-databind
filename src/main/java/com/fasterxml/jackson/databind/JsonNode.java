@@ -247,10 +247,14 @@ public abstract class JsonNode
         } else if (ptr.tail().matches()) {
             // Matched the parent node (hopefully a container)
             return _add(ptr, value);
-        } else {
-            // Need to consume more of the pointer
-            return _at(ptr).add(ptr.tail(), value);
         }
+
+        // Need to consume more of the pointer
+        JsonNode n = _at(ptr);
+        if (n == null) {
+            throw new IllegalArgumentException("Missing node: " + ptr);
+        }
+        return n.add(ptr.tail(), value);
     }
 
     protected abstract JsonNode _add(JsonPointer ptr, JsonNode value);
@@ -268,9 +272,13 @@ public abstract class JsonNode
             return this;
         } else if (ptr.tail().matches()) {
             return _remove(ptr);
-        } else {
-            return _at(ptr).remove(ptr.tail());
         }
+        
+        JsonNode n = _at(ptr);
+        if (n == null) {
+            throw new IllegalArgumentException("Missing node: " + ptr);
+        }
+        return n.remove(ptr.tail());
     }
 
     protected abstract JsonNode _remove(JsonPointer ptr);

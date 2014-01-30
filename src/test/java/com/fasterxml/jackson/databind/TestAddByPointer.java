@@ -33,6 +33,15 @@ public class TestAddByPointer extends BaseMapTest {
         assertEquals(v, n.add(JsonPointer.compile("/"), v));
     }
     
+    public void testAddMissing() {
+        try {
+            ObjectNode n = objectMapper().createObjectNode();
+            n.add(JsonPointer.compile("/o/i"), n.numberNode(1));
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+    
     /*
     /**********************************************************
     /* ArrayNode

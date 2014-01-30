@@ -21,6 +21,15 @@ public class TestRemoveByPointer extends BaseMapTest {
         JsonNode n = objectMapper().createArrayNode();
         assertEquals(n, n.remove(JsonPointer.compile("")));
     }
+    
+    public void testRemoveMissing() {
+        try {
+            JsonNode n = objectMapper().createObjectNode();
+            n.remove(JsonPointer.compile("/o/i"));
+            fail();
+        } catch (IllegalArgumentException expected) {
+        }
+    }
 
     /*
     /**********************************************************

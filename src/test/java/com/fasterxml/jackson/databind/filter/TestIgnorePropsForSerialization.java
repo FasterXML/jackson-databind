@@ -9,12 +9,6 @@ import com.fasterxml.jackson.databind.*;
 public class TestIgnorePropsForSerialization
     extends BaseMapTest
 {
-    /*
-    /****************************************************************
-    /* Helper classes
-    /****************************************************************
-     */
-
     @JsonIgnoreProperties({"b", "c"})
     static class IgnoreSome
     {
@@ -35,7 +29,7 @@ public class TestIgnorePropsForSerialization
         @JsonIgnoreProperties("y")
         public XY value = new XY();
     }
-
+    
     static class XY {
         public int x = 1;
         public int y = 2;
@@ -54,6 +48,13 @@ public class TestIgnorePropsForSerialization
         public int z = 3;
     }
 
+    // also ought to work without full typing?
+    static class WrapperWithPropIgnoreUntyped
+    {
+        @JsonIgnoreProperties("y")
+        public Object value = new XYZ();
+    }
+
     static class MapWrapper {
         @JsonIgnoreProperties({"a"})
         public final HashMap<String,Integer> value = new HashMap<String,Integer>();
@@ -69,7 +70,7 @@ public class TestIgnorePropsForSerialization
     /****************************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = objectMapper();
     
     public void testExplicitIgnoralWithBean() throws Exception
     {
@@ -104,6 +105,13 @@ public class TestIgnorePropsForSerialization
                 MAPPER.writeValueAsString(new WrapperWithPropIgnore()));
     }
 
+    // Also: should be fine even if nominal type is `java.lang.Object`
+    public void testIgnoreViaPropForUntyped() throws Exception
+    {
+        assertEquals("{\"value\":{\"z\":3}}",
+                MAPPER.writeValueAsString(new WrapperWithPropIgnoreUntyped()));
+    }
+    
     public void testIgnoreWithMapProperty() throws Exception
     {
         assertEquals("{\"value\":{\"b\":2}}", MAPPER.writeValueAsString(new MapWrapper()));

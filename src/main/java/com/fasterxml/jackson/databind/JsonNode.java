@@ -254,7 +254,8 @@ public abstract class JsonNode
         if (n == null) {
             throw new IllegalArgumentException("Missing node: " + ptr);
         }
-        return n.add(ptr.tail(), value);
+        n.add(ptr.tail(), value);
+        return this;
     }
 
     protected abstract JsonNode _add(JsonPointer ptr, JsonNode value);

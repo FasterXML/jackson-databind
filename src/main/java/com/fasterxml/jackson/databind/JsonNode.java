@@ -226,6 +226,10 @@ public abstract class JsonNode
 
     protected abstract JsonNode _at(JsonPointer ptr);
 
+    private JsonNode _fromNullable(JsonNode n) {
+        return n != null ? n : MissingNode.getInstance();
+    }
+
     /**
      * Method for adding or updating the value at a given JSON pointer.
      * 
@@ -247,15 +251,11 @@ public abstract class JsonNode
         } else if (ptr.tail().matches()) {
             // Matched the parent node (hopefully a container)
             return _add(ptr, value);
+        } else {
+            // Need to consume more of the pointer
+            _fromNullable(_at(ptr)).add(ptr.tail(), value);
+            return this;
         }
-
-        // Need to consume more of the pointer
-        JsonNode n = _at(ptr);
-        if (n == null) {
-            throw new IllegalArgumentException("Missing node: " + ptr);
-        }
-        n.add(ptr.tail(), value);
-        return this;
     }
 
     protected abstract JsonNode _add(JsonPointer ptr, JsonNode value);
@@ -273,13 +273,9 @@ public abstract class JsonNode
             return this;
         } else if (ptr.tail().matches()) {
             return _remove(ptr);
+        } else {
+            return _fromNullable(_at(ptr)).remove(ptr.tail());
         }
-        
-        JsonNode n = _at(ptr);
-        if (n == null) {
-            throw new IllegalArgumentException("Missing node: " + ptr);
-        }
-        return n.remove(ptr.tail());
     }
 
     protected abstract JsonNode _remove(JsonPointer ptr);

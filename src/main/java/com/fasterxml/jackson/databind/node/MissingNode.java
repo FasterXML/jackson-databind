@@ -32,7 +32,21 @@ public final class MissingNode
     public <T extends JsonNode> T deepCopy() { return (T) this; }
     
     public static MissingNode getInstance() { return instance; }
-    
+
+    @Override
+    protected JsonNode _add(JsonPointer ptr, JsonNode value)
+    {
+        // This is a path problem, not an unsupported operation
+        throw new IllegalArgumentException(ptr.toString());
+    }
+
+    @Override
+    protected JsonNode _remove(JsonPointer ptr)
+    {
+        // This is a path problem, not an unsupported operation
+        throw new IllegalArgumentException(ptr.toString());
+    }
+
     @Override
     public JsonNodeType getNodeType()
     {

@@ -72,7 +72,7 @@ public class MyValue {
 }
 ```
 
-we will need a `com.fasterxml.jackson.databind.ObjectMapper` instance, used for all data-b inding, so let's construct one:
+we will need a `com.fasterxml.jackson.databind.ObjectMapper` instance, used for all data-binding, so let's construct one:
 
 ```java
 ObjectMapper mapper = new ObjectMapper(); // create once, reuse

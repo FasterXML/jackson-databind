@@ -24,7 +24,7 @@ public abstract class FromStringDeserializer<T>
     /* Deserializer implementations
     /**********************************************************
      */
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public final T deserialize(JsonParser jp, DeserializationContext ctxt)
@@ -34,8 +34,7 @@ public abstract class FromStringDeserializer<T>
         String text = jp.getValueAsString();
         if (text != null) { // has String representation
             if (text.length() == 0 || (text = text.trim()).length() == 0) {
-                // 15-Oct-2010, tatu: Empty String usually means null, so
-                return null;
+                return _deserializeFromEmptyString();
             }
             try {
                 T result = _deserialize(text, ctxt);
@@ -72,4 +71,5 @@ public abstract class FromStringDeserializer<T>
                 +ob.getClass().getName()+" into "+_valueClass.getName());
     }
 
+    protected T _deserializeFromEmptyString() { return null; }
 }

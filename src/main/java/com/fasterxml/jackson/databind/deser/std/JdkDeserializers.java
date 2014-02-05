@@ -135,6 +135,12 @@ public class JdkDeserializers
         {
             return URI.create(value);
         }
+
+        @Override
+        protected URI _deserializeFromEmptyString() {
+            // [#398] Need to produce non-null URI from empty String
+            return URI.create("");
+        }
     }
     
     public static class CurrencyDeserializer

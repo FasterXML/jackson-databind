@@ -443,6 +443,11 @@ public class TestSimpleTypes
     {
         URI value = new URI("http://foo.com");
         assertEquals(value, MAPPER.readValue("\""+value.toString()+"\"", URI.class));
+
+        // [#398]
+        value = MAPPER.readValue(quote(""), URI.class);
+        assertNotNull(value);
+        assertEquals(URI.create(""), value);
     }
 
     /*

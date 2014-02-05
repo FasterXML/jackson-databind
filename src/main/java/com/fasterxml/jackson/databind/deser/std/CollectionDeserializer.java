@@ -217,12 +217,11 @@ public class CollectionDeserializer
         }
 
         JsonDeserializer<Object> valueDes = _valueDeserializer;
-        JsonToken t;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        CollectionReferringAccumulator referringAccumulator = null;
-        if(valueDes.getObjectIdReader() != null){
-            referringAccumulator = new CollectionReferringAccumulator(result);
-        }
+        CollectionReferringAccumulator referringAccumulator =
+            (valueDes.getObjectIdReader() == null) ? null : new CollectionReferringAccumulator(result);
+
+        JsonToken t;
         while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
             try {
                 Object value;
@@ -318,8 +317,7 @@ public class CollectionDeserializer
             return id;
         }
 
-        public void resolveForwardReference(Object id, Object value)
-            throws IOException
+        public void resolveForwardReference(Object id, Object value) throws IOException
         {
             Iterator<UnresolvedId> iterator = _accumulator.iterator();
             // Resolve ordering after resolution of an id. This mean either:
@@ -357,9 +355,7 @@ public class CollectionDeserializer
             }
 
             @Override
-            public void handleResolvedForwardReference(Object id, Object value)
-                throws IOException
-            {
+            public void handleResolvedForwardReference(Object id, Object value) throws IOException {
                 resolveForwardReference(id, value);
             }
         }

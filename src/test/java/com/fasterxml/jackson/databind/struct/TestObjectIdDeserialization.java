@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
-import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference.UnresolvedId;
+import com.fasterxml.jackson.databind.deser.UnresolvedId;
 import com.fasterxml.jackson.databind.struct.TestObjectId.Company;
 import com.fasterxml.jackson.databind.struct.TestObjectId.Employee;
 

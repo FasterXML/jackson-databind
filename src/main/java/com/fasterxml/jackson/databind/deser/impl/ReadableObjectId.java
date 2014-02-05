@@ -24,8 +24,7 @@ public class ReadableObjectId
         this.id = id;
     }
 
-    public void appendReferring(Referring currentReferring)
-    {
+    public void appendReferring(Referring currentReferring) {
         if (_referringProperties == null) {
             _referringProperties = new LinkedList<Referring>();
         }
@@ -36,8 +35,7 @@ public class ReadableObjectId
      * Method called to assign actual POJO to which ObjectId refers to: will
      * also handle referring properties, if any, by assigning POJO.
      */
-    public void bindItem(Object ob)
-        throws IOException
+    public void bindItem(Object ob) throws IOException
     {
         if (item != null) {
             throw new IllegalStateException("Already had POJO for id (" + id.getClass().getName() + ") [" + id + "]");
@@ -47,19 +45,16 @@ public class ReadableObjectId
             Iterator<Referring> it = _referringProperties.iterator();
             _referringProperties = null;
             while (it.hasNext()) {
-                Referring ref = it.next();
-                ref.handleResolvedForwardReference(id, ob);
+                it.next().handleResolvedForwardReference(id, ob);
             }
         }
     }
 
-    public boolean hasReferringProperties()
-    {
+    public boolean hasReferringProperties() {
         return (_referringProperties != null) && !_referringProperties.isEmpty();
     }
 
-    public Iterator<Referring> referringProperties()
-    {
+    public Iterator<Referring> referringProperties() {
         if (_referringProperties == null) {
             return Collections.<Referring> emptyList().iterator();
         }

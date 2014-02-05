@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.deser.impl;
 import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdResolver;
+import com.fasterxml.jackson.annotation.SimpleObjectIdResolver;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
@@ -26,7 +28,12 @@ public class ObjectIdReader
      * the key.
      */
     public final ObjectIdGenerator<?> generator;
-    
+
+    /**
+     * 
+     */
+    public final ObjectIdResolver resolver;
+
     /**
      * Deserializer used for deserializing id values.
      */
@@ -42,13 +49,21 @@ public class ObjectIdReader
     
     @SuppressWarnings("unchecked")
     protected ObjectIdReader(JavaType t, PropertyName propName, ObjectIdGenerator<?> gen,
-            JsonDeserializer<?> deser, SettableBeanProperty idProp)
+            JsonDeserializer<?> deser, SettableBeanProperty idProp, ObjectIdResolver resolver)
     {
         _idType = t;
         propertyName = propName;
         generator = gen;
+        this.resolver = resolver;
         _deserializer = (JsonDeserializer<Object>) deser;
         idProperty = idProp;
+    }
+
+    @Deprecated // since 2.4
+    protected ObjectIdReader(JavaType t, PropertyName propName, ObjectIdGenerator<?> gen,
+            JsonDeserializer<?> deser, SettableBeanProperty idProp)
+    {
+        this(t,propName, gen, deser, idProp, new SimpleObjectIdResolver());
     }
 
     @Deprecated // since 2.3
@@ -65,9 +80,17 @@ public class ObjectIdReader
      */
     public static ObjectIdReader construct(JavaType idType, PropertyName propName,
             ObjectIdGenerator<?> generator, JsonDeserializer<?> deser,
+            SettableBeanProperty idProp, ObjectIdResolver resolver)
+    {
+        return new ObjectIdReader(idType, propName, generator, deser, idProp, resolver);
+    }
+
+    @Deprecated // since 2.4
+    public static ObjectIdReader construct(JavaType idType, PropertyName propName,
+            ObjectIdGenerator<?> generator, JsonDeserializer<?> deser,
             SettableBeanProperty idProp)
     {
-        return new ObjectIdReader(idType, propName, generator, deser, idProp);
+        return construct(idType, propName, generator, deser, idProp, new SimpleObjectIdResolver());
     }
     
     @Deprecated // since 2.3

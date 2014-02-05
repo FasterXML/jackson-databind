@@ -389,7 +389,7 @@ public abstract class BeanSerializerBase
                 // no ObjectId override, but maybe ObjectIdRef?
                 if (oiw != null) {
                     objectIdInfo = intr.findObjectReferenceInfo(accessor,
-                            new ObjectIdInfo(NAME_FOR_OBJECT_REF, null, null));
+                            new ObjectIdInfo(NAME_FOR_OBJECT_REF, null, null, null));
                     oiw = _objectIdWriter.withAlwaysAsId(objectIdInfo.getAlwaysAsId());
                 }
             } else {

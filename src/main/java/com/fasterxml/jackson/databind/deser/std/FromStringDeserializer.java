@@ -113,8 +113,8 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
         String text = jp.getValueAsString();
         if (text != null) { // has String representation
             if (text.length() == 0 || (text = text.trim()).length() == 0) {
-                // 15-Oct-2010, tatu: Empty String usually means null, so
-                return null;
+                // 04-Feb-2013, tatu: Usually should become null; but not always
+                return _deserializeFromEmptyString();
             }
             try {
                 T result = _deserialize(text, ctxt);
@@ -145,6 +145,10 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
     protected T _deserializeEmbedded(Object ob, DeserializationContext ctxt) throws IOException {
         // default impl: error out
         throw ctxt.mappingException("Don't know how to convert embedded Object of type "+ob.getClass().getName()+" into "+_valueClass.getName());
+    }
+
+    protected T _deserializeFromEmptyString() throws IOException {
+        return null;
     }
 
     /*
@@ -256,6 +260,14 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             }
             throw new IllegalArgumentException();
         }
-        
+
+        @Override
+        protected Object _deserializeFromEmptyString() throws IOException {
+            // As per [#398], URI requires special handling
+            if (_kind == STD_URI) {
+                return URI.create("");
+            }
+            return super._deserializeFromEmptyString();
+        }
     }
 }

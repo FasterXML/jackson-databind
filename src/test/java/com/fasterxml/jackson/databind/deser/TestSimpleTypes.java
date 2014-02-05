@@ -704,6 +704,11 @@ public class TestSimpleTypes
         
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
         assertEquals(value, mapper.readValue("[\""+value.toString()+"\"]", URI.class));
+
+        // [#398]
+        value = mapper.readValue(quote(""), URI.class);
+        assertNotNull(value);
+        assertEquals(URI.create(""), value);
     }
 
     /*

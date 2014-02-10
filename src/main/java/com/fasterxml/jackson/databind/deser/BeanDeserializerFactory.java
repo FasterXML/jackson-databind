@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
+import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
@@ -369,6 +369,8 @@ public class BeanDeserializerFactory
         SettableBeanProperty idProp;
         ObjectIdGenerator<?> gen;
 
+        ObjectIdResolver resolver = ctxt.objectIdResolverInstance(beanDesc.getClassInfo(), objectIdInfo);
+
         // Just one special case: Property-based generator is trickier
         if (implClass == ObjectIdGenerators.PropertyGenerator.class) { // most special one, needs extra work
             PropertyName propName = objectIdInfo.getPropertyName();
@@ -388,7 +390,7 @@ public class BeanDeserializerFactory
         // also: unlike with value deserializers, let's just resolve one we need here
         JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
         builder.setObjectIdReader(ObjectIdReader.construct(idType,
-                objectIdInfo.getPropertyName(), gen, deser, idProp));
+                objectIdInfo.getPropertyName(), gen, deser, idProp, resolver));
     }
     
     @SuppressWarnings("unchecked")

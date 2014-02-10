@@ -196,9 +196,9 @@ public class AbstractDeserializer
         throws IOException, JsonProcessingException
     {
         Object id = _objectIdReader.readObjectReference(jp, ctxt);
-        ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator);
+        ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
         // do we have it resolved?
-        Object pojo = roid.item;
+        Object pojo = roid.resolve();
         if (pojo == null) { // not yet; should wait...
             throw new IllegalStateException("Could not resolve Object Id ["+id+"] -- unresolved forward-reference?");
         }

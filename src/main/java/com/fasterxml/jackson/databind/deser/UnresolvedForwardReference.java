@@ -40,7 +40,7 @@ public final class UnresolvedForwardReference extends JsonMappingException {
     }
 
     public Object getUnresolvedId() {
-        return _roid.id;
+        return _roid.getKey().key;
     }
 
     public void addUnresolvedId(Object id, Class<?> type, JsonLocation where) {

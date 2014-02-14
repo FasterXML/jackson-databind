@@ -99,6 +99,10 @@ Florian Schoppmann (fschopp@github)
   * Reported #358: `IterableSerializer` ignoring	annotated content serializer
    (2.3.1)
 
+Martin Traverso:
+  * Reported #406: Cannot use external type id + @JsonTypeIdResolver
+   (2.3.2)
+
 Matthew Morrissette:
   * Contributed #381: Allow inlining/unwrapping of value from single-component JSON array
    (2.4.0)

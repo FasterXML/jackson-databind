@@ -51,7 +51,7 @@ public class TestCyclicTypes
     static class Selfie382 {
         public int id;
 
-        @JsonIgnoreProperties({ "parent", "ignoredRef" })
+        @JsonIgnoreProperties({ "parent" })
         public Selfie382 parent;
         
         public Selfie382(int id) { this.id = id; }

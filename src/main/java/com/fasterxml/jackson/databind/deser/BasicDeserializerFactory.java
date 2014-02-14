@@ -515,7 +515,12 @@ public abstract class BasicDeserializerFactory
             }
             return true;
         }
-    
+        if (type == boolean.class || type == Boolean.class) {
+            if (isCreator || isVisible) {
+                creators.addBooleanCreator(ctor);
+            }
+            return true;
+        }
         // Delegating Creator ok iff it has @JsonCreator (etc)
         if (isCreator) {
             creators.addDelegatingCreator(ctor, null);

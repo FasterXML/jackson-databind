@@ -8,6 +8,8 @@ Version: 2.3.2 (xx-xxx-2014)
  (reported by Chris P, cpilsworth@github)
 #398: Should deserialize empty (not null) URI from empty String
  (reported by pgieser@github)
+#406: @JsonTypeIdResolver not working with external type ids
+ (repoted by Martin T)
 - Added `BeanSerializerBase._serializeObjectId()` needed by modules that
   override standard BeanSerializer; specifically, XML module.
 

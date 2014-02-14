@@ -183,7 +183,7 @@ public final class StringCollectionDeserializer
             String value;
 
             if (t == JsonToken.VALUE_NULL) {
-                value = null;
+                value = deser.getNullValue();
             } else {
                 value = deser.deserialize(jp, ctxt);
             }
@@ -216,7 +216,7 @@ public final class StringCollectionDeserializer
         String value;
         
         if (t == JsonToken.VALUE_NULL) {
-            value = null;
+            value = (valueDes == null) ? null : valueDes.getNullValue();
         } else {
             value = (valueDes == null) ? _parseString(jp, ctxt) : valueDes.deserialize(jp, ctxt);
         }

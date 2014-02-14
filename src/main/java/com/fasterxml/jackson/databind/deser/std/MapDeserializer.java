@@ -391,7 +391,7 @@ public class MapDeserializer
                 // Note: must handle null explicitly here; value deserializers won't
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
-                    value = null;
+                    value = valueDes.getNullValue();
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(jp, ctxt);
                 } else {
@@ -445,7 +445,7 @@ public class MapDeserializer
                 // Note: must handle null explicitly here; value deserializers won't
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
-                    value = null;
+                    value = valueDes.getNullValue();
                 } else if (typeDeser == null) {
                     value = valueDes.deserialize(jp, ctxt);
                 } else {
@@ -507,7 +507,7 @@ public class MapDeserializer
             Object key = _keyDeserializer.deserializeKey(fieldName, ctxt);
             Object value;            
             if (t == JsonToken.VALUE_NULL) {
-                value = null;
+                value = valueDes.getNullValue();
             } else if (typeDeser == null) {
                 value = valueDes.deserialize(jp, ctxt);
             } else {

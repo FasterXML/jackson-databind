@@ -17,11 +17,19 @@ public class TestCustomTypeIdResolver extends BaseMapTest
 {
     @JsonTypeInfo(use=Id.CUSTOM, include=As.WRAPPER_OBJECT)
     @JsonTypeIdResolver(CustomResolver.class)
-    static class CustomBean {
+    static abstract class CustomBean { }
+
+    static class CustomBeanImpl extends CustomBean {
         public int x;
         
-        public CustomBean() { }
-        public CustomBean(int x) { this.x = x; }
+        public CustomBeanImpl() { }
+        public CustomBeanImpl(int x) { this.x = x; }
+    }
+
+    static class CustomBeanWrapper {
+//        @JsonTypeInfo(use=Id.NONE, include=As.EXTERNAL_PROPERTY, property="type")
+        @JsonTypeInfo(use=Id.CUSTOM, include=As.PROPERTY, property="type")
+        public CustomBean value;
     }
     
     static class CustomResolver implements TypeIdResolver
@@ -29,7 +37,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         static List<JavaType> initTypes;
 
         public CustomResolver() { }
-        
+
         @Override
         public Id getMechanism() {
             return Id.CUSTOM;
@@ -38,7 +46,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         @Override
         public String idFromValue(Object value)
         {
-            if (value.getClass() == CustomBean.class) {
+            if (value instanceof CustomBean) {
                 return "*";
             }
             return "unknown";
@@ -60,7 +68,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         public JavaType typeFromId(String id)
         {
             if ("*".equals(id)) {
-                return TypeFactory.defaultInstance().constructType(CustomBean.class);
+                return TypeFactory.defaultInstance().constructType(CustomBeanImpl.class);
             }
             return null;
         }
@@ -77,24 +85,40 @@ public class TestCustomTypeIdResolver extends BaseMapTest
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = objectMapper();
+    
     // for [JACKSON-359]
     public void testCustomTypeIdResolver() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         List<JavaType> types = new ArrayList<JavaType>();
         CustomResolver.initTypes = types;
-        String json = m.writeValueAsString(new CustomBean[] { new CustomBean(28) });
+        String json = MAPPER.writeValueAsString(new CustomBean[] { new CustomBeanImpl(28) });
         assertEquals("[{\"*\":{\"x\":28}}]", json);
         assertEquals(1, types.size());
         assertEquals(CustomBean.class, types.get(0).getRawClass());
 
         types = new ArrayList<JavaType>();
         CustomResolver.initTypes = types;
-        CustomBean[] result = m.readValue(json, CustomBean[].class);
+        CustomBean[] result = MAPPER.readValue(json, CustomBean[].class);
         assertNotNull(result);
         assertEquals(1, result.length);
-        assertEquals(28, result[0].x);
+        assertEquals(28, ((CustomBeanImpl) result[0]).x);
         assertEquals(1, types.size());
         assertEquals(CustomBean.class, types.get(0).getRawClass());
+    }
+
+    public void testCustomWithExternal() throws Exception
+    {
+        CustomBeanWrapper w = new CustomBeanWrapper();
+        w.value = new CustomBeanImpl(12);
+
+        String json = MAPPER.writeValueAsString(w);
+
+System.out.println("JSON = "+json);
+        
+        CustomBeanWrapper out = MAPPER.readValue(json, CustomBeanWrapper.class);
+        assertNotNull(out);
+        
+        assertEquals(12, ((CustomBeanImpl) out.value).x);
     }
 }

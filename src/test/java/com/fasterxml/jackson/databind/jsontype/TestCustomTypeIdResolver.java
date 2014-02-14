@@ -26,27 +26,57 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         public CustomBeanImpl(int x) { this.x = x; }
     }
 
-    static class CustomBeanWrapper {
-//        @JsonTypeInfo(use=Id.NONE, include=As.EXTERNAL_PROPERTY, property="type")
-        @JsonTypeInfo(use=Id.CUSTOM, include=As.PROPERTY, property="type")
-        public CustomBean value;
+    static class ExtBeanWrapper {
+        @JsonTypeInfo(use=Id.CUSTOM, include=As.EXTERNAL_PROPERTY, property="type")
+        @JsonTypeIdResolver(ExtResolver.class)
+        public ExtBean value;
     }
-    
-    static class CustomResolver implements TypeIdResolver
-    {
+
+    static class CustomResolver extends CustomResolverBase {
+        // yes, static: just for test purposes, not real use
         static List<JavaType> initTypes;
 
-        public CustomResolver() { }
-
-        @Override
-        public Id getMechanism() {
-            return Id.CUSTOM;
+        public CustomResolver() {
+            super(CustomBean.class, CustomBeanImpl.class);
         }
 
         @Override
-        public String idFromValue(Object value)
-        {
-            if (value instanceof CustomBean) {
+        public void init(JavaType baseType) {
+            if (initTypes != null) {
+                initTypes.add(baseType);
+            }
+        }
+    }
+    
+    static abstract class ExtBean { }
+
+    static class ExtBeanImpl extends ExtBean {
+        public int y;
+        
+        public ExtBeanImpl() { }
+        public ExtBeanImpl(int y) { this.y = y; }
+    }
+    
+    static class ExtResolver extends CustomResolverBase {
+        public ExtResolver() {
+            super(ExtBean.class, ExtBeanImpl.class);
+        }
+    }
+
+    static class CustomResolverBase implements TypeIdResolver
+    {
+        protected final Class<?> superType;
+        protected final Class<?> subType;
+
+        public CustomResolverBase(Class<?> baseType, Class<?> implType) {
+            superType = baseType;
+            subType = implType;
+        }
+
+        @Override public Id getMechanism() { return Id.CUSTOM; }
+
+        @Override public String idFromValue(Object value) {
+            if (superType.isAssignableFrom(value.getClass())) {
                 return "*";
             }
             return "unknown";
@@ -58,17 +88,13 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         }
 
         @Override
-        public void init(JavaType baseType) {
-            if (initTypes != null) {
-                initTypes.add(baseType);
-            }
-        }
+        public void init(JavaType baseType) { }
 
         @Override
         public JavaType typeFromId(String id)
         {
             if ("*".equals(id)) {
-                return TypeFactory.defaultInstance().constructType(CustomBeanImpl.class);
+                return TypeFactory.defaultInstance().constructType(subType);
             }
             return null;
         }
@@ -109,16 +135,14 @@ public class TestCustomTypeIdResolver extends BaseMapTest
 
     public void testCustomWithExternal() throws Exception
     {
-        CustomBeanWrapper w = new CustomBeanWrapper();
-        w.value = new CustomBeanImpl(12);
+        ExtBeanWrapper w = new ExtBeanWrapper();
+        w.value = new ExtBeanImpl(12);
 
         String json = MAPPER.writeValueAsString(w);
 
-System.out.println("JSON = "+json);
-        
-        CustomBeanWrapper out = MAPPER.readValue(json, CustomBeanWrapper.class);
+        ExtBeanWrapper out = MAPPER.readValue(json, ExtBeanWrapper.class);
         assertNotNull(out);
         
-        assertEquals(12, ((CustomBeanImpl) out.value).x);
+        assertEquals(12, ((ExtBeanImpl) out.value).y);
     }
 }

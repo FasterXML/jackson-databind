@@ -79,6 +79,18 @@ public enum SerializationFeature implements ConfigFeature
     FAIL_ON_EMPTY_BEANS(true),
 
     /**
+     * Feature that determines what happens when a direct self-reference
+     * is detected by a POJO (and no Object Id handling is enabled for it):
+     * either a {@link JsonMappingException} is
+     * thrown (if true), or reference is normally processed (false).
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.4
+     */
+    FAIL_ON_SELF_REFERENCES(true),
+    
+    /**
      * Feature that determines whether Jackson code should catch
      * and wrap {@link Exception}s (but never {@link Error}s!)
      * to add additional information about

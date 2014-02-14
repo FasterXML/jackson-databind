@@ -48,13 +48,13 @@ public class TestCyclicTypes
     static class StringLink extends GenericLink<String> {
     }
 
-    static class Selfie382 {
+    static class Selfie405 {
         public int id;
 
         @JsonIgnoreProperties({ "parent" })
-        public Selfie382 parent;
+        public Selfie405 parent;
         
-        public Selfie382(int id) { this.id = id; }
+        public Selfie405(int id) { this.id = id; }
     }
     
     /*
@@ -95,16 +95,26 @@ public class TestCyclicTypes
         assertNull(b.a);
     }
 
-    // [Issue#382]: Should be possible to ignore cyclic ref
+    // [Issue#405]: Should be possible to ignore cyclic ref
     public void testIgnoredCycle() throws Exception
     {
-        Selfie382 self1 = new Selfie382(1);
-        Selfie382 self2 = new Selfie382(2);
-        self1.parent = self2;
-        self2.parent = self1;
-        String json = MAPPER.writeValueAsString(self1);
+        Selfie405 self1 = new Selfie405(1);
+        self1.parent = self1;
+
+        // First: exception with default settings:
+        assertTrue(MAPPER.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES));
+        try {
+            MAPPER.writeValueAsString(self1);
+            fail("Should fail with direct self-ref");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Direct self-reference");
+        }
+        
+        ObjectWriter w = MAPPER.writer()
+                .without(SerializationFeature.FAIL_ON_SELF_REFERENCES);
+        String json = w.writeValueAsString(self1);
         assertNotNull(json);
-        assertEquals(aposToQuotes("{'id':1,'parent':{'id':2}}"), json);
+        assertEquals(aposToQuotes("{'id':1,'parent':{'id':1}}"), json);
     }
 
 }

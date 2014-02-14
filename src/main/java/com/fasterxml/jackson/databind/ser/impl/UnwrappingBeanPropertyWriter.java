@@ -98,7 +98,9 @@ public class UnwrappingBeanPropertyWriter
         }
         // For non-nulls, first: simple check for direct cycles
         if (value == bean) {
-            _handleSelfReference(bean, ser);
+            if (_handleSelfReference(bean, jgen, prov, ser)) {
+                return;
+            }
         }
 
         // note: must verify we are using unwrapping serializer; if not, will write field name

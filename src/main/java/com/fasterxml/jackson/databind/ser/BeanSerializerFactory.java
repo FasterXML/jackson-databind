@@ -750,7 +750,8 @@ public class BeanSerializerFactory
         annotatedSerializer = prov.handlePrimaryContextualization(annotatedSerializer, property);
         // And how about polymorphic typing? First special to cover JAXB per-field settings:
         TypeSerializer contentTypeSer = null;
-        if (ClassUtil.isCollectionMapOrArray(type.getRawClass())) {
+        // 16-Feb-2014, cgc: contentType serializers for collection-like and map-like types
+        if (ClassUtil.isCollectionMapOrArray(type.getRawClass()) || type.isCollectionLikeType() || type.isMapLikeType()) {
             contentTypeSer = findPropertyContentTypeSerializer(type, prov.getConfig(), accessor);
         }
         // and if not JAXB collection/array with annotations, maybe regular type info?

@@ -9,9 +9,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
@@ -1016,50 +1014,10 @@ public abstract class BeanDeserializerBase
      * buffering in some cases, but usually just a simple lookup to ensure
      * that ordering is correct.
      */
-    @SuppressWarnings("resource")
     protected Object deserializeWithObjectId(JsonParser jp, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
     {
-        final String idPropName = _objectIdReader.propertyName.getSimpleName();
-        // First, the simple case: we point to the Object Id property
-        if (idPropName.equals(jp.getCurrentName())
-                // 05-Aug-2013, tatu: Or might point to a native Object Id
-                || jp.canReadObjectId()) {
-            return deserializeFromObject(jp, ctxt);
-        }
-        // otherwise need to reorder things
-        TokenBuffer tmpBuffer = new TokenBuffer(jp);
-        TokenBuffer mergedBuffer = null;
-        for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
-            String propName = jp.getCurrentName();
-            // when we match the id property, can start merging
-            if (mergedBuffer == null) {
-                if (idPropName.equals(propName)) {
-                    mergedBuffer = new TokenBuffer(jp);
-                    mergedBuffer.writeFieldName(propName);
-                    jp.nextToken();
-                    mergedBuffer.copyCurrentStructure(jp);
-                    mergedBuffer.append(tmpBuffer);
-                    tmpBuffer = null;
-                } else {
-                    tmpBuffer.writeFieldName(propName);
-                    jp.nextToken();
-                    tmpBuffer.copyCurrentStructure(jp);
-                }
-            } else {
-                mergedBuffer.writeFieldName(propName);
-                jp.nextToken();
-                mergedBuffer.copyCurrentStructure(jp);
-            }
-        }
-        // note: we really should get merged buffer (and if not, that is likely error), but
-        // for now let's allow missing case as well. Will be caught be a later stage...
-        TokenBuffer buffer = (mergedBuffer == null) ? tmpBuffer : mergedBuffer;
-        buffer.writeEndObject();
-        // important: need to advance to point to first FIELD_NAME:
-        JsonParser mergedParser = buffer.asParser();
-        mergedParser.nextToken();
-        return deserializeFromObject(mergedParser, ctxt);
+        return deserializeFromObject(jp, ctxt);
     }
     
     /**

@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
+import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.core.JsonLocation;
 
 /**
@@ -13,15 +15,42 @@ import com.fasterxml.jackson.core.JsonLocation;
  */
 public class ReadableObjectId
 {
+    /**
+     * @deprecated Prefer using {@link #resolve()}, which is able to handle
+     *             external id resolving mechanism.
+     */
+    @Deprecated
+    public Object item;
+    @Deprecated
     public final Object id;
 
-    public Object item;
+    private final IdKey _key;
 
     private LinkedList<Referring> _referringProperties;
 
+    private ObjectIdResolver _resolver;
+
+    @Deprecated
     public ReadableObjectId(Object id)
     {
         this.id = id;
+        _key = null;
+    }
+
+    public ReadableObjectId(IdKey key)
+    {
+        _key = key;
+        id = key.key;
+    }
+
+    public void setResolver(ObjectIdResolver resolver)
+    {
+        _resolver = resolver;
+    }
+
+    public IdKey getKey()
+    {
+        return _key;
     }
 
     public void appendReferring(Referring currentReferring) {
@@ -37,9 +66,7 @@ public class ReadableObjectId
      */
     public void bindItem(Object ob) throws IOException
     {
-        if (item != null) {
-            throw new IllegalStateException("Already had POJO for id (" + id.getClass().getName() + ") [" + id + "]");
-        }
+        _resolver.bindItem(_key, ob);
         item = ob;
         if (_referringProperties != null) {
             Iterator<Referring> it = _referringProperties.iterator();
@@ -48,6 +75,10 @@ public class ReadableObjectId
                 it.next().handleResolvedForwardReference(id, ob);
             }
         }
+    }
+
+    public Object resolve(){
+         return (item = _resolver.resolveId(_key));
     }
 
     public boolean hasReferringProperties() {

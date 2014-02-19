@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.*;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.ObjectIdInfo;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -420,8 +422,10 @@ public abstract class DeserializationContext
      * Method called to find and return entry corresponding to given
      * Object Id: will add an entry if necessary, and never returns null
      */
-    public abstract ReadableObjectId findObjectId(Object id,
-            ObjectIdGenerator<?> generator);
+    public abstract ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> generator, ObjectIdResolver resolver);
+
+    @Deprecated
+    public abstract ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> generator);
 
     /**
      * Method called to ensure that every object id encounter during processing

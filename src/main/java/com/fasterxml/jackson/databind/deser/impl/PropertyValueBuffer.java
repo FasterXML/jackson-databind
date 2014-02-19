@@ -113,7 +113,7 @@ public final class PropertyValueBuffer
     {
         if (_objectIdReader != null) {
             if (_idValue != null) {
-                ReadableObjectId roid = ctxt.findObjectId(_idValue, _objectIdReader.generator);
+                ReadableObjectId roid = ctxt.findObjectId(_idValue, _objectIdReader.generator, _objectIdReader.resolver);
                 roid.bindItem(bean);
                 // also: may need to set a property value as well
                 SettableBeanProperty idProp = _objectIdReader.idProperty;

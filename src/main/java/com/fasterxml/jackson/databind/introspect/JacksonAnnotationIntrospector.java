@@ -459,7 +459,7 @@ public class JacksonAnnotationIntrospector
         }
         // In future may need to allow passing namespace?
         PropertyName name = new PropertyName(info.property());
-        return new ObjectIdInfo(name, info.scope(), info.generator());
+        return new ObjectIdInfo(name, info.scope(), info.generator(), info.resolver());
     }
 
     @Override

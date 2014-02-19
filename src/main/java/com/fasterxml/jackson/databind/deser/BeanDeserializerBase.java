@@ -9,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.ObjectIdResolver;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
@@ -577,6 +579,7 @@ public abstract class BeanDeserializerBase
                 JavaType idType;
                 SettableBeanProperty idProp;
                 ObjectIdGenerator<?> idGen;
+                ObjectIdResolver resolver = ctxt.objectIdResolverInstance(accessor, objectIdInfo);
                 if (implClass == ObjectIdGenerators.PropertyGenerator.class) {
                     PropertyName propName = objectIdInfo.getPropertyName();
                     idProp = findProperty(propName);
@@ -594,7 +597,7 @@ public abstract class BeanDeserializerBase
                 }
                 JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
                 oir = ObjectIdReader.construct(idType, objectIdInfo.getPropertyName(),
-                		idGen, deser, idProp);
+                		idGen, deser, idProp, resolver);
             }
         }
         // either way, need to resolve serializer:
@@ -965,7 +968,7 @@ public abstract class BeanDeserializerBase
             id = _convertObjectId(jp, ctxt, rawId, idDeser);
         }
 
-        ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator);
+        ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
         roid.bindItem(pojo);
         // also: may need to set a property value as well
         SettableBeanProperty idProp = _objectIdReader.idProperty;
@@ -1028,9 +1031,9 @@ public abstract class BeanDeserializerBase
         throws IOException, JsonProcessingException
     {
         Object id = _objectIdReader.readObjectReference(jp, ctxt);
-        ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator);
+        ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
         // do we have it resolved?
-        Object pojo = roid.item;
+        Object pojo = roid.resolve();
         if (pojo == null) { // not yet; should wait...
             throw new UnresolvedForwardReference("Could not resolve Object Id ["+id+"] (for "
                     +_beanType+").", jp.getCurrentLocation(), roid);

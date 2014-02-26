@@ -218,7 +218,9 @@ public abstract class DefaultSerializerProvider
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
                 jgen.writeStartObject();
-                jgen.writeFieldName(_rootNames.findRootName(value.getClass(), _config));
+                jgen.writeFieldName((rootType == null)
+                        ? _rootNames.findRootName(value.getClass(), _config)
+                        : _rootNames.findRootName(rootType, _config));
             }
         } else if (rootName.length() == 0) {
             wrap = false;

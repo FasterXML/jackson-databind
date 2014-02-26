@@ -265,8 +265,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified feature enabled.
      */
-    public ObjectWriter with(SerializationFeature feature) 
-    {
+    public ObjectWriter with(SerializationFeature feature)  {
         SerializationConfig newConfig = _config.with(feature);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }
@@ -275,9 +274,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified features enabled.
      */
-    public ObjectWriter with(SerializationFeature first,
-            SerializationFeature... other)
-    {
+    public ObjectWriter with(SerializationFeature first, SerializationFeature... other) {
         SerializationConfig newConfig = _config.with(first, other);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }    
@@ -286,8 +283,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified features enabled.
      */
-    public ObjectWriter withFeatures(SerializationFeature... features)
-    {
+    public ObjectWriter withFeatures(SerializationFeature... features) {
         SerializationConfig newConfig = _config.withFeatures(features);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }    
@@ -296,8 +292,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified feature enabled.
      */
-    public ObjectWriter without(SerializationFeature feature) 
-    {
+    public ObjectWriter without(SerializationFeature feature) {
         SerializationConfig newConfig = _config.without(feature);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }    
@@ -306,9 +301,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified features enabled.
      */
-    public ObjectWriter without(SerializationFeature first,
-            SerializationFeature... other)
-    {
+    public ObjectWriter without(SerializationFeature first, SerializationFeature... other) {
         SerializationConfig newConfig = _config.without(first, other);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }    
@@ -317,8 +310,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified features enabled.
      */
-    public ObjectWriter withoutFeatures(SerializationFeature... features)
-    {
+    public ObjectWriter withoutFeatures(SerializationFeature... features) {
         SerializationConfig newConfig = _config.withoutFeatures(features);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }    
@@ -331,8 +323,7 @@ public class ObjectWriter
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectWriter with(DateFormat df)
-    {
+    public ObjectWriter with(DateFormat df) {
         SerializationConfig newConfig = _config.with(df);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }
@@ -341,8 +332,7 @@ public class ObjectWriter
      * Method that will construct a new instance that will use the default
      * pretty printer for serialization.
      */
-    public ObjectWriter withDefaultPrettyPrinter()
-    {
+    public ObjectWriter withDefaultPrettyPrinter() {
         return with(new DefaultPrettyPrinter());
     }
 
@@ -350,20 +340,16 @@ public class ObjectWriter
      * Method that will construct a new instance that uses specified
      * provider for resolving filter instances by id.
      */
-    public ObjectWriter with(FilterProvider filterProvider)
-    {
-        if (filterProvider == _config.getFilterProvider()) { // no change?
-            return this;
-        }
-        return new ObjectWriter(this, _config.withFilters(filterProvider));
+    public ObjectWriter with(FilterProvider filterProvider) {
+        return (filterProvider == _config.getFilterProvider()) ? this
+                 : new ObjectWriter(this, _config.withFilters(filterProvider));
     }
 
     /**
      * Method that will construct a new instance that will use specified pretty
      * printer (or, if null, will not do any pretty-printing)
      */
-    public ObjectWriter with(PrettyPrinter pp)
-    {
+    public ObjectWriter with(PrettyPrinter pp) {
         if (pp == _prettyPrinter) {
             return this;
         }
@@ -383,8 +369,7 @@ public class ObjectWriter
      * Note that method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectWriter withRootName(String rootName)
-    {
+    public ObjectWriter withRootName(String rootName) {
         SerializationConfig newConfig = _config.withRootName(rootName);
         return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
     }
@@ -397,8 +382,7 @@ public class ObjectWriter
      * rather construct and returns a newly configured instance.
      */
     
-    public ObjectWriter withSchema(FormatSchema schema)
-    {
+    public ObjectWriter withSchema(FormatSchema schema) {
         if (_schema == schema) {
             return this;
         }
@@ -415,8 +399,7 @@ public class ObjectWriter
      * Note that method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectWriter withType(JavaType rootType)
-    {
+    public ObjectWriter withType(JavaType rootType) {
         // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
         rootType = rootType.withStaticTyping();
         JsonSerializer<Object> rootSer = _prefetchRootSerializer(_config, rootType);
@@ -486,10 +469,7 @@ public class ObjectWriter
      * @since 2.3
      */
     public ObjectWriter with(JsonFactory f) {
-        if (f == _generatorFactory) {
-            return this;
-        }
-        return new ObjectWriter(this, f);
+        return (f == _generatorFactory) ? this : new ObjectWriter(this, f);
     }    
 
     /**

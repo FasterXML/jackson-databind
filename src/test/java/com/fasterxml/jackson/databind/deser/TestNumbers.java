@@ -59,11 +59,17 @@ public class TestNumbers
     /**********************************************************************
      */
     
-    public void testFloatNaN() throws Exception
+    public void testNaN() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
         Float result = m.readValue(" \"NaN\"", Float.class);
         assertEquals(Float.valueOf(Float.NaN), result);
+
+        Double d = m.readValue(" \"NaN\"", Double.class);
+        assertEquals(Double.valueOf(Double.NaN), d);
+
+        Number num = m.readValue(" \"NaN\"", Number.class);
+        assertEquals(Double.valueOf(Double.NaN), num);
     }
 
     public void testDoubleInf() throws Exception

@@ -9,7 +9,9 @@ Version: 2.3.2 (xx-xxx-2014)
 #398: Should deserialize empty (not null) URI from empty String
  (reported by pgieser@github)
 #406: @JsonTypeIdResolver not working with external type ids
- (repoted by Martin T)
+ (reported by Martin T)
+#411: NumberDeserializers throws exception with NaN and +/- Infinity
+ (reported by clarkbreyman@github)
 - Added `BeanSerializerBase._serializeObjectId()` needed by modules that
   override standard BeanSerializer; specifically, XML module.
 

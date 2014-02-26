@@ -63,7 +63,7 @@ public final class StringArrayDeserializer
             if (t == JsonToken.VALUE_STRING) {
                 value = jp.getText();
             } else if (t == JsonToken.VALUE_NULL) {
-                value = null;
+                value = _elementDeserializer.getNullValue();
             } else {
                 value = _parseString(jp, ctxt);
             }

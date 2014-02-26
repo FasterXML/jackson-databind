@@ -106,3 +106,9 @@ Martin Traverso:
 Matthew Morrissette:
   * Contributed #381: Allow inlining/unwrapping of value from single-component JSON array
    (2.4.0)
+
+Will Palmeri: (wpalmeri@github)
+  * Contributed #407: Make array and Collection serializers use configured value null handler
+   (2.4.0)
+
+

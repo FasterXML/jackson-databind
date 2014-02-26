@@ -5,6 +5,9 @@ Version: 2.4.0 (xx-xxx-2014)
  (reported by electricmonk@github)
 #381: Allow inlining/unwrapping of value from single-component JSON array
  (contributed by yinzara@github)
+#407: Properly use null handlers for value types when serializer Collection
+ and array types
+ (contributed by Will P)
 
 ------------------------------------------------------------------------
 === History: ===

@@ -12,6 +12,8 @@ Version: 2.3.2 (xx-xxx-2014)
  (reported by Martin T)
 #411: NumberDeserializers throws exception with NaN and +/- Infinity
  (reported by clarkbreyman@github)
+#412: ObjectMapper.writerWithType() does not change root name being used
+ (repoted by jhalterman@github)
 - Added `BeanSerializerBase._serializeObjectId()` needed by modules that
   override standard BeanSerializer; specifically, XML module.
 

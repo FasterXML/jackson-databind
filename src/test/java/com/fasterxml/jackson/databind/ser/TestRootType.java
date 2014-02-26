@@ -56,16 +56,29 @@ public class TestRootType
         public int a = 3;
     }
 
+    // [Issue#412]
+    static class TestCommandParent {
+        public String uuid;
+        public int type;
+    }
+
+    static class TestCommandChild extends TestCommandParent { }
+    
     /*
     /**********************************************************
     /* Main tests
     /**********************************************************
      */
+
+    final ObjectMapper WRAP_ROOT_MAPPER = new ObjectMapper();
+    {
+        WRAP_ROOT_MAPPER.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
+    }
     
     @SuppressWarnings("unchecked")
     public void testSuperClass() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = objectMapper();
         SubType bean = new SubType();
 
         // first, test with dynamically detected type
@@ -87,7 +100,7 @@ public class TestRootType
 
     public void testSuperInterface() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = objectMapper();
         SubType bean = new SubType();
 
         // let's constrain by interface:
@@ -116,7 +129,7 @@ public class TestRootType
      */
     public void testIncompatibleRootType() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = objectMapper();
         SubType bean = new SubType();
 
         // and then let's try using incompatible type
@@ -129,12 +142,10 @@ public class TestRootType
         }
     }
     
-    /**
-     * Unit test to verify [JACKSON-398]
-     */
+    // [JACKSON-398]
     public void testJackson398() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = objectMapper();
         JavaType collectionType = TypeFactory.defaultInstance().constructCollectionType(ArrayList.class, BaseClass398.class);
         List<TestClass398> typedList = new ArrayList<TestClass398>();
         typedList.add(new TestClass398());
@@ -152,12 +163,10 @@ public class TestRootType
         assertEquals(EXP, out.toString());
     }
 
-    // Test to verify [JACKSON-163]
+    // [JACKSON-163]
     public void testRootWrapping() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
-        String json = mapper.writeValueAsString(new StringWrapper("abc"));
+        String json = WRAP_ROOT_MAPPER.writeValueAsString(new StringWrapper("abc"));
         assertEquals("{\"StringWrapper\":{\"str\":\"abc\"}}", json);
     }
 
@@ -169,7 +178,7 @@ public class TestRootType
      */
     public void testIssue456WrapperPart() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = objectMapper();
         assertEquals("123", mapper.writerWithType(Integer.TYPE).writeValueAsString(Integer.valueOf(123)));
         assertEquals("456", mapper.writerWithType(Long.TYPE).writeValueAsString(Long.valueOf(456L)));
     }
@@ -177,9 +186,20 @@ public class TestRootType
     // [JACKSON-630] also, allow annotation to define root name
     public void testRootNameAnnotation() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.WRAP_ROOT_VALUE, true);
-        String json = mapper.writeValueAsString(new WithRootName());
+        String json = WRAP_ROOT_MAPPER.writeValueAsString(new WithRootName());
         assertEquals("{\"root\":{\"a\":3}}", json);
+    }
+
+    // [Issue#412]
+    public void testRootNameWithExplicitType() throws Exception
+    {
+        TestCommandChild cmd = new TestCommandChild();
+        cmd.uuid = "1234";
+        cmd.type = 1;
+
+        ObjectWriter writer = WRAP_ROOT_MAPPER.writerWithType(TestCommandParent.class);
+        String json =  writer.writeValueAsString(cmd);
+
+        assertEquals(json, "{\"TestCommandParent\":{\"uuid\":\"1234\",\"type\":1}}");
     }
 }

@@ -565,7 +565,7 @@ public abstract class StdDeserializer<T>
             }
             switch (text.charAt(0)) {
             case 'I':
-                if (_isNegInf(text)) {
+                if (_isPosInf(text)) {
                     return Float.POSITIVE_INFINITY;
                 }
                 break;
@@ -573,7 +573,7 @@ public abstract class StdDeserializer<T>
                 if (_isNaN(text)) { return Float.NaN; }
                 break;
             case '-':
-                if (_isPosInf(text)) {
+                if (_isNegInf(text)) {
                     return Float.NEGATIVE_INFINITY;
                 }
                 break;

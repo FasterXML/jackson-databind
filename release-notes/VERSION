@@ -20,7 +20,7 @@ Version: 2.4.0 (xx-xxx-2014)
  (reported by gaff78@github)
 #358: `IterableSerializer` ignoring annotated content serializer
  (reported by Florian S)
-#362: Reduce sync overhead for SerializerCache by using volatile, double-locking
+#361: Reduce sync overhead for SerializerCache by using volatile, double-locking
  (contributed by stuartwdouglas@github)
 #362: UUID output as Base64 String with ObjectMapper.convertValue()
  (reported by jknack@github)

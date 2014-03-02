@@ -1,5 +1,5 @@
 Project: jackson-databind
-Version: 2.3.2 (xx-xxx-2014)
+Version: 2.3.2 (01-Mar-2014)
 
 #378: Fix a problem with custom enum deserializer construction
  (reported by BokoEnos@github)

@@ -1,5 +1,14 @@
 Project: jackson-databind
-Version: 2.3.2 (01-Mar-2014)
+Version: 2.3.3 (xx-xxx-2014)
+
+#420: Remove 'final' modifier from `BeanDeserializerBase.deserializeWithType`
+ (requested by Ghoughpteighbteau@github)
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.3.2 (01-Mar-2014)
 
 #378: Fix a problem with custom enum deserializer construction
  (reported by BokoEnos@github)
@@ -16,10 +25,6 @@ Version: 2.3.2 (01-Mar-2014)
  (repoted by jhalterman@github)
 - Added `BeanSerializerBase._serializeObjectId()` needed by modules that
   override standard BeanSerializer; specifically, XML module.
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.3.1 (28-Dec-2013)
 

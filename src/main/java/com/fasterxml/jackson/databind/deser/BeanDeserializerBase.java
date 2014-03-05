@@ -895,7 +895,7 @@ public abstract class BeanDeserializerBase
         throws IOException, JsonProcessingException;
 
     @Override
-    public final Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws IOException, JsonProcessingException
     {

@@ -9,14 +9,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
-
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -2838,6 +2836,10 @@ public class ObjectMapper
              * will not mask exception that is pending)
              */
             if (!closed) {
+                /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
+                 *    structures, which typically causes more damage.
+                 */
+                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
                     jgen.close();
                 } catch (IOException ioe) { }
@@ -2869,6 +2871,9 @@ public class ObjectMapper
             jgen.close();
         } finally {
             if (!closed) {
+                // 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
+                //    structures, which typically causes more damage.
+                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
                     jgen.close();
                 } catch (IOException ioe) { }
@@ -2897,6 +2902,9 @@ public class ObjectMapper
              * been closed
              */
             if (jgen != null) {
+                // 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
+                //    structures, which typically causes more damage.
+                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
                     jgen.close();
                 } catch (IOException ioe) { }

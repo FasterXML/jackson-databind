@@ -774,8 +774,7 @@ public class ObjectWriter
      * Method called to configure the generator as necessary and then
      * call write functionality
      */
-    protected final void _configAndWriteValue(JsonGenerator jgen, Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+    protected final void _configAndWriteValue(JsonGenerator jgen, Object value) throws IOException
     {
         _configureJsonGenerator(jgen);
         // [JACKSON-282]: consider Closeable
@@ -797,6 +796,10 @@ public class ObjectWriter
              * will not mask exception that is pending)
              */
             if (!closed) {
+                /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
+                 *    structures, which typically causes more damage.
+                 */
+                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
                     jgen.close();
                 } catch (IOException ioe) { }
@@ -829,6 +832,10 @@ public class ObjectWriter
              * been closed
              */
             if (jgen != null) {
+                /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
+                 *    structures, which typically causes more damage.
+                 */
+                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
                     jgen.close();
                 } catch (IOException ioe) { }

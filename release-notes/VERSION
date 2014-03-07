@@ -13,6 +13,24 @@ Version: 2.4.0 (xx-xxx-2014)
 === History: ===
 ------------------------------------------------------------------------
 
+2.3.2 (01-Mar-2014)
+
+#378: Fix a problem with custom enum deserializer construction
+ (reported by BokoEnos@github)
+#379: Fix a problem with (re)naming of Creator properties; needed to make
+ Paranamer module work with NamingStrategy.
+ (reported by Chris P, cpilsworth@github)
+#398: Should deserialize empty (not null) URI from empty String
+ (reported by pgieser@github)
+#406: @JsonTypeIdResolver not working with external type ids
+ (reported by Martin T)
+#411: NumberDeserializers throws exception with NaN and +/- Infinity
+ (reported by clarkbreyman@github)
+#412: ObjectMapper.writerWithType() does not change root name being used
+ (repoted by jhalterman@github)
+- Added `BeanSerializerBase._serializeObjectId()` needed by modules that
+  override standard BeanSerializer; specifically, XML module.
+
 2.3.1 (28-Dec-2013)
 
 #346: Fix problem deserializing `ObjectNode`, with @JsonCreator, empty

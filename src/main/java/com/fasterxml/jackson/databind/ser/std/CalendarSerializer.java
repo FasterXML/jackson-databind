@@ -49,7 +49,7 @@ public class CalendarSerializer
         } else if (_customFormat != null) {
             // 21-Feb-2011, tatu: not optimal, but better than alternatives:
             synchronized (_customFormat) {
-                jgen.writeString(_customFormat.format(value));
+                jgen.writeString(_customFormat.format(value.getTime()));
             }
         } else {
             provider.defaultSerializeDateValue(value.getTime(), jgen);

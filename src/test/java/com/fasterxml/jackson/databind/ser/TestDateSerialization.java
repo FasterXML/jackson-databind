@@ -158,7 +158,7 @@ public class TestDateSerialization
         
         // and for [Issue#423] as well:
         json = mapper.writer().with(getUTCTimeZone()).writeValueAsString(new CalendarAsStringBean(0L));
-        assertEquals("{\"date\":\"1970-01-01\"}", json);
+        assertEquals("{\"value\":\"1970-01-01\"}", json);
     }
 
     /**

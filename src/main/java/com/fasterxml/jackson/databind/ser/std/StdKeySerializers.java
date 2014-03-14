@@ -30,16 +30,19 @@ public class StdKeySerializers
         if (cls == String.class) {
             return DEFAULT_STRING_SERIALIZER;
         }
-        if (cls == Object.class) {
+        if (cls == Object.class || cls.isPrimitive() || Number.class.isAssignableFrom(cls)) {
             return DEFAULT_KEY_SERIALIZER;
         }
-        // [JACKSON-606] special handling for dates...
         if (Date.class.isAssignableFrom(cls)) {
             return (JsonSerializer<Object>) DateKeySerializer.instance;
         }
         if (Calendar.class.isAssignableFrom(cls)) {
             return (JsonSerializer<Object>) CalendarKeySerializer.instance;
         }
+        /* 14-Mar-2014, tatu: Should support @JsonValue, as per #47; but that
+         *   requires extensive introspection, and passing in more information
+         *   to this method.
+         */
         // If no match, just use default one:
         return DEFAULT_KEY_SERIALIZER;
     }

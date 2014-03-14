@@ -5,45 +5,40 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.test.BaseTest;
 
-public class TestMapJsonValueKey extends BaseTest
+// [Issue#47]
+public class TestMapJsonValueKey extends BaseMapTest
 {
     public static class Wat
     {
         private final String wat;
 
         @JsonCreator
-        Wat(String wat)
-        {
+        Wat(String wat) {
             this.wat = wat;
         }
 
         @JsonValue
-        public String getWat()
-        {
+        public String getWat() {
             return wat;
         }
 
         @Override
-        public String toString()
-        {
-            return "[Wat: " + wat + "]";
+        public String toString() {
+            return "(String)[Wat: " + wat + "]";
         }
     }
 
     public void testMapJsonValueKey()
     throws Exception
     {
-        Map<Wat, Boolean> map = new HashMap<Wat, Boolean>();
-        map.put(new Wat("3"), true);
-        map.put(new Wat("x"), false);
-
-        TypeReference<Map<Wat, Boolean>> type = new TypeReference<Map<Wat, Boolean>>(){};
+        Map<Wat, Boolean> input = new HashMap<Wat, Boolean>();
+        input.put(new Wat("3"), true);
 
         ObjectMapper mapper = new ObjectMapper();
-        assertEquals(map, mapper.readValue(mapper.writeValueAsBytes(map), type));
+        String json = mapper.writeValueAsString(input);
+        assertEquals(aposToQuotes("{'3':'true'}"), json);
     }
 }

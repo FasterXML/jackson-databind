@@ -37,6 +37,15 @@ public class TestDateSerialization
         public Date date;
         public DateInCETBean(long l) { date = new java.util.Date(l); }
     }
+
+    static class CalendarAsStringBean {
+        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+        public Calendar value;
+        public CalendarAsStringBean(long l) {
+            value = new GregorianCalendar();
+            value.setTimeInMillis(l);
+        }
+    }
     
     /*
     /**********************************************************
@@ -146,6 +155,10 @@ public class TestDateSerialization
         // and with different DateFormat; CET is one hour ahead of GMT
         json = mapper.writeValueAsString(new DateInCETBean(0L));
         assertEquals("{\"date\":\"1970-01-01,01:00\"}", json);
+        
+        // and for [Issue#423] as well:
+        json = mapper.writer().with(getUTCTimeZone()).writeValueAsString(new CalendarAsStringBean(0L));
+        assertEquals("{\"date\":\"1970-01-01\"}", json);
     }
 
     /**

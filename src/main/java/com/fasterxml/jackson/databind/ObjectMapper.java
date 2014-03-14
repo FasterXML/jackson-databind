@@ -222,7 +222,7 @@ public class ObjectMapper
             TimeZone.getTimeZone("GMT"),
             Base64Variants.getDefaultVariant() // 2.1
     );
-    
+
     /*
     /**********************************************************
     /* Configuration settings, shared

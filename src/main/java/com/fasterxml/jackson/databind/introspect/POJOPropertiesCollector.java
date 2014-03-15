@@ -285,7 +285,7 @@ public class POJOPropertiesCollector
         // Then how about explicit ordering?
         AnnotationIntrospector intr = _annotationIntrospector;
         boolean sort;
-        Boolean alpha = (intr == null) ? null : intr.findSerializationSortAlphabetically(_classDef);
+        Boolean alpha = (intr == null) ? null : intr.findSerializationSortAlphabetically((Annotated) _classDef);
         
         if (alpha == null) {
             sort = _config.shouldSortPropertiesAlphabetically();

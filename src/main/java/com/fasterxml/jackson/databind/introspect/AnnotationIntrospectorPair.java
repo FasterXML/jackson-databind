@@ -509,6 +509,7 @@ public class AnnotationIntrospectorPair
      * ordered
      */
     @Override
+    @Deprecated
     public Boolean findSerializationSortAlphabetically(AnnotatedClass ac) {
         Boolean result = _primary.findSerializationSortAlphabetically(ac);
         if (result == null) {
@@ -517,6 +518,15 @@ public class AnnotationIntrospectorPair
         return result;            
     }
 
+    @Override
+    public Boolean findSerializationSortAlphabetically(Annotated ann) {
+        Boolean result = _primary.findSerializationSortAlphabetically(ann);
+        if (result == null) {
+            result = _secondary.findSerializationSortAlphabetically(ann);
+        }
+        return result;            
+    }
+    
     // // // Serialization: property annotations
     
     @Override

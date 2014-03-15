@@ -705,6 +705,11 @@ public abstract class AnnotationIntrospector
      * for which no explicit is defined should be alphabetically (lexicograpically)
      * ordered
      */
+    public Boolean findSerializationSortAlphabetically(Annotated ann) {
+        return null;
+    }
+
+    @Deprecated // since 2.4
     public Boolean findSerializationSortAlphabetically(AnnotatedClass ac) {
         return null;
     }

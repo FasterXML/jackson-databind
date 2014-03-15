@@ -329,7 +329,7 @@ public class CollectionDeserializer
             Collection<Object> previous = _result;
             while (iterator.hasNext()) {
                 UnresolvedId unresolvedId = iterator.next();
-                if (unresolvedId._id.equals(id)) {
+                if (unresolvedId.hasId(id)) {
                     iterator.remove();
                     previous.add(value);
                     previous.addAll(unresolvedId._next);
@@ -350,17 +350,15 @@ public class CollectionDeserializer
      */
     private final static class UnresolvedId extends Referring {
         private final CollectionReferringAccumulator _parent;
-        private final Object _id;
         private final List<Object> _next = new ArrayList<Object>();
         
-        private UnresolvedId(CollectionReferringAccumulator parent, UnresolvedForwardReference reference,
-                Class<?> contentType)
+        private UnresolvedId(CollectionReferringAccumulator parent,
+                UnresolvedForwardReference reference, Class<?> contentType)
         {
-            super(reference.getLocation(), contentType);
+            super(reference, contentType);
             _parent = parent;
-            _id = reference.getUnresolvedId();
         }
-
+        
         @Override
         public void handleResolvedForwardReference(Object id, Object value) throws IOException {
             _parent.resolveForwardReference(id, value);

@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser.impl;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 
-import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -42,26 +41,22 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty {
     }
 
     @Override
-    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser)
-    {
+    public SettableBeanProperty withValueDeserializer(JsonDeserializer<?> deser) {
         return new ObjectIdReferenceProperty(this, deser);
     }
 
     @Override
-    public SettableBeanProperty withName(PropertyName newName)
-    {
+    public SettableBeanProperty withName(PropertyName newName) {
         return new ObjectIdReferenceProperty(this, newName);
     }
 
     @Override
-    public <A extends Annotation> A getAnnotation(Class<A> acls)
-    {
+    public <A extends Annotation> A getAnnotation(Class<A> acls) {
         return _forward.getAnnotation(acls);
     }
 
     @Override
-    public AnnotatedMember getMember()
-    {
+    public AnnotatedMember getMember() {
         return _forward.getMember();
     }
 
@@ -83,8 +78,7 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty {
             if (!usingIdentityInfo) {
                 throw JsonMappingException.from(jp, "Unresolved forward reference but no identity info.", reference);
             }
-            reference.getRoid().appendReferring(
-                    new PropertyReferring(instance, reference.getUnresolvedId(), reference.getLocation()));
+            reference.getRoid().appendReferring(new PropertyReferring(this, reference, _type.getRawClass(), instance));
             return null;
         }
     }
@@ -103,26 +97,27 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty {
         return _forward.setAndReturn(instance, value);
     }
 
-    public final class PropertyReferring extends Referring {
+    public final static class PropertyReferring extends Referring {
+        private final ObjectIdReferenceProperty _parent;
         public final Object _pojo;
-        private Object _unresolvedId;
 
-        public PropertyReferring(Object ob, Object id, JsonLocation location)
+        public PropertyReferring(ObjectIdReferenceProperty parent,
+                UnresolvedForwardReference ref, Class<?> type, Object ob)
         {
-            super(location, _type.getRawClass());
+            super(ref, type);
+            _parent = parent;
             _pojo = ob;
-            _unresolvedId = id;
         }
 
         @Override
         public void handleResolvedForwardReference(Object id, Object value)
             throws IOException
         {
-            if (!id.equals(_unresolvedId)) {
+            if (!hasId(id)) {
                 throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
                         + "] that wasn't previously seen as unresolved.");
             }
-            set(_pojo, value);
+            _parent.set(_pojo, value);
         }
     }
 }

@@ -113,8 +113,8 @@ public class SettableAnyProperty
             if (!(_valueDeserializer.getObjectIdReader() != null)) {
                 throw JsonMappingException.from(jp, "Unresolved forward reference but no identity info.", reference);
             }
-            AnySetterReferring referring = new AnySetterReferring(instance, propName, reference.getUnresolvedId(),
-                    reference.getLocation());
+            AnySetterReferring referring = new AnySetterReferring(this, reference,
+                    _type.getRawClass(), instance, propName);
             reference.getRoid().appendReferring(referring);
         }
     }
@@ -187,28 +187,29 @@ public class SettableAnyProperty
 
     @Override public String toString() { return "[any property on class "+getClassName()+"]"; }
 
-    private class AnySetterReferring extends Referring {
-        private Object _pojo;
-        private String _propName;
-        private Object _unresolvedId;
+    private static class AnySetterReferring extends Referring {
+        private final SettableAnyProperty _parent;
+        private final Object _pojo;
+        private final String _propName;
 
-        public AnySetterReferring(Object instance, String propName, Object id, JsonLocation location)
+        public AnySetterReferring(SettableAnyProperty parent,
+                UnresolvedForwardReference reference, Class<?> type, Object instance, String propName)
         {
-            super(location, _type.getRawClass());
+            super(reference, type);
+            _parent = parent;
             _pojo = instance;
             _propName = propName;
-            _unresolvedId = id;
         }
 
         @Override
         public void handleResolvedForwardReference(Object id, Object value)
             throws IOException
         {
-            if (!id.equals(_unresolvedId)) {
+            if (!hasId(id)) {
                 throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id.toString()
                         + "] that wasn't previously registered.");
             }
-            set(_pojo, _propName, value);
+            _parent.set(_pojo, _propName, value);
         }
     }
 

@@ -308,8 +308,8 @@ public class CollectionDeserializer
             if (_accumulator.isEmpty()) {
                 _result.add(value);
             } else {
-                CollectionReferring unresolvedId = _accumulator.get(_accumulator.size() - 1);
-                unresolvedId._next.add(value);
+                CollectionReferring ref = _accumulator.get(_accumulator.size() - 1);
+                ref.next.add(value);
             }
         }
 
@@ -328,14 +328,14 @@ public class CollectionDeserializer
             // 2- merge the content of the resolved id with its previous unresolved id.
             Collection<Object> previous = _result;
             while (iterator.hasNext()) {
-                CollectionReferring unresolvedId = iterator.next();
-                if (unresolvedId.hasId(id)) {
+                CollectionReferring ref = iterator.next();
+                if (ref.hasId(id)) {
                     iterator.remove();
                     previous.add(value);
-                    previous.addAll(unresolvedId._next);
+                    previous.addAll(ref.next);
                     return;
                 }
-                previous = unresolvedId._next;
+                previous = ref.next;
             }
 
             throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
@@ -346,11 +346,11 @@ public class CollectionDeserializer
     /**
      * Helper class to maintain processing order of value. The resolved
      * object associated with {@link #_id} comes before the values in
-     * {@link _next}.
+     * {@link #next}.
      */
     private final static class CollectionReferring extends Referring {
         private final CollectionReferringAccumulator _parent;
-        private final List<Object> _next = new ArrayList<Object>();
+        public final List<Object> next = new ArrayList<Object>();
         
         private CollectionReferring(CollectionReferringAccumulator parent,
                 UnresolvedForwardReference reference, Class<?> contentType)

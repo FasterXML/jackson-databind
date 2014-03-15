@@ -524,7 +524,7 @@ public class MapDeserializer
         }
     }
 
-    // note: copied form BeanDeserializer; should try to share somehow...
+    // note: copied from BeanDeserializer; should try to share somehow...
     protected void wrapAndThrow(Throwable t, Object ref)
         throws IOException
     {
@@ -572,8 +572,8 @@ public class MapDeserializer
             if (_accumulator.isEmpty()) {
                 _result.put(key, value);
             } else {
-                MapReferring unresolvedId = _accumulator.get(_accumulator.size() - 1);
-                unresolvedId._next.put(key, value);
+                MapReferring ref = _accumulator.get(_accumulator.size() - 1);
+                ref.next.put(key, value);
             }
         }
 
@@ -587,19 +587,19 @@ public class MapDeserializer
         public void resolveForwardReference(Object id, Object value) throws IOException
         {
             Iterator<MapReferring> iterator = _accumulator.iterator();
-            // Resolve ordering after resolution of an id. This mean either:
+            // Resolve ordering after resolution of an id. This means either:
             // 1- adding to the result map in case of the first unresolved id.
             // 2- merge the content of the resolved id with its previous unresolved id.
             Map<Object,Object> previous = _result;
             while (iterator.hasNext()) {
-                MapReferring unresolvedId = iterator.next();
-                if (unresolvedId.hasId(id)) {
+                MapReferring ref = iterator.next();
+                if (ref.hasId(id)) {
                     iterator.remove();
-                    previous.put(unresolvedId._key, value);
-                    previous.putAll(unresolvedId._next);
+                    previous.put(ref.key, value);
+                    previous.putAll(ref.next);
                     return;
                 }
-                previous = unresolvedId._next;
+                previous = ref.next;
             }
 
             throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
@@ -614,15 +614,16 @@ public class MapDeserializer
      */
     private final static class MapReferring extends Referring {
         private final MapReferringAccumulator _parent;
-        private final Map<Object, Object> _next = new LinkedHashMap<Object, Object>();
-        private final Object _key;
+
+        public final Map<Object, Object> next = new LinkedHashMap<Object, Object>();
+        public final Object key;
         
         private MapReferring(MapReferringAccumulator parent, UnresolvedForwardReference ref,
                 Class<?> valueType, Object key)
         {
             super(ref, valueType);
             _parent = parent;
-            _key = key;
+            this.key = key;
         }
 
         @Override

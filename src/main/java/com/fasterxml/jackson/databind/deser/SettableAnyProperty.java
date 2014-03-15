@@ -26,7 +26,7 @@ public class SettableAnyProperty
      * Method used for setting "any" properties, along with annotation
      * information. Retained to allow contextualization of any properties.
      */
-    final protected BeanProperty _property;
+    protected final BeanProperty _property;
     
     /**
      * Physical JDK object used for assigning properties.
@@ -83,6 +83,20 @@ public class SettableAnyProperty
     
     /*
     /**********************************************************
+    /* JDK serialization handling
+    /**********************************************************
+     */
+
+    // TODO (2.3): handle restoring of reference to any-setter method
+    
+/*
+    Object readResolve() {
+        return new SettableAnyProperty(this, _annotated.getAnnotated());
+    }
+    */
+    
+    /*
+    /**********************************************************
     /* Public API, accessors
     /**********************************************************
      */
@@ -104,8 +118,8 @@ public class SettableAnyProperty
      * context), and set it using appropriate method (a setter method).
      */
     public final void deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
-                                        Object instance, String propName)
-        throws IOException, JsonProcessingException
+            Object instance, String propName)
+        throws IOException
     {
         try {
             set(instance, propName, deserialize(jp, ctxt));
@@ -119,8 +133,7 @@ public class SettableAnyProperty
         }
     }
 
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         if (t == JsonToken.VALUE_NULL) {
@@ -132,8 +145,7 @@ public class SettableAnyProperty
         return _valueDeserializer.deserialize(jp, ctxt);
     }
 
-    public void set(Object instance, String propName, Object value)
-        throws IOException
+    public void set(Object instance, String propName, Object value) throws IOException
     {
         try {
             _setter.invoke(instance, propName, value);
@@ -212,18 +224,4 @@ public class SettableAnyProperty
             _parent.set(_pojo, _propName, value);
         }
     }
-
-    /*
-    /**********************************************************
-    /* JDK serialization handling
-    /**********************************************************
-     */
-
-    // TODO (2.3): handle restoring of reference to any-setter method
-    
-/*
-    Object readResolve() {
-        return new SettableAnyProperty(this, _annotated.getAnnotated());
-    }
-    */
 }

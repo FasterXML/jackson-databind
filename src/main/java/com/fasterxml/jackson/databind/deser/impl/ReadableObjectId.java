@@ -32,25 +32,21 @@ public class ReadableObjectId
     private ObjectIdResolver _resolver;
 
     @Deprecated
-    public ReadableObjectId(Object id)
-    {
+    public ReadableObjectId(Object id) {
         this.id = id;
         _key = null;
     }
 
-    public ReadableObjectId(IdKey key)
-    {
+    public ReadableObjectId(IdKey key) {
         _key = key;
         id = key.key;
     }
 
-    public void setResolver(ObjectIdResolver resolver)
-    {
+    public void setResolver(ObjectIdResolver resolver) {
         _resolver = resolver;
     }
 
-    public IdKey getKey()
-    {
+    public IdKey getKey() {
         return _key;
     }
 
@@ -112,7 +108,7 @@ public class ReadableObjectId
         public Class<?> getBeanType() { return _beanType; }
 
         public abstract void handleResolvedForwardReference(Object id, Object value) throws IOException;
-        public final boolean hasId(Object id) {
+        public boolean hasId(Object id) {
             return id.equals(_reference.getUnresolvedId());
         }
     }

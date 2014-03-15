@@ -84,16 +84,12 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty {
     }
 
     @Override
-    public void set(Object instance, Object value)
-        throws IOException
-    {
+    public void set(Object instance, Object value) throws IOException {
         _forward.set(instance, value);
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value)
-        throws IOException
-    {
+    public Object setAndReturn(Object instance, Object value) throws IOException {
         return _forward.setAndReturn(instance, value);
     }
 
@@ -110,8 +106,7 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty {
         }
 
         @Override
-        public void handleResolvedForwardReference(Object id, Object value)
-            throws IOException
+        public void handleResolvedForwardReference(Object id, Object value) throws IOException
         {
             if (!hasId(id)) {
                 throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id

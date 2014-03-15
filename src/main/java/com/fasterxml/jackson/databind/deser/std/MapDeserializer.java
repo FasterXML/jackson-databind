@@ -558,9 +558,9 @@ public class MapDeserializer
         private final Class<?> _valueType;
         private Map<Object,Object> _result;
         /**
-         * A list of {@link UnresolvedId} to maintain ordering.
+         * A list of {@link MapReferring} to maintain ordering.
          */
-        private List<UnresolvedId> _accumulator = new ArrayList<UnresolvedId>();
+        private List<MapReferring> _accumulator = new ArrayList<MapReferring>();
 
         public MapReferringAccumulator(Class<?> valueType, Map<Object, Object> result) {
             _valueType = valueType;
@@ -572,27 +572,27 @@ public class MapDeserializer
             if (_accumulator.isEmpty()) {
                 _result.put(key, value);
             } else {
-                UnresolvedId unresolvedId = _accumulator.get(_accumulator.size() - 1);
+                MapReferring unresolvedId = _accumulator.get(_accumulator.size() - 1);
                 unresolvedId._next.put(key, value);
             }
         }
 
         public Referring handleUnresolvedReference(UnresolvedForwardReference reference, Object key)
         {
-            UnresolvedId id = new UnresolvedId(this, reference, _valueType, key);
+            MapReferring id = new MapReferring(this, reference, _valueType, key);
             _accumulator.add(id);
             return id;
         }
 
         public void resolveForwardReference(Object id, Object value) throws IOException
         {
-            Iterator<UnresolvedId> iterator = _accumulator.iterator();
+            Iterator<MapReferring> iterator = _accumulator.iterator();
             // Resolve ordering after resolution of an id. This mean either:
             // 1- adding to the result map in case of the first unresolved id.
             // 2- merge the content of the resolved id with its previous unresolved id.
             Map<Object,Object> previous = _result;
             while (iterator.hasNext()) {
-                UnresolvedId unresolvedId = iterator.next();
+                MapReferring unresolvedId = iterator.next();
                 if (unresolvedId.hasId(id)) {
                     iterator.remove();
                     previous.put(unresolvedId._key, value);
@@ -612,12 +612,12 @@ public class MapDeserializer
      * object associated with {@link #_id} comes before the values in
      * {@link _next}.
      */
-    private final static class UnresolvedId extends Referring {
+    private final static class MapReferring extends Referring {
         private final MapReferringAccumulator _parent;
         private final Map<Object, Object> _next = new LinkedHashMap<Object, Object>();
         private final Object _key;
         
-        private UnresolvedId(MapReferringAccumulator parent, UnresolvedForwardReference ref,
+        private MapReferring(MapReferringAccumulator parent, UnresolvedForwardReference ref,
                 Class<?> valueType, Object key)
         {
             super(ref, valueType);
@@ -626,8 +626,7 @@ public class MapDeserializer
         }
 
         @Override
-        public void handleResolvedForwardReference(Object id, Object value) throws IOException
-        {
+        public void handleResolvedForwardReference(Object id, Object value) throws IOException {
             _parent.resolveForwardReference(id, value);
         }
     }

@@ -294,9 +294,9 @@ public class CollectionDeserializer
         private final Collection<Object> _result;
 
         /**
-         * A list of {@link UnresolvedId} to maintain ordering.
+         * A list of {@link CollectionReferring} to maintain ordering.
          */
-        private List<UnresolvedId> _accumulator = new ArrayList<UnresolvedId>();
+        private List<CollectionReferring> _accumulator = new ArrayList<CollectionReferring>();
 
         public CollectionReferringAccumulator(Class<?> elementType, Collection<Object> result) {
             _elementType = elementType;
@@ -308,27 +308,27 @@ public class CollectionDeserializer
             if (_accumulator.isEmpty()) {
                 _result.add(value);
             } else {
-                UnresolvedId unresolvedId = _accumulator.get(_accumulator.size() - 1);
+                CollectionReferring unresolvedId = _accumulator.get(_accumulator.size() - 1);
                 unresolvedId._next.add(value);
             }
         }
 
         public Referring handleUnresolvedReference(UnresolvedForwardReference reference)
         {
-            UnresolvedId id = new UnresolvedId(this, reference, _elementType);
+            CollectionReferring id = new CollectionReferring(this, reference, _elementType);
             _accumulator.add(id);
             return id;
         }
 
         public void resolveForwardReference(Object id, Object value) throws IOException
         {
-            Iterator<UnresolvedId> iterator = _accumulator.iterator();
+            Iterator<CollectionReferring> iterator = _accumulator.iterator();
             // Resolve ordering after resolution of an id. This mean either:
             // 1- adding to the result collection in case of the first unresolved id.
             // 2- merge the content of the resolved id with its previous unresolved id.
             Collection<Object> previous = _result;
             while (iterator.hasNext()) {
-                UnresolvedId unresolvedId = iterator.next();
+                CollectionReferring unresolvedId = iterator.next();
                 if (unresolvedId.hasId(id)) {
                     iterator.remove();
                     previous.add(value);
@@ -348,11 +348,11 @@ public class CollectionDeserializer
      * object associated with {@link #_id} comes before the values in
      * {@link _next}.
      */
-    private final static class UnresolvedId extends Referring {
+    private final static class CollectionReferring extends Referring {
         private final CollectionReferringAccumulator _parent;
         private final List<Object> _next = new ArrayList<Object>();
         
-        private UnresolvedId(CollectionReferringAccumulator parent,
+        private CollectionReferring(CollectionReferringAccumulator parent,
                 UnresolvedForwardReference reference, Class<?> contentType)
         {
             super(reference, contentType);

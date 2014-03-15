@@ -683,7 +683,12 @@ public class POJOPropertyBuilder
                 continue;
             }
             // different from default name?
-            if (explName.equals(_name)) { // nope, skip
+            /* 14-Mar-2014, tatu: As per [#369], Must match local name... but,
+             *   shouldn't really exclude namespace. Not sure what's the best
+             *   fix but for now, let's not worry about that.
+             * 
+             */
+            if (explName.equals(_name.getSimpleName())) { // nope, skip
                 continue;
             }
             if (renamed == null) {

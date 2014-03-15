@@ -157,8 +157,8 @@ public class MapDeserializer
             HashSet<String> ignorable)
     {
         
-        if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser) && (_valueTypeDeserializer == valueTypeDeser)
-                && (_ignorableProperties == ignorable)) {
+        if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
+                && (_valueTypeDeserializer == valueTypeDeser) && (_ignorableProperties == ignorable)) {
             return this;
         }
         return new MapDeserializer(this,
@@ -183,8 +183,7 @@ public class MapDeserializer
                 && isDefaultKeyDeserializer(keyDeser));
     }
     
-    public void setIgnorableProperties(String[] ignorable)
-    {
+    public void setIgnorableProperties(String[] ignorable) {
         _ignorableProperties = (ignorable == null || ignorable.length == 0) ?
             null : ArrayBuilders.arrayToSet(ignorable);
     }
@@ -372,10 +371,10 @@ public class MapDeserializer
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
-        MapReferringAccumuator referringAccumulator = null;
+        MapReferringAccumulator referringAccumulator = null;
         boolean useObjectId = valueDes.getObjectIdReader() != null;
         if (useObjectId) {
-            referringAccumulator = new MapReferringAccumuator(result);
+            referringAccumulator = new MapReferringAccumulator(result);
         }
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             // Must point to field name
@@ -427,10 +426,10 @@ public class MapDeserializer
         }
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        MapReferringAccumuator referringAccumulator = null;
+        MapReferringAccumulator referringAccumulator = null;
         boolean useObjectId = valueDes.getObjectIdReader() != null;
         if (useObjectId) {
-            referringAccumulator = new MapReferringAccumuator(result);
+            referringAccumulator = new MapReferringAccumulator(result);
         }
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             // Must point to field name
@@ -544,7 +543,7 @@ public class MapDeserializer
         throw JsonMappingException.wrapWithPath(t, ref, null);
     }
 
-    private void handleUnresolvedReference(JsonParser jp, MapReferringAccumuator accumulator, Object key,
+    private void handleUnresolvedReference(JsonParser jp, MapReferringAccumulator accumulator, Object key,
             UnresolvedForwardReference reference)
         throws JsonMappingException
     {
@@ -555,15 +554,14 @@ public class MapDeserializer
         reference.getRoid().appendReferring(referring);
     }
 
-    private final class MapReferringAccumuator  {
+    private final class MapReferringAccumulator  {
         private Map<Object,Object> _result;
         /**
          * A list of {@link UnresolvedId} to maintain ordering.
          */
         private List<UnresolvedId> _accumulator = new ArrayList<UnresolvedId>();
 
-        public MapReferringAccumuator(Map<Object, Object> result)
-        {
+        public MapReferringAccumulator(Map<Object, Object> result) {
             _result = result;
         }
 
@@ -579,7 +577,8 @@ public class MapDeserializer
 
         public Referring handleUnresolvedReference(UnresolvedForwardReference reference, Object key)
         {
-            UnresolvedId id = new UnresolvedId(key, reference.getUnresolvedId(), reference.getLocation());
+            UnresolvedId id = new UnresolvedId(key, reference.getUnresolvedId(), reference.getLocation(),
+                    _mapType.getContentType().getRawClass());
             _accumulator.add(id);
             return id;
         }
@@ -617,16 +616,16 @@ public class MapDeserializer
             private final Map<Object, Object> _next = new LinkedHashMap<Object, Object>();
             private final Object _key;
 
-            private UnresolvedId(Object key, Object id, JsonLocation location)
+            private UnresolvedId(Object key, Object id, JsonLocation location,
+                    Class<?> valueType)
             {
-                super(location, _mapType.getContentType().getRawClass());
+                super(location, valueType);
                 _key = key;
                 _id = id;
             }
 
             @Override
-            public void handleResolvedForwardReference(Object id, Object value)
-                throws IOException
+            public void handleResolvedForwardReference(Object id, Object value) throws IOException
             {
                 resolveForwardReference(id, value);
             }

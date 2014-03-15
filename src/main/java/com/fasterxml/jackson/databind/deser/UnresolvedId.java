@@ -8,12 +8,11 @@ import com.fasterxml.jackson.core.JsonLocation;
  * @author pgelinas
  */
 public class UnresolvedId {
-    private Object _id;
-    private JsonLocation _location;
-    private Class<?> _type;
+    private final Object _id;
+    private final JsonLocation _location;
+    private final Class<?> _type;
 
-    public UnresolvedId(Object id, Class<?> type, JsonLocation where)
-    {
+    public UnresolvedId(Object id, Class<?> type, JsonLocation where) {
         _id = id;
         _type = type;
         _location = where;

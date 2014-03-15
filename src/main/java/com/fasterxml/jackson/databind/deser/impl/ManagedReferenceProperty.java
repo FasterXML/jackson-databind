@@ -116,13 +116,6 @@ public final class ManagedReferenceProperty
     {
         /* 04-Feb-2014, tatu: As per [#390], it may be necessary to switch the
          *   ordering of forward/backward references, and start with back ref.
-         *   But before doing that, need a unit test.
-         */
-        
-        // Start with forward property
-        Object result = _managedProperty.setAndReturn(instance, value);
-        /* And then back reference, if (and only if!) we actually have a non-null
-         * reference
          */
         if (value != null) {
             if (_isContainer) { // ok, this gets ugly... but has to do for now
@@ -146,6 +139,7 @@ public final class ManagedReferenceProperty
                 _backProperty.set(value, instance);
             }
         }
-        return result;
+        // and then the forward reference itself
+        return _managedProperty.setAndReturn(instance, value);
 	}
 }

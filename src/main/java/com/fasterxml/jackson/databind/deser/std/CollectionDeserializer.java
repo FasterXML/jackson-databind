@@ -219,7 +219,8 @@ public class CollectionDeserializer
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
         CollectionReferringAccumulator referringAccumulator =
-            (valueDes.getObjectIdReader() == null) ? null : new CollectionReferringAccumulator(result);
+            (valueDes.getObjectIdReader() == null) ? null :
+                new CollectionReferringAccumulator(_collectionType.getContentType().getRawClass(), result);
 
         JsonToken t;
         while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
@@ -288,15 +289,17 @@ public class CollectionDeserializer
         return result;
     }
 
-    public final class CollectionReferringAccumulator {
-        private Collection<Object> _result;
+    public final static class CollectionReferringAccumulator {
+        private final Class<?> _elementType;
+        private final Collection<Object> _result;
+
         /**
          * A list of {@link UnresolvedId} to maintain ordering.
          */
         private List<UnresolvedId> _accumulator = new ArrayList<UnresolvedId>();
 
-        public CollectionReferringAccumulator(Collection<Object> result)
-        {
+        public CollectionReferringAccumulator(Class<?> elementType, Collection<Object> result) {
+            _elementType = elementType;
             _result = result;
         }
 
@@ -312,7 +315,7 @@ public class CollectionDeserializer
 
         public Referring handleUnresolvedReference(UnresolvedForwardReference reference)
         {
-            UnresolvedId id = new UnresolvedId(reference.getUnresolvedId(), reference.getLocation());
+            UnresolvedId id = new UnresolvedId(this, reference, _elementType);
             _accumulator.add(id);
             return id;
         }
@@ -338,26 +341,29 @@ public class CollectionDeserializer
             throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
                     + "] that wasn't previously seen as unresolved.");
         }
+    }
 
-        /**
-         * Helper class to maintain processing order of value. The resolved
-         * object associated with {@link #_id} comes before the values in
-         * {@link _next}.
-         */
-        private final class UnresolvedId extends Referring {
-            private final Object _id;
-            private final List<Object> _next = new ArrayList<Object>();
+    /**
+     * Helper class to maintain processing order of value. The resolved
+     * object associated with {@link #_id} comes before the values in
+     * {@link _next}.
+     */
+    private final static class UnresolvedId extends Referring {
+        private final CollectionReferringAccumulator _parent;
+        private final Object _id;
+        private final List<Object> _next = new ArrayList<Object>();
+        
+        private UnresolvedId(CollectionReferringAccumulator parent, UnresolvedForwardReference reference,
+                Class<?> contentType)
+        {
+            super(reference.getLocation(), contentType);
+            _parent = parent;
+            _id = reference.getUnresolvedId();
+        }
 
-            private UnresolvedId(Object id, JsonLocation location)
-            {
-                super(location, _collectionType.getContentType().getRawClass());
-                _id = id;
-            }
-
-            @Override
-            public void handleResolvedForwardReference(Object id, Object value) throws IOException {
-                resolveForwardReference(id, value);
-            }
+        @Override
+        public void handleResolvedForwardReference(Object id, Object value) throws IOException {
+            _parent.resolveForwardReference(id, value);
         }
     }
 }

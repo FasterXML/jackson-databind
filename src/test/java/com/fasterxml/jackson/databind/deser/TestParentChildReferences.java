@@ -198,18 +198,19 @@ public class TestParentChildReferences
     /* Unit tests
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = objectMapper();
     
     public void testSimpleRefs() throws Exception
     {
         SimpleTreeNode root = new SimpleTreeNode("root");
         SimpleTreeNode child = new SimpleTreeNode("kid");
-        ObjectMapper mapper = new ObjectMapper();
         root.child = child;
         child.parent = root;
         
-        String json = mapper.writeValueAsString(root);
+        String json = MAPPER.writeValueAsString(root);
         
-        SimpleTreeNode resultNode = mapper.readValue(json, SimpleTreeNode.class);
+        SimpleTreeNode resultNode = MAPPER.readValue(json, SimpleTreeNode.class);
         assertEquals("root", resultNode.name);
         SimpleTreeNode resultChild = resultNode.child;
         assertNotNull(resultChild);
@@ -222,13 +223,12 @@ public class TestParentChildReferences
     {
         SimpleTreeNode2 root = new SimpleTreeNode2("root");
         SimpleTreeNode2 child = new SimpleTreeNode2("kid");
-        ObjectMapper mapper = new ObjectMapper();
         root.child = child;
         child.parent = root;
         
-        String json = mapper.writeValueAsString(root);
+        String json = MAPPER.writeValueAsString(root);
         
-        SimpleTreeNode2 resultNode = mapper.readValue(json, SimpleTreeNode2.class);
+        SimpleTreeNode2 resultNode = MAPPER.readValue(json, SimpleTreeNode2.class);
         assertEquals("root", resultNode.name);
         SimpleTreeNode2 resultChild = resultNode.child;
         assertNotNull(resultChild);
@@ -241,15 +241,14 @@ public class TestParentChildReferences
         FullTreeNode root = new FullTreeNode("root");
         FullTreeNode child1 = new FullTreeNode("kid1");
         FullTreeNode child2 = new FullTreeNode("kid2");
-        ObjectMapper mapper = new ObjectMapper();
         root.firstChild = child1;
         child1.parent = root;
         child1.next = child2;
         child2.prev = child1;
         
-        String json = mapper.writeValueAsString(root);
+        String json = MAPPER.writeValueAsString(root);
         
-        FullTreeNode resultNode = mapper.readValue(json, FullTreeNode.class);
+        FullTreeNode resultNode = MAPPER.readValue(json, FullTreeNode.class);
         assertEquals("root", resultNode.name);
         FullTreeNode resultChild = resultNode.firstChild;
         assertNotNull(resultChild);
@@ -271,10 +270,9 @@ public class TestParentChildReferences
         ArrayNode node1 = new ArrayNode("a");
         ArrayNode node2 = new ArrayNode("b");
         root.nodes = new ArrayNode[] { node1, node2 };
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(root);
+        String json = MAPPER.writeValueAsString(root);
         
-        NodeArray result = mapper.readValue(json, NodeArray.class);
+        NodeArray result = MAPPER.readValue(json, NodeArray.class);
         ArrayNode[] kids = result.nodes;
         assertNotNull(kids);
         assertEquals(2, kids.length);
@@ -290,10 +288,9 @@ public class TestParentChildReferences
         NodeForList node1 = new NodeForList("a");
         NodeForList node2 = new NodeForList("b");
         root.nodes = Arrays.asList(node1, node2);
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(root);
+        String json = MAPPER.writeValueAsString(root);
         
-        NodeList result = mapper.readValue(json, NodeList.class);
+        NodeList result = MAPPER.readValue(json, NodeList.class);
         List<NodeForList> kids = result.nodes;
         assertNotNull(kids);
         assertEquals(2, kids.size());
@@ -312,10 +309,9 @@ public class TestParentChildReferences
         nodes.put("a1", node1);
         nodes.put("b2", node2);
         root.nodes = nodes;
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(root);
+        String json = MAPPER.writeValueAsString(root);
         
-        NodeMap result = mapper.readValue(json, NodeMap.class);
+        NodeMap result = MAPPER.readValue(json, NodeMap.class);
         Map<String,NodeForMap> kids = result.nodes;
         assertNotNull(kids);
         assertEquals(2, kids.size());
@@ -336,10 +332,9 @@ public class TestParentChildReferences
         child.prev = parent;
 
         // serialization ought to be ok
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(parent);
+        String json = MAPPER.writeValueAsString(parent);
 
-        AbstractNode root = mapper.readValue(json, AbstractNode.class);
+        AbstractNode root = MAPPER.readValue(json, AbstractNode.class);
 
         assertEquals(ConcreteNode.class, root.getClass());
         assertEquals("p", root.id);
@@ -355,9 +350,8 @@ public class TestParentChildReferences
         Parent parent = new Parent();
         parent.addChild(new Child("foo"));
         parent.addChild(new Child("bar"));
-        ObjectMapper mapper = new ObjectMapper();
-        byte[] bytes = mapper.writeValueAsBytes(parent);
-        Parent value = mapper.readValue(bytes, Parent.class); 
+        byte[] bytes = MAPPER.writeValueAsBytes(parent);
+        Parent value = MAPPER.readValue(bytes, Parent.class); 
         for (Child child : value.children) {
             assertEquals(value, child.getParent());
         }
@@ -365,8 +359,7 @@ public class TestParentChildReferences
 
     public void testIssue708() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        Advertisement708 ad = mapper.readValue("{\"title\":\"Hroch\",\"photos\":[{\"id\":3}]}", Advertisement708.class);      
+        Advertisement708 ad = MAPPER.readValue("{\"title\":\"Hroch\",\"photos\":[{\"id\":3}]}", Advertisement708.class);      
         assertNotNull(ad);
     }   
 }

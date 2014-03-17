@@ -157,8 +157,8 @@ public class MapDeserializer
             HashSet<String> ignorable)
     {
         
-        if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser) && (_valueTypeDeserializer == valueTypeDeser)
-                && (_ignorableProperties == ignorable)) {
+        if ((_keyDeserializer == keyDeser) && (_valueDeserializer == valueDeser)
+                && (_valueTypeDeserializer == valueTypeDeser) && (_ignorableProperties == ignorable)) {
             return this;
         }
         return new MapDeserializer(this,
@@ -183,8 +183,7 @@ public class MapDeserializer
                 && isDefaultKeyDeserializer(keyDeser));
     }
     
-    public void setIgnorableProperties(String[] ignorable)
-    {
+    public void setIgnorableProperties(String[] ignorable) {
         _ignorableProperties = (ignorable == null || ignorable.length == 0) ?
             null : ArrayBuilders.arrayToSet(ignorable);
     }
@@ -372,10 +371,10 @@ public class MapDeserializer
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
-        MapReferringAccumuator referringAccumulator = null;
+        MapReferringAccumulator referringAccumulator = null;
         boolean useObjectId = valueDes.getObjectIdReader() != null;
         if (useObjectId) {
-            referringAccumulator = new MapReferringAccumuator(result);
+            referringAccumulator = new MapReferringAccumulator(_mapType.getContentType().getRawClass(), result);
         }
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             // Must point to field name
@@ -427,10 +426,10 @@ public class MapDeserializer
         }
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        MapReferringAccumuator referringAccumulator = null;
+        MapReferringAccumulator referringAccumulator = null;
         boolean useObjectId = valueDes.getObjectIdReader() != null;
         if (useObjectId) {
-            referringAccumulator = new MapReferringAccumuator(result);
+            referringAccumulator = new MapReferringAccumulator(_mapType.getContentType().getRawClass(), result);
         }
         for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             // Must point to field name
@@ -525,7 +524,7 @@ public class MapDeserializer
         }
     }
 
-    // note: copied form BeanDeserializer; should try to share somehow...
+    // note: copied from BeanDeserializer; should try to share somehow...
     protected void wrapAndThrow(Throwable t, Object ref)
         throws IOException
     {
@@ -544,7 +543,7 @@ public class MapDeserializer
         throw JsonMappingException.wrapWithPath(t, ref, null);
     }
 
-    private void handleUnresolvedReference(JsonParser jp, MapReferringAccumuator accumulator, Object key,
+    private void handleUnresolvedReference(JsonParser jp, MapReferringAccumulator accumulator, Object key,
             UnresolvedForwardReference reference)
         throws JsonMappingException
     {
@@ -555,15 +554,16 @@ public class MapDeserializer
         reference.getRoid().appendReferring(referring);
     }
 
-    private final class MapReferringAccumuator  {
+    private final static class MapReferringAccumulator  {
+        private final Class<?> _valueType;
         private Map<Object,Object> _result;
         /**
-         * A list of {@link UnresolvedId} to maintain ordering.
+         * A list of {@link MapReferring} to maintain ordering.
          */
-        private List<UnresolvedId> _accumulator = new ArrayList<UnresolvedId>();
+        private List<MapReferring> _accumulator = new ArrayList<MapReferring>();
 
-        public MapReferringAccumuator(Map<Object, Object> result)
-        {
+        public MapReferringAccumulator(Class<?> valueType, Map<Object, Object> result) {
+            _valueType = valueType;
             _result = result;
         }
 
@@ -572,64 +572,63 @@ public class MapDeserializer
             if (_accumulator.isEmpty()) {
                 _result.put(key, value);
             } else {
-                UnresolvedId unresolvedId = _accumulator.get(_accumulator.size() - 1);
-                unresolvedId._next.put(key, value);
+                MapReferring ref = _accumulator.get(_accumulator.size() - 1);
+                ref.next.put(key, value);
             }
         }
 
         public Referring handleUnresolvedReference(UnresolvedForwardReference reference, Object key)
         {
-            UnresolvedId id = new UnresolvedId(key, reference.getUnresolvedId(), reference.getLocation());
+            MapReferring id = new MapReferring(this, reference, _valueType, key);
             _accumulator.add(id);
             return id;
         }
 
-        public void resolveForwardReference(Object id, Object value)
-            throws IOException
+        public void resolveForwardReference(Object id, Object value) throws IOException
         {
-            Iterator<UnresolvedId> iterator = _accumulator.iterator();
-            // Resolve ordering after resolution of an id. This mean either:
+            Iterator<MapReferring> iterator = _accumulator.iterator();
+            // Resolve ordering after resolution of an id. This means either:
             // 1- adding to the result map in case of the first unresolved id.
             // 2- merge the content of the resolved id with its previous unresolved id.
             Map<Object,Object> previous = _result;
             while (iterator.hasNext()) {
-                UnresolvedId unresolvedId = iterator.next();
-                if (unresolvedId._id.equals(id)) {
+                MapReferring ref = iterator.next();
+                if (ref.hasId(id)) {
                     iterator.remove();
-                    previous.put(unresolvedId._key, value);
-                    previous.putAll(unresolvedId._next);
+                    previous.put(ref.key, value);
+                    previous.putAll(ref.next);
                     return;
                 }
-                previous = unresolvedId._next;
+                previous = ref.next;
             }
 
             throw new IllegalArgumentException("Trying to resolve a forward reference with id [" + id
                     + "] that wasn't previously seen as unresolved.");
         }
+    }
 
-        /**
-         * Helper class to maintain processing order of value. The resolved
-         * object associated with {@link #_id} comes before the values in
-         * {@link _next}.
-         */
-        private final class UnresolvedId extends Referring {
-            private final Object _id;
-            private final Map<Object, Object> _next = new LinkedHashMap<Object, Object>();
-            private final Object _key;
+    /**
+     * Helper class to maintain processing order of value. The resolved
+     * object associated with {@link #_id} comes before the values in
+     * {@link _next}.
+     */
+    private final static class MapReferring extends Referring {
+        private final MapReferringAccumulator _parent;
 
-            private UnresolvedId(Object key, Object id, JsonLocation location)
-            {
-                super(location, _mapType.getContentType().getRawClass());
-                _key = key;
-                _id = id;
-            }
+        public final Map<Object, Object> next = new LinkedHashMap<Object, Object>();
+        public final Object key;
+        
+        private MapReferring(MapReferringAccumulator parent, UnresolvedForwardReference ref,
+                Class<?> valueType, Object key)
+        {
+            super(ref, valueType);
+            _parent = parent;
+            this.key = key;
+        }
 
-            @Override
-            public void handleResolvedForwardReference(Object id, Object value)
-                throws IOException
-            {
-                resolveForwardReference(id, value);
-            }
+        @Override
+        public void handleResolvedForwardReference(Object id, Object value) throws IOException {
+            _parent.resolveForwardReference(id, value);
         }
     }
 }

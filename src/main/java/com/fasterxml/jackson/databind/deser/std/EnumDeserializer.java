@@ -82,9 +82,24 @@ public class EnumDeserializer
             String name = jp.getText();
             Enum<?> result = _resolver.findEnum(name);
             if (result == null) {
-                if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                    if (name.length() == 0 || name.trim().length() == 0) {
+                name = name.trim();
+                if (name.length() == 0) {
+                    if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
                         return null;
+                    }
+                } else {
+                    // [#149]: Allow use of 'String' indexes as well
+                    char c = name.charAt(0);
+                    if (c >= '0' && c <= '9') {
+                        try {
+                            int ix = Integer.parseInt(name);
+                            result = _resolver.getEnum(ix);
+                            if (result != null) {
+                                return result;
+                            }
+                        } catch (NumberFormatException e) {
+                            // fine, ignore, was not an integer
+                        }
                     }
                 }
                 if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {

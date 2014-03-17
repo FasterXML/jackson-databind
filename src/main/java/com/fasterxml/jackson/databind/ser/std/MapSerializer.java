@@ -85,6 +85,14 @@ public class MapSerializer
      */
     protected final Object _filterId;
 
+    /**
+     * Flag set if output is forced to be sorted by keys (usually due
+     * to annotation).
+     * 
+     * @since 2.4
+     */
+    protected final boolean _sortKeys;
+    
     /*
     /**********************************************************
     /* Life-cycle
@@ -108,6 +116,7 @@ public class MapSerializer
         _dynamicValueSerializers = PropertySerializerMap.emptyMap();
         _property = null;
         _filterId = null;
+        _sortKeys = false;
     }
 
     @SuppressWarnings("unchecked")
@@ -126,6 +135,7 @@ public class MapSerializer
         _dynamicValueSerializers = src._dynamicValueSerializers;
         _property = property;
         _filterId = src._filterId;
+        _sortKeys = src._sortKeys;
     }
 
     protected MapSerializer(MapSerializer src, TypeSerializer vts)
@@ -141,9 +151,10 @@ public class MapSerializer
         _dynamicValueSerializers = src._dynamicValueSerializers;
         _property = src._property;
         _filterId = src._filterId;
+        _sortKeys = src._sortKeys;
     }
 
-    protected MapSerializer(MapSerializer src, Object filterId)
+    protected MapSerializer(MapSerializer src, Object filterId, boolean sortKeys)
     {
         super(Map.class, false);
         _ignoredEntries = src._ignoredEntries;
@@ -156,26 +167,39 @@ public class MapSerializer
         _dynamicValueSerializers = src._dynamicValueSerializers;
         _property = src._property;
         _filterId = filterId;
+        _sortKeys = sortKeys;
     }
     
     @Override
-    public MapSerializer _withValueTypeSerializer(TypeSerializer vts)
-    {
+    public MapSerializer _withValueTypeSerializer(TypeSerializer vts) {
         return new MapSerializer(this, vts);
     }
 
+    @Deprecated // since 2.3
     public MapSerializer withResolved(BeanProperty property,
-            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
-            HashSet<String> ignored)
-    {
-        return new MapSerializer(this, property, keySerializer, valueSerializer, ignored);
+            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer, HashSet<String> ignored) {
+        return withResolved(property, keySerializer, valueSerializer, ignored, _sortKeys);
     }
 
+    /**
+     * @since 2.4
+     */
+    public MapSerializer withResolved(BeanProperty property,
+            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
+            HashSet<String> ignored, boolean sortKeys)
+    {
+        MapSerializer ser = new MapSerializer(this, property, keySerializer, valueSerializer, ignored);
+        if (sortKeys != ser._sortKeys) {
+            ser = new MapSerializer(ser, _filterId, sortKeys);
+        }
+        return ser;
+    }
+    
     /**
      * @since 2.3
      */
     public MapSerializer withFilterId(Object filterId) {
-        return (_filterId == filterId) ? this : new MapSerializer(this, filterId);
+        return (_filterId == filterId) ? this : new MapSerializer(this, filterId, _sortKeys);
     }
 
     /**
@@ -252,21 +276,18 @@ public class MapSerializer
          */
         JsonSerializer<?> ser = null;
         JsonSerializer<?> keySer = null;
+        final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
+        final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
 
         // First: if we have a property, may have property-annotation overrides
-        if (property != null) {
-            AnnotatedMember m = property.getMember();
-            if (m != null) {
-                Object serDef;
-                final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
-                serDef = intr.findKeySerializer(m);
-                if (serDef != null) {
-                    keySer = provider.serializerInstance(m, serDef);
-                }
-                serDef = intr.findContentSerializer(m);
-                if (serDef != null) {
-                    ser = provider.serializerInstance(m, serDef);
-                }
+        if (propertyAcc != null && intr != null) {
+            Object serDef = intr.findKeySerializer(propertyAcc);
+            if (serDef != null) {
+                keySer = provider.serializerInstance(propertyAcc, serDef);
+            }
+            serDef = intr.findContentSerializer(propertyAcc);
+            if (serDef != null) {
+                ser = provider.serializerInstance(propertyAcc, serDef);
             }
         }
         if (ser == null) {
@@ -293,18 +314,20 @@ public class MapSerializer
         } else {
             keySer = provider.handleSecondaryContextualization(keySer, property);
         }
-        HashSet<String> ignored = this._ignoredEntries;
-        AnnotationIntrospector intr = provider.getAnnotationIntrospector();
-        if (intr != null && property != null) {
-            String[] moreToIgnore = intr.findPropertiesToIgnore(property.getMember());
+        HashSet<String> ignored = _ignoredEntries;
+        boolean sortKeys = false;
+        if (intr != null && propertyAcc != null) {
+            String[] moreToIgnore = intr.findPropertiesToIgnore(propertyAcc);
             if (moreToIgnore != null) {
                 ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);
                 for (String str : moreToIgnore) {
                     ignored.add(str);
                 }
             }
+            Boolean b = intr.findSerializationSortAlphabetically(propertyAcc);
+            sortKeys = (b != null) && b.booleanValue();
         }
-        MapSerializer mser =  withResolved(property, keySer, ser, ignored);
+        MapSerializer mser = withResolved(property, keySer, ser, ignored, sortKeys);
 
         // [Issue#307]: allow filtering
         if (property != null) {
@@ -379,7 +402,7 @@ public class MapSerializer
                         findPropertyFilter(provider, _filterId, value));
                 return;
             }
-            if (provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value);
             }
             if (_valueSerializer != null) {
@@ -398,7 +421,7 @@ public class MapSerializer
     {
         typeSer.writeTypePrefixForObject(value, jgen);
         if (!value.isEmpty()) {
-            if (provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
+            if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value);
             }
             if (_valueSerializer != null) {

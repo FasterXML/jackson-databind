@@ -111,4 +111,8 @@ Will Palmeri: (wpalmeri@github)
   * Contributed #407: Make array and Collection serializers use configured value null handler
    (2.4.0)
 
+Cemalettin Koc: (cemo@github)
+
+  * Reported #353: Problems with polymorphic types, `JsonNode` (related to #88)
+   (2.4.0)
 

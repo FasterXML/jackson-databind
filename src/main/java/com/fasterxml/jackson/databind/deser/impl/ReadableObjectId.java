@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.core.JsonLocation;
+import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 
 /**
  * Simple value container for containing information about single Object Id
@@ -31,25 +32,21 @@ public class ReadableObjectId
     private ObjectIdResolver _resolver;
 
     @Deprecated
-    public ReadableObjectId(Object id)
-    {
+    public ReadableObjectId(Object id) {
         this.id = id;
         _key = null;
     }
 
-    public ReadableObjectId(IdKey key)
-    {
+    public ReadableObjectId(IdKey key) {
         _key = key;
         id = key.key;
     }
 
-    public void setResolver(ObjectIdResolver resolver)
-    {
+    public void setResolver(ObjectIdResolver resolver) {
         _resolver = resolver;
     }
 
-    public IdKey getKey()
-    {
+    public IdKey getKey() {
         return _key;
     }
 
@@ -99,19 +96,20 @@ public class ReadableObjectId
      */
 
     public static abstract class Referring {
-        private final JsonLocation _location;
+        private final UnresolvedForwardReference _reference;
         private final Class<?> _beanType;
 
-        public Referring(JsonLocation location, Class<?> beanType)
-        {
-            _location = location;
+        public Referring(UnresolvedForwardReference ref, Class<?> beanType) {
+            _reference = ref;
             _beanType = beanType;
         }
 
-        public JsonLocation getLocation() { return _location; }
+        public JsonLocation getLocation() { return _reference.getLocation(); }
         public Class<?> getBeanType() { return _beanType; }
 
-        public abstract void handleResolvedForwardReference(Object id, Object value)
-            throws IOException;
+        public abstract void handleResolvedForwardReference(Object id, Object value) throws IOException;
+        public boolean hasId(Object id) {
+            return id.equals(_reference.getUnresolvedId());
+        }
     }
 }

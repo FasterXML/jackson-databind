@@ -497,11 +497,21 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Boolean findSerializationSortAlphabetically(AnnotatedClass ac) {
-        JsonPropertyOrder order = ac.getAnnotation(JsonPropertyOrder.class);
-        return (order == null) ? null : order.alphabetic();
+    public Boolean findSerializationSortAlphabetically(Annotated ann) {
+        return _findSortAlpha(ann);
     }
 
+    @Override
+    @Deprecated
+    public Boolean findSerializationSortAlphabetically(AnnotatedClass ac) {
+        return _findSortAlpha(ac);
+    }
+
+    private final Boolean _findSortAlpha(Annotated ann) {
+        JsonPropertyOrder order = ann.getAnnotation(JsonPropertyOrder.class);
+        return (order == null) ? null : order.alphabetic();
+    }
+    
     /*
     /**********************************************************
     /* Serialization: property annotations

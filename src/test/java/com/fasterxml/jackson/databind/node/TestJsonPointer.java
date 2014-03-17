@@ -31,4 +31,19 @@ public class TestJsonPointer
         assertTrue(SAMPLE_ROOT.at("/Image/Depth").isMissingNode());
         assertTrue(SAMPLE_ROOT.at("/Image/1").isMissingNode());
     }
+
+    // To help verify [Core#133]; should be fine with "big numbers" as property keys
+    public void testLongNumbers() throws Exception
+    {
+        
+        // First, with small int key
+        JsonNode root = objectMapper().readTree("{\"123\" : 456}");
+        JsonNode jn2 = root.at("/123"); 
+        assertEquals(456, jn2.asInt());
+
+        // and then with above int-32:
+        root = objectMapper().readTree("{\"35361706045\" : 1234}");
+        jn2 = root.at("/35361706045"); 
+        assertEquals(1234, jn2.asInt());
+    }
 }

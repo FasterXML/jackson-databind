@@ -19,12 +19,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 public class TestEnumDeserialization
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes, enums
-    /**********************************************************
-     */
-
     enum TestEnum { JACKSON, RULES, OK; }
 
     /**
@@ -393,5 +387,17 @@ public class TestEnumDeserialization
         } catch (JsonMappingException exp) {
             //exception as thrown correctly
         }
+    }
+
+    // [Issue#149]: 'stringified' indexes for enums
+    public void testIndexAsString() throws Exception
+    {
+        // first, regular index ought to work fine
+        TestEnum en = MAPPER.readValue("2", TestEnum.class);
+        assertSame(TestEnum.values()[2], en);
+
+        // but also with quoted Strings
+        en = MAPPER.readValue(quote("1"), TestEnum.class);
+        assertSame(TestEnum.values()[1], en);
     }
 }

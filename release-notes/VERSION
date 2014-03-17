@@ -3,8 +3,20 @@ Version: 2.4.0 (xx-xxx-2014)
 
 #88: Prevent use of type information for `JsonNode` via default typing
  (reported by electricmonk@github)
+#149: Allow use of "stringified" indexes for Enum values
+ (requested by chenboxiang@github)
+#176: Allow use external Object Id resolver (to use with @JsonIdentityInfo etc)
+ (implemented by Pascal G)
+#335: Allow use of `@JsonProperytOrder(alphabetic=true)` for Map properties
+#353: Problems with polymorphic types, `JsonNode` (related to #88)
+ (reported by cemo@github)
+#369: Incorrect comparison for renaming in `POJOPropertyBuilder`
+#375: Add `readValue()`/`readPropertyValue()` methods in `DeserializationContext`
 #381: Allow inlining/unwrapping of value from single-component JSON array
  (contributed by yinzara@github)
+#390: Change order in which managed/back references are resolved (now back-ref
+ first, then forward)
+ (requested by zAlbee@github)
 #407: Properly use null handlers for value types when serializer Collection
  and array types
  (contributed by Will P)
@@ -12,6 +24,24 @@ Version: 2.4.0 (xx-xxx-2014)
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
+
+2.3.2 (01-Mar-2014)
+
+#378: Fix a problem with custom enum deserializer construction
+ (reported by BokoEnos@github)
+#379: Fix a problem with (re)naming of Creator properties; needed to make
+ Paranamer module work with NamingStrategy.
+ (reported by Chris P, cpilsworth@github)
+#398: Should deserialize empty (not null) URI from empty String
+ (reported by pgieser@github)
+#406: @JsonTypeIdResolver not working with external type ids
+ (reported by Martin T)
+#411: NumberDeserializers throws exception with NaN and +/- Infinity
+ (reported by clarkbreyman@github)
+#412: ObjectMapper.writerWithType() does not change root name being used
+ (repoted by jhalterman@github)
+- Added `BeanSerializerBase._serializeObjectId()` needed by modules that
+  override standard BeanSerializer; specifically, XML module.
 
 2.3.1 (28-Dec-2013)
 

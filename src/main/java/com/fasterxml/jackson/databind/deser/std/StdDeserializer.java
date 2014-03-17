@@ -123,10 +123,11 @@ public abstract class StdDeserializer<T>
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
             String text = jp.getText().trim();
-            if ("true".equals(text)) {
+            // [#422]: Allow aliases
+            if ("true".equals(text) || "True".equals(text)) {
                 return true;
             }
-            if ("false".equals(text) || text.length() == 0) {
+            if ("false".equals(text) || "False".equals(text) || text.length() == 0) {
                 return false;
             }
             if (_hasTextualNull(text)) {
@@ -173,10 +174,11 @@ public abstract class StdDeserializer<T>
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
             String text = jp.getText().trim();
-            if ("true".equals(text)) {
+            // [#422]: Allow aliases
+            if ("true".equals(text) || "True".equals(text)) {
                 return Boolean.TRUE;
             }
-            if ("false".equals(text)) {
+            if ("false".equals(text) || "False".equals(text)) {
                 return Boolean.FALSE;
             }
             if (text.length() == 0) {

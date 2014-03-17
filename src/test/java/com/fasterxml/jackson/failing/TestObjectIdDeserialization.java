@@ -11,7 +11,11 @@ import com.fasterxml.jackson.databind.struct.TestObjectId.Employee;
 import com.fasterxml.jackson.failing.TestObjectIdDeserialization.EnumMapCompany.FooEnum;
 
 /**
- * Unit test to verify handling of Object Id deserialization
+ * Unit test to verify handling of Object Id deserialization.
+ *<p>
+ * NOTE: only tests that still fail, even with initial forward-ref-handling
+ * code (2.4), are included here. Other cases moved to successfully
+ * passing tests.
  */
 public class TestObjectIdDeserialization extends BaseMapTest
 {

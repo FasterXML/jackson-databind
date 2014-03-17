@@ -1,13 +1,15 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.io.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -144,6 +146,90 @@ public class TestCustomDeserializers
             return new CustomKey(Integer.valueOf(key));
         }
     }
+
+    // [#375]
+
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface Negative { }
+
+    static class Bean375Wrapper {
+        @Negative
+        public Bean375Outer value;
+    }
+    
+    static class Bean375Outer {
+        protected Bean375Inner inner;
+
+        public Bean375Outer(Bean375Inner v) { inner = v; }
+    }
+
+    static class Bean375Inner {
+        protected int x;
+
+        public Bean375Inner(int x) { this.x = x; }
+    }
+
+    static class Bean375OuterDeserializer extends StdDeserializer<Bean375Outer>
+        implements ContextualDeserializer
+    {
+        protected BeanProperty prop;
+        
+        protected Bean375OuterDeserializer() { this(null); }
+        protected Bean375OuterDeserializer(BeanProperty p) {
+            super(Bean375Outer.class);
+            prop = p;
+        }
+
+        @Override
+        public Bean375Outer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException,
+                JsonProcessingException {
+            Object ob = ctxt.readPropertyValue(p, prop, Bean375Inner.class);
+            return new Bean375Outer((Bean375Inner) ob);
+        }
+        @Override
+        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+                throws JsonMappingException {
+            return new Bean375OuterDeserializer(property);
+        }
+    }
+
+    static class Bean375InnerDeserializer extends StdDeserializer<Bean375Inner>
+        implements ContextualDeserializer
+    {
+        protected boolean negative;
+        
+        protected Bean375InnerDeserializer() { this(false); }
+        protected Bean375InnerDeserializer(boolean n) {
+            super(Bean375Inner.class);
+            negative = n;
+        }
+
+        @Override
+        public Bean375Inner deserialize(JsonParser jp, DeserializationContext ctxt)
+                throws IOException, JsonProcessingException {
+            int x = jp.getIntValue();
+            if (negative) {
+                x = -x;
+            } else {
+                x += x;
+            }
+            return new Bean375Inner(x);
+        }
+
+        @Override
+        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
+                throws JsonMappingException {
+            if (property != null) {
+                Negative n = property.getAnnotation(Negative.class);
+                if (n != null) {
+                    return new Bean375InnerDeserializer(true);
+                }
+            }
+            return this;
+        }
+        
+    }
     
     /*
     /**********************************************************
@@ -151,7 +237,7 @@ public class TestCustomDeserializers
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    final ObjectMapper MAPPER = objectMapper();
     
     public void testCustomBeanDeserializer() throws Exception
     {
@@ -225,5 +311,25 @@ public class TestCustomDeserializers
         assertNotNull(deserialized);
         assertNotNull(deserialized.map);
         assertEquals(1, deserialized.map.size());
+    }
+
+    // [#337]: convenience methods for custom deserializers to use
+    public void testContextReadValue() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule("test", Version.unknownVersion());
+        module.addDeserializer(Bean375Outer.class, new Bean375OuterDeserializer());
+        module.addDeserializer(Bean375Inner.class, new Bean375InnerDeserializer());
+        mapper.registerModule(module);
+
+        // First, without property; doubles up value:
+        Bean375Outer outer = mapper.readValue("13", Bean375Outer.class);
+        assertEquals(26, outer.inner.x);
+
+        // then with property; should find annotation, turn negative
+        Bean375Wrapper w = mapper.readValue("{\"value\":13}", Bean375Wrapper.class);
+        assertNotNull(w.value);
+        assertNotNull(w.value.inner);
+        assertEquals(-13, w.value.inner.x);
     }
 }

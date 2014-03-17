@@ -7,6 +7,7 @@ Version: 2.4.0 (xx-xxx-2014)
 #353: Problems with polymorphic types, `JsonNode` (related to #88)
  (reported by cemo@github)
 #369: Incorrect comparison for renaming in `POJOPropertyBuilder`
+#375: Add `readValue()`/`readPropertyValue()` methods in `DeserializationContext`
 #381: Allow inlining/unwrapping of value from single-component JSON array
  (contributed by yinzara@github)
 #390: Change order in which managed/back references are resolved (now back-ref

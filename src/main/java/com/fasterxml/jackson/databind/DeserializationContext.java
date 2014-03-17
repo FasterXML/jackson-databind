@@ -173,7 +173,7 @@ public abstract class DeserializationContext
      * Constructor used for creating actual per-call instances.
      */
     protected DeserializationContext(DeserializationContext src,
-            DeserializationConfig config, JsonParser jp,
+            DeserializationConfig config, JsonParser p,
             InjectableValues injectableValues)
     {
         _cache = src._cache;
@@ -182,7 +182,7 @@ public abstract class DeserializationContext
         _config = config;
         _featureFlags = config.getDeserializationFeatures();
         _view = config.getActiveView();
-        _parser = jp;
+        _parser = p;
         _injectableValues = injectableValues;
         _attributes = config.getAttributes();
     }
@@ -321,7 +321,7 @@ public abstract class DeserializationContext
     public TimeZone getTimeZone() {
         return _config.getTimeZone();
     }
-    
+
     /*
     /**********************************************************
     /* Public API, pass-through to DeserializerCache
@@ -362,16 +362,15 @@ public abstract class DeserializationContext
      */
     @SuppressWarnings("unchecked")
     public final JsonDeserializer<Object> findContextualValueDeserializer(JavaType type,
-            BeanProperty property) throws JsonMappingException
+            BeanProperty prop) throws JsonMappingException
     {
-        JsonDeserializer<Object> deser = _cache.findValueDeserializer(this,
-                _factory, type);
+        JsonDeserializer<Object> deser = _cache.findValueDeserializer(this, _factory, type);
         if (deser != null) {
-            deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, property);
+            deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, prop);
         }
         return deser;
     }
-    
+
     /**
      * Method for finding a deserializer for root-level value.
      */
@@ -397,16 +396,16 @@ public abstract class DeserializationContext
     /**
      * Convenience method, functionally same as:
      *<pre>
-     *  getDeserializerProvider().findKeyDeserializer(getConfig(), propertyType, property);
+     *  getDeserializerProvider().findKeyDeserializer(getConfig(), prop.getType(), prop);
      *</pre>
      */
     public final KeyDeserializer findKeyDeserializer(JavaType keyType,
-            BeanProperty property) throws JsonMappingException {
+            BeanProperty prop) throws JsonMappingException {
         KeyDeserializer kd = _cache.findKeyDeserializer(this,
                 _factory, keyType);
         // Second: contextualize?
         if (kd instanceof ContextualKeyDeserializer) {
-            kd = ((ContextualKeyDeserializer) kd).createContextual(this, property);
+            kd = ((ContextualKeyDeserializer) kd).createContextual(this, prop);
         }
         return kd;
     }
@@ -543,17 +542,17 @@ public abstract class DeserializationContext
      * to handle details of resolving
      * {@link ContextualDeserializer} with given property context.
      * 
-     * @param property Property for which the given primary deserializer is used; never null.
+     * @param prop Property for which the given primary deserializer is used; never null.
      * 
      * @since 2.3
      */
     public JsonDeserializer<?> handlePrimaryContextualization(JsonDeserializer<?> deser,
-            BeanProperty property)
+            BeanProperty prop)
         throws JsonMappingException
     {
         if (deser != null) {
             if (deser instanceof ContextualDeserializer) {
-                deser = ((ContextualDeserializer) deser).createContextual(this, property);
+                deser = ((ContextualDeserializer) deser).createContextual(this, prop);
             }
         }
         return deser;
@@ -570,19 +569,16 @@ public abstract class DeserializationContext
      * (or, in case of root value property, to any property), annotations
      * accessible may or may not be relevant.
      * 
-     * @param property Property for which deserializer is used, if any; null
+     * @param prop Property for which deserializer is used, if any; null
      *    when deserializing root values
      * 
      * @since 2.3
      */
     public JsonDeserializer<?> handleSecondaryContextualization(JsonDeserializer<?> deser,
-            BeanProperty property)
-        throws JsonMappingException
-    {
-        if (deser != null) {
-            if (deser instanceof ContextualDeserializer) {
-                deser = ((ContextualDeserializer) deser).createContextual(this, property);
-            }
+            BeanProperty prop)
+        throws JsonMappingException {
+        if (deser != null && (deser instanceof ContextualDeserializer)) {
+            deser = ((ContextualDeserializer) deser).createContextual(this, prop);
         }
         return deser;
     }
@@ -603,8 +599,7 @@ public abstract class DeserializationContext
      * date format is cloned, and cloned instance will be retained
      * for use during this deserialization round.
      */
-    public Date parseDate(String dateStr)
-        throws IllegalArgumentException
+    public Date parseDate(String dateStr) throws IllegalArgumentException
     {
         try {
             DateFormat df = getDateFormat();
@@ -618,16 +613,69 @@ public abstract class DeserializationContext
      * Convenience method for constructing Calendar instance set
      * to specified time, to be modified and used by caller.
      */
-    public Calendar constructCalendar(Date d)
-    {
-        /* 08-Jan-2008, tatu: not optimal, but should work for the
-         *   most part; let's revise as needed.
-         */
+    public Calendar constructCalendar(Date d) {
+        // 08-Jan-2008, tatu: not optimal, but should work for the most part; let's revise as needed.
         Calendar c = Calendar.getInstance(getTimeZone());
         c.setTime(d);
         return c;
     }
 
+    /*
+    /**********************************************************
+    /* Convenience methods for reading parsed values
+    /**********************************************************
+     */
+
+    /**
+     * Convenience method that may be used by composite or container deserializers,
+     * for reading one-off values contained (for sequences, it is more efficient
+     * to actually fetch deserializer once for the whole collection).
+     *<p>
+     * NOTE: when deserializing values of properties contained in composite types,
+     * rather use {@link #readPropertyValue(JsonParser, BeanProperty, Class)};
+     * this method does not allow use of contextual annotations.
+     * 
+     * @since 2.4
+     */
+    public <T> T readValue(JsonParser p, Class<T> type) throws IOException {
+        return readValue(p, getTypeFactory().constructType(type));
+    }
+
+    /**
+     * @since 2.4
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T readValue(JsonParser p, JavaType type) throws IOException {
+        JsonDeserializer<Object> deser = findRootValueDeserializer(type);
+        if (deser == null) {
+        }
+        return (T) deser.deserialize(p, this);
+    }
+
+    /**
+     * Convenience method that may be used by composite or container deserializers,
+     * for reading one-off values for the composite type, taking into account
+     * annotations that the property (passed to this method -- usually property that
+     * has custom serializer that called this method) has.
+     * 
+     * @since 2.4
+     */
+    public <T> T readPropertyValue(JsonParser p, BeanProperty prop, Class<T> type) throws IOException {
+        return readPropertyValue(p, prop, getTypeFactory().constructType(type));
+    }
+
+    /**
+     * @since 2.4
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T readPropertyValue(JsonParser p, BeanProperty prop, JavaType type) throws IOException {
+        JsonDeserializer<Object> deser = findContextualValueDeserializer(type, prop);
+        if (deser == null) {
+            
+        }
+        return (T) deser.deserialize(p, this);
+    }
+    
     /*
     /**********************************************************
     /* Methods for problem handling, reporting
@@ -645,7 +693,7 @@ public abstract class DeserializationContext
      * Method deserializers can call to inform configured {@link DeserializationProblemHandler}s
      * of an unrecognized property.
      */
-    public boolean handleUnknownProperty(JsonParser jp, JsonDeserializer<?> deser,
+    public boolean handleUnknownProperty(JsonParser p, JsonDeserializer<?> deser,
             Object instanceOrClass, String propName)
         throws IOException, JsonProcessingException
     {
@@ -653,7 +701,7 @@ public abstract class DeserializationContext
         if (h != null) {
             while (h != null) {
                 // Can bail out if it's handled
-                if (h.value().handleUnknownProperty(this, jp, deser, instanceOrClass, propName)) {
+                if (h.value().handleUnknownProperty(this, p, deser, instanceOrClass, propName)) {
                     return true;
                 }
                 h = h.next();
@@ -785,8 +833,8 @@ public abstract class DeserializationContext
      * Helper method for indicating that the current token was expected to be another
      * token.
      */
-    public JsonMappingException wrongTokenException(JsonParser jp, JsonToken expToken, String msg) {
-        return JsonMappingException.from(jp, "Unexpected token ("+jp.getCurrentToken()+"), expected "+expToken+": "+msg);
+    public JsonMappingException wrongTokenException(JsonParser p, JsonToken expToken, String msg) {
+        return JsonMappingException.from(p, "Unexpected token ("+p.getCurrentToken()+"), expected "+expToken+": "+msg);
     }
 
     /**

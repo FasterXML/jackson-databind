@@ -232,7 +232,7 @@ public class BeanDeserializer
         throws IOException, JsonProcessingException
     {
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
-        for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
+        for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             String propName = jp.getCurrentName();
             // Skip field name:
             jp.nextToken();
@@ -283,7 +283,8 @@ public class BeanDeserializer
                 return deserializeWithView(jp, ctxt, bean, view);
             }
         }
-        for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
+        JsonToken t = jp.getCurrentToken();
+        for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             String propName = jp.getCurrentName();
             // Skip field name:
             jp.nextToken();
@@ -645,7 +646,8 @@ public class BeanDeserializer
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
-        for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
+        JsonToken t = jp.getCurrentToken();
+        for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             String propName = jp.getCurrentName();
             jp.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);

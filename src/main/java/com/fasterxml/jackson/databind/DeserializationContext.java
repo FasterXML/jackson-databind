@@ -422,7 +422,7 @@ public abstract class DeserializationContext
      */
     public abstract ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> generator, ObjectIdResolver resolver);
 
-    @Deprecated
+    @Deprecated // since 2.4
     public abstract ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> generator);
 
     /**

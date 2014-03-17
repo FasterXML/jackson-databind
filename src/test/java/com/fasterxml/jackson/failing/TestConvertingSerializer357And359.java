@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
-public class TestConvertingSerializer
+public class TestConvertingSerializer357And359
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
     // [Issue#357]

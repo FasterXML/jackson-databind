@@ -64,9 +64,9 @@ public abstract class DefaultDeserializationContext
      */
 
     @Override
-    public ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> generator, ObjectIdResolver resolverType)
+    public ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> gen, ObjectIdResolver resolverType)
     {
-        final ObjectIdGenerator.IdKey key = generator.key(id);
+        final ObjectIdGenerator.IdKey key = gen.key(id);
         if (_objectIds == null) {
             _objectIds = new LinkedHashMap<ObjectIdGenerator.IdKey,ReadableObjectId>();
         } else {
@@ -100,15 +100,14 @@ public abstract class DefaultDeserializationContext
         return entry;
     }
     
+    @Deprecated // since 2.4
     @Override
-    public ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> generator)
-    {
-        return findObjectId(id, generator, new SimpleObjectIdResolver());
+    public ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> gen) {
+        return findObjectId(id, gen, new SimpleObjectIdResolver());
     }
 
     @Override
-    public void checkUnresolvedObjectId()
-        throws UnresolvedForwardReference
+    public void checkUnresolvedObjectId() throws UnresolvedForwardReference
     {
         if (_objectIds == null) {
             return;
@@ -140,8 +139,7 @@ public abstract class DefaultDeserializationContext
     
     @SuppressWarnings("unchecked")
     @Override
-    public JsonDeserializer<Object> deserializerInstance(Annotated annotated,
-            Object deserDef)
+    public JsonDeserializer<Object> deserializerInstance(Annotated ann, Object deserDef)
         throws JsonMappingException
     {
         if (deserDef == null) {
@@ -167,7 +165,7 @@ public abstract class DefaultDeserializationContext
                 throw new IllegalStateException("AnnotationIntrospector returned Class "+deserClass.getName()+"; expected Class<JsonDeserializer>");
             }
             HandlerInstantiator hi = _config.getHandlerInstantiator();
-            deser = (hi == null) ? null : hi.deserializerInstance(_config, annotated, deserClass);
+            deser = (hi == null) ? null : hi.deserializerInstance(_config, ann, deserClass);
             if (deser == null) {
                 deser = (JsonDeserializer<?>) ClassUtil.createInstance(deserClass,
                         _config.canOverrideAccessModifiers());
@@ -181,8 +179,7 @@ public abstract class DefaultDeserializationContext
     }
 
     @Override
-    public final KeyDeserializer keyDeserializerInstance(Annotated annotated,
-            Object deserDef)
+    public final KeyDeserializer keyDeserializerInstance(Annotated ann, Object deserDef)
         throws JsonMappingException
     {
         if (deserDef == null) {
@@ -209,7 +206,7 @@ public abstract class DefaultDeserializationContext
                         +"; expected Class<KeyDeserializer>");
             }
             HandlerInstantiator hi = _config.getHandlerInstantiator();
-            deser = (hi == null) ? null : hi.keyDeserializerInstance(_config, annotated, deserClass);
+            deser = (hi == null) ? null : hi.keyDeserializerInstance(_config, ann, deserClass);
             if (deser == null) {
                 deser = (KeyDeserializer) ClassUtil.createInstance(deserClass,
                         _config.canOverrideAccessModifiers());

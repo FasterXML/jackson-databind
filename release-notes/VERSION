@@ -3,6 +3,8 @@ Version: 2.4.0 (xx-xxx-2014)
 
 #88: Prevent use of type information for `JsonNode` via default typing
  (reported by electricmonk@github)
+#149: Allow use of "stringified" indexes for Enum values
+ (requested by chenboxiang@github)
 #335: Allow use of `@JsonProperytOrder(alphabetic=true)` for Map properties
 #353: Problems with polymorphic types, `JsonNode` (related to #88)
  (reported by cemo@github)

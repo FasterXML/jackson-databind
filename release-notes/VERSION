@@ -11,7 +11,7 @@ Version: 2.4.0 (xx-xxx-2014)
 #353: Problems with polymorphic types, `JsonNode` (related to #88)
  (reported by cemo@github)
 #359: Converted object not using explicitly annotated serializer
- (reported by fschopp@github)
+ (reported by Florian S [fschopp@github])
 #369: Incorrect comparison for renaming in `POJOPropertyBuilder`
 #375: Add `readValue()`/`readPropertyValue()` methods in `DeserializationContext`
 #381: Allow inlining/unwrapping of value from single-component JSON array

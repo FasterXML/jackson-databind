@@ -98,6 +98,8 @@ Seth Pellegrino (jivesoft):
 Florian Schoppmann (fschopp@github)
   * Reported #358: `IterableSerializer` ignoring	annotated content serializer
    (2.3.1)
+  * Reported #359: Converted object not using explicitly annotated serializer
+   (2.4.0)
 
 Martin Traverso:
   * Reported #406: Cannot use external type id + @JsonTypeIdResolver

@@ -410,7 +410,7 @@ public class MapSerializer
             } else {
                 serializeFields(value, jgen, provider);
             }
-        }        
+        }
         jgen.writeEndObject();
     }
 

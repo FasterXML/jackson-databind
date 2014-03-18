@@ -1,7 +1,11 @@
 package com.fasterxml.jackson.databind.convert;
 
+import java.io.IOException;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
@@ -90,6 +94,35 @@ public class TestConvertingSerializer
         }
     }
 
+    // [Issue#359]
+    static class Bean359 {
+        @JsonSerialize(as = List.class, contentAs = Source.class)
+        public List<Source> stuff = Arrays.asList(new Source());
+    }
+
+    @JsonSerialize(using = TargetSerializer.class)
+    static class Target {
+        public String unexpected = "Bye.";
+    }
+
+    @JsonSerialize(converter = SourceToTargetConverter.class)
+    static class Source { }
+
+    static class SourceToTargetConverter extends StdConverter<Source, Target> {
+        @Override
+        public Target convert(Source value) {
+            return new Target();
+        }
+    }
+
+    static class TargetSerializer extends JsonSerializer<Target>
+    {
+        @Override
+        public void serialize(Target a, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
+            jsonGenerator.writeString("Target");
+        }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -128,5 +161,11 @@ public class TestConvertingSerializer
     public void testPropertyAnnotationForMaps() throws Exception {
         String json = objectWriter().writeValueAsString(new PointListWrapperMap("a", 1, 2));
         assertEquals("{\"values\":{\"a\":[1,2]}}", json);
+    }
+
+    // [Issue#359]
+    public void testIssue359() throws Exception {
+        String json = objectWriter().writeValueAsString(new Bean359());
+        assertEquals("{\"stuff\":[\"Target\"]}", json);
     }
 }

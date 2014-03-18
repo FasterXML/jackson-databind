@@ -148,16 +148,21 @@ public class BeanSerializerFactory
         }
         // Slight detour: do we have a Converter to consider?
         Converter<Object,Object> conv = beanDesc.findSerializationConverter();
-        if (conv == null) { // no, simple:
+        if (conv == null) { // no, simple
             return (JsonSerializer<Object>) _createSerializer2(prov, type, beanDesc, staticTyping);
         }
         JavaType delegateType = conv.getOutputType(prov.getTypeFactory());
+        
         // One more twist, as per [Issue#288]; probably need to get new BeanDesc
         if (!delegateType.hasRawClass(type.getRawClass())) {
             beanDesc = config.introspect(delegateType);
+            // [#359]: explicitly check (again) for @JsonSerializer...
+            ser = findSerializerFromAnnotation(prov, beanDesc.getClassInfo());
         }
-        return new StdDelegatingSerializer(conv, delegateType,
-                _createSerializer2(prov, delegateType, beanDesc, true));
+        if (ser == null) {
+            ser = _createSerializer2(prov, delegateType, beanDesc, true);
+        }
+        return new StdDelegatingSerializer(conv, delegateType, ser);
     }
 
     protected JsonSerializer<?> _createSerializer2(SerializerProvider prov,

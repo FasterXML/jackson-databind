@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.*;
 
-public class TestNonStaticInnerClassInList extends BaseMapTest
+public class TestNonStaticInnerClassInList32 extends BaseMapTest
 {
     public static class Dog2
     {

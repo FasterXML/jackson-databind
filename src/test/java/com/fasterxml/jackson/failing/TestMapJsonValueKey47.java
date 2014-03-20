@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 // [Issue#47]
-public class TestMapJsonValueKey extends BaseMapTest
+public class TestMapJsonValueKey47 extends BaseMapTest
 {
     public static class Wat
     {

@@ -7,6 +7,7 @@ Version: 2.3.3 (xx-xxx-2014)
   JSON String
 #423: Fix `CalendarSerializer` to work with custom format
  (repored by sergeymetallic@github)
+- Fix null-handling for `CollectionSerializer`
 
 ------------------------------------------------------------------------
 === History: ===

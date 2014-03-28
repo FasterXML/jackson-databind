@@ -174,6 +174,11 @@ public class TestDateSerialization
         String json = mapper.writeValueAsString(new Date(0));
         // pacific time is GMT-8; so midnight becomes 16:00 previous day:
         assertEquals(quote("1969-12-31/16:00 PST"), json);
+
+        // Let's also verify that Locale won't matter too much...
+        mapper.setLocale(Locale.FRANCE);
+        json = mapper.writeValueAsString(new Date(0));
+        assertEquals(quote("1969-12-31/16:00 PST"), json);
     }
 }
 

@@ -81,6 +81,11 @@ public class TestNamingStrategyStd extends BaseMapTest
             this.$User = $User;
         }
     }
+
+    static class Bean428 {
+        @JsonProperty("fooBar")
+        public String whatever() {return "";}
+    }
     
     /*
     /**********************************************************
@@ -241,10 +246,9 @@ public class TestNamingStrategyStd extends BaseMapTest
      * PASCAL_CASE_TO_CAMEL_CASE was added in Jackson 2.1.0, 
      * as per [JACKSON-63].
      */
-    @Test
     public void testPascalCaseStandAlone()
     {
-    	String translatedJavaName = PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE.nameForField
+        String translatedJavaName = PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE.nameForField
     	        (null, null, "userName");
         assertEquals("UserName", translatedJavaName);
 
@@ -259,4 +263,19 @@ public class TestNamingStrategyStd extends BaseMapTest
                 (null, null, "x");
         assertEquals("X", translatedJavaName);
     }
+
+    /**
+     * [Issue#428]
+     */
+    public void testIssue428PascalWithOverrides() throws Exception {
+
+        String json = new ObjectMapper()
+                            .setPropertyNamingStrategy(PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE)
+                            .writeValueAsString(new Bean428());
+        
+        if (!json.contains(quote("fooBar"))) {
+            fail("Should use name 'fooBar', does not: "+json);
+        }
+    }
 }
+

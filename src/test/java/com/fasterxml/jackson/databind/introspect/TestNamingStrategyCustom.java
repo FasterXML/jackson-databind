@@ -3,11 +3,11 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.databind.annotation.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
@@ -149,11 +149,12 @@ public class TestNamingStrategyCustom extends BaseMapTest
     
     static class RenamedCollectionBean
     {
-        @JsonDeserialize
-        private List<String> THEvalues = Collections.emptyList();
+//        @JsonDeserialize
+        @JsonProperty
+        private List<String> theValues = Collections.emptyList();
         
         // intentionally odd name, to be renamed by naming strategy
-        public List<String> getTheVALUEs() { return THEvalues; }
+        public List<String> getTheValues() { return theValues; }
     }
 
     // [Issue#45]: Support @JsonNaming
@@ -230,15 +231,16 @@ public class TestNamingStrategyCustom extends BaseMapTest
     }
 
     // For [JACKSON-687]
-    public void testJson() throws Exception
+    public void testLowerCase() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setPropertyNamingStrategy(new LcStrategy());
 //        mapper.disable(DeserializationConfig.DeserializationFeature.USE_GETTERS_AS_SETTERS);
-        RenamedCollectionBean foo = mapper.readValue("{\"thevalues\":[\"a\"]}", RenamedCollectionBean.class);
-        assertNotNull(foo.getTheVALUEs());
-        assertEquals(1, foo.getTheVALUEs().size());
-        assertEquals("a", foo.getTheVALUEs().get(0));
+        RenamedCollectionBean result = mapper.readValue("{\"thevalues\":[\"a\"]}",
+                RenamedCollectionBean.class);
+        assertNotNull(result.getTheValues());
+        assertEquals(1, result.getTheValues().size());
+        assertEquals("a", result.getTheValues().get(0));
     }
 
     // @JsonNaming / [Issue#45]

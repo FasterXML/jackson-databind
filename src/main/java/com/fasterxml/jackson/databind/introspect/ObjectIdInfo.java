@@ -50,6 +50,9 @@ public class ObjectIdInfo
         _scope = scope;
         _generator = gen;
         _alwaysAsId = alwaysAsId;
+        if (resolver == null) {
+            resolver = SimpleObjectIdResolver.class;
+        }
         _resolver = resolver;
     }
 

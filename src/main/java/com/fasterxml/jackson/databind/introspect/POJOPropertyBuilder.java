@@ -160,13 +160,22 @@ public class POJOPropertyBuilder
 
     @Override
     public boolean isExplicitlyIncluded() {
+        return _anyExplicits(_fields)
+                || _anyExplicits(_getters)
+                || _anyExplicits(_setters)
+                || _anyExplicits(_ctorParameters)
+                ;
+    }
+
+    @Override
+    public boolean isExplicitlyNamed() {
         return _anyExplicitNames(_fields)
                 || _anyExplicitNames(_getters)
                 || _anyExplicitNames(_setters)
                 || _anyExplicitNames(_ctorParameters)
                 ;
     }
-
+    
     /*
     /**********************************************************
     /* BeanPropertyDefinition implementation, accessor access
@@ -447,20 +456,20 @@ public class POJOPropertyBuilder
     /**********************************************************
      */
     
-    public void addField(AnnotatedField a, String ename, boolean visible, boolean ignored) {
-        _fields = new Linked<AnnotatedField>(a, _fields, ename, visible, ignored);
+    public void addField(AnnotatedField a, String name, boolean explName, boolean visible, boolean ignored) {
+        _fields = new Linked<AnnotatedField>(a, _fields, name, explName, visible, ignored);
     }
 
-    public void addCtor(AnnotatedParameter a, String ename, boolean visible, boolean ignored) {
-        _ctorParameters = new Linked<AnnotatedParameter>(a, _ctorParameters, ename, visible, ignored);
+    public void addCtor(AnnotatedParameter a, String name, boolean explName, boolean visible, boolean ignored) {
+        _ctorParameters = new Linked<AnnotatedParameter>(a, _ctorParameters, name, explName, visible, ignored);
     }
 
-    public void addGetter(AnnotatedMethod a, String ename, boolean visible, boolean ignored) {
-        _getters = new Linked<AnnotatedMethod>(a, _getters, ename, visible, ignored);
+    public void addGetter(AnnotatedMethod a, String name, boolean explName, boolean visible, boolean ignored) {
+        _getters = new Linked<AnnotatedMethod>(a, _getters, name, explName, visible, ignored);
     }
 
-    public void addSetter(AnnotatedMethod a, String ename, boolean visible, boolean ignored) {
-        _setters = new Linked<AnnotatedMethod>(a, _setters, ename, visible, ignored);
+    public void addSetter(AnnotatedMethod a, String name, boolean explName, boolean visible, boolean ignored) {
+        _setters = new Linked<AnnotatedMethod>(a, _setters, name, explName, visible, ignored);
     }
 
     /**
@@ -613,10 +622,20 @@ public class POJOPropertyBuilder
     /**********************************************************
      */
 
+    private <T> boolean _anyExplicits(Linked<T> n)
+    {
+        for (; n != null; n = n.next) {
+            if (n.name != null && n.name.length() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private <T> boolean _anyExplicitNames(Linked<T> n)
     {
         for (; n != null; n = n.next) {
-            if (n.explicitName != null && n.explicitName.length() > 0) {
+            if (n.name != null && n.isNameExplicit) {
                 return true;
             }
         }
@@ -671,15 +690,15 @@ public class POJOPropertyBuilder
         renamed = findRenamed(_getters, renamed);
         renamed = findRenamed(_setters, renamed);
         renamed = findRenamed(_ctorParameters, renamed);
-        return (renamed == null) ? null : renamed.explicitName;
+        return (renamed == null) ? null : renamed.name;
     }
 
     private Linked<? extends AnnotatedMember> findRenamed(Linked<? extends AnnotatedMember> node,
             Linked<? extends AnnotatedMember> renamed)
     {
         for (; node != null; node = node.next) {
-            String explName = node.explicitName;
-            if (explName == null) {
+            String name = node.name;
+            if (name == null) {
                 continue;
             }
             // different from default name?
@@ -688,17 +707,17 @@ public class POJOPropertyBuilder
              *   fix but for now, let's not worry about that.
              * 
              */
-            if (explName.equals(_name.getSimpleName())) { // nope, skip
+            if (name.equals(_name.getSimpleName())) { // nope, skip
                 continue;
             }
             if (renamed == null) {
                 renamed = node;
             } else {
                 // different from an earlier renaming? problem
-                if (!explName.equals(renamed.explicitName)) {
+                if (!name.equals(renamed.name)) {
                     throw new IllegalStateException("Conflicting property name definitions: '"
-                            +renamed.explicitName+"' (for "+renamed.value+") vs '"
-                            +node.explicitName+"' (for "+node.value+")");
+                            +renamed.name+"' (for "+renamed.value+") vs '"
+                            +node.name+"' (for "+node.value+")");
                 }
             }
         }
@@ -773,38 +792,35 @@ public class POJOPropertyBuilder
         public final T value;
         public final Linked<T> next;
 
-        public final String explicitName;
+        public final String name;
+        public final boolean isNameExplicit;
         public final boolean isVisible;
         public final boolean isMarkedIgnored;
         
         public Linked(T v, Linked<T> n,
-                String explName, boolean visible, boolean ignored)
+                String name, boolean explName, boolean visible, boolean ignored)
         {
             value = v;
             next = n;
             // ensure that we'll never have missing names
-            if (explName == null) {
-                explicitName = null;
-            } else {
-                explicitName = (explName.length() == 0) ? null : explName;
-            }
+            this.name = (name == null || name.length() == 0) ? null : name;
+            isNameExplicit = explName;
             isVisible = visible;
             isMarkedIgnored = ignored;
         }
 
-        public Linked<T> withValue(T newValue)
-        {
+        public Linked<T> withValue(T newValue) {
             if (newValue == value) {
                 return this;
             }
-            return new Linked<T>(newValue, next, explicitName, isVisible, isMarkedIgnored);
+            return new Linked<T>(newValue, next, name, isNameExplicit, isVisible, isMarkedIgnored);
         }
         
         public Linked<T> withNext(Linked<T> newNext) {
             if (newNext == next) {
                 return this;
             }
-            return new Linked<T>(value, newNext, explicitName, isVisible, isMarkedIgnored);
+            return new Linked<T>(value, newNext, name, isNameExplicit, isVisible, isMarkedIgnored);
         }
         
         public Linked<T> withoutIgnored()
@@ -845,14 +861,14 @@ public class POJOPropertyBuilder
                 return this;
             }
             Linked<T> newNext = next.trimByVisibility();
-            if (explicitName != null) { // this already has highest; how about next one?
-                if (newNext.explicitName == null) { // next one not, drop it
+            if (name != null) { // this already has highest; how about next one?
+                if (newNext.name == null) { // next one not, drop it
                     return withNext(null);
                 }
                 //  both have it, keep
                 return withNext(newNext);
             }
-            if (newNext.explicitName != null) { // next one has higher, return it...
+            if (newNext.name != null) { // next one has higher, return it...
                 return newNext;
             }
             // neither has explicit name; how about visibility?

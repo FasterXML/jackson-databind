@@ -413,8 +413,7 @@ public class POJOPropertiesCollector
             if (pruneFinalFields && (explName == null) && !ignored && Modifier.isFinal(f.getModifiers())) {
                 continue;
             }
-            
-            _property(implName).addField(f, explName, visible, ignored);
+            _property(implName).addField(f, explName, true, visible, ignored);
         }
     }
 
@@ -440,7 +439,8 @@ public class POJOPropertiesCollector
                 if (name != null) {
                     // shouldn't need to worry about @JsonIgnore (no real point, so)
                     POJOPropertyBuilder prop = _property(name);
-                    prop.addCtor(param, name, true, false);
+                    // 28-Mar-2014, tatu: for now, all names considered explicit
+                    prop.addCtor(param, name, true, true, false);
                     _creatorProperties.add(prop);
                 }
             }
@@ -457,7 +457,8 @@ public class POJOPropertiesCollector
                 if (name != null) {
                     // shouldn't need to worry about @JsonIgnore (no real point, so)
                     POJOPropertyBuilder prop = _property(name);
-                    prop.addCtor(param, name, true, false);
+                    // 28-Mar-2014, tatu: for now, all names considered explicit
+                    prop.addCtor(param, name, true, true, false);
                     _creatorProperties.add(prop);
                 }
             }
@@ -542,7 +543,7 @@ public class POJOPropertiesCollector
             visible = true;
         }
         boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
-        _property(implName).addGetter(m, explName, visible, ignore);
+        _property(implName).addGetter(m, explName, true, visible, ignore);
     }
 
     protected void _addSetterMethod(AnnotatedMethod m, AnnotationIntrospector ai)
@@ -570,7 +571,7 @@ public class POJOPropertiesCollector
             visible = true;
         }
         boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
-        _property(implName).addSetter(m, explName, visible, ignore);
+        _property(implName).addSetter(m, explName, true, visible, ignore);
     }
     
     protected void _addInjectables()

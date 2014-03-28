@@ -395,8 +395,11 @@ public class POJOPropertiesCollector
                 PropertyName pn = ai.findNameForDeserialization(f);
                 explName = (pn == null) ? null : pn.getSimpleName();
             }
+            boolean nameExplicit = (explName != null);
+            
             if ("".equals(explName)) { // empty String meaning "use default name", here just means "same as field name"
                 explName = implName;
+                nameExplicit= false;
             }
             // having explicit name means that field is visible; otherwise need to check the rules
             boolean visible = (explName != null);
@@ -413,7 +416,7 @@ public class POJOPropertiesCollector
             if (pruneFinalFields && (explName == null) && !ignored && Modifier.isFinal(f.getModifiers())) {
                 continue;
             }
-            _property(implName).addField(f, explName, true, visible, ignored);
+            _property(implName).addField(f, explName, nameExplicit, visible, ignored);
         }
     }
 
@@ -519,7 +522,10 @@ public class POJOPropertiesCollector
 
         PropertyName pn = (ai == null) ? null : ai.findNameForSerialization(m);
         String explName = (pn == null) ? null : pn.getSimpleName();
-        if (explName == null) { // no explicit name; must follow naming convention
+        
+        boolean nameExplicit = (explName != null);
+
+        if (!nameExplicit) { // no explicit name; must follow naming convention
             implName = BeanUtil.okNameForRegularGetter(m, m.getName());
             if (implName == null) { // if not, must skip
                 implName = BeanUtil.okNameForIsGetter(m, m.getName());
@@ -538,12 +544,13 @@ public class POJOPropertiesCollector
                 implName = m.getName();
             }
             if (explName.length() == 0) {
+                nameExplicit = false;
                 explName = implName;
             }
             visible = true;
         }
         boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
-        _property(implName).addGetter(m, explName, true, visible, ignore);
+        _property(implName).addGetter(m, explName, nameExplicit, visible, ignore);
     }
 
     protected void _addSetterMethod(AnnotatedMethod m, AnnotationIntrospector ai)
@@ -552,7 +559,8 @@ public class POJOPropertiesCollector
         boolean visible;
         PropertyName pn = (ai == null) ? null : ai.findNameForDeserialization(m);
         String explName = (pn == null) ? null : pn.getSimpleName();
-        if (explName == null) { // no explicit name; must follow naming convention
+        boolean nameExplicit = (explName != null);
+        if (!nameExplicit) { // no explicit name; must follow naming convention
             implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
             if (implName == null) { // if not, must skip
             	return;
@@ -567,11 +575,12 @@ public class POJOPropertiesCollector
             }
             if (explName.length() == 0) { 
                 explName = implName;
+                nameExplicit = false;
             }
             visible = true;
         }
         boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
-        _property(implName).addSetter(m, explName, true, visible, ignore);
+        _property(implName).addSetter(m, explName, nameExplicit, visible, ignore);
     }
     
     protected void _addInjectables()
@@ -714,24 +723,28 @@ public class POJOPropertiesCollector
         for (POJOPropertyBuilder prop : props) {
             PropertyName fullName = prop.getFullName();
             String rename = null;
-            if (_forSerialization) {
-                if (prop.hasGetter()) {
-                    rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
-                } else if (prop.hasField()) {
-                    rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName());
-                }
-            } else {
-                if (prop.hasSetter()) {
-                    rename = naming.nameForSetterMethod(_config, prop.getSetter(), fullName.getSimpleName());
-                } else if (prop.hasConstructorParameter()) {
-                    rename = naming.nameForConstructorParameter(_config, prop.getConstructorParameter(), fullName.getSimpleName());
-                } else if (prop.hasField()) {
-                    rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName());
-                } else if (prop.hasGetter()) {
-                    /* Plus, when getter-as-setter is used, need to convert that too..
-                     * (should we verify that's enabled? For now, assume it's ok always)
-                     */
-                    rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
+            // As per [#428](https://github.com/FasterXML/jackson-databind/issues/428) need
+            // to skip renaming if property has explicitly defined name
+            if (!prop.isExplicitlyNamed()) {
+                if (_forSerialization) {
+                    if (prop.hasGetter()) {
+                        rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
+                    } else if (prop.hasField()) {
+                        rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName());
+                    }
+                } else {
+                    if (prop.hasSetter()) {
+                        rename = naming.nameForSetterMethod(_config, prop.getSetter(), fullName.getSimpleName());
+                    } else if (prop.hasConstructorParameter()) {
+                        rename = naming.nameForConstructorParameter(_config, prop.getConstructorParameter(), fullName.getSimpleName());
+                    } else if (prop.hasField()) {
+                        rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName());
+                    } else if (prop.hasGetter()) {
+                        /* Plus, when getter-as-setter is used, need to convert that too..
+                         * (should we verify that's enabled? For now, assume it's ok always)
+                         */
+                        rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
+                    }
                 }
             }
             final String simpleName;

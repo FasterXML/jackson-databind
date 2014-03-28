@@ -513,14 +513,6 @@ public class POJOPropertyBuilder
         _ctorParameters = _removeIgnored(_ctorParameters);
     }
 
-    /**
-     * @deprecated Since 2.2, use variant that takes boolean argument
-     */
-    @Deprecated
-    public void removeNonVisible() {
-        removeNonVisible(false);
-    }
-    
     public void removeNonVisible(boolean force)
     {
         /* 21-Aug-2011, tatu: This is tricky part -- if and when allow

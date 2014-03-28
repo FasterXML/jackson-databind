@@ -22,6 +22,8 @@ Version: 2.4.0 (xx-xxx-2014)
 #407: Properly use null handlers for value types when serializer Collection
  and array types
  (contributed by Will P)
+#428: `PropertyNamingStrategy` will rename even explicit name from `@JsonProperty`)
+ (reported by turskip@github)
 
 ------------------------------------------------------------------------
 === History: ===

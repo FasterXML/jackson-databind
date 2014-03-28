@@ -109,12 +109,9 @@ public class DateDeserializers
                 if (format != null) {
                     TimeZone tz = format.getTimeZone();
                     // First: fully custom pattern?
-                    String pattern = format.getPattern();
-                    if (pattern.length() > 0){
-                        Locale loc = format.getLocale();
-                        if (loc == null) {
-                            loc = ctxt.getLocale();
-                        }
+                    if (format.hasPattern()) {
+                        final String pattern = format.getPattern();
+                        final Locale loc = format.hasLocale() ? format.getLocale() : ctxt.getLocale();
                         SimpleDateFormat df = new SimpleDateFormat(pattern, loc);
                         if (tz == null) {
                             tz = ctxt.getTimeZone();
@@ -127,13 +124,17 @@ public class DateDeserializers
                         DateFormat df = ctxt.getConfig().getDateFormat();
                         // one shortcut: with our custom format, can simplify handling a bit
                         if (df.getClass() == StdDateFormat.class) {
-                            df = ((StdDateFormat) df).withTimeZone(tz);
+                            final Locale loc = format.hasLocale() ? format.getLocale() : ctxt.getLocale();
+                            StdDateFormat std = (StdDateFormat) df;
+                            std = std.withTimeZone(tz);
+                            std = std.withLocale(loc);
+                            df = std;
                         } else {
                             // otherwise need to clone, re-set timezone:
                             df = (DateFormat) df.clone();
                             df.setTimeZone(tz);
                         }
-                        return withDateFormat(df, pattern);
+                        return withDateFormat(df, _formatString);
                     }
                 }
             }

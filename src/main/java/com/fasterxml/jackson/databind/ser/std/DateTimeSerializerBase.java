@@ -57,12 +57,9 @@ public abstract class DateTimeSerializerBase<T>
                 }
                 // If not, do we have a pattern?
                 TimeZone tz = format.getTimeZone();
-                String pattern = format.getPattern();
-                if (pattern.length() > 0){
-                    Locale loc = format.getLocale();
-                    if (loc == null) {
-                        loc = prov.getLocale();
-                    }
+                if (format.hasPattern()) {
+                    String pattern = format.getPattern();
+                    final Locale loc = format.hasLocale() ? format.getLocale() : prov.getLocale();
                     SimpleDateFormat df = new SimpleDateFormat(pattern, loc);
                     if (tz == null) {
                         tz = prov.getTimeZone();
@@ -75,7 +72,8 @@ public abstract class DateTimeSerializerBase<T>
                     DateFormat df = prov.getConfig().getDateFormat();
                     // one shortcut: with our custom format, can simplify handling a bit
                     if (df.getClass() == StdDateFormat.class) {
-                        df = StdDateFormat.getISO8601Format(tz);
+                        final Locale loc = format.hasLocale() ? format.getLocale() : prov.getLocale();
+                        df = StdDateFormat.getISO8601Format(tz, loc);
                     } else {
                         // otherwise need to clone, re-set timezone:
                         df = (DateFormat) df.clone();

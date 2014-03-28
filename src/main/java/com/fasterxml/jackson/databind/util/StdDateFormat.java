@@ -23,7 +23,6 @@ public class StdDateFormat
      * JDK date parsing is awfully brittle, and ISO-8601 is quite
      * permissive. The two don't mix, need to write a better one.
      */
-    // Note: [JACKSON-697] is the issue for rewrite
 
     /**
      * Defines a commonly used date format that conforms
@@ -66,6 +65,8 @@ public class StdDateFormat
     static {
         DEFAULT_TIMEZONE = TimeZone.getTimeZone("GMT");
     }
+
+    private final static Locale DEFAULT_LOCALE = Locale.US;
     
     protected final static DateFormat DATE_FORMAT_RFC1123;
 
@@ -82,18 +83,19 @@ public class StdDateFormat
         /* Another important thing: let's force use of GMT for
          * baseline DataFormat objects
          */
-        DATE_FORMAT_RFC1123 = new SimpleDateFormat(DATE_FORMAT_STR_RFC1123, Locale.US);
+
+        DATE_FORMAT_RFC1123 = new SimpleDateFormat(DATE_FORMAT_STR_RFC1123, DEFAULT_LOCALE);
         DATE_FORMAT_RFC1123.setTimeZone(DEFAULT_TIMEZONE);
-        DATE_FORMAT_ISO8601 = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601);
+        DATE_FORMAT_ISO8601 = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601, DEFAULT_LOCALE);
         DATE_FORMAT_ISO8601.setTimeZone(DEFAULT_TIMEZONE);
-        DATE_FORMAT_ISO8601_Z = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601_Z);
+        DATE_FORMAT_ISO8601_Z = new SimpleDateFormat(DATE_FORMAT_STR_ISO8601_Z, DEFAULT_LOCALE);
         DATE_FORMAT_ISO8601_Z.setTimeZone(DEFAULT_TIMEZONE);
-        DATE_FORMAT_PLAIN = new SimpleDateFormat(DATE_FORMAT_STR_PLAIN);
+        DATE_FORMAT_PLAIN = new SimpleDateFormat(DATE_FORMAT_STR_PLAIN, DEFAULT_LOCALE);
         DATE_FORMAT_PLAIN.setTimeZone(DEFAULT_TIMEZONE);
     }
     
     /**
-     * A singleton instance can be used for cloning purposes.
+     * A singleton instance can be used for cloning purposes, as a blueprint of sorts.
      */
     public final static StdDateFormat instance = new StdDateFormat();
     
@@ -102,6 +104,8 @@ public class StdDateFormat
      * we will have non-null value here.
      */
     protected transient TimeZone _timezone;
+
+    protected final Locale _locale;
     
     protected transient DateFormat _formatRFC1123;
     protected transient DateFormat _formatISO8601;
@@ -114,9 +118,21 @@ public class StdDateFormat
     /**********************************************************
      */
 
-    public StdDateFormat() { }
+    public StdDateFormat() {
+        _locale = DEFAULT_LOCALE;
+    }
+
+    /**
+     * @deprecated Since 2.4, use variant that also takes Locale
+     */
+    @Deprecated // since 2.4
     public StdDateFormat(TimeZone tz) {
+        this(tz, DEFAULT_LOCALE);
+    }
+    
+    public StdDateFormat(TimeZone tz, Locale loc) {
         _timezone = tz;
+        _locale = loc;
     }
 
     public static TimeZone getDefaultTimeZone() {
@@ -131,7 +147,17 @@ public class StdDateFormat
         if (tz == null) {
             tz = DEFAULT_TIMEZONE;
         }
-        return new StdDateFormat(tz);
+        if (tz.equals(_timezone)) {
+            return this;
+        }
+        return new StdDateFormat(tz, _locale);
+    }
+
+    public StdDateFormat withLocale(Locale loc) {
+        if (loc.equals(_locale)) {
+            return this;
+        }
+        return new StdDateFormat(_timezone, loc);
     }
     
     @Override
@@ -139,46 +165,71 @@ public class StdDateFormat
         /* Although there is that much state to share, we do need to
          * orchestrate a bit, mostly since timezones may be changed
          */
-        return new StdDateFormat();
+        return new StdDateFormat(_timezone, _locale);
     }
 
     /**
      * Method for getting the globally shared DateFormat instance
      * that uses GMT timezone and can handle simple ISO-8601
      * compliant date format.
+     * 
+     * @deprecated Since 2.4 not to be used.
      */
+    @Deprecated
     public static DateFormat getBlueprintISO8601Format() {
         return DATE_FORMAT_ISO8601;
+    }
+
+    /**
+     * @deprecated Since 2.4; use variant that takes Locale
+     */
+    @Deprecated
+    public static DateFormat getISO8601Format(TimeZone tz) {
+        return getISO8601Format(tz, DEFAULT_LOCALE);
     }
 
     /**
      * Method for getting a non-shared DateFormat instance
      * that uses specified timezone and can handle simple ISO-8601
      * compliant date format.
+     * 
+     * @since 2.4
      */
-    public static DateFormat getISO8601Format(TimeZone tz) {
-        return _cloneFormat(DATE_FORMAT_ISO8601, tz);
+    public static DateFormat getISO8601Format(TimeZone tz, Locale loc) {
+        return _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601, tz, loc);
     }
-
+    
     /**
      * Method for getting the globally shared DateFormat instance
      * that uses GMT timezone and can handle RFC-1123
      * compliant date format.
+     * 
+     * @deprecated Since 2.4 not to be used.
      */
+    @Deprecated
     public static DateFormat getBlueprintRFC1123Format() {
         return DATE_FORMAT_RFC1123;
     }
-
 
     /**
      * Method for getting a non-shared DateFormat instance
      * that uses specific timezone and can handle RFC-1123
      * compliant date format.
+     * 
+     * @since 2.4
      */
-    public static DateFormat getRFC1123Format(TimeZone tz) {
-        return _cloneFormat(DATE_FORMAT_RFC1123, tz);
+    public static DateFormat getRFC1123Format(TimeZone tz, Locale loc) {
+        return _cloneFormat(DATE_FORMAT_RFC1123, DATE_FORMAT_STR_RFC1123, tz, loc);
     }
 
+    /**
+     * @deprecated Since 2.4; use variant that takes Locale
+     */
+    @Deprecated
+    public static DateFormat getRFC1123Format(TimeZone tz) {
+        return getRFC1123Format(tz, DEFAULT_LOCALE);
+    }
+    
     /*
     /**********************************************************
     /* Public API
@@ -191,7 +242,7 @@ public class StdDateFormat
         /* DateFormats are timezone-specific (via Calendar contained),
          * so need to reset instances if timezone changes:
          */
-        if (tz != _timezone) {
+        if (!tz.equals(_timezone)) {
             _formatRFC1123 = null;
             _formatISO8601 = null;
             _formatISO8601_z = null;
@@ -259,7 +310,7 @@ public class StdDateFormat
             FieldPosition fieldPosition)
     {
         if (_formatISO8601 == null) {
-            _formatISO8601 = _cloneFormat(DATE_FORMAT_ISO8601);
+            _formatISO8601 = _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601, _timezone, _locale);
         }
         return _formatISO8601.format(date, toAppendTo, fieldPosition);
     }
@@ -277,6 +328,7 @@ public class StdDateFormat
         if (tz != null) {
             str += " (timezone: "+tz+")";
         }
+        str += "(locale: "+_locale+")";
         return str;
     }
     
@@ -318,14 +370,14 @@ public class StdDateFormat
 
         // [JACKSON-200]: need to support "plain" date...
         if (len <= 10 && Character.isDigit(c)) {
-           df = _formatPlain;
+            df = _formatPlain;
             if (df == null) {
-                df = _formatPlain = _cloneFormat(DATE_FORMAT_PLAIN);
+                df = _formatPlain = _cloneFormat(DATE_FORMAT_PLAIN, DATE_FORMAT_STR_PLAIN, _timezone, _locale);
             }
         } else if (c == 'Z') {
             df = _formatISO8601_z;
             if (df == null) {
-                df = _formatISO8601_z = _cloneFormat(DATE_FORMAT_ISO8601_Z);
+                df = _formatISO8601_z = _cloneFormat(DATE_FORMAT_ISO8601_Z, DATE_FORMAT_STR_ISO8601_Z, _timezone, _locale);
             }
             // [JACKSON-334]: may be missing milliseconds... if so, add
             if (dateStr.charAt(len-4) == ':') {
@@ -358,11 +410,11 @@ public class StdDateFormat
                 
                 df = _formatISO8601;
                 if (_formatISO8601 == null) {
-                    df = _formatISO8601 = _cloneFormat(DATE_FORMAT_ISO8601);
+                    df = _formatISO8601 = _cloneFormat(DATE_FORMAT_ISO8601, DATE_FORMAT_STR_ISO8601, _timezone, _locale);
                 }
             } else {
                 /* 24-Nov-2009, tatu: Ugh. This is getting pretty
-                 *   ugly. Need to rewrite soon!
+                 *   ugly. Need to rewrite!
                  */
 
                 // If not, plain date. Easiest to just patch 'Z' in the end?
@@ -376,7 +428,8 @@ public class StdDateFormat
                 dateStr = sb.toString();
                 df = _formatISO8601_z;
                 if (df == null) {
-                    df = _formatISO8601_z = _cloneFormat(DATE_FORMAT_ISO8601_Z);
+                    df = _formatISO8601_z = _cloneFormat(DATE_FORMAT_ISO8601_Z, DATE_FORMAT_STR_ISO8601_Z,
+                            _timezone, _locale);
                 }
             }
         }
@@ -386,7 +439,7 @@ public class StdDateFormat
     protected Date parseAsRFC1123(String dateStr, ParsePosition pos)
     {
         if (_formatRFC1123 == null) {
-            _formatRFC1123 = _cloneFormat(DATE_FORMAT_RFC1123);
+            _formatRFC1123 = _cloneFormat(DATE_FORMAT_RFC1123, DATE_FORMAT_STR_RFC1123, _timezone, _locale);
         }
         return _formatRFC1123.parse(dateStr, pos);
     }
@@ -406,15 +459,17 @@ public class StdDateFormat
         return false;
     }
 
-    private final DateFormat _cloneFormat(DateFormat df) {
-        return _cloneFormat(df, _timezone);
-    }
-
-    private final static DateFormat _cloneFormat(DateFormat df, TimeZone tz)
+    private final static DateFormat _cloneFormat(DateFormat df, String format,
+            TimeZone tz, Locale loc)
     {
-        df = (DateFormat) df.clone();
-        if (tz != null) {
-            df.setTimeZone(tz);
+        if (!loc.equals(DEFAULT_LOCALE)) {
+            df = new SimpleDateFormat(format, loc);
+            df.setTimeZone((tz == null) ? DEFAULT_TIMEZONE : tz);
+        } else {
+            df = (DateFormat) df.clone();
+            if (tz != null) {
+                df.setTimeZone(tz);
+            }
         }
         return df;
     }

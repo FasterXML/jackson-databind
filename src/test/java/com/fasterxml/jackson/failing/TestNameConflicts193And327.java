@@ -26,20 +26,6 @@ public class TestNameConflicts193And327 extends BaseMapTest
         }
     }
 
-    // [Issue#323]
-    static class Bean323 { 
-        private int a;
-
-        public Bean323 (@JsonProperty("a") final int a ) {
-            this.a = a;
-        }
-
-        @JsonProperty("b")
-        private int getA () {
-            return a;
-        }
-    }    
-
     /* We should only report an exception for cases where there is
      * real ambiguity as to how to rename things; but not when everything
      * has been explicitly defined
@@ -68,13 +54,6 @@ public class TestNameConflicts193And327 extends BaseMapTest
     {
         String json = objectWriter().writeValueAsString(new Bean193(1, 2));
         assertNotNull(json);
-    }
-
-    // [Issue#323]
-    public void testCreatorPropRename() throws Exception
-    {
-        Bean323 input = new Bean323(7);
-        assertEquals("{\"b\":7}", objectWriter().writeValueAsString(input));
     }
 
     // [Issue#327]

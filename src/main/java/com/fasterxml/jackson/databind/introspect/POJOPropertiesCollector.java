@@ -553,14 +553,13 @@ public class POJOPropertiesCollector
         boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
         _property(implName).addGetter(m, explName, nameExplicit, visible, ignore);
     }
-
+    
     protected void _addSetterMethod(AnnotatedMethod m, AnnotationIntrospector ai)
     {
         String implName; // from naming convention
         boolean visible;
         PropertyName pn = (ai == null) ? null : ai.findNameForDeserialization(m);
-        String explName = (pn == null) ? null : pn.getSimpleName();
-        boolean nameExplicit = (explName != null);
+        boolean nameExplicit = (pn != null);
         if (!nameExplicit) { // no explicit name; must follow naming convention
             implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
             if (implName == null) { // if not, must skip
@@ -574,14 +573,15 @@ public class POJOPropertiesCollector
             if (implName == null) {
                 implName = m.getName();
             }
-            if (explName.length() == 0) { 
-                explName = implName;
+            if (pn.isEmpty()) {
+                // !!! TODO: use PropertyName for implicit names too
+                pn = _propNameFromSimple(implName);
                 nameExplicit = false;
             }
             visible = true;
         }
         boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
-        _property(implName).addSetter(m, explName, nameExplicit, visible, ignore);
+        _property(implName).addSetter(m, pn, nameExplicit, visible, ignore);
     }
     
     protected void _addInjectables()
@@ -621,6 +621,10 @@ public class POJOPropertiesCollector
             throw new IllegalArgumentException("Duplicate injectable value with id '"
                     +String.valueOf(id)+"' (of type "+type+")");
         }
+    }
+
+    private PropertyName _propNameFromSimple(String simpleName) {
+        return PropertyName.construct(simpleName, null);
     }
     
     /*

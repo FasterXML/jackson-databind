@@ -522,9 +522,7 @@ public class POJOPropertiesCollector
         boolean visible;
 
         PropertyName pn = (ai == null) ? null : ai.findNameForSerialization(m);
-        String explName = (pn == null) ? null : pn.getSimpleName();
-        
-        boolean nameExplicit = (explName != null);
+        boolean nameExplicit = (pn != null);
 
         if (!nameExplicit) { // no explicit name; must follow naming convention
             implName = BeanUtil.okNameForRegularGetter(m, m.getName());
@@ -544,14 +542,15 @@ public class POJOPropertiesCollector
             if (implName == null) {
                 implName = m.getName();
             }
-            if (explName.length() == 0) {
+            if (pn.isEmpty()) {
+                // !!! TODO: use PropertyName for implicit names too
+                pn = _propNameFromSimple(implName);
                 nameExplicit = false;
-                explName = implName;
             }
             visible = true;
         }
         boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
-        _property(implName).addGetter(m, explName, nameExplicit, visible, ignore);
+        _property(implName).addGetter(m, pn, nameExplicit, visible, ignore);
     }
     
     protected void _addSetterMethod(AnnotatedMethod m, AnnotationIntrospector ai)

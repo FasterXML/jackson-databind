@@ -379,30 +379,28 @@ public class POJOPropertiesCollector
         
         for (AnnotatedField f : _classDef.fields()) {
             String implName = f.getName();
+            PropertyName pn;
 
-            String explName;
             if (ai == null) {
-                explName = null;
+                pn = null;
             } else if (_forSerialization) {
                 /* 18-Aug-2011, tatu: As per existing unit tests, we should only
                  *   use serialization annotation (@JsonSerializer) when serializing
                  *   fields, and similarly for deserialize-only annotations... so
                  *   no fallbacks in this particular case.
                  */
-                PropertyName pn = ai.findNameForSerialization(f);
-                explName = (pn == null) ? null : pn.getSimpleName();
+                pn = ai.findNameForSerialization(f);
             } else {
-                PropertyName pn = ai.findNameForDeserialization(f);
-                explName = (pn == null) ? null : pn.getSimpleName();
+                pn = ai.findNameForDeserialization(f);
             }
-            boolean nameExplicit = (explName != null);
-            
-            if ("".equals(explName)) { // empty String meaning "use default name", here just means "same as field name"
-                explName = implName;
-                nameExplicit= false;
+            boolean nameExplicit = (pn != null);
+
+            if (nameExplicit && pn.isEmpty()) { // empty String meaning "use default name", here just means "same as field name"
+                pn = _propNameFromSimple(implName);
+                nameExplicit = false;
             }
             // having explicit name means that field is visible; otherwise need to check the rules
-            boolean visible = (explName != null);
+            boolean visible = (pn != null);
             if (!visible) {
                 visible = _visibilityChecker.isFieldVisible(f);
             }
@@ -413,10 +411,10 @@ public class POJOPropertiesCollector
              *  Also: if 'ignored' is set, need to included until a later point, to
              *  avoid losing ignoral information.
              */
-            if (pruneFinalFields && (explName == null) && !ignored && Modifier.isFinal(f.getModifiers())) {
+            if (pruneFinalFields && (pn == null) && !ignored && Modifier.isFinal(f.getModifiers())) {
                 continue;
             }
-            _property(implName).addField(f, explName, nameExplicit, visible, ignored);
+            _property(implName).addField(f, pn, nameExplicit, visible, ignored);
         }
     }
 

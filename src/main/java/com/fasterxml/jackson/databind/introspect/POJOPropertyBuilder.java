@@ -773,7 +773,13 @@ public class POJOPropertyBuilder
             Linked<? extends AnnotatedMember> renamed)
     {
         for (; node != null; node = node.next) {
-            if (!node.isNameExplicit) {
+            /* 30-Mar-2014, tatu: Second change should not be needed, but seems like
+             *   removing it can cause nasty exceptions with certain version
+             *   combinations (2.4 databind, an older module).
+             *   So leaving it in for now until this is resolved
+             *   (or version beyond 2.4)
+             */
+            if (!node.isNameExplicit || node.name == null) {
                 continue;
             }
             PropertyName name = node.name;

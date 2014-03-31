@@ -148,6 +148,18 @@ public class PropertyName
     public boolean hasNamespace() {
         return _namespace != null;
     }
+
+    /**
+     * Method that is basically equivalent of:
+     *<pre>
+     *   !hasSimpleName() && !hasNamespace();
+     *</pre>
+     * 
+     * @since 2.4
+     */
+    public boolean isEmpty() {
+        return (_namespace == null) && (_simpleName.isEmpty());
+    }
     
     /*
     /**********************************************************

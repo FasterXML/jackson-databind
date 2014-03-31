@@ -458,19 +458,19 @@ public class POJOPropertyBuilder
     /**********************************************************
      */
     
-    public void addField(AnnotatedField a, String name, boolean explName, boolean visible, boolean ignored) {
+    public void addField(AnnotatedField a, PropertyName name, boolean explName, boolean visible, boolean ignored) {
         _fields = new Linked<AnnotatedField>(a, _fields, name, explName, visible, ignored);
     }
 
-    public void addCtor(AnnotatedParameter a, String name, boolean explName, boolean visible, boolean ignored) {
+    public void addCtor(AnnotatedParameter a, PropertyName name, boolean explName, boolean visible, boolean ignored) {
         _ctorParameters = new Linked<AnnotatedParameter>(a, _ctorParameters, name, explName, visible, ignored);
     }
 
-    public void addGetter(AnnotatedMethod a, String name, boolean explName, boolean visible, boolean ignored) {
+    public void addGetter(AnnotatedMethod a, PropertyName name, boolean explName, boolean visible, boolean ignored) {
         _getters = new Linked<AnnotatedMethod>(a, _getters, name, explName, visible, ignored);
     }
 
-    public void addSetter(AnnotatedMethod a, String name, boolean explName, boolean visible, boolean ignored) {
+    public void addSetter(AnnotatedMethod a, PropertyName name, boolean explName, boolean visible, boolean ignored) {
         _setters = new Linked<AnnotatedMethod>(a, _setters, name, explName, visible, ignored);
     }
 
@@ -508,9 +508,14 @@ public class POJOPropertyBuilder
      */
     @Deprecated
     public void addField(AnnotatedField a, String name, boolean visible, boolean ignored) {
-        addField(a, name, true, visible, ignored);
+        addField(a, _propName(name), true, visible, ignored);
     }
 
+    @Deprecated
+    public void addField(AnnotatedField a, String name, boolean explName, boolean visible, boolean ignored) {
+        addField(a, _propName(name), explName, visible, ignored);
+    }
+    
     /**
      * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
      *   whether name of property was provided by annotation (and not derived from accessor name);
@@ -518,9 +523,13 @@ public class POJOPropertyBuilder
      */
     @Deprecated
     public void addCtor(AnnotatedParameter a, String name, boolean visible, boolean ignored) {
-        _ctorParameters = new Linked<AnnotatedParameter>(a, _ctorParameters, name, true, visible, ignored);
+        addCtor(a, _propName(name), true, visible, ignored);
     }
-
+    @Deprecated
+    public void addCtor(AnnotatedParameter a, String name, boolean explName, boolean visible, boolean ignored) {
+        addCtor(a, _propName(name), explName, visible, ignored);
+    }
+    
     /**
      * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
      *   whether name of property was provided by annotation (and not derived from accessor name);
@@ -528,9 +537,13 @@ public class POJOPropertyBuilder
      */
     @Deprecated
     public void addGetter(AnnotatedMethod a, String name, boolean visible, boolean ignored) {
-        _getters = new Linked<AnnotatedMethod>(a, _getters, name, true, visible, ignored);
+        addGetter(a, _propName(name), true, visible, ignored);
     }
-
+    @Deprecated
+    public void addGetter(AnnotatedMethod a, String name, boolean explName, boolean visible, boolean ignored) {
+        addGetter(a, _propName(name), explName, visible, ignored);
+    }
+    
     /**
      * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
      *   whether name of property was provided by annotation (and not derived from accessor name);
@@ -538,7 +551,15 @@ public class POJOPropertyBuilder
      */
     @Deprecated
     public void addSetter(AnnotatedMethod a, String name, boolean visible, boolean ignored) {
-        _setters = new Linked<AnnotatedMethod>(a, _setters, name, true, visible, ignored);
+        addSetter(a, _propName(name), true, visible, ignored);
+    }
+    @Deprecated
+    public void addSetter(AnnotatedMethod a, String name, boolean explName, boolean visible, boolean ignored) {
+        addSetter(a, _propName(name), explName, visible, ignored);
+    }
+
+    private PropertyName _propName(String simple) {
+        return PropertyName.construct(simple, null);
     }
     
     /*
@@ -663,7 +684,7 @@ public class POJOPropertyBuilder
     private <T> boolean _anyExplicits(Linked<T> n)
     {
         for (; n != null; n = n.next) {
-            if (n.name != null && n.name.length() > 0) {
+            if (n.name != null && n.name.hasSimpleName()) {
                 return true;
             }
         }
@@ -717,6 +738,21 @@ public class POJOPropertyBuilder
     }
 
     /**
+     * @since 2.4 Use {@link #findNewNames} instead
+     */
+    /*
+    @Deprecated
+    public String findNewName()
+    {
+        Map<String,POJOPropertyBuilder> r = findRenamed();
+        if (r == null) {
+            return null;
+        }
+        return r.entrySet().iterator().next().getKey();
+    }
+    */
+    
+    /**
      * Method called to check whether property represented by this collector
      * should be renamed from the implicit name; and also verify that there
      * are no conflicting rename definitions.
@@ -730,7 +766,7 @@ public class POJOPropertyBuilder
         renamed = findRenamed(_getters, renamed);
         renamed = findRenamed(_setters, renamed);
         renamed = findRenamed(_ctorParameters, renamed);
-        return (renamed == null) ? null : renamed.name;
+        return (renamed == null) ? null : renamed.name.getSimpleName();
     }
 
     private Linked<? extends AnnotatedMember> findRenamed(Linked<? extends AnnotatedMember> node,
@@ -740,13 +776,13 @@ public class POJOPropertyBuilder
             if (!node.isNameExplicit) {
                 continue;
             }
-            String name = node.name;
+            PropertyName name = node.name;
             // different from default name?
             /* 14-Mar-2014, tatu: As per [#369], Must match local name... but,
              *   shouldn't really exclude namespace. Not sure what's the best
              *   fix but for now, let's not worry about that.
              */
-            if (name.equals(_name.getSimpleName())) { // nope, skip
+            if (name.equals(_name)) { // nope, skip
                 continue;
             }
             if (renamed == null) {
@@ -817,8 +853,7 @@ public class POJOPropertyBuilder
     /**********************************************************
      */
 
-    private interface WithMember<T>
-    {
+    private interface WithMember<T> {
         public T withMember(AnnotatedMember member);
     }
     
@@ -831,18 +866,18 @@ public class POJOPropertyBuilder
         public final T value;
         public final Linked<T> next;
 
-        public final String name;
+        public final PropertyName name;
         public final boolean isNameExplicit;
         public final boolean isVisible;
         public final boolean isMarkedIgnored;
         
         public Linked(T v, Linked<T> n,
-                String name, boolean explName, boolean visible, boolean ignored)
+                PropertyName name, boolean explName, boolean visible, boolean ignored)
         {
             value = v;
             next = n;
             // ensure that we'll never have missing names
-            this.name = (name == null || name.length() == 0) ? null : name;
+            this.name = (name == null || !name.hasSimpleName()) ? null : name;
             
             isNameExplicit = explName;
             isVisible = visible;
@@ -863,8 +898,7 @@ public class POJOPropertyBuilder
             return new Linked<T>(value, newNext, name, isNameExplicit, isVisible, isMarkedIgnored);
         }
         
-        public Linked<T> withoutIgnored()
-        {
+        public Linked<T> withoutIgnored() {
             if (isMarkedIgnored) {
                 return (next == null) ? null : next.withoutIgnored();
             }
@@ -877,8 +911,7 @@ public class POJOPropertyBuilder
             return this;
         }
         
-        public Linked<T> withoutNonVisible()
-        {
+        public Linked<T> withoutNonVisible() {
             Linked<T> newNext = (next == null) ? null : next.withoutNonVisible();
             return isVisible ? withNext(newNext) : newNext;
         }
@@ -887,16 +920,14 @@ public class POJOPropertyBuilder
          * Method called to append given node(s) at the end of this
          * node chain.
          */
-        private Linked<T> append(Linked<T> appendable) 
-        {
+        private Linked<T> append(Linked<T> appendable) {
             if (next == null) {
                 return withNext(appendable);
             }
             return withNext(next.append(appendable));
         }
-        
-        public Linked<T> trimByVisibility()
-        {
+
+        public Linked<T> trimByVisibility() {
             if (next == null) {
                 return this;
             }

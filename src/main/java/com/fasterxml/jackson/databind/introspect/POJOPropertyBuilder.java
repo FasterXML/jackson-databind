@@ -778,10 +778,6 @@ public class POJOPropertyBuilder
             }
             PropertyName name = node.name;
             // different from default name?
-            /* 14-Mar-2014, tatu: As per [#369], Must match local name... but,
-             *   shouldn't really exclude namespace. Not sure what's the best
-             *   fix but for now, let's not worry about that.
-             */
             if (name.equals(_name)) { // nope, skip
                 continue;
             }
@@ -878,6 +874,10 @@ public class POJOPropertyBuilder
             next = n;
             // ensure that we'll never have missing names
             this.name = (name == null || !name.hasSimpleName()) ? null : name;
+
+            if (explName && this.name == null) { // sanity check to catch internal problems
+                throw new IllegalArgumentException("Can not pass true for 'explName' if name is null/empty");
+            }
             
             isNameExplicit = explName;
             isVisible = visible;

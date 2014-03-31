@@ -435,14 +435,13 @@ public class POJOPropertiesCollector
             for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
                 AnnotatedParameter param = ctor.getParameter(i);
                 PropertyName pn = ai.findNameForDeserialization(param);
-                String name = (pn == null) ? null : pn.getSimpleName();
                 // is it legal not to have name?
-                if (name != null && name.length() > 0) {
+                if (pn != null && !pn.isEmpty()) {
                     // shouldn't need to worry about @JsonIgnore (no real point, so)
-                    POJOPropertyBuilder prop = _property(name);
+                    POJOPropertyBuilder prop = _property(pn);
                     // 28-Mar-2014, tatu: for now, all creator names considered explicit;
                     //    may need to change for JDK 8 where implicit names exist
-                    prop.addCtor(param, name, true, true, false);
+                    prop.addCtor(param, pn, true, true, false);
                     _creatorProperties.add(prop);
                 }
             }
@@ -454,13 +453,12 @@ public class POJOPropertiesCollector
             for (int i = 0, len = factory.getParameterCount(); i < len; ++i) {
                 AnnotatedParameter param = factory.getParameter(i);
                 PropertyName pn = ai.findNameForDeserialization(param);
-                String name = (pn == null) ? null : pn.getSimpleName();
                 // is it legal not to have name?
-                if (name != null) {
+                if (pn != null && !pn.isEmpty()) {
                     // shouldn't need to worry about @JsonIgnore (no real point, so)
-                    POJOPropertyBuilder prop = _property(name);
+                    POJOPropertyBuilder prop = _property(pn);
                     // 28-Mar-2014, tatu: for now, all names considered explicit
-                    prop.addCtor(param, name, true, true, false);
+                    prop.addCtor(param, pn, true, true, false);
                     _creatorProperties.add(prop);
                 }
             }
@@ -824,7 +822,12 @@ public class POJOPropertiesCollector
     protected void reportProblem(String msg) {
         throw new IllegalArgumentException("Problem with definition of "+_classDef+": "+msg);
     }
+
+    protected POJOPropertyBuilder _property(PropertyName name) {
+        return _property(name.getSimpleName());
+    }
     
+    // !!! TODO: deprecate, require use of PropertyName
     protected POJOPropertyBuilder _property(String implName)
     {
         POJOPropertyBuilder prop = _properties.get(implName);

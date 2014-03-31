@@ -1,5 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.PropertyMetadata;
 import com.fasterxml.jackson.databind.PropertyName;
@@ -494,6 +496,50 @@ public class POJOPropertyBuilder
         }
         return chain1.append(chain2);
     }
+
+    // // Deprecated variants that do not take 'explName': to be removed in a later version
+    // // (but are used at least by 2.3 and earlier versions of Scala module at least so
+    // // need to be careful with phasing out if before 3.0)
+    
+    /**
+     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
+     *   whether name of property was provided by annotation (and not derived from accessor name);
+     *   this method simply passes 'true' for it.
+     */
+    @Deprecated
+    public void addField(AnnotatedField a, String name, boolean visible, boolean ignored) {
+        addField(a, name, true, visible, ignored);
+    }
+
+    /**
+     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
+     *   whether name of property was provided by annotation (and not derived from accessor name);
+     *   this method simply passes 'true' for it.
+     */
+    @Deprecated
+    public void addCtor(AnnotatedParameter a, String name, boolean visible, boolean ignored) {
+        _ctorParameters = new Linked<AnnotatedParameter>(a, _ctorParameters, name, true, visible, ignored);
+    }
+
+    /**
+     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
+     *   whether name of property was provided by annotation (and not derived from accessor name);
+     *   this method simply passes 'true' for it.
+     */
+    @Deprecated
+    public void addGetter(AnnotatedMethod a, String name, boolean visible, boolean ignored) {
+        _getters = new Linked<AnnotatedMethod>(a, _getters, name, true, visible, ignored);
+    }
+
+    /**
+     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
+     *   whether name of property was provided by annotation (and not derived from accessor name);
+     *   this method simply passes 'true' for it.
+     */
+    @Deprecated
+    public void addSetter(AnnotatedMethod a, String name, boolean visible, boolean ignored) {
+        _setters = new Linked<AnnotatedMethod>(a, _setters, name, true, visible, ignored);
+    }
     
     /*
     /**********************************************************
@@ -675,8 +721,10 @@ public class POJOPropertyBuilder
      * should be renamed from the implicit name; and also verify that there
      * are no conflicting rename definitions.
      */
+//    public Map<String,POJOPropertyBuilder> findRenamed()
     public String findNewName()
     {
+//        Map<String,POJOPropertyBuilder> renamed = null;
         Linked<? extends AnnotatedMember> renamed = null;
         renamed = findRenamed(_fields, renamed);
         renamed = findRenamed(_getters, renamed);
@@ -689,15 +737,14 @@ public class POJOPropertyBuilder
             Linked<? extends AnnotatedMember> renamed)
     {
         for (; node != null; node = node.next) {
-            String name = node.name;
-            if (name == null) {
+            if (!node.isNameExplicit) {
                 continue;
             }
+            String name = node.name;
             // different from default name?
             /* 14-Mar-2014, tatu: As per [#369], Must match local name... but,
              *   shouldn't really exclude namespace. Not sure what's the best
              *   fix but for now, let's not worry about that.
-             * 
              */
             if (name.equals(_name.getSimpleName())) { // nope, skip
                 continue;
@@ -796,6 +843,7 @@ public class POJOPropertyBuilder
             next = n;
             // ensure that we'll never have missing names
             this.name = (name == null || name.length() == 0) ? null : name;
+            
             isNameExplicit = explName;
             isVisible = visible;
             isMarkedIgnored = ignored;
@@ -872,7 +920,8 @@ public class POJOPropertyBuilder
         
         @Override
         public String toString() {
-            String msg = value.toString()+"[visible="+isVisible+"]";
+            String msg = value.toString()+"[visible="+isVisible+",ignore="+isMarkedIgnored
+                    +",explicitName="+isNameExplicit+"]";
             if (next != null) {
                 msg = msg + ", "+next.toString();
             }

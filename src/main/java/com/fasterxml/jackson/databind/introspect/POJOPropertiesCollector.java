@@ -439,10 +439,11 @@ public class POJOPropertiesCollector
                 PropertyName pn = ai.findNameForDeserialization(param);
                 String name = (pn == null) ? null : pn.getSimpleName();
                 // is it legal not to have name?
-                if (name != null) {
+                if (name != null && name.length() > 0) {
                     // shouldn't need to worry about @JsonIgnore (no real point, so)
                     POJOPropertyBuilder prop = _property(name);
-                    // 28-Mar-2014, tatu: for now, all names considered explicit
+                    // 28-Mar-2014, tatu: for now, all creator names considered explicit;
+                    //    may need to change for JDK 8 where implicit names exist
                     prop.addCtor(param, name, true, true, false);
                     _creatorProperties.add(prop);
                 }

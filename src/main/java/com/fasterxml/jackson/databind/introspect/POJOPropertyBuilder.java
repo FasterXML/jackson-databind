@@ -879,10 +879,17 @@ public class POJOPropertyBuilder
             value = v;
             next = n;
             // ensure that we'll never have missing names
-            this.name = (name == null || !name.hasSimpleName()) ? null : name;
+            this.name = (name == null || name.isEmpty()) ? null : name;
 
-            if (explName && this.name == null) { // sanity check to catch internal problems
-                throw new IllegalArgumentException("Can not pass true for 'explName' if name is null/empty");
+            if (explName) {
+                if (this.name == null) { // sanity check to catch internal problems
+                    throw new IllegalArgumentException("Can not pass true for 'explName' if name is null/empty");
+                }
+                // 03-Apr-2014, tatu: But how about name-space only override?
+                //   Probably should not be explicit? Or, need to merge somehow?
+                if (!name.hasSimpleName()) {
+                    explName = false;
+                }
             }
             
             isNameExplicit = explName;

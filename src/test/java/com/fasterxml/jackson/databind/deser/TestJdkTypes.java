@@ -11,7 +11,12 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class TestJdkTypes extends BaseMapTest
 {
@@ -63,6 +68,29 @@ public class TestJdkTypes extends BaseMapTest
         public BooleanBean(@JsonProperty("ctor") Boolean foo) {
             ctor = foo;
         }
+    }
+
+    // [Issue#429]
+    static class StackTraceBean {
+        public final static int NUM = 13;
+
+        @JsonProperty("Location")
+        @JsonDeserialize(using=MyStackTraceElementDeserializer.class)
+        private StackTraceElement location;    
+    }
+
+    @SuppressWarnings("serial")
+    static class MyStackTraceElementDeserializer extends StdDeserializer<StackTraceElement>
+    {
+        public MyStackTraceElementDeserializer() { super(StackTraceElement.class); }
+        
+        @Override
+        public StackTraceElement deserialize(JsonParser jp,
+                DeserializationContext ctxt) throws IOException, JsonProcessingException {
+            jp.skipChildren();
+            return new StackTraceElement("a", "b", "b", StackTraceBean.NUM);
+        }
+        
     }
     
     /*
@@ -385,6 +413,27 @@ public class TestJdkTypes extends BaseMapTest
             assertEquals(INPUT[i], result.get());
         }
         assertEquals(0, result.remaining());
+    }
+
+    // [Issue#429]
+    public void testStackTraceElementWithCustom() throws Exception
+    {
+        // first, via bean that contains StackTraceElement
+        StackTraceBean bean = MAPPER.readValue(aposToQuotes("{'Location':'foobar'}"),
+                StackTraceBean.class);
+        assertNotNull(bean);
+        assertNotNull(bean.location);
+        assertEquals(StackTraceBean.NUM, bean.location.getLineNumber());
+
+        // and then directly, iff registered
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer());
+        mapper.registerModule(module);
+        
+        StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
+        assertNotNull(elem);
+        assertEquals(StackTraceBean.NUM, elem.getLineNumber());
     }
     
     /*

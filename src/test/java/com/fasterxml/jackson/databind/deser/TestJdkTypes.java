@@ -70,8 +70,8 @@ public class TestJdkTypes extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
-    
-    private final ObjectMapper MAPPER = new ObjectMapper();
+
+    private final ObjectMapper MAPPER = objectMapper();
 
     /**
      * Related to issues [JACKSON-155], [#170].
@@ -386,6 +386,12 @@ public class TestJdkTypes extends BaseMapTest
         }
         assertEquals(0, result.remaining());
     }
+    
+    /*
+    /**********************************************************
+    /* Single-array handling tests
+    /**********************************************************
+     */
     
     // [Issue#381]
     public void testSingleElementArray() throws Exception {

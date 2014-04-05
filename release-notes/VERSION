@@ -6,7 +6,9 @@ Version: 2.3.3 (xx-xxx-2014)
 #422: Allow use of "True" and "False" as aliases for booleans when coercing from
   JSON String
 #423: Fix `CalendarSerializer` to work with custom format
- (repored by sergeymetallic@github)
+ (reported by sergeymetallic@github)
+#433: `ObjectMapper`'s `.valueToTree()` wraps `JsonSerializable` objects into a POJONode
+ (reported by Francis G)
 - Fix null-handling for `CollectionSerializer`
 
 ------------------------------------------------------------------------

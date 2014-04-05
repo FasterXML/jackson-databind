@@ -294,6 +294,10 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 if (type == byte[].class) { // most common special case
                     return nodeFactory.binaryNode((byte[]) ob);
                 }
+                if (JsonNode.class.isAssignableFrom(type)) {
+                    // [Issue#433]: but could also be a JsonNode hiding in there!
+                    return (JsonNode) ob;
+                }
                 // any other special handling needed?
                 return nodeFactory.pojoNode(ob);
             }

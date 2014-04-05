@@ -9,9 +9,9 @@ import static org.junit.Assert.*;
 import org.junit.Assert;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -43,7 +43,7 @@ public class TestConversions extends BaseMapTest
     /**********************************************************
      */
 
-    private final static ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = objectMapper();
     
     public void testAsInt() throws Exception
     {
@@ -200,8 +200,7 @@ public class TestConversions extends BaseMapTest
     }
 
     // [Issue#232]
-    public void testBigDecimalAsPlainStringTreeConversion()
-        throws Exception
+    public void testBigDecimalAsPlainStringTreeConversion() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
@@ -212,6 +211,39 @@ public class TestConversions extends BaseMapTest
         assertNotNull(tree);
         assertEquals(1, tree.size());
         assertTrue(tree.has("pi"));
+    }
+
+    static class CustomSerializedPojo implements JsonSerializable
+    {
+        private final ObjectNode node = JsonNodeFactory.instance.objectNode();
+
+        public void setFoo(final String foo) {
+            node.put("foo", foo);
+        }
+    
+        @Override
+        public void serialize(final JsonGenerator jgen, final SerializerProvider provider)
+            throws IOException
+        {
+            jgen.writeTree(node);
+        }
+
+        @Override
+        public void serializeWithType(JsonGenerator jgen,
+                SerializerProvider provider, TypeSerializer typeSer) throws IOException {
+            typeSer.writeTypePrefixForObject(this, jgen);
+            serialize(jgen, provider);
+            typeSer.writeTypeSuffixForObject(this, jgen);
+        }    
+    }
+
+    // [Issue#433]
+    public void testBeanToTree() throws Exception
+    {
+        final CustomSerializedPojo pojo = new CustomSerializedPojo();
+        pojo.setFoo("bar");
+        final JsonNode node = MAPPER.valueToTree(pojo);
+        assertEquals(JsonNodeType.OBJECT, node.getNodeType());
     }
 }
 

@@ -284,7 +284,7 @@ public abstract class BasicDeserializerFactory
         if (instantiator.getIncompleteParameter() != null) {
             final AnnotatedParameter nonAnnotatedParam = instantiator.getIncompleteParameter();
             final AnnotatedWithParams ctor = nonAnnotatedParam.getOwner();
-            throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()+" of constructor "+ctor+" has no property name annotation; must have name when multiple-paramater constructor annotated as Creator");
+            throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()+" of constructor "+ctor+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
         }
 
         return instantiator;
@@ -603,7 +603,7 @@ public abstract class BasicDeserializerFactory
                     creators.addDelegatingCreator(factory, properties);
                 } else { // otherwise, epic fail
                     throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()
-                            +" of factory method "+factory+" has no property name annotation; must have name when multiple-paramater constructor annotated as Creator");
+                            +" of factory method "+factory+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
                 }
             }
         }

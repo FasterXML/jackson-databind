@@ -67,7 +67,7 @@ public class TestCreators2
         public Test431Container(@JsonProperty("items") final List<Item431> i) {
             items = i;
         }
-}    
+    }    
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     protected static class Item431 {
@@ -170,11 +170,11 @@ public class TestCreators2
     
     /*
     /**********************************************************
-    /* Unit tests
+    /* Test methods
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
+    private final ObjectMapper MAPPER = objectMapper();
     
     // for [JACKSON-547]
     public void testExceptionFromConstructor() throws Exception

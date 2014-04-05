@@ -66,6 +66,9 @@ Francis Galiegue:
  * Reported #93 (and suggested fix): bug in `ObjectMapper.setAll(...)'
   implementation
   (2.1.1)
+ * Reported [#433]: `ObjectMapper`'s `.valueToTree()` wraps `JsonSerializable` objects
+  into a POJONode
+  (2.3.3)
 
 kelaneren@github:
  * Reported #157, contributed unit test: NPE when registering same module twice.

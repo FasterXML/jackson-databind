@@ -434,6 +434,17 @@ public class TestJdkTypes extends BaseMapTest
         StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
         assertNotNull(elem);
         assertEquals(StackTraceBean.NUM, elem.getLineNumber());
+ 
+        // and finally, even as part of real exception
+        
+        IOException ioe = mapper.readValue(aposToQuotes("{'stackTrace':[ 123, 456 ]}"),
+                IOException.class);
+        assertNotNull(ioe);
+        StackTraceElement[] traces = ioe.getStackTrace();
+        assertNotNull(traces);
+        assertEquals(2, traces.length);
+        assertEquals(StackTraceBean.NUM, traces[0].getLineNumber());
+        assertEquals(StackTraceBean.NUM, traces[1].getLineNumber());
     }
     
     /*

@@ -92,7 +92,7 @@ public class TestUntypedDeserialization
     /* Test methods
     /**********************************************************
      */
-
+    
     @SuppressWarnings("unchecked")
     public void testSampleDoc() throws Exception
     {
@@ -148,10 +148,11 @@ public class TestUntypedDeserialization
 
         // and that's all folks!
     }
-
+    
     public void testNestedUntypes() throws IOException
     {
-        ObjectMapper mapper = objectMapper();
+        // 05-Apr-2014, tatu: Odd failures if using shared mapper; so work around:
+        final ObjectMapper mapper = new ObjectMapper();
         Object root = mapper.readValue(aposToQuotes("{'a':3,'b':[1,2]}"),
                 Object.class);
         assertTrue(root instanceof Map<?,?>);

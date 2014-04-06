@@ -11,15 +11,8 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-public class TestCreators2
-    extends BaseMapTest
+public class TestCreators2 extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
     static class HashTest
     {
         final byte[] bytes;
@@ -174,7 +167,7 @@ public class TestCreators2
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = objectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     // for [JACKSON-547]
     public void testExceptionFromConstructor() throws Exception

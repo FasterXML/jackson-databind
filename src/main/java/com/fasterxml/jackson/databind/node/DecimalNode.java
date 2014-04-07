@@ -116,11 +116,11 @@ public class DecimalNode
         if (o == this) return true;
         if (o == null) return false;
         if (o instanceof DecimalNode) {
-            return ((DecimalNode) o)._value.equals(_value);
+            return ((DecimalNode) o)._value.compareTo(_value) == 0;
         }
         return false;
     }
 
     @Override
-    public int hashCode() { return _value.hashCode(); }
+    public int hashCode() { return Double.valueOf(doubleValue()).hashCode(); }
 }

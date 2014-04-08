@@ -42,50 +42,50 @@ public class TestObjectMapperBeanSerializer
 
             if (name.equals("uri")) {
                 assertToken(JsonToken.VALUE_STRING, t);
-                assertEquals(FixtureObject.VALUE_URSTR, getAndVerifyText(jp));
+                assertEquals(FixtureObjectBase.VALUE_URSTR, getAndVerifyText(jp));
             } else if (name.equals("url")) {
                 assertToken(JsonToken.VALUE_STRING, t);
-                assertEquals(FixtureObject.VALUE_URSTR, getAndVerifyText(jp));
+                assertEquals(FixtureObjectBase.VALUE_URSTR, getAndVerifyText(jp));
             } else if (name.equals("testNull")) {
                 assertToken(JsonToken.VALUE_NULL, t);
             } else if (name.equals("testString")) {
                 assertToken(JsonToken.VALUE_STRING, t);
-                assertEquals(FixtureObject.VALUE_STRING, getAndVerifyText(jp));
+                assertEquals(FixtureObjectBase.VALUE_STRING, getAndVerifyText(jp));
             } else if (name.equals("testBoolean")) {
                 assertToken(JsonToken.VALUE_TRUE, t);
             } else if (name.equals("testEnum")) {
                 assertToken(JsonToken.VALUE_STRING, t);
-                assertEquals(FixtureObject.VALUE_ENUM.toString(),getAndVerifyText(jp));
+                assertEquals(FixtureObjectBase.VALUE_ENUM.toString(),getAndVerifyText(jp));
             } else if (name.equals("testInteger")) {
                 assertToken(JsonToken.VALUE_NUMBER_INT, t);
-                assertEquals(jp.getIntValue(),FixtureObject.VALUE_INT);
+                assertEquals(jp.getIntValue(),FixtureObjectBase.VALUE_INT);
             } else if (name.equals("testLong")) {
                 assertToken(JsonToken.VALUE_NUMBER_INT, t);
-                assertEquals(jp.getLongValue(),FixtureObject.VALUE_LONG);
+                assertEquals(jp.getLongValue(),FixtureObjectBase.VALUE_LONG);
             } else if (name.equals("testBigInteger")) {
                 assertToken(JsonToken.VALUE_NUMBER_INT, t);
-                assertEquals(jp.getLongValue(),FixtureObject.VALUE_BIGINT.longValue());
+                assertEquals(jp.getLongValue(),FixtureObjectBase.VALUE_BIGINT.longValue());
             } else if (name.equals("testBigDecimal")) {
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, t);
-                assertEquals(jp.getText(), FixtureObject.VALUE_BIGDEC.toString());
+                assertEquals(jp.getText(), FixtureObjectBase.VALUE_BIGDEC.toString());
             } else if (name.equals("testCharacter")) {
                 assertToken(JsonToken.VALUE_STRING, t);
-                assertEquals(String.valueOf(FixtureObject.VALUE_CHAR), getAndVerifyText(jp));
+                assertEquals(String.valueOf(FixtureObjectBase.VALUE_CHAR), getAndVerifyText(jp));
             } else if (name.equals("testShort")) {
                 assertToken(JsonToken.VALUE_NUMBER_INT, t);
-                assertEquals(jp.getIntValue(),FixtureObject.VALUE_SHORT);
+                assertEquals(jp.getIntValue(),FixtureObjectBase.VALUE_SHORT);
             } else if (name.equals("testByte")) {
                 assertToken(JsonToken.VALUE_NUMBER_INT, t);
-                assertEquals(jp.getIntValue(),FixtureObject.VALUE_BYTE);
+                assertEquals(jp.getIntValue(),FixtureObjectBase.VALUE_BYTE);
             } else if (name.equals("testFloat")) {
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, t);
-                assertEquals(jp.getDecimalValue().floatValue(),FixtureObject.VALUE_FLOAT);
+                assertEquals(jp.getDecimalValue().floatValue(),FixtureObjectBase.VALUE_FLOAT);
             } else if (name.equals("testDouble")) {
                 assertToken(JsonToken.VALUE_NUMBER_FLOAT, t);
-                assertEquals(jp.getDoubleValue(),FixtureObject.VALUE_DBL);
+                assertEquals(jp.getDoubleValue(),FixtureObjectBase.VALUE_DBL);
             } else if (name.equals("testStringBuffer")) {
                 assertToken(JsonToken.VALUE_STRING, t);
-                assertEquals(FixtureObject.VALUE_STRING, getAndVerifyText(jp));
+                assertEquals(FixtureObjectBase.VALUE_STRING, getAndVerifyText(jp));
             } else if (name.equals("testError")) {
                 // More complicated...
                 assertToken(JsonToken.START_OBJECT, t);
@@ -98,7 +98,7 @@ public class TestObjectMapperBeanSerializer
                         assertEquals(JsonToken.VALUE_NULL, jp.nextToken());
                     } else if (name.equals("message")) {
                         assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
-                        assertEquals(FixtureObject.VALUE_ERRTXT, getAndVerifyText(jp));
+                        assertEquals(FixtureObjectBase.VALUE_ERRTXT, getAndVerifyText(jp));
                     } else if (name.equals("localizedMessage")) {
                         assertEquals(JsonToken.VALUE_STRING, jp.nextToken());
                     } else if (name.equals("stackTrace")) {

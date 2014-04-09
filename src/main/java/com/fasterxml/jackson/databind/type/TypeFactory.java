@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.LRUMap;
 
-
 /**
  * Class used for creating concrete {@link JavaType} instances,
  * given various inputs.

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.util;
 
 import com.fasterxml.jackson.core.SerializableString;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
@@ -20,7 +19,9 @@ public class RootNameLookup implements java.io.Serializable
      */
     protected transient LRUMap<ClassKey,SerializableString> _rootNames;
 
-    public RootNameLookup() { }
+    public RootNameLookup() {
+        _rootNames = new LRUMap<ClassKey,SerializableString>(20, 200);
+   }
 
     public SerializableString findRootName(JavaType rootType, MapperConfig<?> config) {
         return findRootName(rootType.getRawClass(), config);
@@ -29,16 +30,9 @@ public class RootNameLookup implements java.io.Serializable
     public SerializableString findRootName(Class<?> rootType, MapperConfig<?> config)
     {
         ClassKey key = new ClassKey(rootType);
-
-        synchronized (this) {
-            if (_rootNames == null) {
-                _rootNames = new LRUMap<ClassKey,SerializableString>(20, 200);
-            } else {
-                SerializableString name = _rootNames.get(key);
-                if (name != null) {
-                    return name;
-                }
-            }
+        SerializableString name = _rootNames.get(key);
+        if (name != null) {
+            return name;
         }
         BeanDescription beanDesc = config.introspectClassAnnotations(rootType);
         AnnotationIntrospector intr = config.getAnnotationIntrospector();
@@ -52,10 +46,22 @@ public class RootNameLookup implements java.io.Serializable
         } else {
             nameStr = pname.getSimpleName();
         }
-        SerializableString name = config.compileString(nameStr);
-        synchronized (this) {
-            _rootNames.put(key, name);
-        }
+        name = config.compileString(nameStr);
+        _rootNames.put(key, name);
         return name;
+    }
+
+    /*
+    /**********************************************************
+    /* Serializable overrides
+    /**********************************************************
+     */
+
+    /**
+     * Need to override to reproduce cache object via constructor, instead
+     * of serialize/deserialize (since we do NOT want to retain cached data)
+     */
+    protected Object readResolve() {
+        return new RootNameLookup();
     }
 }

@@ -687,11 +687,7 @@ public final class TypeFactory
         
         // Barring that, we may have recently constructed an instance:
         ClassKey key = new ClassKey(clz);
-        JavaType result;
-        
-        synchronized (_typeCache) {
-            result = _typeCache.get(key);
-        }
+        JavaType result = _typeCache.get(key); // ok, cache object is synced
         if (result != null) {
             return result;
         }
@@ -706,15 +702,15 @@ public final class TypeFactory
         // First: do we have an array type?
         if (clz.isArray()) {
             result = ArrayType.construct(_constructType(clz.getComponentType(), null), null, null);
-        /* Also: although enums can also be fully resolved, there's little
-         * point in doing so (T extends Enum<T>) etc.
-         */
+            /* Also: although enums can also be fully resolved, there's little
+             * point in doing so (T extends Enum<T>) etc.
+             */
         } else if (clz.isEnum()) {
             result = new SimpleType(clz);
-        /* Maps and Collections aren't quite as hot; problem is, due
-         * to type erasure we often do not know typing and can only assume
-         * base Object.
-         */
+            /* Maps and Collections aren't quite as hot; problem is, due
+             * to type erasure we often do not know typing and can only assume
+             * base Object.
+             */
         } else if (Map.class.isAssignableFrom(clz)) {
             result = _mapType(clz);
         } else if (Collection.class.isAssignableFrom(clz)) {
@@ -722,11 +718,7 @@ public final class TypeFactory
         } else {
             result = new SimpleType(clz);
         }
-        
-        synchronized (_typeCache) {
-            _typeCache.put(key, result);
-        }
-        
+        _typeCache.put(key, result); // cache object syncs
         return result;
     }
     

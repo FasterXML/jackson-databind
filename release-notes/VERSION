@@ -26,6 +26,8 @@ Version: 2.4.0 (xx-xxx-2014)
  (reported by turskip@github)
 #434: Ensure that DecimalNodes with mathematically equal values are equal
  (contributed by Francis G)
+#435: Performance bottleneck in TypeFactory._fromClass
+ (reported by sdonovanuk@github)
 
 ------------------------------------------------------------------------
 === History: ===

@@ -463,6 +463,10 @@ public abstract class BeanDeserializerBase
                     unwrapped = new UnwrappedPropertyHandler();
                 }
                 unwrapped.addProperty(prop);
+                // 10-Apr-2014, tatu: Looks like we should also do this? (no observed diff tho)
+                if (prop != origProp) {
+                    _beanProperties.replace(prop);
+                }
                 continue;
             }
             // [JACKSON-594]: non-static inner classes too:
@@ -561,14 +565,12 @@ public abstract class BeanDeserializerBase
             BeanProperty property) throws JsonMappingException
     {
         ObjectIdReader oir = _objectIdReader;
-        String[] ignorals = null;
         
         // First: may have an override for Object Id:
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         final AnnotatedMember accessor = (property == null || intr == null)
                 ? null : property.getMember();
-        if (property != null && intr != null) {
-            ignorals = intr.findPropertiesToIgnore(accessor);
+        if (accessor != null && intr != null) {
             ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
             if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
                 // 2.1: allow modifications by "id ref" annotations as well:
@@ -606,9 +608,12 @@ public abstract class BeanDeserializerBase
             contextual = contextual.withObjectIdReader(oir);
         }
         // And possibly add more properties to ignore
-        if (ignorals != null && ignorals.length != 0) {
-            HashSet<String> newIgnored = ArrayBuilders.setAndArray(contextual._ignorableProps, ignorals);
-            contextual = contextual.withIgnorableProperties(newIgnored);
+        if (accessor != null) {
+            String[] ignorals = intr.findPropertiesToIgnore(accessor);
+            if (ignorals != null && ignorals.length != 0) {
+                HashSet<String> newIgnored = ArrayBuilders.setAndArray(contextual._ignorableProps, ignorals);
+                contextual = contextual.withIgnorableProperties(newIgnored);
+            }
         }
 
         // One more thing: are we asked to serialize POJO as array?

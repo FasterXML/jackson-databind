@@ -1,5 +1,5 @@
 Project: jackson-databind
-Version: 2.3.3 (xx-xxx-2014)
+Version: 2.3.3 (10-Apr-2014)
 
 #420: Remove 'final' modifier from `BeanDeserializerBase.deserializeWithType`
  (requested by Ghoughpteighbteau@github)

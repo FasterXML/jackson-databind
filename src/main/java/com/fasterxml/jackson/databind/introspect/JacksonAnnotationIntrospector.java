@@ -478,12 +478,23 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public String findPropertyDescription(Annotated annotated)
-    {
+    public String findPropertyDescription(Annotated annotated) {
         JsonPropertyDescription desc = annotated.getAnnotation(JsonPropertyDescription.class);
         return (desc == null) ? null : desc.value();
     }
-    
+
+    @Override
+    public Integer findPropertyIndex(Annotated annotated) {
+        JsonProperty ann = annotated.getAnnotation(JsonProperty.class);
+        if (ann != null) {
+        	int ix = ann.index();
+        	if (ix != JsonProperty.INDEX_UNKNOWN) {
+        		return Integer.valueOf(ix);
+        	}
+        }
+        return null;
+    }
+
     /*
     /**********************************************************
     /* Serialization: class annotations

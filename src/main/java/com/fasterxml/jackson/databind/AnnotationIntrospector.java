@@ -231,9 +231,7 @@ public abstract class AnnotationIntrospector
     /**
      * Method for checking whether an annotation indicates that all unknown properties
      */
-    public Boolean findIgnoreUnknownProperties(AnnotatedClass ac) {
-        return null;
-    }
+    public Boolean findIgnoreUnknownProperties(AnnotatedClass ac) { return null; }
 
     /**
      * Method for checking whether properties that have specified type
@@ -246,17 +244,13 @@ public abstract class AnnotationIntrospector
      *   Boolean.FALSE if they are not to be ignored, null for default
      *   handling (which is 'do not ignore')
      */
-    public Boolean isIgnorableType(AnnotatedClass ac) {
-        return null;
-    }
+    public Boolean isIgnorableType(AnnotatedClass ac) { return null; }
 
     /**
      * @deprecated Since 2.3: use the one that takes generic {@link Annotated}
      */
     @Deprecated
-    public Object findFilterId(AnnotatedClass ac) {
-        return findFilterId((Annotated) ac);
-    }
+    public Object findFilterId(AnnotatedClass ac) { return findFilterId((Annotated) ac); }
 
     /**
      * Method for finding if annotated class has associated filter; and if so,
@@ -265,9 +259,7 @@ public abstract class AnnotationIntrospector
      * @return Id of the filter to use for filtering properties of annotated
      *    class, if any; or null if none found.
      */
-    public Object findFilterId(Annotated ann) {
-        return null;
-    }
+    public Object findFilterId(Annotated ann) { return null; }
 
     /**
      * Method for finding {@link PropertyNamingStrategy} for given
@@ -280,9 +272,7 @@ public abstract class AnnotationIntrospector
      * 
      * @since 2.1
      */
-    public Object findNamingStrategy(AnnotatedClass ac) {
-        return null;
-    }    
+    public Object findNamingStrategy(AnnotatedClass ac) { return null; }
 
     /*
     /**********************************************************
@@ -297,8 +287,7 @@ public abstract class AnnotationIntrospector
      * (if no annotations are found), or build and return a derived instance (using
      * checker's build methods).
      */
-    public VisibilityChecker<?> findAutoDetectVisibility(AnnotatedClass ac,
-            VisibilityChecker<?> checker) {
+    public VisibilityChecker<?> findAutoDetectVisibility(AnnotatedClass ac, VisibilityChecker<?> checker) {
         return checker;
     }
     
@@ -378,18 +367,14 @@ public abstract class AnnotationIntrospector
      * 
      * @param a Annotated entity (class, field/method) to check for annotations
      */
-    public List<NamedType> findSubtypes(Annotated a) {
-        return null;
-    }
+    public List<NamedType> findSubtypes(Annotated a) { return null; }
 
     /**
      * Method for checking if specified type has explicit name.
      * 
      * @param ac Class to check for type name annotations
      */
-    public String findTypeName(AnnotatedClass ac) {
-        return null;
-    }
+    public String findTypeName(AnnotatedClass ac) { return null; }
     
     /*
     /**********************************************************
@@ -401,9 +386,7 @@ public abstract class AnnotationIntrospector
      * Method for checking if given member indicates that it is part
      * of a reference (parent/child).
      */
-    public ReferenceProperty findReferenceType(AnnotatedMember member) {
-        return null;
-    }
+    public ReferenceProperty findReferenceType(AnnotatedMember member) { return null; }
 
     /**
      * Method called to check whether given property is marked to be "unwrapped"
@@ -413,9 +396,7 @@ public abstract class AnnotationIntrospector
      * should  be done, or null if not -- note that transformation may simply
      * be identity transformation (no changes).
      */
-    public NameTransformer findUnwrappingNameTransformer(AnnotatedMember member) {
-        return null;
-    }
+    public NameTransformer findUnwrappingNameTransformer(AnnotatedMember member) { return null; }
 
     /**
      * Method called to check whether given property is marked to
@@ -424,9 +405,7 @@ public abstract class AnnotationIntrospector
      * annotations from multiple accessors (getters, setters, fields,
      * constructor parameters).
      */
-    public boolean hasIgnoreMarker(AnnotatedMember m) {
-        return false;
-    }
+    public boolean hasIgnoreMarker(AnnotatedMember m) { return false; }
 
     /**
      * Method called to find out whether given member expectes a value
@@ -441,9 +420,7 @@ public abstract class AnnotationIntrospector
      * @return Identifier of value to inject, if any; null if no injection
      *   indicator is found
      */
-    public Object findInjectableValueId(AnnotatedMember m) {
-        return null;
-    }
+    public Object findInjectableValueId(AnnotatedMember m) { return null; }
 
     /**
      * Method that can be called to check whether this member has
@@ -452,9 +429,7 @@ public abstract class AnnotationIntrospector
      * 
      * @since 2.0
      */
-    public Boolean hasRequiredMarker(AnnotatedMember m) {
-        return null;
-    }
+    public Boolean hasRequiredMarker(AnnotatedMember m) { return null; }
     
     /**
      * Method for checking if annotated property (represented by a field or
@@ -469,9 +444,7 @@ public abstract class AnnotationIntrospector
      * @return Array of views (represented by classes) that the property is included in;
      *    if null, always included (same as returning array containing <code>Object.class</code>)
      */
-    public Class<?>[] findViews(Annotated a) {
-        return null;
-    }
+    public Class<?>[] findViews(Annotated a) { return null; }
 
     /**
      * Method for finding format annotations for property or class.
@@ -481,21 +454,14 @@ public abstract class AnnotationIntrospector
      * 
      * @since 2.1
      */
-    public JsonFormat.Value findFormat(Annotated memberOrClass) {
-        return null;
-    }
+    public JsonFormat.Value findFormat(Annotated memberOrClass) { return null; }
     
     /**
      * Method for checking whether given accessor claims to represent
      * type id: if so, its value may be used as an override,
      * instead of generated type id.
-     * 
-     * @since 2.0
      */
-    public Boolean isTypeId(AnnotatedMember member) {
-        return null;
-    }
-
+    public Boolean isTypeId(AnnotatedMember member) { return null; }
 
     /**
      * Method used to check if specified property has annotation that indicates
@@ -508,9 +474,7 @@ public abstract class AnnotationIntrospector
      * 
      * @since 2.1
      */
-    public PropertyName findWrapperName(Annotated ann) {
-        return null;
-    }
+    public PropertyName findWrapperName(Annotated ann) { return null; }
 
     /**
      * Method used to check whether specified property member (accessor
@@ -522,10 +486,21 @@ public abstract class AnnotationIntrospector
      * 
      * @since 2.3
      */
-    public String findPropertyDescription(Annotated ann) {
-        return null;
-    }
-    
+    public String findPropertyDescription(Annotated ann) { return null; }
+
+    /**
+     * Method used to check whether specified property member (accessor
+     * or mutator) defines numeric index, and if so, what is the index value.
+     * Possible use cases for index values included use by underlying data format
+     * (some binary formats mandate use of index instead of name) and ordering
+     * of properties (for documentation, or during serialization).
+     * 
+     * @since 2.4
+     * 
+     * @return Explicitly specified index for the property, if any
+     */
+    public Integer findPropertyIndex(Annotated ann) { return null; }
+
     /*
     /**********************************************************
     /* Serialization: general annotations

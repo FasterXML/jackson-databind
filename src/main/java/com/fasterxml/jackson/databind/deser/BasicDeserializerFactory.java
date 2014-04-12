@@ -673,7 +673,8 @@ public abstract class BasicDeserializerFactory
             Boolean b = (intr == null) ? null : intr.hasRequiredMarker(param);
             boolean req = (b != null && b.booleanValue());
             String desc = (intr == null) ? null : intr.findPropertyDescription(param);
-            metadata = PropertyMetadata.construct(req, desc);
+            Integer idx = (intr == null) ? null : intr.findPropertyIndex(param);
+            metadata = PropertyMetadata.construct(req, desc, idx);
         }
             
         JavaType t0 = config.getTypeFactory().constructType(param.getParameterType(), beanDesc.bindingsForBeanType());

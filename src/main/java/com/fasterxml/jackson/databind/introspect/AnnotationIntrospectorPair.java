@@ -253,33 +253,21 @@ public class AnnotationIntrospectorPair
     // // // General member (field, method/constructor) annotations
     
     @Override        
-    public ReferenceProperty findReferenceType(AnnotatedMember member)
-    {
-        ReferenceProperty ref = _primary.findReferenceType(member);
-        if (ref == null) {
-            ref = _secondary.findReferenceType(member);
-        }
-        return ref; 
+    public ReferenceProperty findReferenceType(AnnotatedMember member) {
+        ReferenceProperty r = _primary.findReferenceType(member);
+        return (r == null) ? _secondary.findReferenceType(member) : r;
     }
 
     @Override        
-    public NameTransformer findUnwrappingNameTransformer(AnnotatedMember member)
-    {
-        NameTransformer value = _primary.findUnwrappingNameTransformer(member);
-        if (value == null) {
-            value = _secondary.findUnwrappingNameTransformer(member);
-        }
-        return value;
+    public NameTransformer findUnwrappingNameTransformer(AnnotatedMember member) {
+        NameTransformer r = _primary.findUnwrappingNameTransformer(member);
+        return (r == null) ? _secondary.findUnwrappingNameTransformer(member) : r;
     }
 
     @Override
-    public Object findInjectableValueId(AnnotatedMember m)
-    {
-        Object value = _primary.findInjectableValueId(m);
-        if (value == null) {
-            value = _secondary.findInjectableValueId(m);
-        }
-        return value;
+    public Object findInjectableValueId(AnnotatedMember m) {
+        Object r = _primary.findInjectableValueId(m);
+        return (r == null) ? _secondary.findInjectableValueId(m) : r;
     }
 
     @Override
@@ -288,49 +276,35 @@ public class AnnotationIntrospectorPair
     }
     
     @Override
-    public Boolean hasRequiredMarker(AnnotatedMember m)
-    {
-        Boolean value = _primary.hasRequiredMarker(m);
-        if (value == null) {
-            value = _secondary.hasRequiredMarker(m);
-        }
-        return value;
+    public Boolean hasRequiredMarker(AnnotatedMember m) {
+        Boolean r = _primary.hasRequiredMarker(m);
+        return (r == null) ? _secondary.hasRequiredMarker(m) : r;
     }
     
     // // // Serialization: general annotations
 
     @Override
-    public Object findSerializer(Annotated am)
-    {
-        Object result = _primary.findSerializer(am);
-        if (result == null) {
-            result = _secondary.findSerializer(am);
-        }
-        return result;
+    public Object findSerializer(Annotated am) {
+        Object r = _primary.findSerializer(am);
+        return (r == null) ? _secondary.findSerializer(am) : r;
     }
     
     @Override
-    public Object findKeySerializer(Annotated a)
-    {
-        Object result = _primary.findKeySerializer(a);
-        if (result == null || result == JsonSerializer.None.class || result == NoClass.class) {
-            result = _secondary.findKeySerializer(a);
-        }
-        return result;
+    public Object findKeySerializer(Annotated a) {
+        Object r = _primary.findKeySerializer(a);
+        return (r == null || r == JsonSerializer.None.class || r == NoClass.class) ?
+        		_secondary.findKeySerializer(a) : r;
     }
+
     @Override
-    public Object findContentSerializer(Annotated a)
-    {
-        Object result = _primary.findContentSerializer(a);
-        if (result == null || result == JsonSerializer.None.class || result == NoClass.class) {
-            result = _secondary.findContentSerializer(a);
-        }
-        return result;
+    public Object findContentSerializer(Annotated a) {
+    	Object r = _primary.findContentSerializer(a);
+        return (r == null || r == JsonSerializer.None.class || r == NoClass.class) ?
+        		_secondary.findContentSerializer(a) : r;
     }
     
     @Override
-    public Object findNullSerializer(Annotated a)
-    {
+    public Object findNullSerializer(Annotated a) {
         Object result = _primary.findNullSerializer(a);
         if (result == null || result == JsonSerializer.None.class || result == NoClass.class) {
             result = _secondary.findNullSerializer(a);
@@ -359,68 +333,43 @@ public class AnnotationIntrospectorPair
     }
     
     @Override
-    public Class<?> findSerializationType(Annotated a)
-    {
-        Class<?> result = _primary.findSerializationType(a);
-        if (result == null) {
-            result = _secondary.findSerializationType(a);
-        }
-        return result;
+    public Class<?> findSerializationType(Annotated a) {
+    	Class<?> r = _primary.findSerializationType(a);
+        return (r == null) ? _secondary.findSerializationType(a) : r;
     }
 
     @Override
-    public Class<?> findSerializationKeyType(Annotated am, JavaType baseType)
-    {
-        Class<?> result = _primary.findSerializationKeyType(am, baseType);
-        if (result == null) {
-            result = _secondary.findSerializationKeyType(am, baseType);
-        }
-        return result;
+    public Class<?> findSerializationKeyType(Annotated am, JavaType baseType) {
+        Class<?> r = _primary.findSerializationKeyType(am, baseType);
+        return (r == null) ? _secondary.findSerializationKeyType(am, baseType) : r;
     }
 
     @Override
-    public Class<?> findSerializationContentType(Annotated am, JavaType baseType)
-    {
-        Class<?> result = _primary.findSerializationContentType(am, baseType);
-        if (result == null) {
-            result = _secondary.findSerializationContentType(am, baseType);
-        }
-        return result;
+    public Class<?> findSerializationContentType(Annotated am, JavaType baseType) {
+        Class<?> r = _primary.findSerializationContentType(am, baseType);
+        return (r == null) ? _secondary.findSerializationContentType(am, baseType) : r;
     }
     
     @Override
-    public JsonSerialize.Typing findSerializationTyping(Annotated a)
-    {
-        JsonSerialize.Typing result = _primary.findSerializationTyping(a);
-        if (result == null) {
-            result = _secondary.findSerializationTyping(a);
-        }
-        return result;
+    public JsonSerialize.Typing findSerializationTyping(Annotated a) {
+        JsonSerialize.Typing r = _primary.findSerializationTyping(a);
+        return (r == null) ? _secondary.findSerializationTyping(a) : r;
     }
 
     @Override
-    public Object findSerializationConverter(Annotated a)
-    {
-        Object ob = _primary.findSerializationConverter(a);
-        if (ob == null) {
-            ob = _secondary.findSerializationConverter(a);
-        }
-        return ob;
+    public Object findSerializationConverter(Annotated a) {
+        Object r = _primary.findSerializationConverter(a);
+        return (r == null) ? _secondary.findSerializationConverter(a) : r;
     }
 
     @Override
-    public Object findSerializationContentConverter(AnnotatedMember a)
-    {
-        Object ob = _primary.findSerializationContentConverter(a);
-        if (ob == null) {
-            ob = _secondary.findSerializationContentConverter(a);
-        }
-        return ob;
+    public Object findSerializationContentConverter(AnnotatedMember a) {
+        Object r = _primary.findSerializationContentConverter(a);
+        return (r == null) ? _secondary.findSerializationContentConverter(a) : r;
     }
 
     @Override
-    public Class<?>[] findViews(Annotated a)
-    {
+    public Class<?>[] findViews(Annotated a) {
         /* Theoretically this could be trickier, if multiple introspectors
          * return non-null entries. For now, though, we'll just consider
          * first one to return non-null to win.
@@ -435,19 +384,13 @@ public class AnnotationIntrospectorPair
     @Override
     public Boolean isTypeId(AnnotatedMember member) {
         Boolean b = _primary.isTypeId(member);
-        if (b == null) {
-            b = _secondary.isTypeId(member);
-        }
-        return b;
+        return (b == null) ? _secondary.isTypeId(member) : b;
     }
 
     @Override
     public ObjectIdInfo findObjectIdInfo(Annotated ann) {
-        ObjectIdInfo result = _primary.findObjectIdInfo(ann);
-        if (result == null) {
-            result = _secondary.findObjectIdInfo(ann);
-        }
-        return result;
+        ObjectIdInfo r = _primary.findObjectIdInfo(ann);
+        return (r == null) ? _secondary.findObjectIdInfo(ann) : r;
     }
 
     @Override
@@ -460,11 +403,8 @@ public class AnnotationIntrospectorPair
     
     @Override
     public JsonFormat.Value findFormat(Annotated ann) {
-        JsonFormat.Value result = _primary.findFormat(ann);
-        if (result == null) {
-            result = _secondary.findFormat(ann);
-        }
-        return result;
+        JsonFormat.Value r = _primary.findFormat(ann);
+        return (r == null) ? _secondary.findFormat(ann) : r;
     }
 
     @Override
@@ -483,24 +423,23 @@ public class AnnotationIntrospectorPair
     }
     
     @Override
-    public String findPropertyDescription(Annotated ann)
-    {
-        String result = _primary.findPropertyDescription(ann);
-        if (result == null) {
-            result = _secondary.findPropertyDescription(ann);
-        }
-        return result;
+    public String findPropertyDescription(Annotated ann) {
+        String r = _primary.findPropertyDescription(ann);
+        return (r == null) ? _secondary.findPropertyDescription(ann) : r;
     }
 
+    @Override
+    public Integer findPropertyIndex(Annotated ann) {
+        Integer r = _primary.findPropertyIndex(ann);
+        return (r == null) ? _secondary.findPropertyIndex(ann) : r;
+    }
+    
     // // // Serialization: class annotations
 
     @Override
     public String[] findSerializationPropertyOrder(AnnotatedClass ac) {
-        String[] result = _primary.findSerializationPropertyOrder(ac);
-        if (result == null) {
-            result = _secondary.findSerializationPropertyOrder(ac);
-        }
-        return result;            
+        String[] r = _primary.findSerializationPropertyOrder(ac);
+        return (r == null) ? _secondary.findSerializationPropertyOrder(ac) : r;
     }
 
     /**
@@ -511,20 +450,14 @@ public class AnnotationIntrospectorPair
     @Override
     @Deprecated
     public Boolean findSerializationSortAlphabetically(AnnotatedClass ac) {
-        Boolean result = _primary.findSerializationSortAlphabetically(ac);
-        if (result == null) {
-            result = _secondary.findSerializationSortAlphabetically(ac);
-        }
-        return result;            
+        Boolean r = _primary.findSerializationSortAlphabetically(ac);
+        return (r == null) ? _secondary.findSerializationSortAlphabetically(ac) : r;
     }
 
     @Override
     public Boolean findSerializationSortAlphabetically(Annotated ann) {
-        Boolean result = _primary.findSerializationSortAlphabetically(ann);
-        if (result == null) {
-            result = _secondary.findSerializationSortAlphabetically(ann);
-        }
-        return result;            
+        Boolean r = _primary.findSerializationSortAlphabetically(ann);
+        return (r == null) ? _secondary.findSerializationSortAlphabetically(ann) : r;
     }
     
     // // // Serialization: property annotations
@@ -545,36 +478,26 @@ public class AnnotationIntrospectorPair
     }
     
     @Override
-    public boolean hasAsValueAnnotation(AnnotatedMethod am)
-    {
+    public boolean hasAsValueAnnotation(AnnotatedMethod am) {
         return _primary.hasAsValueAnnotation(am) || _secondary.hasAsValueAnnotation(am);
     }
     
     @Override
-    public String findEnumValue(Enum<?> value)
-    {
-        String result = _primary.findEnumValue(value);
-        if (result == null) {
-            result = _secondary.findEnumValue(value);
-        }
-        return result;
+    public String findEnumValue(Enum<?> value) {
+        String r = _primary.findEnumValue(value);
+        return (r == null) ? _secondary.findEnumValue(value) : r;
     }        
 
     // // // Deserialization: general annotations
 
     @Override
-    public Object findDeserializer(Annotated am)
-    {
-        Object result = _primary.findDeserializer(am);
-        if (result == null) {
-            result = _secondary.findDeserializer(am);
-        }
-        return result;
+    public Object findDeserializer(Annotated am) {
+        Object r = _primary.findDeserializer(am);
+        return (r == null) ? _secondary.findDeserializer(am) : r;
     }
     
     @Override
-    public Object findKeyDeserializer(Annotated am)
-    {
+    public Object findKeyDeserializer(Annotated am) {
         Object result = _primary.findKeyDeserializer(am);
         if (result == null || result == KeyDeserializer.None.class || result == NoClass.class) {
             result = _secondary.findKeyDeserializer(am);
@@ -583,8 +506,7 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Object findContentDeserializer(Annotated am)
-    {
+    public Object findContentDeserializer(Annotated am) {
         Object result = _primary.findContentDeserializer(am);
         if (result == null || result == JsonDeserializer.None.class || result == NoClass.class) {
             result = _secondary.findContentDeserializer(am);
@@ -593,8 +515,7 @@ public class AnnotationIntrospectorPair
     }
     
     @Override
-    public Class<?> findDeserializationType(Annotated am, JavaType baseType)
-    {
+    public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
         Class<?> result = _primary.findDeserializationType(am, baseType);
         if (result == null) {
             result = _secondary.findDeserializationType(am, baseType);
@@ -603,8 +524,7 @@ public class AnnotationIntrospectorPair
     }
 
     @Override
-    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType)
-    {
+    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
         Class<?> result = _primary.findDeserializationKeyType(am, baseKeyType);
         if (result == null) {
             result = _secondary.findDeserializationKeyType(am, baseKeyType);
@@ -690,20 +610,17 @@ public class AnnotationIntrospectorPair
     }
     
     @Override
-    public boolean hasAnySetterAnnotation(AnnotatedMethod am)
-    {
+    public boolean hasAnySetterAnnotation(AnnotatedMethod am) {
         return _primary.hasAnySetterAnnotation(am) || _secondary.hasAnySetterAnnotation(am);
     }
 
     @Override
-    public boolean hasAnyGetterAnnotation(AnnotatedMethod am)
-    {
+    public boolean hasAnyGetterAnnotation(AnnotatedMethod am) {
         return _primary.hasAnyGetterAnnotation(am) || _secondary.hasAnyGetterAnnotation(am);
     }
     
     @Override
-    public boolean hasCreatorAnnotation(Annotated a)
-    {
+    public boolean hasCreatorAnnotation(Annotated a) {
         return _primary.hasCreatorAnnotation(a) || _secondary.hasCreatorAnnotation(a);
     }
  }

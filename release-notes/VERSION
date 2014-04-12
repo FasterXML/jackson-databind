@@ -28,6 +28,7 @@ Version: 2.4.0 (xx-xxx-2014)
  (contributed by Francis G)
 #435: Performance bottleneck in TypeFactory._fromClass
  (reported by sdonovanuk@github)
+#438: Add support for accessing `@JsonProperty(index=N)` annotations
 
 ------------------------------------------------------------------------
 === History: ===

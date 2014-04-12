@@ -412,11 +412,12 @@ public class POJOPropertyBuilder
     public PropertyMetadata getMetadata() {
         final Boolean b = _findRequired();
         final String desc = _findDescription();
-        if (b == null) {
+        final Integer idx = _findIndex();
+        if (b == null && idx == null) {
             return (desc == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL
                     : PropertyMetadata.STD_REQUIRED_OR_OPTIONAL.withDescription(desc);
         }
-        return PropertyMetadata.construct(b.booleanValue(), _findDescription());
+        return PropertyMetadata.construct(b.booleanValue(), desc, idx);
     }
 
     protected Boolean _findRequired() {
@@ -434,6 +435,15 @@ public class POJOPropertyBuilder
             @Override
             public String withMember(AnnotatedMember member) {
                 return _annotationIntrospector.findPropertyDescription(member);
+            }
+        });
+    }
+
+    protected Integer _findIndex() {
+        return fromMemberAnnotations(new WithMember<Integer>() {
+            @Override
+            public Integer withMember(AnnotatedMember member) {
+                return _annotationIntrospector.findPropertyIndex(member);
             }
         });
     }

@@ -60,6 +60,8 @@ public interface BeanProperty extends Named
      * Accessor for additional optional information about property.
      * 
      * @since 2.3
+     * 
+     * @return Metadata about property; never null.
      */
     public PropertyMetadata getMetadata();
     

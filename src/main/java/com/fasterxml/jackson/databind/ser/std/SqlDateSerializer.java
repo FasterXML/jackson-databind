@@ -2,17 +2,13 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.text.DateFormat;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
 
 /**
  * Compared to regular {@link java.util.Date} serialization, we do use String
@@ -21,15 +17,38 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonValueFormat;
  */
 @JacksonStdImpl
 public class SqlDateSerializer
-    extends StdScalarSerializer<java.sql.Date>
+    extends DateTimeSerializerBase<java.sql.Date>
 {
-    public SqlDateSerializer() { super(java.sql.Date.class); }
+    public SqlDateSerializer() {
+        /* 12-Apr-2014, tatu: for now, pass explicit 'false' to mean 'not using timestamp',
+         *     for backwards compatibility; this differs from other Date/Calendar types.
+         */
+    	this(Boolean.FALSE);
+    }
 
+    protected SqlDateSerializer(Boolean useTimestamp) {
+    	super(java.sql.Date.class, useTimestamp, null);
+    }
+
+    @Override
+    public SqlDateSerializer withFormat(Boolean timestamp, DateFormat customFormat) {
+    	return new SqlDateSerializer(timestamp);
+    }
+
+    @Override
+    protected long _timestamp(java.sql.Date value) {
+        return (value == null) ? 0L : value.getTime();
+    }
+    
     @Override
     public void serialize(java.sql.Date value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
-        jgen.writeString(value.toString());
+        if (_useTimestamp) {
+            jgen.writeNumber(_timestamp(value));
+        } else {
+        	jgen.writeString(value.toString());
+        }
     }
 
     @Override
@@ -40,12 +59,8 @@ public class SqlDateSerializer
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {
-        JsonStringFormatVisitor v2 = (visitor == null) ? null : visitor.expectStringFormat(typeHint);
-        if (v2 != null) {
-            v2.format(JsonValueFormat.DATE_TIME);
-        }
+    	_acceptJsonFormatVisitor(visitor, typeHint, _useTimestamp);
     }
 }

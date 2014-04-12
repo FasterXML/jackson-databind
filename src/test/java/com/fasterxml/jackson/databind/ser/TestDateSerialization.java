@@ -26,6 +26,17 @@ public class TestDateSerialization
         public DateAsNumberBean(long l) { date = new java.util.Date(l); }
     }
 
+    static class SqlDateAsDefaultBean {
+        public java.sql.Date date;
+        public SqlDateAsDefaultBean(long l) { date = new java.sql.Date(l); }
+    }
+
+    static class SqlDateAsNumberBean {
+        @JsonFormat(shape=JsonFormat.Shape.NUMBER)
+        public java.sql.Date date;
+        public SqlDateAsNumberBean(long l) { date = new java.sql.Date(l); }
+    }
+    
     static class DateAsStringBean {
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
         public Date date;
@@ -89,6 +100,11 @@ public class TestDateSerialization
         // use date 1999-04-01 (note: months are 0-based, use constant)
         java.sql.Date date = new java.sql.Date(99, Calendar.APRIL, 1);
         assertEquals(quote("1999-04-01"), MAPPER.writeValueAsString(date));
+
+        assertEquals(aposToQuotes("{'date':'1969-12-31'}"), MAPPER.writeValueAsString(new SqlDateAsDefaultBean(0L)));
+
+        // but may explicitly force timestamp too
+        assertEquals(aposToQuotes("{'date':0}"), MAPPER.writeValueAsString(new SqlDateAsNumberBean(0L)));
     }
 
     public void testTimeZone() throws IOException
@@ -145,7 +161,7 @@ public class TestDateSerialization
         // first: test overriding writing as timestamp
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         json = mapper.writeValueAsString(new DateAsNumberBean(0L));
-        assertEquals("{\"date\":0}", json);
+        assertEquals(aposToQuotes("{'date':0}"), json);
 
         // then reverse
         mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);

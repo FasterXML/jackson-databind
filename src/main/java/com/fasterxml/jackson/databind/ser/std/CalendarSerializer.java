@@ -20,19 +20,15 @@ public class CalendarSerializer
 {
     public static final CalendarSerializer instance = new CalendarSerializer();
 
-    public CalendarSerializer() { this(false, null); }
+    public CalendarSerializer() { this(null, null); }
 
-    public CalendarSerializer(boolean useTimestamp, DateFormat customFormat) {
+    public CalendarSerializer(Boolean useTimestamp, DateFormat customFormat) {
         super(Calendar.class, useTimestamp, customFormat);
     }
 
     @Override
-    public CalendarSerializer withFormat(boolean timestamp, DateFormat customFormat)
-    {
-        if (timestamp) {
-            return new CalendarSerializer(true, null);
-        }
-        return new CalendarSerializer(false, customFormat);
+    public CalendarSerializer withFormat(Boolean timestamp, DateFormat customFormat) {
+        return new CalendarSerializer(timestamp, customFormat);
     }
 
     @Override
@@ -44,7 +40,7 @@ public class CalendarSerializer
     public void serialize(Calendar value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
-        if (_useTimestamp) {
+        if (_asTimestamp(provider)) {
             jgen.writeNumber(_timestamp(value));
         } else if (_customFormat != null) {
             // 21-Feb-2011, tatu: not optimal, but better than alternatives:

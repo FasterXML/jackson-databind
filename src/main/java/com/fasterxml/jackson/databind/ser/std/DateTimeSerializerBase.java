@@ -25,7 +25,7 @@ public abstract class DateTimeSerializerBase<T>
      * Flag that indicates that serialization must be done as the
      * Java timestamp, regardless of other settings.
      */
-    protected final boolean _useTimestamp;
+    protected final Boolean _useTimestamp;
     
     /**
      * Specific format to use, if not default format: non null value
@@ -35,14 +35,14 @@ public abstract class DateTimeSerializerBase<T>
     protected final DateFormat _customFormat;
 
     protected DateTimeSerializerBase(Class<T> type,
-            boolean useTimestamp, DateFormat customFormat)
+            Boolean useTimestamp, DateFormat customFormat)
     {
         super(type);
         _useTimestamp = useTimestamp;
         _customFormat = customFormat;
     }
 
-    public abstract DateTimeSerializerBase<T> withFormat(boolean timestamp, DateFormat customFormat);
+    public abstract DateTimeSerializerBase<T> withFormat(Boolean timestamp, DateFormat customFormat);
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider prov,
@@ -51,10 +51,13 @@ public abstract class DateTimeSerializerBase<T>
         if (property != null) {
             JsonFormat.Value format = prov.getAnnotationIntrospector().findFormat((Annotated)property.getMember());
             if (format != null) {
-                // Simple case first: serialize as numeric timestamp?
+
+            	// Simple case first: serialize as numeric timestamp?
                 if (format.getShape().isNumeric()) {
-                    return withFormat(true, null);
+                    return withFormat(Boolean.TRUE, null);
                 }
+
+        		Boolean asNumber = (format.getShape() == JsonFormat.Shape.STRING) ? Boolean.FALSE : null;
                 // If not, do we have a pattern?
                 TimeZone tz = format.getTimeZone();
                 if (format.hasPattern()) {
@@ -65,7 +68,7 @@ public abstract class DateTimeSerializerBase<T>
                         tz = prov.getTimeZone();
                     }
                     df.setTimeZone(tz);
-                    return withFormat(false, df);
+                    return withFormat(asNumber, df);
                 }
                 // If not, do we at least have a custom timezone?
                 if (tz != null) {
@@ -79,7 +82,7 @@ public abstract class DateTimeSerializerBase<T>
                         df = (DateFormat) df.clone();
                         df.setTimeZone(tz);
                     }
-                    return withFormat(false, df);
+                    return withFormat(asNumber, df);
                 }
             }
         }
@@ -101,28 +104,46 @@ public abstract class DateTimeSerializerBase<T>
     protected abstract long _timestamp(T value);
     
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-    {
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
         //todo: (ryan) add a format for the date in the schema?
-        boolean asNumber = _useTimestamp;
-        if (!asNumber) {
-            if (_customFormat == null) {
-                asNumber = provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            }
-        }
-        return createSchemaNode(asNumber ? "number" : "string", true);
+        return createSchemaNode(_asTimestamp(provider) ? "number" : "string", true);
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {
-        boolean asNumber = _useTimestamp;
-        if (!asNumber) {
-            if (_customFormat == null) {
-                asNumber = visitor.getProvider().isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            }
+        _acceptJsonFormatVisitor(visitor, typeHint, _asTimestamp(visitor.getProvider()));
+    }
+
+    /*
+    /**********************************************************
+    /* Actual serialization
+    /**********************************************************
+     */
+
+    @Override
+    public abstract void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
+        throws IOException, JsonGenerationException;
+
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+    
+    protected boolean _asTimestamp(SerializerProvider provider) {
+        if (_useTimestamp != null) {
+        	return _useTimestamp.booleanValue();
         }
+        if (_customFormat == null) {
+        	return provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        }
+        return false;
+    }
+
+    protected void _acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint,
+		boolean asNumber) throws JsonMappingException
+    {
         if (asNumber) {
             JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
             if (v2 != null) {
@@ -136,14 +157,4 @@ public abstract class DateTimeSerializerBase<T>
             }
         }
     }
-
-    /*
-    /**********************************************************
-    /* Actual serialization
-    /**********************************************************
-     */
-
-    @Override
-    public abstract void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException;
 }

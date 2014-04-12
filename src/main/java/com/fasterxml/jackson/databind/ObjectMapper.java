@@ -1220,7 +1220,25 @@ public class ObjectMapper
         _deserializationConfig = _deserializationConfig.withNoProblemHandlers();
         return this;
     }
-    
+
+    /**
+     * Method that allows overriding of the underlying {@link DeserializationConfig}
+     * object.
+     * It is added as a fallback method that may be used if no other configuration
+     * modifier method works: it should not be used if there are alternatives,
+     * and its use is generally discouraged.
+     *<p>
+     * <b>NOTE</b>: only use this method if you know what you are doing -- it allows
+     * by-passing some of checks applied to other configuration methods.
+     * Also keep in mind that as with all configuration of {@link ObjectMapper},
+     * this is only thread-safe if done before calling any deserialization methods.
+     * 
+     * @since 2.4
+     */
+    public ObjectMapper setConfig(DeserializationConfig config) {
+    	_deserializationConfig = config;
+    	return this;
+    }
     
     /*
     /**********************************************************
@@ -1257,6 +1275,25 @@ public class ObjectMapper
         _serializationConfig = _serializationConfig.with(v);
         _deserializationConfig = _deserializationConfig.with(v);
         return this;
+    }
+
+    /**
+     * Method that allows overriding of the underlying {@link SerializationConfig}
+     * object, which contains serialization-specific configuration settings.
+     * It is added as a fallback method that may be used if no other configuration
+     * modifier method works: it should not be used if there are alternatives,
+     * and its use is generally discouraged.
+     *<p>
+     * <b>NOTE</b>: only use this method if you know what you are doing -- it allows
+     * by-passing some of checks applied to other configuration methods.
+     * Also keep in mind that as with all configuration of {@link ObjectMapper},
+     * this is only thread-safe if done before calling any serialization methods.
+     * 
+     * @since 2.4
+     */
+    public ObjectMapper setConfig(SerializationConfig config) {
+    	_serializationConfig = config;
+    	return this;
     }
     
     /*

@@ -434,6 +434,12 @@ public class AnnotationIntrospectorPair
         return (r == null) ? _secondary.findPropertyIndex(ann) : r;
     }
     
+    @Override
+    public String findParameterSourceName(AnnotatedParameter param) {
+        String r = _primary.findParameterSourceName(param);
+        return (r == null) ? _secondary.findParameterSourceName(param) : r;
+    }
+
     // // // Serialization: class annotations
 
     @Override
@@ -499,96 +505,65 @@ public class AnnotationIntrospectorPair
     @Override
     public Object findKeyDeserializer(Annotated am) {
         Object result = _primary.findKeyDeserializer(am);
-        if (result == null || result == KeyDeserializer.None.class || result == NoClass.class) {
-            result = _secondary.findKeyDeserializer(am);
-        }
-        return result;
+        return (result == null || result == KeyDeserializer.None.class || result == NoClass.class) ?
+                _secondary.findKeyDeserializer(am) : result;
     }
 
     @Override
     public Object findContentDeserializer(Annotated am) {
         Object result = _primary.findContentDeserializer(am);
-        if (result == null || result == JsonDeserializer.None.class || result == NoClass.class) {
-            result = _secondary.findContentDeserializer(am);
-        }
-        return result;
+        return (result == null || result == JsonDeserializer.None.class || result == NoClass.class) ?
+                _secondary.findContentDeserializer(am) : result;
     }
     
     @Override
     public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
         Class<?> result = _primary.findDeserializationType(am, baseType);
-        if (result == null) {
-            result = _secondary.findDeserializationType(am, baseType);
-        }
-        return result;
+        return (result == null) ? _secondary.findDeserializationType(am, baseType) : result;
     }
 
     @Override
     public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
         Class<?> result = _primary.findDeserializationKeyType(am, baseKeyType);
-        if (result == null) {
-            result = _secondary.findDeserializationKeyType(am, baseKeyType);
-        }
-        return result;
+        return (result == null) ? _secondary.findDeserializationKeyType(am, baseKeyType) : result;
     }
 
     @Override
     public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType) {
         Class<?> result = _primary.findDeserializationContentType(am, baseContentType);
-        if (result == null) {
-            result = _secondary.findDeserializationContentType(am, baseContentType);
-        }
-        return result;
+        return (result == null) ? _secondary.findDeserializationContentType(am, baseContentType) : result;
     }
 
     @Override
     public Object findDeserializationConverter(Annotated a) {
         Object ob = _primary.findDeserializationConverter(a);
-        if (ob == null) {
-            ob = _secondary.findDeserializationConverter(a);
-        }
-        return ob;
+        return (ob == null) ? _secondary.findDeserializationConverter(a) : ob;
     }
 
     @Override
     public Object findDeserializationContentConverter(AnnotatedMember a) {
         Object ob = _primary.findDeserializationContentConverter(a);
-        if (ob == null) {
-            ob = _secondary.findDeserializationContentConverter(a);
-        }
-        return ob;
+        return (ob == null) ? _secondary.findDeserializationContentConverter(a) : ob;
     }
     
     // // // Deserialization: class annotations
 
     @Override
-    public Object findValueInstantiator(AnnotatedClass ac)
-    {
+    public Object findValueInstantiator(AnnotatedClass ac) {
         Object result = _primary.findValueInstantiator(ac);
-        if (result == null) {
-            result = _secondary.findValueInstantiator(ac);
-        }
-        return result;
+        return (result == null) ? _secondary.findValueInstantiator(ac) : result;
     }
 
     @Override
-    public Class<?> findPOJOBuilder(AnnotatedClass ac)
-    {
-            Class<?> result = _primary.findPOJOBuilder(ac);
-            if (result == null) {
-                    result = _secondary.findPOJOBuilder(ac);
-            }
-            return result;
+    public Class<?> findPOJOBuilder(AnnotatedClass ac) {
+        Class<?> result = _primary.findPOJOBuilder(ac);
+        return (result == null) ? _secondary.findPOJOBuilder(ac) : result;
     }
 
     @Override
-    public JsonPOJOBuilder.Value findPOJOBuilderConfig(AnnotatedClass ac)
-    {
+    public JsonPOJOBuilder.Value findPOJOBuilderConfig(AnnotatedClass ac) {
         JsonPOJOBuilder.Value result = _primary.findPOJOBuilderConfig(ac);
-        if (result == null) {
-            result = _secondary.findPOJOBuilderConfig(ac);
-        }
-        return result;
+        return (result == null) ? _secondary.findPOJOBuilderConfig(ac) : result;
     }
     
     // // // Deserialization: method annotations

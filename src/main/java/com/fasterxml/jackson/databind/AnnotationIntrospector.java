@@ -501,6 +501,20 @@ public abstract class AnnotationIntrospector
      */
     public Integer findPropertyIndex(Annotated ann) { return null; }
 
+    /**
+     * Method for finding parameter name used in source code, and typically
+     * not indicated by an annotation (which is ironic considering the context).
+     * The reason for including method here is that of convenience; while
+     * it is not part of annotation handling, it is closely related to
+     * property introspection project. {@link AnnotationIntrospector} handling
+     * is also one of limited number of truly pluggable extension points, making
+     * it ideal from developer perspective; even at the expense of strict
+     * naming consistency.
+     * 
+     * @since 2.4
+     */
+    public String findParameterSourceName(AnnotatedParameter param) { return null; }
+    
     /*
     /**********************************************************
     /* Serialization: general annotations

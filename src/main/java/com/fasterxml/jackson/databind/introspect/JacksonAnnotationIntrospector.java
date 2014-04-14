@@ -495,6 +495,12 @@ public class JacksonAnnotationIntrospector
         return null;
     }
 
+    @Override
+    public String findParameterSourceName(AnnotatedParameter param) {
+        // not known by default (until JDK8); but leave explicit:
+        return null;
+    }
+    
     /*
     /**********************************************************
     /* Serialization: class annotations

@@ -39,6 +39,18 @@ Version: 2.4.0 (xx-xxx-2014)
 === History: ===
 ------------------------------------------------------------------------
 
+2.3.3 (10-Apr-2014)
+
+#420: Remove 'final' modifier from `BeanDeserializerBase.deserializeWithType`
+ (requested by Ghoughpteighbteau@github)
+#422: Allow use of "True" and "False" as aliases for booleans when coercing from
+  JSON String
+#423: Fix `CalendarSerializer` to work with custom format
+ (reported by sergeymetallic@github)
+#433: `ObjectMapper`'s `.valueToTree()` wraps `JsonSerializable` objects into a POJONode
+ (reported by Francis G)
+- Fix null-handling for `CollectionSerializer`
+
 2.3.2 (01-Mar-2014)
 
 #378: Fix a problem with custom enum deserializer construction

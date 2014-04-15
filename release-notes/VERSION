@@ -7,6 +7,9 @@ Version: 2.4.0 (xx-xxx-2014)
  (requested by chenboxiang@github)
 #176: Allow use external Object Id resolver (to use with @JsonIdentityInfo etc)
  (implemented by Pascal G)
+#193: Conflicting property name definitions
+ (reported by Stuart J, sgjohnston@github)
+#327: Should not consider explicitly differing renames a fail, as long as all are explici
 #335: Allow use of `@JsonPropertyOrder(alphabetic=true)` for Map properties
 #352 Add `ObjectMapper.setConfig()` for overriding `SerializationConfig`/`DeserializationConfig`
 #353: Problems with polymorphic types, `JsonNode` (related to #88)

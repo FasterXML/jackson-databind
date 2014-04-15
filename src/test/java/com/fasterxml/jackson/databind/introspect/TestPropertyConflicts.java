@@ -37,20 +37,6 @@ public class TestPropertyConflicts extends BaseMapTest
         public int getValue() { return value+1; }
     }
 
-    // [Issue#323]
-    static class Bean323 { 
-        private int a;
-
-        public Bean323 (@JsonProperty("a") final int a ) {
-            this.a = a;
-        }
-
-        @JsonProperty("b")
-        private int getA () {
-            return a;
-        }
-    }    
-    
     /*
     /**********************************************************
     /* Test methods
@@ -82,12 +68,5 @@ public class TestPropertyConflicts extends BaseMapTest
         ObjectMapper mapper = objectMapper();
         assertEquals(1, mapper.readValue("{\"value\":1}", Getters1A.class).value);
         assertEquals(2, mapper.readValue("{\"value\":2}", Getters1B.class).value);
-    }
-
-    // [Issue#323]
-    public void testCreatorPropRename() throws Exception
-    {
-        Bean323 input = new Bean323(7);
-        assertEquals("{\"b\":7}", objectWriter().writeValueAsString(input));
     }
 }

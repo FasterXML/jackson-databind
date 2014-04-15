@@ -467,6 +467,12 @@ public class POJOPropertiesCollector
         // shouldn't need to worry about @JsonIgnore, since creators only added
         // if so annotated
 
+        /* 14-Apr-2014, tatu: Not ideal, since we should not start with explicit name, ever;
+         *   but with current set up we also can not just use empty name.
+         *   This will cause failure for [#323] until we figure out a better way to handle
+         *   the problem; possibly by creating a placeholder container for "anonymous"
+         *   creator parameters.
+         */
         POJOPropertyBuilder prop = expl ?  _property(pn) : _property(impl);
         prop.addCtor(param, pn, expl, true, false);
 

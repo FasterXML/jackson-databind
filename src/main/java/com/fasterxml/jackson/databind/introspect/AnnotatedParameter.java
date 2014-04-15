@@ -15,10 +15,6 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * can not return meaningful values since parameters do not have stand-alone
  * JDK objects associated; so access should mostly be limited to checking
  * annotation values which are properly aggregated and included.
- *<p>
- * Note: as of version 1.7, this type extends {@link AnnotatedMember}, since
- * it behaves like a member for the most part, but earlier it just extended
- * {@link Annotated}
  */
 public final class AnnotatedParameter
     extends AnnotatedMember

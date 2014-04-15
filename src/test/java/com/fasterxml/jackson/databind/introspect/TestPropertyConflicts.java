@@ -37,7 +37,7 @@ public class TestPropertyConflicts extends BaseMapTest
         public int getValue() { return value+1; }
     }
 
-    // [Issue#323] (fixed in 2.4)
+    // [Issue#323]
     static class Bean323 { 
         private int a;
 

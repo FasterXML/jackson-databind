@@ -1,6 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.PropertyMetadata;
@@ -44,22 +44,26 @@ public class POJOPropertyBuilder
 
     protected Linked<AnnotatedMethod> _setters;
 
-    public POJOPropertyBuilder(PropertyName internalName,
+    public POJOPropertyBuilder(PropertyName internalName, AnnotationIntrospector ai, boolean forSerialization) {
+        this(internalName, internalName, ai, forSerialization);
+    }
+
+    protected POJOPropertyBuilder(PropertyName internalName, PropertyName name,
             AnnotationIntrospector annotationIntrospector, boolean forSerialization)
     {
         _internalName = internalName;
-        _name = internalName;
+        _name = name;
         _annotationIntrospector = annotationIntrospector;
         _forSerialization = forSerialization;
     }
-
+    
     @Deprecated // since 2.3
     public POJOPropertyBuilder(String simpleInternalName,
             AnnotationIntrospector annotationIntrospector, boolean forSerialization)
     {
         this(new PropertyName(simpleInternalName), annotationIntrospector, forSerialization);
     }
-    
+
     public POJOPropertyBuilder(POJOPropertyBuilder src, PropertyName newName)
     {
         _internalName = src._internalName;
@@ -748,42 +752,108 @@ public class POJOPropertyBuilder
     }
 
     /**
-     * @since 2.4 Use {@link #findNewNames} instead
+     * @since 2.4 Use {@link #findExplicitNames} instead
      */
-    /*
     @Deprecated
     public String findNewName()
     {
-        Map<String,POJOPropertyBuilder> r = findRenamed();
-        if (r == null) {
+        Collection<PropertyName> l = findExplicitNames();
+        if (l == null) {
             return null;
         }
-        return r.entrySet().iterator().next().getKey();
+        
+        // 13-Apr-2014, tatu: Start with code similar to existing conflict checks
+        if (l.size() > 1) {
+            throw new IllegalStateException("Conflicting/ambiguous property name definitions (implicit name '"
+                    +_name+"'): found more than one explicit name: "
+                    +l);
+        }
+        PropertyName first = l.iterator().next();
+        if (first.equals(_name)) {
+            return null;
+        }
+        return first.getSimpleName();
     }
-    */
     
     /**
-     * Method called to check whether property represented by this collector
-     * should be renamed from the implicit name; and also verify that there
-     * are no conflicting rename definitions.
+     * Method called to find out set of explicit names for accessors
+     * bound together due to implicit name.
+     * 
+     * @since 2.4
      */
-//    public Map<String,POJOPropertyBuilder> findRenamed()
-    public String findNewName()
+    public Set<PropertyName> findExplicitNames()
     {
-//        Map<String,POJOPropertyBuilder> renamed = null;
-        Linked<? extends AnnotatedMember> renamed = null;
-        renamed = findRenamed(_fields, renamed);
-        renamed = findRenamed(_getters, renamed);
-        renamed = findRenamed(_setters, renamed);
-        renamed = findRenamed(_ctorParameters, renamed);
-        return (renamed == null) ? null : renamed.name.getSimpleName();
+        Set<PropertyName> renamed = null;
+        renamed = _findExplicitNames(_fields, renamed);
+        renamed = _findExplicitNames(_getters, renamed);
+        renamed = _findExplicitNames(_setters, renamed);
+        renamed = _findExplicitNames(_ctorParameters, renamed);
+        if (renamed == null) {
+            return Collections.emptySet();
+        }
+        return renamed;
     }
 
-    private Linked<? extends AnnotatedMember> findRenamed(Linked<? extends AnnotatedMember> node,
-            Linked<? extends AnnotatedMember> renamed)
+    /**
+     * Method called when a previous call to {@link #findExplicitNames} found
+     * multiple distinct explicit names, and the property this builder represents
+     * basically needs to be broken apart and replaced by a set of more than
+     * one properties.
+     * 
+     * @since 2.4
+     */
+    public Collection<POJOPropertyBuilder> explode(Collection<PropertyName> newNames)
+    {
+        HashMap<PropertyName,POJOPropertyBuilder> props = new HashMap<PropertyName,POJOPropertyBuilder>();
+        _explode(newNames, props, _fields);
+        _explode(newNames, props, _getters);
+        _explode(newNames, props, _setters);
+        _explode(newNames, props, _ctorParameters);
+        return props.values();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void _explode(Collection<PropertyName> newNames,
+            Map<PropertyName,POJOPropertyBuilder> props,
+            Linked<?> accessors)
+    {
+        final Linked<?> firstAcc = accessors; // clumsy, part 1
+        for (Linked<?> node = accessors; node != null; node = node.next) {
+            PropertyName name = node.name;
+            if (!node.isNameExplicit || name == null) { // no explicit name -- problem!
+                throw new IllegalStateException("Conflicting/ambiguous property name definitions (implicit name '"
+                        +_name+"'): found multiple explicit names: "
+                        +newNames+", but also implicit accessor: "+node);
+            }
+            POJOPropertyBuilder prop = props.get(name);
+            if (prop == null) {
+                prop = new POJOPropertyBuilder(_internalName, name, _annotationIntrospector, _forSerialization);
+                props.put(name, prop);
+            }
+            // ultra-clumsy, part 2 -- lambdas would be nice here
+            if (firstAcc == _fields) {
+                Linked<AnnotatedField> n2 = (Linked<AnnotatedField>) node;
+                prop._fields = n2.withNext(prop._fields);
+            } else if (firstAcc == _getters) {
+                Linked<AnnotatedMethod> n2 = (Linked<AnnotatedMethod>) node;
+                prop._getters = n2.withNext(prop._getters);
+            } else if (firstAcc == _setters) {
+                Linked<AnnotatedMethod> n2 = (Linked<AnnotatedMethod>) node;
+                prop._setters = n2.withNext(prop._setters);
+            } else if (firstAcc == _ctorParameters) {
+                Linked<AnnotatedParameter> n2 = (Linked<AnnotatedParameter>) node;
+                prop._ctorParameters = n2.withNext(prop._ctorParameters);
+            } else {
+                throw new IllegalStateException("Internal error: mismatched accessors, property: "+this);
+            }
+        }
+    }
+    
+    private Set<PropertyName> _findExplicitNames(Linked<? extends AnnotatedMember> node,
+            Set<PropertyName> renamed)
     {
         for (; node != null; node = node.next) {
-            /* 30-Mar-2014, tatu: Second change should not be needed, but seems like
+            /* 30-Mar-2014, tatu: Second check should not be needed, but seems like
              *   removing it can cause nasty exceptions with certain version
              *   combinations (2.4 databind, an older module).
              *   So leaving it in for now until this is resolved
@@ -792,21 +862,10 @@ public class POJOPropertyBuilder
             if (!node.isNameExplicit || node.name == null) {
                 continue;
             }
-            PropertyName name = node.name;
-            // different from default name?
-            if (name.equals(_name)) { // nope, skip
-                continue;
-            }
             if (renamed == null) {
-                renamed = node;
-            } else {
-                // different from an earlier renaming? problem
-                if (!name.equals(renamed.name)) {
-                    throw new IllegalStateException("Conflicting property name definitions: '"
-                            +renamed.name+"' (for "+renamed.value+") vs '"
-                            +node.name+"' (for "+node.value+")");
-                }
+                renamed = new HashSet<PropertyName>();
             }
+            renamed.add(node.name);
         }
         return renamed;
     }

@@ -423,48 +423,56 @@ public class POJOPropertiesCollector
      */
     protected void _addCreators()
     {
-        final AnnotationIntrospector ai = _annotationIntrospector;
         // can be null if annotation processing is disabled...
-        if (ai == null) {
-            return;
-        }
-        for (AnnotatedConstructor ctor : _classDef.getConstructors()) {
-            if (_creatorProperties == null) {
-                _creatorProperties = new LinkedList<POJOPropertyBuilder>();
-            }
-            for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
-                AnnotatedParameter param = ctor.getParameter(i);
-                PropertyName pn = ai.findNameForDeserialization(param);
-                // is it legal not to have name?
-                if (pn != null && !pn.isEmpty()) {
-                    // shouldn't need to worry about @JsonIgnore (no real point, so)
-                    POJOPropertyBuilder prop = _property(pn);
-                    // 28-Mar-2014, tatu: for now, all creator names considered explicit;
-                    //    may need to change for JDK 8 where implicit names exist
-                    prop.addCtor(param, pn, true, true, false);
-                    _creatorProperties.add(prop);
+        if (_annotationIntrospector != null) {
+            for (AnnotatedConstructor ctor : _classDef.getConstructors()) {
+                if (_creatorProperties == null) {
+                    _creatorProperties = new LinkedList<POJOPropertyBuilder>();
+                }
+                for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
+                    _addCreatorParam(ctor.getParameter(i));
                 }
             }
-        }
-        for (AnnotatedMethod factory : _classDef.getStaticMethods()) {
-            if (_creatorProperties == null) {
-                _creatorProperties = new LinkedList<POJOPropertyBuilder>();
-            }
-            for (int i = 0, len = factory.getParameterCount(); i < len; ++i) {
-                AnnotatedParameter param = factory.getParameter(i);
-                PropertyName pn = ai.findNameForDeserialization(param);
-                // is it legal not to have name?
-                if (pn != null && !pn.isEmpty()) {
-                    // shouldn't need to worry about @JsonIgnore (no real point, so)
-                    POJOPropertyBuilder prop = _property(pn);
-                    // 28-Mar-2014, tatu: for now, all names considered explicit
-                    prop.addCtor(param, pn, true, true, false);
-                    _creatorProperties.add(prop);
+            for (AnnotatedMethod factory : _classDef.getStaticMethods()) {
+                if (_creatorProperties == null) {
+                    _creatorProperties = new LinkedList<POJOPropertyBuilder>();
+                }
+                for (int i = 0, len = factory.getParameterCount(); i < len; ++i) {
+                    _addCreatorParam(factory.getParameter(i));
                 }
             }
         }
     }
 
+    protected void _addCreatorParam(AnnotatedParameter param)
+    {
+        // JDK 8, paranamer can give implicit name
+        String impl = _annotationIntrospector.findParameterSourceName(param);
+        if (impl == null) {
+            impl = "";
+        }
+        PropertyName pn = _annotationIntrospector.findNameForDeserialization(param);
+        boolean expl = (pn != null && !pn.isEmpty());
+        if (!expl) {
+            if (impl.isEmpty()) {
+                /* Important: if neither implicit nor explicit name, can not make use
+                 * of this creator paramter -- may or may not be a problem, verified
+                 * at a later point.
+                 */
+                return;
+            }
+            pn = new PropertyName(impl);
+        }
+
+        // shouldn't need to worry about @JsonIgnore, since creators only added
+        // if so annotated
+
+        POJOPropertyBuilder prop = expl ?  _property(pn) : _property(impl);
+        prop.addCtor(param, pn, expl, true, false);
+
+        _creatorProperties.add(prop);
+    }
+    
     /**
      * Method for collecting basic information on all fields found
      */
@@ -689,6 +697,26 @@ public class POJOPropertiesCollector
         while (it.hasNext()) {
             Map.Entry<String, POJOPropertyBuilder> entry = it.next();
             POJOPropertyBuilder prop = entry.getValue();
+
+            Collection<PropertyName> l = prop.findExplicitNames();
+            // no explicit names? Implicit one is fine as is
+            if (l.isEmpty()) {
+                continue;
+            }
+            it.remove(); // need to replace with one or more renamed
+            if (renamed == null) {
+                renamed = new LinkedList<POJOPropertyBuilder>();
+            }
+            // simple renaming? Just do it
+            if (l.size() == 1) {
+                PropertyName n = l.iterator().next();
+                renamed.add(prop.withName(n));
+                continue;
+            }
+            // but this may be problematic...
+            renamed.addAll(prop.explode(l));
+
+            /*
             String newName = prop.findNewName();
             if (newName != null) {
                 if (renamed == null) {
@@ -698,6 +726,7 @@ public class POJOPropertiesCollector
                 renamed.add(prop);
                 it.remove();
             }
+            */
         }
         
         // and if any were renamed, merge back in...

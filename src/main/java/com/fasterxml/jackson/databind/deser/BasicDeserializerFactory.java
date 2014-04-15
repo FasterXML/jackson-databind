@@ -429,7 +429,7 @@ public abstract class BasicDeserializerFactory
                     name = ctorPropNames[i];
                 }
                 if (name == null) {
-                    name = (param == null) ? null : intr.findNameForDeserialization(param);
+                    name = _findParamName(param, intr);
                 }
                 Object injectId = intr.findInjectableValueId(param);
                 if (name != null && name.hasSimpleName()) {
@@ -477,7 +477,7 @@ public abstract class BasicDeserializerFactory
         // note: if we do have parameter name, it'll be "property constructor":
         AnnotatedParameter param = ctor.getParameter(0);
         if (name == null) {
-            name = (param == null) ? null : intr.findNameForDeserialization(param);
+            name = _findParamName(param, intr);
         }
         Object injectId = intr.findInjectableValueId(param);
     
@@ -548,7 +548,7 @@ public abstract class BasicDeserializerFactory
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
                 AnnotatedParameter param = factory.getParameter(0);
-                PropertyName pn = (param == null) ? null : intr.findNameForDeserialization(param);
+                PropertyName pn = _findParamName(param, intr);
                 String name = (pn == null) ? null : pn.getSimpleName();
                 Object injectId = intr.findInjectableValueId(param);
 
@@ -572,7 +572,7 @@ public abstract class BasicDeserializerFactory
             int injectCount = 0;            
             for (int i = 0; i < argCount; ++i) {
                 AnnotatedParameter param = factory.getParameter(i);
-                PropertyName name = (param == null) ? null : intr.findNameForDeserialization(param);
+                PropertyName name = _findParamName(param, intr);
                 Object injectId = intr.findInjectableValueId(param);
                 if (name != null && name.hasSimpleName()) {
                     ++namedCount;
@@ -704,6 +704,24 @@ public abstract class BasicDeserializerFactory
             prop = prop.withValueDeserializer(deser);
         }
         return prop;
+    }
+
+    protected PropertyName _findParamName(AnnotatedParameter param, AnnotationIntrospector intr)
+    {
+        if (param != null && intr != null) {
+            PropertyName name = intr.findNameForDeserialization(param);
+            if (name != null) {
+                return name;
+            }
+            /* 14-Apr-2014, tatu: Need to also consider possible implicit name
+            *   (for JDK8, or via paranamer)
+            */
+            String str = intr.findParameterSourceName(param);
+            if (str != null && !str.isEmpty()) {
+                return new PropertyName(str);
+            }
+        }
+        return null;
     }
     
     /*

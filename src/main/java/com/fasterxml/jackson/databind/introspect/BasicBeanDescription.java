@@ -480,44 +480,70 @@ public class BasicBeanDescription extends BeanDescription
     }
 
     /**
+     * @deprecated Since 2.4, use {@link #findCreatorParameterNames()} instead.
+     * @return
+     */
+    @Deprecated
+    public List<String> findCreatorPropertyNames()
+    {
+    	List<PropertyName> params = findCreatorParameterNames();
+    	if (params.isEmpty()) {
+    		return Collections.emptyList();
+    	}
+    	List<String> result = new ArrayList<String>(params.size());
+    	for (PropertyName name : params) {
+    		result.add(name.getSimpleName());
+    	}
+    	return result;
+    }
+    
+    /**
      * Method for getting ordered list of named Creator properties.
      * Returns an empty list is none found. If multiple Creator
      * methods are defined, order between properties from different
      * methods is undefined; however, properties for each such
-     * Creator are ordered properly relative to each other. For the
-     * usual case of just a single Creator, named properties are
+     * Creator are ordered properly relative to each other.
+     * For the usual case of just a single Creator, named properties are
      * thus properly ordered.
+     * 
+     * @since 2.4
      */
-    public List<String> findCreatorPropertyNames()
+    public List<PropertyName> findCreatorParameterNames()
     {
-        List<String> names = null;
-
         for (int i = 0; i < 2; ++i) {
             List<? extends AnnotatedWithParams> l = (i == 0)
                 ? getConstructors() : getFactoryMethods();
             for (AnnotatedWithParams creator : l) {
                 int argCount = creator.getParameterCount();
                 if (argCount < 1) continue;
-                PropertyName name = _annotationIntrospector.findNameForDeserialization(creator.getParameter(0));
-                if (name == null) {
+                PropertyName name = _findCreatorPropertyName(creator.getParameter(0));
+                if (name == null || name.isEmpty()) {
                     continue;
                 }
-                if (names == null) {
-                    names = new ArrayList<String>();
-                }
-                names.add(name.getSimpleName());
+                List<PropertyName> names = new ArrayList<PropertyName>();
+                names.add(name);
                 for (int p = 1; p < argCount; ++p) {
-                    name = _annotationIntrospector.findNameForDeserialization(creator.getParameter(p));
-                    names.add((name == null) ? null : name.getSimpleName());
+                    name = _findCreatorPropertyName(creator.getParameter(p));
+                    names.add(name);
                 }
+                return names;
             }
         }
-        if (names == null) {
-            return Collections.emptyList();
-        }
-        return names;
+        return Collections.emptyList();
     }
 
+    protected PropertyName _findCreatorPropertyName(AnnotatedParameter param)
+    {
+    	PropertyName name = _annotationIntrospector.findNameForDeserialization(param);
+    	if (name == null || name.isEmpty()) {
+    		String str = _annotationIntrospector.findParameterSourceName(param);
+    		if (str != null && !str.isEmpty()) {
+    			name = new PropertyName(str);
+    		}
+    	}
+    	return name;
+    }
+    
     /*
     /**********************************************************
     /* Introspection for deserialization, other

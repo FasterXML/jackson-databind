@@ -444,6 +444,9 @@ public class POJOPropertiesCollector
         }
     }
 
+    /**
+     * @since 2.4
+     */
     protected void _addCreatorParam(AnnotatedParameter param)
     {
         // JDK 8, paranamer can give implicit name
@@ -474,6 +477,8 @@ public class POJOPropertiesCollector
          *   creator parameters.
          */
         POJOPropertyBuilder prop = expl ?  _property(pn) : _property(impl);
+        // should use this (or similar) instead:
+//        POJOPropertyBuilder prop = _property(impl);
         prop.addCtor(param, pn, expl, true, false);
 
         _creatorProperties.add(prop);

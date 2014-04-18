@@ -23,7 +23,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.3.1</version>
+  <version>2.3.3</version>
 </dependency>
 ```
 

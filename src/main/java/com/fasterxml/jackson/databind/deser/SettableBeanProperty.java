@@ -159,7 +159,7 @@ public abstract class SettableBeanProperty
             boolean isRequired)
     {
         this(new PropertyName(propName), type, wrapper, typeDeser, contextAnnotations,
-                PropertyMetadata.construct(isRequired, null));
+                PropertyMetadata.construct(isRequired, null, null));
     }
     
     protected SettableBeanProperty(PropertyName propName, JavaType type, PropertyName wrapper,

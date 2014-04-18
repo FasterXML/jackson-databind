@@ -101,7 +101,9 @@ public class TestDateSerialization
         java.sql.Date date = new java.sql.Date(99, Calendar.APRIL, 1);
         assertEquals(quote("1999-04-01"), MAPPER.writeValueAsString(date));
 
-        assertEquals(aposToQuotes("{'date':'1969-12-31'}"), MAPPER.writeValueAsString(new SqlDateAsDefaultBean(0L)));
+        java.sql.Date date0 = new java.sql.Date(0L);
+        assertEquals(aposToQuotes("{'date':'"+date0.toString()+"'}"),
+                MAPPER.writeValueAsString(new SqlDateAsDefaultBean(0L)));
 
         // but may explicitly force timestamp too
         assertEquals(aposToQuotes("{'date':0}"), MAPPER.writeValueAsString(new SqlDateAsNumberBean(0L)));

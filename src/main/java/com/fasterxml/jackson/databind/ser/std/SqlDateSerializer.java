@@ -23,11 +23,11 @@ public class SqlDateSerializer
         /* 12-Apr-2014, tatu: for now, pass explicit 'false' to mean 'not using timestamp',
          *     for backwards compatibility; this differs from other Date/Calendar types.
          */
-    	this(Boolean.FALSE);
+        this(Boolean.FALSE);
     }
 
     protected SqlDateSerializer(Boolean useTimestamp) {
-    	super(java.sql.Date.class, useTimestamp, null);
+        super(java.sql.Date.class, useTimestamp, null);
     }
 
     @Override
@@ -61,6 +61,6 @@ public class SqlDateSerializer
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {
-    	_acceptJsonFormatVisitor(visitor, typeHint, _useTimestamp);
+        _acceptJsonFormatVisitor(visitor, typeHint, _useTimestamp);
     }
 }

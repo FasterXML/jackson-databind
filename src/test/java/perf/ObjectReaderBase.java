@@ -1,5 +1,7 @@
 package perf;
 
+import java.io.*;
+
 import com.fasterxml.jackson.databind.*;
 
 abstract class ObjectReaderBase
@@ -102,5 +104,20 @@ abstract class ObjectReaderBase
         }
         hash = result.hashCode();
         return System.currentTimeMillis() - start;
+    }
+
+    public static byte[] readAll(String filename) throws IOException
+    {
+        File f = new File(filename);
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream((int) f.length());
+        byte[] buffer = new byte[4000];
+        int count;
+        FileInputStream in = new FileInputStream(f);
+        
+        while ((count = in.read(buffer)) > 0) {
+            bytes.write(buffer, 0, count);
+        }
+        in.close();
+        return bytes.toByteArray();
     }
 }

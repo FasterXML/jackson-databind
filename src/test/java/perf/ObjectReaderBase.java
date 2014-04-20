@@ -8,6 +8,8 @@ abstract class ObjectReaderBase
 {
     protected final static int WARMUP_ROUNDS = 5;
 
+    protected String _desc1, _desc2;
+    
     protected int hash;
 
     protected int roundsDone = 0;
@@ -29,38 +31,37 @@ abstract class ObjectReaderBase
         /*T1 back1 =*/ mapper1.readValue(byteInput1, inputClass1);
         /*T2 back2 =*/ mapper2.readValue(byteInput2, inputClass2);
         System.out.println("Input successfully round-tripped for both styles...");
+
+        _desc1 = String.format("%s (%d bytes)", desc1, byteInput1.length);
+        _desc2 = String.format("%s (%d bytes)", desc2, byteInput2.length);
         
-        doTest(mapper1, desc1, byteInput1, inputClass1, mapper2, desc2, byteInput2, inputClass2);
+        doTest(mapper1, byteInput1, inputClass1, mapper2, byteInput2, inputClass2);
     }
     
     protected <T1, T2> void testFromString(ObjectMapper mapper1, String desc1,
             T1 inputValue1, Class<T1> inputClass1,
-            ObjectMapper mapper2, String desc2,
-            T2 inputValue2, Class<T2> inputClass2)
+            ObjectMapper mapper2, String desc2, T2 inputValue2, Class<T2> inputClass2)
         throws Exception
     {
         final String input1 = mapper1.writeValueAsString(inputValue1);
         final String input2 = mapper2.writeValueAsString(inputValue2);
         // Let's try to guestimate suitable size... to get to N megs to process
         REPS = (int) ((double) (8 * 1000 * 1000) / (double) input1.length());
+        _desc1 = String.format("%s (%d chars)", desc1, input1.length());
+        _desc2 = String.format("%s (%d chars)", desc2, input2.length());
 
         // sanity check:
         /*T1 back1 =*/ mapper1.readValue(input1, inputClass1);
         /*T2 back2 =*/ mapper2.readValue(input2, inputClass2);
         System.out.println("Input successfully round-tripped for both styles...");
         
-        doTest(mapper1, desc1, input1, inputClass1, mapper2, desc2, input2, inputClass2);
+        doTest(mapper1, input1, inputClass1, mapper2, input2, inputClass2);
     }
     
-    protected void doTest(ObjectMapper mapper1, String desc1,
-            byte[] byteInput1, Class<?> inputClass1,
-            ObjectMapper mapper2, String desc2,
-            byte[] byteInput2, Class<?> inputClass2)
+    protected void doTest(ObjectMapper mapper1, byte[] byteInput1, Class<?> inputClass1,
+            ObjectMapper mapper2, byte[] byteInput2, Class<?> inputClass2)
         throws Exception
     {
-        desc1 = String.format("%s (%d bytes)", desc1, byteInput1.length);
-        desc2 = String.format("%s (%d bytes)", desc2, byteInput2.length);
-
         System.out.printf("Read %d bytes to bind (%d as array); will do %d repetitions\n",
                 byteInput1.length, byteInput2.length, REPS);
 
@@ -84,11 +85,11 @@ abstract class ObjectReaderBase
             
             switch (type) {
             case 0:
-                msg = desc1;
+                msg = _desc1;
                 msecs = testDeser(REPS, byteInput1, jsonReader);
                 break;
             case 1:
-                msg = desc2;
+                msg = _desc2;
                 msecs = testDeser(REPS, byteInput2, arrayReader);
                 break;
             default:
@@ -98,15 +99,10 @@ abstract class ObjectReaderBase
         }
     }
 
-    protected void doTest(ObjectMapper mapper1, String desc1,
-            String input1, Class<?> inputClass1,
-            ObjectMapper mapper2, String desc2,
-            String input2, Class<?> inputClass2)
+    protected void doTest(ObjectMapper mapper1, String input1, Class<?> inputClass1,
+            ObjectMapper mapper2, String input2, Class<?> inputClass2)
         throws Exception
     {
-        desc1 = String.format("%s (%d bytes)", desc1, input1.length());
-        desc2 = String.format("%s (%d bytes)", desc2, input2.length());
-
         System.out.printf("Read %d bytes to bind (%d as array); will do %d repetitions\n",
                 input1.length(), input2.length(), REPS);
 
@@ -130,11 +126,11 @@ abstract class ObjectReaderBase
             
             switch (type) {
             case 0:
-                msg = desc1;
+                msg = _desc1;
                 msecs = testDeser(REPS, input1, jsonReader);
                 break;
             case 1:
-                msg = desc2;
+                msg = _desc2;
                 msecs = testDeser(REPS, input2, arrayReader);
                 break;
             default:

@@ -302,10 +302,18 @@ public class UntypedObjectDeserializer
             l.add(value);
             return l;
         }
+        Object value2 = deserialize(jp, ctxt);
+        if (jp.nextToken()  == JsonToken.END_ARRAY) {
+            ArrayList<Object> l = new ArrayList<Object>(2);
+            l.add(value);
+            l.add(value2);
+            return l;
+        }
         ObjectBuffer buffer = ctxt.leaseObjectBuffer();
         Object[] values = buffer.resetAndStart();
         int ptr = 0;
         values[ptr++] = value;
+        values[ptr++] = value2;
         int totalSize = ptr;
         do {
             value = deserialize(jp, ctxt);

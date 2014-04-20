@@ -6,9 +6,15 @@ import com.fasterxml.jackson.databind.*;
 
 abstract class ObjectReaderBase
 {
+    protected final static int WARMUP_ROUNDS = 5;
+
     protected int hash;
 
-    protected <T1, T2> void test(ObjectMapper mapper1, String desc1,
+    protected int roundsDone = 0;
+
+    protected int REPS;
+    
+    protected <T1, T2> void testFromBytes(ObjectMapper mapper1, String desc1,
             T1 inputValue1, Class<T1> inputClass1,
             ObjectMapper mapper2, String desc2,
             T2 inputValue2, Class<T2> inputClass2)
@@ -16,19 +22,44 @@ abstract class ObjectReaderBase
     {
         final byte[] byteInput1 = mapper1.writeValueAsBytes(inputValue1);
         final byte[] byteInput2 = mapper2.writeValueAsBytes(inputValue2);
-
-        desc1 = String.format("%s (%d bytes)", desc1, byteInput1.length);
-        desc2 = String.format("%s (%d bytes)", desc2, byteInput2.length);
+        // Let's try to guestimate suitable size... to get to N megs to process
+        REPS = (int) ((double) (8 * 1000 * 1000) / (double) byteInput1.length);
 
         // sanity check:
-        {
-            /*T1 back1 =*/ mapper1.readValue(byteInput1, inputClass1);
-            /*T2 back2 =*/ mapper2.readValue(byteInput2, inputClass2);
-            System.out.println("Input successfully round-tripped for both styles...");
-        }
-
+        /*T1 back1 =*/ mapper1.readValue(byteInput1, inputClass1);
+        /*T2 back2 =*/ mapper2.readValue(byteInput2, inputClass2);
+        System.out.println("Input successfully round-tripped for both styles...");
+        
+        doTest(mapper1, desc1, byteInput1, inputClass1, mapper2, desc2, byteInput2, inputClass2);
+    }
+    
+    protected <T1, T2> void testFromString(ObjectMapper mapper1, String desc1,
+            T1 inputValue1, Class<T1> inputClass1,
+            ObjectMapper mapper2, String desc2,
+            T2 inputValue2, Class<T2> inputClass2)
+        throws Exception
+    {
+        final String input1 = mapper1.writeValueAsString(inputValue1);
+        final String input2 = mapper2.writeValueAsString(inputValue2);
         // Let's try to guestimate suitable size... to get to N megs to process
-        final int REPS = (int) ((double) (8 * 1000 * 1000) / (double) byteInput1.length);
+        REPS = (int) ((double) (8 * 1000 * 1000) / (double) input1.length());
+
+        // sanity check:
+        /*T1 back1 =*/ mapper1.readValue(input1, inputClass1);
+        /*T2 back2 =*/ mapper2.readValue(input2, inputClass2);
+        System.out.println("Input successfully round-tripped for both styles...");
+        
+        doTest(mapper1, desc1, input1, inputClass1, mapper2, desc2, input2, inputClass2);
+    }
+    
+    protected void doTest(ObjectMapper mapper1, String desc1,
+            byte[] byteInput1, Class<?> inputClass1,
+            ObjectMapper mapper2, String desc2,
+            byte[] byteInput2, Class<?> inputClass2)
+        throws Exception
+    {
+        desc1 = String.format("%s (%d bytes)", desc1, byteInput1.length);
+        desc2 = String.format("%s (%d bytes)", desc2, byteInput2.length);
 
         System.out.printf("Read %d bytes to bind (%d as array); will do %d repetitions\n",
                 byteInput1.length, byteInput2.length, REPS);
@@ -41,22 +72,17 @@ abstract class ObjectReaderBase
                 .withType(inputClass2);
         
         int i = 0;
-        int roundsDone = 0;
         final int TYPES = 2;
-        final int WARMUP_ROUNDS = 5;
 
         final long[] times = new long[TYPES];
-        
         while (true) {
-            try {  Thread.sleep(100L); } catch (InterruptedException ie) { }
-            int round = (i++ % TYPES);
+            Thread.sleep(100L);
+            int type = (i++ % TYPES);
 
             String msg;
-            boolean lf = (round == 0);
-
             long msecs;
             
-            switch (round) {
+            switch (type) {
             case 0:
                 msg = desc1;
                 msecs = testDeser(REPS, byteInput1, jsonReader);
@@ -68,44 +94,105 @@ abstract class ObjectReaderBase
             default:
                 throw new Error();
             }
-
-            // skip first 5 rounds to let results stabilize
-            if (roundsDone >= WARMUP_ROUNDS) {
-                times[round] += msecs;
-            }
-            
-            System.out.printf("Test '%s' [hash: 0x%s] -> %d msecs\n", msg, this.hash, msecs);
-            if (lf) {
-                ++roundsDone;
-                if ((roundsDone % 3) == 0 && roundsDone > WARMUP_ROUNDS) {
-                    double den = (double) (roundsDone - WARMUP_ROUNDS);
-                    System.out.printf("Averages after %d rounds (Object / Array): %.1f / %.1f msecs\n",
-                            (int) den,
-                            times[0] / den, times[1] / den);
-                            
-                }
-                System.out.println();
-            }
-            if ((i % 17) == 0) {
-                System.out.println("[GC]");
-                Thread.sleep(100L);
-                System.gc();
-                Thread.sleep(100L);
-            }
+            updateStats(type, (i % 17) == 0, msg, msecs, times);
         }
     }
 
-    private final long testDeser(int REPS, byte[] input, ObjectReader reader) throws Exception
+    protected void doTest(ObjectMapper mapper1, String desc1,
+            String input1, Class<?> inputClass1,
+            ObjectMapper mapper2, String desc2,
+            String input2, Class<?> inputClass2)
+        throws Exception
+    {
+        desc1 = String.format("%s (%d bytes)", desc1, input1.length());
+        desc2 = String.format("%s (%d bytes)", desc2, input2.length());
+
+        System.out.printf("Read %d bytes to bind (%d as array); will do %d repetitions\n",
+                input1.length(), input2.length(), REPS);
+
+        final ObjectReader jsonReader = mapper1.reader()
+                .with(DeserializationFeature.EAGER_DESERIALIZER_FETCH)
+                .withType(inputClass1);
+        final ObjectReader arrayReader = mapper2.reader()
+                .with(DeserializationFeature.EAGER_DESERIALIZER_FETCH)
+                .withType(inputClass2);
+        
+        int i = 0;
+        final int TYPES = 2;
+
+        final long[] times = new long[TYPES];
+        while (true) {
+            Thread.sleep(100L);
+            int type = (i++ % TYPES);
+
+            String msg;
+            long msecs;
+            
+            switch (type) {
+            case 0:
+                msg = desc1;
+                msecs = testDeser(REPS, input1, jsonReader);
+                break;
+            case 1:
+                msg = desc2;
+                msecs = testDeser(REPS, input2, arrayReader);
+                break;
+            default:
+                throw new Error();
+            }
+            updateStats(type, (i % 17) == 0, msg, msecs, times);
+        }
+    }
+    
+    private void updateStats(int type, boolean doGc, String msg, long msecs, long[] times)
+        throws Exception
+    {
+        // skip first N rounds to let results stabilize
+        if (roundsDone >= WARMUP_ROUNDS) {
+            times[type] += msecs;
+        }
+        System.out.printf("Test '%s' [hash: 0x%s] -> %d msecs\n", msg, this.hash, msecs);
+        if (type == 0) {
+            ++roundsDone;
+            if ((roundsDone % 3) == 0 && roundsDone > WARMUP_ROUNDS) {
+                double den = (double) (roundsDone - WARMUP_ROUNDS);
+                System.out.printf("Averages after %d rounds (Object / Array): %.1f / %.1f msecs\n",
+                        (int) den,
+                        times[0] / den, times[1] / den);
+                        
+            }
+            System.out.println();
+        }
+        if (doGc) {
+            System.out.println("[GC]");
+            Thread.sleep(100L);
+            System.gc();
+            Thread.sleep(100L);
+        }
+    }
+    
+    private final long testDeser(int reps, byte[] input, ObjectReader reader) throws Exception
     {
         long start = System.currentTimeMillis();
         Object result = null;
-        while (--REPS >= 0) {
+        while (--reps >= 0) {
             result = reader.readValue(input);
         }
         hash = result.hashCode();
         return System.currentTimeMillis() - start;
     }
 
+    private final long testDeser(int reps, String input, ObjectReader reader) throws Exception
+    {
+        long start = System.currentTimeMillis();
+        Object result = null;
+        while (--reps >= 0) {
+            result = reader.readValue(input);
+        }
+        hash = result.hashCode();
+        return System.currentTimeMillis() - start;
+    }
+    
     public static byte[] readAll(String filename) throws IOException
     {
         File f = new File(filename);

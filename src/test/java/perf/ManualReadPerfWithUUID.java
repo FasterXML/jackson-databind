@@ -52,7 +52,7 @@ public class ManualReadPerfWithUUID extends ObjectReaderBase
 
         ObjectMapper m = new ObjectMapper();
 
-        new ManualReadPerfWithRecord().test(
+        new ManualReadPerfWithRecord().testFromBytes(
                 m, "JSON-as-Object", input1, UUIDNative.class,
                 m, "JSON-as-Array", input2, UUIDWithJdk.class);
     }

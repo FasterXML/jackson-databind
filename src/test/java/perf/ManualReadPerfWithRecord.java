@@ -17,7 +17,7 @@ public class ManualReadPerfWithRecord extends ObjectReaderBase
         Record input = new Record(44, "BillyBob", "Bumbler", 'm', true);
         RecordAsArray input2 = new RecordAsArray(44, "BillyBob", "Bumbler", 'm', true);
         ObjectMapper m = new ObjectMapper();
-        new ManualReadPerfWithRecord().test(m, "JSON-as-Object", input, Record.class,
+        new ManualReadPerfWithRecord().testFromBytes(m, "JSON-as-Object", input, Record.class,
                 m, "JSON-as-Array", input2, RecordAsArray.class);
     }
 }

@@ -19,7 +19,7 @@ public class ManualReadPerfUntyped extends ObjectReaderBase
 
         new ManualReadPerfUntyped().test(
                 m, "JSON-as-Object", input1, Object.class,
-                m, "JSON-as-Array", input2, JsonNode.class);
+                m, "JSON-as-Node", input2, JsonNode.class);
     }
 
 }

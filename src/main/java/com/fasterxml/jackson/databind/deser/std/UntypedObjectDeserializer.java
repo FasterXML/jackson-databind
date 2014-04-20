@@ -294,14 +294,21 @@ public class UntypedObjectDeserializer
     {
         // Minor optimization to handle small lists (default size for ArrayList is 10)
         if (jp.nextToken()  == JsonToken.END_ARRAY) {
-            return new ArrayList<Object>(4);
+            return new ArrayList<Object>(2);
+        }
+        Object value = deserialize(jp, ctxt);
+        if (jp.nextToken()  == JsonToken.END_ARRAY) {
+            ArrayList<Object> l = new ArrayList<Object>(2);
+            l.add(value);
+            return l;
         }
         ObjectBuffer buffer = ctxt.leaseObjectBuffer();
         Object[] values = buffer.resetAndStart();
         int ptr = 0;
-        int totalSize = 0;
+        values[ptr++] = value;
+        int totalSize = ptr;
         do {
-            Object value = deserialize(jp, ctxt);
+            value = deserialize(jp, ctxt);
             ++totalSize;
             if (ptr >= values.length) {
                 values = buffer.appendCompletedChunk(values);
@@ -309,8 +316,8 @@ public class UntypedObjectDeserializer
             }
             values[ptr++] = value;
         } while (jp.nextToken() != JsonToken.END_ARRAY);
-        // let's create almost full array, with 1/8 slack
-        ArrayList<Object> result = new ArrayList<Object>(totalSize + (totalSize >> 3) + 1);
+        // let's create full array then
+        ArrayList<Object> result = new ArrayList<Object>(totalSize);
         buffer.completeAndClearBuffer(values, ptr, result);
         return result;
     }
@@ -324,23 +331,23 @@ public class UntypedObjectDeserializer
         if (t == JsonToken.START_OBJECT) {
             t = jp.nextToken();
         }
-        // 1.6: minor optimization; let's handle 1 and 2 entry cases separately
-        if (t != JsonToken.FIELD_NAME) { // and empty one too
+        // minor optimization; let's handle 1 and 2 entry cases separately
+        if (t == JsonToken.END_OBJECT) { // and empty one too
             // empty map might work; but caller may want to modify... so better just give small modifiable
-            return new LinkedHashMap<String,Object>(4);
+            return new LinkedHashMap<String,Object>(2);
         }
         String field1 = jp.getText();
         jp.nextToken();
         Object value1 = deserialize(jp, ctxt);
-        if (jp.nextToken() != JsonToken.FIELD_NAME) { // single entry; but we want modifiable
-            LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(4);
+        if (jp.nextToken() == JsonToken.END_OBJECT) { // single entry; but we want modifiable
+            LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(2);
             result.put(field1, value1);
             return result;
         }
         String field2 = jp.getText();
         jp.nextToken();
         Object value2 = deserialize(jp, ctxt);
-        if (jp.nextToken() != JsonToken.FIELD_NAME) {
+        if (jp.nextToken() == JsonToken.END_OBJECT) {
             LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(4);
             result.put(field1, value1);
             result.put(field2, value2);

@@ -13,6 +13,12 @@ public class ManualReadPerfUntyped extends ObjectReaderBase
         }
         byte[] data = readAll(args[0]);
 
+        JsonFactory f = new JsonFactory();
+        boolean doIntern = true;
+
+        f.configure(JsonFactory.Feature.CANONICALIZE_FIELD_NAMES, doIntern);
+        f.configure(JsonFactory.Feature.INTERN_FIELD_NAMES, doIntern);
+        
         ObjectMapper m = new ObjectMapper();
         Object input1 = m.readValue(data, Object.class);
         JsonNode input2 = m.readTree(data);
@@ -28,7 +34,32 @@ public class ManualReadPerfUntyped extends ObjectReaderBase
 
     // When comparing to simple streaming parsing, uncomment:
 
+    @Override
+    protected long testDeser1(int reps, String input, ObjectReader reader) throws Exception {
+        return _testDeser(reps, input, reader);
+    }
+
+    @Override
+    protected long testDeser2(int reps, String input, ObjectReader reader) throws Exception {
+        return _testDeser(reps, input, reader);
+    }
+    
     /*
+    @Override
+    protected long testDeser1(int reps, String input, ObjectReader reader) throws Exception {
+        long start = System.currentTimeMillis();
+        final JsonFactory f = reader.getFactory();
+        while (--reps >= 0) {
+            JsonParser p = f.createParser(input);
+            while (p.nextToken() != null) {
+                ;
+            }
+            p.close();
+        }
+        hash = f.hashCode();
+        return System.currentTimeMillis() - start;
+    }
+    
     @Override
     protected long testDeser2(int reps, String input, ObjectReader reader) throws Exception {
         long start = System.currentTimeMillis();

@@ -174,7 +174,7 @@ abstract class ObjectReaderBase
         return _testDeser(reps, input, reader);
     }
     
-    private final long _testDeser(int reps, byte[] input, ObjectReader reader) throws Exception
+    protected final long _testDeser(int reps, byte[] input, ObjectReader reader) throws Exception
     {
         long start = System.currentTimeMillis();
         Object result = null;
@@ -193,7 +193,7 @@ abstract class ObjectReaderBase
         return _testDeser(reps, input, reader);
     }
     
-    private final long _testDeser(int reps, String input, ObjectReader reader) throws Exception
+    protected final long _testDeser(int reps, String input, ObjectReader reader) throws Exception
     {
         long start = System.currentTimeMillis();
         Object result = null;

@@ -1,7 +1,7 @@
 package perf;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.*;
 
 public class ManualReadPerfUntyped extends ObjectReaderBase
 {
@@ -26,4 +26,22 @@ public class ManualReadPerfUntyped extends ObjectReaderBase
                 );
     }
 
+    // When comparing to simple streaming parsing, uncomment:
+
+    /*
+    @Override
+    protected long testDeser2(int reps, String input, ObjectReader reader) throws Exception {
+        long start = System.currentTimeMillis();
+        final JsonFactory f = reader.getFactory();
+        while (--reps >= 0) {
+            JsonParser p = f.createParser(input);
+            while (p.nextToken() != null) {
+                ;
+            }
+            p.close();
+        }
+        hash = f.hashCode();
+        return System.currentTimeMillis() - start;
+    }
+    */
 }

@@ -86,11 +86,11 @@ abstract class ObjectReaderBase
             switch (type) {
             case 0:
                 msg = _desc1;
-                msecs = testDeser(REPS, byteInput1, jsonReader);
+                msecs = testDeser1(REPS, byteInput1, jsonReader);
                 break;
             case 1:
                 msg = _desc2;
-                msecs = testDeser(REPS, byteInput2, arrayReader);
+                msecs = testDeser2(REPS, byteInput2, arrayReader);
                 break;
             default:
                 throw new Error();
@@ -127,11 +127,11 @@ abstract class ObjectReaderBase
             switch (type) {
             case 0:
                 msg = _desc1;
-                msecs = testDeser(REPS, input1, jsonReader);
+                msecs = testDeser1(REPS, input1, jsonReader);
                 break;
             case 1:
                 msg = _desc2;
-                msecs = testDeser(REPS, input2, arrayReader);
+                msecs = testDeser2(REPS, input2, arrayReader);
                 break;
             default:
                 throw new Error();
@@ -166,8 +166,15 @@ abstract class ObjectReaderBase
             Thread.sleep(100L);
         }
     }
+
+    protected long testDeser1(int reps, byte[] input, ObjectReader reader) throws Exception {
+        return _testDeser(reps, input, reader);
+    }
+    protected long testDeser2(int reps, byte[] input, ObjectReader reader) throws Exception {
+        return _testDeser(reps, input, reader);
+    }
     
-    private final long testDeser(int reps, byte[] input, ObjectReader reader) throws Exception
+    private final long _testDeser(int reps, byte[] input, ObjectReader reader) throws Exception
     {
         long start = System.currentTimeMillis();
         Object result = null;
@@ -178,7 +185,15 @@ abstract class ObjectReaderBase
         return System.currentTimeMillis() - start;
     }
 
-    private final long testDeser(int reps, String input, ObjectReader reader) throws Exception
+    protected long testDeser1(int reps, String input, ObjectReader reader) throws Exception {
+        return _testDeser(reps, input, reader);
+    }
+
+    protected long testDeser2(int reps, String input, ObjectReader reader) throws Exception {
+        return _testDeser(reps, input, reader);
+    }
+    
+    private final long _testDeser(int reps, String input, ObjectReader reader) throws Exception
     {
         long start = System.currentTimeMillis();
         Object result = null;
@@ -188,7 +203,7 @@ abstract class ObjectReaderBase
         hash = result.hashCode();
         return System.currentTimeMillis() - start;
     }
-    
+
     public static byte[] readAll(String filename) throws IOException
     {
         File f = new File(filename);

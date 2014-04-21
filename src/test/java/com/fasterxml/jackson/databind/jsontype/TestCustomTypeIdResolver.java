@@ -120,7 +120,7 @@ public class TestCustomTypeIdResolver extends BaseMapTest
         CustomResolver.initTypes = types;
         String json = MAPPER.writeValueAsString(new CustomBean[] { new CustomBeanImpl(28) });
         assertEquals("[{\"*\":{\"x\":28}}]", json);
-        assertEquals(1, types.size());
+        assertEquals(2, types.size());
         assertEquals(CustomBean.class, types.get(0).getRawClass());
 
         types = new ArrayList<JavaType>();

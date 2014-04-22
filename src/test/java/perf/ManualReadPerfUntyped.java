@@ -36,22 +36,29 @@ public class ManualReadPerfUntyped extends ObjectReaderBase
 
     @Override
     protected long testDeser1(int reps, String input, ObjectReader reader) throws Exception {
+//        return _testRawDeser(reps, input, reader);
         return _testDeser(reps, input, reader);
     }
 
     @Override
     protected long testDeser2(int reps, String input, ObjectReader reader) throws Exception {
+//        return _testRawDeser(reps, input, reader);
         return _testDeser(reps, input, reader);
     }
     
-    /*
-    @Override
-    protected long testDeser1(int reps, String input, ObjectReader reader) throws Exception {
+    protected final long _testRawDeser(int reps, String input, ObjectReader reader) throws Exception
+    {
         long start = System.currentTimeMillis();
         final JsonFactory f = reader.getFactory();
         while (--reps >= 0) {
             JsonParser p = f.createParser(input);
-            while (p.nextToken() != null) {
+            JsonToken t;
+            while ((t = p.nextToken()) != null) {
+                if (t == JsonToken.VALUE_STRING) {
+                    p.getText();
+                } else if (t.isNumeric()) {
+                    p.getNumberValue();
+                }
                 ;
             }
             p.close();
@@ -59,20 +66,4 @@ public class ManualReadPerfUntyped extends ObjectReaderBase
         hash = f.hashCode();
         return System.currentTimeMillis() - start;
     }
-    
-    @Override
-    protected long testDeser2(int reps, String input, ObjectReader reader) throws Exception {
-        long start = System.currentTimeMillis();
-        final JsonFactory f = reader.getFactory();
-        while (--reps >= 0) {
-            JsonParser p = f.createParser(input);
-            while (p.nextToken() != null) {
-                ;
-            }
-            p.close();
-        }
-        hash = f.hashCode();
-        return System.currentTimeMillis() - start;
-    }
-    */
 }

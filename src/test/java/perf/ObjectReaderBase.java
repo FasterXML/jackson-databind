@@ -15,6 +15,8 @@ abstract class ObjectReaderBase
     protected int roundsDone = 0;
 
     protected int REPS;
+
+    private double[] timeMsecs;;
     
     protected <T1, T2> void testFromBytes(ObjectMapper mapper1, String desc1,
             T1 inputValue1, Class<T1> inputClass1,
@@ -75,27 +77,26 @@ abstract class ObjectReaderBase
         int i = 0;
         final int TYPES = 2;
 
-        final long[] times = new long[TYPES];
         while (true) {
             Thread.sleep(100L);
             int type = (i++ % TYPES);
 
             String msg;
-            long msecs;
+            long micros;
             
             switch (type) {
             case 0:
                 msg = _desc1;
-                msecs = testDeser1(REPS, byteInput1, jsonReader);
+                micros = testDeser1(REPS, byteInput1, jsonReader);
                 break;
             case 1:
                 msg = _desc2;
-                msecs = testDeser2(REPS, byteInput2, arrayReader);
+                micros = testDeser2(REPS, byteInput2, arrayReader);
                 break;
             default:
                 throw new Error();
             }
-            updateStats(type, (i % 17) == 0, msg, msecs, times);
+            updateStats(type, (i % 17) == 0, msg, micros);
         }
     }
 
@@ -116,13 +117,14 @@ abstract class ObjectReaderBase
         int i = 0;
         final int TYPES = 2;
 
-        final long[] times = new long[TYPES];
+        timeMsecs = new double[TYPES];
+
         while (true) {
             Thread.sleep(100L);
             int type = (i++ % TYPES);
 
             String msg;
-            long msecs;
+            double msecs;
             
             switch (type) {
             case 0:
@@ -136,25 +138,25 @@ abstract class ObjectReaderBase
             default:
                 throw new Error();
             }
-            updateStats(type, (i % 17) == 0, msg, msecs, times);
+            updateStats(type, (i % 17) == 0, msg, msecs);
         }
     }
     
-    private void updateStats(int type, boolean doGc, String msg, long msecs, long[] times)
+    private void updateStats(int type, boolean doGc, String msg, double msecs)
         throws Exception
     {
         // skip first N rounds to let results stabilize
         if (roundsDone >= WARMUP_ROUNDS) {
-            times[type] += msecs;
+            timeMsecs[type] += msecs;
         }
-        System.out.printf("Test '%s' [hash: 0x%s] -> %d msecs\n", msg, this.hash, msecs);
+        System.out.printf("Test '%s' [hash: 0x%s] -> %.1f msecs\n", msg, this.hash, msecs);
         if (type == 0) {
             ++roundsDone;
             if ((roundsDone % 3) == 0 && roundsDone > WARMUP_ROUNDS) {
                 double den = (double) (roundsDone - WARMUP_ROUNDS);
                 System.out.printf("Averages after %d rounds (Object / Array): %.1f / %.1f msecs\n",
                         (int) den,
-                        times[0] / den, times[1] / den);
+                        timeMsecs[0] / den, timeMsecs[1] / den);
                         
             }
             System.out.println();
@@ -176,35 +178,40 @@ abstract class ObjectReaderBase
     
     protected final long _testDeser(int reps, byte[] input, ObjectReader reader) throws Exception
     {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         Object result = null;
         while (--reps >= 0) {
             result = reader.readValue(input);
         }
         hash = result.hashCode();
-        return System.currentTimeMillis() - start;
+        // return microseconds
+        return (System.nanoTime() - start) >> 10;
     }
 
-    protected long testDeser1(int reps, String input, ObjectReader reader) throws Exception {
+    protected double testDeser1(int reps, String input, ObjectReader reader) throws Exception {
         return _testDeser(reps, input, reader);
     }
 
-    protected long testDeser2(int reps, String input, ObjectReader reader) throws Exception {
+    protected double testDeser2(int reps, String input, ObjectReader reader) throws Exception {
         return _testDeser(reps, input, reader);
     }
     
-    protected final long _testDeser(int reps, String input, ObjectReader reader) throws Exception
+    protected final double _testDeser(int reps, String input, ObjectReader reader) throws Exception
     {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
         Object result = null;
         while (--reps >= 0) {
             result = reader.readValue(input);
         }
         hash = result.hashCode();
-        return System.currentTimeMillis() - start;
+        return _msecsFromNanos(System.nanoTime() - start);
     }
 
-    public static byte[] readAll(String filename) throws IOException
+    protected final double _msecsFromNanos(long nanos) {
+        return (nanos / 1000000.0);
+    }
+    
+    protected static byte[] readAll(String filename) throws IOException
     {
         File f = new File(filename);
         ByteArrayOutputStream bytes = new ByteArrayOutputStream((int) f.length());

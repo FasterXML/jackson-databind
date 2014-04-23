@@ -41,6 +41,11 @@ public class TestBasicAnnotations
         public void errorOut(int value) { throw new Error(); }
     }
 
+    static class Issue442Bean {
+        @JsonUnwrapped
+        private IntWrapper w = new IntWrapper(13);
+    }
+    
     final static class SizeClassSetter2
     {
         int _x;
@@ -155,5 +160,12 @@ public class TestBasicAnnotations
         BeanWithDeserialize bean = MAPPER.readValue("{\"a\":3}", BeanWithDeserialize.class);
         assertNotNull(bean);
         assertEquals(3, bean.a);
+    }
+
+    // [Issue#442]
+    public void testIssue442PrivateUnwrapped() throws Exception
+    {
+        Issue442Bean bean = MAPPER.readValue("{\"i\":5}", Issue442Bean.class);
+        assertEquals(5, bean.w.i);
     }
 }

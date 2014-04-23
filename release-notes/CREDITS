@@ -119,7 +119,9 @@ Will Palmeri: (wpalmeri@github)
    (2.4.0)
 
 Cemalettin Koc: (cemo@github)
-
   * Reported #353: Problems with polymorphic types, `JsonNode` (related to #88)
    (2.4.0)
 
+Ben Fagin: (UnquietCode@github)
+  * Suggested #442: Make `@JsonUnwrapped` indicate property inclusion
+   (2.4.0)

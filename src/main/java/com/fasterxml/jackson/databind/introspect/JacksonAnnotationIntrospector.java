@@ -727,8 +727,13 @@ public class JacksonAnnotationIntrospector
             JsonProperty pann = a.getAnnotation(JsonProperty.class);
             if (pann != null) {
                 name = pann.value();
+                /* 22-Apr-2014, tatu: Should figure out a better way to do this, but
+                 *   it's actually bit tricky to do it more efficiently (meta-annotations
+                 *   add more lookups; AnnotationMap costs etc)
+                 */
             } else if (a.hasAnnotation(JsonDeserialize.class)
                     || a.hasAnnotation(JsonView.class)
+                    || a.hasAnnotation(JsonUnwrapped.class) // [#442]
                     || a.hasAnnotation(JsonBackReference.class)
                     || a.hasAnnotation(JsonManagedReference.class)) {
                     name = "";

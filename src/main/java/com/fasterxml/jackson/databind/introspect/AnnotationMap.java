@@ -86,8 +86,7 @@ public final class AnnotationMap implements Annotations
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         if (_annotations == null) {
             return "[null]";
         }
@@ -100,8 +99,7 @@ public final class AnnotationMap implements Annotations
     /**********************************************************
      */
 
-    protected final void _add(Annotation ann)
-    {
+    protected final void _add(Annotation ann) {
         if (_annotations == null) {
             _annotations = new HashMap<Class<? extends Annotation>,Annotation>();
         }

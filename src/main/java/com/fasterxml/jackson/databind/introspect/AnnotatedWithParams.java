@@ -94,8 +94,7 @@ public abstract class AnnotatedWithParams
      */
 
     @Override
-    public final <A extends Annotation> A getAnnotation(Class<A> acls)
-    {
+    public final <A extends Annotation> A getAnnotation(Class<A> acls) {
         return _annotations.get(acls);
     }
 

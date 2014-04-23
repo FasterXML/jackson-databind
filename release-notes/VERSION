@@ -33,6 +33,8 @@ Version: 2.4.0 (xx-xxx-2014)
 #435: Performance bottleneck in TypeFactory._fromClass
  (reported by sdonovanuk@github)
 #438: Add support for accessing `@JsonProperty(index=N)` annotations
+#442: Make `@JsonUnwrapped` indicate property inclusion
+ (suggested by Ben F)
 - Slightly improve `SqlDateSerializer` to support `@JsonFormat`
 
 ------------------------------------------------------------------------

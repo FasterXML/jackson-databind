@@ -31,39 +31,4 @@ public class ManualReadPerfUntyped extends ObjectReaderBase
 //               ,m, "JSON-as-Node", input2, JsonNode.class
                 );
     }
-
-    // When comparing to simple streaming parsing, uncomment:
-
-    @Override
-    protected double testDeser1(int reps, String input, ObjectReader reader) throws Exception {
-        return _testRawDeser(reps, input, reader);
-//        return _testDeser(reps, input, reader);
-    }
-
-    @Override
-    protected double testDeser2(int reps, String input, ObjectReader reader) throws Exception {
-        return _testRawDeser(reps, input, reader);
-//        return _testDeser(reps, input, reader);
-    }
-    
-    protected final double _testRawDeser(int reps, String input, ObjectReader reader) throws Exception
-    {
-        long start = System.nanoTime();
-        final JsonFactory f = reader.getFactory();
-        while (--reps >= 0) {
-            JsonParser p = f.createParser(input);
-            JsonToken t;
-            while ((t = p.nextToken()) != null) {
-                if (t == JsonToken.VALUE_STRING) {
-                    p.getText();
-                } else if (t.isNumeric()) {
-                    p.getNumberValue();
-                }
-                ;
-            }
-            p.close();
-        }
-        hash = f.hashCode();
-        return _msecsFromNanos(System.nanoTime() - start);
-    }
 }

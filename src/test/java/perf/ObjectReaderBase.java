@@ -68,35 +68,35 @@ abstract class ObjectReaderBase
                 byteInput1.length, byteInput2.length, REPS);
 
         final ObjectReader jsonReader = mapper1.reader()
-                .with(DeserializationFeature.EAGER_DESERIALIZER_FETCH)
                 .withType(inputClass1);
         final ObjectReader arrayReader = mapper2.reader()
-                .with(DeserializationFeature.EAGER_DESERIALIZER_FETCH)
                 .withType(inputClass2);
         
         int i = 0;
         final int TYPES = 2;
 
+        timeMsecs = new double[TYPES];
+        
         while (true) {
             Thread.sleep(100L);
             int type = (i++ % TYPES);
 
             String msg;
-            long micros;
+            double msesc;
             
             switch (type) {
             case 0:
                 msg = _desc1;
-                micros = testDeser1(REPS, byteInput1, jsonReader);
+                msesc = testDeser1(REPS, byteInput1, jsonReader);
                 break;
             case 1:
                 msg = _desc2;
-                micros = testDeser2(REPS, byteInput2, arrayReader);
+                msesc = testDeser2(REPS, byteInput2, arrayReader);
                 break;
             default:
                 throw new Error();
             }
-            updateStats(type, (i % 17) == 0, msg, micros);
+            updateStats(type, (i % 17) == 0, msg, msesc);
         }
     }
 
@@ -123,6 +123,9 @@ abstract class ObjectReaderBase
             Thread.sleep(100L);
             int type = (i++ % TYPES);
 
+// !!! TEST
+//type = 0;            
+            
             String msg;
             double msecs;
             
@@ -169,14 +172,14 @@ abstract class ObjectReaderBase
         }
     }
 
-    protected long testDeser1(int reps, byte[] input, ObjectReader reader) throws Exception {
+    protected double testDeser1(int reps, byte[] input, ObjectReader reader) throws Exception {
         return _testDeser(reps, input, reader);
     }
-    protected long testDeser2(int reps, byte[] input, ObjectReader reader) throws Exception {
+    protected double testDeser2(int reps, byte[] input, ObjectReader reader) throws Exception {
         return _testDeser(reps, input, reader);
     }
     
-    protected final long _testDeser(int reps, byte[] input, ObjectReader reader) throws Exception
+    protected final double _testDeser(int reps, byte[] input, ObjectReader reader) throws Exception
     {
         long start = System.nanoTime();
         Object result = null;
@@ -185,7 +188,7 @@ abstract class ObjectReaderBase
         }
         hash = result.hashCode();
         // return microseconds
-        return (System.nanoTime() - start) >> 10;
+        return _msecsFromNanos(System.nanoTime() - start);
     }
 
     protected double testDeser1(int reps, String input, ObjectReader reader) throws Exception {

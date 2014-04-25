@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 
@@ -116,15 +117,25 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                 // 04-Feb-2013, tatu: Usually should become null; but not always
                 return _deserializeFromEmptyString();
             }
+            Exception cause = null;
             try {
                 T result = _deserialize(text, ctxt);
                 if (result != null) {
                     return result;
                 }
             } catch (IllegalArgumentException iae) {
-                // nothing to do here, yet? We'll fail anyway
+                cause = iae;
             }
-            throw ctxt.weirdStringException(text, _valueClass, "not a valid textual representation");
+            String msg = "not a valid textual representation";
+            if (cause != null) {
+                msg += "problem: "+cause.getMessage();
+            }
+            JsonMappingException e = ctxt.weirdStringException(text, _valueClass, msg);
+            if (cause != null) {
+                e.initCause(cause);
+            }
+            throw e;
+            // nothing to do here, yet? We'll fail anyway
         }
         if (jp.getCurrentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
             // Trivial cases; null to null, instance of type itself returned as is
@@ -238,8 +249,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
 
                     int i = value.lastIndexOf(']');
                     if (i == -1) {
-                        throw new InvalidFormatException(
-                                "Bracketed IPv6 address must contain closing bracket.",
+                        throw new InvalidFormatException("Bracketed IPv6 address must contain closing bracket",
                                 value, InetSocketAddress.class);
                     }
 
@@ -247,15 +257,14 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
                     int port = j > -1 ? Integer.parseInt(value.substring(j + 1)) : 0;
                     return new InetSocketAddress(value.substring(0, i + 1), port);
                 } else {
-                    int i = value.indexOf(':');
-                    if (i != -1 && value.indexOf(':', i + 1) == -1) {
+                    int ix = value.indexOf(':');
+                    if (ix >= 0 && value.indexOf(':', ix + 1) < 0) {
                         // host:port
-                        int port = Integer.parseInt(value.substring(i));
-                        return new InetSocketAddress(value.substring(0, i), port);
-                    } else {
-                        // host or unbracketed IPv6, without port number
-                        return new InetSocketAddress(value, 0);
+                        int port = Integer.parseInt(value.substring(ix+1));
+                        return new InetSocketAddress(value.substring(0, ix), port);
                     }
+                    // host or unbracketed IPv6, without port number
+                    return new InetSocketAddress(value, 0);
                 }
             }
             throw new IllegalArgumentException();

@@ -30,7 +30,7 @@ public class InetSocketAddressDeserializer
             int i = value.lastIndexOf(']');
             if (i == -1) {
                 throw new InvalidFormatException(
-                        "Bracketed IPv6 address must contain closing bracket.",
+                        "Bracketed IPv6 address must contain closing bracket",
                         value, InetSocketAddress.class);
             }
 
@@ -41,7 +41,7 @@ public class InetSocketAddressDeserializer
             int i = value.indexOf(':');
             if (i != -1 && value.indexOf(':', i + 1) == -1) {
                 // host:port
-                int port = Integer.parseInt(value.substring(i));
+                int port = Integer.parseInt(value.substring(i+1));
                 return new InetSocketAddress(value.substring(0, i), port);
             } else {
                 // host or unbracketed IPv6, without port number

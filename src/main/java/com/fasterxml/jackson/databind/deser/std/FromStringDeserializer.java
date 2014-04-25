@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 /**
  * Base class for simple deserializers that only accept JSON String
@@ -28,7 +28,7 @@ public abstract class FromStringDeserializer<T>
     @SuppressWarnings("unchecked")
     @Override
     public final T deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // 22-Sep-2012, tatu: For 2.1, use this new method, may force coercion:
         String text = jp.getValueAsString();
@@ -36,15 +36,25 @@ public abstract class FromStringDeserializer<T>
             if (text.length() == 0 || (text = text.trim()).length() == 0) {
                 return _deserializeFromEmptyString();
             }
+            Exception cause = null;
             try {
                 T result = _deserialize(text, ctxt);
                 if (result != null) {
                     return result;
                 }
             } catch (IllegalArgumentException iae) {
-                // nothing to do here, yet? We'll fail anyway
+                cause = iae;
             }
-            throw ctxt.weirdStringException(text, _valueClass, "not a valid textual representation");
+            String msg = "not a valid textual representation";
+            if (cause != null) {
+                msg += " problem: "+cause.getMessage();
+            }
+            JsonMappingException e = ctxt.weirdStringException(text, _valueClass, msg);
+            if (cause != null) {
+                e.initCause(cause);
+            }
+            throw e;
+            // nothing to do here, yet? We'll fail anyway
         }
         if (jp.getCurrentToken() == JsonToken.VALUE_EMBEDDED_OBJECT) {
             // Trivial cases; null to null, instance of type itself returned as is
@@ -61,10 +71,10 @@ public abstract class FromStringDeserializer<T>
     }
         
     protected abstract T _deserialize(String value, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException;
+        throws IOException;
 
     protected T _deserializeEmbedded(Object ob, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // default impl: error out
         throw ctxt.mappingException("Don't know how to convert embedded Object of type "

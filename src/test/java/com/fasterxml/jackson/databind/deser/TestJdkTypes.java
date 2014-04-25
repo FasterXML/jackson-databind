@@ -238,9 +238,14 @@ public class TestJdkTypes extends BaseMapTest
         assertEquals(443, ip6port.getPort());
 
         // should we try resolving host names? That requires connectivity...
-        final String HOST = "www.ning.com";
+        final String HOST = "www.google.com";
         address = MAPPER.readValue(quote(HOST), InetSocketAddress.class);
         assertEquals(HOST, address.getHostName());
+
+        final String HOST_AND_PORT = HOST+":80";
+        address = MAPPER.readValue(quote(HOST_AND_PORT), InetSocketAddress.class);
+        assertEquals(HOST, address.getHostName());
+        assertEquals(80, address.getPort());
     }
 
     // [JACKSON-597]

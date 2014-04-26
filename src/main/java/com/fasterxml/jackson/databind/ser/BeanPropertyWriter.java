@@ -693,9 +693,9 @@ public class BeanPropertyWriter extends PropertyWriter
      * serialized normally (return false).
      *<p>
      * Default implementation will throw {@link JsonMappingException} if
-     * {@link SerializationFeature.FAIL_ON_SELF_REFERENCES} is enabled;
+     * {@link SerializationFeature#FAIL_ON_SELF_REFERENCES} is enabled;
      * or return <code>false</code> if it is disabled.
-     * 
+     *
      * @return True if method fully handled self-referential value; false if not (caller
      *    is to handle it) or {@link JsonMappingException} if there is no way handle it
      */

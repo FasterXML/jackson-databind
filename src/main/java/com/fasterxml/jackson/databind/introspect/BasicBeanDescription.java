@@ -481,20 +481,19 @@ public class BasicBeanDescription extends BeanDescription
 
     /**
      * @deprecated Since 2.4, use {@link #findCreatorParameterNames()} instead.
-     * @return
      */
     @Deprecated
     public List<String> findCreatorPropertyNames()
     {
-    	List<PropertyName> params = findCreatorParameterNames();
-    	if (params.isEmpty()) {
-    		return Collections.emptyList();
-    	}
-    	List<String> result = new ArrayList<String>(params.size());
-    	for (PropertyName name : params) {
-    		result.add(name.getSimpleName());
-    	}
-    	return result;
+        List<PropertyName> params = findCreatorParameterNames();
+        if (params.isEmpty()) {
+    		    return Collections.emptyList();
+        }
+        List<String> result = new ArrayList<String>(params.size());
+        for (PropertyName name : params) {
+    		    result.add(name.getSimpleName());
+        }
+        return result;
     }
     
     /**

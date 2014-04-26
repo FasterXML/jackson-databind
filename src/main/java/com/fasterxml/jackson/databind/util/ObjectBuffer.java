@@ -12,15 +12,10 @@ public final class ObjectBuffer
     // // // Config constants
 
     /**
-     * Let's start with small chunks; typical usage is for small arrays anyway.
-     */
-    final static int INITIAL_CHUNK_SIZE = 12;
-
-    /**
      * Also: let's expand by doubling up until 64k chunks (which is 16k entries for
      * 32-bit machines)
      */
-    final static int SMALL_CHUNK_SIZE = (1 << 14);
+    private final static int SMALL_CHUNK = (1 << 14);
 
     /**
      * Let's limit maximum size of chunks we use; helps avoid excessive allocation
@@ -28,19 +23,19 @@ public final class ObjectBuffer
      * For now, let's limit to quarter million entries, 1 meg chunks for 32-bit
      * machines.
      */
-    final static int MAX_CHUNK_SIZE = (1 << 18);
+    private final static int MAX_CHUNK = (1 << 18);
 
     // // // Data storage
 
-    private Node _bufferHead;
+    private LinkedNode<Object[]> _head;
 
-    private Node _bufferTail;
+    private LinkedNode<Object[]> _tail;
 
     /**
      * Number of total buffered entries in this buffer, counting all instances
-     * within linked list formed by following {@link #_bufferHead}.
+     * within linked list formed by following {@link #_head}.
      */
-    private int _bufferedEntryCount;
+    private int _size;
 
     // // // Simple reuse
 
@@ -72,7 +67,7 @@ public final class ObjectBuffer
     {
         _reset();
         if (_freeBuffer == null) {
-            return new Object[INITIAL_CHUNK_SIZE];
+            return new Object[12];
         }
         return _freeBuffer;
     }
@@ -93,19 +88,19 @@ public final class ObjectBuffer
      */
     public Object[] appendCompletedChunk(Object[] fullChunk)
     {
-        Node next = new Node(fullChunk);
-        if (_bufferHead == null) { // first chunk
-            _bufferHead = _bufferTail = next;
+        LinkedNode<Object[]> next = new LinkedNode<Object[]>(fullChunk, null);
+        if (_head == null) { // first chunk
+            _head = _tail = next;
         } else { // have something already
-            _bufferTail.linkNext(next);
-            _bufferTail = next;
+            _tail.linkNext(next);
+            _tail = next;
         }
         int len = fullChunk.length;
-        _bufferedEntryCount += len;
+        _size += len;
         // double the size for small chunks
-        if (len < SMALL_CHUNK_SIZE) {
+        if (len < SMALL_CHUNK) {
             len += len;
-        } else { // but by +25% for larger (to limit overhead)
+        } else if (len < MAX_CHUNK) { // but by +25% for larger (to limit overhead)
             len += (len >> 2);
         }
         return new Object[len];
@@ -123,7 +118,7 @@ public final class ObjectBuffer
      */
     public Object[] completeAndClearBuffer(Object[] lastChunk, int lastChunkEntries)
     {
-        int totalSize = lastChunkEntries + _bufferedEntryCount;
+        int totalSize = lastChunkEntries + _size;
         Object[] result = new Object[totalSize];
         _copyTo(result, totalSize, lastChunk, lastChunkEntries);
         return result;
@@ -139,7 +134,7 @@ public final class ObjectBuffer
      */
     public <T> T[] completeAndClearBuffer(Object[] lastChunk, int lastChunkEntries, Class<T> componentType)
     {
-       int totalSize = lastChunkEntries + _bufferedEntryCount;
+       int totalSize = lastChunkEntries + _size;
  	   @SuppressWarnings("unchecked")
         T[] result = (T[]) Array.newInstance(componentType, totalSize);
         _copyTo(result, totalSize, lastChunk, lastChunkEntries);
@@ -149,8 +144,8 @@ public final class ObjectBuffer
 
     public void completeAndClearBuffer(Object[] lastChunk, int lastChunkEntries, List<Object> resultList)
     {
-        for (Node n = _bufferHead; n != null; n = n.next()) {
-            Object[] curr = n.getData();
+        for (LinkedNode<Object[]> n = _head; n != null; n = n.next()) {
+            Object[] curr = n.value();
             for (int i = 0, len = curr.length; i < len; ++i) {
                 resultList.add(curr[i]);
             }
@@ -167,8 +162,7 @@ public final class ObjectBuffer
      * instance to reuse, based on size of reusable object chunk
      * buffer holds reference to.
      */
-    public int initialCapacity()
-    {
+    public int initialCapacity() {
         return (_freeBuffer == null) ? 0 : _freeBuffer.length;
     }
 
@@ -176,7 +170,7 @@ public final class ObjectBuffer
      * Method that can be used to check how many Objects have been buffered
      * within this buffer.
      */
-    public int bufferedSize() { return _bufferedEntryCount; }
+    public int bufferedSize() { return _size; }
 
     /*
     /**********************************************************
@@ -187,21 +181,21 @@ public final class ObjectBuffer
     protected void _reset()
     {
         // can we reuse the last (and thereby biggest) array for next time?
-        if (_bufferTail != null) {
-            _freeBuffer = _bufferTail.getData();
+        if (_tail != null) {
+            _freeBuffer = _tail.value();
         }
         // either way, must discard current contents
-        _bufferHead = _bufferTail = null;
-        _bufferedEntryCount = 0;
+        _head = _tail = null;
+        _size = 0;
     }
 
     protected final void _copyTo(Object resultArray, int totalSize,
-                                 Object[] lastChunk, int lastChunkEntries)
+            Object[] lastChunk, int lastChunkEntries)
     {
         int ptr = 0;
 
-        for (Node n = _bufferHead; n != null; n = n.next()) {
-            Object[] curr = n.getData();
+        for (LinkedNode<Object[]> n = _head; n != null; n = n.next()) {
+            Object[] curr = n.value();
             int len = curr.length;
             System.arraycopy(curr, 0, resultArray, ptr, len);
             ptr += len;
@@ -212,41 +206,6 @@ public final class ObjectBuffer
         // sanity check (could have failed earlier due to out-of-bounds, too)
         if (ptr != totalSize) {
             throw new IllegalStateException("Should have gotten "+totalSize+" entries, got "+ptr);
-        }
-    }
-
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
-    /**
-     * Helper class used to store actual data, in a linked list.
-     */
-    final static class Node
-    {
-        /**
-         * Data stored in this node. Array is considered to be full.
-         */
-        final Object[] _data;
-
-        Node _next;
-
-        public Node(Object[] data) {
-            _data = data;
-        }
-
-        public Object[] getData() { return _data; }
-
-        public Node next() { return _next; }
-
-        public void linkNext(Node next)
-        {
-            if (_next != null) { // sanity check
-                throw new IllegalStateException();
-            }
-            _next = next;
         }
     }
 }

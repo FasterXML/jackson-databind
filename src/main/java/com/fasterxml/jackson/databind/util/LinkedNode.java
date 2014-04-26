@@ -9,18 +9,27 @@ package com.fasterxml.jackson.databind.util;
  */
 public final class LinkedNode<T>
 {
-    final T _value;
-    final LinkedNode<T> _next;
+    private final T value;
+
+    private LinkedNode<T> next;
     
     public LinkedNode(T value, LinkedNode<T> next)
     {
-        _value = value;
-        _next = next;
+        this.value = value;
+        this.next = next;
     }
     
-    public LinkedNode<T> next() { return _next; }
+    public void linkNext(LinkedNode<T> n)
+    {
+        if (next != null) { // sanity check
+            throw new IllegalStateException();
+        }
+        next = n;
+    }
     
-    public T value() { return _value; }
+    public LinkedNode<T> next() { return next; }
+    
+    public T value() { return value; }
     
     /**
      * Convenience method that can be used to check if a linked list

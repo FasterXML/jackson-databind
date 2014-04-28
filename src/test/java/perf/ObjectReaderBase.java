@@ -18,10 +18,10 @@ abstract class ObjectReaderBase
 
     private double[] timeMsecs;;
     
-    protected <T1, T2> void testFromBytes(ObjectMapper mapper1, String desc1,
-            T1 inputValue1, Class<T1> inputClass1,
+    protected void testFromBytes(ObjectMapper mapper1, String desc1,
+            Object inputValue1, Class<?> inputClass1,
             ObjectMapper mapper2, String desc2,
-            T2 inputValue2, Class<T2> inputClass2)
+            Object inputValue2, Class<?> inputClass2)
         throws Exception
     {
         final byte[] byteInput1 = mapper1.writeValueAsBytes(inputValue1);
@@ -40,9 +40,10 @@ abstract class ObjectReaderBase
         doTest(mapper1, byteInput1, inputClass1, mapper2, byteInput2, inputClass2);
     }
     
-    protected <T1, T2> void testFromString(ObjectMapper mapper1, String desc1,
-            T1 inputValue1, Class<T1> inputClass1,
-            ObjectMapper mapper2, String desc2, T2 inputValue2, Class<T2> inputClass2)
+    protected void testFromString(ObjectMapper mapper1, String desc1,
+            Object inputValue1, Class<?> inputClass1,
+            ObjectMapper mapper2, String desc2,
+            Object inputValue2, Class<?> inputClass2)
         throws Exception
     {
         final String input1 = mapper1.writeValueAsString(inputValue1);

@@ -1,5 +1,7 @@
 package perf;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 
@@ -20,14 +22,18 @@ public class ManualReadPerfUntyped extends ObjectReaderBase
         f.configure(JsonFactory.Feature.INTERN_FIELD_NAMES, doIntern);
         
         ObjectMapper m = new ObjectMapper();
-        Object input1 = m.readValue(data, Object.class);
+        
+        // Either Object or Map
+        final Class<?> UNTYPED = Map.class;
+        
+        Object input1 = m.readValue(data, UNTYPED);
         JsonNode input2 = m.readTree(data);
 
         new ManualReadPerfUntyped()
 //            .testFromBytes(
             .testFromString(
-                m, "JSON-as-Object", input1, Object.class
-                ,m, "JSON-as-Object2", input2, Object.class
+                m, "JSON-as-Object", input1, UNTYPED
+                ,m, "JSON-as-Object2", input2, UNTYPED
 //               ,m, "JSON-as-Node", input2, JsonNode.class
                 );
     }

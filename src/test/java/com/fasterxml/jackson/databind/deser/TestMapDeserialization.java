@@ -116,6 +116,23 @@ public class TestMapDeserialization
         assertNull(result.get(3));
     }
 
+    public void testBigUntypedMap() throws Exception
+    {
+        Map<String,Object> map = new LinkedHashMap<String,Object>();
+        for (int i = 0; i < 1100; ++i) {
+            if ((i & 1) == 0) {
+                map.put(String.valueOf(i), Integer.valueOf(i));
+            } else {
+                Map<String,Object> map2 = new LinkedHashMap<String,Object>();
+                map2.put("x", Integer.valueOf(i));
+                map.put(String.valueOf(i), map2);
+            }
+        }
+        String json = MAPPER.writeValueAsString(map);
+        Object bound = MAPPER.readValue(json, Object.class);
+        assertEquals(map, bound);
+    }
+    
     /**
      * Let's also try another way to express "gimme a Map" deserialization;
      * this time by specifying a Map class, to reduce need to cast

@@ -24,8 +24,8 @@ public class ManualReadPerfUntyped extends ObjectReaderBase
         JsonNode input2 = m.readTree(data);
 
         new ManualReadPerfUntyped()
-            .testFromBytes(
-//            .testFromString(
+//            .testFromBytes(
+            .testFromString(
                 m, "JSON-as-Object", input1, Object.class
                 ,m, "JSON-as-Object2", input2, Object.class
 //               ,m, "JSON-as-Node", input2, JsonNode.class

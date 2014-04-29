@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.*;
 
 public class ManualReadPerfUntypedStream extends ObjectReaderBase
 {
+    @Override
+    protected int targetSizeMegs() { return 15; }
+    
     public static void main(String[] args) throws Exception
     {
         if (args.length != 1) {

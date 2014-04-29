@@ -17,6 +17,9 @@ public class ManualReadPerfWithUUID extends ObjectReaderBase
         public UUIDNative(UUID[] ids) { this.ids = ids; }
     }
 
+    @Override
+    protected int targetSizeMegs() { return 8; }
+    
     @SuppressWarnings("serial")
     static class SlowDeser extends FromStringDeserializer<UUID>
     {

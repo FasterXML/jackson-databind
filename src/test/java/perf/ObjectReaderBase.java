@@ -17,6 +17,8 @@ abstract class ObjectReaderBase
     protected int REPS;
 
     private double[] timeMsecs;;
+
+    protected abstract int targetSizeMegs();
     
     protected void testFromBytes(ObjectMapper mapper1, String desc1,
             Object inputValue1, Class<?> inputClass1,
@@ -27,7 +29,7 @@ abstract class ObjectReaderBase
         final byte[] byteInput1 = mapper1.writeValueAsBytes(inputValue1);
         final byte[] byteInput2 = mapper2.writeValueAsBytes(inputValue2);
         // Let's try to guestimate suitable size... to get to N megs to process
-        REPS = (int) ((double) (8 * 1000 * 1000) / (double) byteInput1.length);
+        REPS = (int) ((double) (targetSizeMegs() * 1000 * 1000) / (double) byteInput1.length);
 
         // sanity check:
         /*T1 back1 =*/ mapper1.readValue(byteInput1, inputClass1);

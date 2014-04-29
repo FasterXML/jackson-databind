@@ -95,6 +95,9 @@ public class BeanPropertyWriter extends PropertyWriter
     /**
      * Logical name of the property; will be used as the field name
      * under which value for the property is written.
+     *<p>
+     * NOTE: do NOT change name of this field; it is accessed by
+     * Afterburner module.
      */
     protected final SerializableString _name;
 
@@ -686,6 +689,15 @@ public class BeanPropertyWriter extends PropertyWriter
         return _field.get(bean);
     }
 
+    /**
+     * @deprecated Since 2.3 Use overloaded variants
+     */
+    @Deprecated
+    protected void _handleSelfReference(Object bean, JsonSerializer<?> ser)
+        throws JsonMappingException {
+        _handleSelfReference(bean, null, null, ser);
+    }
+    
     /**
      * Method called to handle a direct self-reference through this property.
      * Method can choose to indicate an error by throwing {@link JsonMappingException};

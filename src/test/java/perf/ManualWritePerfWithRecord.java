@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class ManualWritePerfWithRecord
     extends ObjectWriterBase<Record, RecordAsArray>
 {
+    @Override
+    protected int targetSizeMegs() { return 10; }
+
     public static void main(String[] args) throws Exception
     {
         if (args.length != 0) {
@@ -17,7 +20,5 @@ public class ManualWritePerfWithRecord
         new ManualWritePerfWithRecord().test(m,
                 "JSON-as-Object", input1, Record.class,
                 "JSON-as-Array", input2, RecordAsArray.class);
-              
-        
     }
 }

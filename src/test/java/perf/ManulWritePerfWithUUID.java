@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 public class ManulWritePerfWithUUID
     extends ObjectWriterBase<UUIDFast, UUIDSlow>
 {
+    @Override
+    protected int targetSizeMegs() { return 10; }
     
     public static void main(String[] args) throws Exception
     {

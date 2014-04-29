@@ -98,8 +98,10 @@ public class BeanPropertyWriter extends PropertyWriter
      *<p>
      * NOTE: do NOT change name of this field; it is accessed by
      * Afterburner module.
+     * ALSO NOTE: ... and while it really ought to be `SerializableString`,
+     * changing that is also binary-incompatible change. So nope.
      */
-    protected final SerializableString _name;
+    protected final SerializedString _name;
 
     /**
      * Wrapper name to use for this element, if any
@@ -224,7 +226,7 @@ public class BeanPropertyWriter extends PropertyWriter
         this(base, base._name);
     }
 
-    protected BeanPropertyWriter(BeanPropertyWriter base, SerializableString name) {
+    protected BeanPropertyWriter(BeanPropertyWriter base, SerializedString name) {
         _name = name;
         _wrapperName = base._wrapperName;
 

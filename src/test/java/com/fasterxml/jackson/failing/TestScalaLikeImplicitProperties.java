@@ -32,6 +32,19 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
         }
     }
 
+
+    static class ValWithBeanProperty
+    {
+        public final String prop‿;
+        public String prop() { return prop‿; }
+        public String getProp() { return prop‿; }
+
+        public ValWithBeanProperty(String prop) {
+            prop‿ = prop;
+        }
+    }
+
+
     static class VarProperty
     {
         public String prop‿;
@@ -39,6 +52,20 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
         public void prop_⁀(String p) { prop‿ = p; }
 
         public VarProperty(String prop) {
+            prop‿ = prop;
+        }
+    }
+
+
+    static class VarWithBeanProperty
+    {
+        public String prop‿;
+        public String prop() { return prop‿; }
+        public void prop_⁀(String p) { prop‿ = p; }
+        public String getProp() { return prop‿; }
+        public void setProp(String p) { prop‿ = p; }
+
+        public VarWithBeanProperty(String prop) {
             prop‿ = prop;
         }
     }
@@ -66,6 +93,16 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
     }
 
 
+    public void testValWithBeanProperty() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+
+        // TODO: Activate whatever handler implements the property detection style
+
+        assertEquals("{\"prop\":\"val\"}", m.writeValueAsString(new ValWithBeanProperty("val")));
+    }
+
+
     public void testVarProperty() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
@@ -74,6 +111,18 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
 
         assertEquals("{\"prop\":\"var\"}", m.writeValueAsString(new VarProperty("var")));
         VarProperty result = m.readValue("{\"prop\":\"read\"}", VarProperty.class);
+        assertEquals("read", result.prop());
+    }
+
+
+    public void testVarWithBeanProperty() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+
+        // TODO: Activate whatever handler implements the property detection style
+
+        assertEquals("{\"prop\":\"var\"}", m.writeValueAsString(new VarWithBeanProperty("var")));
+        VarWithBeanProperty result = m.readValue("{\"prop\":\"read\"}", VarWithBeanProperty.class);
         assertEquals("read", result.prop());
     }
 

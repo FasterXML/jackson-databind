@@ -138,12 +138,18 @@ public class ObjectWriter
         if (rootType != null) {
             rootType = rootType.withStaticTyping();
         }
-        _rootType = rootType;
         _prettyPrinter = pp;
         _schema = null;
         _characterEscapes = null;
 
-        _rootSerializer = _prefetchRootSerializer(config, rootType);
+        // 29-Apr-2014, tatu: There is no "untyped serializer", so:
+        if (rootType == null || rootType.hasRawClass(Object.class)) {
+            _rootType = null;
+            _rootSerializer = null;
+        } else {
+            _rootType = rootType;
+            _rootSerializer = _prefetchRootSerializer(config, rootType);
+        }
     }
 
     /**
@@ -417,9 +423,21 @@ public class ObjectWriter
      */
     public ObjectWriter withType(JavaType rootType)
     {
+        if (rootType != null) {
+            if (rootType.hasRawClass(Object.class)) {
+                rootType = null;
+            }
+        }
+        
+        JsonSerializer<Object> rootSer;
+
+        if (rootType == null) {
+            rootSer = null;
         // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
-        rootType = rootType.withStaticTyping();
-        JsonSerializer<Object> rootSer = _prefetchRootSerializer(_config, rootType);
+        } else {
+            rootType = rootType.withStaticTyping();
+            rootSer = _prefetchRootSerializer(_config, rootType);
+        }
         return new ObjectWriter(this, _config, rootType, rootSer,
                 _prettyPrinter, _schema, _characterEscapes);
     }    
@@ -430,6 +448,9 @@ public class ObjectWriter
      * type of the root object itself.
      */
     public ObjectWriter withType(Class<?> rootType) {
+        if (rootType == Object.class) {
+            return withType((JavaType) null);
+        }
         return withType(_config.constructType(rootType));
     }
 
@@ -898,7 +919,8 @@ public class ObjectWriter
     protected JsonSerializer<Object> _prefetchRootSerializer(
             SerializationConfig config, JavaType valueType)
     {
-        if (valueType == null || !_config.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
+        if (valueType == null
+                || !_config.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
             return null;
         }
         try {

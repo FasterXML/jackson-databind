@@ -61,7 +61,17 @@ public class TestMapSerialization
      */
 
     final ObjectMapper MAPPER = new ObjectMapper();
-    
+
+ 
+    public void testUsingObjectWriter() throws IOException
+    {
+        ObjectWriter w = MAPPER.writerWithType(Object.class);
+        Map<String,Object> map = new LinkedHashMap<String,Object>();
+        map.put("a", 1);
+        String json = w.writeValueAsString(map);
+        assertEquals(aposToQuotes("{'a':1}"), json);
+    }
+
     // Test [JACKSON-220]
     public void testMapSerializer() throws IOException
     {

@@ -400,6 +400,7 @@ public class MapSerializer
             if (_filterId != null) {
                 serializeFilteredFields(value, jgen, provider,
                         findPropertyFilter(provider, _filterId, value));
+                jgen.writeEndObject();
                 return;
             }
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {

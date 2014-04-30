@@ -38,8 +38,8 @@ public class TestMapFiltering extends BaseMapTest
     {
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterX",
                 SimpleBeanPropertyFilter.filterOutAllExcept("b"));
-        assertEquals(aposToQuotes("{'values':{'b':5}}"),
-                MAPPER.writer(prov).writeValueAsString(new MapBean()));
+        String json = MAPPER.writer(prov).writeValueAsString(new MapBean());
+        assertEquals(aposToQuotes("{'values':{'b':5}}"), json);
     }
 
     public void testMapFilteringViaClass() throws Exception
@@ -49,8 +49,8 @@ public class TestMapFiltering extends BaseMapTest
         bean.put("b", 3);
         FilterProvider prov = new SimpleFilterProvider().addFilter("filterForMaps",
                 SimpleBeanPropertyFilter.filterOutAllExcept("b"));
-        assertEquals(aposToQuotes("{'b':3}"),
-                MAPPER.writer(prov).writeValueAsString(bean));
+        String json = MAPPER.writer(prov).writeValueAsString(bean);
+        assertEquals(aposToQuotes("{'b':3}"), json);
     }
     
 }

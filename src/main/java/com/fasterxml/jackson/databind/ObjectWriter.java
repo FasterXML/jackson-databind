@@ -134,16 +134,18 @@ public class ObjectWriter
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._jsonFactory;
-
-        if (rootType != null) {
-            rootType = rootType.withStaticTyping();
-        }
-        _rootType = rootType;
         _prettyPrinter = pp;
         _schema = null;
         _characterEscapes = null;
 
-        _rootSerializer = _prefetchRootSerializer(config, rootType);
+        // 29-Apr-2014, tatu: There is no "untyped serializer", so:
+        if (rootType == null || rootType.hasRawClass(Object.class)) {
+            _rootType = null;
+            _rootSerializer = null;
+        } else {
+            _rootType = rootType.withStaticTyping();
+            _rootSerializer = _prefetchRootSerializer(config, _rootType);
+        }
     }
 
     /**
@@ -399,10 +401,17 @@ public class ObjectWriter
      * Note that method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectWriter withType(JavaType rootType) {
-        // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
-        rootType = rootType.withStaticTyping();
-        JsonSerializer<Object> rootSer = _prefetchRootSerializer(_config, rootType);
+    public ObjectWriter withType(JavaType rootType)
+    {
+        JsonSerializer<Object> rootSer;
+        if (rootType == null || rootType.hasRawClass(Object.class)) {
+            rootType = null;
+            rootSer = null;
+        } else {
+            // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
+            rootType = rootType.withStaticTyping();
+            rootSer = _prefetchRootSerializer(_config, rootType);
+        }
         return new ObjectWriter(this, _config, rootType, rootSer,
                 _prettyPrinter, _schema, _characterEscapes);
     }    
@@ -413,6 +422,9 @@ public class ObjectWriter
      * type of the root object itself.
      */
     public ObjectWriter withType(Class<?> rootType) {
+        if (rootType == Object.class) {
+            return withType((JavaType) null);
+        }
         return withType(_config.constructType(rootType));
     }
 

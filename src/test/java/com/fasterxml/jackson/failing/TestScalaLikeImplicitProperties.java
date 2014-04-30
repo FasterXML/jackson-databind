@@ -24,15 +24,23 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
 {
     static class ValProperty
     {
-        public String prop‿ = "val";
+        public final String prop‿;
         public String prop() { return prop‿; }
+
+        public ValProperty(String prop) {
+            prop‿ = prop;
+        }
     }
 
     static class VarProperty
     {
-        public String prop‿ = "var";
+        public String prop‿;
         public String prop() { return prop‿; }
         public void prop_⁀(String p) { prop‿ = p; }
+
+        public VarProperty(String prop) {
+            prop‿ = prop;
+        }
     }
 
     static class GetterSetterProperty
@@ -41,6 +49,10 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
         private String _prop_impl = "get/set";
         public String prop() { return _prop_impl; }
         public void prop_⁀(String p) { _prop_impl = p; }
+
+        // Getter/Setters are typically not in the constructor because they are implemented
+        // by the end user, not the compiler. They should be detected similar to 'bean-style'
+        // getProp/setProp pairs.
     }
 
 
@@ -50,7 +62,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
 
         // TODO: Activate whatever handler implements the property detection style
 
-        assertEquals("{\"prop\":\"val\"}", m.writeValueAsString(new ValProperty()));
+        assertEquals("{\"prop\":\"val\"}", m.writeValueAsString(new ValProperty("val")));
     }
 
 
@@ -60,7 +72,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
 
         // TODO: Activate whatever handler implements the property detection style
 
-        assertEquals("{\"prop\":\"var\"}", m.writeValueAsString(new VarProperty()));
+        assertEquals("{\"prop\":\"var\"}", m.writeValueAsString(new VarProperty("var")));
         VarProperty result = m.readValue("{\"prop\":\"read\"}", VarProperty.class);
         assertEquals("read", result.prop());
     }

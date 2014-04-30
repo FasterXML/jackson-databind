@@ -27,8 +27,8 @@ abstract class ObjectWriterBase<T1,T2>
         }
 
         final ObjectWriter writer0 = mapper.writer().with(SerializationFeature.EAGER_SERIALIZER_FETCH);
-        final ObjectWriter jsonWriter = writer0.withType(inputClass1);
-        final ObjectWriter arrayWriter = writer0.withType(inputClass2);
+        final ObjectWriter writer1 = writer0.withType(inputClass1);
+        final ObjectWriter writer2 = writer0.withType(inputClass2);
         
         int i = 0;
         int roundsDone = 0;
@@ -52,12 +52,12 @@ abstract class ObjectWriterBase<T1,T2>
             switch (round) {
             case 0:
                 msg = desc1;
-                writer = jsonWriter;
+                writer = writer1;
                 value = inputValue1;
                 break;
             case 1:
                 msg = desc2;
-                writer = arrayWriter;
+                writer = writer2;
                 value = inputValue2;
                 break;
             default:

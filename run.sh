@@ -1,4 +1,4 @@
 #!/bin/sh
 
-java -Xmx100m -server -cp lib/\*:target/classes:target/test-classes $*
+java -Xmx256m -server -cp lib/\*:target/classes:target/test-classes $*
 

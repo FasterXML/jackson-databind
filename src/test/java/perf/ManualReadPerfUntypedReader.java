@@ -5,7 +5,7 @@ import java.io.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 
-public class ManualReadPerfUntypedReader extends ObjectReaderBase
+public class ManualReadPerfUntypedReader extends ObjectReaderTestBase
 {
     @Override
     protected int targetSizeMegs() { return 15; }

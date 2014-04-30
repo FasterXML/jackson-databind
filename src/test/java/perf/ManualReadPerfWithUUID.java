@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 
-public class ManualReadPerfWithUUID extends ObjectReaderBase
+public class ManualReadPerfWithUUID extends ObjectReaderTestBase
 {
     static class UUIDNative {
         public UUID[] ids;

@@ -3,7 +3,7 @@ package perf;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ManualWritePerfWithRecord
-    extends ObjectWriterBase<Record, RecordAsArray>
+    extends ObjectWriterTestBase<Record, RecordAsArray>
 {
     @Override
     protected int targetSizeMegs() { return 10; }

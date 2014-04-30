@@ -4,19 +4,16 @@ import java.io.*;
 
 import com.fasterxml.jackson.databind.*;
 
-abstract class ObjectReaderBase
+abstract class ObjectReaderTestBase
 {
     protected final static int WARMUP_ROUNDS = 5;
 
     protected String _desc1, _desc2;
     
     protected int hash;
-
     protected int roundsDone = 0;
-
     protected int REPS;
-
-    private double[] timeMsecs;;
+    private double[] timeMsecs;
 
     protected abstract int targetSizeMegs();
     
@@ -51,7 +48,7 @@ abstract class ObjectReaderBase
         final String input1 = mapper1.writeValueAsString(inputValue1);
         final String input2 = mapper2.writeValueAsString(inputValue2);
         // Let's try to guestimate suitable size... to get to N megs to process
-        REPS = (int) ((double) (8 * 1000 * 1000) / (double) input1.length());
+        REPS = (int) ((double) (targetSizeMegs() * 1000 * 1000) / (double) input1.length());
         _desc1 = String.format("%s (%d chars)", desc1, input1.length());
         _desc2 = String.format("%s (%d chars)", desc2, input2.length());
 

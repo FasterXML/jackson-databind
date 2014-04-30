@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class ManualReadPerfWithMedia extends ObjectReaderBase
+public class ManualReadPerfWithMedia extends ObjectReaderTestBase
 {
     @Override
     protected int targetSizeMegs() { return 8; }

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
  * Jackson implementation.
  */
 public class ManualWritePerfWithAllTypes
-    extends ObjectWriterBase<ManualWritePerfWithAllTypes.AllTypes, ManualWritePerfWithAllTypes.AllTypes>
+    extends ObjectWriterTestBase<ManualWritePerfWithAllTypes.AllTypes, ManualWritePerfWithAllTypes.AllTypes>
 {
     @Override
     protected int targetSizeMegs() { return 15; }
@@ -31,7 +31,7 @@ public class ManualWritePerfWithAllTypes
     }
 
     @Override
-    protected long testSer(int REPS, Object value, ObjectWriter writer) throws Exception
+    protected double testSer(int REPS, Object value, ObjectWriter writer) throws Exception
     {
         final NopOutputStream out = new NopOutputStream();
         long start = System.nanoTime();
@@ -43,7 +43,7 @@ public class ManualWritePerfWithAllTypes
         hash = output.length;
         long nanos = System.nanoTime() - start;
         out.close();
-        return nanos;
+        return _msecsFromNanos(nanos);
     }
 
     // Value type for test

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-abstract class ObjectWriterBase<T1,T2>
+abstract class ObjectWriterTestBase<T1,T2>
 {
     protected int hash;
 
@@ -37,7 +37,7 @@ abstract class ObjectWriterBase<T1,T2>
         // Skip first 5 seconds
         long startMeasure = System.currentTimeMillis() + 5000L;
         
-        final long[] times = new long[TYPES];
+        final double[] timesMsec = new double[TYPES];
 
         System.out.print("Warming up");
         
@@ -64,8 +64,7 @@ abstract class ObjectWriterBase<T1,T2>
                 throw new Error();
             }
 
-            long nanos = testSer(REPS, value, writer);
-            long msecs = nanos >> 20; // close enough for comparisons
+            double msecs = testSer(REPS, value, writer);
 
             // skip first N seconds to let results stabilize
             if (startMeasure > 0L) {
@@ -80,7 +79,7 @@ abstract class ObjectWriterBase<T1,T2>
                 System.out.println();
             }
 
-            times[round] += msecs;
+            timesMsec[round] += msecs;
 
             if ((i % 17) == 0) {
                 System.out.println("[GC]");
@@ -89,7 +88,7 @@ abstract class ObjectWriterBase<T1,T2>
                 Thread.sleep(100L);
             }
             
-            System.out.printf("Test '%s' [hash: 0x%s] -> %d msecs\n", msg, this.hash, msecs);
+            System.out.printf("Test '%s' [hash: 0x%s] -> %.1f msecs\n", msg, hash, msecs);
             Thread.sleep(50L);
             if (!lf) {
                 continue;
@@ -99,13 +98,13 @@ abstract class ObjectWriterBase<T1,T2>
                 double den = (double) roundsDone;
                 System.out.printf("Averages after %d rounds (%s/%s): %.1f / %.1f msecs\n",
                         roundsDone, desc1, desc2,
-                        times[0] / den, times[1] / den);
+                        timesMsec[0] / den, timesMsec[1] / den);
             }
             System.out.println();
         }
     }
 
-    protected long testSer(int REPS, Object value, ObjectWriter writer) throws Exception
+    protected double testSer(int REPS, Object value, ObjectWriter writer) throws Exception
     {
         final NopOutputStream out = new NopOutputStream();
         long start = System.nanoTime();
@@ -115,6 +114,10 @@ abstract class ObjectWriterBase<T1,T2>
         hash = out.size();
         long nanos = System.nanoTime() - start;
         out.close();
-        return nanos;
+        return _msecsFromNanos(nanos);
+    }
+
+    protected final double _msecsFromNanos(long nanos) {
+        return (nanos / 1000000.0);
     }
 }

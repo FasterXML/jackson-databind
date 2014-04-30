@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.*;
  * Simple manually run micro-benchmark for checking effects of (de)serializer
  * pre-fetching
  */
-public class ManualReadPerfWithRecord extends ObjectReaderBase
+public class ManualReadPerfWithRecord extends ObjectReaderTestBase
 {
     @Override
     protected int targetSizeMegs() { return 8; }

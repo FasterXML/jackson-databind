@@ -36,10 +36,9 @@ abstract class ObjectWriterTestBase<T1,T2>
 
         // Skip first 5 seconds
         long startMeasure = System.currentTimeMillis() + 5000L;
+        System.out.print("Warming up");
         
         final double[] timesMsec = new double[TYPES];
-
-        System.out.print("Warming up");
         
         while (true) {
             final int round = (i % TYPES);

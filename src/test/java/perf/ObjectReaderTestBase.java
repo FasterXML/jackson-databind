@@ -11,6 +11,7 @@ abstract class ObjectReaderTestBase
     protected String _desc1, _desc2;
     
     protected int hash;
+    protected long startMeasure = System.currentTimeMillis() + 5000L;
     protected int roundsDone = 0;
     protected int REPS;
     private double[] timeMsecs;
@@ -66,6 +67,7 @@ abstract class ObjectReaderTestBase
     {
         System.out.printf("Read %d bytes to bind (%d as array); will do %d repetitions\n",
                 byteInput1.length, byteInput2.length, REPS);
+        System.out.print("Warming up");
 
         final ObjectReader jsonReader = mapper1.reader()
                 .withType(inputClass1);
@@ -79,7 +81,7 @@ abstract class ObjectReaderTestBase
         
         while (true) {
             Thread.sleep(100L);
-            int type = (i++ % TYPES);
+            final int type = (i++ % TYPES);
 
             String msg;
             double msesc;
@@ -106,6 +108,7 @@ abstract class ObjectReaderTestBase
     {
         System.out.printf("Read %d bytes to bind (%d as array); will do %d repetitions\n",
                 input1.length(), input2.length(), REPS);
+        System.out.print("Warming up");
 
         final ObjectReader jsonReader = mapper1.reader()
                 .with(DeserializationFeature.EAGER_DESERIALIZER_FETCH)
@@ -122,10 +125,6 @@ abstract class ObjectReaderTestBase
         while (true) {
             Thread.sleep(100L);
             int type = (i++ % TYPES);
-
-// !!! TEST
-//type = 0;            
-            
             String msg;
             double msecs;
             
@@ -148,19 +147,30 @@ abstract class ObjectReaderTestBase
     private void updateStats(int type, boolean doGc, String msg, double msecs)
         throws Exception
     {
-        // skip first N rounds to let results stabilize
-        if (roundsDone >= WARMUP_ROUNDS) {
+        final boolean lf = (type == (timeMsecs.length - 1));
+
+        if (startMeasure == 0L) { // skip first N seconds
             timeMsecs[type] += msecs;
+        } else {
+            if (lf) {
+                if (System.currentTimeMillis() >= startMeasure) {
+                    startMeasure = 0L;
+                    System.out.println(" complete!");
+                } else {
+                    System.out.print(".");
+                }
+            }
+            return;
         }
-        System.out.printf("Test '%s' [hash: 0x%s] -> %.1f msecs\n", msg, this.hash, msecs);
-        if (type == 0) {
+
+        System.out.printf("Test '%s' [hash: 0x%s] -> %.1f msecs\n", msg, Integer.toHexString(hash), msecs);
+        if (lf) {
             ++roundsDone;
-            if ((roundsDone % 3) == 0 && roundsDone > WARMUP_ROUNDS) {
-                double den = (double) (roundsDone - WARMUP_ROUNDS);
-                System.out.printf("Averages after %d rounds (Object / Array): %.1f / %.1f msecs\n",
-                        (int) den,
+            if ((roundsDone % 3) == 0 ) {
+                double den = (double) roundsDone;
+                System.out.printf("Averages after %d rounds (%s/%s): %.1f / %.1f msecs\n",
+                        (int) den, _desc1, _desc2,
                         timeMsecs[0] / den, timeMsecs[1] / den);
-                        
             }
             System.out.println();
         }

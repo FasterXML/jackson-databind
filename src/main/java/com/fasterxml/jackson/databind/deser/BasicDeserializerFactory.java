@@ -1209,8 +1209,7 @@ public abstract class BasicDeserializerFactory
             JavaType baseType)
         throws JsonMappingException
     {
-        Class<?> cls = baseType.getRawClass();
-        BeanDescription bean = config.introspectClassAnnotations(cls);
+        BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
         AnnotatedClass ac = bean.getClassInfo();
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findTypeResolver(config, ac, baseType);

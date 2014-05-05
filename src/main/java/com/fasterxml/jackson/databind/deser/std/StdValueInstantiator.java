@@ -25,11 +25,6 @@ public class StdValueInstantiator
      */
     protected final String _valueTypeDesc;
 
-    /**
-     * Are we allowed to convert empty Strings to null objects?
-     */
-    protected final boolean _cfgEmptyStringsAsObjects;
-    
     // // // Default (no-args) construction
 
     /**
@@ -66,17 +61,11 @@ public class StdValueInstantiator
     /**********************************************************
      */
 
-    public StdValueInstantiator(DeserializationConfig config, Class<?> valueType)
-    {
-        _cfgEmptyStringsAsObjects = (config == null) ? false
-                : config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+    public StdValueInstantiator(DeserializationConfig config, Class<?> valueType) {
         _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.getName();
     }
-    
-    public StdValueInstantiator(DeserializationConfig config, JavaType valueType)
-    {
-        _cfgEmptyStringsAsObjects = (config == null) ? false
-                : config.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+
+    public StdValueInstantiator(DeserializationConfig config, JavaType valueType) {
         _valueTypeDesc = (valueType == null) ? "UNKNOWN TYPE" : valueType.toString();
     }
 
@@ -86,7 +75,6 @@ public class StdValueInstantiator
      */
     protected StdValueInstantiator(StdValueInstantiator src)
     {
-        _cfgEmptyStringsAsObjects = src._cfgEmptyStringsAsObjects;
         _valueTypeDesc = src._valueTypeDesc;
 
         _defaultCreator = src._defaultCreator;
@@ -422,8 +410,10 @@ public class StdValueInstantiator
         }
         
         // and finally, empty Strings might be accepted as null Object...
-        if (_cfgEmptyStringsAsObjects && value.length() == 0) {
-            return null;
+        if (value.length() == 0) {
+            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                return null;
+            }
         }
         throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
                 +" from String value ('"+value+"'); no single-String constructor/factory method");

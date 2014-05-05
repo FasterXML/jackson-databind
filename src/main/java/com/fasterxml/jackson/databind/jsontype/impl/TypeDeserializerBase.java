@@ -230,7 +230,7 @@ public abstract class TypeDeserializerBase
      * @since 2.4
      */
     protected Object _deserializeWithNativeTypeId(JsonParser jp, DeserializationContext ctxt, Object typeId)
-            throws IOException
+        throws IOException
     {
         JsonDeserializer<Object> deser;
         if (typeId == null) {

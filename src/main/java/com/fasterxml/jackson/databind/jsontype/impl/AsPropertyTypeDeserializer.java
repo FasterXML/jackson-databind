@@ -54,10 +54,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
         if (jp.canReadTypeId()) {
             Object typeId = jp.getTypeId();
             if (typeId != null) {
-                Object ob = _deserializeWithNativeTypeId(jp, ctxt, typeId);
-                if (ob != null) {
-                    return ob;
-                }
+                return _deserializeWithNativeTypeId(jp, ctxt, typeId);
             }
         }
         

@@ -1,13 +1,16 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.jsontype.*;
-import com.fasterxml.jackson.databind.ser.*;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 import com.fasterxml.jackson.databind.util.NameTransformer;
+
+import java.io.IOException;
 
 public class UnwrappingBeanSerializer
     extends BeanSerializerBase
@@ -121,6 +124,10 @@ public class UnwrappingBeanSerializer
     public void serializeWithType(Object bean, JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer)
         throws IOException, JsonGenerationException
     {
+	    if (provider.isEnabled(SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS)) {
+		    throw new JsonGenerationException("Unwrapped property contains type information.");
+	    }
+
         if (_objectIdWriter != null) {
             _serializeWithObjectId(bean, jgen, provider, typeSer);
             return;

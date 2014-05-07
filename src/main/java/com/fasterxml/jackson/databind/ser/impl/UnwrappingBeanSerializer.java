@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -116,6 +117,22 @@ public class UnwrappingBeanSerializer
         }
     }
     
+    @Override
+    public void serializeWithType(Object bean, JsonGenerator jgen, SerializerProvider provider, TypeSerializer typeSer)
+        throws IOException, JsonGenerationException
+    {
+        if (_objectIdWriter != null) {
+            _serializeWithObjectId(bean, jgen, provider, typeSer);
+            return;
+        }
+
+        if (_propertyFilterId != null) {
+            serializeFieldsFiltered(bean, jgen, provider);
+        } else {
+            serializeFields(bean, jgen, provider);
+        }
+    }
+
     /*
     /**********************************************************
     /* Standard methods

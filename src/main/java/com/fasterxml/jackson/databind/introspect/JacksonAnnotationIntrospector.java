@@ -72,7 +72,11 @@ public class JacksonAnnotationIntrospector
         if (ann == null) {
             return null;
         }
-        return new PropertyName(ann.value());
+        String ns = ann.namespace();
+        if (ns != null && ns.length() == 0) {
+            ns = null;
+        }
+        return PropertyName.construct(ann.value(), ns);
     }
 
     @Override

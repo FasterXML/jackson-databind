@@ -404,7 +404,7 @@ public class TestSimpleTypes
 
             // First, as regular double value
             if (NAN_STRING != str) {
-            	result = MAPPER.readValue(new StringReader(str), Double.class);
+                result = MAPPER.readValue(str, Double.class);
             	assertEquals(exp, result);
             }
             // and then as coerced String:

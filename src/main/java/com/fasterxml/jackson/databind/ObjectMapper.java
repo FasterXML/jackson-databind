@@ -3107,8 +3107,8 @@ public class ObjectMapper
     {
         String expName = config.getRootName();
         if (expName == null) {
-            SerializableString sstr = _rootNames.findRootName(rootType, config);
-            expName = sstr.getValue();
+            PropertyName pname = _rootNames.findRootName(rootType, config);
+            expName = pname.getSimpleName();
         }
         if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
             throw JsonMappingException.from(jp, "Current token not START_OBJECT (needed to unwrap root name '"

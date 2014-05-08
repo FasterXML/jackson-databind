@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 @SuppressWarnings("serial")
 public abstract class AnnotationIntrospector
     implements Versioned, java.io.Serializable
-{    
+{
     /*
     /**********************************************************
     /* Helper types

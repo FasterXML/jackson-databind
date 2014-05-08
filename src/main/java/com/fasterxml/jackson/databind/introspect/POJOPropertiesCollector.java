@@ -378,7 +378,11 @@ public class POJOPropertiesCollector
         final boolean pruneFinalFields = !_forSerialization && !_config.isEnabled(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
         
         for (AnnotatedField f : _classDef.fields()) {
-            String implName = f.getName();
+            String implName = (ai == null) ? null : ai.findImplicitPropertyName(f);
+            if (implName == null) {
+                implName = f.getName();
+            }
+            
             PropertyName pn;
 
             if (ai == null) {
@@ -539,8 +543,11 @@ public class POJOPropertiesCollector
         PropertyName pn = (ai == null) ? null : ai.findNameForSerialization(m);
         boolean nameExplicit = (pn != null);
 
-        if (!nameExplicit) { // no explicit name; must follow naming convention
-            implName = BeanUtil.okNameForRegularGetter(m, m.getName());
+        if (!nameExplicit) { // no explicit name; must consider implicit
+            implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
+            if (implName == null) {
+                implName = BeanUtil.okNameForRegularGetter(m, m.getName());
+            }
             if (implName == null) { // if not, must skip
                 implName = BeanUtil.okNameForIsGetter(m, m.getName());
                 if (implName == null) {
@@ -552,7 +559,10 @@ public class POJOPropertiesCollector
             }
         } else { // explicit indication of inclusion, but may be empty
             // we still need implicit name to link with other pieces
-            implName = BeanUtil.okNameForGetter(m);
+            implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
+            if (implName == null) {
+                implName = BeanUtil.okNameForGetter(m);
+            }
             // if not regular getter name, use method name as is
             if (implName == null) {
                 implName = m.getName();
@@ -575,14 +585,20 @@ public class POJOPropertiesCollector
         PropertyName pn = (ai == null) ? null : ai.findNameForDeserialization(m);
         boolean nameExplicit = (pn != null);
         if (!nameExplicit) { // no explicit name; must follow naming convention
-            implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+            implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
+            if (implName == null) {
+                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+            }
             if (implName == null) { // if not, must skip
             	return;
             }
             visible = _visibilityChecker.isSetterVisible(m);
         } else { // explicit indication of inclusion, but may be empty
             // we still need implicit name to link with other pieces
-            implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+            implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
+            if (implName == null) {
+                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+            }
             // if not regular getter name, use method name as is
             if (implName == null) {
                 implName = m.getName();

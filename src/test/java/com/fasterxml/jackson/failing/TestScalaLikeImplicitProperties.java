@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.failing;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.*;
 
 /**
  * Tests Scala-style JVM naming patterns for properties.
@@ -22,6 +22,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class TestScalaLikeImplicitProperties extends BaseMapTest
 {
+    static class NameMangler extends JacksonAnnotationIntrospector
+    {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public String findImplicitPropertyName(AnnotatedMember member) {
+            String name = null;
+            if (member instanceof AnnotatedField) {
+                name = member.getName();
+            }
+            if (name != null) {
+                if (name.endsWith("‿")) {                    
+                    return name.substring(0, name.length()-1);
+                }
+            }
+            return null;
+        }
+    }
+    
     static class ValProperty
     {
         public final String prop‿;
@@ -82,10 +101,9 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
         // getProp/setProp pairs.
     }
 
-
     public void testValProperty() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = manglingMapper();
 
         // TODO: Activate whatever handler implements the property detection style
 
@@ -95,7 +113,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
 
     public void testValWithBeanProperty() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = manglingMapper();
 
         // TODO: Activate whatever handler implements the property detection style
 
@@ -105,7 +123,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
 
     public void testVarProperty() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = manglingMapper();
 
         // TODO: Activate whatever handler implements the property detection style
 
@@ -117,7 +135,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
 
     public void testVarWithBeanProperty() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = manglingMapper();
 
         // TODO: Activate whatever handler implements the property detection style
 
@@ -129,12 +147,19 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
 
     public void testGetterSetterProperty() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
+        ObjectMapper m = manglingMapper();
 
         // TODO: Activate whatever handler implements the property detection style
 
         assertEquals("{\"prop\":\"get/set\"}", m.writeValueAsString(new GetterSetterProperty()));
         GetterSetterProperty result = m.readValue("{\"prop\":\"read\"}", GetterSetterProperty.class);
         assertEquals("read", result.prop());
+    }
+
+    private ObjectMapper manglingMapper()
+    {
+        ObjectMapper m = new ObjectMapper();
+        m.setAnnotationIntrospector(new NameMangler());
+        return m;
     }
 }

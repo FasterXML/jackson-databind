@@ -11,7 +11,7 @@ Version: 2.4.0-rc1 (26-Apr-2014)
  (reported by Stuart J, sgjohnston@github)
 #323: Serialization of the field with deserialization config
  (reported by metanet@github)
-#327: Should not consider explicitly differing renames a fail, as long as all are explici
+#327: Should not consider explicitly differing renames a fail, as long as all are explicit
 #335: Allow use of `@JsonPropertyOrder(alphabetic=true)` for Map properties
 #352 Add `ObjectMapper.setConfig()` for overriding `SerializationConfig`/`DeserializationConfig`
 #353: Problems with polymorphic types, `JsonNode` (related to #88)

@@ -435,9 +435,9 @@ public class AnnotationIntrospectorPair
     }
     
     @Override
-    public String findParameterSourceName(AnnotatedParameter param) {
-        String r = _primary.findParameterSourceName(param);
-        return (r == null) ? _secondary.findParameterSourceName(param) : r;
+    public String findImplicitPropertyName(AnnotatedMember param) {
+        String r = _primary.findImplicitPropertyName(param);
+        return (r == null) ? _secondary.findImplicitPropertyName(param) : r;
     }
 
     // // // Serialization: class annotations

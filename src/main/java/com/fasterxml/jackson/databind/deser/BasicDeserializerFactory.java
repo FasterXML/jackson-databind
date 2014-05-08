@@ -716,7 +716,7 @@ public abstract class BasicDeserializerFactory
             /* 14-Apr-2014, tatu: Need to also consider possible implicit name
             *   (for JDK8, or via paranamer)
             */
-            String str = intr.findParameterSourceName(param);
+            String str = intr.findImplicitPropertyName(param);
             if (str != null && !str.isEmpty()) {
                 return new PropertyName(str);
             }

@@ -535,7 +535,7 @@ public class BasicBeanDescription extends BeanDescription
     {
     	PropertyName name = _annotationIntrospector.findNameForDeserialization(param);
     	if (name == null || name.isEmpty()) {
-    		String str = _annotationIntrospector.findParameterSourceName(param);
+    		String str = _annotationIntrospector.findImplicitPropertyName(param);
     		if (str != null && !str.isEmpty()) {
     			name = new PropertyName(str);
     		}

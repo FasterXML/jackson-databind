@@ -502,18 +502,19 @@ public abstract class AnnotationIntrospector
     public Integer findPropertyIndex(Annotated ann) { return null; }
 
     /**
-     * Method for finding parameter name used in source code, and typically
-     * not indicated by an annotation (which is ironic considering the context).
-     * The reason for including method here is that of convenience; while
-     * it is not part of annotation handling, it is closely related to
-     * property introspection project. {@link AnnotationIntrospector} handling
-     * is also one of limited number of truly pluggable extension points, making
-     * it ideal from developer perspective; even at the expense of strict
-     * naming consistency.
+     * Method for finding implicit name for a property that given annotated
+     * member (field, method, creator parameter) may represent.
+     * This is different from explicit, annotation-based property name, in that
+     * it is "weak" and does not either proof that a property exists (for example,
+     * if visibility is not high enough), or override explicit names.
+     * In practice this method is used to introspect optional names for creator
+     * parameters (which may or may not be available and can not be detected
+     * by standard databind); or to provide alternate name mangling for
+     * fields, getters and/or setters.
      * 
      * @since 2.4
      */
-    public String findParameterSourceName(AnnotatedParameter param) { return null; }
+    public String findImplicitPropertyName(AnnotatedMember member) { return null; }
     
     /*
     /**********************************************************

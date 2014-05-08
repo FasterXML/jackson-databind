@@ -450,7 +450,7 @@ public class POJOPropertiesCollector
     protected void _addCreatorParam(AnnotatedParameter param)
     {
         // JDK 8, paranamer can give implicit name
-        String impl = _annotationIntrospector.findParameterSourceName(param);
+        String impl = _annotationIntrospector.findImplicitPropertyName(param);
         if (impl == null) {
             impl = "";
         }

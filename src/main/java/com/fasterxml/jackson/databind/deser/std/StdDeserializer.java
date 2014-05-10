@@ -775,11 +775,15 @@ public abstract class StdDeserializer<T>
      * 
      * @since 2.1
      */
-    protected final String _parseString(JsonParser jp, DeserializationContext ctxt)
-        throws IOException
+    protected final String _parseString(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
+        JsonToken t = jp.getCurrentToken();
+        if (t == JsonToken.VALUE_STRING) {
+            return jp.getText();
+        }
+        
         // Issue#381
-        if (jp.getCurrentToken() == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             jp.nextToken();
             final String parsed = _parseString(jp, ctxt);
             if (jp.nextToken() != JsonToken.END_ARRAY) {

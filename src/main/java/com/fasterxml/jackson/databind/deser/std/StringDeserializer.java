@@ -24,8 +24,13 @@ public final class StringDeserializer extends StdScalarDeserializer<String>
     @Override
     public String deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
+        JsonToken curr = jp.getCurrentToken();
+        if (curr == JsonToken.VALUE_STRING) {
+            return jp.getText();
+        }
+
         // Issue#381
-        if (jp.getCurrentToken() == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+        if (curr == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             jp.nextToken();
             final String parsed = _parseString(jp, ctxt);
             if (jp.nextToken() != JsonToken.END_ARRAY) {
@@ -34,13 +39,7 @@ public final class StringDeserializer extends StdScalarDeserializer<String>
             }            
             return parsed;            
         }
-        // 22-Sep-2012, tatu: For 2.1, use this new method, may force coercion:
-        String text = jp.getValueAsString();
-        if (text != null) {
-            return text;
-        }
         // [JACKSON-330]: need to gracefully handle byte[] data, as base64
-        JsonToken curr = jp.getCurrentToken();
         if (curr == JsonToken.VALUE_EMBEDDED_OBJECT) {
             Object ob = jp.getEmbeddedObject();
             if (ob == null) {
@@ -51,6 +50,11 @@ public final class StringDeserializer extends StdScalarDeserializer<String>
             }
             // otherwise, try conversion using toString()...
             return ob.toString();
+        }
+        // allow coercions for other scalar types
+        String text = jp.getValueAsString();
+        if (text != null) {
+            return text;
         }
         throw ctxt.mappingException(_valueClass, curr);
     }

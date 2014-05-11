@@ -1,11 +1,12 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
+import java.io.IOException;
 import java.lang.reflect.Member;
 import java.util.*;
 
-
 import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.DeserializationConfig;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.deser.CreatorProperty;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
@@ -59,11 +60,10 @@ public class CreatorCollector
 
     public ValueInstantiator constructValueInstantiator(DeserializationConfig config)
     {
-        StdValueInstantiator inst = new StdValueInstantiator(config, _beanDesc.getType());
-
         JavaType delegateType;
-
-        if (_delegateCreator == null) {
+        boolean maybeVanilla = _delegateCreator == null;
+        
+        if (maybeVanilla) {
             delegateType = null;
         } else {
             // need to find type...
@@ -79,7 +79,36 @@ public class CreatorCollector
             TypeBindings bindings = _beanDesc.bindingsForBeanType();
             delegateType = bindings.resolveType(_delegateCreator.getGenericParameterType(ix));
         }
+
+        final JavaType type = _beanDesc.getType();
+
+        // Any non-standard creator will prevent; with one exception: int-valued constructor
+        // that standard containers container can be ignored
+        maybeVanilla &= (_propertyBasedCreator == null)
+                && (_delegateCreator == null)
+                && (_stringCreator == null)
+                && (_longCreator == null)
+                && (_doubleCreator == null)
+                && (_booleanCreator == null)
+                ;
+
+        if (maybeVanilla) {
+        /* 10-May-2014, tatu: If we have nothing special, and we are dealing with one
+         *   of "well-known" types, can create a non-reflection-based instantiator.
+         */
+            final Class<?> rawType = type.getRawClass();
+            if (rawType == Collection.class || rawType == List.class || rawType == ArrayList.class) {
+                return new Vanilla(Vanilla.TYPE_COLLECTION);
+            }
+            if (rawType == Map.class || rawType == LinkedHashMap.class) {
+                return new Vanilla(Vanilla.TYPE_MAP);
+            }
+            if (rawType == HashMap.class) {
+                return new Vanilla(Vanilla.TYPE_HASH_MAP);
+            }
+        }
         
+        StdValueInstantiator inst = new StdValueInstantiator(config, type);
         inst.configureFromObjectSettings(_defaultConstructor,
                 _delegateCreator, delegateType, _delegateArgs,
                 _propertyBasedCreator, _propertyBasedArgs);
@@ -175,7 +204,7 @@ public class CreatorCollector
     public boolean hasDefaultCreator() {
         return _defaultConstructor != null;
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods
@@ -200,5 +229,55 @@ public class CreatorCollector
             }
         }
         return _fixAccess(newOne);
+    }
+
+    /*
+    /**********************************************************
+    /* Helper class(es)
+    /**********************************************************
+     */
+
+    protected final static class Vanilla
+        extends ValueInstantiator
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public final static int TYPE_COLLECTION = 1;
+        public final static int TYPE_MAP = 2;
+        public final static int TYPE_HASH_MAP = 3;
+
+        private final int _type;
+        
+        public Vanilla(int t) {
+            _type = t;
+        }
+        
+        
+        @Override
+        public String getValueTypeDesc() {
+            switch (_type) {
+            case TYPE_COLLECTION: return ArrayList.class.getName();
+            case TYPE_MAP: return LinkedHashMap.class.getName();
+            case TYPE_HASH_MAP: return HashMap.class.getName();
+            }
+            return Object.class.getName();
+        }
+
+        @Override
+        public boolean canInstantiate() { return true; }
+
+        @Override
+        public boolean canCreateUsingDefault() {  return true; }
+
+        @Override
+        public Object createUsingDefault(DeserializationContext ctxt) throws IOException {
+            switch (_type) {
+            case TYPE_COLLECTION: return new ArrayList<Object>();
+            case TYPE_MAP: return new LinkedHashMap<String,Object>();
+            case TYPE_HASH_MAP: return new HashMap<String,Object>();
+            }
+            throw new IllegalStateException("Unknown type "+_type);
+        }
     }
 }

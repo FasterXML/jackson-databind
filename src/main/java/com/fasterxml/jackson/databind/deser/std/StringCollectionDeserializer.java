@@ -81,7 +81,7 @@ public final class StringCollectionDeserializer
         return new StringCollectionDeserializer(_collectionType,
                 _valueInstantiator, delegateDeser, valueDeser);
     }
-    
+
     /*
     /**********************************************************
     /* Validation, post-processing

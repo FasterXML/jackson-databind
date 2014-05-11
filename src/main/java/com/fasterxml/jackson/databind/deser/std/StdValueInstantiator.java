@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
  * Creator methods that can be indicated by standard Jackson
  * annotations.
  */
+@JacksonStdImpl
 public class StdValueInstantiator
     extends ValueInstantiator
     implements java.io.Serializable
@@ -392,33 +394,6 @@ public class StdValueInstantiator
     /**********************************************************
      */
 
-    protected Object _createFromStringFallbacks(DeserializationContext ctxt, String value)
-            throws IOException, JsonProcessingException
-    {
-        /* 28-Sep-2011, tatu: Ok this is not clean at all; but since there are legacy
-         *   systems that expect conversions in some cases, let's just add a minimal
-         *   patch (note: same could conceivably be used for numbers too).
-         */
-        if (_fromBooleanCreator != null) {
-            String str = value.trim();
-            if ("true".equals(str)) {
-                return createFromBoolean(ctxt, true);
-            }
-            if ("false".equals(str)) {
-                return createFromBoolean(ctxt, false);
-            }
-        }
-        
-        // and finally, empty Strings might be accepted as null Object...
-        if (value.length() == 0) {
-            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                return null;
-            }
-        }
-        throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
-                +" from String value ('"+value+"'); no single-String constructor/factory method");
-    }
-    
     protected JsonMappingException wrapException(Throwable t)
     {
         while (t.getCause() != null) {

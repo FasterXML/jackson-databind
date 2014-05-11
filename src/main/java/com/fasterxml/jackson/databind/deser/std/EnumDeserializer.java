@@ -72,8 +72,7 @@ public class EnumDeserializer
     public boolean isCachable() { return true; }
     
     @Override
-    public Enum<?> deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public Enum<?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         JsonToken curr = jp.getCurrentToken();
         
@@ -82,38 +81,13 @@ public class EnumDeserializer
             String name = jp.getText();
             Enum<?> result = _resolver.findEnum(name);
             if (result == null) {
-                name = name.trim();
-                if (name.length() == 0) {
-                    if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
-                        return null;
-                    }
-                } else {
-                    // [#149]: Allow use of 'String' indexes as well
-                    char c = name.charAt(0);
-                    if (c >= '0' && c <= '9') {
-                        try {
-                            int ix = Integer.parseInt(name);
-                            result = _resolver.getEnum(ix);
-                            if (result != null) {
-                                return result;
-                            }
-                        } catch (NumberFormatException e) {
-                            // fine, ignore, was not an integer
-                        }
-                    }
-                }
-                if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                    throw ctxt.weirdStringException(name, _resolver.getEnumClass(),
-                            "value not one of declared Enum instance names: "+_resolver.getEnums());
-                }
+                return _deserializeAltString(jp, ctxt, name);
             }
             return result;
         }
         // But let's consider int acceptable as well (if within ordinal range)
         if (curr == JsonToken.VALUE_NUMBER_INT) {
-            /* ... unless told not to do that. :-)
-             * (as per [JACKSON-412]
-             */
+            // ... unless told not to do that. :-) (as per [JACKSON-412]
             if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
                 throw ctxt.mappingException("Not allowed to deserialize Enum value out of JSON number (disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow)");
             }
@@ -126,7 +100,42 @@ public class EnumDeserializer
             }
             return result;
         }
-        
+        return _deserializeOther(jp, ctxt);
+    }
+
+    private final Enum<?> _deserializeAltString(JsonParser jp, DeserializationContext ctxt,
+            String name) throws IOException
+    {
+        name = name.trim();
+        if (name.length() == 0) {
+            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                return null;
+            }
+        } else {
+            // [#149]: Allow use of 'String' indexes as well
+            char c = name.charAt(0);
+            if (c >= '0' && c <= '9') {
+                try {
+                    int ix = Integer.parseInt(name);
+                    Enum<?> result = _resolver.getEnum(ix);
+                    if (result != null) {
+                        return result;
+                    }
+                } catch (NumberFormatException e) {
+                    // fine, ignore, was not an integer
+                }
+            }
+        }
+        if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+            throw ctxt.weirdStringException(name, _resolver.getEnumClass(),
+                    "value not one of declared Enum instance names: "+_resolver.getEnums());
+        }
+        return null;
+    }
+
+    private final Enum<?> _deserializeOther(JsonParser jp, DeserializationContext ctxt) throws IOException
+    {
+        JsonToken curr = jp.getCurrentToken();
         // Issue#381
         if (curr == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             jp.nextToken();
@@ -138,13 +147,12 @@ public class EnumDeserializer
             }
             return parsed;
         }
-
         throw ctxt.mappingException(_resolver.getEnumClass());
     }
-
+    
     /*
     /**********************************************************
-    /* Default JsonDeserializer implementation
+    /* Additional helper classes
     /**********************************************************
      */
 

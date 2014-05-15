@@ -182,6 +182,10 @@ public class POJOPropertiesCollector
         return null;
     }
 
+    /**
+     * Accessor for set of properties that are explicitly marked to be ignored
+     * via per-property markers (but NOT class annotations).
+     */
     public Set<String> getIgnoredPropertyNames() {
         return _ignoredPropertyNames;
     }

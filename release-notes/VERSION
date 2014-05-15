@@ -1,5 +1,13 @@
 Project: jackson-databind
-Version: 2.3.3 (10-Apr-2014)
+Version: 2.3.4 (xx-xxx-2014)
+
+#459: BeanDeserializerBuilder copy constructor not copying `_injectables`
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.3.3 (10-Apr-2014)
 
 #420: Remove 'final' modifier from `BeanDeserializerBase.deserializeWithType`
  (requested by Ghoughpteighbteau@github)
@@ -10,10 +18,6 @@ Version: 2.3.3 (10-Apr-2014)
 #433: `ObjectMapper`'s `.valueToTree()` wraps `JsonSerializable` objects into a POJONode
  (reported by Francis G)
 - Fix null-handling for `CollectionSerializer`
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.3.2 (01-Mar-2014)
 

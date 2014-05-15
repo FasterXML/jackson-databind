@@ -110,27 +110,29 @@ public class BeanDeserializerBuilder
         _beanDesc = src._beanDesc;
         _defaultViewInclusion = src._defaultViewInclusion;
 
-        _anySetter = src._anySetter;
-        _ignoreAllUnknown = src._ignoreAllUnknown;
-
         // let's make copy of properties
         _properties.putAll(src._properties);
+        _injectables = _copy(src._injectables);
         _backRefProperties = _copy(src._backRefProperties);
         // Hmmh. Should we create defensive copies here? For now, not yet
         _ignorableProps = src._ignorableProps;        
         _valueInstantiator = src._valueInstantiator;
         _objectIdReader = src._objectIdReader;
         
+        _anySetter = src._anySetter;
+        _ignoreAllUnknown = src._ignoreAllUnknown;
+        
         _buildMethod = src._buildMethod;
         _builderConfig = src._builderConfig;
     }
 
-    private static HashMap<String, SettableBeanProperty> _copy(HashMap<String, SettableBeanProperty> src)
-    {
-        if (src == null) {
-            return null;
-        }
-        return new HashMap<String, SettableBeanProperty>(src);
+    private static HashMap<String, SettableBeanProperty> _copy(HashMap<String, SettableBeanProperty> src) {
+        return (src == null) ? null
+                : new HashMap<String, SettableBeanProperty>(src);
+    }
+
+    private static <T> List<T> _copy(List<T> src) {
+        return (src == null) ? null : new ArrayList<T>(src);
     }
     
     /*
@@ -142,8 +144,7 @@ public class BeanDeserializerBuilder
     /**
      * Method for adding a new property or replacing a property.
      */
-    public void addOrReplaceProperty(SettableBeanProperty prop, boolean allowOverride)
-    {
+    public void addOrReplaceProperty(SettableBeanProperty prop, boolean allowOverride) {
         _properties.put(prop.getName(), prop);
     }
 

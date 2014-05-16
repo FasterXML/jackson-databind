@@ -6,8 +6,10 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+
 import org.junit.Test;
 
 // Tests for [#81]
@@ -48,8 +50,9 @@ public class TestUnwrappedWithTypeInfo extends BaseMapTest
     /**********************************************************
      */
 
-    public void testDefaultUnwrappedWithTypeInfo() throws Exception
-    {
+	// [Issue#81]
+	public void testDefaultUnwrappedWithTypeInfo() throws Exception
+	{
 	    Outer outer = new Outer();
 	    outer.setP1("101");
 
@@ -59,14 +62,13 @@ public class TestUnwrappedWithTypeInfo extends BaseMapTest
 
 	    ObjectMapper mapper = new ObjectMapper();
 
-        try {
+	    try {
 	        mapper.writeValueAsString(outer);
-        } catch (JsonGenerationException ex) {
-	        return; // expected
-        }
-
-	    fail("Expected exception to be thrown.");
-    }
+	         fail("Expected exception to be thrown.");
+	    } catch (JsonMappingException ex) {
+	        verifyException(ex, "requires use of type information");
+	    }
+	}
 
 	public void testUnwrappedWithTypeInfoAndFeatureDisabled() throws Exception
 	{

@@ -351,7 +351,7 @@ public class UntypedObjectDeserializer
             // empty map might work; but caller may want to modify... so better just give small modifiable
             return new LinkedHashMap<String,Object>(2);
         }
-        String field1 = jp.getText();
+        String field1 = jp.getCurrentName();
         jp.nextToken();
         Object value1 = deserialize(jp, ctxt);
         if (jp.nextToken() == JsonToken.END_OBJECT) { // single entry; but we want modifiable
@@ -359,7 +359,7 @@ public class UntypedObjectDeserializer
             result.put(field1, value1);
             return result;
         }
-        String field2 = jp.getText();
+        String field2 = jp.getCurrentName();
         jp.nextToken();
         Object value2 = deserialize(jp, ctxt);
         if (jp.nextToken() == JsonToken.END_OBJECT) {
@@ -373,7 +373,7 @@ public class UntypedObjectDeserializer
         result.put(field1, value1);
         result.put(field2, value2);
         do {
-            String fieldName = jp.getText();
+            String fieldName = jp.getCurrentName();
             jp.nextToken();
             result.put(fieldName, deserialize(jp, ctxt));
         } while (jp.nextToken() != JsonToken.END_OBJECT);

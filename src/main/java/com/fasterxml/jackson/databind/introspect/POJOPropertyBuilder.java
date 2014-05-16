@@ -22,7 +22,7 @@ public class POJOPropertyBuilder
     protected final boolean _forSerialization;
 
     protected final AnnotationIntrospector _annotationIntrospector;
-    
+
     /**
      * External name of logical property; may change with
      * renaming (by new instance being constructed using

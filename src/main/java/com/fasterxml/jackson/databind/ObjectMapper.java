@@ -1372,7 +1372,7 @@ public class ObjectMapper
 
     /**
      * Method for overriding default TimeZone to use for formatting.
-     * Default value used is {@link TimeZone#getDefault()}.
+     * Default value used is UTC (NOT local timezone).
      */
     public ObjectMapper setTimeZone(TimeZone tz) {
         _deserializationConfig = _deserializationConfig.with(tz);

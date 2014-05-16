@@ -599,11 +599,9 @@ public abstract class BasicSerializerFactory
             }
         }
 
-        // As per [Issue#24], may want to use alternate shape, serialize as JSON Object.
-        // Challenge here is that EnumSerializer does not know how to produce
-        // POJO style serialization, so we must handle that special case separately;
-        // otherwise pass it to EnumSerializer.
         if (ser == null) {
+            // We may also want to use serialize Collections "as beans", if (and only if)
+            // this is specified with `@JsonFormat(shape=Object)`
             JsonFormat.Value format = beanDesc.findExpectedFormat(null);
             if (format != null && format.getShape() == JsonFormat.Shape.OBJECT) {
                 return null;

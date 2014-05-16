@@ -42,7 +42,7 @@ public abstract class DeserializationContext
     extends DatabindContext
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = -7727373309391091315L;
+    private static final long serialVersionUID = -4290063686213707727L;
 
     /**
      * Let's limit length of error messages, for cases where underlying data
@@ -833,8 +833,12 @@ public abstract class DeserializationContext
      * Helper method for indicating that the current token was expected to be another
      * token.
      */
-    public JsonMappingException wrongTokenException(JsonParser p, JsonToken expToken, String msg) {
-        return JsonMappingException.from(p, "Unexpected token ("+p.getCurrentToken()+"), expected "+expToken+": "+msg);
+    public JsonMappingException wrongTokenException(JsonParser p, JsonToken expToken, String msg0) {
+        String msg = "Unexpected token ("+p.getCurrentToken()+"), expected "+expToken;
+        if (msg0 != null) {
+            msg = msg + ": "+msg0;
+        }
+        return JsonMappingException.from(p, msg);
     }
 
     /**

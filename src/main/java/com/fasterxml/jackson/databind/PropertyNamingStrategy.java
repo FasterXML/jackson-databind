@@ -30,6 +30,27 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 public abstract class PropertyNamingStrategy
     implements java.io.Serializable
 {
+    /**
+     * See {@link LowerCaseWithUnderscoresStrategy} for details.
+     */
+    public static final PropertyNamingStrategy CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES =
+        new LowerCaseWithUnderscoresStrategy();
+
+    /**
+     * See {@link PascalCaseStrategy} for details.
+     * 
+     * @since 2.1
+     */
+    public static final PropertyNamingStrategy PASCAL_CASE_TO_CAMEL_CASE =
+        new PascalCaseStrategy();
+
+    /**
+     * See {@link LowerCaseStrategy} for details.
+     * 
+     * @since 2.4
+     */
+    public static final PropertyNamingStrategy LOWER_CASE = new LowerCaseStrategy();
+    
     /*
     /**********************************************************
     /* API
@@ -116,7 +137,7 @@ public abstract class PropertyNamingStrategy
 
     /*
     /**********************************************************
-    /* Standard implementations 
+    /* Public base class for simple implementations
     /**********************************************************
      */
     
@@ -156,12 +177,6 @@ public abstract class PropertyNamingStrategy
     /* Standard implementations 
     /**********************************************************
      */
-
-    /**
-     * See {@link LowerCaseWithUnderscoresStrategy} for details.
-     */
-    public static final PropertyNamingStrategy CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES =
-        new LowerCaseWithUnderscoresStrategy();
     
     /**
      * A {@link PropertyNamingStrategy} that translates typical camel case Java 
@@ -248,15 +263,7 @@ public abstract class PropertyNamingStrategy
             return resultLength > 0 ? result.toString() : input;
         }
     }
-    
-    /**
-     * See {@link PascalCaseStrategy} for details.
-     * 
-     * @since 2.1
-     */
-    public static final PropertyNamingStrategy PASCAL_CASE_TO_CAMEL_CASE =
-        new PascalCaseStrategy();
-    
+
     /**
      * A {@link PropertyNamingStrategy} that translates typical camelCase Java 
      * property names to PascalCase JSON element names (i.e., with a capital
@@ -274,28 +281,45 @@ public abstract class PropertyNamingStrategy
      */
     public static class PascalCaseStrategy extends PropertyNamingStrategyBase
     {
-    	/**
-    	 * Converts camelCase to PascalCase
-    	 * 
-    	 * For example, "userName" would be converted to
-    	 * "UserName".
-      	 * 
-    	 * @param input formatted as camelCase string
-    	 * @return input converted to PascalCase format
-    	 */
-    	@Override
-    	public String translate(String input) {
-    	    if (input == null || input.length() == 0){
-    	        return input; // garbage in, garbage out
-    	    }
-    	    // Replace first lower-case letter with upper-case equivalent
-    	    char c = input.charAt(0);
-    	    if (Character.isUpperCase(c)) {
-    	        return input;
-    	    }
-    	    StringBuilder sb = new StringBuilder(input);
-    	    sb.setCharAt(0, Character.toUpperCase(c));
-    	    return sb.toString();
-    	}	
+        /**
+         * Converts camelCase to PascalCase
+         * 
+         * For example, "userName" would be converted to
+         * "UserName".
+         *
+         * @param input formatted as camelCase string
+         * @return input converted to PascalCase format
+         */
+        @Override
+        public String translate(String input) {
+            if (input == null || input.length() == 0){
+                return input; // garbage in, garbage out
+            }
+            // Replace first lower-case letter with upper-case equivalent
+            char c = input.charAt(0);
+            char uc = Character.toUpperCase(c);
+            if (c == uc) {
+                return input;
+            }
+            StringBuilder sb = new StringBuilder(input);
+            sb.setCharAt(0, uc);
+            return sb.toString();
+        }
+    }
+
+    /**
+     * Simple strategy where external name simply only uses lower-case characters,
+     * and no separators.
+     * Conversion from internal name like "someOtherValue" would be into external name
+     * if "someothervalue".
+     * 
+     * @since 2.4
+     */
+    public static class LowerCaseStrategy extends PropertyNamingStrategyBase
+    {
+        @Override
+        public String translate(String input) {
+            return input.toLowerCase();
+        }
     }
 }

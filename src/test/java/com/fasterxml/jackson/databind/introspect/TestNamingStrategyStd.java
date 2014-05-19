@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.introspect.TestNamingStrategyCustom.PersonBean;
 
 /**
@@ -85,6 +86,13 @@ public class TestNamingStrategyStd extends BaseMapTest
     static class Bean428 {
         @JsonProperty("fooBar")
         public String whatever() {return "";}
+    }
+
+    @JsonPropertyOrder({ "firstName", "lastName" })
+    @JsonNaming(PropertyNamingStrategy.LowerCaseStrategy.class)
+    static class BoringBean {
+        public String firstName = "Bob";
+        public String lastName = "Burger";
     }
     
     /*
@@ -276,6 +284,18 @@ public class TestNamingStrategyStd extends BaseMapTest
         if (!json.contains(quote("fooBar"))) {
             fail("Should use name 'fooBar', does not: "+json);
         }
+    }
+
+    /**
+     * For [Issue#461]
+     */
+    public void testSimpleLowerCase() throws Exception
+    {
+        final BoringBean input = new BoringBean();
+        ObjectMapper m = new ObjectMapper();
+
+        assertEquals(aposToQuotes("{'firstname':'Bob','lastname':'Burger'}"),
+                m.writeValueAsString(input));
     }
 }
 

@@ -11,10 +11,10 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -286,30 +286,29 @@ public class AnnotationIntrospectorPair
     @Override
     public Object findSerializer(Annotated am) {
         Object r = _primary.findSerializer(am);
-        return (r == null) ? _secondary.findSerializer(am) : r;
+        return _isExplicitClassOrOb(r, JsonSerializer.None.class)
+                ? r : _secondary.findSerializer(am);
     }
     
     @Override
     public Object findKeySerializer(Annotated a) {
         Object r = _primary.findKeySerializer(a);
-        return (r == null || r == JsonSerializer.None.class || r == NoClass.class) ?
-        		_secondary.findKeySerializer(a) : r;
+        return _isExplicitClassOrOb(r, JsonSerializer.None.class)
+        		? r : _secondary.findKeySerializer(a);
     }
 
     @Override
     public Object findContentSerializer(Annotated a) {
-    	Object r = _primary.findContentSerializer(a);
-        return (r == null || r == JsonSerializer.None.class || r == NoClass.class) ?
-        		_secondary.findContentSerializer(a) : r;
+        Object r = _primary.findContentSerializer(a);
+        return _isExplicitClassOrOb(r, JsonSerializer.None.class)
+        		? r : _secondary.findContentSerializer(a);
     }
     
     @Override
     public Object findNullSerializer(Annotated a) {
-        Object result = _primary.findNullSerializer(a);
-        if (result == null || result == JsonSerializer.None.class || result == NoClass.class) {
-            result = _secondary.findNullSerializer(a);
-        }
-        return result;
+        Object r = _primary.findNullSerializer(a);
+        return _isExplicitClassOrOb(r, JsonSerializer.None.class)
+                ? r : _secondary.findNullSerializer(a);
     }
     
     @Override
@@ -499,27 +498,28 @@ public class AnnotationIntrospectorPair
     @Override
     public Object findDeserializer(Annotated am) {
         Object r = _primary.findDeserializer(am);
-        return (r == null) ? _secondary.findDeserializer(am) : r;
+        return _isExplicitClassOrOb(r, JsonDeserializer.None.class)
+                ? r : _secondary.findDeserializer(am);
     }
     
     @Override
     public Object findKeyDeserializer(Annotated am) {
-        Object result = _primary.findKeyDeserializer(am);
-        return (result == null || result == KeyDeserializer.None.class || result == NoClass.class) ?
-                _secondary.findKeyDeserializer(am) : result;
+        Object r = _primary.findKeyDeserializer(am);
+        return _isExplicitClassOrOb(r, KeyDeserializer.None.class)
+                ? r : _secondary.findKeyDeserializer(am);
     }
 
     @Override
     public Object findContentDeserializer(Annotated am) {
-        Object result = _primary.findContentDeserializer(am);
-        return (result == null || result == JsonDeserializer.None.class || result == NoClass.class) ?
-                _secondary.findContentDeserializer(am) : result;
+        Object r = _primary.findContentDeserializer(am);
+        return _isExplicitClassOrOb(r, JsonDeserializer.None.class)
+                ? r : _secondary.findContentDeserializer(am);
     }
     
     @Override
     public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
-        Class<?> result = _primary.findDeserializationType(am, baseType);
-        return (result == null) ? _secondary.findDeserializationType(am, baseType) : result;
+        Class<?> r = _primary.findDeserializationType(am, baseType);
+        return (r != null) ? r : _secondary.findDeserializationType(am, baseType);
     }
 
     @Override
@@ -598,4 +598,15 @@ public class AnnotationIntrospectorPair
     public boolean hasCreatorAnnotation(Annotated a) {
         return _primary.hasCreatorAnnotation(a) || _secondary.hasCreatorAnnotation(a);
     }
- }
+
+    protected boolean _isExplicitClassOrOb(Object maybeCls, Class<?> implicit) {
+        if (maybeCls == null) {
+            return false;
+        }
+        if (!(maybeCls instanceof Class<?>)) {
+            return true;
+        }
+        Class<?> cls = (Class<?>) maybeCls;
+        return (cls != implicit && !ClassUtil.isBogusClass(cls));
+    }
+}

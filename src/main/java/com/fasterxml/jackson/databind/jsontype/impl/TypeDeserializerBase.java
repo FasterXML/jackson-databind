@@ -189,7 +189,7 @@ public abstract class TypeDeserializerBase
     protected final JsonDeserializer<Object> _findDefaultImplDeserializer(DeserializationContext ctxt) throws IOException
     {
         /* 06-Feb-2013, tatu: As per [Issue#148], consider default implementation value of
-         *   {@link NoClass} to mean "serialize as null"; as well as DeserializationFeature
+         *   {@link java.lang.Void} to mean "serialize as null"; as well as DeserializationFeature
          *   to do swift mapping to null
          */
         if (_defaultImpl == null) {

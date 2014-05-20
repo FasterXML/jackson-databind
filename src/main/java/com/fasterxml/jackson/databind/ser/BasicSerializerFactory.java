@@ -11,7 +11,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -968,7 +967,7 @@ public abstract class BasicSerializerFactory
             throw new IllegalStateException("AnnotationIntrospector."+methodName+"() returned value of type "+src.getClass().getName()+": expected type JsonSerializer or Class<JsonSerializer> instead");
         }
         Class<?> cls = (Class<?>) src;
-        if (cls == noneClass || cls == NoClass.class) {
+        if (cls == noneClass || ClassUtil.isBogusClass(cls)) {
             return null;
         }
         return cls;

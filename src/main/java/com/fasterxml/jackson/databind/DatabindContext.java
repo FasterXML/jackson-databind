@@ -4,7 +4,6 @@ import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -196,7 +195,7 @@ public abstract class DatabindContext
         }
         Class<?> converterClass = (Class<?>)converterDef;
         // there are some known "no class" markers to consider too:
-        if (converterClass == Converter.None.class || converterClass == NoClass.class) {
+        if (converterClass == Converter.None.class || ClassUtil.isBogusClass(converterClass)) {
             return null;
         }
         if (!Converter.class.isAssignableFrom(converterClass)) {

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 
 /**
  * Unit tests related to [JACKSON-712]; specialized handling of
@@ -43,7 +42,7 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type",
-            defaultImpl = NoClass.class)
+            defaultImpl = Void.class)
     public static class DefaultWithNoClass { }
 
     // and then one with no defaultImpl nor listed subtypes

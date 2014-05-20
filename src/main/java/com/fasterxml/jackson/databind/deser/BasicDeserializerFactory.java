@@ -6,7 +6,6 @@ import java.util.concurrent.*;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
@@ -347,7 +346,7 @@ public abstract class BasicDeserializerFactory
                     +"; expected type KeyDeserializer or Class<KeyDeserializer> instead");
         }
         Class<?> instClass = (Class<?>)instDef;
-        if (instClass == NoClass.class) {
+        if (ClassUtil.isBogusClass(instClass)) {
             return null;
         }
         if (!ValueInstantiator.class.isAssignableFrom(instClass)) {

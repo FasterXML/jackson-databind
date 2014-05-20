@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -462,7 +461,7 @@ public abstract class DefaultSerializerProvider
             }
             Class<?> serClass = (Class<?>)serDef;
             // there are some known "no class" markers to consider too:
-            if (serClass == JsonSerializer.None.class || serClass == NoClass.class) {
+            if (serClass == JsonSerializer.None.class || ClassUtil.isBogusClass(serClass)) {
                 return null;
             }
             if (!JsonSerializer.class.isAssignableFrom(serClass)) {

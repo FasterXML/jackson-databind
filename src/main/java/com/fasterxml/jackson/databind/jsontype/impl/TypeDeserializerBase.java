@@ -10,10 +10,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.deser.std.NullifyingDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Base class for all standard Jackson {@link TypeDeserializer}s.
@@ -198,7 +198,8 @@ public abstract class TypeDeserializerBase
             }
             return null;
         }
-        if (_defaultImpl.getRawClass() == NoClass.class) {
+        Class<?> raw = _defaultImpl.getRawClass();
+        if (ClassUtil.isBogusClass(raw)) {
             return NullifyingDeserializer.instance;
         }
         

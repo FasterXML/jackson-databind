@@ -69,8 +69,7 @@ public @interface JsonDeserialize
      * constructor), and its "with-methods" are used for populating fields;
      * and finally "build-method" is invoked to complete deserialization.
      */
-    public Class<?> builder()
-        default NoClass.class;
+    public Class<?> builder() default Void.class;
 
     // // // Annotations for specifying intermediate Converters (2.2+)
     
@@ -104,7 +103,7 @@ public @interface JsonDeserialize
      * declared. Must be a subtype of declared type; otherwise an
      * exception may be thrown by deserializer.
      *<p>
-     * Bogus type {@link NoClass} can be used to indicate that declared
+     * Bogus type {@link Void} can be used to indicate that declared
      * type is used as is (i.e. this annotation property has no setting);
      * this since annotation properties are not allowed to have null value.
      *<p>
@@ -114,7 +113,7 @@ public @interface JsonDeserialize
      * deserializer)
      * and value of this annotation property is ignored.
      */
-    public Class<?> as() default NoClass.class;
+    public Class<?> as() default Void.class;
 
     /**
      * Concrete type to deserialize keys of {@link java.util.Map} as,
@@ -122,7 +121,7 @@ public @interface JsonDeserialize
      * Must be a subtype of declared type; otherwise an exception may be
      * thrown by deserializer.
      */
-    public Class<?> keyAs() default NoClass.class;
+    public Class<?> keyAs() default Void.class;
 
     /**
      * Concrete type to deserialize content (elements
@@ -131,5 +130,5 @@ public @interface JsonDeserialize
      * Must be a subtype of declared type; otherwise an exception may be
      * thrown by deserializer.
      */
-    public Class<?> contentAs() default NoClass.class;
+    public Class<?> contentAs() default Void.class;
 }

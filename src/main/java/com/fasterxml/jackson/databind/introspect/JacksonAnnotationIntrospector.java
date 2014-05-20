@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.std.RawSerializer;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -377,39 +378,21 @@ public class JacksonAnnotationIntrospector
     public Class<?> findSerializationType(Annotated am)
     {
         JsonSerialize ann = am.getAnnotation(JsonSerialize.class);
-        if (ann != null) {
-            Class<?> cls = ann.as();
-            if (cls != NoClass.class) {
-                return cls;
-            }
-        }
-        return null;
+        return (ann == null) ? null : _classIfExplicit(ann.as());
     }
-
+    
     @Override
     public Class<?> findSerializationKeyType(Annotated am, JavaType baseType)
     {
         JsonSerialize ann = am.getAnnotation(JsonSerialize.class);
-        if (ann != null) {
-            Class<?> cls = ann.keyAs();
-            if (cls != NoClass.class) {
-                return cls;
-            }
-        }
-        return null;
+        return (ann == null) ? null : _classIfExplicit(ann.keyAs());
     }
 
     @Override
     public Class<?> findSerializationContentType(Annotated am, JavaType baseType)
     {
         JsonSerialize ann = am.getAnnotation(JsonSerialize.class);
-        if (ann != null) {
-            Class<?> cls = ann.contentAs();
-            if (cls != NoClass.class) {
-                return cls;
-            }
-        }
-        return null;
+        return (ann == null) ? null : _classIfExplicit(ann.contentAs());
     }
     
     @Override
@@ -422,25 +405,13 @@ public class JacksonAnnotationIntrospector
     @Override
     public Object findSerializationConverter(Annotated a) {
         JsonSerialize ann = a.getAnnotation(JsonSerialize.class);
-        if (ann != null) {
-            Class<?> def = ann.converter();
-            if (def != Converter.None.class) {
-                return def;
-            }
-        }
-        return null;
+        return (ann == null) ? null : _classIfExplicit(ann.converter(), Converter.None.class);
     }
 
     @Override
     public Object findSerializationContentConverter(AnnotatedMember a) {
         JsonSerialize ann = a.getAnnotation(JsonSerialize.class);
-        if (ann != null) {
-            Class<?> def = ann.contentConverter();
-            if (def != Converter.None.class) {
-                return def;
-            }
-        }
-        return null;
+        return (ann == null) ? null : _classIfExplicit(ann.contentConverter(), Converter.None.class);
     }
     
     @Override
@@ -617,72 +588,38 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Class<?> findDeserializationType(Annotated am, JavaType baseType)
-    {
-        // Primary annotation, JsonDeserialize
+    public Class<?> findDeserializationType(Annotated am, JavaType baseType) {
         JsonDeserialize ann = am.getAnnotation(JsonDeserialize.class);
-        if (ann != null) {
-            Class<?> cls = ann.as();
-            if (cls != NoClass.class) {
-                return cls;
-            }
-        }
-        return null;
+        return (ann == null) ? null : _classIfExplicit(ann.as());
     }
 
     @Override
-    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType)
-    {
-        // Primary annotation, JsonDeserialize
+    public Class<?> findDeserializationKeyType(Annotated am, JavaType baseKeyType) {
         JsonDeserialize ann = am.getAnnotation(JsonDeserialize.class);
-        if (ann != null) {
-            Class<?> cls = ann.keyAs();
-            if (cls != NoClass.class) {
-                return cls;
-            }
-        }
-        return null;
+        return (ann == null) ? null : _classIfExplicit(ann.keyAs());
     }
 
     @Override
     public Class<?> findDeserializationContentType(Annotated am, JavaType baseContentType)
     {
-        // Primary annotation, JsonDeserialize
         JsonDeserialize ann = am.getAnnotation(JsonDeserialize.class);
-        if (ann != null) {
-            Class<?> cls = ann.contentAs();
-            if (cls != NoClass.class) {
-                return cls;
-            }
-        }
-        return null;
+        return (ann == null) ? null : _classIfExplicit(ann.contentAs());
     }
 
     @Override
     public Object findDeserializationConverter(Annotated a)
     {
         JsonDeserialize ann = a.getAnnotation(JsonDeserialize.class);
-        if (ann != null) {
-            Class<?> def = ann.converter();
-            if (def != Converter.None.class) {
-                return def;
-            }
-        }
-        return null;
+        return (ann == null) ? null : _classIfExplicit(ann.converter(), Converter.None.class);
     }
 
     @Override
     public Object findDeserializationContentConverter(AnnotatedMember a)
     {
         JsonDeserialize ann = a.getAnnotation(JsonDeserialize.class);
-        if (ann != null) {
-            Class<?> def = ann.contentConverter();
-            if (def != Converter.None.class) {
-                return def;
-            }
-        }
-        return null;    }
-    
+        return (ann == null) ? null : _classIfExplicit(ann.contentConverter(), Converter.None.class);
+    }
+
     /*
     /**********************************************************
     /* Deserialization: Class annotations
@@ -701,8 +638,7 @@ public class JacksonAnnotationIntrospector
     public Class<?> findPOJOBuilder(AnnotatedClass ac)
     {
         JsonDeserialize ann = ac.getAnnotation(JsonDeserialize.class);
-        return ((ann == null) || (ann.builder() == NoClass.class)) ?
-                null : ann.builder();
+        return (ann == null) ? null : _classIfExplicit(ann.builder());
     }
 
     @Override
@@ -793,6 +729,18 @@ public class JacksonAnnotationIntrospector
         return (ann != null && ann.value());
     }
 
+    protected Class<?> _classIfExplicit(Class<?> cls) {
+        if (cls == null || ClassUtil.isBogusClass(cls)) {
+            return null;
+        }
+        return cls;
+    }
+
+    protected Class<?> _classIfExplicit(Class<?> cls, Class<?> implicit) {
+        cls = _classIfExplicit(cls);
+        return (cls == null || cls == implicit) ? null : cls;
+    }
+    
     /**
      * Helper method called to construct and initialize instance of {@link TypeResolverBuilder}
      * if given annotated element indicates one is needed.

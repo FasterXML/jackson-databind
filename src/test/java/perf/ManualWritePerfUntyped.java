@@ -28,6 +28,7 @@ public class ManualWritePerfUntyped
                 "Untyped-2", stuff, Object.class);
     }
 
+    @SuppressWarnings("resource")
     @Override
     protected double testSer(int REPS, Object value, ObjectWriter writer) throws Exception
     {

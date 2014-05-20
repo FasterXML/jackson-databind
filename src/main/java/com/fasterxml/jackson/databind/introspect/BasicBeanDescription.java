@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.type.TypeBindings;
@@ -628,7 +627,7 @@ public class BasicBeanDescription extends BeanDescription
         }
         Class<?> converterClass = (Class<?>)converterDef;
         // there are some known "no class" markers to consider too:
-        if (converterClass == Converter.None.class || converterClass == NoClass.class) {
+        if (converterClass == Converter.None.class || ClassUtil.isBogusClass(converterClass)) {
             return null;
         }
         if (!Converter.class.isAssignableFrom(converterClass)) {

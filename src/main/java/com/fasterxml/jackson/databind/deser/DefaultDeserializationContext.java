@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
 import com.fasterxml.jackson.annotation.SimpleObjectIdResolver;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
@@ -158,7 +157,7 @@ public abstract class DefaultDeserializationContext
             }
             Class<?> deserClass = (Class<?>)deserDef;
             // there are some known "no class" markers to consider too:
-            if (deserClass == JsonDeserializer.None.class || deserClass == NoClass.class) {
+            if (deserClass == JsonDeserializer.None.class || ClassUtil.isBogusClass(deserClass)) {
                 return null;
             }
             if (!JsonDeserializer.class.isAssignableFrom(deserClass)) {
@@ -198,7 +197,7 @@ public abstract class DefaultDeserializationContext
             }
             Class<?> deserClass = (Class<?>)deserDef;
             // there are some known "no class" markers to consider too:
-            if (deserClass == KeyDeserializer.None.class || deserClass == NoClass.class) {
+            if (deserClass == KeyDeserializer.None.class || ClassUtil.isBogusClass(deserClass)) {
                 return null;
             }
             if (!KeyDeserializer.class.isAssignableFrom(deserClass)) {

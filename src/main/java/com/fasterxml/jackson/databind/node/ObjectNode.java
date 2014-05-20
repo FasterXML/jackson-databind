@@ -320,9 +320,9 @@ public class ObjectNode
      *
      * @since 2.1
      */
-    public JsonNode setAll(Map<String,JsonNode> properties)
+    public JsonNode setAll(Map<String,? extends JsonNode> properties)
     {
-        for (Map.Entry<String, JsonNode> en : properties.entrySet()) {
+        for (Map.Entry<String,? extends JsonNode> en : properties.entrySet()) {
             JsonNode n = en.getValue();
             if (n == null) {
                 n = nullNode();
@@ -474,7 +474,7 @@ public class ObjectNode
      * @deprecated Since 2.4 use {@link #setAll(Map)},
      */
     @Deprecated
-    public JsonNode putAll(Map<String,JsonNode> properties) {
+    public JsonNode putAll(Map<String,? extends JsonNode> properties) {
         return setAll(properties);
     }
 

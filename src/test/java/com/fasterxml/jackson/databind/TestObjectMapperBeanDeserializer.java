@@ -32,6 +32,7 @@ public class TestObjectMapperBeanDeserializer
         public CtorValueBean(String d) { _desc = d; }
         public CtorValueBean(int value) { _desc = String.valueOf(value); }
         public CtorValueBean(long value) { _desc = String.valueOf(value); }
+        public CtorValueBean(double value) { _desc = String.valueOf(value); }
 
         @Override
         public void serialize(JsonGenerator jgen, SerializerProvider provider)
@@ -65,6 +66,16 @@ public class TestObjectMapperBeanDeserializer
         public static FactoryValueBean valueOf(long v) { return new FactoryValueBean(String.valueOf(v), 0); }
 
         @Override public String toString() { return _desc; }
+    }
+
+    static class OtherBean {
+        SomeIncompatibleType o;
+
+        protected OtherBean(SomeIncompatibleType o) {
+            this.o = o;
+        }
+
+        static class SomeIncompatibleType { }
     }
 
     /**
@@ -202,6 +213,14 @@ public class TestObjectMapperBeanDeserializer
     {
         CtorValueBean result = MAPPER.readValue("13", CtorValueBean.class);
         assertEquals("13", result.toString());
+
+        try {
+            OtherBean otherResult = MAPPER.readValue("13", OtherBean.class);
+            fail("Expected an exception, but got result value: "+otherResult.o);
+        } catch (JsonMappingException e) {
+            verifyException(e, "from Integral number", "no single-int-arg constructor/factory method");
+            assertValidLocation(e.getLocation());
+        }
     }
 
     public void testFromLongCtor() throws Exception
@@ -210,6 +229,28 @@ public class TestObjectMapperBeanDeserializer
         long value = 12345678901244L;
         CtorValueBean result = MAPPER.readValue(""+value, CtorValueBean.class);
         assertEquals(""+value, result.toString());
+
+        try {
+            OtherBean otherResult = MAPPER.readValue(""+value, OtherBean.class);
+            fail("Expected an exception, but got result value: "+otherResult.o);
+        } catch (JsonMappingException e) {
+            verifyException(e, "from Long integral number", "no single-long-arg constructor/factory method");
+            assertValidLocation(e.getLocation());
+        }
+    }
+
+    public void testFromDoubleCtor() throws Exception
+    {
+        CtorValueBean result = MAPPER.readValue("13.5", CtorValueBean.class);
+        assertEquals("13.5", result.toString());
+
+        try {
+            OtherBean otherResult = MAPPER.readValue("13.5", OtherBean.class);
+            fail("Expected an exception, but got result value: "+otherResult.o);
+        } catch (JsonMappingException e) {
+            verifyException(e, "from Floating-point number", "no one-double/Double-arg constructor/factory method");
+            assertValidLocation(e.getLocation());
+        }
     }
 
     public void testFromStringFactory() throws Exception

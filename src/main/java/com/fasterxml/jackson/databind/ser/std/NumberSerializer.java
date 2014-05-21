@@ -15,7 +15,8 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor
 
 /**
  * As a fallback, we may need to use this serializer for other
- * types of {@link Number}s (custom types).
+ * types of {@link Number}s: both custom types and "big" numbers
+ * like {@link BigInteger} and {@link BigDecimal}.
  */
 @JacksonStdImpl
 public final class NumberSerializer

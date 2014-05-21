@@ -50,7 +50,9 @@ public class TestNumberNodes extends NodeTestBase
         assertEquals(BigDecimal.ONE, n.decimalValue());
         assertEquals(BigInteger.ONE, n.bigIntegerValue());
         assertEquals("1", n.asText());
-
+        // 2.4
+        assertEquals("1", n.asText("foo"));
+        
         assertNodeNumbers(n, 1, 1.0);
 
         assertTrue(IntNode.valueOf(0).canConvertToInt());

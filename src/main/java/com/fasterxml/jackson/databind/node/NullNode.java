@@ -29,10 +29,8 @@ public final class NullNode
 
     @Override public JsonToken asToken() { return JsonToken.VALUE_NULL; }
 
-    @Override
-    public String asText() {
-        return "null";
-    }
+    @Override public String asText(String defaultValue) { return defaultValue; }
+    @Override public String asText() { return "null"; }
 
     // as with MissingNode, not considered number node; hence defaults are returned if provided
     

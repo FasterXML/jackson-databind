@@ -117,18 +117,18 @@ public abstract class BeanPropertyDefinition
 
     public boolean couldDeserialize() { return getMutator() != null; }
     public boolean couldSerialize() { return getAccessor() != null; }
-    
+
     /*
     /**********************************************************
     /* Access to accessors (fields, methods etc)
     /**********************************************************
      */
-    
+
     public abstract boolean hasGetter();
     public abstract boolean hasSetter();
     public abstract boolean hasField();
     public abstract boolean hasConstructorParameter();
-    
+
     public abstract AnnotatedMethod getGetter();
     public abstract AnnotatedMethod getSetter();
     public abstract AnnotatedField getField();

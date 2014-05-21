@@ -126,7 +126,10 @@ Ben Fagin: (UnquietCode@github)
   * Suggested #442: Make `@JsonUnwrapped` indicate property inclusion
    (2.4.0)
   * Contributed #81/#455: Allow use of @JsonUnwrapped with typed (@JsonTypeInfo) classes,
-   provided that (new) feature `SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS`
-   is disabled
+    provided that (new) feature `SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS`
+    is disabled
    (2.4.0)
 
+Chris Cleveland:
+  * Suggested #463: Add 'JsonNode.asText(String defaultValue)`
+   (2.4.0)

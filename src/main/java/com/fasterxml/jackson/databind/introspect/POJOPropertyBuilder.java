@@ -187,7 +187,7 @@ public class POJOPropertyBuilder
     /* BeanPropertyDefinition implementation, accessor access
     /**********************************************************
      */
-    
+
     @Override
     public boolean hasGetter() { return _getters != null; }
 
@@ -199,6 +199,11 @@ public class POJOPropertyBuilder
 
     @Override
     public boolean hasConstructorParameter() { return _ctorParameters != null; }
+
+    @Override
+    public boolean couldDeserialize() {
+        return (_ctorParameters != null) || (_setters != null) || (_fields != null);
+    }
 
     @Override
     public boolean couldSerialize() {

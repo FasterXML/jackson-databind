@@ -94,7 +94,7 @@ public class POJOPropertiesCollector
     /* Life-cycle
     /**********************************************************
      */
-    
+
     protected POJOPropertiesCollector(MapperConfig<?> config, boolean forSerialization,
             JavaType type, AnnotatedClass classDef, String mutatorPrefix)
     {

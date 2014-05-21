@@ -8,18 +8,15 @@ import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-
 /**
  * Value node that contains a text value.
  */
 public class TextNode
     extends ValueNode
 {
-    final static int INT_SPACE = ' ';
-
     final static TextNode EMPTY_STRING_NODE = new TextNode("");
 
-    final String _value;
+    protected final String _value;
 
     public TextNode(String v) { _value = v; }
 
@@ -44,8 +41,7 @@ public class TextNode
     }
 
     @Override
-    public JsonNodeType getNodeType()
-    {
+    public JsonNodeType getNodeType() {
         return JsonNodeType.STRING;
     }
 
@@ -61,8 +57,7 @@ public class TextNode
      * base64 encoded; if so, they are decoded and resulting binary
      * data is returned.
      */
-    public byte[] getBinaryValue(Base64Variant b64variant)
-        throws IOException
+    public byte[] getBinaryValue(Base64Variant b64variant) throws IOException
     {
         @SuppressWarnings("resource")
         ByteArrayBuilder builder = new ByteArrayBuilder(100);
@@ -79,7 +74,7 @@ public class TextNode
                 if (ptr >= len) {
                     break main_loop;
                 }
-            } while (ch <= INT_SPACE);
+            } while (ch <= ' ');
             int bits = b64variant.decodeBase64Char(ch);
             if (bits < 0) {
                 _reportInvalidBase64(b64variant, ch, 0);
@@ -157,8 +152,7 @@ public class TextNode
     }
 
     @Override
-    public byte[] binaryValue() throws IOException
-    {
+    public byte[] binaryValue() throws IOException {
         return getBinaryValue(Base64Variants.getDefaultVariant());
     }
     
@@ -173,6 +167,10 @@ public class TextNode
         return _value;
     }
 
+    public String asText(String defaultValue) {
+        return (_value == null) ? defaultValue : _value;
+    }
+    
     // note: neither fast nor elegant, but these work for now:
 
     @Override
@@ -207,8 +205,7 @@ public class TextNode
      */
     
     @Override
-    public final void serialize(JsonGenerator jg, SerializerProvider provider)
-        throws IOException, JsonProcessingException
+    public final void serialize(JsonGenerator jg, SerializerProvider provider) throws IOException
     {
         if (_value == null) {
             jg.writeNull();
@@ -277,7 +274,7 @@ public class TextNode
         throws JsonParseException
     {
         String base;
-        if (ch <= INT_SPACE) {
+        if (ch <= ' ') {
             base = "Illegal white space character (code 0x"+Integer.toHexString(ch)+") as character #"+(bindex+1)+" of 4-char base64 unit: can only used between units";
         } else if (b64variant.usesPaddingChar(ch)) {
             base = "Unexpected padding character ('"+b64variant.getPaddingChar()+"') as character #"+(bindex+1)+" of 4-char base64 unit: padding only legal as 3rd or 4th character";
@@ -293,9 +290,7 @@ public class TextNode
         throw new JsonParseException(base, JsonLocation.NA);
     }
 
-    protected void _reportBase64EOF()
-        throws JsonParseException
-    {
+    protected void _reportBase64EOF() throws JsonParseException {
         throw new JsonParseException("Unexpected end-of-String when base64 content", JsonLocation.NA);
     }
 }

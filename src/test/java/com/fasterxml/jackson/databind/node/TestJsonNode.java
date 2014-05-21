@@ -30,7 +30,7 @@ public class TestJsonNode extends NodeTestBase
         assertNodeNumbersForNonNumeric(n);
 
         assertEquals("foobar", n.asText("barf"));
-
+        assertEquals("", empty.asText("xyz"));
     }
 
     public void testBoolean()

@@ -78,7 +78,7 @@ public abstract class BasicSerializerFactory
         _concrete.put(Boolean.class.getName(), new BooleanSerializer(false));
 
         // Other numbers, more complicated
-        final JsonSerializer<?> ns = new NumberSerializers.NumberSerializer();
+        final JsonSerializer<?> ns = NumberSerializer.instance;
         _concrete.put(BigInteger.class.getName(), ns);
         _concrete.put(BigDecimal.class.getName(), ns);
 
@@ -384,7 +384,19 @@ public abstract class BasicSerializerFactory
             return ToStringSerializer.instance;
         }
         if (Number.class.isAssignableFrom(raw)) {
-            return NumberSerializers.NumberSerializer.instance;
+            // 21-May-2014, tatu: Couple of alternatives actually
+            JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+            if (format != null) {
+                switch (format.getShape()) {
+                case STRING:
+                    return ToStringSerializer.instance;
+                case OBJECT: // need to bail out to let it be serialized as POJO
+                case ARRAY: // or, I guess ARRAY; otherwise no point in speculating
+                    return null;
+                default:
+                }
+            }
+            return NumberSerializer.instance;
         }
         if (Enum.class.isAssignableFrom(raw)) {
             return buildEnumSerializer(prov.getConfig(), type, beanDesc);

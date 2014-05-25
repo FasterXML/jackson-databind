@@ -167,6 +167,7 @@ public class TextNode
         return _value;
     }
 
+    @Override
     public String asText(String defaultValue) {
         return (_value == null) ? defaultValue : _value;
     }

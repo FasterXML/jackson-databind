@@ -686,11 +686,7 @@ public abstract class BasicDeserializerFactory
         }
         // Is there an annotation that specifies exact deserializer?
         JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
-        // As per [Issue#462] need to ensure we contextualize deserializer too
-        if (deser != null) {
-            deser = ctxt.handlePrimaryContextualization(deser, property);
-        }
-        
+
         // If yes, we are mostly done:
         type = modifyTypeByAnnotation(ctxt, param, type);
 
@@ -706,6 +702,8 @@ public abstract class BasicDeserializerFactory
                 typeDeser, beanDesc.getClassAnnotations(), param, index, injectableValueId,
                 metadata);
         if (deser != null) {
+            // As per [Issue#462] need to ensure we contextualize deserializer before passing it on
+            deser = ctxt.handlePrimaryContextualization(deser, prop);
             prop = prop.withValueDeserializer(deser);
         }
         return prop;

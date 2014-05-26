@@ -523,11 +523,11 @@ public class POJOPropertyBuilder
     /**
      * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
      *   whether name of property was provided by annotation (and not derived from accessor name);
-     *   this method simply passes 'true' for it.
+     *   this method assumes the name is explicit if it is non-null.
      */
     @Deprecated
     public void addField(AnnotatedField a, String name, boolean visible, boolean ignored) {
-        addField(a, _propName(name), true, visible, ignored);
+        addField(a, _propName(name), name != null, visible, ignored);
     }
 
     @Deprecated
@@ -538,11 +538,11 @@ public class POJOPropertyBuilder
     /**
      * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
      *   whether name of property was provided by annotation (and not derived from accessor name);
-     *   this method simply passes 'true' for it.
+     *   this method assumes the name is explicit if it is non-null.
      */
     @Deprecated
     public void addCtor(AnnotatedParameter a, String name, boolean visible, boolean ignored) {
-        addCtor(a, _propName(name), true, visible, ignored);
+        addCtor(a, _propName(name), name != null, visible, ignored);
     }
     @Deprecated
     public void addCtor(AnnotatedParameter a, String name, boolean explName, boolean visible, boolean ignored) {
@@ -552,11 +552,11 @@ public class POJOPropertyBuilder
     /**
      * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
      *   whether name of property was provided by annotation (and not derived from accessor name);
-     *   this method simply passes 'true' for it.
+     *   this method assumes the name is explicit if it is non-null.
      */
     @Deprecated
     public void addGetter(AnnotatedMethod a, String name, boolean visible, boolean ignored) {
-        addGetter(a, _propName(name), true, visible, ignored);
+        addGetter(a, _propName(name), name != null, visible, ignored);
     }
     @Deprecated
     public void addGetter(AnnotatedMethod a, String name, boolean explName, boolean visible, boolean ignored) {
@@ -566,11 +566,11 @@ public class POJOPropertyBuilder
     /**
      * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
      *   whether name of property was provided by annotation (and not derived from accessor name);
-     *   this method simply passes 'true' for it.
+     *   this method assumes the name is explicit if it is non-null.
      */
     @Deprecated
     public void addSetter(AnnotatedMethod a, String name, boolean visible, boolean ignored) {
-        addSetter(a, _propName(name), true, visible, ignored);
+        addSetter(a, _propName(name), name != null, visible, ignored);
     }
     @Deprecated
     public void addSetter(AnnotatedMethod a, String name, boolean explName, boolean visible, boolean ignored) {

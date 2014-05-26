@@ -31,7 +31,7 @@ public class TestBiggerData extends BaseMapTest
 		public String logo;
 		public int subjectCode;
 		public int[] topicIds;
-		public int[] subTopicIds;
+		public LinkedHashSet<Integer> subTopicIds;
 	}
 
 	static class Performance

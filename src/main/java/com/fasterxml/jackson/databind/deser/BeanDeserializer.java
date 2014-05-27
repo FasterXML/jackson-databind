@@ -265,7 +265,18 @@ public class BeanDeserializer
             if (_externalTypeIdHandler != null) {
                 return deserializeWithExternalTypeId(jp, ctxt);
             }
-            return deserializeFromObjectUsingNonDefault(jp, ctxt);
+
+            Object bean = deserializeFromObjectUsingNonDefault(jp, ctxt);
+            if (_injectables != null) {
+                injectValues(ctxt, bean);
+            }
+            if (_needViewProcesing) {
+                Class<?> view = ctxt.getActiveView();
+                if (view != null) {
+                    return deserializeWithView(jp, ctxt, bean, view);
+                }
+            }
+            return bean;
         }
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         if (jp.canReadObjectId()) {

@@ -265,17 +265,22 @@ public class BeanDeserializer
             if (_externalTypeIdHandler != null) {
                 return deserializeWithExternalTypeId(jp, ctxt);
             }
-
             Object bean = deserializeFromObjectUsingNonDefault(jp, ctxt);
             if (_injectables != null) {
                 injectValues(ctxt, bean);
             }
+            /* 27-May-2014, tatu: I don't think view processing would work
+             *   at this point, so commenting it out; but leaving in place
+             *   just in case I forgot something fundamental...
+             */
+            /*
             if (_needViewProcesing) {
                 Class<?> view = ctxt.getActiveView();
                 if (view != null) {
                     return deserializeWithView(jp, ctxt, bean, view);
                 }
             }
+            */
             return bean;
         }
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);

@@ -350,6 +350,11 @@ public abstract class BaseTest
         }
     }
 
+    protected void assertValidLocation(JsonLocation location) {
+        assertNotNull("Should have non-null location", location);
+        assertTrue("Should have positive line number", location.getLineNr() > 0);
+    }
+
     protected void verifyException(Throwable e, String... matches)
     {
         String msg = e.getMessage();

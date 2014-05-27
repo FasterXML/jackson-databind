@@ -307,7 +307,7 @@ public class StdValueInstantiator
         } catch (ExceptionInInitializerError e) {
             throw wrapException(e);
         }
-        throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
+        throw ctxt.mappingException("Can not instantiate value of type "+getValueTypeDesc()
                 +" from Integral number ("+value+"); no single-int-arg constructor/factory method");
     }
 
@@ -324,7 +324,7 @@ public class StdValueInstantiator
         } catch (ExceptionInInitializerError e) {
             throw wrapException(e);
         }
-        throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
+        throw ctxt.mappingException("Can not instantiate value of type "+getValueTypeDesc()
                 +" from Long integral number ("+value+"); no single-long-arg constructor/factory method");
     }
 
@@ -341,7 +341,7 @@ public class StdValueInstantiator
         } catch (ExceptionInInitializerError e) {
             throw wrapException(e);
         }
-        throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
+        throw ctxt.mappingException("Can not instantiate value of type "+getValueTypeDesc()
                 +" from Floating-point number ("+value+"); no one-double/Double-arg constructor/factory method");
     }
 
@@ -358,7 +358,7 @@ public class StdValueInstantiator
         } catch (ExceptionInInitializerError e) {
             throw wrapException(e);
         }
-        throw new JsonMappingException("Can not instantiate value of type "+getValueTypeDesc()
+        throw ctxt.mappingException("Can not instantiate value of type "+getValueTypeDesc()
                 +" from Boolean value ("+value+"); no single-boolean/Boolean-arg constructor/factory method");
     }
     

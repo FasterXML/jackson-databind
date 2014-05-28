@@ -2706,8 +2706,8 @@ public class ObjectMapper
     /**
      * Actual conversion implementation: instead of using existing read
      * and write methods, much of code is inlined. Reason for this is
-     * that we must avoid wrapping/unwrapping both for efficiency and
-     * for correctness. If wrapping/unwrapping is actually desired,
+     * that we must avoid root value wrapping/unwrapping both for efficiency and
+     * for correctness. If root value wrapping/unwrapping is actually desired,
      * caller must use explicit <code>writeValue</code> and
      * <code>readValue</code> methods.
      */

@@ -133,3 +133,7 @@ Ben Fagin: (UnquietCode@github)
 Chris Cleveland:
   * Suggested #463: Add 'JsonNode.asText(String defaultValue)`
    (2.4.0)
+
+Benson Margulies:
+  * Reported #467: Unwanted POJO's embedded in tree via serialization to tree
+   (2.4.0)

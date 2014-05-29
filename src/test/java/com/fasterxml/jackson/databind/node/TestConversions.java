@@ -11,6 +11,7 @@ import org.junit.Assert;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -35,6 +36,41 @@ public class TestConversions extends BaseMapTest
     @JsonDeserialize(using = LeafDeserializer.class)
     public static class LeafMixIn
     {
+    }
+
+    // for [Issue#467]
+    @JsonSerialize(using=Issue467Serializer.class)
+    static class Issue467Bean  {
+        public int i;
+
+        public Issue467Bean(int i0) { i = i0; }
+        public Issue467Bean() { this(0); }
+    }
+
+    @JsonSerialize(using=Issue467TreeSerializer.class)
+    static class Issue467Tree  {
+    }
+    
+    static class Issue467Serializer extends JsonSerializer<Issue467Bean> {
+        @Override
+        public void serialize(Issue467Bean value, JsonGenerator jgen,
+                SerializerProvider provider) throws IOException {
+            jgen.writeObject(new Issue467TmpBean(value.i));
+        }
+    }    
+
+    static class Issue467TreeSerializer extends JsonSerializer<Issue467Tree> {
+        @Override
+        public void serialize(Issue467Tree value, JsonGenerator jgen,
+                SerializerProvider provider) throws IOException {
+            jgen.writeTree(BooleanNode.TRUE);
+        }
+    }    
+    
+    static class Issue467TmpBean  {
+        public int x;
+
+        public Issue467TmpBean(int i) { x = i; }
     }
     
     /*
@@ -154,7 +190,7 @@ public class TestConversions extends BaseMapTest
         Assert.assertArrayEquals(inputData, result.data);
     }
 
-    public void testEmbeddedObject() throws Exception
+    public void testEmbeddedByteArray() throws Exception
     {
         TokenBuffer buf = new TokenBuffer(MAPPER, false);
         buf.writeObject(new byte[3]);
@@ -164,39 +200,6 @@ public class TestConversions extends BaseMapTest
         byte[] data = node.binaryValue();
         assertNotNull(data);
         assertEquals(3, data.length);
-    }
-    
-    private final Object MARKER = new Object();
-
-    public void testEmbeddedObjectInArray() throws Exception
-    {
-        TokenBuffer buf = new TokenBuffer(MAPPER, false);
-        buf.writeStartArray();
-        buf.writeObject(MARKER);
-        buf.writeEndArray();
-        JsonNode node = MAPPER.readTree(buf.asParser());
-        buf.close();
-        assertTrue(node.isArray());
-        assertEquals(1, node.size());
-        JsonNode n = node.get(0);
-        assertTrue(n.isPojo());
-        assertSame(MARKER, ((POJONode) n).getPojo());
-    }
-
-    public void testEmbeddedObjectInObject() throws Exception
-    {
-        TokenBuffer buf = new TokenBuffer(MAPPER, false);
-        buf.writeStartObject();
-        buf.writeFieldName("pojo");
-        buf.writeObject(MARKER);
-        buf.writeEndObject();
-        JsonNode node = MAPPER.readTree(buf.asParser());
-        buf.close();
-        assertTrue(node.isObject());
-        assertEquals(1, node.size());
-        JsonNode n = node.get("pojo");
-        assertTrue(n.isPojo());
-        assertSame(MARKER, ((POJONode) n).getPojo());
     }
 
     // [Issue#232]
@@ -222,8 +225,7 @@ public class TestConversions extends BaseMapTest
         }
     
         @Override
-        public void serialize(final JsonGenerator jgen, final SerializerProvider provider)
-            throws IOException
+        public void serialize(final JsonGenerator jgen, final SerializerProvider provider) throws IOException
         {
             jgen.writeTree(node);
         }
@@ -237,13 +239,45 @@ public class TestConversions extends BaseMapTest
         }    
     }
 
-    // [Issue#433]
+    // [#433]
     public void testBeanToTree() throws Exception
     {
         final CustomSerializedPojo pojo = new CustomSerializedPojo();
         pojo.setFoo("bar");
         final JsonNode node = MAPPER.valueToTree(pojo);
         assertEquals(JsonNodeType.OBJECT, node.getNodeType());
+    }
+
+    // [#467]
+    public void testConversionOfPojos() throws Exception
+    {
+        final Issue467Bean input = new Issue467Bean(13);
+        final String EXP = "{\"x\":13}";
+        
+        // first, sanity check
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(EXP, json);
+
+        // then via conversions: should become JSON Object
+        JsonNode tree = MAPPER.valueToTree(input);
+        assertTrue("Expected Object, got "+tree.getNodeType(), tree.isObject());
+        assertEquals(EXP, MAPPER.writeValueAsString(tree));
+    }
+
+    // [#467]
+    public void testConversionOfTrees() throws Exception
+    {
+        final Issue467Tree input = new Issue467Tree();
+        final String EXP = "true";
+
+        // first, sanity check
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(EXP, json);
+
+        // then via conversions: should become JSON Object
+        JsonNode tree = MAPPER.valueToTree(input);
+        assertTrue("Expected Object, got "+tree.getNodeType(), tree.isBoolean());
+        assertEquals(EXP, MAPPER.writeValueAsString(tree));
     }
 }
 

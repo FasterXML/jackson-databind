@@ -672,7 +672,7 @@ public class TestSimpleTypes
         assertNull(MAPPER.readValue(buf.asParser(), URL.class));
         buf.close();
 
-        // then, UUID itself come as is:
+        // then, URLitself come as is:
         buf = new TokenBuffer(null, false);
         buf.writeObject(value);
         assertSame(value, MAPPER.readValue(buf.asParser(), URL.class));

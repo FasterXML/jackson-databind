@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.base.ParserMinimalBase;
 import com.fasterxml.jackson.core.json.JsonReadContext;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
 import com.fasterxml.jackson.core.util.ByteArrayBuilder;
-import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.*;
 
 /**
  * Utility class used for efficient storage of {@link JsonToken}
@@ -778,21 +778,41 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
      */
 
     @Override
-    public void writeObject(Object value)
-        throws IOException, JsonProcessingException
+    public void writeObject(Object value) throws IOException
     {
-        // embedded means that no conversions should be done...
-        _append(JsonToken.VALUE_EMBEDDED_OBJECT, value);
+        if (value == null) {
+            writeNull();
+            return;
+        }
+        Class<?> raw = value.getClass();
+        if (raw == byte[].class) {
+            _append(JsonToken.VALUE_EMBEDDED_OBJECT, value);
+            return;
+        } else if (_objectCodec == null) {
+            /* 28-May-2014, tatu: Tricky choice here; if no codec, should we
+             *   err out, or just embed? For now, do latter.
+             */
+//          throw new JsonMappingException("No ObjectCodec configured for TokenBuffer, writeObject() called");
+            _append(JsonToken.VALUE_EMBEDDED_OBJECT, value);
+        } else {
+            _objectCodec.writeValue(this, value);
+        }
     }
 
     @Override
-    public void writeTree(TreeNode rootNode)
-        throws IOException, JsonProcessingException
+    public void writeTree(TreeNode node) throws IOException
     {
-        /* 31-Dec-2009, tatu: no need to convert trees either is there?
-         *  (note: may need to re-evaluate at some point)
-         */
-        _append(JsonToken.VALUE_EMBEDDED_OBJECT, rootNode);
+        if (node == null) {
+            writeNull();
+            return;
+        }
+
+        if (_objectCodec == null) {
+            // as with 'writeObject()', is codec optional?
+            _append(JsonToken.VALUE_EMBEDDED_OBJECT, node);
+        } else {
+            _objectCodec.writeTree(this, node);
+        }
     }
 
     /*

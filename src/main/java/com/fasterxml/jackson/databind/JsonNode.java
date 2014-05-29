@@ -362,6 +362,11 @@ public abstract class JsonNode
      * within Java's 32-bit signed integer type, <code>int</code>.
      * Note that floating-point numbers are convertible if the integral
      * part fits without overflow (as per standard Java coercion rules)
+     *<p>
+     * NOTE: this method does not consider possible value type conversion
+     * from JSON String into Number; so even if this method returns false,
+     * it is possible that {@link #asInt} could still succeed
+     * if node is a JSON String representing integral number, or boolean.
      * 
      * @since 2.0
      */
@@ -373,6 +378,11 @@ public abstract class JsonNode
      * within Java's 64-bit signed integer type, <code>long</code>.
      * Note that floating-point numbers are convertible if the integral
      * part fits without overflow (as per standard Java coercion rules)
+     *<p>
+     * NOTE: this method does not consider possible value type conversion
+     * from JSON String into Number; so even if this method returns false,
+     * it is possible that {@link #asLong} could still succeed
+     * if node is a JSON String representing integral number, or boolean.
      * 
      * @since 2.0
      */

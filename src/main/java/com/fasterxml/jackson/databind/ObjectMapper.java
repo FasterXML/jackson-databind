@@ -1318,7 +1318,7 @@ public class ObjectMapper
      */
     @Deprecated
     @Override
-    public JsonFactory getJsonFactory() { return _jsonFactory; }
+    public JsonFactory getJsonFactory() { return getFactory(); }
 
     /**
      * Method for configuring the default {@link DateFormat} to use when serializing time

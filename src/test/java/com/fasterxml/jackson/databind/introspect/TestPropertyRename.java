@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.*;
  * Unit tests verifying handling of potential and actual
  * conflicts, regarding property handling.
  */
-public class TestPropertyRename323 extends BaseMapTest
+public class TestPropertyRename extends BaseMapTest
 {
     static class Bean323WithIgnore { 
         @JsonIgnore

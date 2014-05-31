@@ -52,7 +52,7 @@ public class StdJdkSerializers
         sers.put(Class.class, ClassSerializer.class);
 
         // And then some stranger types... not 100% they are needed but:
-        sers.put(Void.TYPE, NullSerializer.class);
+        sers.put(Void.TYPE, NullSerializer.instance);
         
         return sers.entrySet();
     }

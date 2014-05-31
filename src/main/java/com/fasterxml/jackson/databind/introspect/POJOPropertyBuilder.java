@@ -2,10 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.util.*;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.PropertyMetadata;
-import com.fasterxml.jackson.databind.PropertyName;
-import com.fasterxml.jackson.databind.util.BeanUtil;
+import com.fasterxml.jackson.databind.*;
 
 /**
  * Helper class used for aggregating information about a single
@@ -213,49 +210,72 @@ public class POJOPropertyBuilder
     @Override
     public AnnotatedMethod getGetter()
     {
-        if (_getters == null) {
+        Linked<AnnotatedMethod> curr = _getters;
+        // If zero easy
+        if (curr == null) {
             return null;
         }
-        // If multiple, verify that they do not conflict...
-        AnnotatedMethod getter = _getters.value;
-        Linked<AnnotatedMethod> next = _getters.next;
+        Linked<AnnotatedMethod> next = curr.next;
+        // ditto, if one
+        if (next == null) {
+            return curr.value;
+        }
+
+        // But if multiple, verify that they do not conflict...
         for (; next != null; next = next.next) {
-            /* [JACKSON-255] Allow masking, i.e. report exception only if
-             *   declarations in same class, or there's no inheritance relationship
-             *   (sibling interfaces etc)
+            
+            /* [JACKSON-255] Allow masking, i.e. do not report exception if one
+             *   is in super-class from the other
              */
-            AnnotatedMethod nextGetter = next.value;
-            Class<?> getterClass = getter.getDeclaringClass();
-            Class<?> nextClass = nextGetter.getDeclaringClass();
+            Class<?> getterClass = curr.value.getDeclaringClass();
+            Class<?> nextClass = next.value.getDeclaringClass();
             if (getterClass != nextClass) {
                 if (getterClass.isAssignableFrom(nextClass)) { // next is more specific
-                    getter = nextGetter;
+                    curr = next;
                     continue;
                 }
-                if (nextClass.isAssignableFrom(getterClass)) { // getter more specific
+                if (nextClass.isAssignableFrom(getterClass)) { // current more specific
                     continue;
                 }
             }
-            /* [Issue#238]: Also, regular getters have precedence over "is-getters", so
-             *   latter can be skipped to resolve otherwise conflict.
-             *   This is bit ugly as we have to re-process naming (as determination of type
-             *   is not retained), but should work.
+            /* 30-May-2014, tatu: Three levels of precedence:
+             * 
+             * 1. Regular getters ("getX")
+             * 2. Is-getters ("isX")
+             * 3. Implicit, possible getters ("x")
              */
-            boolean thisIsGetter = BeanUtil.okNameForIsGetter(getter, getter.getName()) != null;
-            boolean nextIsGetter = BeanUtil.okNameForIsGetter(nextGetter, nextGetter.getName()) != null;
-            
-            if (thisIsGetter != nextIsGetter) {
-                if (thisIsGetter) {
-                    getter = nextGetter;
-                } 
+            int priNext = _getterPriority(next.value);
+            int priCurr = _getterPriority(curr.value);
+
+            if (priNext != priCurr) {
+                if (priNext < priCurr) {
+                    curr = next;
+                }
                 continue;
             }
             throw new IllegalArgumentException("Conflicting getter definitions for property \""+getName()+"\": "
-                    +getter.getFullName()+" vs "+nextGetter.getFullName());
+                    +curr.value.getFullName()+" vs "+next.value.getFullName());
         }
-        return getter;
+
+        // One more thing; to avoid having to do it again...
+        _getters = curr.withoutNext();
+        return curr.value;
     }
 
+    protected int _getterPriority(AnnotatedMethod m)
+    {
+        final String name = m.getName();
+        // [#238]: Also, regular getters have precedence over "is-getters"
+        if (name.startsWith("get") && name.length() > 3) {
+            // should we check capitalization?
+            return 1;
+        }
+        if (name.startsWith("is") && name.length() > 2) {
+            return 2;
+        }
+        return 3;
+    }
+    
     @Override
     public AnnotatedMethod getSetter()
     {
@@ -971,6 +991,13 @@ public class POJOPropertyBuilder
             isMarkedIgnored = ignored;
         }
 
+        public Linked<T> withoutNext() {
+            if (next == null) {
+                return this;
+            }
+            return new Linked<T>(value, null, name, isNameExplicit, isVisible, isMarkedIgnored);
+        }
+        
         public Linked<T> withValue(T newValue) {
             if (newValue == value) {
                 return this;

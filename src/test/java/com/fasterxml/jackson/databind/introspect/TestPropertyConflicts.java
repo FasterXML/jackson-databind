@@ -54,10 +54,10 @@ public class TestPropertyConflicts extends BaseMapTest
         public String _name() { return "foo"; }
         public String getName() { return "Bob"; }
 
-        public void setStuff() { ; // ok
+        public void setStuff(String value) { ; // ok
         }
 
-        public void _stuff() {
+        public void _stuff(String value) {
             throw new UnsupportedOperationException();
         }
     }

@@ -36,6 +36,32 @@ public class TestPropertyConflicts extends BaseMapTest
         public int getValue() { return value+1; }
     }
 
+    protected static class InferingIntrospector extends JacksonAnnotationIntrospector
+    {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public String findImplicitPropertyName(AnnotatedMember member) {
+            String name = member.getName();
+            if (name.startsWith("_")) {
+                return name.substring(1);
+            }
+            return null;
+        }
+    }
+
+    static class Infernal {
+        public String _name() { return "foo"; }
+        public String getName() { return "Bob"; }
+
+        public void setStuff() { ; // ok
+        }
+
+        public void _stuff() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -67,5 +93,21 @@ public class TestPropertyConflicts extends BaseMapTest
         ObjectMapper mapper = objectMapper();
         assertEquals(1, mapper.readValue("{\"value\":1}", Getters1A.class).value);
         assertEquals(2, mapper.readValue("{\"value\":2}", Getters1B.class).value);
+    }
+
+    public void testInferredNameConflictsWithGetters() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new InferingIntrospector());
+        String json = mapper.writeValueAsString(new Infernal());
+        assertEquals(aposToQuotes("{'name':'Bob'}"), json);
+    }
+    
+    public void testInferredNameConflictsWithSetters() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new InferingIntrospector());
+        Infernal inf = mapper.readValue(aposToQuotes("{'name':'Bob'}"), Infernal.class);
+        assertNotNull(inf);
     }
 }

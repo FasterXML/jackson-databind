@@ -1318,7 +1318,7 @@ public class ObjectMapper
      */
     @Deprecated
     @Override
-    public JsonFactory getJsonFactory() { return _jsonFactory; }
+    public JsonFactory getJsonFactory() { return getFactory(); }
 
     /**
      * Method for configuring the default {@link DateFormat} to use when serializing time
@@ -2097,8 +2097,6 @@ public class ObjectMapper
     public <T> T readValue(File src, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-     // !!! TODO
-//    	_setupClassLoaderForDeserialization(valueType);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 

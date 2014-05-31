@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
-public class TestNameConflicts193And327 extends BaseMapTest
+public class TestNameConflicts extends BaseMapTest
 {
     static class Bean193
     {
@@ -43,6 +43,21 @@ public class TestNameConflicts193And327 extends BaseMapTest
         }
     }
 
+    // Bean that should not have conflicts, but could be problematic
+    static class MultipleTheoreticalGetters
+    {
+        public MultipleTheoreticalGetters() { }
+
+        public MultipleTheoreticalGetters(@JsonProperty("a") int foo) {
+            ;
+        }
+        
+        @JsonProperty
+        public int getA() { return 3; }
+
+        public int a() { return 5; }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -62,4 +77,10 @@ public class TestNameConflicts193And327 extends BaseMapTest
         String json = objectMapper().writeValueAsString(new BogusConflictBean());
         assertEquals(aposToQuotes("{'prop1':2,'prop2':1}"), json);
     }    
+
+    public void testHypotheticalGetters() throws Exception
+    {
+        String json = objectWriter().writeValueAsString(new MultipleTheoreticalGetters());
+        assertEquals(aposToQuotes("{'a':3}"), json);
+    }
 }

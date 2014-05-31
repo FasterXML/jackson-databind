@@ -107,7 +107,7 @@ public class TestPropertyConflicts extends BaseMapTest
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new InferingIntrospector());
-        Infernal inf = mapper.readValue(aposToQuotes("{'name':'Bob'}"), Infernal.class);
+        Infernal inf = mapper.readValue(aposToQuotes("{'stuff':'Bob'}"), Infernal.class);
         assertNotNull(inf);
     }
 }

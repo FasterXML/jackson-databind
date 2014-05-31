@@ -210,31 +210,28 @@ public class POJOPropertyBuilder
     @Override
     public AnnotatedMethod getGetter()
     {
+        // Easy with zero or one getters...
         Linked<AnnotatedMethod> curr = _getters;
-        // If zero easy
         if (curr == null) {
             return null;
         }
         Linked<AnnotatedMethod> next = curr.next;
-        // ditto, if one
         if (next == null) {
             return curr.value;
         }
-
         // But if multiple, verify that they do not conflict...
         for (; next != null; next = next.next) {
-            
             /* [JACKSON-255] Allow masking, i.e. do not report exception if one
              *   is in super-class from the other
              */
-            Class<?> getterClass = curr.value.getDeclaringClass();
+            Class<?> currClass = curr.value.getDeclaringClass();
             Class<?> nextClass = next.value.getDeclaringClass();
-            if (getterClass != nextClass) {
-                if (getterClass.isAssignableFrom(nextClass)) { // next is more specific
+            if (currClass != nextClass) {
+                if (currClass.isAssignableFrom(nextClass)) { // next is more specific
                     curr = next;
                     continue;
                 }
-                if (nextClass.isAssignableFrom(getterClass)) { // current more specific
+                if (nextClass.isAssignableFrom(currClass)) { // current more specific
                     continue;
                 }
             }
@@ -256,56 +253,59 @@ public class POJOPropertyBuilder
             throw new IllegalArgumentException("Conflicting getter definitions for property \""+getName()+"\": "
                     +curr.value.getFullName()+" vs "+next.value.getFullName());
         }
-
         // One more thing; to avoid having to do it again...
         _getters = curr.withoutNext();
         return curr.value;
-    }
-
-    protected int _getterPriority(AnnotatedMethod m)
-    {
-        final String name = m.getName();
-        // [#238]: Also, regular getters have precedence over "is-getters"
-        if (name.startsWith("get") && name.length() > 3) {
-            // should we check capitalization?
-            return 1;
-        }
-        if (name.startsWith("is") && name.length() > 2) {
-            return 2;
-        }
-        return 3;
     }
     
     @Override
     public AnnotatedMethod getSetter()
     {
-        if (_setters == null) {
+        // Easy with zero or one getters...
+        Linked<AnnotatedMethod> curr = _setters;
+        if (curr == null) {
             return null;
         }
-        // If multiple, verify that they do not conflict...
-        AnnotatedMethod setter = _setters.value;
-        Linked<AnnotatedMethod> next = _setters.next;
+        Linked<AnnotatedMethod> next = curr.next;
+        if (next == null) {
+            return curr.value;
+        }
+        // But if multiple, verify that they do not conflict...
         for (; next != null; next = next.next) {
-            /* [JACKSON-255] Allow masking, i.e. report exception only if
-             *   declarations in same class, or there's no inheritance relationship
-             *   (sibling interfaces etc)
+            /* [JACKSON-255] Allow masking, i.e. do not report exception if one
+             *   is in super-class from the other
              */
-            AnnotatedMethod nextSetter = next.value;
-            Class<?> setterClass = setter.getDeclaringClass();
-            Class<?> nextClass = nextSetter.getDeclaringClass();
-            if (setterClass != nextClass) {
-                if (setterClass.isAssignableFrom(nextClass)) { // next is more specific
-                    setter = nextSetter;
+            Class<?> currClass = curr.value.getDeclaringClass();
+            Class<?> nextClass = next.value.getDeclaringClass();
+            if (currClass != nextClass) {
+                if (currClass.isAssignableFrom(nextClass)) { // next is more specific
+                    curr = next;
                     continue;
                 }
-                if (nextClass.isAssignableFrom(setterClass)) { // getter more specific
+                if (nextClass.isAssignableFrom(currClass)) { // current more specific
                     continue;
                 }
             }
+            /* 30-May-2014, tatu: Two levels of precedence:
+             * 
+             * 1. Regular setters ("setX(...)")
+             * 2. Implicit, possible setters ("x(...)")
+             */
+            int priNext = _setterPriority(next.value);
+            int priCurr = _setterPriority(curr.value);
+
+            if (priNext != priCurr) {
+                if (priNext < priCurr) {
+                    curr = next;
+                }
+                continue;
+            }
             throw new IllegalArgumentException("Conflicting setter definitions for property \""+getName()+"\": "
-                    +setter.getFullName()+" vs "+nextSetter.getFullName());
+                    +curr.value.getFullName()+" vs "+next.value.getFullName());
         }
-        return setter;
+        // One more thing; to avoid having to do it again...
+        _setters = curr.withoutNext();
+        return curr.value;
     }
 
     @Override
@@ -400,6 +400,30 @@ public class POJOPropertyBuilder
         return getMutator();
     }
 
+    protected int _getterPriority(AnnotatedMethod m)
+    {
+        final String name = m.getName();
+        // [#238]: Also, regular getters have precedence over "is-getters"
+        if (name.startsWith("get") && name.length() > 3) {
+            // should we check capitalization?
+            return 1;
+        }
+        if (name.startsWith("is") && name.length() > 2) {
+            return 2;
+        }
+        return 3;
+    }
+
+    protected int _setterPriority(AnnotatedMethod m)
+    {
+        final String name = m.getName();
+        if (name.startsWith("set") && name.length() > 3) {
+            // should we check capitalization?
+            return 1;
+        }
+        return 2;
+    }
+    
     /*
     /**********************************************************
     /* Implementations of refinement accessors

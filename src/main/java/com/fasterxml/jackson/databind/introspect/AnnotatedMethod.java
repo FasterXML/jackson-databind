@@ -216,6 +216,18 @@ public final class AnnotatedMethod
         return _method.getGenericReturnType();
     }
 
+    /**
+     * Helper method that can be used to check whether method returns
+     * a value or not; if return type declared as <code>void</code>, returns
+     * false, otherwise true
+     * 
+     * @since 2.4
+     */
+    public boolean hasReturnType() {
+        Class<?> rt = getRawReturnType();
+        return (rt != Void.TYPE && rt != Void.class);
+    }
+    
     /*
     /********************************************************
     /* Other

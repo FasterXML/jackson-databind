@@ -601,7 +601,8 @@ public final class ClassUtil
 
     @SuppressWarnings("deprecation")
     public final static boolean isBogusClass(Class<?> cls) {
-        return (cls == Void.class || cls == com.fasterxml.jackson.databind.annotation.NoClass.class);
+        return (cls == Void.class || cls == Void.TYPE
+                || cls == com.fasterxml.jackson.databind.annotation.NoClass.class);
     }
     
     /*

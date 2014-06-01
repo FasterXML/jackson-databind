@@ -523,6 +523,11 @@ public class POJOPropertiesCollector
 
     protected void _addGetterMethod(AnnotatedMethod m, AnnotationIntrospector ai)
     {
+        // Very first thing: skip if not returning any value
+        if (!m.hasReturnType()) {
+            return;
+        }
+        
         // any getter?
         if (ai != null) {
             if (ai.hasAnyGetterAnnotation(m)) {

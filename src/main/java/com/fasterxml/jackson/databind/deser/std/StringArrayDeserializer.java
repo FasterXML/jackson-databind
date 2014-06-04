@@ -63,7 +63,7 @@ public final class StringArrayDeserializer
             if (t == JsonToken.VALUE_STRING) {
                 value = jp.getText();
             } else if (t == JsonToken.VALUE_NULL) {
-                value = _elementDeserializer.getNullValue();
+                value = null; // since we have established that '_elementDeserializer == null' earlier
             } else {
                 value = _parseString(jp, ctxt);
             }
@@ -92,7 +92,7 @@ public final class StringArrayDeserializer
         
         while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
             // Ok: no need to convert Strings, but must recognize nulls
-            String value = (t == JsonToken.VALUE_NULL) ? null : deser.deserialize(jp, ctxt);
+            String value = (t == JsonToken.VALUE_NULL) ? deser.getNullValue() : deser.deserialize(jp, ctxt);
             if (ix >= chunk.length) {
                 chunk = buffer.appendCompletedChunk(chunk);
                 ix = 0;

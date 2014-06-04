@@ -23,6 +23,7 @@ public class TestPropertyRename extends BaseMapTest
         }
     }    
 
+    @JsonPropertyOrder({ "a","b" })
     static class Bean323WithExplicitCleave1 { 
         @JsonProperty("a")
         private int a;
@@ -66,7 +67,9 @@ public class TestPropertyRename extends BaseMapTest
 
     public void testCreatorPropRenameWithCleave() throws Exception
     {
-        assertEquals("{\"a\":7,\"b\":7}", objectWriter().writeValueAsString(new Bean323WithExplicitCleave1(7)));
+        assertEquals("{\"a\":7,\"b\":7}",
+        		objectWriter().writeValueAsString(new Bean323WithExplicitCleave1(7)));
+        // note: 'a' NOT included as only ctor property found for it, no getter/field
         assertEquals("{\"b\":7}", objectWriter().writeValueAsString(new Bean323WithExplicitCleave2(7)));
     }
 }

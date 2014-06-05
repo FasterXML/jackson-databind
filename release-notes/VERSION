@@ -1,5 +1,12 @@
 Project: jackson-databind
-Version: 2.4.0 (02-Jun-2014)
+Version: 2.4.1 (xx-Jun-2014)
+
+#479: NPE on trying to deserialize a `String[]` that contains null
+ (reported by huxi@github)
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
 
 #81: Allow use of @JsonUnwrapped with typed (@JsonTypeInfo) classes, provided
   that (new) feature `SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS`
@@ -58,10 +65,6 @@ Version: 2.4.0 (02-Jun-2014)
 - Slightly improve `SqlDateSerializer` to support `@JsonFormat`
 - Improve handling of native type ids (YAML, CBOR) to use non-native type ids
   as fallback
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.3.3 (10-Apr-2014)
 

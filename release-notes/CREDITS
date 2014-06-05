@@ -12,10 +12,12 @@ Pascal Glinas:
   * Reported #220: ContainerNode missing 'createNumber(BigInteger)'
    (2.2.2)
 
-Joern Huxhorn:
+Joern Huxhorn: (huxi@github)
   * Suggested [JACKSON-636]: Add 'SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS' to allow
     forced sorting of Maps during serialization
    (2.0.0)
+  * Reported #479: NPE on trying to deserialize a `String[]` that contains null
+   (2.4.1)
 
 James Roper:
  * Requested [JACKSON-732]: Allow 'AnnotationIntrospector.findContentDeserializer()'

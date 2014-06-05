@@ -121,7 +121,7 @@ public class NumberSerializers
         public IntegerSerializer() { super(Integer.class, JsonParser.NumberType.INT ,"integer"); }
     
         @Override
-        public void serialize(Integer value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+        public void serialize(Integer value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeNumber(value.intValue());
         }
         
@@ -149,7 +149,7 @@ public class NumberSerializers
         }
         
         @Override
-        public void serialize(Number value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+        public void serialize(Number value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeNumber(value.intValue());
         }
     }
@@ -162,7 +162,7 @@ public class NumberSerializers
         public LongSerializer() { super(Long.class, JsonParser.NumberType.LONG, "number"); }
         
         @Override
-        public void serialize(Long value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+        public void serialize(Long value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeNumber(value.longValue());
         }
     }
@@ -175,7 +175,7 @@ public class NumberSerializers
         public FloatSerializer() { super(Float.class, JsonParser.NumberType.FLOAT, "number"); }
         
         @Override
-        public void serialize(Float value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+        public void serialize(Float value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeNumber(value.floatValue());
         }
     }
@@ -195,7 +195,7 @@ public class NumberSerializers
         public DoubleSerializer() { super(Double.class, JsonParser.NumberType.DOUBLE, "number"); }
     
         @Override
-        public void serialize(Double value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+        public void serialize(Double value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeNumber(value.doubleValue());
         }
 

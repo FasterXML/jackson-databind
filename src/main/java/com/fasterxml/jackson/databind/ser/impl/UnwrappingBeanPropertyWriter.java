@@ -70,9 +70,9 @@ public class UnwrappingBeanPropertyWriter
     
     @Override
     public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov)
-        throws Exception
+            throws Exception
     {
-        Object value = get(bean);
+        final Object value = get(bean);
         if (value == null) {
             // Hmmh. I assume we MUST pretty much suppress nulls, since we
             // can't really unwrap them...

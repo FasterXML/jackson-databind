@@ -3,6 +3,8 @@ Version: 2.4.1 (xx-Jun-2014)
 
 #479: NPE on trying to deserialize a `String[]` that contains null
  (reported by huxi@github)
+#482: Make date parsing error behavior consistent with JDK
+ (suggested by Steve S, sanbeg@github)
 
 ------------------------------------------------------------------------
 === History: ===

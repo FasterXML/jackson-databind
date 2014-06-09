@@ -462,7 +462,9 @@ public class BeanPropertyWriter extends PropertyWriter
     @Override
     public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception
     {
-        Object value = get(bean);
+        // inlined 'get()'
+        final Object value = (_accessorMethod == null) ? _field.get(bean) : _accessorMethod.invoke(bean);
+
         // Null handling is bit different, check that first
         if (value == null) {
             if (_nullSerializer != null) {
@@ -532,7 +534,8 @@ public class BeanPropertyWriter extends PropertyWriter
     public void serializeAsElement(Object bean, JsonGenerator jgen, SerializerProvider prov)
         throws Exception
     {
-        Object value = get(bean);
+        // inlined 'get()'
+        final Object value = (_accessorMethod == null) ? _field.get(bean) : _accessorMethod.invoke(bean);
         if (value == null) { // nulls need specialized handling
             if (_nullSerializer != null) {
                 _nullSerializer.serialize(null, jgen, prov);
@@ -683,12 +686,8 @@ public class BeanPropertyWriter extends PropertyWriter
      * calling method(s) ({@link #serializeAsField}) should be overridden
      * to change the behavior
      */
-    public final Object get(Object bean) throws Exception
-    {
-        if (_accessorMethod != null) {
-            return _accessorMethod.invoke(bean);
-        }
-        return _field.get(bean);
+    public final Object get(Object bean) throws Exception {
+        return (_accessorMethod == null) ? _field.get(bean) : _accessorMethod.invoke(bean);
     }
 
     /**

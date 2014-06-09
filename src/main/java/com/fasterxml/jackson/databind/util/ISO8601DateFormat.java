@@ -37,13 +37,19 @@ public class ISO8601DateFormat extends DateFormat
 
     @Override
     public Date parse(String source, ParsePosition pos) {
-        // index must be set to other than 0, I would swear this requirement is not there in
-        // some version of jdk 6.
-        /* 03-Nov-2013, tatu: I can't see this having any direct effect
-         *   here... I am guessing it marks things as consumed but why?
-         */
-        pos.setIndex(source.length());
-        return ISO8601Utils.parse(source);
+        try {
+            return ISO8601Utils.parse(source, pos);
+        }
+        catch (ParseException e) {
+            return null;
+        }
+    }
+
+    //supply our own parse(String) since pos isn't updated during parsing,
+    //but the exception should have the right error offset.
+    @Override
+    public Date parse(String source) throws ParseException {
+        return ISO8601Utils.parse(source, new ParsePosition(0));
     }
 
     @Override

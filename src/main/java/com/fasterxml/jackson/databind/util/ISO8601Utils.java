@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.util;
 
 import java.util.*;
+import java.text.ParsePosition;
+import java.text.ParseException;
 
 /**
  * Utilities methods for manipulating dates in iso8601 format. This is much much faster and GC friendly than
@@ -115,14 +117,15 @@ public class ISO8601Utils {
      * Parse a date from ISO-8601 formatted string. It expects a format yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
      *
      * @param date ISO string to parse in the appropriate format.
+     * @param pos The position to start parsing from, updated to where parsing stopped.
      * @return the parsed date
-     * @throws IllegalArgumentException if the date is not in the appropriate format
+     * @throws ParseException if the date is not in the appropriate format
      */
-    public static Date parse(String date)
+    public static Date parse(String date, ParsePosition pos) throws ParseException
     {
         Exception fail = null;
         try {
-            int offset = 0;
+            int offset = pos.getIndex();
 
             // extract year
             int year = parseInt(date, offset, offset += 4);
@@ -155,12 +158,16 @@ public class ISO8601Utils {
             String timezoneId;
             char timezoneIndicator = date.charAt(offset);
             if (timezoneIndicator == '+' || timezoneIndicator == '-') {
-                timezoneId = GMT_ID + date.substring(offset);
+                String timezoneOffset = date.substring(offset);
+                timezoneId = GMT_ID + timezoneOffset;
+                offset += timezoneOffset.length();
             } else if (timezoneIndicator == 'Z') {
                 timezoneId = GMT_ID;
+                offset += 1;
             } else {
                 throw new IndexOutOfBoundsException("Invalid time zone indicator " + timezoneIndicator);
             }
+
             TimeZone timezone = TimeZone.getTimeZone(timezoneId);
             if (!timezone.getID().equals(timezoneId)) {
                 throw new IndexOutOfBoundsException();
@@ -176,7 +183,10 @@ public class ISO8601Utils {
             calendar.set(Calendar.SECOND, seconds);
             calendar.set(Calendar.MILLISECOND, milliseconds);
 
+            pos.setIndex(offset);
             return calendar.getTime();
+            //If we get a ParseException it'll already have the right message/offset.
+            //Other exception types can convert here.
         } catch (IndexOutOfBoundsException e) {
             fail = e;
         } catch (NumberFormatException e) {
@@ -185,8 +195,8 @@ public class ISO8601Utils {
             fail = e;
         }
         String input = (date == null) ? null : ('"'+date+"'");
-        throw new IllegalArgumentException("Failed to parse date ["+input
-                +"]: "+fail.getMessage(), fail);
+        throw new ParseException("Failed to parse date ["+input
+            +"]: "+fail.getMessage(), pos.getIndex());
     }
 
     /**
@@ -197,10 +207,10 @@ public class ISO8601Utils {
      * @param expected the expected character
      * @throws IndexOutOfBoundsException if the expected character is not found
      */
-    private static void checkOffset(String value, int offset, char expected) throws IndexOutOfBoundsException {
+    private static void checkOffset(String value, int offset, char expected) throws ParseException {
         char found = value.charAt(offset);
         if (found != expected) {
-            throw new IndexOutOfBoundsException("Expected '" + expected + "' character but found '" + found + "'");
+            throw new ParseException("Expected '" + expected + "' character but found '" + found + "'", offset);
         }
     }
 

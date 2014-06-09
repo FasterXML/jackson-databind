@@ -168,8 +168,6 @@ public class ISO8601Utils {
                 throw new IndexOutOfBoundsException("Invalid time zone indicator " + timezoneIndicator);
             }
 
-            pos.setIndex(offset);
-
             TimeZone timezone = TimeZone.getTimeZone(timezoneId);
             if (!timezone.getID().equals(timezoneId)) {
                 throw new IndexOutOfBoundsException();
@@ -185,6 +183,7 @@ public class ISO8601Utils {
             calendar.set(Calendar.SECOND, seconds);
             calendar.set(Calendar.MILLISECOND, milliseconds);
 
+            pos.setIndex(offset);
             return calendar.getTime();
             //If we get a ParseException it'll already have the right message/offset.
             //Other exception types can convert here.

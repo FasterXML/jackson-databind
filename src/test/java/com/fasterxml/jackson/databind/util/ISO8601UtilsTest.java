@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.util;
 
 import java.util.*;
-
+import java.text.ParsePosition;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.util.ISO8601Utils;
@@ -47,14 +47,14 @@ public class ISO8601UtilsTest extends BaseMapTest
         assertEquals("2007-08-13T19:51:23.789Z", result);
     }
 
-    public void testParse() {
-        Date d = ISO8601Utils.parse("2007-08-13T19:51:23.789Z");
+    public void testParse() throws java.text.ParseException {
+        Date d = ISO8601Utils.parse("2007-08-13T19:51:23.789Z", new ParsePosition(0));
         assertEquals(date, d);
 
-        d = ISO8601Utils.parse("2007-08-13T19:51:23Z");
+        d = ISO8601Utils.parse("2007-08-13T19:51:23Z", new ParsePosition(0));
         assertEquals(dateZeroMillis, d);
 
-        d = ISO8601Utils.parse("2007-08-13T21:51:23.789+02:00");
+        d = ISO8601Utils.parse("2007-08-13T21:51:23.789+02:00", new ParsePosition(0));
         assertEquals(date, d);
     }
 

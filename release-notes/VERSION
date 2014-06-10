@@ -10,6 +10,8 @@ Version: 2.4.1 (xx-Jun-2014)
 === History: ===
 ------------------------------------------------------------------------
 
+2.4.0 (02-Jun-2014)
+
 #81: Allow use of @JsonUnwrapped with typed (@JsonTypeInfo) classes, provided
   that (new) feature `SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS`
   is disabled
@@ -182,10 +184,6 @@ Version: 2.4.1 (xx-Jun-2014)
 - Add 'BeanPropertyWriter.isUnwrapping()' for future needs (by Afterburner)
 - Add coercions from String "null" (as if null token was parsed) for primitives/Wrappers.
 - Add `JsonDeserializer.handledType()`
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.2.2 (26-May-2013)
 

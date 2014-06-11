@@ -1,5 +1,5 @@
 Project: jackson-databind
-Version: 2.2.4 (xx-xxx-2013)
+Version: 2.2.4 (10-Jun-2013)
 
 #292: Problems with abstract `Map`s, `Collection`s, polymorphic deserialization
 #324: EnumDeserializer should throw JsonMappingException, not IllegalArgumentException

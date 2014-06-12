@@ -606,14 +606,14 @@ public class BeanPropertyWriter extends PropertyWriter
 
     // Also part of BeanProperty implementation
     @Override
-    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
+    public void depositSchemaProperty(JsonObjectFormatVisitor v)
         throws JsonMappingException
     {
-        if (objectVisitor != null) {
+        if (v != null) {
             if (isRequired()) {
-                objectVisitor.property(this); 
+                v.property(this); 
             } else {
-                objectVisitor.optionalProperty(this);
+                v.optionalProperty(this);
             }
         }
     }

@@ -80,6 +80,21 @@ public class LRUMap<K,V> extends LinkedHashMap<K,V>
             _writeLock.unlock();
         }
     }
+
+    /**
+     * Overridden to allow concurrent way of removing all cached entries.
+     * 
+     * @since 2.4.1
+     */
+    @Override
+    public void clear() {
+        _writeLock.lock();
+        try {
+            super.clear();
+        } finally {
+            _writeLock.unlock();
+        }
+    }
     
     /*
     /**********************************************************

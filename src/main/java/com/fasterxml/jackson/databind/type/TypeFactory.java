@@ -115,6 +115,9 @@ public final class TypeFactory
 
     public TypeFactory withModifier(TypeModifier mod) 
     {
+        if (mod == null) { // mostly for unit tests
+            return new TypeFactory(_parser, _modifiers);
+        }
         if (_modifiers == null) {
             return new TypeFactory(_parser, new TypeModifier[] { mod });
         }
@@ -128,6 +131,20 @@ public final class TypeFactory
      */
     public static TypeFactory defaultInstance() { return instance; }
 
+    /**
+     * Method that will clear up any cached type definitions that may
+     * be cached by this {@link TypeFactory} instance.
+     * This method should not be commonly used, that is, only use it
+     * if you know there is a problem with retention of type definitions;
+     * the most likely (and currently only known) problem is retention
+     * of {@link Class} instances via {@link JavaType} reference.
+     * 
+     * @since 2.4.1
+     */
+    public void clearCache() {
+        _typeCache.clear();
+    }
+    
     /*
     /**********************************************************
     /* Static methods for non-instance-specific functionality

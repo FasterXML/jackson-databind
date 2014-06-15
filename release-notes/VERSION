@@ -5,6 +5,8 @@ Version: 2.4.1 (xx-Jun-2014)
  (reported by huxi@github)
 #482: Make date parsing error behavior consistent with JDK
  (suggested by Steve S, sanbeg@github)
+#489 (partial): TypeFactory cache prevents garbage collection of custom ClassLoader
+ (reported by sftwrengnr@github)
 
 ------------------------------------------------------------------------
 === History: ===

@@ -193,8 +193,6 @@ public class TestTypeFactory
     /**
      * Test for verifying that parametric types can be constructed
      * programmatically
-     * 
-     * @since 1.5
      */
     public void testParametricTypes()
     {
@@ -277,10 +275,7 @@ public class TestTypeFactory
     /* Unit tests: low-level inheritance resolution
     /**********************************************************
      */
-    
-    /**
-     * @since 1.6
-     */
+
     public void testSuperTypeDetectionClass()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -294,10 +289,7 @@ public class TestTypeFactory
         assertSame(HashMap.class, sup2.getRawClass());
         assertNull(sup2.getSuperType());
     }
-    
-    /**
-     * @since 1.6
-     */
+
     public void testSuperTypeDetectionInterface()
     {
         // List first
@@ -324,9 +316,6 @@ public class TestTypeFactory
         assertNull(sup2.getSuperType());
     }
 
-    /**
-     * @since 1.6
-     */
     public void testAtomicArrayRefParameterDetection()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -352,10 +341,7 @@ public class TestTypeFactory
     /* Unit tests: map/collection type parameter resolution
     /**********************************************************
      */
-    
-    /**
-     * @since 1.6
-     */
+
     public void testMapTypesSimple()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -365,9 +351,6 @@ public class TestTypeFactory
         assertEquals(tf.constructType(Boolean.class), mapType.getContentType());
     }
 
-    /**
-     * @since 1.6
-     */
     public void testMapTypesRaw()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -377,9 +360,6 @@ public class TestTypeFactory
         assertEquals(tf.constructType(Object.class), mapType.getContentType());        
     }
 
-    /**
-     * @since 1.6
-     */
     public void testMapTypesAdvanced()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -402,8 +382,6 @@ public class TestTypeFactory
     /**
      * Specific test to verify that complicate name mangling schemes
      * do not fool type resolver
-     * 
-     * @since 1.6
      */
     public void testMapTypesSneaky()
     {
@@ -416,8 +394,6 @@ public class TestTypeFactory
     
     /**
      * Plus sneaky types may be found via introspection as well.
-     * 
-     * @since 1.7
      */
     public void testSneakyFieldTypes() throws Exception
     {
@@ -438,8 +414,6 @@ public class TestTypeFactory
     
     /**
      * Looks like type handling actually differs for properties, too.
-     * 
-     * @since 1.7
      */
     public void testSneakyBeanProperties() throws Exception
     {
@@ -532,6 +506,17 @@ public class TestTypeFactory
         t2 = tf.constructType(String.class);
         assertSame(t1, tf.moreSpecificType(t1, t2));
         assertSame(t2, tf.moreSpecificType(t2, t1));
+    }
+
+    // [Issue#489]
+    public void testCacheClearing()
+    {
+        TypeFactory tf = TypeFactory.defaultInstance().withModifier(null);
+        assertEquals(0, tf._typeCache.size());
+        tf.constructType(getClass());
+        assertEquals(1, tf._typeCache.size());
+        tf.clearCache();
+        assertEquals(0, tf._typeCache.size());
     }
 }
         

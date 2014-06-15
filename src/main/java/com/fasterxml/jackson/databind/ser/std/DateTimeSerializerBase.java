@@ -131,12 +131,17 @@ public abstract class DateTimeSerializerBase<T>
     /**********************************************************
      */
     
-    protected boolean _asTimestamp(SerializerProvider provider) {
+    protected boolean _asTimestamp(SerializerProvider provider)
+    {
         if (_useTimestamp != null) {
-        	return _useTimestamp.booleanValue();
+            return _useTimestamp.booleanValue();
         }
         if (_customFormat == null) {
-        	return provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            if (provider != null) {
+                return provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            }
+            // 12-Jun-2014, tatu: Is it legal not to have provider? Was NPE:ing earlier so leave a check
+            throw new IllegalArgumentException("Null 'provider' passed for "+handledType().getName());
         }
         return false;
     }

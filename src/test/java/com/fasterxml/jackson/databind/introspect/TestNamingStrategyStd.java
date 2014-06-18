@@ -45,23 +45,24 @@ public class TestNamingStrategyStd extends BaseMapTest
         }
     }
     
-    @JsonPropertyOrder({"from_user", "user", "from$user", "from7user", "_"})
+    @JsonPropertyOrder({"from_user", "user", "from$user", "from7user", "_x"})
     static class UnchangedNames
     {
         public String from_user;
         public String _user;
         public String from$user;
         public String from7user;
-        public String _;
+        // Used to test "_", but it's explicitly deprecated in JDK8 so...
+        public String _x;
         
         public UnchangedNames() {this(null, null, null, null, null);}
-        public UnchangedNames(String from_user, String _user, String from$user, String from7user, String _)
+        public UnchangedNames(String from_user, String _user, String from$user, String from7user, String _x)
         {
             this.from_user = from_user;
             this._user = _user;
             this.from$user = from$user;
             this.from7user = from7user;
-            this._ = _;
+            this._x = _x;
         }
     }
     
@@ -229,8 +230,8 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testLowerCaseUnchangedNames() throws Exception
     {
         // First serialize
-        String json = mapper.writeValueAsString(new UnchangedNames("from_user", "_user", "from$user", "from7user", "_"));
-        assertEquals("{\"from_user\":\"from_user\",\"user\":\"_user\",\"from$user\":\"from$user\",\"from7user\":\"from7user\",\"_\":\"_\"}", json);
+        String json = mapper.writeValueAsString(new UnchangedNames("from_user", "_user", "from$user", "from7user", "_x"));
+        assertEquals("{\"from_user\":\"from_user\",\"user\":\"_user\",\"from$user\":\"from$user\",\"from7user\":\"from7user\",\"x\":\"_x\"}", json);
         
         // then deserialize
         UnchangedNames result = mapper.readValue(json, UnchangedNames.class);
@@ -238,7 +239,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals("_user", result._user);
         assertEquals("from$user", result.from$user);
         assertEquals("from7user", result.from7user);
-        assertEquals("_", result._);
+        assertEquals("_x", result._x);
     }
     
     /*

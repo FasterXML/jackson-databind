@@ -91,8 +91,10 @@ public abstract class DefaultDeserializationContext
 
         if (resolver == null) {
             resolver = resolverType.newForDeserialization(this);
-            // Temporary fix for 490 until 4.2
-            if(resolverType instanceof SimpleObjectIdResolver) {
+            /* !!! 18-Jun-2014, pgelinas: Temporary fix for [#490] until real
+             *    fix (for jackson-annotations, SimpleObjectIdResolver) can be added.
+             */
+            if (resolverType instanceof SimpleObjectIdResolver) {
                resolver = new SimpleObjectIdResolver();
             }
             _objectIdResolvers.add(resolver);

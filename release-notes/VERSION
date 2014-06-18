@@ -1,5 +1,16 @@
 Project: jackson-databind
-Version: 2.4.1 (17-Jun-2014)
+Version: 2.4.1.1 (18-Jun-2014)
+
+Special one-off "micro patc" for:
+
+#491: Temporary work-around for issue #490 (full fix for 2.5 needs to be
+  in `jackson-annotations`)
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.4.1 (17-Jun-2014)
 
 #479: NPE on trying to deserialize a `String[]` that contains null
  (reported by huxi@github)
@@ -7,10 +18,6 @@ Version: 2.4.1 (17-Jun-2014)
  (suggested by Steve S, sanbeg@github)
 #489 (partial): TypeFactory cache prevents garbage collection of custom ClassLoader
  (reported by sftwrengnr@github)
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.4.0 (02-Jun-2014)
 

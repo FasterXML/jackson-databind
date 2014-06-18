@@ -88,8 +88,13 @@ public abstract class DefaultDeserializationContext
                 }
             }
         }
+
         if (resolver == null) {
             resolver = resolverType.newForDeserialization(this);
+            // Temporary fix for 490 until 4.2
+            if(resolverType instanceof SimpleObjectIdResolver) {
+               resolver = new SimpleObjectIdResolver();
+            }
             _objectIdResolvers.add(resolver);
         }
 

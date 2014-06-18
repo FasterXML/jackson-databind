@@ -1,5 +1,5 @@
 Project: jackson-databind
-Version: 2.4.1 (xx-Jun-2014)
+Version: 2.4.1 (17-Jun-2014)
 
 #479: NPE on trying to deserialize a `String[]` that contains null
  (reported by huxi@github)

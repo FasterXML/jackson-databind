@@ -402,6 +402,7 @@ public abstract class BasicDeserializerFactory
             boolean isVisible =  vchecker.isCreatorVisible(ctor);
             // some single-arg constructors (String, number) are auto-detected
             if (argCount == 1) {
+System.err.println("Visible: "+isVisible+", "+ctor);                
                 PropertyName name = (ctor == propertyCtor) ? ctorPropNames[0] : null;
                 _handleSingleArgumentConstructor(ctxt, beanDesc, vchecker, intr, creators,
                         ctor, isCreator, isVisible, name);

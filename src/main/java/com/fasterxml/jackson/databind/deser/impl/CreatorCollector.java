@@ -83,7 +83,7 @@ public class CreatorCollector
         final JavaType type = _beanDesc.getType();
 
         // Any non-standard creator will prevent; with one exception: int-valued constructor
-        // that standard containers container can be ignored
+        // that standard containers have can be ignored
         maybeVanilla &= (_propertyBasedCreator == null)
                 && (_delegateCreator == null)
                 && (_stringCreator == null)
@@ -93,9 +93,9 @@ public class CreatorCollector
                 ;
 
         if (maybeVanilla) {
-        /* 10-May-2014, tatu: If we have nothing special, and we are dealing with one
-         *   of "well-known" types, can create a non-reflection-based instantiator.
-         */
+            /* 10-May-2014, tatu: If we have nothing special, and we are dealing with one
+             *   of "well-known" types, can create a non-reflection-based instantiator.
+             */
             final Class<?> rawType = type.getRawClass();
             if (rawType == Collection.class || rawType == List.class || rawType == ArrayList.class) {
                 return new Vanilla(Vanilla.TYPE_COLLECTION);

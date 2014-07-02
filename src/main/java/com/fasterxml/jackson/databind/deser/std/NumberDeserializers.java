@@ -8,7 +8,6 @@ import java.util.HashSet;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
-
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -424,15 +423,28 @@ public class NumberDeserializers
              */
             if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
                 String text = jp.getText().trim();
+                if (text.length() == 0) {
+                    return getEmptyValue();
+                }
+                if (_hasTextualNull(text)) {
+                    return getNullValue();
+                }
+                if (_isPosInf(text)) {
+                    return Double.POSITIVE_INFINITY;
+                }
+                if (_isNegInf(text)) {
+                    return Double.NEGATIVE_INFINITY;
+                }
+                if (_isNaN(text)) {
+                    return Double.NaN;
+                }
                 try {
                     if (text.indexOf('.') >= 0) { // floating point
-                        // as per [JACKSON-72]:
                         if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
                             return new BigDecimal(text);
                         }
                         return new Double(text);
                     }
-                    // as per [JACKSON-100]:
                     if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
                         return new BigInteger(text);
                     }

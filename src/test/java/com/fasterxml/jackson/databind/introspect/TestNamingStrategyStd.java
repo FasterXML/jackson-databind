@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.fasterxml.jackson.databind.introspect.TestNamingStrategyCustom.PersonBean;
 
 /**
@@ -44,23 +45,24 @@ public class TestNamingStrategyStd extends BaseMapTest
         }
     }
     
-    @JsonPropertyOrder({"from_user", "user", "from$user", "from7user", "_"})
+    @JsonPropertyOrder({"from_user", "user", "from$user", "from7user", "_x"})
     static class UnchangedNames
     {
         public String from_user;
         public String _user;
         public String from$user;
         public String from7user;
-        public String _;
+        // Used to test "_", but it's explicitly deprecated in JDK8 so...
+        public String _x;
         
         public UnchangedNames() {this(null, null, null, null, null);}
-        public UnchangedNames(String from_user, String _user, String from$user, String from7user, String _)
+        public UnchangedNames(String from_user, String _user, String from$user, String from7user, String _x)
         {
             this.from_user = from_user;
             this._user = _user;
             this.from$user = from$user;
             this.from7user = from7user;
-            this._ = _;
+            this._x = _x;
         }
     }
     
@@ -80,6 +82,18 @@ public class TestNamingStrategyStd extends BaseMapTest
             this.___ = ___;
             this.$User = $User;
         }
+    }
+
+    static class Bean428 {
+        @JsonProperty("fooBar")
+        public String whatever() {return "";}
+    }
+
+    @JsonPropertyOrder({ "firstName", "lastName" })
+    @JsonNaming(PropertyNamingStrategy.LowerCaseStrategy.class)
+    static class BoringBean {
+        public String firstName = "Bob";
+        public String lastName = "Burger";
     }
     
     /*
@@ -216,8 +230,8 @@ public class TestNamingStrategyStd extends BaseMapTest
     public void testLowerCaseUnchangedNames() throws Exception
     {
         // First serialize
-        String json = mapper.writeValueAsString(new UnchangedNames("from_user", "_user", "from$user", "from7user", "_"));
-        assertEquals("{\"from_user\":\"from_user\",\"user\":\"_user\",\"from$user\":\"from$user\",\"from7user\":\"from7user\",\"_\":\"_\"}", json);
+        String json = mapper.writeValueAsString(new UnchangedNames("from_user", "_user", "from$user", "from7user", "_x"));
+        assertEquals("{\"from_user\":\"from_user\",\"user\":\"_user\",\"from$user\":\"from$user\",\"from7user\":\"from7user\",\"x\":\"_x\"}", json);
         
         // then deserialize
         UnchangedNames result = mapper.readValue(json, UnchangedNames.class);
@@ -225,7 +239,7 @@ public class TestNamingStrategyStd extends BaseMapTest
         assertEquals("_user", result._user);
         assertEquals("from$user", result.from$user);
         assertEquals("from7user", result.from7user);
-        assertEquals("_", result._);
+        assertEquals("_x", result._x);
     }
     
     /*
@@ -241,10 +255,9 @@ public class TestNamingStrategyStd extends BaseMapTest
      * PASCAL_CASE_TO_CAMEL_CASE was added in Jackson 2.1.0, 
      * as per [JACKSON-63].
      */
-    @Test
     public void testPascalCaseStandAlone()
     {
-    	String translatedJavaName = PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE.nameForField
+        String translatedJavaName = PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE.nameForField
     	        (null, null, "userName");
         assertEquals("UserName", translatedJavaName);
 
@@ -259,4 +272,31 @@ public class TestNamingStrategyStd extends BaseMapTest
                 (null, null, "x");
         assertEquals("X", translatedJavaName);
     }
+
+    /**
+     * [Issue#428]
+     */
+    public void testIssue428PascalWithOverrides() throws Exception {
+
+        String json = new ObjectMapper()
+                            .setPropertyNamingStrategy(PropertyNamingStrategy.PASCAL_CASE_TO_CAMEL_CASE)
+                            .writeValueAsString(new Bean428());
+        
+        if (!json.contains(quote("fooBar"))) {
+            fail("Should use name 'fooBar', does not: "+json);
+        }
+    }
+
+    /**
+     * For [Issue#461]
+     */
+    public void testSimpleLowerCase() throws Exception
+    {
+        final BoringBean input = new BoringBean();
+        ObjectMapper m = new ObjectMapper();
+
+        assertEquals(aposToQuotes("{'firstname':'Bob','lastname':'Burger'}"),
+                m.writeValueAsString(input));
+    }
 }
+

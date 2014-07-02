@@ -20,12 +20,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 public class TestArrayDeserialization
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
     public final static class Bean1
     {
         int _x, _y;
@@ -252,7 +246,7 @@ public class TestArrayDeserialization
             "a", "b", "abcd", "", "???", "\"quoted\"", "lf: \n",
         };
         StringWriter sw = new StringWriter();
-        JsonGenerator jg = new JsonFactory().createGenerator(sw);
+        JsonGenerator jg = MAPPER.getFactory().createGenerator(sw);
         jg.writeStartArray();
         for (String str : STRS) {
             jg.writeString(str);
@@ -267,6 +261,12 @@ public class TestArrayDeserialization
         for (int i = 0; i < STRS.length; ++i) {
             assertEquals(STRS[i], result[i]);
         }
+
+        // [#479]: null handling was busted in 2.4.0
+        result = MAPPER.readValue(" [ null ]", String[].class);
+        assertNotNull(result);
+        assertEquals(1, result.length);
+        assertNull(result[0]);
     }
 
     public void testCharArray() throws Exception

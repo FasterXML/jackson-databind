@@ -141,7 +141,7 @@ public class EnumMapDeserializer
             Object value;
             
             if (t == JsonToken.VALUE_NULL) {
-                value = null;
+                value = valueDes.getNullValue();
             } else if (typeDeser == null) {
                 value =  valueDes.deserialize(jp, ctxt);
             } else {

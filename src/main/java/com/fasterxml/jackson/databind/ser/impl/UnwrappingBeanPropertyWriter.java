@@ -40,7 +40,7 @@ public class UnwrappingBeanPropertyWriter
     }
 
     private UnwrappingBeanPropertyWriter(UnwrappingBeanPropertyWriter base, NameTransformer transformer,
-            SerializableString name) {
+            SerializedString name) {
         super(base, name);
         _nameTransformer = transformer;
     }
@@ -70,9 +70,9 @@ public class UnwrappingBeanPropertyWriter
     
     @Override
     public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov)
-        throws Exception
+            throws Exception
     {
-        Object value = get(bean);
+        final Object value = get(bean);
         if (value == null) {
             // Hmmh. I assume we MUST pretty much suppress nulls, since we
             // can't really unwrap them...
@@ -98,7 +98,9 @@ public class UnwrappingBeanPropertyWriter
         }
         // For non-nulls, first: simple check for direct cycles
         if (value == bean) {
-            _handleSelfReference(bean, ser);
+            if (_handleSelfReference(bean, jgen, prov, ser)) {
+                return;
+            }
         }
 
         // note: must verify we are using unwrapping serializer; if not, will write field name

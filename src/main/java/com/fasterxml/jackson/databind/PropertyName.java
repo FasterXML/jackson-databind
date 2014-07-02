@@ -1,6 +1,9 @@
 package com.fasterxml.jackson.databind;
 
+import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.util.InternCache;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
 /**
  * Simple value class used for containing names of properties as defined
@@ -42,6 +45,17 @@ public class PropertyName
      */
     protected final String _namespace;
 
+    /**
+     * Lazily-constructed efficient representation of the simple name.
+     *<p>
+     * NOTE: not defined as volatile to avoid performance problem with
+     * concurrent access in multi-core environments; due to statelessness
+     * of {@link SerializedString} at most leads to multiple instantiations.
+     * 
+     * @since 2.4
+     */
+    protected SerializableString _encodedSimple;
+    
     public PropertyName(String simpleName) {
         this(simpleName, null);
     }
@@ -127,6 +141,21 @@ public class PropertyName
         return _simpleName;
     }
 
+    /**
+     * Accessor that may be used to get lazily-constructed efficient
+     * representation of the simple name.
+     * 
+     * @since 2.4
+     */
+    public SerializableString simpleAsEncoded(MapperConfig<?> config) {
+        SerializableString sstr = _encodedSimple;
+        if (sstr == null) {
+            sstr = config.compileString(_simpleName);
+            _encodedSimple = sstr;
+        }
+        return sstr;
+    }
+    
     public String getNamespace() {
         return _namespace;
     }
@@ -148,7 +177,19 @@ public class PropertyName
     public boolean hasNamespace() {
         return _namespace != null;
     }
-    
+
+    /**
+     * Method that is basically equivalent of:
+     *<pre>
+     *   !hasSimpleName() && !hasNamespace();
+     *</pre>
+     * 
+     * @since 2.4
+     */
+    public boolean isEmpty() {
+        return (_namespace == null) && (_simpleName.isEmpty());
+    }
+
     /*
     /**********************************************************
     /* Std method overrides

@@ -39,8 +39,7 @@ public abstract class BeanDescription
     /**********************************************************
      */
 
-    protected BeanDescription(JavaType type)
-    {
+    protected BeanDescription(JavaType type) {
         _type = type;
     }
 

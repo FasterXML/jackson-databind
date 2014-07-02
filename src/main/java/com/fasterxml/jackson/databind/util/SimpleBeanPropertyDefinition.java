@@ -119,8 +119,9 @@ public class SimpleBeanPropertyDefinition
     }
     
     // hmmh. what should we claim here?
-    @Override
-    public boolean isExplicitlyIncluded() { return false; }
+
+    @Override public boolean isExplicitlyIncluded() { return false; }
+    @Override public boolean isExplicitlyNamed() { return false; }
 
     /**
      * We will indicate that property is optional, since there is nothing

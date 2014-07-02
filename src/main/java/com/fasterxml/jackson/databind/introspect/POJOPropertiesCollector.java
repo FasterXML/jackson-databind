@@ -94,7 +94,7 @@ public class POJOPropertiesCollector
     /* Life-cycle
     /**********************************************************
      */
-    
+
     protected POJOPropertiesCollector(MapperConfig<?> config, boolean forSerialization,
             JavaType type, AnnotatedClass classDef, String mutatorPrefix)
     {
@@ -182,6 +182,10 @@ public class POJOPropertiesCollector
         return null;
     }
 
+    /**
+     * Accessor for set of properties that are explicitly marked to be ignored
+     * via per-property markers (but NOT class annotations).
+     */
     public Set<String> getIgnoredPropertyNames() {
         return _ignoredPropertyNames;
     }
@@ -285,7 +289,7 @@ public class POJOPropertiesCollector
         // Then how about explicit ordering?
         AnnotationIntrospector intr = _annotationIntrospector;
         boolean sort;
-        Boolean alpha = (intr == null) ? null : intr.findSerializationSortAlphabetically(_classDef);
+        Boolean alpha = (intr == null) ? null : intr.findSerializationSortAlphabetically((Annotated) _classDef);
         
         if (alpha == null) {
             sort = _config.shouldSortPropertiesAlphabetically();
@@ -378,28 +382,33 @@ public class POJOPropertiesCollector
         final boolean pruneFinalFields = !_forSerialization && !_config.isEnabled(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS);
         
         for (AnnotatedField f : _classDef.fields()) {
-            String implName = f.getName();
+            String implName = (ai == null) ? null : ai.findImplicitPropertyName(f);
+            if (implName == null) {
+                implName = f.getName();
+            }
+            
+            PropertyName pn;
 
-            String explName;
             if (ai == null) {
-                explName = null;
+                pn = null;
             } else if (_forSerialization) {
                 /* 18-Aug-2011, tatu: As per existing unit tests, we should only
                  *   use serialization annotation (@JsonSerializer) when serializing
                  *   fields, and similarly for deserialize-only annotations... so
                  *   no fallbacks in this particular case.
                  */
-                PropertyName pn = ai.findNameForSerialization(f);
-                explName = (pn == null) ? null : pn.getSimpleName();
+                pn = ai.findNameForSerialization(f);
             } else {
-                PropertyName pn = ai.findNameForDeserialization(f);
-                explName = (pn == null) ? null : pn.getSimpleName();
+                pn = ai.findNameForDeserialization(f);
             }
-            if ("".equals(explName)) { // empty String meaning "use default name", here just means "same as field name"
-                explName = implName;
+            boolean nameExplicit = (pn != null);
+
+            if (nameExplicit && pn.isEmpty()) { // empty String meaning "use default name", here just means "same as field name"
+                pn = _propNameFromSimple(implName);
+                nameExplicit = false;
             }
             // having explicit name means that field is visible; otherwise need to check the rules
-            boolean visible = (explName != null);
+            boolean visible = (pn != null);
             if (!visible) {
                 visible = _visibilityChecker.isFieldVisible(f);
             }
@@ -410,11 +419,10 @@ public class POJOPropertiesCollector
              *  Also: if 'ignored' is set, need to included until a later point, to
              *  avoid losing ignoral information.
              */
-            if (pruneFinalFields && (explName == null) && !ignored && Modifier.isFinal(f.getModifiers())) {
+            if (pruneFinalFields && (pn == null) && !ignored && Modifier.isFinal(f.getModifiers())) {
                 continue;
             }
-            
-            _property(implName).addField(f, explName, visible, ignored);
+            _property(implName).addField(f, pn, nameExplicit, visible, ignored);
         }
     }
 
@@ -423,47 +431,67 @@ public class POJOPropertiesCollector
      */
     protected void _addCreators()
     {
-        final AnnotationIntrospector ai = _annotationIntrospector;
         // can be null if annotation processing is disabled...
-        if (ai == null) {
-            return;
-        }
-        for (AnnotatedConstructor ctor : _classDef.getConstructors()) {
-            if (_creatorProperties == null) {
-                _creatorProperties = new LinkedList<POJOPropertyBuilder>();
-            }
-            for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
-                AnnotatedParameter param = ctor.getParameter(i);
-                PropertyName pn = ai.findNameForDeserialization(param);
-                String name = (pn == null) ? null : pn.getSimpleName();
-                // is it legal not to have name?
-                if (name != null) {
-                    // shouldn't need to worry about @JsonIgnore (no real point, so)
-                    POJOPropertyBuilder prop = _property(name);
-                    prop.addCtor(param, name, true, false);
-                    _creatorProperties.add(prop);
+        if (_annotationIntrospector != null) {
+            for (AnnotatedConstructor ctor : _classDef.getConstructors()) {
+                if (_creatorProperties == null) {
+                    _creatorProperties = new LinkedList<POJOPropertyBuilder>();
+                }
+                for (int i = 0, len = ctor.getParameterCount(); i < len; ++i) {
+                    _addCreatorParam(ctor.getParameter(i));
                 }
             }
-        }
-        for (AnnotatedMethod factory : _classDef.getStaticMethods()) {
-            if (_creatorProperties == null) {
-                _creatorProperties = new LinkedList<POJOPropertyBuilder>();
-            }
-            for (int i = 0, len = factory.getParameterCount(); i < len; ++i) {
-                AnnotatedParameter param = factory.getParameter(i);
-                PropertyName pn = ai.findNameForDeserialization(param);
-                String name = (pn == null) ? null : pn.getSimpleName();
-                // is it legal not to have name?
-                if (name != null) {
-                    // shouldn't need to worry about @JsonIgnore (no real point, so)
-                    POJOPropertyBuilder prop = _property(name);
-                    prop.addCtor(param, name, true, false);
-                    _creatorProperties.add(prop);
+            for (AnnotatedMethod factory : _classDef.getStaticMethods()) {
+                if (_creatorProperties == null) {
+                    _creatorProperties = new LinkedList<POJOPropertyBuilder>();
+                }
+                for (int i = 0, len = factory.getParameterCount(); i < len; ++i) {
+                    _addCreatorParam(factory.getParameter(i));
                 }
             }
         }
     }
 
+    /**
+     * @since 2.4
+     */
+    protected void _addCreatorParam(AnnotatedParameter param)
+    {
+        // JDK 8, paranamer can give implicit name
+        String impl = _annotationIntrospector.findImplicitPropertyName(param);
+        if (impl == null) {
+            impl = "";
+        }
+        PropertyName pn = _annotationIntrospector.findNameForDeserialization(param);
+        boolean expl = (pn != null && !pn.isEmpty());
+        if (!expl) {
+            if (impl.isEmpty()) {
+                /* Important: if neither implicit nor explicit name, can not make use
+                 * of this creator paramter -- may or may not be a problem, verified
+                 * at a later point.
+                 */
+                return;
+            }
+            pn = new PropertyName(impl);
+        }
+
+        // shouldn't need to worry about @JsonIgnore, since creators only added
+        // if so annotated
+
+        /* 14-Apr-2014, tatu: Not ideal, since we should not start with explicit name, ever;
+         *   but with current set up we also can not just use empty name.
+         *   This will cause failure for [#323] until we figure out a better way to handle
+         *   the problem; possibly by creating a placeholder container for "anonymous"
+         *   creator parameters.
+         */
+        POJOPropertyBuilder prop = expl ?  _property(pn) : _property(impl);
+        // should use this (or similar) instead:
+//        POJOPropertyBuilder prop = _property(impl);
+        prop.addCtor(param, pn, expl, true, false);
+
+        _creatorProperties.add(prop);
+    }
+    
     /**
      * Method for collecting basic information on all fields found
      */
@@ -495,6 +523,11 @@ public class POJOPropertiesCollector
 
     protected void _addGetterMethod(AnnotatedMethod m, AnnotationIntrospector ai)
     {
+        // Very first thing: skip if not returning any value
+        if (!m.hasReturnType()) {
+            return;
+        }
+        
         // any getter?
         if (ai != null) {
             if (ai.hasAnyGetterAnnotation(m)) {
@@ -517,9 +550,13 @@ public class POJOPropertiesCollector
         boolean visible;
 
         PropertyName pn = (ai == null) ? null : ai.findNameForSerialization(m);
-        String explName = (pn == null) ? null : pn.getSimpleName();
-        if (explName == null) { // no explicit name; must follow naming convention
-            implName = BeanUtil.okNameForRegularGetter(m, m.getName());
+        boolean nameExplicit = (pn != null);
+
+        if (!nameExplicit) { // no explicit name; must consider implicit
+            implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
+            if (implName == null) {
+                implName = BeanUtil.okNameForRegularGetter(m, m.getName());
+            }
             if (implName == null) { // if not, must skip
                 implName = BeanUtil.okNameForIsGetter(m, m.getName());
                 if (implName == null) {
@@ -531,46 +568,59 @@ public class POJOPropertiesCollector
             }
         } else { // explicit indication of inclusion, but may be empty
             // we still need implicit name to link with other pieces
-            implName = BeanUtil.okNameForGetter(m);
+            implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
+            if (implName == null) {
+                implName = BeanUtil.okNameForGetter(m);
+            }
             // if not regular getter name, use method name as is
             if (implName == null) {
                 implName = m.getName();
             }
-            if (explName.length() == 0) {
-                explName = implName;
+            if (pn.isEmpty()) {
+                // !!! TODO: use PropertyName for implicit names too
+                pn = _propNameFromSimple(implName);
+                nameExplicit = false;
             }
             visible = true;
         }
         boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
-        _property(implName).addGetter(m, explName, visible, ignore);
+        _property(implName).addGetter(m, pn, nameExplicit, visible, ignore);
     }
-
+    
     protected void _addSetterMethod(AnnotatedMethod m, AnnotationIntrospector ai)
     {
         String implName; // from naming convention
         boolean visible;
         PropertyName pn = (ai == null) ? null : ai.findNameForDeserialization(m);
-        String explName = (pn == null) ? null : pn.getSimpleName();
-        if (explName == null) { // no explicit name; must follow naming convention
-            implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+        boolean nameExplicit = (pn != null);
+        if (!nameExplicit) { // no explicit name; must follow naming convention
+            implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
+            if (implName == null) {
+                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+            }
             if (implName == null) { // if not, must skip
             	return;
             }
             visible = _visibilityChecker.isSetterVisible(m);
         } else { // explicit indication of inclusion, but may be empty
             // we still need implicit name to link with other pieces
-            implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+            implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
+            if (implName == null) {
+                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+            }
             // if not regular getter name, use method name as is
             if (implName == null) {
                 implName = m.getName();
             }
-            if (explName.length() == 0) { 
-                explName = implName;
+            if (pn.isEmpty()) {
+                // !!! TODO: use PropertyName for implicit names too
+                pn = _propNameFromSimple(implName);
+                nameExplicit = false;
             }
             visible = true;
         }
         boolean ignore = (ai == null) ? false : ai.hasIgnoreMarker(m);
-        _property(implName).addSetter(m, explName, visible, ignore);
+        _property(implName).addSetter(m, pn, nameExplicit, visible, ignore);
     }
     
     protected void _addInjectables()
@@ -610,6 +660,10 @@ public class POJOPropertiesCollector
             throw new IllegalArgumentException("Duplicate injectable value with id '"
                     +String.valueOf(id)+"' (of type "+type+")");
         }
+    }
+
+    private PropertyName _propNameFromSimple(String simpleName) {
+        return PropertyName.construct(simpleName, null);
     }
     
     /*
@@ -679,6 +733,26 @@ public class POJOPropertiesCollector
         while (it.hasNext()) {
             Map.Entry<String, POJOPropertyBuilder> entry = it.next();
             POJOPropertyBuilder prop = entry.getValue();
+
+            Collection<PropertyName> l = prop.findExplicitNames();
+            // no explicit names? Implicit one is fine as is
+            if (l.isEmpty()) {
+                continue;
+            }
+            it.remove(); // need to replace with one or more renamed
+            if (renamed == null) {
+                renamed = new LinkedList<POJOPropertyBuilder>();
+            }
+            // simple renaming? Just do it
+            if (l.size() == 1) {
+                PropertyName n = l.iterator().next();
+                renamed.add(prop.withName(n));
+                continue;
+            }
+            // but this may be problematic...
+            renamed.addAll(prop.explode(l));
+
+            /*
             String newName = prop.findNewName();
             if (newName != null) {
                 if (renamed == null) {
@@ -688,6 +762,7 @@ public class POJOPropertiesCollector
                 renamed.add(prop);
                 it.remove();
             }
+            */
         }
         
         // and if any were renamed, merge back in...
@@ -713,24 +788,28 @@ public class POJOPropertiesCollector
         for (POJOPropertyBuilder prop : props) {
             PropertyName fullName = prop.getFullName();
             String rename = null;
-            if (_forSerialization) {
-                if (prop.hasGetter()) {
-                    rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
-                } else if (prop.hasField()) {
-                    rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName());
-                }
-            } else {
-                if (prop.hasSetter()) {
-                    rename = naming.nameForSetterMethod(_config, prop.getSetter(), fullName.getSimpleName());
-                } else if (prop.hasConstructorParameter()) {
-                    rename = naming.nameForConstructorParameter(_config, prop.getConstructorParameter(), fullName.getSimpleName());
-                } else if (prop.hasField()) {
-                    rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName());
-                } else if (prop.hasGetter()) {
-                    /* Plus, when getter-as-setter is used, need to convert that too..
-                     * (should we verify that's enabled? For now, assume it's ok always)
-                     */
-                    rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
+            // As per [#428](https://github.com/FasterXML/jackson-databind/issues/428) need
+            // to skip renaming if property has explicitly defined name
+            if (!prop.isExplicitlyNamed()) {
+                if (_forSerialization) {
+                    if (prop.hasGetter()) {
+                        rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
+                    } else if (prop.hasField()) {
+                        rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName());
+                    }
+                } else {
+                    if (prop.hasSetter()) {
+                        rename = naming.nameForSetterMethod(_config, prop.getSetter(), fullName.getSimpleName());
+                    } else if (prop.hasConstructorParameter()) {
+                        rename = naming.nameForConstructorParameter(_config, prop.getConstructorParameter(), fullName.getSimpleName());
+                    } else if (prop.hasField()) {
+                        rename = naming.nameForField(_config, prop.getField(), fullName.getSimpleName());
+                    } else if (prop.hasGetter()) {
+                        /* Plus, when getter-as-setter is used, need to convert that too..
+                         * (should we verify that's enabled? For now, assume it's ok always)
+                         */
+                        rename = naming.nameForGetterMethod(_config, prop.getGetter(), fullName.getSimpleName());
+                    }
                 }
             }
             final String simpleName;
@@ -808,7 +887,12 @@ public class POJOPropertiesCollector
     protected void reportProblem(String msg) {
         throw new IllegalArgumentException("Problem with definition of "+_classDef+": "+msg);
     }
+
+    protected POJOPropertyBuilder _property(PropertyName name) {
+        return _property(name.getSimpleName());
+    }
     
+    // !!! TODO: deprecate, require use of PropertyName
     protected POJOPropertyBuilder _property(String implName)
     {
         POJOPropertyBuilder prop = _properties.get(implName);

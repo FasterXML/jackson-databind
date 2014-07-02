@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class ManualReadPerfWithMedia extends ObjectReaderBase
+public class ManualReadPerfWithMedia extends ObjectReaderTestBase
 {
- 
+    @Override
+    protected int targetSizeMegs() { return 8; }
+    
     public static void main(String[] args) throws Exception
     {
         if (args.length != 0) {
@@ -33,7 +35,7 @@ public class ManualReadPerfWithMedia extends ObjectReaderBase
         ObjectMapper m1 = new ObjectMapper();
         m1.setAnnotationIntrospector(new NoFormatIntrospector());
         ObjectMapper m2 = new ObjectMapper();
-        new ManualReadPerfWithRecord().test(m1, "JSON-as-Object", input, MediaItem.class,
+        new ManualReadPerfWithRecord().testFromBytes(m1, "JSON-as-Object", input, MediaItem.class,
                 m2, "JSON-as-Array", input, MediaItem.class);
     }
 

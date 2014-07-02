@@ -194,7 +194,8 @@ public class PropertyBuilder
             useStaticTyping = true;
         }
 
-        JavaType secondary = BeanSerializerFactory.modifySecondaryTypesByAnnotation(_config, a, declaredType);
+        // Should not have to do static method but...
+        JavaType secondary = BasicSerializerFactory.modifySecondaryTypesByAnnotation(_config, a, declaredType);
         if (secondary != declaredType) {
             useStaticTyping = true;
             declaredType = secondary;

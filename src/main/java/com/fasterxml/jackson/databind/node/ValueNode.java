@@ -61,63 +61,37 @@ public abstract class ValueNode
      */
 
     @Override
-    public final JsonNode get(int index)
-    {
-        return null;
+    public final JsonNode get(int index) { return null; }
+
+    @Override
+    public final JsonNode path(int index) { return MissingNode.getInstance(); }
+
+    @Override
+    public final boolean has(int index) { return false; }
+
+    @Override
+    public final boolean hasNonNull(int index) { return false; }
+
+    @Override
+    public final JsonNode get(String fieldName) { return null; }
+
+    @Override
+    public final JsonNode path(String fieldName) { return MissingNode.getInstance(); }
+
+    @Override
+    public final boolean has(String fieldName) { return false; }
+
+    @Override
+    public final boolean hasNonNull(String fieldName) { return false; }
+
+    @Override
+    protected JsonNode _add(JsonPointer ptr, JsonNode value) {
+        throw new UnsupportedOperationException("value");
     }
 
     @Override
-    public final JsonNode path(int index)
-    {
-        return MissingNode.getInstance();
-    }
-
-    @Override
-    public final boolean has(int index)
-    {
-        return false;
-    }
-
-    @Override
-    public final boolean hasNonNull(int index)
-    {
-        return false;
-    }
-
-    @Override
-    public final JsonNode get(String fieldName)
-    {
-        return null;
-    }
-
-    @Override
-    public final JsonNode path(String fieldName)
-    {
-        return MissingNode.getInstance();
-    }
-
-    @Override
-    public final boolean has(String fieldName)
-    {
-        return false;
-    }
-
-    @Override
-    public final boolean hasNonNull(String fieldName)
-    {
-        return false;
-    }
-    
-    @Override
-    protected JsonNode _add(JsonPointer ptr, JsonNode value)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected JsonNode _remove(JsonPointer ptr)
-    {
-        throw new UnsupportedOperationException();
+    protected JsonNode _remove(JsonPointer ptr) {
+        throw new UnsupportedOperationException("value");
     }
 
     /*
@@ -127,33 +101,28 @@ public abstract class ValueNode
      */
 
     @Override
-    public final JsonNode findValue(String fieldName)
-    {
+    public final JsonNode findValue(String fieldName) {
         return null;
     }
 
     // note: co-variant return type
     @Override
-    public final ObjectNode findParent(String fieldName)
-    {
+    public final ObjectNode findParent(String fieldName) {
         return null;
     }
 
     @Override
-    public final List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar)
-    {
+    public final List<JsonNode> findValues(String fieldName, List<JsonNode> foundSoFar) {
         return foundSoFar;
     }
 
     @Override
-    public final List<String> findValuesAsText(String fieldName, List<String> foundSoFar)
-    {
+    public final List<String> findValuesAsText(String fieldName, List<String> foundSoFar) {
         return foundSoFar;
     }
 
     @Override
-    public final List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar)
-    {
+    public final List<JsonNode> findParents(String fieldName, List<JsonNode> foundSoFar) {
         return foundSoFar;
     }
 }

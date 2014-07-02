@@ -1,14 +1,113 @@
 Project: jackson-databind
-Version: 2.4.0 (xx-xxx-2014)
+Version: 2.4.1.1 (18-Jun-2014)
 
-#88: Prevent use of type information for `JsonNode` via default typing
- (reported by electricmonk@github)
-#381: Allow inlining/unwrapping of value from single-component JSON array
- (contributed by yinzara@github)
+Special one-off "micro patc" for:
+
+#491: Temporary work-around for issue #490 (full fix for 2.5 needs to be
+  in `jackson-annotations`)
 
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
+
+2.4.1 (17-Jun-2014)
+
+#479: NPE on trying to deserialize a `String[]` that contains null
+ (reported by huxi@github)
+#482: Make date parsing error behavior consistent with JDK
+ (suggested by Steve S, sanbeg@github)
+#489 (partial): TypeFactory cache prevents garbage collection of custom ClassLoader
+ (reported by sftwrengnr@github)
+
+2.4.0 (02-Jun-2014)
+
+#81: Allow use of @JsonUnwrapped with typed (@JsonTypeInfo) classes, provided
+  that (new) feature `SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS`
+  is disabled
+ (constributed by Ben F, UnquietCode@github)
+#88: Prevent use of type information for `JsonNode` via default typing
+ (reported by electricmonk@github)
+#149: Allow use of "stringified" indexes for Enum values
+ (requested by chenboxiang@github)
+#176: Allow use external Object Id resolver (to use with @JsonIdentityInfo etc)
+ (implemented by Pascal G)
+#193: Conflicting property name definitions
+ (reported by Stuart J, sgjohnston@github)
+#323: Serialization of the field with deserialization config
+ (reported by metanet@github)
+#327: Should not consider explicitly differing renames a fail, as long as all are explicit
+#335: Allow use of `@JsonPropertyOrder(alphabetic=true)` for Map properties
+#352 Add `ObjectMapper.setConfig()` for overriding `SerializationConfig`/`DeserializationConfig`
+#353: Problems with polymorphic types, `JsonNode` (related to #88)
+ (reported by cemo@github)
+#359: Converted object not using explicitly annotated serializer
+ (reported by Florian S [fschopp@github])
+#369: Incorrect comparison for renaming in `POJOPropertyBuilder`
+#375: Add `readValue()`/`readPropertyValue()` methods in `DeserializationContext`
+#376: Add support for `@JsonFormat(shape=STRING)` for number serializers
+#381: Allow inlining/unwrapping of value from single-component JSON array
+ (contributed by yinzara@github)
+#390: Change order in which managed/back references are resolved (now back-ref
+ first, then forward)
+ (requested by zAlbee@github)
+#407: Properly use null handlers for value types when serializer Collection
+ and array types
+ (contributed by Will P)
+#425: Add support for using `Void.class` as "no class", instead of `NoClass.class`
+#428: `PropertyNamingStrategy` will rename even explicit name from `@JsonProperty`
+ (reported by turskip@github)
+#435: Performance bottleneck in TypeFactory._fromClass
+ (reported by Sean D, sdonovanuk@github)
+#434: Ensure that DecimalNodes with mathematically equal values are equal
+ (contributed by Francis G)
+#435: Performance bottleneck in TypeFactory._fromClass
+ (reported by sdonovanuk@github)
+#438: Add support for accessing `@JsonProperty(index=N)` annotations
+#442: Make `@JsonUnwrapped` indicate property inclusion
+ (suggested by Ben F)
+#447: ArrayNode#addAll should accept Collection<? extends JsonNode>
+ (suggested by alias@github)
+#461: Add new standard naming strategy, `PropertyNamingStrategy.LowerCaseStrategy`
+#463: Add 'JsonNode.asText(String defaultValue)`
+ (suggested by Chris C)
+#464: Include `JsonLocation` in more mapping exceptions
+ (contributed by Andy C (q3aiml@github))
+#465: Make it easier to support serialization of custom subtypes of `Number`
+#467: Unwanted POJO's embedded in tree via serialization to tree
+ (reported by Benson M)
+- Slightly improve `SqlDateSerializer` to support `@JsonFormat`
+- Improve handling of native type ids (YAML, CBOR) to use non-native type ids
+  as fallback
+
+2.3.3 (10-Apr-2014)
+
+#420: Remove 'final' modifier from `BeanDeserializerBase.deserializeWithType`
+ (requested by Ghoughpteighbteau@github)
+#422: Allow use of "True" and "False" as aliases for booleans when coercing from
+  JSON String
+#423: Fix `CalendarSerializer` to work with custom format
+ (reported by sergeymetallic@github)
+#433: `ObjectMapper`'s `.valueToTree()` wraps `JsonSerializable` objects into a POJONode
+ (reported by Francis G)
+- Fix null-handling for `CollectionSerializer`
+
+2.3.2 (01-Mar-2014)
+
+#378: Fix a problem with custom enum deserializer construction
+ (reported by BokoEnos@github)
+#379: Fix a problem with (re)naming of Creator properties; needed to make
+ Paranamer module work with NamingStrategy.
+ (reported by Chris P, cpilsworth@github)
+#398: Should deserialize empty (not null) URI from empty String
+ (reported by pgieser@github)
+#406: @JsonTypeIdResolver not working with external type ids
+ (reported by Martin T)
+#411: NumberDeserializers throws exception with NaN and +/- Infinity
+ (reported by clarkbreyman@github)
+#412: ObjectMapper.writerWithType() does not change root name being used
+ (repoted by jhalterman@github)
+- Added `BeanSerializerBase._serializeObjectId()` needed by modules that
+  override standard BeanSerializer; specifically, XML module.
 
 2.3.1 (28-Dec-2013)
 
@@ -17,7 +116,7 @@ Version: 2.4.0 (xx-xxx-2014)
  (reported by gaff78@github)
 #358: `IterableSerializer` ignoring annotated content serializer
  (reported by Florian S)
-#362: Reduce sync overhead for SerializerCache by using volatile, double-locking
+#361: Reduce sync overhead for SerializerCache by using volatile, double-locking
  (contributed by stuartwdouglas@github)
 #362: UUID output as Base64 String with ObjectMapper.convertValue()
  (reported by jknack@github)
@@ -94,10 +193,6 @@ Version: 2.4.0 (xx-xxx-2014)
 - Add 'BeanPropertyWriter.isUnwrapping()' for future needs (by Afterburner)
 - Add coercions from String "null" (as if null token was parsed) for primitives/Wrappers.
 - Add `JsonDeserializer.handledType()`
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.2.2 (26-May-2013)
 

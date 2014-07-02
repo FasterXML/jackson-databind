@@ -184,6 +184,7 @@ public class TestPOJOPropertiesCollector
     static class PropDescBean
     {
         public final static String A_DESC = "That's A!";
+        public final static int B_INDEX = 3;
 
         @JsonPropertyDescription(A_DESC)
         public String a;
@@ -194,7 +195,7 @@ public class TestPOJOPropertiesCollector
 
         public void setA(String a) { this.a = a; }
 
-        @JsonProperty(required=true)
+        @JsonProperty(required=true, index=B_INDEX)
         public int getB() { return b; }
     }
     
@@ -413,18 +414,28 @@ public class TestPOJOPropertiesCollector
         assertNotNull(setter);
     }
 
-    // [Issue#269]: Support new @JsonPropertyDescription
+    // [#269]: Support new @JsonPropertyDescription
     public void testPropertyDesc() throws Exception
     {
         // start via deser
         BeanDescription beanDesc = mapper.getDeserializationConfig().introspect(mapper.constructType(PropDescBean.class));
-        _verifyPropertyDesc(beanDesc);
+        _verifyProperty(beanDesc, true, false);
         // and then via ser:
         beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(PropDescBean.class));
-        _verifyPropertyDesc(beanDesc);
+        _verifyProperty(beanDesc, true, false);
     }
 
-    private void _verifyPropertyDesc(BeanDescription beanDesc)
+    // [#438]: Support @JsonProperty.index
+    public void testPropertyIndex() throws Exception
+    {
+        BeanDescription beanDesc = mapper.getDeserializationConfig().introspect(mapper.constructType(PropDescBean.class));
+        _verifyProperty(beanDesc, false, true);
+        beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(PropDescBean.class));
+        _verifyProperty(beanDesc, false, true);
+    }
+
+    private void _verifyProperty(BeanDescription beanDesc,
+    		boolean verifyDesc, boolean verifyIndex)
     {
         assertNotNull(beanDesc);
         List<BeanPropertyDefinition> props = beanDesc.findProperties();
@@ -435,17 +446,27 @@ public class TestPOJOPropertiesCollector
             if ("a".equals(name)) {
                 assertFalse(md.isRequired());
                 assertNull(md.getRequired());
-                assertEquals(PropDescBean.A_DESC, md.getDescription());
+                if (verifyDesc) {
+                	assertEquals(PropDescBean.A_DESC, md.getDescription());
+                }
+                if (verifyIndex) {
+                	assertNull(md.getIndex());
+                }
             } else if ("b".equals(name)) {
                 assertTrue(md.isRequired());
                 assertEquals(Boolean.TRUE, md.getRequired());
-                assertNull(md.getDescription());
+                if (verifyDesc) {
+                	assertNull(md.getDescription());
+                }
+                if (verifyIndex) {
+                	assertEquals(Integer.valueOf(PropDescBean.B_INDEX), md.getIndex());
+                }
             } else {
                 fail("Unrecognized property '"+name+"'");
             }
         }
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods

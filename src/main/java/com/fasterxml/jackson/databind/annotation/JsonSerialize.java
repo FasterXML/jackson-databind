@@ -80,7 +80,7 @@ public @interface JsonSerialize
      * Supertype (of declared type, which itself is supertype of runtime type)
      * to use as type when locating serializer to use.
      *<p>
-     * Bogus type {@link NoClass} can be used to indicate that declared
+     * Bogus type {@link Void} can be used to indicate that declared
      * type is used as is (i.e. this annotation property has no setting);
      * this since annotation properties are not allowed to have null value.
      *<p>
@@ -90,7 +90,7 @@ public @interface JsonSerialize
      * serializer)
      * and value of this annotation property is ignored.
      */
-    public Class<?> as() default NoClass.class;
+    public Class<?> as() default Void.class;
 
     /**
      * Concrete type to serialize keys of {@link java.util.Map} as,
@@ -98,7 +98,7 @@ public @interface JsonSerialize
      * Must be a supertype of declared type; otherwise an exception may be
      * thrown by serializer.
      */
-    public Class<?> keyAs() default NoClass.class;
+    public Class<?> keyAs() default Void.class;
 
     /**
      * Concrete type to serialize content value (elements
@@ -107,7 +107,7 @@ public @interface JsonSerialize
      * Must be a supertype of declared type; otherwise an exception may be
      * thrown by serializer.
      */
-    public Class<?> contentAs() default NoClass.class;
+    public Class<?> contentAs() default Void.class;
     
     /**
      * Whether type detection used is dynamic or static: that is,

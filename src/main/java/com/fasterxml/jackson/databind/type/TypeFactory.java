@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.LRUMap;
 
-
 /**
  * Class used for creating concrete {@link JavaType} instances,
  * given various inputs.
@@ -116,6 +115,9 @@ public final class TypeFactory
 
     public TypeFactory withModifier(TypeModifier mod) 
     {
+        if (mod == null) { // mostly for unit tests
+            return new TypeFactory(_parser, _modifiers);
+        }
         if (_modifiers == null) {
             return new TypeFactory(_parser, new TypeModifier[] { mod });
         }
@@ -129,6 +131,20 @@ public final class TypeFactory
      */
     public static TypeFactory defaultInstance() { return instance; }
 
+    /**
+     * Method that will clear up any cached type definitions that may
+     * be cached by this {@link TypeFactory} instance.
+     * This method should not be commonly used, that is, only use it
+     * if you know there is a problem with retention of type definitions;
+     * the most likely (and currently only known) problem is retention
+     * of {@link Class} instances via {@link JavaType} reference.
+     * 
+     * @since 2.4.1
+     */
+    public void clearCache() {
+        _typeCache.clear();
+    }
+    
     /*
     /**********************************************************
     /* Static methods for non-instance-specific functionality
@@ -688,11 +704,7 @@ public final class TypeFactory
         
         // Barring that, we may have recently constructed an instance:
         ClassKey key = new ClassKey(clz);
-        JavaType result;
-        
-        synchronized (_typeCache) {
-            result = _typeCache.get(key);
-        }
+        JavaType result = _typeCache.get(key); // ok, cache object is synced
         if (result != null) {
             return result;
         }
@@ -707,15 +719,15 @@ public final class TypeFactory
         // First: do we have an array type?
         if (clz.isArray()) {
             result = ArrayType.construct(_constructType(clz.getComponentType(), null), null, null);
-        /* Also: although enums can also be fully resolved, there's little
-         * point in doing so (T extends Enum<T>) etc.
-         */
+            /* Also: although enums can also be fully resolved, there's little
+             * point in doing so (T extends Enum<T>) etc.
+             */
         } else if (clz.isEnum()) {
             result = new SimpleType(clz);
-        /* Maps and Collections aren't quite as hot; problem is, due
-         * to type erasure we often do not know typing and can only assume
-         * base Object.
-         */
+            /* Maps and Collections aren't quite as hot; problem is, due
+             * to type erasure we often do not know typing and can only assume
+             * base Object.
+             */
         } else if (Map.class.isAssignableFrom(clz)) {
             result = _mapType(clz);
         } else if (Collection.class.isAssignableFrom(clz)) {
@@ -723,11 +735,7 @@ public final class TypeFactory
         } else {
             result = new SimpleType(clz);
         }
-        
-        synchronized (_typeCache) {
-            _typeCache.put(key, result);
-        }
-        
+        _typeCache.put(key, result); // cache object syncs
         return result;
     }
     

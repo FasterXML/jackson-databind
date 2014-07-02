@@ -3,8 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-
-import com.fasterxml.jackson.databind.annotation.NoClass;
+import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -159,7 +158,20 @@ public abstract class DatabindContext
         }
         return gen.forScope(objectIdInfo.getScope());
     }
-    
+
+    public ObjectIdResolver objectIdResolverInstance(Annotated annotated, ObjectIdInfo objectIdInfo)
+    {
+        Class<? extends ObjectIdResolver> implClass = objectIdInfo.getResolverType();
+        final MapperConfig<?> config = getConfig();
+        HandlerInstantiator hi = config.getHandlerInstantiator();
+        ObjectIdResolver resolver = (hi == null) ? null : hi.resolverIdGeneratorInstance(config, annotated, implClass);
+        if (resolver == null) {
+            resolver = ClassUtil.createInstance(implClass, config.canOverrideAccessModifiers());
+        }
+
+        return resolver;
+    }
+
     /**
      * Helper method to use to construct a {@link Converter}, given a definition
      * that may be either actual converter instance, or Class for instantiating one.
@@ -183,7 +195,7 @@ public abstract class DatabindContext
         }
         Class<?> converterClass = (Class<?>)converterDef;
         // there are some known "no class" markers to consider too:
-        if (converterClass == Converter.None.class || converterClass == NoClass.class) {
+        if (converterClass == Converter.None.class || ClassUtil.isBogusClass(converterClass)) {
             return null;
         }
         if (!Converter.class.isAssignableFrom(converterClass)) {

@@ -10,10 +10,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.deser.std.NullifyingDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
+import com.fasterxml.jackson.databind.util.ClassUtil;
 
 /**
  * Base class for all standard Jackson {@link TypeDeserializer}s.
@@ -141,9 +141,8 @@ public abstract class TypeDeserializerBase
     /**********************************************************
      */
 
-    protected final JsonDeserializer<Object> _findDeserializer(DeserializationContext ctxt,
-            String typeId)
-        throws IOException, JsonProcessingException
+    protected final JsonDeserializer<Object> _findDeserializer(DeserializationContext ctxt, String typeId)
+        throws IOException
     {
         JsonDeserializer<Object> deser;
 
@@ -187,11 +186,10 @@ public abstract class TypeDeserializerBase
         return deser;
     }
 
-    protected final JsonDeserializer<Object> _findDefaultImplDeserializer(DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    protected final JsonDeserializer<Object> _findDefaultImplDeserializer(DeserializationContext ctxt) throws IOException
     {
         /* 06-Feb-2013, tatu: As per [Issue#148], consider default implementation value of
-         *   {@link NoClass} to mean "serialize as null"; as well as DeserializationFeature
+         *   {@link java.lang.Void} to mean "serialize as null"; as well as DeserializationFeature
          *   to do swift mapping to null
          */
         if (_defaultImpl == null) {
@@ -200,7 +198,8 @@ public abstract class TypeDeserializerBase
             }
             return null;
         }
-        if (_defaultImpl.getRawClass() == NoClass.class) {
+        Class<?> raw = _defaultImpl.getRawClass();
+        if (ClassUtil.isBogusClass(raw)) {
             return NullifyingDeserializer.instance;
         }
         
@@ -220,24 +219,33 @@ public abstract class TypeDeserializerBase
      * 
      * @since 2.3
      */
-    protected Object _deserializeWithNativeTypeId(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    @Deprecated
+    protected Object _deserializeWithNativeTypeId(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        return _deserializeWithNativeTypeId(jp, ctxt, jp.getTypeId());
+    }
+
+    /**
+     * Helper method called when {@link JsonParser} indicates that it can use
+     * so-called native type ids, and such type id has been found.
+     * 
+     * @since 2.4
+     */
+    protected Object _deserializeWithNativeTypeId(JsonParser jp, DeserializationContext ctxt, Object typeId)
+        throws IOException
     {
-        final Object typeId0 = jp.getTypeId();
         JsonDeserializer<Object> deser;
-        if (typeId0 == null) {
-            if (_defaultImpl != null) {
-                deser = _findDefaultImplDeserializer(ctxt);
-            } else {
+        if (typeId == null) {
+            /* 04-May-2014, tatu: Should error be obligatory, or should there be another method
+             *   for "try to deserialize with native tpye id"?
+             */
+            if (_defaultImpl == null) {
                 throw ctxt.mappingException("No (native) type id found when one was expected for polymorphic type handling");
             }
+            deser = _findDefaultImplDeserializer(ctxt);
         } else {
-            String typeId = (typeId0 instanceof String) ? (String) typeId0 : String.valueOf(typeId0);
-            deser = _findDeserializer(ctxt, typeId);
+            String typeIdStr = (typeId instanceof String) ? (String) typeId : String.valueOf(typeId);
+            deser = _findDeserializer(ctxt, typeIdStr);
         }
-        /* 02-Aug-2013, tatu: What if type id is marked as "visible"? Should we try to
-         *  inject it in, as with non-native type ids? For now, let's not.
-         */
         return deser.deserialize(jp, ctxt);
     }
 }

@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.cfg;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -123,6 +124,11 @@ public abstract class HandlerInstantiator
         return null;
     }
 
+    public ObjectIdResolver resolverIdGeneratorInstance(MapperConfig<?> config, Annotated annotated, Class<?> implClass)
+    {
+        return null;
+    }
+
     /**
      * Method called to construct a NamingStrategy instance used for specified
      * class.
@@ -143,4 +149,5 @@ public abstract class HandlerInstantiator
             Annotated annotated, Class<?> implClass) {
         return null;
     }
+
 }

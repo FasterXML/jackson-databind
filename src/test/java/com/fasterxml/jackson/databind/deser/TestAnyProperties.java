@@ -179,7 +179,6 @@ public class TestAnyProperties
         }
     }
 
-    // [JACKSON-313]
     public void testIgnored() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -187,7 +186,7 @@ public class TestAnyProperties
         _testIgnorals(mapper);
     }
 
-    public void testIgnored383() throws Exception
+    public void testIgnoredPart2() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);

@@ -84,7 +84,10 @@ public class AsArrayTypeDeserializer
     {
         // 02-Aug-2013, tatu: May need to use native type ids
         if (jp.canReadTypeId()) {
-            return _deserializeWithNativeTypeId(jp, ctxt);
+            Object typeId = jp.getTypeId();
+            if (typeId != null) {
+                return _deserializeWithNativeTypeId(jp, ctxt, typeId);
+            }
         }
         boolean hadStartArray = jp.isExpectedStartArrayToken();
         String typeId = _locateTypeId(jp, ctxt);

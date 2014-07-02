@@ -1,14 +1,17 @@
 package com.fasterxml.jackson.databind.deser;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
+import com.fasterxml.jackson.annotation.SimpleObjectIdResolver;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
@@ -31,6 +34,8 @@ public abstract class DefaultDeserializationContext
     private static final long serialVersionUID = 1L;
 
     protected transient LinkedHashMap<ObjectIdGenerator.IdKey, ReadableObjectId> _objectIds;
+
+    private List<ObjectIdResolver> _objectIdResolvers;
 
     /**
      * Constructor that will pass specified deserializer factory and
@@ -58,44 +63,76 @@ public abstract class DefaultDeserializationContext
      */
 
     @Override
-    public ReadableObjectId findObjectId(Object id,
-            ObjectIdGenerator<?> generator)
+    public ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> gen, ObjectIdResolver resolverType)
     {
-        final ObjectIdGenerator.IdKey key = generator.key(id);
+        final ObjectIdGenerator.IdKey key = gen.key(id);
         if (_objectIds == null) {
-            _objectIds = new LinkedHashMap<ObjectIdGenerator.IdKey, ReadableObjectId>();
+            _objectIds = new LinkedHashMap<ObjectIdGenerator.IdKey,ReadableObjectId>();
         } else {
             ReadableObjectId entry = _objectIds.get(key);
             if (entry != null) {
                 return entry;
             }
         }
-        ReadableObjectId entry = new ReadableObjectId(id);
+
+        // Not seen yet, must create entry and configure resolver.
+        ObjectIdResolver resolver = null;
+
+        if (_objectIdResolvers == null) {
+            _objectIdResolvers = new ArrayList<ObjectIdResolver>(8);
+        } else {
+            for (ObjectIdResolver res : _objectIdResolvers) {
+                if (res.canUseFor(resolverType)) {
+                    resolver = res;
+                    break;
+                }
+            }
+        }
+
+        if (resolver == null) {
+            resolver = resolverType.newForDeserialization(this);
+            /* !!! 18-Jun-2014, pgelinas: Temporary fix for [#490] until real
+             *    fix (for jackson-annotations, SimpleObjectIdResolver) can be added.
+             */
+            if (resolverType instanceof SimpleObjectIdResolver) {
+               resolver = new SimpleObjectIdResolver();
+            }
+            _objectIdResolvers.add(resolver);
+        }
+
+        ReadableObjectId entry = new ReadableObjectId(key);
+        entry.setResolver(resolver);
         _objectIds.put(key, entry);
         return entry;
     }
     
+    @Deprecated // since 2.4
+    @Override
+    public ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> gen) {
+        return findObjectId(id, gen, new SimpleObjectIdResolver());
+    }
+
     @Override
     public void checkUnresolvedObjectId() throws UnresolvedForwardReference
     {
-        if(_objectIds == null){
+        if (_objectIds == null) {
             return;
         }
 
         UnresolvedForwardReference exception = null;
         for (Entry<IdKey,ReadableObjectId> entry : _objectIds.entrySet()) {
             ReadableObjectId roid = entry.getValue();
-            if(roid.hasReferringProperties()){
-                if(exception == null){
+            if (roid.hasReferringProperties()) {
+                if (exception == null) {
                     exception = new UnresolvedForwardReference("Unresolved forward references for: ");
                 }
                 for (Iterator<Referring> iterator = roid.referringProperties(); iterator.hasNext();) {
                     Referring referring = iterator.next();
-                    exception.addUnresolvedId(roid.id, referring.getBeanType(), referring.getLocation());
+                    exception.addUnresolvedId(roid.getKey().key, referring.getBeanType(), referring.getLocation());
                 }
             }
         }
-        if(exception != null){
+        if (exception != null) {
             throw exception;
         }
     }
@@ -108,8 +145,7 @@ public abstract class DefaultDeserializationContext
     
     @SuppressWarnings("unchecked")
     @Override
-    public JsonDeserializer<Object> deserializerInstance(Annotated annotated,
-            Object deserDef)
+    public JsonDeserializer<Object> deserializerInstance(Annotated ann, Object deserDef)
         throws JsonMappingException
     {
         if (deserDef == null) {
@@ -128,14 +164,14 @@ public abstract class DefaultDeserializationContext
             }
             Class<?> deserClass = (Class<?>)deserDef;
             // there are some known "no class" markers to consider too:
-            if (deserClass == JsonDeserializer.None.class || deserClass == NoClass.class) {
+            if (deserClass == JsonDeserializer.None.class || ClassUtil.isBogusClass(deserClass)) {
                 return null;
             }
             if (!JsonDeserializer.class.isAssignableFrom(deserClass)) {
                 throw new IllegalStateException("AnnotationIntrospector returned Class "+deserClass.getName()+"; expected Class<JsonDeserializer>");
             }
             HandlerInstantiator hi = _config.getHandlerInstantiator();
-            deser = (hi == null) ? null : hi.deserializerInstance(_config, annotated, deserClass);
+            deser = (hi == null) ? null : hi.deserializerInstance(_config, ann, deserClass);
             if (deser == null) {
                 deser = (JsonDeserializer<?>) ClassUtil.createInstance(deserClass,
                         _config.canOverrideAccessModifiers());
@@ -149,8 +185,7 @@ public abstract class DefaultDeserializationContext
     }
 
     @Override
-    public final KeyDeserializer keyDeserializerInstance(Annotated annotated,
-            Object deserDef)
+    public final KeyDeserializer keyDeserializerInstance(Annotated ann, Object deserDef)
         throws JsonMappingException
     {
         if (deserDef == null) {
@@ -169,7 +204,7 @@ public abstract class DefaultDeserializationContext
             }
             Class<?> deserClass = (Class<?>)deserDef;
             // there are some known "no class" markers to consider too:
-            if (deserClass == KeyDeserializer.None.class || deserClass == NoClass.class) {
+            if (deserClass == KeyDeserializer.None.class || ClassUtil.isBogusClass(deserClass)) {
                 return null;
             }
             if (!KeyDeserializer.class.isAssignableFrom(deserClass)) {
@@ -177,7 +212,7 @@ public abstract class DefaultDeserializationContext
                         +"; expected Class<KeyDeserializer>");
             }
             HandlerInstantiator hi = _config.getHandlerInstantiator();
-            deser = (hi == null) ? null : hi.keyDeserializerInstance(_config, annotated, deserClass);
+            deser = (hi == null) ? null : hi.keyDeserializerInstance(_config, ann, deserClass);
             if (deser == null) {
                 deser = (KeyDeserializer) ClassUtil.createInstance(deserClass,
                         _config.canOverrideAccessModifiers());

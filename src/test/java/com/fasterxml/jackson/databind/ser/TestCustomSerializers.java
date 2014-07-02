@@ -8,6 +8,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Element;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.databind.*;
@@ -18,13 +19,9 @@ import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
 /**
- * Test for verifying [JACKSON-238]
- *
- * @author Pablo Lalloni <plalloni@gmail.com>
- * @author tatu
+ * Tests for verifying various issues with custom serializers.
  */
-public class TestCustomSerializers
-    extends com.fasterxml.jackson.databind.BaseMapTest
+public class TestCustomSerializers extends BaseMapTest
 {
     /*
     /**********************************************************
@@ -72,13 +69,44 @@ public class TestCustomSerializers
             return null;
         }
     }
-    
+
+    @JsonFormat(shape=JsonFormat.Shape.OBJECT)
+    static class LikeNumber extends Number {
+        private static final long serialVersionUID = 1L;
+
+        public int x;
+
+        public LikeNumber(int value) { x = value; }
+        
+        @Override
+        public double doubleValue() {
+            return x;
+        }
+
+        @Override
+        public float floatValue() {
+            return x;
+        }
+
+        @Override
+        public int intValue() {
+            return x;
+        }
+
+        @Override
+        public long longValue() {
+            return x;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
     */
-    
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
+
     public void testCustomization() throws Exception
     {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -138,5 +166,11 @@ public class TestCustomSerializers
         ObjectMapper mapper = new ObjectMapper();
         assertEquals(quote("foo\\u0062\\Ar"),
                 mapper.writer(new CustomEscapes()).writeValueAsString("foobar"));
+    }
+    
+    public void testNumberSubclass() throws Exception
+    {
+        assertEquals(aposToQuotes("{'x':42}"),
+                MAPPER.writeValueAsString(new LikeNumber(42)));
     }
 }

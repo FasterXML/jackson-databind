@@ -24,11 +24,21 @@ public class ObjectNode
     extends ContainerNode<ObjectNode>
 {
     // Note: LinkedHashMap for backwards compatibility
-    private final Map<String, JsonNode> _children
-        = new LinkedHashMap<String, JsonNode>();
+    protected final Map<String, JsonNode> _children;
 
-    public ObjectNode(JsonNodeFactory nc) { super(nc); }
+    public ObjectNode(JsonNodeFactory nc) {
+        super(nc);
+        _children = new LinkedHashMap<String, JsonNode>();
+    }
 
+    /**
+     * @since 2.4
+     */
+    public ObjectNode(JsonNodeFactory nc, Map<String, JsonNode> kids) {
+        super(nc);
+        _children = kids;
+    }
+    
     @Override
     protected JsonNode _at(JsonPointer ptr) {
         return get(ptr.getMatchingProperty());
@@ -57,8 +67,7 @@ public class ObjectNode
      */
 
     @Override
-    public JsonNodeType getNodeType()
-    {
+    public JsonNodeType getNodeType() {
         return JsonNodeType.OBJECT;
     }
 
@@ -70,8 +79,7 @@ public class ObjectNode
     }
 
     @Override
-    public Iterator<JsonNode> elements()
-    {
+    public Iterator<JsonNode> elements() {
         return _children.values().iterator();
     }
 
@@ -79,20 +87,17 @@ public class ObjectNode
     public JsonNode get(int index) { return null; }
 
     @Override
-    public JsonNode get(String fieldName)
-    {
+    public JsonNode get(String fieldName) {
         return _children.get(fieldName);
     }
 
     @Override
-    public Iterator<String> fieldNames()
-    {
+    public Iterator<String> fieldNames() {
         return _children.keySet().iterator();
     }
 
     @Override
-    public JsonNode path(int index)
-    {
+    public JsonNode path(int index) {
         return MissingNode.getInstance();
     }
 
@@ -131,14 +136,12 @@ public class ObjectNode
      * and values) of this JSON Object.
      */
     @Override
-    public Iterator<Map.Entry<String, JsonNode>> fields()
-    {
+    public Iterator<Map.Entry<String, JsonNode>> fields() {
         return _children.entrySet().iterator();
     }
 
     @Override
-    public ObjectNode with(String propertyName)
-    {
+    public ObjectNode with(String propertyName) {
         JsonNode n = _children.get(propertyName);
         if (n != null) {
             if (n instanceof ObjectNode) {
@@ -337,9 +340,9 @@ public class ObjectNode
      *
      * @since 2.1
      */
-    public JsonNode setAll(Map<String,JsonNode> properties)
+    public JsonNode setAll(Map<String,? extends JsonNode> properties)
     {
-        for (Map.Entry<String, JsonNode> en : properties.entrySet()) {
+        for (Map.Entry<String,? extends JsonNode> en : properties.entrySet()) {
             JsonNode n = en.getValue();
             if (n == null) {
                 n = nullNode();
@@ -491,7 +494,7 @@ public class ObjectNode
      * @deprecated Since 2.4 use {@link #setAll(Map)},
      */
     @Deprecated
-    public JsonNode putAll(Map<String,JsonNode> properties) {
+    public JsonNode putAll(Map<String,? extends JsonNode> properties) {
         return setAll(properties);
     }
 

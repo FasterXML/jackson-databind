@@ -404,7 +404,7 @@ public class TestSimpleTypes
 
             // First, as regular double value
             if (NAN_STRING != str) {
-            	result = MAPPER.readValue(new StringReader(str), Double.class);
+                result = MAPPER.readValue(str, Double.class);
             	assertEquals(exp, result);
             }
             // and then as coerced String:
@@ -672,7 +672,7 @@ public class TestSimpleTypes
         assertNull(MAPPER.readValue(buf.asParser(), URL.class));
         buf.close();
 
-        // then, UUID itself come as is:
+        // then, URLitself come as is:
         buf = new TokenBuffer(null, false);
         buf.writeObject(value);
         assertSame(value, MAPPER.readValue(buf.asParser(), URL.class));
@@ -704,6 +704,11 @@ public class TestSimpleTypes
         
         mapper.enable(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
         assertEquals(value, mapper.readValue("[\""+value.toString()+"\"]", URI.class));
+
+        // [#398]
+        value = mapper.readValue(quote(""), URI.class);
+        assertNotNull(value);
+        assertEquals(URI.create(""), value);
     }
 
     /*

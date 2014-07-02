@@ -26,8 +26,11 @@ public class TestJsonNode extends NodeTestBase
         assertEquals(value, n.asLong());
         
         // and then with non-numeric input
-        assertNodeNumbersForNonNumeric(TextNode.valueOf("foobar"));
+        n = TextNode.valueOf("foobar");
+        assertNodeNumbersForNonNumeric(n);
 
+        assertEquals("foobar", n.asText("barf"));
+        assertEquals("", empty.asText("xyz"));
     }
 
     public void testBoolean()

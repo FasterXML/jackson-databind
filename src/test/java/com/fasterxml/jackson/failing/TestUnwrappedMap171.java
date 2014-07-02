@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 // Tests for [#171]
-public class TestUnwrappedWithPrefix extends BaseMapTest
+public class TestUnwrappedMap171 extends BaseMapTest
 {
     static class MapUnwrap {
 

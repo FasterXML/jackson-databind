@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -99,8 +98,9 @@ public abstract class DefaultSerializerProvider
             // [JACKSON-163]
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
+                PropertyName pname = _rootNames.findRootName(value.getClass(), _config);
                 jgen.writeStartObject();
-                jgen.writeFieldName(_rootNames.findRootName(value.getClass(), _config));
+                jgen.writeFieldName(pname.simpleAsEncoded(_config));
             }
         } else if (rootName.length() == 0) {
             wrap = false;
@@ -158,7 +158,8 @@ public abstract class DefaultSerializerProvider
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
                 jgen.writeStartObject();
-                jgen.writeFieldName(_rootNames.findRootName(value.getClass(), _config));
+                PropertyName pname = _rootNames.findRootName(value.getClass(), _config);
+                jgen.writeFieldName(pname.simpleAsEncoded(_config));
             }
         } else if (rootName.length() == 0) {
             wrap = false;
@@ -218,7 +219,10 @@ public abstract class DefaultSerializerProvider
             wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
             if (wrap) {
                 jgen.writeStartObject();
-                jgen.writeFieldName(_rootNames.findRootName(value.getClass(), _config));
+                PropertyName pname = (rootType == null)
+                        ? _rootNames.findRootName(value.getClass(), _config)
+                        : _rootNames.findRootName(rootType, _config);
+                jgen.writeFieldName(pname.simpleAsEncoded(_config));
             }
         } else if (rootName.length() == 0) {
             wrap = false;
@@ -457,7 +461,7 @@ public abstract class DefaultSerializerProvider
             }
             Class<?> serClass = (Class<?>)serDef;
             // there are some known "no class" markers to consider too:
-            if (serClass == JsonSerializer.None.class || serClass == NoClass.class) {
+            if (serClass == JsonSerializer.None.class || ClassUtil.isBogusClass(serClass)) {
                 return null;
             }
             if (!JsonSerializer.class.isAssignableFrom(serClass)) {

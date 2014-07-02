@@ -50,7 +50,9 @@ public class TestNumberNodes extends NodeTestBase
         assertEquals(BigDecimal.ONE, n.decimalValue());
         assertEquals(BigInteger.ONE, n.bigIntegerValue());
         assertEquals("1", n.asText());
-
+        // 2.4
+        assertEquals("1", n.asText("foo"));
+        
         assertNodeNumbers(n, 1, 1.0);
 
         assertTrue(IntNode.valueOf(0).canConvertToInt());
@@ -182,6 +184,33 @@ public class TestNumberNodes extends NodeTestBase
         assertTrue(DecimalNode.valueOf(BigDecimal.ZERO).canConvertToLong());
         assertTrue(DecimalNode.valueOf(BigDecimal.valueOf(Long.MAX_VALUE)).canConvertToLong());
         assertTrue(DecimalNode.valueOf(BigDecimal.valueOf(Long.MIN_VALUE)).canConvertToLong());
+    }
+
+    public void testDecimalNodeEqualsHashCode()
+    {
+        /*
+         * We want DecimalNodes with equivalent _numeric_ values to be equal;
+         * this is not the case for BigDecimal where "1.0" and "1" are not
+         * equal!
+         */
+        BigDecimal b1 = BigDecimal.ONE;
+        BigDecimal b2 = new BigDecimal("1.0");
+        BigDecimal b3 = new BigDecimal("0.01e2");
+        BigDecimal b4 = new BigDecimal("1000e-3");
+
+        DecimalNode node1 = new DecimalNode(b1);
+        DecimalNode node2 = new DecimalNode(b2);
+        DecimalNode node3 = new DecimalNode(b3);
+        DecimalNode node4 = new DecimalNode(b4);
+
+        assertEquals(node1.hashCode(), node2.hashCode());
+        assertEquals(node2.hashCode(), node3.hashCode());
+        assertEquals(node3.hashCode(), node4.hashCode());
+
+        assertEquals(node1, node2);
+        assertEquals(node2, node1);
+        assertEquals(node2, node3);
+        assertEquals(node3, node4);
     }
 
     public void testBigIntegerNode() throws Exception

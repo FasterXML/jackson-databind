@@ -18,6 +18,12 @@ public class TestDateDeserialization
         public Date date;
     }
 
+    static class DateAsStringBeanGermany
+    {
+        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="/yyyy/MM/dd/", locale="fr_FR")
+        public Date date;
+    }
+    
     static class CalendarAsStringBean
     {
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern=";yyyy/MM/dd;")
@@ -312,11 +318,41 @@ public class TestDateDeserialization
 
     public void testCustomDateWithAnnotation() throws Exception
     {
-        DateAsStringBean result = MAPPER.readValue("{\"date\":\"/2005/05/25/\"}", DateAsStringBean.class);
+        final String INPUT = "{\"date\":\"/2005/05/25/\"}";
+        DateAsStringBean result = MAPPER.readValue(INPUT, DateAsStringBean.class);
         assertNotNull(result);
         assertNotNull(result.date);
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         long l = result.date.getTime();
+        if (l == 0L) {
+            fail("Should not get null date");
+        }
+        c.setTimeInMillis(l);
+        assertEquals(2005, c.get(Calendar.YEAR));
+        assertEquals(Calendar.MAY, c.get(Calendar.MONTH));
+        assertEquals(25, c.get(Calendar.DAY_OF_MONTH));
+
+        // 27-Mar-2014, tatu: Let's verify that changing Locale won't break it;
+        //   either via context Locale
+        result = MAPPER.reader(DateAsStringBean.class)
+                .with(Locale.GERMANY)
+                .readValue(INPUT);
+        assertNotNull(result);
+        assertNotNull(result.date);
+        l = result.date.getTime();
+        if (l == 0L) {
+            fail("Should not get null date");
+        }
+        c.setTimeInMillis(l);
+        assertEquals(2005, c.get(Calendar.YEAR));
+        assertEquals(Calendar.MAY, c.get(Calendar.MONTH));
+        assertEquals(25, c.get(Calendar.DAY_OF_MONTH));
+
+        // or, via annotations
+        DateAsStringBeanGermany result2 = MAPPER.reader(DateAsStringBeanGermany.class).readValue(INPUT);
+        assertNotNull(result2);
+        assertNotNull(result2.date);
+        l = result2.date.getTime();
         if (l == 0L) {
             fail("Should not get null date");
         }

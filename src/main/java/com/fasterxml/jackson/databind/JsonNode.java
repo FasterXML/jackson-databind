@@ -416,6 +416,11 @@ public abstract class JsonNode
      * within Java's 32-bit signed integer type, <code>int</code>.
      * Note that floating-point numbers are convertible if the integral
      * part fits without overflow (as per standard Java coercion rules)
+     *<p>
+     * NOTE: this method does not consider possible value type conversion
+     * from JSON String into Number; so even if this method returns false,
+     * it is possible that {@link #asInt} could still succeed
+     * if node is a JSON String representing integral number, or boolean.
      * 
      * @since 2.0
      */
@@ -427,6 +432,11 @@ public abstract class JsonNode
      * within Java's 64-bit signed integer type, <code>long</code>.
      * Note that floating-point numbers are convertible if the integral
      * part fits without overflow (as per standard Java coercion rules)
+     *<p>
+     * NOTE: this method does not consider possible value type conversion
+     * from JSON String into Number; so even if this method returns false,
+     * it is possible that {@link #asLong} could still succeed
+     * if node is a JSON String representing integral number, or boolean.
      * 
      * @since 2.0
      */
@@ -564,6 +574,19 @@ public abstract class JsonNode
     public abstract String asText();
 
     /**
+     * Method similar to {@link #asText()}, except that it will return
+     * <code>defaultValue</code> in cases where null value would be returned;
+     * either for missing nodes (trying to access missing property, or element
+     * at invalid item for array) or explicit nulls.
+     * 
+     * @since 2.4
+     */
+    public String asText(String defaultValue) {
+        String str = asText();
+        return (str == null) ? defaultValue : str;
+    }
+    
+    /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)
      * and 1 (true), and Strings are parsed using default Java language integer
@@ -576,7 +599,7 @@ public abstract class JsonNode
     public int asInt() {
         return asInt(0);
     }
-    
+
     /**
      * Method that will try to convert value of this node to a Java <b>int</b>.
      * Numbers are coerced using default Java rules; booleans convert to 0 (false)

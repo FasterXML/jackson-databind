@@ -232,7 +232,7 @@ public class BeanDeserializer
         throws IOException, JsonProcessingException
     {
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
-        for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
+        for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             String propName = jp.getCurrentName();
             // Skip field name:
             jp.nextToken();
@@ -265,7 +265,23 @@ public class BeanDeserializer
             if (_externalTypeIdHandler != null) {
                 return deserializeWithExternalTypeId(jp, ctxt);
             }
-            return deserializeFromObjectUsingNonDefault(jp, ctxt);
+            Object bean = deserializeFromObjectUsingNonDefault(jp, ctxt);
+            if (_injectables != null) {
+                injectValues(ctxt, bean);
+            }
+            /* 27-May-2014, tatu: I don't think view processing would work
+             *   at this point, so commenting it out; but leaving in place
+             *   just in case I forgot something fundamental...
+             */
+            /*
+            if (_needViewProcesing) {
+                Class<?> view = ctxt.getActiveView();
+                if (view != null) {
+                    return deserializeWithView(jp, ctxt, bean, view);
+                }
+            }
+            */
+            return bean;
         }
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         if (jp.canReadObjectId()) {
@@ -283,7 +299,8 @@ public class BeanDeserializer
                 return deserializeWithView(jp, ctxt, bean, view);
             }
         }
-        for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
+        JsonToken t = jp.getCurrentToken();
+        for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             String propName = jp.getCurrentName();
             // Skip field name:
             jp.nextToken();
@@ -645,7 +662,8 @@ public class BeanDeserializer
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
-        for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
+        JsonToken t = jp.getCurrentToken();
+        for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
             String propName = jp.getCurrentName();
             jp.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);

@@ -1,8 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 
 /**
  * Unit tests verifying handling of potential and actual
@@ -36,21 +35,45 @@ public class TestPropertyConflicts extends BaseMapTest
         
         public int getValue() { return value+1; }
     }
-    
+
+    protected static class InferingIntrospector extends JacksonAnnotationIntrospector
+    {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public String findImplicitPropertyName(AnnotatedMember member) {
+            String name = member.getName();
+            if (name.startsWith("_")) {
+                return name.substring(1);
+            }
+            return null;
+        }
+    }
+
+    static class Infernal {
+        public String _name() { return "foo"; }
+        public String getName() { return "Bob"; }
+
+        public void setStuff(String value) { ; // ok
+        }
+
+        public void _stuff(String value) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
-
-    private final ObjectMapper MAPPER = objectMapper();
     
     // for [JACKSON-694]
     public void testFailWithDupProps() throws Exception
     {
         BeanWithConflict bean = new BeanWithConflict();
         try {
-            String json = MAPPER.writeValueAsString(bean);
+            String json = objectWriter().writeValueAsString(bean);
             fail("Should have failed due to conflicting accessor definitions; got JSON = "+json);
         } catch (JsonProcessingException e) {
             verifyException(e, "Conflicting getter definitions");
@@ -60,12 +83,31 @@ public class TestPropertyConflicts extends BaseMapTest
     // [Issue#238]: ok to have getter, "isGetter"
     public void testRegularAndIsGetter() throws Exception
     {
+        final ObjectWriter writer = objectWriter();
+        
         // first, serialize without probs:
-        assertEquals("{\"value\":4}", MAPPER.writeValueAsString(new Getters1A()));
-        assertEquals("{\"value\":4}", MAPPER.writeValueAsString(new Getters1B()));
+        assertEquals("{\"value\":4}", writer.writeValueAsString(new Getters1A()));
+        assertEquals("{\"value\":4}", writer.writeValueAsString(new Getters1B()));
 
         // and similarly, deserialize
-        assertEquals(1, MAPPER.readValue("{\"value\":1}", Getters1A.class).value);
-        assertEquals(2, MAPPER.readValue("{\"value\":2}", Getters1B.class).value);
+        ObjectMapper mapper = objectMapper();
+        assertEquals(1, mapper.readValue("{\"value\":1}", Getters1A.class).value);
+        assertEquals(2, mapper.readValue("{\"value\":2}", Getters1B.class).value);
+    }
+
+    public void testInferredNameConflictsWithGetters() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new InferingIntrospector());
+        String json = mapper.writeValueAsString(new Infernal());
+        assertEquals(aposToQuotes("{'name':'Bob'}"), json);
+    }
+    
+    public void testInferredNameConflictsWithSetters() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new InferingIntrospector());
+        Infernal inf = mapper.readValue(aposToQuotes("{'stuff':'Bob'}"), Infernal.class);
+        assertNotNull(inf);
     }
 }

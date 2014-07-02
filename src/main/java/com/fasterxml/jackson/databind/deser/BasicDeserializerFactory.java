@@ -6,7 +6,6 @@ import java.util.concurrent.*;
 
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
@@ -284,7 +283,7 @@ public abstract class BasicDeserializerFactory
         if (instantiator.getIncompleteParameter() != null) {
             final AnnotatedParameter nonAnnotatedParam = instantiator.getIncompleteParameter();
             final AnnotatedWithParams ctor = nonAnnotatedParam.getOwner();
-            throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()+" of constructor "+ctor+" has no property name annotation; must have name when multiple-paramater constructor annotated as Creator");
+            throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()+" of constructor "+ctor+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
         }
 
         return instantiator;
@@ -347,7 +346,7 @@ public abstract class BasicDeserializerFactory
                     +"; expected type KeyDeserializer or Class<KeyDeserializer> instead");
         }
         Class<?> instClass = (Class<?>)instDef;
-        if (instClass == NoClass.class) {
+        if (ClassUtil.isBogusClass(instClass)) {
             return null;
         }
         if (!ValueInstantiator.class.isAssignableFrom(instClass)) {
@@ -429,7 +428,7 @@ public abstract class BasicDeserializerFactory
                     name = ctorPropNames[i];
                 }
                 if (name == null) {
-                    name = (param == null) ? null : intr.findNameForDeserialization(param);
+                    name = _findParamName(param, intr);
                 }
                 Object injectId = intr.findInjectableValueId(param);
                 if (name != null && name.hasSimpleName()) {
@@ -477,7 +476,7 @@ public abstract class BasicDeserializerFactory
         // note: if we do have parameter name, it'll be "property constructor":
         AnnotatedParameter param = ctor.getParameter(0);
         if (name == null) {
-            name = (param == null) ? null : intr.findNameForDeserialization(param);
+            name = _findParamName(param, intr);
         }
         Object injectId = intr.findInjectableValueId(param);
     
@@ -515,7 +514,12 @@ public abstract class BasicDeserializerFactory
             }
             return true;
         }
-    
+        if (type == boolean.class || type == Boolean.class) {
+            if (isCreator || isVisible) {
+                creators.addBooleanCreator(ctor);
+            }
+            return true;
+        }
         // Delegating Creator ok iff it has @JsonCreator (etc)
         if (isCreator) {
             creators.addDelegatingCreator(ctor, null);
@@ -543,7 +547,7 @@ public abstract class BasicDeserializerFactory
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
                 AnnotatedParameter param = factory.getParameter(0);
-                PropertyName pn = (param == null) ? null : intr.findNameForDeserialization(param);
+                PropertyName pn = _findParamName(param, intr);
                 String name = (pn == null) ? null : pn.getSimpleName();
                 Object injectId = intr.findInjectableValueId(param);
 
@@ -567,7 +571,7 @@ public abstract class BasicDeserializerFactory
             int injectCount = 0;            
             for (int i = 0; i < argCount; ++i) {
                 AnnotatedParameter param = factory.getParameter(i);
-                PropertyName name = (param == null) ? null : intr.findNameForDeserialization(param);
+                PropertyName name = _findParamName(param, intr);
                 Object injectId = intr.findInjectableValueId(param);
                 if (name != null && name.hasSimpleName()) {
                     ++namedCount;
@@ -598,7 +602,7 @@ public abstract class BasicDeserializerFactory
                     creators.addDelegatingCreator(factory, properties);
                 } else { // otherwise, epic fail
                     throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()
-                            +" of factory method "+factory+" has no property name annotation; must have name when multiple-paramater constructor annotated as Creator");
+                            +" of factory method "+factory+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
                 }
             }
         }
@@ -668,7 +672,8 @@ public abstract class BasicDeserializerFactory
             Boolean b = (intr == null) ? null : intr.hasRequiredMarker(param);
             boolean req = (b != null && b.booleanValue());
             String desc = (intr == null) ? null : intr.findPropertyDescription(param);
-            metadata = PropertyMetadata.construct(req, desc);
+            Integer idx = (intr == null) ? null : intr.findPropertyIndex(param);
+            metadata = PropertyMetadata.construct(req, desc, idx);
         }
             
         JavaType t0 = config.getTypeFactory().constructType(param.getParameterType(), beanDesc.bindingsForBeanType());
@@ -680,7 +685,8 @@ public abstract class BasicDeserializerFactory
             property = property.withType(type);
         }
         // Is there an annotation that specifies exact deserializer?
-        JsonDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt, param);
+        JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, param);
+
         // If yes, we are mostly done:
         type = modifyTypeByAnnotation(ctxt, param, type);
 
@@ -690,14 +696,35 @@ public abstract class BasicDeserializerFactory
         if (typeDeser == null) {
             typeDeser = findTypeDeserializer(config, type);
         }
-
+        // Note: contextualization of typeDeser _should_ occur in constructor of CreatorProperty
+        // so it is not called directly here
         CreatorProperty prop = new CreatorProperty(name, type, property.getWrapperName(),
                 typeDeser, beanDesc.getClassAnnotations(), param, index, injectableValueId,
                 metadata);
         if (deser != null) {
+            // As per [Issue#462] need to ensure we contextualize deserializer before passing it on
+            deser = ctxt.handlePrimaryContextualization(deser, prop);
             prop = prop.withValueDeserializer(deser);
         }
         return prop;
+    }
+
+    protected PropertyName _findParamName(AnnotatedParameter param, AnnotationIntrospector intr)
+    {
+        if (param != null && intr != null) {
+            PropertyName name = intr.findNameForDeserialization(param);
+            if (name != null) {
+                return name;
+            }
+            /* 14-Apr-2014, tatu: Need to also consider possible implicit name
+            *   (for JDK8, or via paranamer)
+            */
+            String str = intr.findImplicitPropertyName(param);
+            if (str != null && !str.isEmpty()) {
+                return new PropertyName(str);
+            }
+        }
+        return null;
     }
     
     /*
@@ -1185,8 +1212,7 @@ public abstract class BasicDeserializerFactory
             JavaType baseType)
         throws JsonMappingException
     {
-        Class<?> cls = baseType.getRawClass();
-        BeanDescription bean = config.introspectClassAnnotations(cls);
+        BeanDescription bean = config.introspectClassAnnotations(baseType.getRawClass());
         AnnotatedClass ac = bean.getClassInfo();
         AnnotationIntrospector ai = config.getAnnotationIntrospector();
         TypeResolverBuilder<?> b = ai.findTypeResolver(config, ac, baseType);

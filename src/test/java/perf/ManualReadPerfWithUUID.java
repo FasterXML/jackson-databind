@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
 
-public class ManualReadPerfWithUUID extends ObjectReaderBase
+public class ManualReadPerfWithUUID extends ObjectReaderTestBase
 {
     static class UUIDNative {
         public UUID[] ids;
@@ -17,6 +17,9 @@ public class ManualReadPerfWithUUID extends ObjectReaderBase
         public UUIDNative(UUID[] ids) { this.ids = ids; }
     }
 
+    @Override
+    protected int targetSizeMegs() { return 8; }
+    
     @SuppressWarnings("serial")
     static class SlowDeser extends FromStringDeserializer<UUID>
     {
@@ -52,7 +55,7 @@ public class ManualReadPerfWithUUID extends ObjectReaderBase
 
         ObjectMapper m = new ObjectMapper();
 
-        new ManualReadPerfWithRecord().test(
+        new ManualReadPerfWithRecord().testFromBytes(
                 m, "JSON-as-Object", input1, UUIDNative.class,
                 m, "JSON-as-Array", input2, UUIDWithJdk.class);
     }

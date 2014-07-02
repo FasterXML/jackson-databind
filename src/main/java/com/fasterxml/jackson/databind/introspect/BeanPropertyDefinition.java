@@ -93,6 +93,21 @@ public abstract class BeanPropertyDefinition
      *   due to naming or visibility definitions (that is, implicit)
      */
     public abstract boolean isExplicitlyIncluded();
+
+    /**
+     * Accessor that can be called to check whether property name was
+     * due to an explicit marker (usually annotation), or just by naming
+     * convention or use of "use-default-name" marker (annotation).
+     *<p>
+     * Note that entries that return true from this method will always
+     * return true for {@link #isExplicitlyIncluded()}, but not necessarily
+     * vice versa.
+     *
+     * @since 2.4
+     */
+    public boolean isExplicitlyNamed() {
+        return isExplicitlyIncluded();
+    }
     
     /*
     /**********************************************************
@@ -102,18 +117,18 @@ public abstract class BeanPropertyDefinition
 
     public boolean couldDeserialize() { return getMutator() != null; }
     public boolean couldSerialize() { return getAccessor() != null; }
-    
+
     /*
     /**********************************************************
     /* Access to accessors (fields, methods etc)
     /**********************************************************
      */
-    
+
     public abstract boolean hasGetter();
     public abstract boolean hasSetter();
     public abstract boolean hasField();
     public abstract boolean hasConstructorParameter();
-    
+
     public abstract AnnotatedMethod getGetter();
     public abstract AnnotatedMethod getSetter();
     public abstract AnnotatedField getField();

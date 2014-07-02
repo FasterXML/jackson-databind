@@ -1,0 +1,20 @@
+language: java
+jdk:
+  - openjdk6
+
+# Below this line is configuration for deploying to the Sonatype OSS repo
+# http://blog.xeiam.com/2013/05/configure-travis-ci-to-deploy-snapshots.html
+before_install: "git clone -b travis `git config --get remote.origin.url` target/travis"
+after_success: "mvn source:jar javadoc:jar deploy --settings target/travis/settings.xml"
+
+# whitelist
+branches:
+  only:
+    - master
+    - "2.3"
+
+env:
+  global:
+    - secure: "ZIFMeNzZCvLYWICiUyHFSm8Ypz6lYFbF/+LGz6a+Sh8B9tSnvYvlrE4gSFJj3NzRWY0RG/vizoyFEpVgxOnzXDMLuuy/dreupnHR1FfVmiaiceK4JHRwAzl0lQzr2hdVwJbqpX0GfrxKmbg8Jvv9WPKtfM6X4167ElVj4O/8IRc="
+    - secure: "VOC/J8eFbM2OeysBp0Gx0G73MySRATCoN7hc9Ok0kJXE/dbE/2KOoFlTwwxUgErwJXkjJKKXafYcbq/22S7wkaoDW5XAvplSu3skxdE0NRGVzozcDMXO5UoGlt9Ti4XIBMCvy7bB/NO+J5IgNedCtcNnBsrGZCdodW3DTYtqQLs="
+

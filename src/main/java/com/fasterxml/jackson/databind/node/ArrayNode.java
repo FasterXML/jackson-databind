@@ -259,7 +259,7 @@ public class ArrayNode
      * 
      * @return This node (to allow chaining)
      */
-    public ArrayNode addAll(Collection<JsonNode> nodes)
+    public ArrayNode addAll(Collection<? extends JsonNode> nodes)
     {
         _children.addAll(nodes);
         return this;

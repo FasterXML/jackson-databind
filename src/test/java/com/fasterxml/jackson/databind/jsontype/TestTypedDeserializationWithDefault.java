@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 
 /**
  * Unit tests related to [JACKSON-712]; specialized handling of
@@ -43,7 +42,7 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
     }
 
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type",
-            defaultImpl = NoClass.class)
+            defaultImpl = Void.class)
     public static class DefaultWithNoClass { }
 
     // and then one with no defaultImpl nor listed subtypes
@@ -55,10 +54,12 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
     /* Unit tests, deserialization
     /**********************************************************
      */
+
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     public void testDeserializationWithObject() throws Exception
     {
-        Inter inter = objectReader(Inter.class).readValue("{\"type\": \"mine\", \"blah\": [\"a\", \"b\", \"c\"]}");
+        Inter inter = MAPPER.reader(Inter.class).readValue("{\"type\": \"mine\", \"blah\": [\"a\", \"b\", \"c\"]}");
         assertTrue(inter instanceof MyInter);
         assertFalse(inter instanceof LegacyInter);
         assertEquals(Arrays.asList("a", "b", "c"), ((MyInter) inter).blah);
@@ -66,21 +67,21 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
 
     public void testDeserializationWithString() throws Exception
     {
-        Inter inter = objectReader(Inter.class).readValue("\"a,b,c,d\"");
+        Inter inter = MAPPER.reader(Inter.class).readValue("\"a,b,c,d\"");
         assertTrue(inter instanceof LegacyInter);
         assertEquals(Arrays.asList("a", "b", "c", "d"), ((MyInter) inter).blah);
     }
 
     public void testDeserializationWithArray() throws Exception
     {
-        Inter inter = objectReader(Inter.class).readValue("[\"a\", \"b\", \"c\", \"d\"]");
+        Inter inter = MAPPER.reader(Inter.class).readValue("[\"a\", \"b\", \"c\", \"d\"]");
         assertTrue(inter instanceof LegacyInter);
         assertEquals(Arrays.asList("a", "b", "c", "d"), ((MyInter) inter).blah);
     }
 
     public void testDeserializationWithArrayOfSize2() throws Exception
     {
-        Inter inter = objectReader(Inter.class).readValue("[\"a\", \"b\"]");
+        Inter inter = MAPPER.reader(Inter.class).readValue("[\"a\", \"b\"]");
         assertTrue(inter instanceof LegacyInter);
         assertEquals(Arrays.asList("a", "b"), ((MyInter) inter).blah);
     }
@@ -88,9 +89,9 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
     // [Issue#148]
     public void testDefaultAsNoClass() throws Exception
     {
-        Object ob = objectReader(DefaultWithNoClass.class).readValue("{ }");
+        Object ob = MAPPER.reader(DefaultWithNoClass.class).readValue("{ }");
         assertNull(ob);
-        ob = objectReader(DefaultWithNoClass.class).readValue("{ \"bogus\":3 }");
+        ob = MAPPER.reader(DefaultWithNoClass.class).readValue("{ \"bogus\":3 }");
         assertNull(ob);
     }
 

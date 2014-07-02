@@ -1,5 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -47,15 +48,26 @@ public class TestCyclicTypes
     static class StringLink extends GenericLink<String> {
     }
 
+    static class Selfie405 {
+        public int id;
+
+        @JsonIgnoreProperties({ "parent" })
+        public Selfie405 parent;
+        
+        public Selfie405(int id) { this.id = id; }
+    }
+    
     /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = objectMapper();
+    
     public void testLinked() throws Exception
     {
-        Bean first = new ObjectMapper().readValue
+        Bean first = MAPPER.readValue
             ("{\"name\":\"first\", \"next\": { "
              +" \"name\":\"last\", \"next\" : null }}",
              Bean.class);
@@ -70,17 +82,39 @@ public class TestCyclicTypes
 
     public void testLinkedGeneric() throws Exception
     {
-        StringLink link = new ObjectMapper().readValue
-            ("{\"next\":null}", StringLink.class);
+        StringLink link = MAPPER.readValue("{\"next\":null}", StringLink.class);
         assertNotNull(link);
         assertNull(link.next);
     }
 
     public void testCycleWith2Classes() throws Exception
     {
-        LinkA a = new ObjectMapper().readValue("{\"next\":{\"a\":null}}", LinkA.class);
+        LinkA a = MAPPER.readValue("{\"next\":{\"a\":null}}", LinkA.class);
         assertNotNull(a.next);
         LinkB b = a.next;
         assertNull(b.a);
     }
+
+    // [Issue#405]: Should be possible to ignore cyclic ref
+    public void testIgnoredCycle() throws Exception
+    {
+        Selfie405 self1 = new Selfie405(1);
+        self1.parent = self1;
+
+        // First: exception with default settings:
+        assertTrue(MAPPER.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES));
+        try {
+            MAPPER.writeValueAsString(self1);
+            fail("Should fail with direct self-ref");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Direct self-reference");
+        }
+        
+        ObjectWriter w = MAPPER.writer()
+                .without(SerializationFeature.FAIL_ON_SELF_REFERENCES);
+        String json = w.writeValueAsString(self1);
+        assertNotNull(json);
+        assertEquals(aposToQuotes("{'id':1,'parent':{'id':1}}"), json);
+    }
+
 }

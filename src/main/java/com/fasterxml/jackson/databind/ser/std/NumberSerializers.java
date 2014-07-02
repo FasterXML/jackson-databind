@@ -2,16 +2,16 @@ package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
 /**
  * Container class for serializers used for handling standard JDK-provided types.
@@ -41,39 +41,70 @@ public class NumberSerializers
 
     /*
     /**********************************************************
+    /* Shared base class
+    /**********************************************************
+     */
+
+    protected abstract static class Base<T> extends StdScalarSerializer<T>
+        implements ContextualSerializer
+    {
+        protected final JsonParser.NumberType _numberType;
+        protected final String _schemaType;
+
+        protected Base(Class<T> cls, JsonParser.NumberType numberType, String schemaType) {
+            super(cls);
+            _numberType = numberType;
+            _schemaType = schemaType;
+        }
+
+        @Override
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
+            return createSchemaNode(_schemaType, true);
+        }
+
+        @Override
+        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
+        {
+            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
+            if (v2 != null) {
+                v2.numberType(_numberType);
+            }
+        }
+
+        @Override
+        public JsonSerializer<?> createContextual(SerializerProvider prov,
+                BeanProperty property) throws JsonMappingException
+        {
+            if (property != null) {
+                JsonFormat.Value format = prov.getAnnotationIntrospector().findFormat(property.getMember());
+                if (format != null) {
+                    switch (format.getShape()) {
+                    case STRING:
+                        return ToStringSerializer.instance;
+                    default:
+                    }
+                }
+            }
+            return this;
+        }
+    }
+    
+    /*
+    /**********************************************************
     /* Concrete serializers, numerics
     /**********************************************************
      */
 
     @JacksonStdImpl
-    public final static class ShortSerializer
-        extends StdScalarSerializer<Short>
+    public final static class ShortSerializer extends Base<Short>
     {
         final static ShortSerializer instance = new ShortSerializer();
     
-        public ShortSerializer() { super(Short.class); }
-        
+        public ShortSerializer() { super(Short.class, JsonParser.NumberType.INT, "number"); }
+
         @Override
-        public void serialize(Short value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
+        public void serialize(Short value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeNumber(value.shortValue());
-        }
-    
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
-            return createSchemaNode("number", true);		// msteiger: maybe "integer" or "short" ?
-        }
-        
-        @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
-        {
-            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
-            if (v2 != null) {
-                v2.numberType(JsonParser.NumberType.INT);			// should be SHORT
-            }
         }
     }
     
@@ -85,30 +116,21 @@ public class NumberSerializers
      * included on serialization (unlike for most scalar types as of 1.5)
      */
     @JacksonStdImpl
-    public final static class IntegerSerializer
-        extends NonTypedScalarSerializerBase<Integer>
+    public final static class IntegerSerializer extends Base<Integer>
     {
-        public IntegerSerializer() { super(Integer.class); }
+        public IntegerSerializer() { super(Integer.class, JsonParser.NumberType.INT ,"integer"); }
     
         @Override
-        public void serialize(Integer value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException
-        {
+        public void serialize(Integer value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeNumber(value.intValue());
         }
-    
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode("integer", true);
-        }
         
+        // IMPORTANT: copied from `NonTypedScalarSerializerBase`
         @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
-        {
-            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
-            if (v2 != null) {
-                v2.numberType(JsonParser.NumberType.INT);
-            }
+        public void serializeWithType(Integer value, JsonGenerator jgen,
+                SerializerProvider provider, TypeSerializer typeSer) throws IOException {
+            // no type info, just regular serialization
+            serialize(value, jgen, provider);            
         }
     }
 
@@ -118,86 +140,43 @@ public class NumberSerializers
      * by calling {@link java.lang.Number#intValue}.
      */
     @JacksonStdImpl
-    public final static class IntLikeSerializer
-        extends StdScalarSerializer<Number>
+    public final static class IntLikeSerializer extends Base<Number>
     {
         final static IntLikeSerializer instance = new IntLikeSerializer();
     
-        public IntLikeSerializer() { super(Number.class); }
+        public IntLikeSerializer() {
+            super(Number.class, JsonParser.NumberType.INT, "integer");
+        }
         
         @Override
-        public void serialize(Number value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+        public void serialize(Number value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeNumber(value.intValue());
-        }
-    
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode("integer", true);
-        }
-        
-        @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
-        {
-            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
-            if (v2 != null) {
-                v2.numberType(JsonParser.NumberType.INT);
-            }
         }
     }
 
     @JacksonStdImpl
-    public final static class LongSerializer
-        extends StdScalarSerializer<Long>
+    public final static class LongSerializer extends Base<Long>
     {
         final static LongSerializer instance = new LongSerializer();
     
-        public LongSerializer() { super(Long.class); }
+        public LongSerializer() { super(Long.class, JsonParser.NumberType.LONG, "number"); }
         
         @Override
-        public void serialize(Long value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException
-        {
+        public void serialize(Long value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeNumber(value.longValue());
-        }
-    
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode("number", true);
-        }
-        
-        @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
-            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
-            if (v2 != null) {
-                v2.numberType(JsonParser.NumberType.LONG);
-            }
         }
     }
     
     @JacksonStdImpl
-    public final static class FloatSerializer
-        extends StdScalarSerializer<Float>
+    public final static class FloatSerializer extends Base<Float>
     {
         final static FloatSerializer instance = new FloatSerializer();
     
-        public FloatSerializer() { super(Float.class); }
+        public FloatSerializer() { super(Float.class, JsonParser.NumberType.FLOAT, "number"); }
         
         @Override
-        public void serialize(Float value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+        public void serialize(Float value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeNumber(value.floatValue());
-        }
-    
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode("number", true);
-        }
-        
-        @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
-        {
-            JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
-            if (v2 != null) {
-                v2.numberType(JsonParser.NumberType.FLOAT);
-            }
         }
     }
 
@@ -209,100 +188,23 @@ public class NumberSerializers
      * included on serialization (unlike for most scalar types as of 1.5)
      */
     @JacksonStdImpl
-    public final static class DoubleSerializer
-        extends NonTypedScalarSerializerBase<Double>
+    public final static class DoubleSerializer extends Base<Double>
     {
         final static DoubleSerializer instance = new DoubleSerializer();
     
-        public DoubleSerializer() { super(Double.class); }
+        public DoubleSerializer() { super(Double.class, JsonParser.NumberType.DOUBLE, "number"); }
     
         @Override
-        public void serialize(Double value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+        public void serialize(Double value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
             jgen.writeNumber(value.doubleValue());
         }
-    
+
+        // IMPORTANT: copied from `NonTypedScalarSerializerBase`
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode("number", true);
-        }
-        
-        @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
-        {
-            JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
-            if (v2 != null) {
-                v2.numberType(JsonParser.NumberType.DOUBLE);
-            }
-        }
-    }
-    
-    /**
-     * As a fallback, we may need to use this serializer for other
-     * types of {@link Number}s (custom types).
-     */
-    @JacksonStdImpl
-    public final static class NumberSerializer
-        extends StdScalarSerializer<Number>
-    {
-        public final static NumberSerializer instance = new NumberSerializer();
-    
-        public NumberSerializer() { super(Number.class); }
-    
-        @Override
-        public void serialize(Number value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
-            // As per [JACKSON-423], handling for BigInteger and BigDecimal was missing!
-            if (value instanceof BigDecimal) {
-                // 07-Jul-2013, tatu: Should be handled by propagating setting to JsonGenerator
-                //    so this should not be needed:
-                /*
-                if (provider.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN)) {
-                    // [Issue#232]: Ok, rather clumsy, but let's try to work around the problem with:
-                    if (!(jgen instanceof TokenBuffer)) {
-                        jgen.writeNumber(((BigDecimal) value).toPlainString());
-                        return;
-                    }
-                }
-                */
-                jgen.writeNumber((BigDecimal) value);
-            } else if (value instanceof BigInteger) {
-                jgen.writeNumber((BigInteger) value);
-                
-            /* These shouldn't match (as there are more specific ones),
-             * but just to be sure:
-             */
-            } else if (value instanceof Integer) {
-                jgen.writeNumber(value.intValue());
-            } else if (value instanceof Long) {
-                jgen.writeNumber(value.longValue());
-            } else if (value instanceof Double) {
-                jgen.writeNumber(value.doubleValue());
-            } else if (value instanceof Float) {
-                jgen.writeNumber(value.floatValue());
-            } else if ((value instanceof Byte) || (value instanceof Short)) {
-                jgen.writeNumber(value.intValue()); // doesn't need to be cast to smaller numbers
-            } else {
-                // We'll have to use fallback "untyped" number write method
-                jgen.writeNumber(value.toString());
-            }
-        }
-    
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode("number", true);
-        }
-        
-        @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
-        {
-            // Hmmh. What should it be? Ideally should probably indicate BIG_DECIMAL
-            // to ensure no information is lost? But probably won't work that well...
-            JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
-            if (v2 != null) {
-                v2.numberType(JsonParser.NumberType.BIG_DECIMAL);
-            }
+        public void serializeWithType(Double value, JsonGenerator jgen,
+                SerializerProvider provider, TypeSerializer typeSer) throws IOException {
+            // no type info, just regular serialization
+            serialize(value, jgen, provider);            
         }
     }
 }

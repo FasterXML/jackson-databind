@@ -11,7 +11,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -79,7 +78,7 @@ public abstract class BasicSerializerFactory
         _concrete.put(Boolean.class.getName(), new BooleanSerializer(false));
 
         // Other numbers, more complicated
-        final JsonSerializer<?> ns = new NumberSerializers.NumberSerializer();
+        final JsonSerializer<?> ns = NumberSerializer.instance;
         _concrete.put(BigInteger.class.getName(), ns);
         _concrete.put(BigDecimal.class.getName(), ns);
 
@@ -385,7 +384,19 @@ public abstract class BasicSerializerFactory
             return ToStringSerializer.instance;
         }
         if (Number.class.isAssignableFrom(raw)) {
-            return NumberSerializers.NumberSerializer.instance;
+            // 21-May-2014, tatu: Couple of alternatives actually
+            JsonFormat.Value format = beanDesc.findExpectedFormat(null);
+            if (format != null) {
+                switch (format.getShape()) {
+                case STRING:
+                    return ToStringSerializer.instance;
+                case OBJECT: // need to bail out to let it be serialized as POJO
+                case ARRAY: // or, I guess ARRAY; otherwise no point in speculating
+                    return null;
+                default:
+                }
+            }
+            return NumberSerializer.instance;
         }
         if (Enum.class.isAssignableFrom(raw)) {
             return buildEnumSerializer(prov.getConfig(), type, beanDesc);
@@ -599,11 +610,9 @@ public abstract class BasicSerializerFactory
             }
         }
 
-        // As per [Issue#24], may want to use alternate shape, serialize as JSON Object.
-        // Challenge here is that EnumSerializer does not know how to produce
-        // POJO style serialization, so we must handle that special case separately;
-        // otherwise pass it to EnumSerializer.
         if (ser == null) {
+            // We may also want to use serialize Collections "as beans", if (and only if)
+            // this is specified with `@JsonFormat(shape=Object)`
             JsonFormat.Value format = beanDesc.findExpectedFormat(null);
             if (format != null && format.getShape() == JsonFormat.Shape.OBJECT) {
                 return null;
@@ -970,7 +979,7 @@ public abstract class BasicSerializerFactory
             throw new IllegalStateException("AnnotationIntrospector."+methodName+"() returned value of type "+src.getClass().getName()+": expected type JsonSerializer or Class<JsonSerializer> instead");
         }
         Class<?> cls = (Class<?>) src;
-        if (cls == noneClass || cls == NoClass.class) {
+        if (cls == noneClass || ClassUtil.isBogusClass(cls)) {
             return null;
         }
         return cls;

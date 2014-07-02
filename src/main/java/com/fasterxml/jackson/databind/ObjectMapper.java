@@ -9,14 +9,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
 import com.fasterxml.jackson.core.type.ResolvedType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
-
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -224,7 +222,7 @@ public class ObjectMapper
             TimeZone.getTimeZone("GMT"),
             Base64Variants.getDefaultVariant() // 2.1
     );
-    
+
     /*
     /**********************************************************
     /* Configuration settings, shared
@@ -1222,7 +1220,25 @@ public class ObjectMapper
         _deserializationConfig = _deserializationConfig.withNoProblemHandlers();
         return this;
     }
-    
+
+    /**
+     * Method that allows overriding of the underlying {@link DeserializationConfig}
+     * object.
+     * It is added as a fallback method that may be used if no other configuration
+     * modifier method works: it should not be used if there are alternatives,
+     * and its use is generally discouraged.
+     *<p>
+     * <b>NOTE</b>: only use this method if you know what you are doing -- it allows
+     * by-passing some of checks applied to other configuration methods.
+     * Also keep in mind that as with all configuration of {@link ObjectMapper},
+     * this is only thread-safe if done before calling any deserialization methods.
+     * 
+     * @since 2.4
+     */
+    public ObjectMapper setConfig(DeserializationConfig config) {
+    	_deserializationConfig = config;
+    	return this;
+    }
     
     /*
     /**********************************************************
@@ -1260,6 +1276,25 @@ public class ObjectMapper
         _deserializationConfig = _deserializationConfig.with(v);
         return this;
     }
+
+    /**
+     * Method that allows overriding of the underlying {@link SerializationConfig}
+     * object, which contains serialization-specific configuration settings.
+     * It is added as a fallback method that may be used if no other configuration
+     * modifier method works: it should not be used if there are alternatives,
+     * and its use is generally discouraged.
+     *<p>
+     * <b>NOTE</b>: only use this method if you know what you are doing -- it allows
+     * by-passing some of checks applied to other configuration methods.
+     * Also keep in mind that as with all configuration of {@link ObjectMapper},
+     * this is only thread-safe if done before calling any serialization methods.
+     * 
+     * @since 2.4
+     */
+    public ObjectMapper setConfig(SerializationConfig config) {
+    	_serializationConfig = config;
+    	return this;
+    }
     
     /*
     /**********************************************************
@@ -1283,7 +1318,7 @@ public class ObjectMapper
      */
     @Deprecated
     @Override
-    public JsonFactory getJsonFactory() { return _jsonFactory; }
+    public JsonFactory getJsonFactory() { return getFactory(); }
 
     /**
      * Method for configuring the default {@link DateFormat} to use when serializing time
@@ -1337,7 +1372,7 @@ public class ObjectMapper
 
     /**
      * Method for overriding default TimeZone to use for formatting.
-     * Default value used is {@link TimeZone#getDefault()}.
+     * Default value used is UTC (NOT local timezone).
      */
     public ObjectMapper setTimeZone(TimeZone tz) {
         _deserializationConfig = _deserializationConfig.with(tz);
@@ -2062,8 +2097,6 @@ public class ObjectMapper
     public <T> T readValue(File src, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
-     // !!! TODO
-//    	_setupClassLoaderForDeserialization(valueType);
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
@@ -2671,8 +2704,8 @@ public class ObjectMapper
     /**
      * Actual conversion implementation: instead of using existing read
      * and write methods, much of code is inlined. Reason for this is
-     * that we must avoid wrapping/unwrapping both for efficiency and
-     * for correctness. If wrapping/unwrapping is actually desired,
+     * that we must avoid root value wrapping/unwrapping both for efficiency and
+     * for correctness. If root value wrapping/unwrapping is actually desired,
      * caller must use explicit <code>writeValue</code> and
      * <code>readValue</code> methods.
      */
@@ -2838,6 +2871,10 @@ public class ObjectMapper
              * will not mask exception that is pending)
              */
             if (!closed) {
+                /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
+                 *    structures, which typically causes more damage.
+                 */
+                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
                     jgen.close();
                 } catch (IOException ioe) { }
@@ -2869,6 +2906,9 @@ public class ObjectMapper
             jgen.close();
         } finally {
             if (!closed) {
+                // 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
+                //    structures, which typically causes more damage.
+                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
                     jgen.close();
                 } catch (IOException ioe) { }
@@ -2897,6 +2937,9 @@ public class ObjectMapper
              * been closed
              */
             if (jgen != null) {
+                // 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
+                //    structures, which typically causes more damage.
+                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
                     jgen.close();
                 } catch (IOException ioe) { }
@@ -3062,8 +3105,8 @@ public class ObjectMapper
     {
         String expName = config.getRootName();
         if (expName == null) {
-            SerializableString sstr = _rootNames.findRootName(rootType, config);
-            expName = sstr.getValue();
+            PropertyName pname = _rootNames.findRootName(rootType, config);
+            expName = pname.getSimpleName();
         }
         if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
             throw JsonMappingException.from(jp, "Current token not START_OBJECT (needed to unwrap root name '"

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 
-
 /**
  * Helper class used to introspect features of POJO value classes
  * used with Jackson. The main use is for finding out

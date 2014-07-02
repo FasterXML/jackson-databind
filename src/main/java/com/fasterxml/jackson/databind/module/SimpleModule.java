@@ -14,15 +14,24 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 
 /**
- * Simple {@link Module} implementation that allows registration
- * of serializers and deserializers, and bean serializer
- * and deserializer modifiers.
+ * Vanilla {@link Module} implementation that allows registration
+ * of serializers and deserializers, bean serializer
+ * and deserializer modifiers, registration of subtypes and mix-ins
+ * as well as some other commonly
+ * needed aspects (addition of custom {@link AbstractTypeResolver}s,
+ * {@link com.fasterxml.jackson.databind.deser.ValueInstantiator}s).
+ *<p>
+ * NOTE: although it is not expected that sub-types should need to
+ * override {@link #setupModule(SetupContext)} method, if they choose
+ * to do so they MUST call <code>super.setupModule(context);</code>
+ * to ensure that registration works as expected.
  */
 public class SimpleModule
     extends Module
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 3132264350026957446L;
+    // at 2.4.0:
+    private static final long serialVersionUID = -8905749147637667249L;
 
     protected final String _name;
     protected final Version _version;
@@ -369,6 +378,13 @@ public class SimpleModule
         return _name;
     }
 
+    /**
+     * Standard implementation handles registration of all configured
+     * customizations: it is important that sub-classes call this 
+     * implementation (usually before additional custom logic)
+     * if they choose to override it; otherwise customizations
+     * will not be registered.
+     */
     @Override
     public void setupModule(SetupContext context)
     {
@@ -410,7 +426,5 @@ public class SimpleModule
     }
 
     @Override
-    public Version version() {
-        return _version;
-    }
+    public Version version() { return _version; }
 }

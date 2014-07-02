@@ -134,16 +134,18 @@ public class ObjectWriter
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._jsonFactory;
-
-        if (rootType != null) {
-            rootType = rootType.withStaticTyping();
-        }
-        _rootType = rootType;
         _prettyPrinter = pp;
         _schema = null;
         _characterEscapes = null;
 
-        _rootSerializer = _prefetchRootSerializer(config, rootType);
+        // 29-Apr-2014, tatu: There is no "untyped serializer", so:
+        if (rootType == null || rootType.hasRawClass(Object.class)) {
+            _rootType = null;
+            _rootSerializer = null;
+        } else {
+            _rootType = rootType.withStaticTyping();
+            _rootSerializer = _prefetchRootSerializer(config, _rootType);
+        }
     }
 
     /**
@@ -265,8 +267,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified feature enabled.
      */
-    public ObjectWriter with(SerializationFeature feature) 
-    {
+    public ObjectWriter with(SerializationFeature feature)  {
         SerializationConfig newConfig = _config.with(feature);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }
@@ -275,9 +276,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified features enabled.
      */
-    public ObjectWriter with(SerializationFeature first,
-            SerializationFeature... other)
-    {
+    public ObjectWriter with(SerializationFeature first, SerializationFeature... other) {
         SerializationConfig newConfig = _config.with(first, other);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }    
@@ -286,8 +285,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified features enabled.
      */
-    public ObjectWriter withFeatures(SerializationFeature... features)
-    {
+    public ObjectWriter withFeatures(SerializationFeature... features) {
         SerializationConfig newConfig = _config.withFeatures(features);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }    
@@ -296,8 +294,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified feature enabled.
      */
-    public ObjectWriter without(SerializationFeature feature) 
-    {
+    public ObjectWriter without(SerializationFeature feature) {
         SerializationConfig newConfig = _config.without(feature);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }    
@@ -306,9 +303,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified features enabled.
      */
-    public ObjectWriter without(SerializationFeature first,
-            SerializationFeature... other)
-    {
+    public ObjectWriter without(SerializationFeature first, SerializationFeature... other) {
         SerializationConfig newConfig = _config.without(first, other);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }    
@@ -317,8 +312,7 @@ public class ObjectWriter
      * Method for constructing a new instance that is configured
      * with specified features enabled.
      */
-    public ObjectWriter withoutFeatures(SerializationFeature... features)
-    {
+    public ObjectWriter withoutFeatures(SerializationFeature... features) {
         SerializationConfig newConfig = _config.withoutFeatures(features);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }    
@@ -331,8 +325,7 @@ public class ObjectWriter
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectWriter with(DateFormat df)
-    {
+    public ObjectWriter with(DateFormat df) {
         SerializationConfig newConfig = _config.with(df);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
     }
@@ -341,8 +334,7 @@ public class ObjectWriter
      * Method that will construct a new instance that will use the default
      * pretty printer for serialization.
      */
-    public ObjectWriter withDefaultPrettyPrinter()
-    {
+    public ObjectWriter withDefaultPrettyPrinter() {
         return with(new DefaultPrettyPrinter());
     }
 
@@ -350,20 +342,16 @@ public class ObjectWriter
      * Method that will construct a new instance that uses specified
      * provider for resolving filter instances by id.
      */
-    public ObjectWriter with(FilterProvider filterProvider)
-    {
-        if (filterProvider == _config.getFilterProvider()) { // no change?
-            return this;
-        }
-        return new ObjectWriter(this, _config.withFilters(filterProvider));
+    public ObjectWriter with(FilterProvider filterProvider) {
+        return (filterProvider == _config.getFilterProvider()) ? this
+                 : new ObjectWriter(this, _config.withFilters(filterProvider));
     }
 
     /**
      * Method that will construct a new instance that will use specified pretty
      * printer (or, if null, will not do any pretty-printing)
      */
-    public ObjectWriter with(PrettyPrinter pp)
-    {
+    public ObjectWriter with(PrettyPrinter pp) {
         if (pp == _prettyPrinter) {
             return this;
         }
@@ -383,8 +371,7 @@ public class ObjectWriter
      * Note that method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectWriter withRootName(String rootName)
-    {
+    public ObjectWriter withRootName(String rootName) {
         SerializationConfig newConfig = _config.withRootName(rootName);
         return (newConfig == _config) ? this :  new ObjectWriter(this, newConfig);
     }
@@ -397,8 +384,7 @@ public class ObjectWriter
      * rather construct and returns a newly configured instance.
      */
     
-    public ObjectWriter withSchema(FormatSchema schema)
-    {
+    public ObjectWriter withSchema(FormatSchema schema) {
         if (_schema == schema) {
             return this;
         }
@@ -417,9 +403,15 @@ public class ObjectWriter
      */
     public ObjectWriter withType(JavaType rootType)
     {
-        // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
-        rootType = rootType.withStaticTyping();
-        JsonSerializer<Object> rootSer = _prefetchRootSerializer(_config, rootType);
+        JsonSerializer<Object> rootSer;
+        if (rootType == null || rootType.hasRawClass(Object.class)) {
+            rootType = null;
+            rootSer = null;
+        } else {
+            // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
+            rootType = rootType.withStaticTyping();
+            rootSer = _prefetchRootSerializer(_config, rootType);
+        }
         return new ObjectWriter(this, _config, rootType, rootSer,
                 _prettyPrinter, _schema, _characterEscapes);
     }    
@@ -430,6 +422,9 @@ public class ObjectWriter
      * type of the root object itself.
      */
     public ObjectWriter withType(Class<?> rootType) {
+        if (rootType == Object.class) {
+            return withType((JavaType) null);
+        }
         return withType(_config.constructType(rootType));
     }
 
@@ -486,10 +481,7 @@ public class ObjectWriter
      * @since 2.3
      */
     public ObjectWriter with(JsonFactory f) {
-        if (f == _generatorFactory) {
-            return this;
-        }
-        return new ObjectWriter(this, f);
+        return (f == _generatorFactory) ? this : new ObjectWriter(this, f);
     }    
 
     /**
@@ -794,8 +786,7 @@ public class ObjectWriter
      * Method called to configure the generator as necessary and then
      * call write functionality
      */
-    protected final void _configAndWriteValue(JsonGenerator jgen, Object value)
-        throws IOException, JsonGenerationException, JsonMappingException
+    protected final void _configAndWriteValue(JsonGenerator jgen, Object value) throws IOException
     {
         _configureJsonGenerator(jgen);
         // [JACKSON-282]: consider Closeable
@@ -817,6 +808,10 @@ public class ObjectWriter
              * will not mask exception that is pending)
              */
             if (!closed) {
+                /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
+                 *    structures, which typically causes more damage.
+                 */
+                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
                     jgen.close();
                 } catch (IOException ioe) { }
@@ -849,6 +844,10 @@ public class ObjectWriter
              * been closed
              */
             if (jgen != null) {
+                /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
+                 *    structures, which typically causes more damage.
+                 */
+                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
                     jgen.close();
                 } catch (IOException ioe) { }

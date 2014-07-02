@@ -4,9 +4,7 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.NoClass;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.type.*;
@@ -549,7 +547,7 @@ public final class DeserializerCache
             throw new IllegalStateException("AnnotationIntrospector."+methodName+"() returned value of type "+src.getClass().getName()+": expected type JsonSerializer or Class<JsonSerializer> instead");
         }
         Class<?> cls = (Class<?>) src;
-        if (cls == noneClass || cls == NoClass.class) {
+        if (cls == noneClass || ClassUtil.isBogusClass(cls)) {
             return null;
         }
         return cls;

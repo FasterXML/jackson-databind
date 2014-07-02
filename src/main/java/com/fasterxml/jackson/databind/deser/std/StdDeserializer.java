@@ -123,10 +123,11 @@ public abstract class StdDeserializer<T>
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
             String text = jp.getText().trim();
-            if ("true".equals(text)) {
+            // [#422]: Allow aliases
+            if ("true".equals(text) || "True".equals(text)) {
                 return true;
             }
-            if ("false".equals(text) || text.length() == 0) {
+            if ("false".equals(text) || "False".equals(text) || text.length() == 0) {
                 return false;
             }
             if (_hasTextualNull(text)) {
@@ -173,10 +174,11 @@ public abstract class StdDeserializer<T>
         // And finally, let's allow Strings to be converted too
         if (t == JsonToken.VALUE_STRING) {
             String text = jp.getText().trim();
-            if ("true".equals(text)) {
+            // [#422]: Allow aliases
+            if ("true".equals(text) || "True".equals(text)) {
                 return Boolean.TRUE;
             }
-            if ("false".equals(text)) {
+            if ("false".equals(text) || "False".equals(text)) {
                 return Boolean.FALSE;
             }
             if (text.length() == 0) {
@@ -512,17 +514,17 @@ public abstract class StdDeserializer<T>
             }
             switch (text.charAt(0)) {
             case 'I':
-                if ("Infinity".equals(text) || "INF".equals(text)) {
+                if (_isPosInf(text)) {
                     return Float.POSITIVE_INFINITY;
                 }
                 break;
             case 'N':
-                if ("NaN".equals(text)) {
+                if (_isNaN(text)) {
                     return Float.NaN;
                 }
                 break;
             case '-':
-                if ("-Infinity".equals(text) || "-INF".equals(text)) {
+                if (_isNegInf(text)) {
                     return Float.NEGATIVE_INFINITY;
                 }
                 break;
@@ -549,7 +551,7 @@ public abstract class StdDeserializer<T>
         // Otherwise, no can do:
         throw ctxt.mappingException(_valueClass, t);
     }
-
+    
     protected final float _parseFloatPrimitive(JsonParser jp, DeserializationContext ctxt)
         throws IOException
     {
@@ -565,17 +567,15 @@ public abstract class StdDeserializer<T>
             }
             switch (text.charAt(0)) {
             case 'I':
-                if ("Infinity".equals(text) || "INF".equals(text)) {
+                if (_isPosInf(text)) {
                     return Float.POSITIVE_INFINITY;
                 }
                 break;
             case 'N':
-                if ("NaN".equals(text)) {
-                    return Float.NaN;
-                }
+                if (_isNaN(text)) { return Float.NaN; }
                 break;
             case '-':
-                if ("-Infinity".equals(text) || "-INF".equals(text)) {
+                if (_isNegInf(text)) {
                     return Float.NEGATIVE_INFINITY;
                 }
                 break;
@@ -621,17 +621,17 @@ public abstract class StdDeserializer<T>
             }
             switch (text.charAt(0)) {
             case 'I':
-                if ("Infinity".equals(text) || "INF".equals(text)) {
+                if (_isPosInf(text)) {
                     return Double.POSITIVE_INFINITY;
                 }
                 break;
             case 'N':
-                if ("NaN".equals(text)) {
+                if (_isNaN(text)) {
                     return Double.NaN;
                 }
                 break;
             case '-':
-                if ("-Infinity".equals(text) || "-INF".equals(text)) {
+                if (_isNegInf(text)) {
                     return Double.NEGATIVE_INFINITY;
                 }
                 break;
@@ -676,17 +676,17 @@ public abstract class StdDeserializer<T>
             }
             switch (text.charAt(0)) {
             case 'I':
-                if ("Infinity".equals(text) || "INF".equals(text)) {
+                if (_isPosInf(text)) {
                     return Double.POSITIVE_INFINITY;
                 }
                 break;
             case 'N':
-                if ("NaN".equals(text)) {
+                if (_isNaN(text)) {
                     return Double.NaN;
                 }
                 break;
             case '-':
-                if ("-Infinity".equals(text) || "-INF".equals(text)) {
+                if (_isNegInf(text)) {
                     return Double.NEGATIVE_INFINITY;
                 }
                 break;
@@ -775,11 +775,15 @@ public abstract class StdDeserializer<T>
      * 
      * @since 2.1
      */
-    protected final String _parseString(JsonParser jp, DeserializationContext ctxt)
-        throws IOException
+    protected final String _parseString(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
+        JsonToken t = jp.getCurrentToken();
+        if (t == JsonToken.VALUE_STRING) {
+            return jp.getText();
+        }
+        
         // Issue#381
-        if (jp.getCurrentToken() == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+        if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             jp.nextToken();
             final String parsed = _parseString(jp, ctxt);
             if (jp.nextToken() != JsonToken.END_ARRAY) {
@@ -802,10 +806,19 @@ public abstract class StdDeserializer<T>
      * 
      * @since 2.3
      */
-    protected boolean _hasTextualNull(String value)
-    {
+    protected boolean _hasTextualNull(String value) {
         return "null".equals(value);
     }
+
+    protected final boolean _isNegInf(String text) {
+        return "-Infinity".equals(text) || "-INF".equals(text);
+    }
+
+    protected final boolean _isPosInf(String text) {
+        return "Infinity".equals(text) || "INF".equals(text);
+    }
+
+    protected final boolean _isNaN(String text) { return "NaN".equals(text); }
     
     /*
     /****************************************************
@@ -863,7 +876,7 @@ public abstract class StdDeserializer<T>
         }
         return existingDeserializer;
     }
-
+    
     /*
     /**********************************************************
     /* Helper methods for sub-classes, problem reporting

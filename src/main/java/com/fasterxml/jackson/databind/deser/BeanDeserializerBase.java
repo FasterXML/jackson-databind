@@ -9,9 +9,9 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.ObjectIdResolver;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
@@ -463,6 +463,10 @@ public abstract class BeanDeserializerBase
                     unwrapped = new UnwrappedPropertyHandler();
                 }
                 unwrapped.addProperty(prop);
+                // 10-Apr-2014, tatu: Looks like we should also do this? (no observed diff tho)
+                if (prop != origProp) {
+                    _beanProperties.replace(prop);
+                }
                 continue;
             }
             // [JACKSON-594]: non-static inner classes too:
@@ -561,14 +565,12 @@ public abstract class BeanDeserializerBase
             BeanProperty property) throws JsonMappingException
     {
         ObjectIdReader oir = _objectIdReader;
-        String[] ignorals = null;
         
         // First: may have an override for Object Id:
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         final AnnotatedMember accessor = (property == null || intr == null)
                 ? null : property.getMember();
-        if (property != null && intr != null) {
-            ignorals = intr.findPropertiesToIgnore(accessor);
+        if (accessor != null && intr != null) {
             ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
             if (objectIdInfo != null) { // some code duplication here as well (from BeanDeserializerFactory)
                 // 2.1: allow modifications by "id ref" annotations as well:
@@ -579,6 +581,7 @@ public abstract class BeanDeserializerBase
                 JavaType idType;
                 SettableBeanProperty idProp;
                 ObjectIdGenerator<?> idGen;
+                ObjectIdResolver resolver = ctxt.objectIdResolverInstance(accessor, objectIdInfo);
                 if (implClass == ObjectIdGenerators.PropertyGenerator.class) {
                     PropertyName propName = objectIdInfo.getPropertyName();
                     idProp = findProperty(propName);
@@ -596,7 +599,7 @@ public abstract class BeanDeserializerBase
                 }
                 JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(idType);
                 oir = ObjectIdReader.construct(idType, objectIdInfo.getPropertyName(),
-                		idGen, deser, idProp);
+                		idGen, deser, idProp, resolver);
             }
         }
         // either way, need to resolve serializer:
@@ -605,9 +608,12 @@ public abstract class BeanDeserializerBase
             contextual = contextual.withObjectIdReader(oir);
         }
         // And possibly add more properties to ignore
-        if (ignorals != null && ignorals.length != 0) {
-            HashSet<String> newIgnored = ArrayBuilders.setAndArray(contextual._ignorableProps, ignorals);
-            contextual = contextual.withIgnorableProperties(newIgnored);
+        if (accessor != null) {
+            String[] ignorals = intr.findPropertiesToIgnore(accessor);
+            if (ignorals != null && ignorals.length != 0) {
+                HashSet<String> newIgnored = ArrayBuilders.setAndArray(contextual._ignorableProps, ignorals);
+                contextual = contextual.withIgnorableProperties(newIgnored);
+            }
         }
 
         // One more thing: are we asked to serialize POJO as array?
@@ -916,7 +922,7 @@ public abstract class BeanDeserializerBase
         throws IOException, JsonProcessingException;
 
     @Override
-    public final Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws IOException, JsonProcessingException
     {
@@ -967,7 +973,7 @@ public abstract class BeanDeserializerBase
             id = _convertObjectId(jp, ctxt, rawId, idDeser);
         }
 
-        ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator);
+        ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
         roid.bindItem(pojo);
         // also: may need to set a property value as well
         SettableBeanProperty idProp = _objectIdReader.idProperty;
@@ -1016,50 +1022,10 @@ public abstract class BeanDeserializerBase
      * buffering in some cases, but usually just a simple lookup to ensure
      * that ordering is correct.
      */
-    @SuppressWarnings("resource")
     protected Object deserializeWithObjectId(JsonParser jp, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
     {
-        final String idPropName = _objectIdReader.propertyName.getSimpleName();
-        // First, the simple case: we point to the Object Id property
-        if (idPropName.equals(jp.getCurrentName())
-                // 05-Aug-2013, tatu: Or might point to a native Object Id
-                || jp.canReadObjectId()) {
-            return deserializeFromObject(jp, ctxt);
-        }
-        // otherwise need to reorder things
-        TokenBuffer tmpBuffer = new TokenBuffer(jp);
-        TokenBuffer mergedBuffer = null;
-        for (; jp.getCurrentToken() != JsonToken.END_OBJECT; jp.nextToken()) {
-            String propName = jp.getCurrentName();
-            // when we match the id property, can start merging
-            if (mergedBuffer == null) {
-                if (idPropName.equals(propName)) {
-                    mergedBuffer = new TokenBuffer(jp);
-                    mergedBuffer.writeFieldName(propName);
-                    jp.nextToken();
-                    mergedBuffer.copyCurrentStructure(jp);
-                    mergedBuffer.append(tmpBuffer);
-                    tmpBuffer = null;
-                } else {
-                    tmpBuffer.writeFieldName(propName);
-                    jp.nextToken();
-                    tmpBuffer.copyCurrentStructure(jp);
-                }
-            } else {
-                mergedBuffer.writeFieldName(propName);
-                jp.nextToken();
-                mergedBuffer.copyCurrentStructure(jp);
-            }
-        }
-        // note: we really should get merged buffer (and if not, that is likely error), but
-        // for now let's allow missing case as well. Will be caught be a later stage...
-        TokenBuffer buffer = (mergedBuffer == null) ? tmpBuffer : mergedBuffer;
-        buffer.writeEndObject();
-        // important: need to advance to point to first FIELD_NAME:
-        JsonParser mergedParser = buffer.asParser();
-        mergedParser.nextToken();
-        return deserializeFromObject(mergedParser, ctxt);
+        return deserializeFromObject(jp, ctxt);
     }
     
     /**
@@ -1070,9 +1036,9 @@ public abstract class BeanDeserializerBase
         throws IOException, JsonProcessingException
     {
         Object id = _objectIdReader.readObjectReference(jp, ctxt);
-        ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator);
+        ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
         // do we have it resolved?
-        Object pojo = roid.item;
+        Object pojo = roid.resolve();
         if (pojo == null) { // not yet; should wait...
             throw new UnresolvedForwardReference("Could not resolve Object Id ["+id+"] (for "
                     +_beanType+").", jp.getCurrentLocation(), roid);

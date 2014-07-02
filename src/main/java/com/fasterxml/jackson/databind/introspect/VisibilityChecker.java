@@ -137,7 +137,7 @@ public interface VisibilityChecker<T extends VisibilityChecker<T>>
     * Default standard implementation is purely based on visibility
     * modifier of given class members, and its configured minimum
     * levels.
-    * Implemented using "builder" (aka "Fluid") pattern, whereas instances
+    * Implemented using "builder" (or "Fluent") pattern, whereas instances
     * are immutable, and configuration is achieved by chainable factory
     * methods. As a result, type is declared is funky recursive generic
     * type, to allow for sub-classing of build methods with property type

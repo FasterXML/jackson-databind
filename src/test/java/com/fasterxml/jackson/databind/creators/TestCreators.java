@@ -37,14 +37,14 @@ public class TestCreators
      */
     static class BooleanConstructorBean {
         Boolean b;
-        @JsonCreator protected BooleanConstructorBean(Boolean b) {
+        protected BooleanConstructorBean(Boolean b) {
             this.b = b;
         }
     }
 
     static class BooleanConstructorBean2 {
         boolean b;
-        @JsonCreator protected BooleanConstructorBean2(boolean b) {
+        protected BooleanConstructorBean2(boolean b) {
             this.b = b;
         }
     }

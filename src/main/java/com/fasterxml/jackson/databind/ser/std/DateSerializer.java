@@ -24,20 +24,16 @@ public class DateSerializer
     public static final DateSerializer instance = new DateSerializer();
     
     public DateSerializer() {
-        this(false, null);
+        this(null, null);
     }
         
-    public DateSerializer(boolean useTimestamp, DateFormat customFormat) {
+    public DateSerializer(Boolean useTimestamp, DateFormat customFormat) {
         super(Date.class, useTimestamp, customFormat);
     }
 
     @Override
-    public DateSerializer withFormat(boolean timestamp, DateFormat customFormat)
-    {
-        if (timestamp) {
-            return new DateSerializer(true, null);
-        }
-        return new DateSerializer(false, customFormat);
+    public DateSerializer withFormat(Boolean timestamp, DateFormat customFormat) {
+        return new DateSerializer(timestamp, customFormat);
     }
 
     @Override
@@ -49,7 +45,7 @@ public class DateSerializer
     public void serialize(Date value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
-        if (_useTimestamp) {
+        if (_asTimestamp(provider)) {
             jgen.writeNumber(_timestamp(value));
         } else if (_customFormat != null) {
             // 21-Feb-2011, tatu: not optimal, but better than alternatives:

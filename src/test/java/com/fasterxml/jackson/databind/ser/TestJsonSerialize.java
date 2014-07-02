@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -224,5 +224,25 @@ public class TestJsonSerialize
     {
         assertEquals("{\"id\":\"fooId\",\"bar\":\"barId\"}",
                 MAPPER.writeValueAsString(new Foo294("fooId", "barId")));
+    }
+
+    @JsonPropertyOrder({ "a", "something" })
+    static class Response {
+        public String a = "x";
+
+        @JsonProperty   //does not show up
+        public boolean isSomething() { return true; }
+    }
+
+    public void testWithIsGetter() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        m.setVisibility(PropertyAccessor.GETTER, Visibility.NONE)
+        .setVisibility(PropertyAccessor.FIELD, Visibility.ANY)
+        .setVisibility(PropertyAccessor.CREATOR, Visibility.NONE)
+        .setVisibility(PropertyAccessor.IS_GETTER, Visibility.NONE)
+        .setVisibility(PropertyAccessor.SETTER, Visibility.NONE);        
+        final String JSON = m.writeValueAsString(new Response());
+        assertEquals(aposToQuotes("{'a':'x','something':true}"), JSON);
     }
 }

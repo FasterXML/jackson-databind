@@ -26,6 +26,17 @@ public class TestDateSerialization
         public DateAsNumberBean(long l) { date = new java.util.Date(l); }
     }
 
+    static class SqlDateAsDefaultBean {
+        public java.sql.Date date;
+        public SqlDateAsDefaultBean(long l) { date = new java.sql.Date(l); }
+    }
+
+    static class SqlDateAsNumberBean {
+        @JsonFormat(shape=JsonFormat.Shape.NUMBER)
+        public java.sql.Date date;
+        public SqlDateAsNumberBean(long l) { date = new java.sql.Date(l); }
+    }
+    
     static class DateAsStringBean {
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
         public Date date;
@@ -36,6 +47,15 @@ public class TestDateSerialization
         @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd,HH:00", timezone="CET")
         public Date date;
         public DateInCETBean(long l) { date = new java.util.Date(l); }
+    }
+
+    static class CalendarAsStringBean {
+        @JsonFormat(shape=JsonFormat.Shape.STRING, pattern="yyyy-MM-dd")
+        public Calendar value;
+        public CalendarAsStringBean(long l) {
+            value = new GregorianCalendar();
+            value.setTimeInMillis(l);
+        }
     }
     
     /*
@@ -80,6 +100,13 @@ public class TestDateSerialization
         // use date 1999-04-01 (note: months are 0-based, use constant)
         java.sql.Date date = new java.sql.Date(99, Calendar.APRIL, 1);
         assertEquals(quote("1999-04-01"), MAPPER.writeValueAsString(date));
+
+        java.sql.Date date0 = new java.sql.Date(0L);
+        assertEquals(aposToQuotes("{'date':'"+date0.toString()+"'}"),
+                MAPPER.writeValueAsString(new SqlDateAsDefaultBean(0L)));
+
+        // but may explicitly force timestamp too
+        assertEquals(aposToQuotes("{'date':0}"), MAPPER.writeValueAsString(new SqlDateAsNumberBean(0L)));
     }
 
     public void testTimeZone() throws IOException
@@ -136,7 +163,7 @@ public class TestDateSerialization
         // first: test overriding writing as timestamp
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         json = mapper.writeValueAsString(new DateAsNumberBean(0L));
-        assertEquals("{\"date\":0}", json);
+        assertEquals(aposToQuotes("{'date':0}"), json);
 
         // then reverse
         mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -146,6 +173,10 @@ public class TestDateSerialization
         // and with different DateFormat; CET is one hour ahead of GMT
         json = mapper.writeValueAsString(new DateInCETBean(0L));
         assertEquals("{\"date\":\"1970-01-01,01:00\"}", json);
+        
+        // and for [Issue#423] as well:
+        json = mapper.writer().with(getUTCTimeZone()).writeValueAsString(new CalendarAsStringBean(0L));
+        assertEquals("{\"value\":\"1970-01-01\"}", json);
     }
 
     /**
@@ -160,6 +191,11 @@ public class TestDateSerialization
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         String json = mapper.writeValueAsString(new Date(0));
         // pacific time is GMT-8; so midnight becomes 16:00 previous day:
+        assertEquals(quote("1969-12-31/16:00 PST"), json);
+
+        // Let's also verify that Locale won't matter too much...
+        mapper.setLocale(Locale.FRANCE);
+        json = mapper.writeValueAsString(new Date(0));
         assertEquals(quote("1969-12-31/16:00 PST"), json);
     }
 }

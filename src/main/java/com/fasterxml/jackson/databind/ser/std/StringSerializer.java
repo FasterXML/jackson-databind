@@ -33,22 +33,17 @@ public final class StringSerializer
     }
     
     @Override
-    public void serialize(String value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
-    {
+    public void serialize(String value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeString(value);
     }
 
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-    {
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
         return createSchemaNode("string", true);
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
-    {
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
         if (visitor != null) visitor.expectStringFormat(typeHint);
     }
 }

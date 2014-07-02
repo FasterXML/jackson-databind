@@ -79,6 +79,18 @@ public enum SerializationFeature implements ConfigFeature
     FAIL_ON_EMPTY_BEANS(true),
 
     /**
+     * Feature that determines what happens when a direct self-reference
+     * is detected by a POJO (and no Object Id handling is enabled for it):
+     * either a {@link JsonMappingException} is
+     * thrown (if true), or reference is normally processed (false).
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.4
+     */
+    FAIL_ON_SELF_REFERENCES(true),
+    
+    /**
      * Feature that determines whether Jackson code should catch
      * and wrap {@link Exception}s (but never {@link Error}s!)
      * to add additional information about
@@ -95,6 +107,21 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is enabled by default.
      */
     WRAP_EXCEPTIONS(true),
+
+	/**
+	 * Feature that determines what happens when an object which
+	 * normally has type information included by Jackson is used
+	 * in conjunction with {@link com.fasterxml.jackson.annotation.JsonUnwrapped}.
+	 * In the default (enabled) state, an error will be thrown when
+	 * an unwrapped object has type information. When disabled, the
+	 * object will be unwrapped and the type information discarded.
+	 *<p>
+	 * Feature is enabled by default.
+	 *
+	 * @since 2.4
+	 */
+	FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS(true),
+
 
     /*
     /******************************************************

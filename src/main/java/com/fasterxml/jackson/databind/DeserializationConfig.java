@@ -11,10 +11,13 @@ import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfigBase;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
 import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
+import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.type.ClassKey;
@@ -529,7 +532,7 @@ public final class DeserializationConfig
     public final JsonNodeFactory getNodeFactory() {
         return _nodeFactory;
     }
-    
+
     /*
     /**********************************************************
     /* Introspection methods
@@ -562,5 +565,53 @@ public final class DeserializationConfig
     @SuppressWarnings("unchecked")
     public <T extends BeanDescription> T introspectForBuilder(JavaType type) {
         return (T) getClassIntrospector().forDeserializationWithBuilder(this, type, this);
+    }
+
+    /*
+    /**********************************************************
+    /* Support for polymorphic type handling
+    /**********************************************************
+     */
+    
+    /**
+     * Helper method that is needed to properly handle polymorphic referenced
+     * types, such as types referenced by {@link java.util.concurrent.atomic.AtomicReference},
+     * or various "optional" types.
+     * 
+     * @since 2.4
+     */
+    public TypeDeserializer findTypeDeserializer(JavaType baseType)
+        throws JsonMappingException
+    {
+        BeanDescription bean = introspectClassAnnotations(baseType.getRawClass());
+        AnnotatedClass ac = bean.getClassInfo();
+        TypeResolverBuilder<?> b = getAnnotationIntrospector().findTypeResolver(this, ac, baseType);
+
+        /* Ok: if there is no explicit type info handler, we may want to
+         * use a default. If so, config object knows what to use.
+         */
+        Collection<NamedType> subtypes = null;
+        if (b == null) {
+            b = getDefaultTyper(baseType);
+            if (b == null) {
+                return null;
+            }
+        } else {
+            subtypes = getSubtypeResolver().collectAndResolveSubtypes(ac, this, getAnnotationIntrospector());
+        }
+        /* 04-May-2014, tatu: When called from DeserializerFactory, additional code like
+         *   this is invoked. But here we do not actually have access to mappings, so not
+         *   quite sure what to do, if anything. May need to revisit if the underlying
+         *   problem re-surfaces...
+         */
+        /*
+        if ((b.getDefaultImpl() == null) && baseType.isAbstract()) {
+            JavaType defaultType = mapAbstractType(config, baseType);
+            if (defaultType != null && defaultType.getRawClass() != baseType.getRawClass()) {
+                b = b.defaultImpl(defaultType.getRawClass());
+            }
+        }
+        */
+        return b.buildTypeDeserializer(this, baseType, subtypes);
     }
 }

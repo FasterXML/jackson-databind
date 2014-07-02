@@ -8,19 +8,12 @@ import com.fasterxml.jackson.databind.*;
 
 /**
  * This unit test suite tests use of {@link JsonIgnore} annotations
- * with  bean serialization; as well as (since 1.7)
- * {@link JsonIgnoreType}.
+ * with  bean serialization; as well as {@link JsonIgnoreType}.
  */
 public class TestSimpleSerializationIgnore
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Annotated helper classes
-    /**********************************************************
-     */
-
-    /// Class for testing enabled {@link JsonIgnore} annotation
+    // Class for testing enabled {@link JsonIgnore} annotation
     final static class SizeClassEnabledIgnore
     {
         @JsonIgnore public int getY() { return 9; }
@@ -32,7 +25,7 @@ public class TestSimpleSerializationIgnore
         @JsonIgnore public int getY3() { return 2; }
     }
 
-    /// Class for testing disabled {@link JsonIgnore} annotation
+    // Class for testing disabled {@link JsonIgnore} annotation
     final static class SizeClassDisabledIgnore
     {
         // note: must be public to be seen

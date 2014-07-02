@@ -12,10 +12,12 @@ Pascal Glinas:
   * Reported #220: ContainerNode missing 'createNumber(BigInteger)'
    (2.2.2)
 
-Joern Huxhorn:
+Joern Huxhorn: (huxi@github)
   * Suggested [JACKSON-636]: Add 'SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS' to allow
     forced sorting of Maps during serialization
    (2.0.0)
+  * Reported #479: NPE on trying to deserialize a `String[]` that contains null
+   (2.4.1)
 
 James Roper:
  * Requested [JACKSON-732]: Allow 'AnnotationIntrospector.findContentDeserializer()'
@@ -66,6 +68,11 @@ Francis Galiegue:
  * Reported #93 (and suggested fix): bug in `ObjectMapper.setAll(...)'
   implementation
   (2.1.1)
+ * Reported #433: `ObjectMapper`'s `.valueToTree()` wraps `JsonSerializable` objects
+  into a POJONode
+  (2.3.3)
+ * Contributed #434: Ensure that DecimalNodes with mathematically equal values are equal
+  (2.4.0)
 
 kelaneren@github:
  * Reported #157, contributed unit test: NPE when registering same module twice.
@@ -98,7 +105,41 @@ Seth Pellegrino (jivesoft):
 Florian Schoppmann (fschopp@github)
   * Reported #358: `IterableSerializer` ignoring	annotated content serializer
    (2.3.1)
+  * Reported #359: Converted object not using explicitly annotated serializer
+   (2.4.0)
+
+Martin Traverso:
+  * Reported #406: Cannot use external type id + @JsonTypeIdResolver
+   (2.3.2)
 
 Matthew Morrissette:
   * Contributed #381: Allow inlining/unwrapping of value from single-component JSON array
    (2.4.0)
+
+Will Palmeri: (wpalmeri@github)
+  * Contributed #407: Make array and Collection serializers use configured value null handler
+   (2.4.0)
+
+Cemalettin Koc: (cemo@github)
+  * Reported #353: Problems with polymorphic types, `JsonNode` (related to #88)
+   (2.4.0)
+
+Ben Fagin: (UnquietCode@github)
+  * Suggested #442: Make `@JsonUnwrapped` indicate property inclusion
+   (2.4.0)
+  * Contributed #81/#455: Allow use of @JsonUnwrapped with typed (@JsonTypeInfo) classes,
+    provided that (new) feature `SerializationFeature.FAIL_ON_UNWRAPPED_TYPE_IDENTIFIERS`
+    is disabled
+   (2.4.0)
+
+Chris Cleveland:
+  * Suggested #463: Add 'JsonNode.asText(String defaultValue)`
+   (2.4.0)
+
+Benson Margulies:
+  * Reported #467: Unwanted POJO's embedded in tree via serialization to tree
+   (2.4.0)
+
+Steve Sanbeg: (sanbeg@github)
+  * Contributed #482: Make date parsing error behavior consistent with JDK
+   (2.4.1)

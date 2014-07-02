@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 /**
  * Failing test related to [Issue#76]
  */
-public class TestJavaType
+public class TestJavaType76
     extends com.fasterxml.jackson.test.BaseTest
 {
     @SuppressWarnings("serial")

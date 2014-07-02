@@ -35,6 +35,15 @@ public class ISO8601DateFormatTest extends BaseMapTest
         assertEquals(date, result);
     }
 
+    public void testPartialParse() throws Exception {
+        java.text.ParsePosition pos = new java.text.ParsePosition(0);
+        String timestamp = "2007-08-13T19:51:23Z";
+        Date result = df.parse(timestamp + "hello", pos);
+        
+        assertEquals(date, result);
+        assertEquals(timestamp.length(), pos.getIndex());
+    }
+
     public void testCloneObject() throws Exception {
         DateFormat clone = (DateFormat)df.clone();
         assertSame(df, clone);

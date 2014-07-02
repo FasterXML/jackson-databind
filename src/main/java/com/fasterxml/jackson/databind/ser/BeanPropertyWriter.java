@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 import com.fasterxml.jackson.databind.util.Annotations;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -94,8 +95,13 @@ public class BeanPropertyWriter extends PropertyWriter
     /**
      * Logical name of the property; will be used as the field name
      * under which value for the property is written.
+     *<p>
+     * NOTE: do NOT change name of this field; it is accessed by
+     * Afterburner module.
+     * ALSO NOTE: ... and while it really ought to be `SerializableString`,
+     * changing that is also binary-incompatible change. So nope.
      */
-    protected final SerializableString _name;
+    protected final SerializedString _name;
 
     /**
      * Wrapper name to use for this element, if any
@@ -220,7 +226,7 @@ public class BeanPropertyWriter extends PropertyWriter
         this(base, base._name);
     }
 
-    protected BeanPropertyWriter(BeanPropertyWriter base, SerializableString name) {
+    protected BeanPropertyWriter(BeanPropertyWriter base, SerializedString name) {
         _name = name;
         _wrapperName = base._wrapperName;
 
@@ -456,7 +462,9 @@ public class BeanPropertyWriter extends PropertyWriter
     @Override
     public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception
     {
-        Object value = get(bean);
+        // inlined 'get()'
+        final Object value = (_accessorMethod == null) ? _field.get(bean) : _accessorMethod.invoke(bean);
+
         // Null handling is bit different, check that first
         if (value == null) {
             if (_nullSerializer != null) {
@@ -487,7 +495,10 @@ public class BeanPropertyWriter extends PropertyWriter
         }
         // For non-nulls: simple check for direct cycles
         if (value == bean) {
-            _handleSelfReference(bean, ser);
+            // three choices: exception; handled by call; or pass-through
+            if (_handleSelfReference(bean, jgen, prov, ser)) {
+                return;
+            }
         }
         jgen.writeFieldName(_name);
         if (_typeSerializer == null) {
@@ -523,7 +534,8 @@ public class BeanPropertyWriter extends PropertyWriter
     public void serializeAsElement(Object bean, JsonGenerator jgen, SerializerProvider prov)
         throws Exception
     {
-        Object value = get(bean);
+        // inlined 'get()'
+        final Object value = (_accessorMethod == null) ? _field.get(bean) : _accessorMethod.invoke(bean);
         if (value == null) { // nulls need specialized handling
             if (_nullSerializer != null) {
                 _nullSerializer.serialize(null, jgen, prov);
@@ -556,7 +568,9 @@ public class BeanPropertyWriter extends PropertyWriter
         }
         // For non-nulls: simple check for direct cycles
         if (value == bean) {
-            _handleSelfReference(bean, ser);
+            if (_handleSelfReference(bean, jgen, prov, ser)) {
+                return;
+            }
         }
         if (_typeSerializer == null) {
             ser.serialize(value, jgen, prov);
@@ -592,14 +606,14 @@ public class BeanPropertyWriter extends PropertyWriter
 
     // Also part of BeanProperty implementation
     @Override
-    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
+    public void depositSchemaProperty(JsonObjectFormatVisitor v)
         throws JsonMappingException
     {
-        if (objectVisitor != null) {
+        if (v != null) {
             if (isRequired()) {
-                objectVisitor.property(this); 
+                v.property(this); 
             } else {
-                objectVisitor.optionalProperty(this);
+                v.optionalProperty(this);
             }
         }
     }
@@ -672,25 +686,49 @@ public class BeanPropertyWriter extends PropertyWriter
      * calling method(s) ({@link #serializeAsField}) should be overridden
      * to change the behavior
      */
-    public final Object get(Object bean) throws Exception
-    {
-        if (_accessorMethod != null) {
-            return _accessorMethod.invoke(bean);
-        }
-        return _field.get(bean);
+    public final Object get(Object bean) throws Exception {
+        return (_accessorMethod == null) ? _field.get(bean) : _accessorMethod.invoke(bean);
     }
 
-    protected void _handleSelfReference(Object bean, JsonSerializer<?> ser) throws JsonMappingException {
-        /* 05-Feb-2012, tatu: Usually a problem, but NOT if we are handling
-         *    object id; this may be the case for BeanSerializers at least.
-         */
-        if (ser.usesObjectId()) { return; }
-        throw new JsonMappingException("Direct self-reference leading to cycle");
+    /**
+     * @deprecated Since 2.3 Use overloaded variants
+     */
+    @Deprecated
+    protected void _handleSelfReference(Object bean, JsonSerializer<?> ser)
+        throws JsonMappingException {
+        _handleSelfReference(bean, null, null, ser);
+    }
+    
+    /**
+     * Method called to handle a direct self-reference through this property.
+     * Method can choose to indicate an error by throwing {@link JsonMappingException};
+     * fully handle serialization (and return true); or indicate that it should be
+     * serialized normally (return false).
+     *<p>
+     * Default implementation will throw {@link JsonMappingException} if
+     * {@link SerializationFeature#FAIL_ON_SELF_REFERENCES} is enabled;
+     * or return <code>false</code> if it is disabled.
+     *
+     * @return True if method fully handled self-referential value; false if not (caller
+     *    is to handle it) or {@link JsonMappingException} if there is no way handle it
+     */
+    protected boolean _handleSelfReference(Object bean, JsonGenerator jgen, SerializerProvider prov, JsonSerializer<?> ser)
+            throws JsonMappingException {
+        if (prov.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)
+                && !ser.usesObjectId()) {
+            // 05-Feb-2013, tatu: Usually a problem, but NOT if we are handling
+            //    object id; this may be the case for BeanSerializers at least.
+            // 13-Feb-2014, tatu: another possible ok case: custom serializer (something
+            //   OTHER than {@link BeanSerializerBase}
+            if (ser instanceof BeanSerializerBase) {
+                throw new JsonMappingException("Direct self-reference leading to cycle");
+            }
+        }
+        return false;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         StringBuilder sb = new StringBuilder(40);
         sb.append("property '").append(getName()).append("' (");
         if (_accessorMethod != null) {

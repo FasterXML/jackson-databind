@@ -9,7 +9,7 @@ Project is licensed under [Apache License 2.0](http://www.apache.org/licenses/LI
 While the original use case for Jackson was JSON data-binding, it can now be used for other data formats as well, as long as parser and generator implementations exist.
 Naming of classes uses word 'JSON' in many places even though there is no actual hard dependency to JSON format.
 
-[![Build Status](https://fasterxml.ci.cloudbees.com/job/jackson-databind-master/badge/icon)](https://fasterxml.ci.cloudbees.com/job/jackson-databind-master/)
+[![Build Status](https://travis-ci.org/FasterXML/jackson-databind.svg?branch=master)](https://travis-ci.org/FasterXML/jackson-databind)
 
 -----
 
@@ -23,7 +23,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-databind</artifactId>
-  <version>2.3.1</version>
+  <version>2.3.3</version>
 </dependency>
 ```
 
@@ -72,7 +72,7 @@ public class MyValue {
 }
 ```
 
-we will need a `com.fasterxml.jackson.databind.ObjectMapper` instance, used for all data-b inding, so let's construct one:
+we will need a `com.fasterxml.jackson.databind.ObjectMapper` instance, used for all data-binding, so let's construct one:
 
 ```java
 ObjectMapper mapper = new ObjectMapper(); // create once, reuse

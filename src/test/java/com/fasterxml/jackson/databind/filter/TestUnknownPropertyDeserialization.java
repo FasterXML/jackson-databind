@@ -114,7 +114,7 @@ public class TestUnknownPropertyDeserialization
         @JsonIgnoreProperties("x")
         public Map<String,Integer> values;
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
@@ -269,4 +269,3 @@ public class TestUnknownPropertyDeserialization
         assertEquals(Integer.valueOf(2), result.values.get("y"));
     }
 }
-

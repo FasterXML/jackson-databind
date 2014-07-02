@@ -8,11 +8,15 @@ import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
-import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference.UnresolvedId;
+import com.fasterxml.jackson.databind.deser.UnresolvedId;
 import com.fasterxml.jackson.databind.struct.TestObjectId.Company;
 import com.fasterxml.jackson.databind.struct.TestObjectId.Employee;
 
@@ -21,6 +25,8 @@ import com.fasterxml.jackson.databind.struct.TestObjectId.Employee;
  */
 public class TestObjectIdDeserialization extends BaseMapTest
 {
+    private static final String POOL_KEY = "POOL";
+
     // // Classes for external id use
     
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
@@ -126,6 +132,50 @@ public class TestObjectIdDeserialization extends BaseMapTest
             // Ensure that it is never called with null because of unresolved reference.
             assertNotNull(value);
             values.put(field, value);
+        }
+    }
+
+    static class CustomResolutionWrapper {
+        public List<WithCustomResolution> data;
+    }
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", resolver = PoolResolver.class)
+    static class WithCustomResolution {
+        public int id;
+        public int data;
+
+        public WithCustomResolution(int id, int data)
+        {
+            this.id = id;
+            this.data = data;
+        }
+    }
+
+    public static class PoolResolver implements ObjectIdResolver {
+        private Map<Object,WithCustomResolution> _pool;
+
+        public PoolResolver() {}
+        public PoolResolver(Map<Object,WithCustomResolution> pool){ _pool = pool; }
+
+        @Override
+        public void bindItem(IdKey id, Object pojo){ }
+
+        @Override
+        public Object resolveId(IdKey id){ return _pool.get(id.key); }
+
+        @Override
+        public boolean canUseFor(ObjectIdResolver resolverType)
+        {
+            return resolverType.getClass() == getClass() && _pool != null && !_pool.isEmpty();
+        }
+        
+        @Override
+        public ObjectIdResolver newForDeserialization(Object c)
+        {
+            DeserializationContext context = (DeserializationContext)c;
+            @SuppressWarnings("unchecked")
+            Map<Object,WithCustomResolution> pool = (Map<Object,WithCustomResolution>)context.getAttribute(POOL_KEY);
+            return new PoolResolver(pool);
         }
     }
 
@@ -342,5 +392,28 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertEquals(99, result.node.value);
         assertSame(result.node, result.node.next.node);
         assertEquals(3, result.node.customId);
+    }
+
+    /*
+    /*****************************************************
+    /* Unit tests, custom id resolver
+    /*****************************************************
+     */
+    public void testCustomPoolResolver()
+        throws Exception
+    {
+        Map<Object,WithCustomResolution> pool = new HashMap<Object,WithCustomResolution>();
+        pool.put(1, new WithCustomResolution(1, 1));
+        pool.put(2, new WithCustomResolution(2, 2));
+        pool.put(3, new WithCustomResolution(3, 3));
+        pool.put(4, new WithCustomResolution(4, 4));
+        pool.put(5, new WithCustomResolution(5, 5));
+        ContextAttributes attrs = mapper.getDeserializationConfig().getAttributes().withSharedAttribute(POOL_KEY, pool);
+        String content = "{\"data\":[1,2,3,4,5]}";
+        CustomResolutionWrapper wrapper = mapper.reader(CustomResolutionWrapper.class).with(attrs).readValue(content);
+        assertFalse(wrapper.data.isEmpty());
+        for (WithCustomResolution ob : wrapper.data) {
+            assertSame(pool.get(ob.id), ob);
+        }
     }
 }

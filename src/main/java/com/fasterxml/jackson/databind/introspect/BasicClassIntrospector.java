@@ -158,8 +158,7 @@ public class BasicClassIntrospector
      * to use; override is needed if a custom sub-class is to be used.
      */
     protected POJOPropertiesCollector constructPropertyCollector(MapperConfig<?> config,
-            AnnotatedClass ac, JavaType type,
-            boolean forSerialization, String mutatorPrefix)
+            AnnotatedClass ac, JavaType type, boolean forSerialization, String mutatorPrefix)
     {
         return new POJOPropertiesCollector(config, forSerialization, type, ac, mutatorPrefix);
     }

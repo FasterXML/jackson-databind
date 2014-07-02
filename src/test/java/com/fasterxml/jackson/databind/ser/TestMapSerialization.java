@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -54,13 +55,36 @@ public class TestMapSerialization
         }
     }
     
+    // [#335]
+    static class MapOrderingBean {
+        @JsonPropertyOrder(alphabetic=true)
+        public LinkedHashMap<String,Integer> map;
+        
+        public MapOrderingBean(String... keys) {
+            map = new LinkedHashMap<String,Integer>();
+            int ix = 1;
+            for (String key : keys) {
+                map.put(key, ix++);
+            }
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
 
-    final ObjectMapper MAPPER = new ObjectMapper();
+    final ObjectMapper MAPPER = objectMapper();
+
+    public void testUsingObjectWriter() throws IOException
+    {
+        ObjectWriter w = MAPPER.writerWithType(Object.class);
+        Map<String,Object> map = new LinkedHashMap<String,Object>();
+        map.put("a", 1);
+        String json = w.writeValueAsString(map);
+        assertEquals(aposToQuotes("{'a':1}"), json);
+    }
     
     // Test [JACKSON-220]
     public void testMapSerializer() throws IOException
@@ -125,4 +149,12 @@ public class TestMapSerialization
         // but can be changed
         assertEquals("{\"a\":6,\"b\":3}", m.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS).writeValueAsString(map));
     }
+
+    // [#335[
+    public void testOrderByKeyViaProperty() throws IOException
+    {
+        MapOrderingBean input = new MapOrderingBean("c", "b", "a");
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(aposToQuotes("{'map':{'a':3,'b':2,'c':1}}"), json);
+    }        
 }

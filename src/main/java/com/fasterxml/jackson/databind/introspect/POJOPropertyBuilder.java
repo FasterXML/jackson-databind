@@ -1,9 +1,8 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.PropertyMetadata;
-import com.fasterxml.jackson.databind.PropertyName;
-import com.fasterxml.jackson.databind.util.BeanUtil;
+import java.util.*;
+
+import com.fasterxml.jackson.databind.*;
 
 /**
  * Helper class used for aggregating information about a single
@@ -20,7 +19,7 @@ public class POJOPropertyBuilder
     protected final boolean _forSerialization;
 
     protected final AnnotationIntrospector _annotationIntrospector;
-    
+
     /**
      * External name of logical property; may change with
      * renaming (by new instance being constructed using
@@ -42,22 +41,26 @@ public class POJOPropertyBuilder
 
     protected Linked<AnnotatedMethod> _setters;
 
-    public POJOPropertyBuilder(PropertyName internalName,
+    public POJOPropertyBuilder(PropertyName internalName, AnnotationIntrospector ai, boolean forSerialization) {
+        this(internalName, internalName, ai, forSerialization);
+    }
+
+    protected POJOPropertyBuilder(PropertyName internalName, PropertyName name,
             AnnotationIntrospector annotationIntrospector, boolean forSerialization)
     {
         _internalName = internalName;
-        _name = internalName;
+        _name = name;
         _annotationIntrospector = annotationIntrospector;
         _forSerialization = forSerialization;
     }
-
+    
     @Deprecated // since 2.3
     public POJOPropertyBuilder(String simpleInternalName,
             AnnotationIntrospector annotationIntrospector, boolean forSerialization)
     {
         this(new PropertyName(simpleInternalName), annotationIntrospector, forSerialization);
     }
-    
+
     public POJOPropertyBuilder(POJOPropertyBuilder src, PropertyName newName)
     {
         _internalName = src._internalName;
@@ -160,19 +163,28 @@ public class POJOPropertyBuilder
 
     @Override
     public boolean isExplicitlyIncluded() {
+        return _anyExplicits(_fields)
+                || _anyExplicits(_getters)
+                || _anyExplicits(_setters)
+                || _anyExplicits(_ctorParameters)
+                ;
+    }
+
+    @Override
+    public boolean isExplicitlyNamed() {
         return _anyExplicitNames(_fields)
                 || _anyExplicitNames(_getters)
                 || _anyExplicitNames(_setters)
                 || _anyExplicitNames(_ctorParameters)
                 ;
     }
-
+    
     /*
     /**********************************************************
     /* BeanPropertyDefinition implementation, accessor access
     /**********************************************************
      */
-    
+
     @Override
     public boolean hasGetter() { return _getters != null; }
 
@@ -186,6 +198,11 @@ public class POJOPropertyBuilder
     public boolean hasConstructorParameter() { return _ctorParameters != null; }
 
     @Override
+    public boolean couldDeserialize() {
+        return (_ctorParameters != null) || (_setters != null) || (_fields != null);
+    }
+
+    @Override
     public boolean couldSerialize() {
         return (_getters != null) || (_fields != null);
     }
@@ -193,79 +210,102 @@ public class POJOPropertyBuilder
     @Override
     public AnnotatedMethod getGetter()
     {
-        if (_getters == null) {
+        // Easy with zero or one getters...
+        Linked<AnnotatedMethod> curr = _getters;
+        if (curr == null) {
             return null;
         }
-        // If multiple, verify that they do not conflict...
-        AnnotatedMethod getter = _getters.value;
-        Linked<AnnotatedMethod> next = _getters.next;
+        Linked<AnnotatedMethod> next = curr.next;
+        if (next == null) {
+            return curr.value;
+        }
+        // But if multiple, verify that they do not conflict...
         for (; next != null; next = next.next) {
-            /* [JACKSON-255] Allow masking, i.e. report exception only if
-             *   declarations in same class, or there's no inheritance relationship
-             *   (sibling interfaces etc)
+            /* [JACKSON-255] Allow masking, i.e. do not report exception if one
+             *   is in super-class from the other
              */
-            AnnotatedMethod nextGetter = next.value;
-            Class<?> getterClass = getter.getDeclaringClass();
-            Class<?> nextClass = nextGetter.getDeclaringClass();
-            if (getterClass != nextClass) {
-                if (getterClass.isAssignableFrom(nextClass)) { // next is more specific
-                    getter = nextGetter;
+            Class<?> currClass = curr.value.getDeclaringClass();
+            Class<?> nextClass = next.value.getDeclaringClass();
+            if (currClass != nextClass) {
+                if (currClass.isAssignableFrom(nextClass)) { // next is more specific
+                    curr = next;
                     continue;
                 }
-                if (nextClass.isAssignableFrom(getterClass)) { // getter more specific
+                if (nextClass.isAssignableFrom(currClass)) { // current more specific
                     continue;
                 }
             }
-            /* [Issue#238]: Also, regular getters have precedence over "is-getters", so
-             *   latter can be skipped to resolve otherwise conflict.
-             *   This is bit ugly as we have to re-process naming (as determination of type
-             *   is not retained), but should work.
+            /* 30-May-2014, tatu: Three levels of precedence:
+             * 
+             * 1. Regular getters ("getX")
+             * 2. Is-getters ("isX")
+             * 3. Implicit, possible getters ("x")
              */
-            boolean thisIsGetter = BeanUtil.okNameForIsGetter(getter, getter.getName()) != null;
-            boolean nextIsGetter = BeanUtil.okNameForIsGetter(nextGetter, nextGetter.getName()) != null;
-            
-            if (thisIsGetter != nextIsGetter) {
-                if (thisIsGetter) {
-                    getter = nextGetter;
-                } 
+            int priNext = _getterPriority(next.value);
+            int priCurr = _getterPriority(curr.value);
+
+            if (priNext != priCurr) {
+                if (priNext < priCurr) {
+                    curr = next;
+                }
                 continue;
             }
             throw new IllegalArgumentException("Conflicting getter definitions for property \""+getName()+"\": "
-                    +getter.getFullName()+" vs "+nextGetter.getFullName());
+                    +curr.value.getFullName()+" vs "+next.value.getFullName());
         }
-        return getter;
+        // One more thing; to avoid having to do it again...
+        _getters = curr.withoutNext();
+        return curr.value;
     }
-
+    
     @Override
     public AnnotatedMethod getSetter()
     {
-        if (_setters == null) {
+        // Easy with zero or one getters...
+        Linked<AnnotatedMethod> curr = _setters;
+        if (curr == null) {
             return null;
         }
-        // If multiple, verify that they do not conflict...
-        AnnotatedMethod setter = _setters.value;
-        Linked<AnnotatedMethod> next = _setters.next;
+        Linked<AnnotatedMethod> next = curr.next;
+        if (next == null) {
+            return curr.value;
+        }
+        // But if multiple, verify that they do not conflict...
         for (; next != null; next = next.next) {
-            /* [JACKSON-255] Allow masking, i.e. report exception only if
-             *   declarations in same class, or there's no inheritance relationship
-             *   (sibling interfaces etc)
+            /* [JACKSON-255] Allow masking, i.e. do not report exception if one
+             *   is in super-class from the other
              */
-            AnnotatedMethod nextSetter = next.value;
-            Class<?> setterClass = setter.getDeclaringClass();
-            Class<?> nextClass = nextSetter.getDeclaringClass();
-            if (setterClass != nextClass) {
-                if (setterClass.isAssignableFrom(nextClass)) { // next is more specific
-                    setter = nextSetter;
+            Class<?> currClass = curr.value.getDeclaringClass();
+            Class<?> nextClass = next.value.getDeclaringClass();
+            if (currClass != nextClass) {
+                if (currClass.isAssignableFrom(nextClass)) { // next is more specific
+                    curr = next;
                     continue;
                 }
-                if (nextClass.isAssignableFrom(setterClass)) { // getter more specific
+                if (nextClass.isAssignableFrom(currClass)) { // current more specific
                     continue;
                 }
             }
+            /* 30-May-2014, tatu: Two levels of precedence:
+             * 
+             * 1. Regular setters ("setX(...)")
+             * 2. Implicit, possible setters ("x(...)")
+             */
+            int priNext = _setterPriority(next.value);
+            int priCurr = _setterPriority(curr.value);
+
+            if (priNext != priCurr) {
+                if (priNext < priCurr) {
+                    curr = next;
+                }
+                continue;
+            }
             throw new IllegalArgumentException("Conflicting setter definitions for property \""+getName()+"\": "
-                    +setter.getFullName()+" vs "+nextSetter.getFullName());
+                    +curr.value.getFullName()+" vs "+next.value.getFullName());
         }
-        return setter;
+        // One more thing; to avoid having to do it again...
+        _setters = curr.withoutNext();
+        return curr.value;
     }
 
     @Override
@@ -360,6 +400,30 @@ public class POJOPropertyBuilder
         return getMutator();
     }
 
+    protected int _getterPriority(AnnotatedMethod m)
+    {
+        final String name = m.getName();
+        // [#238]: Also, regular getters have precedence over "is-getters"
+        if (name.startsWith("get") && name.length() > 3) {
+            // should we check capitalization?
+            return 1;
+        }
+        if (name.startsWith("is") && name.length() > 2) {
+            return 2;
+        }
+        return 3;
+    }
+
+    protected int _setterPriority(AnnotatedMethod m)
+    {
+        final String name = m.getName();
+        if (name.startsWith("set") && name.length() > 3) {
+            // should we check capitalization?
+            return 1;
+        }
+        return 2;
+    }
+    
     /*
     /**********************************************************
     /* Implementations of refinement accessors
@@ -401,11 +465,12 @@ public class POJOPropertyBuilder
     public PropertyMetadata getMetadata() {
         final Boolean b = _findRequired();
         final String desc = _findDescription();
-        if (b == null) {
+        final Integer idx = _findIndex();
+        if (b == null && idx == null) {
             return (desc == null) ? PropertyMetadata.STD_REQUIRED_OR_OPTIONAL
                     : PropertyMetadata.STD_REQUIRED_OR_OPTIONAL.withDescription(desc);
         }
-        return PropertyMetadata.construct(b.booleanValue(), _findDescription());
+        return PropertyMetadata.construct(b.booleanValue(), desc, idx);
     }
 
     protected Boolean _findRequired() {
@@ -423,6 +488,15 @@ public class POJOPropertyBuilder
             @Override
             public String withMember(AnnotatedMember member) {
                 return _annotationIntrospector.findPropertyDescription(member);
+            }
+        });
+    }
+
+    protected Integer _findIndex() {
+        return fromMemberAnnotations(new WithMember<Integer>() {
+            @Override
+            public Integer withMember(AnnotatedMember member) {
+                return _annotationIntrospector.findPropertyIndex(member);
             }
         });
     }
@@ -447,20 +521,20 @@ public class POJOPropertyBuilder
     /**********************************************************
      */
     
-    public void addField(AnnotatedField a, String ename, boolean visible, boolean ignored) {
-        _fields = new Linked<AnnotatedField>(a, _fields, ename, visible, ignored);
+    public void addField(AnnotatedField a, PropertyName name, boolean explName, boolean visible, boolean ignored) {
+        _fields = new Linked<AnnotatedField>(a, _fields, name, explName, visible, ignored);
     }
 
-    public void addCtor(AnnotatedParameter a, String ename, boolean visible, boolean ignored) {
-        _ctorParameters = new Linked<AnnotatedParameter>(a, _ctorParameters, ename, visible, ignored);
+    public void addCtor(AnnotatedParameter a, PropertyName name, boolean explName, boolean visible, boolean ignored) {
+        _ctorParameters = new Linked<AnnotatedParameter>(a, _ctorParameters, name, explName, visible, ignored);
     }
 
-    public void addGetter(AnnotatedMethod a, String ename, boolean visible, boolean ignored) {
-        _getters = new Linked<AnnotatedMethod>(a, _getters, ename, visible, ignored);
+    public void addGetter(AnnotatedMethod a, PropertyName name, boolean explName, boolean visible, boolean ignored) {
+        _getters = new Linked<AnnotatedMethod>(a, _getters, name, explName, visible, ignored);
     }
 
-    public void addSetter(AnnotatedMethod a, String ename, boolean visible, boolean ignored) {
-        _setters = new Linked<AnnotatedMethod>(a, _setters, ename, visible, ignored);
+    public void addSetter(AnnotatedMethod a, PropertyName name, boolean explName, boolean visible, boolean ignored) {
+        _setters = new Linked<AnnotatedMethod>(a, _setters, name, explName, visible, ignored);
     }
 
     /**
@@ -485,6 +559,71 @@ public class POJOPropertyBuilder
         }
         return chain1.append(chain2);
     }
+
+    // // Deprecated variants that do not take 'explName': to be removed in a later version
+    // // (but are used at least by 2.3 and earlier versions of Scala module at least so
+    // // need to be careful with phasing out if before 3.0)
+    
+    /**
+     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
+     *   whether name of property was provided by annotation (and not derived from accessor name);
+     *   this method assumes the name is explicit if it is non-null.
+     */
+    @Deprecated
+    public void addField(AnnotatedField a, String name, boolean visible, boolean ignored) {
+        addField(a, _propName(name), name != null, visible, ignored);
+    }
+
+    @Deprecated
+    public void addField(AnnotatedField a, String name, boolean explName, boolean visible, boolean ignored) {
+        addField(a, _propName(name), explName, visible, ignored);
+    }
+    
+    /**
+     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
+     *   whether name of property was provided by annotation (and not derived from accessor name);
+     *   this method assumes the name is explicit if it is non-null.
+     */
+    @Deprecated
+    public void addCtor(AnnotatedParameter a, String name, boolean visible, boolean ignored) {
+        addCtor(a, _propName(name), name != null, visible, ignored);
+    }
+    @Deprecated
+    public void addCtor(AnnotatedParameter a, String name, boolean explName, boolean visible, boolean ignored) {
+        addCtor(a, _propName(name), explName, visible, ignored);
+    }
+    
+    /**
+     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
+     *   whether name of property was provided by annotation (and not derived from accessor name);
+     *   this method assumes the name is explicit if it is non-null.
+     */
+    @Deprecated
+    public void addGetter(AnnotatedMethod a, String name, boolean visible, boolean ignored) {
+        addGetter(a, _propName(name), name != null, visible, ignored);
+    }
+    @Deprecated
+    public void addGetter(AnnotatedMethod a, String name, boolean explName, boolean visible, boolean ignored) {
+        addGetter(a, _propName(name), explName, visible, ignored);
+    }
+    
+    /**
+     * @deprecated Since 2.4 call method that takes additional 'explName' argument, to indicate
+     *   whether name of property was provided by annotation (and not derived from accessor name);
+     *   this method assumes the name is explicit if it is non-null.
+     */
+    @Deprecated
+    public void addSetter(AnnotatedMethod a, String name, boolean visible, boolean ignored) {
+        addSetter(a, _propName(name), name != null, visible, ignored);
+    }
+    @Deprecated
+    public void addSetter(AnnotatedMethod a, String name, boolean explName, boolean visible, boolean ignored) {
+        addSetter(a, _propName(name), explName, visible, ignored);
+    }
+
+    private PropertyName _propName(String simple) {
+        return PropertyName.construct(simple, null);
+    }
     
     /*
     /**********************************************************
@@ -504,14 +643,6 @@ public class POJOPropertyBuilder
         _ctorParameters = _removeIgnored(_ctorParameters);
     }
 
-    /**
-     * @deprecated Since 2.2, use variant that takes boolean argument
-     */
-    @Deprecated
-    public void removeNonVisible() {
-        removeNonVisible(false);
-    }
-    
     public void removeNonVisible(boolean force)
     {
         /* 21-Aug-2011, tatu: This is tricky part -- if and when allow
@@ -613,10 +744,20 @@ public class POJOPropertyBuilder
     /**********************************************************
      */
 
+    private <T> boolean _anyExplicits(Linked<T> n)
+    {
+        for (; n != null; n = n.next) {
+            if (n.name != null && n.name.hasSimpleName()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private <T> boolean _anyExplicitNames(Linked<T> n)
     {
         for (; n != null; n = n.next) {
-            if (n.explicitName != null && n.explicitName.length() > 0) {
+            if (n.name != null && n.isNameExplicit) {
                 return true;
             }
         }
@@ -660,42 +801,120 @@ public class POJOPropertyBuilder
     }
 
     /**
-     * Method called to check whether property represented by this collector
-     * should be renamed from the implicit name; and also verify that there
-     * are no conflicting rename definitions.
+     * @since 2.4 Use {@link #findExplicitNames} instead
      */
+    @Deprecated
     public String findNewName()
     {
-        Linked<? extends AnnotatedMember> renamed = null;
-        renamed = findRenamed(_fields, renamed);
-        renamed = findRenamed(_getters, renamed);
-        renamed = findRenamed(_setters, renamed);
-        renamed = findRenamed(_ctorParameters, renamed);
-        return (renamed == null) ? null : renamed.explicitName;
+        Collection<PropertyName> l = findExplicitNames();
+        if (l == null) {
+            return null;
+        }
+        
+        // 13-Apr-2014, tatu: Start with code similar to existing conflict checks
+        if (l.size() > 1) {
+            throw new IllegalStateException("Conflicting/ambiguous property name definitions (implicit name '"
+                    +_name+"'): found more than one explicit name: "
+                    +l);
+        }
+        PropertyName first = l.iterator().next();
+        if (first.equals(_name)) {
+            return null;
+        }
+        return first.getSimpleName();
+    }
+    
+    /**
+     * Method called to find out set of explicit names for accessors
+     * bound together due to implicit name.
+     * 
+     * @since 2.4
+     */
+    public Set<PropertyName> findExplicitNames()
+    {
+        Set<PropertyName> renamed = null;
+        renamed = _findExplicitNames(_fields, renamed);
+        renamed = _findExplicitNames(_getters, renamed);
+        renamed = _findExplicitNames(_setters, renamed);
+        renamed = _findExplicitNames(_ctorParameters, renamed);
+        if (renamed == null) {
+            return Collections.emptySet();
+        }
+        return renamed;
     }
 
-    private Linked<? extends AnnotatedMember> findRenamed(Linked<? extends AnnotatedMember> node,
-            Linked<? extends AnnotatedMember> renamed)
+    /**
+     * Method called when a previous call to {@link #findExplicitNames} found
+     * multiple distinct explicit names, and the property this builder represents
+     * basically needs to be broken apart and replaced by a set of more than
+     * one properties.
+     * 
+     * @since 2.4
+     */
+    public Collection<POJOPropertyBuilder> explode(Collection<PropertyName> newNames)
+    {
+        HashMap<PropertyName,POJOPropertyBuilder> props = new HashMap<PropertyName,POJOPropertyBuilder>();
+        _explode(newNames, props, _fields);
+        _explode(newNames, props, _getters);
+        _explode(newNames, props, _setters);
+        _explode(newNames, props, _ctorParameters);
+        return props.values();
+    }
+
+    @SuppressWarnings("unchecked")
+    private void _explode(Collection<PropertyName> newNames,
+            Map<PropertyName,POJOPropertyBuilder> props,
+            Linked<?> accessors)
+    {
+        final Linked<?> firstAcc = accessors; // clumsy, part 1
+        for (Linked<?> node = accessors; node != null; node = node.next) {
+            PropertyName name = node.name;
+            if (!node.isNameExplicit || name == null) { // no explicit name -- problem!
+                throw new IllegalStateException("Conflicting/ambiguous property name definitions (implicit name '"
+                        +_name+"'): found multiple explicit names: "
+                        +newNames+", but also implicit accessor: "+node);
+            }
+            POJOPropertyBuilder prop = props.get(name);
+            if (prop == null) {
+                prop = new POJOPropertyBuilder(_internalName, name, _annotationIntrospector, _forSerialization);
+                props.put(name, prop);
+            }
+            // ultra-clumsy, part 2 -- lambdas would be nice here
+            if (firstAcc == _fields) {
+                Linked<AnnotatedField> n2 = (Linked<AnnotatedField>) node;
+                prop._fields = n2.withNext(prop._fields);
+            } else if (firstAcc == _getters) {
+                Linked<AnnotatedMethod> n2 = (Linked<AnnotatedMethod>) node;
+                prop._getters = n2.withNext(prop._getters);
+            } else if (firstAcc == _setters) {
+                Linked<AnnotatedMethod> n2 = (Linked<AnnotatedMethod>) node;
+                prop._setters = n2.withNext(prop._setters);
+            } else if (firstAcc == _ctorParameters) {
+                Linked<AnnotatedParameter> n2 = (Linked<AnnotatedParameter>) node;
+                prop._ctorParameters = n2.withNext(prop._ctorParameters);
+            } else {
+                throw new IllegalStateException("Internal error: mismatched accessors, property: "+this);
+            }
+        }
+    }
+    
+    private Set<PropertyName> _findExplicitNames(Linked<? extends AnnotatedMember> node,
+            Set<PropertyName> renamed)
     {
         for (; node != null; node = node.next) {
-            String explName = node.explicitName;
-            if (explName == null) {
-                continue;
-            }
-            // different from default name?
-            if (explName.equals(_name)) { // nope, skip
+            /* 30-Mar-2014, tatu: Second check should not be needed, but seems like
+             *   removing it can cause nasty exceptions with certain version
+             *   combinations (2.4 databind, an older module).
+             *   So leaving it in for now until this is resolved
+             *   (or version beyond 2.4)
+             */
+            if (!node.isNameExplicit || node.name == null) {
                 continue;
             }
             if (renamed == null) {
-                renamed = node;
-            } else {
-                // different from an earlier renaming? problem
-                if (!explName.equals(renamed.explicitName)) {
-                    throw new IllegalStateException("Conflicting property name definitions: '"
-                            +renamed.explicitName+"' (for "+renamed.value+") vs '"
-                            +node.explicitName+"' (for "+node.value+")");
-                }
+                renamed = new HashSet<PropertyName>();
             }
+            renamed.add(node.name);
         }
         return renamed;
     }
@@ -754,8 +973,7 @@ public class POJOPropertyBuilder
     /**********************************************************
      */
 
-    private interface WithMember<T>
-    {
+    private interface WithMember<T> {
         public T withMember(AnnotatedMember member);
     }
     
@@ -768,42 +986,57 @@ public class POJOPropertyBuilder
         public final T value;
         public final Linked<T> next;
 
-        public final String explicitName;
+        public final PropertyName name;
+        public final boolean isNameExplicit;
         public final boolean isVisible;
         public final boolean isMarkedIgnored;
         
         public Linked(T v, Linked<T> n,
-                String explName, boolean visible, boolean ignored)
+                PropertyName name, boolean explName, boolean visible, boolean ignored)
         {
             value = v;
             next = n;
             // ensure that we'll never have missing names
-            if (explName == null) {
-                explicitName = null;
-            } else {
-                explicitName = (explName.length() == 0) ? null : explName;
+            this.name = (name == null || name.isEmpty()) ? null : name;
+
+            if (explName) {
+                if (this.name == null) { // sanity check to catch internal problems
+                    throw new IllegalArgumentException("Can not pass true for 'explName' if name is null/empty");
+                }
+                // 03-Apr-2014, tatu: But how about name-space only override?
+                //   Probably should not be explicit? Or, need to merge somehow?
+                if (!name.hasSimpleName()) {
+                    explName = false;
+                }
             }
+            
+            isNameExplicit = explName;
             isVisible = visible;
             isMarkedIgnored = ignored;
         }
 
-        public Linked<T> withValue(T newValue)
-        {
+        public Linked<T> withoutNext() {
+            if (next == null) {
+                return this;
+            }
+            return new Linked<T>(value, null, name, isNameExplicit, isVisible, isMarkedIgnored);
+        }
+        
+        public Linked<T> withValue(T newValue) {
             if (newValue == value) {
                 return this;
             }
-            return new Linked<T>(newValue, next, explicitName, isVisible, isMarkedIgnored);
+            return new Linked<T>(newValue, next, name, isNameExplicit, isVisible, isMarkedIgnored);
         }
         
         public Linked<T> withNext(Linked<T> newNext) {
             if (newNext == next) {
                 return this;
             }
-            return new Linked<T>(value, newNext, explicitName, isVisible, isMarkedIgnored);
+            return new Linked<T>(value, newNext, name, isNameExplicit, isVisible, isMarkedIgnored);
         }
         
-        public Linked<T> withoutIgnored()
-        {
+        public Linked<T> withoutIgnored() {
             if (isMarkedIgnored) {
                 return (next == null) ? null : next.withoutIgnored();
             }
@@ -816,8 +1049,7 @@ public class POJOPropertyBuilder
             return this;
         }
         
-        public Linked<T> withoutNonVisible()
-        {
+        public Linked<T> withoutNonVisible() {
             Linked<T> newNext = (next == null) ? null : next.withoutNonVisible();
             return isVisible ? withNext(newNext) : newNext;
         }
@@ -826,28 +1058,26 @@ public class POJOPropertyBuilder
          * Method called to append given node(s) at the end of this
          * node chain.
          */
-        private Linked<T> append(Linked<T> appendable) 
-        {
+        private Linked<T> append(Linked<T> appendable) {
             if (next == null) {
                 return withNext(appendable);
             }
             return withNext(next.append(appendable));
         }
-        
-        public Linked<T> trimByVisibility()
-        {
+
+        public Linked<T> trimByVisibility() {
             if (next == null) {
                 return this;
             }
             Linked<T> newNext = next.trimByVisibility();
-            if (explicitName != null) { // this already has highest; how about next one?
-                if (newNext.explicitName == null) { // next one not, drop it
+            if (name != null) { // this already has highest; how about next one?
+                if (newNext.name == null) { // next one not, drop it
                     return withNext(null);
                 }
                 //  both have it, keep
                 return withNext(newNext);
             }
-            if (newNext.explicitName != null) { // next one has higher, return it...
+            if (newNext.name != null) { // next one has higher, return it...
                 return newNext;
             }
             // neither has explicit name; how about visibility?
@@ -859,7 +1089,8 @@ public class POJOPropertyBuilder
         
         @Override
         public String toString() {
-            String msg = value.toString()+"[visible="+isVisible+"]";
+            String msg = value.toString()+"[visible="+isVisible+",ignore="+isMarkedIgnored
+                    +",explicitName="+isNameExplicit+"]";
             if (next != null) {
                 msg = msg + ", "+next.toString();
             }

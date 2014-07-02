@@ -37,7 +37,9 @@ public class TestNullNode extends NodeTestBase
         assertFalse(n.has("field"));
         assertFalse(n.has(3));
 
-        // 1.6:
         assertNodeNumbersForNonNumeric(n);
+
+        // 2.4
+        assertEquals("foo", n.asText("foo"));
     }
 }

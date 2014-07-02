@@ -9,8 +9,11 @@ import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
  * used for handling serialization and deserialization of type information,
  * needed for handling of polymorphic types (or sometimes just for linking
  * abstract types to concrete types)
+ *<p>
+ * NOTE: since 2.4, applicable to properties as well (should have been long time
+ *  ago, but problem only found then)
  */
-@Target({ElementType.ANNOTATION_TYPE, ElementType.TYPE})
+@Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.TYPE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @com.fasterxml.jackson.annotation.JacksonAnnotation
 public @interface JsonTypeResolver

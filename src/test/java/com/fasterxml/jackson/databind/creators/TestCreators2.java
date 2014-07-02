@@ -11,15 +11,8 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-public class TestCreators2
-    extends BaseMapTest
+public class TestCreators2 extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
     static class HashTest
     {
         final byte[] bytes;
@@ -67,7 +60,7 @@ public class TestCreators2
         public Test431Container(@JsonProperty("items") final List<Item431> i) {
             items = i;
         }
-}    
+    }    
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     protected static class Item431 {
@@ -170,7 +163,7 @@ public class TestCreators2
     
     /*
     /**********************************************************
-    /* Unit tests
+    /* Test methods
     /**********************************************************
      */
 

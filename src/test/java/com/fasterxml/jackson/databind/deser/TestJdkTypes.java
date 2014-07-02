@@ -11,7 +11,12 @@ import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class TestJdkTypes extends BaseMapTest
 {
@@ -64,14 +69,37 @@ public class TestJdkTypes extends BaseMapTest
             ctor = foo;
         }
     }
+
+    // [Issue#429]
+    static class StackTraceBean {
+        public final static int NUM = 13;
+
+        @JsonProperty("Location")
+        @JsonDeserialize(using=MyStackTraceElementDeserializer.class)
+        private StackTraceElement location;    
+    }
+
+    @SuppressWarnings("serial")
+    static class MyStackTraceElementDeserializer extends StdDeserializer<StackTraceElement>
+    {
+        public MyStackTraceElementDeserializer() { super(StackTraceElement.class); }
+        
+        @Override
+        public StackTraceElement deserialize(JsonParser jp,
+                DeserializationContext ctxt) throws IOException, JsonProcessingException {
+            jp.skipChildren();
+            return new StackTraceElement("a", "b", "b", StackTraceBean.NUM);
+        }
+        
+    }
     
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
-    
-    private final ObjectMapper MAPPER = new ObjectMapper();
+
+    private final ObjectMapper MAPPER = objectMapper();
 
     /**
      * Related to issues [JACKSON-155], [#170].
@@ -238,9 +266,14 @@ public class TestJdkTypes extends BaseMapTest
         assertEquals(443, ip6port.getPort());
 
         // should we try resolving host names? That requires connectivity...
-        final String HOST = "www.ning.com";
+        final String HOST = "www.google.com";
         address = MAPPER.readValue(quote(HOST), InetSocketAddress.class);
         assertEquals(HOST, address.getHostName());
+
+        final String HOST_AND_PORT = HOST+":80";
+        address = MAPPER.readValue(quote(HOST_AND_PORT), InetSocketAddress.class);
+        assertEquals(HOST, address.getHostName());
+        assertEquals(80, address.getPort());
     }
 
     // [JACKSON-597]
@@ -386,6 +419,44 @@ public class TestJdkTypes extends BaseMapTest
         }
         assertEquals(0, result.remaining());
     }
+
+    // [Issue#429]
+    public void testStackTraceElementWithCustom() throws Exception
+    {
+        // first, via bean that contains StackTraceElement
+        StackTraceBean bean = MAPPER.readValue(aposToQuotes("{'Location':'foobar'}"),
+                StackTraceBean.class);
+        assertNotNull(bean);
+        assertNotNull(bean.location);
+        assertEquals(StackTraceBean.NUM, bean.location.getLineNumber());
+
+        // and then directly, iff registered
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+        module.addDeserializer(StackTraceElement.class, new MyStackTraceElementDeserializer());
+        mapper.registerModule(module);
+        
+        StackTraceElement elem = mapper.readValue("123", StackTraceElement.class);
+        assertNotNull(elem);
+        assertEquals(StackTraceBean.NUM, elem.getLineNumber());
+ 
+        // and finally, even as part of real exception
+        
+        IOException ioe = mapper.readValue(aposToQuotes("{'stackTrace':[ 123, 456 ]}"),
+                IOException.class);
+        assertNotNull(ioe);
+        StackTraceElement[] traces = ioe.getStackTrace();
+        assertNotNull(traces);
+        assertEquals(2, traces.length);
+        assertEquals(StackTraceBean.NUM, traces[0].getLineNumber());
+        assertEquals(StackTraceBean.NUM, traces[1].getLineNumber());
+    }
+    
+    /*
+    /**********************************************************
+    /* Single-array handling tests
+    /**********************************************************
+     */
     
     // [Issue#381]
     public void testSingleElementArray() throws Exception {

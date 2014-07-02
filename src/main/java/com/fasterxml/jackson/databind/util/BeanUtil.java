@@ -82,9 +82,9 @@ public class BeanUtil
 
     public static String okNameForMutator(AnnotatedMethod am, String prefix)
     {
-	    String name = am.getName();
+        String name = am.getName();
         if (name.startsWith(prefix)) {
-        	return manglePropertyName(name.substring(prefix.length()));
+            return manglePropertyName(name.substring(prefix.length()));
         }
         return null;
     }

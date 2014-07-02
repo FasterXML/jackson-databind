@@ -16,8 +16,8 @@ import com.fasterxml.jackson.databind.util.Annotations;
 
 /**
  * Wrapper property that is used to handle managed (forward) properties
- * (see [JACKSON-235] for more information). Basically just need to
- * delegate first to actual forward property, and 
+ * Basically just needs to delegate first to actual forward property, and
+ * then to back property.
  */
 public final class ManagedReferenceProperty
     extends SettableBeanProperty
@@ -36,9 +36,8 @@ public final class ManagedReferenceProperty
 
     protected final SettableBeanProperty _backProperty;
     
-    public ManagedReferenceProperty(SettableBeanProperty forward,
-            String refName, SettableBeanProperty backward,
-            Annotations contextAnnotations, boolean isContainer)
+    public ManagedReferenceProperty(SettableBeanProperty forward, String refName,
+            SettableBeanProperty backward, Annotations contextAnnotations, boolean isContainer)
     {
         super(forward.getFullName(), forward.getType(), forward.getWrapperName(),
                 forward.getValueTypeDeserializer(), contextAnnotations,
@@ -96,55 +95,41 @@ public final class ManagedReferenceProperty
      */
 
     @Override
-    public void deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
-                                  Object instance)
-        throws IOException, JsonProcessingException
-    {
+    public void deserializeAndSet(JsonParser jp, DeserializationContext ctxt, Object instance)
+            throws IOException, JsonProcessingException {
         set(instance, _managedProperty.deserialize(jp, ctxt));
     }
 
     @Override
-    public Object deserializeSetAndReturn(JsonParser jp,
-    		DeserializationContext ctxt, Object instance)
-        throws IOException, JsonProcessingException
-    {
+    public Object deserializeSetAndReturn(JsonParser jp, DeserializationContext ctxt, Object instance)
+            throws IOException, JsonProcessingException {
         return setAndReturn(instance, deserialize(jp, ctxt));
     }
     
     @Override
-    public final void set(Object instance, Object value)
-        throws IOException
-    {
+    public final void set(Object instance, Object value) throws IOException {
     	setAndReturn(instance, value);
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value)
-   		throws IOException
-	{
-        Object result = _managedProperty.setAndReturn(instance, value);
-        /* And then back reference, if (and only if!) we actually have a non-null
-         * reference
+    public Object setAndReturn(Object instance, Object value) throws IOException
+    {
+        /* 04-Feb-2014, tatu: As per [#390], it may be necessary to switch the
+         *   ordering of forward/backward references, and start with back ref.
          */
         if (value != null) {
             if (_isContainer) { // ok, this gets ugly... but has to do for now
                 if (value instanceof Object[]) {
                     for (Object ob : (Object[]) value) {
-                        if (ob != null) {
-                            _backProperty.set(ob, instance);                            
-                        }
+                        if (ob != null) { _backProperty.set(ob, instance); }
                     }
                 } else if (value instanceof Collection<?>) {
                     for (Object ob : (Collection<?>) value) {
-                        if (ob != null) {
-                            _backProperty.set(ob, instance);                            
-                        }
+                        if (ob != null) { _backProperty.set(ob, instance); }
                     }
                 } else if (value instanceof Map<?,?>) {
                     for (Object ob : ((Map<?,?>) value).values()) {
-                        if (ob != null) {
-                            _backProperty.set(ob, instance);                            
-                        }
+                        if (ob != null) { _backProperty.set(ob, instance); }
                     }
                 } else {
                     throw new IllegalStateException("Unsupported container type ("+value.getClass().getName()
@@ -154,6 +139,7 @@ public final class ManagedReferenceProperty
                 _backProperty.set(value, instance);
             }
         }
-        return result;
+        // and then the forward reference itself
+        return _managedProperty.setAndReturn(instance, value);
 	}
 }

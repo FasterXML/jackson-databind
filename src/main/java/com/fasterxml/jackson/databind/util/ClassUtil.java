@@ -599,6 +599,12 @@ public final class ClassUtil
         return (implClass.getAnnotation(JacksonStdImpl.class) != null);
     }
 
+    @SuppressWarnings("deprecation")
+    public final static boolean isBogusClass(Class<?> cls) {
+        return (cls == Void.class || cls == Void.TYPE
+                || cls == com.fasterxml.jackson.databind.annotation.NoClass.class);
+    }
+    
     /*
     /**********************************************************
     /* Helper classes
@@ -611,12 +617,12 @@ public final class ClassUtil
      */
     private static class EnumTypeLocator
     {
-    	final static EnumTypeLocator instance = new EnumTypeLocator();
+        final static EnumTypeLocator instance = new EnumTypeLocator();
 
-    	private final Field enumSetTypeField;
-    	private final Field enumMapTypeField;
+        private final Field enumSetTypeField;
+        private final Field enumMapTypeField;
     	
-    	private EnumTypeLocator() {
+        private EnumTypeLocator() {
     	    /* JDK uses following fields to store information about actual Enumeration
     	     * type for EnumSets, EnumMaps...
     	     */

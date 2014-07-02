@@ -81,7 +81,7 @@ public final class StringCollectionDeserializer
         return new StringCollectionDeserializer(_collectionType,
                 _valueInstantiator, delegateDeser, valueDeser);
     }
-    
+
     /*
     /**********************************************************
     /* Validation, post-processing
@@ -156,7 +156,7 @@ public final class StringCollectionDeserializer
 
     @Override
     public Collection<String> deserialize(JsonParser jp, DeserializationContext ctxt,
-                                          Collection<String> result)
+            Collection<String> result)
         throws IOException
     {
         // Ok: must point to START_ARRAY
@@ -170,7 +170,15 @@ public final class StringCollectionDeserializer
         JsonToken t;
 
         while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-            result.add((t == JsonToken.VALUE_NULL) ? null : _parseString(jp, ctxt));
+            String value;
+            if (t == JsonToken.VALUE_STRING) {
+                value = jp.getText();
+            } else if (t == JsonToken.VALUE_NULL) {
+                value = null;
+            } else {
+                value = _parseString(jp, ctxt);
+            }
+            result.add(value);
         }
         return result;
     }
@@ -183,7 +191,7 @@ public final class StringCollectionDeserializer
             String value;
 
             if (t == JsonToken.VALUE_NULL) {
-                value = null;
+                value = deser.getNullValue();
             } else {
                 value = deser.deserialize(jp, ctxt);
             }
@@ -216,7 +224,7 @@ public final class StringCollectionDeserializer
         String value;
         
         if (t == JsonToken.VALUE_NULL) {
-            value = null;
+            value = (valueDes == null) ? null : valueDes.getNullValue();
         } else {
             value = (valueDes == null) ? _parseString(jp, ctxt) : valueDes.deserialize(jp, ctxt);
         }

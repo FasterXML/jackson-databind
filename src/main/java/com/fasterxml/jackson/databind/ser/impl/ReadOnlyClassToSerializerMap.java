@@ -26,13 +26,11 @@ public final class ReadOnlyClassToSerializerMap
      */
     protected TypeKey _cacheKey = null;
     
-    private ReadOnlyClassToSerializerMap(JsonSerializerMap map)
-    {
+    private ReadOnlyClassToSerializerMap(JsonSerializerMap map) {
         _map = map;
     }
 
-    public ReadOnlyClassToSerializerMap instance()
-    {
+    public ReadOnlyClassToSerializerMap instance() {
         return new ReadOnlyClassToSerializerMap(_map);
     }
 
@@ -41,13 +39,11 @@ public final class ReadOnlyClassToSerializerMap
      * can not be used as is but just shared: to get an actual usable
      * instance, {@link #instance} has to be called first.
      */
-    public static ReadOnlyClassToSerializerMap from(HashMap<TypeKey, JsonSerializer<Object>> src)
-    {
+    public static ReadOnlyClassToSerializerMap from(HashMap<TypeKey, JsonSerializer<Object>> src) {
         return new ReadOnlyClassToSerializerMap(new JsonSerializerMap(src));
     }
 
-    public JsonSerializer<Object> typedValueSerializer(JavaType type)
-    { 
+    public JsonSerializer<Object> typedValueSerializer(JavaType type) { 
         if (_cacheKey == null) {
             _cacheKey = new TypeKey(type, true);
         } else {
@@ -56,8 +52,7 @@ public final class ReadOnlyClassToSerializerMap
         return _map.find(_cacheKey);
     }
 
-    public JsonSerializer<Object> typedValueSerializer(Class<?> cls)
-    { 
+    public JsonSerializer<Object> typedValueSerializer(Class<?> cls) { 
         if (_cacheKey == null) {
             _cacheKey = new TypeKey(cls, true);
         } else {
@@ -66,8 +61,7 @@ public final class ReadOnlyClassToSerializerMap
         return _map.find(_cacheKey);
     }
 
-    public JsonSerializer<Object> untypedValueSerializer(JavaType type)
-    { 
+    public JsonSerializer<Object> untypedValueSerializer(JavaType type) { 
         if (_cacheKey == null) {
             _cacheKey = new TypeKey(type, false);
         } else {
@@ -76,8 +70,7 @@ public final class ReadOnlyClassToSerializerMap
         return _map.find(_cacheKey);
     }
 
-    public JsonSerializer<Object> untypedValueSerializer(Class<?> cls)
-    { 
+    public JsonSerializer<Object> untypedValueSerializer(Class<?> cls) { 
         if (_cacheKey == null) {
             _cacheKey = new TypeKey(cls, false);
         } else {

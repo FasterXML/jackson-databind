@@ -39,7 +39,6 @@ public final class SetterlessProperty
     public SetterlessProperty(BeanPropertyDefinition propDef, JavaType type,
             TypeDeserializer typeDeser, Annotations contextAnnotations, AnnotatedMethod method) {
         super(propDef, type, typeDeser, contextAnnotations);
-System.err.println("Value type deser for SETTERLESS -> "+typeDeser);        
         _annotated = method;
         _getter = method.getAnnotated();
     }

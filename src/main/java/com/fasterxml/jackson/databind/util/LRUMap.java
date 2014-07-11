@@ -1,101 +1,52 @@
 package com.fasterxml.jackson.databind.util;
 
 import java.io.*;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Helper for simple bounded LRU maps used for reusing lookup values.
+ * Helper for simple bounded maps used for reusing lookup values.
  *<p>
  * Note that serialization behavior is such that contents are NOT serialized,
  * on assumption that all use cases are for caching where persistence
  * does not make sense. The only thing serialized is the cache size of Map.
  *<p>
- * NOTE: the only reason we extend {@link LinkedHashMap} instead of aggregating
- * it is that this way we can override {@link #removeEldestEntry}.
- * Access, however, MUST be done using single-element access methods (or matching
- * <code>xxxAll()</code> methods that call them); access via iterators are not
- * guaranteed to work.
- *<p>
- * NOTE: since version 2.4, uses {@link ReentrantReadWriteLock} to improve
- * concurrent access.
+ * NOTE: since version 2.4.2, this is <b>NOT</b> an LRU-based at all; reason
+ * being that it is not possible to use JDK components that do LRU _AND_ perform
+ * well wrt synchronization on multi-core systems. So we choose efficient synchronization
+ * over potentially more effecient handling of entries.
  */
-public class LRUMap<K,V> extends LinkedHashMap<K,V>
+public class LRUMap<K,V>
     implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
-    protected final transient Lock _readLock, _writeLock;
-    
     protected final transient int _maxEntries;
+
+    protected final transient ConcurrentHashMap<K,V> _map;
     
     public LRUMap(int initialEntries, int maxEntries)
     {
-        super(initialEntries, 0.8f, true);
+        // We'll use concurrency level of 4, seems reasonable
+        _map = new ConcurrentHashMap<K,V>(initialEntries, 0.8f, 4);
         _maxEntries = maxEntries;
-        final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
-        _readLock = rwl.readLock();
-        _writeLock = rwl.writeLock();
     }
 
-    @Override
-    protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
-        return size() > _maxEntries;
-    }
-
-    /*
-    /**********************************************************
-    /* Overrides to support proper concurrency
-    /**********************************************************
-     */
-
-    @Override
-    public V get(Object key) {
-        _readLock.lock();
-        try {
-            return super.get(key);
-        } finally {
-            _readLock.unlock();
+    public void put(K key, V value) {
+        if (_map.size() >= _maxEntries) {
+            // double-locking, yes, but safe here; trying to avoid "clear storms"
+            synchronized (this) {
+                if (_map.size() >= _maxEntries) {
+                    clear();
+                }
+            }
         }
+        _map.put(key, value);
     }
 
-    @Override
-    public V put(K key, V value) {
-        _writeLock.lock();
-        try {
-            return super.put(key, value);
-        } finally {
-            _writeLock.unlock();
-        }
-    }
+    public V get(K key) {  return _map.get(key); }
+    public void clear() { _map.clear(); }
+    public int size() { return _map.size(); }
 
-    @Override
-    public V remove(Object key) {
-        _writeLock.lock();
-        try {
-            return super.remove(key);
-        } finally {
-            _writeLock.unlock();
-        }
-    }
-
-    /**
-     * Overridden to allow concurrent way of removing all cached entries.
-     * 
-     * @since 2.4.1
-     */
-    @Override
-    public void clear() {
-        _writeLock.lock();
-        try {
-            super.clear();
-        } finally {
-            _writeLock.unlock();
-        }
-    }
-    
     /*
     /**********************************************************
     /* Serializable overrides

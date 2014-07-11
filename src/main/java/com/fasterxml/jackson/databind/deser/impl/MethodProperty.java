@@ -101,15 +101,13 @@ public final class MethodProperty
 
     @Override
     public Object deserializeSetAndReturn(JsonParser jp,
-    		DeserializationContext ctxt, Object instance)
-        throws IOException, JsonProcessingException
+    		DeserializationContext ctxt, Object instance) throws IOException
     {
-    	return setAndReturn(instance, deserialize(jp, ctxt));
+        return setAndReturn(instance, deserialize(jp, ctxt));
     }
     
     @Override
-    public final void set(Object instance, Object value)
-        throws IOException
+    public final void set(Object instance, Object value) throws IOException
     {
         try {
             _setter.invoke(instance, value);
@@ -119,8 +117,7 @@ public final class MethodProperty
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value)
-		throws IOException
+    public Object setAndReturn(Object instance, Object value) throws IOException
     {
         try {
             Object result = _setter.invoke(instance, value);

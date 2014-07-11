@@ -813,6 +813,8 @@ public class BeanDeserializerFactory
          */
         JsonDeserializer<Object> propDeser = findDeserializerFromAnnotation(ctxt, getter);
         type = modifyTypeByAnnotation(ctxt, getter, type);
+        // As per [Issue#501], need full resolution:
+        type = resolveType(ctxt, beanDesc, type, getter);
         TypeDeserializer typeDeser = type.getTypeHandler();
         SettableBeanProperty prop = new SetterlessProperty(propDef, type, typeDeser,
                 beanDesc.getClassAnnotations(), getter);

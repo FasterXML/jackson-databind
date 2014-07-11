@@ -41,7 +41,6 @@ public class TestSetterlessProperties
         }
     }
 
-    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
     static class Poly {
         public int id;
 
@@ -59,12 +58,18 @@ public class TestSetterlessProperties
             l.add(value);
         }
         
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
         public List<Poly> getList(){
             return l;
         }
-        public Map<String,Poly> getMap(){
+
+        @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
+        public Map<String,Poly> getMap() {
             return m;
         }
+
+//        public void setMap(Map<String,Poly> m) { this.m = m; }
+//        public void setList(List<Poly> l) { this.l = l; }
     }
     
     /*
@@ -148,14 +153,16 @@ public class TestSetterlessProperties
         assertEquals(3, value.values.size());
     }
 
+    // For [Issue#501]
     public void testSetterlessWithPolymorphic() throws Exception
     {
         Issue501Bean input = new Issue501Bean("a", new Poly(13));
         ObjectMapper m = new ObjectMapper();
         assertTrue(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
-        
-        String json = m.writeValueAsString(input);
-        
+        m.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+
+        String json = m.writerWithDefaultPrettyPrinter().writeValueAsString(input);
+
         Issue501Bean output = m.readValue(json, Issue501Bean.class);
         assertNotNull(output);
 

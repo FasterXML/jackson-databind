@@ -15,12 +15,6 @@ import com.fasterxml.jackson.databind.*;
 public class TestSetterlessProperties
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper beans
-    /**********************************************************
-     */
-
     static class CollectionBean
     {
         List<String> _values = new ArrayList<String>();
@@ -47,6 +41,32 @@ public class TestSetterlessProperties
         }
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+    static class Poly {
+        public int id;
+
+        public Poly(int id) { this.id = id; }
+        protected Poly() { this(0); }
+    }
+
+    static class Issue501Bean {
+        protected Map<String,Poly> m = new HashMap<String,Poly>();
+        protected List<Poly> l = new ArrayList<Poly>();
+
+        protected Issue501Bean() { }
+        public Issue501Bean(String key, Poly value) {
+            m.put(key, value);
+            l.add(value);
+        }
+        
+        public List<Poly> getList(){
+            return l;
+        }
+        public Map<String,Poly> getMap(){
+            return m;
+        }
+    }
+    
     /*
     /**********************************************************
     /* Unit tests
@@ -126,5 +146,25 @@ public class TestSetterlessProperties
         Dual value = m.readValue("{\"list\":[1,2,3]}, valueType)", Dual.class);
         assertNotNull(value);
         assertEquals(3, value.values.size());
+    }
+
+    public void testSetterlessWithPolymorphic() throws Exception
+    {
+        Issue501Bean input = new Issue501Bean("a", new Poly(13));
+        ObjectMapper m = new ObjectMapper();
+        assertTrue(m.isEnabled(MapperFeature.USE_GETTERS_AS_SETTERS));
+        
+        String json = m.writeValueAsString(input);
+        
+        Issue501Bean output = m.readValue(json, Issue501Bean.class);
+        assertNotNull(output);
+
+        assertEquals(1, output.l.size());
+        assertEquals(1, output.m.size());
+
+        assertEquals(13, output.l.get(0).id);
+        Poly p = output.m.get("a");
+        assertNotNull(p);
+        assertEquals(13, p.id);
     }
 }

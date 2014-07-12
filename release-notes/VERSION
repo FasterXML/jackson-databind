@@ -1,5 +1,7 @@
 Project: jackson-databind
-Version: 2.4.2 (xx-Jul-2014)
+Version: 2.4.1.2 (12-Jul-2014)
+
+Special one-off "micro patch" for:
 
 #503: Concurrency issue inside com.fasterxml.jackson.databind.util.LRUMap.get(Object)
  (reported by fjtc@github)

@@ -43,7 +43,9 @@ public class LRUMap<K,V>
         _map.put(key, value);
     }
 
-    public V get(K key) {  return _map.get(key); }
+    // NOTE: key is of type Object only to retain binary backwards-compatibility
+    public V get(Object key) {  return _map.get(key); }
+
     public void clear() { _map.clear(); }
     public int size() { return _map.size(); }
 

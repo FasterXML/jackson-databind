@@ -31,7 +31,7 @@ public class LRUMap<K,V>
         _maxEntries = maxEntries;
     }
 
-    public void put(K key, V value) {
+    public V put(K key, V value) {
         if (_map.size() >= _maxEntries) {
             // double-locking, yes, but safe here; trying to avoid "clear storms"
             synchronized (this) {
@@ -40,7 +40,7 @@ public class LRUMap<K,V>
                 }
             }
         }
-        _map.put(key, value);
+        return _map.put(key, value);
     }
 
     // NOTE: key is of type Object only to retain binary backwards-compatibility

@@ -1,5 +1,5 @@
 Project: jackson-databind
-Version: 2.3.4 (xx-xxx-2014)
+Version: 2.3.4 (17-Jul-2014)
 
 #459: BeanDeserializerBuilder copy constructor not copying `_injectables`
 #462: Annotation-provided Deserializers are not contextualized inside CreatorProperties

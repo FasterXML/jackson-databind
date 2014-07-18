@@ -30,7 +30,8 @@ public class TestCreators3 extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
 
-    public void testMulitCtor421() throws Exception
+    // [Issue#421]
+    public void testMultiCtor421() throws Exception
     {
         MultiCtor bean = MAPPER.readValue(aposToQuotes("{'a':'123','b':'foo'}"), MultiCtor.class);
         assertNotNull(bean);

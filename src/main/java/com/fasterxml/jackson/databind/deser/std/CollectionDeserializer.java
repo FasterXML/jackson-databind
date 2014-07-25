@@ -245,6 +245,9 @@ public class CollectionDeserializer
                 }
                 Referring ref = referringAccumulator.handleUnresolvedReference(reference);
                 reference.getRoid().appendReferring(ref);
+            } catch (Exception e) {
+                // note: pass Object.class, not Object[].class, as we need element type for error info
+                throw JsonMappingException.wrapWithPath(e, Object.class, result.size());
             }
         }
         return result;
@@ -277,13 +280,18 @@ public class CollectionDeserializer
         JsonToken t = jp.getCurrentToken();
 
         Object value;
-        
-        if (t == JsonToken.VALUE_NULL) {
-            value = valueDes.getNullValue();
-        } else if (typeDeser == null) {
-            value = valueDes.deserialize(jp, ctxt);
-        } else {
-            value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+
+        try {
+            if (t == JsonToken.VALUE_NULL) {
+                value = valueDes.getNullValue();
+            } else if (typeDeser == null) {
+                value = valueDes.deserialize(jp, ctxt);
+            } else {
+                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+            }
+        } catch (Exception e) {
+            // note: pass Object.class, not Object[].class, as we need element type for error info
+            throw JsonMappingException.wrapWithPath(e, Object.class, result.size());
         }
         result.add(value);
         return result;

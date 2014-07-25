@@ -1407,17 +1407,15 @@ public abstract class BeanDeserializerBase
      *   {@link JsonMappingException} are to be passed as is
      *</ul>
      */
-    public void wrapAndThrow(Throwable t, Object bean, String fieldName,
-            DeserializationContext ctxt)
+    public void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
         throws IOException
     {
         // [JACKSON-55] Need to add reference information
         throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, fieldName);
     }
 
-    public void wrapAndThrow(Throwable t, Object bean, int index, DeserializationContext ctxt)
-        throws IOException
-    {
+    @Deprecated // since 2.4, not used by core Jackson; only relevant for arrays/Collections
+    public void wrapAndThrow(Throwable t, Object bean, int index, DeserializationContext ctxt) throws IOException {
         // [JACKSON-55] Need to add reference information
         throw JsonMappingException.wrapWithPath(throwOrReturnThrowable(t, ctxt), bean, index);
     }

@@ -169,16 +169,21 @@ public final class StringCollectionDeserializer
         }
         JsonToken t;
 
-        while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-            String value;
-            if (t == JsonToken.VALUE_STRING) {
-                value = jp.getText();
-            } else if (t == JsonToken.VALUE_NULL) {
-                value = null;
-            } else {
-                value = _parseString(jp, ctxt);
+        try {
+            while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+                String value;
+                if (t == JsonToken.VALUE_STRING) {
+                    value = jp.getText();
+                } else if (t == JsonToken.VALUE_NULL) {
+                    value = null;
+                } else {
+                    value = _parseString(jp, ctxt);
+                }
+                result.add(value);
             }
-            result.add(value);
+        } catch (Exception e) {
+            // note: pass String.class, not String[].class, as we need element type for error info
+            throw JsonMappingException.wrapWithPath(e, String.class, result.size());
         }
         return result;
     }

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -88,22 +87,27 @@ public class EnumSetDeserializer
         EnumSet result = constructSet();
         JsonToken t;
 
-        while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-            /* What to do with nulls? Fail or ignore? Fail, for now
-             * (note: would fail if we passed it to EnumDeserializer, too,
-             * but in general nulls should never be passed to non-container
-             * deserializers)
-             */
-            if (t == JsonToken.VALUE_NULL) {
-                throw ctxt.mappingException(_enumClass);
+        try {
+            while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+                /* What to do with nulls? Fail or ignore? Fail, for now
+                 * (note: would fail if we passed it to EnumDeserializer, too,
+                 * but in general nulls should never be passed to non-container
+                 * deserializers)
+                 */
+                if (t == JsonToken.VALUE_NULL) {
+                    throw ctxt.mappingException(_enumClass);
+                }
+                Enum<?> value = _enumDeserializer.deserialize(jp, ctxt);
+                /* 24-Mar-2012, tatu: As per [JACKSON-810], may actually get nulls;
+                 *    but EnumSets don't allow nulls so need to skip.
+                 */
+                if (value != null) { 
+                    result.add(value);
+                }
             }
-            Enum<?> value = _enumDeserializer.deserialize(jp, ctxt);
-            /* 24-Mar-2012, tatu: As per [JACKSON-810], may actually get nulls;
-             *    but EnumSets don't allow nulls so need to skip.
-             */
-            if (value != null) { 
-                result.add(value);
-            }
+        } catch (Exception e) {
+            // note: pass Object.class, not Object[].class, as we need element type for error info
+            throw JsonMappingException.wrapWithPath(e, Enum.class, result.size());
         }
         return result;
     }

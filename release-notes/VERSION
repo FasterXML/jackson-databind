@@ -1,14 +1,19 @@
 Project: jackson-databind
 Version: 2.4.1.2 (12-Jul-2014)
 
-Special one-off "micro patch" for:
-
-#503: Concurrency issue inside com.fasterxml.jackson.databind.util.LRUMap.get(Object)
- (reported by fjtc@github)
+#506: Index is never set for Collection and Array in InvalidFormatException.Reference
+ (reported by Fabrice D, fabdouglas@github)
 
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
+
+2.4.1.2 (12-Jul-2014)
+
+Special one-off "micro patch" for:
+
+#503: Concurrency issue inside com.fasterxml.jackson.databind.util.LRUMap.get(Object)
+ (reported by fjtc@github)
 
 2.4.1.1 (18-Jun-2014)
 

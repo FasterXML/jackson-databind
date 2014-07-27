@@ -106,8 +106,7 @@ public class EnumSetDeserializer
                 }
             }
         } catch (Exception e) {
-            // note: pass Object.class, not Object[].class, as we need element type for error info
-            throw JsonMappingException.wrapWithPath(e, Enum.class, result.size());
+            throw JsonMappingException.wrapWithPath(e, result, result.size());
         }
         return result;
     }

@@ -182,8 +182,7 @@ public final class StringCollectionDeserializer
                 result.add(value);
             }
         } catch (Exception e) {
-            // note: pass String.class, not String[].class, as we need element type for error info
-            throw JsonMappingException.wrapWithPath(e, String.class, result.size());
+            throw JsonMappingException.wrapWithPath(e, result, result.size());
         }
         return result;
     }

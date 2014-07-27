@@ -246,8 +246,7 @@ public class CollectionDeserializer
                 Referring ref = referringAccumulator.handleUnresolvedReference(reference);
                 reference.getRoid().appendReferring(ref);
             } catch (Exception e) {
-                // note: pass Object.class, not Object[].class, as we need element type for error info
-                throw JsonMappingException.wrapWithPath(e, Object.class, result.size());
+                throw JsonMappingException.wrapWithPath(e, result, result.size());
             }
         }
         return result;

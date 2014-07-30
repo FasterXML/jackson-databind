@@ -357,7 +357,9 @@ There is really just one main rule, which is that to accept any code contributio
 
 One additional limitation exists for so-called core components (streaming api, jackson-annotations and jackson-databind): no additional dependendies are allowed beyond:
 
-* Core components may rely on any methods included in the supported JDK: currently core components are limited to JDK 1.5
+* Core components may rely on any methods included in the supported JDK: currently core components are limited to:
+    * JDK 1.5 (Java 5) for versions up to and including 2.3
+    * Java 6 for versions 2.4 and above
 * Jackson-databind (this package) depends on the other two (annotations, streaming).
 
 This means that anything that has to rely on additional APIs or libraries needs to be built as an extension, usually a Jackson module.

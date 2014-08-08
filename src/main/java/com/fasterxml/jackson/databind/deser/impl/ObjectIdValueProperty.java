@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -78,16 +77,14 @@ public final class ObjectIdValueProperty
 
     @Override
     public void deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
-            Object instance)
-        throws IOException, JsonProcessingException
+            Object instance) throws IOException
     {
         deserializeSetAndReturn(jp, ctxt, instance);
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser jp,
-    		DeserializationContext ctxt, Object instance)
-        throws IOException, JsonProcessingException
+    		DeserializationContext ctxt, Object instance) throws IOException
     {
         // note: no null checks (unlike usually); deserializer should fail if one found
         Object id = _valueDeserializer.deserialize(jp, ctxt);
@@ -107,8 +104,7 @@ public final class ObjectIdValueProperty
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value)
-        throws IOException
+    public Object setAndReturn(Object instance, Object value) throws IOException
     {
         SettableBeanProperty idProp = _objectIdReader.idProperty;
         if (idProp == null) {

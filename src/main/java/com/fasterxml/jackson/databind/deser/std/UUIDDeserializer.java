@@ -104,7 +104,7 @@ public class UUIDDeserializer extends FromStringDeserializer<UUID>
         throw new NumberFormatException("Non-hex character '"+c+"', not valid character for a UUID String"
                 +"' (value 0x"+Integer.toHexString(c)+") for UUID String \""+uuidStr+"\"");
     }
-    
+
     private UUID _fromBytes(byte[] bytes, DeserializationContext ctxt) throws IOException {
         if (bytes.length != 16) {
             ctxt.mappingException("Can only construct UUIDs from byte[16]; got "+bytes.length+" bytes");

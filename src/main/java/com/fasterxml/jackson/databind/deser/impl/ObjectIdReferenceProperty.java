@@ -71,7 +71,7 @@ public class ObjectIdReferenceProperty extends SettableBeanProperty {
     public Object deserializeSetAndReturn(JsonParser jp, DeserializationContext ctxt, Object instance)
         throws IOException, JsonProcessingException
     {
-        boolean usingIdentityInfo = _objectIdInfo != null || _valueDeserializer.getObjectIdReader() != null;
+        boolean usingIdentityInfo = (_objectIdInfo != null) || (_valueDeserializer.getObjectIdReader() != null);
         try {
             return setAndReturn(instance, deserialize(jp, ctxt));
         } catch (UnresolvedForwardReference reference) {

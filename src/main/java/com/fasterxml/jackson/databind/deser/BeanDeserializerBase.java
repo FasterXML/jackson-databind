@@ -994,8 +994,7 @@ public abstract class BeanDeserializerBase
      */
     @SuppressWarnings("resource") // TokenBuffers don't need close, nor parser thereof
     protected Object _convertObjectId(JsonParser jp, DeserializationContext ctxt,
-            Object rawId, JsonDeserializer<Object> idDeser)
-        throws IOException, JsonProcessingException
+            Object rawId, JsonDeserializer<Object> idDeser) throws IOException
     {
         TokenBuffer buf = new TokenBuffer(jp);
         if (rawId instanceof String) {
@@ -1006,6 +1005,8 @@ public abstract class BeanDeserializerBase
             buf.writeNumber(((Integer) rawId).intValue());
         } else {
             // should we worry about UUIDs? They should be fine, right?
+            // 07-Aug-2014, tatu: Maybe, but not necessarily; had issues with
+            //   Smile format; [Smile#19], possibly related.
             buf.writeObject(rawId);
         }
         JsonParser bufParser = buf.asParser();
@@ -1022,8 +1023,7 @@ public abstract class BeanDeserializerBase
      * buffering in some cases, but usually just a simple lookup to ensure
      * that ordering is correct.
      */
-    protected Object deserializeWithObjectId(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+    protected Object deserializeWithObjectId(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         return deserializeFromObject(jp, ctxt);
     }
@@ -1032,8 +1032,7 @@ public abstract class BeanDeserializerBase
      * Method called in cases where it looks like we got an Object Id
      * to parse and use as a reference.
      */
-    protected Object deserializeFromObjectId(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    protected Object deserializeFromObjectId(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         Object id = _objectIdReader.readObjectReference(jp, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
@@ -1047,8 +1046,7 @@ public abstract class BeanDeserializerBase
     }
 
     protected Object deserializeFromObjectUsingNonDefault(JsonParser jp,
-            DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+            DeserializationContext ctxt) throws IOException
     {        
         if (_delegateDeserializer != null) {
             return _valueInstantiator.createUsingDelegate(ctxt,
@@ -1071,8 +1069,7 @@ public abstract class BeanDeserializerBase
         throws IOException, JsonProcessingException;
 
     @SuppressWarnings("incomplete-switch")
-    public Object deserializeFromNumber(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public Object deserializeFromNumber(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         // First things first: id Object Id is used, most likely that's it
         if (_objectIdReader != null) {
@@ -1114,8 +1111,7 @@ public abstract class BeanDeserializerBase
         throw ctxt.instantiationException(getBeanClass(), "no suitable creator method found to deserialize from JSON integer number");
     }
 
-    public Object deserializeFromString(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public Object deserializeFromString(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         // First things first: id Object Id is used, most likely that's it
         if (_objectIdReader != null) {
@@ -1142,8 +1138,7 @@ public abstract class BeanDeserializerBase
      * number.
      */
     @SuppressWarnings("incomplete-switch")
-    public Object deserializeFromDouble(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public Object deserializeFromDouble(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         switch (jp.getNumberType()) {
         case FLOAT: // no separate methods for taking float...
@@ -1169,8 +1164,7 @@ public abstract class BeanDeserializerBase
     /**
      * Method called to deserialize POJO value from a JSON boolean value (true, false)
      */
-    public Object deserializeFromBoolean(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public Object deserializeFromBoolean(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         if (_delegateDeserializer != null) {
             if (!_valueInstantiator.canCreateFromBoolean()) {
@@ -1185,8 +1179,7 @@ public abstract class BeanDeserializerBase
         return _valueInstantiator.createFromBoolean(ctxt, value);
     }
 
-    public Object deserializeFromArray(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public Object deserializeFromArray(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         if (_delegateDeserializer != null) {
             try {
@@ -1208,6 +1201,19 @@ public abstract class BeanDeserializerBase
             return value;
         }
         throw ctxt.mappingException(getBeanClass());
+    }
+
+    public Object deserializeFromEmbedded(JsonParser jp, DeserializationContext ctxt) throws IOException
+    {
+        // First things first: id Object Id is used, most likely that's it; specifically,
+        // true for UUIDs when written as binary (with Smile, other binary formats)
+        if (_objectIdReader != null) {
+            return deserializeFromObjectId(jp, ctxt);
+        }
+
+        // TODO: maybe add support for ValueInstantiator, embedded?
+        
+        return jp.getEmbeddedObject();
     }
     
     /*

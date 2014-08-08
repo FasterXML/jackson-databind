@@ -127,12 +127,8 @@ public class BeanDeserializer
     }
 
     protected final Object _deserializeOther(JsonParser jp, DeserializationContext ctxt,
-            JsonToken t)
-        throws IOException, JsonProcessingException
+            JsonToken t) throws IOException
     {
-        if (t == null) {
-            return _missingToken(jp, ctxt);
-        }
         // and then others, generally requiring use of @JsonCreator
         switch (t) {
         case VALUE_STRING:
@@ -142,7 +138,7 @@ public class BeanDeserializer
         case VALUE_NUMBER_FLOAT:
 	    return deserializeFromDouble(jp, ctxt);
         case VALUE_EMBEDDED_OBJECT:
-            return jp.getEmbeddedObject();
+            return deserializeFromEmbedded(jp, ctxt);
         case VALUE_TRUE:
         case VALUE_FALSE:
             return deserializeFromBoolean(jp, ctxt);

@@ -13,7 +13,7 @@ public final class AnnotatedClass
     extends Annotated
 {
     private final static AnnotationMap[] NO_ANNOTATION_MAPS = new AnnotationMap[0];
-    
+
     /*
     /**********************************************************
     /* Configuration
@@ -654,7 +654,13 @@ public final class AnnotatedClass
                      * just placeholder, can't be called)
                      */
                 } else {
-                    mixIns.add(_constructMethod(m));
+                    // Well, or, as per [Issue#515], multi-level merge within mixins...
+                    am = mixIns.find(m);
+                    if (am != null) {
+                        _addMixUnders(m, am);
+                    } else {
+                        mixIns.add(_constructMethod(m));
+                    }
                 }
             }
         }

@@ -11,13 +11,18 @@ public class TestCreators3 extends BaseMapTest
         protected String _a, _b;
         
         @JsonCreator
-        MultiCtor(@JsonProperty("a") String a, @JsonProperty("b") String b) {
-            _a = a;
-            _b = b;
+        static MultiCtor factory(@JsonProperty("a") String a, @JsonProperty("b") String b) {
+            return new MultiCtor(a, b, Boolean.TRUE);
         }
 
-        MultiCtor(String a, String b, Object c) {
-            throw new RuntimeException("Wrong factory!");
+        private MultiCtor() { }
+
+        private MultiCtor(String a, String b, Object c) {
+            if (c == null) {
+                throw new RuntimeException("Wrong factory!");
+            }
+            _a = a;
+            _b = b;
         }
         
     }

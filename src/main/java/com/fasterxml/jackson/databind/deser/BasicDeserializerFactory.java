@@ -398,7 +398,9 @@ public abstract class BasicDeserializerFactory
 
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             int argCount = ctor.getParameterCount();
-            boolean isCreator = intr.hasCreatorAnnotation(ctor) || ctor == propertyCtor;
+            boolean isCreator = intr.hasCreatorAnnotation(ctor) || (ctor == propertyCtor);
+//            boolean isCreator = intr.hasCreatorAnnotation(ctor);
+            
             boolean isVisible =  vchecker.isCreatorVisible(ctor);
             // some single-arg constructors (String, number) are auto-detected
             if (argCount == 1) {
@@ -473,15 +475,15 @@ public abstract class BasicDeserializerFactory
             PropertyName name)
         throws JsonMappingException
     {
-        // note: if we do have parameter name, it'll be "property constructor":
+        // note: if we do have EXPLICIT parameter name, it'll be "property constructor":
         AnnotatedParameter param = ctor.getParameter(0);
         if (name == null) {
-            name = _findParamName(param, intr);
+            name = _findExplicitParamName(param, intr);
         }
         Object injectId = intr.findInjectableValueId(param);
     
         if ((injectId != null) || (name != null && name.hasSimpleName())) { // property-based
-            // We know there's a name and it's only 1 parameter.
+            // We know there's EXPLICIT name and it's only 1 parameter.
             CreatorProperty[] properties = new CreatorProperty[1];
             properties[0] = constructCreatorProperty(ctxt, beanDesc, name, 0, param, injectId);
             creators.addPropertyCreator(ctor, properties);
@@ -547,7 +549,8 @@ public abstract class BasicDeserializerFactory
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
                 AnnotatedParameter param = factory.getParameter(0);
-                PropertyName pn = _findParamName(param, intr);
+                // NOTE: only consider EXPLICIT names for auto-detection
+                PropertyName pn = _findExplicitParamName(param, intr);
                 String name = (pn == null) ? null : pn.getSimpleName();
                 Object injectId = intr.findInjectableValueId(param);
 
@@ -708,7 +711,7 @@ public abstract class BasicDeserializerFactory
         }
         return prop;
     }
-
+    
     protected PropertyName _findParamName(AnnotatedParameter param, AnnotationIntrospector intr)
     {
         if (param != null && intr != null) {
@@ -725,6 +728,23 @@ public abstract class BasicDeserializerFactory
             }
         }
         return null;
+    }
+
+    protected PropertyName _findExplicitParamName(AnnotatedParameter param, AnnotationIntrospector intr)
+    {
+        if (param != null && intr != null) {
+            return intr.findNameForDeserialization(param);
+        }
+        return null;
+    }
+    
+    protected boolean _hasExplicitParamName(AnnotatedParameter param, AnnotationIntrospector intr)
+    {
+        if (param != null && intr != null) {
+            PropertyName n = intr.findNameForDeserialization(param);
+            return (n != null) && n.hasSimpleName();
+        }
+        return false;
     }
     
     /*

@@ -1,27 +1,19 @@
 Project: jackson-databind
-Version: 2.4.2 (xx-Aug-2014)
-
-#506: Index is never set for Collection and Array in InvalidFormatException.Reference
- (reported by Fabrice D, fabdouglas@github)
-- Fixed a problem related to [jackson-dataformat-smile#19].
+Version: 2.5.0 (xx-xxx-2014)
 
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------
 
-2.4.1.2 (12-Jul-2014)
-
-Special one-off "micro patch" for:
-
-#503: Concurrency issue inside com.fasterxml.jackson.databind.util.LRUMap.get(Object)
- (reported by fjtc@github)
-
-2.4.1.1 (18-Jun-2014)
-
-Special one-off "micro patch" for:
+2.4.2 (xx-Aug-2014)
 
 #491: Temporary work-around for issue #490 (full fix for 2.5 needs to be
   in `jackson-annotations`)
+#503: Concurrency issue inside com.fasterxml.jackson.databind.util.LRUMap.get(Object)
+ (reported by fjtc@github)
+#506: Index is never set for Collection and Array in InvalidFormatException.Reference
+ (reported by Fabrice D, fabdouglas@github)
+- Fixed a problem related to [jackson-dataformat-smile#19].
 
 2.4.1 (17-Jun-2014)
 

@@ -3,6 +3,9 @@ package com.fasterxml.jackson.databind.creators;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 public class TestCreators3 extends BaseMapTest
 {
@@ -17,7 +20,7 @@ public class TestCreators3 extends BaseMapTest
 
         private MultiCtor() { }
 
-        private MultiCtor(String a, String b, Object c) {
+        private MultiCtor(String a, String b, Boolean c) {
             if (c == null) {
                 throw new RuntimeException("Wrong factory!");
             }
@@ -26,6 +29,25 @@ public class TestCreators3 extends BaseMapTest
         }
         
     }
+
+    @SuppressWarnings("serial")
+    static class MyParamIntrospector extends JacksonAnnotationIntrospector
+    {
+        @Override
+        public String findImplicitPropertyName(AnnotatedMember param) {
+            if (param instanceof AnnotatedParameter) {
+                AnnotatedParameter ap = (AnnotatedParameter) param;
+                switch (ap.getIndex()) {
+                case 0: return "a";
+                case 1: return "b";
+                case 2: return "c";
+                default:
+                    return "param"+ap.getIndex();
+                }
+            }
+            return super.findImplicitPropertyName(param);
+        }
+    }
     
     /*
     /**********************************************************
@@ -33,12 +55,13 @@ public class TestCreators3 extends BaseMapTest
     /**********************************************************
      */
 
-    private final ObjectMapper MAPPER = new ObjectMapper();
-
     // [Issue#421]
     public void testMultiCtor421() throws Exception
     {
-        MultiCtor bean = MAPPER.readValue(aposToQuotes("{'a':'123','b':'foo'}"), MultiCtor.class);
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new MyParamIntrospector());
+
+        MultiCtor bean = mapper.readValue(aposToQuotes("{'a':'123','b':'foo'}"), MultiCtor.class);
         assertNotNull(bean);
         assertEquals("123", bean._a);
         assertEquals("foo", bean._b);

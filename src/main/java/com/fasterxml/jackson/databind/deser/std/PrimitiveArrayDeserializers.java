@@ -154,14 +154,18 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             boolean[] chunk = builder.resetAndStart();
             int ix = 0;
 
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
-                // whether we should allow truncating conversions?
-                boolean value = _parseBooleanPrimitive(jp, ctxt);
-                if (ix >= chunk.length) {
-                    chunk = builder.appendCompletedChunk(chunk, ix);
-                    ix = 0;
+            try {
+                while (jp.nextToken() != JsonToken.END_ARRAY) {
+                    // whether we should allow truncating conversions?
+                    boolean value = _parseBooleanPrimitive(jp, ctxt);
+                    if (ix >= chunk.length) {
+                        chunk = builder.appendCompletedChunk(chunk, ix);
+                        ix = 0;
+                    }
+                    chunk[ix++] = value;
                 }
-                chunk[ix++] = value;
+            } catch (Exception e) {
+                throw JsonMappingException.wrapWithPath(e, chunk, ix);
             }
             return builder.completeAndClearBuffer(chunk, ix);
         }
@@ -220,24 +224,28 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             byte[] chunk = builder.resetAndStart();
             int ix = 0;
 
-            while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-                // whether we should allow truncating conversions?
-                byte value;
-                if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) {
-                    // should we catch overflow exceptions?
-                    value = jp.getByteValue();
-                } else {
-                    // [JACKSON-79]: should probably accept nulls as 0
-                    if (t != JsonToken.VALUE_NULL) {
-                        throw ctxt.mappingException(_valueClass.getComponentType());
+            try {
+                while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+                    // whether we should allow truncating conversions?
+                    byte value;
+                    if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) {
+                        // should we catch overflow exceptions?
+                        value = jp.getByteValue();
+                    } else {
+                        // [JACKSON-79]: should probably accept nulls as 0
+                        if (t != JsonToken.VALUE_NULL) {
+                            throw ctxt.mappingException(_valueClass.getComponentType());
+                        }
+                        value = (byte) 0;
                     }
-                    value = (byte) 0;
+                    if (ix >= chunk.length) {
+                        chunk = builder.appendCompletedChunk(chunk, ix);
+                        ix = 0;
+                    }
+                    chunk[ix++] = value;
                 }
-                if (ix >= chunk.length) {
-                    chunk = builder.appendCompletedChunk(chunk, ix);
-                    ix = 0;
-                }
-                chunk[ix++] = value;
+            } catch (Exception e) {
+                throw JsonMappingException.wrapWithPath(e, chunk, ix);
             }
             return builder.completeAndClearBuffer(chunk, ix);
         }
@@ -290,13 +298,17 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             short[] chunk = builder.resetAndStart();
             int ix = 0;
 
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
-                short value = _parseShortPrimitive(jp, ctxt);
-                if (ix >= chunk.length) {
-                    chunk = builder.appendCompletedChunk(chunk, ix);
-                    ix = 0;
+            try {
+                while (jp.nextToken() != JsonToken.END_ARRAY) {
+                    short value = _parseShortPrimitive(jp, ctxt);
+                    if (ix >= chunk.length) {
+                        chunk = builder.appendCompletedChunk(chunk, ix);
+                        ix = 0;
+                    }
+                    chunk[ix++] = value;
                 }
-                chunk[ix++] = value;
+            } catch (Exception e) {
+                throw JsonMappingException.wrapWithPath(e, chunk, ix);
             }
             return builder.completeAndClearBuffer(chunk, ix);
         }
@@ -339,14 +351,18 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             int[] chunk = builder.resetAndStart();
             int ix = 0;
 
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
-                // whether we should allow truncating conversions?
-                int value = _parseIntPrimitive(jp, ctxt);
-                if (ix >= chunk.length) {
-                    chunk = builder.appendCompletedChunk(chunk, ix);
-                    ix = 0;
+            try {
+                while (jp.nextToken() != JsonToken.END_ARRAY) {
+                    // whether we should allow truncating conversions?
+                    int value = _parseIntPrimitive(jp, ctxt);
+                    if (ix >= chunk.length) {
+                        chunk = builder.appendCompletedChunk(chunk, ix);
+                        ix = 0;
+                    }
+                    chunk[ix++] = value;
                 }
-                chunk[ix++] = value;
+            } catch (Exception e) {
+                throw JsonMappingException.wrapWithPath(e, chunk, ix);
             }
             return builder.completeAndClearBuffer(chunk, ix);
         }
@@ -389,13 +405,17 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             long[] chunk = builder.resetAndStart();
             int ix = 0;
 
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
-                long value = _parseLongPrimitive(jp, ctxt);
-                if (ix >= chunk.length) {
-                    chunk = builder.appendCompletedChunk(chunk, ix);
-                    ix = 0;
+            try {
+                while (jp.nextToken() != JsonToken.END_ARRAY) {
+                    long value = _parseLongPrimitive(jp, ctxt);
+                    if (ix >= chunk.length) {
+                        chunk = builder.appendCompletedChunk(chunk, ix);
+                        ix = 0;
+                    }
+                    chunk[ix++] = value;
                 }
-                chunk[ix++] = value;
+            } catch (Exception e) {
+                throw JsonMappingException.wrapWithPath(e, chunk, ix);
             }
             return builder.completeAndClearBuffer(chunk, ix);
         }
@@ -436,14 +456,18 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             float[] chunk = builder.resetAndStart();
             int ix = 0;
 
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
-                // whether we should allow truncating conversions?
-                float value = _parseFloatPrimitive(jp, ctxt);
-                if (ix >= chunk.length) {
-                    chunk = builder.appendCompletedChunk(chunk, ix);
-                    ix = 0;
+            try {
+                while (jp.nextToken() != JsonToken.END_ARRAY) {
+                    // whether we should allow truncating conversions?
+                    float value = _parseFloatPrimitive(jp, ctxt);
+                    if (ix >= chunk.length) {
+                        chunk = builder.appendCompletedChunk(chunk, ix);
+                        ix = 0;
+                    }
+                    chunk[ix++] = value;
                 }
-                chunk[ix++] = value;
+            } catch (Exception e) {
+                throw JsonMappingException.wrapWithPath(e, chunk, ix);
             }
             return builder.completeAndClearBuffer(chunk, ix);
         }
@@ -484,13 +508,17 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             double[] chunk = builder.resetAndStart();
             int ix = 0;
 
-            while (jp.nextToken() != JsonToken.END_ARRAY) {
-                double value = _parseDoublePrimitive(jp, ctxt);
-                if (ix >= chunk.length) {
-                    chunk = builder.appendCompletedChunk(chunk, ix);
-                    ix = 0;
+            try {
+                while (jp.nextToken() != JsonToken.END_ARRAY) {
+                    double value = _parseDoublePrimitive(jp, ctxt);
+                    if (ix >= chunk.length) {
+                        chunk = builder.appendCompletedChunk(chunk, ix);
+                        ix = 0;
+                    }
+                    chunk[ix++] = value;
                 }
-                chunk[ix++] = value;
+            } catch (Exception e) {
+                throw JsonMappingException.wrapWithPath(e, chunk, ix);
             }
             return builder.completeAndClearBuffer(chunk, ix);
         }

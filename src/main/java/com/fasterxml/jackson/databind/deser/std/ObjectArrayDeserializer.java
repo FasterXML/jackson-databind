@@ -157,8 +157,7 @@ public class ObjectArrayDeserializer
                 chunk[ix++] = value;
             }
         } catch (Exception e) {
-            // note: pass Object.class, not Object[].class, as we need element type for error info
-            throw JsonMappingException.wrapWithPath(e, Object.class, ix);
+            throw JsonMappingException.wrapWithPath(e, chunk, ix);
         }
 
         Object[] result;

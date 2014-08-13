@@ -98,17 +98,21 @@ public class ArrayBlockingQueueDeserializer
         JsonToken t;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
-        while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-            Object value;
-            
-            if (t == JsonToken.VALUE_NULL) {
-                value = valueDes.getNullValue();
-            } else if (typeDeser == null) {
-                value = valueDes.deserialize(jp, ctxt);
-            } else {
-                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+        try {
+            while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+                Object value;
+                
+                if (t == JsonToken.VALUE_NULL) {
+                    value = valueDes.getNullValue();
+                } else if (typeDeser == null) {
+                    value = valueDes.deserialize(jp, ctxt);
+                } else {
+                    value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                }
+                tmp.add(value);
             }
-            tmp.add(value);
+        } catch (Exception e) {
+            throw JsonMappingException.wrapWithPath(e, tmp, tmp.size());
         }
         if (result0 != null) {
             result0.addAll(tmp);

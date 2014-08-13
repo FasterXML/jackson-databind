@@ -241,7 +241,7 @@ public class CollectionDeserializer
             } catch (UnresolvedForwardReference reference) {
                 if (referringAccumulator == null) {
                     throw JsonMappingException
-                            .from(jp, "Unresolved forward reference but no identity info.", reference);
+                            .from(jp, "Unresolved forward reference but no identity info", reference);
                 }
                 Referring ref = referringAccumulator.handleUnresolvedReference(reference);
                 reference.getRoid().appendReferring(ref);

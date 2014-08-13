@@ -74,8 +74,7 @@ public final class StringArrayDeserializer
                 chunk[ix++] = value;
             }
         } catch (Exception e) {
-            // note: pass String.class, not String[].class, as we need element type for error info
-            throw JsonMappingException.wrapWithPath(e, String.class, ix);
+            throw JsonMappingException.wrapWithPath(e, chunk, ix);
         }
         String[] result = buffer.completeAndClearBuffer(chunk, ix, String.class);
         ctxt.returnObjectBuffer(buffer);

@@ -48,24 +48,12 @@ public class SettableAnyProperty
     /**********************************************************
      */
 
-    @Deprecated // since 2.3
-    public SettableAnyProperty(BeanProperty property, AnnotatedMethod setter, JavaType type,
-            JsonDeserializer<Object> valueDeser) {
-        this(property, setter, type, valueDeser, null);
-    }
-
     public SettableAnyProperty(BeanProperty property, AnnotatedMethod setter, JavaType type,
             JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
     {
         this(property, setter.getAnnotated(), type, valueDeser, typeDeser);
     }
-    
-    @Deprecated // since 2.3
-    public SettableAnyProperty(BeanProperty property, Method rawSetter, JavaType type,
-            JsonDeserializer<Object> valueDeser) {
-        this(property, rawSetter, type, valueDeser, null);
-    }
-    
+
     public SettableAnyProperty(BeanProperty property, Method rawSetter, JavaType type,
             JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
     {

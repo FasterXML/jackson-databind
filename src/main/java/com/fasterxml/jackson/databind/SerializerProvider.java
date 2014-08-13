@@ -37,9 +37,6 @@ import com.fasterxml.jackson.databind.util.RootNameLookup;
 public abstract class SerializerProvider
     extends DatabindContext
 {
-    @Deprecated // since 2.3, not used by anything it seems
-    protected final static JavaType TYPE_OBJECT = TypeFactory.defaultInstance().uncheckedSimpleType(Object.class);
-
     /**
      * Setting for determining whether mappings for "unknown classes" should be
      * cached for faster resolution. Usually this isn't needed, but maybe it
@@ -775,19 +772,6 @@ public abstract class SerializerProvider
     /**********************************************************
      */
 
-    /**
-     * @deprecated Since 2.3 (and to be removed from 2.4); use
-     *   {@link #handlePrimaryContextualization} or {@link #handleSecondaryContextualization}
-     *   instead
-     */
-    @Deprecated
-    public JsonSerializer<?> handleContextualization(JsonSerializer<?> ser,
-            BeanProperty property)
-        throws JsonMappingException
-    {
-        return handleSecondaryContextualization(ser, property);
-    }
-    
     /**
      * Method called for primary property serializers (ones
      * directly created to serialize values of a POJO property),

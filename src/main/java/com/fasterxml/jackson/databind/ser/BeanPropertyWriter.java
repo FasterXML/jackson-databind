@@ -434,20 +434,6 @@ public class BeanPropertyWriter extends PropertyWriter
 
     public Class<?>[] getViews() { return _includeInViews; }
 
-    /**
-     *<p>
-     * NOTE: due to introspection, this is a <b>slow</b> method to call
-     * and should never be called during actual serialization or filtering
-     * of the property. Rather it is needed for traversal needed for things
-     * like constructing JSON Schema instances.
-     * 
-     * @since 2.1
-     * 
-     * @deprecated since 2.2, use {@link #isRequired()} instead.
-     */
-    @Deprecated
-    protected boolean isRequired(AnnotationIntrospector intr) { return _metadata.isRequired(); }
-    
     /*
     /**********************************************************
     /* PropertyWriter methods (serialization)
@@ -690,15 +676,6 @@ public class BeanPropertyWriter extends PropertyWriter
         return (_accessorMethod == null) ? _field.get(bean) : _accessorMethod.invoke(bean);
     }
 
-    /**
-     * @deprecated Since 2.3 Use overloaded variants
-     */
-    @Deprecated
-    protected void _handleSelfReference(Object bean, JsonSerializer<?> ser)
-        throws JsonMappingException {
-        _handleSelfReference(bean, null, null, ser);
-    }
-    
     /**
      * Method called to handle a direct self-reference through this property.
      * Method can choose to indicate an error by throwing {@link JsonMappingException};

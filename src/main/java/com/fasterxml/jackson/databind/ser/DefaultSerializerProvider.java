@@ -316,11 +316,6 @@ public abstract class DefaultSerializerProvider
         findValueSerializer(javaType, null).acceptJsonFormatVisitor(visitor, javaType);
     }
 
-    @Deprecated // since 2.3; use the overloaded variant
-    public boolean hasSerializerFor(Class<?> cls) {
-        return hasSerializerFor(cls, null);
-    }
-    
     /**
      * Method that can be called to see if this serializer provider
      * can find a serializer for an instance of given class.

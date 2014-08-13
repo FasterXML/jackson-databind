@@ -1114,14 +1114,6 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /**********************************************************
          */
 
-        @Deprecated // since 2.3
-        protected Parser(Segment firstSeg, ObjectCodec codec) {
-            this(firstSeg, codec, false, false);
-        }
-
-        /**
-         * @since 2.3
-         */
         public Parser(Segment firstSeg, ObjectCodec codec,
                 boolean hasNativeTypeIds,
                 boolean hasNativeObjectIds)

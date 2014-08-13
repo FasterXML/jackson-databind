@@ -53,13 +53,6 @@ public class POJOPropertyBuilder
         _annotationIntrospector = annotationIntrospector;
         _forSerialization = forSerialization;
     }
-    
-    @Deprecated // since 2.3
-    public POJOPropertyBuilder(String simpleInternalName,
-            AnnotationIntrospector annotationIntrospector, boolean forSerialization)
-    {
-        this(new PropertyName(simpleInternalName), annotationIntrospector, forSerialization);
-    }
 
     public POJOPropertyBuilder(POJOPropertyBuilder src, PropertyName newName)
     {
@@ -78,12 +71,6 @@ public class POJOPropertyBuilder
     /* Fluent factory methods
     /**********************************************************
      */
-
-    @Deprecated // since 2.3
-    @Override
-    public POJOPropertyBuilder withName(String newName) {
-        return withSimpleName(newName);
-    }
 
     @Override
     public POJOPropertyBuilder withName(PropertyName newName) {

@@ -1,5 +1,5 @@
 Project: jackson-databind
-Version: 2.4.2 (xx-Aug-2014)
+Version: 2.4.2 (13-Aug-2014)
 
 #506: Index is never set for Collection and Array in InvalidFormatException.Reference
  (reported by Fabrice D, fabdouglas@github)

@@ -58,13 +58,13 @@ public final class FieldProperty
     /**
      * Constructor used for JDK Serialization when reading persisted object
      */
-    protected FieldProperty(FieldProperty src, Field f)
+    protected FieldProperty(FieldProperty src)
     {
         super(src);
         _annotated = src._annotated;
+        Field f = _annotated.getAnnotated();
         if (f == null) {
-            throw new IllegalArgumentException("No Field passed for property '"+src.getName()
-                    +"' (class "+src.getDeclaringClass().getName()+")");
+            throw new IllegalArgumentException("Missing field (broken JDK (de)serialization?)");
         }
         _field = f;
     }
@@ -144,6 +144,6 @@ public final class FieldProperty
      */
 
     Object readResolve() {
-        return new FieldProperty(this, _annotated.getAnnotated());
+        return new FieldProperty(this);
     }
 }

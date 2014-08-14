@@ -19,7 +19,7 @@ public final class StringArrayDeserializer
     extends StdDeserializer<String[]>
     implements ContextualDeserializer
 {
-    private static final long serialVersionUID = -7589512013334920693L;
+    private static final long serialVersionUID = 1L;
 
     public final static StringArrayDeserializer instance = new StringArrayDeserializer();
     
@@ -74,7 +74,7 @@ public final class StringArrayDeserializer
                 chunk[ix++] = value;
             }
         } catch (Exception e) {
-            throw JsonMappingException.wrapWithPath(e, chunk, ix);
+            throw JsonMappingException.wrapWithPath(e, chunk, buffer.bufferedSize() + ix);
         }
         String[] result = buffer.completeAndClearBuffer(chunk, ix, String.class);
         ctxt.returnObjectBuffer(buffer);

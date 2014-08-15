@@ -67,10 +67,8 @@ public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapT
     @Retention(RetentionPolicy.RUNTIME)
     static @interface HolderB {}
 
-    static class HolderHolder {
-        @HolderA
-        @InformativeHolder
-        public int unimportant = 42;
+    static class RecursiveHolder {
+        @HolderA public int unimportant = 42;
     }
 
     @JsonProperty
@@ -79,6 +77,10 @@ public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapT
     static @interface InformativeHolder {
         // doesn't really contribute to the test, but would be impossible without this feature
         boolean important() default true;
+    }
+
+    static class InformingHolder {
+        @InformativeHolder public int unimportant = 42;
     }
 
     static class BundleAnnotationIntrospector extends JacksonAnnotationIntrospector {
@@ -104,12 +106,12 @@ public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapT
     public void testKeepAnnotationBundle() throws Exception
     {
         MAPPER.setAnnotationIntrospector(new BundleAnnotationIntrospector());
-        assertEquals("{\"important\":42}", MAPPER.writeValueAsString(new HolderHolder()));
+        assertEquals("{\"important\":42}", MAPPER.writeValueAsString(new InformingHolder()));
     }
 
     public void testRecursiveBundles() throws Exception
     {
-        assertEquals("{\"unimportant\":42}", MAPPER.writeValueAsString(new HolderHolder()));
+        assertEquals("{\"unimportant\":42}", MAPPER.writeValueAsString(new RecursiveHolder()));
     }
 
     public void testBundledIgnore() throws Exception

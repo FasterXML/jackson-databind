@@ -51,8 +51,8 @@ public abstract class AnnotatedMember
      * annotation masking or overriding an annotation 'real' constructor
      * has.
      */
-    public final void addOrOverride(Annotation a) {
-        _annotations.add(a);
+    public final boolean addOrOverride(Annotation a) {
+        return _annotations.add(a);
     }
 
     /**
@@ -60,8 +60,8 @@ public abstract class AnnotatedMember
      * annotation if and only if it is not yet present in the
      * annotation map we have.
      */
-    public final void addIfNotPresent(Annotation a) {
-        _annotations.addIfNotPresent(a);
+    public final boolean addIfNotPresent(Annotation a) {
+        return _annotations.addIfNotPresent(a);
     }
     
     /**

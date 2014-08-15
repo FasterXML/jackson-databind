@@ -71,18 +71,20 @@ public final class AnnotationMap implements Annotations
      * Method called to add specified annotation in the Map, but
      * only if it didn't yet exist.
      */
-    public void addIfNotPresent(Annotation ann)
+    public boolean addIfNotPresent(Annotation ann)
     {
         if (_annotations == null || !_annotations.containsKey(ann.annotationType())) {
             _add(ann);
+            return true;
         }
+        return false;
     }
 
     /**
      * Method called to add specified annotation in the Map.
      */
-    public void add(Annotation ann) {
-        _add(ann);
+    public boolean add(Annotation ann) {
+        return _add(ann);
     }
 
     @Override
@@ -99,11 +101,12 @@ public final class AnnotationMap implements Annotations
     /**********************************************************
      */
 
-    protected final void _add(Annotation ann) {
+    protected final boolean _add(Annotation ann) {
         if (_annotations == null) {
             _annotations = new HashMap<Class<? extends Annotation>,Annotation>();
         }
-        _annotations.put(ann.annotationType(), ann);
+        Annotation previous = _annotations.put(ann.annotationType(), ann);
+        return (previous != null) && previous.equals(ann);
     }
 }
 

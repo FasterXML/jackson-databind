@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator.IdKey;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
@@ -140,6 +141,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     }
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id", resolver = PoolResolver.class)
+    @JsonIdentityReference(alwaysAsId = true) // #524
     static class WithCustomResolution {
         public int id;
         public int data;

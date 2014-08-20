@@ -4,10 +4,8 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 
 /**
@@ -15,12 +13,10 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
  * <p>
  * Note: casting within this class is all messed up -- just could not figure out a way
  * to properly deal with recursive definition of "EnumMap<K extends Enum<K>, V>
- * 
- * @author tsaloranta
  */
 @SuppressWarnings({ "unchecked", "rawtypes" }) 
 public class EnumMapDeserializer
-    extends StdDeserializer<EnumMap<?,?>>
+    extends ContainerDeserializerBase<EnumMap<?,?>>
     implements ContextualDeserializer
 {
     private static final long serialVersionUID = 4564890642370311174L;
@@ -47,7 +43,7 @@ public class EnumMapDeserializer
 
     public EnumMapDeserializer(JavaType mapType, JsonDeserializer<?> keyDeserializer, JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser)
     {
-        super(EnumMap.class);
+        super(mapType);
         _mapType = mapType;
         _enumClass = mapType.getKeyType().getRawClass();
         _keyDeserializer = (JsonDeserializer<Enum<?>>) keyDeserializer;
@@ -96,7 +92,23 @@ public class EnumMapDeserializer
      */
     @Override
     public boolean isCachable() { return true; }
-    
+
+    /*
+    /**********************************************************
+    /* ContainerDeserializerBase API
+    /**********************************************************
+     */
+
+    @Override
+    public JavaType getContentType() {
+        return _mapType.getContentType();
+    }
+
+    @Override
+    public JsonDeserializer<Object> getContentDeserializer() {
+        return _valueDeserializer;
+    }
+
     /*
     /**********************************************************
     /* Actual deserialization
@@ -115,6 +127,8 @@ public class EnumMapDeserializer
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
         while ((jp.nextToken()) != JsonToken.END_OBJECT) {
+            String keyName = jp.getCurrentName(); // just for error message
+            // but we need to let key deserializer handle it separately, nonetheless
             Enum<?> key = _keyDeserializer.deserialize(jp, ctxt);
             if (key == null) {
                 if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
@@ -127,7 +141,7 @@ public class EnumMapDeserializer
                     throw ctxt.weirdStringException(value, _enumClass, "value not one of declared Enum instance names");
                 }
                 /* 24-Mar-2012, tatu: Null won't work as a key anyway, so let's
-                 *  just skip the entry then. But we must skip the value then.
+                 *  just skip the entry then. But we must skip the value as well, if so.
                  */
                 jp.nextToken();
                 jp.skipChildren();
@@ -139,13 +153,18 @@ public class EnumMapDeserializer
              * not handle them (and maybe fail or return bogus data)
              */
             Object value;
-            
-            if (t == JsonToken.VALUE_NULL) {
-                value = valueDes.getNullValue();
-            } else if (typeDeser == null) {
-                value =  valueDes.deserialize(jp, ctxt);
-            } else {
-                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+
+            try {
+                if (t == JsonToken.VALUE_NULL) {
+                    value = valueDes.getNullValue();
+                } else if (typeDeser == null) {
+                    value =  valueDes.deserialize(jp, ctxt);
+                } else {
+                    value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                }
+            } catch (Exception e) {
+                wrapAndThrow(e, result, keyName);
+                return null;
             }
             result.put(key, value);
         }

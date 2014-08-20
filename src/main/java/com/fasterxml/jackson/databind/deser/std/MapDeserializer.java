@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
@@ -259,7 +258,7 @@ public class MapDeserializer
         }
         return withResolved(kd, vtd, vd, ignored);
     }
-    
+
     /*
     /**********************************************************
     /* ContainerDeserializerBase API
@@ -537,24 +536,6 @@ public class MapDeserializer
     @Deprecated // since 2.5
     protected void wrapAndThrow(Throwable t, Object ref) throws IOException {
         wrapAndThrow(t, ref, null);
-    }
-    
-    // note: copied from BeanDeserializer; should try to share somehow...
-    protected void wrapAndThrow(Throwable t, Object ref, String key) throws IOException
-    {
-        // to handle StackOverflow:
-        while (t instanceof InvocationTargetException && t.getCause() != null) {
-            t = t.getCause();
-        }
-        // Errors and "plain" IOExceptions to be passed as is
-        if (t instanceof Error) {
-            throw (Error) t;
-        }
-        // ... except for mapping exceptions
-        if (t instanceof IOException && !(t instanceof JsonMappingException)) {
-            throw (IOException) t;
-        }
-        throw JsonMappingException.wrapWithPath(t, ref, key);
     }
 
     private void handleUnresolvedReference(JsonParser jp, MapReferringAccumulator accumulator, Object key,

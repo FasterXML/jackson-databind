@@ -12,10 +12,12 @@ public class TestMixinMerging extends BaseMapTest
     }
 
     static class ContactImpl implements Contact {
+        @Override
         public String getCity() { return "Seattle"; }
     }
 
     static class ContactMixin implements Contact {
+        @Override
         @JsonProperty
         public String getCity() { return null; }
     }

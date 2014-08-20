@@ -15,7 +15,7 @@ public class ObjectIdInfo
 {
     protected final PropertyName _propertyName;
     protected final Class<? extends ObjectIdGenerator<?>> _generator;
-    private final Class<? extends ObjectIdResolver> _resolver;
+    protected final Class<? extends ObjectIdResolver> _resolver;
     protected final Class<?> _scope;
     protected final boolean _alwaysAsId;
 
@@ -60,7 +60,7 @@ public class ObjectIdInfo
         if (_alwaysAsId == state) {
             return this;
         }
-        return new ObjectIdInfo(_propertyName, _scope, _generator, state);
+        return new ObjectIdInfo(_propertyName, _scope, _generator, state, _resolver);
     }
     
     public PropertyName getPropertyName() { return _propertyName; }

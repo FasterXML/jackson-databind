@@ -1,15 +1,20 @@
 Project: jackson-databind
-Version: 2.4.2 (13-Aug-2014)
+Version: 2.4.3 (xx-xxx-2014)
+
+#524: @JsonIdentityReference(alwaysAsId = true) Custom resolver is reset to SimpleObjectIdResolver
+ (reported by pkokorev@github)
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.4.2 (13-Aug-2014)
 
 #506: Index is never set for Collection and Array in InvalidFormatException.Reference
  (reported by Fabrice D, fabdouglas@github)
 #515: Mixin annotations lost when using a mixin class hierarchy with non-mixin interfaces
  (reported by 'stevebread@github')
 - Fixed a problem related to [jackson-dataformat-smile#19].
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.4.1.2 (12-Jul-2014)
 

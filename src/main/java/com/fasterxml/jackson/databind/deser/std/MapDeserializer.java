@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 
 /**
- * Basic serializer that can take Json "Object" structure and
+ * Basic serializer that can take JSON "Object" structure and
  * construct a {@link java.util.Map} instance, with typed contents.
  *<p>
  * Note: for untyped content (one indicated by passing Object.class
@@ -405,8 +405,10 @@ public class MapDeserializer
                 } else {
                     result.put(key, value);
                 }
-            } catch(UnresolvedForwardReference reference) {
+            } catch (UnresolvedForwardReference reference) {
                 handleUnresolvedReference(jp, referringAccumulator, key, reference);
+            } catch (Exception e) {
+                wrapAndThrow(e, result, fieldName);
             }
         }
     }
@@ -457,6 +459,8 @@ public class MapDeserializer
                 }
             } catch (UnresolvedForwardReference reference) {
                 handleUnresolvedReference(jp, referringAccumulator, fieldName, reference);
+            } catch (Exception e) {
+                wrapAndThrow(e, result, fieldName);
             }
         }
     }
@@ -493,7 +497,7 @@ public class MapDeserializer
                     try {
                         result = (Map<Object,Object>)creator.build(ctxt, buffer);
                     } catch (Exception e) {
-                        wrapAndThrow(e, _mapType.getRawClass());
+                        wrapAndThrow(e, _mapType.getRawClass(), propName);
                         return null;
                     }
                     _readAndBind(jp, ctxt, result);
@@ -504,13 +508,19 @@ public class MapDeserializer
             // other property? needs buffering
             String fieldName = jp.getCurrentName();
             Object key = _keyDeserializer.deserializeKey(fieldName, ctxt);
-            Object value;            
-            if (t == JsonToken.VALUE_NULL) {
-                value = valueDes.getNullValue();
-            } else if (typeDeser == null) {
-                value = valueDes.deserialize(jp, ctxt);
-            } else {
-                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+            Object value; 
+
+            try {
+                if (t == JsonToken.VALUE_NULL) {
+                    value = valueDes.getNullValue();
+                } else if (typeDeser == null) {
+                    value = valueDes.deserialize(jp, ctxt);
+                } else {
+                    value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                }
+            } catch (Exception e) {
+                wrapAndThrow(e, _mapType.getRawClass(), propName);
+                return null;
             }
             buffer.bufferMapProperty(key, value);
         }
@@ -519,14 +529,18 @@ public class MapDeserializer
         try {
             return (Map<Object,Object>)creator.build(ctxt, buffer);
         } catch (Exception e) {
-            wrapAndThrow(e, _mapType.getRawClass());
+            wrapAndThrow(e, _mapType.getRawClass(), null);
             return null;
         }
     }
 
+    @Deprecated // since 2.5
+    protected void wrapAndThrow(Throwable t, Object ref) throws IOException {
+        wrapAndThrow(t, ref, null);
+    }
+    
     // note: copied from BeanDeserializer; should try to share somehow...
-    protected void wrapAndThrow(Throwable t, Object ref)
-        throws IOException
+    protected void wrapAndThrow(Throwable t, Object ref, String key) throws IOException
     {
         // to handle StackOverflow:
         while (t instanceof InvocationTargetException && t.getCause() != null) {
@@ -540,7 +554,7 @@ public class MapDeserializer
         if (t instanceof IOException && !(t instanceof JsonMappingException)) {
             throw (IOException) t;
         }
-        throw JsonMappingException.wrapWithPath(t, ref, null);
+        throw JsonMappingException.wrapWithPath(t, ref, key);
     }
 
     private void handleUnresolvedReference(JsonParser jp, MapReferringAccumulator accumulator, Object key,

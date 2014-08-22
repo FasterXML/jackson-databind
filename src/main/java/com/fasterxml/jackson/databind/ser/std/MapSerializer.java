@@ -557,7 +557,7 @@ public class MapSerializer
         final boolean skipNulls = !provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
 
         PropertySerializerMap serializers = _dynamicValueSerializers;
-        final MapProperty prop = new MapProperty(_valueTypeSerializer);
+        final MapProperty prop = new MapProperty(_valueTypeSerializer, _property);
 
         for (Map.Entry<?,?> entry : value.entrySet()) {
             // First, serialize key
@@ -590,9 +590,9 @@ public class MapSerializer
                     serializers = _dynamicValueSerializers;
                 }
             }
-            prop.reset(keyElem, valueElem, keySer, valueSer);
+            prop.reset(keyElem, keySer, valueSer);
             try {
-                filter.serializeAsField(value, jgen, provider, prop);
+                filter.serializeAsField(valueElem, jgen, provider, prop);
             } catch (Exception e) {
                 // [JACKSON-55] Need to add reference information
                 String keyDesc = ""+keyElem;

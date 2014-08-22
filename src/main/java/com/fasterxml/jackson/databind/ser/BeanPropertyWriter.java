@@ -320,12 +320,14 @@ public class BeanPropertyWriter extends PropertyWriter
     @Override public PropertyName getWrapperName() { return _wrapperName; }
     @Override public boolean isRequired() { return _metadata.isRequired(); }
     @Override public PropertyMetadata getMetadata() { return _metadata; }
-    
+
+    // Note: also part of 'PropertyWriter'
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
         return _member.getAnnotation(acls);
     }
 
+    // Note: also part of 'PropertyWriter'
     @Override
     public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
         return _contextAnnotations.get(acls);

@@ -1,6 +1,10 @@
 Project: jackson-databind
 Version: 2.5.0 (xx-xxx-2014)
 
+#521: Keep bundle annotations, prevent problems with recursive annotation
+   types
+  (reported by tea-dragon@github)
+
 ------------------------------------------------------------------------
 === History: ===
 ------------------------------------------------------------------------

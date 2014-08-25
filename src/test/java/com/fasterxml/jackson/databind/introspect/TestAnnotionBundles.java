@@ -3,9 +3,13 @@ package com.fasterxml.jackson.databind.introspect;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyName;
 
 /* Tests mostly for [JACKSON-754]: ability to create "annotation bundles"
  */
@@ -51,7 +55,46 @@ public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapT
     public class Bean92 {
         @Bundle92
         protected String id = "abc";
-    }    
+    }
+
+    @HolderB
+    @JacksonAnnotationsInside
+    @Retention(RetentionPolicy.RUNTIME)
+    static @interface HolderA {}
+
+    @HolderA
+    @JacksonAnnotationsInside
+    @Retention(RetentionPolicy.RUNTIME)
+    static @interface HolderB {}
+
+    static class RecursiveHolder {
+        @HolderA public int unimportant = 42;
+    }
+
+    @JsonProperty
+    @JacksonAnnotationsInside
+    @Retention(RetentionPolicy.RUNTIME)
+    static @interface InformativeHolder {
+        // doesn't really contribute to the test, but would be impossible without this feature
+        boolean important() default true;
+    }
+
+    static class InformingHolder {
+        @InformativeHolder public int unimportant = 42;
+    }
+
+    static class BundleAnnotationIntrospector extends JacksonAnnotationIntrospector {
+        @Override
+        public PropertyName findNameForSerialization(Annotated a)
+        {
+            InformativeHolder informativeHolder = a.getAnnotation(InformativeHolder.class);
+            if ((informativeHolder != null) && informativeHolder.important()) {
+                return new PropertyName("important");
+            }
+            return super.findNameForSerialization(a);
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -59,7 +102,18 @@ public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapT
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
+    public void testKeepAnnotationBundle() throws Exception
+    {
+        MAPPER.setAnnotationIntrospector(new BundleAnnotationIntrospector());
+        assertEquals("{\"important\":42}", MAPPER.writeValueAsString(new InformingHolder()));
+    }
+
+    public void testRecursiveBundles() throws Exception
+    {
+        assertEquals("{\"unimportant\":42}", MAPPER.writeValueAsString(new RecursiveHolder()));
+    }
+
     public void testBundledIgnore() throws Exception
     {
         assertEquals("{\"foobar\":13}", MAPPER.writeValueAsString(new Bean()));

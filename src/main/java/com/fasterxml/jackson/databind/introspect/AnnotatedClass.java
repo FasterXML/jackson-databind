@@ -908,13 +908,13 @@ public final class AnnotatedClass
         if (anns != null) {
             List<Annotation[]> bundles = null;
             for (Annotation ann : anns) { // first: direct annotations
-                if (_isAnnotationBundle(ann)) {
+                // note: we will NOT filter out non-Jackson anns any more
+                boolean wasNotPresent = result.addIfNotPresent(ann);
+                if (wasNotPresent && _isAnnotationBundle(ann)) {
                     if (bundles == null) {
                         bundles = new LinkedList<Annotation[]>();
                     }
                     bundles.add(ann.annotationType().getDeclaredAnnotations());
-                } else { // note: we will NOT filter out non-Jackson anns any more
-                    result.addIfNotPresent(ann);
                 }
             }
             if (bundles != null) { // and secondarily handle bundles, if any found: precedence important
@@ -930,13 +930,13 @@ public final class AnnotatedClass
         if (anns != null) {
             List<Annotation[]> bundles = null;
             for (Annotation ann : anns) { // first: direct annotations
-                if (_isAnnotationBundle(ann)) {
+                // note: we will NOT filter out non-Jackson anns any more
+                boolean wasNotPresent = target.addIfNotPresent(ann);
+                if (wasNotPresent && _isAnnotationBundle(ann)) {
                     if (bundles == null) {
                         bundles = new LinkedList<Annotation[]>();
                     }
                     bundles.add(ann.annotationType().getDeclaredAnnotations());
-                } else { // note: we will NOT filter out non-Jackson anns any more
-                    target.addIfNotPresent(ann);
                 }
             }
             if (bundles != null) { // and secondarily handle bundles, if any found: precedence important
@@ -952,13 +952,13 @@ public final class AnnotatedClass
         if (anns != null) {
             List<Annotation[]> bundles = null;
             for (Annotation ann : anns) { // first: direct annotations
-                if (_isAnnotationBundle(ann)) {
+                // note: we will NOT filter out non-Jackson anns any more
+                boolean wasModified = target.addOrOverride(ann);
+                if (wasModified && _isAnnotationBundle(ann)) {
                     if (bundles == null) {
                         bundles = new LinkedList<Annotation[]>();
                     }
                     bundles.add(ann.annotationType().getDeclaredAnnotations());
-                } else { // note: no filtering by jackson-annotations
-                    target.addOrOverride(ann);
                 }
             }
             if (bundles != null) { // and then bundles, if any: important for precedence

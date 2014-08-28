@@ -83,6 +83,7 @@ public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapT
         @InformativeHolder public int unimportant = 42;
     }
 
+    @SuppressWarnings("serial")
     static class BundleAnnotationIntrospector extends JacksonAnnotationIntrospector {
         @Override
         public PropertyName findNameForSerialization(Annotated a)

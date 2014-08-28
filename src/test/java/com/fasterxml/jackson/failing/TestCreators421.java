@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.creators;
+package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
-public class TestCreators3 extends BaseMapTest
+public class TestCreators421 extends BaseMapTest
 {
     static class MultiCtor
     {

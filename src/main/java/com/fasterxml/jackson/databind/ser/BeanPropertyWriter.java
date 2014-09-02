@@ -640,11 +640,7 @@ public class BeanPropertyWriter extends PropertyWriter
         // Maybe it already has annotated/statically configured serializer?
         JsonSerializer<Object> ser = getSerializer();
         if (ser == null) { // nope
-            Class<?> serType = getRawSerializationType();
-            if (serType == null) {
-                serType = getPropertyType();
-            }
-            ser = provider.findValueSerializer(serType, this);
+            ser = provider.findValueSerializer(getType(), this);
         }
         boolean isOptional = !isRequired();
         if (ser instanceof SchemaAware) {

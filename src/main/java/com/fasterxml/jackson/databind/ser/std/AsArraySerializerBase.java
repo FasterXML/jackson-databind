@@ -204,28 +204,8 @@ public abstract class AsArraySerializerBase<T>
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException
     {
-        /* 15-Jan-2010, tatu: This should probably be rewritten, given that
-         *    more information about content type is actually being explicitly
-         *    passed. So there should be less need to try to re-process that
-         *    information.
-         */
         ObjectNode o = createSchemaNode("array", true);
-        JavaType contentType = null;
-        if (typeHint != null) {
-            JavaType javaType = provider.constructType(typeHint);
-            contentType = javaType.getContentType();
-            if (contentType == null) { // could still be parametrized (Iterators)
-                if (typeHint instanceof ParameterizedType) {
-                    Type[] typeArgs = ((ParameterizedType) typeHint).getActualTypeArguments();
-                    if (typeArgs.length == 1) {
-                        contentType = provider.constructType(typeArgs[0]);
-                    }
-                }
-            }
-        }
-        if (contentType == null && _elementType != null) {
-            contentType = _elementType;
-        }
+        JavaType contentType = _elementType;
         if (contentType != null) {
             JsonNode schemaNode = null;
             // 15-Oct-2010, tatu: We can't serialize plain Object.class; but what should it produce here? Untyped?
@@ -249,16 +229,16 @@ public abstract class AsArraySerializerBase<T>
     {
         JsonArrayFormatVisitor arrayVisitor = (visitor == null) ? null : visitor.expectArrayFormat(typeHint);
         if (arrayVisitor != null) {
-            TypeFactory tf = visitor.getProvider().getTypeFactory();
-            JavaType contentType = tf.moreSpecificType(_elementType, typeHint.getContentType());
-            if (contentType == null) {
-                throw new JsonMappingException("Could not resolve type");
-            }
+            /* 01-Sep-2014, tatu: Earlier was trying to make use of 'typeHint' for some
+             *   reason, causing NPE (as per https://github.com/FasterXML/jackson-module-jsonSchema/issues/34)
+             *   if coupled with `@JsonValue`. But I can't see much benefit of trying to rely
+             *   on TypeHint here so code is simplified like so:
+             */
             JsonSerializer<?> valueSer = _elementSerializer;
             if (valueSer == null) {
-                valueSer = visitor.getProvider().findValueSerializer(contentType, _property);
+                valueSer = visitor.getProvider().findValueSerializer(_elementType, _property);
             }
-            arrayVisitor.itemsFormat(valueSer, contentType);
+            arrayVisitor.itemsFormat(valueSer, _elementType);
         }
     }
 

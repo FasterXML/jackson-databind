@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.fasterxml.jackson</groupId>
     <artifactId>jackson-parent</artifactId>
-    <version>2.4</version>
+    <version>2.5-SNAPSHOT</version>
   </parent>
 
   <groupId>com.fasterxml.jackson.core</groupId>
@@ -102,15 +102,9 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
 
   <build>
      <plugins>
-       <plugin> <!-- parent uses 2.4.2 -->
-         <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.5</version>
-       </plugin>
-     <plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${surefire.version}</version>
         <configuration>
           <excludes>
             <exclude>com/fasterxml/jackson/failing/*.java</exclude>
@@ -121,7 +115,7 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${javadoc.version}</version>
+        <version>${version.plugin.javadoc}</version>
         <configuration>
           <links>
             <link>http://docs.oracle.com/javase/6/docs/api/</link>

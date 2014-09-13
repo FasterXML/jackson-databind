@@ -299,7 +299,9 @@ public class TypeBindings
                         }
                         _addPlaceholder(name); // to prevent infinite loops
 
-                        if (typeParams != null) {
+                        if (typeParams != null && typeParams.length > i) {
+                            // NB: due to JACKSON-543 typeParams might be totally unrelated;
+                            // but for now we assume they are the same, with just a check to avoid NPE
                             _bindings.put(name, typeParams[i]);
                         } else {
                             _bindings.put(name, _typeFactory._constructType(varType, this));

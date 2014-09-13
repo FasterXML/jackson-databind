@@ -376,7 +376,7 @@ Main differences compared to 1.0 "mapper" jar are:
 
 # Further reading
 
-* [Documentation](https://github.com/FasterXML/jackson-databind/wiki/Documentation)
+* [Documentation](https://github.com/FasterXML/jackson-databind/wiki)
 
 Related:
 

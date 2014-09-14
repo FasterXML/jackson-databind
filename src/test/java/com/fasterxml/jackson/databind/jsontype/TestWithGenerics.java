@@ -45,6 +45,19 @@ public class TestWithGenerics extends BaseMapTest
         public ContainerWithField(T a) { animal = a; }
     }
     
+    static class ContainerWithTwoAnimals<U extends Animal,V extends Animal> extends ContainerWithField<U> {
+        public V otherAnimal;
+        
+        public ContainerWithTwoAnimals(U a1, V a2) {
+            super(a1);
+            otherAnimal = a2;
+        }
+    }
+    
+    static class WrappedContainerWithField {
+        public ContainerWithField<?> animalContainer;
+    }
+    
     // Beans for [JACKSON-387], [JACKSON-430]
     
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@classAttr1")
@@ -201,4 +214,13 @@ public class TestWithGenerics extends BaseMapTest
         assertNotNull(mc2.params);
         assertEquals(1, mc2.params.size());
     }
+    
+    public void testValueWithMoreGenericParameters() throws Exception
+    {
+        WrappedContainerWithField wrappedContainerWithField = new WrappedContainerWithField();
+        wrappedContainerWithField.animalContainer = new ContainerWithTwoAnimals<Dog,Dog>(new Dog("d1",1), new Dog("d2",2));
+        new ObjectMapper().writeValueAsString(wrappedContainerWithField);
+        // line above throws exception due to JACKSON-543 
+    }
+
 }

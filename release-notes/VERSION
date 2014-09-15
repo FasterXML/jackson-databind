@@ -5,6 +5,7 @@ Version: 2.4.3 (xx-xxx-2014)
  (reported by Ian B, tea-dragon@github)
 #524: @JsonIdentityReference(alwaysAsId = true) Custom resolver is reset to SimpleObjectIdResolver
  (reported by pkokorev@github)
+#543: Problem resolving self-referential generic types
 - Fixed a problem with `acceptJsonFormatVisitor` with Collection/array types that
   are marked with `@JsonValue`; could cause NPE in JSON Schema generator module.
 

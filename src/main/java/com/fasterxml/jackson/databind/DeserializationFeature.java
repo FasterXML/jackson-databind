@@ -246,7 +246,7 @@ public enum DeserializationFeature implements ConfigFeature
      * kinds of JSON values); if enable, empty JSON String can be taken
      * to be equivalent of JSON null.
      *<p>
-     * Feature is enabled by default.
+     * Feature is disabled by default.
      */
     ACCEPT_EMPTY_STRING_AS_NULL_OBJECT(false),
     

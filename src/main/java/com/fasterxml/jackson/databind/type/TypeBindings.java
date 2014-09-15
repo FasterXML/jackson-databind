@@ -299,7 +299,7 @@ public class TypeBindings
                         }
                         _addPlaceholder(name); // to prevent infinite loops
 
-                        if (typeParams != null) {
+                        if (typeParams != null && typeParams.length > i) {
                             _bindings.put(name, typeParams[i]);
                         } else {
                             _bindings.put(name, _typeFactory._constructType(varType, this));

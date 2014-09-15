@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
@@ -15,7 +14,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Base class for serializers that will output contents as JSON

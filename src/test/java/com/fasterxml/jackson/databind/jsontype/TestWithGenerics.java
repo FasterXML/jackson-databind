@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.BeanSerializerFactory;
 import com.fasterxml.jackson.databind.ser.ResolvableSerializer;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 
 public class TestWithGenerics extends BaseMapTest
 {
@@ -45,7 +44,11 @@ public class TestWithGenerics extends BaseMapTest
         public ContainerWithField(T a) { animal = a; }
     }
     
-    // Beans for [JACKSON-387], [JACKSON-430]
+    static class WrappedContainerWithField {
+        public ContainerWithField<?> animalContainer;
+    }
+
+	// Beans for [JACKSON-387], [JACKSON-430]
     
     @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@classAttr1")
     static class MyClass {
@@ -114,6 +117,15 @@ public class TestWithGenerics extends BaseMapTest
         }
     }
 
+    // [Issue#543]
+    static class ContainerWithTwoAnimals<U extends Animal,V extends Animal> extends ContainerWithField<U> {
+         public V otherAnimal;
+        
+         public ContainerWithTwoAnimals(U a1, V a2) {
+              super(a1);
+              otherAnimal = a2;
+         }
+    }
     
     /*
     /**********************************************************
@@ -121,10 +133,12 @@ public class TestWithGenerics extends BaseMapTest
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = objectMapper();
+
     public void testWrapperWithGetter() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
-        String json = new ObjectMapper().writeValueAsString(new ContainerWithGetter<Animal>(dog));
+        String json = MAPPER.writeValueAsString(new ContainerWithGetter<Animal>(dog));
         if (json.indexOf("\"object-type\":\"doggy\"") < 0) {
             fail("polymorphic type not kept, result == "+json+"; should contain 'object-type':'...'");
         }
@@ -133,7 +147,7 @@ public class TestWithGenerics extends BaseMapTest
     public void testWrapperWithField() throws Exception
     {
         Dog dog = new Dog("Fluffy", 3);
-        String json = new ObjectMapper().writeValueAsString(new ContainerWithField<Animal>(dog));
+        String json = MAPPER.writeValueAsString(new ContainerWithField<Animal>(dog));
         if (json.indexOf("\"object-type\":\"doggy\"") < 0) {
             fail("polymorphic type not kept, result == "+json+"; should contain 'object-type':'...'");
         }
@@ -143,8 +157,7 @@ public class TestWithGenerics extends BaseMapTest
     {
         Dog dog = new Dog("Fluffy", 3);
         ContainerWithGetter<Animal> c2 = new ContainerWithGetter<Animal>(dog);
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writerWithType(TypeFactory.defaultInstance().constructParametricType(ContainerWithGetter.class, Animal.class)).writeValueAsString(c2);
+        String json = MAPPER.writerWithType(MAPPER.getTypeFactory().constructParametricType(ContainerWithGetter.class, Animal.class)).writeValueAsString(c2);
         if (json.indexOf("\"object-type\":\"doggy\"") < 0) {
             fail("polymorphic type not kept, result == "+json+"; should contain 'object-type':'...'");
         }
@@ -200,5 +213,14 @@ public class TestWithGenerics extends BaseMapTest
         assertNotNull(mc2);
         assertNotNull(mc2.params);
         assertEquals(1, mc2.params.size());
+    }
+
+    // [Issue#543]
+    public void testValueWithMoreGenericParameters() throws Exception
+    {
+        WrappedContainerWithField wrappedContainerWithField = new WrappedContainerWithField();
+        wrappedContainerWithField.animalContainer = new ContainerWithTwoAnimals<Dog,Dog>(new Dog("d1",1), new Dog("d2",2));
+        String json = MAPPER.writeValueAsString(wrappedContainerWithField);
+        assertNotNull(json);
     }
 }

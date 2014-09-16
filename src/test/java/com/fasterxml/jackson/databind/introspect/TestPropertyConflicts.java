@@ -1,6 +1,9 @@
 package com.fasterxml.jackson.databind.introspect;
 
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -62,6 +65,21 @@ public class TestPropertyConflicts extends BaseMapTest
         }
     }
 
+    // For [Issue#541]
+    static class Bean541 {
+        protected String str;
+
+        @JsonCreator
+        public Bean541(@JsonProperty("str") String str) {
+            this.str = str;
+        }
+
+        @JsonProperty("s")
+        public String getStr() {
+            return str;
+        }
+     }
+     
     /*
     /**********************************************************
     /* Test methods
@@ -109,5 +127,24 @@ public class TestPropertyConflicts extends BaseMapTest
         mapper.setAnnotationIntrospector(new InferingIntrospector());
         Infernal inf = mapper.readValue(aposToQuotes("{'stuff':'Bob'}"), Infernal.class);
         assertNotNull(inf);
+    }
+
+    public void testIssue541() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(
+                MapperFeature.AUTO_DETECT_CREATORS,
+                MapperFeature.AUTO_DETECT_FIELDS,
+                MapperFeature.AUTO_DETECT_GETTERS,
+                MapperFeature.AUTO_DETECT_IS_GETTERS,
+                MapperFeature.AUTO_DETECT_SETTERS,
+                MapperFeature.USE_GETTERS_AS_SETTERS
+        );
+        Bean541 data = mapper.readValue("{\"str\":\"the string\"}", Bean541.class);
+        if (data == null) {
+            throw new IllegalStateException("data is null");
+        }
+        if (!"the string".equals(data.getStr())) {
+            throw new IllegalStateException("bad value for data.str");
+        }
     }
 }

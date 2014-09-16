@@ -870,6 +870,11 @@ public class POJOPropertyBuilder
         for (Linked<?> node = accessors; node != null; node = node.next) {
             PropertyName name = node.name;
             if (!node.isNameExplicit || name == null) { // no explicit name -- problem!
+                // [Issue#541] ... but only as long as it's visible
+                if (!node.isVisible) {
+                    continue;
+                }
+                
                 throw new IllegalStateException("Conflicting/ambiguous property name definitions (implicit name '"
                         +_name+"'): found multiple explicit names: "
                         +newNames+", but also implicit accessor: "+node);

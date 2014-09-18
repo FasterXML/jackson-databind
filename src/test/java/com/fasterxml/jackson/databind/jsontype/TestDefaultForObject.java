@@ -32,14 +32,14 @@ public class TestDefaultForObject
      * Another enum type, but this time forcing sub-classing
      */
     enum ComplexChoice {
-    	MAYBE(true), PROBABLY_NOT(false);
+        MAYBE(true), PROBABLY_NOT(false);
 
-    	private boolean state;
+        private boolean state;
     	
-    	private ComplexChoice(boolean b) { state = b; }
+        private ComplexChoice(boolean b) { state = b; }
     	
         @Override
-    	public String toString() { return String.valueOf(state); }
+        public String toString() { return String.valueOf(state); }
     }
 
     // [JACKSON-311]
@@ -113,6 +113,24 @@ public class TestDefaultForObject
         assertEquals("abc", ((StringBean) result[0]).name);
     }
 
+    // with 2.5, another test to check that "as-property" is valid option
+    public void testBeanAsObjectUsingAsProperty() throws Exception
+    {
+        ObjectMapper m = new ObjectMapper();
+        m.enableDefaultTypingAsProperty(ObjectMapper.DefaultTyping.NON_FINAL,
+                ".hype");
+        // note: need to wrap, to get declared as Object
+        String json = m.writeValueAsString(new StringBean("abc"));
+
+        System.err.println("JSON == "+json);
+        
+        // Ok: serialization seems to work as expected. Now deserialize:
+        Object result = m.readValue(json, Object.class);
+        assertNotNull(result);
+        assertEquals(StringBean.class, result.getClass());
+        assertEquals("abc", ((StringBean) result).name);
+    }
+    
     /**
      * Unit test that verifies that an abstract bean is stored with type information
      * if default type information is enabled for non-concrete types.

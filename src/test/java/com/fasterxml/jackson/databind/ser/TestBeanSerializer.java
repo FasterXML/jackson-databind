@@ -5,7 +5,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.POJOPropertyBuilder;
@@ -26,17 +25,11 @@ import com.fasterxml.jackson.databind.type.MapType;
 @SuppressWarnings("serial")
 public class TestBeanSerializer extends BaseMapTest
 {
-    /*
-    /********************************************************
-    /* Helper types
-    /********************************************************
-     */
-
-    static class ModuleImpl extends SimpleModule
+    static class SerializerModifierModule extends SimpleModule
     {
         protected BeanSerializerModifier modifier;
         
-        public ModuleImpl(BeanSerializerModifier modifier)
+        public SerializerModifierModule(BeanSerializerModifier modifier)
         {
             super("test", Version.unknownVersion());
             this.modifier = modifier;
@@ -178,6 +171,24 @@ public class TestBeanSerializer extends BaseMapTest
         }
     }
 
+    // [Issue#539]: use post-modifier
+    static class EmptyBeanModifier539 extends BeanSerializerModifier
+    {
+        @Override
+        public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
+                BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties)
+        {
+            System.err.println("DEBUG: changeProperties!");
+            return beanProperties;
+        }
+        
+        @Override
+        public JsonSerializer<?> modifySerializer(SerializationConfig config,
+                BeanDescription beanDesc, JsonSerializer<?> serializer) {
+System.err.println("DEBUG: modifySer!");            
+            return new BogusBeanSerializer(42);
+        }
+    }
     // [Issue#120], arrays, collections, maps
     
     static class ArraySerializerModifier extends BeanSerializerModifier {
@@ -251,7 +262,7 @@ public class TestBeanSerializer extends BaseMapTest
     public void testPropertyRemoval() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new ModuleImpl(new RemovingModifier("a")));
+        mapper.registerModule(new SerializerModifierModule(new RemovingModifier("a")));
         Bean bean = new Bean();
         assertEquals("{\"b\":\"b\"}", mapper.writeValueAsString(bean));
     }
@@ -259,7 +270,7 @@ public class TestBeanSerializer extends BaseMapTest
     public void testPropertyReorder() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new ModuleImpl(new ReorderingModifier()));
+        mapper.registerModule(new SerializerModifierModule(new ReorderingModifier()));
         Bean bean = new Bean();
         assertEquals("{\"a\":\"a\",\"b\":\"b\"}", mapper.writeValueAsString(bean));
     }
@@ -267,14 +278,14 @@ public class TestBeanSerializer extends BaseMapTest
     public void testBuilderReplacement() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new ModuleImpl(new BuilderModifier(new BogusBeanSerializer(17))));
+        mapper.registerModule(new SerializerModifierModule(new BuilderModifier(new BogusBeanSerializer(17))));
         Bean bean = new Bean();
         assertEquals("17", mapper.writeValueAsString(bean));
     }    
     public void testSerializerReplacement() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(new ModuleImpl(new ReplacingModifier(new BogusBeanSerializer(123))));
+        mapper.registerModule(new SerializerModifierModule(new ReplacingModifier(new BogusBeanSerializer(123))));
         Bean bean = new Bean();
         assertEquals("123", mapper.writeValueAsString(bean));
     }
@@ -295,6 +306,22 @@ public class TestBeanSerializer extends BaseMapTest
         assertEquals("{\"bogus\":\"foo\"}", json);
     }
 
+    // [Issue#539]
+    public void testEmptyBean539() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new SimpleModule("test", Version.unknownVersion()) {
+            @Override
+            public void setupModule(SetupContext context)
+            {
+                super.setupModule(context);
+                context.addBeanSerializerModifier(new EmptyBeanModifier539());
+            }
+        });
+        String json = mapper.writeValueAsString(new EmptyBean());
+        assertEquals("42", json);
+    }
+    
     // [Issue#121]
 
     public void testModifyArraySerializer() throws Exception

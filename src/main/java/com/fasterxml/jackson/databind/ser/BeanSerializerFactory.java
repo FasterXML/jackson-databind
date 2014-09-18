@@ -223,6 +223,12 @@ public class BeanSerializerFactory
                     // Finally: maybe we can still deal with it as an implementation of some basic JDK interface?
                     if (ser == null) {
                         ser = findSerializerByAddonType(config, type, beanDesc, staticTyping);
+                        // 18-Sep-2014, tatu: Actually, as per [jackson-databind#539], need to get
+                        //   'unknown' serializer assigned earlier, here, so that it gets properly
+                        //   post-processed
+                        if (ser == null) {
+                            ser = prov.getUnknownTypeSerializer(beanDesc.getBeanClass());
+                        }
                     }
                 }
             }
@@ -403,14 +409,10 @@ public class BeanSerializerFactory
         
         JsonSerializer<Object> ser = (JsonSerializer<Object>) builder.build();
         
-        /* However, after all modifications: no properties, no serializer
-         * (note; as per [JACKSON-670], check was moved later on from an earlier location)
-         */
         if (ser == null) {
-            /* 27-Nov-2009, tatu: Except that as per [JACKSON-201], we are
-             *   ok with that as long as it has a recognized class annotation
-             *  (which may come from a mix-in too)
-             */
+            // If we get this far, there were no properties found, so no regular BeanSerializer
+            // would be constructed. But, couple of exceptions.
+            // First: if there are known annotations, just create 'empty bean' serializer
             if (beanDesc.hasKnownClassAnnotations()) {
                 return builder.createDummy();
             }

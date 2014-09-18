@@ -4,6 +4,9 @@ Version: 2.5.0 (xx-xxx-2014)
 #521: Keep bundle annotations, prevent problems with recursive annotation
    types
   (reported by tea-dragon@github)
+#539: Problem with post-procesing of "empty bean" serializer; was not calling
+  'BeanSerializerModifier.modifySerializer()` for empty beans
+ (reported by Fabien R, fabienrenaud@github)
 #543: Problem resolving self-referential recursive types
   (reported by ahgittin@github)
 

@@ -349,6 +349,18 @@ public class TestDefaultForObject
         String json = mapper.writeValueAsString(new BeanHolder(new StringBean("punny")));
         assertEquals("{\"bean\":{\"*CLASS*\":\"com.fasterxml.jackson.databind.jsontype.TestDefaultForObject$StringBean\",\"name\":\"punny\"}}", json);
     }
+
+    public void testNoGoWithExternalProperty() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT,
+                    JsonTypeInfo.As.EXTERNAL_PROPERTY);
+            fail("Should not have passed");
+        } catch (IllegalArgumentException e) {
+            verifyException(e, "Can not use includeAs of EXTERNAL_PROPERTY");
+        }
+    }
     
     /*
     /**********************************************************

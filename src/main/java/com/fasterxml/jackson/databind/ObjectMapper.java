@@ -1073,12 +1073,23 @@ public class ObjectMapper
      * Method for enabling automatic inclusion of type information, needed
      * for proper deserialization of polymorphic types (unless types
      * have been annotated with {@link com.fasterxml.jackson.annotation.JsonTypeInfo}).
+     *<P>
+     * NOTE: use of {@link JsonTypeInfo.As#EXTERNAL_PROPERTY} is <b>NOT SUPPORTED</b>;
+     * and attempts of do so will throw an {@link IllegalArgumentException} to make
+     * this limitation explicit.
      * 
      * @param applicability Defines kinds of types for which additional type information
      *    is added; see {@link DefaultTyping} for more information.
      */
     public ObjectMapper enableDefaultTyping(DefaultTyping applicability, JsonTypeInfo.As includeAs)
     {
+        /* 18-Sep-2014, tatu: Let's add explicit check to ensure no one tries to
+         *   use "As.EXTERNAL_PROPERTY", since that will not work.
+         */
+        if (includeAs == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
+            throw new IllegalArgumentException("Can not use includeAs of "+includeAs);
+        }
+        
         TypeResolverBuilder<?> typer = new DefaultTypeResolverBuilder(applicability);
         // we'll always use full class name, when using defaulting
         typer = typer.init(JsonTypeInfo.Id.CLASS, null);

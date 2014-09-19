@@ -24,10 +24,9 @@ public class ISO8601Utils {
      */
     private static final TimeZone TIMEZONE_GMT = TimeZone.getTimeZone(GMT_ID);
 
-    /*
-     * /********************************************************** /* Static factories
-     * /**********************************************************
-     */
+    /* ********************************************************* */
+    /* Static factories */
+    /* ********************************************************* */
 
     /**
      * Accessor for static GMT timezone instance.
@@ -36,10 +35,9 @@ public class ISO8601Utils {
         return TIMEZONE_GMT;
     }
 
-    /*
-     * /********************************************************** /* Formatting
-     * /**********************************************************
-     */
+    /* ********************************************************* */
+    /* Formatting */
+    /* ********************************************************* */
 
     /**
      * Format a date into 'yyyy-MM-ddThh:mm:ssZ' (GMT timezone, no milliseconds precision)
@@ -111,13 +109,13 @@ public class ISO8601Utils {
         return formatted.toString();
     }
 
-    /*
-     * /********************************************************** /* Parsing
-     * /**********************************************************
-     */
+    /* ********************************************************* */
+    /* Parsing */
+    /* ********************************************************* */
 
     /**
-     * Parse a date from ISO-8601 formatted string. It expects a format yyyy-MM-ddThh:mm:ss[.sss][Z|[+-]hh:mm]
+     * Parse a date from ISO-8601 formatted string. It expects a format
+     * [yyyy-MM-dd|yyyyMMdd][T(hh:mm[:ss[.sss]]|hhmm[ss[.sss]])]?[Z|[+-]hh:mm]]
      * 
      * @param date ISO string to parse in the appropriate format.
      * @param pos The position to start parsing from, updated to where parsing stopped.

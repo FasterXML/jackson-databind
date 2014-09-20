@@ -745,6 +745,17 @@ public abstract class SerializerProvider
         return _unknownTypeSerializer;
     }
 
+    /**
+     * Helper method called to see if given serializer is considered to be
+     * something returned by {@link #getUnknownTypeSerializer}, that is, something
+     * for which no regular serializer was found or constructed.
+     * 
+     * @since 2.5
+     */
+    public boolean isUnknownTypeSerializer(JsonSerializer<?> ser) {
+        return (ser == _unknownTypeSerializer) || (ser == null);
+    }
+    
     /*
     /**********************************************************
     /* Methods for creating instances based on annotations
@@ -987,19 +998,26 @@ public abstract class SerializerProvider
      * @return Serializer if one can be found, null if not.
      */
     protected JsonSerializer<Object> _findExplicitUntypedSerializer(Class<?> runtimeType)
-		throws JsonMappingException
+        throws JsonMappingException
     {        
         // Fast lookup from local lookup thingy works?
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(runtimeType);
-        if (ser != null) {
-            return ser;
+        if (ser == null) {
+            // If not, maybe shared map already has it?
+            ser = _serializerCache.untypedValueSerializer(runtimeType);
+            if (ser == null) {
+                ser = _createAndCacheUntypedSerializer(runtimeType);
+                /* 18-Sep-2014, tatu: This is unfortunate patch over related change
+                 *    that pushes creation of "unknown type" serializer deeper down
+                 *    in BeanSerializerFactory; as a result, we need to "undo" creation
+                 *    here.
+                 */
+                if (isUnknownTypeSerializer(ser)) {
+                    return null;
+                }
+            }
         }
-        // If not, maybe shared map already has it?
-        ser = _serializerCache.untypedValueSerializer(runtimeType);
-        if (ser != null) {
-            return ser;
-        }
-        return _createAndCacheUntypedSerializer(runtimeType);
+        return ser;
     }
 
     /*

@@ -11,7 +11,7 @@ Version: 2.5.0 (xx-xxx-2014)
 === History: ===
 ------------------------------------------------------------------------
 
-2.4.2 (xx-Aug-2014)
+2.4.2 (14-Aug-2014)
 
 #491: Temporary work-around for issue #490 (full fix for 2.5 needs to be
   in `jackson-annotations`)

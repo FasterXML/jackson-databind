@@ -27,7 +27,7 @@ Functionality of this package is contained in Java package `com.fasterxml.jackso
 </dependency>
 ```
 
-Since package also depends on `jackson-core` and `jackson-databind` packages, you will need to download these if not using Maven; and you may also want to add them as Maven dependency to ensure that compatible versions are used.
+Since package also depends on `jackson-core` and `jackson-annotations` packages, you will need to download these if not using Maven; and you may also want to add them as Maven dependency to ensure that compatible versions are used.
 If so, also add:
 
 ```xml

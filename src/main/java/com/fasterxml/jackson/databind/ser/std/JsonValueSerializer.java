@@ -125,7 +125,7 @@ public class JsonValueSerializer
                  *   to serializer factory at this point... 
                  */
                 // 05-Sep-2013, tatu: I _think_ this can be considered a primary property...
-                ser = provider.findPrimaryPropertySerializer(t, _property);
+                ser = provider.findPrimaryPropertySerializer(t, property);
                 /* 09-Dec-2010, tatu: Turns out we must add special handling for
                  *   cases where "native" (aka "natural") type is being serialized,
                  *   using standard serializer

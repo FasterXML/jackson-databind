@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.lang.reflect.Modifier;
 
 import com.fasterxml.jackson.core.type.ResolvedType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
  * Base class for type token classes used both to contain information
@@ -319,9 +320,36 @@ public abstract class JavaType
 
     @Override
     public JavaType containedType(int index) { return null; }
-
+       
     @Override
     public String containedTypeName(int index) { return null; }
+
+    /*
+    /**********************************************************
+    /* Extended API beyond ResolvedType
+    /**********************************************************
+     */
+    
+    // NOTE: not defined in Resolved type
+    /**
+     * Convenience method that is functionally same as:
+     *<code>
+     * JavaType t = containedType(index);
+     * if (t == null) {
+     *    t = TypeFactory.unknownType();
+     * }
+     *</code>
+     * and typically used to eliminate need for null checks for common case
+     * where we just want to check if containedType is available first; and
+     * if not, use "unknown type" (which translates to <code>java.lang.Object</code>
+     * basically).
+     *
+     * @since 2.5
+     */
+    public JavaType containedTypeOrUnknown(int index) {
+        JavaType t = containedType(index);
+        return (t == null)  ? TypeFactory.unknownType() : t;
+    }
 
     /*
     /**********************************************************

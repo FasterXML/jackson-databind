@@ -660,7 +660,7 @@ public class MapSerializer
         // there's no way to statically determine the keys, so the "Entries" can't be determined.
         return o;
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException

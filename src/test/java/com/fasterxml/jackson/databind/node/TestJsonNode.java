@@ -31,6 +31,11 @@ public class TestJsonNode extends NodeTestBase
 
         assertEquals("foobar", n.asText("barf"));
         assertEquals("", empty.asText("xyz"));
+
+        assertTrue(TextNode.valueOf("true").asBoolean(true));
+        assertTrue(TextNode.valueOf("true").asBoolean(false));
+        assertFalse(TextNode.valueOf("false").asBoolean(true));
+        assertFalse(TextNode.valueOf("false").asBoolean(false));
     }
 
     public void testBoolean()

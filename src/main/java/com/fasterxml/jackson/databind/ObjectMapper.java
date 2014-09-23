@@ -198,11 +198,6 @@ public class ObjectMapper
     // Quick little shortcut, to avoid having to use global TypeFactory instance...
     private final static JavaType JSON_NODE_TYPE = SimpleType.constructUnsafe(JsonNode.class);
 
-    /* !!! 03-Apr-2009, tatu: Should try to avoid direct reference... but not
-     *   sure what'd be simple and elegant way. So until then:
-     */
-    protected final static ClassIntrospector DEFAULT_INTROSPECTOR = BasicClassIntrospector.instance;
-
     // 16-May-2009, tatu: Ditto ^^^
     protected final static AnnotationIntrospector DEFAULT_ANNOTATION_INTROSPECTOR = new JacksonAnnotationIntrospector();
 
@@ -214,8 +209,10 @@ public class ObjectMapper
      * Base settings contain defaults used for all {@link ObjectMapper}
      * instances.
      */
-    protected final static BaseSettings DEFAULT_BASE = new BaseSettings(DEFAULT_INTROSPECTOR,
-            DEFAULT_ANNOTATION_INTROSPECTOR, STD_VISIBILITY_CHECKER, null, TypeFactory.defaultInstance(),
+    protected final static BaseSettings DEFAULT_BASE = new BaseSettings(
+            null, // can not share global ClassIntrospector any more (2.5+)
+            DEFAULT_ANNOTATION_INTROSPECTOR,
+            STD_VISIBILITY_CHECKER, null, TypeFactory.defaultInstance(),
             null, StdDateFormat.instance, null,
             Locale.getDefault(),
 //            TimeZone.getDefault()
@@ -449,9 +446,11 @@ public class ObjectMapper
 
         HashMap<ClassKey,Class<?>> mixins = new HashMap<ClassKey,Class<?>>();
         _mixInAnnotations = mixins;
-        _serializationConfig = new SerializationConfig(DEFAULT_BASE,
+
+        BaseSettings base = DEFAULT_BASE.withClassIntrospector(defaultClassIntrospector());
+        _serializationConfig = new SerializationConfig(base,
                     _subtypeResolver, mixins);
-        _deserializationConfig = new DeserializationConfig(DEFAULT_BASE,
+        _deserializationConfig = new DeserializationConfig(base,
                     _subtypeResolver, mixins);
 
         // Some overrides we may need
@@ -467,7 +466,7 @@ public class ObjectMapper
         // Default serializer factory is stateless, can just assign
         _serializerFactory = BeanSerializerFactory.instance;
     }
-
+    
     /**
      * Method for creating a new {@link ObjectMapper} instance that
      * has same initial configuration as this instance. Note that this
@@ -491,7 +490,6 @@ public class ObjectMapper
 
     /**
      * @since 2.1
-     * @param exp
      */
     protected void _checkInvalidCopy(Class<?> exp)
     {
@@ -499,6 +497,16 @@ public class ObjectMapper
             throw new IllegalStateException("Failed copy(): "+getClass().getName()
                     +" (version: "+version()+") does not override copy(); it has to");
         }
+    }
+
+    /**
+     * Overridable helper method used to construct default {@link ClassIntrospector}
+     * to use.
+     * 
+     * @since 2.5
+     */
+    protected ClassIntrospector defaultClassIntrospector() {
+        return new BasicClassIntrospector();
     }
     
     /*

@@ -13,7 +13,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * NOTE: since version 2.4.2, this is <b>NOT</b> an LRU-based at all; reason
  * being that it is not possible to use JDK components that do LRU _AND_ perform
  * well wrt synchronization on multi-core systems. So we choose efficient synchronization
- * over potentially more effecient handling of entries.
+ * over potentially more efficient handling of entries.
+ *<p>
+ * And yes, there are efficient LRU implementations such as
+ * <a href="https://code.google.com/p/concurrentlinkedhashmap/">concurrentlinkedhashmap</a>;
+ * but at this point we really try to keep external deps to minimum. But perhaps
+ * a shaded variant may be used one day.
  */
 public class LRUMap<K,V>
     implements java.io.Serializable
@@ -43,6 +48,22 @@ public class LRUMap<K,V>
         return _map.put(key, value);
     }
 
+    /**
+     * @since 2.5
+     */
+    public V putIfAbsent(K key, V value) {
+        // not 100% optimal semantically, but better from correctness (never exceeds
+        // defined maximum) and close enough all in all:
+        if (_map.size() >= _maxEntries) {
+            synchronized (this) {
+                if (_map.size() >= _maxEntries) {
+                    clear();
+                }
+            }
+        }
+        return _map.putIfAbsent(key, value);
+    }
+    
     // NOTE: key is of type Object only to retain binary backwards-compatibility
     public V get(Object key) {  return _map.get(key); }
 

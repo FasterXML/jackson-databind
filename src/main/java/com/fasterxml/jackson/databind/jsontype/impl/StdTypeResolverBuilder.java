@@ -84,8 +84,15 @@ public class StdTypeResolverBuilder
         case EXTERNAL_PROPERTY:
             return new AsExternalTypeSerializer(idRes, null,
                     _typeProperty);
+        case EXISTING_PROPERTY:
+            throw _noExisting();
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
+    }
+
+    // as per [#368]
+    private IllegalArgumentException _noExisting() {
+        return new IllegalArgumentException("Inclusion type "+_includeAs+" not yet supported");
     }
 
     @SuppressWarnings("incomplete-switch")
@@ -111,6 +118,8 @@ public class StdTypeResolverBuilder
         case EXTERNAL_PROPERTY:
             return new AsExternalTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, _defaultImpl);
+        case EXISTING_PROPERTY:
+            throw _noExisting();
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }

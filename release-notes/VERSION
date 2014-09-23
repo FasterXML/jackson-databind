@@ -1,6 +1,8 @@
 Project: jackson-databind
 Version: 2.4.3 (xx-xxx-2014)
 
+#496: Wrong result with `new TextNode("false").asBoolean(true)`
+ (reported by Ivar R, ivarru@github)
 #523: MapDeserializer and friends do not report the field/key name for mapping exceptions
  (reported by Ian B, tea-dragon@github)
 #524: @JsonIdentityReference(alwaysAsId = true) Custom resolver is reset to SimpleObjectIdResolver

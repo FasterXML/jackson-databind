@@ -12,8 +12,8 @@ import java.text.ParseException;
  * 
  * @see http://www.w3.org/TR/NOTE-datetime
  */
-public class ISO8601Utils {
-
+public class ISO8601Utils
+{
     /**
      * ID to represent the 'GMT' string
      */
@@ -24,9 +24,11 @@ public class ISO8601Utils {
      */
     private static final TimeZone TIMEZONE_GMT = TimeZone.getTimeZone(GMT_ID);
 
-    /* ********************************************************* */
-    /* Static factories */
-    /* ********************************************************* */
+    /*
+    /**********************************************************
+    /* Static factories
+    /**********************************************************
+     */
 
     /**
      * Accessor for static GMT timezone instance.
@@ -35,9 +37,11 @@ public class ISO8601Utils {
         return TIMEZONE_GMT;
     }
 
-    /* ********************************************************* */
-    /* Formatting */
-    /* ********************************************************* */
+    /*
+    /**********************************************************
+    /* Formatting
+    /**********************************************************
+     */
 
     /**
      * Format a date into 'yyyy-MM-ddThh:mm:ssZ' (GMT timezone, no milliseconds precision)
@@ -109,9 +113,11 @@ public class ISO8601Utils {
         return formatted.toString();
     }
 
-    /* ********************************************************* */
-    /* Parsing */
-    /* ********************************************************* */
+    /*
+    /**********************************************************
+    /* Parsing
+    /**********************************************************
+     */
 
     /**
      * Parse a date from ISO-8601 formatted string. It expects a format
@@ -174,7 +180,7 @@ public class ISO8601Utils {
             // extract timezone
             String timezoneId;
             if (date.length() <= offset) {
-                throw new IndexOutOfBoundsException("No time zone indicator ");
+                throw new IllegalArgumentException("No time zone indicator");
             }
             char timezoneIndicator = date.charAt(offset);
             if (timezoneIndicator == '+' || timezoneIndicator == '-') {
@@ -227,7 +233,7 @@ public class ISO8601Utils {
      * @return true if the expected character exist at the given offset
      */
     private static boolean checkOffset(String value, int offset, char expected) {
-        return value.length() > offset ? (value.charAt(offset) == expected) : false;
+        return (offset < value.length()) && (value.charAt(offset) == expected);
     }
 
     /**

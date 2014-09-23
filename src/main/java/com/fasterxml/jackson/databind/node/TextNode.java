@@ -178,8 +178,12 @@ public class TextNode
     @Override
     public boolean asBoolean(boolean defaultValue) {
         if (_value != null) {
-            if ("true".equals(_value.trim())) {
+            String v = _value.trim();
+            if ("true".equals(v)) {
                 return true;
+            }
+            if ("false".equals(v)) {
+                return false;
             }
         }
         return defaultValue;

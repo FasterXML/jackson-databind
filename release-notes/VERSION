@@ -1,7 +1,9 @@
 Project: jackson-databind
-Version: 2.3.4 (xx-xxx-2014)
+Version: 2.3.5 (xx-xxx-2014)
 
 #543: Problems resolve self-referential generic types.
+#496: Wrong result for TextNode("false").asBoolean(true)
+ (reported by Ivar R, ivarru@github)
 
 ------------------------------------------------------------------------
 === History: ===

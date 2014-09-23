@@ -2055,7 +2055,8 @@ public class ObjectMapper
      *<p>
      * NOTE: since this method does NOT throw exceptions, but internal
      * processing may, caller usually has little information as to why
-     * serialization would fail.
+     * serialization would fail. If you want access to internal {@link Exception},
+     * call {@link #canSerialize(Class, AtomicReference)} instead.
      *
      * @return True if mapper can find a serializer for instances of
      *  given class (potentially serializable), false otherwise (not
@@ -2079,8 +2080,15 @@ public class ObjectMapper
     /**
      * Method that can be called to check whether mapper thinks
      * it could deserialize an Object of given type.
-     * Check is done
-     * by checking whether a deserializer can be found for the type.
+     * Check is done by checking whether a registered deserializer can
+     * be found or built for the type; if not (either by no mapping being
+     * found, or through an <code>Exception</code> being thrown, false
+     * is returned.
+     *<p>
+     * <b>NOTE</b>: in case an exception is thrown during course of trying
+     * co construct matching deserializer, it will be effectively swallowed.
+     * If you want access to that exception, call
+     * {@link #canDeserialize(JavaType, AtomicReference) instead.
      *
      * @return True if mapper can find a serializer for instances of
      *  given class (potentially serializable), false otherwise (not

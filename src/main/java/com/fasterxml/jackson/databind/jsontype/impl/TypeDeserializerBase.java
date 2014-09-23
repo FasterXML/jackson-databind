@@ -22,7 +22,7 @@ public abstract class TypeDeserializerBase
     extends TypeDeserializer
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 278445030337366675L;
+    private static final long serialVersionUID = 1;
     
     protected final TypeIdResolver _idResolver;
     
@@ -149,7 +149,7 @@ public abstract class TypeDeserializerBase
         synchronized (_deserializers) {
             deser = _deserializers.get(typeId);
             if (deser == null) {
-                /* As per [Issue#305], need to provide contextual info. But for
+                /* As per [Databind#305], need to provide contextual info. But for
                  * backwards compatibility, let's start by only supporting this
                  * for base class, not via interface. Later on we can add this
                  * to the interface, assuming deprecation at base class helps.
@@ -162,10 +162,10 @@ public abstract class TypeDeserializerBase
                 }
                 if (type == null) {
                     // As per [JACKSON-614], use the default impl if no type id available:
-                    if (_defaultImpl == null) {
+                    deser = _findDefaultImplDeserializer(ctxt);
+                    if (deser == null) {
                         throw ctxt.unknownTypeException(_baseType, typeId);
                     }
-                    deser = _findDefaultImplDeserializer(ctxt);
                 } else {
                     /* 16-Dec-2010, tatu: Since nominal type we get here has no (generic) type parameters,
                      *   we actually now need to explicitly narrow from base type (which may have parameterization)
@@ -238,10 +238,10 @@ public abstract class TypeDeserializerBase
             /* 04-May-2014, tatu: Should error be obligatory, or should there be another method
              *   for "try to deserialize with native tpye id"?
              */
-            if (_defaultImpl == null) {
+            deser = _findDefaultImplDeserializer(ctxt);
+            if (deser == null) {
                 throw ctxt.mappingException("No (native) type id found when one was expected for polymorphic type handling");
             }
-            deser = _findDefaultImplDeserializer(ctxt);
         } else {
             String typeIdStr = (typeId instanceof String) ? (String) typeId : String.valueOf(typeId);
             deser = _findDeserializer(ctxt, typeIdStr);

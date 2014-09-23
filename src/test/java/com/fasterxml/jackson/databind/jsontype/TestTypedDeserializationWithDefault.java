@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Unit tests related to [JACKSON-712]; specialized handling of
+ * Unit tests related to specialized handling of
  * otherwise invalid type id embedding cases.
  */
 public class TestTypedDeserializationWithDefault extends BaseMapTest
@@ -48,7 +48,39 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
     // and then one with no defaultImpl nor listed subtypes
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     abstract static class MysteryPolymorphic { }
-    
+
+    // [Databind#511] types
+
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+            include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonSubTypes(@JsonSubTypes.Type(name="sub1", value = BadSub1.class))
+    public static class BadItem {}
+
+    public static class BadSub1 extends BadItem {
+        public String a ;
+    }
+
+    public static class Good {
+        public List<GoodItem> many;
+    }
+
+    public static class Bad {
+        public List<BadItem> many;
+    }
+ 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+            include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonSubTypes({@JsonSubTypes.Type(name="sub1", value = GoodSub1.class),
+            @JsonSubTypes.Type(name="sub2", value = GoodSub2.class) })
+    public static class GoodItem {}
+
+    public static class GoodSub1 extends GoodItem {
+        public String a ;
+    }
+    public static class GoodSub2 extends GoodItem {
+        public String b ;
+
+    }    
     /*
     /**********************************************************
     /* Unit tests, deserialization
@@ -86,7 +118,7 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
         assertEquals(Arrays.asList("a", "b"), ((MyInter) inter).blah);
     }
 
-    // [Issue#148]
+    // [Databind#148]
     public void testDefaultAsNoClass() throws Exception
     {
         Object ob = MAPPER.reader(DefaultWithNoClass.class).readValue("{ }");
@@ -95,7 +127,7 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
         assertNull(ob);
     }
 
-    // [Issue#148]
+    // [Databind#148]
     public void testBadTypeAsNull() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -104,5 +136,19 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
         assertNull(ob);
         ob = mapper.readValue("{ \"whatever\":13}", MysteryPolymorphic.class);
         assertNull(ob);
+    }
+
+    // [Databind#511]
+    public void testInvalidTypeId511() throws Exception {
+        ObjectMapper mapper = new ObjectMapper().disable(
+                DeserializationFeature.FAIL_ON_INVALID_SUBTYPE,
+                DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+                DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES
+        );
+        String json = "{\"many\":[{\"sub1\":{\"a\":\"foo\"}},{\"sub2\":{\"b\":\"bar\"}}]}" ;
+        Good goodResult = mapper.readValue(json, Good.class) ;
+        assertNotNull(goodResult) ;
+        Bad badResult = mapper.readValue(json, Bad.class);
+        assertNotNull(badResult);
     }
 }

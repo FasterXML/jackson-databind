@@ -1082,7 +1082,7 @@ public class ObjectMapper
      * for proper deserialization of polymorphic types (unless types
      * have been annotated with {@link com.fasterxml.jackson.annotation.JsonTypeInfo}).
      *<P>
-     * NOTE: use of {@link JsonTypeInfo.As#EXTERNAL_PROPERTY} is <b>NOT SUPPORTED</b>;
+     * NOTE: use of <code>JsonTypeInfo.As#EXTERNAL_PROPERTY</code> <b>NOT SUPPORTED</b>;
      * and attempts of do so will throw an {@link IllegalArgumentException} to make
      * this limitation explicit.
      * 
@@ -2088,7 +2088,7 @@ public class ObjectMapper
      * <b>NOTE</b>: in case an exception is thrown during course of trying
      * co construct matching deserializer, it will be effectively swallowed.
      * If you want access to that exception, call
-     * {@link #canDeserialize(JavaType, AtomicReference) instead.
+     * {@link #canDeserialize(JavaType, AtomicReference)} instead.
      *
      * @return True if mapper can find a serializer for instances of
      *  given class (potentially serializable), false otherwise (not

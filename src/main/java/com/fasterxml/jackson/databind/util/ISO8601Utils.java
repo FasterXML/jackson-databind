@@ -10,7 +10,7 @@ import java.text.ParseException;
  * 
  * Supported parse format: [yyyy-MM-dd|yyyyMMdd][T(hh:mm[:ss[.sss]]|hhmm[ss[.sss]])]?[Z|[+-]hh:mm]]
  * 
- * @see http://www.w3.org/TR/NOTE-datetime
+ * @see <a href="http://www.w3.org/TR/NOTE-datetime">this specification</a>
  */
 public class ISO8601Utils
 {

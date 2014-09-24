@@ -66,7 +66,6 @@ public class StdTypeResolverBuilder
         return this;
     }
 
-    @SuppressWarnings("incomplete-switch")
     @Override
     public TypeSerializer buildTypeSerializer(SerializationConfig config,
             JavaType baseType, Collection<NamedType> subtypes)
@@ -95,7 +94,6 @@ public class StdTypeResolverBuilder
         return new IllegalArgumentException("Inclusion type "+_includeAs+" not yet supported");
     }
 
-    @SuppressWarnings("incomplete-switch")
     @Override
     public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
             JavaType baseType, Collection<NamedType> subtypes)

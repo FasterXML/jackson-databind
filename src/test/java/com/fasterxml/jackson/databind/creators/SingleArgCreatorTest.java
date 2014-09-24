@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.databind.creators;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.introspect.AnnotatedParameter;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 public class SingleArgCreatorTest extends BaseMapTest
 {
@@ -20,6 +22,35 @@ public class SingleArgCreatorTest extends BaseMapTest
         public String getSs() { return _ss; }
     }
 
+    // [Databind#557]
+    
+    static class StringyBean
+    {
+        public final String value;
+
+        private StringyBean(String value) { this.value = value; }
+
+        public String getValue() {
+            return value;
+        }
+    }
+
+    @SuppressWarnings("serial")
+    static class MyParamIntrospector extends JacksonAnnotationIntrospector
+    {
+        @Override
+        public String findImplicitPropertyName(AnnotatedMember param) {
+            if (param instanceof AnnotatedParameter) {
+                AnnotatedParameter ap = (AnnotatedParameter) param;
+                switch (ap.getIndex()) {
+                case 0: return "value";
+                }
+                return "param"+ap.getIndex();
+            }
+            return super.findImplicitPropertyName(param);
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -34,4 +65,13 @@ public class SingleArgCreatorTest extends BaseMapTest
                 SingleNamedStringBean.class);
         assertEquals("foobar", bean._ss);
     }
+
+    public void testSingleStringArgWithImplicitName() throws Exception
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new MyParamIntrospector());
+        StringyBean bean = mapper.readValue(quote("foobar"), StringyBean.class);
+        assertEquals("foobar", bean.getValue());
+    }    
 }
+

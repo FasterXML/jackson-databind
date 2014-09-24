@@ -492,7 +492,7 @@ public class BasicBeanDescription extends BeanDescription
     }
 
     /**
-     * @deprecated Since 2.4, use {@link #findCreatorParameterNames()} instead.
+     * @deprecated Since 2.4, use <code>findCreatorParameterNames()</code> instead.
      */
     @Deprecated
     public List<String> findCreatorPropertyNames()
@@ -509,16 +509,9 @@ public class BasicBeanDescription extends BeanDescription
     }
     
     /**
-     * Method for getting ordered list of named Creator properties.
-     * Returns an empty list is none found. If multiple Creator
-     * methods are defined, order between properties from different
-     * methods is undefined; however, properties for each such
-     * Creator are ordered properly relative to each other.
-     * For the usual case of just a single Creator, named properties are
-     * thus properly ordered.
-     * 
-     * @since 2.4
+     * @deprecated Since 2.5, does not seem to be used at all.
      */
+    @Deprecated
     public List<PropertyName> findCreatorParameterNames()
     {
         for (int i = 0; i < 2; ++i) {

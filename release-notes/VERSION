@@ -1,6 +1,8 @@
 Project: jackson-databind
 Version: 2.5.0 (xx-xxx-2014)
 
+#421: @JsonCreator not used in case of multiple creators with parameter names
+ (reported by Lovro P, lpandzic@github)
 #521: Keep bundle annotations, prevent problems with recursive annotation
    types
  (reported by tea-dragon@github)

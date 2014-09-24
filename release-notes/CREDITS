@@ -143,3 +143,7 @@ Benson Margulies:
 Steve Sanbeg: (sanbeg@github)
   * Contributed #482: Make date parsing error behavior consistent with JDK
    (2.4.1)
+
+Lovro Pandžić (lpandzic@github)
+  * Reported #421: @JsonCreator not used in case of multiple creators with parameter names
+   (2.5.0)

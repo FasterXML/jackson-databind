@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.creators;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,13 +13,7 @@ public class TestCreators421 extends BaseMapTest
     {
         protected String _a, _b;
         
-        @JsonCreator
-        static MultiCtor factory(@JsonProperty("a") String a, @JsonProperty("b") String b) {
-            return new MultiCtor(a, b, Boolean.TRUE);
-        }
-
         private MultiCtor() { }
-
         private MultiCtor(String a, String b, Boolean c) {
             if (c == null) {
                 throw new RuntimeException("Wrong factory!");
@@ -27,7 +21,11 @@ public class TestCreators421 extends BaseMapTest
             _a = a;
             _b = b;
         }
-        
+
+        @JsonCreator
+        static MultiCtor factory(@JsonProperty("a") String a, @JsonProperty("b") String b) {
+            return new MultiCtor(a, b, Boolean.TRUE);
+        }
     }
 
     @SuppressWarnings("serial")

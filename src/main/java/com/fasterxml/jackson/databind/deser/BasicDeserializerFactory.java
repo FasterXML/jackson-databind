@@ -363,16 +363,115 @@ public abstract class BasicDeserializerFactory
         return (ValueInstantiator) ClassUtil.createInstance(instClass,
                 config.canOverrideAccessModifiers());
     }
-    
+
     protected void _addDeserializerConstructors
         (DeserializationContext ctxt, BeanDescription beanDesc, VisibilityChecker<?> vchecker,
          AnnotationIntrospector intr, CreatorCollector creators)
         throws JsonMappingException
     {
-        /* First things first: the "default constructor" (zero-arg
-         * constructor; whether implicit or explicit) is NOT included
-         * in list of constructors, so needs to be handled separately.
-         */
+        // First things first: the "default constructor" (zero-arg
+        // constructor; whether implicit or explicit) is NOT included
+        // in list of constructors, so needs to be handled separately.
+        AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
+        if (defaultCtor != null) {
+            if (!creators.hasDefaultCreator() || intr.hasCreatorAnnotation(defaultCtor)) {
+                creators.setDefaultCreator(defaultCtor);
+            }
+        }
+
+        // And then other constructors
+        for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
+            boolean isCreator = intr.hasCreatorAnnotation(ctor);
+            int argCount = ctor.getParameterCount();
+            // some single-arg factory methods (String, number) are auto-detected
+            if (argCount == 1) {
+                AnnotatedParameter param = ctor.getParameter(0);
+                // NOTE: only consider EXPLICIT names for auto-detection
+                PropertyName pn = _findExplicitParamName(param, intr);
+                Object injectId = intr.findInjectableValueId(param);
+
+                if ((injectId == null) && (pn == null || pn.isEmpty())) { // not property based
+                    _handleSingleArgumentConstructor(ctxt, beanDesc, vchecker, intr, creators,
+                            ctor, isCreator,
+                            vchecker.isCreatorVisible(ctor), pn);
+                    // otherwise just ignored
+                    continue;
+                }
+                // fall through if there's name
+            }
+            
+            // 1 or more args; all params must have name annotations
+            AnnotatedParameter nonAnnotatedParam = null;            
+            CreatorProperty[] properties = new CreatorProperty[argCount];
+            int explicitNameCount = 0;
+            int implicitNameCount = 0;
+            int injectCount = 0;            
+            for (int i = 0; i < argCount; ++i) {
+                AnnotatedParameter param = ctor.getParameter(i);
+                PropertyName name = _findExplicitParamName(param, intr);
+                Object injectId = intr.findInjectableValueId(param);
+                if (name != null && name.hasSimpleName()) {
+                    ++explicitNameCount;
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
+                    continue;
+                }
+                if (injectId != null) {
+                    ++injectCount;
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
+                    continue;
+                }
+                NameTransformer unwrapper = intr.findUnwrappingNameTransformer(param);
+                if (unwrapper != null) {
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, UNWRAPPED_CREATOR_PARAM_NAME, i, param, null);
+                    ++explicitNameCount;
+                    continue;
+                }
+                // One more thing: implicit names are ok iff ctor has creator annotation
+                if (isCreator) {
+                    name = _findImplicitParamName(param, intr);
+                    if (name != null && !name.isEmpty()) {
+                        ++implicitNameCount;
+                        properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
+                        continue;
+                    }
+                }
+                if (nonAnnotatedParam == null) {
+                    nonAnnotatedParam = param;
+                }
+                // 23-Sep-2014, tatu: TODO: probably will need support for using implicit
+                //   names, still, 
+            }
+
+            final int namedCount = explicitNameCount + implicitNameCount;
+            // Ok: if named or injectable, we have more work to do
+            if (isCreator || explicitNameCount > 0 || injectCount > 0) {
+                // simple case; everything covered:
+                if ((namedCount + injectCount) == argCount) {
+                    creators.addPropertyCreator(ctor, properties);
+                } else if ((explicitNameCount == 0) && ((injectCount + 1) == argCount)) {
+                    // [712] secondary: all but one injectable, one un-annotated (un-named)
+                    creators.addDelegatingCreator(ctor, properties);
+                } else { // otherwise, epic fail
+                    throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()
+                            +" of constructor "+ctor+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
+                }
+            }
+        }
+    }
+
+    /* 23-Sep-2014, tatu: This is the old definition of method above, from 2.4.x,
+     *   rewritten in 2.5. Left here until 2.6, just in case there's a regression,
+     *   and we need to inspect diffs...
+     */
+/*    
+    protected void XXX_addDeserializerConstructors
+        (DeserializationContext ctxt, BeanDescription beanDesc, VisibilityChecker<?> vchecker,
+         AnnotationIntrospector intr, CreatorCollector creators)
+        throws JsonMappingException
+    {
+        // First things first: the "default constructor" (zero-arg
+        // constructor; whether implicit or explicit) is NOT included
+        // in list of constructors, so needs to be handled separately.
         AnnotatedConstructor defaultCtor = beanDesc.findDefaultConstructor();
         if (defaultCtor != null) {
             if (!creators.hasDefaultCreator() || intr.hasCreatorAnnotation(defaultCtor)) {
@@ -382,6 +481,7 @@ public abstract class BasicDeserializerFactory
 
         PropertyName[] ctorPropNames = null;
         AnnotatedConstructor propertyCtor = null;
+        
         for (BeanPropertyDefinition propDef : beanDesc.findProperties()) {
             if (propDef.getConstructorParameter() != null) {
                 AnnotatedParameter param = propDef.getConstructorParameter();
@@ -390,6 +490,9 @@ public abstract class BasicDeserializerFactory
                     if (propertyCtor == null) {
                         propertyCtor = (AnnotatedConstructor) owner;
                         ctorPropNames = new PropertyName[propertyCtor.getParameterCount()];
+                    } else if (owner != propertyCtor) {
+                        // there is a mismatch of some kind here (problem?)
+                        continue;
                     }
                     ctorPropNames[param.getIndex()] = propDef.getFullName();
                 }
@@ -397,11 +500,13 @@ public abstract class BasicDeserializerFactory
         }
 
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
+
             int argCount = ctor.getParameterCount();
             boolean isCreator = intr.hasCreatorAnnotation(ctor) || (ctor == propertyCtor);
 //            boolean isCreator = intr.hasCreatorAnnotation(ctor);
             
             boolean isVisible =  vchecker.isCreatorVisible(ctor);
+            
             // some single-arg constructors (String, number) are auto-detected
             if (argCount == 1) {
                 PropertyName name = (ctor == propertyCtor) ? ctorPropNames[0] : null;
@@ -416,9 +521,8 @@ public abstract class BasicDeserializerFactory
             // [JACKSON-541] improved handling a bit so:
             // 2 or more args; all params must have name annotations
             // ... or @JacksonInject (or equivalent)
-            /* [JACKSON-711] One more possibility; can have 1 or more injectables, and
-             * exactly one non-annotated parameter: if so, it's still delegating.
-             */
+            // [JACKSON-711] One more possibility; can have 1 or more injectables, and
+            // exactly one non-annotated parameter: if so, it's still delegating.
             AnnotatedParameter nonAnnotatedParam = null;
             int namedCount = 0;
             int injectCount = 0;
@@ -452,8 +556,6 @@ public abstract class BasicDeserializerFactory
                     }
                 }
             }
-
-            // Ok: if named or injectable, we have more work to do
             if (isCreator || namedCount > 0 || injectCount > 0) {
                 // simple case; everything covered:
                 if ((namedCount + injectCount) == argCount) {
@@ -467,6 +569,7 @@ public abstract class BasicDeserializerFactory
             }
         }
     }
+*/
 
     protected boolean _handleSingleArgumentConstructor(DeserializationContext ctxt,
             BeanDescription beanDesc, VisibilityChecker<?> vchecker,
@@ -546,6 +649,7 @@ public abstract class BasicDeserializerFactory
                 }
                 continue;
             }
+            
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
                 AnnotatedParameter param = factory.getParameter(0);
@@ -734,6 +838,15 @@ public abstract class BasicDeserializerFactory
     {
         if (param != null && intr != null) {
             return intr.findNameForDeserialization(param);
+        }
+        return null;
+    }
+
+    protected PropertyName _findImplicitParamName(AnnotatedParameter param, AnnotationIntrospector intr)
+    {
+        String str = intr.findImplicitPropertyName(param);
+        if (str != null && !str.isEmpty()) {
+            return new PropertyName(str);
         }
         return null;
     }

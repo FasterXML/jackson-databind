@@ -467,9 +467,13 @@ public class POJOPropertiesCollector
         if (!expl) {
             if (impl.isEmpty()) {
                 /* Important: if neither implicit nor explicit name, can not make use
-                 * of this creator paramter -- may or may not be a problem, verified
+                 * of this creator parameter -- may or may not be a problem, verified
                  * at a later point.
                  */
+                return;
+            }
+            // Also: if this occurs, there MUST be explicit annotation on creator itself
+            if (!_annotationIntrospector.hasCreatorAnnotation(param.getOwner())) {
                 return;
             }
             pn = new PropertyName(impl);

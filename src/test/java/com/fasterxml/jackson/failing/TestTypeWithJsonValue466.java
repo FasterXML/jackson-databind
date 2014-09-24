@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.failing;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
@@ -12,17 +13,17 @@ public class TestTypeWithJsonValue466 extends BaseMapTest
     // The following is required for the testDecimalMetadata test case. That case fails.
     @JsonTypeName(value = "decimalValue")
     public static class DecimalValue {
-        private java.math.BigDecimal value;
-        public DecimalValue(){ this.value = java.math.BigDecimal.valueOf( 1234.4321 ); }
+        private BigDecimal value;
+        public DecimalValue() { value = new BigDecimal("111.1"); }
      
         @JsonValue
-        public java.math.BigDecimal getValue(){ return value; }
+        public BigDecimal getValue(){ return value; }
     }
 
     @JsonPropertyOrder({"key","value"})
     public static class DecimalEntry {
-    public DecimalEntry(){}
-        public String getKey(){ return "num"; }
+    public DecimalEntry() {}
+        public String getKey() { return "num"; }
          
         @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=JsonTypeInfo.As.EXTERNAL_PROPERTY)
         public DecimalValue getValue(){
@@ -41,10 +42,10 @@ public class TestTypeWithJsonValue466 extends BaseMapTest
     @JsonTypeName(value = "doubleValue")
     public static class DoubleValue {
         private Double value;
-        public DoubleValue(){ this.value = 1234.4321; }
+        public DoubleValue() { value = 1234.25; }
          
         @JsonValue
-        public Double getValue(){ return value; }
+        public Double getValue() { return value; }
     }
 
     @JsonPropertyOrder({"key","value"})
@@ -67,14 +68,14 @@ public class TestTypeWithJsonValue466 extends BaseMapTest
     
     public void testDoubleMetadata() throws IOException {
         DoubleMetadata doub = new DoubleMetadata();
-        String expected = "{\"metadata\":[{\"key\":\"num\",\"value\":1234.4321,\"@type\":\"doubleValue\"}]}";
+        String expected = "{\"metadata\":[{\"key\":\"num\",\"value\":1234.25,\"@type\":\"doubleValue\"}]}";
         String json = MAPPER.writeValueAsString(doub);
         assertEquals("Serialized json not equivalent", expected, json);
     }
 
     public void testDecimalMetadata() throws IOException{
         DecimalMetadata dec = new DecimalMetadata();
-        String expected = "{\"metadata\":[{\"key\":\"num\",\"value\":1234.4321,\"@type\":\"decimalValue\"}]}";
+        String expected = "{\"metadata\":[{\"key\":\"num\",\"value\":111.1,\"@type\":\"decimalValue\"}]}";
         String json = MAPPER.writeValueAsString(dec);
         assertEquals("Serialized json not equivalent", expected, json);
     }

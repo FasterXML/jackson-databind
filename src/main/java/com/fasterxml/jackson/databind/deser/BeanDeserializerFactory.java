@@ -508,7 +508,7 @@ public class BeanDeserializerFactory
         if (anySetter != null) {
             builder.setAnySetter(constructAnySetter(ctxt, beanDesc, anySetter));
         }
-        // NOTE: we do NOT add @JsonIgnore'd properties into blocked ones if there's any setter
+        // NOTE: we do NOT add @JsonIgnore'd properties into blocked ones if there's any-setter
         // Implicit ones via @JsonIgnore and equivalent?
         if (anySetter == null) {
             Collection<String> ignored2 = beanDesc.getIgnoredPropertyNames();

@@ -363,7 +363,20 @@ public class BasicBeanDescription extends BeanDescription
     public Map<String,AnnotatedMember> findBackReferenceProperties()
     {
         HashMap<String,AnnotatedMember> result = null;
+//        boolean hasIgnored = (_ignoredPropertyNames != null);
+
         for (BeanPropertyDefinition property : _properties) {
+            /* 23-Sep-2014, tatu: As per [Databind#426], we _should_ try to avoid
+             *   calling accessor, as it triggers exception from seeming conflict.
+             *   But the problem is that _ignoredPropertyNames here only contains
+             *   ones ignored on per-property annotations, but NOT class annotations...
+             *   so commented out part does not work, alas
+             */
+            /*
+            if (hasIgnored && _ignoredPropertyNames.contains(property.getName())) {
+                continue;
+            }
+            */
             AnnotatedMember am = property.getMutator();
             if (am == null) {
                 continue;

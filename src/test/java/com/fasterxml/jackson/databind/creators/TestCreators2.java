@@ -105,13 +105,14 @@ public class TestCreators2 extends BaseMapTest
     // For [JACKSON-541]: should not need @JsonCreator if SerializationFeature.AUTO_DETECT_CREATORS is on.
     static class AutoDetectConstructorBean
     {
-    	protected final String foo;
-    	protected final String bar;
+        protected final String foo;
+        protected final String bar;
 
-    	public AutoDetectConstructorBean(@JsonProperty("bar") String bar, @JsonProperty("foo") String foo){
-    	    this.bar = bar;
-    	    this.foo = foo;
-    	}
+        public AutoDetectConstructorBean(@JsonProperty("bar") String bar,
+                @JsonProperty("foo") String foo){
+            this.bar = bar;
+            this.foo = foo;
+        }
     }
 
     static class BustedCtor {
@@ -267,7 +268,8 @@ public class TestCreators2 extends BaseMapTest
     }
     
     public void testCreatorMultipleArgumentWithoutAnnotation() throws Exception {
-        AutoDetectConstructorBean value = MAPPER.readValue("{\"bar\":\"bar\",\"foo\":\"foo\"}", AutoDetectConstructorBean.class);
+        AutoDetectConstructorBean value = MAPPER.readValue("{\"bar\":\"bar\",\"foo\":\"foo\"}",
+                AutoDetectConstructorBean.class);
         assertEquals("bar", value.bar);
         assertEquals("foo", value.foo);
     }

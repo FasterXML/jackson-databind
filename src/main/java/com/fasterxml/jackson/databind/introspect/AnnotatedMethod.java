@@ -235,11 +235,22 @@ public final class AnnotatedMethod
      */
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "[method "+getFullName()+"]";
     }
 
+    @Override
+    public int hashCode() {
+        return _method.getName().hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (o == null || o.getClass() != getClass()) return false;
+        return ((AnnotatedMethod) o)._method == _method;
+    }
+    
     /*
     /**********************************************************
     /* JDK serialization handling

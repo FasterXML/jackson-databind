@@ -169,6 +169,18 @@ public final class AnnotatedConstructor
         return "[constructor for "+getName()+", annotations: "+_annotations+"]";
     }
 
+    @Override
+    public int hashCode() {
+        return _constructor.getName().hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (o == null || o.getClass() != getClass()) return false;
+        return ((AnnotatedConstructor) o)._constructor == _constructor;
+    }
+    
     /*
     /**********************************************************
     /* JDK serialization handling

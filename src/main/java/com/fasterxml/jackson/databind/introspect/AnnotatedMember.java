@@ -11,8 +11,6 @@ import com.fasterxml.jackson.databind.util.ClassUtil;
  * a class; fields, methods and constructors. This is a superset
  * of things that can represent logical properties as it contains
  * constructors in addition to fields and methods.
- * 
- * @author tatu
  */
 public abstract class AnnotatedMember
     extends Annotated

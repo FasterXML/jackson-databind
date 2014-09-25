@@ -1013,8 +1013,7 @@ public final class AnnotatedClass
         _addAnnotationsIfNotPresent(target, src.getDeclaredAnnotations());
     }
 
-   private final boolean _isAnnotationBundle(Annotation ann)
-   {
+   private final boolean _isAnnotationBundle(Annotation ann) {
        return (_annotationIntrospector != null) && _annotationIntrospector.isAnnotationBundle(ann);
    }
    
@@ -1025,8 +1024,19 @@ public final class AnnotatedClass
      */
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "[AnnotedClass "+_class.getName()+"]";
+    }
+
+    @Override
+    public int hashCode() {
+        return _class.getName().hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (o == null || o.getClass() != getClass()) return false;
+        return ((AnnotatedClass) o)._class == _class;
     }
 }

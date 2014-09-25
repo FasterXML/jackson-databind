@@ -73,8 +73,7 @@ public final class AnnotatedField
     public String getName() { return _field.getName(); }
 
     @Override
-    public <A extends Annotation> A getAnnotation(Class<A> acls)
-    {
+    public <A extends Annotation> A getAnnotation(Class<A> acls) {
         return (_annotations == null) ? null : _annotations.get(acls);
     }
 
@@ -135,8 +134,19 @@ public final class AnnotatedField
     public int getAnnotationCount() { return _annotations.size(); }
 
     @Override
-    public String toString()
-    {
+    public int hashCode() {
+        return _field.getName().hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (o == null || o.getClass() != getClass()) return false;
+        return ((AnnotatedField) o)._field == _field;
+    }
+
+    @Override
+    public String toString() {
         return "[field "+getFullName()+"]";
     }
 

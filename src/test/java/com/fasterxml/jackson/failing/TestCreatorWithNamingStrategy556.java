@@ -9,19 +9,36 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 public class TestCreatorWithNamingStrategy556
     extends BaseMapTest
 {
-    static class CreatorBean
+    static class RenamingCtorBean
     {
         protected String myName;
         protected int myAge;
 
         @JsonCreator
-        public CreatorBean(int myAge, String myName)
+        public RenamingCtorBean(int myAge, String myName)
         {
             this.myName = myName;
             this.myAge = myAge;
         }
     }
 
+    // Try the same with factory, too
+    static class RenamedFactoryBean
+    {
+        protected String myName;
+        protected int myAge;
+
+        private RenamedFactoryBean(int a, String n, boolean foo) {
+            myAge = a;
+            myName = n;
+        }
+        
+        @JsonCreator
+        public static RenamedFactoryBean create(int age, String name) {
+            return new RenamedFactoryBean(age, name, true);
+        }
+    }
+    
     @SuppressWarnings("serial")
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
     {
@@ -47,11 +64,19 @@ public class TestCreatorWithNamingStrategy556
         MAPPER.setAnnotationIntrospector(new MyParamIntrospector());
     }
 
-    public void testPascalCaseWithImplicitNames() throws Exception
+    private final static String CTOR_JSON = "{ \"MyAge\" : 42,  \"MyName\" : \"NotMyRealName\" }";
+    
+    public void testRenameViaCtor() throws Exception
     {
-        CreatorBean bean = MAPPER.readValue("{ \"MyAge\" : 42,  \"MyName\" : \"NotMyRealName\" }", CreatorBean.class);
+        RenamingCtorBean bean = MAPPER.readValue(CTOR_JSON, RenamingCtorBean.class);
         assertEquals(42, bean.myAge);
         assertEquals("NotMyRealName", bean.myName);
     }
 
+    public void testRenameViaFactory() throws Exception
+    {
+        RenamedFactoryBean bean = MAPPER.readValue(CTOR_JSON, RenamedFactoryBean.class);
+        assertEquals(42, bean.myAge);
+        assertEquals("NotMyRealName", bean.myName);
+    }
 }

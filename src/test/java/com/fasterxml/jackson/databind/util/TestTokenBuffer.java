@@ -5,9 +5,10 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
+import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestTokenBuffer extends com.fasterxml.jackson.core.BaseTest
+public class TestTokenBuffer extends BaseMapTest
 {
     /*
     /**********************************************************

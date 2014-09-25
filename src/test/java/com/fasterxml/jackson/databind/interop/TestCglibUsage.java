@@ -9,21 +9,13 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
-import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.databind.*;
 
 /**
  * Unit test for checking that we can serialize CGLib generated proxies.
  */
-public class TestCglibUsage
-    extends BaseTest
+public class TestCglibUsage extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
     interface BeanInterface {
         public int getX();
     }
@@ -55,21 +47,6 @@ public class TestCglibUsage
         Map<String,Object> result = writeAndMap(mapper, bean);
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(13), result.get("x"));
-    }
-
-    /*
-    /**********************************************************
-    /* Helper methods
-    /**********************************************************
-     */
-
-    @SuppressWarnings("unchecked")
-	private Map<String,Object> writeAndMap(ObjectMapper m, Object value)
-        throws IOException
-    {
-        StringWriter sw = new StringWriter();
-        m.writeValue(sw, value);
-        return (Map<String,Object>) m.readValue(sw.toString(), Object.class);
     }
 }
 

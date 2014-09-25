@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
 
+import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JavaType;
 
 /**
@@ -9,7 +10,7 @@ import com.fasterxml.jackson.databind.JavaType;
  * implemented by {@link TypeBindings} class.
  */
 public class TestTypeBindings
-    extends com.fasterxml.jackson.core.BaseTest
+    extends BaseMapTest
 {    
     static class AbstractType<A,B> { }
     

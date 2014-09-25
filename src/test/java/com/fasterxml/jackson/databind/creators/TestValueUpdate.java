@@ -2,10 +2,10 @@ package com.fasterxml.jackson.databind.creators;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.BaseTest;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestValueUpdate extends BaseTest
+import com.fasterxml.jackson.databind.*;
+
+public class TestValueUpdate extends BaseMapTest
 {
     static class Bean
     {

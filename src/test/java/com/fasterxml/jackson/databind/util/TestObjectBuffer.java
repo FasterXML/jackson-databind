@@ -2,10 +2,10 @@ package com.fasterxml.jackson.databind.util;
 
 import java.util.*;
 
-import com.fasterxml.jackson.core.BaseTest;
+import com.fasterxml.jackson.databind.BaseMapTest;
 
 public class TestObjectBuffer
-    extends BaseTest
+    extends BaseMapTest
 {
     /**
      * First a test that treats results as plain old Object[]

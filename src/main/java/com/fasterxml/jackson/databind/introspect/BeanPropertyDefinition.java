@@ -1,9 +1,9 @@
 package com.fasterxml.jackson.databind.introspect;
 
-import com.fasterxml.jackson.databind.AnnotationIntrospector;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.PropertyMetadata;
-import com.fasterxml.jackson.databind.PropertyName;
+import java.util.Iterator;
+
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.util.EmptyIterator;
 import com.fasterxml.jackson.databind.util.Named;
 
 /**
@@ -134,6 +134,16 @@ public abstract class BeanPropertyDefinition
     public abstract AnnotatedField getField();
     public abstract AnnotatedParameter getConstructorParameter();
 
+    /**
+     * Additional method that may be called instead of {@link #getConstructorParameter()}
+     * to get access to all constructor parameters, not just the highest priority one.
+     * 
+     * @since 2.5
+     */
+    public Iterator<AnnotatedParameter> getConstructorParameters() {
+        return EmptyIterator.instance();
+    }
+    
     /**
      * Method used to find accessor (getter, field to access) to use for accessing
      * value of the property.

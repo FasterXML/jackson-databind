@@ -235,7 +235,7 @@ public abstract class BaseMapTest
         }
     }
 
-    protected String aposToQuotes(String json) {
+    protected static String aposToQuotes(String json) {
         return json.replace("'", "\"");
     }
 }

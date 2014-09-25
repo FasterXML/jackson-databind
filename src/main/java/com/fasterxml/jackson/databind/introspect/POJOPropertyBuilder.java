@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.introspect;
 import java.util.*;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.util.EmptyIterator;
 
 /**
  * Helper class used for aggregating information about a single
@@ -345,6 +346,14 @@ public class POJOPropertyBuilder
             curr = curr.next;
         } while (curr != null);
         return _ctorParameters.value;
+    }
+
+    @Override
+    public Iterator<AnnotatedParameter> getConstructorParameters() {
+        if (_ctorParameters == null) {
+            return EmptyIterator.instance();
+        }
+        return new MemberIterator<AnnotatedParameter>(_ctorParameters);
     }
     
     @Override
@@ -967,6 +976,38 @@ public class POJOPropertyBuilder
 
     private interface WithMember<T> {
         public T withMember(AnnotatedMember member);
+    }
+
+    /**
+     * @since 2.5
+     */
+    protected static class MemberIterator<T extends AnnotatedMember>
+        implements Iterator<T>
+    {
+        private Linked<T> next;
+        
+        public MemberIterator(Linked<T> first) {
+            next = first;
+        }
+        
+        @Override
+        public boolean hasNext() {
+            return (next != null);
+        }
+
+        @Override
+        public T next() {
+            if (next == null) throw new NoSuchElementException();
+            T result = next.value;
+            next = next.next;
+            return result;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+        
     }
     
     /**

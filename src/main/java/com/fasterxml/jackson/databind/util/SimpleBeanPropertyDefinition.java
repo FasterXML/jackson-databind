@@ -1,5 +1,8 @@
 package com.fasterxml.jackson.databind.util;
 
+import java.util.Collections;
+import java.util.Iterator;
+
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.PropertyMetadata;
 import com.fasterxml.jackson.databind.PropertyName;
@@ -178,6 +181,15 @@ public class SimpleBeanPropertyDefinition
         return (_member instanceof AnnotatedParameter) ? (AnnotatedParameter) _member : null;
     }
 
+    @Override
+    public Iterator<AnnotatedParameter> getConstructorParameters() {
+        AnnotatedParameter param = getConstructorParameter();
+        if (param == null) {
+            return EmptyIterator.instance();
+        }
+        return Collections.singleton(param).iterator();
+    }
+    
     /**
      * Method used to find accessor (getter, field to access) to use for accessing
      * value of the property.

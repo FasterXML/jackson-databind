@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.creators;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.*;
@@ -47,8 +47,8 @@ public class TestCreatorWithNamingStrategy556
             if (param instanceof AnnotatedParameter) {
                 AnnotatedParameter ap = (AnnotatedParameter) param;
                 switch (ap.getIndex()) {
-                case 0: return "myName";
-                case 1: return "myAge";
+                case 0: return "myAge";
+                case 1: return "myName";
                 default:
                     return "param"+ap.getIndex();
                 }
@@ -64,7 +64,7 @@ public class TestCreatorWithNamingStrategy556
         MAPPER.setAnnotationIntrospector(new MyParamIntrospector());
     }
 
-    private final static String CTOR_JSON = "{ \"MyAge\" : 42,  \"MyName\" : \"NotMyRealName\" }";
+    private final static String CTOR_JSON = aposToQuotes("{ 'MyAge' : 42,  'MyName' : 'NotMyRealName' }");
     
     public void testRenameViaCtor() throws Exception
     {

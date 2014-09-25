@@ -22,7 +22,6 @@ public class TestBuilderSimple extends BaseMapTest
         }
     }
 
-    @SuppressWarnings("hiding")
     static class SimpleBuilderXY
     {
         public int x, y;
@@ -56,7 +55,6 @@ public class TestBuilderSimple extends BaseMapTest
         }
     }
 
-    @SuppressWarnings("hiding")
     static class BuildABC
     {
         public int a; // to be used as is

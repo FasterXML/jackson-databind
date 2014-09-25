@@ -105,6 +105,4 @@ public class TestExternalTypeId extends BaseMapTest
         String json = mapper.writeValueAsString(input);
         assertEquals("{\"value\":{\"x\":13},\"type\":\"foo\"}", json);
     }
-    
-
 }

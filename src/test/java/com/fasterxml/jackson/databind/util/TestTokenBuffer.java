@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.JsonParserSequence;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestTokenBuffer extends com.fasterxml.jackson.test.BaseTest
+public class TestTokenBuffer extends com.fasterxml.jackson.core.BaseTest
 {
     /*
     /**********************************************************

@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.cfg.PackageVersion;
  * Tests to ensure that we get proper Version information via
  * things defined as Versioned.
  */
-public class TestVersions extends com.fasterxml.jackson.test.BaseTest
+public class TestVersions extends com.fasterxml.jackson.core.BaseTest
 {
     public void testMapperVersions()
     {

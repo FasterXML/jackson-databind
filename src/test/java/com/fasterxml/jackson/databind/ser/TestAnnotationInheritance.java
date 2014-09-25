@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.*;
  * bean serialization.
  */
 public class TestAnnotationInheritance
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     /*
     /**********************************************************

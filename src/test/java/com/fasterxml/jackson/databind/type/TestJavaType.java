@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.JavaType;
  * some degree
  */
 public class TestJavaType
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     static class BaseType { }
 

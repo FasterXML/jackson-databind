@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.test.BaseTest;
 
 /**
  * This unit test suite tests use of "value" Annotations;
@@ -15,7 +14,7 @@ import com.fasterxml.jackson.test.BaseTest;
  * deserialization.
  */
 public class TestValueAnnotations
-    extends BaseTest
+    extends BaseMapTest
 {
     /*
     /**********************************************************

@@ -2,7 +2,7 @@ package com.fasterxml.jackson.databind.util;
 
 import java.util.*;
 
-import com.fasterxml.jackson.test.BaseTest;
+import com.fasterxml.jackson.core.BaseTest;
 
 public class TestObjectBuffer
     extends BaseTest

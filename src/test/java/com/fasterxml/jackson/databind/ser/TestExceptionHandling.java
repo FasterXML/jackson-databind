@@ -6,7 +6,6 @@ import java.util.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.test.BaseTest;
 import com.fasterxml.jackson.test.BrokenStringWriter;
 
 /**
@@ -15,7 +14,7 @@ import com.fasterxml.jackson.test.BrokenStringWriter;
  * with Object serialization.
  */
 public class TestExceptionHandling
-    extends BaseTest
+    extends BaseMapTest
 {
     /*
     /**********************************************************

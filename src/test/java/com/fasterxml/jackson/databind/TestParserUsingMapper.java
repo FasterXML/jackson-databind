@@ -8,7 +8,7 @@ import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestParserUsingMapper  extends com.fasterxml.jackson.test.BaseTest
+public class TestParserUsingMapper  extends com.fasterxml.jackson.core.BaseTest
 {
     final static int TWO_BYTE_ESCAPED = 0x111;
     final static int THREE_BYTE_ESCAPED = 0x1111;

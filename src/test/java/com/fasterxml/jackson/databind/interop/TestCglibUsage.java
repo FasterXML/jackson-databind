@@ -9,8 +9,8 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
+import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.test.BaseTest;
 
 /**
  * Unit test for checking that we can serialize CGLib generated proxies.

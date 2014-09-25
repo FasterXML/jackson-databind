@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 @SuppressWarnings("serial")
-public class TestTypeResolution extends com.fasterxml.jackson.test.BaseTest
+public class TestTypeResolution extends com.fasterxml.jackson.core.BaseTest
 {
     public static class LongValuedMap<K> extends HashMap<K, Long> { }
 

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * Failing test related to [Issue#76]
  */
 public class TestJavaType76
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {
     @SuppressWarnings("serial")
     static class HashTree<K, V> extends HashMap<K, HashTree<K, V>> { }

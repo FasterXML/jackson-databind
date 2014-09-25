@@ -8,7 +8,6 @@ import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.test.BaseTest;
 
 /**
  * This unit test suite tries to verify that the "Native" java type

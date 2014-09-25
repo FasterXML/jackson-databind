@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.JavaType;
  * implemented by {@link TypeBindings} class.
  */
 public class TestTypeBindings
-    extends com.fasterxml.jackson.test.BaseTest
+    extends com.fasterxml.jackson.core.BaseTest
 {    
     static class AbstractType<A,B> { }
     

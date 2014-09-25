@@ -1,12 +1,12 @@
 package com.fasterxml.jackson.databind.module;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.BaseTest;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeBindings;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.type.TypeModifier;
-import com.fasterxml.jackson.test.BaseTest;
 
 import java.lang.reflect.Type;
 

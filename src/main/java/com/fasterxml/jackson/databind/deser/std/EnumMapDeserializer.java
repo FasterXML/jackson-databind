@@ -19,7 +19,7 @@ public class EnumMapDeserializer
     extends ContainerDeserializerBase<EnumMap<?,?>>
     implements ContextualDeserializer
 {
-    private static final long serialVersionUID = 4564890642370311174L;
+    private static final long serialVersionUID = 1;
 
     protected final JavaType _mapType;
     
@@ -114,13 +114,14 @@ public class EnumMapDeserializer
     /* Actual deserialization
     /**********************************************************
      */
-
+    
     @Override
-    public EnumMap<?,?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException
+    public EnumMap<?,?> deserialize(JsonParser jp, DeserializationContext ctxt)
+        throws IOException
     {
         // Ok: must point to START_OBJECT
         if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
-            throw ctxt.mappingException(EnumMap.class);
+            return _deserializeFromEmpty(jp, ctxt);
         }
         EnumMap result = constructMap();
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
@@ -172,14 +173,15 @@ public class EnumMapDeserializer
     }
 
     @Override
-   public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
+    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer)
         throws IOException, JsonProcessingException
     {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
     }
     
-    private EnumMap<?,?> constructMap() {
+    protected EnumMap<?,?> constructMap() {
         return new EnumMap(_enumClass);
     }
 }
+

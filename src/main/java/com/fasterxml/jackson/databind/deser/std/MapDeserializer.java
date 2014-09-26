@@ -303,7 +303,8 @@ public class MapDeserializer
             if (t == JsonToken.VALUE_STRING) {
                 return (Map<Object,Object>) _valueInstantiator.createFromString(ctxt, jp.getText());
             }
-            throw ctxt.mappingException(getMapClass());
+            // slightly redundant (since String was passed above), but
+            return _deserializeFromEmpty(jp, ctxt);
         }
         final Map<Object,Object> result = (Map<Object,Object>) _valueInstantiator.createUsingDefault(ctxt);
         if (_standardStringKey) {

@@ -1192,15 +1192,24 @@ public abstract class BeanDeserializerBase
                 wrapInstantiationProblem(e, ctxt);
             }
         } else if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            jp.nextToken();
+            JsonToken t = jp.nextToken();
+            if (t == JsonToken.END_ARRAY && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+                return null;
+            }
             final Object value = deserialize(jp, ctxt);
             if (jp.nextToken() != JsonToken.END_ARRAY) {
                 throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
                         "Attempted to unwrap single value array for single '" + _valueClass.getName() + "' value but there was more than a single value in the array");
             }
             return value;
+        } else if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+            JsonToken t = jp.nextToken();
+            if (t == JsonToken.END_ARRAY) {
+                return null;
+            }
+            throw ctxt.mappingException(handledType(), JsonToken.START_ARRAY);
         }
-        throw ctxt.mappingException(getBeanClass());
+        throw ctxt.mappingException(handledType());
     }
 
     public Object deserializeFromEmbedded(JsonParser jp, DeserializationContext ctxt) throws IOException

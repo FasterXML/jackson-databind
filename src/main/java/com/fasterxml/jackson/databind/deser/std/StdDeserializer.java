@@ -800,6 +800,35 @@ public abstract class StdDeserializer<T>
     }
 
     /**
+     * Helper method that may be used to support fallback for Empty String / Empty Array
+     * non-standard representations; usually for things serialized as JSON Objects.
+     * 
+     * @since 2.5
+     */
+    protected T _deserializeFromEmpty(JsonParser jp, DeserializationContext ctxt)
+        throws IOException
+    {
+        JsonToken t = jp.getCurrentToken();
+        if (t == JsonToken.START_ARRAY) {
+            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+                t = jp.nextToken();
+                if (t == JsonToken.END_ARRAY) {
+                    return null;
+                }
+                throw ctxt.mappingException(handledType(), JsonToken.START_ARRAY);
+            }
+        } else if (t == JsonToken.VALUE_STRING) {
+            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {
+                String str = jp.getText().trim();
+                if (str.isEmpty()) {
+                    return null;
+                }
+            }
+        }
+        throw ctxt.mappingException(handledType());
+    }
+    
+    /**
      * Helper method called to determine if we are seeing String value of
      * "null", and, further, that it should be coerced to null just like
      * null token.

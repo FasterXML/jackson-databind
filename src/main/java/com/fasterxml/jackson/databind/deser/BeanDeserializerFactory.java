@@ -487,6 +487,7 @@ public class BeanDeserializerFactory
     {
         final SettableBeanProperty[] creatorProps =
                 builder.getValueInstantiator().getFromObjectArguments(ctxt.getConfig());
+        final boolean isConcrete = !beanDesc.getType().isAbstract();
         
         // Things specified as "ok to ignore"? [JACKSON-77]
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
@@ -559,7 +560,9 @@ public class BeanDeserializerFactory
                     prop = constructSetterlessProperty(ctxt, beanDesc, propDef);
                 }
             }
-            if (propDef.hasConstructorParameter()) {
+            // 25-Sep-2014, tatu: No point in finding constructor parameters for abstract types
+            //   (since they are never used anyway)
+            if (isConcrete && propDef.hasConstructorParameter()) {
                 /* [JACKSON-700] If property is passed via constructor parameter, we must
                  *   handle things in special way. Not sure what is the most optimal way...
                  *   for now, let's just call a (new) method in builder, which does nothing.

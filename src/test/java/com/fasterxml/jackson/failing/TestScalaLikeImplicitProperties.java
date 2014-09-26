@@ -31,10 +31,13 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
             String name = null;
             if (member instanceof AnnotatedField) {
                 name = member.getName();
-            }
-            if (name != null) {
-                if (name.endsWith("‿")) {                    
+                if (name.endsWith("‿")) {
                     return name.substring(0, name.length()-1);
+                }
+            } else if (member instanceof AnnotatedField) {
+                name = member.getName();
+                if (name.endsWith("_⁀")) {
+                    return name.substring(0, name.length()-2);
                 }
             }
             return null;
@@ -69,6 +72,10 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
         public String prop‿;
         public String prop() { return prop‿; }
         public void prop_⁀(String p) { prop‿ = p; }
+
+        // tatu: this is needed, unless single-arg ctor auto-detected
+        //  ... or, with JDK8, implicit ctor arg name used along with creator
+        public VarProperty() { }
 
         public VarProperty(String prop) {
             prop‿ = prop;

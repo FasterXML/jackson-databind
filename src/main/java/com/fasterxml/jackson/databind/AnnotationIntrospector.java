@@ -5,10 +5,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.Versioned;
-
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -1005,5 +1003,48 @@ public abstract class AnnotationIntrospector
      */
     public boolean hasCreatorAnnotation(Annotated a) {
         return false;
+    }
+
+    /*
+    /**********************************************************
+    /* Overridable methods: may be used as low-level extension
+    /* points.
+    /**********************************************************
+     */
+
+    /**
+     * Method that should be used by sub-classes for ALL
+     * annotation access;
+     * overridable so 
+     * that sub-classes may, if they choose to, mangle actual access to
+     * block access ("hide" annotations) or perhaps change it.
+     *<p>
+     * Default implementation is simply:
+     *<code>
+     *  return annotated.getAnnotation(annoClass);
+     *</code>
+     * 
+     * @since 2.5
+     */
+    protected <A extends Annotation> A _findAnnotation(Annotated annotated,
+            Class<A> annoClass) {
+        return annotated.getAnnotation(annoClass);
+    }
+
+    /**
+     * Method that should be used by sub-classes for ALL
+     * annotation existence access;
+     * overridable so  that sub-classes may, if they choose to, mangle actual access to
+     * block access ("hide" annotations) or perhaps change value seen.
+     *<p>
+     * Default implementation is simply:
+     *<code>
+     *  return annotated.hasAnnotation(annoClass);
+     *</code>
+     * 
+     * @since 2.5
+     */
+    protected boolean _hasAnnotation(Annotated annotated, Class<? extends Annotation> annoClass) {
+        return annotated.hasAnnotation(annoClass);
     }
 }

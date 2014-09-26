@@ -243,12 +243,27 @@ public enum DeserializationFeature implements ConfigFeature
      * If disabled, standard POJOs can only be bound from JSON null or
      * JSON Object (standard meaning that no custom deserializers or
      * constructors are defined; both of which can add support for other
-     * kinds of JSON values); if enable, empty JSON String can be taken
+     * kinds of JSON values); if enabled, empty JSON String can be taken
      * to be equivalent of JSON null.
      *<p>
      * Feature is disabled by default.
      */
     ACCEPT_EMPTY_STRING_AS_NULL_OBJECT(false),
+
+    /**
+     * Feature that can be enabled to allow empty JSON Array
+     * value (that is, <code>[ ]</code>) to be bound to POJOs as null.
+     * If disabled, standard POJOs can only be bound from JSON null or
+     * JSON Object (standard meaning that no custom deserializers or
+     * constructors are defined; both of which can add support for other
+     * kinds of JSON values); if enabled, empty JSON Array will be taken
+     * to be equivalent of JSON null.
+     *<p>
+     * Feature is disabled by default.
+     * 
+     * @since 2.5
+     */
+    ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT(false),
     
     /**
      * Feature that allows unknown Enum values to be parsed as null values. 

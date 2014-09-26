@@ -223,6 +223,8 @@ public class TestBeanDeserializer extends BaseMapTest
     /********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testPropertyRemoval() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -258,22 +260,43 @@ public class TestBeanDeserializer extends BaseMapTest
     public void testPOJOFromEmptyString() throws Exception
     {
         // first, verify default settings which do not accept empty String:
-        ObjectMapper mapper = new ObjectMapper();
+        assertFalse(MAPPER.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT));
         try {
-            mapper.readValue(quote(""), Bean.class);
+            MAPPER.readValue(quote(""), Bean.class);
             fail("Should not accept Empty String for POJO");
         } catch (JsonProcessingException e) {
             verifyException(e, "from String value");
             assertValidLocation(e.getLocation());
         }
-
-        // should be ok to enable dynamically:
-        mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-        Bean result = mapper.readValue(quote(""), Bean.class);
+        // should be ok to enable dynamically
+        ObjectReader r = MAPPER.reader(Bean.class)
+                .with(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+        Bean result = r.readValue(quote(""));
         assertNull(result);
     }
 
+    // [Databind#540]
+    public void testPOJOFromEmptyArray() throws Exception
+    {
+        final String JSON = "  [\n]";
+        assertFalse(MAPPER.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT));
+        // first, verify default settings which do not accept empty Array
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.readValue(JSON, Bean.class);
+            fail("Should not accept Empty Array for POJO by default");
+        } catch (JsonProcessingException e) {
+            verifyException(e, "START_ARRAY token");
+            assertValidLocation(e.getLocation());
+        }
+
+        // should be ok to enable dynamically:
+        ObjectReader r = MAPPER.reader(Bean.class)
+                .with(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
+        Bean result = r.readValue(JSON);
+        assertNull(result);
+    }
+    
     // [Issue#120]
     public void testModifyArrayDeserializer() throws Exception
     {

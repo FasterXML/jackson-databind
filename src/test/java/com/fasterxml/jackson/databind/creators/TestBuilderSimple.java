@@ -26,13 +26,13 @@ public class TestBuilderSimple extends BaseMapTest
     {
         public int x, y;
     	
-        public SimpleBuilderXY withX(int x) {
-    		    this.x = x;
+        public SimpleBuilderXY withX(int x0) {
+    		    this.x = x0;
     		    return this;
         }
 
-        public SimpleBuilderXY withY(int y) {
-    		    this.y = y;
+        public SimpleBuilderXY withY(int y0) {
+    		    this.y = y0;
     		    return this;
         }
 
@@ -61,15 +61,15 @@ public class TestBuilderSimple extends BaseMapTest
         private int b, c;
     	
         @JsonProperty("b")
-        public BuildABC assignB(int b) {
-            this.b = b;
+        public BuildABC assignB(int b0) {
+            this.b = b0;
             return this;
         }
 
         // Also ok NOT to return 'this'
         @JsonSetter("c")
-        public void c(int c) {
-            this.c = c;
+        public void c(int c0) {
+            this.c = c0;
         }
 
         public ValueClassABC build() {

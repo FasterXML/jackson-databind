@@ -30,7 +30,7 @@ public abstract class BeanDeserializerBase
     implements ContextualDeserializer, ResolvableDeserializer,
         java.io.Serializable // since 2.1
 {
-    private static final long serialVersionUID = 2960120955735322578L;
+    private static final long serialVersionUID = 1;
 
     protected final static PropertyName TEMP_PROPERTY_NAME = new PropertyName("#temporary-name");
 

@@ -6,12 +6,6 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-/**
- * Unit tests for verifying that feature requested
- * via [JACKSON-88] ("setterless collections") work as
- * expected, similar to how Collections and Maps work
- * with JAXB.
- */
 public class TestSetterlessProperties501
     extends BaseMapTest
 {

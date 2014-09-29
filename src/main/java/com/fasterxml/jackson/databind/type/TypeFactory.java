@@ -255,8 +255,7 @@ public final class TypeFactory
          * case actually fully works; and former mostly works. In future may need to
          * rewrite former part, which requires changes to JavaType as well.
          */
-        Class<?> raw = type.getRawClass();
-        if (raw == expType) {
+        if (expType == type.getParameterSource()) {
             // Direct type info; good since we can return it as is
             int count = type.containedTypeCount();
             if (count == 0) return null;
@@ -272,13 +271,14 @@ public final class TypeFactory
          * if/when there are problems; current handling is an improvement over earlier
          * code.
          */
+        Class<?> raw = type.getRawClass();
         return findTypeParameters(raw, expType, new TypeBindings(this, type));
     }
 
     public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType) {
         return findTypeParameters(clz, expType, new TypeBindings(this, clz));
     }
-    
+
     public JavaType[] findTypeParameters(Class<?> clz, Class<?> expType, TypeBindings bindings)
     {
         // First: find full inheritance chain
@@ -383,8 +383,7 @@ public final class TypeFactory
 
         // simple class?
         if (type instanceof Class<?>) {
-            Class<?> cls = (Class<?>) type;
-            resultType = _fromClass(cls, context);
+            resultType = _fromClass((Class<?>) type, context);
         }
         // But if not, need to start resolving.
         else if (type instanceof ParameterizedType) {
@@ -525,21 +524,28 @@ public final class TypeFactory
     
     /**
      * Method for constructing a type instance with specified parameterization.
+     * 
+     * @deprecated Since 2.5, use variant that takes one more argument
      */
-    public JavaType constructSimpleType(Class<?> rawType, JavaType[] parameterTypes)
+    public JavaType constructSimpleType(Class<?> rawType, JavaType[] parameterTypes) {
+        return constructSimpleType(rawType, rawType, parameterTypes);
+    }
+    
+    public JavaType constructSimpleType(Class<?> rawType, Class<?> parameterTarget,
+            JavaType[] parameterTypes)
     {
         // Quick sanity check: must match numbers of types with expected...
-        TypeVariable<?>[] typeVars = rawType.getTypeParameters();
+        TypeVariable<?>[] typeVars = parameterTarget.getTypeParameters();
         if (typeVars.length != parameterTypes.length) {
             throw new IllegalArgumentException("Parameter type mismatch for "+rawType.getName()
-                    +": expected "+typeVars.length+" parameters, was given "+parameterTypes.length);
+                    +" (and target "+parameterTarget.getName()+"): expected "+typeVars.length
+                    +" parameters, was given "+parameterTypes.length);
         }
         String[] names = new String[typeVars.length];
         for (int i = 0, len = typeVars.length; i < len; ++i) {
             names[i] = typeVars[i].getName();
         }
-        JavaType resultType = new SimpleType(rawType, names, parameterTypes, null, null, false);
-        return resultType;
+        return new SimpleType(rawType, names, parameterTypes, null, null, false, parameterTarget);
     } 
 
     /**
@@ -564,15 +570,31 @@ public final class TypeFactory
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
+     * 
+     * @param parametrized Type-erased type of instance being constructed
+     * @param parametersFor class or interface for which type parameters are applied; either
+     *   <code>parametrized</code> or one of its supertypes
+     * @parameterClasses Type parameters to apply
+     * 
+     * @since 2.5
      */
-    public JavaType constructParametricType(Class<?> parametrized, Class<?>... parameterClasses)
+    public JavaType constructParametrizedType(Class<?> parametrized, Class<?> parametersFor,
+            Class<?>... parameterClasses)
     {
         int len = parameterClasses.length;
         JavaType[] pt = new JavaType[len];
         for (int i = 0; i < len; ++i) {
             pt[i] = _fromClass(parameterClasses[i], null);
         }
-        return constructParametricType(parametrized, pt);
+        return constructParametrizedType(parametrized, parametersFor, pt);
+    }
+
+    /**
+     * @deprecated Since 2.5, use {@link #constructParametrizedType} instead.
+     */
+    @Deprecated
+    public JavaType constructParametricType(Class<?> parametrized, Class<?>... parameterClasses) {
+        return constructParametrizedType(parametrized, parametrized, parameterClasses);
     }
 
     /**
@@ -587,8 +609,17 @@ public final class TypeFactory
      *<p>
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
      * for contained types.
+     * 
+     * 
+     * @param parametrized Actual full type
+     * @param parametersFor class or interface for which type parameters are applied; either
+     *   <code>parametrized</code> or one of its supertypes
+     * @parameterClasses Type parameters to apply
+     * 
+     * @since 2.5
      */
-    public JavaType constructParametricType(Class<?> parametrized, JavaType... parameterTypes)
+    public JavaType constructParametrizedType(Class<?> parametrized, Class<?> parametersFor,
+            JavaType... parameterTypes)
     {
         JavaType resultType;
         
@@ -612,11 +643,19 @@ public final class TypeFactory
             }
             resultType = constructCollectionType((Class<Collection<?>>)parametrized, parameterTypes[0]);
         } else {
-            resultType = constructSimpleType(parametrized, parameterTypes);
+            resultType = constructSimpleType(parametrized, parametersFor, parameterTypes);
         }
         return resultType;
     }
 
+    /**
+     * @deprecated Since 2.5, use {@link #constructParametrizedType} instead.
+     */
+    @Deprecated
+    public JavaType constructParametricType(Class<?> parametrized, JavaType... parameterTypes) {
+        return constructParametrizedType(parametrized, parametrized, parameterTypes);
+    }
+    
     /*
     /**********************************************************
     /* Direct factory methods for "raw" variants, used when
@@ -733,7 +772,20 @@ public final class TypeFactory
         } else if (Collection.class.isAssignableFrom(clz)) {
             result =  _collectionType(clz);
         } else {
-            result = new SimpleType(clz);
+            // 29-Sep-2014, tatu: We may want to pre-resolve well-known generic types
+            if (Map.Entry.class.isAssignableFrom(clz)) {
+                JavaType[] pts = this.findTypeParameters(clz, Map.Entry.class);
+                JavaType kt, vt;
+                if (pts == null || pts.length != 2) {
+                    kt = vt = unknownType();
+                } else {
+                    kt = pts[0];
+                    vt = pts[1];
+                }
+                result = constructSimpleType(clz, Map.Entry.class, new JavaType[] { kt, vt });
+            } else {
+                result = new SimpleType(clz);
+            }
         }
         _typeCache.put(key, result); // cache object syncs
         return result;
@@ -771,8 +823,9 @@ public final class TypeFactory
         if (paramTypes.size() == 0) {
             return new SimpleType(clz);
         }
+        // Hmmh. Does this actually occur?
         JavaType[] pt = paramTypes.toArray(new JavaType[paramTypes.size()]);
-        return constructSimpleType(clz, pt);
+        return constructSimpleType(clz, clz, pt);
     }
     
     /**

@@ -23,6 +23,13 @@ public abstract class ContainerSerializer<T>
     protected ContainerSerializer(Class<T> t) {
         super(t);
     }
+
+    /**
+     * @since 2.5
+     */
+    protected ContainerSerializer(JavaType fullType) {
+        super(fullType);
+    }
     
     /**
      * Alternate constructor that is (alas!) needed to work

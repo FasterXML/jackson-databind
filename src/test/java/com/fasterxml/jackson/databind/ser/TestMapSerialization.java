@@ -13,12 +13,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class TestMapSerialization
     extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
     /**
      * Class needed for testing [JACKSON-220]
      */
@@ -69,6 +63,31 @@ public class TestMapSerialization
         }
     }
 
+    // [Databind#565]: Support ser/deser of Map.Entry
+    static class StringIntMapEntry implements Map.Entry<String,Integer> {
+        public final String k;
+        public final Integer v;
+        public StringIntMapEntry(String k, Integer v) {
+            this.k = k;
+            this.v = v;
+        }
+
+        @Override
+        public String getKey() {
+            return k;
+        }
+
+        @Override
+        public Integer getValue() {
+            return v;
+        }
+
+        @Override
+        public Integer setValue(Integer value) {
+            throw new UnsupportedOperationException();
+        }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -150,11 +169,19 @@ public class TestMapSerialization
         assertEquals("{\"a\":6,\"b\":3}", m.writer(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS).writeValueAsString(map));
     }
 
-    // [#335[
+    // [Databind#335]
     public void testOrderByKeyViaProperty() throws IOException
     {
         MapOrderingBean input = new MapOrderingBean("c", "b", "a");
         String json = MAPPER.writeValueAsString(input);
         assertEquals(aposToQuotes("{'map':{'a':3,'b':2,'c':1}}"), json);
+    }        
+
+    // [Databind#565]
+    public void testEnumMapEntry() throws IOException
+    {
+        StringIntMapEntry input = new StringIntMapEntry("answer", 42);
+        String json = MAPPER.writeValueAsString(input);
+        assertEquals(aposToQuotes("{'answer':42}"), json);
     }        
 }

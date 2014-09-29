@@ -29,13 +29,11 @@ public class TestPOJOAsArrayWithBuilder extends BaseMapTest
     {
         public int x, y;
         
-        @SuppressWarnings("hiding")
         public SimpleBuilderXY withX(int x) {
             this.x = x;
             return this;
         }
 
-        @SuppressWarnings("hiding")
         public SimpleBuilderXY withY(int y) {
             this.y = y;
             return this;

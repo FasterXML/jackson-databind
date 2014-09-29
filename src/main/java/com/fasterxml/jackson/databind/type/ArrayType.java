@@ -200,6 +200,15 @@ public final class ArrayType
         if (index == 0) return "E";
         return null;
     }
+
+    /**
+     * No parameterization for array types themselves; element type
+     * may obviously have parameterization.
+     */
+    @Override
+    public Class<?> getParameterSource() {
+        return null;
+    }
     
     /*
     /**********************************************************

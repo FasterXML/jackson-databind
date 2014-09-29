@@ -76,7 +76,7 @@ public class TestMapDeserialization
     public static enum ConcreteType implements ITestType {
         ONE, TWO;
     }
-
+    
     /*
     /**********************************************************
     /* Test methods, untyped (Object valued) maps

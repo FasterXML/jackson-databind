@@ -133,6 +133,13 @@ public class CollectionLikeType extends TypeBase
         return null;
     }
 
+    // TODO: should allow construction of instances that do refer
+    //  to parameterization, since it is NOT Collection
+    @Override
+    public Class<?> getParameterSource() {
+        return null;
+    }
+    
     @Override
     public StringBuilder getErasedSignature(StringBuilder sb) {
         return _classSignature(_class, sb, true);

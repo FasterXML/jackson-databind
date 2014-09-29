@@ -192,7 +192,7 @@ public class TestTypeFactory
     {
         TypeFactory tf = TypeFactory.defaultInstance();
         // first, simple class based
-        JavaType t = tf.constructParametricType(ArrayList.class, String.class); // ArrayList<String>
+        JavaType t = tf.constructParametrizedType(ArrayList.class, Collection.class, String.class); // ArrayList<String>
         assertEquals(CollectionType.class, t.getClass());
         JavaType strC = tf.constructType(String.class);
         assertEquals(1, t.containedTypeCount());
@@ -200,7 +200,7 @@ public class TestTypeFactory
         assertNull(t.containedType(1));
 
         // Then using JavaType
-        JavaType t2 = tf.constructParametricType(Map.class, strC, t); // Map<String,ArrayList<String>>
+        JavaType t2 = tf.constructParametrizedType(Map.class, Map.class, strC, t); // Map<String,ArrayList<String>>
         // should actually produce a MapType
         assertEquals(MapType.class, t2.getClass());
         assertEquals(2, t2.containedTypeCount());
@@ -209,7 +209,8 @@ public class TestTypeFactory
         assertNull(t2.containedType(2));
 
         // and then custom generic type as well
-        JavaType custom = tf.constructParametricType(SingleArgGeneric.class, String.class);
+        JavaType custom = tf.constructParametrizedType(SingleArgGeneric.class, SingleArgGeneric.class,
+                String.class);
         assertEquals(SimpleType.class, custom.getClass());
         assertEquals(1, custom.containedTypeCount());
         assertEquals(strC, custom.containedType(0));
@@ -220,14 +221,14 @@ public class TestTypeFactory
         // And finally, ensure that we can't create invalid combinations
         try {
             // Maps must take 2 type parameters, not just one
-            tf.constructParametricType(Map.class, strC);
+            tf.constructParametrizedType(Map.class, Map.class, strC);
         } catch (IllegalArgumentException e) {
             verifyException(e, "Need exactly 2 parameter types for Map types");
         }
 
         try {
             // Type only accepts one type param
-            tf.constructParametricType(SingleArgGeneric.class, strC, strC);
+            tf.constructParametrizedType(SingleArgGeneric.class, SingleArgGeneric.class, strC, strC);
         } catch (IllegalArgumentException e) {
             verifyException(e, "expected 1 parameters, was given 2");
         }
@@ -310,17 +311,6 @@ public class TestTypeFactory
         assertNull(sup2.getSuperType());
     }
 
-    public void testAtomicArrayRefParameterDetection()
-    {
-        TypeFactory tf = TypeFactory.defaultInstance();
-        JavaType type = tf.constructType(new TypeReference<AtomicReference<long[]>>() { });
-        HierarchicType sub = tf._findSuperTypeChain(type.getRawClass(), AtomicReference.class);
-        assertNotNull(sub);
-        assertEquals(0, _countSupers(sub));
-        assertTrue(AtomicReference.class.isAssignableFrom(type.getRawClass()));
-        assertNull(sub.getSuperType());
-    }
-
     private int _countSupers(HierarchicType t)
     {
         int depth = 0;
@@ -329,7 +319,7 @@ public class TestTypeFactory
         }
         return depth;
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests: map/collection type parameter resolution
@@ -425,7 +415,31 @@ public class TestTypeFactory
         assertEquals(1, list.size());
         assertEquals("...", list.get(0));
     }
-    
+
+    public void testSneakySelfRefs() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(new SneakyBean2());
+        assertEquals("{\"foobar\":null}", json);
+    }
+
+    /*
+    /**********************************************************
+    /* Unit tests: handling of specific JDK types
+    /**********************************************************
+     */
+
+    public void testAtomicArrayRefParameterDetection()
+    {
+        TypeFactory tf = TypeFactory.defaultInstance();
+        JavaType type = tf.constructType(new TypeReference<AtomicReference<long[]>>() { });
+        HierarchicType sub = tf._findSuperTypeChain(type.getRawClass(), AtomicReference.class);
+        assertNotNull(sub);
+        assertEquals(0, _countSupers(sub));
+        assertTrue(AtomicReference.class.isAssignableFrom(type.getRawClass()));
+        assertNull(sub.getSuperType());
+    }
+
     public void testAtomicArrayRefParameters()
     {
         TypeFactory tf = TypeFactory.defaultInstance();
@@ -436,13 +450,19 @@ public class TestTypeFactory
         assertEquals(tf.constructType(long[].class), params[0]);
     }
 
-    public void testSneakySelfRefs() throws Exception
+    static abstract class StringIntMapEntry implements Map.Entry<String,Integer> { }
+    
+    public void testMapEntryResolution()
     {
-        ObjectMapper mapper = new ObjectMapper();
-        String json = mapper.writeValueAsString(new SneakyBean2());
-        assertEquals("{\"foobar\":null}", json);
+        TypeFactory tf = TypeFactory.defaultInstance();
+        JavaType t = tf.constructType(StringIntMapEntry.class);
+        assertTrue(t.hasGenericTypes());
+        assertEquals(2, t.containedTypeCount());
+        assertEquals(String.class, t.containedType(0).getRawClass());
+        assertEquals(Integer.class, t.containedType(1).getRawClass());
+        // NOTE: no key/content types, at least not as of 2.5
     }
-
+    
     /*
     /**********************************************************
     /* Unit tests: construction of "raw" types

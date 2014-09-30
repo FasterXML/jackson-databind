@@ -527,6 +527,7 @@ public final class TypeFactory
      * 
      * @deprecated Since 2.5, use variant that takes one more argument
      */
+    @Deprecated
     public JavaType constructSimpleType(Class<?> rawType, JavaType[] parameterTypes) {
         return constructSimpleType(rawType, rawType, parameterTypes);
     }

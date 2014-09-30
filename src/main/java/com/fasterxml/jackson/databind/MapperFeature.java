@@ -261,7 +261,16 @@ public enum MapperFeature implements ConfigFeature
     /* Name-related features
     /******************************************************
      */
-
+    
+    /**
+     * Feature that will allow for more forgiving deserialization of incoming JSON.
+     * If enabled, the bean properties will be matched using their lower-case
+     * equivalents.
+     * <p>
+     * Feature is disabled by default.
+     */
+    ACCEPT_CASE_INSENSITIVE_PROPERTIES(false),
+    
     /**
      * Feature that can be enabled to make property names be
      * overridden by wrapper name (usually detected with annotations

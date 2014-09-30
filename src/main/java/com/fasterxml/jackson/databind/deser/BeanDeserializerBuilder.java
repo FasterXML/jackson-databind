@@ -101,7 +101,7 @@ public class BeanDeserializerBuilder
     { 
         _beanDesc = beanDesc;
         _defaultViewInclusion = config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
-        _caseInsensitivePropertyComparison = config.isEnabled(DeserializationFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
+        _caseInsensitivePropertyComparison = config.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
     }
 
     /**

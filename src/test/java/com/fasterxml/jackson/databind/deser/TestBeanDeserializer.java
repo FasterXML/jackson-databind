@@ -304,7 +304,7 @@ public class TestBeanDeserializer extends BaseMapTest
         
         // first, verify default settings which do not accept improper case
         ObjectMapper mapper = new ObjectMapper();
-        assertFalse(mapper.isEnabled(DeserializationFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
+        assertFalse(mapper.isEnabled(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
         
         try {
             mapper.readValue(JSON, Issue476Bean.class);
@@ -317,7 +317,7 @@ public class TestBeanDeserializer extends BaseMapTest
 
         // Definitely not OK to enable dynamically - the BeanPropertyMap (which is the consumer of this particular feature) gets cached.
         mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+        mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
         ObjectReader r = mapper.reader(Issue476Bean.class);
         Issue476Bean result = r.readValue(JSON);
         assertEquals(result.value1.name, "fruit");

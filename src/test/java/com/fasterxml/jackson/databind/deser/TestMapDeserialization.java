@@ -520,6 +520,17 @@ public class TestMapDeserialization
         StringWrapper sw = stuff.get(1).getValue();
         assertEquals("Bar", sw.str);
     }
+
+    public void testMapEntryFail() throws Exception
+    {
+        try {
+            /*List<Map.Entry<Integer,StringWrapper>> stuff =*/ MAPPER.readValue(aposToQuotes("[{'28':'Foo','13':'Bar'}]"),
+                    new TypeReference<List<Map.Entry<Integer,StringWrapper>>>() { });
+            fail("Should not have passed");
+        } catch (Exception e) {
+            verifyException(e, "more than one entry in JSON");
+        }
+    }
     
     /*
     /**********************************************************

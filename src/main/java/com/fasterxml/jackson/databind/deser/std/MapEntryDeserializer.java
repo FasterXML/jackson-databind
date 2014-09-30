@@ -212,7 +212,7 @@ public class MapEntryDeserializer
         t = jp.nextToken();
         if (t != JsonToken.END_OBJECT) {
             if (t == JsonToken.FIELD_NAME) { // most likely
-                throw ctxt.mappingException("Problem binding JSON into Map.Entry: more than entry in JSON (second field: '"+jp.getCurrentName()+"')");
+                throw ctxt.mappingException("Problem binding JSON into Map.Entry: more than one entry in JSON (second field: '"+jp.getCurrentName()+"')");
             }
             // how would this occur?
             throw ctxt.mappingException("Problem binding JSON into Map.Entry: unexpected content after JSON Object entry: "+t);

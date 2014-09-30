@@ -182,6 +182,8 @@ public enum MapperFeature implements ConfigFeature
      * explicitly annotated for such use.
      *<p>
      * Feature is enabled by default, for backwards compatibility reasons.
+     * 
+     * @since 2.2
      */
     ALLOW_FINAL_FIELDS_AS_MUTATORS(true),
     

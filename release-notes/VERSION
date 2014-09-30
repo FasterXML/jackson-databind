@@ -17,6 +17,7 @@ Version: 2.5.0 (xx-xxx-2014)
 #550: Minor optimization: prune introspection of "well-known" JDK types
 #552: Improved handling for ISO-8601 (date) format
  (contributed by Jerome G, geronimo-iia@github)
+#559: Add `getDateFormat()`, `getPropertyNamingStrategy()` in `ObjectMapper`
 #565: Add support for handling `Map.Entry`
 
 ------------------------------------------------------------------------

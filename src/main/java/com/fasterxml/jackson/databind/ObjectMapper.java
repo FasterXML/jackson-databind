@@ -1044,6 +1044,14 @@ public class ObjectMapper
     }
 
     /**
+     * @since 2.5
+     */
+    public PropertyNamingStrategy getPropertyNamingStrategy() {
+        // arbitrary choice but let's do:
+        return _serializationConfig.getPropertyNamingStrategy();
+    }
+    
+    /**
      * Method for setting defalt POJO property inclusion strategy for serialization.
      */
     public ObjectMapper setSerializationInclusion(JsonInclude.Include incl) {
@@ -1356,6 +1364,14 @@ public class ObjectMapper
         return this;
     }
 
+    /**
+     * @since 2.5
+     */
+    public DateFormat getDateFormat() {
+        // arbitrary choice but let's do:
+        return _serializationConfig.getDateFormat();
+    }
+    
     /**
      * Method for configuring {@link HandlerInstantiator} to use for creating
      * instances of handlers (such as serializers, deserializers, type and type

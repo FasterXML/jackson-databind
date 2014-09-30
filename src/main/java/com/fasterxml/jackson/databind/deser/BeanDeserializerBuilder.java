@@ -29,6 +29,8 @@ public class BeanDeserializerBuilder
 
     final protected boolean _defaultViewInclusion;
     
+    final protected boolean _caseInsensitivePropertyComparison;
+    
     /*
     /**********************************************************
     /* Accumulated information about properties
@@ -99,6 +101,7 @@ public class BeanDeserializerBuilder
     { 
         _beanDesc = beanDesc;
         _defaultViewInclusion = config.isEnabled(MapperFeature.DEFAULT_VIEW_INCLUSION);
+        _caseInsensitivePropertyComparison = config.isEnabled(DeserializationFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES);
     }
 
     /**
@@ -109,6 +112,7 @@ public class BeanDeserializerBuilder
     {
         _beanDesc = src._beanDesc;
         _defaultViewInclusion = src._defaultViewInclusion;
+        _caseInsensitivePropertyComparison = src._caseInsensitivePropertyComparison;
 
         // let's make copy of properties
         _properties.putAll(src._properties);
@@ -313,7 +317,7 @@ public class BeanDeserializerBuilder
     public JsonDeserializer<?> build()
     {
         Collection<SettableBeanProperty> props = _properties.values();
-        BeanPropertyMap propertyMap = new BeanPropertyMap(props);
+        BeanPropertyMap propertyMap = new BeanPropertyMap(props, _caseInsensitivePropertyComparison);
         propertyMap.assignIndexes();
 
         // view processing must be enabled if:
@@ -378,7 +382,7 @@ public class BeanDeserializerBuilder
         }
         // And if so, we can try building the deserializer
         Collection<SettableBeanProperty> props = _properties.values();
-        BeanPropertyMap propertyMap = new BeanPropertyMap(props);
+        BeanPropertyMap propertyMap = new BeanPropertyMap(props, _caseInsensitivePropertyComparison);
         propertyMap.assignIndexes();
 
         boolean anyViews = !_defaultViewInclusion;

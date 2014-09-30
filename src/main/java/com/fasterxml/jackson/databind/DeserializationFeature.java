@@ -230,6 +230,15 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature is disabled by default.
      */
     UNWRAP_ROOT_VALUE(false),
+    
+    /**
+     * Feature that will allow for more forgiving deserialization of incoming JSON.
+     * If enabled, the bean properties will be matched using their lower-case
+     * equivalents.
+     * <p>
+     * Feature is disabled by default.
+     */
+    ACCEPT_CASE_INSENSITIVE_PROPERTIES(false),
 
     /*
     /******************************************************

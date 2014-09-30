@@ -28,6 +28,8 @@ public final class BeanPropertyMap
     private final int _hashMask;
 
     private final int _size;
+    
+    private final boolean _caseInsensitivePropertyComparison;
 
     /**
      * Counter we use to keep track of insertion order of properties
@@ -38,26 +40,28 @@ public final class BeanPropertyMap
      */
     private int _nextBucketIndex = 0;
 
-    public BeanPropertyMap(Collection<SettableBeanProperty> properties)
+    public BeanPropertyMap(Collection<SettableBeanProperty> properties, boolean caseInsensitivePropertyComparison)
     {
+        _caseInsensitivePropertyComparison = caseInsensitivePropertyComparison;
         _size = properties.size();
         int bucketCount = findSize(_size);
         _hashMask = bucketCount-1;
         Bucket[] buckets = new Bucket[bucketCount];
         for (SettableBeanProperty property : properties) {
-            String key = property.getName();
+            String key = getPropertyName(property);
             int index = key.hashCode() & _hashMask;
             buckets[index] = new Bucket(buckets[index], key, property, _nextBucketIndex++);
         }
         _buckets = buckets;
     }
 
-    private BeanPropertyMap(Bucket[] buckets, int size, int index)
+    private BeanPropertyMap(Bucket[] buckets, int size, int index, boolean caseInsensitivePropertyComparison)
     {
         _buckets = buckets;
         _size = size;
         _hashMask = buckets.length-1;
         _nextBucketIndex = index;
+        _caseInsensitivePropertyComparison = caseInsensitivePropertyComparison;
     }
     
     /**
@@ -75,9 +79,9 @@ public final class BeanPropertyMap
         final int bcount = _buckets.length;
         Bucket[] newBuckets = new Bucket[bcount];
         System.arraycopy(_buckets, 0, newBuckets, 0, bcount);
-        final String propName = newProperty.getName();
+        final String propName = getPropertyName(newProperty);
         // and then see if it's add or replace:
-        SettableBeanProperty oldProp = find(newProperty.getName());
+        SettableBeanProperty oldProp = find(propName);
         if (oldProp == null) { // add
             // first things first: add or replace?
     	        // can do a straight copy, since all additions are at the front
@@ -85,10 +89,10 @@ public final class BeanPropertyMap
     	        int index = propName.hashCode() & _hashMask;
     	        newBuckets[index] = new Bucket(newBuckets[index],
     	                propName, newProperty, _nextBucketIndex++);
-    	        return new BeanPropertyMap(newBuckets, _size+1, _nextBucketIndex);
+    	        return new BeanPropertyMap(newBuckets, _size+1, _nextBucketIndex, _caseInsensitivePropertyComparison);
         }
         // replace: easy, close + replace
-        BeanPropertyMap newMap = new BeanPropertyMap(newBuckets, bcount, _nextBucketIndex);
+        BeanPropertyMap newMap = new BeanPropertyMap(newBuckets, bcount, _nextBucketIndex, _caseInsensitivePropertyComparison);
         newMap.replace(newProperty);
         return newMap;
     }
@@ -120,7 +124,7 @@ public final class BeanPropertyMap
             newProps.add(prop);
         }
         // should we try to re-index? Ordering probably changed but called probably doesn't want changes...
-        return new BeanPropertyMap(newProps);
+        return new BeanPropertyMap(newProps, _caseInsensitivePropertyComparison);
     }
     
     public BeanPropertyMap assignIndexes()
@@ -145,6 +149,12 @@ public final class BeanPropertyMap
             result += result;
         }
         return result;
+    }
+    
+    // Confining this case insensitivity to this function (and the find method) in case we want to
+    // apply a particular locale to the lower case function.  For now, using the default.
+    private String getPropertyName(SettableBeanProperty prop) {
+    	return _caseInsensitivePropertyComparison ? prop.getName().toLowerCase() : prop.getName();
     }
 
     /*
@@ -216,6 +226,11 @@ public final class BeanPropertyMap
         if (key == null) {
             throw new IllegalArgumentException("Can not pass null property name");
         }
+        
+        if (_caseInsensitivePropertyComparison) {
+        	key = key.toLowerCase();
+        }
+        
         int index = key.hashCode() & _hashMask;
         Bucket bucket = _buckets[index];
         // Let's unroll first lookup since that is null or match in 90+% cases
@@ -257,7 +272,7 @@ public final class BeanPropertyMap
      */
     public void replace(SettableBeanProperty property)
     {
-        String name = property.getName();
+        String name = getPropertyName(property);
         int index = name.hashCode() & (_buckets.length-1);
 
         /* This is bit tricky just because buckets themselves
@@ -291,7 +306,7 @@ public final class BeanPropertyMap
     public void remove(SettableBeanProperty property)
     {
         // Mostly this is the same as code with 'replace', just bit simpler...
-        String name = property.getName();
+        String name = getPropertyName(property);
         int index = name.hashCode() & (_buckets.length-1);
         Bucket tail = null;
         boolean found = false;

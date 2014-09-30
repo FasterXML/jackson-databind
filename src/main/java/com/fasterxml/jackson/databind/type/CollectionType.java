@@ -88,6 +88,17 @@ public final class CollectionType
         return new CollectionType(_class, _elementType.withStaticTyping(),
                 _valueHandler, _typeHandler, true);
     }
+
+    /*
+    /**********************************************************
+    /* Overridden accessors
+    /**********************************************************
+     */
+    
+    @Override
+    public Class<?> getParameterSource() {
+        return java.util.Collection.class;
+    }
     
     /*
     /**********************************************************

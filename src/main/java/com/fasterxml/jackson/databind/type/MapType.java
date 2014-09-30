@@ -108,6 +108,17 @@ public final class MapType extends MapLikeType
 
     /*
     /**********************************************************
+    /* Overridden accessors
+    /**********************************************************
+     */
+    
+    @Override
+    public Class<?> getParameterSource() {
+        return java.util.Map.class;
+    }
+    
+    /*
+    /**********************************************************
     /* Extended API
     /**********************************************************
      */

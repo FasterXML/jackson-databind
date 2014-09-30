@@ -175,12 +175,6 @@ public class MapSerializer
         return new MapSerializer(this, vts);
     }
 
-    @Deprecated // since 2.3
-    public MapSerializer withResolved(BeanProperty property,
-            JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer, HashSet<String> ignored) {
-        return withResolved(property, keySerializer, valueSerializer, ignored, _sortKeys);
-    }
-
     /**
      * @since 2.4
      */
@@ -200,18 +194,6 @@ public class MapSerializer
      */
     public MapSerializer withFilterId(Object filterId) {
         return (_filterId == filterId) ? this : new MapSerializer(this, filterId, _sortKeys);
-    }
-
-    /**
-     * @deprecated Since 2.3 use the method that takes `filterId`
-     */
-    @Deprecated
-    public static MapSerializer construct(String[] ignoredList, JavaType mapType,
-            boolean staticValueType, TypeSerializer vts,
-            JsonSerializer<Object> keySerializer, JsonSerializer<Object> valueSerializer)
-    {
-        return construct(ignoredList, mapType, staticValueType, vts,
-                keySerializer, valueSerializer, null);
     }
 
     /**
@@ -390,7 +372,7 @@ public class MapSerializer
     /* JsonSerializer implementation
     /**********************************************************
      */
-    
+
     @Override
     public void serialize(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException

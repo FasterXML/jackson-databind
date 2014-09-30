@@ -2,21 +2,18 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.lang.reflect.Type;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.deser.impl.*;
-import com.fasterxml.jackson.databind.deser.std.AtomicReferenceDeserializer;
 import com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer;
-import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.SimpleBeanPropertyDefinition;
@@ -85,28 +82,6 @@ public class BeanDeserializerFactory
                     +"additional deserializer definitions");
         }
         return new BeanDeserializerFactory(config);
-    }
-    
-    /*
-    /**********************************************************
-    /* Overrides for super-class methods used for finding
-    /* custom deserializers
-    /**********************************************************
-     */
-
-    // Note: NOT overriding, superclass has no matching method
-    @SuppressWarnings("unchecked")
-    protected JsonDeserializer<Object> _findCustomBeanDeserializer(JavaType type,
-            DeserializationConfig config, BeanDescription beanDesc)
-        throws JsonMappingException
-    {
-        for (Deserializers d  : _factoryConfig.deserializers()) {
-            JsonDeserializer<?> deser = d.findBeanDeserializer(type, config, beanDesc);
-            if (deser != null) {
-                return (JsonDeserializer<Object>) deser;
-            }
-        }
-        return null;
     }
     
     /*
@@ -191,40 +166,15 @@ public class BeanDeserializerFactory
         // note: we do NOT check for custom deserializers here, caller has already
         // done that
         JsonDeserializer<?> deser = findDefaultDeserializer(ctxt, type, beanDesc);
+        // Also: better ensure these are post-processable?
         if (deser != null) {
-            return deser;
-        }
-        
-        Class<?> cls = type.getRawClass();
-        // [JACKSON-283]: AtomicReference is a rather special type...
-        if (AtomicReference.class.isAssignableFrom(cls)) {
-            // Must find parameterization
-            TypeFactory tf = ctxt.getTypeFactory();
-            JavaType[] params = tf.findTypeParameters(type, AtomicReference.class);
-            JavaType referencedType;
-            if (params == null || params.length < 1) { // untyped (raw)
-                referencedType = TypeFactory.unknownType();
-            } else {
-                referencedType = params[0];
+            if (_factoryConfig.hasDeserializerModifiers()) {
+                for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
+                    deser = mod.modifyDeserializer(ctxt.getConfig(), beanDesc, deser);
+                }
             }
-            TypeDeserializer valueTypeDeser = findTypeDeserializer(ctxt.getConfig(), referencedType);
-            BeanDescription refdDesc = ctxt.getConfig().introspectClassAnnotations(referencedType);
-            deser = findDeserializerFromAnnotation(ctxt, refdDesc.getClassInfo());
-            return new AtomicReferenceDeserializer(referencedType, valueTypeDeser, deser);
         }
-        return findOptionalStdDeserializer(ctxt, type, beanDesc);
-    }
-
-    /**
-     * Overridable method called after checking all other types.
-     * 
-     * @since 2.2
-     */
-    protected JsonDeserializer<?> findOptionalStdDeserializer(DeserializationContext ctxt,
-            JavaType type, BeanDescription beanDesc)
-        throws JsonMappingException
-    {
-        return OptionalHandlerFactory.instance.findDeserializer(type, ctxt.getConfig(), beanDesc);
+        return deser;
     }
     
     protected JavaType materializeAbstractType(DeserializationContext ctxt,

@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.annotation.*;
 
@@ -9,12 +9,6 @@ import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 public class TestAutoDetect
     extends BaseMapTest
 {
-    /*
-    /********************************************************
-    /* Helper beans
-    /********************************************************
-     */
-
     static class PrivateBean {
         String a;
 

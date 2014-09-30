@@ -324,6 +324,9 @@ public abstract class JavaType
     @Override
     public String containedTypeName(int index) { return null; }
 
+    @Override
+    public abstract Class<?> getParameterSource();
+    
     /*
     /**********************************************************
     /* Extended API beyond ResolvedType

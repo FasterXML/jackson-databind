@@ -179,6 +179,13 @@ public class MapLikeType extends TypeBase
         return null;
     }
 
+    // TODO: should allow construction of instances that do refer
+    //  to parameterization, since it is NOT Map
+    @Override
+    public Class<?> getParameterSource() {
+        return null;
+    }
+    
     @Override
     public StringBuilder getErasedSignature(StringBuilder sb) {
         return _classSignature(_class, sb, true);

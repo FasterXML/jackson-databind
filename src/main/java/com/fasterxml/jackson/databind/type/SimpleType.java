@@ -16,6 +16,14 @@ public final class SimpleType
     private static final long serialVersionUID = -800374828948534376L;
 
     /**
+     * In case there are resolved type parameters, this field stores reference
+     * to that type. It must be {@link #getRawClass()} or its supertype.
+     * 
+     * @since 2.5
+     */
+    protected final Class<?> _typeParametersFor;
+    
+    /**
      * Generic type arguments for this type.
      */
     protected final JavaType[] _typeParameters;
@@ -33,11 +41,29 @@ public final class SimpleType
      */
 
     protected SimpleType(Class<?> cls) {
-        this(cls, null, null, null, null, false);
+        this(cls, null, null, null, null, false, null);
     }
 
+    /**
+     * @deprecated Since 2.5 use variant that takes one more argument
+     */
+    @Deprecated
     protected SimpleType(Class<?> cls, String[] typeNames, JavaType[] typeParams,
             Object valueHandler, Object typeHandler, boolean asStatic)
+    {
+        this(cls, typeNames, typeParams, valueHandler, typeHandler, asStatic, null);
+    }
+
+    /**
+     * 
+     * @param parametersFrom Interface or abstract class implemented by this type,
+     *   and for which type parameters apply. It may be <code>cls</code> itself,
+     *   but more commonly it is one of its supertypes.
+     */
+    protected SimpleType(Class<?> cls,
+            String[] typeNames, JavaType[] typeParams,
+            Object valueHandler, Object typeHandler, boolean asStatic,
+            Class<?> parametersFrom)
     {
         super(cls, 0, valueHandler, typeHandler, asStatic);
         if (typeNames == null || typeNames.length == 0) {
@@ -47,6 +73,7 @@ public final class SimpleType
             _typeNames = typeNames;
             _typeParameters = typeParams;
         }
+        _typeParametersFor = parametersFrom;
     }
 
     /**
@@ -56,7 +83,7 @@ public final class SimpleType
      * not in same package
      */
     public static SimpleType constructUnsafe(Class<?> raw) {
-        return new SimpleType(raw, null, null, null, null, false);
+        return new SimpleType(raw, null, null, null, null, false, null);
     }
 
     @Override
@@ -64,7 +91,7 @@ public final class SimpleType
     {
         // Should we check that there is a sub-class relationship?
         return new SimpleType(subclass, _typeNames, _typeParameters, _valueHandler, _typeHandler,
-                _asStatic);
+                _asStatic, _typeParametersFor);
     }
 
     @Override
@@ -102,7 +129,7 @@ public final class SimpleType
     @Override
     public SimpleType withTypeHandler(Object h)
     {
-        return new SimpleType(_class, _typeNames, _typeParameters, _valueHandler, h, _asStatic);
+        return new SimpleType(_class, _typeNames, _typeParameters, _valueHandler, h, _asStatic, _typeParametersFor);
     }
 
     @Override
@@ -116,7 +143,7 @@ public final class SimpleType
         if (h == _valueHandler) {
             return this;
         }
-        return new SimpleType(_class, _typeNames, _typeParameters, h, _typeHandler, _asStatic);
+        return new SimpleType(_class, _typeNames, _typeParameters, h, _typeHandler, _asStatic, _typeParametersFor);
     }
     
     @Override
@@ -128,7 +155,7 @@ public final class SimpleType
     @Override
     public SimpleType withStaticTyping() {
         return _asStatic ? this : new SimpleType(_class,
-                _typeNames, _typeParameters, _valueHandler, _typeHandler, _asStatic);
+                _typeNames, _typeParameters, _valueHandler, _typeHandler, _asStatic, _typeParametersFor);
     }
 
     @Override
@@ -182,6 +209,11 @@ public final class SimpleType
             return null;
         }
         return _typeNames[index];
+    }
+
+    @Override
+    public Class<?> getParameterSource() {
+        return _typeParametersFor;
     }
     
     @Override

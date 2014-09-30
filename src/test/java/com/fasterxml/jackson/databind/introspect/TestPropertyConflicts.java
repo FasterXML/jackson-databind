@@ -22,6 +22,7 @@ public class TestPropertyConflicts extends BaseMapTest
     // [Issue#238]
     protected static class Getters1A
     {
+        @JsonProperty
         protected int value = 3;
         
         public int getValue() { return value+1; }
@@ -34,6 +35,7 @@ public class TestPropertyConflicts extends BaseMapTest
     {
         public boolean isValue() { return false; }
 
+        @JsonProperty
         protected int value = 3;
         
         public int getValue() { return value+1; }

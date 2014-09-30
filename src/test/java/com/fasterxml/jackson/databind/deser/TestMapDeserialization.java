@@ -484,13 +484,43 @@ public class TestMapDeserialization
      * Simple test to ensure that @JsonDeserialize.using is
      * recognized
      */
-    public void testMapWithDeserializer() throws IOException
+    public void testMapWithDeserializer() throws Exception
     {
         CustomMap result = MAPPER.readValue(quote("xyz"), CustomMap.class);
         assertEquals(1, result.size());
         assertEquals("xyz", result.get("x"));
     }
 
+    /*
+    /**********************************************************
+    /* Test methods, annotated Map.Entry
+    /**********************************************************
+     */
+
+    public void testMapEntrySimpleTypes() throws Exception
+    {
+        List<Map.Entry<String,Long>> stuff = MAPPER.readValue(aposToQuotes("[{'a':15},{'b':42}]"),
+                new TypeReference<List<Map.Entry<String,Long>>>() { });
+        assertNotNull(stuff);
+        assertEquals(2, stuff.size());
+        assertNotNull(stuff.get(1));
+        assertEquals("b", stuff.get(1).getKey());
+        assertEquals(Long.valueOf(42), stuff.get(1).getValue());
+    }
+
+    public void testMapEntryWithStringBean() throws Exception
+    {
+        List<Map.Entry<Integer,StringWrapper>> stuff = MAPPER.readValue(aposToQuotes("[{'28':'Foo'},{'13':'Bar'}]"),
+                new TypeReference<List<Map.Entry<Integer,StringWrapper>>>() { });
+        assertNotNull(stuff);
+        assertEquals(2, stuff.size());
+        assertNotNull(stuff.get(1));
+        assertEquals(Integer.valueOf(13), stuff.get(1).getKey());
+        
+        StringWrapper sw = stuff.get(1).getValue();
+        assertEquals("Bar", sw.str);
+    }
+    
     /*
     /**********************************************************
     /* Error tests

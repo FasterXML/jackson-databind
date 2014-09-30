@@ -183,5 +183,9 @@ public class TestMapSerialization
         StringIntMapEntry input = new StringIntMapEntry("answer", 42);
         String json = MAPPER.writeValueAsString(input);
         assertEquals(aposToQuotes("{'answer':42}"), json);
+
+        StringIntMapEntry[] array = new StringIntMapEntry[] { input };
+        json = MAPPER.writeValueAsString(array);
+        assertEquals(aposToQuotes("[{'answer':42}]"), json);
     }        
 }

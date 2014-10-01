@@ -205,7 +205,8 @@ public class EnumSerializer
         if (shape == Shape.STRING) {
             return Boolean.FALSE;
         }
-        if (shape.isNumeric()) {
+        // 01-Oct-2014, tatu: For convenience, consider "as-array" to also mean 'yes, use index')
+        if (shape.isNumeric() || (shape == Shape.ARRAY)) {
             return Boolean.TRUE;
         }
         throw new IllegalArgumentException("Unsupported serialization shape ("+shape+") for Enum "+enumClass.getName()

@@ -136,8 +136,8 @@ public class TestEnumSerialization
         public OK text = OK.V1;
     }
     
-    @JsonFormat(shape=JsonFormat.Shape.ARRAY) // not supported as of now
-    static enum BrokenPoNum
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY) // alias for 'number', as of 2.5
+    static enum PoAsArray
     {
         A, B;
     }
@@ -273,15 +273,11 @@ public class TestEnumSerialization
     public void testEnumAsIndexViaAnnotations() throws Exception {
         assertEquals("{\"text\":0}", mapper.writeValueAsString(new PoNUMContainer()));
     }
-    
+
+    // As of 2.5, use of Shape.ARRAY is legal alias for "write as number"
     public void testEnumAsObjectBroken() throws Exception
     {
-        try {
-            String json = mapper.writeValueAsString(BrokenPoNum.A);
-            fail("Should not have succeeded, produced: "+json);
-        } catch (JsonMappingException e) {
-            verifyException(e, "Unsupported serialization shape");
-        }
+        assertEquals("0", mapper.writeValueAsString(PoAsArray.A));
     }
     
     // [Issue#227]

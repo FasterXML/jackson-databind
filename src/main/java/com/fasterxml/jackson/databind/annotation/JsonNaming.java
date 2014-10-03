@@ -15,5 +15,11 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 @com.fasterxml.jackson.annotation.JacksonAnnotation
 public @interface JsonNaming
 {
-    public Class<? extends PropertyNamingStrategy> value();
+    /**
+     * @return Type of {@link PropertyNamingStrategy} to use, if any; default value of
+     *    <code>PropertyNamingStrategy.class</code> means "no strategy specified"
+     *    (and may also be used for overriding to remove otherwise applicable
+     *    naming strategy)
+     */
+    public Class<? extends PropertyNamingStrategy> value() default PropertyNamingStrategy.class;
 }

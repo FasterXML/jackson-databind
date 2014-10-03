@@ -113,8 +113,8 @@ public class BeanSerializer
         /* Can not:
          * 
          * - have Object Id (may be allowed in future)
-         * - have any getter
-         * 
+         * - have "any getter"
+         * - have per-property filters
          */
         if ((_objectIdWriter == null)
                 && (_anyGetterWriter == null)

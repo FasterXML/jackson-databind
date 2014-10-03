@@ -336,7 +336,7 @@ public class ObjectMapper
 
     /**
      * We will use a separate main-level Map for keeping track
-     * of root-level deserializers. This is where most succesful
+     * of root-level deserializers. This is where most successful
      * cache lookups get resolved.
      * Map will contain resolvers for all kinds of types, including
      * container types: this is different from the component cache
@@ -371,8 +371,7 @@ public class ObjectMapper
      * Java Beans (based on method names and Jackson-specific annotations),
      * but does not support JAXB annotations.
      */
-    public ObjectMapper()
-    {
+    public ObjectMapper() {
         this(null, null, null);
     }
 
@@ -381,8 +380,7 @@ public class ObjectMapper
      * for constructing necessary {@link JsonParser}s and/or
      * {@link JsonGenerator}s.
      */
-    public ObjectMapper(JsonFactory jf)
-    {
+    public ObjectMapper(JsonFactory jf) {
         this(jf, null, null);
     }
 
@@ -1988,8 +1986,7 @@ public class ObjectMapper
      * @param n Root node of the tree that resulting parser will read from
      */
     @Override
-    public JsonParser treeAsTokens(TreeNode n)
-    {
+    public JsonParser treeAsTokens(TreeNode n) {
         return new TreeTraversingParser((JsonNode) n, this);
     }
 

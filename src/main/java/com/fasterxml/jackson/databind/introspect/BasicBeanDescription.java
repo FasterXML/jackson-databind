@@ -470,7 +470,7 @@ public class BasicBeanDescription extends BeanDescription
 
         /* Also: must be a recognized factory method, meaning:
          * (a) marked with @JsonCreator annotation, or
-         * (a) "valueOf" (at this point, need not be public)
+         * (b) "valueOf" (at this point, need not be public)
          */
         if (_annotationIntrospector.hasCreatorAnnotation(am)) {
             return true;

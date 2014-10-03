@@ -12,6 +12,8 @@ Version: 2.4.3 (02-Oct-2014)
 #541: @JsonProperty in @JsonCreator is conflicting with POJOs getters/attributes
  (reported by fabienrenaud@github)
 #543: Problem resolving self-referential generic types
+#570: Add Support for Parsing All Compliant ISO-8601 Date Formats
+ (requested by pfconrey@github)
 - Fixed a problem with `acceptJsonFormatVisitor` with Collection/array types that
   are marked with `@JsonValue`; could cause NPE in JSON Schema generator module.
 

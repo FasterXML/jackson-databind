@@ -354,15 +354,15 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified feature enabled.
      */
-    public final ObjectReader with(DeserializationFeature feature) {
+    public ObjectReader with(DeserializationFeature feature) {
         return _with(_config.with(feature));
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
      * with specified features enabled.
      */
-    public final ObjectReader with(DeserializationFeature first,
+    public ObjectReader with(DeserializationFeature first,
             DeserializationFeature... other)
     {
         return _with(_config.with(first, other));
@@ -372,23 +372,23 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified features enabled.
      */
-    public final ObjectReader withFeatures(DeserializationFeature... features) {
+    public ObjectReader withFeatures(DeserializationFeature... features) {
         return _with(_config.withFeatures(features));
     }    
-    
+
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature disabled.
      */
-    public final ObjectReader without(DeserializationFeature feature) {
+    public ObjectReader without(DeserializationFeature feature) {
         return _with(_config.without(feature)); 
-    }    
+    }
 
     /**
      * Method for constructing a new reader instance that is configured
      * with specified features disabled.
      */
-    public final ObjectReader without(DeserializationFeature first,
+    public ObjectReader without(DeserializationFeature first,
             DeserializationFeature... other) {
         return _with(_config.without(first, other));
     }    
@@ -397,7 +397,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified features disabled.
      */
-    public final ObjectReader withoutFeatures(DeserializationFeature... features) {
+    public ObjectReader withoutFeatures(DeserializationFeature... features) {
         return _with(_config.withoutFeatures(features));
     }    
     
@@ -426,7 +426,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public final ObjectReader with(JsonNodeFactory f) {
+    public ObjectReader with(JsonNodeFactory f) {
         return _with(_config.with(f));
     }
 
@@ -462,7 +462,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public final ObjectReader withRootName(String rootName) {
+    public ObjectReader withRootName(String rootName) {
         return _with(_config.withRootName(rootName));
     }
 
@@ -491,7 +491,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public final ObjectReader withType(JavaType valueType)
+    public ObjectReader withType(JavaType valueType)
     {
         if (valueType != null && valueType.equals(_valueType)) {
             return this;
@@ -513,7 +513,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public final ObjectReader withType(Class<?> valueType) {
+    public ObjectReader withType(Class<?> valueType) {
         return withType(_config.constructType(valueType));
     }    
 
@@ -524,7 +524,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public final ObjectReader withType(java.lang.reflect.Type valueType) {
+    public ObjectReader withType(java.lang.reflect.Type valueType) {
         return withType(_config.getTypeFactory().constructType(valueType));
     }    
 
@@ -535,7 +535,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public final ObjectReader withType(TypeReference<?> valueTypeRef) {
+    public ObjectReader withType(TypeReference<?> valueTypeRef) {
         return withType(_config.getTypeFactory().constructType(valueTypeRef.getType()));
     }    
 
@@ -575,23 +575,23 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public final ObjectReader withView(Class<?> activeView) {
+    public ObjectReader withView(Class<?> activeView) {
         return _with(_config.withView(activeView));
     }
 
-    public final ObjectReader with(Locale l) {
+    public ObjectReader with(Locale l) {
         return _with(_config.with(l));
     }
 
-    public final ObjectReader with(TimeZone tz) {
+    public ObjectReader with(TimeZone tz) {
         return _with(_config.with(tz));
     }
 
-    public final ObjectReader withHandler(DeserializationProblemHandler h) {
+    public ObjectReader withHandler(DeserializationProblemHandler h) {
         return _with(_config.withHandler(h));
     }
 
-    public final ObjectReader with(Base64Variant defaultBase64) {
+    public ObjectReader with(Base64Variant defaultBase64) {
         return _with(_config.with(defaultBase64));
     }
 
@@ -617,7 +617,7 @@ public class ObjectReader
      * 
      * @since 2.1
      */
-    public final ObjectReader withFormatDetection(ObjectReader... readers) {
+    public ObjectReader withFormatDetection(ObjectReader... readers) {
         return withFormatDetection(new DataFormatReaders(readers));
     }
 
@@ -644,28 +644,28 @@ public class ObjectReader
     /**
      * @since 2.3
      */
-    public final ObjectReader with(ContextAttributes attrs) {
+    public ObjectReader with(ContextAttributes attrs) {
         return _with(_config.with(attrs));
     }
 
     /**
      * @since 2.3
      */
-    public final ObjectReader withAttributes(Map<Object,Object> attrs) {
+    public ObjectReader withAttributes(Map<Object,Object> attrs) {
         return _with(_config.withAttributes(attrs));
     }
 
     /**
      * @since 2.3
      */
-    public final ObjectReader withAttribute(Object key, Object value) {
+    public ObjectReader withAttribute(Object key, Object value) {
         return _with( _config.withAttribute(key, value));
     }
 
     /**
      * @since 2.3
      */
-    public final ObjectReader withoutAttribute(Object key) {
+    public ObjectReader withoutAttribute(Object key) {
         return _with(_config.withoutAttribute(key));
     }
 
@@ -679,11 +679,11 @@ public class ObjectReader
         if (newConfig == _config) {
             return this;
         }
+        ObjectReader r = _new(this, newConfig);
         if (_dataFormatReaders != null) {
-            return _new(this, newConfig)
-                .withFormatDetection(_dataFormatReaders.with(newConfig));
+            r  = r.withFormatDetection(_dataFormatReaders.with(newConfig));
         }
-        return _new(this, newConfig);
+        return r;
     }
     
     /*
@@ -904,24 +904,25 @@ public class ObjectReader
     public JsonParser treeAsTokens(TreeNode n) {
         return new TreeTraversingParser((JsonNode) n, this);
     }
-     /**
-      * Convenience method that binds content read using given parser, using
-      * configuration of this reader, except that content is bound as
-      * JSON tree instead of configured root value type.
-      *<p>
-      * Note: if an object was specified with {@link #withValueToUpdate}, it
-      * will be ignored.
-      *<p>
-      * NOTE: this method never tries to auto-detect format, since actual
-      * (data-format specific) parser is given.
-      */
-     @SuppressWarnings("unchecked")
-     @Override
-     public <T extends TreeNode> T readTree(JsonParser jp)
-         throws IOException, JsonProcessingException
-     {
-         return (T) _bindAsTree(jp);
-     }
+
+    /**
+     * Convenience method that binds content read using given parser, using
+     * configuration of this reader, except that content is bound as
+     * JSON tree instead of configured root value type.
+     *<p>
+     * Note: if an object was specified with {@link #withValueToUpdate}, it
+     * will be ignored.
+     *<p>
+     * NOTE: this method never tries to auto-detect format, since actual
+     * (data-format specific) parser is given.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends TreeNode> T readTree(JsonParser jp)
+            throws IOException, JsonProcessingException
+    {
+        return (T) _bindAsTree(jp);
+    }
      
     @Override
     public void writeTree(JsonGenerator jgen, TreeNode rootNode) {
@@ -1478,8 +1479,7 @@ public class ObjectReader
      * by configuration. Method also is NOT to throw an exception if
      * access fails.
      */
-    protected JsonDeserializer<Object> _prefetchRootDeserializer(
-            DeserializationConfig config, JavaType valueType)
+    protected JsonDeserializer<Object> _prefetchRootDeserializer(DeserializationConfig config, JavaType valueType)
     {
         if (valueType == null || !_config.isEnabled(DeserializationFeature.EAGER_DESERIALIZER_FETCH)) {
             return null;

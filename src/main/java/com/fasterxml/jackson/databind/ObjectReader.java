@@ -1091,13 +1091,11 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(src);
         }
-        JsonParser jp = _parserFactory.createParser(src);
-        if (_schema != null) {
-            jp.setSchema(_schema);
-        }
-        jp.nextToken();
-        DeserializationContext ctxt = createDeserializationContext(jp, _config);
-        return new MappingIterator<T>(_valueType, jp, ctxt,
+        JsonParser p = _parserFactory.createParser(src);
+        _initForMultiRead(p);
+        p.nextToken();
+        DeserializationContext ctxt = createDeserializationContext(p, _config);
+        return new MappingIterator<T>(_valueType, p, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
     
@@ -1113,13 +1111,11 @@ public class ObjectReader
         if (_dataFormatReaders != null) {
             _reportUndetectableSource(json);
         }
-        JsonParser jp = _parserFactory.createParser(json);
-        if (_schema != null) {
-            jp.setSchema(_schema);
-        }
-        jp.nextToken();
-        DeserializationContext ctxt = createDeserializationContext(jp, _config);
-        return new MappingIterator<T>(_valueType, jp, ctxt,
+        JsonParser p = _parserFactory.createParser(json);
+        _initForMultiRead(p);
+        p.nextToken();
+        DeserializationContext ctxt = createDeserializationContext(p, _config);
+        return new MappingIterator<T>(_valueType, p, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
 
@@ -1178,8 +1174,7 @@ public class ObjectReader
      */
 
     @Override
-    public <T> T treeToValue(TreeNode n, Class<T> valueType)
-        throws JsonProcessingException
+    public <T> T treeToValue(TreeNode n, Class<T> valueType) throws JsonProcessingException
     {
         try {
             return readValue(treeAsTokens(n), valueType);
@@ -1191,8 +1186,7 @@ public class ObjectReader
     }    
     
     @Override
-    public void writeValue(JsonGenerator jgen, Object value) throws IOException, JsonProcessingException
-    {
+    public void writeValue(JsonGenerator jgen, Object value) throws IOException, JsonProcessingException {
         throw new UnsupportedOperationException("Not implemented for ObjectReader");
     }
 
@@ -1205,8 +1199,7 @@ public class ObjectReader
     /**
      * Actual implementation of value reading+binding operation.
      */
-    protected Object _bind(JsonParser jp, Object valueToUpdate)
-        throws IOException, JsonParseException, JsonMappingException
+    protected Object _bind(JsonParser jp, Object valueToUpdate) throws IOException
     {
         /* First: may need to read the next token, to initialize state (either
          * before first read from parser, or after previous token has been cleared)
@@ -1241,12 +1234,8 @@ public class ObjectReader
         return result;
     }
     
-    protected Object _bindAndClose(JsonParser jp, Object valueToUpdate)
-        throws IOException, JsonParseException, JsonMappingException
+    protected Object _bindAndClose(JsonParser jp, Object valueToUpdate) throws IOException
     {
-        if (_schema != null) {
-            jp.setSchema(_schema);
-        }
         try {
             Object result;
             JsonToken t = _initForReading(jp);
@@ -1281,8 +1270,17 @@ public class ObjectReader
         }
     }
 
-    protected JsonNode _bindAsTree(JsonParser jp)
-        throws IOException, JsonParseException, JsonMappingException
+    protected JsonNode _bindAndCloseAsTree(JsonParser jp) throws IOException {
+        try {
+            return _bindAsTree(jp);
+        } finally {
+            try {
+                jp.close();
+            } catch (IOException ioe) { }
+        }
+    }
+    
+    protected JsonNode _bindAsTree(JsonParser jp) throws IOException
     {
         JsonNode result;
         JsonToken t = _initForReading(jp);
@@ -1302,58 +1300,109 @@ public class ObjectReader
         return result;
     }
     
-    protected JsonNode _bindAndCloseAsTree(JsonParser jp)
-        throws IOException, JsonParseException, JsonMappingException
-    {
-        if (_schema != null) {
-            jp.setSchema(_schema);
-        }
-        try {
-            return _bindAsTree(jp);
-        } finally {
-            try {
-                jp.close();
-            } catch (IOException ioe) { }
-        }
-    }
-    
     /**
      * @since 2.1
      */
-    protected <T> MappingIterator<T> _bindAndReadValues(JsonParser p,
-            Object valueToUpdate)
-        throws IOException, JsonProcessingException
+    protected <T> MappingIterator<T> _bindAndReadValues(JsonParser p, Object valueToUpdate) throws IOException
     {
-        if (_schema != null) {
-            p.setSchema(_schema);
-        }
+        _initForMultiRead(p);
         p.nextToken();
         DeserializationContext ctxt = createDeserializationContext(p, _config);
         return new MappingIterator<T>(_valueType, p, ctxt, 
                 _findRootDeserializer(ctxt, _valueType),
                 true, _valueToUpdate);
     }
-    
-    protected static JsonToken _initForReading(JsonParser jp)
-        throws IOException, JsonParseException, JsonMappingException
+
+    protected Object _unwrapAndDeserialize(JsonParser jp, DeserializationContext ctxt,
+            JavaType rootType, JsonDeserializer<Object> deser) throws IOException
     {
+        String expName = _config.getRootName();
+        if (expName == null) {
+            PropertyName pname = _rootNames.findRootName(rootType, _config);
+            expName = pname.getSimpleName();
+        }
+        if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
+            throw JsonMappingException.from(jp, "Current token not START_OBJECT (needed to unwrap root name '"
+                    +expName+"'), but "+jp.getCurrentToken());
+        }
+        if (jp.nextToken() != JsonToken.FIELD_NAME) {
+            throw JsonMappingException.from(jp, "Current token not FIELD_NAME (to contain expected root name '"
+                    +expName+"'), but "+jp.getCurrentToken());
+        }
+        String actualName = jp.getCurrentName();
+        if (!expName.equals(actualName)) {
+            throw JsonMappingException.from(jp, "Root name '"+actualName+"' does not match expected ('"
+                    +expName+"') for type "+rootType);
+        }
+        // ok, then move to value itself....
+        jp.nextToken();
+        Object result;
+        if (_valueToUpdate == null) {
+            result = deser.deserialize(jp, ctxt);
+        } else {
+            deser.deserialize(jp, ctxt, _valueToUpdate);
+            result = _valueToUpdate;                    
+        }
+        // and last, verify that we now get matching END_OBJECT
+        if (jp.nextToken() != JsonToken.END_OBJECT) {
+            throw JsonMappingException.from(jp, "Current token not END_OBJECT (to match wrapper object with root name '"
+                    +expName+"'), but "+jp.getCurrentToken());
+        }
+        return result;
+    }
+    
+    /*
+    /**********************************************************
+    /* Helper methods, common parser initialization
+    /**********************************************************
+     */
+    
+    /**
+     * NOTE: changed from static to non-static in 2.5; unfortunate but
+     * necessary change to support overridability
+     */
+    protected JsonToken _initForReading(JsonParser p) throws IOException
+    {
+        if (_schema != null) {
+            p.setSchema(_schema);
+        }
         /* First: must point to a token; if not pointing to one, advance.
          * This occurs before first read from JsonParser, as well as
          * after clearing of current token.
          */
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == null) { // and then we must get something...
-            t = jp.nextToken();
+            t = p.nextToken();
             if (t == null) {
                 /* [JACKSON-546] Throw mapping exception, since it's failure to map,
                  *   not an actual parsing problem
                  */
-                throw JsonMappingException.from(jp, "No content to map due to end-of-input");
+                throw JsonMappingException.from(p, "No content to map due to end-of-input");
             }
         }
         return t;
     }
 
+    /**
+     * Alternative to {@link #_initForReading(JsonParser)} used in cases where reading
+     * of multiple values means that we may or may not want to advance the stream,
+     * but need to do other initialization.
+     * 
+     * @since 2.5
+     */
+    protected void _initForMultiRead(JsonParser p) throws IOException
+    {
+        if (_schema != null) {
+            p.setSchema(_schema);
+        }
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods, locating deserializers etc
+    /**********************************************************
+     */
+    
     /**
      * Method called to locate deserializer for the passed root-level value.
      */
@@ -1412,45 +1461,6 @@ public class ObjectReader
             }
         }
         return deser;
-    }
-    
-    protected Object _unwrapAndDeserialize(JsonParser jp, DeserializationContext ctxt,
-            JavaType rootType, JsonDeserializer<Object> deser)
-        throws IOException, JsonParseException, JsonMappingException
-    {
-        String expName = _config.getRootName();
-        if (expName == null) {
-            PropertyName pname = _rootNames.findRootName(rootType, _config);
-            expName = pname.getSimpleName();
-        }
-        if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
-            throw JsonMappingException.from(jp, "Current token not START_OBJECT (needed to unwrap root name '"
-                    +expName+"'), but "+jp.getCurrentToken());
-        }
-        if (jp.nextToken() != JsonToken.FIELD_NAME) {
-            throw JsonMappingException.from(jp, "Current token not FIELD_NAME (to contain expected root name '"
-                    +expName+"'), but "+jp.getCurrentToken());
-        }
-        String actualName = jp.getCurrentName();
-        if (!expName.equals(actualName)) {
-            throw JsonMappingException.from(jp, "Root name '"+actualName+"' does not match expected ('"
-                    +expName+"') for type "+rootType);
-        }
-        // ok, then move to value itself....
-        jp.nextToken();
-        Object result;
-        if (_valueToUpdate == null) {
-            result = deser.deserialize(jp, ctxt);
-        } else {
-            deser.deserialize(jp, ctxt, _valueToUpdate);
-            result = _valueToUpdate;                    
-        }
-        // and last, verify that we now get matching END_OBJECT
-        if (jp.nextToken() != JsonToken.END_OBJECT) {
-            throw JsonMappingException.from(jp, "Current token not END_OBJECT (to match wrapper object with root name '"
-                    +expName+"'), but "+jp.getCurrentToken());
-        }
-        return result;
     }
 
     /*

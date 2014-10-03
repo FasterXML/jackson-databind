@@ -104,6 +104,7 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
      <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <version>${version.plugin.surefire}</version>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <excludes>

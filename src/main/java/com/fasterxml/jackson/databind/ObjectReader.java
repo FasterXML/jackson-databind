@@ -156,8 +156,7 @@ public class ObjectReader
     /**
      * Constructor used by {@link ObjectMapper} for initial instantiation
      */
-    protected ObjectReader(ObjectMapper mapper, DeserializationConfig config)
-    {
+    protected ObjectReader(ObjectMapper mapper, DeserializationConfig config) {
         this(mapper, config, null, null, null, null);
     }
 
@@ -266,6 +265,83 @@ public class ObjectReader
 
     /*
     /**********************************************************
+    /* Methods sub-classes MUST override, used for constructing
+    /* reader instances, (re)configuring parser instances
+    /**********************************************************
+     */
+
+    /**
+     * Overridable factory method called by various "withXxx()" methods
+     * 
+     * @since 2.5
+     */
+    protected ObjectReader _new(ObjectReader base, JsonFactory f) {
+        return new ObjectReader(base, f);
+    }
+
+    /**
+     * Overridable factory method called by various "withXxx()" methods
+     * 
+     * @since 2.5
+     */
+    protected ObjectReader _new(ObjectReader base, DeserializationConfig config) {
+        return new ObjectReader(base, config);
+    }
+
+    /**
+     * Overridable factory method called by various "withXxx()" methods
+     * 
+     * @since 2.5
+     */
+    protected ObjectReader _new(ObjectReader base, DeserializationConfig config,
+            JavaType valueType, JsonDeserializer<Object> rootDeser, Object valueToUpdate,
+            FormatSchema schema, InjectableValues injectableValues,
+            DataFormatReaders dataFormatReaders) {
+        return new ObjectReader(base, config, valueType, rootDeser,  valueToUpdate,
+                 schema,  injectableValues, dataFormatReaders);
+    }
+
+    /**
+     * NOTE: changed from static to non-static in 2.5; unfortunate but
+     * necessary change to support overridability
+     */
+    protected JsonToken _initForReading(JsonParser p) throws IOException
+    {
+        if (_schema != null) {
+            p.setSchema(_schema);
+        }
+        /* First: must point to a token; if not pointing to one, advance.
+         * This occurs before first read from JsonParser, as well as
+         * after clearing of current token.
+         */
+        JsonToken t = p.getCurrentToken();
+        if (t == null) { // and then we must get something...
+            t = p.nextToken();
+            if (t == null) {
+                // Throw mapping exception, since it's failure to map, not an actual parsing problem
+                throw JsonMappingException.from(p, "No content to map due to end-of-input");
+            }
+        }
+        return t;
+    }
+
+    /**
+     * Alternative to {@link #_initForReading(JsonParser)} used in cases where reading
+     * of multiple values means that we may or may not want to advance the stream,
+     * but need to do other initialization.
+     *<p>
+     * Base implementation only sets configured {@link FormatSchema}, if any, on parser.
+     * 
+     * @since 2.5
+     */
+    protected void _initForMultiRead(JsonParser p) throws IOException {
+        if (_schema != null) {
+            p.setSchema(_schema);
+        }
+    }
+    
+    /*
+    /**********************************************************
     /* Life-cycle, fluent factory methods
     /**********************************************************
      */
@@ -278,7 +354,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified feature enabled.
      */
-    public ObjectReader with(DeserializationFeature feature) {
+    public final ObjectReader with(DeserializationFeature feature) {
         return _with(_config.with(feature));
     }    
 
@@ -286,7 +362,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified features enabled.
      */
-    public ObjectReader with(DeserializationFeature first,
+    public final ObjectReader with(DeserializationFeature first,
             DeserializationFeature... other)
     {
         return _with(_config.with(first, other));
@@ -296,7 +372,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified features enabled.
      */
-    public ObjectReader withFeatures(DeserializationFeature... features) {
+    public final ObjectReader withFeatures(DeserializationFeature... features) {
         return _with(_config.withFeatures(features));
     }    
     
@@ -304,7 +380,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified feature disabled.
      */
-    public ObjectReader without(DeserializationFeature feature) {
+    public final ObjectReader without(DeserializationFeature feature) {
         return _with(_config.without(feature)); 
     }    
 
@@ -312,9 +388,8 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified features disabled.
      */
-    public ObjectReader without(DeserializationFeature first,
-            DeserializationFeature... other)
-    {
+    public final ObjectReader without(DeserializationFeature first,
+            DeserializationFeature... other) {
         return _with(_config.without(first, other));
     }    
 
@@ -322,7 +397,7 @@ public class ObjectReader
      * Method for constructing a new reader instance that is configured
      * with specified features disabled.
      */
-    public ObjectReader withoutFeatures(DeserializationFeature... features) {
+    public final ObjectReader withoutFeatures(DeserializationFeature... features) {
         return _with(_config.withoutFeatures(features));
     }    
     
@@ -338,7 +413,7 @@ public class ObjectReader
         if (_injectableValues == injectableValues) {
             return this;
         }
-        return new ObjectReader(this, _config,
+        return _new(this, _config,
                 _valueType, _rootDeserializer, _valueToUpdate,
                 _schema, injectableValues, _dataFormatReaders);
     }
@@ -351,7 +426,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader with(JsonNodeFactory f) {
+    public final ObjectReader with(JsonNodeFactory f) {
         return _with(_config.with(f));
     }
 
@@ -370,7 +445,7 @@ public class ObjectReader
         if (f == _parserFactory) {
             return this;
         }
-        ObjectReader r = new ObjectReader(this, f);
+        ObjectReader r = _new(this, f);
         // Also, try re-linking, if possible...
         if (f.getCodec() == null) {
             f.setCodec(r);
@@ -387,7 +462,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader withRootName(String rootName) {
+    public final ObjectReader withRootName(String rootName) {
         return _with(_config.withRootName(rootName));
     }
 
@@ -405,7 +480,7 @@ public class ObjectReader
             return this;
         }
         _verifySchemaType(schema);
-        return new ObjectReader(this, _config, _valueType, _rootDeserializer, _valueToUpdate,
+        return _new(this, _config, _valueType, _rootDeserializer, _valueToUpdate,
                 schema, _injectableValues, _dataFormatReaders);
     }
 
@@ -416,7 +491,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader withType(JavaType valueType)
+    public final ObjectReader withType(JavaType valueType)
     {
         if (valueType != null && valueType.equals(_valueType)) {
             return this;
@@ -427,7 +502,7 @@ public class ObjectReader
         if (det != null) {
             det = det.withType(valueType);
         }
-        return new ObjectReader(this, _config, valueType, rootDeser,
+        return _new(this, _config, valueType, rootDeser,
                 _valueToUpdate, _schema, _injectableValues, det);
     }    
 
@@ -438,7 +513,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader withType(Class<?> valueType) {
+    public final ObjectReader withType(Class<?> valueType) {
         return withType(_config.constructType(valueType));
     }    
 
@@ -449,7 +524,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader withType(java.lang.reflect.Type valueType) {
+    public final ObjectReader withType(java.lang.reflect.Type valueType) {
         return withType(_config.getTypeFactory().constructType(valueType));
     }    
 
@@ -460,7 +535,7 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader withType(TypeReference<?> valueTypeRef) {
+    public final ObjectReader withType(TypeReference<?> valueTypeRef) {
         return withType(_config.getTypeFactory().constructType(valueTypeRef.getType()));
     }    
 
@@ -489,7 +564,7 @@ public class ObjectReader
         } else {
             t = _valueType;
         }
-        return new ObjectReader(this, _config, t, _rootDeserializer, value,
+        return _new(this, _config, t, _rootDeserializer, value,
                 _schema, _injectableValues, _dataFormatReaders);
     }
 
@@ -500,23 +575,23 @@ public class ObjectReader
      * Note that the method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    public ObjectReader withView(Class<?> activeView) {
+    public final ObjectReader withView(Class<?> activeView) {
         return _with(_config.withView(activeView));
     }
 
-    public ObjectReader with(Locale l) {
+    public final ObjectReader with(Locale l) {
         return _with(_config.with(l));
     }
 
-    public ObjectReader with(TimeZone tz) {
+    public final ObjectReader with(TimeZone tz) {
         return _with(_config.with(tz));
     }
 
-    public ObjectReader withHandler(DeserializationProblemHandler h) {
+    public final ObjectReader withHandler(DeserializationProblemHandler h) {
         return _with(_config.withHandler(h));
     }
 
-    public ObjectReader with(Base64Variant defaultBase64) {
+    public final ObjectReader with(Base64Variant defaultBase64) {
         return _with(_config.with(defaultBase64));
     }
 
@@ -542,8 +617,7 @@ public class ObjectReader
      * 
      * @since 2.1
      */
-    public ObjectReader withFormatDetection(ObjectReader... readers)
-    {
+    public final ObjectReader withFormatDetection(ObjectReader... readers) {
         return withFormatDetection(new DataFormatReaders(readers));
     }
 
@@ -562,42 +636,54 @@ public class ObjectReader
      * 
      * @since 2.1
      */
-    public ObjectReader withFormatDetection(DataFormatReaders readers)
-    {
-        return new ObjectReader(this, _config, _valueType, _rootDeserializer, _valueToUpdate,
+    public ObjectReader withFormatDetection(DataFormatReaders readers) {
+        return _new(this, _config, _valueType, _rootDeserializer, _valueToUpdate,
                 _schema, _injectableValues, readers);
     }
 
     /**
      * @since 2.3
      */
-    public ObjectReader with(ContextAttributes attrs) {
-        DeserializationConfig newConfig = _config.with(attrs);
-        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    public final ObjectReader with(ContextAttributes attrs) {
+        return _with(_config.with(attrs));
     }
 
     /**
      * @since 2.3
      */
-    public ObjectReader withAttributes(Map<Object,Object> attrs) {
-        DeserializationConfig newConfig = _config.withAttributes(attrs);
-        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    public final ObjectReader withAttributes(Map<Object,Object> attrs) {
+        return _with(_config.withAttributes(attrs));
     }
 
     /**
      * @since 2.3
      */
-    public ObjectReader withAttribute(Object key, Object value) {
-        DeserializationConfig newConfig = _config.withAttribute(key, value);
-        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    public final ObjectReader withAttribute(Object key, Object value) {
+        return _with( _config.withAttribute(key, value));
     }
 
     /**
      * @since 2.3
      */
-    public ObjectReader withoutAttribute(Object key) {
-        DeserializationConfig newConfig = _config.withoutAttribute(key);
-        return (newConfig == _config) ? this :  new ObjectReader(this, newConfig);
+    public final ObjectReader withoutAttribute(Object key) {
+        return _with(_config.withoutAttribute(key));
+    }
+
+    /*
+    /**********************************************************
+    /* Overridable factory methods that sub-classes MUST override
+    /**********************************************************
+     */
+    
+    protected ObjectReader _with(DeserializationConfig newConfig) {
+        if (newConfig == _config) {
+            return this;
+        }
+        if (_dataFormatReaders != null) {
+            return _new(this, newConfig)
+                .withFormatDetection(_dataFormatReaders.with(newConfig));
+        }
+        return _new(this, newConfig);
     }
     
     /*
@@ -1350,52 +1436,6 @@ public class ObjectReader
         }
         return result;
     }
-    
-    /*
-    /**********************************************************
-    /* Helper methods, common parser initialization
-    /**********************************************************
-     */
-    
-    /**
-     * NOTE: changed from static to non-static in 2.5; unfortunate but
-     * necessary change to support overridability
-     */
-    protected JsonToken _initForReading(JsonParser p) throws IOException
-    {
-        if (_schema != null) {
-            p.setSchema(_schema);
-        }
-        /* First: must point to a token; if not pointing to one, advance.
-         * This occurs before first read from JsonParser, as well as
-         * after clearing of current token.
-         */
-        JsonToken t = p.getCurrentToken();
-        if (t == null) { // and then we must get something...
-            t = p.nextToken();
-            if (t == null) {
-                /* [JACKSON-546] Throw mapping exception, since it's failure to map,
-                 *   not an actual parsing problem
-                 */
-                throw JsonMappingException.from(p, "No content to map due to end-of-input");
-            }
-        }
-        return t;
-    }
-
-    /**
-     * Alternative to {@link #_initForReading(JsonParser)} used in cases where reading
-     * of multiple values means that we may or may not want to advance the stream,
-     * but need to do other initialization.
-     * 
-     * @since 2.5
-     */
-    protected void _initForMultiRead(JsonParser p) throws IOException
-    {
-        if (_schema != null) {
-            p.setSchema(_schema);
-        }
-    }
 
     /*
     /**********************************************************
@@ -1565,17 +1605,6 @@ public class ObjectReader
             DeserializationConfig cfg) {
         // 04-Jan-2010, tatu: we do actually need the provider too... (for polymorphic deser)
         return _context.createInstance(cfg, jp, _injectableValues);
-    }
-    
-    protected ObjectReader _with(DeserializationConfig newConfig) {
-        if (newConfig == _config) {
-            return this;
-        }
-        if (_dataFormatReaders != null) {
-            return new ObjectReader(this, newConfig)
-                .withFormatDetection(_dataFormatReaders.with(newConfig));
-        }
-        return new ObjectReader(this, newConfig);
     }
 
     protected void _reportUndetectableSource(Object src) throws JsonProcessingException

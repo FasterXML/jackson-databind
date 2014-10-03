@@ -464,6 +464,22 @@ public class ObjectMapper
         // Default serializer factory is stateless, can just assign
         _serializerFactory = BeanSerializerFactory.instance;
     }
+
+    /**
+     * Overridable helper method used to construct default {@link ClassIntrospector}
+     * to use.
+     * 
+     * @since 2.5
+     */
+    protected ClassIntrospector defaultClassIntrospector() {
+        return new BasicClassIntrospector();
+    }
+    
+    /*
+    /**********************************************************
+    /* Methods sub-classes MUST override
+    /**********************************************************
+     */
     
     /**
      * Method for creating a new {@link ObjectMapper} instance that
@@ -480,12 +496,33 @@ public class ObjectMapper
      * 
      * @since 2.1
      */
-    public ObjectMapper copy()
-    {
+    public ObjectMapper copy() {
         _checkInvalidCopy(ObjectMapper.class);
         return new ObjectMapper(this);
     }
 
+    /**
+     * Factory method sub-classes must override, to produce {@link ObjectReader}
+     * instances of proper sub-type
+     * 
+     * @since 2.5
+     */
+    protected ObjectReader _newReader(DeserializationConfig config) {
+        return new ObjectReader(this, config);
+    }
+
+    /**
+     * Factory method sub-classes must override, to produce {@link ObjectReader}
+     * instances of proper sub-type
+     * 
+     * @since 2.5
+     */
+    protected ObjectReader _newReader(DeserializationConfig config,
+            JavaType valueType, Object valueToUpdate,
+            FormatSchema schema, InjectableValues injectableValues) {
+        return new ObjectReader(this, config, valueType, valueToUpdate, schema, injectableValues);
+    }
+    
     /**
      * @since 2.1
      */
@@ -495,16 +532,6 @@ public class ObjectMapper
             throw new IllegalStateException("Failed copy(): "+getClass().getName()
                     +" (version: "+version()+") does not override copy(); it has to");
         }
-    }
-
-    /**
-     * Overridable helper method used to construct default {@link ClassIntrospector}
-     * to use.
-     * 
-     * @since 2.5
-     */
-    protected ClassIntrospector defaultClassIntrospector() {
-        return new BasicClassIntrospector();
     }
     
     /*
@@ -521,7 +548,7 @@ public class ObjectMapper
     public Version version() {
         return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
     }
-    
+
     /*
     /**********************************************************
     /* Module registration, discovery
@@ -2565,8 +2592,7 @@ public class ObjectMapper
      * without defining expected value type.
      */
     public ObjectReader reader() {
-        return new ObjectReader(this, getDeserializationConfig())
-            .with(_injectableValues);
+        return _newReader(getDeserializationConfig()).with(_injectableValues);
     }
 
     /**
@@ -2577,7 +2603,7 @@ public class ObjectMapper
      * without defining expected value type.
      */
     public ObjectReader reader(DeserializationFeature feature) {
-        return new ObjectReader(this, getDeserializationConfig().with(feature));
+        return _newReader(getDeserializationConfig().with(feature));
     }
 
     /**
@@ -2589,7 +2615,7 @@ public class ObjectMapper
      */
     public ObjectReader reader(DeserializationFeature first,
             DeserializationFeature... other) {
-        return new ObjectReader(this, getDeserializationConfig().with(first, other));
+        return _newReader(getDeserializationConfig().with(first, other));
     }
     
     /**
@@ -2602,10 +2628,9 @@ public class ObjectMapper
      * Runtime type of value object is used for locating deserializer,
      * unless overridden by other factory methods of {@link ObjectReader}
      */
-    public ObjectReader readerForUpdating(Object valueToUpdate)
-    {
+    public ObjectReader readerForUpdating(Object valueToUpdate) {
         JavaType t = _typeFactory.constructType(valueToUpdate.getClass());
-        return new ObjectReader(this, getDeserializationConfig(), t, valueToUpdate,
+        return _newReader(getDeserializationConfig(), t, valueToUpdate,
                 null, _injectableValues);
     }
 
@@ -2613,9 +2638,8 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectReader} that will
      * read or update instances of specified type
      */
-    public ObjectReader reader(JavaType type)
-    {
-        return new ObjectReader(this, getDeserializationConfig(), type, null,
+    public ObjectReader reader(JavaType type) {
+        return _newReader(getDeserializationConfig(), type, null,
                 null, _injectableValues);
     }
 
@@ -2623,27 +2647,26 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectReader} that will
      * read or update instances of specified type
      */
-    public ObjectReader reader(Class<?> type)
-    {
-        return reader(_typeFactory.constructType(type));
+    public ObjectReader reader(Class<?> type) {
+        return _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
+                null, _injectableValues);
     }
 
     /**
      * Factory method for constructing {@link ObjectReader} that will
      * read or update instances of specified type
      */
-    public ObjectReader reader(TypeReference<?> type)
-    {
-        return reader(_typeFactory.constructType(type));
+    public ObjectReader reader(TypeReference<?> type) {
+        return _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
+                null, _injectableValues);
     }
 
     /**
      * Factory method for constructing {@link ObjectReader} that will
      * use specified {@link JsonNodeFactory} for constructing JSON trees.
      */
-    public ObjectReader reader(JsonNodeFactory f)
-    {
-        return new ObjectReader(this, getDeserializationConfig()).with(f);
+    public ObjectReader reader(JsonNodeFactory f) {
+        return _newReader(getDeserializationConfig()).with(f);
     }
 
     /**
@@ -2655,7 +2678,7 @@ public class ObjectMapper
      */
     public ObjectReader reader(FormatSchema schema) {
         _verifySchemaType(schema);
-        return new ObjectReader(this, getDeserializationConfig(), null, null,
+        return _newReader(getDeserializationConfig(), null, null,
                 schema, _injectableValues);
     }
 
@@ -2666,7 +2689,7 @@ public class ObjectMapper
      * @param injectableValues Injectable values to use
      */
     public ObjectReader reader(InjectableValues injectableValues) {
-        return new ObjectReader(this, getDeserializationConfig(), null, null,
+        return _newReader(getDeserializationConfig(), null, null,
                 null, injectableValues);
     }
 
@@ -2675,7 +2698,7 @@ public class ObjectMapper
      * deserialize objects using specified JSON View (filter).
      */
     public ObjectReader readerWithView(Class<?> view) {
-        return new ObjectReader(this, getDeserializationConfig().withView(view));
+        return _newReader(getDeserializationConfig().withView(view));
     }
 
     /**
@@ -2685,7 +2708,7 @@ public class ObjectMapper
      * @since 2.1
      */
     public ObjectReader reader(Base64Variant defaultBase64) {
-        return new ObjectReader(this, getDeserializationConfig().with(defaultBase64));
+        return _newReader(getDeserializationConfig().with(defaultBase64));
     }
 
     /**
@@ -2695,15 +2718,15 @@ public class ObjectMapper
      * @since 2.3
      */
     public ObjectReader reader(ContextAttributes attrs) {
-        return new ObjectReader(this, getDeserializationConfig().with(attrs));
+        return _newReader(getDeserializationConfig().with(attrs));
     }
-    
+
     /*
     /**********************************************************
     /* Extended Public API: convenience type conversion
     /**********************************************************
      */
-   
+
     /**
      * Convenience method for doing two-step conversion from given value, into
      * instance of given value type. This is functionality equivalent to first
@@ -3016,7 +3039,7 @@ public class ObjectMapper
             }
         }
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods for deserialization, overridable

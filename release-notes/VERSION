@@ -1,5 +1,5 @@
 Project: jackson-databind
-Version: 2.4.3 (xx-xxx-2014)
+Version: 2.4.3 (02-Oct-2014)
 
 #496: Wrong result with `new TextNode("false").asBoolean(true)`
  (reported by Ivar R, ivarru@github)

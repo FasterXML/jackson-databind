@@ -908,9 +908,10 @@ public class ObjectMapper
      * @param mixinSource Class (or interface) whose annotations are to
      *   be "added" to target's annotations, overriding as necessary
      */
-    public final void addMixInAnnotations(Class<?> target, Class<?> mixinSource)
+    public final ObjectMapper addMixInAnnotations(Class<?> target, Class<?> mixinSource)
     {
         _mixInAnnotations.put(new ClassKey(target), mixinSource);
+        return this;
     }
 
     public final Class<?> findMixInClassFor(Class<?> cls) {

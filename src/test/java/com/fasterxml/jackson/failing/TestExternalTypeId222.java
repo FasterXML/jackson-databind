@@ -6,7 +6,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
-public class TestExternalTypeId extends BaseMapTest
+public class TestExternalTypeId222 extends BaseMapTest
 {
 	@SuppressWarnings("unused")
 	public void testTypes() throws IOException {

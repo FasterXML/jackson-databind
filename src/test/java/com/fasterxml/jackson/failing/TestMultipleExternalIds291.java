@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.*;
 
-public class TestMultipleExternalIds extends BaseMapTest
+public class TestMultipleExternalIds291 extends BaseMapTest
 {
     // For [Issue#291]
     interface F1 {}

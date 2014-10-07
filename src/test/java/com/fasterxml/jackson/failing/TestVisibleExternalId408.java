@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TestVisibleExternalId extends BaseMapTest
+public class TestVisibleExternalId408 extends BaseMapTest
 {
     // [Issue#408]
     static class ExternalBeanWithId

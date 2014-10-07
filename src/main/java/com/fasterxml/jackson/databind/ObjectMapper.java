@@ -908,7 +908,7 @@ public class ObjectMapper
      * @param mixinSource Class (or interface) whose annotations are to
      *   be "added" to target's annotations, overriding as necessary
      *
-     * @deprecated replaced by a fluent form of the method; {@link #addMixIn(Class, Class)}.
+     * @deprecated Replaced by a fluent form of the method; {@link #addMixIn(Class, Class)}.
      */
     @Deprecated
     public final void addMixInAnnotations(Class<?> target, Class<?> mixinSource)

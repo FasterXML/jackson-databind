@@ -2,6 +2,7 @@ Project: jackson-databind
 Version: 2.5.0 (xx-xxx-2014)
 
 #113: Problem deserializing polymorphic types with @JsonCreator
+#408: External type id does not allow use of 'visible=true'
 #421: @JsonCreator not used in case of multiple creators with parameter names
  (reported by Lovro P, lpandzic@github)
 #521: Keep bundle annotations, prevent problems with recursive annotation

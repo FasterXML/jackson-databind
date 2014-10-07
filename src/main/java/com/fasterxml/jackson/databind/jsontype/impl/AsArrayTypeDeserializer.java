@@ -21,7 +21,7 @@ public class AsArrayTypeDeserializer
     extends TypeDeserializerBase
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 5345570420394408290L;
+    private static final long serialVersionUID = 1L;
 
     public AsArrayTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl)
@@ -93,7 +93,12 @@ public class AsArrayTypeDeserializer
         String typeId = _locateTypeId(jp, ctxt);
         JsonDeserializer<Object> deser = _findDeserializer(ctxt, typeId);
         // Minor complication: we may need to merge type id in?
-        if (_typeIdVisible && jp.getCurrentToken() == JsonToken.START_OBJECT) {
+        if (_typeIdVisible
+                // 06-Oct-2014, tatu: To fix [databind#408], must distinguish between
+                //   internal and external properties
+                //  TODO: but does it need to be injected in external case? Why not?
+                && !_usesExternalId()
+                && jp.getCurrentToken() == JsonToken.START_OBJECT) {
             // but what if there's nowhere to add it in? Error? Or skip? For now, skip.
             TokenBuffer tb = new TokenBuffer(null, false);
             tb.writeStartObject(); // recreate START_OBJECT
@@ -114,7 +119,7 @@ public class AsArrayTypeDeserializer
     protected final String _locateTypeId(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         if (!jp.isExpectedStartArrayToken()) {
-            // [JACKSON-712] Need to allow even more customized handling, if something unexpected seen...
+            // Need to allow even more customized handling, if something unexpected seen...
             // but should there be a way to limit this to likely success cases?
             if (_defaultImpl != null) {
                 return _idResolver.idFromBaseType();
@@ -132,5 +137,12 @@ public class AsArrayTypeDeserializer
             return _idResolver.idFromBaseType();
         }
         throw ctxt.wrongTokenException(jp, JsonToken.VALUE_STRING, "need JSON String that contains type id (for subtype of "+baseTypeName()+")");
+    }
+
+    /**
+     * @since 2.5
+     */
+    protected boolean _usesExternalId() {
+        return false;
     }
 }

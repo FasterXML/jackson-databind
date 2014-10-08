@@ -908,7 +908,7 @@ public class ObjectMapper
     /* Configuration: mix-in annotations
     /**********************************************************
      */
-    
+
     /**
      * Method to use for defining mix-in annotations to use for augmenting
      * annotations that processable (serializable / deserializable)
@@ -920,8 +920,10 @@ public class ObjectMapper
      * Annotations from source classes (and their supertypes)
      * will <b>override</b>
      * annotations that target classes (and their super-types) have.
+     *
+     * @since 2.5
      */
-    public final void setMixInAnnotations(Map<Class<?>, Class<?>> sourceMixins)
+    public ObjectMapper setMixIns(Map<Class<?>, Class<?>> sourceMixins)
     {
         _mixInAnnotations.clear();
         if (sourceMixins != null && sourceMixins.size() > 0) {
@@ -929,24 +931,22 @@ public class ObjectMapper
                 _mixInAnnotations.put(new ClassKey(en.getKey()), en.getValue());
             }
         }
+        return this;
     }
 
     /**
-     * Method to use for adding mix-in annotations to use for augmenting
-     * specified class or interface. All annotations from
-     * <code>mixinSource</code> are taken to override annotations
-     * that <code>target</code> (or its supertypes) has.
-     *
-     * @param target Class (or interface) whose annotations to effectively override
-     * @param mixinSource Class (or interface) whose annotations are to
-     *   be "added" to target's annotations, overriding as necessary
-     *
-     * @deprecated Replaced by a fluent form of the method; {@link #addMixIn(Class, Class)}.
+     * @deprecated Since 2.5: replaced by a fluent form of the method; {@link #setMixIns(Class, Class)}.
+     */
+    public void setMixInAnnotations(Map<Class<?>, Class<?>> sourceMixins) {
+        setMixIns(sourceMixins);
+    }
+
+    /**
+     * @deprecated Since 2.5: replaced by a fluent form of the method; {@link #addMixIn(Class, Class)}.
      */
     @Deprecated
-    public final void addMixInAnnotations(Class<?> target, Class<?> mixinSource)
-    {
-        _mixInAnnotations.put(new ClassKey(target), mixinSource);
+    public final void addMixInAnnotations(Class<?> target, Class<?> mixinSource) {
+        addMixIn(target, mixinSource);
     }
 
     /**
@@ -958,18 +958,20 @@ public class ObjectMapper
      * @param target Class (or interface) whose annotations to effectively override
      * @param mixinSource Class (or interface) whose annotations are to
      *   be "added" to target's annotations, overriding as necessary
+     *
+     * @since 2.5
      */
-    public final ObjectMapper addMixIn(Class<?> target, Class<?> mixinSource)
+    public ObjectMapper addMixIn(Class<?> target, Class<?> mixinSource)
     {
         _mixInAnnotations.put(new ClassKey(target), mixinSource);
         return this;
     }
 
-    public final Class<?> findMixInClassFor(Class<?> cls) {
+    public Class<?> findMixInClassFor(Class<?> cls) {
         return (_mixInAnnotations == null) ? null : _mixInAnnotations.get(new ClassKey(cls));
     }
 
-    public final int mixInCount() {
+    public int mixInCount() {
         return (_mixInAnnotations == null) ? 0 : _mixInAnnotations.size();
     }
     

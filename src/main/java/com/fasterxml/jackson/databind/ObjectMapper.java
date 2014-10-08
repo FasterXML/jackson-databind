@@ -935,21 +935,6 @@ public class ObjectMapper
     }
 
     /**
-     * @deprecated Since 2.5: replaced by a fluent form of the method; {@link #setMixIns(Class, Class)}.
-     */
-    public void setMixInAnnotations(Map<Class<?>, Class<?>> sourceMixins) {
-        setMixIns(sourceMixins);
-    }
-
-    /**
-     * @deprecated Since 2.5: replaced by a fluent form of the method; {@link #addMixIn(Class, Class)}.
-     */
-    @Deprecated
-    public final void addMixInAnnotations(Class<?> target, Class<?> mixinSource) {
-        addMixIn(target, mixinSource);
-    }
-
-    /**
      * Method to use for adding mix-in annotations to use for augmenting
      * specified class or interface. All annotations from
      * <code>mixinSource</code> are taken to override annotations
@@ -973,6 +958,23 @@ public class ObjectMapper
 
     public int mixInCount() {
         return (_mixInAnnotations == null) ? 0 : _mixInAnnotations.size();
+    }
+
+
+    /**
+     * @deprecated Since 2.5: replaced by a fluent form of the method; {@link #setMixIns(Class, Class)}.
+     */
+    @Deprecated
+    public void setMixInAnnotations(Map<Class<?>, Class<?>> sourceMixins) {
+        setMixIns(sourceMixins);
+    }
+
+    /**
+     * @deprecated Since 2.5: replaced by a fluent form of the method; {@link #addMixIn(Class, Class)}.
+     */
+    @Deprecated
+    public final void addMixInAnnotations(Class<?> target, Class<?> mixinSource) {
+        addMixIn(target, mixinSource);
     }
     
     /*

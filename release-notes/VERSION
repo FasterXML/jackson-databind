@@ -28,12 +28,43 @@ Version: 2.5.0 (xx-xxx-2014)
 === History: ===
 ------------------------------------------------------------------------
 
+Version: 2.4.3 (02-Oct-2014)
+
+#496: Wrong result with `new TextNode("false").asBoolean(true)`
+ (reported by Ivar R, ivarru@github)
+#511: DeserializationFeature.FAIL_ON_INVALID_SUBTYPE does not work
+ (reported by sbelikov@github)
+#523: MapDeserializer and friends do not report the field/key name for mapping exceptions
+ (reported by Ian B, tea-dragon@github)
+#524: @JsonIdentityReference(alwaysAsId = true) Custom resolver is reset to SimpleObjectIdResolver
+ (reported by pkokorev@github)
+#541: @JsonProperty in @JsonCreator is conflicting with POJOs getters/attributes
+ (reported by fabienrenaud@github)
+#543: Problem resolving self-referential generic types
+#570: Add Support for Parsing All Compliant ISO-8601 Date Formats
+ (requested by pfconrey@github)
+- Fixed a problem with `acceptJsonFormatVisitor` with Collection/array types that
+  are marked with `@JsonValue`; could cause NPE in JSON Schema generator module.
+
 2.4.2 (14-Aug-2014)
+
+#515: Mixin annotations lost when using a mixin class hierarchy with non-mixin interfaces
+ (reported by 'stevebread@github')
+- Fixed a problem related to [jackson-dataformat-smile#19].
+
+2.4.1.2 (12-Jul-2014)
+
+Special one-off "micro patch" for:
+
+#503: Concurrency issue inside com.fasterxml.jackson.databind.util.LRUMap.get(Object)
+ (reported by fjtc@github)
+
+2.4.1.1 (18-Jun-2014)
+
+Special one-off "micro patch" for:
 
 #491: Temporary work-around for issue #490 (full fix for 2.5 needs to be
   in `jackson-annotations`)
-#503: Concurrency issue inside com.fasterxml.jackson.databind.util.LRUMap.get(Object)
- (reported by fjtc@github)
 #506: Index is never set for Collection and Array in InvalidFormatException.Reference
  (reported by Fabrice D, fabdouglas@github)
 - Fixed a problem related to [jackson-dataformat-smile#19].

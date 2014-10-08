@@ -37,19 +37,27 @@ public class ToStringSerializer
      */
     public ToStringSerializer() { super(Object.class); }
 
+    /**
+     * Sometimes it may actually make sense to retain actual handled type, so...
+     * 
+     * @since 2.5
+     */
+    public ToStringSerializer(Class<?> handledType) {
+        super(handledType, false);
+    }
+    
     @Override
     public boolean isEmpty(Object value) {
         if (value == null) {
             return true;
         }
         String str = value.toString();
-        // would use String.isEmpty(), but that's JDK 1.6
-        return (str == null) || (str.length() == 0);
+        return str.isEmpty();
     }
     
     @Override
     public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         jgen.writeString(value.toString());
     }
@@ -68,7 +76,7 @@ public class ToStringSerializer
     @Override
     public void serializeWithType(Object value, JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         typeSer.writeTypePrefixForScalar(value, jgen);
         serialize(value, jgen, provider);
@@ -76,15 +84,12 @@ public class ToStringSerializer
     }
     
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
-    {
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
         return createSchemaNode("string", true);
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {
         if (visitor != null) {
             visitor.expectStringFormat(typeHint);

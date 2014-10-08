@@ -147,3 +147,8 @@ Steve Sanbeg: (sanbeg@github)
 Lovro Pandžić (lpandzic@github)
   * Reported #421: @JsonCreator not used in case of multiple creators with parameter names
    (2.5.0)
+
+Adam Stroud (adstro@github)
+  * Contributed	#576: Add fluent API for adding mixins
+   (2.5.0)
+

@@ -8,15 +8,8 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-public class TestAnyGetter
-    extends BaseMapTest
+public class TestAnyGetter extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper bean classes
-    /**********************************************************
-     */
-
     static class Bean
     {
         final static Map<String,Boolean> extra = new HashMap<String,Boolean>();
@@ -40,17 +33,32 @@ public class TestAnyGetter
         }
     }
 
+    static class MapAsAny
+    {
+        protected Map<String,Object> stuff = new LinkedHashMap<String,Object>();
+        
+        @JsonAnyGetter
+        public Map<String,Object> any() {
+            return stuff;
+        }
+
+        public void add(String key, Object value) {
+            stuff.put(key, value);
+        }
+    }
+    
     /*
     /**********************************************************
     /* Test cases
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
     public void testSimpleJsonValue() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        String json = serializeAsString(m, new Bean());
-        Map<?,?> map = m.readValue(json, Map.class);
+        String json = MAPPER.writeValueAsString(new Bean());
+        Map<?,?> map = MAPPER.readValue(json, Map.class);
         assertEquals(2, map.size());
         assertEquals(Integer.valueOf(3), map.get("x"));
         assertEquals(Boolean.TRUE, map.get("a"));
@@ -72,5 +80,14 @@ public class TestAnyGetter
         m.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         json = serializeAsString(m, new AnyOnlyBean());
         assertEquals("{\"a\":3}", json);
+    }
+
+    // Trying to repro [databind#577]
+    public void testAnyWithNull() throws Exception
+    {
+        MapAsAny input = new MapAsAny();
+        input.add("bar", null);
+        assertEquals(aposToQuotes("{'bar':null}"),
+                MAPPER.writeValueAsString(input));
     }
 }

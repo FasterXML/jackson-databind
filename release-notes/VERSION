@@ -20,6 +20,8 @@ Version: 2.5.0 (xx-xxx-2014)
  (contributed by Jerome G, geronimo-iia@github)
 #559: Add `getDateFormat()`, `getPropertyNamingStrategy()` in `ObjectMapper`
 #565: Add support for handling `Map.Entry`
+#576: Add fluent API for adding mixins
+ (contributed by Adam S, adstro@github)
 - Allow use of `Shape.ARRAY` for Enums, as an alias to 'use index'
 
 ------------------------------------------------------------------------

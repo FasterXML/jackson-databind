@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -144,6 +143,20 @@ public class StringArraySerializer
     /* Actual serialization
     /**********************************************************
      */
+    
+    @Override
+    public final void serialize(String[] value, JsonGenerator jgen, SerializerProvider provider)
+        throws IOException, JsonGenerationException
+    {
+    	final int len = value.length;
+        if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+            serializeContents(value, jgen, provider);
+            return;
+        }
+        jgen.writeStartArray(len);
+        serializeContents(value, jgen, provider);
+        jgen.writeEndArray();
+    }
     
     @Override
     public void serializeContents(String[] value, JsonGenerator jgen, SerializerProvider provider)

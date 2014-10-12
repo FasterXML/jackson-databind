@@ -42,12 +42,13 @@ public abstract class ArraySerializerBase<T>
         super(src._handledType, false);
         _property = property;
     }
-    
+
+    // NOTE: as of 2.5, sub-classes SHOULD override (in 2.4 and before, was final),
+    // at least if they can provide access to actual size of value and use `writeStartArray()`
+    // variant that passes size of array to output, which is helpful with some data formats
     @Override
-    public final void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serialize(T value, JsonGenerator jgen, SerializerProvider provider) throws IOException
     {
-        // [JACKSON-805]
         if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 && hasSingleElement(value)) {
             serializeContents(value, jgen, provider);
@@ -57,7 +58,7 @@ public abstract class ArraySerializerBase<T>
         serializeContents(value, jgen, provider);
         jgen.writeEndArray();
     }
-    
+
     @Override
     public final void serializeWithType(T value, JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)
@@ -68,7 +69,7 @@ public abstract class ArraySerializerBase<T>
         serializeContents(value, jgen, provider);
         typeSer.writeTypeSuffixForArray(value, jgen);
     }
-
+    
     protected abstract void serializeContents(T value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonGenerationException;
 }

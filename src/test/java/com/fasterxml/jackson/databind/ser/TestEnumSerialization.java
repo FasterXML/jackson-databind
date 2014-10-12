@@ -203,7 +203,7 @@ public class TestEnumSerialization
     {
         // can't share, as new mix-ins are added
         ObjectMapper m = new ObjectMapper();
-        m.addMixInAnnotations(TestEnum.class, ToStringMixin.class);
+        m.addMixIn(TestEnum.class, ToStringMixin.class);
         assertEquals("\"b\"", m.writeValueAsString(TestEnum.B));
     }
 

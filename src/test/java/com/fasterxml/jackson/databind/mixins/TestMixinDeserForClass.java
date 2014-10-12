@@ -52,7 +52,7 @@ public class TestMixinDeserForClass
          * use field
          */
         m = new ObjectMapper();
-        m.addMixInAnnotations(LeafClass.class, MixIn.class);
+        m.addMixIn(LeafClass.class, MixIn.class);
         result = m.readValue("{\"a\":\"value\"}", LeafClass.class);
         assertEquals("value", result.a);
     }
@@ -63,7 +63,7 @@ public class TestMixinDeserForClass
     public void testClassMixInsMidLevel() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
-        m.addMixInAnnotations(BaseClass.class, MixIn.class);
+        m.addMixIn(BaseClass.class, MixIn.class);
         {
             BaseClass result = m.readValue("{\"a\":\"value\"}", BaseClass.class);
             assertEquals("value", result.a);
@@ -82,7 +82,7 @@ public class TestMixinDeserForClass
     public void testClassMixInsForObjectClass() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
-        m.addMixInAnnotations(Object.class, MixIn.class);
+        m.addMixIn(Object.class, MixIn.class);
         // will be seen for BaseClass
         {
             BaseClass result = m.readValue("{\"a\":\"\"}", BaseClass.class);

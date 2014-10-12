@@ -115,7 +115,7 @@ public class TestMixinSerForMethods
 
         // then with leaf-level mix-in
         mapper = new ObjectMapper();
-        mapper.addMixInAnnotations(BaseClass.class, MixIn.class);
+        mapper.addMixIn(BaseClass.class, MixIn.class);
         result = writeAndMap(mapper, bean);
         assertEquals(2, result.size());
         assertEquals("b2", result.get("b2"));
@@ -133,7 +133,7 @@ public class TestMixinSerForMethods
         Map<String,Object> result;
         LeafClass bean = new LeafClass("XXX", "b2");
 
-        mapper.addMixInAnnotations(BaseClass.class, MixIn.class);
+        mapper.addMixIn(BaseClass.class, MixIn.class);
         result = writeAndMap(mapper, bean);
         assertEquals(1, result.size());
         assertEquals("XXX", result.get("a"));
@@ -146,7 +146,7 @@ public class TestMixinSerForMethods
     public void testIntermediateMixin2() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixInAnnotations(EmptyBean.class, MixInForSimple.class);
+        mapper.addMixIn(EmptyBean.class, MixInForSimple.class);
         Map<String,Object> result = writeAndMap(mapper, new SimpleBean());
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(42), result.get("x"));
@@ -160,7 +160,7 @@ public class TestMixinSerForMethods
     public void testObjectMixin() throws IOException
     {
         ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixInAnnotations(Object.class, ObjectMixIn.class);
+        mapper.addMixIn(Object.class, ObjectMixIn.class);
 
         // First, with our bean...
         Map<String,Object> result = writeAndMap(mapper, new BaseClass("a", "b"));

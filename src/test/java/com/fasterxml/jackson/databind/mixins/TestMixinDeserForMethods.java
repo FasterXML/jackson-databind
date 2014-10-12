@@ -45,7 +45,7 @@ public class TestMixinDeserForMethods
     public void testWithAnySetter() throws IOException
     {
         ObjectMapper m = new ObjectMapper();
-        m.addMixInAnnotations(BaseClass.class, MixIn.class);
+        m.addMixIn(BaseClass.class, MixIn.class);
         BaseClass result = m.readValue("{ \"a\" : 3, \"b\" : true }", BaseClass.class);
         assertNotNull(result);
         assertEquals(2, result.values.size());

@@ -176,7 +176,7 @@ public class TestMixinSerWithViews
 
         // Property SerializationConfig.SerializationFeature.DEFAULT_VIEW_INCLUSION set to false
         mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, Boolean.FALSE);
-        mapper.addMixInAnnotations(A.class, AMixInAnnotation.class);
+        mapper.addMixIn(A.class, AMixInAnnotation.class);
         String json = mapper.writerWithView(AView.class).writeValueAsString(a);
 
         assertTrue(json.indexOf("\"name\"") > 0);
@@ -199,7 +199,7 @@ public class TestMixinSerWithViews
       sourceMixins.put( SimpleTestData.class, TestDataJAXBMixin.class );
       sourceMixins.put( ComplexTestData.class, TestComplexDataJAXBMixin.class );
       
-      objectMapper.setMixInAnnotations(sourceMixins);
+      objectMapper.setMixIns(sourceMixins);
       return objectMapper;
     }
 }

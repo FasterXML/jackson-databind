@@ -23,6 +23,9 @@ Version: 2.5.0 (xx-xxx-2014)
 #576: Add fluent API for adding mixins
  (contributed by Adam S, adstro@github)
 - Allow use of `Shape.ARRAY` for Enums, as an alias to 'use index'
+- Start using `JsonGenerator.writeStartArray(int)` to help data formats
+  that benefit from knowing number of elements in arrays (and would otherwise
+  need to buffer values to know length)
 
 ------------------------------------------------------------------------
 === History: ===

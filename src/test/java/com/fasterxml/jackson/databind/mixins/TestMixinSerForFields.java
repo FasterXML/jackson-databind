@@ -69,7 +69,7 @@ public class TestMixinSerForFields
 
         // and then with simple mix-in
         mapper = new ObjectMapper();
-        mapper.addMixInAnnotations(BaseClass.class, MixIn.class);
+        mapper.addMixIn(BaseClass.class, MixIn.class);
         result = writeAndMap(mapper, bean);
         assertEquals(2, result.size());
         assertEquals("1", result.get("a"));
@@ -83,7 +83,7 @@ public class TestMixinSerForFields
         HashMap<Class<?>,Class<?>> mixins = new HashMap<Class<?>,Class<?>>();
         mixins.put(SubClass.class, MixIn.class);
         mixins.put(BaseClass.class, MixIn2.class);
-        mapper.setMixInAnnotations(mixins);
+        mapper.setMixIns(mixins);
 
         Map<String,Object> result;
         result = writeAndMap(mapper, new SubClass("1", "2"));

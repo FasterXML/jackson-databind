@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
@@ -72,16 +73,28 @@ public class CollectionSerializer
         it.next();
         return !it.hasNext();
     }
-    
+
     /*
     /**********************************************************
     /* Actual serialization
     /**********************************************************
      */
+
+    @Override
+    public final void serialize(Collection<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    {
+    	final int len = value.size();
+        if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+            serializeContents(value, jgen, provider);
+            return;
+        }
+        jgen.writeStartArray(len);
+        serializeContents(value, jgen, provider);
+        jgen.writeEndArray();
+    }
     
     @Override
-    public void serializeContents(Collection<?> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serializeContents(Collection<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
     {
         if (_elementSerializer != null) {
             serializeContentsUsing(value, jgen, provider, _elementSerializer);

@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
@@ -117,6 +116,19 @@ public class StdArraySerializers
         @Override
         public boolean hasSingleElement(boolean[] value) {
             return (value.length == 1);
+        }
+
+        @Override
+        public final void serialize(boolean[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        {
+        	final int len = value.length;
+            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+                serializeContents(value, jgen, provider);
+                return;
+            }
+            jgen.writeStartArray(len);
+            serializeContents(value, jgen, provider);
+            jgen.writeEndArray();
         }
         
         @Override
@@ -244,6 +256,19 @@ public class StdArraySerializers
         public boolean hasSingleElement(short[] value) {
             return (value.length == 1);
         }
+
+        @Override
+        public final void serialize(short[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        {
+        	final int len = value.length;
+            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+                serializeContents(value, jgen, provider);
+                return;
+            }
+            jgen.writeStartArray(len);
+            serializeContents(value, jgen, provider);
+            jgen.writeEndArray();
+        }
         
         @SuppressWarnings("cast")
         @Override
@@ -307,7 +332,7 @@ public class StdArraySerializers
         {
             // [JACKSON-289] allows serializing as 'sparse' char array too:
             if (provider.isEnabled(SerializationFeature.WRITE_CHAR_ARRAYS_AS_JSON_ARRAYS)) {
-                jgen.writeStartArray();
+                jgen.writeStartArray(value.length);
                 _writeArrayContents(jgen, value);
                 jgen.writeEndArray();
             } else {
@@ -401,8 +426,21 @@ public class StdArraySerializers
         }
 
         @Override
+        public final void serialize(int[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        {
+        	final int len = value.length;
+            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+                serializeContents(value, jgen, provider);
+                return;
+            }
+            jgen.writeStartArray(len);
+            serializeContents(value, jgen, provider);
+            jgen.writeEndArray();
+        }
+
+        @Override
         public void serializeContents(int[] value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 jgen.writeNumber(value[i]);
@@ -463,10 +501,23 @@ public class StdArraySerializers
         public boolean hasSingleElement(long[] value) {
             return (value.length == 1);
         }
+
+        @Override
+        public final void serialize(long[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        {
+        	final int len = value.length;
+            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+                serializeContents(value, jgen, provider);
+                return;
+            }
+            jgen.writeStartArray(len);
+            serializeContents(value, jgen, provider);
+            jgen.writeEndArray();
+        }
         
         @Override
         public void serializeContents(long[] value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             if (_valueTypeSerializer != null) {
                 for (int i = 0, len = value.length; i < len; ++i) {
@@ -541,6 +592,19 @@ public class StdArraySerializers
         public boolean hasSingleElement(float[] value) {
             return (value.length == 1);
         }
+
+        @Override
+        public final void serialize(float[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        {
+        	final int len = value.length;
+            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+                serializeContents(value, jgen, provider);
+                return;
+            }
+            jgen.writeStartArray(len);
+            serializeContents(value, jgen, provider);
+            jgen.writeEndArray();
+        }
         
         @Override
         public void serializeContents(float[] value, JsonGenerator jgen, SerializerProvider provider)
@@ -613,10 +677,22 @@ public class StdArraySerializers
         public boolean hasSingleElement(double[] value) {
             return (value.length == 1);
         }
+
+        @Override
+        public final void serialize(double[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+        {
+        	final int len = value.length;
+            if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+                serializeContents(value, jgen, provider);
+                return;
+            }
+            jgen.writeStartArray(len);
+            serializeContents(value, jgen, provider);
+            jgen.writeEndArray();
+        }
         
         @Override
-        public void serializeContents(double[] value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+        public void serializeContents(double[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
         {
             for (int i = 0, len = value.length; i < len; ++i) {
                 jgen.writeNumber(value[i]);
@@ -630,7 +706,7 @@ public class StdArraySerializers
         
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
+            throws JsonMappingException
         {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);

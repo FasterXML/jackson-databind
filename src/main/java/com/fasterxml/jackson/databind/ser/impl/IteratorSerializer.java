@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ser.impl;
 import java.io.IOException;
 import java.util.Iterator;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -50,8 +49,20 @@ public class IteratorSerializer
     }
 
     @Override
+    public final void serialize(Iterator<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException
+    {
+        if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED) && hasSingleElement(value)) {
+            serializeContents(value, jgen, provider);
+            return;
+        }
+        jgen.writeStartArray();
+        serializeContents(value, jgen, provider);
+        jgen.writeEndArray();
+    }
+    
+    @Override
     public void serializeContents(Iterator<?> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         if (value.hasNext()) {
             final TypeSerializer typeSer = _valueTypeSerializer;

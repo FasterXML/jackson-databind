@@ -112,7 +112,7 @@ public final class IndexedStringListSerializer
             return;
         }
         
-        jgen.writeStartArray();
+        jgen.writeStartArray(len);
         if (_serializer == null) {
             serializeContents(value, jgen, provider, len);
         } else {

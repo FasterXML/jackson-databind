@@ -152,7 +152,7 @@ public class TestObjectMapper extends BaseMapTest
         assertEquals(0, m.getDeserializationConfig().mixInCount());
         assertEquals(0, m2.getDeserializationConfig().mixInCount());
 
-        m.addMixInAnnotations(String.class, Integer.class);
+        m.addMixIn(String.class, Integer.class);
         assertEquals(1, m.getSerializationConfig().mixInCount());
         assertEquals(0, m2.getSerializationConfig().mixInCount());
         assertEquals(1, m.getDeserializationConfig().mixInCount());

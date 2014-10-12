@@ -48,7 +48,7 @@ public class TestTypeModifierNameResolution extends BaseMapTest
 	{
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setTypeFactory(mapper.getTypeFactory().withModifier(new CustomTypeModifier()));
-		mapper.addMixInAnnotations(MyType.class, Mixin.class);
+		mapper.addMixIn(MyType.class, Mixin.class);
 
 		MyType obj = new MyTypeImpl();
 		obj.setData("something");

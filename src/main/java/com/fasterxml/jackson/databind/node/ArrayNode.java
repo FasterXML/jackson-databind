@@ -96,14 +96,13 @@ public class ArrayNode
     @Override
     public void serialize(JsonGenerator jg, SerializerProvider provider) throws IOException, JsonProcessingException
     {
-        jg.writeStartArray();
-        for (JsonNode n : _children) {
-            /* 17-Feb-2009, tatu: Can we trust that all nodes will always
-             *   extend BaseJsonNode? Or if not, at least implement
-             *   JsonSerializable? Let's start with former, change if
-             *   we must.
-             */
-            ((BaseJsonNode)n).serialize(jg, provider);
+    	final List<JsonNode> c = _children;
+    	final int size = c.size();
+        jg.writeStartArray(size);
+        for (int i = 0; i < size; ++i) { // we'll typically have array list
+        	// Can we trust that all nodes will always extend BaseJsonNode? Or if not,
+        	// at least implement JsonSerializable? Let's start with former, change if must
+            ((BaseJsonNode) c.get(i)).serialize(jg, provider);
         }
         jg.writeEndArray();
     }

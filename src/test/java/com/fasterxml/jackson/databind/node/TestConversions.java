@@ -126,7 +126,7 @@ public class TestConversions extends BaseMapTest
     {
         String JSON = "{\"leaf\":{\"value\":13}}";
         ObjectMapper mapper = new ObjectMapper();
-        mapper.addMixInAnnotations(Leaf.class, LeafMixIn.class);
+        mapper.addMixIn(Leaf.class, LeafMixIn.class);
         JsonNode root = mapper.readTree(JSON);
         // Ok, try converting to bean using two mechanisms
         Root r1 = mapper.treeToValue(root, Root.class);

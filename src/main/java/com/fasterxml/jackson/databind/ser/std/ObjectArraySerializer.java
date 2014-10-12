@@ -187,6 +187,20 @@ public class ObjectArraySerializer
     /* Actual serialization
     /**********************************************************
      */
+
+    @Override
+    public final void serialize(Object[] value, JsonGenerator jgen, SerializerProvider provider)
+        throws IOException, JsonGenerationException
+    {
+    	final int len = value.length;
+        if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+            serializeContents(value, jgen, provider);
+            return;
+        }
+        jgen.writeStartArray(len);
+        serializeContents(value, jgen, provider);
+        jgen.writeEndArray();
+    }
     
     @Override
     public void serializeContents(Object[] value, JsonGenerator jgen, SerializerProvider provider)

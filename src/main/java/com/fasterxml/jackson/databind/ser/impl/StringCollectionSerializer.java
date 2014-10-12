@@ -116,11 +116,12 @@ public class StringCollectionSerializer
         throws IOException, JsonGenerationException
     {
         // [JACKSON-805]
-        if ((value.size() == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
+    	final int len = value.size();
+        if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
             _serializeUnwrapped(value, jgen, provider);
             return;
         }      
-        jgen.writeStartArray();
+        jgen.writeStartArray(len);
         if (_serializer == null) {
             serializeContents(value, jgen, provider);
         } else {

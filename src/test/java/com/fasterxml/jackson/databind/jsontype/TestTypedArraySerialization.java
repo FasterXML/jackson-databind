@@ -125,7 +125,7 @@ public class TestTypedArraySerialization
     public void testIntArray() throws Exception
     {
         ObjectMapper m = new ObjectMapper();
-        m.addMixInAnnotations(int[].class, WrapperMixIn.class);
+        m.addMixIn(int[].class, WrapperMixIn.class);
         int[] input = new int[] { 1, 2, 3 };
         String clsName = int[].class.getName();
         assertEquals("{\""+clsName+"\":[1,2,3]}", serializeAsString(m, input));

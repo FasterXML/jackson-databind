@@ -7,9 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
-
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -152,6 +150,19 @@ public class TestEnumSerialization
             jgen.writeString(value.name().toLowerCase());
         }
     }
+
+    // for [databind#572]
+    static class PoOverrideAsString
+    {
+        @JsonFormat(shape=Shape.STRING)
+        public PoNUM value = PoNUM.B;
+    }
+
+    static class PoOverrideAsNumber
+    {
+        @JsonFormat(shape=Shape.NUMBER)
+        public PoNUM value = PoNUM.B;
+    }
     
     /*
     /**********************************************************
@@ -289,6 +300,15 @@ public class TestEnumSerialization
         module.addSerializer(Enum.class, new LowerCasingEnumSerializer());
         m.registerModule(module);
         assertEquals(quote("b"), m.writeValueAsString(TestEnum.B));
+    }
+
+    // [databind#572]
+    public void testOverrideEnumAsString() throws Exception {
+        assertEquals("{\"value\":\"B\"}", mapper.writeValueAsString(new PoOverrideAsString()));
+    }
+
+    public void testOverrideEnumAsNumber() throws Exception {
+        assertEquals("{\"value\":1}", mapper.writeValueAsString(new PoOverrideAsNumber()));
     }
 }
 

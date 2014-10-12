@@ -369,19 +369,49 @@ public abstract class BeanSerializerBase
         return null;
     }
 
+    @SuppressWarnings("incomplete-switch")
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider provider,
             BeanProperty property)
         throws JsonMappingException
     {
-        ObjectIdWriter oiw = _objectIdWriter;
-        String[] ignorals = null;
-        Object newFilterId = null;
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         final AnnotatedMember accessor = (property == null || intr == null)
                 ? null : property.getMember();
+        final SerializationConfig config = provider.getConfig();
         
-        // First: may have an override for Object Id:
+        // Let's start with one big transmutation: Enums that are annotated
+        // to serialize as Objects may want to revert
+        JsonFormat.Shape shape = null;
+        if (accessor != null) {
+            JsonFormat.Value format = intr.findFormat((Annotated) accessor);
+
+            if (format != null) {
+                shape = format.getShape();
+                // or, alternatively, asked to revert "back to" other representations...
+                if (shape != _serializationShape) {
+                    if (_handledType.isEnum()) {
+                        switch (shape) {
+                        case STRING:
+                        case NUMBER:
+                        case NUMBER_INT:
+                            // 12-Oct-2014, tatu: May need to introspect full annotations... but
+                            //   for now, just do class ones
+                            BeanDescription desc = config.introspectClassAnnotations(_handledType);
+                            JsonSerializer<?> ser = EnumSerializer.construct(_handledType,
+                                    provider.getConfig(), desc, format);
+                            return provider.handlePrimaryContextualization(ser, property);
+                        }
+                    }
+                }
+            }
+        }
+
+        ObjectIdWriter oiw = _objectIdWriter;
+        String[] ignorals = null;
+        Object newFilterId = null;
+        
+        // Then we may have an override for Object Id
         if (accessor != null) {
             ignorals = intr.findPropertiesToIgnore(accessor);
             ObjectIdInfo objectIdInfo = intr.findObjectIdInfo(accessor);
@@ -467,21 +497,11 @@ public abstract class BeanSerializerBase
         if (newFilterId != null) {
             contextual = contextual.withFilterId(newFilterId);
         }
-        
-        // One more thing: are we asked to serialize POJO as array?
-        JsonFormat.Shape shape = null;
-        if (accessor != null) {
-            JsonFormat.Value format = intr.findFormat((Annotated) accessor);
-
-            if (format != null) {
-                shape = format.getShape();
-            }
-        }
         if (shape == null) {
             shape = _serializationShape;
         }
         if (shape == JsonFormat.Shape.ARRAY) {
-            contextual = contextual.asArraySerializer();
+            return contextual.asArraySerializer();
         }
         return contextual;
     }

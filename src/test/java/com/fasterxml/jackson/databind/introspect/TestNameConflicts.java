@@ -109,11 +109,17 @@ public class TestNameConflicts extends BaseMapTest
     // for [jackson-core#158]
     public void testOverrideName() throws Exception
     {
-        String json = MAPPER.writeValueAsString(new CoreBean158());
+        final ObjectMapper mapper = objectMapper();
+        String json = mapper.writeValueAsString(new CoreBean158());
         assertEquals(aposToQuotes("{'bar':'x'}"), json);
-        
+
         // and back
-        CoreBean158 result = MAPPER.readValue(aposToQuotes("{'bar':'y'}"), CoreBean158.class);
+        CoreBean158 result = null;
+        try {
+            result = mapper.readValue(aposToQuotes("{'bar':'y'}"), CoreBean158.class);
+        } catch (Exception e) {
+            fail("Unexpected failure when reading CoreBean158: "+e);
+        }
         assertNotNull(result);
         assertEquals("y", result.bar);
     }    

@@ -7,7 +7,6 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -75,11 +74,12 @@ public class EnumSerializer
      * 
      * @since 2.1
      */
-    public static EnumSerializer construct(Class<Enum<?>> enumClass, SerializationConfig config,
+    @SuppressWarnings("unchecked")
+    public static EnumSerializer construct(Class<?> enumClass, SerializationConfig config,
             BeanDescription beanDesc, JsonFormat.Value format)
     {
         // [JACKSON-212]: If toString() is to be used instead, leave EnumValues null
-        EnumValues v = EnumValues.construct(config, enumClass);
+        EnumValues v = EnumValues.construct(config, (Class<Enum<?>>) enumClass);
         Boolean serializeAsIndex = _isShapeWrittenUsingIndex(enumClass, format, true);
         return new EnumSerializer(v, serializeAsIndex);
     }
@@ -92,7 +92,6 @@ public class EnumSerializer
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException
     {
-System.err.println("DEBUG: createContextual... prop = "+property);    	
         if (property != null) {
             JsonFormat.Value format = prov.getAnnotationIntrospector().findFormat((Annotated) property.getMember());
             if (format != null) {

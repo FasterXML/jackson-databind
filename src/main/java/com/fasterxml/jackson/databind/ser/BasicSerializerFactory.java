@@ -865,7 +865,7 @@ public abstract class BasicSerializerFactory
             JavaType type, BeanDescription beanDesc)
         throws JsonMappingException
     {
-        /* As per [Issue#24], may want to use alternate shape, serialize as JSON Object.
+        /* As per [databind#24], may want to use alternate shape, serialize as JSON Object.
          * Challenge here is that EnumSerializer does not know how to produce
          * POJO style serialization, so we must handle that special case separately;
          * otherwise pass it to EnumSerializer.

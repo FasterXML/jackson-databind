@@ -92,6 +92,7 @@ public class EnumSerializer
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property) throws JsonMappingException
     {
+System.err.println("DEBUG: createContextual... prop = "+property);    	
         if (property != null) {
             JsonFormat.Value format = prov.getAnnotationIntrospector().findFormat((Annotated) property.getMember());
             if (format != null) {
@@ -120,7 +121,7 @@ public class EnumSerializer
     
     @Override
     public final void serialize(Enum<?> en, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         // [JACKSON-684]: serialize as index?
         if (_serializeAsIndex(provider)) {
@@ -152,7 +153,7 @@ public class EnumSerializer
     
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-            throws JsonMappingException
+        throws JsonMappingException
     {
         // [JACKSON-684]: serialize as index?
         if (visitor.getProvider().isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {

@@ -19,6 +19,8 @@ Version: 2.5.0 (xx-xxx-2014)
 #552: Improved handling for ISO-8601 (date) format
  (contributed by Jerome G, geronimo-iia@github)
 #559: Add `getDateFormat()`, `getPropertyNamingStrategy()` in `ObjectMapper`
+#560: @JsonCreator to deserialize BigInteger to Enum
+ (requested by gisupp@github)
 #565: Add support for handling `Map.Entry`
 #572: Override default serialization of Enums
  (requested by herau@github)

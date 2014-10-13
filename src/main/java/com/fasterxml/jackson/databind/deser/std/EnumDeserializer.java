@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
 
@@ -17,7 +18,7 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
 public class EnumDeserializer
     extends StdScalarDeserializer<Enum<?>>
 {
-    private static final long serialVersionUID = -5893263645879532318L;
+    private static final long serialVersionUID = 1L;
 
     protected final EnumResolver<?> _resolver;
     
@@ -39,16 +40,6 @@ public class EnumDeserializer
     {
         // note: caller has verified there's just one arg; but we must verify its type
         Class<?> paramClass = factory.getRawParameterType(0);
-        if (paramClass == String.class) {
-            paramClass = null;
-        } else  if (paramClass == Integer.TYPE || paramClass == Integer.class) {
-            paramClass = Integer.class;
-        } else  if (paramClass == Long.TYPE || paramClass == Long.class) {
-            paramClass = Long.class;
-        } else {
-            throw new IllegalArgumentException("Parameter #0 type for factory method ("+factory
-                    +") not suitable, must be java.lang.String or int/Integer/long/Long");
-        }
         if (config.canOverrideAccessModifiers()) {
             ClassUtil.checkAndFixAccess(factory.getMember());
         }
@@ -158,48 +149,71 @@ public class EnumDeserializer
      * for locating Enum values by String id.
      */
     protected static class FactoryBasedDeserializer
-        extends StdScalarDeserializer<Object>
+        extends StdDeserializer<Object>
+        implements ContextualDeserializer
     {
-        private static final long serialVersionUID = -7775129435872564122L;
+        private static final long serialVersionUID = 1;
 
-        protected final Class<?> _enumClass;
         // Marker type; null if String expected; otherwise numeric wrapper
         protected final Class<?> _inputType;
         protected final Method _factory;
+        protected final JsonDeserializer<?> _deser;
         
         public FactoryBasedDeserializer(Class<?> cls, AnnotatedMethod f,
                 Class<?> inputType)
         {
-            super(Enum.class);
-            _enumClass = cls;
+            super(cls);
             _factory = f.getAnnotated();
             _inputType = inputType;
+            _deser = null;
         }
 
+        protected FactoryBasedDeserializer(FactoryBasedDeserializer base,
+                JsonDeserializer<?> deser) {
+            super(base._valueClass);
+            _inputType = base._inputType;
+            _factory = base._factory;
+            _deser = deser;
+        }
+        
         @Override
-        public Object deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property)
+            throws JsonMappingException
         {
-            // couple of accepted types...
+            if ((_deser == null) && (_inputType != String.class)) {
+                return new FactoryBasedDeserializer(this,
+                        ctxt.findContextualValueDeserializer(ctxt.constructType(_inputType), property));
+            }
+            return this;
+        }
+        
+        @Override
+        public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        {
             Object value;
-            if (_inputType == null) {
-                value = jp.getText();
-            } else  if (_inputType == Integer.class) {
-                value = Integer.valueOf(jp.getValueAsInt());
-            } else  if (_inputType == Long.class) {
-                value = Long.valueOf(jp.getValueAsLong());
+            if (_deser != null) {
+                value = _deser.deserialize(jp, ctxt);
             } else {
-                throw ctxt.mappingException(_enumClass);
+                value = jp.getValueAsString();
             }
             try {
-                return _factory.invoke(_enumClass, value);
+                return _factory.invoke(_valueClass, value);
             } catch (Exception e) {
                 Throwable t = ClassUtil.getRootCause(e);
                 if (t instanceof IOException) {
                     throw (IOException) t;
                 }
-                throw ctxt.instantiationException(_enumClass, t);
+                throw ctxt.instantiationException(_valueClass, t);
             }
+        }
+
+        @Override
+        public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+            if (_deser == null) { // String never has type info
+                return deserialize(jp, ctxt);
+            }
+            return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
         }
     }
 }

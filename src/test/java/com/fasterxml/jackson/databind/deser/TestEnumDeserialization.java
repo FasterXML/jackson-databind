@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
@@ -48,7 +48,7 @@ public class TestEnumDeserialization
             return TestEnum.valueOf(jp.getText().toUpperCase());
         }
     }
-    
+
     protected enum EnumWithCreator {
         A, B;
 
@@ -56,6 +56,17 @@ public class TestEnumDeserialization
         public static EnumWithCreator fromEnum(String str) {
             if ("enumA".equals(str)) return A;
             if ("enumB".equals(str)) return B;
+            return null;
+        }
+    }
+
+    protected enum EnumWithBDCreator {
+        E5, E8;
+
+        @JsonCreator
+        public static EnumWithBDCreator create(BigDecimal bd) {
+            if (bd.longValue() == 5L) return E5;
+            if (bd.longValue() == 8L) return E8;
             return null;
         }
     }
@@ -194,10 +205,14 @@ public class TestEnumDeserialization
     }
 
     // [JACKSON-193]
-    public void testCreatorEnums() throws Exception
-    {
+    public void testCreatorEnums() throws Exception {
         EnumWithCreator value = MAPPER.readValue("\"enumA\"", EnumWithCreator.class);
         assertEquals(EnumWithCreator.A, value);
+    }
+
+    public void testCreatorEnumsFromBigDecimal() throws Exception {
+        EnumWithBDCreator value = MAPPER.readValue("\"8.0\"", EnumWithBDCreator.class);
+        assertEquals(EnumWithBDCreator.E8, value);
     }
     
     // [JACKSON-212]
@@ -336,8 +351,9 @@ public class TestEnumDeserialization
     // [JACKSON-834]
     public void testEnumsFromInts() throws Exception
     {
-        TestEnumFor834 res = MAPPER.readValue("1 ", TestEnumFor834.class);
-        assertSame(TestEnumFor834.ENUM_A, res);
+        Object ob = MAPPER.readValue("1 ", TestEnumFor834.class);
+        assertEquals(TestEnumFor834.class, ob.getClass());
+        assertSame(TestEnumFor834.ENUM_A, ob);
     }
 
     // [Issue#141]: allow mapping of empty String into null

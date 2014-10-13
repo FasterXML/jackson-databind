@@ -25,7 +25,7 @@ public class EnumMapDeserializer
     
     protected final Class<?> _enumClass;
 
-    protected JsonDeserializer<Enum<?>> _keyDeserializer;
+    protected KeyDeserializer _keyDeserializer;
 
     protected JsonDeserializer<Object> _valueDeserializer;
 
@@ -41,17 +41,17 @@ public class EnumMapDeserializer
     /**********************************************************
      */
 
-    public EnumMapDeserializer(JavaType mapType, JsonDeserializer<?> keyDeserializer, JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser)
+    public EnumMapDeserializer(JavaType mapType, KeyDeserializer keyDeserializer, JsonDeserializer<?> valueDeser, TypeDeserializer valueTypeDeser)
     {
         super(mapType);
         _mapType = mapType;
         _enumClass = mapType.getKeyType().getRawClass();
-        _keyDeserializer = (JsonDeserializer<Enum<?>>) keyDeserializer;
+        _keyDeserializer = keyDeserializer;
         _valueDeserializer = (JsonDeserializer<Object>) valueDeser;
         _valueTypeDeserializer = valueTypeDeser;
     }
 
-    public EnumMapDeserializer withResolved(JsonDeserializer<?> keyDeserializer, JsonDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser)
+    public EnumMapDeserializer withResolved(KeyDeserializer keyDeserializer, JsonDeserializer<?> valueDeserializer, TypeDeserializer valueTypeDeser)
     {
         if ((keyDeserializer == _keyDeserializer) && (valueDeserializer == _valueDeserializer) && (valueTypeDeser == _valueTypeDeserializer)) {
             return this;
@@ -69,9 +69,9 @@ public class EnumMapDeserializer
         // note: instead of finding key deserializer, with enums we actually
         // work with regular deserializers (less code duplication; but not
         // quite as clean as it ought to be)
-        JsonDeserializer<?> kd = _keyDeserializer;
+        KeyDeserializer kd = _keyDeserializer;
         if (kd == null) {
-            kd = ctxt.findContextualValueDeserializer(_mapType.getKeyType(), property);
+            kd = ctxt.findKeyDeserializer(_mapType.getKeyType(), property);
         }
         JsonDeserializer<?> vd = _valueDeserializer;
         if (vd == null) {
@@ -127,19 +127,14 @@ public class EnumMapDeserializer
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
 
-        while ((jp.nextToken()) != JsonToken.END_OBJECT) {
+        while ((jp.nextToken()) == JsonToken.FIELD_NAME) {
             String keyName = jp.getCurrentName(); // just for error message
             // but we need to let key deserializer handle it separately, nonetheless
-            Enum<?> key = _keyDeserializer.deserialize(jp, ctxt);
+            Enum<?> key = (Enum<?>) _keyDeserializer.deserializeKey(keyName, ctxt);
             if (key == null) {
                 if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                    String value = null;
-                    try { // bit ugly, but will have to do; works with usual scalars
-                        if (jp.hasCurrentToken()) {
-                            value = jp.getText();
-                        }
-                    } catch (Exception e) { }
-                    throw ctxt.weirdStringException(value, _enumClass, "value not one of declared Enum instance names");
+                    throw ctxt.weirdStringException(keyName, _enumClass, "value not one of declared Enum instance names for "
+                            +_mapType.getKeyType());
                 }
                 /* 24-Mar-2012, tatu: Null won't work as a key anyway, so let's
                  *  just skip the entry then. But we must skip the value as well, if so.

@@ -162,9 +162,7 @@ public class StdKeyDeserializer extends KeyDeserializer
             return _parseLong(key);
 
         case TYPE_FLOAT:
-            /* 22-Jan-2009, tatu: Bounds/range checks would be tricky
-             *   here, so let's not bother even trying...
-             */
+            // Bounds/range checks would be tricky here, so let's not bother even trying...
             return Float.valueOf((float) _parseDouble(key));
         case TYPE_DOUBLE:
             return _parseDouble(key);

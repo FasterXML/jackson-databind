@@ -121,8 +121,6 @@ public class TestDefaultForObject
                 ".hype");
         // note: need to wrap, to get declared as Object
         String json = m.writeValueAsString(new StringBean("abc"));
-
-        System.err.println("JSON == "+json);
         
         // Ok: serialization seems to work as expected. Now deserialize:
         Object result = m.readValue(json, Object.class);

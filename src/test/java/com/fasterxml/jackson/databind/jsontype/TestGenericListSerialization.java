@@ -50,14 +50,6 @@ public class TestGenericListSerialization
     public void testSubTypesFor356() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
-        /* 06-Sep-2010, tatus: This was not fixed for 1.6; and to keep junit test
-         *   suite green, let's not run it for versions prior to 1.7...
-         */
-        Version v = mapper.version();
-        if (v.getMajorVersion() == 1 && v.getMinorVersion() == 6) {
-            System.err.println("Note: skipping test for Jackson 1.6");
-            return;
-        }
         
         JSONResponse<List<Parent>> input = new JSONResponse<List<Parent>>();
 
@@ -69,9 +61,6 @@ public class TestGenericListSerialization
 
         JavaType rootType = TypeFactory.defaultInstance().constructType(new TypeReference<JSONResponse<List<Parent>>>() { });
         byte[] json = mapper.writerWithType(rootType).writeValueAsBytes(input);
-//        byte[] json = mapper.writeValueAsBytes(input);
-
-//        System.out.println("After Serialization: " + new String(json));
         
         JSONResponse<List<Parent>> out = mapper.readValue(json, 0, json.length, rootType);
 

@@ -178,14 +178,12 @@ public class TestBeanSerializer extends BaseMapTest
         public List<BeanPropertyWriter> changeProperties(SerializationConfig config,
                 BeanDescription beanDesc, List<BeanPropertyWriter> beanProperties)
         {
-            System.err.println("DEBUG: changeProperties!");
             return beanProperties;
         }
         
         @Override
         public JsonSerializer<?> modifySerializer(SerializationConfig config,
                 BeanDescription beanDesc, JsonSerializer<?> serializer) {
-System.err.println("DEBUG: modifySer!");            
             return new BogusBeanSerializer(42);
         }
     }

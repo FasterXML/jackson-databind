@@ -72,9 +72,9 @@ public class TestContextAttributeWithDeser extends BaseMapTest
 
         // as above, should not carry on state
         TestPOJO pojo2 = MAPPER.reader(TestPOJO.class)
-                .withAttribute(KEY, Integer.valueOf(3))
+                .withAttribute(KEY, Integer.valueOf(5))
                 .readValue(INPUT);
-        assertEquals("x/3", pojo2.value);
+        assertEquals("x/5", pojo2.value);
     }
 
     public void testHierarchic() throws Exception

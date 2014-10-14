@@ -73,9 +73,15 @@ public final class MemberKey
              *    This happens with generics when a bound is specified.
              *    I hope this works; check here must be transitive
              */
+            /* 14-Oct-2014, tatu: No, doing that is wrong. Conflicts may (and will) be
+             *    handled at a later point; trying to change definition of equality
+             *    will just cause problems like [jackson-core#158]
+             */
+            /*
             if (type1.isAssignableFrom(type2) || type2.isAssignableFrom(type1)) {
                 continue;
             }
+            */
             return false;
         }
         return true;

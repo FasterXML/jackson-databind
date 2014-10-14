@@ -1,5 +1,10 @@
 Project: jackson-databind
-Version: 2.5.0 (xx-xxx-2014)
+
+------------------------------------------------------------------------
+=== Releases ===
+------------------------------------------------------------------------
+
+2.5.0 (not yet released)
 
 #113: Problem deserializing polymorphic types with @JsonCreator
 #408: External type id does not allow use of 'visible=true'
@@ -31,11 +36,12 @@ Version: 2.5.0 (xx-xxx-2014)
   that benefit from knowing number of elements in arrays (and would otherwise
   need to buffer values to know length)
 
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
+2.4.4 (not yet released)
 
-Version: 2.4.3 (02-Oct-2014)
+(jackson-core)#158: Setter confusion on assignable types
+ (reported by tsquared2763@github)
+
+2.4.3 (02-Oct-2014)
 
 #496: Wrong result with `new TextNode("false").asBoolean(true)`
  (reported by Ivar R, ivarru@github)
@@ -53,7 +59,11 @@ Version: 2.4.3 (02-Oct-2014)
 - Fixed a problem with `acceptJsonFormatVisitor` with Collection/array types that
   are marked with `@JsonValue`; could cause NPE in JSON Schema generator module.
 
+<<<<<<< HEAD
 2.4.2 (14-Aug-2014)
+=======
+2.4.2 (13-Aug-2014)
+>>>>>>> 2.4
 
 #515: Mixin annotations lost when using a mixin class hierarchy with non-mixin interfaces
  (reported by 'stevebread@github')

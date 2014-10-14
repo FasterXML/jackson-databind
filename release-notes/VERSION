@@ -1,5 +1,15 @@
 Project: jackson-databind
-Version: 2.4.3 (02-Oct-2014)
+
+------------------------------------------------------------------------
+=== Releases ===
+------------------------------------------------------------------------
+
+2.4.4 (not yet released)
+
+(jackson-core)#158: Setter confusion on assignable types
+ (reported by tsquared2763@github)
+
+2.4.3 (02-Oct-2014)
 
 #496: Wrong result with `new TextNode("false").asBoolean(true)`
  (reported by Ivar R, ivarru@github)
@@ -16,10 +26,6 @@ Version: 2.4.3 (02-Oct-2014)
  (requested by pfconrey@github)
 - Fixed a problem with `acceptJsonFormatVisitor` with Collection/array types that
   are marked with `@JsonValue`; could cause NPE in JSON Schema generator module.
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.4.2 (13-Aug-2014)
 

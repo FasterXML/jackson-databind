@@ -1,5 +1,6 @@
 language: java
 jdk:
+  - oraclejdk7
   - openjdk6
 
 # Below this line is configuration for deploying to the Sonatype OSS repo
@@ -11,6 +12,7 @@ after_success: "mvn source:jar javadoc:jar deploy --settings target/travis/setti
 branches:
   only:
     - master
+    - "2.4"
     - "2.3"
 
 env:

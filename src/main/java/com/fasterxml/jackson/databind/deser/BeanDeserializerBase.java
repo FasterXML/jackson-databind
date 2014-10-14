@@ -239,8 +239,7 @@ public abstract class BeanDeserializerBase
                 ;
     }
 
-    protected BeanDeserializerBase(BeanDeserializerBase src)
-    {
+    protected BeanDeserializerBase(BeanDeserializerBase src) {
         this(src, src._ignoreAllUnknown);
     }
 

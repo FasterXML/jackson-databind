@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.creators;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JacksonInject;
-
 import com.fasterxml.jackson.databind.*;
 
 public class TestCreatorsDelegating extends BaseMapTest
@@ -51,7 +50,7 @@ public class TestCreatorsDelegating extends BaseMapTest
             return new FactoryBean711(a, n1, n2);
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests

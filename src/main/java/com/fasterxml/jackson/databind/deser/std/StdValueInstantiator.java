@@ -204,8 +204,7 @@ public class StdValueInstantiator
      */
     
     @Override
-    public Object createUsingDefault(DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public Object createUsingDefault(DeserializationContext ctxt) throws IOException
     {
         if (_defaultCreator == null) { // sanity-check; caller should check
             throw new IllegalStateException("No default constructor for "+getValueTypeDesc());
@@ -220,8 +219,7 @@ public class StdValueInstantiator
     }
     
     @Override
-    public Object createFromObjectWith(DeserializationContext ctxt, Object[] args)
-        throws IOException, JsonProcessingException
+    public Object createFromObjectWith(DeserializationContext ctxt, Object[] args) throws IOException
     {
         if (_withArgsCreator == null) { // sanity-check; caller should check
             throw new IllegalStateException("No with-args constructor for "+getValueTypeDesc());
@@ -236,8 +234,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createUsingDelegate(DeserializationContext ctxt, Object delegate)
-        throws IOException, JsonProcessingException
+    public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException
     {
         if (_delegateCreator == null) { // sanity-check; caller should check
             throw new IllegalStateException("No delegate constructor for "+getValueTypeDesc());
@@ -274,8 +271,7 @@ public class StdValueInstantiator
      */
     
     @Override
-    public Object createFromString(DeserializationContext ctxt, String value)
-            throws IOException, JsonProcessingException
+    public Object createFromString(DeserializationContext ctxt, String value) throws IOException
     {
         if (_fromStringCreator != null) {
             try {
@@ -290,8 +286,7 @@ public class StdValueInstantiator
     }
     
     @Override
-    public Object createFromInt(DeserializationContext ctxt, int value)
-            throws IOException, JsonProcessingException
+    public Object createFromInt(DeserializationContext ctxt, int value) throws IOException
     {
         try {
             // First: "native" int methods work best:
@@ -312,8 +307,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromLong(DeserializationContext ctxt, long value)
-            throws IOException, JsonProcessingException
+    public Object createFromLong(DeserializationContext ctxt, long value) throws IOException
     {
         try {
             if (_fromLongCreator != null) {
@@ -329,8 +323,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromDouble(DeserializationContext ctxt, double value)
-            throws IOException, JsonProcessingException
+    public Object createFromDouble(DeserializationContext ctxt, double value) throws IOException
     {
         try {
             if (_fromDoubleCreator != null) {
@@ -346,8 +339,7 @@ public class StdValueInstantiator
     }
 
     @Override
-    public Object createFromBoolean(DeserializationContext ctxt, boolean value)
-            throws IOException, JsonProcessingException
+    public Object createFromBoolean(DeserializationContext ctxt, boolean value) throws IOException
     {
         try {
             if (_fromBooleanCreator != null) {
@@ -387,7 +379,7 @@ public class StdValueInstantiator
     public AnnotatedParameter getIncompleteParameter() {
         return _incompleteParameter;
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods

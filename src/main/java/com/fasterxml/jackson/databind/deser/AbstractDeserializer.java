@@ -65,8 +65,7 @@ public class AbstractDeserializer
      * 
      * @since 2.3
      */
-    public static AbstractDeserializer constructForNonPOJO(BeanDescription beanDesc)
-    {
+    public static AbstractDeserializer constructForNonPOJO(BeanDescription beanDesc) {
         return new AbstractDeserializer(beanDesc);
     }
     

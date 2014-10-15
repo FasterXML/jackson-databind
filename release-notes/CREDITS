@@ -144,6 +144,9 @@ Steve Sanbeg: (sanbeg@github)
   * Contributed #482: Make date parsing error behavior consistent with JDK
    (2.4.1)
 
+Ian Barfield: (tea-dragon@github)
+   * Reported #580: delegate deserializers choke on a (single) abstract/polymorphic parameter
+
 Lovro Pandžić (lpandzic@github)
   * Reported #421: @JsonCreator not used in case of multiple creators with parameter names
    (2.5.0)

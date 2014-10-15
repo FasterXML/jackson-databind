@@ -27,7 +27,7 @@ public class MapDeserializer
     extends ContainerDeserializerBase<Map<Object,Object>>
     implements ContextualDeserializer, ResolvableDeserializer
 {
-    private static final long serialVersionUID = -3378654289961736240L;
+    private static final long serialVersionUID = 1L;
 
     // // Configuration: typing, deserializers
 

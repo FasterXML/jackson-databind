@@ -516,6 +516,7 @@ public abstract class BeanDeserializerBase
             }
             JsonDeserializer<Object> dd = findDeserializer(ctxt, delegateType, property);
             if (td != null) {
+                td = td.forProperty(property);
                 dd = new TypeWrappedDeserializer(td, dd);
             }
             _delegateDeserializer = dd;

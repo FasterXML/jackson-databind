@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
-
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
@@ -511,7 +510,16 @@ public abstract class BeanDeserializerBase
             BeanProperty.Std property = new BeanProperty.Std(TEMP_PROPERTY_NAME,
                     delegateType, null, _classAnnotations, delegateCreator,
                     PropertyMetadata.STD_OPTIONAL);
-            _delegateDeserializer = findDeserializer(ctxt, delegateType, property);
+
+            TypeDeserializer td = delegateType.getTypeHandler();
+            if (td == null) {
+                td = ctxt.getConfig().findTypeDeserializer(delegateType);
+            }
+            JsonDeserializer<Object> dd = findDeserializer(ctxt, delegateType, property);
+            if (td != null) {
+                dd = new TypeWrappedDeserializer(td, dd);
+            }
+            _delegateDeserializer = dd;
         }
         
         if (extTypes != null) {

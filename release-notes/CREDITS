@@ -143,3 +143,8 @@ Benson Margulies:
 Steve Sanbeg: (sanbeg@github)
   * Contributed #482: Make date parsing error behavior consistent with JDK
    (2.4.1)
+
+Ian Barfield: (tea-dragon@github)
+   * Reported #580: delegate deserializers choke on a (single) abstract/polymorphic parameter
+
+

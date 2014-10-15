@@ -120,7 +120,7 @@ public class StdTypeResolverBuilder
                     _typeProperty, _typeIdVisible, _defaultImpl);
         case EXISTING_PROPERTY:
         	// as per [#528]
-        	return new AsExistingPropertyTypeDeserializer(baseType, idRes,
+        	return new AsPropertyTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, _defaultImpl);
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);

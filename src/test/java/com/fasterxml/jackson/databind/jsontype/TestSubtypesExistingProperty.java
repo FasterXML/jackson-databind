@@ -14,7 +14,54 @@ import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestSubtypesExistingProperty extends BaseMapTest {
-	
+
+    /**
+     * Polymorphic base class - existing property as simple property on subclasses
+     */
+	@JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "type")
+	@JsonSubTypes({
+		@Type(value = Apple.class, name = "apple") ,
+		@Type(value = Orange.class, name = "orange") 
+		})
+	static abstract class Fruit {
+        public String name;
+        protected Fruit(String n)  { name = n; }
+    }
+
+    @JsonTypeName("apple")
+    static class Apple extends Fruit
+    {
+    	public int seedCount;
+    	public String type;
+        
+        private Apple() { super(null); type = "apple"; }
+        public Apple(String name, int b) {
+            super(name);
+            seedCount = b;
+            type = "apple";
+        }
+    }
+    
+    @JsonTypeName("orange")
+    static class Orange extends Fruit
+    {
+        public String color;
+        public String type;
+        
+        private Orange() { super(null); type = "orange"; }
+        public Orange(String name, String c) {
+            super(name);
+            color = c;
+            type = "orange";
+        }
+    }
+
+    static class FruitWrapper {
+        public Fruit fruit;
+        public FruitWrapper() {}
+        public FruitWrapper(Fruit f) { fruit = f; }
+    }
+    
     /**
      * Polymorphic base class - existing property forced by abstract method
      */
@@ -131,6 +178,15 @@ public class TestSubtypesExistingProperty extends BaseMapTest {
     /**********************************************************
      */
 
+	private static final Orange mandarin = new Orange("Mandarin Orange", "orange");
+	private static final String mandarinJson = "{\"name\":\"Mandarin Orange\",\"color\":\"orange\",\"type\":\"orange\"}";	
+	private static final Apple pinguo = new Apple("Apple-A-Day", 16);
+	private static final String pinguoJson = "{\"name\":\"Apple-A-Day\",\"seedCount\":16,\"type\":\"apple\"}";
+	private static final FruitWrapper pinguoWrapper = new FruitWrapper(pinguo);
+	private static final String pinguoWrapperJson = "{\"fruit\":" + pinguoJson + "}";
+	private static final List<Fruit> fruitList = Arrays.asList(pinguo, mandarin);
+	private static final String fruitListJson = "[" + pinguoJson + "," + mandarinJson + "]";
+
 	private static final Cat beelzebub = new Cat("Beelzebub", "tabby");
 	private static final String beelzebubJson = "{\"name\":\"Beelzebub\",\"furColor\":\"tabby\",\"type\":\"kitty\"}";	
 	private static final Dog rover = new Dog("Rover", 42);
@@ -154,6 +210,69 @@ public class TestSubtypesExistingProperty extends BaseMapTest {
     /* Unit tests
     /**********************************************************
      */
+
+    /**
+     * Fruits - serialization tests for simple property on sub-classes
+     */
+    public void testExistingPropertySerializationFruits() throws Exception
+    {
+        Map<String,Object> result = writeAndMap(MAPPER, pinguo);
+        assertEquals(3, result.size());
+        assertEquals(pinguo.name, result.get("name"));
+        assertEquals(pinguo.seedCount, result.get("seedCount"));
+        assertEquals(pinguo.type, result.get("type"));
+        
+        result = writeAndMap(MAPPER, mandarin);
+        assertEquals(3, result.size());
+        assertEquals(mandarin.name, result.get("name"));
+        assertEquals(mandarin.color, result.get("color"));
+        assertEquals(mandarin.type, result.get("type"));
+        
+        String pinguoSerialized = MAPPER.writeValueAsString(pinguo);
+        assertEquals(pinguoSerialized, pinguoJson);
+
+        String mandarinSerialized = MAPPER.writeValueAsString(mandarin);
+        assertEquals(mandarinSerialized, mandarinJson);
+
+        String fruitWrapperSerialized = MAPPER.writeValueAsString(pinguoWrapper);
+        assertEquals(fruitWrapperSerialized, pinguoWrapperJson);
+
+        String fruitListSerialized = MAPPER.writeValueAsString(fruitList);
+        assertEquals(fruitListSerialized, fruitListJson);
+    }
+
+    /**
+     * Fruits - deserialization tests for simple property on sub-classes
+     */
+    public void testSimpleClassAsExistingPropertyDeserializationFruits() throws Exception
+    {
+    	Fruit pinguoDeserialized = MAPPER.readValue(pinguoJson, Fruit.class);
+    	assertTrue(pinguoDeserialized instanceof Apple);
+        assertSame(pinguoDeserialized.getClass(), Apple.class);
+    	assertEquals(pinguo.name, pinguoDeserialized.name);
+    	assertEquals(pinguo.seedCount, ((Apple) pinguoDeserialized).seedCount);
+    	assertEquals(pinguo.type, ((Apple) pinguoDeserialized).type);
+
+    	FruitWrapper pinguoWrapperDeserialized = MAPPER.readValue(pinguoWrapperJson, FruitWrapper.class);
+    	Fruit pinguoExtracted = pinguoWrapperDeserialized.fruit;
+    	assertTrue(pinguoExtracted instanceof Apple);
+        assertSame(pinguoExtracted.getClass(), Apple.class);
+    	assertEquals(pinguo.name, pinguoExtracted.name);
+    	assertEquals(pinguo.seedCount, ((Apple) pinguoExtracted).seedCount);
+    	assertEquals(pinguo.type, ((Apple) pinguoExtracted).type);
+
+    	@SuppressWarnings("unchecked")
+		List<Fruit> fruitListDeserialized = MAPPER.readValue(fruitListJson, List.class);
+    	assertNotNull(fruitListDeserialized);
+    	assertTrue(fruitListDeserialized.size() == 2);
+    	Fruit apple = MAPPER.convertValue(fruitListDeserialized.get(0), Apple.class);
+    	assertTrue(apple instanceof Apple);
+        assertSame(apple.getClass(), Apple.class);
+    	Fruit orange = MAPPER.convertValue(fruitListDeserialized.get(1), Orange.class);
+    	assertTrue(orange instanceof Orange);
+        assertSame(orange.getClass(), Orange.class);
+    }
+
 
     /**
      * Animals - serialization tests for abstract method in base class

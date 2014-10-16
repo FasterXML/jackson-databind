@@ -84,15 +84,17 @@ public class StdTypeResolverBuilder
             return new AsExternalTypeSerializer(idRes, null,
                     _typeProperty);
         case EXISTING_PROPERTY:
-            throw _noExisting();
+        	// as per [#528]
+        	return new AsExistingPropertyTypeSerializer(idRes, null, _typeProperty);
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }
 
     // as per [#368]
-    private IllegalArgumentException _noExisting() {
-        return new IllegalArgumentException("Inclusion type "+_includeAs+" not yet supported");
-    }
+    // removed when fix [#528]
+    //private IllegalArgumentException _noExisting() {
+    //    return new IllegalArgumentException("Inclusion type "+_includeAs+" not yet supported");
+    //}
 
     @Override
     public TypeDeserializer buildTypeDeserializer(DeserializationConfig config,
@@ -117,7 +119,9 @@ public class StdTypeResolverBuilder
             return new AsExternalTypeDeserializer(baseType, idRes,
                     _typeProperty, _typeIdVisible, _defaultImpl);
         case EXISTING_PROPERTY:
-            throw _noExisting();
+        	// as per [#528]
+        	return new AsPropertyTypeDeserializer(baseType, idRes,
+                    _typeProperty, _typeIdVisible, _defaultImpl);
         }
         throw new IllegalStateException("Do not know how to construct standard type serializer for inclusion type: "+_includeAs);
     }

@@ -1,15 +1,14 @@
 package com.fasterxml.jackson.databind.jsontype;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-import com.fasterxml.jackson.annotation.JsonTypeName;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -18,7 +17,8 @@ public class TestSubtypesExistingProperty extends BaseMapTest {
     /**
      * Polymorphic base class - existing property as simple property on subclasses
      */
-	@JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "type")
+	@JsonTypeInfo(use = Id.NAME, include = As.EXISTING_PROPERTY, property = "type",
+	        visible=true)
 	@JsonSubTypes({
 		@Type(value = Apple.class, name = "apple") ,
 		@Type(value = Orange.class, name = "orange") 
@@ -31,10 +31,10 @@ public class TestSubtypesExistingProperty extends BaseMapTest {
     @JsonTypeName("apple")
     static class Apple extends Fruit
     {
-    	public int seedCount;
-    	public String type;
-        
-        private Apple() { super(null); type = "apple"; }
+        public int seedCount;
+        public String type;
+
+        private Apple() { super(null);; }
         public Apple(String name, int b) {
             super(name);
             seedCount = b;
@@ -48,7 +48,7 @@ public class TestSubtypesExistingProperty extends BaseMapTest {
         public String color;
         public String type;
         
-        private Orange() { super(null); type = "orange"; }
+        private Orange() { super(null); }
         public Orange(String name, String c) {
             super(name);
             color = c;
@@ -246,33 +246,35 @@ public class TestSubtypesExistingProperty extends BaseMapTest {
      */
     public void testSimpleClassAsExistingPropertyDeserializationFruits() throws Exception
     {
-    	Fruit pinguoDeserialized = MAPPER.readValue(pinguoJson, Fruit.class);
-    	assertTrue(pinguoDeserialized instanceof Apple);
+        Fruit pinguoDeserialized = MAPPER.readValue(pinguoJson, Fruit.class);
+        assertTrue(pinguoDeserialized instanceof Apple);
         assertSame(pinguoDeserialized.getClass(), Apple.class);
-    	assertEquals(pinguo.name, pinguoDeserialized.name);
-    	assertEquals(pinguo.seedCount, ((Apple) pinguoDeserialized).seedCount);
-    	assertEquals(pinguo.type, ((Apple) pinguoDeserialized).type);
+        assertEquals(pinguo.name, pinguoDeserialized.name);
+        assertEquals(pinguo.seedCount, ((Apple) pinguoDeserialized).seedCount);
+        assertEquals(pinguo.type, ((Apple) pinguoDeserialized).type);
 
-    	FruitWrapper pinguoWrapperDeserialized = MAPPER.readValue(pinguoWrapperJson, FruitWrapper.class);
-    	Fruit pinguoExtracted = pinguoWrapperDeserialized.fruit;
-    	assertTrue(pinguoExtracted instanceof Apple);
+        FruitWrapper pinguoWrapperDeserialized = MAPPER.readValue(pinguoWrapperJson, FruitWrapper.class);
+        Fruit pinguoExtracted = pinguoWrapperDeserialized.fruit;
+        assertTrue(pinguoExtracted instanceof Apple);
         assertSame(pinguoExtracted.getClass(), Apple.class);
-    	assertEquals(pinguo.name, pinguoExtracted.name);
-    	assertEquals(pinguo.seedCount, ((Apple) pinguoExtracted).seedCount);
-    	assertEquals(pinguo.type, ((Apple) pinguoExtracted).type);
+        assertEquals(pinguo.name, pinguoExtracted.name);
+        assertEquals(pinguo.seedCount, ((Apple) pinguoExtracted).seedCount);
+        assertEquals(pinguo.type, ((Apple) pinguoExtracted).type);
 
-    	@SuppressWarnings("unchecked")
-		List<Fruit> fruitListDeserialized = MAPPER.readValue(fruitListJson, List.class);
-    	assertNotNull(fruitListDeserialized);
-    	assertTrue(fruitListDeserialized.size() == 2);
-    	Fruit apple = MAPPER.convertValue(fruitListDeserialized.get(0), Apple.class);
-    	assertTrue(apple instanceof Apple);
-        assertSame(apple.getClass(), Apple.class);
-    	Fruit orange = MAPPER.convertValue(fruitListDeserialized.get(1), Orange.class);
-    	assertTrue(orange instanceof Orange);
-        assertSame(orange.getClass(), Orange.class);
+        Fruit[] fruits = MAPPER.readValue(fruitListJson, Fruit[].class);
+        assertEquals(2, fruits.length);
+        assertEquals(Apple.class, fruits[0].getClass());
+        assertEquals("apple", ((Apple) fruits[0]).type);
+        assertEquals(Orange.class, fruits[1].getClass());
+        assertEquals("orange", ((Orange) fruits[1]).type);
+        
+        List<Fruit> f2 = MAPPER.readValue(fruitListJson,
+                new TypeReference<List<Fruit>>() { });
+        assertNotNull(f2);
+        assertTrue(f2.size() == 2);
+        assertEquals(Apple.class, f2.get(0).getClass());
+        assertEquals(Orange.class, f2.get(1).getClass());
     }
-
 
     /**
      * Animals - serialization tests for abstract method in base class
@@ -309,34 +311,33 @@ public class TestSubtypesExistingProperty extends BaseMapTest {
      */
     public void testSimpleClassAsExistingPropertyDeserializationAnimals() throws Exception
     {
-    	Animal beelzebubDeserialized = MAPPER.readValue(beelzebubJson, Animal.class);
-    	assertTrue(beelzebubDeserialized instanceof Cat);
+        Animal beelzebubDeserialized = MAPPER.readValue(beelzebubJson, Animal.class);
+        assertTrue(beelzebubDeserialized instanceof Cat);
         assertSame(beelzebubDeserialized.getClass(), Cat.class);
-    	assertEquals(beelzebub.name, beelzebubDeserialized.name);
-    	assertEquals(beelzebub.furColor, ((Cat) beelzebubDeserialized).furColor);
-    	assertEquals(beelzebub.getType(), beelzebubDeserialized.getType());
+        assertEquals(beelzebub.name, beelzebubDeserialized.name);
+        assertEquals(beelzebub.furColor, ((Cat) beelzebubDeserialized).furColor);
+        assertEquals(beelzebub.getType(), beelzebubDeserialized.getType());
 
-    	AnimalWrapper beelzebubWrapperDeserialized = MAPPER.readValue(beelzebubWrapperJson, AnimalWrapper.class);
-    	Animal beelzebubExtracted = beelzebubWrapperDeserialized.animal;
-    	assertTrue(beelzebubExtracted instanceof Cat);
+        AnimalWrapper beelzebubWrapperDeserialized = MAPPER.readValue(beelzebubWrapperJson, AnimalWrapper.class);
+        Animal beelzebubExtracted = beelzebubWrapperDeserialized.animal;
+        assertTrue(beelzebubExtracted instanceof Cat);
         assertSame(beelzebubExtracted.getClass(), Cat.class);
-    	assertEquals(beelzebub.name, beelzebubExtracted.name);
-    	assertEquals(beelzebub.furColor, ((Cat) beelzebubExtracted).furColor);
-    	assertEquals(beelzebub.getType(), beelzebubExtracted.getType());
+        assertEquals(beelzebub.name, beelzebubExtracted.name);
+        assertEquals(beelzebub.furColor, ((Cat) beelzebubExtracted).furColor);
+        assertEquals(beelzebub.getType(), beelzebubExtracted.getType());
     	
-    	@SuppressWarnings("unchecked")
-		List<Animal> animalListDeserialized = MAPPER.readValue(animalListJson, List.class);
-    	assertNotNull(animalListDeserialized);
-    	assertTrue(animalListDeserialized.size() == 2);
-    	Animal cat = MAPPER.convertValue(animalListDeserialized.get(0), Animal.class);
-    	assertTrue(cat instanceof Cat);
+        @SuppressWarnings("unchecked")
+        List<Animal> animalListDeserialized = MAPPER.readValue(animalListJson, List.class);
+        assertNotNull(animalListDeserialized);
+        assertTrue(animalListDeserialized.size() == 2);
+        Animal cat = MAPPER.convertValue(animalListDeserialized.get(0), Animal.class);
+        assertTrue(cat instanceof Cat);
         assertSame(cat.getClass(), Cat.class);
-    	Animal dog = MAPPER.convertValue(animalListDeserialized.get(1), Animal.class);
-    	assertTrue(dog instanceof Dog);
+        Animal dog = MAPPER.convertValue(animalListDeserialized.get(1), Animal.class);
+        assertTrue(dog instanceof Dog);
         assertSame(dog.getClass(), Dog.class);
     }
 
-    
     /**
      * Cars - serialization tests for no abstract method or type variable in base class
      */
@@ -372,32 +373,31 @@ public class TestSubtypesExistingProperty extends BaseMapTest {
      */
     public void testSimpleClassAsExistingPropertyDeserializationCars() throws Exception
     {
-    	Car camryDeserialized = MAPPER.readValue(camryJson, Camry.class);
-    	assertTrue(camryDeserialized instanceof Camry);
+        Car camryDeserialized = MAPPER.readValue(camryJson, Camry.class);
+        assertTrue(camryDeserialized instanceof Camry);
         assertSame(camryDeserialized.getClass(), Camry.class);
-    	assertEquals(camry.name, camryDeserialized.name);
-    	assertEquals(camry.exteriorColor, ((Camry) camryDeserialized).exteriorColor);
-    	assertEquals(camry.getType(), ((Camry) camryDeserialized).getType());
+        assertEquals(camry.name, camryDeserialized.name);
+        assertEquals(camry.exteriorColor, ((Camry) camryDeserialized).exteriorColor);
+        assertEquals(camry.getType(), ((Camry) camryDeserialized).getType());
 
-    	CarWrapper camryWrapperDeserialized = MAPPER.readValue(camryWrapperJson, CarWrapper.class);
-    	Car camryExtracted = camryWrapperDeserialized.car;
-    	assertTrue(camryExtracted instanceof Camry);
+        CarWrapper camryWrapperDeserialized = MAPPER.readValue(camryWrapperJson, CarWrapper.class);
+        Car camryExtracted = camryWrapperDeserialized.car;
+        assertTrue(camryExtracted instanceof Camry);
         assertSame(camryExtracted.getClass(), Camry.class);
-    	assertEquals(camry.name, camryExtracted.name);
-    	assertEquals(camry.exteriorColor, ((Camry) camryExtracted).exteriorColor);
-    	assertEquals(camry.getType(), ((Camry) camryExtracted).getType());
-    	
-    	@SuppressWarnings("unchecked")
-		List<Car> carListDeserialized = MAPPER.readValue(carListJson, List.class);
-    	assertNotNull(carListDeserialized);
-    	assertTrue(carListDeserialized.size() == 2);
-    	Car camry = MAPPER.convertValue(carListDeserialized.get(0), Car.class);
-    	assertTrue(camry instanceof Camry);
-        assertSame(camry.getClass(), Camry.class);
-    	Car accord = MAPPER.convertValue(carListDeserialized.get(1), Car.class);
-    	assertTrue(accord instanceof Accord);
-        assertSame(accord.getClass(), Accord.class);
-    }
+        assertEquals(camry.name, camryExtracted.name);
+        assertEquals(camry.exteriorColor, ((Camry) camryExtracted).exteriorColor);
+        assertEquals(camry.getType(), ((Camry) camryExtracted).getType());
 
-    
-}
+        @SuppressWarnings("unchecked")
+        List<Car> carListDeserialized = MAPPER.readValue(carListJson, List.class);
+        assertNotNull(carListDeserialized);
+        assertTrue(carListDeserialized.size() == 2);
+        Car result = MAPPER.convertValue(carListDeserialized.get(0), Car.class);
+        assertTrue(result instanceof Camry);
+        assertSame(result.getClass(), Camry.class);
+
+        result = MAPPER.convertValue(carListDeserialized.get(1), Car.class);
+        assertTrue(result instanceof Accord);
+        assertSame(result.getClass(), Accord.class);
+    }
+}    

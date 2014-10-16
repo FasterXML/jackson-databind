@@ -24,14 +24,25 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
 {
     private static final long serialVersionUID = 1L;
 
+    protected final As _inclusion;
+
     public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl)
     {
+        this(bt, idRes, typePropertyName, typeIdVisible, defaultImpl, As.PROPERTY);
+    }
+    
+    public AsPropertyTypeDeserializer(JavaType bt, TypeIdResolver idRes,
+            String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl,
+            As inclusion)
+    {
         super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);
+        _inclusion = inclusion;
     }
 
     public AsPropertyTypeDeserializer(AsPropertyTypeDeserializer src, BeanProperty property) {
         super(src, property);
+        _inclusion = src._inclusion;
     }
     
     @Override
@@ -40,7 +51,7 @@ public class AsPropertyTypeDeserializer extends AsArrayTypeDeserializer
     }
     
     @Override
-    public As getTypeInclusion() { return As.PROPERTY; }
+    public As getTypeInclusion() { return _inclusion; }
 
     /**
      * This is the trickiest thing to handle, since property we are looking

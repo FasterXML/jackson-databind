@@ -155,3 +155,6 @@ Adam Stroud (adstro@github)
   * Contributed	#576: Add fluent API for adding mixins
    (2.5.0)
 
+David Fleeman (fleebytes@github)
+  * Contributed #528 implementation: Add support for `JsonType.As.EXISTING_PROPERTY`
+   (2.5.0)

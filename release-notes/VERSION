@@ -10,9 +10,10 @@ Project: jackson-databind
 #408: External type id does not allow use of 'visible=true'
 #421: @JsonCreator not used in case of multiple creators with parameter names
  (reported by Lovro P, lpandzic@github)
-#521: Keep bundle annotations, prevent problems with recursive annotation
-   types
+#521: Keep bundle annotations, prevent problems with recursive annotation types
  (reported by tea-dragon@github)
+#528: Add support for `JsonType.As.EXISTING_PROPERTY`
+ (reported by heapifyman@github; implemented by fleebytes@github)
 #539: Problem with post-procesing of "empty bean" serializer; was not calling
   'BeanSerializerModifier.modifySerializer()` for empty beans
  (reported by Fabien R, fabienrenaud@github)

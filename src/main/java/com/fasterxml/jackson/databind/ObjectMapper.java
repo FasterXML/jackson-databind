@@ -502,6 +502,17 @@ public class ObjectMapper
     }
 
     /**
+     * @since 2.1
+     */
+    protected void _checkInvalidCopy(Class<?> exp)
+    {
+        if (getClass() != exp) {
+            throw new IllegalStateException("Failed copy(): "+getClass().getName()
+                    +" (version: "+version()+") does not override copy(); it has to");
+        }
+    }
+
+    /**
      * Factory method sub-classes must override, to produce {@link ObjectReader}
      * instances of proper sub-type
      * 
@@ -522,18 +533,38 @@ public class ObjectMapper
             FormatSchema schema, InjectableValues injectableValues) {
         return new ObjectReader(this, config, valueType, valueToUpdate, schema, injectableValues);
     }
-    
+
     /**
-     * @since 2.1
+     * Factory method sub-classes must override, to produce {@link ObjectWriter}
+     * instances of proper sub-type
+     * 
+     * @since 2.5
      */
-    protected void _checkInvalidCopy(Class<?> exp)
-    {
-        if (getClass() != exp) {
-            throw new IllegalStateException("Failed copy(): "+getClass().getName()
-                    +" (version: "+version()+") does not override copy(); it has to");
-        }
+    protected ObjectWriter _newWriter(SerializationConfig config) {
+        return new ObjectWriter(this, config);
+    }
+
+    /**
+     * Factory method sub-classes must override, to produce {@link ObjectWriter}
+     * instances of proper sub-type
+     * 
+     * @since 2.5
+     */
+    protected ObjectWriter _newWriter(SerializationConfig config, FormatSchema schema) {
+        return new ObjectWriter(this, config, schema);
     }
     
+    /**
+     * Factory method sub-classes must override, to produce {@link ObjectWriter}
+     * instances of proper sub-type
+     * 
+     * @since 2.5
+     */
+    protected ObjectWriter _newWriter(SerializationConfig config,
+            JavaType rootType, PrettyPrinter pp) {
+        return new ObjectWriter(this, config, rootType, pp);
+    }
+
     /*
     /**********************************************************
     /* Versioned impl
@@ -2457,7 +2488,7 @@ public class ObjectMapper
      * with default settings.
      */
     public ObjectWriter writer() {
-        return new ObjectWriter(this, getSerializationConfig());
+        return _newWriter(getSerializationConfig());
     }
 
     /**
@@ -2466,7 +2497,7 @@ public class ObjectMapper
      * mapper instance has).
      */
     public ObjectWriter writer(SerializationFeature feature) {
-        return new ObjectWriter(this, getSerializationConfig().with(feature));
+        return _newWriter(getSerializationConfig().with(feature));
     }
 
     /**
@@ -2476,7 +2507,7 @@ public class ObjectMapper
      */
     public ObjectWriter writer(SerializationFeature first,
             SerializationFeature... other) {
-        return new ObjectWriter(this, getSerializationConfig().with(first, other));
+        return _newWriter(getSerializationConfig().with(first, other));
     }
     
     /**
@@ -2485,7 +2516,7 @@ public class ObjectMapper
      * null passed, using timestamp (64-bit number.
      */
     public ObjectWriter writer(DateFormat df) {
-        return new ObjectWriter(this, getSerializationConfig().with(df));
+        return _newWriter(getSerializationConfig().with(df));
     }
     
     /**
@@ -2493,7 +2524,7 @@ public class ObjectMapper
      * serialize objects using specified JSON View (filter).
      */
     public ObjectWriter writerWithView(Class<?> serializationView) {
-        return new ObjectWriter(this, getSerializationConfig().withView(serializationView));
+        return _newWriter(getSerializationConfig().withView(serializationView));
     }
     
     /**
@@ -2503,7 +2534,7 @@ public class ObjectMapper
      * type.
      */
     public ObjectWriter writerWithType(Class<?> rootType) {
-        return new ObjectWriter(this, getSerializationConfig(),
+        return _newWriter(getSerializationConfig(),
                 // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
                 ((rootType == null) ? null :_typeFactory.constructType(rootType)),
                 /*PrettyPrinter*/null);
@@ -2515,7 +2546,7 @@ public class ObjectMapper
      * runtime type of value. Type must be a super-type of runtime type.
      */
     public ObjectWriter writerWithType(TypeReference<?> rootType) {
-        return new ObjectWriter(this, getSerializationConfig(),
+        return _newWriter(getSerializationConfig(),
                 // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
                 ((rootType == null) ? null : _typeFactory.constructType(rootType)),
                 /*PrettyPrinter*/null);
@@ -2527,7 +2558,7 @@ public class ObjectMapper
      * runtime type of value. Type must be a super-type of runtime type.
      */
     public ObjectWriter writerWithType(JavaType rootType) {
-        return new ObjectWriter(this, getSerializationConfig(), rootType, /*PrettyPrinter*/null);
+        return _newWriter(getSerializationConfig(), rootType, /*PrettyPrinter*/null);
     }
     
     /**
@@ -2539,7 +2570,7 @@ public class ObjectMapper
         if (pp == null) { // need to use a marker to indicate explicit disabling of pp
             pp = ObjectWriter.NULL_PRETTY_PRINTER;
         }
-        return new ObjectWriter(this, getSerializationConfig(), /*root type*/ null, pp);
+        return _newWriter(getSerializationConfig(), /*root type*/ null, pp);
     }
     
     /**
@@ -2547,7 +2578,7 @@ public class ObjectMapper
      * serialize objects using the default pretty printer for indentation
      */
     public ObjectWriter writerWithDefaultPrettyPrinter() {
-        return new ObjectWriter(this, getSerializationConfig(),
+        return _newWriter(getSerializationConfig(),
                 /*root type*/ null, _defaultPrettyPrinter());
     }
     
@@ -2556,8 +2587,7 @@ public class ObjectMapper
      * serialize objects using specified filter provider.
      */
     public ObjectWriter writer(FilterProvider filterProvider) {
-        return new ObjectWriter(this,
-                getSerializationConfig().withFilters(filterProvider));
+        return _newWriter(getSerializationConfig().withFilters(filterProvider));
     }
     
     /**
@@ -2569,7 +2599,7 @@ public class ObjectMapper
      */
     public ObjectWriter writer(FormatSchema schema) {
         _verifySchemaType(schema);
-        return new ObjectWriter(this, getSerializationConfig(), schema);
+        return _newWriter(getSerializationConfig(), schema);
     }
 
     /**
@@ -2579,7 +2609,7 @@ public class ObjectMapper
      * @since 2.1
      */
     public ObjectWriter writer(Base64Variant defaultBase64) {
-        return new ObjectWriter(this, getSerializationConfig().with(defaultBase64));
+        return _newWriter(getSerializationConfig().with(defaultBase64));
     }
 
     /**
@@ -2589,7 +2619,7 @@ public class ObjectMapper
      * @since 2.3
      */
     public ObjectWriter writer(CharacterEscapes escapes) {
-        return writer().with(escapes);
+        return _newWriter(getSerializationConfig()).with(escapes);
     }
 
     /**
@@ -2599,7 +2629,7 @@ public class ObjectMapper
      * @since 2.3
      */
     public ObjectWriter writer(ContextAttributes attrs) {
-        return new ObjectWriter(this, getSerializationConfig().with(attrs));
+        return _newWriter(getSerializationConfig().with(attrs));
     }
     
     /*

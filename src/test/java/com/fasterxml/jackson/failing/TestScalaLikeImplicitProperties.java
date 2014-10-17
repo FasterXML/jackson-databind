@@ -34,19 +34,35 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
                 if (name.endsWith("‿")) {
                     return name.substring(0, name.length()-1);
                 }
-            } else if (member instanceof AnnotatedField) {
+            } else if (member instanceof AnnotatedMethod) {
                 name = member.getName();
                 if (name.endsWith("_⁀")) {
                     return name.substring(0, name.length()-2);
                 }
+                if (!name.startsWith("get") && !name.startsWith("set")) {
+                    return name;
+                }
+            } else if (member instanceof AnnotatedParameter) {
+                // A placeholder for legitimate property name detection
+                // such as what the JDK8 module provides
+                return "prop";
             }
             return null;
+        }
+
+        @Override
+        public boolean hasCreatorAnnotation(Annotated a) {
+            // A placeholder for legitmate creator detection.
+            // In Scala, all primary constructors should be creators,
+            // but I can't obtain a reference to the AnnotatedClass from the
+            // AnnotatedConstructor, so it's simulated here.
+            return (a instanceof AnnotatedConstructor);
         }
     }
     
     static class ValProperty
     {
-        public final String prop‿;
+        private final String prop‿;
         public String prop() { return prop‿; }
 
         public ValProperty(String prop) {
@@ -57,7 +73,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
 
     static class ValWithBeanProperty
     {
-        public final String prop‿;
+        private final String prop‿;
         public String prop() { return prop‿; }
         public String getProp() { return prop‿; }
 
@@ -69,13 +85,9 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
 
     static class VarProperty
     {
-        public String prop‿;
+        private String prop‿;
         public String prop() { return prop‿; }
         public void prop_⁀(String p) { prop‿ = p; }
-
-        // tatu: this is needed, unless single-arg ctor auto-detected
-        //  ... or, with JDK8, implicit ctor arg name used along with creator
-        public VarProperty() { }
 
         public VarProperty(String prop) {
             prop‿ = prop;
@@ -85,7 +97,7 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
 
     static class VarWithBeanProperty
     {
-        public String prop‿;
+        private String prop‿;
         public String prop() { return prop‿; }
         public void prop_⁀(String p) { prop‿ = p; }
         public String getProp() { return prop‿; }
@@ -112,8 +124,6 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
     {
         ObjectMapper m = manglingMapper();
 
-        // TODO: Activate whatever handler implements the property detection style
-
         assertEquals("{\"prop\":\"val\"}", m.writeValueAsString(new ValProperty("val")));
     }
 
@@ -122,8 +132,6 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
     {
         ObjectMapper m = manglingMapper();
 
-        // TODO: Activate whatever handler implements the property detection style
-
         assertEquals("{\"prop\":\"val\"}", m.writeValueAsString(new ValWithBeanProperty("val")));
     }
 
@@ -131,8 +139,6 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
     public void testVarProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
-
-        // TODO: Activate whatever handler implements the property detection style
 
         assertEquals("{\"prop\":\"var\"}", m.writeValueAsString(new VarProperty("var")));
         VarProperty result = m.readValue("{\"prop\":\"read\"}", VarProperty.class);
@@ -144,8 +150,6 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
     {
         ObjectMapper m = manglingMapper();
 
-        // TODO: Activate whatever handler implements the property detection style
-
         assertEquals("{\"prop\":\"var\"}", m.writeValueAsString(new VarWithBeanProperty("var")));
         VarWithBeanProperty result = m.readValue("{\"prop\":\"read\"}", VarWithBeanProperty.class);
         assertEquals("read", result.prop());
@@ -155,8 +159,6 @@ public class TestScalaLikeImplicitProperties extends BaseMapTest
     public void testGetterSetterProperty() throws Exception
     {
         ObjectMapper m = manglingMapper();
-
-        // TODO: Activate whatever handler implements the property detection style
 
         assertEquals("{\"prop\":\"get/set\"}", m.writeValueAsString(new GetterSetterProperty()));
         GetterSetterProperty result = m.readValue("{\"prop\":\"read\"}", GetterSetterProperty.class);

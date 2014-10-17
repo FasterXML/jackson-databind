@@ -108,8 +108,7 @@ public final class PropertyValueBuffer
     /**
      * Helper method called to handle Object Id value collected earlier, if any
      */
-    public Object handleIdValue(final DeserializationContext ctxt, Object bean)
-        throws IOException
+    public Object handleIdValue(final DeserializationContext ctxt, Object bean) throws IOException
     {
         if (_objectIdReader != null) {
             if (_idValue != null) {
@@ -122,6 +121,8 @@ public final class PropertyValueBuffer
                 }
             } else {
                 // TODO: is this an error case?
+                throw ctxt.mappingException("No _idValue when handleIdValue called, on instance of "
+                        +bean.getClass().getName());
             }
         }
         return bean;

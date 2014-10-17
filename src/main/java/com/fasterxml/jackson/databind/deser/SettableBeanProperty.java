@@ -501,7 +501,7 @@ public abstract class SettableBeanProperty
      * @since 2.0
      */
     public abstract Object setAndReturn(Object instance, Object value)
-            throws IOException;
+        throws IOException;
     
     /**
      * This method is needed by some specialized bean deserializers,
@@ -516,8 +516,7 @@ public abstract class SettableBeanProperty
      * this method should also not be called directly unless you really know
      * what you are doing (and probably not even then).
      */
-    public final Object deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public final Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         JsonToken t = jp.getCurrentToken();
         

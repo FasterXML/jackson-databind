@@ -5,8 +5,9 @@ import java.io.IOException;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.annotation.SimpleObjectIdResolver;
+
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 
@@ -29,9 +30,6 @@ public class ObjectIdReader
      */
     public final ObjectIdGenerator<?> generator;
 
-    /**
-     * 
-     */
     public final ObjectIdResolver resolver;
 
     /**
@@ -66,13 +64,6 @@ public class ObjectIdReader
         this(t,propName, gen, deser, idProp, new SimpleObjectIdResolver());
     }
 
-    @Deprecated // since 2.3
-    protected ObjectIdReader(JavaType t, String propName, ObjectIdGenerator<?> gen,
-            JsonDeserializer<?> deser, SettableBeanProperty idProp)
-    {
-        this(t, new PropertyName(propName), gen, deser, idProp);
-    }
-
     /**
      * Factory method called by {@link com.fasterxml.jackson.databind.ser.std.BeanSerializerBase}
      * with the initial information based on standard settings for the type
@@ -91,14 +82,6 @@ public class ObjectIdReader
             SettableBeanProperty idProp)
     {
         return construct(idType, propName, generator, deser, idProp, new SimpleObjectIdResolver());
-    }
-    
-    @Deprecated // since 2.3
-    public static ObjectIdReader construct(JavaType idType, String propName,
-            ObjectIdGenerator<?> generator, JsonDeserializer<?> deser,
-            SettableBeanProperty idProp)
-    {
-        return construct(idType, new PropertyName(propName), generator, deser, idProp);
     }
 
     /*
@@ -121,9 +104,7 @@ public class ObjectIdReader
      * 
      * @since 2.3
      */
-    public Object readObjectReference(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
-    {
+    public Object readObjectReference(JsonParser jp, DeserializationContext ctxt) throws IOException {
         return _deserializer.deserialize(jp, ctxt);
     }
 }

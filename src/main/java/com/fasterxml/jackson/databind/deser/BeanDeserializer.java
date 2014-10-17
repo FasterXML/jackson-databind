@@ -326,7 +326,7 @@ public class BeanDeserializer
     @SuppressWarnings("resource")
     protected Object _deserializeUsingPropertyBased(final JsonParser jp, final DeserializationContext ctxt)
         throws IOException, JsonProcessingException
-    { 
+    {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt, _objectIdReader);
         
@@ -391,7 +391,7 @@ public class BeanDeserializer
             unknown.writeFieldName(propName);
             unknown.copyCurrentStructure(jp);
         }
-
+        
         // We hit END_OBJECT, so:
         Object bean;
         try {

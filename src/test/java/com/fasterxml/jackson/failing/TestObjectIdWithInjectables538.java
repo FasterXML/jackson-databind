@@ -10,14 +10,16 @@ public class TestObjectIdWithInjectables538 extends BaseMapTest
     public static class A {
         public B b;
 
-        public A(@JacksonInject("i1") String injected) {}
+        public A(@JacksonInject("i1") String injected) {
+        }
     }
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
     public static class B {
         public A a;
 
-        public B(@JacksonInject("i2") String injected) {}
+        public B(@JacksonInject("i2") String injected) {
+        }
     } 
 
     /*
@@ -30,13 +32,13 @@ public class TestObjectIdWithInjectables538 extends BaseMapTest
 
     public void testWithInjectables538() throws Exception
     {
-        A a = new A(null);
-        B b = new B(null);
+        A a = new A("a");
+        B b = new B("b");
         a.b = b;
         b.a = a;
 
         String json = MAPPER.writeValueAsString(a);
-        
+
         InjectableValues.Std inject = new InjectableValues.Std();
         inject.addValue("i1", "e1");
         inject.addValue("i2", "e2");

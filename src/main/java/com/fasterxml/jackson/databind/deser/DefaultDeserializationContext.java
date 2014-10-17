@@ -66,6 +66,7 @@ public abstract class DefaultDeserializationContext
     public ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> gen, ObjectIdResolver resolverType)
     {
         final ObjectIdGenerator.IdKey key = gen.key(id);
+
         if (_objectIds == null) {
             _objectIds = new LinkedHashMap<ObjectIdGenerator.IdKey,ReadableObjectId>();
         } else {

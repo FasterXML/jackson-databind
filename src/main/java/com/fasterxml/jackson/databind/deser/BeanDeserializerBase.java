@@ -1031,8 +1031,7 @@ public abstract class BeanDeserializerBase
      * buffering in some cases, but usually just a simple lookup to ensure
      * that ordering is correct.
      */
-    protected Object deserializeWithObjectId(JsonParser jp, DeserializationContext ctxt) throws IOException
-    {
+    protected Object deserializeWithObjectId(JsonParser jp, DeserializationContext ctxt) throws IOException {
         return deserializeFromObject(jp, ctxt);
     }
     

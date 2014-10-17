@@ -180,8 +180,6 @@ public class TestObjectIdDeserialization extends BaseMapTest
             return new PoolResolver(pool);
         }
     }
-
-    private final ObjectMapper mapper = new ObjectMapper();
     
     /*
     /*****************************************************
@@ -189,6 +187,8 @@ public class TestObjectIdDeserialization extends BaseMapTest
     /*****************************************************
      */
 
+    private final ObjectMapper mapper = new ObjectMapper();
+    
     private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"value\":13,\"next\":1}";
 
     public void testSimpleDeserializationClass() throws Exception

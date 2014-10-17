@@ -40,7 +40,13 @@ public class TestObjectIdWithInjectables538 extends BaseMapTest
         InjectableValues.Std inject = new InjectableValues.Std();
         inject.addValue("i1", "e1");
         inject.addValue("i2", "e2");
-        A output = MAPPER.reader(inject).withType(A.class).readValue(json);
+        A output = null;
+
+        try {
+            output = MAPPER.reader(inject).withType(A.class).readValue(json);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to deserialize from JSON '"+json+"'", e);
+        }
         assertNotNull(output);
 
         assertNotNull(output.b);

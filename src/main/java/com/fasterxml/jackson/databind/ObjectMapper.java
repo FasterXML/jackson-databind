@@ -993,7 +993,7 @@ public class ObjectMapper
 
 
     /**
-     * @deprecated Since 2.5: replaced by a fluent form of the method; {@link #setMixIns(Class, Class)}.
+     * @deprecated Since 2.5: replaced by a fluent form of the method; {@link #setMixIns}.
      */
     @Deprecated
     public void setMixInAnnotations(Map<Class<?>, Class<?>> sourceMixins) {

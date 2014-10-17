@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
-import java.lang.reflect.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -27,14 +26,11 @@ public class SettableAnyProperty
      * information. Retained to allow contextualization of any properties.
      */
     protected final BeanProperty _property;
-    
+
     /**
-     * Physical JDK object used for assigning properties.
-     *<p>
-     * NOTE: must be marked transient since it is not serializable,
-     * in case these are to be serialized
+     * Annotated variant is needed for JDK serialization only
      */
-    protected final transient Method _setter;
+    final protected AnnotatedMethod _setter;
 
     protected final JavaType _type;
 
@@ -51,15 +47,9 @@ public class SettableAnyProperty
     public SettableAnyProperty(BeanProperty property, AnnotatedMethod setter, JavaType type,
             JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
     {
-        this(property, setter.getAnnotated(), type, valueDeser, typeDeser);
-    }
-
-    public SettableAnyProperty(BeanProperty property, Method rawSetter, JavaType type,
-            JsonDeserializer<Object> valueDeser, TypeDeserializer typeDeser)
-    {
         _property = property;
+        _setter = setter;
         _type = type;
-        _setter = rawSetter;
         _valueDeserializer = valueDeser;
         _valueTypeDeserializer = typeDeser;
     }
@@ -68,6 +58,18 @@ public class SettableAnyProperty
         return new SettableAnyProperty(_property, _setter, _type,
                 deser, _valueTypeDeserializer);
     }
+
+    /**
+     * Constructor used for JDK Serialization when reading persisted object
+     */
+    protected SettableAnyProperty(SettableAnyProperty src)
+    {
+        _property = src._property;
+        _setter = src._setter;
+        _type = src._type;
+        _valueDeserializer = src._valueDeserializer;
+        _valueTypeDeserializer = src._valueTypeDeserializer;
+    }
     
     /*
     /**********************************************************
@@ -75,13 +77,16 @@ public class SettableAnyProperty
     /**********************************************************
      */
 
-    // TODO (2.3): handle restoring of reference to any-setter method
-    
-/*
+    /**
+     * Need to define this to verify that we retain actual Method reference
+     */
     Object readResolve() {
-        return new SettableAnyProperty(this, _annotated.getAnnotated());
+        // sanity check...
+        if (_setter == null || _setter.getAnnotated() == null) {
+            throw new IllegalArgumentException("Missing method (broken JDK (de)serialization?)");
+        }
+        return this;
     }
-    */
     
     /*
     /**********************************************************
@@ -136,7 +141,8 @@ public class SettableAnyProperty
     public void set(Object instance, String propName, Object value) throws IOException
     {
         try {
-            _setter.invoke(instance, propName, value);
+            // note: can not use 'setValue()' due to taking 2 args
+            _setter.getAnnotated().invoke(instance, propName, value);
         } catch (Exception e) {
             _throwAsIOE(e, propName, value);
         }

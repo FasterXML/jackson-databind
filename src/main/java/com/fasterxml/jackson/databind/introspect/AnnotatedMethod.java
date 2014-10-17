@@ -138,8 +138,7 @@ public final class AnnotatedMethod
     public Method getMember() { return _method; }
 
     @Override
-    public void setValue(Object pojo, Object value)
-        throws IllegalArgumentException
+    public void setValue(Object pojo, Object value) throws IllegalArgumentException
     {
         try {
             _method.invoke(pojo, value);

@@ -111,7 +111,7 @@ public abstract class BeanDeserializerBase
      * to use have been successfully resolved.
      */
     final protected BeanPropertyMap _beanProperties;
-    
+
     /**
      * List of {@link ValueInjector}s, if any injectable values are
      * expected by the bean; otherwise null.
@@ -119,7 +119,7 @@ public abstract class BeanDeserializerBase
      * and fields, but not ones passed through constructor parameters.
      */
     final protected ValueInjector[] _injectables;
-    
+
     /**
      * Fallback setter used for handling any properties that are not
      * mapped to regular setters. If setter is not null, it will be

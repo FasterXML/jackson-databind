@@ -375,6 +375,13 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue)
+    {
+        JsonInclude inc = _findAnnotation(a, JsonInclude.class);
+        return (inc == null) ? defValue : inc.content();
+    }
+
+    @Override
     public Class<?> findSerializationType(Annotated am)
     {
         JsonSerialize ann = _findAnnotation(am, JsonSerialize.class);
@@ -745,6 +752,7 @@ public class JacksonAnnotationIntrospector
      * Helper method called to construct and initialize instance of {@link TypeResolverBuilder}
      * if given annotated element indicates one is needed.
      */
+    @SuppressWarnings("deprecation")
     protected TypeResolverBuilder<?> _findTypeResolver(MapperConfig<?> config,
             Annotated ann, JavaType baseType)
     {

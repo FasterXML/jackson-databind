@@ -315,16 +315,15 @@ public class AnnotationIntrospectorPair
     public JsonInclude.Include findSerializationInclusion(Annotated a,
             JsonInclude.Include defValue)
     {
-        /* This is bit trickier: need to combine results in a meaningful
-         * way. Seems like it should be a disjoint; that is, most
-         * restrictive value should be returned.
-         * For enumerations, comparison is done by indexes, which
-         * works: largest value is the last one, which is the most
-         * restrictive value as well.
-         */
-        /* 09-Mar-2010, tatu: Actually, as per [JACKSON-256], it is probably better to just
-         *    use strict overriding. Simpler, easier to understand.
-         */
+        // note: call secondary first, to give lower priority
+        defValue = _secondary.findSerializationInclusion(a, defValue);
+        defValue = _primary.findSerializationInclusion(a, defValue);
+        return defValue;
+    }
+
+    @Override
+    public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue)
+    {
         // note: call secondary first, to give lower priority
         defValue = _secondary.findSerializationInclusion(a, defValue);
         defValue = _primary.findSerializationInclusion(a, defValue);
@@ -333,7 +332,7 @@ public class AnnotationIntrospectorPair
     
     @Override
     public Class<?> findSerializationType(Annotated a) {
-    	Class<?> r = _primary.findSerializationType(a);
+        Class<?> r = _primary.findSerializationType(a);
         return (r == null) ? _secondary.findSerializationType(a) : r;
     }
 

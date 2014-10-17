@@ -569,12 +569,27 @@ public abstract class AnnotationIntrospector
      * field) defines which Bean/Map properties are to be included in
      * serialization.
      * If no annotation is found, method should return given second
-     * argument; otherwise value indicated by the annotation
+     * argument; otherwise value indicated by the annotation.
+     *<p>
+     * Note that meaning of inclusion value depends on whether it is for
+     * a Class or property (field/method/constructor): in former case,
+     * it is the default for all properties; in latter case it is specific
+     * override for annotated property.
      *
      * @return Enumerated value indicating which properties to include
      *   in serialization
      */
     public JsonInclude.Include findSerializationInclusion(Annotated a, JsonInclude.Include defValue) {
+        return defValue;
+    }
+
+    /**
+     * Method for checking whether content (entries) of a {@link java.util.Map} property
+     * are to be included during serialization or not.
+     * 
+     * @since 2.5
+     */
+    public JsonInclude.Include findSerializationInclusionForContent(Annotated a, JsonInclude.Include defValue) {
         return defValue;
     }
 

@@ -36,8 +36,6 @@ public class TestObjectIdWithInjectables538 extends BaseMapTest
         b.a = a;
 
         String json = MAPPER.writeValueAsString(a);
-
-System.out.println("JSON = "+json);
         
         InjectableValues.Std inject = new InjectableValues.Std();
         inject.addValue("i1", "e1");

@@ -99,7 +99,7 @@ public final class SetterlessProperty
 
         // For [#501] fix we need to implement this but:
         if (_valueTypeDeserializer != null) {
-            throw new JsonMappingException("Problem deserializing 'setterless' property: no way to handle typed deser with setterless yet");
+            throw new JsonMappingException("Problem deserializing 'setterless' property (\""+getName()+"\"): no way to handle typed deser with setterless yet");
 //            return _valueDeserializer.deserializeWithType(jp, ctxt, _valueTypeDeserializer);
         }
         

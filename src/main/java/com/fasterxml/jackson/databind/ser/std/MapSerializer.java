@@ -188,14 +188,14 @@ public class MapSerializer
         }
         return ser;
     }
-    
+
     /**
      * @since 2.3
      */
     public MapSerializer withFilterId(Object filterId) {
         return (_filterId == filterId) ? this : new MapSerializer(this, filterId, _sortKeys);
     }
-
+    
     /**
      * @since 2.3
      */
@@ -375,7 +375,7 @@ public class MapSerializer
 
     @Override
     public void serialize(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         jgen.writeStartObject();
         if (!value.isEmpty()) {
@@ -400,7 +400,7 @@ public class MapSerializer
     @Override
     public void serializeWithType(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         typeSer.writeTypePrefixForObject(value, jgen);
         if (!value.isEmpty()) {
@@ -426,7 +426,7 @@ public class MapSerializer
      * Method called to serialize fields, when the value type is not statically known.
      */
     public void serializeFields(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         // If value type needs polymorphic type handling, some more work needed:
         if (_valueTypeSerializer != null) {
@@ -487,7 +487,7 @@ public class MapSerializer
      */
     protected void serializeFieldsUsing(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider,
             JsonSerializer<Object> ser)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         final JsonSerializer<Object> keySerializer = _keySerializer;
         final HashSet<String> ignored = _ignoredEntries;
@@ -533,7 +533,7 @@ public class MapSerializer
      */
     public void serializeFilteredFields(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider,
             PropertyFilter filter)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         final HashSet<String> ignored = _ignoredEntries;
         final boolean skipNulls = !provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
@@ -584,7 +584,7 @@ public class MapSerializer
     }
     
     protected void serializeTypedFields(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         final JsonSerializer<Object> keySerializer = _keySerializer;
         JsonSerializer<Object> prevValueSerializer = null;

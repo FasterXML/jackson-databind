@@ -243,6 +243,11 @@ public abstract class StdSerializer<T>
             BeanProperty prop, JsonSerializer<?> existingSerializer)
         throws JsonMappingException
     {
+        /* 19-Oct-2014, tatu: As per [databind#357], need to avoid infinite loop
+         *   when applying contextual content converter; this is not ideal way,
+         *   but should work for most cases.
+         */
+
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         if (intr != null && prop != null) {
             Object convDef = intr.findSerializationContentConverter(prop.getMember());
@@ -250,7 +255,7 @@ public abstract class StdSerializer<T>
                 Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
                 JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
                 if (existingSerializer == null) {
-                    existingSerializer = provider.findValueSerializer(delegateType, prop);
+                    existingSerializer = provider.findValueSerializer(delegateType);
                 }
                 return new StdDelegatingSerializer(conv, delegateType, existingSerializer);
             }

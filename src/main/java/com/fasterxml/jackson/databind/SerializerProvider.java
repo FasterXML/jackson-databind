@@ -425,8 +425,7 @@ public abstract class SerializerProvider
      *   finding any serializer
      */
     @SuppressWarnings("unchecked")
-    public JsonSerializer<Object> findValueSerializer(Class<?> valueType,
-            BeanProperty property)
+    public JsonSerializer<Object> findValueSerializer(Class<?> valueType, BeanProperty property)
         throws JsonMappingException
     {
         // Fast lookup from local lookup thingy works?
@@ -440,11 +439,7 @@ public abstract class SerializerProvider
                 if (ser == null) {
                     // If neither, must create
                     ser = _createAndCacheUntypedSerializer(valueType);
-                    // Not found? Must use the unknown type serializer
-                    /* Couldn't create? Need to return the fallback serializer, which
-                     * most likely will report an error: but one question is whether
-                     * we should cache it?
-                     */
+                    // Not found? Must use the unknown type serializer, which will report error later on
                     if (ser == null) {
                         ser = getUnknownTypeSerializer(valueType);
                         // Should this be added to lookups?
@@ -474,22 +469,14 @@ public abstract class SerializerProvider
     public JsonSerializer<Object> findValueSerializer(JavaType valueType, BeanProperty property)
         throws JsonMappingException
     {
-        // Fast lookup from local lookup thingy works?
+        // (see comments from above method)
         JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
         if (ser == null) {
-            // If not, maybe shared map already has it?
             ser = _serializerCache.untypedValueSerializer(valueType);
             if (ser == null) {
-                // If neither, must create
                 ser = _createAndCacheUntypedSerializer(valueType);
-                // Not found? Must use the unknown type serializer
-                /* Couldn't create? Need to return the fallback serializer, which
-                 * most likely will report an error: but one question is whether
-                 * we should cache it?
-                 */
                 if (ser == null) {
                     ser = getUnknownTypeSerializer(valueType.getRawClass());
-                    // Should this be added to lookups?
                     if (CACHE_UNKNOWN_MAPPINGS) {
                         _serializerCache.addAndResolveNonTypedSerializer(valueType, ser, this);
                     }
@@ -500,6 +487,62 @@ public abstract class SerializerProvider
         return (JsonSerializer<Object>) handleSecondaryContextualization(ser, property);
     }
 
+    /**
+     * Method variant used when we do NOT want contextualization to happen; it will need
+     * to be handled at a later point, but caller wants to be able to do that
+     * as needed; sometimes to avoid infinite loops
+     * 
+     * @since 2.5
+     */
+    public JsonSerializer<Object> findValueSerializer(Class<?> valueType) throws JsonMappingException
+    {
+        // (see comments from above method)
+        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        if (ser == null) {
+            ser = _serializerCache.untypedValueSerializer(valueType);
+            if (ser == null) {
+                ser = _serializerCache.untypedValueSerializer(_config.constructType(valueType));
+                if (ser == null) {
+                    ser = _createAndCacheUntypedSerializer(valueType);
+                    if (ser == null) {
+                        ser = getUnknownTypeSerializer(valueType);
+                        if (CACHE_UNKNOWN_MAPPINGS) {
+                            _serializerCache.addAndResolveNonTypedSerializer(valueType, ser, this);
+                        }
+                    }
+                }
+            }
+        }
+        return ser;
+    }
+
+    /**
+     * Method variant used when we do NOT want contextualization to happen; it will need
+     * to be handled at a later point, but caller wants to be able to do that
+     * as needed; sometimes to avoid infinite loops
+     * 
+     * @since 2.5
+     */
+    public JsonSerializer<Object> findValueSerializer(JavaType valueType)
+        throws JsonMappingException
+    {
+        // (see comments from above method)
+        JsonSerializer<Object> ser = _knownSerializers.untypedValueSerializer(valueType);
+        if (ser == null) {
+            ser = _serializerCache.untypedValueSerializer(valueType);
+            if (ser == null) {
+                ser = _createAndCacheUntypedSerializer(valueType);
+                if (ser == null) {
+                    ser = getUnknownTypeSerializer(valueType.getRawClass());
+                    if (CACHE_UNKNOWN_MAPPINGS) {
+                        _serializerCache.addAndResolveNonTypedSerializer(valueType, ser, this);
+                    }
+                }
+            }
+        }
+        return ser;
+    }
+    
     /**
      * Similar to {@link #findValueSerializer(JavaType, BeanProperty)}, but used
      * when finding "primary" property value serializer (one directly handling

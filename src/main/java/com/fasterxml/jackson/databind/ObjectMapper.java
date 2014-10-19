@@ -1179,7 +1179,7 @@ public class ObjectMapper
     public ObjectMapper enableDefaultTyping(DefaultTyping applicability, JsonTypeInfo.As includeAs)
     {
         /* 18-Sep-2014, tatu: Let's add explicit check to ensure no one tries to
-         *   use "As.EXTERNAL_PROPERTY", since that will not work.
+         *   use "As.EXTERNAL_PROPERTY", since that will not work (with 2.5+)
          */
         if (includeAs == JsonTypeInfo.As.EXTERNAL_PROPERTY) {
             throw new IllegalArgumentException("Can not use includeAs of "+includeAs);

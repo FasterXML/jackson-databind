@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
@@ -85,6 +86,17 @@ public class TestMapSerialization
         @Override
         public Integer setValue(Integer value) {
             throw new UnsupportedOperationException();
+        }
+    }
+
+    // [databind#527]
+    static class NoNullValuesMapContainer {
+        @JsonInclude(content=JsonInclude.Include.NON_NULL)
+        public Map<String,String> stuff = new LinkedHashMap<String,String>();
+        
+        public NoNullValuesMapContainer add(String key, String value) {
+            stuff.put(key, value);
+            return this;
         }
     }
     
@@ -188,4 +200,13 @@ public class TestMapSerialization
         json = MAPPER.writeValueAsString(array);
         assertEquals(aposToQuotes("[{'answer':42}]"), json);
     }        
+
+    public void testNonNullValueMap() throws IOException
+    {
+        String json = MAPPER.writeValueAsString(new NoNullValuesMapContainer()
+            .add("a", "foo")
+            .add("b", null)
+            .add("c", "bar"));
+        assertEquals(aposToQuotes("{'stuff':{'a':'foo','c':'bar'}}"), json);
+    }
 }

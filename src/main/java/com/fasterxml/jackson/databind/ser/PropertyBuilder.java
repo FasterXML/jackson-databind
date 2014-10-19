@@ -48,23 +48,6 @@ public class PropertyBuilder
     }
 
     /**
-     * @deprecated Since 2.3, use variant that takes {@link SerializerProvider} as
-     *   first argument -- to be removed from 2.4
-     */
-    @Deprecated
-    protected final BeanPropertyWriter buildWriter(BeanPropertyDefinition propDef,
-            JavaType declaredType, JsonSerializer<?> ser,
-            TypeSerializer typeSer, TypeSerializer contentTypeSer,
-            AnnotatedMember am, boolean defaultUseStaticTyping)
-    {
-        /* We will only retain this method until 2.4; left for now to explicitly
-         * cause compilation/linking issue iff anyone has overridden the method
-         * (hopefully not)
-         */
-        throw new IllegalStateException();
-    }
-
-    /**
      * @param contentTypeSer Optional explicit type information serializer
      *    to use for contained values (only used for properties that are
      *    of container type)
@@ -90,7 +73,7 @@ public class PropertyBuilder
             }
             JavaType ct = serializationType.getContentType();
             /* 03-Sep-2010, tatu: This is somehow related to [JACKSON-356], but I don't completely
-             *   yet understand how pieces fit together. Still, better be explicit than rely on
+             *   yet understand how pieces fit together. Still, better to be explicit than rely on
              *   NPE to indicate an issue...
              */
             if (ct == null) {
@@ -140,13 +123,12 @@ public class PropertyBuilder
                 am, _beanDesc.getClassAnnotations(), declaredType,
                 ser, typeSer, serializationType, suppressNulls, valueToSuppress);
 
-        // 14-Oct-2013, tatu: And how about custom null serializer?
+        // How about custom null serializer?
         Object serDef = _annotationIntrospector.findNullSerializer(am);
         if (serDef != null) {
             bpw.assignNullSerializer(prov.serializerInstance(am, serDef));
         }
-        
-        // [JACKSON-132]: Unwrapping
+        // And then, handling of unwrapping
         NameTransformer unwrapper = _annotationIntrospector.findUnwrappingNameTransformer(am);
         if (unwrapper != null) {
             bpw = bpw.unwrappingWriter(unwrapper);

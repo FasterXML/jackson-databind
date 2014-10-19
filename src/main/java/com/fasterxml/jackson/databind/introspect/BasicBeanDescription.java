@@ -330,12 +330,19 @@ public class BasicBeanDescription extends BeanDescription
      * and per-class annotation (highest priority).
      */
     @Override
-    public JsonInclude.Include findSerializationInclusion(JsonInclude.Include defValue)
-    {
+    public JsonInclude.Include findSerializationInclusion(JsonInclude.Include defValue) {
         if (_annotationIntrospector == null) {
             return defValue;
         }
         return _annotationIntrospector.findSerializationInclusion(_classInfo, defValue);
+    }
+
+    @Override
+    public JsonInclude.Include findSerializationInclusionForContent(JsonInclude.Include defValue) {
+        if (_annotationIntrospector == null) {
+            return defValue;
+        }
+        return _annotationIntrospector.findSerializationInclusionForContent(_classInfo, defValue);
     }
     
     /**

@@ -107,25 +107,21 @@ public class StdDelegatingSerializer
     public JsonSerializer<?> createContextual(SerializerProvider provider, BeanProperty property)
         throws JsonMappingException
     {
-        // First: if already got serializer to delegate to, contextualize it:
-        if (_delegateSerializer != null) {
-            if (_delegateSerializer instanceof ContextualSerializer) {
-                JsonSerializer<?> ser = provider.handleSecondaryContextualization(_delegateSerializer, property);
-                if (ser == _delegateSerializer) {
-                    return this;
-                }
-                return withDelegate(_converter, _delegateType, ser);
-            }
-            return this;
-        }
-        // Otherwise, need to locate serializer to delegate to. For that we need type information...
+        JsonSerializer<?> delSer = _delegateSerializer;
         JavaType delegateType = _delegateType;
-        if (delegateType == null) {
-            delegateType = _converter.getOutputType(provider.getTypeFactory());
+
+        if (delSer == null) {
+            // Otherwise, need to locate serializer to delegate to. For that we need type information...
+            if (delegateType == null) {
+                delegateType = _converter.getOutputType(provider.getTypeFactory());
+            }
+            delSer = provider.findValueSerializer(delegateType);
         }
-        // and then find the thing...
-        return withDelegate(_converter, delegateType,
-                provider.findValueSerializer(delegateType, property));
+        if (delSer instanceof ContextualSerializer) {
+            delSer = provider.handleSecondaryContextualization(delSer, property);
+        }
+        return (delSer == _delegateSerializer) ? this
+                : withDelegate(_converter, delegateType, delSer);
     }
 
     /*

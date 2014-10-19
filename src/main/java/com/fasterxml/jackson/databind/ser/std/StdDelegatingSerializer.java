@@ -125,8 +125,7 @@ public class StdDelegatingSerializer
         }
         // and then find the thing...
         return withDelegate(_converter, delegateType,
-//                provider.findValueSerializer(delegateType, property));
-                provider.findValueSerializer(delegateType));
+                provider.findValueSerializer(delegateType, property));
     }
 
     /*

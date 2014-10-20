@@ -99,6 +99,15 @@ public class TestMapSerialization
             return this;
         }
     }
+
+    // [databind#527]
+    @JsonInclude(content=JsonInclude.Include.NON_NULL)
+    static class NoNullsStringMap extends LinkedHashMap<String,String> {
+        public NoNullsStringMap add(String key, String value) {
+            put(key, value);
+            return this;
+        }
+    }
     
     /*
     /**********************************************************
@@ -201,7 +210,18 @@ public class TestMapSerialization
         assertEquals(aposToQuotes("[{'answer':42}]"), json);
     }        
 
+    // [databind#527]
     public void testNonNullValueMap() throws IOException
+    {
+        String json = MAPPER.writeValueAsString(new NoNullsStringMap()
+            .add("a", "foo")
+            .add("b", null)
+            .add("c", "bar"));
+        assertEquals(aposToQuotes("{'stuff':{'a':'foo','c':'bar'}}"), json);
+    }
+
+    // [databind#527]
+    public void testNonNullValueMapViaProp() throws IOException
     {
         String json = MAPPER.writeValueAsString(new NoNullValuesMapContainer()
             .add("a", "foo")

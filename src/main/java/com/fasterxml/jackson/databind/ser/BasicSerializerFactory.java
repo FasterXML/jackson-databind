@@ -9,6 +9,8 @@ import java.nio.ByteBuffer;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
@@ -20,10 +22,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.*;
 import com.fasterxml.jackson.databind.ser.std.*;
 import com.fasterxml.jackson.databind.type.*;
-import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.Converter;
-import com.fasterxml.jackson.databind.util.EnumValues;
-import com.fasterxml.jackson.databind.util.TokenBuffer;
+import com.fasterxml.jackson.databind.util.*;
 
 /**
  * Factory class that can provide serializers for standard JDK classes,
@@ -735,9 +734,15 @@ public abstract class BasicSerializerFactory
                     elementTypeSerializer, elementValueSerializer);
             } else {
                 Object filterId = findFilterId(config, beanDesc);
-                ser = MapSerializer.construct(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()),
+                MapSerializer mapSer = MapSerializer.construct(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()),
                     type, staticTyping, elementTypeSerializer,
                     keySerializer, elementValueSerializer, filterId);
+                Object suppressableValue = findSuppressableContentValue(config,
+                        type.getContentType(), beanDesc);
+                if (suppressableValue != null) {
+                    mapSer = mapSer.withContentInclusion(suppressableValue);
+                }
+                ser = mapSer;
             }
         }
         // [Issue#120]: Allow post-processing
@@ -749,6 +754,30 @@ public abstract class BasicSerializerFactory
         return ser;
     }
 
+    /**
+     * @since 2.5
+     */
+    protected Object findSuppressableContentValue(SerializationConfig config,
+            JavaType contentType, BeanDescription beanDesc)
+        throws JsonMappingException
+    {
+        JsonInclude.Include incl = beanDesc.findSerializationInclusionForContent(null);
+
+        if (incl != null) {
+            switch (incl) {
+            case NON_DEFAULT:
+                // 19-Oct-2014, tatu: Not sure what this'd mean; so take it to mean "NON_EMPTY"...
+                incl = JsonInclude.Include.NON_EMPTY;
+                break;
+            default:
+                // all other modes actually good as is, unless we'll find better ways
+                break;
+            }
+            return incl;
+        }
+        return null;
+    }
+    
     /*
     /**********************************************************
     /* Factory methods, for Arrays

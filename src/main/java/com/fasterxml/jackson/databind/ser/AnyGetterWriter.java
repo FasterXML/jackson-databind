@@ -60,7 +60,8 @@ public class AnyGetterWriter
                 throw new JsonMappingException("Value returned by 'any-getter' ("
                         +_accessor.getName()+"()) not java.util.Map but "+value.getClass().getName());
             }
-            _serializer.serializeFilteredFields((Map<?,?>) value, jgen, provider, filter);
+            // 19-Oct-2014, tatu: Should we try to support @JsonInclude options here?
+            _serializer.serializeFilteredFields((Map<?,?>) value, jgen, provider, filter, null);
         }
     
     // Note: NOT part of ResolvableSerializer...

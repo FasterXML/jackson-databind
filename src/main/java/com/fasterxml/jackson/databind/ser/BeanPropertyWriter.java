@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
@@ -37,8 +38,8 @@ public class BeanPropertyWriter extends PropertyWriter
     /**
      * Marker object used to indicate "do not serialize if empty"
      */
-    public final static Object MARKER_FOR_EMPTY = new Object();
-    
+    public final static Object MARKER_FOR_EMPTY = JsonInclude.Include.NON_EMPTY;
+
     /*
     /**********************************************************
     /* Settings for accessing property value to serialize

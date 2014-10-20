@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.PropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.ArrayBuilders;
 
 /**
  * Standard serializer implementation for serializing {link java.util.Map} types.
@@ -30,12 +32,12 @@ public class MapSerializer
     implements ContextualSerializer
 {
     protected final static JavaType UNSPECIFIED_TYPE = TypeFactory.unknownType();
-    
+
     /**
      * Map-valued property being serialized with this instance
      */
     protected final BeanProperty _property;
-    
+
     /**
      * Set of entries to omit during serialization, if any
      */
@@ -92,6 +94,15 @@ public class MapSerializer
      * @since 2.4
      */
     protected final boolean _sortKeys;
+
+    /**
+     * Value that indicates suppression mechanism to use; either one of
+     * values of {@link JsonInclude.Include}, or actual object to compare
+     * against ("default value")
+     * 
+     * @since 2.5
+     */
+    protected final Object _suppressableValue;
     
     /*
     /**********************************************************
@@ -99,6 +110,9 @@ public class MapSerializer
     /**********************************************************
      */
     
+    /**
+     * @since 2.5
+     */
     @SuppressWarnings("unchecked")
     protected MapSerializer(HashSet<String> ignoredEntries,
             JavaType keyType, JavaType valueType, boolean valueTypeIsStatic,
@@ -117,8 +131,18 @@ public class MapSerializer
         _property = null;
         _filterId = null;
         _sortKeys = false;
+        _suppressableValue = null;
     }
 
+    /**
+     * @since 2.5
+     */
+    protected void _ensureOverride() {
+        if (getClass() != MapSerializer.class) {
+            throw new IllegalStateException("Missing override in class "+getClass().getName());
+        }
+    }
+    
     @SuppressWarnings("unchecked")
     protected MapSerializer(MapSerializer src, BeanProperty property,
             JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
@@ -136,9 +160,19 @@ public class MapSerializer
         _property = property;
         _filterId = src._filterId;
         _sortKeys = src._sortKeys;
+        _suppressableValue = src._suppressableValue;
     }
 
-    protected MapSerializer(MapSerializer src, TypeSerializer vts)
+    @Deprecated // since 2.5
+    protected MapSerializer(MapSerializer src, TypeSerializer vts) {
+        this(src, vts, src._suppressableValue);
+    }
+
+    /**
+     * @since 2.5
+     */
+    protected MapSerializer(MapSerializer src, TypeSerializer vts,
+            Object suppressableValue)
     {
         super(Map.class, false);
         _ignoredEntries = src._ignoredEntries;
@@ -152,6 +186,7 @@ public class MapSerializer
         _property = src._property;
         _filterId = src._filterId;
         _sortKeys = src._sortKeys;
+        _suppressableValue = suppressableValue;
     }
 
     protected MapSerializer(MapSerializer src, Object filterId, boolean sortKeys)
@@ -168,11 +203,16 @@ public class MapSerializer
         _property = src._property;
         _filterId = filterId;
         _sortKeys = sortKeys;
+        _suppressableValue = src._suppressableValue;
     }
-    
+
     @Override
     public MapSerializer _withValueTypeSerializer(TypeSerializer vts) {
-        return new MapSerializer(this, vts);
+        if (_valueTypeSerializer == vts) {
+            return this;
+        }
+        _ensureOverride();
+        return new MapSerializer(this, vts, null);
     }
 
     /**
@@ -182,6 +222,7 @@ public class MapSerializer
             JsonSerializer<?> keySerializer, JsonSerializer<?> valueSerializer,
             HashSet<String> ignored, boolean sortKeys)
     {
+        _ensureOverride();
         MapSerializer ser = new MapSerializer(this, property, keySerializer, valueSerializer, ignored);
         if (sortKeys != ser._sortKeys) {
             ser = new MapSerializer(ser, _filterId, sortKeys);
@@ -193,8 +234,26 @@ public class MapSerializer
      * @since 2.3
      */
     public MapSerializer withFilterId(Object filterId) {
-        return (_filterId == filterId) ? this : new MapSerializer(this, filterId, _sortKeys);
+        if (_filterId == filterId) {
+            return this;
+        }
+        _ensureOverride();
+        return new MapSerializer(this, filterId, _sortKeys);
     }
+
+    /**
+     * Mutant factory for constructing an instance with different inclusion strategy
+     * for content (Map values).
+     * 
+     * @since 2.5
+     */
+    public MapSerializer withContentInclusion(Object suppressableValue) {
+        if (suppressableValue == _suppressableValue) {
+            return this;
+        }
+        _ensureOverride();
+        return new MapSerializer(this, _valueTypeSerializer, suppressableValue);
+    }                
     
     /**
      * @since 2.3
@@ -204,7 +263,9 @@ public class MapSerializer
             JsonSerializer<Object> keySerializer, JsonSerializer<Object> valueSerializer,
             Object filterId)
     {
-        HashSet<String> ignoredEntries = toSet(ignoredList);
+        HashSet<String> ignoredEntries = (ignoredList == null || ignoredList.length == 0)
+                ? null : ArrayBuilders.arrayToSet(ignoredList);
+
         JavaType keyType, valueType;
         
         if (mapType == null) {
@@ -230,17 +291,6 @@ public class MapSerializer
         return ser;
     }
 
-    private static HashSet<String> toSet(String[] ignoredEntries) {
-        if (ignoredEntries == null || ignoredEntries.length == 0) {
-            return null;
-        }
-        HashSet<String> result = new HashSet<String>(ignoredEntries.length);
-        for (String prop : ignoredEntries) {
-            result.add(prop);
-        }
-        return result;
-    }
-
     /*
     /**********************************************************
     /* Post-processing (contextualization)
@@ -260,6 +310,7 @@ public class MapSerializer
         JsonSerializer<?> keySer = null;
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         final AnnotatedMember propertyAcc = (property == null) ? null : property.getMember();
+        Object suppressableValue = _suppressableValue;
 
         // First: if we have a property, may have property-annotation overrides
         if (propertyAcc != null && intr != null) {
@@ -270,6 +321,10 @@ public class MapSerializer
             serDef = intr.findContentSerializer(propertyAcc);
             if (serDef != null) {
                 ser = provider.serializerInstance(propertyAcc, serDef);
+            }
+            JsonInclude.Include incl = intr.findSerializationInclusionForContent(propertyAcc, null);
+            if (incl != null) {
+                suppressableValue = incl;
             }
         }
         if (ser == null) {
@@ -310,6 +365,9 @@ public class MapSerializer
             sortKeys = (b != null) && b.booleanValue();
         }
         MapSerializer mser = withResolved(property, keySer, ser, ignored, sortKeys);
+        if (suppressableValue != _suppressableValue) {
+            mser = mser.withContentInclusion(suppressableValue);
+        }
 
         // [Issue#307]: allow filtering
         if (property != null) {
@@ -379,16 +437,27 @@ public class MapSerializer
     {
         jgen.writeStartObject();
         if (!value.isEmpty()) {
+            Object suppressableValue = _suppressableValue;
+            if (suppressableValue == null) {
+                if (!provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES)) {
+                    suppressableValue = JsonInclude.Include.NON_NULL;
+                }
+                
+            }
             if (_filterId != null) {
                 serializeFilteredFields(value, jgen, provider,
-                        findPropertyFilter(provider, _filterId, value));
+                        findPropertyFilter(provider, _filterId, value), suppressableValue);
                 jgen.writeEndObject();
                 return;
             }
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value);
             }
-            if (_valueSerializer != null) {
+            if (suppressableValue != null) {
+// !!! TEST
+                serializeFields(value, jgen, provider);
+//                serializeOptionalFields(value, jgen, provider);
+            } else if (_valueSerializer != null) {
                 serializeFieldsUsing(value, jgen, provider, _valueSerializer);
             } else {
                 serializeFields(value, jgen, provider);
@@ -404,10 +473,20 @@ public class MapSerializer
     {
         typeSer.writeTypePrefixForObject(value, jgen);
         if (!value.isEmpty()) {
+            Object suppressableValue = _suppressableValue;
+            if (suppressableValue == null) {
+                if (!provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES)) {
+                    suppressableValue = JsonInclude.Include.NON_NULL;
+                }
+                
+            }
             if (_sortKeys || provider.isEnabled(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)) {
                 value = _orderEntries(value);
             }
-            if (_valueSerializer != null) {
+            if (suppressableValue != null) {
+// !!! TEST
+                serializeFields(value, jgen, provider);
+            } else if (_valueSerializer != null) {
                 serializeFieldsUsing(value, jgen, provider, _valueSerializer);
             } else {
                 serializeFields(value, jgen, provider);
@@ -532,7 +611,8 @@ public class MapSerializer
      * @since 2.3
      */
     public void serializeFilteredFields(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider,
-            PropertyFilter filter)
+            PropertyFilter filter,
+            Object suppressableValue) // since 2.5
         throws IOException
     {
         final HashSet<String> ignored = _ignoredEntries;
@@ -582,8 +662,15 @@ public class MapSerializer
             }
         }
     }
+
+    @Deprecated // since 2.5
+    public void serializeFilteredFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
+            PropertyFilter filter) throws IOException
+    {
+        serializeFilteredFields(value, gen, provider, filter, null);
+    }
     
-    protected void serializeTypedFields(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider)
+    protected void serializeTypedFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
         final JsonSerializer<Object> keySerializer = _keySerializer;
@@ -597,18 +684,18 @@ public class MapSerializer
             // First, serialize key
             Object keyElem = entry.getKey();
             if (keyElem == null) {
-                provider.findNullKeySerializer(_keyType, _property).serialize(null, jgen, provider);
+                provider.findNullKeySerializer(_keyType, _property).serialize(null, gen, provider);
             } else {
                 // [JACKSON-314] also may need to skip entries with null values
                 if (skipNulls && valueElem == null) continue;
                 // One twist: is entry ignorable? If so, skip
                 if (ignored != null && ignored.contains(keyElem)) continue;
-                keySerializer.serialize(keyElem, jgen, provider);
+                keySerializer.serialize(keyElem, gen, provider);
             }
     
             // And then value
             if (valueElem == null) {
-                provider.defaultSerializeNull(jgen);
+                provider.defaultSerializeNull(gen);
             } else {
                 Class<?> cc = valueElem.getClass();
                 JsonSerializer<Object> currSerializer;
@@ -624,7 +711,7 @@ public class MapSerializer
                     prevValueClass = cc;
                 }
                 try {
-                    currSerializer.serializeWithType(valueElem, jgen, provider, _valueTypeSerializer);
+                    currSerializer.serializeWithType(valueElem, gen, provider, _valueTypeSerializer);
                 } catch (Exception e) {
                     // [JACKSON-55] Need to add reference information
                     String keyDesc = ""+keyElem;
@@ -633,6 +720,12 @@ public class MapSerializer
             }
         }
     }
+
+    /*
+    /**********************************************************
+    /* Schema related functionality
+    /**********************************************************
+     */
     
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)

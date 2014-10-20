@@ -108,7 +108,15 @@ public class TestMapSerialization
             return this;
         }
     }
-    
+
+    @JsonInclude(content=JsonInclude.Include.NON_EMPTY)
+    static class NoEmptyStringsMap extends LinkedHashMap<String,String> {
+        public NoEmptyStringsMap add(String key, String value) {
+            put(key, value);
+            return this;
+        }
+    }
+
     /*
     /**********************************************************
     /* Test methods
@@ -217,9 +225,19 @@ public class TestMapSerialization
             .add("a", "foo")
             .add("b", null)
             .add("c", "bar"));
-        assertEquals(aposToQuotes("{'stuff':{'a':'foo','c':'bar'}}"), json);
+        assertEquals(aposToQuotes("{'a':'foo','c':'bar'}"), json);
     }
 
+    // [databind#527]
+    public void testNonEmptyValueMap() throws IOException
+    {
+        String json = MAPPER.writeValueAsString(new NoEmptyStringsMap()
+            .add("a", "foo")
+            .add("b", "bar")
+            .add("c", ""));
+        assertEquals(aposToQuotes("{'a':'foo','b':'bar'}"), json);
+    }
+    
     // [databind#527]
     public void testNonNullValueMapViaProp() throws IOException
     {

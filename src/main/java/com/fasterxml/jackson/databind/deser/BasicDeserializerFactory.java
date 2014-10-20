@@ -438,9 +438,10 @@ public abstract class BasicDeserializerFactory
             if (argCount == 1) {
                 BeanPropertyDefinition propDef = (propDefs == null) ? null : propDefs[0];
                 boolean hasExplicitName = (propDef != null) && propDef.isExplicitlyNamed();
+                boolean hasInternalCreator = isCreator && (propDef != null) && propDef.getInternalName() != null;
                 Object injectId = intr.findInjectableValueId(ctor.getParameter(0));
 
-                if (hasExplicitName || (injectId != null)) {
+                if (hasExplicitName || hasInternalCreator || (injectId != null)) {
                     CreatorProperty[] properties = new CreatorProperty[1];
                     PropertyName name = (propDef == null) ? null : propDef.getFullName();
                     properties[0] = constructCreatorProperty(ctxt, beanDesc, name, 0, ctor.getParameter(0), injectId);

@@ -47,7 +47,10 @@ public abstract class FromStringDeserializer<T>
             }
             String msg = "not a valid textual representation";
             if (cause != null) {
-                msg += " problem: "+cause.getMessage();
+                 String m2 = cause.getMessage();
+                 if (m2 != null) {
+                     msg = msg +", problem: "+ m2;
+                 }
             }
             JsonMappingException e = ctxt.weirdStringException(text, _valueClass, msg);
             if (cause != null) {

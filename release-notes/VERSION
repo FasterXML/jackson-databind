@@ -10,6 +10,8 @@ Project: jackson-databind
  (reported by tsquared2763@github)
 #580: delegate deserializers choke on a (single) abstract/polymorphic parameter
  (reported by Ian B, tea-dragon@github)
+#590: Binding invalid Currency gives nonsense at end of the message
+ (reported by Jerbell@github)
 
 2.4.3 (02-Oct-2014)
 

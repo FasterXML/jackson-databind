@@ -130,7 +130,7 @@ public abstract class FromStringDeserializer<T> extends StdScalarDeserializer<T>
             if (cause != null) {
                 String m2 = cause.getMessage();
                 if (m2 != null) {
-                    msg += m2;
+                    msg = msg + ", problem: "+m2;
                 }
             }
             JsonMappingException e = ctxt.weirdStringException(text, _valueClass, msg);

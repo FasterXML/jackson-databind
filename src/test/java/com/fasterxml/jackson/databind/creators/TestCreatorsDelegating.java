@@ -2,7 +2,12 @@ package com.fasterxml.jackson.databind.creators;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JacksonInject;
+
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 public class TestCreatorsDelegating extends BaseMapTest
 {
@@ -48,6 +53,20 @@ public class TestCreatorsDelegating extends BaseMapTest
         @JsonCreator
         public static FactoryBean711 create(@JacksonInject String n1, int a, @JacksonInject String n2) {
             return new FactoryBean711(a, n1, n2);
+        }
+    }
+
+    static class Value592
+    {
+        protected Object stuff;
+
+        protected Value592(Object ob, boolean bogus) {
+            stuff = ob;
+        }
+        
+        @JsonCreator
+        public static Value592 from(TokenBuffer buffer) {
+            return new Value592(buffer, false);
         }
     }
 
@@ -102,4 +121,27 @@ public class TestCreatorsDelegating extends BaseMapTest
         assertEquals("Fygar", bean.name1);
         assertEquals("Fygar", bean.name2);
     }
+
+    // [databind#592]
+    public void testDelegateWithTokenBuffer() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        Value592 value = mapper.readValue("{\"a\":1,\"b\":2}", Value592.class);
+        assertNotNull(value);
+        Object ob = value.stuff;
+        assertEquals(TokenBuffer.class, ob.getClass());
+        JsonParser jp = ((TokenBuffer) ob).asParser();
+        assertToken(JsonToken.START_OBJECT, jp.nextToken());
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("a", jp.getCurrentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertEquals(1, jp.getIntValue());
+        assertToken(JsonToken.FIELD_NAME, jp.nextToken());
+        assertEquals("b", jp.getCurrentName());
+        assertToken(JsonToken.VALUE_NUMBER_INT, jp.nextToken());
+        assertEquals(2, jp.getIntValue());
+        assertToken(JsonToken.END_OBJECT, jp.nextToken());
+        jp.close();
+    }
+
 }

@@ -47,6 +47,8 @@ Project: jackson-databind
  (reported by Ian B, tea-dragon@github)
 #590: Binding invalid Currency gives nonsense at end of the message
  (reported by Jerbell@github)
+#592: Wrong `TokenBuffer` delegate deserialization using `@JsonCreator`
+ (reported by Eugene L)
 
 2.4.3 (02-Oct-2014)
 

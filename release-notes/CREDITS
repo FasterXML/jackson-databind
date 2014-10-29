@@ -145,6 +145,9 @@ Steve Sanbeg: (sanbeg@github)
    (2.4.1)
 
 Ian Barfield: (tea-dragon@github)
-   * Reported #580: delegate deserializers choke on a (single) abstract/polymorphic parameter
+  * Reported #580: delegate deserializers choke on a (single) abstract/polymorphic parameter
+    (2.4.4)
 
-
+Eugene Lukash
+  * Reported #592: Wrong `TokenBuffer` delegate deserialization using `@JsonCreator`
+    (2.4.4)

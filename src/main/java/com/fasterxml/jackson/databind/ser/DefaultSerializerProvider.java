@@ -5,9 +5,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
@@ -62,6 +60,22 @@ public abstract class DefaultSerializerProvider
         super(src, config, f);
     }
 
+    protected DefaultSerializerProvider(DefaultSerializerProvider src) {
+        super(src);
+    }
+
+    /**
+     * Method needed to ensure that {@link ObjectMapper#copy} will work
+     * properly; specifically, that caches are cleared, but settings
+     * will otherwise remain identical; and that no sharing of state
+     * occurs.
+     * 
+     * @since 2.4.4
+     */
+    public DefaultSerializerProvider copy() {
+        throw new IllegalStateException("DefaultSerializerProvider sub-class not overriding copy()");
+    }
+    
     /*
     /**********************************************************
     /* Extended API: methods that ObjectMapper will call
@@ -487,11 +501,21 @@ public abstract class DefaultSerializerProvider
         private static final long serialVersionUID = 1L;
 
         public Impl() { super(); }
+        public Impl(Impl src) { super(src); }
 
         protected Impl(SerializerProvider src, SerializationConfig config,SerializerFactory f) {
             super(src, config, f);
         }
 
+        @Override
+        public DefaultSerializerProvider copy()
+        {
+            if (getClass() != Impl.class) {
+                return super.copy();
+            }
+            return new Impl(this);
+        }
+        
         @Override
         public Impl createInstance(SerializationConfig config, SerializerFactory jsf) {
             return new Impl(this, config, jsf);

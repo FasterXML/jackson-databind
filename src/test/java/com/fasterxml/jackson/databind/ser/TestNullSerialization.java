@@ -35,6 +35,12 @@ public class TestNullSerialization
         public MyNullProvider(MyNullProvider base, SerializationConfig config, SerializerFactory jsf) {
             super(base, config, jsf);
         }
+
+        // not really a proper impl, but has to do
+        @Override
+        public DefaultSerializerProvider copy() {
+            return this;
+        }
         
         @Override
         public DefaultSerializerProvider createInstance(SerializationConfig config, SerializerFactory jsf) {

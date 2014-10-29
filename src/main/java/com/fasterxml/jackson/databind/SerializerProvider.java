@@ -65,6 +65,7 @@ public abstract class SerializerProvider
 
     /**
      * View used for currently active serialization, if any.
+     * Only set for non-blueprint instances.
      */
     final protected Class<?> _serializationView;
     
@@ -76,6 +77,7 @@ public abstract class SerializerProvider
 
     /**
      * Factory used for constructing actual serializer instances.
+     * Only set for non-blueprint instances.
      */
     final protected SerializerFactory _serializerFactory;
 
@@ -97,6 +99,7 @@ public abstract class SerializerProvider
     
     /**
      * Lazily-constructed holder for per-call attributes.
+     * Only set for non-blueprint instances.
      * 
      * @since 2.3
      */
@@ -209,10 +212,12 @@ public abstract class SerializerProvider
         _unknownTypeSerializer = src._unknownTypeSerializer;
         _keySerializer = src._keySerializer;
         _nullValueSerializer = src._nullValueSerializer;
-        _stdNullValueSerializer = (_nullValueSerializer == DEFAULT_NULL_KEY_SERIALIZER);
         _nullKeySerializer = src._nullKeySerializer;
-        _rootNames = src._rootNames;
 
+        _stdNullValueSerializer = (_nullValueSerializer == DEFAULT_NULL_KEY_SERIALIZER);
+
+        _rootNames = src._rootNames;
+        
         /* Non-blueprint instances do have a read-only map; one that doesn't
          * need synchronization for lookups.
          */
@@ -220,6 +225,32 @@ public abstract class SerializerProvider
 
         _serializationView = config.getActiveView();
         _attributes = config.getAttributes();
+    }
+
+    /**
+     * Copy-constructor used when making a {@link #copy} of a blueprint
+     * object.
+     * 
+     * @since 2.4.4
+     */
+    protected SerializerProvider(SerializerProvider src)
+    {
+        // since this is assumed to be a blue-print instance, many settings missing:
+        _config = null;
+        _serializationView = null;
+        _serializerFactory = null;
+        _knownSerializers = null;
+
+        // and others initialized to default empty state
+        _serializerCache = new SerializerCache();
+        _rootNames = new RootNameLookup();
+
+        _unknownTypeSerializer = src._unknownTypeSerializer;
+        _keySerializer = src._keySerializer;
+        _nullValueSerializer = src._nullValueSerializer;
+        _nullKeySerializer = src._nullKeySerializer;
+
+        _stdNullValueSerializer = src._stdNullValueSerializer;
     }
     
     /*

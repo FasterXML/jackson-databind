@@ -1,9 +1,6 @@
 package com.fasterxml.jackson.databind.deser;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
@@ -54,6 +51,25 @@ public abstract class DefaultDeserializationContext
     protected DefaultDeserializationContext(DefaultDeserializationContext src,
             DeserializerFactory factory) {
         super(src, factory);
+    }
+
+    /**
+     * @since 2.4.4
+     */
+    protected DefaultDeserializationContext(DefaultDeserializationContext src) {
+        super(src);
+    }
+    
+    /**
+     * Method needed to ensure that {@link ObjectMapper#copy} will work
+     * properly; specifically, that caches are cleared, but settings
+     * will otherwise remain identical; and that no sharing of state
+     * occurs.
+     * 
+     * @since 2.4.4
+     */
+    public DefaultDeserializationContext copy() {
+        throw new IllegalStateException("DefaultDeserializationContext sub-class not overriding copy()");
     }
 
     /*
@@ -271,8 +287,18 @@ public abstract class DefaultDeserializationContext
             super(src, config, jp, values);
         }
 
+        protected Impl(Impl src) { super(src); }
+        
         protected Impl(Impl src, DeserializerFactory factory) {
             super(src, factory);
+        }
+
+        @Override
+        public DefaultDeserializationContext copy() {
+            if (getClass() != Impl.class) {
+                return super.copy();
+            }
+           return new Impl(this);
         }
         
         @Override

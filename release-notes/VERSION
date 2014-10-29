@@ -43,6 +43,9 @@ Project: jackson-databind
 
 (jackson-core)#158: Setter confusion on assignable types
  (reported by tsquared2763@github)
+#245: Calls to ObjectMapper.addMixInAnnotations() on an instance returned by ObjectMapper.copy()
+ don't work
+ (reported by Erik D)
 #580: delegate deserializers choke on a (single) abstract/polymorphic parameter
  (reported by Ian B, tea-dragon@github)
 #590: Binding invalid Currency gives nonsense at end of the message

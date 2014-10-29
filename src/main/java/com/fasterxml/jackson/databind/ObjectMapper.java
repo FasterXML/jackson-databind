@@ -401,13 +401,12 @@ public class ObjectMapper
         _subtypeResolver = src._subtypeResolver;
         _rootNames = new RootNameLookup();
         _typeFactory = src._typeFactory;
-        _serializationConfig = src._serializationConfig;
         HashMap<ClassKey,Class<?>> mixins = new HashMap<ClassKey,Class<?>>(src._mixInAnnotations);
         _mixInAnnotations = mixins;
         _serializationConfig = new SerializationConfig(src._serializationConfig, mixins);
         _deserializationConfig = new DeserializationConfig(src._deserializationConfig, mixins);
-        _serializerProvider = src._serializerProvider;
-        _deserializationContext = src._deserializationContext;
+        _serializerProvider = src._serializerProvider.copy();
+        _deserializationContext = src._deserializationContext.copy();
 
         // Default serializer factory is stateless, can just assign
         _serializerFactory = src._serializerFactory;

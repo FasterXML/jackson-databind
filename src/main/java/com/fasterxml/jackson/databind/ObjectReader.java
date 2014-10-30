@@ -233,7 +233,7 @@ public class ObjectReader
         _unwrapRoot = config.useRootWrapping();
         _dataFormatReaders = base._dataFormatReaders;
     }
-
+    
     protected ObjectReader(ObjectReader base, JsonFactory f)
     {
         // may need to override ordering, based on data format capabilities

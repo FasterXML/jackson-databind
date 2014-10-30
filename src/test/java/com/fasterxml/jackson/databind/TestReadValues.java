@@ -17,8 +17,16 @@ public class TestReadValues extends BaseMapTest
 
     static class Bean {
         public int a;
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || o.getClass() != getClass()) return false;
+            Bean other = (Bean) o;
+            return other.a == this.a;
+        }
+        @Override public int hashCode() { return a; }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests; root-level value sequences via Mapper
@@ -30,9 +38,10 @@ public class TestReadValues extends BaseMapTest
     public void testRootBeans() throws Exception
     {
         final String JSON = "{\"a\":3}{\"a\":27}  ";
-        Iterator<Bean> it = MAPPER.reader(Bean.class).readValues(JSON);
 
-        assertNotNull(((MappingIterator<?>) it).getCurrentLocation());
+        MappingIterator<Bean> it = MAPPER.reader(Bean.class).readValues(JSON);
+
+        assertNotNull(it.getCurrentLocation());
         assertTrue(it.hasNext());
         Bean b = it.next();
         assertEquals(3, b.a);
@@ -40,6 +49,19 @@ public class TestReadValues extends BaseMapTest
         b = it.next();
         assertEquals(27, b.a);
         assertFalse(it.hasNext());
+        it.close();
+
+        // Also, test 'readAll()'
+        it = MAPPER.reader(Bean.class).readValues(JSON);
+        List<Bean> all = it.readAll();
+        assertEquals(2, all.size());
+        it.close();
+
+        it = MAPPER.reader(Bean.class).readValues("{\"a\":3}{\"a\":3}");
+        Set<Bean> set = it.readAll(new HashSet<Bean>());
+        assertEquals(HashSet.class, set.getClass());
+        assertEquals(1, set.size());
+        assertEquals(3, set.iterator().next().a);
     }
 
     public void testRootMaps() throws Exception

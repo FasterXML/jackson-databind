@@ -118,7 +118,7 @@ public class TestMixinSerForClass
         result = writeAndMap(mapper2, bean);
         assertEquals(2, result.size());
         ObjectMapper mapper3 = mapper2.copy();
-        mapper3.addMixInAnnotations(BaseClass.class, MixInAutoDetect.class);
+        mapper3.addMixIn(BaseClass.class, MixInAutoDetect.class);
         result = writeAndMap(mapper3, bean);
         assertEquals(1, result.size());
         assertEquals("c2", result.get("c"));

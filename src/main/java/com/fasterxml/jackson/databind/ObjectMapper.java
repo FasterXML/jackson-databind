@@ -2486,8 +2486,9 @@ public class ObjectMapper
      * Convenience method for constructing {@link ObjectWriter}
      * with default settings.
      */
-    public ObjectWriter writer() {
-        return _newWriter(getSerializationConfig());
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writer() {
+        return (W) _newWriter(getSerializationConfig());
     }
 
     /**
@@ -2495,8 +2496,9 @@ public class ObjectMapper
      * specified feature enabled (compared to settings that this
      * mapper instance has).
      */
-    public ObjectWriter writer(SerializationFeature feature) {
-        return _newWriter(getSerializationConfig().with(feature));
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writer(SerializationFeature feature) {
+        return (W) _newWriter(getSerializationConfig().with(feature));
     }
 
     /**
@@ -2504,9 +2506,10 @@ public class ObjectMapper
      * specified features enabled (compared to settings that this
      * mapper instance has).
      */
-    public ObjectWriter writer(SerializationFeature first,
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writer(SerializationFeature first,
             SerializationFeature... other) {
-        return _newWriter(getSerializationConfig().with(first, other));
+        return (W) _newWriter(getSerializationConfig().with(first, other));
     }
     
     /**
@@ -2514,16 +2517,18 @@ public class ObjectMapper
      * serialize objects using specified {@link DateFormat}; or, if
      * null passed, using timestamp (64-bit number.
      */
-    public ObjectWriter writer(DateFormat df) {
-        return _newWriter(getSerializationConfig().with(df));
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writer(DateFormat df) {
+        return (W) _newWriter(getSerializationConfig().with(df));
     }
     
     /**
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified JSON View (filter).
      */
-    public ObjectWriter writerWithView(Class<?> serializationView) {
-        return _newWriter(getSerializationConfig().withView(serializationView));
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writerWithView(Class<?> serializationView) {
+        return (W) _newWriter(getSerializationConfig().withView(serializationView));
     }
     
     /**
@@ -2532,8 +2537,9 @@ public class ObjectMapper
      * runtime type of value. Type must be a super-type of runtime
      * type.
      */
-    public ObjectWriter writerWithType(Class<?> rootType) {
-        return _newWriter(getSerializationConfig(),
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writerWithType(Class<?> rootType) {
+        return (W) _newWriter(getSerializationConfig(),
                 // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
                 ((rootType == null) ? null :_typeFactory.constructType(rootType)),
                 /*PrettyPrinter*/null);
@@ -2544,8 +2550,9 @@ public class ObjectMapper
      * serialize objects using specified root type, instead of actual
      * runtime type of value. Type must be a super-type of runtime type.
      */
-    public ObjectWriter writerWithType(TypeReference<?> rootType) {
-        return _newWriter(getSerializationConfig(),
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writerWithType(TypeReference<?> rootType) {
+        return (W) _newWriter(getSerializationConfig(),
                 // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
                 ((rootType == null) ? null : _typeFactory.constructType(rootType)),
                 /*PrettyPrinter*/null);
@@ -2556,8 +2563,9 @@ public class ObjectMapper
      * serialize objects using specified root type, instead of actual
      * runtime type of value. Type must be a super-type of runtime type.
      */
-    public ObjectWriter writerWithType(JavaType rootType) {
-        return _newWriter(getSerializationConfig(), rootType, /*PrettyPrinter*/null);
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writerWithType(JavaType rootType) {
+        return (W) _newWriter(getSerializationConfig(), rootType, /*PrettyPrinter*/null);
     }
     
     /**
@@ -2565,19 +2573,21 @@ public class ObjectMapper
      * serialize objects using specified pretty printer for indentation
      * (or if null, no pretty printer)
      */
-    public ObjectWriter writer(PrettyPrinter pp) {
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writer(PrettyPrinter pp) {
         if (pp == null) { // need to use a marker to indicate explicit disabling of pp
             pp = ObjectWriter.NULL_PRETTY_PRINTER;
         }
-        return _newWriter(getSerializationConfig(), /*root type*/ null, pp);
+        return (W) _newWriter(getSerializationConfig(), /*root type*/ null, pp);
     }
     
     /**
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using the default pretty printer for indentation
      */
-    public ObjectWriter writerWithDefaultPrettyPrinter() {
-        return _newWriter(getSerializationConfig(),
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writerWithDefaultPrettyPrinter() {
+        return (W) _newWriter(getSerializationConfig(),
                 /*root type*/ null, _defaultPrettyPrinter());
     }
     
@@ -2585,8 +2595,9 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified filter provider.
      */
-    public ObjectWriter writer(FilterProvider filterProvider) {
-        return _newWriter(getSerializationConfig().withFilters(filterProvider));
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writer(FilterProvider filterProvider) {
+        return (W) _newWriter(getSerializationConfig().withFilters(filterProvider));
     }
     
     /**
@@ -2596,9 +2607,10 @@ public class ObjectMapper
      * 
      * @param schema Schema to pass to generator
      */
-    public ObjectWriter writer(FormatSchema schema) {
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writer(FormatSchema schema) {
         _verifySchemaType(schema);
-        return _newWriter(getSerializationConfig(), schema);
+        return (W) _newWriter(getSerializationConfig(), schema);
     }
 
     /**
@@ -2607,8 +2619,9 @@ public class ObjectMapper
      * 
      * @since 2.1
      */
-    public ObjectWriter writer(Base64Variant defaultBase64) {
-        return _newWriter(getSerializationConfig().with(defaultBase64));
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writer(Base64Variant defaultBase64) {
+        return (W) _newWriter(getSerializationConfig().with(defaultBase64));
     }
 
     /**
@@ -2617,8 +2630,9 @@ public class ObjectMapper
      * 
      * @since 2.3
      */
-    public ObjectWriter writer(CharacterEscapes escapes) {
-        return _newWriter(getSerializationConfig()).with(escapes);
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writer(CharacterEscapes escapes) {
+        return (W) _newWriter(getSerializationConfig()).with(escapes);
     }
 
     /**
@@ -2627,8 +2641,9 @@ public class ObjectMapper
      * 
      * @since 2.3
      */
-    public ObjectWriter writer(ContextAttributes attrs) {
-        return _newWriter(getSerializationConfig().with(attrs));
+    @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writer(ContextAttributes attrs) {
+        return (W) _newWriter(getSerializationConfig().with(attrs));
     }
     
     /*
@@ -2643,8 +2658,9 @@ public class ObjectMapper
      * default settings. Note that the resulting instance is NOT usable as is,
      * without defining expected value type.
      */
-    public ObjectReader reader() {
-        return _newReader(getDeserializationConfig()).with(_injectableValues);
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectReader> T reader() {
+        return (T) _newReader(getDeserializationConfig()).with(_injectableValues);
     }
 
     /**
@@ -2654,8 +2670,9 @@ public class ObjectMapper
      * Note that the resulting instance is NOT usable as is,
      * without defining expected value type.
      */
-    public ObjectReader reader(DeserializationFeature feature) {
-        return _newReader(getDeserializationConfig().with(feature));
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectReader> T reader(DeserializationFeature feature) {
+        return (T) _newReader(getDeserializationConfig().with(feature));
     }
 
     /**
@@ -2665,9 +2682,10 @@ public class ObjectMapper
      * Note that the resulting instance is NOT usable as is,
      * without defining expected value type.
      */
-    public ObjectReader reader(DeserializationFeature first,
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectReader> T reader(DeserializationFeature first,
             DeserializationFeature... other) {
-        return _newReader(getDeserializationConfig().with(first, other));
+        return (T) _newReader(getDeserializationConfig().with(first, other));
     }
     
     /**
@@ -2680,9 +2698,10 @@ public class ObjectMapper
      * Runtime type of value object is used for locating deserializer,
      * unless overridden by other factory methods of {@link ObjectReader}
      */
-    public ObjectReader readerForUpdating(Object valueToUpdate) {
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectReader> T readerForUpdating(Object valueToUpdate) {
         JavaType t = _typeFactory.constructType(valueToUpdate.getClass());
-        return _newReader(getDeserializationConfig(), t, valueToUpdate,
+        return (T) _newReader(getDeserializationConfig(), t, valueToUpdate,
                 null, _injectableValues);
     }
 
@@ -2690,8 +2709,9 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectReader} that will
      * read or update instances of specified type
      */
-    public ObjectReader reader(JavaType type) {
-        return _newReader(getDeserializationConfig(), type, null,
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectReader> T reader(JavaType type) {
+        return (T) _newReader(getDeserializationConfig(), type, null,
                 null, _injectableValues);
     }
 
@@ -2699,8 +2719,9 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectReader} that will
      * read or update instances of specified type
      */
-    public ObjectReader reader(Class<?> type) {
-        return _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectReader> T reader(Class<?> type) {
+        return (T) _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
                 null, _injectableValues);
     }
 
@@ -2708,8 +2729,9 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectReader} that will
      * read or update instances of specified type
      */
-    public ObjectReader reader(TypeReference<?> type) {
-        return _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectReader> T reader(TypeReference<?> type) {
+        return (T)_newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
                 null, _injectableValues);
     }
 
@@ -2717,8 +2739,9 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectReader} that will
      * use specified {@link JsonNodeFactory} for constructing JSON trees.
      */
-    public ObjectReader reader(JsonNodeFactory f) {
-        return _newReader(getDeserializationConfig()).with(f);
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectReader> T reader(JsonNodeFactory f) {
+        return (T) _newReader(getDeserializationConfig()).with(f);
     }
 
     /**
@@ -2728,9 +2751,10 @@ public class ObjectMapper
      * 
      * @param schema Schema to pass to parser
      */
-    public ObjectReader reader(FormatSchema schema) {
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectReader> T reader(FormatSchema schema) {
         _verifySchemaType(schema);
-        return _newReader(getDeserializationConfig(), null, null,
+        return (T)_newReader(getDeserializationConfig(), null, null,
                 schema, _injectableValues);
     }
 
@@ -2740,8 +2764,9 @@ public class ObjectMapper
      * 
      * @param injectableValues Injectable values to use
      */
-    public ObjectReader reader(InjectableValues injectableValues) {
-        return _newReader(getDeserializationConfig(), null, null,
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectReader> T reader(InjectableValues injectableValues) {
+        return (T)_newReader(getDeserializationConfig(), null, null,
                 null, injectableValues);
     }
 
@@ -2749,8 +2774,9 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectReader} that will
      * deserialize objects using specified JSON View (filter).
      */
-    public ObjectReader readerWithView(Class<?> view) {
-        return _newReader(getDeserializationConfig().withView(view));
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectReader> T readerWithView(Class<?> view) {
+        return (T) _newReader(getDeserializationConfig().withView(view));
     }
 
     /**
@@ -2759,8 +2785,9 @@ public class ObjectMapper
      * 
      * @since 2.1
      */
-    public ObjectReader reader(Base64Variant defaultBase64) {
-        return _newReader(getDeserializationConfig().with(defaultBase64));
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectReader> T reader(Base64Variant defaultBase64) {
+        return (T) _newReader(getDeserializationConfig().with(defaultBase64));
     }
 
     /**
@@ -2769,8 +2796,9 @@ public class ObjectMapper
      * 
      * @since 2.3
      */
-    public ObjectReader reader(ContextAttributes attrs) {
-        return _newReader(getDeserializationConfig().with(attrs));
+    @SuppressWarnings("unchecked")
+    public <T extends ObjectReader> T reader(ContextAttributes attrs) {
+        return (T) _newReader(getDeserializationConfig().with(attrs));
     }
 
     /*

@@ -302,6 +302,27 @@ public class ObjectReader
     }
 
     /**
+     * Factory method used to create {@link MappingIterator} instances;
+     * either default, or custom subtype.
+     * 
+     * @since 2.5
+     */
+    protected <T> MappingIterator<T> _newIterator(JavaType valueType,
+            JsonParser parser, DeserializationContext ctxt,
+            JsonDeserializer<?> deser, boolean parserManaged, Object valueToUpdate)
+    {
+            return new MappingIterator<T>(valueType, parser, ctxt,
+                    deser, parserManaged, valueToUpdate);
+    }
+
+    /*
+    /**********************************************************
+    /* Methods sub-classes may choose to override, if customized
+    /* initialization is needed.
+    /**********************************************************
+     */
+
+    /**
      * NOTE: changed from static to non-static in 2.5; unfortunate but
      * necessary change to support overridability
      */
@@ -1134,7 +1155,7 @@ public class ObjectReader
     {
         DeserializationContext ctxt = createDeserializationContext(jp, _config);
         // false -> do not close as caller gave parser instance
-        return new MappingIterator<T>(_valueType, jp, ctxt,
+        return _newIterator(_valueType, jp, ctxt,
                 _findRootDeserializer(ctxt, _valueType),
                 false, _valueToUpdate);
     }
@@ -1182,7 +1203,7 @@ public class ObjectReader
         _initForMultiRead(p);
         p.nextToken();
         DeserializationContext ctxt = createDeserializationContext(p, _config);
-        return new MappingIterator<T>(_valueType, p, ctxt,
+        return _newIterator(_valueType, p, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
     
@@ -1202,7 +1223,7 @@ public class ObjectReader
         _initForMultiRead(p);
         p.nextToken();
         DeserializationContext ctxt = createDeserializationContext(p, _config);
-        return new MappingIterator<T>(_valueType, p, ctxt,
+        return _newIterator(_valueType, p, ctxt,
                 _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
 
@@ -1395,9 +1416,8 @@ public class ObjectReader
         _initForMultiRead(p);
         p.nextToken();
         DeserializationContext ctxt = createDeserializationContext(p, _config);
-        return new MappingIterator<T>(_valueType, p, ctxt, 
-                _findRootDeserializer(ctxt, _valueType),
-                true, _valueToUpdate);
+        return _newIterator(_valueType, p, ctxt, 
+                _findRootDeserializer(ctxt, _valueType), true, _valueToUpdate);
     }
 
     protected Object _unwrapAndDeserialize(JsonParser jp, DeserializationContext ctxt,

@@ -48,8 +48,7 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
      */
     @Deprecated
     protected MappingIterator(JavaType type, JsonParser jp, DeserializationContext ctxt,
-            JsonDeserializer<?> deser)
-    {
+            JsonDeserializer<?> deser) {
         this(type, jp, ctxt, deser, true, null);
     }
 

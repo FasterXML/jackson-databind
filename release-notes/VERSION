@@ -17,6 +17,7 @@ Project: jackson-databind
  (reported by Jerbell@github)
 #592: Wrong `TokenBuffer` delegate deserialization using `@JsonCreator`
  (reported by Eugene L)
+- Minor fix to `EnumSerializer` regarding detection "serialize using index"
 
 2.4.3 (02-Oct-2014)
 

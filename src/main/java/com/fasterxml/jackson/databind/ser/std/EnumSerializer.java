@@ -155,7 +155,7 @@ public class EnumSerializer
         throws JsonMappingException
     {
         // [JACKSON-684]: serialize as index?
-        if (visitor.getProvider().isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX)) {
+        if (_serializeAsIndex(visitor.getProvider())) {
             JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
             if (v2 != null) { // typically serialized as a small number (byte or int)
                 v2.numberType(JsonParser.NumberType.INT);

@@ -351,6 +351,9 @@ public class BeanDeserializer
                         wrapAndThrow(e, _beanType.getRawClass(), propName, ctxt);
                         bean = null; // never gets here
                     }
+                    if (bean == null) {
+                        throw ctxt.instantiationException(_beanType.getRawClass(), " the created object is null");
+                    }
                     //  polymorphic?
                     if (bean.getClass() != _beanType.getRawClass()) {
                         return handlePolymorphic(jp, ctxt, bean, unknown);

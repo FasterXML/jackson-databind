@@ -163,3 +163,8 @@ Adam Stroud (adstro@github)
 David Fleeman (fleebytes@github)
   * Contributed #528 implementation: Add support for `JsonType.As.EXISTING_PROPERTY`
    (2.5.0)
+
+Aurélien Leboulanger (herau@github)
+  * Contributed improvement for #597: Improve error messaging for cases	where JSON Creator
+    returns null (which is illegal)
+   (2.5.0)

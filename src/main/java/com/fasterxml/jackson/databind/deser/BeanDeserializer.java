@@ -325,7 +325,7 @@ public class BeanDeserializer
     @Override
     @SuppressWarnings("resource")
     protected Object _deserializeUsingPropertyBased(final JsonParser jp, final DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
         PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt, _objectIdReader);
@@ -352,7 +352,7 @@ public class BeanDeserializer
                         bean = null; // never gets here
                     }
                     if (bean == null) {
-                        throw ctxt.instantiationException(_beanType.getRawClass(), " the created object is null");
+                        throw ctxt.instantiationException(_beanType.getRawClass(), "JSON Creator returned null");
                     }
                     //  polymorphic?
                     if (bean.getClass() != _beanType.getRawClass()) {

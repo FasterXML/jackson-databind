@@ -19,7 +19,7 @@ public class AbstractDeserializer
     extends JsonDeserializer<Object>
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = -3010349050434697698L;
+    private static final long serialVersionUID = 1L;
 
     protected final JavaType _baseType;
 
@@ -146,8 +146,7 @@ public class AbstractDeserializer
     /**********************************************************
      */
     
-    protected Object _deserializeIfNatural(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    protected Object _deserializeIfNatural(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         /* As per [JACKSON-417], there is a chance we might be "natural" types
          * (String, Boolean, Integer, Double), which do not include any type information...
@@ -155,34 +154,32 @@ public class AbstractDeserializer
          * Finally, we may have to consider possibility of custom handlers for
          * these values: but for now this should work ok.
          */
-        /* 21-Sep-2013, tatu: It may seem odd that I'm not using a switch here.
-         *   But turns out that a switch on an enum generates an inner class...
-         *   crazy! So this is to avoid that, simply since new class weighs about 1kB
-         *   after compression.
-         */
-        final JsonToken t = jp.getCurrentToken();
-        if (t.isScalarValue()) {
-            if (t == JsonToken.VALUE_STRING) {
-                if (_acceptString) {
-                    return jp.getText();
-                }
-            } else if (t == JsonToken.VALUE_NUMBER_INT) {
-                if (_acceptInt) {
-                    return jp.getIntValue();
-                }
-            } else if (t == JsonToken.VALUE_NUMBER_FLOAT) {
-                if (_acceptDouble) {
-                    return Double.valueOf(jp.getDoubleValue());
-                }
-            } else if (t == JsonToken.VALUE_TRUE) {
-                if (_acceptBoolean) {
-                    return Boolean.TRUE;
-                }
-            } else if (t == JsonToken.VALUE_FALSE) {
-                if (_acceptBoolean) {
-                    return Boolean.FALSE;
-                }
+        switch (jp.getCurrentTokenId()) {
+        case JsonTokenId.ID_STRING:
+            if (_acceptString) {
+                return jp.getText();
             }
+            break;
+        case JsonTokenId.ID_NUMBER_INT:
+            if (_acceptInt) {
+                return jp.getIntValue();
+            }
+            break;
+        case JsonTokenId.ID_NUMBER_FLOAT:
+            if (_acceptDouble) {
+                return Double.valueOf(jp.getDoubleValue());
+            }
+            break;
+        case JsonTokenId.ID_TRUE:
+            if (_acceptBoolean) {
+                return Boolean.TRUE;
+            }
+            break;
+        case JsonTokenId.ID_FALSE:
+            if (_acceptBoolean) {
+                return Boolean.FALSE;
+            }
+            break;
         }
         return null;
     }
@@ -191,8 +188,7 @@ public class AbstractDeserializer
      * Method called in cases where it looks like we got an Object Id
      * to parse and use as a reference.
      */
-    protected Object _deserializeFromObjectId(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    protected Object _deserializeFromObjectId(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         Object id = _objectIdReader.readObjectReference(jp, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);

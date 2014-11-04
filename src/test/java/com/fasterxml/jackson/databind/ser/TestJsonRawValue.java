@@ -21,9 +21,9 @@ public class TestJsonRawValue
     @JsonPropertyOrder(alphabetic=true)
     final static class ClassGetter<T>
     {
-    	private final T _value;
+        protected final T _value;
     	
-        private ClassGetter(T value) { _value = value;}
+        protected ClassGetter(T value) { _value = value;}
  
         public T getNonRaw() { return _value; }
 

@@ -14,27 +14,27 @@ public class TestNumbers extends BaseMapTest
 {
     private final ObjectMapper MAPPER = objectMapper();
 
-    private static class IntAsString {
+    static class IntAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
         public int value = 3;
     }
 
-    private static class LongAsString {
+    static class LongAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
         public long value = 4;
     }
-    
-    private static class DoubleAsString {
+
+    static class DoubleAsString {
         @JsonFormat(shape=JsonFormat.Shape.STRING)
         public double value = -0.5;
     }
-    
+
     /*
     /**********************************************************
     /* Test methods
     /**********************************************************
      */
-    
+
     public void testDouble() throws Exception
     {
         double[] values = new double[] {

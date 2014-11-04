@@ -109,7 +109,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     static class ValueNodeExt
     {
         public int value;
-        private int customId;
+        protected int customId;
         public IdWrapperExt next;
         
         public ValueNodeExt() { this(0); }
@@ -126,7 +126,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
     static class AnySetterObjectId {
-        private Map<String, AnySetterObjectId> values = new HashMap<String, AnySetterObjectId>();
+        protected Map<String, AnySetterObjectId> values = new HashMap<String, AnySetterObjectId>();
 
         @JsonAnySetter
         public void anySet(String field, AnySetterObjectId value) {

@@ -8,7 +8,7 @@ public class TestNameConflicts extends BaseMapTest
     @JsonAutoDetect
     (fieldVisibility= JsonAutoDetect.Visibility.NONE,getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, isGetterVisibility= JsonAutoDetect.Visibility.NONE)
     static class CoreBean158 {
-        private String bar = "x";
+        protected String bar = "x";
 
         @JsonProperty
         public String getBar() {

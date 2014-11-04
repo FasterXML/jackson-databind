@@ -8,13 +8,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class TestInferredMutators extends BaseMapTest
 {
     public static class Point {
-        private int x;
+        protected int x;
         
         public int getX() { return x; }
     }
 
     public static class FixedPoint {
-        private final int x;
+        protected final int x;
 
         public FixedPoint() { x = 0; }
 

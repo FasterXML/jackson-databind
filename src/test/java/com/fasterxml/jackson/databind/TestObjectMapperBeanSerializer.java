@@ -136,8 +136,7 @@ public class TestObjectMapperBeanSerializer
         THIS_IS_AN_ENUM_VALUE_3,
     }
 
-    @SuppressWarnings("unused")
-    private static class FixtureObjectBase
+    static class FixtureObjectBase
     {
         public static final String       VALUE_STRING = "foobar";
         public static final EFixtureEnum VALUE_ENUM   = EFixtureEnum.THIS_IS_AN_ENUM_VALUE_2;
@@ -226,11 +225,9 @@ public class TestObjectMapperBeanSerializer
         }
     }
 
-    @SuppressWarnings("unused")
-    private static class FixtureObject extends FixtureObjectBase
+    static class FixtureObject extends FixtureObjectBase
     {
-        public Exception getTestError()
-        {
+        public Exception getTestError() {
             return new Exception(VALUE_ERRTXT);
         }
     }

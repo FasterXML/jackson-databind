@@ -512,7 +512,7 @@ public class BeanDeserializer
         tokens.writeEndObject();
         _unwrappedPropertyHandler.processUnwrapped(jp, ctxt, bean, tokens);
         return bean;
-    }    
+    }
 
     @SuppressWarnings("resource")
     protected Object deserializeWithUnwrapped(JsonParser jp, DeserializationContext ctxt, Object bean)

@@ -41,8 +41,8 @@ public class TestParentChildReferences
     static class SimpleTreeNode2
     {
         public String name;
-        private SimpleTreeNode2 parent;
-        private SimpleTreeNode2 child;
+        protected SimpleTreeNode2 parent;
+        protected SimpleTreeNode2 child;
 
         public SimpleTreeNode2() { this(null); }
         public SimpleTreeNode2(String n) { name = n; }
@@ -141,7 +141,7 @@ public class TestParentChildReferences
 
     public static class Parent {
         @JsonManagedReference
-        private final List<Child> children = new ArrayList<Child>();
+        protected final List<Child> children = new ArrayList<Child>();
 
         public List<Child> getChildren() { return children; }
 
@@ -149,8 +149,8 @@ public class TestParentChildReferences
     }
 
     public static class Child {
-        private Parent parent;
-        private final String value; // So that the bean is not empty of properties
+        protected Parent parent;
+        protected final String value; // So that the bean is not empty of properties
 
         public Child(@JsonProperty("value") String value) { this.value = value; }
 
@@ -160,9 +160,7 @@ public class TestParentChildReferences
         public Parent getParent() { return parent; }
 
         public void setParent(Parent parent) { this.parent = parent; }
-    }    
-
-    // [JACKSON-368]
+    }
 
     @JsonTypeInfo(use=Id.NAME)
     @JsonSubTypes({@JsonSubTypes.Type(ConcreteNode.class)})

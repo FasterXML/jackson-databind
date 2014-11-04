@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.databind.creators;
 
+import java.io.IOException;
+import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.*;
 
-// Mostly for [JACSON-774]
 public class TestCreatorNullValue extends BaseMapTest
 {
     protected static class Container {
@@ -19,13 +19,13 @@ public class TestCreatorNullValue extends BaseMapTest
         }
     }
 
-    private static interface Contained<T> {}
+    protected static interface Contained<T> {}
 
-    private static class NullContained implements Contained<Object> {}
+    protected static class NullContained implements Contained<Object> {}
 
-    private static final NullContained NULL_CONTAINED = new NullContained();
+    protected static final NullContained NULL_CONTAINED = new NullContained();
 
-    private static class ContainedDeserializer extends JsonDeserializer<Contained<?>> {
+    protected static class ContainedDeserializer extends JsonDeserializer<Contained<?>> {
         @Override
         public Contained<?> deserialize(JsonParser jp, DeserializationContext ctxt) throws JsonProcessingException {
             return null;
@@ -37,7 +37,7 @@ public class TestCreatorNullValue extends BaseMapTest
         }
     }
 
-    private static class ContainerDeserializerResolver extends Deserializers.Base {
+    protected static class ContainerDeserializerResolver extends Deserializers.Base {
         @Override
         public JsonDeserializer<?> findBeanDeserializer(JavaType type,
                 DeserializationConfig config, BeanDescription beanDesc)
@@ -45,13 +45,12 @@ public class TestCreatorNullValue extends BaseMapTest
         {
             if (!Contained.class.isAssignableFrom(type.getRawClass())) {
                 return null;
-            } else {
-                return new ContainedDeserializer();
             }
+            return new ContainedDeserializer();
         }
     }
 
-    private static class TestModule extends Module
+    protected static class TestModule extends Module
     {
         @Override
         public String getModuleName() {
@@ -69,6 +68,26 @@ public class TestCreatorNullValue extends BaseMapTest
         }
     }
 
+    // [databind#597]
+    static class JsonEntity {
+        protected final String type;
+        protected final UUID id;
+
+        private JsonEntity(String type, UUID id) {
+            this.type = type;
+            this.id = id;
+        }
+
+        @JsonCreator
+        public static JsonEntity create(@JsonProperty("type") String type, @JsonProperty("id") UUID id) {
+            if (type != null && !type.contains(" ") && (id != null)) {
+                return new JsonEntity(type, id);
+            }
+
+            return null;
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -81,4 +100,17 @@ public class TestCreatorNullValue extends BaseMapTest
         Container container = mapper.readValue("{}", Container.class);
         assertEquals(NULL_CONTAINED, container.contained);
     }
+
+    // [databind#597]: ensure that a useful exception is thrown
+    public void testCreatorReturningNull() throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = "{ \"type\" : \"     \", \"id\" : \"000c0ffb-a0d6-4d2e-a379-4aeaaf283599\" }";
+        try {
+            objectMapper.readValue(json, JsonEntity.class);
+            fail("Should not have succeeded");
+        } catch (JsonMappingException e) {
+            e.printStackTrace();
+            verifyException(e, "JSON creator returned null");
+        }
+    }    
 }

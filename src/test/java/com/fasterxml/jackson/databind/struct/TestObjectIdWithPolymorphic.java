@@ -18,9 +18,8 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
     static abstract class Base
     {
         public int value;
-
         public Base next;
-        
+
         public Base() { this(0); }
         public Base(int v) {
             value = v;
@@ -45,7 +44,7 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
         public int id;
         public Base811 owner;
             
-        private Base811() {}
+        protected Base811() {}
         public Base811(Process owner) {
             this.owner = owner;
             if (owner == null) {
@@ -70,8 +69,8 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
                 super(owner);
                 this.parent = parent;
         }
-        private Activity() {
-                super();
+        protected Activity() {
+            super();
         }
     }
     
@@ -80,7 +79,7 @@ public class TestObjectIdWithPolymorphic extends BaseMapTest
         public Scope(Process owner, Activity parent) {
             super(owner, parent);
         }
-        private Scope() {
+        protected Scope() {
             super();
         }
     }

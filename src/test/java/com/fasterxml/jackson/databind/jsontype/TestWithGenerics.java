@@ -63,8 +63,7 @@ public class TestWithGenerics extends BaseMapTest
         public MyParam(T v) { value = v; }
     }
 
-    private static class SomeObject {
-        @SuppressWarnings("unused")
+    static class SomeObject {
         public String someValue = UUID.randomUUID().toString();
     }
     

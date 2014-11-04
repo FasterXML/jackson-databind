@@ -58,14 +58,14 @@ public class TestInjectables extends BaseMapTest
 
     static class IssueGH471Bean {
 
-        private final Object constructorInjected;
-        private final String constructorValue;
+        protected final Object constructorInjected;
+        protected final String constructorValue;
 
-        @JacksonInject("field_injected") private Object fieldInjected;
-        @JsonProperty("field_value")     private String fieldValue;
+        @JacksonInject("field_injected") protected Object fieldInjected;
+        @JsonProperty("field_value")     protected String fieldValue;
 
-        private Object methodInjected;
-        private String methodValue;
+        protected Object methodInjected;
+        protected String methodValue;
 
         public int x;
         

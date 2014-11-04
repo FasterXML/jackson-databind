@@ -76,7 +76,7 @@ public class TestJdkTypes extends BaseMapTest
 
         @JsonProperty("Location")
         @JsonDeserialize(using=MyStackTraceElementDeserializer.class)
-        private StackTraceElement location;    
+        protected StackTraceElement location;    
     }
 
     @SuppressWarnings("serial")

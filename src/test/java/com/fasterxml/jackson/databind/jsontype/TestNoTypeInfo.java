@@ -9,10 +9,10 @@ public class TestNoTypeInfo extends BaseMapTest
 {
     @JsonTypeInfo(use=JsonTypeInfo.Id.NONE)
     @JsonDeserialize(as=NoType.class)
-    private static interface NoTypeInterface {
+    static interface NoTypeInterface {
     }
     
-    private final static class NoType implements NoTypeInterface {
+    final static class NoType implements NoTypeInterface {
         public int a = 3;
     }
     

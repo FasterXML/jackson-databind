@@ -16,7 +16,7 @@ public class TestJDKSerialization extends BaseMapTest
 {
     static class MyPojo {
         public int x;
-        private int y;
+        protected int y;
         
         public MyPojo() { }
         public MyPojo(int x0, int y0) {

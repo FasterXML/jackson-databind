@@ -30,12 +30,12 @@ public class MapSerializer
     implements ContextualSerializer
 {
     protected final static JavaType UNSPECIFIED_TYPE = TypeFactory.unknownType();
-    
+
     /**
      * Map-valued property being serialized with this instance
      */
     protected final BeanProperty _property;
-    
+
     /**
      * Set of entries to omit during serialization, if any
      */
@@ -61,7 +61,7 @@ public class MapSerializer
      * Key serializer to use, if it can be statically determined
      */
     protected JsonSerializer<Object> _keySerializer;
-    
+
     /**
      * Value serializer to use, if it can be statically determined
      */
@@ -92,7 +92,7 @@ public class MapSerializer
      * @since 2.4
      */
     protected final boolean _sortKeys;
-    
+
     /*
     /**********************************************************
     /* Life-cycle

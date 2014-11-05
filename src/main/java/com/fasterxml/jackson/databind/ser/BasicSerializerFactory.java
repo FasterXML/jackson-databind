@@ -706,7 +706,11 @@ public abstract class BasicSerializerFactory
             if (ser != null) { break; }
         }
         if (ser == null) {
-            if (EnumMap.class.isAssignableFrom(type.getRawClass())) {
+            /* 05-Nov-2014, tatu: As per [databind#601], may be easier NOT to use specialized
+             *    serializers, if custom serialization of keys is needed.
+             */
+            if (EnumMap.class.isAssignableFrom(type.getRawClass())
+                    && ((keySerializer == null) || ClassUtil.isJacksonStdImpl(keySerializer))) {
                 JavaType keyType = type.getKeyType();
                 // Need to find key enum values...
                 EnumValues enums = null;

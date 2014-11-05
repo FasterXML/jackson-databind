@@ -702,7 +702,7 @@ public abstract class SerializerProvider
         // 25-Feb-2011, tatu: As per [JACKSON-519], need to ensure contextuality works here, too
         return _handleContextualResolvable(ser, property);
     }
-    
+
     /*
     /********************************************************
     /* Accessors for specialized serializers

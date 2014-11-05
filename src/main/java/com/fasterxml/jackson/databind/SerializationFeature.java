@@ -51,7 +51,7 @@ public enum SerializationFeature implements ConfigFeature
      * method to use any <code>PrettyPrinter</code> instance.
      * This feature will only allow using the default implementation.
      *<p>
-     * Feature is enabled by default.
+     * Feature is disabled by default.
      */
     INDENT_OUTPUT(false),
     

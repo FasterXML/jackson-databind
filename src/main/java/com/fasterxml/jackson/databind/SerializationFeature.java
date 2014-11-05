@@ -20,7 +20,7 @@ public enum SerializationFeature implements ConfigFeature
     /* Generic output features
     /******************************************************
      */
-    
+
     /**
      * Feature that can be enabled to make root value (usually JSON
      * Object but can be any type) wrapped within a single property
@@ -54,13 +54,13 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default.
      */
     INDENT_OUTPUT(false),
-    
+
     /*
     /******************************************************
     /* Error handling features
     /******************************************************
      */
-    
+
     /**
      * Feature that determines what happens when no accessors are
      * found for a type (and there are no annotations to indicate
@@ -89,7 +89,7 @@ public enum SerializationFeature implements ConfigFeature
      * @since 2.4
      */
     FAIL_ON_SELF_REFERENCES(true),
-    
+
     /**
      * Feature that determines whether Jackson code should catch
      * and wrap {@link Exception}s (but never {@link Error}s!)
@@ -128,12 +128,12 @@ public enum SerializationFeature implements ConfigFeature
     /* Output life cycle features
     /******************************************************
      */
-    
+
      /**
       * Feature that determines whether <code>close</code> method of
       * serialized <b>root level</b> objects (ones for which <code>ObjectMapper</code>'s
       * writeValue() (or equivalent) method is called)
-      * that implement {@link java.io.Closeable} 
+      * that implement {@link java.io.Closeable}
       * is called after serialization or not. If enabled, <b>close()</b> will
       * be called after serialization completes (whether succesfully, or
       * due to an error manifested by an exception being thrown). You can
@@ -160,7 +160,7 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is enabled by default.
      */
     FLUSH_AFTER_WRITE_VALUE(true),
-     
+
     /*
     /******************************************************
     /* Datatype-specific serialization configuration
@@ -239,7 +239,7 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default.
      */
     WRITE_ENUMS_USING_INDEX(false),
-    
+
     /**
      * Feature that determines whether Map entries with null values are
      * to be serialized (true) or not (false).
@@ -262,7 +262,7 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is enabled by default.
      */
     WRITE_EMPTY_JSON_ARRAYS(true),
-    
+
     /**
      * Feature added for interoperability, to work with oddities of
      * so-called "BadgerFish" convention.
@@ -300,7 +300,7 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default.
      */
     WRITE_BIGDECIMAL_AS_PLAIN(false),
-    
+
     /**
      * Feature that controls whether numeric timestamp values are
      * to be written using nanosecond timestamps (enabled) or not (disabled);
@@ -313,11 +313,11 @@ public enum SerializationFeature implements ConfigFeature
      * This is the counterpart to {@link SerializationFeature#WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS}.
      *<p>
      * Feature is enabled by default, to support most accurate time values possible.
-     * 
+     *
      * @since 2.2
      */
-    WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS(true),    
-    
+    WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS(true),
+
     /**
      * Feature that determines whether {@link java.util.Map} entries are first
      * sorted by key before serialization or not: if enabled, additional sorting
@@ -345,7 +345,7 @@ public enum SerializationFeature implements ConfigFeature
      * feature: only consider that if there are actual perceived problems.
      *<p>
      * Feature is enabled by default.
-     * 
+     *
      * @since 2.1
      */
     EAGER_SERIALIZER_FETCH(true),
@@ -358,14 +358,14 @@ public enum SerializationFeature implements ConfigFeature
      *<p>
      * Feature is disabled by default; meaning that strict identity is used, not
      * <code>equals()</code>
-     * 
+     *
      * @since 2.3
      */
     USE_EQUALITY_FOR_OBJECT_ID(false)
     ;
 
     private final boolean _defaultState;
-    
+
     private SerializationFeature(boolean defaultState) {
         _defaultState = defaultState;
     }

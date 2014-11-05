@@ -63,7 +63,7 @@ public class MapSerializer
      * Key serializer to use, if it can be statically determined
      */
     protected JsonSerializer<Object> _keySerializer;
-    
+
     /**
      * Value serializer to use, if it can be statically determined
      */
@@ -103,7 +103,7 @@ public class MapSerializer
      * @since 2.5
      */
     protected final Object _suppressableValue;
-    
+
     /*
     /**********************************************************
     /* Life-cycle

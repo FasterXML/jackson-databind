@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 
@@ -50,11 +51,16 @@ public class NumberSerializers
     {
         protected final JsonParser.NumberType _numberType;
         protected final String _schemaType;
+        protected final boolean _isInt;
 
         protected Base(Class<T> cls, JsonParser.NumberType numberType, String schemaType) {
             super(cls);
             _numberType = numberType;
             _schemaType = schemaType;
+            _isInt = (numberType == JsonParser.NumberType.INT)
+                    || (numberType == JsonParser.NumberType.LONG)
+                    || (numberType == JsonParser.NumberType.BIG_INTEGER)
+                    ;
         }
 
         @Override
@@ -65,9 +71,16 @@ public class NumberSerializers
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
         {
-            JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
-            if (v2 != null) {
-                v2.numberType(_numberType);
+            if (_isInt) {
+                JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
+                if (v2 != null) {
+                    v2.numberType(_numberType);
+                }
+            } else {
+                JsonNumberFormatVisitor v2 = visitor.expectNumberFormat(typeHint);
+                if (v2 != null) {
+                    v2.numberType(_numberType);
+                }
             }
         }
 

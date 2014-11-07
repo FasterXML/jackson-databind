@@ -77,9 +77,8 @@ public abstract class BasicSerializerFactory
         _concrete.put(Boolean.class.getName(), new BooleanSerializer(false));
 
         // Other numbers, more complicated
-        final JsonSerializer<?> ns = NumberSerializer.instance;
-        _concrete.put(BigInteger.class.getName(), ns);
-        _concrete.put(BigDecimal.class.getName(), ns);
+        _concrete.put(BigInteger.class.getName(), new NumberSerializer(BigInteger.class));
+        _concrete.put(BigDecimal.class.getName(),new NumberSerializer(BigDecimal.class));
 
         // Other discrete non-container types:
         // First, Date/Time zoo:

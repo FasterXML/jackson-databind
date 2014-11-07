@@ -599,6 +599,10 @@ public class ObjectNode
 
     /**
      * Method for setting value of a field to specified numeric value.
+     * The underlying {@link JsonNode} that will be added is constructed
+     * using {@link JsonNodeFactory#numberNode(int)}, and may be
+     *  "smaller" (like {@link ShortNode}) in cases where value fits within
+     *  range of a smaller integral numeric value.
      * 
      * @return This node (to allow chaining)
      */
@@ -619,6 +623,10 @@ public class ObjectNode
     
     /**
      * Method for setting value of a field to specified numeric value.
+     * The underlying {@link JsonNode} that will be added is constructed
+     * using {@link JsonNodeFactory#numberNode(long)}, and may be
+     *  "smaller" (like {@link IntNode}) in cases where value fits within
+     *  range of a smaller integral numeric value.
      * 
      * @return This node (to allow chaining)
      */
@@ -627,8 +635,14 @@ public class ObjectNode
     }
 
     /**
-     * Alternative method that we need to avoid bumping into NPE issues
-     * with auto-unboxing.
+     * Method for setting value of a field to specified numeric value.
+     * The underlying {@link JsonNode} that will be added is constructed
+     * using {@link JsonNodeFactory#numberNode(Long)}, and may be
+     *  "smaller" (like {@link IntNode}) in cases where value fits within
+     *  range of a smaller integral numeric value.
+     * <p>
+     * Note that this is alternative to {@link #put(String, long)} needed to avoid
+     * bumping into NPE issues with auto-unboxing.
      * 
      * @return This node (to allow chaining)
      */

@@ -165,7 +165,7 @@ public class JsonNodeFactory
     public ValueNode numberNode(Integer value) {
         return (value == null) ? nullNode() : IntNode.valueOf(value.intValue());
     }
-    
+
     /**
      * Factory method for getting an instance of JSON numeric value
      * that expresses given 64-bit integer value

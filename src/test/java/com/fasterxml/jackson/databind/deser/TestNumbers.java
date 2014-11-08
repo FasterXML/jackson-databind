@@ -11,8 +11,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 /**
  * Tests related to [JACKSON-139]
  */
-public class TestNumbers
-    extends BaseMapTest
+public class TestNumbers extends BaseMapTest
 {
     /*
     /**********************************************************************

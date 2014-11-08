@@ -38,7 +38,7 @@ public class ObjectReader
     extends ObjectCodec
     implements Versioned, java.io.Serializable // since 2.1
 {
-    private static final long serialVersionUID = -4251443320039569153L;
+    private static final long serialVersionUID = 1L; // since 2.5
 
     private final static JavaType JSON_NODE_TYPE = SimpleType.constructUnsafe(JsonNode.class);
 
@@ -331,6 +331,8 @@ public class ObjectReader
         if (_schema != null) {
             p.setSchema(_schema);
         }
+        _config.initialize(p);
+
         /* First: must point to a token; if not pointing to one, advance.
          * This occurs before first read from JsonParser, as well as
          * after clearing of current token.
@@ -360,17 +362,13 @@ public class ObjectReader
             p.setSchema(_schema);
         }
     }
-    
+
     /*
     /**********************************************************
-    /* Life-cycle, fluent factory methods
+    /* Life-cycle, fluent factory methods for DeserializationFeatures
     /**********************************************************
      */
 
-    public ObjectReader with(DeserializationConfig config) {
-        return _with(config);
-    }    
-    
     /**
      * Method for constructing a new reader instance that is configured
      * with specified feature enabled.
@@ -421,7 +419,55 @@ public class ObjectReader
     public ObjectReader withoutFeatures(DeserializationFeature... features) {
         return _with(_config.withoutFeatures(features));
     }    
-    
+
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factory methods for JsonParser.Features
+    /**********************************************************
+     */
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified feature enabled.
+     */
+    public ObjectReader with(JsonParser.Feature feature) {
+        return _with(_config.with(feature));
+    }
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified features enabled.
+     */
+    public ObjectReader withFeatures(JsonParser.Feature... features) {
+        return _with(_config.withFeatures(features));
+    }    
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified feature disabled.
+     */
+    public ObjectReader without(JsonParser.Feature feature) {
+        return _with(_config.without(feature)); 
+    }
+
+    /**
+     * Method for constructing a new reader instance that is configured
+     * with specified features disabled.
+     */
+    public ObjectReader withoutFeatures(JsonParser.Feature... features) {
+        return _with(_config.withoutFeatures(features));
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factory methods, other
+    /**********************************************************
+     */
+
+    public ObjectReader with(DeserializationConfig config) {
+        return _with(config);
+    }    
+
     /**
      * Method for constructing a new instance with configuration that uses
      * passed {@link InjectableValues} to provide injectable values.
@@ -692,7 +738,7 @@ public class ObjectReader
 
     /*
     /**********************************************************
-    /* Overridable factory methods that sub-classes MUST override
+    /* Overridable factory methods may override
     /**********************************************************
      */
     

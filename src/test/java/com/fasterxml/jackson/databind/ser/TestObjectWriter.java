@@ -2,8 +2,7 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
-
-import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -13,10 +12,11 @@ import com.fasterxml.jackson.databind.*;
 public class TestObjectWriter
     extends BaseMapTest
 {
+    final ObjectMapper MAPPER = new ObjectMapper();
+
     public void testPrettyPrinter() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter writer = mapper.writer();
+        ObjectWriter writer = MAPPER.writer();
         HashMap<String, Integer> data = new HashMap<String,Integer>();
         data.put("a", 1);
         
@@ -37,9 +37,9 @@ public class TestObjectWriter
 
     public void testPrefetch() throws Exception
     {
-        ObjectWriter writer = objectWriter();
+        ObjectWriter writer = MAPPER.writer();
         assertFalse(writer.hasPrefetchedSerializer());
-        writer = objectWriter().withType(String.class);
+        writer = writer.withType(String.class);
         assertTrue(writer.hasPrefetchedSerializer());
     }
 } 

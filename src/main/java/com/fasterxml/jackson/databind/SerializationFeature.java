@@ -298,7 +298,11 @@ public enum SerializationFeature implements ConfigFeature
      * support it.
      *<p>
      * Feature is disabled by default.
+     * 
+     * @deprecated Since 2.5: use {@link com.fasterxml.jackson.core.JsonGenerator.Feature#WRITE_BIGDECIMAL_AS_PLAIN} directly
+     *    (using {@link ObjectWriter#with(com.fasterxml.jackson.core.JsonGenerator.Feature)}).
      */
+    @Deprecated // since 2.5
     WRITE_BIGDECIMAL_AS_PLAIN(false),
 
     /**
@@ -365,14 +369,22 @@ public enum SerializationFeature implements ConfigFeature
     ;
 
     private final boolean _defaultState;
-
+    private final int _mask;
+    
     private SerializationFeature(boolean defaultState) {
         _defaultState = defaultState;
+        _mask = (1 << ordinal());
     }
 
     @Override
     public boolean enabledByDefault() { return _defaultState; }
 
+
     @Override
-    public int getMask() { return (1 << ordinal()); }
+    public int getMask() { return _mask; }
+
+    /**
+     * @since 2.5
+     */
+    public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
 }

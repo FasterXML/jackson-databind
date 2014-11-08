@@ -278,14 +278,21 @@ public enum MapperFeature implements ConfigFeature
     ;
 
     private final boolean _defaultState;
+    private final int _mask;
     
     private MapperFeature(boolean defaultState) {
         _defaultState = defaultState;
+        _mask = (1 << ordinal());
     }
     
     @Override
     public boolean enabledByDefault() { return _defaultState; }
 
     @Override
-    public int getMask() { return (1 << ordinal()); }
+    public int getMask() { return _mask; }
+
+    /**
+     * @since 2.5
+     */
+    public boolean enabledIn(int flags) { return (flags & _mask) != 0; }
 }

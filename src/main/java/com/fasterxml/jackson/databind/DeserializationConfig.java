@@ -68,7 +68,7 @@ public final class DeserializationConfig
     /**
      * Bitflag of {@link JsonParser.Feature}s to enable/disable
      */
-    protected final int _parserFeatureMask;
+    protected final int _parserFeaturesToChange;
 
     /*
     /**********************************************************
@@ -87,21 +87,7 @@ public final class DeserializationConfig
         _nodeFactory = JsonNodeFactory.instance;
         _problemHandlers = null;
         _parserFeatures = 0;
-        _parserFeatureMask = 0;
-    }
-
-    /**
-     * Copy constructor used to create a non-shared instance with given mix-in
-     * annotation definitions and subtype resolver.
-     */
-    private DeserializationConfig(DeserializationConfig src, SubtypeResolver str)
-    {
-        super(src, str);
-        _deserFeatures = src._deserFeatures;
-        _nodeFactory = src._nodeFactory;
-        _problemHandlers = src._problemHandlers;
-        _parserFeatures = src._parserFeatures;
-        _parserFeatureMask = src._parserFeatureMask;
+        _parserFeaturesToChange = 0;
     }
 
     private DeserializationConfig(DeserializationConfig src,
@@ -113,7 +99,21 @@ public final class DeserializationConfig
         _nodeFactory = src._nodeFactory;
         _problemHandlers = src._problemHandlers;
         _parserFeatures = parserFeatures;
-        _parserFeatureMask = parserFeatureMask;
+        _parserFeaturesToChange = parserFeatureMask;
+    }
+    
+    /**
+     * Copy constructor used to create a non-shared instance with given mix-in
+     * annotation definitions and subtype resolver.
+     */
+    private DeserializationConfig(DeserializationConfig src, SubtypeResolver str)
+    {
+        super(src, str);
+        _deserFeatures = src._deserFeatures;
+        _nodeFactory = src._nodeFactory;
+        _problemHandlers = src._problemHandlers;
+        _parserFeatures = src._parserFeatures;
+        _parserFeaturesToChange = src._parserFeaturesToChange;
     }
     
     private DeserializationConfig(DeserializationConfig src, BaseSettings base)
@@ -123,7 +123,7 @@ public final class DeserializationConfig
         _nodeFactory = src._nodeFactory;
         _problemHandlers = src._problemHandlers;
         _parserFeatures = src._parserFeatures;
-        _parserFeatureMask = src._parserFeatureMask;
+        _parserFeaturesToChange = src._parserFeaturesToChange;
     }
     
     private DeserializationConfig(DeserializationConfig src, JsonNodeFactory f)
@@ -133,7 +133,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = f;
         _parserFeatures = src._parserFeatures;
-        _parserFeatureMask = src._parserFeatureMask;
+        _parserFeaturesToChange = src._parserFeaturesToChange;
     }
 
     private DeserializationConfig(DeserializationConfig src,
@@ -144,7 +144,7 @@ public final class DeserializationConfig
         _problemHandlers = problemHandlers;
         _nodeFactory = src._nodeFactory;
         _parserFeatures = src._parserFeatures;
-        _parserFeatureMask = src._parserFeatureMask;
+        _parserFeaturesToChange = src._parserFeaturesToChange;
     }
 
     private DeserializationConfig(DeserializationConfig src, String rootName)
@@ -154,7 +154,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
         _parserFeatures = src._parserFeatures;
-        _parserFeatureMask = src._parserFeatureMask;
+        _parserFeaturesToChange = src._parserFeaturesToChange;
     }
 
     private DeserializationConfig(DeserializationConfig src, Class<?> view)
@@ -164,7 +164,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
         _parserFeatures = src._parserFeatures;
-        _parserFeatureMask = src._parserFeatureMask;
+        _parserFeaturesToChange = src._parserFeaturesToChange;
     }
 
     /**
@@ -177,7 +177,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
         _parserFeatures = src._parserFeatures;
-        _parserFeatureMask = src._parserFeatureMask;
+        _parserFeaturesToChange = src._parserFeaturesToChange;
     }
 
     /**
@@ -190,7 +190,7 @@ public final class DeserializationConfig
         _problemHandlers = src._problemHandlers;
         _nodeFactory = src._nodeFactory;
         _parserFeatures = src._parserFeatures;
-        _parserFeatureMask = src._parserFeatureMask;
+        _parserFeaturesToChange = src._parserFeaturesToChange;
     }
     
     // for unit tests only:
@@ -211,7 +211,7 @@ public final class DeserializationConfig
         }
         return (newMapperFlags == _mapperFeatures) ? this :
             new DeserializationConfig(this, newMapperFlags, _deserFeatures,
-                    _parserFeatures, _parserFeatureMask);
+                    _parserFeatures, _parserFeaturesToChange);
                     
     }
 
@@ -224,7 +224,7 @@ public final class DeserializationConfig
         }
         return (newMapperFlags == _mapperFeatures) ? this :
             new DeserializationConfig(this, newMapperFlags, _deserFeatures,
-                    _parserFeatures, _parserFeatureMask);
+                    _parserFeatures, _parserFeaturesToChange);
     }
 
     @Override
@@ -238,7 +238,7 @@ public final class DeserializationConfig
         }
         return (newMapperFlags == _mapperFeatures) ? this :
             new DeserializationConfig(this, newMapperFlags, _deserFeatures,
-                    _parserFeatures, _parserFeatureMask);
+                    _parserFeatures, _parserFeaturesToChange);
     }
 
     @Override
@@ -357,7 +357,7 @@ public final class DeserializationConfig
         int newDeserFeatures = (_deserFeatures | feature.getMask());
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
-                    _parserFeatures, _parserFeatureMask);
+                    _parserFeatures, _parserFeaturesToChange);
     }
 
     /**
@@ -373,7 +373,7 @@ public final class DeserializationConfig
         }
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
-                    _parserFeatures, _parserFeatureMask);
+                    _parserFeatures, _parserFeaturesToChange);
     }
 
     /**
@@ -388,7 +388,7 @@ public final class DeserializationConfig
         }
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
-                    _parserFeatures, _parserFeatureMask);
+                    _parserFeatures, _parserFeaturesToChange);
     }
     
     /**
@@ -400,7 +400,7 @@ public final class DeserializationConfig
         int newDeserFeatures = _deserFeatures & ~feature.getMask();
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
-                    _parserFeatures, _parserFeatureMask);
+                    _parserFeatures, _parserFeaturesToChange);
     }
 
     /**
@@ -416,7 +416,7 @@ public final class DeserializationConfig
         }
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
-                    _parserFeatures, _parserFeatureMask);
+                    _parserFeatures, _parserFeaturesToChange);
     }
 
     /**
@@ -431,7 +431,7 @@ public final class DeserializationConfig
         }
         return (newDeserFeatures == _deserFeatures) ? this :
             new DeserializationConfig(this, _mapperFeatures, newDeserFeatures,
-                    _parserFeatures, _parserFeatureMask);
+                    _parserFeatures, _parserFeaturesToChange);
     }
 
     /*
@@ -443,12 +443,14 @@ public final class DeserializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
+     *
+     * @since 2.5
      */
     public DeserializationConfig with(JsonParser.Feature feature)
     {
         int newSet = _parserFeatures | feature.getMask();
-        int newMask = _parserFeatureMask | feature.getMask();
-        return ((_parserFeatures == newSet) && (_parserFeatureMask == newMask)) ? this :
+        int newMask = _parserFeaturesToChange | feature.getMask();
+        return ((_parserFeatures == newSet) && (_parserFeaturesToChange == newMask)) ? this :
             new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
                     newSet, newMask);
     }
@@ -456,17 +458,19 @@ public final class DeserializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
+     *
+     * @since 2.5
      */
     public DeserializationConfig withFeatures(JsonParser.Feature... features)
     {
         int newSet = _parserFeatures;
-        int newMask = _parserFeatureMask;
+        int newMask = _parserFeaturesToChange;
         for (JsonParser.Feature f : features) {
             int mask = f.getMask();
             newSet |= mask;
             newMask |= mask;
         }
-        return ((_parserFeatures == newSet) && (_parserFeatureMask == newMask)) ? this :
+        return ((_parserFeatures == newSet) && (_parserFeaturesToChange == newMask)) ? this :
             new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
                     newSet, newMask);
     }
@@ -474,12 +478,14 @@ public final class DeserializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature disabled.
+     *
+     * @since 2.5
      */
     public DeserializationConfig without(JsonParser.Feature feature)
     {
-        int newSet = _parserFeatureMask & ~feature.getMask();
+        int newSet = _parserFeaturesToChange & ~feature.getMask();
         int newMask = _parserFeatures | feature.getMask();
-        return ((_parserFeatures == newSet) && (_parserFeatureMask == newMask)) ? this :
+        return ((_parserFeatures == newSet) && (_parserFeaturesToChange == newMask)) ? this :
             new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
                     newSet, newMask);
     }
@@ -487,17 +493,19 @@ public final class DeserializationConfig
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features disabled.
+     *
+     * @since 2.5
      */
     public DeserializationConfig withoutFeatures(JsonParser.Feature... features)
     {
         int newSet = _parserFeatures;
-        int newMask = _parserFeatureMask;
+        int newMask = _parserFeaturesToChange;
         for (JsonParser.Feature f : features) {
             int mask = f.getMask();
             newSet &= ~mask;
             newMask |= mask;
         }
-        return ((_parserFeatures == newSet) && (_parserFeatureMask == newMask)) ? this :
+        return ((_parserFeatures == newSet) && (_parserFeaturesToChange == newMask)) ? this :
             new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
                     newSet, newMask);
     }    
@@ -552,16 +560,16 @@ public final class DeserializationConfig
      */
 
     /**
-     * Method called by {@link ObjectMapper} and {@link ObjectWriter}
-     * to modify those {@link com.fasterxml.jackson.core.JsonGenerator.Feature} settings
+     * Method called by {@link ObjectMapper} and {@link ObjectReader}
+     * to modify those {@link com.fasterxml.jackson.core.JsonParser.Feature} settings
      * that have been configured via this config instance.
      * 
      * @since 2.5
      */
     public void initialize(JsonParser p) {
-        if (_parserFeatureMask != 0) {
+        if (_parserFeaturesToChange != 0) {
             int orig = p.getFeatureMask();
-            int newFlags = (orig & ~_parserFeatureMask) | _parserFeatures;
+            int newFlags = (orig & ~_parserFeaturesToChange) | _parserFeatures;
             if (orig != newFlags) {
                 p.setFeatureMask(newFlags);
             }

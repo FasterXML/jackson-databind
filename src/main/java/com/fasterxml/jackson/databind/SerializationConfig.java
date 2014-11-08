@@ -5,7 +5,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.core.Base64Variant;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.cfg.BaseSettings;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
@@ -37,12 +37,11 @@ public final class SerializationConfig
     extends MapperConfigBase<SerializationFeature, SerializationConfig>
     implements java.io.Serializable // since 2.1
 {
-    // Valid as of 2.4
-    private static final long serialVersionUID = -1278867172535832879L;
+    // since 2.5
+    private static final long serialVersionUID = 1;
 
     /**
-     * Set of features enabled; actual type (kind of features)
-     * depends on sub-classes.
+     * Set of {@link SerializationFeature}s enabled.
      */
     protected final int _serFeatures;
     
@@ -59,6 +58,16 @@ public final class SerializationConfig
      * Non-null if explicitly defined; null by default.
      */
     protected final FilterProvider _filterProvider;
+
+    /**
+     * States of {@link JsonGenerator.Feature}s to enable/disable.
+     */
+    protected final int _generatorFeatures;
+
+    /**
+     * Bitflag of {@link JsonGenerator.Feature}s to enable/disable
+     */
+    protected final int _generatorFeaturesToChange;
     
     /*
     /**********************************************************
@@ -75,6 +84,8 @@ public final class SerializationConfig
         super(base, str, mixins);
         _serFeatures = collectFeatureDefaults(SerializationFeature.class);
         _filterProvider = null;
+        _generatorFeatures = 0;
+        _generatorFeaturesToChange = 0;
     }
     
     private SerializationConfig(SerializationConfig src, SubtypeResolver str)
@@ -83,14 +94,20 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
+        _generatorFeatures = src._generatorFeatures;
+        _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
 
-    private SerializationConfig(SerializationConfig src, int mapperFeatures, int serFeatures)
+    private SerializationConfig(SerializationConfig src,
+            int mapperFeatures, int serFeatures,
+            int generatorFeatures, int generatorFeatureMask)
     {
         super(src, mapperFeatures);
         _serFeatures = serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
+        _generatorFeatures = generatorFeatures;
+        _generatorFeaturesToChange = generatorFeatureMask;
     }
     
     private SerializationConfig(SerializationConfig src, BaseSettings base)
@@ -99,6 +116,8 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
+        _generatorFeatures = src._generatorFeatures;
+        _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
 
     private SerializationConfig(SerializationConfig src, FilterProvider filters)
@@ -107,6 +126,8 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = filters;
+        _generatorFeatures = src._generatorFeatures;
+        _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
 
     private SerializationConfig(SerializationConfig src, Class<?> view)
@@ -115,6 +136,8 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
+        _generatorFeatures = src._generatorFeatures;
+        _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
 
     private SerializationConfig(SerializationConfig src, JsonInclude.Include incl)
@@ -123,6 +146,8 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = incl;
         _filterProvider = src._filterProvider;
+        _generatorFeatures = src._generatorFeatures;
+        _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
 
     private SerializationConfig(SerializationConfig src, String rootName)
@@ -131,6 +156,8 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
+        _generatorFeatures = src._generatorFeatures;
+        _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
 
     /**
@@ -142,6 +169,8 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
+        _generatorFeatures = src._generatorFeatures;
+        _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
 
     /**
@@ -153,6 +182,8 @@ public final class SerializationConfig
         _serFeatures = src._serFeatures;
         _serializationInclusion = src._serializationInclusion;
         _filterProvider = src._filterProvider;
+        _generatorFeatures = src._generatorFeatures;
+        _generatorFeaturesToChange = src._generatorFeaturesToChange;
     }
     
     /*
@@ -173,7 +204,8 @@ public final class SerializationConfig
             newMapperFlags |= f.getMask();
         }
         return (newMapperFlags == _mapperFeatures) ? this
-                : new SerializationConfig(this, newMapperFlags, _serFeatures);
+                : new SerializationConfig(this, newMapperFlags, _serFeatures,
+                        _generatorFeatures, _generatorFeaturesToChange);
     }
     
     /**
@@ -188,7 +220,8 @@ public final class SerializationConfig
              newMapperFlags &= ~f.getMask();
         }
         return (newMapperFlags == _mapperFeatures) ? this
-                : new SerializationConfig(this, newMapperFlags, _serFeatures);
+                : new SerializationConfig(this, newMapperFlags, _serFeatures,
+                        _generatorFeatures, _generatorFeaturesToChange);
     }
 
     @Override
@@ -200,8 +233,9 @@ public final class SerializationConfig
         } else {
             newMapperFlags = _mapperFeatures & ~feature.getMask();
         }
-        return (newMapperFlags == _mapperFeatures) ? this :
-            new SerializationConfig(this, newMapperFlags, _serFeatures);
+        return (newMapperFlags == _mapperFeatures) ? this
+            : new SerializationConfig(this, newMapperFlags, _serFeatures,
+                    _generatorFeatures, _generatorFeaturesToChange);
     }
     
     @Override
@@ -223,7 +257,7 @@ public final class SerializationConfig
     public SerializationConfig with(ClassIntrospector ci) {
         return _withBase(_base.withClassIntrospector(ci));
     }
-    
+
     /**
      * In addition to constructing instance with specified date format,
      * will enable or disable <code>SerializationFeature.WRITE_DATES_AS_TIMESTAMPS</code>
@@ -240,12 +274,12 @@ public final class SerializationConfig
         }
         return cfg;
     }
-    
+
     @Override
     public SerializationConfig with(HandlerInstantiator hi) {
         return _withBase(_base.withHandlerInstantiator(hi));
     }
-    
+
     @Override
     public SerializationConfig with(PropertyNamingStrategy pns) {
         return _withBase(_base.withPropertyNamingStrategy(pns));
@@ -277,7 +311,7 @@ public final class SerializationConfig
     public SerializationConfig with(TypeResolverBuilder<?> trb) {
         return _withBase(_base.withTypeResolverBuilder(trb));
     }
-    
+
     @Override
     public SerializationConfig withView(Class<?> view) {
         return (_view == view) ? this : new SerializationConfig(this, view);
@@ -312,17 +346,17 @@ public final class SerializationConfig
     public SerializationConfig with(ContextAttributes attrs) {
         return (attrs == _attributes) ? this : new SerializationConfig(this, attrs);
     }
-    
+
     private final SerializationConfig _withBase(BaseSettings newBase) {
         return (_base == newBase) ? this : new SerializationConfig(this, newBase);
     }
-    
+
     /*
     /**********************************************************
-    /* Life-cycle, SerializationConfig specific factory methods
+    /* Factory methods for SerializationFeature
     /**********************************************************
      */
-        
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified feature enabled.
@@ -331,7 +365,8 @@ public final class SerializationConfig
     {
         int newSerFeatures = _serFeatures | feature.getMask();
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures, newSerFeatures);
+                : new SerializationConfig(this, _mapperFeatures, newSerFeatures,
+                        _generatorFeatures, _generatorFeaturesToChange);
     }
 
     /**
@@ -345,9 +380,10 @@ public final class SerializationConfig
             newSerFeatures |= f.getMask();
         }
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures, newSerFeatures);
+                : new SerializationConfig(this, _mapperFeatures, newSerFeatures,
+                        _generatorFeatures, _generatorFeaturesToChange);
     }
-    
+
     /**
      * Fluent factory method that will construct and return a new configuration
      * object instance with specified features enabled.
@@ -359,7 +395,8 @@ public final class SerializationConfig
             newSerFeatures |= f.getMask();
         }
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures, newSerFeatures);
+                : new SerializationConfig(this, _mapperFeatures, newSerFeatures,
+                        _generatorFeatures, _generatorFeaturesToChange);
     }
 
     /**
@@ -370,7 +407,8 @@ public final class SerializationConfig
     {
         int newSerFeatures = _serFeatures & ~feature.getMask();
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures, newSerFeatures);
+                : new SerializationConfig(this, _mapperFeatures, newSerFeatures,
+                        _generatorFeatures, _generatorFeaturesToChange);
     }
 
     /**
@@ -384,7 +422,8 @@ public final class SerializationConfig
             newSerFeatures &= ~f.getMask();
         }
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures, newSerFeatures);
+                : new SerializationConfig(this, _mapperFeatures, newSerFeatures,
+                        _generatorFeatures, _generatorFeaturesToChange);
     }
 
     /**
@@ -398,8 +437,90 @@ public final class SerializationConfig
             newSerFeatures &= ~f.getMask();
         }
         return (newSerFeatures == _serFeatures) ? this
-                : new SerializationConfig(this, _mapperFeatures, newSerFeatures);
+                : new SerializationConfig(this, _mapperFeatures, newSerFeatures,
+                        _generatorFeatures, _generatorFeaturesToChange);
     }
+
+    /*
+    /**********************************************************
+    /* Factory methods for JsonGenerator.Feature
+    /**********************************************************
+     */
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified feature enabled.
+     *
+     * @since 2.5
+     */
+    public SerializationConfig with(JsonGenerator.Feature feature)
+    {
+        int newSet = _generatorFeatures | feature.getMask();
+        int newMask = _generatorFeatures | feature.getMask();
+        return ((_generatorFeatures == newSet) && (_generatorFeaturesToChange == newMask)) ? this :
+            new SerializationConfig(this,  _mapperFeatures, _serFeatures,
+                    newSet, newMask);
+    }
+
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified features enabled.
+     *
+     * @since 2.5
+     */
+    public SerializationConfig withFeatures(JsonGenerator.Feature... features)
+    {
+        int newSet = _generatorFeatures;
+        int newMask = _generatorFeaturesToChange;
+        for (JsonGenerator.Feature f : features) {
+            int mask = f.getMask();
+            newSet |= mask;
+            newMask |= mask;
+        }
+        return ((_generatorFeatures == newSet) && (_generatorFeaturesToChange == newMask)) ? this :
+            new SerializationConfig(this,  _mapperFeatures, _serFeatures,
+                    newSet, newMask);
+    }
+
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified feature disabled.
+     *
+     * @since 2.5
+     */
+    public SerializationConfig without(JsonGenerator.Feature feature)
+    {
+        int newSet = _generatorFeatures & ~feature.getMask();
+        int newMask = _generatorFeatures | feature.getMask();
+        return ((_generatorFeatures == newSet) && (_generatorFeaturesToChange == newMask)) ? this :
+            new SerializationConfig(this,  _mapperFeatures, _serFeatures,
+                    newSet, newMask);
+    }
+
+    /**
+     * Fluent factory method that will construct and return a new configuration
+     * object instance with specified features disabled.
+     *
+     * @since 2.5
+     */
+    public SerializationConfig withoutFeatures(JsonGenerator.Feature... features)
+    {
+        int newSet = _generatorFeatures;
+        int newMask = _generatorFeaturesToChange;
+        for (JsonGenerator.Feature f : features) {
+            int mask = f.getMask();
+            newSet &= ~mask;
+            newMask |= mask;
+        }
+        return ((_generatorFeatures == newSet) && (_generatorFeaturesToChange == newMask)) ? this :
+            new SerializationConfig(this,  _mapperFeatures, _serFeatures,
+                    newSet, newMask);
+    }
+
+    /*
+    /**********************************************************
+    /* Factory methods, other
+    /**********************************************************
+     */
     
     public SerializationConfig withFilters(FilterProvider filterProvider) {
         return (filterProvider == _filterProvider) ? this : new SerializationConfig(this, filterProvider);
@@ -408,13 +529,46 @@ public final class SerializationConfig
     public SerializationConfig withSerializationInclusion(JsonInclude.Include incl) {
         return (_serializationInclusion == incl) ? this:  new SerializationConfig(this, incl);
     }
+
+    /*
+    /**********************************************************
+    /* JsonParser initialization
+    /**********************************************************
+     */
+
+    /**
+     * Method called by {@link ObjectMapper} and {@link ObjectWriter}
+     * to modify those {@link com.fasterxml.jackson.core.JsonGenerator.Feature} settings
+     * that have been configured via this config instance.
+     * 
+     * @since 2.5
+     */
+    public void initialize(JsonGenerator g)
+    {
+        if (SerializationFeature.INDENT_OUTPUT.enabledIn(_serFeatures)) {
+            g.useDefaultPrettyPrinter();
+        }
+        @SuppressWarnings("deprecation")
+        boolean useBigDec = SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN.enabledIn(_serFeatures);
+        if ((_generatorFeaturesToChange != 0) || useBigDec) {
+            int orig = g.getFeatureMask();
+            int newFlags = (orig & ~_generatorFeaturesToChange) | _generatorFeatures;
+            // although deprecated, needs to be supported for now
+            if (useBigDec) {
+                newFlags |= JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN.getMask();
+            }
+            if (orig != newFlags) {
+                g.setFeatureMask(newFlags);
+            }
+        }
+    }
     
     /*
     /**********************************************************
     /* MapperConfig implementation/overrides
     /**********************************************************
      */
-    
+
     @Override
     public boolean useRootWrapping()
     {
@@ -423,13 +577,10 @@ public final class SerializationConfig
         }
         return isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
     }
-    
+
     @Override
     public AnnotationIntrospector getAnnotationIntrospector()
     {
-        /* 29-Jul-2009, tatu: it's now possible to disable use of
-         *   annotations; can be done using "no-op" introspector
-         */
         if (isEnabled(MapperFeature.USE_ANNOTATIONS)) {
             return super.getAnnotationIntrospector();
         }
@@ -454,7 +605,7 @@ public final class SerializationConfig
     public BeanDescription introspectDirectClassAnnotations(JavaType type) {
         return getClassIntrospector().forDirectClassAnnotations(this, type, this);
     }
-    
+
     @Override
     public VisibilityChecker<?> getDefaultVisibilityChecker()
     {
@@ -471,7 +622,7 @@ public final class SerializationConfig
         }
         return vchecker;
     }
-    
+
     /*
     /**********************************************************
     /* Configuration: other
@@ -495,7 +646,7 @@ public final class SerializationConfig
     public final int getSerializationFeatures() {
         return _serFeatures;
     }
-    
+
     public JsonInclude.Include getSerializationInclusion()
     {
         if (_serializationInclusion != null) {
@@ -503,7 +654,7 @@ public final class SerializationConfig
         }
         return JsonInclude.Include.ALWAYS;
     }
-    
+
     /**
      * Method for getting provider used for locating filters given
      * id (which is usually provided with filter annotations).
@@ -513,7 +664,7 @@ public final class SerializationConfig
     public FilterProvider getFilterProvider() {
         return _filterProvider;
     }
-    
+
     /*
     /**********************************************************
     /* Introspection methods
@@ -534,9 +685,9 @@ public final class SerializationConfig
     /* Debug support
     /**********************************************************
      */
-    
-    @Override public String toString()
-    {
+
+    @Override
+    public String toString() {
         return "[SerializationConfig: flags=0x"+Integer.toHexString(_serFeatures)+"]";
     }
 }

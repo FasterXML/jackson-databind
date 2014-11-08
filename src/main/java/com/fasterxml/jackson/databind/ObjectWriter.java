@@ -34,7 +34,7 @@ public class ObjectWriter
     implements Versioned,
         java.io.Serializable // since 2.1
 {
-    private static final long serialVersionUID = -7040667122552707164L;
+    private static final long serialVersionUID = 1; // since 2.5
 
     /**
      * We need to keep track of explicit disabling of pretty printing;
@@ -107,17 +107,6 @@ public class ObjectWriter
 
     /*
     /**********************************************************
-    /* Derived settings
-    /**********************************************************
-     */
-
-    /**
-     * @since 2.3
-     */
-    protected final boolean  _cfgBigDecimalAsPlain;
-
-    /*
-    /**********************************************************
     /* Life-cycle, constructors
     /**********************************************************
      */
@@ -129,8 +118,6 @@ public class ObjectWriter
             JavaType rootType, PrettyPrinter pp)
     {
         _config = config;
-        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
-
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._jsonFactory;
@@ -154,8 +141,6 @@ public class ObjectWriter
     protected ObjectWriter(ObjectMapper mapper, SerializationConfig config)
     {
         _config = config;
-        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
-
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._jsonFactory;
@@ -174,7 +159,6 @@ public class ObjectWriter
             FormatSchema s)
     {
         _config = config;
-        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
 
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
@@ -195,7 +179,6 @@ public class ObjectWriter
             PrettyPrinter pp, FormatSchema s, CharacterEscapes escapes)
     {
         _config = config;
-        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
 
         _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
@@ -214,7 +197,6 @@ public class ObjectWriter
     protected ObjectWriter(ObjectWriter base, SerializationConfig config)
     {
         _config = config;
-        _cfgBigDecimalAsPlain = _config.isEnabled(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
 
         _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
@@ -235,7 +217,6 @@ public class ObjectWriter
         // may need to override ordering, based on data format capabilities
         _config = base._config
             .with(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, f.requiresPropertyOrdering());
-        _cfgBigDecimalAsPlain = base._cfgBigDecimalAsPlain;
 
         _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
@@ -259,7 +240,7 @@ public class ObjectWriter
     
     /*
     /**********************************************************
-    /* Life-cycle, fluent factories
+    /* Life-cycle, fluent factories for SerializationFeature
     /**********************************************************
      */
 
@@ -315,8 +296,52 @@ public class ObjectWriter
     public ObjectWriter withoutFeatures(SerializationFeature... features) {
         SerializationConfig newConfig = _config.withoutFeatures(features);
         return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
-    }    
-    
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factories for JsonGenerator.Feature
+    /**********************************************************
+     */
+
+    /**
+     * @since 2.5
+     */
+    public ObjectWriter with(JsonGenerator.Feature feature)  {
+        SerializationConfig newConfig = _config.with(feature);
+        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+    }
+
+    /**
+     * @since 2.5
+     */
+    public ObjectWriter withFeatures(JsonGenerator.Feature... features) {
+        SerializationConfig newConfig = _config.withFeatures(features);
+        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+    }
+
+    /**
+     * @since 2.5
+     */
+    public ObjectWriter without(JsonGenerator.Feature feature) {
+        SerializationConfig newConfig = _config.without(feature);
+        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+    }
+
+    /**
+     * @since 2.5
+     */
+    public ObjectWriter withoutFeatures(JsonGenerator.Feature... features) {
+        SerializationConfig newConfig = _config.withoutFeatures(features);
+        return (newConfig == _config) ? this : new ObjectWriter(this, newConfig);
+    }
+
+    /*
+    /**********************************************************
+    /* Life-cycle, fluent factories, other
+    /**********************************************************
+     */
+
     /**
      * Fluent factory method that will construct a new writer instance that will
      * use specified date format for serializing dates; or if null passed, one
@@ -824,7 +849,7 @@ public class ObjectWriter
      * method is to be called right after serialization has been called
      */
     private final void _writeCloseable(JsonGenerator jgen, Object value, SerializationConfig cfg)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws IOException
     {
         Closeable toClose = (Closeable) value;
         try {
@@ -865,7 +890,7 @@ public class ObjectWriter
      * method is to be called right after serialization has been called
      */
     private final void _writeCloseableValue(JsonGenerator jgen, Object value, SerializationConfig cfg)
-        throws IOException, JsonGenerationException, JsonMappingException
+        throws IOException
     {
         Closeable toClose = (Closeable) value;
         try {
@@ -914,12 +939,12 @@ public class ObjectWriter
      * 
      * @since 2.1
      */
-    private void _configureJsonGenerator(JsonGenerator jgen)
+    protected void _configureJsonGenerator(JsonGenerator gen)
     {
         if (_prettyPrinter != null) {
             PrettyPrinter pp = _prettyPrinter;
             if (pp == NULL_PRETTY_PRINTER) {
-                jgen.setPrettyPrinter(null);
+                gen.setPrettyPrinter(null);
             } else {
                 /* [JACKSON-851]: Better take care of stateful PrettyPrinters...
                  *   like the DefaultPrettyPrinter.
@@ -927,20 +952,18 @@ public class ObjectWriter
                 if (pp instanceof Instantiatable<?>) {
                     pp = (PrettyPrinter) ((Instantiatable<?>) pp).createInstance();
                 }
-                jgen.setPrettyPrinter(pp);
+                gen.setPrettyPrinter(pp);
             }
         } else if (_config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
-            jgen.useDefaultPrettyPrinter();
+            gen.useDefaultPrettyPrinter();
         }
         if (_characterEscapes != null) {
-            jgen.setCharacterEscapes(_characterEscapes);
+            gen.setCharacterEscapes(_characterEscapes);
         }
         // [JACKSON-520]: add support for pass-through schema:
         if (_schema != null) {
-            jgen.setSchema(_schema);
+            gen.setSchema(_schema);
         }
-        if (_cfgBigDecimalAsPlain) { // should only set if explicitly set; this should work for now:
-            jgen.enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
-        }
+        _config.initialize(gen); // since 2.5
     }
 }

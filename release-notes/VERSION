@@ -37,6 +37,8 @@ Project: jackson-databind
 #597: Improve error messaging for cases where JSON Creator returns null (which
   is illegal)
  (contributed by Aurelien L)
+#607: Allow (re)config of `JsonParser.Feature`s via `ObjectReader`
+#608: Allow (re)config of `JsonGenerator.Feature`s via `ObjectWriter`
 - Allow use of `Shape.ARRAY` for Enums, as an alias to 'use index'
 - Start using `JsonGenerator.writeStartArray(int)` to help data formats
   that benefit from knowing number of elements in arrays (and would otherwise

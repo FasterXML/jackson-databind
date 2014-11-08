@@ -1,10 +1,10 @@
 package com.fasterxml.jackson.databind;
 
 import java.io.*;
+import java.util.*;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
 import com.fasterxml.jackson.databind.node.*;
@@ -108,14 +108,23 @@ public class TestObjectMapper extends BaseMapTest
     public void testProviderConfig() throws Exception   
     {
         ObjectMapper m = new ObjectMapper();
+        final String JSON = "{ \"x\" : 3 }";
 
         assertEquals(0, m._deserializationContext._cache.cachedDeserializersCount());
         // and then should get one constructed for:
-        Bean bean = m.readValue("{ \"x\" : 3 }", Bean.class);
+        Bean bean = m.readValue(JSON, Bean.class);
         assertNotNull(bean);
         assertEquals(1, m._deserializationContext._cache.cachedDeserializersCount());
         m._deserializationContext._cache.flushCachedDeserializers();
         assertEquals(0, m._deserializationContext._cache.cachedDeserializersCount());
+
+        // 07-Nov-2014, tatu: As per [databind#604] verify that Maps also get cached
+        m = new ObjectMapper();
+        List<?> stuff = m.readValue("[ ]", List.class);
+        assertNotNull(stuff);
+        // may look odd, but due to "Untyped" deserializer thing, we actually have
+        // 3 deserializers (List<?>, Map<?,?>, Object)
+        assertEquals(3, m._deserializationContext._cache.cachedDeserializersCount());
     }
     
     // [Issue#28]: ObjectMapper.copy()

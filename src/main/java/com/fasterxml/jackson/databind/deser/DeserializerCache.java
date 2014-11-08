@@ -32,15 +32,15 @@ public final class DeserializerCache
     /**
      * We will also cache some dynamically constructed deserializers;
      * specifically, ones that are expensive to construct.
-     * This currently means bean and Enum deserializers; array, List and Map
-     * deserializers will not be cached.
+     * This currently means bean and Enum deserializers; starting with
+     * 2.5, container deserializers will also be cached.
      *<p>
      * Given that we don't expect much concurrency for additions
      * (should very quickly converge to zero after startup), let's
-     * explicitly define a low concurrency setting.
+     * define a relatively low concurrency setting.
      */
     final protected ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _cachedDeserializers
-        = new ConcurrentHashMap<JavaType, JsonDeserializer<Object>>(64, 0.75f, 2);
+        = new ConcurrentHashMap<JavaType, JsonDeserializer<Object>>(64, 0.75f, 4);
 
     /**
      * During deserializer construction process we may need to keep track of partially

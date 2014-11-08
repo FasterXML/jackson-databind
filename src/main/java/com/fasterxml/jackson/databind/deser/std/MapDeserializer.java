@@ -281,15 +281,6 @@ public class MapDeserializer
     /**********************************************************
      */
 
-    /**
-     * Turns out that these are expensive enough to create so that caching
-     * does make sense.
-     * 
-     * @since 2.4.4
-     */
-    @Override
-    public boolean isCachable() { return true; }
-
     @Override
     @SuppressWarnings("unchecked")
     public Map<Object,Object> deserialize(JsonParser jp, DeserializationContext ctxt)
@@ -473,7 +464,7 @@ public class MapDeserializer
             }
         }
     }
-    
+
     @SuppressWarnings("unchecked") 
     public Map<Object,Object> _deserializeUsingCreator(JsonParser jp, DeserializationContext ctxt)
         throws IOException, JsonProcessingException
@@ -617,13 +608,13 @@ public class MapDeserializer
      * object associated with {@link #_id} comes before the values in
      * {@link _next}.
      */
-    private final static class MapReferring extends Referring {
+    final static class MapReferring extends Referring {
         private final MapReferringAccumulator _parent;
 
         public final Map<Object, Object> next = new LinkedHashMap<Object, Object>();
         public final Object key;
         
-        private MapReferring(MapReferringAccumulator parent, UnresolvedForwardReference ref,
+        MapReferring(MapReferringAccumulator parent, UnresolvedForwardReference ref,
                 Class<?> valueType, Object key)
         {
             super(ref, valueType);

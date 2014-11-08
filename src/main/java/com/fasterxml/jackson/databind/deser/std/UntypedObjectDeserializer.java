@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -161,6 +160,13 @@ public class UntypedObjectDeserializer
     /* Deserializer API
     /**********************************************************
      */
+
+    /* 07-Nov-2014, tatu: When investigating [databind#604], realized that it makes
+     *   sense to also mark this is cachable, since lookup not exactly free, and
+     *   since it's not uncommon to "read anything"
+     */
+    @Override
+    public boolean isCachable() { return true; }
     
     @Override
     public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException

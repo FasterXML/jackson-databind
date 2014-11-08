@@ -132,7 +132,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     public BaseNodeDeserializer(Class<T> vc) {
         super(vc);
     }
-    
+
     @Override
     public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
@@ -144,16 +144,23 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
     }
 
+    /* 07-Nov-2014, tatu: When investigating [databind#604], realized that it makes
+     *   sense to also mark this is cachable, since lookup not exactly free, and
+     *   since it's not uncommon to "read anything"
+     */
+    @Override
+    public boolean isCachable() { return true; }
+
     /*
     /**********************************************************
     /* Overridable methods
     /**********************************************************
      */
-    
+
     protected void _reportProblem(JsonParser jp, String msg) throws JsonMappingException {
         throw new JsonMappingException(msg, jp.getTokenLocation());
     }
-    
+
     /**
      * 
      * @deprecated Since 2.3, use the overloaded variant
@@ -193,16 +200,15 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         // Backwards-compatibility; call in case it's overloaded
         _handleDuplicateField(fieldName, objectNode, oldValue, newValue);
     }
-    
+
     /*
     /**********************************************************
     /* Helper methods
     /**********************************************************
      */
-    
+
     protected final ObjectNode deserializeObject(JsonParser jp, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory)            
-        throws IOException, JsonProcessingException
+            final JsonNodeFactory nodeFactory) throws IOException
     {
         ObjectNode node = nodeFactory.objectNode();
         JsonToken t = jp.getCurrentToken();
@@ -246,10 +252,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         }
         return node;
     }
-    
+
     protected final ArrayNode deserializeArray(JsonParser jp, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory)            
-        throws IOException, JsonProcessingException
+            final JsonNodeFactory nodeFactory) throws IOException
     {
         ArrayNode node = nodeFactory.arrayNode();
         while (true) {
@@ -287,10 +292,9 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             }
         }
     }
-    
+
     protected final JsonNode deserializeAny(JsonParser jp, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory)            
-        throws IOException
+            final JsonNodeFactory nodeFactory) throws IOException
     {
         switch (jp.getCurrentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
@@ -326,8 +330,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     }
 
     protected final JsonNode _fromInt(JsonParser jp, DeserializationContext ctxt,
-            JsonNodeFactory nodeFactory)
-        throws IOException
+            JsonNodeFactory nodeFactory) throws IOException
     {
         JsonParser.NumberType nt = jp.getNumberType();
         if (nt == JsonParser.NumberType.BIG_INTEGER
@@ -341,8 +344,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     }
 
     protected final JsonNode _fromFloat(JsonParser jp, DeserializationContext ctxt,
-            final JsonNodeFactory nodeFactory)
-        throws IOException
+            final JsonNodeFactory nodeFactory) throws IOException
     {
         JsonParser.NumberType nt = jp.getNumberType();
         if (nt == JsonParser.NumberType.BIG_DECIMAL
@@ -353,8 +355,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     }
 
     protected final JsonNode _fromEmbedded(JsonParser jp, DeserializationContext ctxt,
-            JsonNodeFactory nodeFactory)
-        throws IOException
+            JsonNodeFactory nodeFactory) throws IOException
     {
         // [JACKSON-796]
         Object ob = jp.getEmbeddedObject();

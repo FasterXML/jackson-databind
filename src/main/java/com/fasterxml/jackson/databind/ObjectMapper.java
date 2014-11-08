@@ -3220,57 +3220,58 @@ public class ObjectMapper
      *   content to map (note: Json "null" value is considered content;
      *   enf-of-stream not)
      */
-    protected JsonToken _initForReading(JsonParser jp)
-        throws IOException, JsonParseException, JsonMappingException
+    protected JsonToken _initForReading(JsonParser p) throws IOException
     {
+        _deserializationConfig.initialize(p); // since 2.5
+
         /* First: must point to a token; if not pointing to one, advance.
          * This occurs before first read from JsonParser, as well as
          * after clearing of current token.
          */
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == null) {
             // and then we must get something...
-            t = jp.nextToken();
+            t = p.nextToken();
             if (t == null) {
                 /* [JACKSON-546] Throw mapping exception, since it's failure to map,
                  *   not an actual parsing problem
                  */
-                throw JsonMappingException.from(jp, "No content to map due to end-of-input");
+                throw JsonMappingException.from(p, "No content to map due to end-of-input");
             }
         }
         return t;
     }
 
-    protected Object _unwrapAndDeserialize(JsonParser jp, DeserializationContext ctxt, 
+    protected Object _unwrapAndDeserialize(JsonParser p, DeserializationContext ctxt, 
             DeserializationConfig config,
             JavaType rootType, JsonDeserializer<Object> deser)
-        throws IOException, JsonParseException, JsonMappingException
+        throws IOException
     {
         String expName = config.getRootName();
         if (expName == null) {
             PropertyName pname = _rootNames.findRootName(rootType, config);
             expName = pname.getSimpleName();
         }
-        if (jp.getCurrentToken() != JsonToken.START_OBJECT) {
-            throw JsonMappingException.from(jp, "Current token not START_OBJECT (needed to unwrap root name '"
-                    +expName+"'), but "+jp.getCurrentToken());
+        if (p.getCurrentToken() != JsonToken.START_OBJECT) {
+            throw JsonMappingException.from(p, "Current token not START_OBJECT (needed to unwrap root name '"
+                    +expName+"'), but "+p.getCurrentToken());
         }
-        if (jp.nextToken() != JsonToken.FIELD_NAME) {
-            throw JsonMappingException.from(jp, "Current token not FIELD_NAME (to contain expected root name '"
-                    +expName+"'), but "+jp.getCurrentToken());
+        if (p.nextToken() != JsonToken.FIELD_NAME) {
+            throw JsonMappingException.from(p, "Current token not FIELD_NAME (to contain expected root name '"
+                    +expName+"'), but "+p.getCurrentToken());
         }
-        String actualName = jp.getCurrentName();
+        String actualName = p.getCurrentName();
         if (!expName.equals(actualName)) {
-            throw JsonMappingException.from(jp, "Root name '"+actualName+"' does not match expected ('"
+            throw JsonMappingException.from(p, "Root name '"+actualName+"' does not match expected ('"
                     +expName+"') for type "+rootType);
         }
         // ok, then move to value itself....
-        jp.nextToken();
-        Object result = deser.deserialize(jp, ctxt);
+        p.nextToken();
+        Object result = deser.deserialize(p, ctxt);
         // and last, verify that we now get matching END_OBJECT
-        if (jp.nextToken() != JsonToken.END_OBJECT) {
-            throw JsonMappingException.from(jp, "Current token not END_OBJECT (to match wrapper object with root name '"
-                    +expName+"'), but "+jp.getCurrentToken());
+        if (p.nextToken() != JsonToken.END_OBJECT) {
+            throw JsonMappingException.from(p, "Current token not END_OBJECT (to match wrapper object with root name '"
+                    +expName+"'), but "+p.getCurrentToken());
         }
         return result;
     }

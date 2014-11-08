@@ -331,7 +331,7 @@ public class ObjectReader
         if (_schema != null) {
             p.setSchema(_schema);
         }
-        _config.initialize(p);
+        _config.initialize(p); // since 2.5
 
         /* First: must point to a token; if not pointing to one, advance.
          * This occurs before first read from JsonParser, as well as
@@ -361,6 +361,7 @@ public class ObjectReader
         if (_schema != null) {
             p.setSchema(_schema);
         }
+        _config.initialize(p); // since 2.5
     }
 
     /*

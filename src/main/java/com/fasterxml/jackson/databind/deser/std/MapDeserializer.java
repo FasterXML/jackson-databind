@@ -282,6 +282,15 @@ public class MapDeserializer
     /**********************************************************
      */
 
+    /**
+     * Turns out that these are expensive enough to create so that caching
+     * does make sense.
+     * 
+     * @since 2.4.4
+     */
+    @Override
+    public boolean isCachable() { return true; }
+
     @Override
     @SuppressWarnings("unchecked")
     public Map<Object,Object> deserialize(JsonParser jp, DeserializationContext ctxt)

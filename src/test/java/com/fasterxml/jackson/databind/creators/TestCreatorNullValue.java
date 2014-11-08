@@ -109,7 +109,6 @@ public class TestCreatorNullValue extends BaseMapTest
             objectMapper.readValue(json, JsonEntity.class);
             fail("Should not have succeeded");
         } catch (JsonMappingException e) {
-            e.printStackTrace();
             verifyException(e, "JSON creator returned null");
         }
     }    

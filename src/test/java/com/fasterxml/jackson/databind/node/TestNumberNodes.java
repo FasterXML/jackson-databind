@@ -3,9 +3,9 @@ package com.fasterxml.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -261,7 +261,7 @@ public class TestNumberNodes extends NodeTestBase
     {
         ObjectMapper mapper = new ObjectMapper()
                 .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
-                .enable(SerializationFeature.WRITE_BIGDECIMAL_AS_PLAIN);
+                .enable(JsonGenerator.Feature.WRITE_BIGDECIMAL_AS_PLAIN);
         final String INPUT = "{\"x\":1e2}";
         final JsonNode node = mapper.readTree(INPUT);
         String result = mapper.writeValueAsString(node);

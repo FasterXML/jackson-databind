@@ -1304,6 +1304,20 @@ public class ObjectMapper
     /* Configuration, deserialization
     /**********************************************************
      */
+
+    /**
+     * Method that can be used to get hold of {@link JsonNodeFactory}
+     * that this mapper will use when directly constructing
+     * root {@link JsonNode} instances for Trees.
+     *<p>
+     * Note: this is just a shortcut for calling
+     *<pre>
+     *   getDeserializationConfig().getNodeFactory()
+     *</pre>
+     */
+    public JsonNodeFactory getNodeFactory() {
+        return _deserializationConfig.getNodeFactory();
+    }
     
     /**
      * Method for specifying {@link JsonNodeFactory} to use for
@@ -1404,8 +1418,8 @@ public class ObjectMapper
      * @since 2.4
      */
     public ObjectMapper setConfig(SerializationConfig config) {
-    	_serializationConfig = config;
-    	return this;
+        _serializationConfig = config;
+        return this;
     }
     
     /*
@@ -1502,10 +1516,18 @@ public class ObjectMapper
     
     /*
     /**********************************************************
-    /* Configuration, simple features
+    /* Configuration, simple features: MapperFeature
     /**********************************************************
      */
 
+    /**
+     * Method for checking whether given {@link MapperFeature} is enabled.
+     */
+    public boolean isEnabled(MapperFeature f) {
+        // ok to use either one, should be kept in sync
+        return _serializationConfig.isEnabled(f);
+    }
+    
     /**
      * Method for changing state of an on/off mapper feature for
      * this mapper instance.
@@ -1515,54 +1537,6 @@ public class ObjectMapper
                 _serializationConfig.with(f) : _serializationConfig.without(f);
         _deserializationConfig = state ?
                 _deserializationConfig.with(f) : _deserializationConfig.without(f);
-        return this;
-    }
-    
-    /**
-     * Method for changing state of an on/off serialization feature for
-     * this object mapper.
-     */
-    public ObjectMapper configure(SerializationFeature f, boolean state) {
-        _serializationConfig = state ?
-                _serializationConfig.with(f) : _serializationConfig.without(f);
-        return this;
-    }
-
-    /**
-     * Method for changing state of an on/off deserialization feature for
-     * this object mapper.
-     */
-    public ObjectMapper configure(DeserializationFeature f, boolean state) {
-        _deserializationConfig = state ?
-                _deserializationConfig.with(f) : _deserializationConfig.without(f);
-        return this;
-    }
-
-    /**
-     * Method for changing state of an on/off {@link JsonParser} feature for
-     * {@link JsonFactory} instance this object mapper uses.
-     *<p>
-     * This is method is basically a shortcut method for calling
-     * {@link JsonFactory#enable} on the shared
-     * {@link JsonFactory} this mapper uses (which is accessible
-     * using {@link #getJsonFactory}).
-     */
-    public ObjectMapper configure(JsonParser.Feature f, boolean state) {
-        _jsonFactory.configure(f, state);
-        return this;
-    }
-
-    /**
-     * Method for changing state of an on/off {@link JsonGenerator} feature for
-     * {@link JsonFactory} instance this object mapper uses.
-     *<p>
-     * This is method is basically a shortcut method for calling
-     * {@link JsonFactory#enable} on the shared
-     * {@link JsonFactory} this mapper uses (which is accessible
-     * using {@link #getJsonFactory}).
-     */
-    public ObjectMapper configure(JsonGenerator.Feature f, boolean state) {
-        _jsonFactory.configure(f, state);
         return this;
     }
 
@@ -1586,6 +1560,92 @@ public class ObjectMapper
         return this;
     }
     
+    /*
+    /**********************************************************
+    /* Configuration, simple features: SerializationFeature
+    /**********************************************************
+     */
+
+    /**
+     * Method for checking whether given serialization-specific
+     * feature is enabled.
+     */
+    public boolean isEnabled(SerializationFeature f) {
+        return _serializationConfig.isEnabled(f);
+    }
+
+    /**
+     * Method for changing state of an on/off serialization feature for
+     * this object mapper.
+     */
+    public ObjectMapper configure(SerializationFeature f, boolean state) {
+        _serializationConfig = state ?
+                _serializationConfig.with(f) : _serializationConfig.without(f);
+        return this;
+    }
+
+    /**
+     * Method for enabling specified {@link DeserializationConfig} feature.
+     * Modifies and returns this instance; no new object is created.
+     */
+    public ObjectMapper enable(SerializationFeature f) {
+        _serializationConfig = _serializationConfig.with(f);
+        return this;
+    }
+
+    /**
+     * Method for enabling specified {@link DeserializationConfig} features.
+     * Modifies and returns this instance; no new object is created.
+     */
+    public ObjectMapper enable(SerializationFeature first,
+            SerializationFeature... f) {
+        _serializationConfig = _serializationConfig.with(first, f);
+        return this;
+    }
+    
+    /**
+     * Method for enabling specified {@link DeserializationConfig} features.
+     * Modifies and returns this instance; no new object is created.
+     */
+    public ObjectMapper disable(SerializationFeature f) {
+        _serializationConfig = _serializationConfig.without(f);
+        return this;
+    }
+
+    /**
+     * Method for enabling specified {@link DeserializationConfig} features.
+     * Modifies and returns this instance; no new object is created.
+     */
+    public ObjectMapper disable(SerializationFeature first,
+            SerializationFeature... f) {
+        _serializationConfig = _serializationConfig.without(first, f);
+        return this;
+    }
+    
+    /*
+    /**********************************************************
+    /* Configuration, simple features: DeserializationFeature
+    /**********************************************************
+     */
+
+    /**
+     * Method for checking whether given deserialization-specific
+     * feature is enabled.
+     */
+    public boolean isEnabled(DeserializationFeature f) {
+        return _deserializationConfig.isEnabled(f);
+    }
+
+    /**
+     * Method for changing state of an on/off deserialization feature for
+     * this object mapper.
+     */
+    public ObjectMapper configure(DeserializationFeature f, boolean state) {
+        _deserializationConfig = state ?
+                _deserializationConfig.with(f) : _deserializationConfig.without(f);
+        return this;
+    }
+
     /**
      * Method for enabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
@@ -1624,69 +1684,116 @@ public class ObjectMapper
         return this;
     }
     
-    /**
-     * Method for enabling specified {@link DeserializationConfig} feature.
-     * Modifies and returns this instance; no new object is created.
+    /*
+    /**********************************************************
+    /* Configuration, simple features: JsonParser.Feature
+    /**********************************************************
      */
-    public ObjectMapper enable(SerializationFeature f) {
-        _serializationConfig = _serializationConfig.with(f);
+
+    public boolean isEnabled(JsonParser.Feature f) {
+        return _deserializationConfig.isEnabled(f, _jsonFactory);
+    }
+    
+    /**
+     * Method for changing state of specified {@link com.fasterxml.jackson.core.JsonParser.Feature}s
+     * for parser instances this object mapper creates.
+     *<p>
+     * Note that this is equivalent to directly calling same method
+     * on {@link #getFactory}.
+     */
+    public ObjectMapper configure(JsonParser.Feature f, boolean state) {
+        _jsonFactory.configure(f, state);
         return this;
     }
 
     /**
-     * Method for enabling specified {@link DeserializationConfig} features.
-     * Modifies and returns this instance; no new object is created.
+     * Method for enabling specified {@link com.fasterxml.jackson.core.JsonParser.Feature}s
+     * for parser instances this object mapper creates.
+     *<p>
+     * Note that this is equivalent to directly calling same method on {@link #getFactory}.
+     *
+     * @since 2.5
      */
-    public ObjectMapper enable(SerializationFeature first,
-            SerializationFeature... f) {
-        _serializationConfig = _serializationConfig.with(first, f);
+    public ObjectMapper enable(JsonParser.Feature... features) {
+        for (JsonParser.Feature f : features) {
+            _jsonFactory.enable(f);
+        }
         return this;
     }
     
     /**
-     * Method for enabling specified {@link DeserializationConfig} features.
-     * Modifies and returns this instance; no new object is created.
+     * Method for disabling specified {@link com.fasterxml.jackson.core.JsonParser.Feature}s
+     * for parser instances this object mapper creates.
+     *<p>
+     * Note that this is equivalent to directly calling same method on {@link #getFactory}.
+     *
+     * @since 2.5
      */
-    public ObjectMapper disable(SerializationFeature f) {
-        _serializationConfig = _serializationConfig.without(f);
+    public ObjectMapper disable(JsonParser.Feature... features) {
+        for (JsonParser.Feature f : features) {
+            _jsonFactory.disable(f);
+        }
         return this;
-    }
-
-    /**
-     * Method for enabling specified {@link DeserializationConfig} features.
-     * Modifies and returns this instance; no new object is created.
-     */
-    public ObjectMapper disable(SerializationFeature first,
-            SerializationFeature... f) {
-        _serializationConfig = _serializationConfig.without(first, f);
-        return this;
-    }
-
-    /**
-     * Method for checking whether given Mapper
-     * feature is enabled.
-     */
-    public boolean isEnabled(MapperFeature f) {
-        // ok to use either one, should be kept in sync
-        return _serializationConfig.isEnabled(f);
-    }
-
-    /**
-     * Method for checking whether given serialization-specific
-     * feature is enabled.
-     */
-    public boolean isEnabled(SerializationFeature f) {
-        return _serializationConfig.isEnabled(f);
     }
     
-    /**
-     * Method for checking whether given deserialization-specific
-     * feature is enabled.
+    /*
+    /**********************************************************
+    /* Configuration, simple features: JsonGenerator.Feature
+    /**********************************************************
      */
-    public boolean isEnabled(DeserializationFeature f) {
-        return _deserializationConfig.isEnabled(f);
+
+    public boolean isEnabled(JsonGenerator.Feature f) {
+        return _serializationConfig.isEnabled(f, _jsonFactory);
     }
 
+    /**
+     * Method for changing state of an on/off {@link JsonGenerator} feature for
+     * generator instances this object mapper creates.
+     *<p>
+     * Note that this is equivalent to directly calling same method
+     * on {@link #getFactory}.
+     */
+    public ObjectMapper configure(JsonGenerator.Feature f, boolean state) {
+        _jsonFactory.configure(f,  state);
+        return this;
+    }
+
+    /**
+     * Method for enabling specified {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s
+     * for parser instances this object mapper creates.
+     *<p>
+     * Note that this is equivalent to directly calling same method on {@link #getFactory}.
+     *
+     * @since 2.5
+     */
+    public ObjectMapper enable(JsonGenerator.Feature... features) {
+        for (JsonGenerator.Feature f : features) {
+            _jsonFactory.enable(f);
+        }
+        return this;
+    }
+
+    /**
+     * Method for disabling specified {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s
+     * for parser instances this object mapper creates.
+     *<p>
+     * Note that this is equivalent to directly calling same method on {@link #getFactory}.
+     *
+     * @since 2.5
+     */
+    public ObjectMapper disable(JsonGenerator.Feature... features) {
+        for (JsonGenerator.Feature f : features) {
+            _jsonFactory.disable(f);
+        }
+        return this;
+    }
+
+    /*
+    /**********************************************************
+    /* Configuration, simple features: JsonFactory.Feature
+    /**********************************************************
+     */
+    
     /**
      * Convenience method, equivalent to:
      *<pre>
@@ -1695,40 +1802,6 @@ public class ObjectMapper
      */
     public boolean isEnabled(JsonFactory.Feature f) {
         return _jsonFactory.isEnabled(f);
-    }
-
-    /**
-     * Convenience method, equivalent to:
-     *<pre>
-     *  getJsonFactory().isEnabled(f);
-     *</pre>
-     */
-    public boolean isEnabled(JsonParser.Feature f) {
-        return _jsonFactory.isEnabled(f);
-    }
-    
-    /**
-     * Convenience method, equivalent to:
-     *<pre>
-     *  getJsonFactory().isEnabled(f);
-     *</pre>
-     */
-    public boolean isEnabled(JsonGenerator.Feature f) {
-        return _jsonFactory.isEnabled(f);
-    }
-    
-    /**
-     * Method that can be used to get hold of {@link JsonNodeFactory}
-     * that this mapper will use when directly constructing
-     * root {@link JsonNode} instances for Trees.
-     *<p>
-     * Note: this is just a shortcut for calling
-     *<pre>
-     *   getDeserializationConfig().getNodeFactory()
-     *</pre>
-     */
-    public JsonNodeFactory getNodeFactory() {
-        return _deserializationConfig.getNodeFactory();
     }
 
     /*
@@ -3025,7 +3098,6 @@ public class ObjectMapper
         }
     }
 
-    @SuppressWarnings("deprecation")
     protected final void _configAndWriteValue(JsonGenerator jgen, Object value, Class<?> viewClass)
         throws IOException
     {

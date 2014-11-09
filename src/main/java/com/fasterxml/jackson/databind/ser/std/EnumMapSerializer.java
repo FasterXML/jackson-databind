@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.util.EnumValues;
  * and if not, it can only be gotten from actual instance.
  * 
  * @deprecated Since 2.4.4; standard {@link MapSerializer} works better.
+ *   (to be removed from 2.6)
  */
 @JacksonStdImpl
 @Deprecated
@@ -293,7 +294,7 @@ public class EnumMapSerializer
         }
     }
     
-    @SuppressWarnings({ "unchecked", "deprecation" })
+    @SuppressWarnings({ "unchecked" })
     @Override
     public JsonNode getSchema(SerializerProvider provider, Type typeHint)
         throws JsonMappingException

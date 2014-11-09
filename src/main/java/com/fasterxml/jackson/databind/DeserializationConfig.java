@@ -483,8 +483,8 @@ public final class DeserializationConfig
      */
     public DeserializationConfig without(JsonParser.Feature feature)
     {
-        int newSet = _parserFeaturesToChange & ~feature.getMask();
-        int newMask = _parserFeatures | feature.getMask();
+        int newSet = _parserFeatures & ~feature.getMask();
+        int newMask = _parserFeaturesToChange | feature.getMask();
         return ((_parserFeatures == newSet) && (_parserFeaturesToChange == newMask)) ? this :
             new DeserializationConfig(this,  _mapperFeatures, _deserFeatures,
                     newSet, newMask);
@@ -646,6 +646,14 @@ public final class DeserializationConfig
         return (_deserFeatures & f.getMask()) != 0;
     }
 
+    public final boolean isEnabled(JsonParser.Feature f, JsonFactory factory) {
+        int mask = f.getMask();
+        if ((_parserFeaturesToChange & mask) != 0) {
+            return (_parserFeatures & f.getMask()) != 0;
+        }
+        return factory.isEnabled(f);
+    }
+    
     /**
      * "Bulk" access method for checking that all features specified by
      * mask are enabled.

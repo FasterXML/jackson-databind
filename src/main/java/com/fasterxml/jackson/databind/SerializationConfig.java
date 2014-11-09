@@ -455,7 +455,7 @@ public final class SerializationConfig
     public SerializationConfig with(JsonGenerator.Feature feature)
     {
         int newSet = _generatorFeatures | feature.getMask();
-        int newMask = _generatorFeatures | feature.getMask();
+        int newMask = _generatorFeaturesToChange | feature.getMask();
         return ((_generatorFeatures == newSet) && (_generatorFeaturesToChange == newMask)) ? this :
             new SerializationConfig(this,  _mapperFeatures, _serFeatures,
                     newSet, newMask);
@@ -490,7 +490,7 @@ public final class SerializationConfig
     public SerializationConfig without(JsonGenerator.Feature feature)
     {
         int newSet = _generatorFeatures & ~feature.getMask();
-        int newMask = _generatorFeatures | feature.getMask();
+        int newMask = _generatorFeaturesToChange | feature.getMask();
         return ((_generatorFeatures == newSet) && (_generatorFeaturesToChange == newMask)) ? this :
             new SerializationConfig(this,  _mapperFeatures, _serFeatures,
                     newSet, newMask);
@@ -633,6 +633,21 @@ public final class SerializationConfig
         return (_serFeatures & f.getMask()) != 0;
     }
 
+    /**
+     * Accessor method that first checks if we have any overrides
+     * for feature, and only if not, checks state of passed-in
+     * factory.
+     * 
+     * @since 2.5
+     */
+    public final boolean isEnabled(JsonGenerator.Feature f, JsonFactory factory) {
+        int mask = f.getMask();
+        if ((_generatorFeaturesToChange & mask) != 0) {
+            return (_generatorFeatures & f.getMask()) != 0;
+        }
+        return factory.isEnabled(f);
+    }
+    
     /**
      * "Bulk" access method for checking that all features specified by
      * mask are enabled.

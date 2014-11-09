@@ -511,6 +511,13 @@ public class ObjectMapper
         }
     }
 
+    /*
+    /**********************************************************
+    /* Methods sub-classes MUST override if providing custom
+    /* ObjectReader/ObjectWriter implementations
+    /**********************************************************
+     */
+    
     /**
      * Factory method sub-classes must override, to produce {@link ObjectReader}
      * instances of proper sub-type

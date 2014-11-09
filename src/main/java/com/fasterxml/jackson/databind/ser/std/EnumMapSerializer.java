@@ -25,8 +25,11 @@ import com.fasterxml.jackson.databind.util.EnumValues;
  * Specialized serializer for {@link EnumMap}s. Somewhat tricky to
  * implement because actual Enum value type may not be available;
  * and if not, it can only be gotten from actual instance.
+ * 
+ * @deprecated Since 2.4.4; standard {@link MapSerializer} works better.
  */
 @JacksonStdImpl
+@Deprecated
 public class EnumMapSerializer
     extends ContainerSerializer<EnumMap<? extends Enum<?>, ?>>
     implements ContextualSerializer

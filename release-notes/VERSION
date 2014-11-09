@@ -57,6 +57,8 @@ Project: jackson-databind
  (reported by Jerbell@github)
 #592: Wrong `TokenBuffer` delegate deserialization using `@JsonCreator`
  (reported by Eugene L)
+#601: ClassCastException for a custom serializer for enum key in `EnumMap`
+ (reported by Benson M)
 #604: `Map` deserializers not being cached, causing performance problems
 - Minor fix to `EnumSerializer` regarding detection "serialize using index"
 - Minor fix to number serializers, to call proper callback for schema generation

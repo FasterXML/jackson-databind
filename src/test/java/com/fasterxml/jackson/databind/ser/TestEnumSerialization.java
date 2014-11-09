@@ -203,13 +203,11 @@ public class TestEnumSerialization
         assertEquals("\"B\"", mapper.writeValueAsString(EnumWithSubClass.B));
     }
 
-    // [JACKSON-193]
     public void testEnumsWithJsonValue() throws Exception
     {
         assertEquals("\"bar\"", mapper.writeValueAsString(EnumWithJsonValue.B));
     }
 
-    // also, for [JACKSON-193], needs to work via mix-ins
     public void testEnumsWithJsonValueUsingMixin() throws Exception
     {
         // can't share, as new mix-ins are added
@@ -218,6 +216,14 @@ public class TestEnumSerialization
         assertEquals("\"b\"", m.writeValueAsString(TestEnum.B));
     }
 
+    // [databind#601]
+    public void testEnumsWithJsonValueInMap() throws Exception
+    {
+        EnumMap<EnumWithJsonValue,String> input = new EnumMap<EnumWithJsonValue,String>(EnumWithJsonValue.class);
+        input.put(EnumWithJsonValue.B, "x");
+        assertEquals("{\""+EnumWithJsonValue.B.toString()+"\":\"x\"}", mapper.writeValueAsString(input));
+    }
+    
     /**
      * Test for ensuring that @JsonSerializable is used with Enum types as well
      * as with any other types.

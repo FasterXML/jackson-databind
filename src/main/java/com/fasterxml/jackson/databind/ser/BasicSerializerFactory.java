@@ -720,9 +720,8 @@ public abstract class BasicSerializerFactory
             if (ser != null) { break; }
         }
         if (ser == null) {
-            /* 05-Nov-2014, tatu: As per [databind#601], may be easier NOT to use specialized
-             *    serializers, if custom serialization of keys is needed.
-             */
+            // 08-Nov-2014, tatu: As per [databind#601], better just use default Map serializer
+            /*
             if (EnumMap.class.isAssignableFrom(type.getRawClass())
                     && ((keySerializer == null) || ClassUtil.isJacksonStdImpl(keySerializer))) {
                 JavaType keyType = type.getKeyType();
@@ -736,17 +735,17 @@ public abstract class BasicSerializerFactory
                 ser = new EnumMapSerializer(type.getContentType(), staticTyping, enums,
                     elementTypeSerializer, elementValueSerializer);
             } else {
-                Object filterId = findFilterId(config, beanDesc);
-                MapSerializer mapSer = MapSerializer.construct(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()),
+            */
+            Object filterId = findFilterId(config, beanDesc);
+            MapSerializer mapSer = MapSerializer.construct(config.getAnnotationIntrospector().findPropertiesToIgnore(beanDesc.getClassInfo()),
                     type, staticTyping, elementTypeSerializer,
                     keySerializer, elementValueSerializer, filterId);
-                Object suppressableValue = findSuppressableContentValue(config,
-                        type.getContentType(), beanDesc);
-                if (suppressableValue != null) {
-                    mapSer = mapSer.withContentInclusion(suppressableValue);
-                }
-                ser = mapSer;
+            Object suppressableValue = findSuppressableContentValue(config,
+                    type.getContentType(), beanDesc);
+            if (suppressableValue != null) {
+                mapSer = mapSer.withContentInclusion(suppressableValue);
             }
+            ser = mapSer;
         }
         // [Issue#120]: Allow post-processing
         if (_factoryConfig.hasSerializerModifiers()) {

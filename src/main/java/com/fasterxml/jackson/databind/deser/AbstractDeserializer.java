@@ -195,9 +195,10 @@ public class AbstractDeserializer
         // do we have it resolved?
         Object pojo = roid.resolve();
         if (pojo == null) { // not yet; should wait...
-            throw new IllegalStateException("Could not resolve Object Id ["+id+"] -- unresolved forward-reference?");
+            throw new UnresolvedForwardReference("Could not resolve Object Id ["+id+"] -- unresolved forward-reference?", jp.getCurrentLocation(), roid);
         }
         return pojo;
     }
 }
+
 

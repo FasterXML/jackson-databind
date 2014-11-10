@@ -2,8 +2,7 @@ package com.fasterxml.jackson.failing;
 
 import java.util.*;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**

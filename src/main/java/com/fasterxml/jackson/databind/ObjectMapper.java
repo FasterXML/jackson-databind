@@ -1693,7 +1693,7 @@ public class ObjectMapper
     public boolean isEnabled(JsonParser.Feature f) {
         return _deserializationConfig.isEnabled(f, _jsonFactory);
     }
-    
+
     /**
      * Method for changing state of specified {@link com.fasterxml.jackson.core.JsonParser.Feature}s
      * for parser instances this object mapper creates.

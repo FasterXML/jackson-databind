@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,16 +33,13 @@ public class TestForwardReference extends BaseMapTest {
 				"  \"frc\" : \"willBeForwardReferenced\"," +
 				"  \"yac\" : {" +
 				"    \"@type\" : \"TestForwardReference$YetAnotherClass\"," +
-				"    \"frc\" : [ {" +
-				"      \"@type\" : \"Two\"," +
-				"      \"id\" : \"anotherInstance\"" +
-				"    }, {" +
+				"    \"frc\" : {" +
 				"      \"@type\" : \"One\"," +
 				"      \"id\" : \"willBeForwardReferenced\"" +
-				"    } ]," +
-				"    \"id\" : \"anId\"\n" +
-				"  },\n" +
-				"  \"id\" : \"ForwardReferenceContainerClass1\"\n" +
+				"    }," +
+				"    \"id\" : \"anId\"" +
+				"  }," +
+				"  \"id\" : \"ForwardReferenceContainerClass1\"" +
 				"}", ForwardReferenceContainerClass.class);
 
 
@@ -72,7 +70,7 @@ public class TestForwardReference extends BaseMapTest {
 	private static class YetAnotherClass
 	{
 		public YetAnotherClass() {}
-		public List<ForwardReferenceClass> frc;
+		public ForwardReferenceClass frc;
 		public String id;
 	}
 

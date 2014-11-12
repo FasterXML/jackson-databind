@@ -60,6 +60,8 @@ Project: jackson-databind
 #601: ClassCastException for a custom serializer for enum key in `EnumMap`
  (reported by Benson M)
 #604: `Map` deserializers not being cached, causing performance problems
+#610: Fix forward reference in hierarchies
+ (contributed by zeito@github)
 - Minor fix to `EnumSerializer` regarding detection "serialize using index"
 - Minor fix to number serializers, to call proper callback for schema generation
 

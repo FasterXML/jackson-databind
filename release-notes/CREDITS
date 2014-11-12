@@ -154,6 +154,10 @@ Eugene Lukash
   * Reported #592: Wrong `TokenBuffer` delegate deserialization using `@JsonCreator`
    (2.4.4)
 
+Fernando Otero (zeitos@github)
+  * Contributed fix for #610: Problem with forward reference in hierarchies
+   (2.4.4)
+
 Lovro Pandžić (lpandzic@github)
   * Reported #421: @JsonCreator not used in case of multiple creators with parameter names
    (2.5.0)

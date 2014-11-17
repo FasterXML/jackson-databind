@@ -46,15 +46,31 @@ public class SingleArgCreatorTest extends BaseMapTest
         }
     }
 
+    static class StringyBeanWithProps
+    {
+        public final String value;
+
+        @JsonCreator
+        private StringyBeanWithProps(String v) { value = v; }
+
+        public String getValue() {
+            return value;
+        }
+    }
+    
     @SuppressWarnings("serial")
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
     {
+        private final String name;
+        
+        public MyParamIntrospector(String n) { name = n; }
+        
         @Override
         public String findImplicitPropertyName(AnnotatedMember param) {
             if (param instanceof AnnotatedParameter) {
                 AnnotatedParameter ap = (AnnotatedParameter) param;
                 switch (ap.getIndex()) {
-                case 0: return "value";
+                case 0: return name;
                 }
                 return "param"+ap.getIndex();
             }
@@ -80,11 +96,20 @@ public class SingleArgCreatorTest extends BaseMapTest
     public void testSingleStringArgWithImplicitName() throws Exception
     {
         final ObjectMapper mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new MyParamIntrospector());
+        mapper.setAnnotationIntrospector(new MyParamIntrospector("value"));
         StringyBean bean = mapper.readValue(quote("foobar"), StringyBean.class);
         assertEquals("foobar", bean.getValue());
     }    
 
+    // [databind#714]
+    public void testSingleImplicitlyNamedNotDelegating() throws Exception
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new MyParamIntrospector("value"));
+        StringyBeanWithProps bean = mapper.readValue("{\"value\":\"x\"}", StringyBeanWithProps.class);
+        assertEquals("x", bean.getValue());
+    }    
+    
     // [databind#714]
     public void testSingleExplicitlyNamedButDelegating() throws Exception
     {

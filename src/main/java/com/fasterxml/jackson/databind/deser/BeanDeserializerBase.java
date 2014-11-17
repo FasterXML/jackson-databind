@@ -1068,7 +1068,7 @@ public abstract class BeanDeserializerBase
                     +" (need to add/enable type information?)");
         }
         throw JsonMappingException.from(jp, "No suitable constructor found for type "
-                +_beanType+": can not instantiate from JSON object (need to add/enable type information?)");
+                +_beanType+": can not instantiate from JSON object (missing default constructor or creator, or perhaps need to add/enable type information?)");
     }
 
     protected abstract Object _deserializeUsingPropertyBased(final JsonParser jp,

@@ -437,25 +437,15 @@ public abstract class BasicDeserializerFactory
 
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
-                BeanPropertyDefinition propDef = (propDefs == null) ? null : propDefs[0];
-                boolean hasExplicitName = (propDef != null) && propDef.isExplicitlyNamed();
-                Object injectId = intr.findInjectableValueId(ctor.getParameter(0));
+                BeanPropertyDefinition argDef = (propDefs == null) ? null : propDefs[0];
+                boolean useProps = _checkIfCreatorPropertyBased(intr, ctor, argDef);
 
-                JsonCreator.Mode mode = intr.findCreatorBinding(ctor);
-                
-                boolean withProps = (mode == JsonCreator.Mode.PROPERTIES);
-                if (!withProps && (mode != JsonCreator.Mode.DELEGATING)) {
-                    if (hasExplicitName || (injectId != null)) {
-                        withProps = true;
-                    } else {
-                        // TODO: one more thing -- if property has matching field
-                        // or setter, also consider property-based
-                    }
-                }
-                if (withProps) {
+                if (useProps) {
                     CreatorProperty[] properties = new CreatorProperty[1];
-                    PropertyName name = (propDef == null) ? null : propDef.getFullName();
-                    properties[0] = constructCreatorProperty(ctxt, beanDesc, name, 0, ctor.getParameter(0), injectId);
+                    PropertyName name = (argDef == null) ? null : argDef.getFullName();
+                    AnnotatedParameter arg = ctor.getParameter(0);
+                    properties[0] = constructCreatorProperty(ctxt, beanDesc, name, 0, arg,
+                            intr.findInjectableValueId(arg));
                     creators.addPropertyCreator(ctor, properties);
                 } else {
                     /*boolean added = */ _handleSingleArgumentConstructor(ctxt, beanDesc, vchecker, intr, creators,
@@ -463,8 +453,8 @@ public abstract class BasicDeserializerFactory
                             vchecker.isCreatorVisible(ctor));
                     // one more thing: sever link to creator property, to avoid possible later
                     // problems with "unresolved" constructor property
-                    if (propDef != null) {
-                        ((POJOPropertyBuilder) propDef).removeConstructors();
+                    if (argDef != null) {
+                        ((POJOPropertyBuilder) argDef).removeConstructors();
                     }
                 }
                 // regardless, fully handled
@@ -528,6 +518,36 @@ public abstract class BasicDeserializerFactory
         }
     }
 
+    protected boolean _checkIfCreatorPropertyBased(AnnotationIntrospector intr,
+            AnnotatedWithParams creator, BeanPropertyDefinition propDef)
+    {
+        JsonCreator.Mode mode = intr.findCreatorBinding(creator);
+
+        if (mode == JsonCreator.Mode.PROPERTIES) {
+            return true;
+        }
+        if (mode == JsonCreator.Mode.DELEGATING) {
+            return false;
+        }
+        // If explicit name, or inject id, property-based
+        if (((propDef != null) && propDef.isExplicitlyNamed())
+                || (intr.findInjectableValueId(creator.getParameter(0)) != null)) {
+            return true;
+        }
+        if (propDef != null) {
+            // One more thing: if implicit name matches property with a getter
+            // or field, we'll consider it property-based as well
+            String implName = propDef.getName();
+            if (implName != null && !implName.isEmpty()) {
+                if (propDef.couldSerialize()) {
+                    return true;
+                }
+            }
+        }
+        // in absence of everything else, default to delegating
+        return false;
+    }
+    
     protected boolean _handleSingleArgumentConstructor(DeserializationContext ctxt,
             BeanDescription beanDesc, VisibilityChecker<?> vchecker,
             AnnotationIntrospector intr, CreatorCollector creators,
@@ -604,22 +624,9 @@ public abstract class BasicDeserializerFactory
             final BeanPropertyDefinition[] propDefs = creatorParams.get(factory);
             // some single-arg factory methods (String, number) are auto-detected
             if (argCount == 1) {
-                BeanPropertyDefinition propDef = (propDefs == null) ? null : propDefs[0];
-                boolean hasExplicitName = (propDef != null) && propDef.isExplicitlyNamed();
-                final Object injectId = intr.findInjectableValueId(factory.getParameter(0));
-
-                JsonCreator.Mode mode = intr.findCreatorBinding(factory);
-                
-                boolean withProps = (mode == JsonCreator.Mode.PROPERTIES);
-                if (!withProps && (mode != JsonCreator.Mode.DELEGATING)) {
-                    if (hasExplicitName || (injectId != null)) {
-                        withProps = true;
-                    } else {
-                        // TODO: one more thing -- if property has matching field
-                        // or setter, also consider property-based
-                    }
-                }
-                if (!withProps) { // not property based but delegating
+                BeanPropertyDefinition argDef = (propDefs == null) ? null : propDefs[0];
+                boolean useProps = _checkIfCreatorPropertyBased(intr, factory, argDef);
+                if (!useProps) { // not property based but delegating
                     /*boolean added=*/ _handleSingleArgumentFactory(config, beanDesc, vchecker, intr, creators,
                             factory, isCreator);
                     // otherwise just ignored

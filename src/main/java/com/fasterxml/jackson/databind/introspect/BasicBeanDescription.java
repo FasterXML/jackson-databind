@@ -175,7 +175,7 @@ public class BasicBeanDescription extends BeanDescription
 
     @Override
     public ObjectIdInfo getObjectIdInfo() { return  _objectIdInfo; }
-    
+
     @Override
     public List<BeanPropertyDefinition> findProperties() {
         return _properties;
@@ -193,7 +193,7 @@ public class BasicBeanDescription extends BeanDescription
         }
         return _ignoredPropertyNames;
     }
-    
+
     @Override
     public boolean hasKnownClassAnnotations() {
         return _classInfo.hasAnnotations();

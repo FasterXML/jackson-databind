@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
@@ -440,7 +441,18 @@ public abstract class BasicDeserializerFactory
                 boolean hasExplicitName = (propDef != null) && propDef.isExplicitlyNamed();
                 Object injectId = intr.findInjectableValueId(ctor.getParameter(0));
 
-                if (hasExplicitName || (injectId != null)) {
+                JsonCreator.Mode mode = intr.findCreatorBinding(ctor);
+                
+                boolean withProps = (mode == JsonCreator.Mode.PROPERTIES);
+                if (!withProps && (mode != JsonCreator.Mode.DELEGATING)) {
+                    if (hasExplicitName || (injectId != null)) {
+                        withProps = true;
+                    } else {
+                        // TODO: one more thing -- if property has matching field
+                        // or setter, also consider property-based
+                    }
+                }
+                if (withProps) {
                     CreatorProperty[] properties = new CreatorProperty[1];
                     PropertyName name = (propDef == null) ? null : propDef.getFullName();
                     properties[0] = constructCreatorProperty(ctxt, beanDesc, name, 0, ctor.getParameter(0), injectId);
@@ -449,6 +461,11 @@ public abstract class BasicDeserializerFactory
                     /*boolean added = */ _handleSingleArgumentConstructor(ctxt, beanDesc, vchecker, intr, creators,
                             ctor, isCreator,
                             vchecker.isCreatorVisible(ctor));
+                    // one more thing: sever link to creator property, to avoid possible later
+                    // problems with "unresolved" constructor property
+                    if (propDef != null) {
+                        ((POJOPropertyBuilder) propDef).removeConstructors();
+                    }
                 }
                 // regardless, fully handled
                 continue;
@@ -590,7 +607,19 @@ public abstract class BasicDeserializerFactory
                 BeanPropertyDefinition propDef = (propDefs == null) ? null : propDefs[0];
                 boolean hasExplicitName = (propDef != null) && propDef.isExplicitlyNamed();
                 final Object injectId = intr.findInjectableValueId(factory.getParameter(0));
-                if ((injectId == null) && !hasExplicitName) { // not property based
+
+                JsonCreator.Mode mode = intr.findCreatorBinding(factory);
+                
+                boolean withProps = (mode == JsonCreator.Mode.PROPERTIES);
+                if (!withProps && (mode != JsonCreator.Mode.DELEGATING)) {
+                    if (hasExplicitName || (injectId != null)) {
+                        withProps = true;
+                    } else {
+                        // TODO: one more thing -- if property has matching field
+                        // or setter, also consider property-based
+                    }
+                }
+                if (!withProps) { // not property based but delegating
                     /*boolean added=*/ _handleSingleArgumentFactory(config, beanDesc, vchecker, intr, creators,
                             factory, isCreator);
                     // otherwise just ignored

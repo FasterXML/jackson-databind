@@ -8,10 +8,9 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 
 public class SingleArgCreatorTest extends BaseMapTest
 {
-    // [Issue#430]: single arg BUT named; should not delegate
+    // [databind#430]: single arg BUT named; should not delegate
 
     static class SingleNamedStringBean {
-
         final String _ss;
 
         @JsonCreator
@@ -22,7 +21,19 @@ public class SingleArgCreatorTest extends BaseMapTest
         public String getSs() { return _ss; }
     }
 
-    // [Databind#557]
+    // For [databind#614]
+    static class SingleNamedButStillDelegating {
+        protected final String value;
+
+        @JsonCreator(mode=JsonCreator.Mode.DELEGATING)
+        public SingleNamedButStillDelegating(@JsonProperty("foobar") String v){
+            value = v;
+        }
+
+        public String getFoobar() { return "x"; }
+    }
+    
+    // [databind#557]
     
     static class StringyBean
     {
@@ -73,5 +84,13 @@ public class SingleArgCreatorTest extends BaseMapTest
         StringyBean bean = mapper.readValue(quote("foobar"), StringyBean.class);
         assertEquals("foobar", bean.getValue());
     }    
+
+    // [databind#714]
+    public void testSingleExplicitlyNamedButDelegating() throws Exception
+    {
+        SingleNamedButStillDelegating bean = MAPPER.readValue(quote("xyz"),
+                SingleNamedButStillDelegating.class);
+        assertEquals("xyz", bean.value);
+    }
 }
 

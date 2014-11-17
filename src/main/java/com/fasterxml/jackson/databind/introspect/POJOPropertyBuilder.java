@@ -661,6 +661,15 @@ public class POJOPropertyBuilder
     }
 
     /**
+     * Mutator that will simply drop any constructor parameters property may have.
+     * 
+     * @since 2.5
+     */
+    public void removeConstructors() {
+        _ctorParameters = null;
+    }
+    
+    /**
      * Method called to trim unnecessary entries, such as implicit
      * getter if there is an explict one available. This is important
      * for later stages, to avoid unnecessary conflicts.

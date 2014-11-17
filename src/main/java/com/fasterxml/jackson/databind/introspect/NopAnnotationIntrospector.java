@@ -26,7 +26,7 @@ public abstract class NopAnnotationIntrospector
         @Override
         public Version version() {
             return com.fasterxml.jackson.databind.cfg.PackageVersion.VERSION;
-       }
+        }
     };
 
     @Override

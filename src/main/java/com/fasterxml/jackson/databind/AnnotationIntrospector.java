@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind;
 import java.lang.annotation.Annotation;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.Version;
@@ -1020,6 +1021,18 @@ public abstract class AnnotationIntrospector
         return false;
     }
 
+    /**
+     * Method for finding indication of creator binding mode for
+     * a creator (something for which {@link #hasCreatorAnnotation} returns
+     * true), for cases where there may be ambiguity (currently: single-argument
+     * creator with implicit but no explicit name for the argument).
+     * 
+     * @since 2.5
+     */
+    public JsonCreator.Mode findCreatorBinding(Annotated a) {
+        return null;
+    }
+    
     /*
     /**********************************************************
     /* Overridable methods: may be used as low-level extension

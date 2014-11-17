@@ -45,15 +45,15 @@ public class TestGenericTypes extends BaseMapTest
         public Person1(String name) { this.name = name; }
 
         public String getName() {
-                return name;
+            return name;
         }
 
         public Key<Account> getAccount() {
-                return account;
+            return account;
         }
 
         public Long getId() {
-                return id;
+            return id;
         }
 
         public void setAccount(Key<Account> account) {

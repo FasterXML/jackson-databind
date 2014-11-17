@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.failing;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -31,10 +30,13 @@ public class TestMapJsonValueKey47 extends BaseMapTest
         }
     }
 
+    @SuppressWarnings("serial")
+    static class WatMap extends HashMap<Wat,Boolean> { }
+    
     public void testMapJsonValueKey()
     throws Exception
     {
-        Map<Wat, Boolean> input = new HashMap<Wat, Boolean>();
+        WatMap input = new WatMap();
         input.put(new Wat("3"), true);
 
         ObjectMapper mapper = new ObjectMapper();

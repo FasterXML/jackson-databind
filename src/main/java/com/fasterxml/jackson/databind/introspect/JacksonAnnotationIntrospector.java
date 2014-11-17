@@ -723,7 +723,13 @@ public class JacksonAnnotationIntrospector
          */
         return _hasAnnotation(a, JsonCreator.class);
     }
-    
+
+    @Override
+    public JsonCreator.Mode findCreatorBinding(Annotated a) {
+        JsonCreator ann = _findAnnotation(a, JsonCreator.class);
+        return (ann == null) ? null : ann.mode();
+    }
+
     /*
     /**********************************************************
     /* Helper methods

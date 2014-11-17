@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.Version;
@@ -598,6 +599,15 @@ public class AnnotationIntrospectorPair
         return _primary.hasCreatorAnnotation(a) || _secondary.hasCreatorAnnotation(a);
     }
 
+    @Override
+    public JsonCreator.Mode findCreatorBinding(Annotated a) {
+        JsonCreator.Mode mode = _primary.findCreatorBinding(a);
+        if (mode != null) {
+            return mode;
+        }
+        return _secondary.findCreatorBinding(a);
+    }
+    
     protected boolean _isExplicitClassOrOb(Object maybeCls, Class<?> implicit) {
         if (maybeCls == null) {
             return false;

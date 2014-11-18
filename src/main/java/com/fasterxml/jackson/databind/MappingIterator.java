@@ -106,9 +106,9 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
         try {
             return hasNextValue();
         } catch (JsonMappingException e) {
-            return _handleMappingException(e);
+            return (Boolean) _handleMappingException(e);
         } catch (IOException e) {
-            return _handleIOException(e);
+            return (Boolean) _handleIOException(e);
         }
     }
     

@@ -107,7 +107,7 @@ public abstract class AnnotatedWithParams
     public final AnnotationMap getParameterAnnotations(int index)
     {
         if (_paramAnnotations != null) {
-            if (index >= 0 && index <= _paramAnnotations.length) {
+            if (index >= 0 && index < _paramAnnotations.length) {
                 return _paramAnnotations[index];
             }
         }

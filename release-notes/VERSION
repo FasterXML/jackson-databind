@@ -65,6 +65,8 @@ Project: jackson-databind
 #604: `Map` deserializers not being cached, causing performance problems
 #610: Fix forward reference in hierarchies
  (contributed by zeito@github)
+#619: Off by one error in AnnotatedWithParams
+ (reported by stevetodd@github)
 - Minor fix to `EnumSerializer` regarding detection "serialize using index"
 - Minor fix to number serializers, to call proper callback for schema generation
 

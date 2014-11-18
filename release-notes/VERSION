@@ -41,6 +41,7 @@ Project: jackson-databind
 #608: Allow (re)config of `JsonGenerator.Feature`s via `ObjectWriter`
 #614: Add a mechanism for using `@JsonCreator.mode` for resolving possible ambiguity between
   delegating- and property-based creators
+#616: Add `SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS`
 - Allow use of `Shape.ARRAY` for Enums, as an alias to 'use index'
 - Start using `JsonGenerator.writeStartArray(int)` to help data formats
   that benefit from knowing number of elements in arrays (and would otherwise

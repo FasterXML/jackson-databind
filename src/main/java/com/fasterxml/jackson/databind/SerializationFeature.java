@@ -191,6 +191,22 @@ public enum SerializationFeature implements ConfigFeature
     WRITE_DATES_AS_TIMESTAMPS(true),
 
     /**
+     * Feature that determines whether time values that represents time periods
+     * (durations, periods, ranges) are to be serialized by default using
+     * a numeric (true) or textual (false) representations. Note that numeric
+     * representation may mean either simple number, or an array of numbers,
+     * depending on type.
+     *<p>
+     * Note: whether {@link java.util.Map} keys are serialized as Strings
+     * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS}.
+     *<p>
+     * Feature is enabled by default.
+     * 
+     * @since 2.5
+     */
+    WRITE_DURATIONS_AS_TIMESTAMPS(true),
+    
+    /**
      * Feature that determines whether {@link java.util.Date}s
      * (and sub-types) used as {@link java.util.Map} keys are serialized
      * as timestamps or not (if not, will be serialized as textual

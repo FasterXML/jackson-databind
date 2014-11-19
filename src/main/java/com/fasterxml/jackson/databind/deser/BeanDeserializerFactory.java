@@ -807,7 +807,7 @@ public class BeanDeserializerFactory
         if (typeStr != null) {
             throw new IllegalArgumentException("Can not deserialize Class "+type.getName()+" (of type "+typeStr+") as a Bean");
         }
-    	return true;
+        return true;
     }
 
     /**
@@ -821,7 +821,7 @@ public class BeanDeserializerFactory
         if (status == null) {
             BeanDescription desc = config.introspectClassAnnotations(type);
             status = config.getAnnotationIntrospector().isIgnorableType(desc.getClassInfo());
-            // We default to 'false', ie. not ignorable
+            // We default to 'false', i.e. not ignorable
             if (status == null) {
                 status = Boolean.FALSE;
             }

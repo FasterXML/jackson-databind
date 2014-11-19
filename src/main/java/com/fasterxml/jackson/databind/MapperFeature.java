@@ -274,7 +274,33 @@ public enum MapperFeature implements ConfigFeature
      * 
      * @since 2.1
      */
-    USE_WRAPPER_NAME_AS_PROPERTY_NAME(false)
+    USE_WRAPPER_NAME_AS_PROPERTY_NAME(false),
+    
+    /*
+    /******************************************************
+    /* Other features
+    /******************************************************
+     */
+
+    /**
+     * Feature that determines whether multiple registrations of same module
+     * should be ignored or not; if enabled, only the first registration call
+     * results in module being called, and possible duplicate calls are silently
+     * ignored; if disabled, no checking is done and all registration calls are
+     * dispatched to module.
+     *<p>
+     * Definition of "same module" is based on using {@link Module#getTypeId()};
+     * modules with same non-null <code>type id</code> are considered same for
+     * purposes of duplicate registration. This also avoids having to keep track
+     * of actual module instances; only ids will be kept track of (and only if
+     * this feature is enabled).
+     *<p>
+     * Feature is enabled by default.
+     *
+     * @since 2.5
+     */
+    IGNORE_DUPLICATE_MODULE_REGISTRATIONS(true)
+    
     ;
 
     private final boolean _defaultState;

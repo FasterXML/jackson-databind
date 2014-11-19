@@ -38,6 +38,7 @@ Project: jackson-databind
 #597: Improve error messaging for cases where JSON Creator returns null (which
   is illegal)
  (contributed by Aurelien L)
+#599: Add a simple mechanism for avoiding multiple registrations of the same module
 #607: Allow (re)config of `JsonParser.Feature`s via `ObjectReader`
 #608: Allow (re)config of `JsonGenerator.Feature`s via `ObjectWriter`
 #614: Add a mechanism for using `@JsonCreator.mode` for resolving possible ambiguity between

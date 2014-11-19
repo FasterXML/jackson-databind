@@ -39,6 +39,16 @@ public abstract class StdDeserializer<T>
         _valueClass = (valueType == null) ? null : valueType.getRawClass();
     }
 
+    /**
+     * Copy-constructor for sub-classes to use, most often when creating
+     * new instances for {@link ContextualDeserializer}.
+     * 
+     * @since 2.5
+     */
+    protected StdDeserializer(StdDeserializer<?> src) {
+        _valueClass = src._valueClass;
+    }
+
     /*
     /**********************************************************
     /* Accessors

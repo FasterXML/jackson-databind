@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.deser.std.StdNodeBasedDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
@@ -303,6 +304,26 @@ public class TestCustomDeserializers
         assertEquals(7, imm.y);
     }
 
+    // [databind#623]
+    public void testJsonNodeDelegating() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule("test", Version.unknownVersion());
+        module.addDeserializer(Immutable.class,
+            new StdNodeBasedDeserializer<Immutable>(Immutable.class) {
+                @Override
+                public Immutable convert(JsonNode root, DeserializationContext ctxt) throws IOException {
+                    int x = root.path("x").asInt();
+                    int y = root.path("y").asInt();
+                    return new Immutable(x, y);
+                }
+        });
+        mapper.registerModule(module);
+        Immutable imm = mapper.readValue("{\"x\":-10,\"y\":3}", Immutable.class);
+        assertEquals(-10, imm.x);
+        assertEquals(3, imm.y);
+    }
+    
     public void testIssue882() throws Exception
     {
         Model original = new Model(Collections.singletonMap(new CustomKey(123), "test"));

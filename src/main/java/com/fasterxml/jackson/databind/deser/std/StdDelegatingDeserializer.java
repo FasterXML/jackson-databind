@@ -32,17 +32,17 @@ public class StdDelegatingDeserializer<T>
     private static final long serialVersionUID = 1L;
 
     protected final Converter<Object,T> _converter;
-    
+
     /**
      * Fully resolved delegate type, with generic information if any available.
      */
     protected final JavaType _delegateType;
-    
+
     /**
      * Underlying serializer for type <code>T<.code>.
      */
     protected final JsonDeserializer<Object> _delegateDeserializer;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -57,7 +57,7 @@ public class StdDelegatingDeserializer<T>
         _delegateType = null;
         _delegateDeserializer = null;
     }
-    
+
     @SuppressWarnings("unchecked")
     public StdDelegatingDeserializer(Converter<Object,T> converter,
             JavaType delegateType, JsonDeserializer<?> delegateDeserializer)
@@ -66,6 +66,17 @@ public class StdDelegatingDeserializer<T>
         _converter = converter;
         _delegateType = delegateType;
         _delegateDeserializer = (JsonDeserializer<Object>) delegateDeserializer;
+    }
+
+    /**
+     * @since 2.5
+     */
+    protected StdDelegatingDeserializer(StdDelegatingDeserializer<T> src)
+    {
+        super(src);
+        _converter = src._converter;
+        _delegateType = src._delegateType;
+        _delegateDeserializer = src._delegateDeserializer;
     }
 
     /**
@@ -95,7 +106,7 @@ public class StdDelegatingDeserializer<T>
             ((ResolvableDeserializer) _delegateDeserializer).resolve(ctxt);
         }
     }
-    
+
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property)
         throws JsonMappingException
@@ -129,7 +140,7 @@ public class StdDelegatingDeserializer<T>
     public Class<?> handledType() {
         return _delegateDeserializer.handledType();
     }
-    
+
     /*
     /**********************************************************
     /* Serialization

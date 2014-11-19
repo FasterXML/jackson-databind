@@ -5,8 +5,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
-import com.fasterxml.jackson.core.JsonPointer;
-import com.fasterxml.jackson.core.TreeNode;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.util.EmptyIterator;
@@ -29,6 +28,13 @@ import com.fasterxml.jackson.databind.util.EmptyIterator;
  *<p>
  * Actual concrete sub-classes can be found from package
  * {@link com.fasterxml.jackson.databind.node}.
+ *<p>
+ * Note that it is possible to "read" from nodes, using
+ * method {@link TreeNode#traverse(ObjectCodec)}, which will result in
+ * a {@link JsonParser} being constructed. This can be used for (relatively)
+ * efficient conversations between different representations; and it is what
+ * core databind uses for methods like {@link ObjectMapper#treeToValue(TreeNode, Class)}
+ * and {@link ObjectMapper#treeAsTokens(TreeNode)}
  */
 public abstract class JsonNode
     implements TreeNode, Iterable<JsonNode>
@@ -66,11 +72,10 @@ public abstract class JsonNode
     /**********************************************************
      */
 
-//    public abstract JsonToken asToken();
-
-//    public abstract JsonParser.NumberType numberType();
-
-//    public abstract JsonParser traverse();
+//  public abstract JsonToken asToken();
+//  public abstract JsonToken traverse();
+//  public abstract JsonToken traverse(ObjectCodec codec);
+//  public abstract JsonParser.NumberType numberType();
 
     @Override
     public int size() { return 0; }

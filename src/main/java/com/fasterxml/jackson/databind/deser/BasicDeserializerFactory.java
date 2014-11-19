@@ -62,21 +62,9 @@ public abstract class BasicDeserializerFactory
         _mapFallbacks.put(ConcurrentMap.class.getName(), ConcurrentHashMap.class);
         _mapFallbacks.put(SortedMap.class.getName(), TreeMap.class);
 
-        /* 11-Jan-2009, tatu: Let's see if we can still add support for
-         *    JDK 1.6 interfaces, even if we run on 1.5. Just need to be
-         *    more careful with typos, since compiler won't notice any
-         *    problems...
-         */
-        _mapFallbacks.put("java.util.NavigableMap", TreeMap.class);
-        try {
-            Class<?> key = java.util.concurrent.ConcurrentNavigableMap.class;
-            Class<?> value = java.util.concurrent.ConcurrentSkipListMap.class;
-            @SuppressWarnings("unchecked")
-                Class<? extends Map<?,?>> mapValue = (Class<? extends Map<?,?>>) value;
-            _mapFallbacks.put(key.getName(), mapValue);
-        } catch (Throwable e) { // some class loading problems are Errors, others Exceptions
-            System.err.println("Problems with (optional) types: "+e);
-        }
+        _mapFallbacks.put(java.util.NavigableMap.class.getName(), TreeMap.class);
+        _mapFallbacks.put(java.util.concurrent.ConcurrentNavigableMap.class.getName(),
+                java.util.concurrent.ConcurrentSkipListMap.class);
     }
 
     /* We do some defaulting for abstract Collection classes and

@@ -818,14 +818,12 @@ public class BeanDeserializerFactory
             Class<?> type, Map<Class<?>,Boolean> ignoredTypes)
     {
         Boolean status = ignoredTypes.get(type);
-        if (status == null) {
-            BeanDescription desc = config.introspectClassAnnotations(type);
-            status = config.getAnnotationIntrospector().isIgnorableType(desc.getClassInfo());
-            // We default to 'false', i.e. not ignorable
-            if (status == null) {
-                status = Boolean.FALSE;
-            }
+        if (status != null) {
+            return status.booleanValue();
         }
-        return status;
+        BeanDescription desc = config.introspectClassAnnotations(type);
+        status = config.getAnnotationIntrospector().isIgnorableType(desc.getClassInfo());
+        // We default to 'false', i.e. not ignorable
+        return (status == null) ? false : status.booleanValue(); 
     }
 }

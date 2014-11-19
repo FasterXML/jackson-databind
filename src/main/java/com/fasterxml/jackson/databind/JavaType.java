@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * and as keys for deserializers.
  *<p>
  * Instances can (only) be constructed by
- * <code>com.fasterxml.jackson.databind.TypeFactory</code>.
+ * <code>com.fasterxml.jackson.databind.type.TypeFactory</code>.
  *<p>
  * Since 2.2 this implements {@link java.lang.reflect.Type} to allow
  * it to be pushed through interfaces that only expose that type.

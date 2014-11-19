@@ -186,7 +186,8 @@ public enum SerializationFeature implements ConfigFeature
      * Note: whether {@link java.util.Map} keys are serialized as Strings
      * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS}.
      *<p>
-     * Feature is enabled by default.
+     * Feature is enabled by default, so that date/time are by default
+     * serialized as timestamps.
      */
     WRITE_DATES_AS_TIMESTAMPS(true),
 
@@ -200,12 +201,13 @@ public enum SerializationFeature implements ConfigFeature
      * Note: whether {@link java.util.Map} keys are serialized as Strings
      * or not is controlled using {@link #WRITE_DATE_KEYS_AS_TIMESTAMPS}.
      *<p>
-     * Feature is enabled by default.
+     * Feature is enabled by default, so that period/duration are by default
+     * serialized as timestamps.
      * 
      * @since 2.5
      */
     WRITE_DURATIONS_AS_TIMESTAMPS(true),
-    
+
     /**
      * Feature that determines whether {@link java.util.Date}s
      * (and sub-types) used as {@link java.util.Map} keys are serialized

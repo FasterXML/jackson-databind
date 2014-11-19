@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.util.ArrayIterator;
 public class DeserializerFactoryConfig
     implements java.io.Serializable // since 2.1
 {
-    private static final long serialVersionUID = 3683541151102256824L;
+    private static final long serialVersionUID = 1L; // since 2.5
 
     protected final static Deserializers[] NO_DESERIALIZERS = new Deserializers[0];
     protected final static BeanDeserializerModifier[] NO_MODIFIERS = new BeanDeserializerModifier[0];
@@ -47,7 +47,6 @@ public class DeserializerFactoryConfig
      */
     protected final BeanDeserializerModifier[] _modifiers;
 
-
     /**
      * List of objects that may be able to resolve abstract types to
      * concrete types. Used by functionality like "mr Bean" to materialize
@@ -63,7 +62,7 @@ public class DeserializerFactoryConfig
      * or to support post-constructor functionality.
      */
     protected final ValueInstantiators[] _valueInstantiators;
-    
+
     /**
      * Constructor for creating basic configuration with no additional
      * handlers.
@@ -106,6 +105,7 @@ public class DeserializerFactoryConfig
         return new DeserializerFactoryConfig(all, _additionalKeyDeserializers, _modifiers,
                 _abstractTypeResolvers, _valueInstantiators);
     }
+
     /**
      * Fluent/factory method used to construct a configuration object that
      * has same key deserializer providers as this instance, plus one specified

@@ -28,7 +28,7 @@ public abstract class Module
      */
     
     /**
-     * Method that returns identifier for module; this can be used by Jackson
+     * Method that returns a display that can be used by Jackson
      * for informational purposes, as well as in associating extensions with
      * module that provides them.
      */
@@ -41,6 +41,23 @@ public abstract class Module
     @Override
     public abstract Version version();
 
+    /**
+     * Method that returns an id that may be used to determine if two {@link Module}
+     * instances are considered to be of same type, for purpose of preventing
+     * multiple registrations of "same type of" module
+     * (see {@link com.fasterxml.jackson.databind.MapperFeature#IGNORE_DUPLICATE_MODULE_REGISTRATIONS})
+     * If `null` is returned, every instance is considered unique.
+     * If non-null value is returned, equality of id Objects is used to check whether
+     * modules should be considered to be "of same type"
+     *<p>
+     * Default implementation returns value of class name ({@link Class#getName}).
+     *
+     * @since 2.5
+     */
+    public Object getTypeId() {
+        return getClass().getName();
+    }
+    
     /*
     /**********************************************************
     /* Life-cycle: registration

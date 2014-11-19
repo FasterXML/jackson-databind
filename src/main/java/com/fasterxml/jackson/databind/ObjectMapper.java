@@ -324,6 +324,22 @@ public class ObjectMapper
 
     /*
     /**********************************************************
+    /* Module-related
+    /**********************************************************
+     */
+
+    /**
+     * Set of module types (as per {@link Module#getTypeId()} that have been
+     * registered; kept track of iff {@link MapperFeature#IGNORE_DUPLICATE_MODULE_REGISTRATIONS}
+     * is enabled, so that duplicate registration calls can be ignored
+     * (to avoid adding same handlers multiple times, mostly).
+     * 
+     * @since 2.5
+     */
+    protected Set<Object> _registeredModuleTypes;
+    
+    /*
+    /**********************************************************
     /* Caching
     /**********************************************************
      */
@@ -601,6 +617,19 @@ public class ObjectMapper
      */
     public ObjectMapper registerModule(Module module)
     {
+        if (isEnabled(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS)) {
+            Object typeId = module.getTypeId();
+            if (typeId != null) {
+                if (_registeredModuleTypes == null) {
+                    _registeredModuleTypes = new HashSet<Object>();
+                }
+                // try adding; if already had it, should skip
+                if (!_registeredModuleTypes.add(typeId)) {
+                    return this;
+                }
+            }
+        }
+        
         /* Let's ensure we have access to name and version information, 
          * even if we do not have immediate use for either. This way we know
          * that they will be available from beginning
@@ -756,7 +785,7 @@ public class ObjectMapper
             
             @Override
             public void setMixInAnnotations(Class<?> target, Class<?> mixinSource) {
-                mapper.addMixInAnnotations(target, mixinSource);
+                mapper.addMixIn(target, mixinSource);
             }
             
             @Override
@@ -3067,7 +3096,6 @@ public class ObjectMapper
      * Method called to configure the generator as necessary and then
      * call write functionality
      */
-    @SuppressWarnings("deprecation")
     protected final void _configAndWriteValue(JsonGenerator jgen, Object value)
         throws IOException
     {

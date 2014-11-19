@@ -345,7 +345,7 @@ public class BeanSerializerFactory
         final SerializationConfig config = prov.getConfig();
         BeanSerializerBuilder builder = constructBeanSerializerBuilder(beanDesc);
         builder.setConfig(config);
-        
+
         // First: any detectable (auto-detect, annotations) properties to serialize?
         List<BeanPropertyWriter> props = findBeanProperties(prov, beanDesc, builder);
         if (props == null) {
@@ -357,10 +357,10 @@ public class BeanSerializerFactory
                 props = mod.changeProperties(config, beanDesc, props);
             }
         }
-        
+
         // Any properties to suppress?
         props = filterBeanProperties(config, beanDesc, props);
-        
+
         // [JACKSON-440] Need to allow reordering of properties to serialize
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {

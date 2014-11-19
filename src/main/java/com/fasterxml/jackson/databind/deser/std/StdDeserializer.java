@@ -41,7 +41,7 @@ public abstract class StdDeserializer<T>
 
     /**
      * Copy-constructor for sub-classes to use, most often when creating
-     * new instances for {@link ContextualDeserializer}.
+     * new instances for {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer}.
      * 
      * @since 2.5
      */

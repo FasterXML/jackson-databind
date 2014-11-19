@@ -21,7 +21,7 @@ import java.lang.reflect.Type;
  *<p>
  * Note that although types may be related, they must not be same; trying
  * to do this will result in an exception.
- * 
+ *
  * @since 2.1
  */
 public class StdDelegatingSerializer

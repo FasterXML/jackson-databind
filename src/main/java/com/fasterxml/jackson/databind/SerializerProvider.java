@@ -228,8 +228,7 @@ public abstract class SerializerProvider
     }
 
     /**
-     * Copy-constructor used when making a {@link #copy} of a blueprint
-     * object.
+     * Copy-constructor used when making a copy of a blueprint instance.
      * 
      * @since 2.4.4
      */

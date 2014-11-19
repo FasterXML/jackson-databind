@@ -41,7 +41,7 @@ public abstract class StdNodeBasedDeserializer<T>
 
     /**
      * "Copy-constructor" used when creating a modified copies, most often
-     * if sub-class implements {@link ContextualDeserializer}.
+     * if sub-class implements {@link com.fasterxml.jackson.databind.deser.ContextualDeserializer}.
      */
     protected StdNodeBasedDeserializer(StdNodeBasedDeserializer<?> src) {
         super(src);

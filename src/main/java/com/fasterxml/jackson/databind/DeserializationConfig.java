@@ -61,12 +61,12 @@ public final class DeserializationConfig
     protected final JsonNodeFactory _nodeFactory;
 
     /**
-     * States of {@link JsonParser.Feature}s to enable/disable.
+     * States of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable.
      */
     protected final int _parserFeatures;
 
     /**
-     * Bitflag of {@link JsonParser.Feature}s to enable/disable
+     * Bitflag of {@link com.fasterxml.jackson.core.JsonParser.Feature}s to enable/disable
      */
     protected final int _parserFeaturesToChange;
 

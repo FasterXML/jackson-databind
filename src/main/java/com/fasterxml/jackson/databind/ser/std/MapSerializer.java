@@ -97,7 +97,7 @@ public class MapSerializer
 
     /**
      * Value that indicates suppression mechanism to use; either one of
-     * values of {@link JsonInclude.Include}, or actual object to compare
+     * values of {@link com.fasterxml.jackson.annotation.JsonInclude.Include}, or actual object to compare
      * against ("default value")
      * 
      * @since 2.5

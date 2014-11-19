@@ -60,12 +60,12 @@ public final class SerializationConfig
     protected final FilterProvider _filterProvider;
 
     /**
-     * States of {@link JsonGenerator.Feature}s to enable/disable.
+     * States of {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s to enable/disable.
      */
     protected final int _generatorFeatures;
 
     /**
-     * Bitflag of {@link JsonGenerator.Feature}s to enable/disable
+     * Bitflag of {@link com.fasterxml.jackson.core.JsonGenerator.Feature}s to enable/disable
      */
     protected final int _generatorFeaturesToChange;
     

@@ -20,10 +20,16 @@ import com.fasterxml.jackson.databind.util.Converter;
  *<p>
  * Note that although types (delegate, target) may be related, they must not be same; trying
  * to do this will result in an exception.
+ *<p>
+ * Since 2.5 There is {@link StdNodeBasedDeserializer} that is a simplified version
+ * for cases where intermediate type is {@link JsonNode}
  * 
  * @param <T> Target type to convert to, from delegate type
  * 
  * @since 2.1
+ * 
+ * @see StdNodeBasedDeserializer
+ * @see Converter
  */
 public class StdDelegatingDeserializer<T>
     extends StdDeserializer<T>

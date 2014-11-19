@@ -32,7 +32,7 @@ public class MapEntryDeserializer
     /**
      * Key deserializer to use; either passed via constructor
      * (when indicated by annotations), or resolved when
-     * {@link #resolve} is called;
+     * {@link #createContextual} is called;
      */
     protected final KeyDeserializer _keyDeserializer;
 

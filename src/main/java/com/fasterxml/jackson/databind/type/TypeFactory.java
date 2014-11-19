@@ -575,7 +575,7 @@ public final class TypeFactory
      * @param parametrized Type-erased type of instance being constructed
      * @param parametersFor class or interface for which type parameters are applied; either
      *   <code>parametrized</code> or one of its supertypes
-     * @parameterClasses Type parameters to apply
+     * @param parameterClasses Type parameters to apply
      * 
      * @since 2.5
      */
@@ -615,7 +615,7 @@ public final class TypeFactory
      * @param parametrized Actual full type
      * @param parametersFor class or interface for which type parameters are applied; either
      *   <code>parametrized</code> or one of its supertypes
-     * @parameterClasses Type parameters to apply
+     * @param parameterTypes Type parameters to apply
      * 
      * @since 2.5
      */

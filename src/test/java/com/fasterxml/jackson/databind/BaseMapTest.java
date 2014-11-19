@@ -210,9 +210,8 @@ public abstract class BaseMapTest
     {
         return readAndMapFromString(SHARED_MAPPER, input, cls);
     }
-    
-    protected <T> T readAndMapFromString(ObjectMapper m, String input, Class<T> cls)
-        throws IOException
+
+    protected <T> T readAndMapFromString(ObjectMapper m, String input, Class<T> cls) throws IOException
     {
         return (T) m.readValue("\""+input+"\"", cls);
     }
@@ -222,7 +221,7 @@ public abstract class BaseMapTest
     /* Helper methods, other
     /**********************************************************
      */
-    
+
     protected TimeZone getUTCTimeZone() {
         return TimeZone.getTimeZone("GMT");
     }

@@ -5,7 +5,6 @@ import java.io.*;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
-import com.fasterxml.jackson.test.BrokenStringReader;
 
 /**
  * Unit test for verifying that exceptions are properly handled (caught,

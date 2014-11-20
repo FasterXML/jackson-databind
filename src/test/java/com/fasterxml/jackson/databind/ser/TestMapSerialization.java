@@ -127,7 +127,7 @@ public class TestMapSerialization
 
     public void testUsingObjectWriter() throws IOException
     {
-        ObjectWriter w = MAPPER.writerWithType(Object.class);
+        ObjectWriter w = MAPPER.writerFor(Object.class);
         Map<String,Object> map = new LinkedHashMap<String,Object>();
         map.put("a", 1);
         String json = w.writeValueAsString(map);

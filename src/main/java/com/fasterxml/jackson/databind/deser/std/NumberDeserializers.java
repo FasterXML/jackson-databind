@@ -148,8 +148,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        private final static BooleanDeserializer primitiveInstance = new BooleanDeserializer(Boolean.class, Boolean.FALSE);
-        private final static BooleanDeserializer wrapperInstance = new BooleanDeserializer(Boolean.TYPE, null);
+        final static BooleanDeserializer primitiveInstance = new BooleanDeserializer(Boolean.class, Boolean.FALSE);
+        final static BooleanDeserializer wrapperInstance = new BooleanDeserializer(Boolean.TYPE, null);
         
         public BooleanDeserializer(Class<Boolean> cls, Boolean nvl)
         {
@@ -180,8 +180,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        private final static ByteDeserializer primitiveInstance = new ByteDeserializer(Byte.TYPE, (byte) 0);
-        private final static ByteDeserializer wrapperInstance = new ByteDeserializer(Byte.class, null);
+        final static ByteDeserializer primitiveInstance = new ByteDeserializer(Byte.TYPE, (byte) 0);
+        final static ByteDeserializer wrapperInstance = new ByteDeserializer(Byte.class, null);
         
         public ByteDeserializer(Class<Byte> cls, Byte nvl)
         {
@@ -202,8 +202,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        private final static ShortDeserializer primitiveInstance = new ShortDeserializer(Short.class, Short.valueOf((short)0));
-        private final static ShortDeserializer wrapperInstance = new ShortDeserializer(Short.TYPE, null);
+        final static ShortDeserializer primitiveInstance = new ShortDeserializer(Short.class, Short.valueOf((short)0));
+        final static ShortDeserializer wrapperInstance = new ShortDeserializer(Short.TYPE, null);
         
         public ShortDeserializer(Class<Short> cls, Short nvl)
         {
@@ -224,8 +224,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        private final static CharacterDeserializer primitiveInstance = new CharacterDeserializer(Character.class, '\0');
-        private final static CharacterDeserializer wrapperInstance = new CharacterDeserializer(Character.TYPE, null);
+        final static CharacterDeserializer primitiveInstance = new CharacterDeserializer(Character.class, '\0');
+        final static CharacterDeserializer wrapperInstance = new CharacterDeserializer(Character.TYPE, null);
         
         public CharacterDeserializer(Class<Character> cls, Character nvl)
         {
@@ -274,8 +274,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        private final static IntegerDeserializer primitiveInstance = new IntegerDeserializer(Integer.class, 0);
-        private final static IntegerDeserializer wrapperInstance = new IntegerDeserializer(Integer.TYPE, null);
+        final static IntegerDeserializer primitiveInstance = new IntegerDeserializer(Integer.class, 0);
+        final static IntegerDeserializer wrapperInstance = new IntegerDeserializer(Integer.TYPE, null);
         
         public IntegerDeserializer(Class<Integer> cls, Integer nvl)
         {
@@ -306,8 +306,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        private final static LongDeserializer primitiveInstance = new LongDeserializer(Long.class, Long.valueOf(0L));
-        private final static LongDeserializer wrapperInstance = new LongDeserializer(Long.TYPE, null);
+        final static LongDeserializer primitiveInstance = new LongDeserializer(Long.class, Long.valueOf(0L));
+        final static LongDeserializer wrapperInstance = new LongDeserializer(Long.TYPE, null);
         
         public LongDeserializer(Class<Long> cls, Long nvl)
         {
@@ -328,8 +328,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        private final static FloatDeserializer primitiveInstance = new FloatDeserializer(Float.class, 0.f);
-        private final static FloatDeserializer wrapperInstance = new FloatDeserializer(Float.TYPE, null);
+        final static FloatDeserializer primitiveInstance = new FloatDeserializer(Float.class, 0.f);
+        final static FloatDeserializer wrapperInstance = new FloatDeserializer(Float.TYPE, null);
         
         public FloatDeserializer(Class<Float> cls, Float nvl)
         {
@@ -353,8 +353,8 @@ public class NumberDeserializers
     {
         private static final long serialVersionUID = 1L;
 
-        private final static DoubleDeserializer primitiveInstance = new DoubleDeserializer(Double.class, 0.d);
-        private final static DoubleDeserializer wrapperInstance = new DoubleDeserializer(Double.TYPE, null);
+        final static DoubleDeserializer primitiveInstance = new DoubleDeserializer(Double.class, 0.d);
+        final static DoubleDeserializer wrapperInstance = new DoubleDeserializer(Double.TYPE, null);
         
         public DoubleDeserializer(Class<Double> cls, Double nvl)
         {

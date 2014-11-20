@@ -69,7 +69,7 @@ public class TestExternalTypeId222 extends BaseMapTest
         public final int p;
 
         @JsonCreator
-        private Pojo(@JsonProperty("p") int p) {
+        Pojo(@JsonProperty("p") int p) {
             this.p = p;
         }
     }

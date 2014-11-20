@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * Unit tests for checking features added to {@link ObjectWriter}, such
@@ -54,4 +55,13 @@ public class TestObjectWriter
         assertEquals("{\"a\":1}", writer.with(JsonGenerator.Feature.QUOTE_FIELD_NAMES)
                 .writeValueAsString(map));
     }
-} 
+
+    public void testObjectWriterWithNode() throws Exception
+    {
+        ObjectNode stuff = MAPPER.createObjectNode();
+        stuff.put("a", 5);
+        ObjectWriter writer = MAPPER.writerFor(JsonNode.class);
+        String json = writer.writeValueAsString(stuff);
+        assertEquals("{\"a\":5}", json);
+    }
+}

@@ -51,7 +51,7 @@ public class TestForwardReference extends BaseMapTest {
 	@JsonSubTypes({
 			@JsonSubTypes.Type(value = ForwardReferenceClassOne.class, name = "One"),
 			@JsonSubTypes.Type(value = ForwardReferenceClassTwo.class, name = "Two")})
-	private static abstract class ForwardReferenceClass
+	static abstract class ForwardReferenceClass
 	{
 		public String id;
 		public void setId(String id) {

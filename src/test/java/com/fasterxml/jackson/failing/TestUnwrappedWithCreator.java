@@ -7,13 +7,12 @@ import com.fasterxml.jackson.databind.*;
 public class TestUnwrappedWithCreator extends BaseMapTest
 {
     static class JAddress {
-        private String address;
-        private String city;
-        private String state;
+        protected String address;
+        protected String city;
+        protected String state;
          
         @JsonCreator
-        public JAddress(
-                @JsonProperty("address") String address,
+        public JAddress( @JsonProperty("address") String address,
                 @JsonProperty("city") String city,
                 @JsonProperty("state") String state
         ){
@@ -28,16 +27,14 @@ public class TestUnwrappedWithCreator extends BaseMapTest
     }
 
     static class JPerson {
-        private String _name;
-        private JAddress _address;
-        private String _alias;
+        protected String _name;
+        protected JAddress _address;
+        protected String _alias;
          
         @JsonCreator
-        public JPerson(
-        @JsonProperty("name") String name,
+        public JPerson(@JsonProperty("name") String name,
         @JsonUnwrapped JAddress address,
-        @JsonProperty("alias") String alias
-        ) {
+        @JsonProperty("alias") String alias) {
             _name = name;
             _address = address;
             _alias = alias;

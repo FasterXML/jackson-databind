@@ -129,7 +129,7 @@ public class TestPolymorphicCreators
 
     public void testManualPolymorphicWithNumbered() throws Exception
     {
-         final ObjectWriter w = MAPPER.writerWithType(AbstractRoot.class);
+         final ObjectWriter w = MAPPER.writerFor(AbstractRoot.class);
          final ObjectReader r = MAPPER.reader(AbstractRoot.class);
 
          AbstractRoot input = AbstractRoot.make(1, "oh hai!");

@@ -359,7 +359,7 @@ public class CollectionDeserializer
         private final CollectionReferringAccumulator _parent;
         public final List<Object> next = new ArrayList<Object>();
         
-        private CollectionReferring(CollectionReferringAccumulator parent,
+        CollectionReferring(CollectionReferringAccumulator parent,
                 UnresolvedForwardReference reference, Class<?> contentType)
         {
             super(reference, contentType);

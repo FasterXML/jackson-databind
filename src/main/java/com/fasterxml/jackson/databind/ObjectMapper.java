@@ -2643,13 +2643,17 @@ public class ObjectMapper
     /**
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified root type, instead of actual
-     * runtime type of value. Type must be a super-type of runtime
-     * type.
+     * runtime type of value. Type must be a super-type of runtime type.
+     *<p>
+     * Main reason for using this method is performance, as writer is able
+     * to pre-fetch serializer to use before write, and if writer is used
+     * more than once this avoids addition per-value serializer lookups.
+     * 
+     * @since 2.5
      */
     @SuppressWarnings("unchecked")
-    public <W extends ObjectWriter> W writerWithType(Class<?> rootType) {
+    public <W extends ObjectWriter> W writerFor(Class<?> rootType) {
         return (W) _newWriter(getSerializationConfig(),
-                // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
                 ((rootType == null) ? null :_typeFactory.constructType(rootType)),
                 /*PrettyPrinter*/null);
     }
@@ -2658,11 +2662,16 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified root type, instead of actual
      * runtime type of value. Type must be a super-type of runtime type.
+     *<p>
+     * Main reason for using this method is performance, as writer is able
+     * to pre-fetch serializer to use before write, and if writer is used
+     * more than once this avoids addition per-value serializer lookups.
+     * 
+     * @since 2.5
      */
     @SuppressWarnings("unchecked")
-    public <W extends ObjectWriter> W writerWithType(TypeReference<?> rootType) {
+    public <W extends ObjectWriter> W writerFor(TypeReference<?> rootType) {
         return (W) _newWriter(getSerializationConfig(),
-                // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
                 ((rootType == null) ? null : _typeFactory.constructType(rootType)),
                 /*PrettyPrinter*/null);
     }
@@ -2671,8 +2680,47 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectWriter} that will
      * serialize objects using specified root type, instead of actual
      * runtime type of value. Type must be a super-type of runtime type.
+     *<p>
+     * Main reason for using this method is performance, as writer is able
+     * to pre-fetch serializer to use before write, and if writer is used
+     * more than once this avoids addition per-value serializer lookups.
+     * 
+     * @since 2.5
      */
     @SuppressWarnings("unchecked")
+    public <W extends ObjectWriter> W writerFor(JavaType rootType) {
+        return (W) _newWriter(getSerializationConfig(), rootType, /*PrettyPrinter*/null);
+    }
+
+    /**
+     * @deprecated Since 2.5, use {@link #writerFor(Class)} instead
+     */
+    @SuppressWarnings("unchecked")
+    @Deprecated
+    public <W extends ObjectWriter> W writerWithType(Class<?> rootType) {
+        return (W) _newWriter(getSerializationConfig(),
+                // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
+                ((rootType == null) ? null :_typeFactory.constructType(rootType)),
+                /*PrettyPrinter*/null);
+    }
+
+    /**
+     * @deprecated Since 2.5, use {@link #writerFor(TypeReference)} instead
+     */
+    @SuppressWarnings("unchecked")
+    @Deprecated
+    public <W extends ObjectWriter> W writerWithType(TypeReference<?> rootType) {
+        return (W) _newWriter(getSerializationConfig(),
+                // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
+                ((rootType == null) ? null : _typeFactory.constructType(rootType)),
+                /*PrettyPrinter*/null);
+    }
+
+    /**
+     * @deprecated Since 2.5, use {@link #writerFor(JavaType)} instead
+     */
+    @SuppressWarnings("unchecked")
+    @Deprecated
     public <W extends ObjectWriter> W writerWithType(JavaType rootType) {
         return (W) _newWriter(getSerializationConfig(), rootType, /*PrettyPrinter*/null);
     }

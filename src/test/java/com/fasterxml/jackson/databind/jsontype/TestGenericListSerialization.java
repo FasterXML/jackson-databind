@@ -59,7 +59,7 @@ public class TestGenericListSerialization
         mapper.configure(MapperFeature.USE_STATIC_TYPING, true);
 
         JavaType rootType = TypeFactory.defaultInstance().constructType(new TypeReference<JSONResponse<List<Parent>>>() { });
-        byte[] json = mapper.writerWithType(rootType).writeValueAsBytes(input);
+        byte[] json = mapper.writerFor(rootType).writeValueAsBytes(input);
         
         JSONResponse<List<Parent>> out = mapper.readValue(json, 0, json.length, rootType);
 

@@ -144,7 +144,7 @@ String json = mapper.writeValueAsString(root);
 //   "name" : "Bob", "age" : 13,
 //   "other" : {
 //      "type" : "student"
-//   {
+//   }
 // }
 ```
 

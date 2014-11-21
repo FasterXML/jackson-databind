@@ -90,7 +90,7 @@ public class BeanAsArrayDeserializer
         throws IOException, JsonProcessingException
     {
         // Let's delegate just in case we got a JSON Object (could error out, alternatively?)
-        if (jp.getCurrentToken() != JsonToken.START_ARRAY) {
+        if (!jp.isExpectedStartArrayToken()) {
             return _deserializeFromNonArray(jp, ctxt);
         }
         if (!_vanillaProcessing) {

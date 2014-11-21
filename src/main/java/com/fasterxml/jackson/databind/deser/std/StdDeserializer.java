@@ -145,7 +145,7 @@ public abstract class StdDeserializer<T>
             }
             throw ctxt.weirdStringException(text, _valueClass, "only \"true\" or \"false\" recognized");
         }
-        // Issue#381
+        // [databind#381]
         if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             jp.nextToken();
             final boolean parsed = _parseBooleanPrimitive(jp, ctxt);

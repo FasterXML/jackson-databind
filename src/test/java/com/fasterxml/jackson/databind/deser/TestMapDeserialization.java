@@ -313,7 +313,7 @@ public class TestMapDeserialization
         Map<?,?> result = r.readValue(JSON);
         assertNull(result);
 
-        EnumMap<?,?> result2 = r.withType(new TypeReference<EnumMap<Key,String>>() { })
+        EnumMap<?,?> result2 = r.forType(new TypeReference<EnumMap<Key,String>>() { })
                 .readValue(JSON);
         assertNull(result2);
     }

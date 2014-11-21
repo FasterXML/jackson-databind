@@ -404,8 +404,7 @@ public class ObjectWriter
      * Note that method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
      */
-    
-    public ObjectWriter withSchema(FormatSchema schema) {
+    public ObjectWriter with(FormatSchema schema) {
         if (_schema == schema) {
             return this;
         }
@@ -415,14 +414,24 @@ public class ObjectWriter
     }
 
     /**
+     * @deprecated Since 2.5 use {@link #with(FormatSchema)} instead
+     */
+    @Deprecated
+    public ObjectWriter withSchema(FormatSchema schema) {
+        return with(schema);
+    }
+
+    /**
      * Method that will construct a new instance that uses specific type
      * as the root type for serialization, instead of runtime dynamic
      * type of the root object itself.
      *<p>
      * Note that method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
+     * 
+     * @since 2.5
      */
-    public ObjectWriter withType(JavaType rootType)
+    public ObjectWriter forType(JavaType rootType)
     {
         JsonSerializer<Object> rootSer;
         if (rootType == null || rootType.hasRawClass(Object.class)) {
@@ -441,16 +450,42 @@ public class ObjectWriter
      * Method that will construct a new instance that uses specific type
      * as the root type for serialization, instead of runtime dynamic
      * type of the root object itself.
+     * 
+     * @since 2.5
      */
-    public ObjectWriter withType(Class<?> rootType) {
+    public ObjectWriter forType(Class<?> rootType) {
         if (rootType == Object.class) {
-            return withType((JavaType) null);
+            return forType((JavaType) null);
         }
-        return withType(_config.constructType(rootType));
+        return forType(_config.constructType(rootType));
     }
 
+    public ObjectWriter forType(TypeReference<?> rootType) {
+        return forType(_config.getTypeFactory().constructType(rootType.getType()));
+    }
+
+    /**
+     * @deprecated since 2.5 Use {@link #forType(JavaType)} instead
+     */
+    @Deprecated // since 2.5
+    public ObjectWriter withType(JavaType rootType) {
+        return forType(rootType);
+    }
+
+    /**
+     * @deprecated since 2.5 Use {@link #forType(Class)} instead
+     */
+    @Deprecated // since 2.5
+    public ObjectWriter withType(Class<?> rootType) {
+        return forType(rootType);
+    }
+
+    /**
+     * @deprecated since 2.5 Use {@link #forType(TypeReference)} instead
+     */
+    @Deprecated // since 2.5
     public ObjectWriter withType(TypeReference<?> rootType) {
-        return withType(_config.getTypeFactory().constructType(rootType.getType()));
+        return forType(rootType);
     }
 
     /**

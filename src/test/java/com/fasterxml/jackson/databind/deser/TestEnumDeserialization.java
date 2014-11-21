@@ -317,14 +317,14 @@ public class TestEnumDeserialization
     {
         // can not use shared mapper when changing configs...
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
-        assertNull(reader.withType(TestEnum.class).readValue("\"NO-SUCH-VALUE\""));
-        assertNull(reader.withType(TestEnum.class).readValue(" 4343 "));
+        assertNull(reader.forType(TestEnum.class).readValue("\"NO-SUCH-VALUE\""));
+        assertNull(reader.forType(TestEnum.class).readValue(" 4343 "));
     }
 
     public void testAllowUnknownEnumValuesForEnumSets() throws Exception
     {
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
-        EnumSet<TestEnum> result = reader.withType(new TypeReference<EnumSet<TestEnum>>() { })
+        EnumSet<TestEnum> result = reader.forType(new TypeReference<EnumSet<TestEnum>>() { })
                 .readValue("[\"NO-SUCH-VALUE\"]");
         assertEquals(0, result.size());
     }
@@ -332,7 +332,7 @@ public class TestEnumDeserialization
     public void testAllowUnknownEnumValuesAsMapKeysReadAsNull() throws Exception
     {
         ObjectReader reader = MAPPER.reader(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL);
-        ClassWithEnumMapKey result = reader.withType(ClassWithEnumMapKey.class)
+        ClassWithEnumMapKey result = reader.forType(ClassWithEnumMapKey.class)
                 .readValue("{\"map\":{\"NO-SUCH-VALUE\":\"val\"}}");
         assertTrue(result.map.containsKey(null));
     }

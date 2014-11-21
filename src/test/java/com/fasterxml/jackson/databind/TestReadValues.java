@@ -220,7 +220,7 @@ public class TestReadValues extends BaseMapTest
             +"{\"boy\": \"howdy\", \"huh\": \"what\"}]";
         final MappingIterator<Map<String, Object>> iterator = MAPPER
                 .reader()
-                .withType(new TypeReference<Map<String, Object>>(){})
+                .forType(new TypeReference<Map<String, Object>>(){})
                 .readValues(JSON);
 
         Map<String,Object> map;

@@ -40,7 +40,7 @@ public class TestObjectWriter
     {
         ObjectWriter writer = MAPPER.writer();
         assertFalse(writer.hasPrefetchedSerializer());
-        writer = writer.withType(String.class);
+        writer = writer.forType(String.class);
         assertTrue(writer.hasPrefetchedSerializer());
     }
 

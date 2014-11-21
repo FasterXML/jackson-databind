@@ -45,7 +45,7 @@ public class TestObjectIdWithInjectables538 extends BaseMapTest
         A output = null;
 
         try {
-            output = MAPPER.reader(inject).withType(A.class).readValue(json);
+            output = MAPPER.reader(inject).forType(A.class).readValue(json);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to deserialize from JSON '"+json+"'", e);
         }

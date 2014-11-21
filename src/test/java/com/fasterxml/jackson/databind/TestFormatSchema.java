@@ -250,7 +250,7 @@ public class TestFormatSchema extends BaseMapTest
         StringReader r = new StringReader("{}");
         //  bit ugly, but can't think of cleaner simple way to check this...
         try {
-            mapper.reader(s).withType(Object.class).readValue(r);
+            mapper.reader(s).forType(Object.class).readValue(r);
             fail("Excpected exception");
         } catch (SchemaException e) {
             assertSame(s, e._schema);

@@ -133,7 +133,7 @@ public class DataFormatReaders
         final int len = _readers.length;
         ObjectReader[] r = new ObjectReader[len];
         for (int i = 0; i < len; ++i) {
-            r[i] = _readers[i].withType(type);
+            r[i] = _readers[i].forType(type);
         }
         return new DataFormatReaders(r, _optimalMatch, _minimalMatch, _maxInputLookahead);
     }

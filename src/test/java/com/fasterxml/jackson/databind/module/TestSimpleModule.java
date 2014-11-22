@@ -169,7 +169,21 @@ public class TestSimpleModule extends BaseMapTest
             assertNotNull(m);
         }
     }
-    
+
+    static class TestModule626 extends SimpleModule {
+        final Class<?> mixin, target;
+        public TestModule626(Class<?> t, Class<?> m) {
+            super("Test");
+            target = t;
+            mixin = m;
+        }
+
+        @Override
+        public void setupModule(SetupContext context) {
+            context.setMixInAnnotations(target, mixin);
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests; first, verifying need for custom handlers
@@ -199,13 +213,13 @@ public class TestSimpleModule extends BaseMapTest
             verifyException(e, "No suitable constructor found");
         }
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests; simple serializers
     /**********************************************************
      */
-    
+
     public void testSimpleBeanSerializer() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -315,5 +329,14 @@ public class TestSimpleModule extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(module);
     }
-}
 
+    // [databind#626]
+    public void testMixIns626() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        // no real annotations, but nominally add ones from 'String' to 'Object', just for testing
+        mapper.registerModule(new TestModule626(Object.class, String.class));
+        Class<?> found = mapper.findMixInClassFor(Object.class);
+        assertEquals(String.class, found);
+    }
+}

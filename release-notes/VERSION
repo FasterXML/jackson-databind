@@ -183,6 +183,12 @@ Special one-off "micro patch" for:
 - Improve handling of native type ids (YAML, CBOR) to use non-native type ids
   as fallback
 
+2.3.4 (17-Jul-2014)
+
+#459: BeanDeserializerBuilder copy constructor not copying `_injectables`
+#462: Annotation-provided Deserializers are not contextualized inside CreatorProperties
+ (reported by aarondav@github)
+
 2.3.3 (10-Apr-2014)
 
 #420: Remove 'final' modifier from `BeanDeserializerBase.deserializeWithType`

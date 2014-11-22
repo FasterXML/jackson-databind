@@ -13,6 +13,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import com.fasterxml.jackson.databind.*;
 
+/**
+ * Unit test(s) for [databind#622], supporting non-scalar-Object-ids,
+ * to support things like JSOG.
+ */
 public class JSOGDeserialize622Test extends BaseMapTest
 {
   /** the key of the property that holds the ref */
@@ -22,7 +26,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
    * JSON input
    */
   private static final String EXP_EXAMPLE_JSOG =  aposToQuotes(
-          "{'@id':'1','foo':66,'next':{'@ref':'1'}}");
+          "{'@id':'1','foo':66,'next':{'"+REF_KEY+"':'1'}}");
 
   private final ObjectMapper mapper = new ObjectMapper();
 

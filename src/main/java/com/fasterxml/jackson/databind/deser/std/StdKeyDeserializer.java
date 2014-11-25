@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -41,6 +43,9 @@ public class StdKeyDeserializer extends KeyDeserializer
     public final static int TYPE_DATE = 10;
     public final static int TYPE_CALENDAR = 11;
     public final static int TYPE_UUID = 12;
+    public final static int TYPE_URI = 13;
+    public final static int TYPE_URL = 14;
+    public final static int TYPE_CLASS = 15;
 
     final protected int _kind;
     final protected Class<?> _keyClass;
@@ -90,6 +95,12 @@ public class StdKeyDeserializer extends KeyDeserializer
             kind = TYPE_FLOAT;
         } else if (raw == Double.class) {
             kind = TYPE_DOUBLE;
+        } else if (raw == URI.class) {
+            kind = TYPE_URI;
+        } else if (raw == URL.class) {
+            kind = TYPE_URL;
+        } else if (raw == Class.class) {
+            kind = TYPE_CLASS;
         } else if (raw == Locale.class) {
             FromStringDeserializer<?> deser = FromStringDeserializer.findDeserializer(Locale.class);
             return new StdKeyDeserializer(TYPE_LOCALE, raw, deser);
@@ -180,6 +191,16 @@ public class StdKeyDeserializer extends KeyDeserializer
             return (date == null)  ? null : ctxt.constructCalendar(date);
         case TYPE_UUID:
             return UUID.fromString(key);
+        case TYPE_URI:
+            return URI.create(key);
+        case TYPE_URL:
+            return new URL(key);
+        case TYPE_CLASS:
+            try {
+                return ctxt.findClass(key);
+            } catch (Exception e) {
+                throw ctxt.weirdKeyException(_keyClass, key, "unable to parse key as Class");
+            }
         }
         return null;
     }

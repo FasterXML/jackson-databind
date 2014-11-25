@@ -13,9 +13,9 @@ public class TestCreators541 extends BaseMapTest
     static final class Foo {
 
         @JsonProperty("foo")
-        private Map<Integer, Bar> foo;
+        protected Map<Integer, Bar> foo;
         @JsonProperty("anumber")
-        private long anumber;
+        protected long anumber;
 
         public Foo() {
             anumber = 0;

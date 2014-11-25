@@ -154,12 +154,7 @@ public abstract class TypeDeserializerBase
                  * for base class, not via interface. Later on we can add this
                  * to the interface, assuming deprecation at base class helps.
                  */
-                JavaType type;
-                if (_idResolver instanceof TypeIdResolverBase) {
-                    type = ((TypeIdResolverBase) _idResolver).typeFromId(ctxt, typeId);
-                } else {
-                    type = _idResolver.typeFromId(typeId);
-                }
+                JavaType type = _idResolver.typeFromId(ctxt, typeId);
                 if (type == null) {
                     // As per [JACKSON-614], use the default impl if no type id available:
                     deser = _findDefaultImplDeserializer(ctxt);

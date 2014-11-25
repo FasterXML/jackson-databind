@@ -76,6 +76,8 @@ public class TestMapDeserialization
     public static enum ConcreteType implements ITestType {
         ONE, TWO;
     }
+
+    static class ClassStringMap extends HashMap<Class<?>,String> { }
     
     /*
     /**********************************************************
@@ -472,6 +474,14 @@ public class TestMapDeserialization
         assertEquals(1, map.size());
         key = map.keySet().iterator().next();
         assertEquals("foo", key.value);
+    }
+
+    public void testClassKeyMap() throws Exception {
+        ClassStringMap map = MAPPER.readValue(aposToQuotes("{'java.lang.String':'foo'}"),
+                ClassStringMap.class);
+        assertNotNull(map);
+        assertEquals(1, map.size());
+        assertEquals("foo", map.get(String.class));
     }
     
     /*

@@ -43,7 +43,7 @@ public class TestBasicAnnotations
 
     static class Issue442Bean {
         @JsonUnwrapped
-        private IntWrapper w = new IntWrapper(13);
+        protected IntWrapper w = new IntWrapper(13);
     }
     
     final static class SizeClassSetter2
@@ -85,7 +85,7 @@ public class TestBasicAnnotations
     }
 
     static class BeanWithDeserialize {
-        @JsonDeserialize private int a;
+        @JsonDeserialize protected int a;
     }
     
     /*

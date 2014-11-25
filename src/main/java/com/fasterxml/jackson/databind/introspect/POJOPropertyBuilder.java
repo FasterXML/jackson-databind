@@ -1100,7 +1100,7 @@ public class POJOPropertyBuilder
          * Method called to append given node(s) at the end of this
          * node chain.
          */
-        private Linked<T> append(Linked<T> appendable) {
+        protected Linked<T> append(Linked<T> appendable) {
             if (next == null) {
                 return withNext(appendable);
             }

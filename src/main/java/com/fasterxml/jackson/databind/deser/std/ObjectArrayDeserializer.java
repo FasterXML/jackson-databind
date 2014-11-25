@@ -100,6 +100,12 @@ public class ObjectArrayDeserializer
         }
         return withDeserializer(elemTypeDeser, deser);
     }
+
+    @Override // since 2.5
+    public boolean isCachable() {
+        // Important: do NOT cache if polymorphic values
+        return (_elementTypeDeserializer == null);
+    }
     
     /*
     /**********************************************************

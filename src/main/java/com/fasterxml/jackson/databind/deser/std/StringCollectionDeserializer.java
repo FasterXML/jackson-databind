@@ -82,6 +82,11 @@ public final class StringCollectionDeserializer
                 _valueInstantiator, delegateDeser, valueDeser);
     }
 
+    @Override // since 2.5
+    public boolean isCachable() {
+        return true;
+    }
+    
     /*
     /**********************************************************
     /* Validation, post-processing

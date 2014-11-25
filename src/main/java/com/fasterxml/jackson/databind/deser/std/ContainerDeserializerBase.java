@@ -35,15 +35,6 @@ public abstract class ContainerDeserializerBase<T>
     /**********************************************************
      */
 
-    /**
-     * Turns out that these are expensive enough to create so that caching
-     * does make sense (in addition to Bean, Enum deserializers).
-     * 
-     * @since 2.5
-     */
-    @Override
-    public boolean isCachable() { return true; }
-
     @Override
     public SettableBeanProperty findBackReference(String refName) {
         JsonDeserializer<Object> valueDeser = getContentDeserializer();

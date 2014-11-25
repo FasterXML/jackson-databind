@@ -27,7 +27,7 @@ public class CollectionDeserializer
     extends ContainerDeserializerBase<Collection<Object>>
     implements ContextualDeserializer
 {
-    private static final long serialVersionUID = 3917273725180652224L;
+    private static final long serialVersionUID = -1L; // since 2.5
 
     // // Configuration
 
@@ -117,7 +117,13 @@ public class CollectionDeserializer
                 (JsonDeserializer<Object>) vd, vtd,
                 _valueInstantiator, (JsonDeserializer<Object>) dd);
     }
-    
+
+    // Important: do NOT cache if polymorphic values
+    @Override // since 2.5
+    public boolean isCachable() {
+        return (_valueTypeDeserializer == null);
+    }
+
     /*
     /**********************************************************
     /* Validation, post-processing (ResolvableDeserializer)

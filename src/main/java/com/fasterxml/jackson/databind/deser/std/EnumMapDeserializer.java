@@ -91,7 +91,10 @@ public class EnumMapDeserializer
      * let's cache instances by default.
      */
     @Override
-    public boolean isCachable() { return true; }
+    public boolean isCachable() {
+        // Important: do NOT cache if polymorphic values
+        return (_valueTypeDeserializer == null);
+    }
 
     /*
     /**********************************************************

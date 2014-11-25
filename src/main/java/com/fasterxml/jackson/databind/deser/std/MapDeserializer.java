@@ -181,7 +181,7 @@ public class MapDeserializer
         return ((rawKeyType == String.class || rawKeyType == Object.class)
                 && isDefaultKeyDeserializer(keyDeser));
     }
-    
+
     public void setIgnorableProperties(String[] ignorable) {
         _ignorableProperties = (ignorable == null || ignorable.length == 0) ?
             null : ArrayBuilders.arrayToSet(ignorable);
@@ -280,6 +280,24 @@ public class MapDeserializer
     /* JsonDeserializer API
     /**********************************************************
      */
+
+    /**
+     * Turns out that these are expensive enough to create so that caching
+     * does make sense.
+     *<p>
+     * IMPORTANT: but, note, that instances CAN NOT BE CACHED if there is
+     * a value type deserializer; this caused an issue with 2.4.4 of
+     * JAXB Annotations (failing a test).
+     * It is also possible that some other settings could make deserializers
+     * un-cacheable; but on the other hand, caching can make a big positive
+     * difference with performance... so it's a hard choice.
+     * 
+     * @since 2.4.4
+     */
+    @Override
+    public boolean isCachable() {
+        return (_valueTypeDeserializer == null) && (_ignorableProperties == null);
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -539,8 +557,8 @@ public class MapDeserializer
         wrapAndThrow(t, ref, null);
     }
 
-    private void handleUnresolvedReference(JsonParser jp, MapReferringAccumulator accumulator, Object key,
-            UnresolvedForwardReference reference)
+    private void handleUnresolvedReference(JsonParser jp, MapReferringAccumulator accumulator,
+            Object key, UnresolvedForwardReference reference)
         throws JsonMappingException
     {
         if (accumulator == null) {
@@ -550,7 +568,7 @@ public class MapDeserializer
         reference.getRoid().appendReferring(referring);
     }
 
-    private final static class MapReferringAccumulator  {
+    private final static class MapReferringAccumulator {
         private final Class<?> _valueType;
         private Map<Object,Object> _result;
         /**

@@ -50,7 +50,7 @@ Project: jackson-databind
   that benefit from knowing number of elements in arrays (and would otherwise
   need to buffer values to know length)
 
-2.4.4 (not yet released)
+2.4.4 (24-Nov-2014)
 
 (jackson-core)#158: Setter confusion on assignable types
  (reported by tsquared2763@github)

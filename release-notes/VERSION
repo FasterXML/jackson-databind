@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.4.5 (not yet released)
+
+#635: Reduce cachability of `Map` deserializers, to avoid problems with per-property config changes
+    (regression due to #604)
+
 2.4.4 (24-Nov-2014)
 
 (jackson-core)#158: Setter confusion on assignable types

@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.4.4 (not yet released)
+2.4.4 (24-Nov-2014)
 
 (jackson-core)#158: Setter confusion on assignable types
  (reported by tsquared2763@github)

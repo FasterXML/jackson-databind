@@ -28,7 +28,7 @@ public class ArrayNode
     protected JsonNode _at(JsonPointer ptr) {
         return get(ptr.getMatchingIndex());
     }
-    
+
     // note: co-variant to allow caller-side type safety
     @SuppressWarnings("unchecked")
     @Override

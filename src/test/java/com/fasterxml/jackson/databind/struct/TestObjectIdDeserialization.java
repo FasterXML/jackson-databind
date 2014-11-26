@@ -330,8 +330,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
         }
     }
 
-    public void testKeepCollectionOrdering()
-        throws Exception
+    public void testKeepCollectionOrdering() throws Exception
     {
         String json = "{\"employees\":[2,1,"
                 + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"

@@ -4,9 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -14,27 +12,24 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
- * Unit tests for verifying "old" data binding from JSON to JDK objects;
+ * Unit tests for verifying "raw" (or "untyped") data binding from JSON to JDK objects;
  * one that only uses core JDK types; wrappers, Maps and Lists.
  */
+@SuppressWarnings("serial")
 public class TestUntypedDeserialization
     extends BaseMapTest
 {
-    @SuppressWarnings("serial")
     static class UCStringDeserializer
         extends StdScalarDeserializer<String>
     {
         public UCStringDeserializer() { super(String.class); }
 
         @Override
-        public String deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-        {
+        public String deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             return jp.getText().toUpperCase();
         }
     }
 
-    @SuppressWarnings("serial")
     static class CustomNumberDeserializer
         extends StdScalarDeserializer<Number>
     {
@@ -46,15 +41,14 @@ public class TestUntypedDeserialization
         }
 
         @Override
-        public Number deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-        {
+        public Number deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             return value;
         }
     }
 
-    @SuppressWarnings("serial")
+    // Let's make this Contextual, to tease out cyclic resolution issues, if any
     static class ListDeserializer extends StdDeserializer<List<Object>>
+        implements ContextualDeserializer
     {
         public ListDeserializer() { super(List.class); }
 
@@ -68,9 +62,19 @@ public class TestUntypedDeserialization
             }
             return list;
         }
+
+        @Override
+        public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
+                BeanProperty property) throws JsonMappingException
+        {
+            // For now, we just need to access "untyped" deserializer; not use it.
+            
+            /*JsonDeserializer<Object> ob = */
+            ctxt.findContextualValueDeserializer(ctxt.constructType(Object.class), property);
+            return this;
+        }
     }
 
-    @SuppressWarnings("serial")
     static class MapDeserializer extends StdDeserializer<Map<String,Object>>
     {
         public MapDeserializer() { super(Map.class); }

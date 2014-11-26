@@ -165,7 +165,7 @@ public class UntypedObjectDeserializer
      */
     @Override
     public boolean isCachable() { return true; }
-    
+
     @Override
     public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
     {

@@ -349,7 +349,7 @@ public abstract class DeserializationContext
     /**
      * Method for checking whether we could find a deserializer
      * for given type.
-     * 
+     *
      * @param type
      * @since 2.3
      */
@@ -384,6 +384,25 @@ public abstract class DeserializationContext
         return deser;
     }
 
+    /**
+     * Variant that will try to locate deserializer for current type, but without
+     * performing any contextualization (unlike {@link #findContextualValueDeserializer})
+     * or checking for need to create a {@link TypeDeserializer} (unlike
+     * {@link #findRootValueDeserializer(JavaType)}.
+     * This method is usually called from within {@link ResolvableDeserializer#resolve},
+     * and expectation is that caller then calls either
+     * {@link #handlePrimaryContextualization(JsonDeserializer, BeanProperty)} or
+     * {@link #handleSecondaryContextualization(JsonDeserializer, BeanProperty)} at a
+     * later point, as necessary.
+     *
+     * @since 2.5
+     */
+    public final JsonDeserializer<Object> findNonContextualValueDeserializer(JavaType type)
+        throws JsonMappingException
+    {
+        return _cache.findValueDeserializer(this, _factory, type);
+    }
+    
     /**
      * Method for finding a deserializer for root-level value.
      */
@@ -563,10 +582,8 @@ public abstract class DeserializationContext
             BeanProperty prop)
         throws JsonMappingException
     {
-        if (deser != null) {
-            if (deser instanceof ContextualDeserializer) {
-                deser = ((ContextualDeserializer) deser).createContextual(this, prop);
-            }
+        if (deser instanceof ContextualDeserializer) {
+            deser = ((ContextualDeserializer) deser).createContextual(this, prop);
         }
         return deser;
     }
@@ -589,8 +606,9 @@ public abstract class DeserializationContext
      */
     public JsonDeserializer<?> handleSecondaryContextualization(JsonDeserializer<?> deser,
             BeanProperty prop)
-        throws JsonMappingException {
-        if (deser != null && (deser instanceof ContextualDeserializer)) {
+        throws JsonMappingException
+    {
+        if (deser instanceof ContextualDeserializer) {
             deser = ((ContextualDeserializer) deser).createContextual(this, prop);
         }
         return deser;

@@ -72,7 +72,7 @@ public class UntypedObjectDeserializer
         _stringDeserializer = (JsonDeserializer<Object>) stringDeser;
         _numberDeserializer = (JsonDeserializer<Object>) numberDeser;
     }
-    
+
     /*
     /**********************************************************
     /* Initialization
@@ -100,8 +100,9 @@ public class UntypedObjectDeserializer
     protected JsonDeserializer<Object> _findCustomDeser(DeserializationContext ctxt, JavaType type)
         throws JsonMappingException
     {
-        // NOTE: since we don't yet have the referring property, this should be fine:
-        JsonDeserializer<?> deser = ctxt.findRootValueDeserializer(type);
+        // Since we are calling from `resolve`, we should NOT try to contextualize yet;
+        // contextualization will only occur at a later point
+        JsonDeserializer<?> deser = ctxt.findNonContextualValueDeserializer(type);
         if (ClassUtil.isJacksonStdImpl(deser)) {
             return null;
         }
@@ -119,22 +120,10 @@ public class UntypedObjectDeserializer
                 &&  getClass() == UntypedObjectDeserializer.class) {
             return Vanilla.std;
         }
-        JsonDeserializer<?> mapDeserializer = _mapDeserializer;
-        if (mapDeserializer instanceof ContextualDeserializer) {
-            mapDeserializer = ((ContextualDeserializer)mapDeserializer).createContextual(ctxt, property);
-        }
-        JsonDeserializer<?> listDeserializer = _listDeserializer;
-        if (listDeserializer instanceof ContextualDeserializer) {
-            listDeserializer = ((ContextualDeserializer)listDeserializer).createContextual(ctxt, property);
-        }
-        JsonDeserializer<?> stringDeserializer = _stringDeserializer;
-        if (stringDeserializer instanceof ContextualDeserializer) {
-            stringDeserializer = ((ContextualDeserializer)stringDeserializer).createContextual(ctxt, property);
-        }
-        JsonDeserializer<?> numberDeserializer = _numberDeserializer;
-        if (numberDeserializer instanceof ContextualDeserializer) {
-            numberDeserializer = ((ContextualDeserializer)numberDeserializer).createContextual(ctxt, property);
-        }
+        JsonDeserializer<?> mapDeserializer = ctxt.handlePrimaryContextualization(_mapDeserializer, property);
+        JsonDeserializer<?> listDeserializer = ctxt.handlePrimaryContextualization(_listDeserializer, property);
+        JsonDeserializer<?> stringDeserializer = ctxt.handlePrimaryContextualization(_stringDeserializer, property);
+        JsonDeserializer<?> numberDeserializer = ctxt.handlePrimaryContextualization(_numberDeserializer, property);
 
         // And if anything changed, we'll need to change too!
         if ((mapDeserializer != _mapDeserializer)

@@ -193,7 +193,7 @@ public class CollectionDeserializer
     @SuppressWarnings("unchecked")
     @Override
     public Collection<Object> deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (_delegateDeserializer != null) {
             return (Collection<Object>) _valueInstantiator.createUsingDelegate(ctxt,
@@ -215,7 +215,7 @@ public class CollectionDeserializer
     @Override
     public Collection<Object> deserialize(JsonParser jp, DeserializationContext ctxt,
             Collection<Object> result)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // Ok: must point to START_ARRAY (or equivalent)
         if (!jp.isExpectedStartArrayToken()) {
@@ -261,7 +261,7 @@ public class CollectionDeserializer
     @Override
     public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // In future could check current token... for now this should be enough:
         return typeDeserializer.deserializeTypedFromArray(jp, ctxt);
@@ -274,7 +274,7 @@ public class CollectionDeserializer
      */
     protected final Collection<Object> handleNonArray(JsonParser jp, DeserializationContext ctxt,
             Collection<Object> result)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // [JACKSON-526]: implicit arrays from single values?
         if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)) {

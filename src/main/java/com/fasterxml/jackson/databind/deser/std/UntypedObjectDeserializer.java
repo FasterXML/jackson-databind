@@ -84,16 +84,35 @@ public class UntypedObjectDeserializer
      * to: it can not be done earlier since delegated deserializers almost
      * certainly require access to this instance (at least "List" and "Map" ones)
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void resolve(DeserializationContext ctxt) throws JsonMappingException
     {
         JavaType obType = ctxt.constructType(Object.class);
         JavaType stringType = ctxt.constructType(String.class);
         TypeFactory tf = ctxt.getTypeFactory();
+
+        /* 26-Nov-2014, tatu: This is highly unusual, as in general contextualization
+         *    should always be called separately, from within "createContextual()".
+         *    But this is a very singular deserializer since it operates on `Object`
+         *    (and often for `?` type parameter), and as a result, easily and commonly
+         *    results in cycles, being value deserializer for various Maps and Collections.
+         *    Because of this, we must somehow break the cycles. This is done here by
+         *    forcing pseudo-contextualization with null property.
+         */
+
+        // So: first find possible custom instances
         _mapDeserializer = _findCustomDeser(ctxt, tf.constructMapType(Map.class, stringType, obType));
         _listDeserializer = _findCustomDeser(ctxt, tf.constructCollectionType(List.class, obType));
         _stringDeserializer = _findCustomDeser(ctxt, stringType);
         _numberDeserializer = _findCustomDeser(ctxt, tf.constructType(Number.class));
+
+        // and then do bogus contextualization, in case custom ones need to resolve dependencies of
+        // their own
+        _mapDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_mapDeserializer, null);
+        _listDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_listDeserializer, null);
+        _stringDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_stringDeserializer, null);
+        _numberDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_numberDeserializer, null);
     }
 
     @SuppressWarnings("unchecked")
@@ -108,7 +127,11 @@ public class UntypedObjectDeserializer
         }
         return (JsonDeserializer<Object>) deser;
     }
-    
+
+    /**
+     * We only use contextualization for optimizing the case where no customization
+     * occurred; if so, can slip in a more streamlined version.
+     */
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,
             BeanProperty property) throws JsonMappingException
@@ -119,20 +142,6 @@ public class UntypedObjectDeserializer
                 && (_mapDeserializer == null) && (_listDeserializer == null)
                 &&  getClass() == UntypedObjectDeserializer.class) {
             return Vanilla.std;
-        }
-        JsonDeserializer<?> mapDeserializer = ctxt.handlePrimaryContextualization(_mapDeserializer, property);
-        JsonDeserializer<?> listDeserializer = ctxt.handlePrimaryContextualization(_listDeserializer, property);
-        JsonDeserializer<?> stringDeserializer = ctxt.handlePrimaryContextualization(_stringDeserializer, property);
-        JsonDeserializer<?> numberDeserializer = ctxt.handlePrimaryContextualization(_numberDeserializer, property);
-
-        // And if anything changed, we'll need to change too!
-        if ((mapDeserializer != _mapDeserializer)
-                || (listDeserializer != _listDeserializer)
-                || (stringDeserializer != _stringDeserializer)
-                || (numberDeserializer != _numberDeserializer)
-                ) {
-            return _withResolved(mapDeserializer, listDeserializer,
-                    stringDeserializer, numberDeserializer);
         }
         return this;
     }

@@ -106,6 +106,13 @@ public class UntypedObjectDeserializer
         _listDeserializer = _findCustomDeser(ctxt, tf.constructCollectionType(List.class, obType));
         _stringDeserializer = _findCustomDeser(ctxt, stringType);
         _numberDeserializer = _findCustomDeser(ctxt, tf.constructType(Number.class));
+
+        // and then do bogus contextualization, in case custom ones need to resolve dependencies of
+        // their own
+        _mapDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_mapDeserializer, null);
+        _listDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_listDeserializer, null);
+        _stringDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_stringDeserializer, null);
+        _numberDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_numberDeserializer, null);
     }
 
     @SuppressWarnings("unchecked")

@@ -45,7 +45,9 @@ Project: jackson-databind
   delegating- and property-based creators
 #616: Add `SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS`
 #623: Add `StdNodeBasedDeserializer`
-#630: Add `KeyDeserializer` for `Class` 
+#630: Add `KeyDeserializer` for `Class`
+#633: Allow returning null value from IdResolver to make type information optional
+ (requested by Antibrumm@github)
 #634: Add `typeFromId(DatabindContext,String)` in `TypeIdDeserializer`
 - Allow use of `Shape.ARRAY` for Enums, as an alias to 'use index'
 - Start using `JsonGenerator.writeStartArray(int)` to help data formats

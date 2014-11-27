@@ -36,4 +36,16 @@ public class TestNoClassDefFoundDeserializer extends BaseMapTest {
         assertNotNull(result);
     }
 
+    public void testUseMissingClass() throws Exception
+    {
+        boolean missing = false;
+        try {
+            ObjectMapper m = new ObjectMapper();
+            m.readValue(" { \"money\" : [{}] } ", Parent.class);
+        } catch (NoClassDefFoundError ex) {
+            missing = true;
+        }
+        assertTrue("cannot instantiate a missing class", missing);
+    }
+
 }

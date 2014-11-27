@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.impl.NoClassDefFoundDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.type.*;
@@ -320,7 +321,12 @@ public final class DeserializerCache
         if (type.isAbstract() || type.isMapLikeType() || type.isCollectionLikeType()) {
             type = factory.mapAbstractType(config, type);
         }
-        BeanDescription beanDesc = config.introspect(type);
+        BeanDescription beanDesc;
+        try {
+            beanDesc = config.introspect(type);
+        } catch (NoClassDefFoundError error) {
+            return new NoClassDefFoundDeserializer<Object>(error);
+        }
         // Then: does type define explicit deserializer to use, with annotation(s)?
         JsonDeserializer<Object> deser = findDeserializerFromAnnotation(ctxt,
                 beanDesc.getClassInfo());

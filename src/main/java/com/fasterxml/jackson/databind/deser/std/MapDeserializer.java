@@ -334,20 +334,23 @@ public class MapDeserializer
     }
 
     @Override
-    public Map<Object,Object> deserialize(JsonParser jp, DeserializationContext ctxt,
+    public Map<Object,Object> deserialize(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        p.setCurrentValue(result);
+        
         // Ok: must point to START_OBJECT or FIELD_NAME
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t != JsonToken.START_OBJECT && t != JsonToken.FIELD_NAME) {
             throw ctxt.mappingException(getMapClass());
         }
         if (_standardStringKey) {
-            _readAndBindStringMap(jp, ctxt, result);
+            _readAndBindStringMap(p, ctxt, result);
             return result;
         }
-        _readAndBind(jp, ctxt, result);
+        _readAndBind(p, ctxt, result);
         return result;
     }
 

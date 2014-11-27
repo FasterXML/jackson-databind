@@ -432,10 +432,12 @@ public class MapSerializer
      */
 
     @Override
-    public void serialize(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
-        jgen.writeStartObject();
+        gen.writeStartObject();
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        gen.setCurrentValue(value);
         if (!value.isEmpty()) {
             Object suppressableValue = _suppressableValue;
             if (suppressableValue == null) {
@@ -449,25 +451,27 @@ public class MapSerializer
                 value = _orderEntries(value);
             }
             if (_filterId != null) {
-                serializeFilteredFields(value, jgen, provider,
+                serializeFilteredFields(value, gen, provider,
                         findPropertyFilter(provider, _filterId, value), suppressableValue);
             } else if (suppressableValue != null) {
-                serializeOptionalFields(value, jgen, provider, suppressableValue);
+                serializeOptionalFields(value, gen, provider, suppressableValue);
             } else if (_valueSerializer != null) {
-                serializeFieldsUsing(value, jgen, provider, _valueSerializer);
+                serializeFieldsUsing(value, gen, provider, _valueSerializer);
             } else {
-                serializeFields(value, jgen, provider);
+                serializeFields(value, gen, provider);
             }
         }
-        jgen.writeEndObject();
+        gen.writeEndObject();
     }
 
     @Override
-    public void serializeWithType(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException
     {
-        typeSer.writeTypePrefixForObject(value, jgen);
+        typeSer.writeTypePrefixForObject(value, gen);
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        gen.setCurrentValue(value);
         if (!value.isEmpty()) {
             Object suppressableValue = _suppressableValue;
             if (suppressableValue == null) {
@@ -481,17 +485,17 @@ public class MapSerializer
                 value = _orderEntries(value);
             }
             if (_filterId != null) {
-                serializeFilteredFields(value, jgen, provider,
+                serializeFilteredFields(value, gen, provider,
                         findPropertyFilter(provider, _filterId, value), suppressableValue);
             } else if (suppressableValue != null) {
-                serializeOptionalFields(value, jgen, provider, suppressableValue);
+                serializeOptionalFields(value, gen, provider, suppressableValue);
             } else if (_valueSerializer != null) {
-                serializeFieldsUsing(value, jgen, provider, _valueSerializer);
+                serializeFieldsUsing(value, gen, provider, _valueSerializer);
             } else {
-                serializeFields(value, jgen, provider);
+                serializeFields(value, gen, provider);
             }
         }
-        typeSer.writeTypeSuffixForObject(value, jgen);
+        typeSer.writeTypeSuffixForObject(value, gen);
     }
 
     /*
@@ -504,12 +508,12 @@ public class MapSerializer
      * Method called to serialize fields, when the value type is not statically known;
      * but we know that no value suppression is needed (which simplifies processing a bit)
      */
-    public void serializeFields(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider)
+    public void serializeFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
         // If value type needs polymorphic type handling, some more work needed:
         if (_valueTypeSerializer != null) {
-            serializeTypedFields(value, jgen, provider, null);
+            serializeTypedFields(value, gen, provider, null);
             return;
         }
         final JsonSerializer<Object> keySerializer = _keySerializer;
@@ -522,16 +526,16 @@ public class MapSerializer
             // First, serialize key
             Object keyElem = entry.getKey();
             if (keyElem == null) {
-                provider.findNullKeySerializer(_keyType, _property).serialize(null, jgen, provider);
+                provider.findNullKeySerializer(_keyType, _property).serialize(null, gen, provider);
             } else {
                 // One twist: is entry ignorable? If so, skip
                 if (ignored != null && ignored.contains(keyElem)) continue;
-                keySerializer.serialize(keyElem, jgen, provider);
+                keySerializer.serialize(keyElem, gen, provider);
             }
 
             // And then value
             if (valueElem == null) {
-                provider.defaultSerializeNull(jgen);
+                provider.defaultSerializeNull(gen);
             } else {
                 Class<?> cc = valueElem.getClass();
                 JsonSerializer<Object> serializer = serializers.serializerFor(cc);
@@ -545,7 +549,7 @@ public class MapSerializer
                     serializers = _dynamicValueSerializers;
                 }
                 try {
-                    serializer.serialize(valueElem, jgen, provider);
+                    serializer.serialize(valueElem, gen, provider);
                 } catch (Exception e) {
                     // Add reference information
                     String keyDesc = ""+keyElem;
@@ -555,13 +559,13 @@ public class MapSerializer
         }
     }
 
-    public void serializeOptionalFields(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeOptionalFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             Object suppressableValue)
         throws IOException
     {
         // If value type needs polymorphic type handling, some more work needed:
         if (_valueTypeSerializer != null) {
-            serializeTypedFields(value, jgen, provider, suppressableValue);
+            serializeTypedFields(value, gen, provider, suppressableValue);
             return;
         }
         final HashSet<String> ignored = _ignoredEntries;
@@ -609,8 +613,8 @@ public class MapSerializer
             }
             // and then serialize, if all went well
             try {
-                keySerializer.serialize(keyElem, jgen, provider);
-                valueSer.serialize(valueElem, jgen, provider);
+                keySerializer.serialize(keyElem, gen, provider);
+                valueSer.serialize(valueElem, gen, provider);
             } catch (Exception e) {
                 String keyDesc = ""+keyElem;
                 wrapAndThrow(provider, e, value, keyDesc);
@@ -623,7 +627,7 @@ public class MapSerializer
      * so that value serializer is passed and does not need to be fetched from
      * provider.
      */
-    protected void serializeFieldsUsing(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider,
+    protected void serializeFieldsUsing(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             JsonSerializer<Object> ser)
         throws IOException
     {
@@ -636,19 +640,19 @@ public class MapSerializer
             if (ignored != null && ignored.contains(keyElem)) continue;
 
             if (keyElem == null) {
-                provider.findNullKeySerializer(_keyType, _property).serialize(null, jgen, provider);
+                provider.findNullKeySerializer(_keyType, _property).serialize(null, gen, provider);
             } else {
-                keySerializer.serialize(keyElem, jgen, provider);
+                keySerializer.serialize(keyElem, gen, provider);
             }
             final Object valueElem = entry.getValue();
             if (valueElem == null) {
-                provider.defaultSerializeNull(jgen);
+                provider.defaultSerializeNull(gen);
             } else {
                 try {
                     if (typeSer == null) {
-                        ser.serialize(valueElem, jgen, provider);
+                        ser.serialize(valueElem, gen, provider);
                     } else {
-                        ser.serializeWithType(valueElem, jgen, provider, typeSer);
+                        ser.serializeWithType(valueElem, gen, provider, typeSer);
                     }
                 } catch (Exception e) {
                     String keyDesc = ""+keyElem;
@@ -664,7 +668,7 @@ public class MapSerializer
      * 
      * @since 2.5
      */
-    public void serializeFilteredFields(Map<?,?> value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeFilteredFields(Map<?,?> value, JsonGenerator gen, SerializerProvider provider,
             PropertyFilter filter,
             Object suppressableValue) // since 2.5
         throws IOException
@@ -719,7 +723,7 @@ public class MapSerializer
             // and with that, ask filter to handle it
             prop.reset(keyElem, keySerializer, valueSer);
             try {
-                filter.serializeAsField(valueElem, jgen, provider, prop);
+                filter.serializeAsField(valueElem, gen, provider, prop);
             } catch (Exception e) {
                 String keyDesc = ""+keyElem;
                 wrapAndThrow(provider, e, value, keyDesc);

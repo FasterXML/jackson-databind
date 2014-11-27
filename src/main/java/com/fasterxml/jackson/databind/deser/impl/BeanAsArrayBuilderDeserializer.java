@@ -82,7 +82,7 @@ public class BeanAsArrayBuilderDeserializer
      */
 
     protected final Object finishBuild(DeserializationContext ctxt, Object builder)
-            throws IOException
+        throws IOException
     {
         try {
             return _buildMethod.getMember().invoke(builder);
@@ -93,22 +93,22 @@ public class BeanAsArrayBuilderDeserializer
     }
     
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt)
+        throws IOException
     {
         // Let's delegate just in case we got a JSON Object (could error out, alternatively?)
-        if (!jp.isExpectedStartArrayToken()) {
-            return finishBuild(ctxt, _deserializeFromNonArray(jp, ctxt));
+        if (!p.isExpectedStartArrayToken()) {
+            return finishBuild(ctxt, _deserializeFromNonArray(p, ctxt));
         }
         if (!_vanillaProcessing) {
-            return finishBuild(ctxt, _deserializeNonVanilla(jp, ctxt));
+            return finishBuild(ctxt, _deserializeNonVanilla(p, ctxt));
         }
         Object builder = _valueInstantiator.createUsingDefault(ctxt);
         final SettableBeanProperty[] props = _orderedProperties;
         int i = 0;
         final int propCount = props.length;
         while (true) {
-            if (jp.nextToken() == JsonToken.END_ARRAY) {
+            if (p.nextToken() == JsonToken.END_ARRAY) {
                 return finishBuild(ctxt, builder);
             }
             if (i == propCount) {
@@ -117,12 +117,12 @@ public class BeanAsArrayBuilderDeserializer
             SettableBeanProperty prop = props[i];
             if (prop != null) { // normal case
                 try {
-                    builder = prop.deserializeSetAndReturn(jp, ctxt, builder);
+                    builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
                     wrapAndThrow(e, builder, prop.getName(), ctxt);
                 }
             } else { // just skip?
-                jp.skipChildren();
+                p.skipChildren();
             }
             ++i;
         }
@@ -131,15 +131,15 @@ public class BeanAsArrayBuilderDeserializer
             throw ctxt.mappingException("Unexpected JSON values; expected at most "+propCount+" properties (in JSON Array)");
         }
         // otherwise, skip until end
-        while (jp.nextToken() != JsonToken.END_ARRAY) {
-            jp.skipChildren();
+        while (p.nextToken() != JsonToken.END_ARRAY) {
+            p.skipChildren();
         }
         return finishBuild(ctxt, builder);
     }
 
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt, Object builder)
-        throws IOException, JsonProcessingException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt, Object builder)
+        throws IOException
     {
         /* No good way to verify that we have an array... although could I guess
          * check via JsonParser. So let's assume everything is working fine, for now.
@@ -151,7 +151,7 @@ public class BeanAsArrayBuilderDeserializer
         int i = 0;
         final int propCount = props.length;
         while (true) {
-            if (jp.nextToken() == JsonToken.END_ARRAY) {
+            if (p.nextToken() == JsonToken.END_ARRAY) {
                 return finishBuild(ctxt, builder);
             }
             if (i == propCount) {
@@ -160,12 +160,12 @@ public class BeanAsArrayBuilderDeserializer
             SettableBeanProperty prop = props[i];
             if (prop != null) { // normal case
                 try {
-                    builder = prop.deserializeSetAndReturn(jp, ctxt, builder);
+                    builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
                     wrapAndThrow(e, builder, prop.getName(), ctxt);
                 }
             } else { // just skip?
-                jp.skipChildren();
+                p.skipChildren();
             }
             ++i;
         }
@@ -175,18 +175,17 @@ public class BeanAsArrayBuilderDeserializer
             throw ctxt.mappingException("Unexpected JSON values; expected at most "+propCount+" properties (in JSON Array)");
         }
         // otherwise, skip until end
-        while (jp.nextToken() != JsonToken.END_ARRAY) {
-            jp.skipChildren();
+        while (p.nextToken() != JsonToken.END_ARRAY) {
+            p.skipChildren();
         }
         return finishBuild(ctxt, builder);
     }
 
     // needed since 2.1
     @Override
-    public Object deserializeFromObject(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+    public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        return _deserializeFromNonArray(jp, ctxt);
+        return _deserializeFromNonArray(p, ctxt);
     }
     
     /*
@@ -202,11 +201,11 @@ public class BeanAsArrayBuilderDeserializer
      * 
      * @return Builder object in use.
      */
-    protected Object _deserializeNonVanilla(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    protected Object _deserializeNonVanilla(JsonParser p, DeserializationContext ctxt)
+        throws IOException
     {
         if (_nonStandardCreation) {
-            return _deserializeWithCreator(jp, ctxt);
+            return _deserializeWithCreator(p, ctxt);
         }
         Object builder = _valueInstantiator.createUsingDefault(ctxt);
         if (_injectables != null) {
@@ -217,7 +216,7 @@ public class BeanAsArrayBuilderDeserializer
         int i = 0;
         final int propCount = props.length;
         while (true) {
-            if (jp.nextToken() == JsonToken.END_ARRAY) {
+            if (p.nextToken() == JsonToken.END_ARRAY) {
                 return builder;
             }
             if (i == propCount) {
@@ -228,7 +227,7 @@ public class BeanAsArrayBuilderDeserializer
             if (prop != null) { // normal case
                 if (activeView == null || prop.visibleInView(activeView)) {
                     try {
-                        prop.deserializeSetAndReturn(jp, ctxt, builder);
+                        prop.deserializeSetAndReturn(p, ctxt, builder);
                     } catch (Exception e) {
                         wrapAndThrow(e, builder, prop.getName(), ctxt);
                     }
@@ -236,35 +235,35 @@ public class BeanAsArrayBuilderDeserializer
                 }
             }
             // otherwise, skip it (view-filtered, no prop etc)
-            jp.skipChildren();
+            p.skipChildren();
         }
         // Ok; extra fields? Let's fail, unless ignoring extra props is fine
         if (!_ignoreAllUnknown) {
             throw ctxt.mappingException("Unexpected JSON values; expected at most "+propCount+" properties (in JSON Array)");
         }
         // otherwise, skip until end
-        while (jp.nextToken() != JsonToken.END_ARRAY) {
-            jp.skipChildren();
+        while (p.nextToken() != JsonToken.END_ARRAY) {
+            p.skipChildren();
         }
         return builder;
     }
     
-    protected Object _deserializeWithCreator(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+    protected Object _deserializeWithCreator(JsonParser p, DeserializationContext ctxt)
+        throws IOException
     {        
         if (_delegateDeserializer != null) {
             return _valueInstantiator.createUsingDelegate(ctxt,
-                    _delegateDeserializer.deserialize(jp, ctxt));
+                    _delegateDeserializer.deserialize(p, ctxt));
         }
         if (_propertyBasedCreator != null) {
-            return _deserializeUsingPropertyBased(jp, ctxt);
+            return _deserializeUsingPropertyBased(p, ctxt);
         }
         // should only occur for abstract types...
         if (_beanType.isAbstract()) {
-            throw JsonMappingException.from(jp, "Can not instantiate abstract type "+_beanType
+            throw JsonMappingException.from(p, "Can not instantiate abstract type "+_beanType
                     +" (need to add/enable type information?)");
         }
-        throw JsonMappingException.from(jp, "No suitable constructor found for type "
+        throw JsonMappingException.from(p, "No suitable constructor found for type "
                 +_beanType+": can not instantiate from JSON object (need to add/enable type information?)");
     }
 
@@ -277,28 +276,28 @@ public class BeanAsArrayBuilderDeserializer
      * as well.
      */
     @Override
-    protected final Object _deserializeUsingPropertyBased(final JsonParser jp,
+    protected final Object _deserializeUsingPropertyBased(final JsonParser p,
             final DeserializationContext ctxt)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         final PropertyBasedCreator creator = _propertyBasedCreator;
-        PropertyValueBuffer buffer = creator.startBuilding(jp, ctxt, _objectIdReader);
+        PropertyValueBuffer buffer = creator.startBuilding(p, ctxt, _objectIdReader);
 
         final SettableBeanProperty[] props = _orderedProperties;
         final int propCount = props.length;
         int i = 0;
         Object builder = null;
         
-        for (; jp.nextToken() != JsonToken.END_ARRAY; ++i) {
+        for (; p.nextToken() != JsonToken.END_ARRAY; ++i) {
             SettableBeanProperty prop = (i < propCount) ? props[i] : null;
             if (prop == null) { // we get null if there are extra elements; maybe otherwise too?
-                jp.skipChildren();
+                p.skipChildren();
                 continue;
             }
             // if we have already constructed POJO, things are simple:
             if (builder != null) {
                 try {
-                    builder = prop.deserializeSetAndReturn(jp, ctxt, builder);
+                    builder = prop.deserializeSetAndReturn(p, ctxt, builder);
                 } catch (Exception e) {
                     wrapAndThrow(e, builder, prop.getName(), ctxt);
                 }
@@ -309,7 +308,7 @@ public class BeanAsArrayBuilderDeserializer
             SettableBeanProperty creatorProp = creator.findCreatorProperty(propName);
             if (creatorProp != null) {
                 // Last creator property to set?
-                Object value = creatorProp.deserialize(jp, ctxt);
+                Object value = creatorProp.deserialize(p, ctxt);
                 if (buffer.assignParameter(creatorProp.getCreatorIndex(), value)) {
                     try {
                         builder = creator.build(ctxt, buffer);
@@ -334,7 +333,7 @@ public class BeanAsArrayBuilderDeserializer
                 continue;
             }
             // regular property? needs buffering
-            buffer.bufferProperty(prop, prop.deserialize(jp, ctxt));
+            buffer.bufferProperty(prop, prop.deserialize(p, ctxt));
         }
 
         // In case we didn't quite get all the creator properties, we may have to do this:

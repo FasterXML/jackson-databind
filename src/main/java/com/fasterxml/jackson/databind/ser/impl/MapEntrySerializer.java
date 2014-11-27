@@ -184,29 +184,33 @@ public class MapEntrySerializer
      */
 
     @Override
-    public void serialize(Map.Entry<?, ?> value, JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(Map.Entry<?, ?> value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
-        jgen.writeStartObject();
+        gen.writeStartObject();
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        gen.setCurrentValue(value);
         if (_valueSerializer != null) {
-            serializeUsing(value, jgen, provider, _valueSerializer);
+            serializeUsing(value, gen, provider, _valueSerializer);
         } else {
-            serializeDynamic(value, jgen, provider);
+            serializeDynamic(value, gen, provider);
         }
-        jgen.writeEndObject();
+        gen.writeEndObject();
     }
 
     @Override
-    public void serializeWithType(Map.Entry<?, ?> value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(Map.Entry<?, ?> value, JsonGenerator gen, SerializerProvider provider,
             TypeSerializer typeSer) throws IOException
     {
-        typeSer.writeTypePrefixForObject(value, jgen);
+        typeSer.writeTypePrefixForObject(value, gen);
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        gen.setCurrentValue(value);
         if (_valueSerializer != null) {
-            serializeUsing(value, jgen, provider, _valueSerializer);
+            serializeUsing(value, gen, provider, _valueSerializer);
         } else {
-            serializeDynamic(value, jgen, provider);
+            serializeDynamic(value, gen, provider);
         }
-        typeSer.writeTypeSuffixForObject(value, jgen);
+        typeSer.writeTypeSuffixForObject(value, gen);
     }
 
     protected void serializeDynamic(Map.Entry<?, ?> value, JsonGenerator jgen, SerializerProvider provider)

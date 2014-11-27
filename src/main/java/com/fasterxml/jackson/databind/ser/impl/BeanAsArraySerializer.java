@@ -137,22 +137,24 @@ public class BeanAsArraySerializer
      * {@link BeanPropertyWriter} instances.
      */
     @Override
-    public final void serialize(Object bean, JsonGenerator jgen, SerializerProvider provider)
+    public final void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
         // [JACKSON-805]
         if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
                 && hasSingleElement(provider)) {
-            serializeAsArray(bean, jgen, provider);
+            serializeAsArray(bean, gen, provider);
             return;
         }
         /* note: it is assumed here that limitations (type id, object id,
          * any getter, filtering) have already been checked; so code here
          * is trivial.
          */
-        jgen.writeStartArray();
-        serializeAsArray(bean, jgen, provider);
-        jgen.writeEndArray();
+        gen.writeStartArray();
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        gen.setCurrentValue(bean);
+        serializeAsArray(bean, gen, provider);
+        gen.writeEndArray();
     }
 
     /*
@@ -171,8 +173,8 @@ public class BeanAsArraySerializer
         return props.length == 1;
     }
 
-    protected final void serializeAsArray(Object bean, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    protected final void serializeAsArray(Object bean, JsonGenerator gen, SerializerProvider provider)
+        throws IOException
     {
         final BeanPropertyWriter[] props;
         if (_filteredProps != null && provider.getActiveView() != null) {
@@ -186,9 +188,9 @@ public class BeanAsArraySerializer
             for (final int len = props.length; i < len; ++i) {
                 BeanPropertyWriter prop = props[i];
                 if (prop == null) { // can have nulls in filtered list; but if so, MUST write placeholders
-                    jgen.writeNull();
+                    gen.writeNull();
                 } else {
-                    prop.serializeAsElement(bean, jgen, provider);
+                    prop.serializeAsElement(bean, gen, provider);
                 }
             }
             // NOTE: any getters can not be supported either

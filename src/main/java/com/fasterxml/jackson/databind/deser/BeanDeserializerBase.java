@@ -927,12 +927,12 @@ public abstract class BeanDeserializerBase
      * features.
      */
     public abstract Object deserializeFromObject(JsonParser jp, DeserializationContext ctxt)
-        throws IOException, JsonProcessingException;
+        throws IOException;
 
     @Override
     public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // 16-Feb-2012, tatu: ObjectId may be used as well... need to check that first
         if (_objectIdReader != null) {

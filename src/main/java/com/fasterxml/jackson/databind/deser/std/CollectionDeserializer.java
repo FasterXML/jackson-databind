@@ -192,35 +192,37 @@ public class CollectionDeserializer
     
     @SuppressWarnings("unchecked")
     @Override
-    public Collection<Object> deserialize(JsonParser jp, DeserializationContext ctxt)
+    public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException
     {
         if (_delegateDeserializer != null) {
             return (Collection<Object>) _valueInstantiator.createUsingDelegate(ctxt,
-                    _delegateDeserializer.deserialize(jp, ctxt));
+                    _delegateDeserializer.deserialize(p, ctxt));
         }
         /* [JACKSON-620]: empty String may be ok; bit tricky to check, however, since
          *  there is also possibility of "auto-wrapping" of single-element arrays.
          *  Hence we only accept empty String here.
          */
-        if (jp.getCurrentToken() == JsonToken.VALUE_STRING) {
-            String str = jp.getText();
+        if (p.getCurrentToken() == JsonToken.VALUE_STRING) {
+            String str = p.getText();
             if (str.length() == 0) {
                 return (Collection<Object>) _valueInstantiator.createFromString(ctxt, str);
             }
         }
-        return deserialize(jp, ctxt, (Collection<Object>) _valueInstantiator.createUsingDefault(ctxt));
+        return deserialize(p, ctxt, (Collection<Object>) _valueInstantiator.createUsingDefault(ctxt));
     }
 
     @Override
-    public Collection<Object> deserialize(JsonParser jp, DeserializationContext ctxt,
+    public Collection<Object> deserialize(JsonParser p, DeserializationContext ctxt,
             Collection<Object> result)
         throws IOException
     {
         // Ok: must point to START_ARRAY (or equivalent)
-        if (!jp.isExpectedStartArrayToken()) {
-            return handleNonArray(jp, ctxt, result);
+        if (!p.isExpectedStartArrayToken()) {
+            return handleNonArray(p, ctxt, result);
         }
+        // [databind#631]: Assign current value, to be accessible by custom serializers
+        p.setCurrentValue(result);
 
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
@@ -229,15 +231,15 @@ public class CollectionDeserializer
                 new CollectionReferringAccumulator(_collectionType.getContentType().getRawClass(), result);
 
         JsonToken t;
-        while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+        while ((t = p.nextToken()) != JsonToken.END_ARRAY) {
             try {
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
                     value = valueDes.getNullValue();
                 } else if (typeDeser == null) {
-                    value = valueDes.deserialize(jp, ctxt);
+                    value = valueDes.deserialize(p, ctxt);
                 } else {
-                    value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                    value = valueDes.deserializeWithType(p, ctxt, typeDeser);
                 }
                 if (referringAccumulator != null) {
                     referringAccumulator.add(value);
@@ -247,7 +249,7 @@ public class CollectionDeserializer
             } catch (UnresolvedForwardReference reference) {
                 if (referringAccumulator == null) {
                     throw JsonMappingException
-                            .from(jp, "Unresolved forward reference but no identity info", reference);
+                            .from(p, "Unresolved forward reference but no identity info", reference);
                 }
                 Referring ref = referringAccumulator.handleUnresolvedReference(reference);
                 reference.getRoid().appendReferring(ref);
@@ -272,7 +274,7 @@ public class CollectionDeserializer
      * throw an exception, or try to handle value as if member of implicit
      * array, depending on configuration.
      */
-    protected final Collection<Object> handleNonArray(JsonParser jp, DeserializationContext ctxt,
+    protected final Collection<Object> handleNonArray(JsonParser p, DeserializationContext ctxt,
             Collection<Object> result)
         throws IOException
     {
@@ -282,7 +284,7 @@ public class CollectionDeserializer
         }
         JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
 
         Object value;
 
@@ -290,9 +292,9 @@ public class CollectionDeserializer
             if (t == JsonToken.VALUE_NULL) {
                 value = valueDes.getNullValue();
             } else if (typeDeser == null) {
-                value = valueDes.deserialize(jp, ctxt);
+                value = valueDes.deserialize(p, ctxt);
             } else {
-                value = valueDes.deserializeWithType(jp, ctxt, typeDeser);
+                value = valueDes.deserializeWithType(p, ctxt, typeDeser);
             }
         } catch (Exception e) {
             // note: pass Object.class, not Object[].class, as we need element type for error info

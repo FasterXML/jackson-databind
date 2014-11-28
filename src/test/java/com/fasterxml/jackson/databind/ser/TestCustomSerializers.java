@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.CollectionSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
+import com.fasterxml.jackson.databind.ser.std.StdScalarSerializer;
 import com.fasterxml.jackson.databind.util.StdConverter;
 
 /**
@@ -99,6 +100,33 @@ public class TestCustomSerializers extends BaseMapTest
         }
     }
 
+    // for [databind#631]
+    static class Issue631Bean
+    {
+        @JsonSerialize(using=ParentClassSerializer.class)
+        public Object prop;
+
+        public Issue631Bean(Object o) {
+            prop = o;
+        }
+    }
+    
+    static class ParentClassSerializer
+        extends StdScalarSerializer<Object>
+    {
+        protected ParentClassSerializer() {
+            super(Object.class);
+        }
+
+        @Override
+        public void serialize(Object value, JsonGenerator gen,
+                SerializerProvider provider) throws IOException {
+            Object parent = gen.getCurrentValue();
+            String desc = (parent == null) ? "NULL" : parent.getClass().getSimpleName();
+            gen.writeString(desc+"/"+value);
+        }
+    }
+    
     /*
     /**********************************************************
     /* Unit tests
@@ -163,14 +191,19 @@ public class TestCustomSerializers extends BaseMapTest
     // [Issue#215]: Allow registering CharacterEscapes via ObjectWriter
     public void testCustomEscapes() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
         assertEquals(quote("foo\\u0062\\Ar"),
-                mapper.writer(new CustomEscapes()).writeValueAsString("foobar"));
+                MAPPER.writer(new CustomEscapes()).writeValueAsString("foobar"));
     }
     
     public void testNumberSubclass() throws Exception
     {
         assertEquals(aposToQuotes("{'x':42}"),
                 MAPPER.writeValueAsString(new LikeNumber(42)));
+    }
+
+    public void testWithCurrentValue() throws Exception
+    {
+        assertEquals(aposToQuotes("{'prop':'Issue631Bean/42'}"),
+                MAPPER.writeValueAsString(new Issue631Bean(42)));
     }
 }

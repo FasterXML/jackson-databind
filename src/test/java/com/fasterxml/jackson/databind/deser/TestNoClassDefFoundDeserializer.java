@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.deser;
 
 
-import javax.money.MonetaryAmount;
+import javax.measure.Measure;
 
 import java.util.List;
 
@@ -11,22 +11,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class TestNoClassDefFoundDeserializer extends BaseMapTest {
 
     public static class Parent {
-        public List<Child> money;
+        public List<Child> child;
     }
 
     public static class Child {
-        public MonetaryAmount money;
+        public Measure measure;
     }
 
     public void testClassIsMissing() throws ClassNotFoundException
     {
         boolean missing = false;
         try {
-            Class.forName("javax.money.MonetaryAmount");
+            Class.forName("javax.measure.Measure");
         } catch (ClassNotFoundException ex) {
             missing = true;
         }
-        assertTrue("javax.money.MonetaryAmount is not in classpath", missing);
+        assertTrue("javax.measure.Measure is not in classpath", missing);
     }
 
     public void testDeserialize() throws Exception
@@ -41,7 +41,7 @@ public class TestNoClassDefFoundDeserializer extends BaseMapTest {
         boolean missing = false;
         try {
             ObjectMapper m = new ObjectMapper();
-            m.readValue(" { \"money\" : [{}] } ", Parent.class);
+            m.readValue(" { \"child\" : [{}] } ", Parent.class);
         } catch (NoClassDefFoundError ex) {
             missing = true;
         }

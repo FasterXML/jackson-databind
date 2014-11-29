@@ -18,7 +18,7 @@ public class TestNoClassDefFoundDeserializer extends BaseMapTest {
         public Measure measure;
     }
 
-    public void testClassIsMissing() throws ClassNotFoundException
+    public void testClassIsMissing()
     {
         boolean missing = false;
         try {

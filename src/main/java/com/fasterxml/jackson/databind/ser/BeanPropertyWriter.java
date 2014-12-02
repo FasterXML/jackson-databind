@@ -210,7 +210,9 @@ public class BeanPropertyWriter extends PropertyWriter
             _accessorMethod = (Method) member.getMember();
             _field = null;
         } else {
-            throw new IllegalArgumentException("Can not pass member of type "+member.getClass().getName());
+            // 01-Dec-2014, tatu: Used to be illegal, but now explicitly allowed
+            _accessorMethod = null;
+            _field = null;
         }
         _suppressNulls = suppressNulls;
         _suppressableValue = suppressableValue;
@@ -219,7 +221,7 @@ public class BeanPropertyWriter extends PropertyWriter
         // this will be resolved later on, unless nulls are to be suppressed
         _nullSerializer = null;
     }
-
+    
     /**
      * "Copy constructor" to be used by filtering sub-classes
      */
@@ -432,7 +434,10 @@ public class BeanPropertyWriter extends PropertyWriter
         if (_accessorMethod != null) {
             return _accessorMethod.getGenericReturnType();
         }
-        return _field.getGenericType();
+        if (_field != null) {
+            return _field.getGenericType();
+        }
+        return null;
     }
 
     public Class<?>[] getViews() { return _includeInViews; }
@@ -709,8 +714,10 @@ public class BeanPropertyWriter extends PropertyWriter
         sb.append("property '").append(getName()).append("' (");
         if (_accessorMethod != null) {
             sb.append("via method ").append(_accessorMethod.getDeclaringClass().getName()).append("#").append(_accessorMethod.getName());
-        } else {
+        } else if (_field != null) {
             sb.append("field \"").append(_field.getDeclaringClass().getName()).append("#").append(_field.getName());
+        } else {
+            sb.append("virtual");
         }
         if (_serializer == null) {
             sb.append(", no static serializer");

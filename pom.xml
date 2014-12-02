@@ -92,6 +92,15 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
       <version>1.7.9</version>
       <scope>test</scope>
     </dependency>
+    <!-- For testing TestNoClassDefFoundDeserializer -->
+    <dependency>
+      <groupId>javax.measure</groupId>
+      <artifactId>jsr-275</artifactId>
+      <version>0.9.2</version>
+      <scope>test</scope>
+    </dependency>
+
+
     <dependency> <!--  from core we just test for repackaged cglib, not hibernate proper -->
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-cglib-repack</artifactId>
@@ -107,6 +116,9 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
         <version>${version.plugin.surefire}</version>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
+          <classpathDependencyExcludes>
+            <exclude>javax.measure:jsr-275</exclude>
+          </classpathDependencyExcludes>
           <excludes>
             <exclude>com/fasterxml/jackson/failing/*.java</exclude>
           </excludes>

@@ -174,3 +174,8 @@ Aurélien Leboulanger (herau@github)
   * Contributed improvement for #597: Improve error messaging for cases	where JSON Creator
     returns null (which is illegal)
    (2.5.0)
+
+Michale Spiegel (mspiegel@githib)
+  * Contributed #636: `ClassNotFoundException` for classes not (yet) needed during serialization
+   (2.5.0)
+

@@ -49,6 +49,8 @@ Project: jackson-databind
 #633: Allow returning null value from IdResolver to make type information optional
  (requested by Antibrumm@github)
 #634: Add `typeFromId(DatabindContext,String)` in `TypeIdDeserializer`
+#636: `ClassNotFoundException` for classes not (yet) needed during serialization
+ (contributed by mspiegel@github)
 - Allow use of `Shape.ARRAY` for Enums, as an alias to 'use index'
 - Start using `JsonGenerator.writeStartArray(int)` to help data formats
   that benefit from knowing number of elements in arrays (and would otherwise

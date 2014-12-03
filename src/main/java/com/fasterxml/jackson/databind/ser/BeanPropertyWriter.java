@@ -229,6 +229,40 @@ public class BeanPropertyWriter extends PropertyWriter
         this(base, base._name);
     }
 
+    /**
+     * @since 2.5
+     */
+    protected BeanPropertyWriter(BeanPropertyWriter base, PropertyName name)
+    {
+        /* 02-Dec-2014, tatu: This is a big mess, alas, what with dependency
+         *   to MapperConfig to encode, and Afterburner having heartburn
+         *   for SerializableString (vs SerializedString).
+         *   Hope it can be resolved/reworker in 2.6 timeframe
+         */
+        _name = new SerializedString(name.getSimpleName());
+        _wrapperName = base._wrapperName;
+
+        _member = base._member;
+        _contextAnnotations = base._contextAnnotations;
+        _declaredType = base._declaredType;
+        _accessorMethod = base._accessorMethod;
+        _field = base._field;
+        _serializer = base._serializer;
+        _nullSerializer = base._nullSerializer;
+        // one more thing: copy internal settings, if any (since 1.7)
+        if (base._internalSettings != null) {
+            _internalSettings = new HashMap<Object,Object>(base._internalSettings);
+        }
+        _cfgSerializationType = base._cfgSerializationType;
+        _dynamicSerializers = base._dynamicSerializers;
+        _suppressNulls = base._suppressNulls;
+        _suppressableValue = base._suppressableValue;
+        _includeInViews = base._includeInViews;
+        _typeSerializer = base._typeSerializer;
+        _nonTrivialBaseType = base._nonTrivialBaseType;
+        _metadata = base._metadata;
+    }
+
     protected BeanPropertyWriter(BeanPropertyWriter base, SerializedString name) {
         _name = name;
         _wrapperName = base._wrapperName;
@@ -259,7 +293,7 @@ public class BeanPropertyWriter extends PropertyWriter
         if (newName.equals(_name.toString())) {
             return this;
         }
-        return new BeanPropertyWriter(this, new SerializedString(newName));
+        return new BeanPropertyWriter(this, new PropertyName(newName));
     }
     
     /**
@@ -327,13 +361,13 @@ public class BeanPropertyWriter extends PropertyWriter
     // Note: also part of 'PropertyWriter'
     @Override
     public <A extends Annotation> A getAnnotation(Class<A> acls) {
-        return _member.getAnnotation(acls);
+        return (_member == null) ? null : _member.getAnnotation(acls);
     }
 
     // Note: also part of 'PropertyWriter'
     @Override
     public <A extends Annotation> A getContextAnnotation(Class<A> acls) {
-        return _contextAnnotations.get(acls);
+        return (_contextAnnotations == null) ? null : _contextAnnotations.get(acls);
     }
 
     @Override public AnnotatedMember getMember() { return _member; }
@@ -342,6 +376,16 @@ public class BeanPropertyWriter extends PropertyWriter
     protected void _depositSchemaProperty(ObjectNode propertiesNode, JsonNode schemaNode) {
         propertiesNode.set(getName(), schemaNode);
     }
+
+    /**
+     * Note: will be defined in {@link BeanProperty}; as of now is not yet.
+     *<p>
+     * TODO: move to {@link BeanProperty} in near future, once all standard
+     * implementations define it.
+     * 
+     * @since 2.5
+     */
+    public boolean isVirtual() { return false; }
     
     /*
     /**********************************************************

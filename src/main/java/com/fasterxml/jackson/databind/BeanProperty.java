@@ -183,6 +183,15 @@ public interface BeanProperty extends Named
         @Override public AnnotatedMember getMember() { return _member; }
 
         /**
+         *<p>
+         * TODO: move to {@link BeanProperty} in near future, once all standard
+         * implementations define it.
+         * 
+         * @since 2.5
+         */
+        public boolean isVirtual() { return false; }
+
+        /**
          * Implementation of this method throws
          * {@link UnsupportedOperationException}, since instances of this
          * implementation should not be used as part of actual structure

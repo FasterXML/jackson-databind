@@ -1,10 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
@@ -20,44 +17,63 @@ import com.fasterxml.jackson.databind.util.Annotations;
 public abstract class VirtualBeanPropertyWriter
     extends BeanPropertyWriter
 {
-    /*
-    protected VirtualBeanPropertyWriter() {
-        
-    }
-    */
-
     /**
      * Pass-through constructor that may be used by sub-classes that
      * want full control over implementation.
      */
     protected VirtualBeanPropertyWriter(BeanPropertyDefinition propDef,
-            AnnotatedMember member, Annotations contextAnnotations,
-            JavaType declaredType,
+            Annotations contextAnnotations, JavaType declaredType,
             JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue)
     {
-        super(propDef, member, contextAnnotations, declaredType,
+        super(propDef, /*AnnotatedMember*/ null, contextAnnotations, declaredType,
                 ser, typeSer, serType, suppressNulls, suppressableValue);
     }
 
+    protected VirtualBeanPropertyWriter(VirtualBeanPropertyWriter base) {
+        super(base);
+    }
+
+    protected VirtualBeanPropertyWriter(VirtualBeanPropertyWriter base, PropertyName name) {
+        super(base, name);
+    }
+    
+    // made abstract again to ensure sub-classes redefine
+    public abstract BeanPropertyDefinition withName(PropertyName newName);
+
+    // made abstract again to ensure sub-classes redefine
+    public abstract BeanPropertyDefinition withSimpleName(String newSimpleName);
+    
+    /*
+    /**********************************************************
+    /* Standard accessor overrides
+    /**********************************************************
+     */
+
+    @Override
+    public boolean isVirtual() { return true; }
+    
     /*
     /**********************************************************
     /* PropertyWriter serialization method overrides
     /**********************************************************
      */
 
-    protected abstract Object value(Object bean) throws Exception;
+    /**
+     * Method called to 
+     */
+    protected abstract Object value(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception;
     
     @Override
-    public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception
+    public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception
     {
         // NOTE: mostly copied from base class, but off-lined get() access
-        final Object value = value(bean);
+        final Object value = value(bean, gen, prov);
 
         if (value == null) {
             if (_nullSerializer != null) {
-                jgen.writeFieldName(_name);
-                _nullSerializer.serialize(null, jgen, prov);
+                gen.writeFieldName(_name);
+                _nullSerializer.serialize(null, gen, prov);
             }
             return;
         }
@@ -81,15 +97,15 @@ public abstract class VirtualBeanPropertyWriter
         }
         if (value == bean) { // simple check for direct cycles
             // three choices: exception; handled by call; or pass-through
-            if (_handleSelfReference(bean, jgen, prov, ser)) {
+            if (_handleSelfReference(bean, gen, prov, ser)) {
                 return;
             }
         }
-        jgen.writeFieldName(_name);
+        gen.writeFieldName(_name);
         if (_typeSerializer == null) {
-            ser.serialize(value, jgen, prov);
+            ser.serialize(value, gen, prov);
         } else {
-            ser.serializeWithType(value, jgen, prov, _typeSerializer);
+            ser.serializeWithType(value, gen, prov, _typeSerializer);
         }
     }
 
@@ -97,17 +113,17 @@ public abstract class VirtualBeanPropertyWriter
     //public void serializeAsOmittedField(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception
     
     @Override
-    public void serializeAsElement(Object bean, JsonGenerator jgen, SerializerProvider prov)
+    public void serializeAsElement(Object bean, JsonGenerator gen, SerializerProvider prov)
         throws Exception
     {
         // NOTE: mostly copied from base class, but off-lined get() access
-        final Object value = value(bean);
+        final Object value = value(bean, gen, prov);
 
         if (value == null) {
             if (_nullSerializer != null) {
-                _nullSerializer.serialize(null, jgen, prov);
+                _nullSerializer.serialize(null, gen, prov);
             } else {
-                jgen.writeNull();
+                gen.writeNull();
             }
             return;
         }
@@ -123,23 +139,23 @@ public abstract class VirtualBeanPropertyWriter
         if (_suppressableValue != null) {
             if (MARKER_FOR_EMPTY == _suppressableValue) {
                 if (ser.isEmpty(value)) {
-                    serializeAsPlaceholder(bean, jgen, prov);
+                    serializeAsPlaceholder(bean, gen, prov);
                     return;
                 }
             } else if (_suppressableValue.equals(value)) {
-                serializeAsPlaceholder(bean, jgen, prov);
+                serializeAsPlaceholder(bean, gen, prov);
                 return;
             }
         }
         if (value == bean) {
-            if (_handleSelfReference(bean, jgen, prov, ser)) {
+            if (_handleSelfReference(bean, gen, prov, ser)) {
                 return;
             }
         }
         if (_typeSerializer == null) {
-            ser.serialize(value, jgen, prov);
+            ser.serialize(value, gen, prov);
         } else {
-            ser.serializeWithType(value, jgen, prov, _typeSerializer);
+            ser.serializeWithType(value, gen, prov, _typeSerializer);
         }
     }
 

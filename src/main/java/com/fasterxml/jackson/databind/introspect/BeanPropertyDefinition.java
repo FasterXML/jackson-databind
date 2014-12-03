@@ -26,7 +26,7 @@ public abstract class BeanPropertyDefinition
 
     @Deprecated // since 2.3
     public BeanPropertyDefinition withName(String newName) { return withSimpleName(newName); }
-    
+
     /**
      * Method that can be used to create a definition with
      * same settings as this one, but with different
@@ -44,7 +44,7 @@ public abstract class BeanPropertyDefinition
      * @since 2.3
      */
     public abstract BeanPropertyDefinition withSimpleName(String newSimpleName);
-    
+
     /*
     /**********************************************************
     /* Basic property information, name, type

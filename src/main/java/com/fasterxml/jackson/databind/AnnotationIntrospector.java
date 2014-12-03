@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -292,7 +293,7 @@ public abstract class AnnotationIntrospector
     
     /*
     /**********************************************************
-    /* Class annotations for Polymorphic type handling (1.5+)
+    /* Class annotations for Polymorphic type handling
     /**********************************************************
     */
     
@@ -717,6 +718,15 @@ public abstract class AnnotationIntrospector
     public Boolean findSerializationSortAlphabetically(AnnotatedClass ac) {
         return null;
     }
+
+    /**
+     * Method for adding possible virtual properties to be serialized along
+     * with regular properties.
+     * 
+     * @since 2.5
+     */
+    public void findAndAddVirtualProperties(MapperConfig<?> config, AnnotatedClass ac,
+            List<BeanPropertyWriter> properties) { }
     
     /*
     /**********************************************************

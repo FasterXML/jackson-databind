@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.std.RawSerializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -511,7 +512,17 @@ public class JacksonAnnotationIntrospector
         JsonPropertyOrder order = _findAnnotation(ann, JsonPropertyOrder.class);
         return (order == null) ? null : order.alphabetic();
     }
-    
+
+    @Override
+    public void findAndAddVirtualProperties(MapperConfig<?> config, AnnotatedClass ac,
+            List<BeanPropertyWriter> properties) {
+        JsonAppend ann = _findAnnotation(ac, JsonAppend.class);
+        if (ann == null) {
+            return;
+        }
+        // !!! TODO: implement
+    }
+
     /*
     /**********************************************************
     /* Serialization: property annotations

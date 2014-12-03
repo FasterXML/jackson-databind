@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 public class PropertyName
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 7930806520033045126L;
+    private static final long serialVersionUID = 1L; // 2.5
 
     private final static String _USE_DEFAULT = "";
     private final static String _NO_NAME = "";
@@ -150,7 +150,11 @@ public class PropertyName
     public SerializableString simpleAsEncoded(MapperConfig<?> config) {
         SerializableString sstr = _encodedSimple;
         if (sstr == null) {
-            sstr = config.compileString(_simpleName);
+            if (config == null) {
+                sstr = new SerializedString(_simpleName);
+            } else {
+                sstr = config.compileString(_simpleName);
+            }
             _encodedSimple = sstr;
         }
         return sstr;

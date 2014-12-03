@@ -1,6 +1,5 @@
 package com.fasterxml.jackson.databind.deser;
 
-
 import javax.measure.Measure;
 
 import java.util.List;
@@ -15,7 +14,7 @@ public class TestNoClassDefFoundDeserializer extends BaseMapTest {
     }
 
     public static class Child {
-        public Measure measure;
+        public Measure<?> measure;
     }
 
     public void testClassIsMissing()

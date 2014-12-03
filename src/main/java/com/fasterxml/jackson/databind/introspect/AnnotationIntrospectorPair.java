@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -464,7 +465,15 @@ public class AnnotationIntrospectorPair
         Boolean r = _primary.findSerializationSortAlphabetically(ann);
         return (r == null) ? _secondary.findSerializationSortAlphabetically(ann) : r;
     }
-    
+
+    @Override
+    public void findAndAddVirtualProperties(MapperConfig<?> config, AnnotatedClass ac,
+            List<BeanPropertyWriter> properties) {
+        // first secondary, then primary, to give proper precedence
+        _primary.findAndAddVirtualProperties(config, ac, properties);
+        _secondary.findAndAddVirtualProperties(config, ac, properties);
+    }
+
     // // // Serialization: property annotations
     
     @Override

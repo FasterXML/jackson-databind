@@ -16,7 +16,7 @@ public abstract class AnnotatedMember
     extends Annotated
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 7364428299211355871L;
+    private static final long serialVersionUID = 1L; // since 2.5
 
     // Transient since information not needed after construction, so
     // no need to persist

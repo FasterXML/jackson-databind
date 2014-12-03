@@ -1,8 +1,10 @@
 package com.fasterxml.jackson.databind.ser;
 
+import java.lang.reflect.Type;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 import com.fasterxml.jackson.databind.util.Annotations;
@@ -22,11 +24,12 @@ public abstract class VirtualBeanPropertyWriter
      * want full control over implementation.
      */
     protected VirtualBeanPropertyWriter(BeanPropertyDefinition propDef,
+            AnnotatedMember member,
             Annotations contextAnnotations, JavaType declaredType,
             JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue)
     {
-        super(propDef, /*AnnotatedMember*/ null, contextAnnotations, declaredType,
+        super(propDef, member, contextAnnotations, declaredType,
                 ser, typeSer, serType, suppressNulls, suppressableValue);
     }
 
@@ -37,13 +40,7 @@ public abstract class VirtualBeanPropertyWriter
     protected VirtualBeanPropertyWriter(VirtualBeanPropertyWriter base, PropertyName name) {
         super(base, name);
     }
-    
-    // made abstract again to ensure sub-classes redefine
-    public abstract BeanPropertyDefinition withName(PropertyName newName);
 
-    // made abstract again to ensure sub-classes redefine
-    public abstract BeanPropertyDefinition withSimpleName(String newSimpleName);
-    
     /*
     /**********************************************************
     /* Standard accessor overrides
@@ -52,7 +49,17 @@ public abstract class VirtualBeanPropertyWriter
 
     @Override
     public boolean isVirtual() { return true; }
-    
+
+    @Override
+    public Class<?> getPropertyType() {
+        return _declaredType.getRawClass();
+    }
+
+    @Override
+    public Type getGenericPropertyType() {
+        return getPropertyType();
+    }
+
     /*
     /**********************************************************
     /* PropertyWriter serialization method overrides

@@ -15,7 +15,7 @@ public final class AnnotatedField
     extends AnnotatedMember
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = 7364428299211355871L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Actual {@link Field} used for access.
@@ -29,7 +29,7 @@ public final class AnnotatedField
      * Temporary field required for JDK serialization support
      */
     protected Serialization _serialization;
-    
+
     /*
     /**********************************************************
     /* Life-cycle

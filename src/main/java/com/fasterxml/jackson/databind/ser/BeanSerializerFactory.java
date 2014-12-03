@@ -351,6 +351,9 @@ public class BeanSerializerFactory
         if (props == null) {
             props = new ArrayList<BeanPropertyWriter>();
         }
+        // [databind#638]: Allow injection of "virtual" properties:
+        prov.getAnnotationIntrospector().findAndAddVirtualProperties(config, beanDesc.getClassInfo(), props);
+
         // [JACKSON-440] Need to allow modification bean properties to serialize:
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {

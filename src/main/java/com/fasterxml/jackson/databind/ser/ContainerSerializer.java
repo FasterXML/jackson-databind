@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
@@ -131,8 +132,9 @@ public abstract class ContainerSerializer<T>
     {
         if (property != null) {
             AnnotationIntrospector intr = provider.getAnnotationIntrospector();
-            if (intr != null) {
-                if (intr.findSerializationContentType(property.getMember(), property.getType()) != null) {
+            AnnotatedMember m = property.getMember();
+            if ((m != null) && (intr != null)) {
+                if (intr.findSerializationContentType(m, property.getType()) != null) {
                     return true;
                 }
             }

@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
@@ -250,14 +251,17 @@ public abstract class StdSerializer<T>
 
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         if (intr != null && prop != null) {
-            Object convDef = intr.findSerializationContentConverter(prop.getMember());
-            if (convDef != null) {
-                Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
-                JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
-                if (existingSerializer == null) {
-                    existingSerializer = provider.findValueSerializer(delegateType);
+            AnnotatedMember m = prop.getMember();
+            if (m != null) {
+                Object convDef = intr.findSerializationContentConverter(m);
+                if (convDef != null) {
+                    Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
+                    JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
+                    if (existingSerializer == null) {
+                        existingSerializer = provider.findValueSerializer(delegateType);
+                    }
+                    return new StdDelegatingSerializer(conv, delegateType, existingSerializer);
                 }
-                return new StdDelegatingSerializer(conv, delegateType, existingSerializer);
             }
         }
         return existingSerializer;

@@ -76,7 +76,7 @@ public abstract class BeanPropertyDefinition
 
     /**
      * Method for accessing additional metadata.
-     * NOTE: will never return null, so deferencing return value
+     * NOTE: will never return null, so de-referencing return value
      * is safe.
      * 
      * @since 2.3

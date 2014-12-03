@@ -1,8 +1,7 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.Version;
@@ -14,10 +13,9 @@ import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.impl.AttributePropertyWriter;
 import com.fasterxml.jackson.databind.ser.std.RawSerializer;
-import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.Converter;
-import com.fasterxml.jackson.databind.util.NameTransformer;
+import com.fasterxml.jackson.databind.util.*;
 
 /**
  * {@link AnnotationIntrospector} implementation that handles standard
@@ -520,7 +518,27 @@ public class JacksonAnnotationIntrospector
         if (ann == null) {
             return;
         }
-        // !!! TODO: implement
+        JavaType defaultType = null;
+        for (JsonAppend.Attr attr : ann.attrs()) {
+            PropertyMetadata metadata = attr.required() ?
+                    PropertyMetadata.STD_REQUIRED : PropertyMetadata.STD_OPTIONAL;
+            // could add Index, Description in future, if those matter
+            String attrName = attr.value();
+
+            // allow explicit renaming; if none, default to attribute name
+            PropertyName propName = _propertyName(attr.propName(), attr.propNamespace());
+            if (!propName.hasSimpleName()) {
+                propName = new PropertyName(attrName);
+            }
+            SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(config,
+                    /*AnnotatedMember*/ null, propName, metadata);
+            // should there be a way to specify expected type?
+            if (defaultType == null) {
+                defaultType = config.constructType(Object.class);
+            }
+            properties.add(AttributePropertyWriter.construct(attrName, propDef,
+                    ac, defaultType, attr.include()));
+        }
     }
 
     /*
@@ -764,7 +782,17 @@ public class JacksonAnnotationIntrospector
         cls = _classIfExplicit(cls);
         return (cls == null || cls == implicit) ? null : cls;
     }
-    
+
+    protected PropertyName _propertyName(String localName, String namespace) {
+        if (localName.isEmpty()) {
+            return PropertyName.USE_DEFAULT;
+        }
+        if (namespace == null || namespace.isEmpty()) {
+            return new PropertyName(localName);
+        }
+        return new PropertyName(localName, namespace);
+    }
+
     /**
      * Helper method called to construct and initialize instance of {@link TypeResolverBuilder}
      * if given annotated element indicates one is needed.

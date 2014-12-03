@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor;
@@ -89,12 +90,15 @@ public class NumberSerializers
                 BeanProperty property) throws JsonMappingException
         {
             if (property != null) {
-                JsonFormat.Value format = prov.getAnnotationIntrospector().findFormat(property.getMember());
-                if (format != null) {
-                    switch (format.getShape()) {
-                    case STRING:
-                        return ToStringSerializer.instance;
-                    default:
+                AnnotatedMember m = property.getMember();
+                if (m != null) {
+                    JsonFormat.Value format = prov.getAnnotationIntrospector().findFormat(m);
+                    if (format != null) {
+                        switch (format.getShape()) {
+                        case STRING:
+                            return ToStringSerializer.instance;
+                        default:
+                        }
                     }
                 }
             }

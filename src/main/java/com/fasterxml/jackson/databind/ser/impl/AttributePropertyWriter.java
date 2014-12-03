@@ -3,7 +3,10 @@ package com.fasterxml.jackson.databind.ser.impl;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.introspect.VirtualAnnotatedMember;
 import com.fasterxml.jackson.databind.ser.VirtualBeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.Annotations;
 
@@ -25,40 +28,30 @@ public class AttributePropertyWriter
     /* Life-cycle
     /**********************************************************
      */
-    
-/*
-    protected VirtualBeanPropertyWriter(BeanPropertyDefinition propDef,
-            Annotations contextAnnotations, JavaType declaredType,
-            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
-            boolean suppressNulls, Object suppressableValue)
- */
-    
-    public AttributePropertyWriter(String attrName,
-            BeanPropertyDefinition propDef,
+
+    protected AttributePropertyWriter(String attrName, BeanPropertyDefinition propDef,
+            AnnotatedMember member,
             Annotations contextAnnotations, JavaType declaredType,
             JsonInclude.Include inclusion)
     {
-        super(propDef, contextAnnotations, declaredType,
+        super(propDef, member, contextAnnotations, declaredType,
                 /* value serializer */ null, /* type serializer */ null, /* ser type */ null,
                 _suppressNulls(inclusion), null);
         _attrName = attrName;
     }
 
+    public static AttributePropertyWriter construct(String attrName,
+            BeanPropertyDefinition propDef, AnnotatedClass declaringClass,
+            JavaType declaredType, JsonInclude.Include inclusion)
+    {
+        return new AttributePropertyWriter(attrName, propDef,
+                new VirtualAnnotatedMember(declaringClass.getRawType(), attrName, declaredType.getRawClass()),
+                declaringClass.getAnnotations(), declaredType, inclusion);
+    }
+    
     protected AttributePropertyWriter(AttributePropertyWriter base) {
         super(base);
         _attrName = base._attrName;
-    }
-
-    @Override
-    public BeanPropertyDefinition withName(PropertyName newName) {
-        // !!! TODO
-        return null;
-    }
-
-    @Override
-    public BeanPropertyDefinition withSimpleName(String newSimpleName) {
-        // !!! TODO
-        return null;
     }
 
     protected static boolean _suppressNulls(JsonInclude.Include inclusion) {

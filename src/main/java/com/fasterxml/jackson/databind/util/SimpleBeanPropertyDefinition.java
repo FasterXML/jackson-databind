@@ -24,9 +24,25 @@ public class SimpleBeanPropertyDefinition
      * Member that defines logical property. Assumption is that it
      * should be a 'simple' accessor; meaning a zero-argument getter,
      * single-argument setter or constructor parameter.
+     *<p>
+     * NOTE: for "virtual" properties, this is null.
      */
     protected final AnnotatedMember _member;
 
+    /**
+     * @since 2.5
+     */
+    protected final PropertyMetadata _metadata;
+    
+    /**
+     * @since 2.5
+     */
+    protected final PropertyName _fullName;
+    
+    /**
+     * @deprecated Since 2.5 use <code>_fullName</code> instead.
+     */
+    @Deprecated
     protected final String _name;
     
     /*
@@ -48,14 +64,26 @@ public class SimpleBeanPropertyDefinition
      */
     @Deprecated
     public SimpleBeanPropertyDefinition(AnnotatedMember member, String name) {
-        this(member, name, null);
+        this(member, new PropertyName(name), null, null);
     }
-    
-    private SimpleBeanPropertyDefinition(AnnotatedMember member, String name,
-    		AnnotationIntrospector intr) {
+
+    protected SimpleBeanPropertyDefinition(AnnotatedMember member, PropertyName fullName,
+            AnnotationIntrospector intr, PropertyMetadata metadata)
+    {
         _introspector = intr;
         _member = member;
-        _name = name;
+        _fullName = fullName;
+        _name = fullName.getSimpleName();
+        _metadata = (metadata == null) ? PropertyMetadata.STD_OPTIONAL: metadata;
+    }
+
+    /**
+     * @deprecated Since 2.5 Use variant that takes PropertyName
+     */
+    @Deprecated
+    protected SimpleBeanPropertyDefinition(AnnotatedMember member, String name,
+    		AnnotationIntrospector intr) {
+        this(member, new PropertyName(name), intr, null);
     }
 
     /**
@@ -63,18 +91,39 @@ public class SimpleBeanPropertyDefinition
      */
     public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
     		AnnotatedMember member) {
-        return new SimpleBeanPropertyDefinition(member, member.getName(),
-                (config == null) ? null : config.getAnnotationIntrospector());
+        return new SimpleBeanPropertyDefinition(member, new PropertyName(member.getName()),
+                (config == null) ? null : config.getAnnotationIntrospector(),
+                        null);
     }
     
     /**
-     * @since 2.2
+     * @deprecated Since 2.5
      */
+    @Deprecated
     public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
     		AnnotatedMember member, String name) {
-        return new SimpleBeanPropertyDefinition(member, name,
-                (config == null) ? null : config.getAnnotationIntrospector());
+        return new SimpleBeanPropertyDefinition(member, new PropertyName(name),
+                (config == null) ? null : config.getAnnotationIntrospector(),
+                        null);
     }
+
+    /**
+     * @since 2.5
+     */
+    public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
+            AnnotatedMember member, PropertyName name) {
+        return construct(config, member, name, null);
+    }
+    
+    /**
+     * @since 2.5
+     */
+    public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
+            AnnotatedMember member, PropertyName name, PropertyMetadata metadata) {
+          return new SimpleBeanPropertyDefinition(member, name,
+                  (config == null) ? null : config.getAnnotationIntrospector(),
+                          metadata);
+      }
     
     /*
     /**********************************************************
@@ -84,21 +133,34 @@ public class SimpleBeanPropertyDefinition
 
     @Deprecated // since 2.3
     @Override
-    public SimpleBeanPropertyDefinition withName(String newName) {
+    public BeanPropertyDefinition withName(String newName) {
         return withSimpleName(newName);
     }
 
     @Override
-    public SimpleBeanPropertyDefinition withSimpleName(String newName) {
-        if (_name.equals(newName)) {
+    public BeanPropertyDefinition withSimpleName(String newName) {
+        if (_fullName.hasSimpleName(newName) && !_fullName.hasNamespace()) {
             return this;
         }
-        return new SimpleBeanPropertyDefinition(_member, newName, _introspector);
+        return new SimpleBeanPropertyDefinition(_member, new PropertyName(newName),
+                _introspector, _metadata);
     }
 
     @Override
-    public SimpleBeanPropertyDefinition withName(PropertyName newName) {
-        return withSimpleName(newName.getSimpleName());
+    public BeanPropertyDefinition withName(PropertyName newName) {
+        if (_fullName.equals(newName)) {
+            return this;
+        }
+        return new SimpleBeanPropertyDefinition(_member, newName,
+                _introspector, _metadata);
+    }
+
+    public BeanPropertyDefinition withMetadata(PropertyMetadata metadata) {
+        if (metadata.equals(_metadata)) {
+            return this;
+        }
+        return new SimpleBeanPropertyDefinition(_member, _fullName,
+                _introspector, metadata);
     }
     
     /*
@@ -108,19 +170,20 @@ public class SimpleBeanPropertyDefinition
      */
 
     @Override
-    public String getName() { return _name; }
+    public String getName() { return _fullName.getSimpleName(); }
 
     @Override
-    public PropertyName getFullName() { return new PropertyName(_name); }
-    
+    public PropertyName getFullName() { return _fullName; }
+
     @Override
     public String getInternalName() { return getName(); }
 
     @Override
     public PropertyName getWrapperName() {
-        return (_introspector == null) ? null : _introspector.findWrapperName(_member);
+        return ((_introspector == null) && (_member != null))
+                ? null : _introspector.findWrapperName(_member);
     }
-    
+
     // hmmh. what should we claim here?
 
     @Override public boolean isExplicitlyIncluded() { return false; }
@@ -132,7 +195,7 @@ public class SimpleBeanPropertyDefinition
      */
     @Override
     public PropertyMetadata getMetadata() {
-        return PropertyMetadata.STD_OPTIONAL;
+        return _metadata;
     }
     
     /*

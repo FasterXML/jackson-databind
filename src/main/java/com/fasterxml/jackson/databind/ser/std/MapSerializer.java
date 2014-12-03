@@ -371,9 +371,12 @@ public class MapSerializer
 
         // [Issue#307]: allow filtering
         if (property != null) {
-            Object filterId = intr.findFilterId(property.getMember());
-            if (filterId != null) {
-                mser = mser.withFilterId(filterId);
+            AnnotatedMember m = property.getMember();
+            if (m != null) {
+                Object filterId = intr.findFilterId(m);
+                if (filterId != null) {
+                    mser = mser.withFilterId(filterId);
+                }
             }
         }
         return mser;

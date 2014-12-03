@@ -1,5 +1,10 @@
 package com.fasterxml.jackson.databind.annotation;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ser.VirtualBeanPropertyWriter;
 
@@ -11,6 +16,9 @@ import com.fasterxml.jackson.databind.ser.VirtualBeanPropertyWriter;
  * 
  * @since 2.5
  */
+@Target({ElementType.ANNOTATION_TYPE, ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@com.fasterxml.jackson.annotation.JacksonAnnotation
 public @interface JsonAppend
 {
     /**
@@ -26,6 +34,10 @@ public @interface JsonAppend
     
     /**
      * Definition of a single attribute-backed property.
+     * Attribute-backed properties will be appended after regular properties
+     * in specified order, although their placement may be further changed
+     * by the usual property-ordering functionality (alphabetic sorting;
+     * explicit ordering)
      */
     public @interface Attr
     {
@@ -35,12 +47,18 @@ public @interface JsonAppend
          * assigning a value for {@link #propName()}.
          */
         public String value();
-
+        
         /**
          * Name to use for serializing value of the attribute; if not defined,
          * {@link #value} will be used instead.
          */
         public String propName() default "";
+
+        /**
+         * Optional namespace to use; only relevant for data formats that use
+         * namespaces (like XML).
+         */
+        public String propNamespace() default "";
 
         /**
          * When to include attribute-property. Default value indicates that

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
-import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.VirtualBeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.Annotations;
 
@@ -38,7 +37,7 @@ public class AttributePropertyWriter
     {
         super(propDef, contextAnnotations, declaredType,
                 /* value serializer */ null, /* type serializer */ null, /* ser type */ null,
-                _suppressNulls(inclusion), _suppressableValue(inclusion));
+                inclusion);
         _attrName = attrName;
     }
 
@@ -54,18 +53,6 @@ public class AttributePropertyWriter
     protected AttributePropertyWriter(AttributePropertyWriter base) {
         super(base);
         _attrName = base._attrName;
-    }
-
-    protected static boolean _suppressNulls(JsonInclude.Include inclusion) {
-        return (inclusion != JsonInclude.Include.ALWAYS);
-    }
-
-    protected static Object _suppressableValue(JsonInclude.Include inclusion) {
-        if ((inclusion == JsonInclude.Include.NON_EMPTY)
-                || (inclusion == JsonInclude.Include.NON_EMPTY)) {
-            return MARKER_FOR_EMPTY;
-        }
-        return null;
     }
     
     /*

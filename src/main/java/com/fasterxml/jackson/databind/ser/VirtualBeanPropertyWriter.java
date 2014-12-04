@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.lang.reflect.Type;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.*;
@@ -19,6 +20,13 @@ import com.fasterxml.jackson.databind.util.Annotations;
 public abstract class VirtualBeanPropertyWriter
     extends BeanPropertyWriter
 {
+    protected VirtualBeanPropertyWriter(BeanPropertyDefinition propDef,
+            Annotations contextAnnotations, JavaType declaredType,
+            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType) {
+        this(propDef, contextAnnotations, declaredType, ser, typeSer, serType,
+                propDef.findInclusion());
+    }
+
     /**
      * Pass-through constructor that may be used by sub-classes that
      * want full control over implementation.
@@ -26,10 +34,11 @@ public abstract class VirtualBeanPropertyWriter
     protected VirtualBeanPropertyWriter(BeanPropertyDefinition propDef,
             Annotations contextAnnotations, JavaType declaredType,
             JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
-            boolean suppressNulls, Object suppressableValue)
+            JsonInclude.Include inclusion)
     {
         super(propDef, propDef.getPrimaryMember(), contextAnnotations, declaredType,
-                ser, typeSer, serType, suppressNulls, suppressableValue);
+                ser, typeSer, serType,
+                _suppressNulls(inclusion), _suppressableValue(inclusion));
     }
 
     protected VirtualBeanPropertyWriter(VirtualBeanPropertyWriter base) {
@@ -40,6 +49,18 @@ public abstract class VirtualBeanPropertyWriter
         super(base, name);
     }
 
+    protected static boolean _suppressNulls(JsonInclude.Include inclusion) {
+        return (inclusion != JsonInclude.Include.ALWAYS);
+    }
+
+    protected static Object _suppressableValue(JsonInclude.Include inclusion) {
+        if ((inclusion == JsonInclude.Include.NON_EMPTY)
+                || (inclusion == JsonInclude.Include.NON_EMPTY)) {
+            return MARKER_FOR_EMPTY;
+        }
+        return null;
+    }
+    
     /*
     /**********************************************************
     /* Standard accessor overrides

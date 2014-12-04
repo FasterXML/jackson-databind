@@ -13,7 +13,7 @@ Project: jackson-databind
 #427: Make array and Collection serializers call `JsonGenerator.writeStartArray(int)`
 #521: Keep bundle annotations, prevent problems with recursive annotation types
  (reported by tea-dragon@github)
-#527: Add support for `@JsonInclude(contents=Include.NON_NULL)` (and others) for Maps
+#527: Add support for `@JsonInclude(content=Include.NON_NULL)` (and others) for Maps
 #528: Add support for `JsonType.As.EXISTING_PROPERTY`
  (reported by heapifyman@github; implemented by fleebytes@github)
 #539: Problem with post-procesing of "empty bean" serializer; was not calling

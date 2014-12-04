@@ -2,6 +2,8 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.annotation.JsonAppend;
@@ -24,6 +26,12 @@ public class TestVirtualProperties extends BaseMapTest
     enum ABC {
         A, B, C;
     }
+
+    @JsonAppend(attrs=@JsonAppend.Attr(value="desc", include=JsonInclude.Include.NON_EMPTY))
+    static class OptionalsBean
+    {
+        public int value = 28;
+    }
     
     /*
     /**********************************************************
@@ -42,5 +50,22 @@ public class TestVirtualProperties extends BaseMapTest
                 .withAttribute("internal", stuff)
                 .writeValueAsString(new SimpleBean());
         assertEquals(aposToQuotes("{'value':13,'id':'abc123','extra':{'x':3,'y':'B'}}"), json);
+    }
+
+    public void testAttributePropInclusion() throws Exception
+    {
+        // first, with desc
+        String json = WRITER.withAttribute("desc", "nice")
+                .writeValueAsString(new OptionalsBean());
+        assertEquals(aposToQuotes("{'value':28,'desc':'nice'}"), json);
+
+        // then with null (not defined)
+        json = WRITER.writeValueAsString(new OptionalsBean());
+        assertEquals(aposToQuotes("{'value':28}"), json);
+
+        // and finally "empty"
+        json = WRITER.withAttribute("desc", "")
+                .writeValueAsString(new OptionalsBean());
+        assertEquals(aposToQuotes("{'value':28}"), json);
     }
 }

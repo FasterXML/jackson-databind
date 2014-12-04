@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.util.Iterator;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.EmptyIterator;
 import com.fasterxml.jackson.databind.util.Named;
@@ -214,8 +215,18 @@ public abstract class BeanPropertyDefinition
      * fail deserialization), or handled by other means (by providing default
      * value)
      */
-    public final boolean isRequired() {
+    public boolean isRequired() {
         PropertyMetadata md = getMetadata();
         return (md != null)  && md.isRequired();
+    }
+
+    /**
+     * Method used to check if this property has specific inclusion override
+     * associated with it or not.
+     * 
+     * @since 2.5
+     */
+    public JsonInclude.Include findInclusion() {
+        return null;
     }
 }

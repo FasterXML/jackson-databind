@@ -539,10 +539,10 @@ public class JacksonAnnotationIntrospector
                     attrName, propType.getRawClass());
             // and with that and property definition
             SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(config,
-                    member, propName, metadata);
+                    member, propName, metadata, attr.include());
             // can construct the property writer
             properties.add(AttributePropertyWriter.construct(attrName, propDef,
-                    ac.getAnnotations(), propType, attr.include()));
+                    ac.getAnnotations(), propType));
         }
     }
 

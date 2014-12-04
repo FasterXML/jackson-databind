@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.util;
 import java.util.Collections;
 import java.util.Iterator;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.PropertyMetadata;
 import com.fasterxml.jackson.databind.PropertyName;
@@ -40,6 +41,11 @@ public class SimpleBeanPropertyDefinition
     protected final PropertyName _fullName;
     
     /**
+     * @since 2.5
+     */
+    protected final JsonInclude.Include _inclusion;
+    
+    /**
      * @deprecated Since 2.5 use <code>_fullName</code> instead.
      */
     @Deprecated
@@ -64,17 +70,19 @@ public class SimpleBeanPropertyDefinition
      */
     @Deprecated
     public SimpleBeanPropertyDefinition(AnnotatedMember member, String name) {
-        this(member, new PropertyName(name), null, null);
+        this(member, new PropertyName(name), null, null, null);
     }
 
     protected SimpleBeanPropertyDefinition(AnnotatedMember member, PropertyName fullName,
-            AnnotationIntrospector intr, PropertyMetadata metadata)
+            AnnotationIntrospector intr, PropertyMetadata metadata,
+            JsonInclude.Include inclusion)
     {
         _introspector = intr;
         _member = member;
         _fullName = fullName;
         _name = fullName.getSimpleName();
         _metadata = (metadata == null) ? PropertyMetadata.STD_OPTIONAL: metadata;
+        _inclusion = inclusion;
     }
 
     /**
@@ -83,7 +91,7 @@ public class SimpleBeanPropertyDefinition
     @Deprecated
     protected SimpleBeanPropertyDefinition(AnnotatedMember member, String name,
     		AnnotationIntrospector intr) {
-        this(member, new PropertyName(name), intr, null);
+        this(member, new PropertyName(name), intr, null, null);
     }
 
     /**
@@ -93,7 +101,7 @@ public class SimpleBeanPropertyDefinition
     		AnnotatedMember member) {
         return new SimpleBeanPropertyDefinition(member, new PropertyName(member.getName()),
                 (config == null) ? null : config.getAnnotationIntrospector(),
-                        null);
+                        null, null);
     }
     
     /**
@@ -104,7 +112,7 @@ public class SimpleBeanPropertyDefinition
     		AnnotatedMember member, String name) {
         return new SimpleBeanPropertyDefinition(member, new PropertyName(name),
                 (config == null) ? null : config.getAnnotationIntrospector(),
-                        null);
+                        null, null);
     }
 
     /**
@@ -112,17 +120,18 @@ public class SimpleBeanPropertyDefinition
      */
     public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
             AnnotatedMember member, PropertyName name) {
-        return construct(config, member, name, null);
+        return construct(config, member, name, null, null);
     }
     
     /**
      * @since 2.5
      */
     public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
-            AnnotatedMember member, PropertyName name, PropertyMetadata metadata) {
+            AnnotatedMember member, PropertyName name, PropertyMetadata metadata,
+            JsonInclude.Include inclusion) {
           return new SimpleBeanPropertyDefinition(member, name,
                   (config == null) ? null : config.getAnnotationIntrospector(),
-                          metadata);
+                          metadata, inclusion);
       }
     
     /*
@@ -143,7 +152,7 @@ public class SimpleBeanPropertyDefinition
             return this;
         }
         return new SimpleBeanPropertyDefinition(_member, new PropertyName(newName),
-                _introspector, _metadata);
+                _introspector, _metadata, _inclusion);
     }
 
     @Override
@@ -152,15 +161,29 @@ public class SimpleBeanPropertyDefinition
             return this;
         }
         return new SimpleBeanPropertyDefinition(_member, newName,
-                _introspector, _metadata);
+                _introspector, _metadata, _inclusion);
     }
 
+    /**
+     * @since 2.5
+     */
     public BeanPropertyDefinition withMetadata(PropertyMetadata metadata) {
         if (metadata.equals(_metadata)) {
             return this;
         }
         return new SimpleBeanPropertyDefinition(_member, _fullName,
-                _introspector, metadata);
+                _introspector, metadata, _inclusion);
+    }
+
+    /**
+     * @since 2.5
+     */
+    public BeanPropertyDefinition withInclusion(JsonInclude.Include inclusion) {
+        if (_inclusion == inclusion) {
+            return this;
+        }
+        return new SimpleBeanPropertyDefinition(_member, _fullName,
+                _introspector, _metadata, inclusion);
     }
     
     /*
@@ -197,7 +220,12 @@ public class SimpleBeanPropertyDefinition
     public PropertyMetadata getMetadata() {
         return _metadata;
     }
-    
+
+    @Override
+    public JsonInclude.Include findInclusion() {
+        return _inclusion;
+    }
+
     /*
     /**********************************************************
     /* Access to accessors (fields, methods etc)

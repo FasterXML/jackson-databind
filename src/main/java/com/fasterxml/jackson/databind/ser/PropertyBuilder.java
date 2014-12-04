@@ -17,7 +17,13 @@ public class PropertyBuilder
 {
     final protected SerializationConfig _config;
     final protected BeanDescription _beanDesc;
-    final protected JsonInclude.Include _outputProps;
+
+    /**
+     * Default inclusion mode for properties of the POJO for which
+     * properties are collected; possibly overridden on
+     * per-property basis.
+     */
+    final protected JsonInclude.Include _defaultInclusion;
 
     final protected AnnotationIntrospector _annotationIntrospector;
 
@@ -33,7 +39,7 @@ public class PropertyBuilder
     {
         _config = config;
         _beanDesc = beanDesc;
-        _outputProps = beanDesc.findSerializationInclusion(config.getSerializationInclusion());
+        _defaultInclusion = beanDesc.findSerializationInclusion(config.getSerializationInclusion());
         _annotationIntrospector = _config.getAnnotationIntrospector();
     }
 
@@ -87,9 +93,12 @@ public class PropertyBuilder
         Object valueToSuppress = null;
         boolean suppressNulls = false;
 
-        JsonInclude.Include methodProps = _annotationIntrospector.findSerializationInclusion(am, _outputProps);
-        if (methodProps != null) {
-            switch (methodProps) {
+        JsonInclude.Include inclusion = propDef.findInclusion();
+        if (inclusion == null) {
+            inclusion = _defaultInclusion;
+        }
+        if (inclusion != null) {
+            switch (inclusion) {
             case NON_DEFAULT:
                 valueToSuppress = getDefaultValue(propDef.getName(), am);
                 if (valueToSuppress == null) {

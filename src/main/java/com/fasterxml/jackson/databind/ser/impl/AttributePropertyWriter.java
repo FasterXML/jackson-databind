@@ -1,12 +1,10 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.VirtualBeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.Annotations;
 
@@ -30,22 +28,27 @@ public class AttributePropertyWriter
      */
 
     protected AttributePropertyWriter(String attrName, BeanPropertyDefinition propDef,
+            Annotations contextAnnotations, JavaType declaredType) {
+        this(attrName, propDef, contextAnnotations, declaredType, propDef.findInclusion());
+    }
+
+    protected AttributePropertyWriter(String attrName, BeanPropertyDefinition propDef,
             Annotations contextAnnotations, JavaType declaredType,
             JsonInclude.Include inclusion)
     {
         super(propDef, contextAnnotations, declaredType,
                 /* value serializer */ null, /* type serializer */ null, /* ser type */ null,
-                _suppressNulls(inclusion), null);
+                _suppressNulls(inclusion), _suppressableValue(inclusion));
         _attrName = attrName;
     }
 
     public static AttributePropertyWriter construct(String attrName,
             BeanPropertyDefinition propDef,
             Annotations contextAnnotations,
-            JavaType declaredType, JsonInclude.Include inclusion)
+            JavaType declaredType)
     {
         return new AttributePropertyWriter(attrName, propDef,
-                contextAnnotations, declaredType, inclusion);
+                contextAnnotations, declaredType);
     }
     
     protected AttributePropertyWriter(AttributePropertyWriter base) {
@@ -57,6 +60,14 @@ public class AttributePropertyWriter
         return (inclusion != JsonInclude.Include.ALWAYS);
     }
 
+    protected static Object _suppressableValue(JsonInclude.Include inclusion) {
+        if ((inclusion == JsonInclude.Include.NON_EMPTY)
+                || (inclusion == JsonInclude.Include.NON_EMPTY)) {
+            return MARKER_FOR_EMPTY;
+        }
+        return null;
+    }
+    
     /*
     /**********************************************************
     /* Overrides for actual serialization, value access

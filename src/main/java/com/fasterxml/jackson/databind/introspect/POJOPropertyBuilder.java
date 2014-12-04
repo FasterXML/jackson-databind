@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.introspect;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.EmptyIterator;
 
@@ -42,7 +43,8 @@ public class POJOPropertyBuilder
 
     protected Linked<AnnotatedMethod> _setters;
 
-    public POJOPropertyBuilder(PropertyName internalName, AnnotationIntrospector ai, boolean forSerialization) {
+    public POJOPropertyBuilder(PropertyName internalName, AnnotationIntrospector ai,
+            boolean forSerialization) {
         this(internalName, internalName, ai, forSerialization);
     }
 
@@ -510,7 +512,16 @@ public class POJOPropertyBuilder
             }
         });
     }
-    
+
+    @Override
+    public JsonInclude.Include findInclusion() {
+        if (_annotationIntrospector == null) {
+            return null;
+        }
+        AnnotatedMember am = getAccessor();
+        return _annotationIntrospector.findSerializationInclusion(am, null);
+    }
+
     /*
     /**********************************************************
     /* Data aggregation

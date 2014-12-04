@@ -518,7 +518,7 @@ public class JacksonAnnotationIntrospector
         if (ann == null) {
             return;
         }
-        JavaType defaultType = null;
+        JavaType propType = null;
         for (JsonAppend.Attr attr : ann.attrs()) {
             PropertyMetadata metadata = attr.required() ?
                     PropertyMetadata.STD_REQUIRED : PropertyMetadata.STD_OPTIONAL;
@@ -530,14 +530,19 @@ public class JacksonAnnotationIntrospector
             if (!propName.hasSimpleName()) {
                 propName = new PropertyName(attrName);
             }
-            SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(config,
-                    /*AnnotatedMember*/ null, propName, metadata);
             // should there be a way to specify expected type?
-            if (defaultType == null) {
-                defaultType = config.constructType(Object.class);
+            if (propType == null) {
+                propType = config.constructType(Object.class);
             }
+            // now, then, we need a placeholder for member (no real Field/Method):
+            AnnotatedMember member = new VirtualAnnotatedMember(ac.getRawType(),
+                    attrName, propType.getRawClass());
+            // and with that and property definition
+            SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(config,
+                    member, propName, metadata);
+            // can construct the property writer
             properties.add(AttributePropertyWriter.construct(attrName, propDef,
-                    ac, defaultType, attr.include()));
+                    ac.getAnnotations(), propType, attr.include()));
         }
     }
 

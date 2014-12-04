@@ -167,10 +167,12 @@ public abstract class BeanPropertyDefinition
      * Method used to find the property member (getter, setter, field) that has
      * the highest precedence in current context (getter method when serializing,
      * if available, and so forth), if any.
+     *<p>
+     * Note: abstract since 2.5
      * 
      * @since 2.1
      */
-    public AnnotatedMember getPrimaryMember() { return null; }
+    public abstract AnnotatedMember getPrimaryMember();
     
     /*
     /**********************************************************

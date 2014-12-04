@@ -24,12 +24,11 @@ public abstract class VirtualBeanPropertyWriter
      * want full control over implementation.
      */
     protected VirtualBeanPropertyWriter(BeanPropertyDefinition propDef,
-            AnnotatedMember member,
             Annotations contextAnnotations, JavaType declaredType,
             JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType,
             boolean suppressNulls, Object suppressableValue)
     {
-        super(propDef, member, contextAnnotations, declaredType,
+        super(propDef, propDef.getPrimaryMember(), contextAnnotations, declaredType,
                 ser, typeSer, serType, suppressNulls, suppressableValue);
     }
 

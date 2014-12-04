@@ -98,7 +98,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * under which value for the property is written.
      *<p>
      * NOTE: do NOT change name of this field; it is accessed by
-     * Afterburner module.
+     * Afterburner module (until 2.4; not directly from 2.5)
      * ALSO NOTE: ... and while it really ought to be `SerializableString`,
      * changing that is also binary-incompatible change. So nope.
      */
@@ -237,7 +237,7 @@ public class BeanPropertyWriter extends PropertyWriter
         /* 02-Dec-2014, tatu: This is a big mess, alas, what with dependency
          *   to MapperConfig to encode, and Afterburner having heartburn
          *   for SerializableString (vs SerializedString).
-         *   Hope it can be resolved/reworker in 2.6 timeframe
+         *   Hope it can be resolved/reworker in 2.6 timeframe, if not for 2.5
          */
         _name = new SerializedString(name.getSimpleName());
         _wrapperName = base._wrapperName;

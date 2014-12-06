@@ -807,7 +807,7 @@ public class MapSerializer
         serializeTypedFields(value, gen, provider,
                 provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES) ? null : JsonInclude.Include.NON_NULL);
     }
-    
+
     /*
     /**********************************************************
     /* Schema related functionality

@@ -29,14 +29,14 @@ public class TestObjectIdDeserialization extends BaseMapTest
     private static final String POOL_KEY = "POOL";
 
     // // Classes for external id use
-    
+
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
     static class Identifiable
     {
         public int value;
 
         public Identifiable next;
-        
+
         public Identifiable() { this(0); }
         public Identifiable(int v) {
             value = v;
@@ -54,9 +54,9 @@ public class TestObjectIdDeserialization extends BaseMapTest
         public UUIDNode() { this(0); }
         public UUIDNode(int v) { value = v; }
     }
-    
+
     // // Classes for external id from property annotations:
-    
+
     static class IdWrapper
     {
         @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
@@ -199,6 +199,17 @@ public class TestObjectIdDeserialization extends BaseMapTest
         assertSame(result, result.next);
     }
 
+    // Should be ok NOT to have Object id, as well
+    public void testMissingObjectId() throws Exception
+    {
+        Identifiable result = mapper.readValue(aposToQuotes("{'value':28, 'next':{'value':29}}"),
+                Identifiable.class);
+        assertNotNull(result);
+        assertEquals(28, result.value);
+        assertNotNull(result.next);
+        assertEquals(29, result.next.value);
+    }
+    
     public void testSimpleUUIDForClassRoundTrip() throws Exception
     {
         UUIDNode root = new UUIDNode(1);

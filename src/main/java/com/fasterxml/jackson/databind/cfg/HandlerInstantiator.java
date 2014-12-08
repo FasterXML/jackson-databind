@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.deser.ValueInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.ser.VirtualBeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.Converter;
 
 /**
@@ -124,8 +125,7 @@ public abstract class HandlerInstantiator
         return null;
     }
 
-    public ObjectIdResolver resolverIdGeneratorInstance(MapperConfig<?> config, Annotated annotated, Class<?> implClass)
-    {
+    public ObjectIdResolver resolverIdGeneratorInstance(MapperConfig<?> config, Annotated annotated, Class<?> implClass) {
         return null;
     }
 
@@ -150,4 +150,14 @@ public abstract class HandlerInstantiator
         return null;
     }
 
+    /**
+     * Method called to construct a {@link VirtualBeanPropertyWriter} instance
+     * of specified type.
+     *
+     * @since 2.5
+     */
+    public VirtualBeanPropertyWriter virtualPropertyWriterInstance(MapperConfig<?> config,
+            Class<?> implClass) {
+        return null;
+    }
 }

@@ -6,11 +6,12 @@ package com.fasterxml.jackson.databind.annotation;
  * as either default or explicit values. Hence for class values we must
  * explicitly use a bogus placeholder to denote equivalent of
  * "no class" (for which 'null' is usually the natural choice).
- * 
- * @deprecated Since 2.4 use {@link java.lang.Void} instead as the general
- *   "no class specified" marker.
+ *<p>
+ * Note that since 2.4, most (but not all!
+ * {@link com.fasterxml.jackson.annotation.JsonTypeInfo#defaultImpl} is
+ * a notable exception}) usage should start using
+ * {@link java.lang.Void} instead as the "not defined" marker.
  */
-@Deprecated
 public final class NoClass
 {
     private NoClass() { }

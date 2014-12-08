@@ -31,6 +31,13 @@ public @interface JsonAppend
      * Set of general virtual properties to include when serializing a POJO.
      */
     public Prop[] props() default { };
+
+    /**
+     * Indicator used to determine whether properties defined are to be
+     * appended before (false) or prepended before (true) regular properties.
+     * Affects all kinds of properties defined using this annotation.
+     */
+    public boolean prepend() default false;
     
     /**
      * Definition of a single attribute-backed property.
@@ -47,7 +54,7 @@ public @interface JsonAppend
          * assigning a value for {@link #propName()}.
          */
         public String value();
-        
+
         /**
          * Name to use for serializing value of the attribute; if not defined,
          * {@link #value} will be used instead.
@@ -79,6 +86,43 @@ public @interface JsonAppend
      */
     public @interface Prop
     {
+        /**
+         * Actual implementation class (a subtype of {@link VirtualBeanPropertyWriter})
+         * of the property to instantiate (using the no-argument default constructor).
+         */
         public Class<? extends VirtualBeanPropertyWriter> value();
+
+        /**
+         * Name of the property to possibly use for serializing (although implementation
+         * may choose to not use this information).
+         */
+        public String name() default "";
+
+        /**
+         * Optional namespace to use along with {@link #name};
+         * only relevant for data formats that use namespaces (like XML).
+         */
+        public String namespace() default "";
+
+        /**
+         * When to include  value of the property. Default value indicates that
+         * property should only be written if specified attribute has a non-null
+         * value. As with other properties, actual property implementation may or may
+         * not choose to use this inclusion information.
+         */
+        public JsonInclude.Include include() default JsonInclude.Include.NON_NULL;
+
+        /**
+         * Metadata about property, similar to
+         * {@link com.fasterxml.jackson.annotation.JsonProperty#required()}.
+         */
+        public boolean required() default false;
+
+        /**
+         * Nominal type of the property. Passed as type information for related
+         * virtual objects, and may (or may not be) used by implementation
+         * for choosing serializer to use.
+         */
+        public Class<?> type() default Object.class;
     }
 }

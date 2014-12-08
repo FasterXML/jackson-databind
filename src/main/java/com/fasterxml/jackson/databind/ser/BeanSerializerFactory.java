@@ -634,8 +634,8 @@ public class BeanSerializerFactory
 
     /**
      * Method that will apply by-type limitations (as per [JACKSON-429]);
-     * by default this is based on {@link com.fasterxml.jackson.annotation.JsonIgnoreType} annotation but
-     * can be supplied by module-provided introspectors too.
+     * by default this is based on {@link com.fasterxml.jackson.annotation.JsonIgnoreType}
+     * annotation but can be supplied by module-provided introspectors too.
      */
     protected void removeIgnorableTypes(SerializationConfig config, BeanDescription beanDesc,
             List<BeanPropertyDefinition> properties)

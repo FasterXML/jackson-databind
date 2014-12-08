@@ -6,12 +6,15 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.annotation.NoClass;
 
 /**
- * Unit tests related to specialized handling of
- * otherwise invalid type id embedding cases.
+ * Unit tests related to specialized handling of "default implementation"
+ * ({@link JsonTypeInfo#defaultImpl()}), as well as related
+ * cases that allow non-default settings (such as missing type id).
  */
-public class TestTypedDeserializationWithDefault extends BaseMapTest
+public class TestPolymorphicWithDefaultImpl extends BaseMapTest
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", defaultImpl = LegacyInter.class)
     @JsonSubTypes(value = {@JsonSubTypes.Type(name = "mine", value = MyInter.class)})
@@ -41,8 +44,12 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
         }
     }
 
+    /**
+     * Note: <code>NoClass</code> here has special meaning, of mapping invalid
+     * types into null instances.
+     */
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type",
-            defaultImpl = Void.class)
+            defaultImpl = NoClass.class)
     public static class DefaultWithNoClass { }
 
     // and then one with no defaultImpl nor listed subtypes
@@ -80,7 +87,8 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
     public static class GoodSub2 extends GoodItem {
         public String b ;
 
-    }    
+    }
+
     /*
     /**********************************************************
     /* Unit tests, deserialization
@@ -88,7 +96,7 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    
+
     public void testDeserializationWithObject() throws Exception
     {
         Inter inter = MAPPER.reader(Inter.class).readValue("{\"type\": \"mine\", \"blah\": [\"a\", \"b\", \"c\"]}");
@@ -140,15 +148,28 @@ public class TestTypedDeserializationWithDefault extends BaseMapTest
 
     // [Databind#511]
     public void testInvalidTypeId511() throws Exception {
-        ObjectMapper mapper = new ObjectMapper().disable(
+        ObjectReader reader = MAPPER.reader().without(
                 DeserializationFeature.FAIL_ON_INVALID_SUBTYPE,
                 DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
                 DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES
         );
         String json = "{\"many\":[{\"sub1\":{\"a\":\"foo\"}},{\"sub2\":{\"b\":\"bar\"}}]}" ;
-        Good goodResult = mapper.readValue(json, Good.class) ;
+        Good goodResult = reader.forType(Good.class).readValue(json) ;
         assertNotNull(goodResult) ;
-        Bad badResult = mapper.readValue(json, Bad.class);
+        Bad badResult = reader.forType(Bad.class).readValue(json);
         assertNotNull(badResult);
     }
+
+    /*
+    /**********************************************************
+    /* Unit tests, serialization
+    /**********************************************************
+     */
+
+    /*
+    public void testDontWriteIfDefaultImpl() throws Exception {
+        String json = MAPPER.writeValueAsString(new MyInter());
+        assertEquals("{\"blah\":null}", json);
+    }
+    */
 }

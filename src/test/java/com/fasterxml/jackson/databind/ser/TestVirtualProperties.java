@@ -23,6 +23,14 @@ public class TestVirtualProperties extends BaseMapTest
         public int value = 13;
     }
 
+    @JsonAppend(prepend=true, attrs={ @JsonAppend.Attr("id"),
+            @JsonAppend.Attr(value="internal", propName="extra")
+        })
+        static class SimpleBeanPrepend
+        {
+            public int value = 13;
+        }
+
     enum ABC {
         A, B, C;
     }
@@ -46,10 +54,16 @@ public class TestVirtualProperties extends BaseMapTest
         Map<String,Object> stuff = new LinkedHashMap<String,Object>();
         stuff.put("x", 3);
         stuff.put("y", ABC.B);
+
         String json = WRITER.withAttribute("id", "abc123")
                 .withAttribute("internal", stuff)
                 .writeValueAsString(new SimpleBean());
         assertEquals(aposToQuotes("{'value':13,'id':'abc123','extra':{'x':3,'y':'B'}}"), json);
+
+        json = WRITER.withAttribute("id", "abc123")
+                .withAttribute("internal", stuff)
+                .writeValueAsString(new SimpleBeanPrepend());
+        assertEquals(aposToQuotes("{'id':'abc123','extra':{'x':3,'y':'B'},'value':13}"), json);
     }
 
     public void testAttributePropInclusion() throws Exception

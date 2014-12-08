@@ -7,12 +7,14 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.*;
+import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeIdResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
+import com.fasterxml.jackson.databind.ser.VirtualBeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.AttributePropertyWriter;
 import com.fasterxml.jackson.databind.ser.std.RawSerializer;
 import com.fasterxml.jackson.databind.util.*;
@@ -45,11 +47,10 @@ public class JacksonAnnotationIntrospector
      * are considered bundles.
      */
     @Override
-    public boolean isAnnotationBundle(Annotation ann)
-    {
+    public boolean isAnnotationBundle(Annotation ann) {
         return ann.annotationType().getAnnotation(JacksonAnnotationsInside.class) != null;
     }
-    
+
     /*
     /**********************************************************
     /* General annotations
@@ -58,7 +59,7 @@ public class JacksonAnnotationIntrospector
 
     // default impl is fine:
     //public String findEnumValue(Enum<?> value) { return value.name(); }
-    
+
     /*
     /**********************************************************
     /* General class annotations
@@ -518,32 +519,87 @@ public class JacksonAnnotationIntrospector
         if (ann == null) {
             return;
         }
+        final boolean prepend = ann.prepend();
         JavaType propType = null;
-        for (JsonAppend.Attr attr : ann.attrs()) {
-            PropertyMetadata metadata = attr.required() ?
-                    PropertyMetadata.STD_REQUIRED : PropertyMetadata.STD_OPTIONAL;
-            // could add Index, Description in future, if those matter
-            String attrName = attr.value();
 
-            // allow explicit renaming; if none, default to attribute name
-            PropertyName propName = _propertyName(attr.propName(), attr.propNamespace());
-            if (!propName.hasSimpleName()) {
-                propName = new PropertyName(attrName);
-            }
-            // should there be a way to specify expected type?
+        // First: any attribute-backed properties?
+        JsonAppend.Attr[] attrs = ann.attrs();
+        for (int i = 0, len = attrs.length; i < len; ++i) {
             if (propType == null) {
                 propType = config.constructType(Object.class);
             }
-            // now, then, we need a placeholder for member (no real Field/Method):
-            AnnotatedMember member = new VirtualAnnotatedMember(ac.getRawType(),
-                    attrName, propType.getRawClass());
-            // and with that and property definition
-            SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(config,
-                    member, propName, metadata, attr.include());
-            // can construct the property writer
-            properties.add(AttributePropertyWriter.construct(attrName, propDef,
-                    ac.getAnnotations(), propType));
+            BeanPropertyWriter bpw = _constructVirtualProperty(attrs[i],
+                    config, ac, propType);
+            if (prepend) {
+                properties.add(i, bpw);
+            } else {
+                properties.add(bpw);
+            }
         }
+
+        // Then: general-purpose virtual properties?
+        JsonAppend.Prop[] props = ann.props();
+        for (int i = 0, len = props.length; i < len; ++i) {
+            BeanPropertyWriter bpw = _constructVirtualProperty(props[i],
+                    config, ac);
+            if (prepend) {
+                properties.add(i, bpw);
+            } else {
+                properties.add(bpw);
+            }
+        }
+    }
+
+    protected BeanPropertyWriter _constructVirtualProperty(JsonAppend.Attr attr,
+            MapperConfig<?> config, AnnotatedClass ac, JavaType type)
+    {
+        PropertyMetadata metadata = attr.required() ?
+                    PropertyMetadata.STD_REQUIRED : PropertyMetadata.STD_OPTIONAL;
+        // could add Index, Description in future, if those matter
+        String attrName = attr.value();
+
+        // allow explicit renaming; if none, default to attribute name
+        PropertyName propName = _propertyName(attr.propName(), attr.propNamespace());
+        if (!propName.hasSimpleName()) {
+            propName = new PropertyName(attrName);
+        }
+        // now, then, we need a placeholder for member (no real Field/Method):
+        AnnotatedMember member = new VirtualAnnotatedMember(ac.getRawType(),
+                attrName, type.getRawClass());
+        // and with that and property definition
+        SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(config,
+                member, propName, metadata, attr.include());
+        // can construct the property writer
+        return AttributePropertyWriter.construct(attrName, propDef,
+                ac.getAnnotations(), type);
+    }
+
+    protected BeanPropertyWriter _constructVirtualProperty(JsonAppend.Prop prop,
+            MapperConfig<?> config, AnnotatedClass ac)
+    {
+        PropertyMetadata metadata = prop.required() ?
+                    PropertyMetadata.STD_REQUIRED : PropertyMetadata.STD_OPTIONAL;
+        PropertyName propName = _propertyName(prop.name(), prop.namespace());
+        JavaType type = config.constructType(prop.type());
+        // now, then, we need a placeholder for member (no real Field/Method):
+        AnnotatedMember member = new VirtualAnnotatedMember(ac.getRawType(),
+                propName.getSimpleName(), type.getRawClass());
+        // and with that and property definition
+        SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(config,
+                member, propName, metadata, prop.include());
+
+        Class<?> implClass = prop.value();
+
+        HandlerInstantiator hi = config.getHandlerInstantiator();
+        VirtualBeanPropertyWriter bpw = (hi == null) ? null
+                : hi.virtualPropertyWriterInstance(config, implClass);
+        if (bpw == null) {
+            bpw = (VirtualBeanPropertyWriter) ClassUtil.createInstance(implClass,
+                    config.canOverrideAccessModifiers());
+        }
+
+        // one more thing: give it necessary contextual information
+        return bpw.withConfig(config, ac, propDef, type);
     }
 
     /*
@@ -849,7 +905,7 @@ public class JacksonAnnotationIntrospector
         b = b.inclusion(inclusion);
         b = b.typeProperty(info.property());
         Class<?> defaultImpl = info.defaultImpl();
-        if (defaultImpl != JsonTypeInfo.None.class) {
+        if (defaultImpl != Void.class && defaultImpl != JsonTypeInfo.None.class) {
             b = b.defaultImpl(defaultImpl);
         }
         b = b.typeIdVisibility(info.visible());

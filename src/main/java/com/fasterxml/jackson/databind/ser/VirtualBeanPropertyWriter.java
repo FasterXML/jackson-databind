@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
@@ -82,14 +83,40 @@ public abstract class VirtualBeanPropertyWriter
 
     /*
     /**********************************************************
-    /* PropertyWriter serialization method overrides
+    /* Abstract methods for sub-classes to define
     /**********************************************************
      */
 
     /**
-     * Method called to 
+     * Method called to figure out the value to serialize. For simple sub-types
+     * (such as {@link com.fasterxml.jackson.databind.ser.impl.AttributePropertyWriter})
+     * this may be one of few methods to define, although more advanced implementations
+     * may choose to not even use this method (by overriding {@link #serializeAsField})
+     * and define a bogus implementation.
      */
     protected abstract Object value(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception;
+
+    /**
+     * Contextualization method called on a newly constructed virtual bean property.
+     * If information is used to change behavior, it is recommended that a new instance
+     * is constructed with given information and returned; however, this is not mandatory
+     * and modifying (and returning) this instance is legal as well as calls are made
+     * in thread-safe manner.
+     *
+     * @param config Currenct configuration; guaranteed to be {@link SerializationConfig}
+     *   (but not typed since caller does not have full typing)
+     * @param declaringClass Class that contains this property writer
+     * @param propDef Nominal property definition to use
+     * @param type Declared type for the property
+     */
+    public abstract VirtualBeanPropertyWriter withConfig(MapperConfig<?> config,
+            AnnotatedClass declaringClass, BeanPropertyDefinition propDef, JavaType type);
+
+    /*
+    /**********************************************************
+    /* PropertyWriter serialization method overrides
+    /**********************************************************
+     */
     
     @Override
     public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception

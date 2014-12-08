@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.annotation.NoClass;
 
 /**
  * Unit tests related to specialized handling of "default implementation"
- * ({@link JsonTypeInfo#defaultImpl()}), as well as related
+ * ({@link JsonTypeInfo#defaultImpl}), as well as related
  * cases that allow non-default settings (such as missing type id).
  */
 public class TestPolymorphicWithDefaultImpl extends BaseMapTest
@@ -51,6 +51,14 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type",
             defaultImpl = NoClass.class)
     public static class DefaultWithNoClass { }
+
+    /**
+     * Also another variant to verify that from 2.5 on, can use non-deprecated
+     * value for the same.
+     */
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type",
+            defaultImpl = Void.class)
+    public static class DefaultWithVoidAsDefault { }
 
     // and then one with no defaultImpl nor listed subtypes
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
@@ -132,6 +140,15 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         Object ob = MAPPER.reader(DefaultWithNoClass.class).readValue("{ }");
         assertNull(ob);
         ob = MAPPER.reader(DefaultWithNoClass.class).readValue("{ \"bogus\":3 }");
+        assertNull(ob);
+    }
+
+    // same, with 2.5 and Void.class
+    public void testDefaultAsVoid() throws Exception
+    {
+        Object ob = MAPPER.reader(DefaultWithVoidAsDefault.class).readValue("{ }");
+        assertNull(ob);
+        ob = MAPPER.reader(DefaultWithVoidAsDefault.class).readValue("{ \"bogus\":3 }");
         assertNull(ob);
     }
 

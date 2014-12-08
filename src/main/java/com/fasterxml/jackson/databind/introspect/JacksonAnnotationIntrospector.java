@@ -905,7 +905,12 @@ public class JacksonAnnotationIntrospector
         b = b.inclusion(inclusion);
         b = b.typeProperty(info.property());
         Class<?> defaultImpl = info.defaultImpl();
-        if (defaultImpl != Void.class && defaultImpl != JsonTypeInfo.None.class) {
+
+        // 08-Dec-2014, tatu: To deprecated `JsonTypeInfo.None` we need to use other placeholder(s);
+        //   and since `java.util.Void` has other purpose (to indicate "deser as null"), we'll instead
+        //   use `JsonTypeInfo.class` itself. But any annotation type will actually do, as they have no
+        //   valid use (can not instantiate as default)
+        if (defaultImpl != JsonTypeInfo.None.class && !defaultImpl.isAnnotation()) {
             b = b.defaultImpl(defaultImpl);
         }
         b = b.typeIdVisibility(info.visible());

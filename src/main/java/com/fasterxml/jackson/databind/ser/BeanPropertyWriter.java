@@ -194,14 +194,17 @@ public class BeanPropertyWriter extends PropertyWriter
     {
         _member = member;
         _contextAnnotations = contextAnnotations;
+
         _name = new SerializedString(propDef.getName());
         _wrapperName = propDef.getWrapperName();
+        _metadata = propDef.getMetadata();
+        _includeInViews = propDef.findViews();
+
         _declaredType = declaredType;
         _serializer = (JsonSerializer<Object>) ser;
         _dynamicSerializers = (ser == null) ? PropertySerializerMap.emptyMap() : null;
         _typeSerializer = typeSer;
         _cfgSerializationType = serType;
-        _metadata = propDef.getMetadata();
 
         if (member instanceof AnnotatedField) {
             _accessorMethod = null;
@@ -210,18 +213,47 @@ public class BeanPropertyWriter extends PropertyWriter
             _accessorMethod = (Method) member.getMember();
             _field = null;
         } else {
-            // 01-Dec-2014, tatu: Used to be illegal, but now explicitly allowed
+            // 01-Dec-2014, tatu: Used to be illegal, but now explicitly allowed for virtual props
             _accessorMethod = null;
             _field = null;
         }
         _suppressNulls = suppressNulls;
         _suppressableValue = suppressableValue;
-        _includeInViews = propDef.findViews();
 
         // this will be resolved later on, unless nulls are to be suppressed
         _nullSerializer = null;
     }
-    
+
+    /**
+     * Constructor that may be of use to virtual properties, when there is need for
+     * the zero-arg ("default") constructor, and actual initialization is done
+     * after constructor call.
+     * 
+     * @since 2.5
+     */
+    protected BeanPropertyWriter() {
+        _member = null;
+        _contextAnnotations = null;
+
+        _name = null;
+        _wrapperName = null;
+        _metadata = null;
+        _includeInViews = null;
+
+        _declaredType = null;
+        _serializer = null;
+        _dynamicSerializers = null;
+        _typeSerializer = null;
+        _cfgSerializationType = null;
+
+        _accessorMethod = null;
+        _field = null;
+        _suppressNulls = false;
+        _suppressableValue = null;
+
+        _nullSerializer = null;
+    }
+
     /**
      * "Copy constructor" to be used by filtering sub-classes
      */

@@ -17,15 +17,29 @@ import com.fasterxml.jackson.databind.util.Annotations;
  * to add "virtual" properties in addition to regular ones.
  * 
  * @since 2.5
+ * 
+ * @see com.fasterxml.jackson.databind.ser.impl.AttributePropertyWriter
  */
 public abstract class VirtualBeanPropertyWriter
     extends BeanPropertyWriter
 {
+    /**
+     * Constructor used by most sub-types.
+     */
     protected VirtualBeanPropertyWriter(BeanPropertyDefinition propDef,
-            Annotations contextAnnotations, JavaType declaredType,
-            JsonSerializer<?> ser, TypeSerializer typeSer, JavaType serType) {
-        this(propDef, contextAnnotations, declaredType, ser, typeSer, serType,
+            Annotations contextAnnotations, JavaType declaredType)
+    {
+        this(propDef, contextAnnotations, declaredType, null, null, null,
                 propDef.findInclusion());
+    }
+
+    /**
+     * Constructor that may be used by sub-classes for constructing a "blue-print" instance;
+     * one that will only become (or create) actual usable instance when its
+     * {@link #withConfig} method is called.
+     */
+    protected VirtualBeanPropertyWriter() {
+        super();
     }
 
     /**
@@ -61,7 +75,7 @@ public abstract class VirtualBeanPropertyWriter
         }
         return null;
     }
-    
+
     /*
     /**********************************************************
     /* Standard accessor overrides
@@ -98,13 +112,13 @@ public abstract class VirtualBeanPropertyWriter
 
     /**
      * Contextualization method called on a newly constructed virtual bean property.
-     * If information is used to change behavior, it is recommended that a new instance
-     * is constructed with given information and returned; however, this is not mandatory
-     * and modifying (and returning) this instance is legal as well as calls are made
-     * in thread-safe manner.
+     * Usually a new intance needs to be created due to finality of some of configuration
+     * members; otherwise while recommended, creating a new instance is not strictly-speaking
+     * mandatory because calls are made in thread-safe manner, as part of initialization
+     * before use.
      *
      * @param config Currenct configuration; guaranteed to be {@link SerializationConfig}
-     *   (but not typed since caller does not have full typing)
+     *   (just not typed since caller does not have dependency to serialization-specific types)
      * @param declaringClass Class that contains this property writer
      * @param propDef Nominal property definition to use
      * @param type Declared type for the property

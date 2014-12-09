@@ -3,10 +3,14 @@ package com.fasterxml.jackson.databind.ser;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerator;
 
-import com.fasterxml.jackson.databind.BaseMapTest;
-import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonAppend;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.util.Annotations;
 
 /**
  * Tests for verifying that one can append virtual properties after regular ones.
@@ -26,10 +30,10 @@ public class TestVirtualProperties extends BaseMapTest
     @JsonAppend(prepend=true, attrs={ @JsonAppend.Attr("id"),
             @JsonAppend.Attr(value="internal", propName="extra")
         })
-        static class SimpleBeanPrepend
-        {
-            public int value = 13;
-        }
+    static class SimpleBeanPrepend
+    {
+        public int value = 13;
+    }
 
     enum ABC {
         A, B, C;
@@ -39,6 +43,44 @@ public class TestVirtualProperties extends BaseMapTest
     static class OptionalsBean
     {
         public int value = 28;
+    }
+
+    static class CustomVProperty
+        extends VirtualBeanPropertyWriter
+    {
+        private CustomVProperty() { super(); }
+
+        private CustomVProperty(BeanPropertyDefinition propDef,
+                Annotations ctxtAnn, JavaType type) {
+            super(propDef, ctxtAnn, type);
+        }
+
+        @Override
+        protected Object value(Object bean, JsonGenerator jgen, SerializerProvider prov) {
+            if (_name.toString().equals("id")) {
+                return "abc123";
+            }
+            if (_name.toString().equals("extra")) {
+                return new int[] { 42 };
+            }
+            return "???";
+        }
+
+        @Override
+        public VirtualBeanPropertyWriter withConfig(MapperConfig<?> config,
+                AnnotatedClass declaringClass, BeanPropertyDefinition propDef,
+                JavaType type)
+        {
+            return new CustomVProperty(propDef, declaringClass.getAnnotations(), type);
+        }
+    }
+
+    @JsonAppend(prepend=true, props={ @JsonAppend.Prop(value=CustomVProperty.class, name="id"),
+            @JsonAppend.Prop(value=CustomVProperty.class, name="extra")
+        })
+    static class CustomVBean
+    {
+        public int value = 72;
     }
     
     /*
@@ -81,5 +123,12 @@ public class TestVirtualProperties extends BaseMapTest
         json = WRITER.withAttribute("desc", "")
                 .writeValueAsString(new OptionalsBean());
         assertEquals(aposToQuotes("{'value':28}"), json);
+    }
+
+    public void testCustomProperties() throws Exception
+    {
+        String json = WRITER.withAttribute("desc", "nice")
+                .writeValueAsString(new CustomVBean());
+        assertEquals(aposToQuotes("{'id':'abc123','extra':[42],'value':72}"), json);
     }
 }

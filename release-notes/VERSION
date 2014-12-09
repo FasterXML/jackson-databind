@@ -46,6 +46,9 @@ Project: jackson-databind
 #616: Add `SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS`
 #623: Add `StdNodeBasedDeserializer`
 #630: Add `KeyDeserializer` for `Class`
+#631: Update `current value` of `JsonParser`, `JsonGenerator` from standard serializers,
+ deserializers
+ (suggested by Antibrumm@github)
 #633: Allow returning null value from IdResolver to make type information optional
  (requested by Antibrumm@github)
 #634: Add `typeFromId(DatabindContext,String)` in `TypeIdDeserializer`

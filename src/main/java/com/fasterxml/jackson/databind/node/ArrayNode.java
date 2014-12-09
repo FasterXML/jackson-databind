@@ -729,12 +729,11 @@ public class ArrayNode
     protected boolean _childrenEqual(ArrayNode other) {
         return _children.equals(other._children);
     }
-    
+
     @Override
     public int hashCode() {
         return _children.hashCode();
     }
-
 
     @Override
     public String toString()

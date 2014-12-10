@@ -114,8 +114,8 @@ public class JSOGDeserialize622Test extends BaseMapTest
    */
   @JsonIdentityInfo(generator=JSOGGenerator.class)
   public static class IdentifiableExampleJSOG {
-    public int foo;
-    public IdentifiableExampleJSOG next;
+      public int foo;
+      public IdentifiableExampleJSOG next;
   }
 
   /*
@@ -126,14 +126,13 @@ public class JSOGDeserialize622Test extends BaseMapTest
 
   // for [databind#622]
   public void testStructJSOGRef() throws Exception {
+      // Because the value ({@ref:1}) is not scalar, parser thinks it is not an id 
+      // and tries to deserialize as normal a new IdentifiableExampleJSOG 
+      // then  complains about unrecognized field "@ref"
+      IdentifiableExampleJSOG result = mapper.readValue(EXP_EXAMPLE_JSOG,
+              IdentifiableExampleJSOG.class);
 
-    // Because the value ({@ref:1}) is not scalar, parser thinks it is not an id 
-    // and tries to deserialize as normal a new IdentifiableExampleJSOG 
-    // then  complains about unrecognized field "@ref"
-    IdentifiableExampleJSOG result = mapper.readValue(EXP_EXAMPLE_JSOG,
-            IdentifiableExampleJSOG.class);
-
-    assertEquals(66, result.foo);
-    assertSame(result, result.next);
+      assertEquals(66, result.foo);
+      assertSame(result, result.next);
   }
 }

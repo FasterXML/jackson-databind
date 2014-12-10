@@ -674,14 +674,14 @@ public class BeanDeserializer
     {
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
         final ExternalTypeHandler ext = _externalTypeIdHandler.start();
-        JsonToken t = p.getCurrentToken();
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+        
+        for (JsonToken t = p.getCurrentToken(); t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
-            p.nextToken();
+            t = p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) { // normal case
                 // [JACKSON-831]: may have property AND be used as external type id:
-                if (p.getCurrentToken().isScalarValue()) {
+                if (t.isScalarValue()) {
                     ext.handleTypePropertyValue(p, ctxt, propName, bean);
                 }
                 if (activeView != null && !prop.visibleInView(activeView)) {

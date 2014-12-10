@@ -1,13 +1,12 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.struct;
 
 import java.io.IOException;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
-
 import com.fasterxml.jackson.core.JsonParser;
-
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.*;
 
@@ -25,8 +24,6 @@ public class JSOGDeserialize622Test extends BaseMapTest
      */
     private static final String EXP_EXAMPLE_JSOG =  aposToQuotes(
             "{'@id':'1','foo':66,'next':{'"+REF_KEY+"':'1'}}");
-
-    private final ObjectMapper mapper = new ObjectMapper();
 
     /**
      * Customer IdGenerator
@@ -73,6 +70,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
     @Override
     public boolean maySerializeAsObject() { return true; }
 
+    // ditto: needed for handling Object-valued Object references
     @Override
     public boolean isValidReferencePropertyName(String name, Object parser) {
         return REF_KEY.equals(name);
@@ -136,6 +134,21 @@ public class JSOGDeserialize622Test extends BaseMapTest
     public static class IdentifiableExampleJSOG {
         public int foo;
         public IdentifiableExampleJSOG next;
+
+        protected IdentifiableExampleJSOG() { }
+        public IdentifiableExampleJSOG(int v) {
+            foo = v;
+        }
+    }
+
+    public static class JSOGWrapper {
+        public int value;
+
+        @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
+        public Object jsog;
+
+        JSOGWrapper() { }
+        public JSOGWrapper(int v) { value = v; }
     }
 
     /*
@@ -144,11 +157,34 @@ public class JSOGDeserialize622Test extends BaseMapTest
     /**********************************************************************
      */
 
-    // for [databind#622]
-    public void testStructJSOGRef() throws Exception {
-        IdentifiableExampleJSOG result = mapper.readValue(EXP_EXAMPLE_JSOG,
+    private final ObjectMapper MAPPER = new ObjectMapper();
+    
+    // Basic for [#622]
+    public void testStructJSOGRef() throws Exception
+    {
+        IdentifiableExampleJSOG result = MAPPER.readValue(EXP_EXAMPLE_JSOG,
                 IdentifiableExampleJSOG.class);
         assertEquals(66, result.foo);
         assertSame(result, result.next);
+    }
+
+    // polymorphic alternative for [#622]
+    public void testPolymorphicRoundTrip() throws Exception
+    {
+        JSOGWrapper w = new JSOGWrapper(15);
+        // create a nice little loop
+        IdentifiableExampleJSOG ex = new IdentifiableExampleJSOG(123);
+        ex.next = ex;
+        w.jsog = ex;
+
+        String json = MAPPER.writeValueAsString(w);
+
+        JSOGWrapper out = MAPPER.readValue(json, JSOGWrapper.class);
+        assertNotNull(out);
+        assertEquals(15, out.value);
+        assertTrue(out.jsog instanceof IdentifiableExampleJSOG);
+        IdentifiableExampleJSOG jsog = (IdentifiableExampleJSOG) out.jsog;
+        assertEquals(123, jsog.foo);
+        assertSame(jsog, jsog.next);
     }
 }

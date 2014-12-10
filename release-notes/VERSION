@@ -44,6 +44,7 @@ Project: jackson-databind
 #614: Add a mechanism for using `@JsonCreator.mode` for resolving possible ambiguity between
   delegating- and property-based creators
 #616: Add `SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS`
+#622: Support for non-scalar ObjectId Reference deserialiazation (like JSOG)
 #623: Add `StdNodeBasedDeserializer`
 #630: Add `KeyDeserializer` for `Class`
 #631: Update `current value` of `JsonParser`, `JsonGenerator` from standard serializers,

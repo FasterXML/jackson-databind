@@ -20,11 +20,6 @@ public final class ObjectIdValueProperty
 
     protected final ObjectIdReader _objectIdReader;
 
-    @Deprecated // since 2.2
-    public ObjectIdValueProperty(ObjectIdReader objectIdReader) {
-        this(objectIdReader, PropertyMetadata.STD_REQUIRED);
-    }
-    
     public ObjectIdValueProperty(ObjectIdReader objectIdReader,
             PropertyMetadata metadata)
     {

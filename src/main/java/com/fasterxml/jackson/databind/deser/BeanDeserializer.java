@@ -251,12 +251,24 @@ public class BeanDeserializer
     }
 
     /**
-     * General version used when handling needs more advanced
-     * features.
+     * General version used when handling needs more advanced features.
      */
     @Override
     public Object deserializeFromObject(JsonParser p, DeserializationContext ctxt) throws IOException
     {
+        /* 09-Dec-2014, tatu: As per [#622], we need to allow Object Id references
+         *   to come in as JSON Objects as well; but for now assume they will
+         *   be simple, single-prooerty references, which means that we can
+         *   recognize them without having to buffer anything.
+         *   Once again, if we must, we can do more complex handling with buffering,
+         *   but let's only do that if and when that becomes necessary.
+         */
+        if (_objectIdReader != null && _objectIdReader.maySerializeAsObject()) {
+            if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)
+                    && _objectIdReader.isValidReferencePropertyName(p.getCurrentName(), p)) {
+                return deserializeFromObjectId(p, ctxt);
+            }
+        }
         if (_nonStandardCreation) {
             if (_unwrappedPropertyHandler != null) {
                 return deserializeWithUnwrapped(p, ctxt);
@@ -276,14 +288,14 @@ public class BeanDeserializer
             if (_needViewProcesing) {
                 Class<?> view = ctxt.getActiveView();
                 if (view != null) {
-                    return deserializeWithView(jp, ctxt, bean, view);
+                    return deserializeWithView(p, ctxt, bean, view);
                 }
             }
             */
             return bean;
         }
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
-        // [databind#631]: Assign current value, to be accessible by custom serializers
+        // [databind#631]: Assign current value, to be accessible by custom deserializers
         p.setCurrentValue(bean);
         if (p.canReadObjectId()) {
             Object id = p.getObjectId();

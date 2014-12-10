@@ -7,10 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import com.fasterxml.jackson.databind.*;
 
 /**
@@ -19,21 +17,21 @@ import com.fasterxml.jackson.databind.*;
  */
 public class JSOGDeserialize622Test extends BaseMapTest
 {
-  /** the key of the property that holds the ref */
-  public static final String REF_KEY = "@ref";
+    /** the key of the property that holds the ref */
+    public static final String REF_KEY = "@ref";
 
-  /**
-   * JSON input
-   */
-  private static final String EXP_EXAMPLE_JSOG =  aposToQuotes(
-          "{'@id':'1','foo':66,'next':{'"+REF_KEY+"':'1'}}");
+    /**
+     * JSON input
+     */
+    private static final String EXP_EXAMPLE_JSOG =  aposToQuotes(
+            "{'@id':'1','foo':66,'next':{'"+REF_KEY+"':'1'}}");
 
-  private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
-  /**
-   * Customer IdGenerator
-   */
-  static class JSOGGenerator extends ObjectIdGenerator<JSOGRef>  {
+    /**
+     * Customer IdGenerator
+     */
+    static class JSOGGenerator extends ObjectIdGenerator<JSOGRef>  {
 
     private static final long serialVersionUID = 1L;
     protected transient int _nextValue;
@@ -71,68 +69,86 @@ public class JSOGDeserialize622Test extends BaseMapTest
           return new IdKey(getClass(), _scope, key);
     }
 
+    // important: otherwise won't get proper handling
+    @Override
+    public boolean maySerializeAsObject() { return true; }
+
+    @Override
+    public boolean isValidReferencePropertyName(String name, Object parser) {
+        return REF_KEY.equals(name);
+    }
+
     @Override
     public JSOGRef generateId(Object forPojo) {
           int id = _nextValue;
           ++_nextValue;
           return new JSOGRef(id);
     }
-  }
-
-  /**
-   * The reference deserializer
-   */
-  static class JSOGRefDeserializer extends JsonDeserializer<JSOGRef>
-  {
-    @Override
-    public JSOGRef deserialize(JsonParser jp, DeserializationContext ctx) throws IOException, JsonProcessingException {
-      JsonNode node = jp.readValueAsTree();
-      return node.isTextual()
-              ? new JSOGRef(node.asInt()) : new JSOGRef(node.get(REF_KEY).asInt());
     }
-  }
 
-  /**
-   * The reference object
-   */
-  @JsonDeserialize(using=JSOGRefDeserializer.class)
-  static class JSOGRef
-  {
-    @JsonProperty(REF_KEY)
-    public int ref;
-
-    public JSOGRef() { }
-
-    public JSOGRef(int val) {
-      ref = val;
+    /**
+     * The reference deserializer
+     */
+    static class JSOGRefDeserializer extends JsonDeserializer<JSOGRef>
+    {
+      @Override
+      public JSOGRef deserialize(JsonParser jp, DeserializationContext ctx) throws IOException {
+          JsonNode node = jp.readValueAsTree();
+          return node.isTextual()
+                  ? new JSOGRef(node.asInt()) : new JSOGRef(node.get(REF_KEY).asInt());
+      }
     }
-  }
 
+    /**
+     * The reference object
+     */
+    @JsonDeserialize(using=JSOGRefDeserializer.class)
+    static class JSOGRef
+    {
+        @JsonProperty(REF_KEY)
+        public int ref;
 
-  /**
-   * Example class using JSOGGenerator
-   */
-  @JsonIdentityInfo(generator=JSOGGenerator.class)
-  public static class IdentifiableExampleJSOG {
-      public int foo;
-      public IdentifiableExampleJSOG next;
-  }
+        public JSOGRef() { }
 
-  /*
-  /**********************************************************************
-  /* Test methods
-  /**********************************************************************
-   */
+        public JSOGRef(int val) {
+            ref = val;
+        }
 
-  // for [databind#622]
-  public void testStructJSOGRef() throws Exception {
-      // Because the value ({@ref:1}) is not scalar, parser thinks it is not an id 
-      // and tries to deserialize as normal a new IdentifiableExampleJSOG 
-      // then  complains about unrecognized field "@ref"
-      IdentifiableExampleJSOG result = mapper.readValue(EXP_EXAMPLE_JSOG,
-              IdentifiableExampleJSOG.class);
+        @Override
+        public String toString() { return "[JSOGRef#"+ref+"]"; }
 
-      assertEquals(66, result.foo);
-      assertSame(result, result.next);
-  }
+        @Override
+        public int hashCode() {
+            return ref;
+        }
+        
+        @Override
+        public boolean equals(Object other) {
+            return (other instanceof JSOGRef)
+                    && ((JSOGRef) other).ref == this.ref;
+        }
+    }
+
+    /**
+     * Example class using JSOGGenerator
+     */
+    @JsonIdentityInfo(generator=JSOGGenerator.class, property="@id")
+    public static class IdentifiableExampleJSOG {
+        public int foo;
+        public IdentifiableExampleJSOG next;
+    }
+
+    /*
+    /**********************************************************************
+    /* Test methods
+    /**********************************************************************
+     */
+
+    // for [databind#622]
+    public void testStructJSOGRef() throws Exception {
+        IdentifiableExampleJSOG result = mapper.readValue(EXP_EXAMPLE_JSOG,
+                IdentifiableExampleJSOG.class);
+        assertEquals(66, result.foo);
+        assertSame(result, result.next);
+    }
 }

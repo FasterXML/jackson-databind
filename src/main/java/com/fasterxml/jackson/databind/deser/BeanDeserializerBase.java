@@ -926,34 +926,34 @@ public abstract class BeanDeserializerBase
      * General version used when handling needs more advanced
      * features.
      */
-    public abstract Object deserializeFromObject(JsonParser jp, DeserializationContext ctxt)
+    public abstract Object deserializeFromObject(JsonParser p, DeserializationContext ctxt)
         throws IOException;
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws IOException
     {
         // 16-Feb-2012, tatu: ObjectId may be used as well... need to check that first
         if (_objectIdReader != null) {
             // 05-Aug-2013, tatu: May use native Object Id
-            if (jp.canReadObjectId()) {
-                Object id = jp.getObjectId();
+            if (p.canReadObjectId()) {
+                Object id = p.getObjectId();
                 if (id != null) {
-                    Object ob = typeDeserializer.deserializeTypedFromObject(jp, ctxt);
-                    return _handleTypedObjectId(jp, ctxt, ob, id);
+                    Object ob = typeDeserializer.deserializeTypedFromObject(p, ctxt);
+                    return _handleTypedObjectId(p, ctxt, ob, id);
                 }
             }
             // or, Object Ids Jackson explicitly sets
-            JsonToken t = jp.getCurrentToken();
+            JsonToken t = p.getCurrentToken();
             // for now (2.2.x) we only allow scalar types (Strings, integral numbers):
             // NOTE: may  need to allow handling of structured values in future for JSOG
-            if (t != null && t.isScalarValue()) {
-                return deserializeFromObjectId(jp, ctxt);
+            if (t != null && (t.isScalarValue() || _objectIdReader.maySerializeAsObject())) {
+                return deserializeFromObjectId(p, ctxt);
             }
         }
         // In future could check current token... for now this should be enough:
-        return typeDeserializer.deserializeTypedFromObject(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromObject(p, ctxt);
     }
 
     /**
@@ -964,7 +964,7 @@ public abstract class BeanDeserializerBase
      */
     protected Object _handleTypedObjectId(JsonParser jp, DeserializationContext ctxt,
             Object pojo, Object rawId)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         /* 07-Aug-2013, tatu: One more challenge: type of id may not be type
          *   of property we are expecting later on; specifically, numeric ids
@@ -1034,7 +1034,7 @@ public abstract class BeanDeserializerBase
     protected Object deserializeWithObjectId(JsonParser jp, DeserializationContext ctxt) throws IOException {
         return deserializeFromObject(jp, ctxt);
     }
-    
+
     /**
      * Method called in cases where it looks like we got an Object Id
      * to parse and use as a reference.
@@ -1054,7 +1054,7 @@ public abstract class BeanDeserializerBase
 
     protected Object deserializeFromObjectUsingNonDefault(JsonParser jp,
             DeserializationContext ctxt) throws IOException
-    {        
+    {
         if (_delegateDeserializer != null) {
             return _valueInstantiator.createUsingDelegate(ctxt,
                     _delegateDeserializer.deserialize(jp, ctxt));
@@ -1115,14 +1115,14 @@ public abstract class BeanDeserializerBase
             }
             return bean;
         }
-        throw ctxt.instantiationException(getBeanClass(), "no suitable creator method found to deserialize from JSON integer number");
+        throw ctxt.instantiationException(handledType(), "no suitable creator method found to deserialize from JSON integer number");
     }
 
-    public Object deserializeFromString(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public Object deserializeFromString(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         // First things first: id Object Id is used, most likely that's it
         if (_objectIdReader != null) {
-            return deserializeFromObjectId(jp, ctxt);
+            return deserializeFromObjectId(p, ctxt);
         }
         
         /* Bit complicated if we have delegating creator; may need to use it,
@@ -1130,14 +1130,14 @@ public abstract class BeanDeserializerBase
          */
         if (_delegateDeserializer != null) {
             if (!_valueInstantiator.canCreateFromString()) {
-                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
                 if (_injectables != null) {
                     injectValues(ctxt, bean);
                 }
                 return bean;
             }
         }
-        return _valueInstantiator.createFromString(ctxt, jp.getText());
+        return _valueInstantiator.createFromString(ctxt, p.getText());
     }
 
     /**
@@ -1145,52 +1145,52 @@ public abstract class BeanDeserializerBase
      * number.
      */
     @SuppressWarnings("incomplete-switch")
-    public Object deserializeFromDouble(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public Object deserializeFromDouble(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        switch (jp.getNumberType()) {
+        switch (p.getNumberType()) {
         case FLOAT: // no separate methods for taking float...
         case DOUBLE:
             if (_delegateDeserializer != null) {
                 if (!_valueInstantiator.canCreateFromDouble()) {
-                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+                    Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
                     if (_injectables != null) {
                         injectValues(ctxt, bean);
                     }
                     return bean;
                 }
             }
-            return _valueInstantiator.createFromDouble(ctxt, jp.getDoubleValue());
+            return _valueInstantiator.createFromDouble(ctxt, p.getDoubleValue());
         }
         // actually, could also be BigDecimal, so:
         if (_delegateDeserializer != null) {
-            return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+            return _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
         }
-        throw ctxt.instantiationException(getBeanClass(), "no suitable creator method found to deserialize from JSON floating-point number");
+        throw ctxt.instantiationException(handledType(), "no suitable creator method found to deserialize from JSON floating-point number");
     }
 
     /**
      * Method called to deserialize POJO value from a JSON boolean value (true, false)
      */
-    public Object deserializeFromBoolean(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public Object deserializeFromBoolean(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         if (_delegateDeserializer != null) {
             if (!_valueInstantiator.canCreateFromBoolean()) {
-                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
                 if (_injectables != null) {
                     injectValues(ctxt, bean);
                 }
                 return bean;
             }
         }
-        boolean value = (jp.getCurrentToken() == JsonToken.VALUE_TRUE);
+        boolean value = (p.getCurrentToken() == JsonToken.VALUE_TRUE);
         return _valueInstantiator.createFromBoolean(ctxt, value);
     }
 
-    public Object deserializeFromArray(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public Object deserializeFromArray(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         if (_delegateDeserializer != null) {
             try {
-                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(jp, ctxt));
+                Object bean = _valueInstantiator.createUsingDelegate(ctxt, _delegateDeserializer.deserialize(p, ctxt));
                 if (_injectables != null) {
                     injectValues(ctxt, bean);
                 }
@@ -1199,18 +1199,18 @@ public abstract class BeanDeserializerBase
                 wrapInstantiationProblem(e, ctxt);
             }
         } else if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            JsonToken t = jp.nextToken();
+            JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
                 return null;
             }
-            final Object value = deserialize(jp, ctxt);
-            if (jp.nextToken() != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
+            final Object value = deserialize(p, ctxt);
+            if (p.nextToken() != JsonToken.END_ARRAY) {
+                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
                         "Attempted to unwrap single value array for single '" + _valueClass.getName() + "' value but there was more than a single value in the array");
             }
             return value;
         } else if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
-            JsonToken t = jp.nextToken();
+            JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY) {
                 return null;
             }

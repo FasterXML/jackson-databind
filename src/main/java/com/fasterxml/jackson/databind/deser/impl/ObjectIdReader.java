@@ -5,9 +5,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.annotation.SimpleObjectIdResolver;
-
 import com.fasterxml.jackson.core.JsonParser;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 
@@ -96,6 +94,36 @@ public class ObjectIdReader
 
     public JavaType getIdType() {
         return _idType;
+    }
+
+    /**
+     * Convenience method, equivalent to calling:
+     *<code>
+     *  readerInstance.generator.maySerializeAsObject();
+     *</code>
+     * and used to determine whether Object Ids handled by the underlying
+     * generator may be in form of (JSON) Objects.
+     * Used for optimizing handling in cases where method returns false.
+     * 
+     * @since 2.5
+     */
+    public boolean maySerializeAsObject() {
+        return generator.maySerializeAsObject();
+    }
+
+    /**
+     * Convenience method, equivalent to calling:
+     *<code>
+     *  readerInstance.generator.isValidReferencePropertyName(name, parser);
+     *</code>
+     * and used to determine whether Object Ids handled by the underlying
+     * generator may be in form of (JSON) Objects.
+     * Used for optimizing handling in cases where method returns false.
+     * 
+     * @since 2.5
+     */
+    public boolean isValidReferencePropertyName(String name, JsonParser parser) {
+        return generator.isValidReferencePropertyName(name, parser);
     }
     
     /**

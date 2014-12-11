@@ -18,6 +18,24 @@ public class BeanDeserializer
     extends BeanDeserializerBase
     implements java.io.Serializable
 {
+    /* TODOs for future versions:
+     * 
+     * For 2.6
+     * 
+     * - Start using new (2.5) methods in JsonParser, like
+     *   * 'hasTokenId(xxx)'
+     *   * 'nextFieldName()'
+     *   
+     *   for slightly more efficient property lookups, handling
+     *   (2-3% faster deserialization)
+     *   Not done for 2.5 since it was just introduced, trying to
+     *   keep some level of compatibility between "adjacent" minor
+     *   versions.
+     *   Also: need to ensure efficient impl of those methods for Smile, CBOR
+     *   at least (in addition to JSON)
+     * 
+     */
+
     private static final long serialVersionUID = 1L;
 
     /*

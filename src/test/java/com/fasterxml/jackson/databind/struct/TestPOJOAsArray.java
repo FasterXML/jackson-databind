@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.databind.struct.TestPOJOAsArrayAdvanced.AsArrayWithMap;
 
 public class TestPOJOAsArray extends BaseMapTest
 {

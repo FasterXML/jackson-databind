@@ -75,7 +75,7 @@ public abstract class BeanSerializerBase
      * reference to that member.
      */
     final protected AnnotatedMember _typeId;
-    
+
     /**
      * If this POJO can be alternatively serialized using just an object id
      * to denote a reference to previously serialized object,
@@ -87,7 +87,7 @@ public abstract class BeanSerializerBase
      * Requested shape from bean class annotations.
      */
     final protected JsonFormat.Shape _serializationShape;
-    
+
     /*
     /**********************************************************
     /* Life-cycle: constructors
@@ -523,34 +523,34 @@ public abstract class BeanSerializerBase
     // Main serialization method left unimplemented
     @Override
     public abstract void serialize(Object bean, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException;
+        throws IOException;
 
     // Type-info-augmented case implemented as it does not usually differ between impls
     @Override
-    public void serializeWithType(Object bean, JsonGenerator jgen,
+    public void serializeWithType(Object bean, JsonGenerator gen,
             SerializerProvider provider, TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         if (_objectIdWriter != null) {
-            _serializeWithObjectId(bean, jgen, provider, typeSer);
+            _serializeWithObjectId(bean, gen, provider, typeSer);
             return;
         }
 
-        String typeStr = (_typeId == null) ? null :_customTypeId(bean);
+        String typeStr = (_typeId == null) ? null : _customTypeId(bean);
         if (typeStr == null) {
-            typeSer.writeTypePrefixForObject(bean, jgen);
+            typeSer.writeTypePrefixForObject(bean, gen);
         } else {
-            typeSer.writeCustomTypePrefixForObject(bean, jgen, typeStr);
+            typeSer.writeCustomTypePrefixForObject(bean, gen, typeStr);
         }
         if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, jgen, provider);
+            serializeFieldsFiltered(bean, gen, provider);
         } else {
-            serializeFields(bean, jgen, provider);
+            serializeFields(bean, gen, provider);
         }
         if (typeStr == null) {
-            typeSer.writeTypeSuffixForObject(bean, jgen);
+            typeSer.writeTypeSuffixForObject(bean, gen);
         } else {
-            typeSer.writeCustomTypeSuffixForObject(bean, jgen, typeStr);
+            typeSer.writeCustomTypeSuffixForObject(bean, gen, typeStr);
         }
     }
 
@@ -630,7 +630,7 @@ public abstract class BeanSerializerBase
         }
     }
     
-    private final String _customTypeId(Object bean)
+    protected final String _customTypeId(Object bean)
     {
         final Object typeId = _typeId.getValue(bean);
         if (typeId == null) {

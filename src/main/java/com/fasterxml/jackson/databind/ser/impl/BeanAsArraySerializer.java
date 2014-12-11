@@ -119,16 +119,34 @@ public class BeanAsArraySerializer
     /**********************************************************
      */
 
-    // Re-defined from base class...
+    // Re-defined from base class, due to differing prefixes
     @Override
-    public void serializeWithType(Object bean, JsonGenerator jgen,
+    public void serializeWithType(Object bean, JsonGenerator gen,
             SerializerProvider provider, TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
-        /* Should not even get here; but let's be nice and re-route
-         * if need be.
+        /* 10-Dec-2014, tatu: Not sure if this can be made to work reliably;
+         *   but for sure delegating to default implementation will not work. So:
          */
-        _defaultSerializer.serializeWithType(bean, jgen, provider, typeSer);
+        
+        if (_objectIdWriter != null) {
+            _serializeWithObjectId(bean, gen, provider, typeSer);
+            return;
+        }
+
+        String typeStr = (_typeId == null) ? null : _customTypeId(bean);
+        if (typeStr == null) {
+            typeSer.writeTypePrefixForArray(bean, gen);
+        } else {
+            typeSer.writeCustomTypePrefixForArray(bean, gen, typeStr);
+        }
+        serializeAsArray(bean, gen, provider);
+        if (typeStr == null) {
+            typeSer.writeTypeSuffixForArray(bean, gen);
+        } else {
+            typeSer.writeCustomTypeSuffixForArray(bean, gen, typeStr);
+        }
+        
     }
     
     /**
@@ -138,7 +156,7 @@ public class BeanAsArraySerializer
      */
     @Override
     public final void serialize(Object bean, JsonGenerator gen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+        throws IOException
     {
         // [JACKSON-805]
         if (provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)
@@ -195,7 +213,7 @@ public class BeanAsArraySerializer
             }
             // NOTE: any getters can not be supported either
             //if (_anyGetterWriter != null) {
-            //    _anyGetterWriter.getAndSerialize(bean, jgen, provider);
+            //    _anyGetterWriter.getAndSerialize(bean, gen, provider);
             //}
         } catch (Exception e) {
             String name = (i == props.length) ? "[anySetter]" : props[i].getName();

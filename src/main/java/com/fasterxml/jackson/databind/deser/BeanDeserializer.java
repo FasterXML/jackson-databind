@@ -112,8 +112,8 @@ public class BeanDeserializer
         throws IOException
     {
         JsonToken t = p.getCurrentToken();
-        // common case first:
-        if (t == JsonToken.START_OBJECT) {
+        // common case first
+        if (t == JsonToken.START_OBJECT) { // TODO: in 2.6, use 'p.hasTokenId()'
             if (_vanillaProcessing) {
                 return vanillaDeserialize(p, ctxt, p.nextToken());
             }
@@ -264,7 +264,8 @@ public class BeanDeserializer
          *   but let's only do that if and when that becomes necessary.
          */
         if (_objectIdReader != null && _objectIdReader.maySerializeAsObject()) {
-            if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)
+            // TODO: in 2.6, use 'p.hasTokenId()'
+            if ((p.getCurrentTokenId() == JsonTokenId.ID_FIELD_NAME)
                     && _objectIdReader.isValidReferencePropertyName(p.getCurrentName(), p)) {
                 return deserializeFromObjectId(p, ctxt);
             }
@@ -498,7 +499,8 @@ public class BeanDeserializer
             injectValues(ctxt, bean);
         }
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        for (; p.getCurrentToken() != JsonToken.END_OBJECT; p.nextToken()) {
+        JsonToken t = p.getCurrentToken();
+        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);

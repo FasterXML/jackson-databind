@@ -90,7 +90,7 @@ public class PojoAsArray646Test extends BaseMapTest
         nestedList.add(new TheItem.NestedItem("foo2"));
         TheItem item = new TheItem("first", false, nestedList);
         Outer outer = new Outer();
-        outer.getAttributes().put(TheItem.class.getName(), item);
+        outer.getAttributes().put("entry1", item);
 
         String json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(outer);
 

@@ -2,8 +2,8 @@ package com.fasterxml.jackson.databind.ser.impl;
 
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -128,12 +128,10 @@ public class BeanAsArraySerializer
         /* 10-Dec-2014, tatu: Not sure if this can be made to work reliably;
          *   but for sure delegating to default implementation will not work. So:
          */
-        
         if (_objectIdWriter != null) {
             _serializeWithObjectId(bean, gen, provider, typeSer);
             return;
         }
-
         String typeStr = (_typeId == null) ? null : _customTypeId(bean);
         if (typeStr == null) {
             typeSer.writeTypePrefixForArray(bean, gen);
@@ -146,9 +144,8 @@ public class BeanAsArraySerializer
         } else {
             typeSer.writeCustomTypeSuffixForArray(bean, gen, typeStr);
         }
-        
     }
-    
+
     /**
      * Main serialization method that will delegate actual output to
      * configured

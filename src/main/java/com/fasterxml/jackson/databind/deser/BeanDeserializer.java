@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.impl.*;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 /**
  * Deserializer class that can deserialize instances of
@@ -502,7 +503,7 @@ public class BeanDeserializer
             String propName = p.getCurrentName();
             p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
-            if (prop != null) { // normal case
+            if (prop != null && prop.getAnnotation(JsonUnwrapped.class) == null) { // normal case
                 if (activeView != null && !prop.visibleInView(activeView)) {
                     p.skipChildren();
                     continue;

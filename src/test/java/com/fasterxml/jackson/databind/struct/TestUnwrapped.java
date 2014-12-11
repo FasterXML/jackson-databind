@@ -85,6 +85,19 @@ public class TestUnwrapped extends BaseMapTest
         public Child(String f) { field = f; }
     }
 
+    private static class UnwrappedWithSamePropertyName {
+        public MailHolder mail;
+    }
+
+    private static class MailHolder {
+        @JsonUnwrapped
+        public Mail mail;
+    }
+
+    private static class Mail {
+        public String mail;
+    }
+
     /*
     /**********************************************************
     /* Tests, serialization
@@ -158,6 +171,14 @@ public class TestUnwrapped extends BaseMapTest
         assertEquals(2, loc.y);
     }
 
+    public void testUnwrappedWithSamePropertyName() throws Exception {
+        final String JSON = "{'mail': {'mail': 'the mail text'}}";
+        UnwrappedWithSamePropertyName result = MAPPER.readValue(aposToQuotes(JSON), UnwrappedWithSamePropertyName.class);
+        assertNotNull(result.mail);
+        assertNotNull(result.mail.mail);
+        assertEquals("the mail text", result.mail.mail.mail);
+    }
+
     public void testIssue615() throws Exception
     {
         Parent input = new Parent("name");
@@ -165,7 +186,7 @@ public class TestUnwrapped extends BaseMapTest
         Parent output = MAPPER.readValue(json, Parent.class);
         assertEquals("name", output.c1.field);
     }
-
+    
     // 22-Apr-2013, tatu: Commented out as it can't be simply fixed; requires implementing
     //    deep-update/merge. But leaving here to help with that effort, if/when it proceeds.
 

@@ -258,7 +258,7 @@ public class BeanDeserializer
     {
         /* 09-Dec-2014, tatu: As per [#622], we need to allow Object Id references
          *   to come in as JSON Objects as well; but for now assume they will
-         *   be simple, single-prooerty references, which means that we can
+         *   be simple, single-property references, which means that we can
          *   recognize them without having to buffer anything.
          *   Once again, if we must, we can do more complex handling with buffering,
          *   but let's only do that if and when that becomes necessary.

@@ -1,7 +1,10 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
+import java.io.IOException;
 import java.util.*;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.util.NameTransformer;
@@ -233,6 +236,44 @@ public final class BeanPropertyMap
         }
         // Do we need fallback for non-interned Strings?
         return _findWithEquals(key, index);
+    }
+
+    /**
+     * @since 2.5
+     */
+    public boolean findDeserializeAndSet(JsonParser p, DeserializationContext ctxt,
+            Object bean, String key) throws IOException
+    {
+        int index = key.hashCode() & _hashMask;
+        Bucket bucket = _buckets[index];
+        // Let's unroll first lookup since that is null or match in 90+% cases
+        if (bucket == null) {
+            return false;
+        }
+        // Primarily we do just identity comparison as keys should be interned
+        if (bucket.key == key) {
+            bucket.value.deserializeAndSet(p, ctxt, bean);
+            return true;
+        }
+        return _findDeserializeAndSet2(p, ctxt, bean, key, index);
+    }
+
+    private final boolean _findDeserializeAndSet2(JsonParser p, DeserializationContext ctxt,
+            Object bean, String key, int index) throws IOException
+    {
+        Bucket bucket = _buckets[index];
+        while ((bucket = bucket.next) != null) {
+            if (bucket.key == key) {
+                bucket.value.deserializeAndSet(p, ctxt, bean);
+                return true;
+            }
+        }
+        SettableBeanProperty prop = _findWithEquals(key, index);
+        if (prop == null) {
+            return false;
+        }
+        prop.deserializeAndSet(p, ctxt, bean);
+        return true;
     }
 
     /**

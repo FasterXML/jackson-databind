@@ -1,12 +1,15 @@
 package com.fasterxml.jackson.databind.struct;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.struct.TestPOJOAsArrayAdvanced.AsArrayWithMap;
 
 public class TestPOJOAsArray extends BaseMapTest
 {
@@ -87,7 +90,20 @@ public class TestPOJOAsArray extends BaseMapTest
         public String bar = null;
         public String foo = "bar";
     }
-    
+
+    @JsonFormat(shape=JsonFormat.Shape.ARRAY)
+    @JsonPropertyOrder(alphabetic=true)
+    static class AsArrayWithMap
+    {
+        public Map<Integer,Integer> attrs;
+
+        public AsArrayWithMap() { }
+        public AsArrayWithMap(int x, int y) {
+            attrs = new HashMap<Integer,Integer>();
+            attrs.put(x, y);
+        }
+    }
+
     /*
     /*****************************************************
     /* Basic tests
@@ -171,7 +187,7 @@ public class TestPOJOAsArray extends BaseMapTest
         assertNotNull(result);
         assertEquals("foobar", result.name);
     }
-    
+
     /*
     /*****************************************************
     /* Round-trip tests
@@ -187,5 +203,16 @@ public class TestPOJOAsArray extends BaseMapTest
         ObjectMapper mapper2 = new ObjectMapper();
         mapper2.setAnnotationIntrospector(new ForceArraysIntrospector());
         assertEquals("[[1,2]]", mapper2.writeValueAsString(new A()));
+    }
+
+    public void testWithMaps() throws Exception
+    {
+        AsArrayWithMap input = new AsArrayWithMap(1, 2);
+        String json = MAPPER.writeValueAsString(input);
+        AsArrayWithMap output = MAPPER.readValue(json, AsArrayWithMap.class);
+        assertNotNull(output);
+        assertNotNull(output.attrs);
+        assertEquals(1, output.attrs.size());
+        assertEquals(Integer.valueOf(2), output.attrs.get(1));
     }
 }

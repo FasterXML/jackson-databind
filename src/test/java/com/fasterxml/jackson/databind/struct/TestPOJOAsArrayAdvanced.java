@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.struct;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -56,7 +55,7 @@ public class TestPOJOAsArrayAdvanced extends BaseMapTest
         public int b;
         public int c;
     }
-    
+
     /*
     /*****************************************************
     /* Basic tests

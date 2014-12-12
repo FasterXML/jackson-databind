@@ -183,3 +183,8 @@ Michael Ressler (mressler@github)
   * Contributed #566: Add support for case-insensitive deserialization
    (`MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES`)
    (2.5.0)
+
+Konstantin Labun (kulabun@github)
+  * Reported #647: Deserialization fails when @JsonUnwrapped property contains an object with same property name
+   (2.5.0)
+

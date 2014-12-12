@@ -461,10 +461,10 @@ public abstract class BeanDeserializerBase
                     unwrapped = new UnwrappedPropertyHandler();
                 }
                 unwrapped.addProperty(prop);
-                // 10-Apr-2014, tatu: Looks like we should also do this? (no observed diff tho)
-                if (prop != origProp) {
-                    _beanProperties.replace(prop);
-                }
+                /* 12-Dec-2014, tatu: As per [databind#647], we will have problems if
+                 *    the original property is left in place. So let's remove it now.
+                 */
+                _beanProperties.remove(prop);
                 continue;
             }
             // [JACKSON-594]: non-static inner classes too:

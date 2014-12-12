@@ -30,6 +30,8 @@ Project: jackson-databind
 #560: @JsonCreator to deserialize BigInteger to Enum
  (requested by gisupp@github)
 #565: Add support for handling `Map.Entry`
+#566: Add support for case-insensitive deserialization (`MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES`)
+ (contributed by Michael R)
 #571: Add support in ObjectMapper for custom `ObjectReader`, `ObjectWriter` (sub-classes)
 #572: Override default serialization of Enums
  (requested by herau@github)

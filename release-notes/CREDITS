@@ -175,7 +175,11 @@ Aurélien Leboulanger (herau@github)
     returns null (which is illegal)
    (2.5.0)
 
-Michale Spiegel (mspiegel@githib)
+Michael Spiegel (mspiegel@githib)
   * Contributed #636: `ClassNotFoundException` for classes not (yet) needed during serialization
    (2.5.0)
 
+Michael Ressler (mressler@github)
+  * Contributed #566: Add support for case-insensitive deserialization
+   (`MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES`)
+   (2.5.0)

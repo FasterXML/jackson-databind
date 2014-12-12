@@ -261,13 +261,19 @@ public enum MapperFeature implements ConfigFeature
     /* Name-related features
     /******************************************************
      */
-    
     /**
      * Feature that will allow for more forgiving deserialization of incoming JSON.
-     * If enabled, the bean properties will be matched using their lower-case
-     * equivalents.
-     * <p>
+     * If enabled, the bean properties will be matched using their lower-case equivalents,
+     * meaning that any case-combination (incoming and matching names are canonicalized
+     * by lower-casing) should work.
+     *<p>
+     * Note that there is additional performance overhead since incoming property
+     * names need to be lower-cased before comparison, for cases where there are upper-case
+     * letters. Overhead for names that are already lower-case should be negligible however.
+     *<p>
      * Feature is disabled by default.
+     * 
+     * @since 2.5
      */
     ACCEPT_CASE_INSENSITIVE_PROPERTIES(false),
     

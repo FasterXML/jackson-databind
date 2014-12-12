@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.*;
 
 import com.fasterxml.jackson.databind.*;
 
-public class TestUnwrappedWithCreator extends BaseMapTest
+public class TestUnwrappedWithCreator265 extends BaseMapTest
 {
     static class JAddress {
         protected String address;

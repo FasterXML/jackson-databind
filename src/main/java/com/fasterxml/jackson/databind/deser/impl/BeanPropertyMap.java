@@ -1,11 +1,15 @@
 package com.fasterxml.jackson.databind.deser.impl;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
@@ -160,7 +164,7 @@ public final class BeanPropertyMap
     // Confining this case insensitivity to this function (and the find method) in case we want to
     // apply a particular locale to the lower case function.  For now, using the default.
     private String getPropertyName(SettableBeanProperty prop) {
-    	return _caseInsensitive ? prop.getName().toLowerCase() : prop.getName();
+        return _caseInsensitive ? prop.getName().toLowerCase() : prop.getName();
     }
 
     /*
@@ -255,6 +259,12 @@ public final class BeanPropertyMap
     }
 
     /**
+     * Convenience method that tries to find property with given name, and
+     * if it is found, call {@link SettableBeanProperty#deserializeAndSet}
+     * on it, and return true; or, if not found, return false.
+     * Note, too, that if deserialization is attempted, possible exceptions
+     * are wrapped if and as necessary, so caller need not handle those.
+     * 
      * @since 2.5
      */
     public boolean findDeserializeAndSet(JsonParser p, DeserializationContext ctxt,
@@ -271,27 +281,39 @@ public final class BeanPropertyMap
         }
         // Primarily we do just identity comparison as keys should be interned
         if (bucket.key == key) {
-            bucket.value.deserializeAndSet(p, ctxt, bean);
+            try {
+                bucket.value.deserializeAndSet(p, ctxt, bean);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, key, ctxt);
+            }
             return true;
-        }
+        } 
         return _findDeserializeAndSet2(p, ctxt, bean, key, index);
     }
-
+    
     private final boolean _findDeserializeAndSet2(JsonParser p, DeserializationContext ctxt,
             Object bean, String key, int index) throws IOException
     {
+        SettableBeanProperty prop = null;
         Bucket bucket = _buckets[index];
-        while ((bucket = bucket.next) != null) {
+        while (true) {
+            if ((bucket = bucket.next) == null) {
+                prop = _findWithEquals(key, index);
+                if (prop == null) {
+                    return false;
+                }
+                break;
+            }
             if (bucket.key == key) {
-                bucket.value.deserializeAndSet(p, ctxt, bean);
-                return true;
+                prop = bucket.value;
+                break;
             }
         }
-        SettableBeanProperty prop = _findWithEquals(key, index);
-        if (prop == null) {
-            return false;
+        try {
+            prop.deserializeAndSet(p, ctxt, bean);
+        } catch (Exception e) {
+            wrapAndThrow(e, bean, key, ctxt);
         }
-        prop.deserializeAndSet(p, ctxt, bean);
         return true;
     }
 
@@ -386,6 +408,35 @@ public final class BeanPropertyMap
             bucket = bucket.next;
         }
         return null;
+    }
+
+    /**
+     * @since 2.5
+     */
+    protected void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
+        throws IOException
+    {
+        // inlined 'throwOrReturnThrowable'
+        while (t instanceof InvocationTargetException && t.getCause() != null) {
+            t = t.getCause();
+        }
+        // Errors to be passed as is
+        if (t instanceof Error) {
+            throw (Error) t;
+        }
+        // StackOverflowErrors are tricky ones; need to be careful...
+        boolean wrap = (ctxt == null) || ctxt.isEnabled(DeserializationFeature.WRAP_EXCEPTIONS);
+        // Ditto for IOExceptions; except we may want to wrap JSON exceptions
+        if (t instanceof IOException) {
+            if (!wrap || !(t instanceof JsonProcessingException)) {
+                throw (IOException) t;
+            }
+        } else if (!wrap) { // [JACKSON-407] -- allow disabling wrapping for unchecked exceptions
+            if (t instanceof RuntimeException) {
+                throw (RuntimeException) t;
+            }
+        }
+        throw JsonMappingException.wrapWithPath(t, bean, fieldName);
     }
 
     /*

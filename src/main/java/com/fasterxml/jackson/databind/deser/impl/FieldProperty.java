@@ -5,11 +5,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.PropertyName;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.SettableBeanProperty;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -100,23 +96,32 @@ public final class FieldProperty
 
     @Override
     public void deserializeAndSet(JsonParser jp,
-    		DeserializationContext ctxt, Object instance)
-        throws IOException, JsonProcessingException
+    		DeserializationContext ctxt, Object instance) throws IOException
     {
-        set(instance, deserialize(jp, ctxt));
+        
+        Object value = deserialize(jp, ctxt);
+        try {
+            _field.set(instance, value);
+        } catch (Exception e) {
+            _throwAsIOE(e, value);
+        }
     }
 
     @Override
     public Object deserializeSetAndReturn(JsonParser jp,
-    		DeserializationContext ctxt, Object instance)
-        throws IOException, JsonProcessingException
+    		DeserializationContext ctxt, Object instance) throws IOException
     {
-        return setAndReturn(instance, deserialize(jp, ctxt));
+        Object value = deserialize(jp, ctxt);
+        try {
+            _field.set(instance, value);
+        } catch (Exception e) {
+            _throwAsIOE(e, value);
+        }
+        return instance;
     }
     
     @Override
-    public final void set(Object instance, Object value)
-        throws IOException
+    public final void set(Object instance, Object value) throws IOException
     {
         try {
             _field.set(instance, value);
@@ -126,8 +131,7 @@ public final class FieldProperty
     }
 
     @Override
-    public Object setAndReturn(Object instance, Object value)
-        throws IOException
+    public Object setAndReturn(Object instance, Object value) throws IOException
     {
         try {
             _field.set(instance, value);

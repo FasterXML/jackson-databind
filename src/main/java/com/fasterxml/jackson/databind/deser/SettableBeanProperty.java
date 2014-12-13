@@ -462,9 +462,8 @@ public abstract class SettableBeanProperty
      * that should be consumed to produce the value (the only value for
      * scalars, multiple for Objects and Arrays).
      */
-    public abstract void deserializeAndSet(JsonParser jp,
-    		DeserializationContext ctxt, Object instance)
-        throws IOException, JsonProcessingException;
+    public abstract void deserializeAndSet(JsonParser p,
+    		DeserializationContext ctxt, Object instance) throws IOException;
 
 	/**
 	 * Alternative to {@link #deserializeAndSet} that returns
@@ -474,9 +473,8 @@ public abstract class SettableBeanProperty
 	 *
 	 * @since 2.0
 	 */
-    public abstract Object deserializeSetAndReturn(JsonParser jp,
-    		DeserializationContext ctxt, Object instance)
-        throws IOException, JsonProcessingException;
+    public abstract Object deserializeSetAndReturn(JsonParser p,
+    		DeserializationContext ctxt, Object instance) throws IOException;
 
     /**
      * Method called to assign given value to this property, on
@@ -486,8 +484,7 @@ public abstract class SettableBeanProperty
      * implementations, creator-backed properties for example do not
      * support this method.
      */
-    public abstract void set(Object instance, Object value)
-        throws IOException;
+    public abstract void set(Object instance, Object value) throws IOException;
 
     /**
      * Method called to assign given value to this property, on
@@ -497,11 +494,8 @@ public abstract class SettableBeanProperty
      * Note: this is an optional operation, not supported by all
      * implementations, creator-backed properties for example do not
      * support this method.
-     * 
-     * @since 2.0
      */
-    public abstract Object setAndReturn(Object instance, Object value)
-        throws IOException;
+    public abstract Object setAndReturn(Object instance, Object value) throws IOException;
     
     /**
      * This method is needed by some specialized bean deserializers,
@@ -516,17 +510,17 @@ public abstract class SettableBeanProperty
      * this method should also not be called directly unless you really know
      * what you are doing (and probably not even then).
      */
-    public final Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public final Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         
         if (t == JsonToken.VALUE_NULL) {
             return (_nullProvider == null) ? null : _nullProvider.nullValue(ctxt);
         }
         if (_valueTypeDeserializer != null) {
-            return _valueDeserializer.deserializeWithType(jp, ctxt, _valueTypeDeserializer);
+            return _valueDeserializer.deserializeWithType(p, ctxt, _valueTypeDeserializer);
         }
-        return _valueDeserializer.deserialize(jp, ctxt);
+        return _valueDeserializer.deserialize(p, ctxt);
     }
     
     /*
@@ -539,8 +533,7 @@ public abstract class SettableBeanProperty
      * Method that takes in exception of any type, and casts or wraps it
      * to an IOException or its subclass.
      */
-    protected void _throwAsIOE(Exception e, Object value)
-        throws IOException
+    protected void _throwAsIOE(Exception e, Object value) throws IOException
     {
         if (e instanceof IllegalArgumentException) {
             String actType = (value == null) ? "[NULL]" : value.getClass().getName();
@@ -558,8 +551,7 @@ public abstract class SettableBeanProperty
         _throwAsIOE(e);
     }
 
-    protected IOException _throwAsIOE(Exception e)
-        throws IOException
+    protected IOException _throwAsIOE(Exception e) throws IOException
     {
         if (e instanceof IOException) {
             throw (IOException) e;

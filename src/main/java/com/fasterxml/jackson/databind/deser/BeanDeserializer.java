@@ -217,14 +217,9 @@ public class BeanDeserializer
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken();
-            try {
-                if (_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
-                    continue;
-                }
-            } catch (Exception e) {
-                wrapAndThrow(e, bean, propName, ctxt);
+            if (!_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
+                handleUnknownVanilla(p, ctxt, bean, propName);
             }
-            handleUnknownVanilla(p, ctxt, bean, propName);
         }
         return bean;
     }
@@ -249,14 +244,9 @@ public class BeanDeserializer
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken();
-            try {
-                if (_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
-                    continue;
-                }
-            } catch (Exception e) {
-                wrapAndThrow(e, bean, propName, ctxt);
+            if (!_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
+                handleUnknownVanilla(p, ctxt, bean, propName);
             }
-            handleUnknownVanilla(p, ctxt, bean, propName);
         }
         return bean;
     }
@@ -328,14 +318,9 @@ public class BeanDeserializer
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken();
-            try {
-                if (_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
-                    continue;
-                }
-            } catch (Exception e) {
-                wrapAndThrow(e, bean, propName, ctxt);
+            if (!_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
+                handleUnknownVanilla(p, ctxt, bean, propName);
             }
-            handleUnknownVanilla(p, ctxt, bean, propName);
         }
         return bean;
     }

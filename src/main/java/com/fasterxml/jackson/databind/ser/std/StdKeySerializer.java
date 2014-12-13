@@ -20,9 +20,9 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 public class StdKeySerializer extends StdSerializer<Object>
 {
     public StdKeySerializer() { super(Object.class); }
-    
+
     @Override
-    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         if (value instanceof Date) {
             provider.defaultSerializeDateKey((Date) value, jgen);
         } else {
@@ -34,7 +34,7 @@ public class StdKeySerializer extends StdSerializer<Object>
     public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
         return createSchemaNode("string");
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
         visitor.expectStringFormat(typeHint);

@@ -5,10 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import com.fasterxml.jackson.core.*;
-
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 
 public class StdKeySerializers
 {
@@ -20,33 +17,47 @@ public class StdKeySerializers
 
     private StdKeySerializers() { }
 
+    /**
+     * @param config Serialization configuration in use, may be needed in choosing
+     *    serializer to use
+     * @param rawKeyType Type of key values to serialize
+     * @param useDefault If no match is found, should we return fallback deserializer
+     *    (true), or null (false)?
+     */
     @SuppressWarnings("unchecked")
-    public static JsonSerializer<Object> getStdKeySerializer(JavaType keyType)
+    public static JsonSerializer<Object> getStdKeySerializer(SerializationConfig config,
+            Class<?> rawKeyType, boolean useDefault)
     {
-        if (keyType == null) {
-            return DEFAULT_KEY_SERIALIZER;
+        if (rawKeyType != null) {
+            if (rawKeyType == String.class) {
+                return DEFAULT_STRING_SERIALIZER;
+            }
+            if (rawKeyType == Object.class || rawKeyType.isPrimitive()
+                    || Number.class.isAssignableFrom(rawKeyType)) {
+                return DEFAULT_KEY_SERIALIZER;
+            }
+            if (Date.class.isAssignableFrom(rawKeyType)) {
+                return (JsonSerializer<Object>) DateKeySerializer.instance;
+            }
+            if (Calendar.class.isAssignableFrom(rawKeyType)) {
+                return (JsonSerializer<Object>) CalendarKeySerializer.instance;
+            }
         }
-        Class<?> cls = keyType.getRawClass();
-        if (cls == String.class) {
-            return DEFAULT_STRING_SERIALIZER;
-        }
-        if (cls == Object.class || cls.isPrimitive() || Number.class.isAssignableFrom(cls)) {
-            return DEFAULT_KEY_SERIALIZER;
-        }
-        if (Date.class.isAssignableFrom(cls)) {
-            return (JsonSerializer<Object>) DateKeySerializer.instance;
-        }
-        if (Calendar.class.isAssignableFrom(cls)) {
-            return (JsonSerializer<Object>) CalendarKeySerializer.instance;
-        }
-        /* 14-Mar-2014, tatu: Should support @JsonValue, as per #47; but that
-         *   requires extensive introspection, and passing in more information
-         *   to this method.
-         */
-        // If no match, just use default one:
-        return DEFAULT_KEY_SERIALIZER;
+        return useDefault ? DEFAULT_KEY_SERIALIZER : null;
     }
 
+    /**
+     * @deprecated Since 2.5
+     */
+    @Deprecated
+    public static JsonSerializer<Object> getStdKeySerializer(JavaType keyType) {
+        return getStdKeySerializer(null, keyType.getRawClass(), true);
+    }
+
+    public static JsonSerializer<Object> getDefault() {
+        return DEFAULT_KEY_SERIALIZER;
+    }
+    
     /*
     /**********************************************************
     /* Standard implementations

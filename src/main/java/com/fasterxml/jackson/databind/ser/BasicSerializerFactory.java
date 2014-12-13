@@ -10,7 +10,6 @@ import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig;
@@ -206,6 +205,7 @@ public abstract class BasicSerializerFactory
             JavaType keyType, JsonSerializer<Object> defaultImpl)
     {
         // We should not need any member method info; at most class annotations for Map type
+        // ... at least, not here.
         BeanDescription beanDesc = config.introspectClassAnnotations(keyType.getRawClass());
         JsonSerializer<?> ser = null;
         // Minor optimization: to avoid constructing beanDesc, bail out if none registered
@@ -221,7 +221,20 @@ public abstract class BasicSerializerFactory
         if (ser == null) {
             ser = defaultImpl;
             if (ser == null) {
-                ser = StdKeySerializers.getStdKeySerializer(keyType);
+                ser = StdKeySerializers.getStdKeySerializer(config, keyType.getRawClass(), false);
+                // As per [databind#47], also need to support @JsonValue
+                if (ser == null) {
+                    beanDesc = config.introspect(keyType);
+                    AnnotatedMethod am = beanDesc.findJsonValueMethod();
+                    if (am != null) {
+                        final Class<?> rawType = am.getRawReturnType();
+                        JsonSerializer<?> delegate = StdKeySerializers.getStdKeySerializer(config,
+                                rawType, true);
+                        ser = new JsonValueSerializer(am.getAnnotated(), delegate);
+                    } else {
+                        ser = StdKeySerializers.getDefault();
+                    }
+                }
             }
         }
         

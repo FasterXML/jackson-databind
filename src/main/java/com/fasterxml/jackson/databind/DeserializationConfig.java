@@ -653,7 +653,7 @@ public final class DeserializationConfig
         }
         return factory.isEnabled(f);
     }
-    
+
     /**
      * "Bulk" access method for checking that all features specified by
      * mask are enabled.
@@ -673,7 +673,7 @@ public final class DeserializationConfig
     /* Other configuration
     /**********************************************************
      */
-    
+
     /**
      * Method for getting head of the problem handler chain. May be null,
      * if no handlers have been added.

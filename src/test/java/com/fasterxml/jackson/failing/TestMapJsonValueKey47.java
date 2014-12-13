@@ -41,6 +41,6 @@ public class TestMapJsonValueKey47 extends BaseMapTest
 
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(input);
-        assertEquals(aposToQuotes("{'3':'true'}"), json);
+        assertEquals(aposToQuotes("{'3':true}"), json);
     }
 }

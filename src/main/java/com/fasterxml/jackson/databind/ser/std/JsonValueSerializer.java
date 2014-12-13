@@ -7,7 +7,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
@@ -60,11 +59,12 @@ public class JsonValueSerializer
      *    {@link com.fasterxml.jackson.databind.annotation.JsonSerialize#using}), otherwise
      *    null
      */
-    public JsonValueSerializer(Method valueMethod, JsonSerializer<Object> ser)
+    @SuppressWarnings("unchecked")
+    public JsonValueSerializer(Method valueMethod, JsonSerializer<?> ser)
     {
-        super(Object.class);
+        super(valueMethod.getReturnType(), false);
         _accessorMethod = valueMethod;
-        _valueSerializer = ser;
+        _valueSerializer = (JsonSerializer<Object>) ser;
         _property = null;
         _forceTypeInformation = true; // gets reconsidered when we are contextualized
     }
@@ -294,8 +294,7 @@ public class JsonValueSerializer
      */
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "(@JsonValue serializer for method " + _accessorMethod.getDeclaringClass() + "#" + _accessorMethod.getName() + ")";
     }
 }

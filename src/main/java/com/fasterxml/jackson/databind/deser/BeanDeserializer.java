@@ -216,17 +216,13 @@ public class BeanDeserializer
         }
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
-            // Skip field name:
             p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
-            
-            if (prop != null) { // normal case
-                try {
-                    prop.deserializeAndSet(p, ctxt, bean);
-                } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+            try {
+                if (_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
+                    continue;
                 }
-                continue;
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, propName, ctxt);
             }
             handleUnknownVanilla(p, ctxt, bean, propName);
         }
@@ -252,18 +248,15 @@ public class BeanDeserializer
         p.setCurrentValue(bean);
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
-            // Skip field name:
             p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
-            if (prop != null) { // normal case
-                try {
-                    prop.deserializeAndSet(p, ctxt, bean);
-                } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+            try {
+                if (_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
+                    continue;
                 }
-            } else {
-                handleUnknownVanilla(p, ctxt, bean, propName);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, propName, ctxt);
             }
+            handleUnknownVanilla(p, ctxt, bean, propName);
         }
         return bean;
     }
@@ -334,16 +327,13 @@ public class BeanDeserializer
         JsonToken t = p.getCurrentToken();
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
-            // Skip field name:
             p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
-            if (prop != null) { // normal case
-                try {
-                    prop.deserializeAndSet(p, ctxt, bean);
-                } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
+            try {
+                if (_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
+                    continue;
                 }
-                continue;
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, propName, ctxt);
             }
             handleUnknownVanilla(p, ctxt, bean, propName);
         }

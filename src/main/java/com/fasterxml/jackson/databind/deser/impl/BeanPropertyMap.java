@@ -31,8 +31,11 @@ public final class BeanPropertyMap
     private final int _hashMask;
 
     private final int _size;
-    
-    private final boolean _caseInsensitivePropertyComparison;
+
+    /**
+     * @since 2.5
+     */
+    private final boolean _caseInsensitive;
 
     /**
      * Counter we use to keep track of insertion order of properties
@@ -45,7 +48,7 @@ public final class BeanPropertyMap
 
     public BeanPropertyMap(Collection<SettableBeanProperty> properties, boolean caseInsensitivePropertyComparison)
     {
-        _caseInsensitivePropertyComparison = caseInsensitivePropertyComparison;
+        _caseInsensitive = caseInsensitivePropertyComparison;
         _size = properties.size();
         int bucketCount = findSize(_size);
         _hashMask = bucketCount-1;
@@ -64,7 +67,7 @@ public final class BeanPropertyMap
         _size = size;
         _hashMask = buckets.length-1;
         _nextBucketIndex = index;
-        _caseInsensitivePropertyComparison = caseInsensitivePropertyComparison;
+        _caseInsensitive = caseInsensitivePropertyComparison;
     }
     
     /**
@@ -92,10 +95,10 @@ public final class BeanPropertyMap
     	        int index = propName.hashCode() & _hashMask;
     	        newBuckets[index] = new Bucket(newBuckets[index],
     	                propName, newProperty, _nextBucketIndex++);
-    	        return new BeanPropertyMap(newBuckets, _size+1, _nextBucketIndex, _caseInsensitivePropertyComparison);
+    	        return new BeanPropertyMap(newBuckets, _size+1, _nextBucketIndex, _caseInsensitive);
         }
         // replace: easy, close + replace
-        BeanPropertyMap newMap = new BeanPropertyMap(newBuckets, bcount, _nextBucketIndex, _caseInsensitivePropertyComparison);
+        BeanPropertyMap newMap = new BeanPropertyMap(newBuckets, bcount, _nextBucketIndex, _caseInsensitive);
         newMap.replace(newProperty);
         return newMap;
     }
@@ -127,7 +130,7 @@ public final class BeanPropertyMap
             newProps.add(prop);
         }
         // should we try to re-index? Ordering probably changed but called probably doesn't want changes...
-        return new BeanPropertyMap(newProps, _caseInsensitivePropertyComparison);
+        return new BeanPropertyMap(newProps, _caseInsensitive);
     }
     
     public BeanPropertyMap assignIndexes()
@@ -157,7 +160,7 @@ public final class BeanPropertyMap
     // Confining this case insensitivity to this function (and the find method) in case we want to
     // apply a particular locale to the lower case function.  For now, using the default.
     private String getPropertyName(SettableBeanProperty prop) {
-    	return _caseInsensitivePropertyComparison ? prop.getName().toLowerCase() : prop.getName();
+    	return _caseInsensitive ? prop.getName().toLowerCase() : prop.getName();
     }
 
     /*
@@ -229,11 +232,9 @@ public final class BeanPropertyMap
         if (key == null) {
             throw new IllegalArgumentException("Can not pass null property name");
         }
-        
-        if (_caseInsensitivePropertyComparison) {
-        	key = key.toLowerCase();
+        if (_caseInsensitive) {
+            key = key.toLowerCase();
         }
-        
         int index = key.hashCode() & _hashMask;
         Bucket bucket = _buckets[index];
         // Let's unroll first lookup since that is null or match in 90+% cases
@@ -259,6 +260,9 @@ public final class BeanPropertyMap
     public boolean findDeserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object bean, String key) throws IOException
     {
+        if (_caseInsensitive) {
+            key = key.toLowerCase();
+        }
         int index = key.hashCode() & _hashMask;
         Bucket bucket = _buckets[index];
         // Let's unroll first lookup since that is null or match in 90+% cases

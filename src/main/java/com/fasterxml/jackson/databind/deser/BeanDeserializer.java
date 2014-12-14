@@ -248,6 +248,20 @@ public class BeanDeserializer
                 handleUnknownVanilla(p, ctxt, bean, propName);
             }
         }
+        
+        // 13-Dec-2014, tatu: For 2.6, we'll do:
+        /*
+        if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+            String propName = p.getCurrentName();
+            do {
+                p.nextToken();
+                if (!_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
+                    handleUnknownVanilla(p, ctxt, bean, propName);
+                }
+            } while ((propName = p.nextFieldName()) != null);
+        }
+        */
+        
         return bean;
     }
 
@@ -322,6 +336,18 @@ public class BeanDeserializer
                 handleUnknownVanilla(p, ctxt, bean, propName);
             }
         }
+        // 13-Dec-2014, tatu: For 2.6, we'll do:
+        /*
+        if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+            String propName = p.getCurrentName();
+            do {
+                p.nextToken();
+                if (!_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
+                    handleUnknownVanilla(p, ctxt, bean, propName);
+                }
+            } while ((propName = p.nextFieldName()) != null);
+        }
+        */
         return bean;
     }
 

@@ -98,7 +98,6 @@ public final class FieldProperty
     public void deserializeAndSet(JsonParser jp,
     		DeserializationContext ctxt, Object instance) throws IOException
     {
-        
         Object value = deserialize(jp, ctxt);
         try {
             _field.set(instance, value);

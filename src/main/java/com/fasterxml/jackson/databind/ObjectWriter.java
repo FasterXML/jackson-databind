@@ -12,9 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
-import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.SerializerFactory;
+import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -223,7 +221,7 @@ public class ObjectWriter
         _rootSerializer = base._rootSerializer;
         _prettyPrinter = base._prettyPrinter;
     }
-    
+
     /**
      * Method that will return version information stored in and read from jar
      * that contains this class.
@@ -236,7 +234,7 @@ public class ObjectWriter
     /*
     /**********************************************************
     /* Methods sub-classes MUST override, used for constructing
-    /* reader instances, (re)configuring parser instances.
+    /* writer instances, (re)configuring parser instances.
     /* Added in 2.5
     /**********************************************************
      */
@@ -268,6 +266,22 @@ public class ObjectWriter
             JavaType rootType, JsonSerializer<Object> rootSer,
             PrettyPrinter pp, FormatSchema s, CharacterEscapes escapes) {
         return new ObjectWriter(base, config, rootType, rootSer, pp, s, escapes);
+    }
+
+    /**
+     * Overridable factory method called by {@link #createSequenceWriter(JsonGenerator)}
+     * method (and its various overrides), and initializes it as necessary.
+     * 
+     * @since 2.5
+     */
+    @SuppressWarnings("resource")
+    protected SequenceWriter _newSequenceWriter(boolean wrapInArray,
+            JsonGenerator gen, boolean managedInput)
+        throws IOException
+    {
+        return new SequenceWriter(_serializerProvider(_config),
+                _configureGenerator(gen), managedInput, _rootType, _rootSerializer)
+            .init(wrapInArray);
     }
 
     /*
@@ -607,7 +621,50 @@ public class ObjectWriter
         SerializationConfig newConfig = _config.withoutAttribute(key);
         return (newConfig == _config) ? this :  _new(this, newConfig);
     }
+
+    /*
+    /**********************************************************
+    /* Factory methods for sequence writers (2.5)
+    /**********************************************************
+     */
+
+    public SequenceWriter createSequenceWriter(File out) throws IOException {
+        return _newSequenceWriter(false,
+                _generatorFactory.createGenerator(out, JsonEncoding.UTF8), true);
+    }
+
+    public SequenceWriter createSequenceWriter(JsonGenerator gen) throws IOException {
+        return _newSequenceWriter(false, _configureGenerator(gen), false);
+    }
+
+    public SequenceWriter createSequenceWriter(Writer out) throws IOException {
+        return _newSequenceWriter(false,
+                _generatorFactory.createGenerator(out), true);
+    }
+
+    public SequenceWriter createSequenceWriter(OutputStream out) throws IOException {
+        return _newSequenceWriter(false,
+                _generatorFactory.createGenerator(out, JsonEncoding.UTF8), true);
+    }
     
+    public SequenceWriter createArrayWriter(File out) throws IOException {
+        return _newSequenceWriter(true,
+                _generatorFactory.createGenerator(out, JsonEncoding.UTF8), true);
+    }
+
+    public SequenceWriter createArrayWriter(JsonGenerator gen) throws IOException {
+        return _newSequenceWriter(true, gen, false);
+    }
+
+    public SequenceWriter createArrayWriter(Writer out) throws IOException {
+        return _newSequenceWriter(true, _generatorFactory.createGenerator(out), true);
+    }
+
+    public SequenceWriter createArrayWriter(OutputStream out) throws IOException {
+        return _newSequenceWriter(true,
+                _generatorFactory.createGenerator(out, JsonEncoding.UTF8), true);
+    }
+
     /*
     /**********************************************************
     /* Simple accessors
@@ -681,22 +738,21 @@ public class ObjectWriter
      * Method that can be used to serialize any Java value as
      * JSON output, using provided {@link JsonGenerator}.
      */
-    public void writeValue(JsonGenerator jgen, Object value)
+    public void writeValue(JsonGenerator gen, Object value)
         throws IOException, JsonGenerationException, JsonMappingException
     {
-        // 10-Aug-2012, tatu: As per [Issue#12], may need to force PrettyPrinter settings, so:
-        _configureJsonGenerator(jgen);
+        _configureGenerator(gen);
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE)
                 && (value instanceof Closeable)) {
-            _writeCloseableValue(jgen, value, _config);
+            _writeCloseableValue(gen, value, _config);
         } else {
             if (_rootType == null) {
-                _serializerProvider(_config).serializeValue(jgen, value);
+                _serializerProvider(_config).serializeValue(gen, value);
             } else {
-                _serializerProvider(_config).serializeValue(jgen, value, _rootType, _rootSerializer);
+                _serializerProvider(_config).serializeValue(gen, value, _rootType, _rootSerializer);
             }
             if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-                jgen.flush();
+                gen.flush();
             }
         }
     }
@@ -878,23 +934,23 @@ public class ObjectWriter
      * Method called to configure the generator as necessary and then
      * call write functionality
      */
-    protected final void _configAndWriteValue(JsonGenerator jgen, Object value) throws IOException
+    protected final void _configAndWriteValue(JsonGenerator gen, Object value) throws IOException
     {
-        _configureJsonGenerator(jgen);
+        _configureGenerator(gen);
         // [JACKSON-282]: consider Closeable
         if (_config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE) && (value instanceof Closeable)) {
-            _writeCloseable(jgen, value, _config);
+            _writeCloseable(gen, value, _config);
             return;
         }
         boolean closed = false;
         try {
             if (_rootType == null) {
-                _serializerProvider(_config).serializeValue(jgen, value);
+                _serializerProvider(_config).serializeValue(gen, value);
             } else {
-                _serializerProvider(_config).serializeValue(jgen, value, _rootType, _rootSerializer);
+                _serializerProvider(_config).serializeValue(gen, value, _rootType, _rootSerializer);
             }
             closed = true;
-            jgen.close();
+            gen.close();
         } finally {
             /* won't try to close twice; also, must catch exception (so it 
              * will not mask exception that is pending)
@@ -903,9 +959,9 @@ public class ObjectWriter
                 /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
                  *    structures, which typically causes more damage.
                  */
-                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+                gen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
-                    jgen.close();
+                    gen.close();
                 } catch (IOException ioe) { }
             }
         }
@@ -915,19 +971,19 @@ public class ObjectWriter
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _writeCloseable(JsonGenerator jgen, Object value, SerializationConfig cfg)
+    private final void _writeCloseable(JsonGenerator gen, Object value, SerializationConfig cfg)
         throws IOException
     {
         Closeable toClose = (Closeable) value;
         try {
             if (_rootType == null) {
-                _serializerProvider(cfg).serializeValue(jgen, value);
+                _serializerProvider(cfg).serializeValue(gen, value);
             } else {
-                _serializerProvider(cfg).serializeValue(jgen, value, _rootType, _rootSerializer);
+                _serializerProvider(cfg).serializeValue(gen, value, _rootType, _rootSerializer);
             }
-            JsonGenerator tmpJgen = jgen;
-            jgen = null;
-            tmpJgen.close();
+            JsonGenerator tmpGen = gen;
+            gen = null;
+            tmpGen.close();
             Closeable tmpToClose = toClose;
             toClose = null;
             tmpToClose.close();
@@ -935,13 +991,13 @@ public class ObjectWriter
             /* Need to close both generator and value, as long as they haven't yet
              * been closed
              */
-            if (jgen != null) {
+            if (gen != null) {
                 /* 04-Mar-2014, tatu: But! Let's try to prevent auto-closing of
                  *    structures, which typically causes more damage.
                  */
-                jgen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+                gen.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
                 try {
-                    jgen.close();
+                    gen.close();
                 } catch (IOException ioe) { }
             }
             if (toClose != null) {
@@ -956,18 +1012,18 @@ public class ObjectWriter
      * Helper method used when value to serialize is {@link Closeable} and its <code>close()</code>
      * method is to be called right after serialization has been called
      */
-    private final void _writeCloseableValue(JsonGenerator jgen, Object value, SerializationConfig cfg)
+    private final void _writeCloseableValue(JsonGenerator gen, Object value, SerializationConfig cfg)
         throws IOException
     {
         Closeable toClose = (Closeable) value;
         try {
             if (_rootType == null) {
-                _serializerProvider(cfg).serializeValue(jgen, value);
+                _serializerProvider(cfg).serializeValue(gen, value);
             } else {
-                _serializerProvider(cfg).serializeValue(jgen, value, _rootType, _rootSerializer);
+                _serializerProvider(cfg).serializeValue(gen, value, _rootType, _rootSerializer);
             }
             if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
-                jgen.flush();
+                gen.flush();
             }
             Closeable tmpToClose = toClose;
             toClose = null;
@@ -1005,8 +1061,21 @@ public class ObjectWriter
      * {@link JsonGenerator}
      * 
      * @since 2.1
+     * 
+     * @deprecated Since 2.5 (to be removed from 2.6 or later)
      */
-    protected void _configureJsonGenerator(JsonGenerator gen)
+    @Deprecated
+    protected void _configureJsonGenerator(JsonGenerator gen) {
+        _configureGenerator(gen);
+    }
+
+    /**
+     * Helper method called to set or override settings of passed-in
+     * {@link JsonGenerator}
+     * 
+     * @since 2.5
+     */
+    protected JsonGenerator _configureGenerator(JsonGenerator gen)
     {
         if (_prettyPrinter != null) {
             PrettyPrinter pp = _prettyPrinter;
@@ -1032,5 +1101,6 @@ public class ObjectWriter
             gen.setSchema(_schema);
         }
         _config.initialize(gen); // since 2.5
+        return gen;
     }
 }

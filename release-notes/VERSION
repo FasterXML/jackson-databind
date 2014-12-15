@@ -66,6 +66,7 @@ Project: jackson-databind
 - Start using `JsonGenerator.writeStartArray(int)` to help data formats
   that benefit from knowing number of elements in arrays (and would otherwise
   need to buffer values to know length)
+- Added new overload for `JsonSerializer.isEmpty()`, to eventually solve #588
 
 2.4.5 (not yet released)
 

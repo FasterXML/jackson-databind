@@ -20,28 +20,44 @@ Naming of classes uses word 'JSON' in many places even though there is no actual
 Functionality of this package is contained in Java package `com.fasterxml.jackson.databind`, and can be used using following Maven dependency:
 
 ```xml
-<dependency>
-  <groupId>com.fasterxml.jackson.core</groupId>
-  <artifactId>jackson-databind</artifactId>
-  <version>${jackson-databind-version}</version>
-</dependency>
+<properties>
+  ...
+  <!-- Use the latest version whenever possible. -->
+  <jackson.version>2.4.4</jackson.version>
+  ...
+</properties>
+
+<dependencies>
+  ...
+  <dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>${jackson.version}</version>
+  </dependency>
+  ...
+</dependencies>
 ```
 
 Since package also depends on `jackson-core` and `jackson-annotations` packages, you will need to download these if not using Maven; and you may also want to add them as Maven dependency to ensure that compatible versions are used.
 If so, also add:
 
 ```xml
-<dependency>
-  <!-- note: typically only ".0" patch version exists for core annotations -->
-  <groupId>com.fasterxml.jackson.core</groupId>
-  <artifactId>jackson-annotations</artifactId>
-  <version>${jackson-annotations-version}</version>
-</dependency>
-<dependency>
-  <groupId>com.fasterxml.jackson.core</groupId>
-  <artifactId>jackson-core</artifactId>
-  <version>${jackson-core-version}</version>
-</dependency>
+<dependencies>
+  ...
+  <dependency>
+    <!-- Note: core-annotations version x.y.0 is generally compatible with
+         (identical to) version x.y.1, x.y.2, etc. -->
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-annotations</artifactId>
+    <version>${jackson.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-core</artifactId>
+    <version>${jackson.version}</version>
+  </dependency>
+  ...
+<dependencies>
 ```
 
 but note that this is optional, and only necessary if there are conflicts between jackson core dependencies through transitive dependencies.

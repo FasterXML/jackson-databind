@@ -3,8 +3,8 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 import java.util.UUID;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
@@ -19,11 +19,17 @@ public class UUIDSerializer
     extends StdScalarSerializer<UUID>
 {
     final static char[] HEX_CHARS = "0123456789abcdef".toCharArray();
-    
+
     public UUIDSerializer() { super(UUID.class); }
 
     @Override
-    public boolean isEmpty(UUID value)
+    @Deprecated // since 2.5
+    public boolean isEmpty(UUID value) {
+        return isEmpty(null, value);
+    }
+
+    @Override
+    public boolean isEmpty(SerializerProvider prov, UUID value)
     {
         if (value == null) {
             return true;
@@ -35,20 +41,20 @@ public class UUIDSerializer
         }
         return false;
     }
-    
+
     @Override
-    public void serialize(UUID value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serialize(UUID value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException
     {
         // First: perhaps we could serialize it as raw binary data?
-        if (jgen.canWriteBinaryNatively()) {
+        if (gen.canWriteBinaryNatively()) {
             /* 07-Dec-2013, tatu: One nasty case; that of TokenBuffer. While it can
              *   technically retain binary data, we do not want to do use binary
              *   with it, as that results in UUIDs getting converted to Base64 for
              *   most conversions.
              */
-            if (!(jgen instanceof TokenBuffer)) {
-                jgen.writeBinary(_asBytes(value));
+            if (!(gen instanceof TokenBuffer)) {
+                gen.writeBinary(_asBytes(value));
                 return;
             }
         }
@@ -72,7 +78,7 @@ public class UUIDSerializer
         _appendShort((int) (lsb >>> 32), ch, 24);
         _appendInt((int) lsb, ch, 28);
 
-        jgen.writeString(ch, 0, 36);
+        gen.writeString(ch, 0, 36);
     }
 
     private static void _appendInt(int bits, char[] ch, int offset)

@@ -1,7 +1,7 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -30,7 +30,7 @@ public class StdDelegatingSerializer
         JsonFormatVisitable, SchemaAware
 {
     protected final Converter<Object,?> _converter;
-    
+
     /**
      * Fully resolved delegate type, with generic information if any available.
      */
@@ -146,37 +146,43 @@ public class StdDelegatingSerializer
      */
 
     @Override
-    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonProcessingException
+    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
         Object delegateValue = convertValue(value);
         // should we accept nulls?
         if (delegateValue == null) {
-            provider.defaultSerializeNull(jgen);
+            provider.defaultSerializeNull(gen);
             return;
         }
-        _delegateSerializer.serialize(delegateValue, jgen, provider);
+        _delegateSerializer.serialize(delegateValue, gen, provider);
     }
 
     @Override
-    public void serializeWithType(Object value, JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException, JsonProcessingException
+    public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider provider,
+            TypeSerializer typeSer) throws IOException
     {
         /* 03-Oct-2012, tatu: This is actually unlikely to work ok... but for now,
          *    let's give it a chance?
          */
         Object delegateValue = convertValue(value);
-        _delegateSerializer.serializeWithType(delegateValue, jgen, provider, typeSer);
+        _delegateSerializer.serializeWithType(delegateValue, gen, provider, typeSer);
     }
 
     @Override
+    @Deprecated // since 1.5
     public boolean isEmpty(Object value)
     {
         Object delegateValue = convertValue(value);
         return _delegateSerializer.isEmpty(delegateValue);
     }
-    
+
+    @Override
+    public boolean isEmpty(SerializerProvider prov, Object value)
+    {
+        Object delegateValue = convertValue(value);
+        return _delegateSerializer.isEmpty(prov, delegateValue);
+    }
+
     /*
     /**********************************************************
     /* Schema functionality

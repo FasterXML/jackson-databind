@@ -89,7 +89,7 @@ public class UnwrappingBeanPropertyWriter
         }
         if (_suppressableValue != null) {
             if (MARKER_FOR_EMPTY == _suppressableValue) {
-                if (ser.isEmpty(value)) {
+                if (ser.isEmpty(prov, value)) {
                     return;
                 }
             } else if (_suppressableValue.equals(value)) {

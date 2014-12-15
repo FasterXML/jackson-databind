@@ -610,7 +610,7 @@ public class MapSerializer
                 }
                 // also may need to skip non-empty values:
                 if ((suppressableValue == JsonInclude.Include.NON_EMPTY)
-                        && valueSer.isEmpty(valueElem)) {
+                        && valueSer.isEmpty(provider, valueElem)) {
                     continue;
                 }
             }
@@ -719,7 +719,7 @@ public class MapSerializer
                 }
                 // also may need to skip non-empty values:
                 if ((suppressableValue == JsonInclude.Include.NON_EMPTY)
-                        && valueSer.isEmpty(valueElem)) {
+                        && valueSer.isEmpty(provider, valueElem)) {
                     continue;
                 }
             }
@@ -787,7 +787,7 @@ public class MapSerializer
                 }
                 // also may need to skip non-empty values:
                 if ((suppressableValue == JsonInclude.Include.NON_EMPTY)
-                        && valueSer.isEmpty(valueElem)) {
+                        && valueSer.isEmpty(provider, valueElem)) {
                     continue;
                 }
             }

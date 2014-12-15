@@ -45,9 +45,15 @@ public class ToStringSerializer
     public ToStringSerializer(Class<?> handledType) {
         super(handledType, false);
     }
-    
+
     @Override
+    @Deprecated
     public boolean isEmpty(Object value) {
+        return isEmpty(null, value);
+    }
+
+    @Override
+    public boolean isEmpty(SerializerProvider prov, Object value) {
         if (value == null) {
             return true;
         }
@@ -56,10 +62,10 @@ public class ToStringSerializer
     }
     
     @Override
-    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(Object value, JsonGenerator gen, SerializerProvider provider)
         throws IOException
     {
-        jgen.writeString(value.toString());
+        gen.writeString(value.toString());
     }
 
     /* 01-Mar-2011, tatu: We were serializing as "raw" String; but generally that
@@ -74,13 +80,13 @@ public class ToStringSerializer
      * change this behavior.
      */
     @Override
-    public void serializeWithType(Object value, JsonGenerator jgen, SerializerProvider provider,
+    public void serializeWithType(Object value, JsonGenerator gen, SerializerProvider provider,
             TypeSerializer typeSer)
         throws IOException
     {
-        typeSer.writeTypePrefixForScalar(value, jgen);
-        serialize(value, jgen, provider);
-        typeSer.writeTypeSuffixForScalar(value, jgen);
+        typeSer.writeTypePrefixForScalar(value, gen);
+        serialize(value, gen, provider);
+        typeSer.writeTypeSuffixForScalar(value, gen);
     }
     
     @Override

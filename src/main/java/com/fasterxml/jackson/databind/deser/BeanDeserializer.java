@@ -241,6 +241,7 @@ public class BeanDeserializer
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(bean);
+
         for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
             String propName = p.getCurrentName();
             p.nextToken();
@@ -248,7 +249,7 @@ public class BeanDeserializer
                 handleUnknownVanilla(p, ctxt, bean, propName);
             }
         }
-        
+
         // 13-Dec-2014, tatu: For 2.6, we'll do:
         /*
         if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
@@ -261,7 +262,6 @@ public class BeanDeserializer
             } while ((propName = p.nextFieldName()) != null);
         }
         */
-        
         return bean;
     }
 

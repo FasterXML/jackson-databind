@@ -530,7 +530,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * using appropriate serializer.
      */
     @Override
-    public void serializeAsField(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception
+    public void serializeAsField(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception
     {
         // inlined 'get()'
         final Object value = (_accessorMethod == null) ? _field.get(bean) : _accessorMethod.invoke(bean);
@@ -538,8 +538,8 @@ public class BeanPropertyWriter extends PropertyWriter
         // Null handling is bit different, check that first
         if (value == null) {
             if (_nullSerializer != null) {
-                jgen.writeFieldName(_name);
-                _nullSerializer.serialize(null, jgen, prov);
+                gen.writeFieldName(_name);
+                _nullSerializer.serialize(null, gen, prov);
             }
             return;
         }
@@ -556,7 +556,7 @@ public class BeanPropertyWriter extends PropertyWriter
         // and then see if we must suppress certain values (default, empty)
         if (_suppressableValue != null) {
             if (MARKER_FOR_EMPTY == _suppressableValue) {
-                if (ser.isEmpty(value)) {
+                if (ser.isEmpty(prov, value)) {
                     return;
                 }
             } else if (_suppressableValue.equals(value)) {
@@ -566,15 +566,15 @@ public class BeanPropertyWriter extends PropertyWriter
         // For non-nulls: simple check for direct cycles
         if (value == bean) {
             // three choices: exception; handled by call; or pass-through
-            if (_handleSelfReference(bean, jgen, prov, ser)) {
+            if (_handleSelfReference(bean, gen, prov, ser)) {
                 return;
             }
         }
-        jgen.writeFieldName(_name);
+        gen.writeFieldName(_name);
         if (_typeSerializer == null) {
-            ser.serialize(value, jgen, prov);
+            ser.serialize(value, gen, prov);
         } else {
-            ser.serializeWithType(value, jgen, prov, _typeSerializer);
+            ser.serializeWithType(value, gen, prov, _typeSerializer);
         }
     }
 
@@ -586,10 +586,10 @@ public class BeanPropertyWriter extends PropertyWriter
      * @since 2.3
      */
     @Override
-    public void serializeAsOmittedField(Object bean, JsonGenerator jgen, SerializerProvider prov) throws Exception
+    public void serializeAsOmittedField(Object bean, JsonGenerator gen, SerializerProvider prov) throws Exception
     {
-        if (!jgen.canOmitFields()) {
-            jgen.writeOmittedField(_name.getValue());
+        if (!gen.canOmitFields()) {
+            gen.writeOmittedField(_name.getValue());
         }
     }
     
@@ -601,16 +601,16 @@ public class BeanPropertyWriter extends PropertyWriter
      * @since 2.3
      */
     @Override
-    public void serializeAsElement(Object bean, JsonGenerator jgen, SerializerProvider prov)
+    public void serializeAsElement(Object bean, JsonGenerator gen, SerializerProvider prov)
         throws Exception
     {
         // inlined 'get()'
         final Object value = (_accessorMethod == null) ? _field.get(bean) : _accessorMethod.invoke(bean);
         if (value == null) { // nulls need specialized handling
             if (_nullSerializer != null) {
-                _nullSerializer.serialize(null, jgen, prov);
+                _nullSerializer.serialize(null, gen, prov);
             } else { // can NOT suppress entries in tabular output
-                jgen.writeNull();
+                gen.writeNull();
             }
             return;
         }
@@ -627,25 +627,25 @@ public class BeanPropertyWriter extends PropertyWriter
         // and then see if we must suppress certain values (default, empty)
         if (_suppressableValue != null) {
             if (MARKER_FOR_EMPTY == _suppressableValue) {
-                if (ser.isEmpty(value)) { // can NOT suppress entries in tabular output
-                    serializeAsPlaceholder(bean, jgen, prov);
+                if (ser.isEmpty(prov, value)) { // can NOT suppress entries in tabular output
+                    serializeAsPlaceholder(bean, gen, prov);
                     return;
                 }
             } else if (_suppressableValue.equals(value)) { // can NOT suppress entries in tabular output
-                serializeAsPlaceholder(bean, jgen, prov);
+                serializeAsPlaceholder(bean, gen, prov);
                 return;
             }
         }
         // For non-nulls: simple check for direct cycles
         if (value == bean) {
-            if (_handleSelfReference(bean, jgen, prov, ser)) {
+            if (_handleSelfReference(bean, gen, prov, ser)) {
                 return;
             }
         }
         if (_typeSerializer == null) {
-            ser.serialize(value, jgen, prov);
+            ser.serialize(value, gen, prov);
         } else {
-            ser.serializeWithType(value, jgen, prov, _typeSerializer);
+            ser.serializeWithType(value, gen, prov, _typeSerializer);
         }
     }
 
@@ -658,13 +658,13 @@ public class BeanPropertyWriter extends PropertyWriter
      * @since 2.1
      */
     @Override
-    public void serializeAsPlaceholder(Object bean, JsonGenerator jgen, SerializerProvider prov)
+    public void serializeAsPlaceholder(Object bean, JsonGenerator gen, SerializerProvider prov)
         throws Exception
     {
         if (_nullSerializer != null) {
-            _nullSerializer.serialize(null, jgen, prov);
+            _nullSerializer.serialize(null, gen, prov);
         } else {
-            jgen.writeNull();
+            gen.writeNull();
         }
     }
     
@@ -769,7 +769,7 @@ public class BeanPropertyWriter extends PropertyWriter
      * @return True if method fully handled self-referential value; false if not (caller
      *    is to handle it) or {@link JsonMappingException} if there is no way handle it
      */
-    protected boolean _handleSelfReference(Object bean, JsonGenerator jgen, SerializerProvider prov, JsonSerializer<?> ser)
+    protected boolean _handleSelfReference(Object bean, JsonGenerator gen, SerializerProvider prov, JsonSerializer<?> ser)
             throws JsonMappingException {
         if (prov.isEnabled(SerializationFeature.FAIL_ON_SELF_REFERENCES)
                 && !ser.usesObjectId()) {

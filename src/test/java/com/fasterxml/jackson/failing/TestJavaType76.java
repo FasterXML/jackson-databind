@@ -20,4 +20,3 @@ public class TestJavaType76 extends BaseMapTest
         assertNotNull(type);
     }
 }
-

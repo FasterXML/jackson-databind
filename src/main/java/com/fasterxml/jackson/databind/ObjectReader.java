@@ -267,6 +267,7 @@ public class ObjectReader
     /**********************************************************
     /* Methods sub-classes MUST override, used for constructing
     /* reader instances, (re)configuring parser instances
+    /* Added in 2.5
     /**********************************************************
      */
 

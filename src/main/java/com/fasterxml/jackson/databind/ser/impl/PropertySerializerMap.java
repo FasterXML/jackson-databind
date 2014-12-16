@@ -21,15 +21,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public abstract class PropertySerializerMap
 {
     /**
-     * Configuration setting that determines whether we are caching
-     * "root value" serializers (true), or "property" serializers (false);
-     * former will have embedded {@link TypeSerializer}, whereas latter not.
-     *
-     * @since 2.5
-     */
-    protected final boolean _findRootSerializers;
-
-    /**
      * Configuration setting that determines what happens when maximum
      * size (currently 8) is reached: if true, will "start from beginning";
      * if false, will simply stop adding new entries.
@@ -41,16 +32,14 @@ public abstract class PropertySerializerMap
     /**
      * @since 2.5
      */
-    protected PropertySerializerMap(boolean rootSerializers, boolean resetWhenFull) {
-        _findRootSerializers = rootSerializers;
+    protected PropertySerializerMap(boolean resetWhenFull) {
         _resetWhenFull = resetWhenFull;
     }
 
     protected PropertySerializerMap(PropertySerializerMap base) {
-        _findRootSerializers = base._findRootSerializers;
         _resetWhenFull = base._resetWhenFull;
     }
-    
+
     /**
      * Main lookup method. Takes a "raw" type since usage is always from
      * place where parameterization is fixed such that there can not be
@@ -110,6 +99,36 @@ public abstract class PropertySerializerMap
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
 
+    /**
+     * Method called if initial lookup fails, when looking for a root value
+     * serializer: one that is not directly attached to a property, but needs to
+     * have {@link com.fasterxml.jackson.databind.jsontype.TypeSerializer} wrapped
+     * around it. Will both find the serializer
+     * and construct new map instance if warranted, and return both.
+     * 
+     * @since 2.5
+     * 
+     * @throws JsonMappingException 
+     */
+    public final SerializerAndMapResult findAndAddRootValueSerializer(Class<?> type,
+            SerializerProvider provider)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> serializer = provider.findTypedValueSerializer(type, false, null);
+        return new SerializerAndMapResult(serializer, newWith(type, serializer));
+    }
+
+    /**
+     * @since 2.5
+     */
+    public final SerializerAndMapResult findAndAddRootValueSerializer(JavaType type,
+            SerializerProvider provider)
+        throws JsonMappingException
+    {
+        JsonSerializer<Object> serializer = provider.findTypedValueSerializer(type, false, null);
+        return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
+    }
+    
     public abstract PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer);
 
     /**
@@ -184,13 +203,13 @@ public abstract class PropertySerializerMap
     private final static class Empty extends PropertySerializerMap
     {
         // No root serializers; do not reset when full
-        public final static Empty FOR_PROPERTIES = new Empty(false, false);
+        public final static Empty FOR_PROPERTIES = new Empty(false);
 
         // Yes, root serializers; do reset when full
-        public final static Empty FOR_ROOT_VALUES = new Empty(true, true);
+        public final static Empty FOR_ROOT_VALUES = new Empty(true);
 
-        protected Empty(boolean rootSerializers, boolean resetWhenFull) {
-            super(rootSerializers, resetWhenFull);
+        protected Empty(boolean resetWhenFull) {
+            super(resetWhenFull);
         }
         
         @Override

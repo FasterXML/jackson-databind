@@ -628,39 +628,154 @@ public class ObjectWriter
     /**********************************************************
      */
 
-    public SequenceWriter createSequenceWriter(File out) throws IOException {
+    /**
+     * Method for creating a {@link SequenceWriter} to write a sequence of root
+     * values using configuration of this {@link ObjectWriter}.
+     * Sequence is not surrounded by JSON array; some backend types may not
+     * support writing of such sequences as root level.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure closing of underlying generator and
+     * output stream.
+     *
+     * @param out Target file to write value sequence to.
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValues(File out) throws IOException {
         return _newSequenceWriter(false,
                 _generatorFactory.createGenerator(out, JsonEncoding.UTF8), true);
     }
 
-    public SequenceWriter createSequenceWriter(JsonGenerator gen) throws IOException {
+    /**
+     * Method for creating a {@link SequenceWriter} to write a sequence of root
+     * values using configuration of this {@link ObjectWriter}.
+     * Sequence is not surrounded by JSON array; some backend types may not
+     * support writing of such sequences as root level.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure that all content gets flushed by
+     * the generator. However, since a {@link JsonGenerator} is explicitly passed,
+     * it will NOT be closed when {@link SequenceWriter#close()} is called.
+     *
+     * @param gen Low-level generator caller has already constructed that will
+     *   be used for actual writing of token stream.
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValues(JsonGenerator gen) throws IOException {
         return _newSequenceWriter(false, _configureGenerator(gen), false);
     }
 
-    public SequenceWriter createSequenceWriter(Writer out) throws IOException {
+    /**
+     * Method for creating a {@link SequenceWriter} to write a sequence of root
+     * values using configuration of this {@link ObjectWriter}.
+     * Sequence is not surrounded by JSON array; some backend types may not
+     * support writing of such sequences as root level.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure closing of underlying generator and
+     * output stream.
+     *
+     * @param out Target writer to use for writing the token stream
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValues(Writer out) throws IOException {
         return _newSequenceWriter(false,
                 _generatorFactory.createGenerator(out), true);
     }
 
-    public SequenceWriter createSequenceWriter(OutputStream out) throws IOException {
+    /**
+     * Method for creating a {@link SequenceWriter} to write a sequence of root
+     * values using configuration of this {@link ObjectWriter}.
+     * Sequence is not surrounded by JSON array; some backend types may not
+     * support writing of such sequences as root level.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure closing of underlying generator and
+     * output stream.
+     *
+     * @param out Physical output stream to use for writing the token stream
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValues(OutputStream out) throws IOException {
         return _newSequenceWriter(false,
                 _generatorFactory.createGenerator(out, JsonEncoding.UTF8), true);
     }
-    
-    public SequenceWriter createArrayWriter(File out) throws IOException {
+
+    /**
+     * Method for creating a {@link SequenceWriter} to write an array of
+     * root-level values, using configuration of this {@link ObjectWriter}.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure closing of underlying generator and
+     * output stream.
+     *<p>
+     * Note that the type to use with {@link ObjectWriter#forType(Class)} needs to
+     * be type of individual values (elements) to write and NOT matching array
+     * or {@link java.util.Collection} type.
+     *
+     * @param out File to write token stream to
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValuesAsArray(File out) throws IOException {
         return _newSequenceWriter(true,
                 _generatorFactory.createGenerator(out, JsonEncoding.UTF8), true);
     }
 
-    public SequenceWriter createArrayWriter(JsonGenerator gen) throws IOException {
+    /**
+     * Method for creating a {@link SequenceWriter} to write an array of
+     * root-level values, using configuration of this {@link ObjectWriter}.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure that all content gets flushed by
+     * the generator. However, since a {@link JsonGenerator} is explicitly passed,
+     * it will NOT be closed when {@link SequenceWriter#close()} is called.
+     *<p>
+     * Note that the type to use with {@link ObjectWriter#forType(Class)} needs to
+     * be type of individual values (elements) to write and NOT matching array
+     * or {@link java.util.Collection} type.
+     *
+     * @param gen Underlying generator to use for writing the token stream
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValuesAsArray(JsonGenerator gen) throws IOException {
         return _newSequenceWriter(true, gen, false);
     }
 
-    public SequenceWriter createArrayWriter(Writer out) throws IOException {
+    /**
+     * Method for creating a {@link SequenceWriter} to write an array of
+     * root-level values, using configuration of this {@link ObjectWriter}.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure closing of underlying generator and
+     * output stream.
+     *<p>
+     * Note that the type to use with {@link ObjectWriter#forType(Class)} needs to
+     * be type of individual values (elements) to write and NOT matching array
+     * or {@link java.util.Collection} type.
+     *
+     * @param out Writer to use for writing the token stream
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValuesAsArray(Writer out) throws IOException {
         return _newSequenceWriter(true, _generatorFactory.createGenerator(out), true);
     }
 
-    public SequenceWriter createArrayWriter(OutputStream out) throws IOException {
+    /**
+     * Method for creating a {@link SequenceWriter} to write an array of
+     * root-level values, using configuration of this {@link ObjectWriter}.
+     * Resulting writer needs to be {@link SequenceWriter#close()}d after all
+     * values have been written to ensure closing of underlying generator and
+     * output stream.
+     *<p>
+     * Note that the type to use with {@link ObjectWriter#forType(Class)} needs to
+     * be type of individual values (elements) to write and NOT matching array
+     * or {@link java.util.Collection} type.
+     *
+     * @param out Physical output stream to use for writing the token stream
+     *
+     * @since 2.5
+     */
+    public SequenceWriter writeValuesAsArray(OutputStream out) throws IOException {
         return _newSequenceWriter(true,
                 _generatorFactory.createGenerator(out, JsonEncoding.UTF8), true);
     }

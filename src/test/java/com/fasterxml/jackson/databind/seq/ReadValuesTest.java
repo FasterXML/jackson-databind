@@ -11,12 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @SuppressWarnings("resource")
 public class ReadValuesTest extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper types
-    /**********************************************************
-     */
-
     static class Bean {
         public int a;
 

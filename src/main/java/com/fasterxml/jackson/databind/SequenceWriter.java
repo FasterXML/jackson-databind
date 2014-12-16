@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Collection;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
@@ -26,7 +27,7 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
  * @since 2.5
  */
 public class SequenceWriter
-    implements Versioned, java.io.Closeable
+    implements Versioned, java.io.Closeable, java.io.Flushable
 {
     /*
     /**********************************************************
@@ -124,16 +125,15 @@ public class SequenceWriter
      * to write. If root type was specified for {@link ObjectWriter},
      * value must be of compatible type (same or subtype).
      */
-    public void writeValue(Object value) throws IOException
+    public SequenceWriter write(Object value) throws IOException
     {
         if (value == null) {
             _provider.serializeValue(_generator, null);
-            return;
+            return this;
         }
         
         if (_cfgCloseCloseable && (value instanceof Closeable)) {
-            _writeCloseableValue(value);
-            return;
+            return _writeCloseableValue(value);
         }
         JsonSerializer<Object> ser = _rootSerializer;
         if (ser == null) {
@@ -147,6 +147,7 @@ public class SequenceWriter
         if (_cfgFlush) {
             _generator.flush();
         }
+        return this;
     }
 
     /**
@@ -158,16 +159,15 @@ public class SequenceWriter
      * If root type was specified for {@link ObjectWriter},
      * value must be of compatible type (same or subtype).
      */
-    public void writeValue(Object value, JavaType type) throws IOException
+    public SequenceWriter write(Object value, JavaType type) throws IOException
     {
         if (value == null) {
             _provider.serializeValue(_generator, null);
-            return;
+            return this;
         }
         
         if (_cfgCloseCloseable && (value instanceof Closeable)) {
-            _writeCloseableValue(value, type);
-            return;
+            return _writeCloseableValue(value, type);
         }
         /* 15-Dec-2014, tatu: I wonder if this could be come problematic. It shouldn't
          *   really, since trying to use differently paramterized types in a sequence
@@ -182,8 +182,32 @@ public class SequenceWriter
         if (_cfgFlush) {
             _generator.flush();
         }
+        return this;
     }
-    
+
+    public SequenceWriter writeAll(Object[] value) throws IOException
+    {
+        for (int i = 0, len = value.length; i < len; ++i) {
+            write(value[i]);
+        }
+        return this;
+    }
+
+    public <C extends Collection<?>> SequenceWriter writeAll(C container) throws IOException
+    {
+        for (Object value : container) {
+            write(value);
+        }
+        return this;
+    }
+
+    @Override
+    public void flush() throws IOException {
+        if (!_closed) {
+            _generator.flush();
+        }
+    }
+
     @Override
     public void close() throws IOException
     {
@@ -192,6 +216,9 @@ public class SequenceWriter
             if (_openArray) {
                 _openArray = false;
                 _generator.writeEndArray();
+            }
+            if (_closeGenerator) {
+                _generator.close();
             }
         }
     }
@@ -202,7 +229,7 @@ public class SequenceWriter
     /**********************************************************
      */
 
-    protected void _writeCloseableValue(Object value) throws IOException
+    protected SequenceWriter _writeCloseableValue(Object value) throws IOException
     {
         Closeable toClose = (Closeable) value;
         try {
@@ -229,14 +256,15 @@ public class SequenceWriter
                 } catch (IOException ioe) { }
             }
         }
+        return this;
     }
 
-    protected void _writeCloseableValue(Object value, JavaType type) throws IOException
+    protected SequenceWriter _writeCloseableValue(Object value, JavaType type) throws IOException
     {
         Closeable toClose = (Closeable) value;
         try {
             // 15-Dec-2014, tatu: As per above, could be problem that we do not pass generic type
-            JsonSerializer<Object >ser = _dynamicSerializers.serializerFor(type.getRawClass());
+            JsonSerializer<Object> ser = _dynamicSerializers.serializerFor(type.getRawClass());
             if (ser == null) {
                 ser = _findAndAddDynamic(type);
             }
@@ -254,12 +282,13 @@ public class SequenceWriter
                 } catch (IOException ioe) { }
             }
         }
+        return this;
     }
 
     protected final JsonSerializer<Object> _findAndAddDynamic(Class<?> type) throws JsonMappingException
     {
         PropertySerializerMap.SerializerAndMapResult result
-            = _dynamicSerializers.findAndAddPrimarySerializer(type, _provider, null);
+            = _dynamicSerializers.findAndAddRootValueSerializer(type, _provider);
         _dynamicSerializers = result.map;
         return result.serializer;
     }
@@ -267,7 +296,7 @@ public class SequenceWriter
     protected final JsonSerializer<Object> _findAndAddDynamic(JavaType type) throws JsonMappingException
     {
         PropertySerializerMap.SerializerAndMapResult result
-            = _dynamicSerializers.findAndAddPrimarySerializer(type, _provider, null);
+            = _dynamicSerializers.findAndAddRootValueSerializer(type, _provider);
         _dynamicSerializers = result.map;
         return result.serializer;
     }

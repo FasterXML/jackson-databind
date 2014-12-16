@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ser.*;
  * because it can provide default implementation for any methods that may
  * be added in {@link PropertyFilter} (as unfortunate as additions may be).
  */
-public abstract class SimpleBeanPropertyFilter
+public class SimpleBeanPropertyFilter
     implements BeanPropertyFilter, PropertyFilter
         // sub-classes must also implement java.io.Serializable
 {
@@ -29,6 +29,17 @@ public abstract class SimpleBeanPropertyFilter
 
     protected SimpleBeanPropertyFilter() { }
 
+    /**
+     * Convenience factory method that will return a "no-op" filter that will
+     * simply just serialize all properties that are given, and filter out
+     * nothing.
+     * 
+     * @since 2.5
+     */
+    public static SimpleBeanPropertyFilter serializeAll(Set<String> properties) {
+        return new FilterExceptFilter(properties);
+    }
+    
     /**
      * Factory method to construct filter that filters out all properties <b>except</b>
      * ones includes in set
@@ -105,15 +116,23 @@ public abstract class SimpleBeanPropertyFilter
      * Method called to determine whether property will be included
      * (if 'true' returned) or filtered out (if 'false' returned)
      */
-    protected abstract boolean include(BeanPropertyWriter writer);
+    protected boolean include(BeanPropertyWriter writer) {
+        return true;
+    }
 
     /**
+     * Method called to determine whether property will be included
+     * (if 'true' returned) or filtered out (if 'false' returned)
+     *
      * @since 2.3
      */
-    protected abstract boolean include(PropertyWriter writer);
+    protected boolean include(PropertyWriter writer) {
+        return true;
+    }
 
     /**
-     * Method that defines what to do with container elements;
+     * Method that defines what to do with container elements
+     * (values contained in an array or {@link java.util.Collection}:
      * default implementation simply writes them out.
      * 
      * @since 2.3

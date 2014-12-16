@@ -11,8 +11,7 @@ public class PojoAsArray646Test extends BaseMapTest
     @JsonFormat(shape = JsonFormat.Shape.ARRAY)
     @JsonPropertyOrder(alphabetic = true)
     static class Outer {
-
-        private Map<String, TheItem> attributes;
+        protected Map<String, TheItem> attributes;
 
         public Outer() {
             attributes = new HashMap<String, TheItem>();

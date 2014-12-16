@@ -48,7 +48,7 @@ public abstract class AsArraySerializerBase<T>
      * runtime type to serializer is handled using this object
      */
     protected PropertySerializerMap _dynamicSerializers;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
@@ -66,7 +66,7 @@ public abstract class AsArraySerializerBase<T>
         _valueTypeSerializer = vts;
         _property = property;
         _elementSerializer = elementSerializer;
-        _dynamicSerializers = PropertySerializerMap.emptyMap();
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
     }
 
     @SuppressWarnings("unchecked")

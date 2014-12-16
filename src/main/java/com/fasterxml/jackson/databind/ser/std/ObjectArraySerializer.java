@@ -67,7 +67,7 @@ public class ObjectArraySerializer
         _elementType = elemType;
         _staticTyping = staticTyping;
         _valueTypeSerializer = vts;
-        _dynamicSerializers = PropertySerializerMap.emptyMap();
+        _dynamicSerializers = PropertySerializerMap.emptyForProperties();
         _elementSerializer = elementSerializer;
     }
 

@@ -202,7 +202,7 @@ public class BeanPropertyWriter extends PropertyWriter
 
         _declaredType = declaredType;
         _serializer = (JsonSerializer<Object>) ser;
-        _dynamicSerializers = (ser == null) ? PropertySerializerMap.emptyMap() : null;
+        _dynamicSerializers = (ser == null) ? PropertySerializerMap.emptyForProperties() : null;
         _typeSerializer = typeSer;
         _cfgSerializationType = serType;
 

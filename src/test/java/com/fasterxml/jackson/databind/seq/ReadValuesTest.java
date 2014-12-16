@@ -1,13 +1,15 @@
-package com.fasterxml.jackson.databind;
+package com.fasterxml.jackson.databind.seq;
 
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SuppressWarnings("resource")
-public class TestReadValues extends BaseMapTest
+public class ReadValuesTest extends BaseMapTest
 {
     /*
     /**********************************************************

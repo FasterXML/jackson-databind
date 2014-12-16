@@ -127,7 +127,7 @@ public class MapSerializer
         _valueTypeSerializer = vts;
         _keySerializer = (JsonSerializer<Object>) keySerializer;
         _valueSerializer = (JsonSerializer<Object>) valueSerializer;
-        _dynamicValueSerializers = PropertySerializerMap.emptyMap();
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
         _property = null;
         _filterId = null;
         _sortKeys = false;

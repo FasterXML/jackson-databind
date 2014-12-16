@@ -1,11 +1,12 @@
 package com.fasterxml.jackson.databind.ser.impl;
 
+import java.util.Arrays;
+
 import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
 
 /**
  * Helper container used for resolving serializers for dynamic (possibly but not
@@ -20,37 +21,42 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 public abstract class PropertySerializerMap
 {
     /**
+     * Configuration setting that determines whether we are caching
+     * "root value" serializers (true), or "property" serializers (false);
+     * former will have embedded {@link TypeSerializer}, whereas latter not.
+     *
+     * @since 2.5
+     */
+    protected final boolean _findRootSerializers;
+
+    /**
+     * Configuration setting that determines what happens when maximum
+     * size (currently 8) is reached: if true, will "start from beginning";
+     * if false, will simply stop adding new entries.
+     *
+     * @since 2.5
+     */
+    protected final boolean _resetWhenFull;
+
+    /**
+     * @since 2.5
+     */
+    protected PropertySerializerMap(boolean rootSerializers, boolean resetWhenFull) {
+        _findRootSerializers = rootSerializers;
+        _resetWhenFull = resetWhenFull;
+    }
+
+    protected PropertySerializerMap(PropertySerializerMap base) {
+        _findRootSerializers = base._findRootSerializers;
+        _resetWhenFull = base._resetWhenFull;
+    }
+    
+    /**
      * Main lookup method. Takes a "raw" type since usage is always from
      * place where parameterization is fixed such that there can not be
      * type-parametric variations.
      */
     public abstract JsonSerializer<Object> serializerFor(Class<?> type);
-
-    /**
-     * @deprecated Since 2.3; use either <code>findAndAddPrimarySerializer</code> or
-     *    <code>findAndAddSecondarySerializer</code>.
-     *    To be removed from 2.4
-     */
-    @Deprecated
-    public final SerializerAndMapResult findAndAddSerializer(Class<?> type,
-            SerializerProvider provider, BeanProperty property)
-        throws JsonMappingException
-    {
-        return findAndAddSecondarySerializer(type, provider, property);
-    }
-
-    /**
-     * @deprecated Since 2.3; use either <code>findAndAddPrimarySerializer</code> or
-     *    <code>findAndAddSecondarySerializer</code>.
-     *    To be removed from 2.4
-     */
-    @Deprecated
-    public final SerializerAndMapResult findAndAddSerializer(JavaType type,
-            SerializerProvider provider, BeanProperty property)
-        throws JsonMappingException
-    {
-        return findAndAddSecondarySerializer(type, provider, property);
-    }
 
     /**
      * Method called if initial lookup fails, when looking for a primary
@@ -77,7 +83,7 @@ public abstract class PropertySerializerMap
         JsonSerializer<Object> serializer = provider.findPrimaryPropertySerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
-    
+
     /**
      * Method called if initial lookup fails, when looking for a non-primary
      * serializer (one that is not directly attached to a property).
@@ -103,13 +109,31 @@ public abstract class PropertySerializerMap
         JsonSerializer<Object> serializer = provider.findValueSerializer(type, property);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
-    
+
     public abstract PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer);
-    
+
+    /**
+     * @deprecated Since 2.5 Use {@link #emptyForProperties} instead
+     */
+    @Deprecated
     public static PropertySerializerMap emptyMap() {
-        return Empty.instance;
+        return emptyForProperties();
     }
-    
+
+    /**
+     * @since 2.5
+     */
+    public static PropertySerializerMap emptyForProperties() {
+        return Empty.FOR_PROPERTIES;
+    }
+
+    /**
+     * @since 2.5
+     */
+    public static PropertySerializerMap emptyForRootValues() {
+        return Empty.FOR_ROOT_VALUES;
+    }
+
     /*
     /**********************************************************
     /* Helper classes
@@ -159,8 +183,16 @@ public abstract class PropertySerializerMap
      */
     private final static class Empty extends PropertySerializerMap
     {
-        protected final static Empty instance = new Empty();
+        // No root serializers; do not reset when full
+        public final static Empty FOR_PROPERTIES = new Empty(false, false);
 
+        // Yes, root serializers; do reset when full
+        public final static Empty FOR_ROOT_VALUES = new Empty(true, true);
+
+        protected Empty(boolean rootSerializers, boolean resetWhenFull) {
+            super(rootSerializers, resetWhenFull);
+        }
+        
         @Override
         public JsonSerializer<Object> serializerFor(Class<?> type) {
             return null; // empty, nothing to find
@@ -168,7 +200,7 @@ public abstract class PropertySerializerMap
 
         @Override
         public PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer) {
-            return new Single(type, serializer);
+            return new Single(this, type, serializer);
         }
     }
 
@@ -183,7 +215,8 @@ public abstract class PropertySerializerMap
         private final Class<?> _type;
         private final JsonSerializer<Object> _serializer;
 
-        public Single(Class<?> type, JsonSerializer<Object> serializer) {
+        public Single(PropertySerializerMap base, Class<?> type, JsonSerializer<Object> serializer) {
+            super(base);
             _type = type;
             _serializer = serializer;
         }
@@ -199,7 +232,7 @@ public abstract class PropertySerializerMap
 
         @Override
         public PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer) {
-            return new Double(_type, _serializer, type, serializer);
+            return new Double(this, _type, _serializer, type, serializer);
         }
     }
 
@@ -208,9 +241,11 @@ public abstract class PropertySerializerMap
         private final Class<?> _type1, _type2;
         private final JsonSerializer<Object> _serializer1, _serializer2;
 
-        public Double(Class<?> type1, JsonSerializer<Object> serializer1,
+        public Double(PropertySerializerMap base,
+                Class<?> type1, JsonSerializer<Object> serializer1,
                 Class<?> type2, JsonSerializer<Object> serializer2)
         {
+            super(base);
             _type1 = type1;
             _serializer1 = serializer1;
             _type2 = type2;
@@ -232,10 +267,11 @@ public abstract class PropertySerializerMap
         @Override
         public PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer) {
             // Ok: let's just create generic one
-            TypeAndSerializer[] ts = new TypeAndSerializer[2];
+            TypeAndSerializer[] ts = new TypeAndSerializer[3];
             ts[0] = new TypeAndSerializer(_type1, _serializer1);
             ts[1] = new TypeAndSerializer(_type2, _serializer2);
-            return new Multi(ts);
+            ts[2] = new TypeAndSerializer(type, serializer);
+            return new Multi(this, ts);
         }
     }
     
@@ -253,7 +289,8 @@ public abstract class PropertySerializerMap
         
         private final TypeAndSerializer[] _entries;
 
-        public Multi(TypeAndSerializer[] entries) {
+        public Multi(PropertySerializerMap base, TypeAndSerializer[] entries) {
+            super(base);
             _entries = entries;
         }
 
@@ -273,15 +310,17 @@ public abstract class PropertySerializerMap
         public PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer)
         {
             int len = _entries.length;
-            // Will only grow up to N entries
+            // Will only grow up to N entries. We could consider couple of alternatives after
+            // this if we wanted to... but for now, two main choices make most sense
             if (len == MAX_ENTRIES) {
+                if (_resetWhenFull) {
+                    return new Single(this, type, serializer);
+                }
                 return this;
             }
-            // 1.6 has nice resize methods but we are still 1.5
-            TypeAndSerializer[] entries = new TypeAndSerializer[len+1];
-            System.arraycopy(_entries, 0, entries, 0, len);
+            TypeAndSerializer[] entries = Arrays.copyOf(_entries, len+1);
             entries[len] = new TypeAndSerializer(type, serializer);
-            return new Multi(entries);
+            return new Multi(this, entries);
         }
     }
 }

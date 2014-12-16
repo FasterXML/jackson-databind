@@ -599,7 +599,6 @@ public final class ClassUtil
         return (implClass.getAnnotation(JacksonStdImpl.class) != null);
     }
 
-    @SuppressWarnings("deprecation")
     public final static boolean isBogusClass(Class<?> cls) {
         return (cls == Void.class || cls == Void.TYPE
                 || cls == com.fasterxml.jackson.databind.annotation.NoClass.class);

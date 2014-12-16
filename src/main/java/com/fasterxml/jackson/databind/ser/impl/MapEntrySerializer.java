@@ -72,7 +72,7 @@ public class MapEntrySerializer
         _valueTypeIsStatic = staticTyping;
         _valueTypeSerializer = vts;
         _property = property;
-        _dynamicValueSerializers = PropertySerializerMap.emptyMap();
+        _dynamicValueSerializers = PropertySerializerMap.emptyForProperties();
     }
 
     @SuppressWarnings("unchecked")

@@ -97,6 +97,14 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
 
     }
 
+    // for [databind#656]
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include= JsonTypeInfo.As.WRAPPER_OBJECT, defaultImpl=ImplFor656.class)
+    static abstract class BaseFor656 { }
+
+    static class ImplFor656 extends BaseFor656 {
+        public int a;
+    }
+
     /*
     /**********************************************************
     /* Unit tests, deserialization
@@ -177,6 +185,15 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
         assertNotNull(badResult);
     }
 
+    // [Databind#656]
+    public void testDefaultImplWithObjectWrapper() throws Exception
+    {
+        BaseFor656 value = MAPPER.readValue(aposToQuotes("{'foobar':{'a':3}}"), BaseFor656.class);
+        assertNotNull(value);
+        assertEquals(ImplFor656.class, value.getClass());
+        assertEquals(3, ((ImplFor656) value).a);
+    }
+    
     /*
     /**********************************************************
     /* Unit tests, serialization

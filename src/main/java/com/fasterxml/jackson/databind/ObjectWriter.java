@@ -76,27 +76,14 @@ public class ObjectWriter
      * @since 2.1
      */
     protected final JsonSerializer<Object> _rootSerializer;
-    
+
     /**
-     * To allow for dynamic enabling/disabling of pretty printing,
-     * pretty printer can be optionally configured for writer
-     * as well
+     * Container for settings that need to be passed to {@link JsonGenerator}
+     * constructed for serializing values.
+     *
+     * @since 2.5
      */
-    protected final PrettyPrinter _prettyPrinter;
-    
-    /**
-     * When using data format that uses a schema, schema is passed
-     * to generator.
-     */
-    protected final FormatSchema _schema;
-    
-    /**
-     * Caller may want to specify character escaping details, either as
-     * defaults, or on call-by-call basis.
-     * 
-     * @since 2.3
-     */
-    protected final CharacterEscapes _characterEscapes;
+    protected final GeneratorSettings _generatorSettings;
 
     /*
     /**********************************************************
@@ -114,9 +101,8 @@ public class ObjectWriter
         _serializerProvider = mapper._serializerProvider;
         _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._jsonFactory;
-        _prettyPrinter = pp;
-        _schema = null;
-        _characterEscapes = null;
+        _generatorSettings = (pp == null) ? GeneratorSettings.empty
+                : new GeneratorSettings(pp, null, null);
 
         // 29-Apr-2014, tatu: There is no "untyped serializer", so:
         if (rootType == null || rootType.hasRawClass(Object.class)) {
@@ -140,9 +126,7 @@ public class ObjectWriter
 
         _rootType = null;
         _rootSerializer = null;
-        _prettyPrinter = null;
-        _schema = null;
-        _characterEscapes = null;
+        _generatorSettings = GeneratorSettings.empty;
     }
 
     /**
@@ -159,9 +143,8 @@ public class ObjectWriter
 
         _rootType = null;
         _rootSerializer = null;
-        _prettyPrinter = null;
-        _schema = s;
-        _characterEscapes = null;
+        _generatorSettings = (s == null) ? GeneratorSettings.empty
+                : new GeneratorSettings(null, s, null);
     }
     
     /**
@@ -169,7 +152,7 @@ public class ObjectWriter
      */
     protected ObjectWriter(ObjectWriter base, SerializationConfig config,
             JavaType rootType, JsonSerializer<Object> rootSer,
-            PrettyPrinter pp, FormatSchema s, CharacterEscapes escapes)
+            GeneratorSettings genSettings)
     {
         _config = config;
 
@@ -179,9 +162,7 @@ public class ObjectWriter
 
         _rootType = rootType;
         _rootSerializer = rootSer;
-        _prettyPrinter = pp;
-        _schema = s;
-        _characterEscapes = escapes;
+        _generatorSettings = genSettings;
     }
 
     /**
@@ -194,12 +175,10 @@ public class ObjectWriter
         _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
         _generatorFactory = base._generatorFactory;
-        _schema = base._schema;
-        _characterEscapes = base._characterEscapes;
+        _generatorSettings = base._generatorSettings;
 
         _rootType = base._rootType;
         _rootSerializer = base._rootSerializer;
-        _prettyPrinter = base._prettyPrinter;
     }
 
     /**
@@ -214,12 +193,10 @@ public class ObjectWriter
         _serializerProvider = base._serializerProvider;
         _serializerFactory = base._serializerFactory;
         _generatorFactory = base._generatorFactory;
-        _schema = base._schema;
-        _characterEscapes = base._characterEscapes;
+        _generatorSettings = base._generatorSettings;
 
         _rootType = base._rootType;
         _rootSerializer = base._rootSerializer;
-        _prettyPrinter = base._prettyPrinter;
     }
 
     /**
@@ -258,14 +235,15 @@ public class ObjectWriter
     }
 
     /**
-     * Overridable factory method called by various "withXxx()" methods
+     * Overridable factory method called by various "withXxx()" methods.
+     * It assumes `this` as base for settings other than those directly
+     * passed in.
      * 
      * @since 2.5
      */
-    protected ObjectWriter _new(ObjectWriter base, SerializationConfig config,
-            JavaType rootType, JsonSerializer<Object> rootSer,
-            PrettyPrinter pp, FormatSchema s, CharacterEscapes escapes) {
-        return new ObjectWriter(base, config, rootType, rootSer, pp, s, escapes);
+    protected ObjectWriter _new(JavaType rootType, JsonSerializer<Object> rootSer,
+            GeneratorSettings genSettings) {
+        return new ObjectWriter(this, _config, rootType, rootSer, genSettings);
     }
 
     /**
@@ -423,15 +401,11 @@ public class ObjectWriter
      * printer (or, if null, will not do any pretty-printing)
      */
     public ObjectWriter with(PrettyPrinter pp) {
-        if (pp == _prettyPrinter) {
+        GeneratorSettings genSet = _generatorSettings.with(pp);
+        if (genSet == _generatorSettings) {
             return this;
         }
-        // since null would mean "don't care", need to use placeholder to indicate "disable"
-        if (pp == null) {
-            pp = NULL_PRETTY_PRINTER;
-        }
-        return _new(this, _config, _rootType, _rootSerializer,
-                pp, _schema, _characterEscapes);
+        return _new(_rootType, _rootSerializer, genSet);
     }
 
     /**
@@ -455,12 +429,12 @@ public class ObjectWriter
      * rather construct and returns a newly configured instance.
      */
     public ObjectWriter with(FormatSchema schema) {
-        if (_schema == schema) {
+        GeneratorSettings genSet = _generatorSettings.with(schema);
+        if (genSet == _generatorSettings) {
             return this;
         }
         _verifySchemaType(schema);
-        return _new(this, _config, _rootType, _rootSerializer,
-                _prettyPrinter, schema, _characterEscapes);
+        return _new(_rootType, _rootSerializer, genSet);
     }
 
     /**
@@ -492,8 +466,7 @@ public class ObjectWriter
             rootType = rootType.withStaticTyping();
             rootSer = _prefetchRootSerializer(_config, rootType);
         }
-        return _new(this, _config, rootType, rootSer,
-                _prettyPrinter, _schema, _characterEscapes);
+        return _new(rootType, rootSer, _generatorSettings);
     }    
 
     /**
@@ -576,11 +549,11 @@ public class ObjectWriter
      * @since 2.3
      */
     public ObjectWriter with(CharacterEscapes escapes) {
-        if (_characterEscapes == escapes) {
+        GeneratorSettings genSet = _generatorSettings.with(escapes);
+        if (genSet == _generatorSettings) {
             return this;
         }
-        return _new(this, _config, _rootType, _rootSerializer,
-                _prettyPrinter, _schema, escapes);
+        return _new(_rootType, _rootSerializer, genSet);
     }
 
     /**
@@ -1011,13 +984,13 @@ public class ObjectWriter
     public boolean canSerialize(Class<?> type, AtomicReference<Throwable> cause) {
         return _serializerProvider(_config).hasSerializerFor(type, cause);
     }
-    
+
     /*
     /**********************************************************
     /* Overridable helper methods
     /**********************************************************
      */
-    
+
     /**
      * Overridable helper method used for constructing
      * {@link SerializerProvider} to use for serialization.
@@ -1025,7 +998,7 @@ public class ObjectWriter
     protected DefaultSerializerProvider _serializerProvider(SerializationConfig config) {
         return _serializerProvider.createInstance(config, _serializerFactory);
     }
-    
+
     /*
     /**********************************************************
     /* Internal methods
@@ -1192,8 +1165,9 @@ public class ObjectWriter
      */
     protected JsonGenerator _configureGenerator(JsonGenerator gen)
     {
-        if (_prettyPrinter != null) {
-            PrettyPrinter pp = _prettyPrinter;
+        GeneratorSettings genSet = _generatorSettings;
+        PrettyPrinter pp = genSet.prettyPrinter;
+        if (pp != null) {
             if (pp == NULL_PRETTY_PRINTER) {
                 gen.setPrettyPrinter(null);
             } else {
@@ -1208,14 +1182,81 @@ public class ObjectWriter
         } else if (_config.isEnabled(SerializationFeature.INDENT_OUTPUT)) {
             gen.useDefaultPrettyPrinter();
         }
-        if (_characterEscapes != null) {
-            gen.setCharacterEscapes(_characterEscapes);
+        CharacterEscapes esc = genSet.characterEscapes;
+        if (esc != null) {
+            gen.setCharacterEscapes(esc);
         }
         // [JACKSON-520]: add support for pass-through schema:
-        if (_schema != null) {
-            gen.setSchema(_schema);
+        FormatSchema sch = genSet.schema;
+        if (sch != null) {
+            gen.setSchema(sch);
         }
         _config.initialize(gen); // since 2.5
         return gen;
+    }
+
+    /*
+    /**********************************************************
+    /* Helper classes for configuration
+    /**********************************************************
+     */
+
+    /**
+     * Helper class used for containing settings specifically related
+     * to (re)configuring {@link JsonGenerator} constructed for
+     * writing output.
+     * 
+     * @since 2.5
+     */
+    public final static class GeneratorSettings
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public final static GeneratorSettings empty = new GeneratorSettings(null, null, null);
+        
+        /**
+         * To allow for dynamic enabling/disabling of pretty printing,
+         * pretty printer can be optionally configured for writer
+         * as well
+         */
+        public final PrettyPrinter prettyPrinter;
+    
+        /**
+         * When using data format that uses a schema, schema is passed
+         * to generator.
+         */
+        public final FormatSchema schema;
+    
+        /**
+         * Caller may want to specify character escaping details, either as
+         * defaults, or on call-by-call basis.
+         */
+        public final CharacterEscapes characterEscapes;
+
+        public GeneratorSettings(PrettyPrinter pp, FormatSchema sch, CharacterEscapes esc) {
+            prettyPrinter = pp;
+            schema = sch;
+            characterEscapes = esc;
+        }
+
+        public GeneratorSettings with(PrettyPrinter pp) {
+            // since null would mean "don't care", need to use placeholder to indicate "disable"
+            if (pp == null) {
+                pp = NULL_PRETTY_PRINTER;
+            }
+            return (pp == prettyPrinter) ? this
+                    : new GeneratorSettings(pp, schema, characterEscapes);
+        }
+
+        public GeneratorSettings with(FormatSchema sch) {
+            return (schema == sch) ? this
+                    : new GeneratorSettings(prettyPrinter, sch, characterEscapes);
+        }
+
+        public GeneratorSettings with(CharacterEscapes esc) {
+            return (characterEscapes == esc) ? this
+                    : new GeneratorSettings(prettyPrinter, schema, esc);
+        }
     }
 }

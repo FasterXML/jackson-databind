@@ -2,6 +2,9 @@ package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -15,6 +18,23 @@ public class TestObjectWriter
 {
     final ObjectMapper MAPPER = new ObjectMapper();
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+    static class PolyBase {
+    }
+
+    @JsonTypeName("A")
+    static class ImplA extends PolyBase {
+        public int value;
+        
+        public ImplA(int v) { value = v; }
+    }
+
+    /*
+    /**********************************************************
+    /* Test methods
+    /**********************************************************
+     */
+    
     public void testPrettyPrinter() throws Exception
     {
         ObjectWriter writer = MAPPER.writer();
@@ -63,5 +83,12 @@ public class TestObjectWriter
         ObjectWriter writer = MAPPER.writerFor(JsonNode.class);
         String json = writer.writeValueAsString(stuff);
         assertEquals("{\"a\":5}", json);
+    }
+
+    public void testPolymorpicWithTyping() throws Exception
+    {
+        ObjectWriter writer = MAPPER.writerFor(PolyBase.class);
+        String json = writer.writeValueAsString(new ImplA(3));
+        assertEquals(aposToQuotes("{'type':'A':'value':3}"), json);
     }
 }

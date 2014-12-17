@@ -101,4 +101,18 @@ public class SequenceWriterTest extends BaseMapTest
         assertEquals(aposToQuotes("[{'type':'A','value':-1},{'type':'A','value':6}]"),
                 strw.toString());
     }
+
+    @SuppressWarnings("resource")
+    public void testPolymorphicArrayWithType() throws Exception
+    {
+        StringWriter strw = new StringWriter();
+        SequenceWriter w = WRITER
+                .forType(PolyBase.class)
+                .writeValuesAsArray(strw);
+        w.write(new ImplA(-1))
+            .write(new ImplA(6))
+            .close();
+        assertEquals(aposToQuotes("[{'type':'A','value':-1},{'type':'A','value':6}]"),
+                strw.toString());
+    }
 }

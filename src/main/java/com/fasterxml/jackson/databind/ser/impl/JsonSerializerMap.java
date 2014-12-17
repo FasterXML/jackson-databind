@@ -7,6 +7,10 @@ import com.fasterxml.jackson.databind.ser.SerializerCache.TypeKey;
 
 /**
  * Specialized read-only map used for storing and accessing serializers by type.
+ * Used for per-{@link com.fasterxml.jackson.databind.ObjectMapper} sharing
+ * of resolved serializers; in addition, a per-call non-shared read/write
+ * map may be needed, which will (after call) get merged to create a new
+ * shared map of this type.
  */
 public class JsonSerializerMap
 {

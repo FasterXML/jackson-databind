@@ -90,10 +90,10 @@ public class TestPolymorphicWithDefaultImpl extends BaseMapTest
     public static class GoodItem {}
 
     public static class GoodSub1 extends GoodItem {
-        public String a ;
+        public String a;
     }
     public static class GoodSub2 extends GoodItem {
-        public String b ;
+        public String b;
 
     }
 

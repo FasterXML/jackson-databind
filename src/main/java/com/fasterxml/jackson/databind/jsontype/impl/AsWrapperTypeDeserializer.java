@@ -26,7 +26,7 @@ public class AsWrapperTypeDeserializer
     public AsWrapperTypeDeserializer(JavaType bt, TypeIdResolver idRes,
             String typePropertyName, boolean typeIdVisible, Class<?> defaultImpl)
     {
-        super(bt, idRes, typePropertyName, typeIdVisible, null);
+        super(bt, idRes, typePropertyName, typeIdVisible, defaultImpl);
     }
 
     protected AsWrapperTypeDeserializer(AsWrapperTypeDeserializer src, BeanProperty property) {

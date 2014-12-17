@@ -1,9 +1,10 @@
 Project: jackson-databind
 Version: 2.3.5 (xx-xxx-2014)
 
-#543: Problems resolving self-referential generic types.
 #496: Wrong result for TextNode("false").asBoolean(true)
  (reported by Ivar R, ivarru@github)
+#543: Problems resolving self-referential generic types.
+#656: defaultImpl configuration is ignored for WRAPPER_OBJECT
 
 ------------------------------------------------------------------------
 === History: ===

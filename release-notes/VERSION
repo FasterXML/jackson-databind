@@ -8,6 +8,7 @@ Project: jackson-databind
 
 #635: Reduce cachability of `Map` deserializers, to avoid problems with per-property config changes
     (regression due to #604)
+#656: `defaultImpl` configuration is ignored for `WRAPPER_OBJECT`
 - Solve potential cyclic-resolution problem for `UntypedObjectDeserializer`
 
 2.4.4 (24-Nov-2014)

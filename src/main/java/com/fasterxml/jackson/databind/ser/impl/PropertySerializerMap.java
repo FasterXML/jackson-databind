@@ -128,7 +128,24 @@ public abstract class PropertySerializerMap
         JsonSerializer<Object> serializer = provider.findTypedValueSerializer(type, false, null);
         return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
     }
-    
+
+    /**
+     * Method that can be used to 'register' a serializer that caller has resolved
+     * without help of this map.
+     * 
+     * @since 2.5
+     */
+    public final SerializerAndMapResult addSerializer(Class<?> type, JsonSerializer<Object> serializer) {
+        return new SerializerAndMapResult(serializer, newWith(type, serializer));
+    }
+
+    /**
+     * @since 2.5
+     */
+    public final SerializerAndMapResult addSerializer(JavaType type, JsonSerializer<Object> serializer) {
+        return new SerializerAndMapResult(serializer, newWith(type.getRawClass(), serializer));
+    }
+
     public abstract PropertySerializerMap newWith(Class<?> type, JsonSerializer<Object> serializer);
 
     /**

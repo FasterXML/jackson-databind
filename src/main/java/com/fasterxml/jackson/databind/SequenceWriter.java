@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.Collection;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
+import com.fasterxml.jackson.databind.ser.impl.TypeWrappedSerializer;
 
 /**
  * Writer class similar to {@link ObjectWriter}, except that it can be used
@@ -39,8 +41,8 @@ public class SequenceWriter
     protected final SerializationConfig _config;
     protected final JsonGenerator _generator;
 
-    protected final JavaType _rootType;
     protected final JsonSerializer<Object> _rootSerializer;
+    protected final TypeSerializer _typeSerializer;
     
     protected final boolean _closeGenerator;
     protected final boolean _cfgFlush;
@@ -74,14 +76,15 @@ public class SequenceWriter
      */
 
     public SequenceWriter(DefaultSerializerProvider prov, JsonGenerator gen,
-            boolean closeGenerator, JavaType rootType, JsonSerializer<Object> rootSerializer)
-                    throws IOException
+            boolean closeGenerator, ObjectWriter.Prefetch prefetch)
+        throws IOException
     {
         _provider = prov;
         _generator = gen;
         _closeGenerator = closeGenerator;
-        _rootType = rootType;
-        _rootSerializer = rootSerializer;
+        _rootSerializer = prefetch.valueSerializer;
+        _typeSerializer = prefetch.typeSerializer;
+
         _config = prov.getConfig();
         _cfgFlush = _config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE);
         _cfgCloseCloseable = _config.isEnabled(SerializationFeature.CLOSE_CLOSEABLE);
@@ -143,7 +146,7 @@ public class SequenceWriter
                 ser = _findAndAddDynamic(type);
             }
         }
-        _provider.serializeValue(_generator, value, _rootType, ser);
+        _provider.serializeValue(_generator, value, null, ser);
         if (_cfgFlush) {
             _generator.flush();
         }
@@ -240,9 +243,8 @@ public class SequenceWriter
                 if (ser == null) {
                     ser = _findAndAddDynamic(type);
                 }
-                _provider.serializeValue(_generator, value, null, ser);
             }
-            _provider.serializeValue(_generator, value, _rootType, ser);
+            _provider.serializeValue(_generator, value, null, ser);
             if (_cfgFlush) {
                 _generator.flush();
             }
@@ -285,18 +287,28 @@ public class SequenceWriter
         return this;
     }
 
-    protected final JsonSerializer<Object> _findAndAddDynamic(Class<?> type) throws JsonMappingException
+    private final JsonSerializer<Object> _findAndAddDynamic(Class<?> type) throws JsonMappingException
     {
-        PropertySerializerMap.SerializerAndMapResult result
-            = _dynamicSerializers.findAndAddRootValueSerializer(type, _provider);
+        PropertySerializerMap.SerializerAndMapResult result;
+        if (_typeSerializer == null) {
+            result = _dynamicSerializers.findAndAddRootValueSerializer(type, _provider);
+        } else {
+            result = _dynamicSerializers.addSerializer(type,
+                    new TypeWrappedSerializer(_typeSerializer, _provider.findValueSerializer(type, null)));
+        }
         _dynamicSerializers = result.map;
         return result.serializer;
     }
 
-    protected final JsonSerializer<Object> _findAndAddDynamic(JavaType type) throws JsonMappingException
+    private final JsonSerializer<Object> _findAndAddDynamic(JavaType type) throws JsonMappingException
     {
-        PropertySerializerMap.SerializerAndMapResult result
-            = _dynamicSerializers.findAndAddRootValueSerializer(type, _provider);
+        PropertySerializerMap.SerializerAndMapResult result;
+        if (_typeSerializer == null) {
+            result = _dynamicSerializers.findAndAddRootValueSerializer(type, _provider);
+        } else {
+            result = _dynamicSerializers.addSerializer(type,
+                    new TypeWrappedSerializer(_typeSerializer, _provider.findValueSerializer(type, null)));
+        }
         _dynamicSerializers = result.map;
         return result.serializer;
     }

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -62,22 +63,6 @@ public class ObjectWriter
      */
 
     /**
-     * Specified root serialization type to use; can be same
-     * as runtime type, but usually one of its super types
-     */
-    protected final JavaType _rootType;
-
-    /**
-     * We may pre-fetch serializer if {@link #_rootType}
-     * is known, and if so, reuse it afterwards.
-     * This allows avoiding further serializer lookups and increases
-     * performance a bit on cases where readers are reused.
-     * 
-     * @since 2.1
-     */
-    protected final JsonSerializer<Object> _rootSerializer;
-
-    /**
      * Container for settings that need to be passed to {@link JsonGenerator}
      * constructed for serializing values.
      *
@@ -85,6 +70,16 @@ public class ObjectWriter
      */
     protected final GeneratorSettings _generatorSettings;
 
+    /**
+     * We may pre-fetch serializer if {@link #_rootType}
+     * is known, and if so, reuse it afterwards.
+     * This allows avoiding further serializer lookups and increases
+     * performance a bit on cases where readers are reused.
+     *
+     * @since 2.5
+     */
+    protected final Prefetch _prefetch;
+    
     /*
     /**********************************************************
     /* Life-cycle, constructors
@@ -106,11 +101,10 @@ public class ObjectWriter
 
         // 29-Apr-2014, tatu: There is no "untyped serializer", so:
         if (rootType == null || rootType.hasRawClass(Object.class)) {
-            _rootType = null;
-            _rootSerializer = null;
+            _prefetch = Prefetch.empty;
         } else {
-            _rootType = rootType.withStaticTyping();
-            _rootSerializer = _prefetchRootSerializer(config, _rootType);
+            rootType = rootType.withStaticTyping();
+            _prefetch = _prefetchRootSerializer(config, rootType);
         }
     }
 
@@ -124,8 +118,7 @@ public class ObjectWriter
         _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._jsonFactory;
 
-        _rootType = null;
-        _rootSerializer = null;
+        _prefetch = Prefetch.empty;
         _generatorSettings = GeneratorSettings.empty;
     }
 
@@ -141,8 +134,7 @@ public class ObjectWriter
         _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._jsonFactory;
 
-        _rootType = null;
-        _rootSerializer = null;
+        _prefetch = Prefetch.empty;
         _generatorSettings = (s == null) ? GeneratorSettings.empty
                 : new GeneratorSettings(null, s, null);
     }
@@ -151,8 +143,7 @@ public class ObjectWriter
      * Copy constructor used for building variations.
      */
     protected ObjectWriter(ObjectWriter base, SerializationConfig config,
-            JavaType rootType, JsonSerializer<Object> rootSer,
-            GeneratorSettings genSettings)
+            GeneratorSettings genSettings, Prefetch prefetch)
     {
         _config = config;
 
@@ -160,9 +151,8 @@ public class ObjectWriter
         _serializerFactory = base._serializerFactory;
         _generatorFactory = base._generatorFactory;
 
-        _rootType = rootType;
-        _rootSerializer = rootSer;
         _generatorSettings = genSettings;
+        _prefetch = prefetch;
     }
 
     /**
@@ -176,9 +166,7 @@ public class ObjectWriter
         _serializerFactory = base._serializerFactory;
         _generatorFactory = base._generatorFactory;
         _generatorSettings = base._generatorSettings;
-
-        _rootType = base._rootType;
-        _rootSerializer = base._rootSerializer;
+        _prefetch = base._prefetch;
     }
 
     /**
@@ -194,9 +182,7 @@ public class ObjectWriter
         _serializerFactory = base._serializerFactory;
         _generatorFactory = base._generatorFactory;
         _generatorSettings = base._generatorSettings;
-
-        _rootType = base._rootType;
-        _rootSerializer = base._rootSerializer;
+        _prefetch = base._prefetch;
     }
 
     /**
@@ -241,9 +227,8 @@ public class ObjectWriter
      * 
      * @since 2.5
      */
-    protected ObjectWriter _new(JavaType rootType, JsonSerializer<Object> rootSer,
-            GeneratorSettings genSettings) {
-        return new ObjectWriter(this, _config, rootType, rootSer, genSettings);
+    protected ObjectWriter _new(GeneratorSettings genSettings, Prefetch prefetch) {
+        return new ObjectWriter(this, _config, genSettings, prefetch);
     }
 
     /**
@@ -258,7 +243,7 @@ public class ObjectWriter
         throws IOException
     {
         return new SequenceWriter(_serializerProvider(_config),
-                _configureGenerator(gen), managedInput, _rootType, _rootSerializer)
+                _configureGenerator(gen), managedInput, _prefetch)
             .init(wrapInArray);
     }
 
@@ -405,7 +390,7 @@ public class ObjectWriter
         if (genSet == _generatorSettings) {
             return this;
         }
-        return _new(_rootType, _rootSerializer, genSet);
+        return _new(genSet, _prefetch);
     }
 
     /**
@@ -434,7 +419,7 @@ public class ObjectWriter
             return this;
         }
         _verifySchemaType(schema);
-        return _new(_rootType, _rootSerializer, genSet);
+        return _new(genSet, _prefetch);
     }
 
     /**
@@ -457,16 +442,15 @@ public class ObjectWriter
      */
     public ObjectWriter forType(JavaType rootType)
     {
-        JsonSerializer<Object> rootSer;
+        Prefetch pf;
         if (rootType == null || rootType.hasRawClass(Object.class)) {
-            rootType = null;
-            rootSer = null;
+            pf = Prefetch.empty;
         } else {
             // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
             rootType = rootType.withStaticTyping();
-            rootSer = _prefetchRootSerializer(_config, rootType);
+            pf = _prefetchRootSerializer(_config, rootType);
         }
-        return _new(rootType, rootSer, _generatorSettings);
+        return (pf == _prefetch) ? this : _new(_generatorSettings, pf);
     }    
 
     /**
@@ -553,7 +537,7 @@ public class ObjectWriter
         if (genSet == _generatorSettings) {
             return this;
         }
-        return _new(_rootType, _rootSerializer, genSet);
+        return _new(genSet, _prefetch);
     }
 
     /**
@@ -806,7 +790,7 @@ public class ObjectWriter
      * @since 2.2
      */
     public boolean hasPrefetchedSerializer() {
-        return _rootSerializer != null;
+        return _prefetch.hasSerializer();
     }
 
     /**
@@ -834,10 +818,13 @@ public class ObjectWriter
                 && (value instanceof Closeable)) {
             _writeCloseableValue(gen, value, _config);
         } else {
-            if (_rootType == null) {
-                _serializerProvider(_config).serializeValue(gen, value);
+            if (_prefetch.valueSerializer != null) {
+                _serializerProvider(_config).serializeValue(gen, value, _prefetch.rootType,
+                        _prefetch.valueSerializer);
+            } else if (_prefetch.typeSerializer != null) {
+                _serializerProvider(_config).serializePolymorphic(gen, value, _prefetch.typeSerializer);
             } else {
-                _serializerProvider(_config).serializeValue(gen, value, _rootType, _rootSerializer);
+                _serializerProvider(_config).serializeValue(gen, value);
             }
             if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                 gen.flush();
@@ -1032,10 +1019,13 @@ public class ObjectWriter
         }
         boolean closed = false;
         try {
-            if (_rootType == null) {
-                _serializerProvider(_config).serializeValue(gen, value);
+            if (_prefetch.valueSerializer != null) {
+                _serializerProvider(_config).serializeValue(gen, value, _prefetch.rootType,
+                        _prefetch.valueSerializer);
+            } else if (_prefetch.typeSerializer != null) {
+                _serializerProvider(_config).serializePolymorphic(gen, value, _prefetch.typeSerializer);
             } else {
-                _serializerProvider(_config).serializeValue(gen, value, _rootType, _rootSerializer);
+                _serializerProvider(_config).serializeValue(gen, value);
             }
             closed = true;
             gen.close();
@@ -1064,10 +1054,13 @@ public class ObjectWriter
     {
         Closeable toClose = (Closeable) value;
         try {
-            if (_rootType == null) {
-                _serializerProvider(cfg).serializeValue(gen, value);
+            if (_prefetch.valueSerializer != null) {
+                _serializerProvider(cfg).serializeValue(gen, value, _prefetch.rootType,
+                        _prefetch.valueSerializer);
+            } else if (_prefetch.typeSerializer != null) {
+                _serializerProvider(cfg).serializePolymorphic(gen, value, _prefetch.typeSerializer);
             } else {
-                _serializerProvider(cfg).serializeValue(gen, value, _rootType, _rootSerializer);
+                _serializerProvider(cfg).serializeValue(gen, value);
             }
             JsonGenerator tmpGen = gen;
             gen = null;
@@ -1105,10 +1098,13 @@ public class ObjectWriter
     {
         Closeable toClose = (Closeable) value;
         try {
-            if (_rootType == null) {
-                _serializerProvider(cfg).serializeValue(gen, value);
+            if (_prefetch.valueSerializer != null) {
+                _serializerProvider(cfg).serializeValue(gen, value, _prefetch.rootType,
+                        _prefetch.valueSerializer);
+            } else if (_prefetch.typeSerializer != null) {
+                _serializerProvider(cfg).serializePolymorphic(gen, value, _prefetch.typeSerializer);
             } else {
-                _serializerProvider(cfg).serializeValue(gen, value, _rootType, _rootSerializer);
+                _serializerProvider(cfg).serializeValue(gen, value);
             }
             if (_config.isEnabled(SerializationFeature.FLUSH_AFTER_WRITE_VALUE)) {
                 gen.flush();
@@ -1130,18 +1126,23 @@ public class ObjectWriter
      * by configuration. Method also is NOT to throw an exception if
      * access fails.
      */
-    protected JsonSerializer<Object> _prefetchRootSerializer(
-            SerializationConfig config, JavaType valueType)
+    protected Prefetch _prefetchRootSerializer(SerializationConfig config, JavaType valueType)
     {
-        if (valueType == null || !_config.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
-            return null;
+        if (valueType != null && _config.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
+            try {
+                TypeSerializer typeSer = _serializerFactory.createTypeSerializer(_config, valueType);
+                // Polymorphic type? If so, can only do partial resolution
+                if (typeSer != null) {
+                    return Prefetch.construct(valueType, typeSer);
+                }
+                JsonSerializer<Object> ser = _serializerProvider(config).findValueSerializer(valueType,  null);
+                return Prefetch.construct(valueType,  ser);
+            } catch (JsonProcessingException e) {
+                // need to swallow?
+                ;
+            }
         }
-        try {
-            return _serializerProvider(config).findTypedValueSerializer(valueType, true, null);
-        } catch (JsonProcessingException e) {
-            // need to swallow?
-            return null;
-        }
+        return Prefetch.empty;
     }
     
     /**
@@ -1257,6 +1258,66 @@ public class ObjectWriter
         public GeneratorSettings with(CharacterEscapes esc) {
             return (characterEscapes == esc) ? this
                     : new GeneratorSettings(prettyPrinter, schema, esc);
+        }
+    }
+
+    /**
+     * As a minor optimization, we will make an effort to pre-fetch a serializer,
+     * or at least relevant <code>TypeSerializer</code>, if given enough
+     * information.
+     * 
+     * @since 2.5
+     */
+    public final static class Prefetch
+        implements java.io.Serializable
+    {
+        private static final long serialVersionUID = 1L;
+
+        public final static Prefetch empty = new Prefetch(null, null, null);
+        
+        /**
+         * Specified root serialization type to use; can be same
+         * as runtime type, but usually one of its super types
+         */
+        public final JavaType rootType;
+
+        /**
+         * We may pre-fetch serializer if {@link #rootType}
+         * is known, and if so, reuse it afterwards.
+         * This allows avoiding further serializer lookups and increases
+         * performance a bit on cases where readers are reused.
+         */
+        public final JsonSerializer<Object> valueSerializer;
+
+        /**
+         * When dealing with polymorphic types, we can not pre-fetch
+         * serializer, but we can pre-fetch {@link TypeSerializer}.
+         */
+        public final TypeSerializer typeSerializer;
+        
+        private Prefetch(JavaType type, JsonSerializer<Object> ser, TypeSerializer typeSer)
+        {
+            rootType = type;
+            valueSerializer = ser;
+            typeSerializer = typeSer;
+        }
+
+        public static Prefetch construct(JavaType type, JsonSerializer<Object> ser) {
+            if (type == null && ser == null) {
+                return empty;
+            }
+            return new Prefetch(type, ser, null);
+        }
+        
+        public static Prefetch construct(JavaType type, TypeSerializer typeSer) {
+            if (type == null && typeSer == null) {
+                return empty;
+            }
+            return new Prefetch(type, null, typeSer);
+        }
+
+        public boolean hasSerializer() {
+            return (valueSerializer != null) || (typeSerializer != null);
         }
     }
 }

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -262,6 +263,54 @@ public abstract class DefaultSerializerProvider
         }
     }
 
+    /**
+     * Alternate serialization call used for polymorphic types, when {@link TypeSerializer}
+     * is already known, but not actual value serializer.
+     *
+     * @since 2.5
+     */
+    public void serializePolymorphic(JsonGenerator gen, Object value, TypeSerializer typeSer)
+            throws IOException
+    {
+        if (value == null) {
+            _serializeNull(gen);
+            return;
+        }
+        final Class<?> type = value.getClass();
+        JsonSerializer<Object> ser = findValueSerializer(type, null);
+
+        final boolean wrap;
+        String rootName = _config.getRootName();
+        if (rootName == null) {
+            wrap = _config.isEnabled(SerializationFeature.WRAP_ROOT_VALUE);
+            if (wrap) {
+                gen.writeStartObject();
+                PropertyName pname = _rootNames.findRootName(type, _config);
+                gen.writeFieldName(pname.simpleAsEncoded(_config));
+            }
+        } else if (rootName.length() == 0) {
+            wrap = false;
+        } else {
+            wrap = true;
+            gen.writeStartObject();
+            gen.writeFieldName(rootName);
+        }
+        try {
+            ser.serializeWithType(value, gen, this, typeSer);
+            if (wrap) {
+                gen.writeEndObject();
+            }
+        } catch (IOException ioe) { // no wrapping for IO (and derived)
+            throw ioe;
+        } catch (Exception e) { // but others do need to be, to get path etc
+            String msg = e.getMessage();
+            if (msg == null) {
+                msg = "[no message for "+e.getClass().getName()+"]";
+            }
+            throw new JsonMappingException(msg, e);
+        }
+    }
+    
     /**
      * Helper method called when root value to serialize is null
      * 

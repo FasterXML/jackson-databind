@@ -28,7 +28,13 @@ public final class StringSerializer
      * For Strings, both null and Empty String qualify for emptiness.
      */
     @Override
+    @Deprecated
     public boolean isEmpty(String value) {
+        return (value == null) || (value.length() == 0);
+    }
+
+    @Override
+    public boolean isEmpty(SerializerProvider prov, String value) {
         return (value == null) || (value.length() == 0);
     }
     

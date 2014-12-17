@@ -89,6 +89,6 @@ public class TestObjectWriter
     {
         ObjectWriter writer = MAPPER.writerFor(PolyBase.class);
         String json = writer.writeValueAsString(new ImplA(3));
-        assertEquals(aposToQuotes("{'type':'A':'value':3}"), json);
+        assertEquals(aposToQuotes("{'type':'A','value':3}"), json);
     }
 }

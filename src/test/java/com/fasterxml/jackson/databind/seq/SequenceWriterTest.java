@@ -47,10 +47,8 @@ public class SequenceWriterTest extends BaseMapTest
      */
 
     private final ObjectMapper MAPPER = new ObjectMapper();
-    {
-        MAPPER.getFactory().setRootValueSeparator("\n");
-    }
-    private final ObjectWriter WRITER = MAPPER.writer();
+    private final ObjectWriter WRITER = MAPPER.writer()
+            .withRootValueSeparator("\n");
 
     public void testSimpleNonArray() throws Exception
     {

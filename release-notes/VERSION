@@ -62,6 +62,7 @@ Project: jackson-databind
  (using @JsonAppend, VirtualBeanPropertyWriter)
 #647: Deserialization fails when @JsonUnwrapped property contains an object with same property name
  (reported by Konstantin L)
+#654: Add support for (re)configuring `JsonGenerator.setRootValueSeparator()` via `ObjectWriter`
 #655: Add `ObjectWriter.writeValues()` for writing value sequences
 - Allow use of `Shape.ARRAY` for Enums, as an alias to 'use index'
 - Start using `JsonGenerator.writeStartArray(int)` to help data formats

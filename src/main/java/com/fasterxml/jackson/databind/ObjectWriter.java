@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.io.CharacterEscapes;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.util.*;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
@@ -98,7 +99,7 @@ public class ObjectWriter
         _serializerFactory = mapper._serializerFactory;
         _generatorFactory = mapper._jsonFactory;
         _generatorSettings = (pp == null) ? GeneratorSettings.empty
-                : new GeneratorSettings(pp, null, null);
+                : new GeneratorSettings(pp, null, null, null);
 
         // 29-Apr-2014, tatu: There is no "untyped serializer", so:
         if (rootType == null || rootType.hasRawClass(Object.class)) {
@@ -137,7 +138,7 @@ public class ObjectWriter
 
         _prefetch = Prefetch.empty;
         _generatorSettings = (s == null) ? GeneratorSettings.empty
-                : new GeneratorSettings(null, s, null);
+                : new GeneratorSettings(null, s, null, null);
     }
     
     /**
@@ -578,6 +579,28 @@ public class ObjectWriter
     public ObjectWriter withoutAttribute(Object key) {
         SerializationConfig newConfig = _config.withoutAttribute(key);
         return (newConfig == _config) ? this :  _new(this, newConfig);
+    }
+
+    /**
+     * @since 2.5
+     */
+    public ObjectWriter withRootValueSeparator(String sep) {
+        GeneratorSettings genSet = _generatorSettings.withRootValueSeparator(sep);
+        if (genSet == _generatorSettings) {
+            return this;
+        }
+        return _new(genSet, _prefetch);
+    }
+
+    /**
+     * @since 2.5
+     */
+    public ObjectWriter withRootValueSeparator(SerializableString sep) {
+        GeneratorSettings genSet = _generatorSettings.withRootValueSeparator(sep);
+        if (genSet == _generatorSettings) {
+            return this;
+        }
+        return _new(genSet, _prefetch);
     }
 
     /*
@@ -1192,10 +1215,13 @@ public class ObjectWriter
         if (esc != null) {
             gen.setCharacterEscapes(esc);
         }
-        // [JACKSON-520]: add support for pass-through schema:
         FormatSchema sch = genSet.schema;
         if (sch != null) {
             gen.setSchema(sch);
+        }
+        SerializableString sep = genSet.rootValueSeparator;
+        if (sep != null) {
+            gen.setRootValueSeparator(sep);
         }
         _config.initialize(gen); // since 2.5
         return gen;
@@ -1219,31 +1245,41 @@ public class ObjectWriter
     {
         private static final long serialVersionUID = 1L;
 
-        public final static GeneratorSettings empty = new GeneratorSettings(null, null, null);
-        
+        public final static GeneratorSettings empty = new GeneratorSettings(null, null, null, null);
+
         /**
          * To allow for dynamic enabling/disabling of pretty printing,
          * pretty printer can be optionally configured for writer
          * as well
          */
         public final PrettyPrinter prettyPrinter;
-    
+
         /**
          * When using data format that uses a schema, schema is passed
          * to generator.
          */
         public final FormatSchema schema;
-    
+
         /**
          * Caller may want to specify character escaping details, either as
          * defaults, or on call-by-call basis.
          */
         public final CharacterEscapes characterEscapes;
 
-        public GeneratorSettings(PrettyPrinter pp, FormatSchema sch, CharacterEscapes esc) {
+        /**
+         * Caller may want to override so-called "root value separator",
+         * String added (verbatim, with no quoting or escaping) between
+         * values in root context. Default value is a single space character,
+         * but this is often changed to linefeed.
+         */
+        public final SerializableString rootValueSeparator;
+
+        public GeneratorSettings(PrettyPrinter pp, FormatSchema sch,
+                CharacterEscapes esc, SerializableString rootSep) {
             prettyPrinter = pp;
             schema = sch;
             characterEscapes = esc;
+            rootValueSeparator = rootSep;
         }
 
         public GeneratorSettings with(PrettyPrinter pp) {
@@ -1252,17 +1288,43 @@ public class ObjectWriter
                 pp = NULL_PRETTY_PRINTER;
             }
             return (pp == prettyPrinter) ? this
-                    : new GeneratorSettings(pp, schema, characterEscapes);
+                    : new GeneratorSettings(pp, schema, characterEscapes, rootValueSeparator);
         }
 
         public GeneratorSettings with(FormatSchema sch) {
             return (schema == sch) ? this
-                    : new GeneratorSettings(prettyPrinter, sch, characterEscapes);
+                    : new GeneratorSettings(prettyPrinter, sch, characterEscapes, rootValueSeparator);
         }
 
         public GeneratorSettings with(CharacterEscapes esc) {
             return (characterEscapes == esc) ? this
-                    : new GeneratorSettings(prettyPrinter, schema, esc);
+                    : new GeneratorSettings(prettyPrinter, schema, esc, rootValueSeparator);
+        }
+
+        public GeneratorSettings withRootValueSeparator(String sep) {
+            if (sep == null) {
+                if (rootValueSeparator == null) {
+                    return this;
+                }
+            } else if (sep.equals(rootValueSeparator)) {
+                return this;
+            }
+            return new GeneratorSettings(prettyPrinter, schema, characterEscapes,
+                    (sep == null) ? null : new SerializedString(sep));
+        }
+
+        public GeneratorSettings withRootValueSeparator(SerializableString sep) {
+            if (sep == null) {
+                if (rootValueSeparator == null) {
+                    return this;
+                }
+            } else {
+                if (rootValueSeparator != null
+                        && sep.getValue().equals(rootValueSeparator.getValue())) {
+                    return this;
+                }
+            }
+            return new GeneratorSettings(prettyPrinter, schema, characterEscapes, sep);
         }
     }
 

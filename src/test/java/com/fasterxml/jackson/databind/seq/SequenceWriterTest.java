@@ -32,6 +32,13 @@ public class SequenceWriterTest extends BaseMapTest
         
         public ImplA(int v) { value = v; }
     }
+
+    @JsonTypeName("B")
+    static class ImplB extends PolyBase {
+        public int b;
+        
+        public ImplB(int v) { b = v; }
+    }
     
     /*
     /**********************************************************
@@ -110,9 +117,10 @@ public class SequenceWriterTest extends BaseMapTest
                 .forType(PolyBase.class)
                 .writeValuesAsArray(strw);
         w.write(new ImplA(-1))
-            .write(new ImplA(6))
+            .write(new ImplB(3))
+            .write(new ImplA(7))
             .close();
-        assertEquals(aposToQuotes("[{'type':'A','value':-1},{'type':'A','value':6}]"),
+        assertEquals(aposToQuotes("[{'type':'A','value':-1},{'type':'B','b':3},{'type':'A','value':7}]"),
                 strw.toString());
     }
 }

@@ -44,4 +44,18 @@ public final class TypeWrappedSerializer
     
     @Override
     public Class<Object> handledType() { return Object.class; }
+
+    /*
+    /**********************************************************
+    /* Extended API for other core classes
+    /**********************************************************
+     */
+
+    public JsonSerializer<Object> valueSerializer() {
+        return _serializer;
+    }
+
+    public TypeSerializer typeSerializer() {
+        return _typeSerializer;
+    }
 }

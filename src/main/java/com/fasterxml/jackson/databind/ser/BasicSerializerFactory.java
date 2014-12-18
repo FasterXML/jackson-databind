@@ -282,7 +282,7 @@ public abstract class BasicSerializerFactory
      */
 
     protected abstract Iterable<Serializers> customSerializers();
-    
+
     /*
     /**********************************************************
     /* Overridable secondary serializer accessor methods

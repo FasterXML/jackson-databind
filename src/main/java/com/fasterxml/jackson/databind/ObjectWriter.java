@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
+import com.fasterxml.jackson.databind.ser.impl.TypeWrappedSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -1129,13 +1130,17 @@ public class ObjectWriter
     protected Prefetch _prefetchRootSerializer(SerializationConfig config, JavaType valueType)
     {
         if (valueType != null && _config.isEnabled(SerializationFeature.EAGER_SERIALIZER_FETCH)) {
+            /* 17-Dec-2014, tatu: Need to be bit careful here; TypeSerializers are NOT cached,
+             *   so although it'd seem like a good idea to look for those first, and avoid
+             *   serializer for polymorphic types, it is actually more efficient to do the
+             *   reverse here.
+             */
             try {
-                TypeSerializer typeSer = _serializerFactory.createTypeSerializer(_config, valueType);
-                // Polymorphic type? If so, can only do partial resolution
-                if (typeSer != null) {
-                    return Prefetch.construct(valueType, typeSer);
+                JsonSerializer<Object> ser = _serializerProvider(config).findTypedValueSerializer(valueType, true, null);
+                // Important: for polymorphic types, "unwrap"...
+                if (ser instanceof TypeWrappedSerializer) {
+                    return Prefetch.construct(valueType, ((TypeWrappedSerializer) ser).typeSerializer());
                 }
-                JsonSerializer<Object> ser = _serializerProvider(config).findValueSerializer(valueType,  null);
                 return Prefetch.construct(valueType,  ser);
             } catch (JsonProcessingException e) {
                 // need to swallow?

@@ -41,7 +41,7 @@ public class TestEmptyClass
         }
 
         @Override
-        public boolean isEmpty(NonZero value) {
+        public boolean isEmpty(SerializerProvider provider, NonZero value) {
             if (value == null) return true;
             return (value.nr == 0);
         }

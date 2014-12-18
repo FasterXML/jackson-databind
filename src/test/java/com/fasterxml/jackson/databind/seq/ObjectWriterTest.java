@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.ser;
+package com.fasterxml.jackson.databind.seq;
 
 import java.util.*;
 
@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -13,7 +14,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Unit tests for checking features added to {@link ObjectWriter}, such
  * as adding of explicit pretty printer.
  */
-public class TestObjectWriter
+public class ObjectWriterTest
     extends BaseMapTest
 {
     final ObjectMapper MAPPER = new ObjectMapper();
@@ -29,6 +30,13 @@ public class TestObjectWriter
         public ImplA(int v) { value = v; }
     }
 
+    @JsonTypeName("B")
+    static class ImplB extends PolyBase {
+        public int b;
+        
+        public ImplB(int v) { b = v; }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -88,7 +96,11 @@ public class TestObjectWriter
     public void testPolymorpicWithTyping() throws Exception
     {
         ObjectWriter writer = MAPPER.writerFor(PolyBase.class);
-        String json = writer.writeValueAsString(new ImplA(3));
+        String json;
+
+        json = writer.writeValueAsString(new ImplA(3));
         assertEquals(aposToQuotes("{'type':'A','value':3}"), json);
+        json = writer.writeValueAsString(new ImplB(-5));
+        assertEquals(aposToQuotes("{'type':'B','b':-5}"), json);
     }
 }

@@ -1,10 +1,10 @@
-package com.fasterxml.jackson.databind.deser;
+package com.fasterxml.jackson.databind.seq;
 
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
 
-public class TestObjectReader extends BaseMapTest
+public class ObjectReaderTest extends BaseMapTest
 {
     final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -28,5 +28,4 @@ public class TestObjectReader extends BaseMapTest
             verifyException(e, "foo");
         }
     }
-
 }

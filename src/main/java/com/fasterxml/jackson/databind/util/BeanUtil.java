@@ -191,4 +191,36 @@ public class BeanUtil
         }
         return (sb == null) ? basename : sb.toString();
     }
+
+    /* 17-Dec-2014, tatu: This is how it should really work; need to figure out
+     *     a good way to phase this in.
+     */
+/*
+    protected static String manglePropertyName(String basename)
+    {
+        int len = basename.length();
+
+        // First things first: empty basename is no good
+        if (len == 0) {
+            return null;
+        }
+        // first: if it doesn't start with capital, return as-is
+        char c0 = basename.charAt(0);
+        char c1 = Character.toLowerCase(c0);
+        if (c0 == c1) {
+            return basename;
+        }
+        // 17-Dec-2014, tatu: As per [databind#653], need to follow more
+        //   closely Java Beans spec; specifically, if two first are upper-case,
+        //   then no lower-casing should be done.
+        if (len > 1) {
+            if (Character.isUpperCase(basename.charAt(1))) {
+                return basename;
+            }
+        }
+        StringBuilder sb = new StringBuilder(basename);
+        sb.setCharAt(0, c1);
+        return sb.toString();
+    }
+*/
 }

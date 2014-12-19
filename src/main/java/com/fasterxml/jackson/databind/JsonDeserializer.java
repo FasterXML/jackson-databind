@@ -96,13 +96,13 @@ public abstract class JsonDeserializer<T>
      * Note that this method is never called for JSON null literal,
      * and thus deserializers need (and should) not check for it.
      *
-     * @param jp Parsed used for reading JSON content
+     * @param p Parsed used for reading JSON content
      * @param ctxt Context that can be used to access information about
      *   this deserialization activity.
      *
      * @return Deserialized value
      */
-    public abstract T deserialize(JsonParser jp, DeserializationContext ctxt)
+    public abstract T deserialize(JsonParser p, DeserializationContext ctxt)
         throws IOException, JsonProcessingException;
 
     /**
@@ -121,7 +121,7 @@ public abstract class JsonDeserializer<T>
      * that do not explicitly add support do not necessarily support
      * update-existing-value operation (esp. immutable types)
      */
-    public T deserialize(JsonParser jp, DeserializationContext ctxt,
+    public T deserialize(JsonParser p, DeserializationContext ctxt,
             T intoValue)
         throws IOException, JsonProcessingException
     {
@@ -143,12 +143,12 @@ public abstract class JsonDeserializer<T>
      * 
      * @param typeDeserializer Deserializer to use for handling type information
      */
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // We could try calling 
-        return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
 
     /*

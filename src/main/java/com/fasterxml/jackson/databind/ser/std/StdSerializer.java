@@ -26,8 +26,10 @@ import com.fasterxml.jackson.databind.util.Converter;
  */
 public abstract class StdSerializer<T>
     extends JsonSerializer<T>
-    implements JsonFormatVisitable, SchemaAware
+    implements JsonFormatVisitable, SchemaAware, java.io.Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Nominal type supported, usually declared type of
      * property for which serializer is used.

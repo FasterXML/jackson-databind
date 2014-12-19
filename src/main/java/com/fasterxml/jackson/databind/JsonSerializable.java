@@ -25,8 +25,7 @@ public interface JsonSerializable
      * Serialization method called when no additional type information is
      * to be included in serialization.
      */
-    public void serialize(JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonProcessingException;
+    public void serialize(JsonGenerator gen, SerializerProvider serializers) throws IOException;
 
     /**
      * Serialization method called when additional type information is
@@ -43,7 +42,6 @@ public interface JsonSerializable
      * Note that some types (most notably, "natural" types: String, Integer,
      * Double and Boolean) never include type information.
      */
-    public void serializeWithType(JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException, JsonProcessingException;
+    public void serializeWithType(JsonGenerator gen, SerializerProvider serializers,
+            TypeSerializer typeSer) throws IOException;
 }

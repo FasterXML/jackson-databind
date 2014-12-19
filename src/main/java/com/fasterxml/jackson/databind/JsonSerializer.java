@@ -98,10 +98,10 @@ public abstract class JsonSerializer<T>
      *
      * @param value Value to serialize; can <b>not</b> be null.
      * @param gen Generator used to output resulting Json content
-     * @param provider Provider that can be used to get serializers for
+     * @param serializers Provider that can be used to get serializers for
      *   serializing Objects value contains, if any.
      */
-    public abstract void serialize(T value, JsonGenerator gen, SerializerProvider provider)
+    public abstract void serialize(T value, JsonGenerator gen, SerializerProvider serializers)
         throws IOException, JsonProcessingException;
 
     /**
@@ -127,13 +127,13 @@ public abstract class JsonSerializer<T>
      *
      * @param value Value to serialize; can <b>not</b> be null.
      * @param gen Generator used to output resulting Json content
-     * @param provider Provider that can be used to get serializers for
+     * @param serializers Provider that can be used to get serializers for
      *   serializing Objects value contains, if any.
      * @param typeSer Type serializer to use for including type information
      */
-    public void serializeWithType(T value, JsonGenerator gen, SerializerProvider provider,
+    public void serializeWithType(T value, JsonGenerator gen, SerializerProvider serializers,
             TypeSerializer typeSer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         Class<?> clz = handledType();
         if (clz == null) {

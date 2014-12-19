@@ -31,7 +31,12 @@ public class POJOPropertiesCollector
      *   precedence for serialization annotations), or not (false, deserialization)
      */
     protected final boolean _forSerialization;
-    
+
+    /**
+     * @since 2.5
+     */
+    protected final boolean _stdBeanNaming;
+
     /**
      * Type of POJO for which properties are being collected.
      */
@@ -99,6 +104,7 @@ public class POJOPropertiesCollector
             JavaType type, AnnotatedClass classDef, String mutatorPrefix)
     {
         _config = config;
+        _stdBeanNaming = config.isEnabled(MapperFeature.USE_STD_BEAN_NAMING);
         _forSerialization = forSerialization;
         _type = type;
         _classDef = classDef;
@@ -559,10 +565,10 @@ public class POJOPropertiesCollector
         if (!nameExplicit) { // no explicit name; must consider implicit
             implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
             if (implName == null) {
-                implName = BeanUtil.okNameForRegularGetter(m, m.getName());
+                implName = BeanUtil.okNameForRegularGetter(m, m.getName(), _stdBeanNaming);
             }
             if (implName == null) { // if not, must skip
-                implName = BeanUtil.okNameForIsGetter(m, m.getName());
+                implName = BeanUtil.okNameForIsGetter(m, m.getName(), _stdBeanNaming);
                 if (implName == null) {
                     return;
                 }
@@ -574,7 +580,7 @@ public class POJOPropertiesCollector
             // we still need implicit name to link with other pieces
             implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
             if (implName == null) {
-                implName = BeanUtil.okNameForGetter(m);
+                implName = BeanUtil.okNameForGetter(m, _stdBeanNaming);
             }
             // if not regular getter name, use method name as is
             if (implName == null) {
@@ -600,7 +606,7 @@ public class POJOPropertiesCollector
         if (!nameExplicit) { // no explicit name; must follow naming convention
             implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
             if (implName == null) {
-                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix, _stdBeanNaming);
             }
             if (implName == null) { // if not, must skip
             	return;
@@ -610,7 +616,7 @@ public class POJOPropertiesCollector
             // we still need implicit name to link with other pieces
             implName = (ai == null) ? null : ai.findImplicitPropertyName(m);
             if (implName == null) {
-                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix);
+                implName = BeanUtil.okNameForMutator(m, _mutatorPrefix, _stdBeanNaming);
             }
             // if not regular getter name, use method name as is
             if (implName == null) {

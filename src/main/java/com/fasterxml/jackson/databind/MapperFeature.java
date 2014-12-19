@@ -250,7 +250,8 @@ public enum MapperFeature implements ConfigFeature
      * us, which may be declaration order, but is not guaranteed).
      *<p>
      * Note that this is just the default behavior, and can be overridden by
-     * explicit overrides in classes.
+     * explicit overrides in classes (for example with
+     * {@link com.fasterxml.jackson.annotation.JsonPropertyOrder} annotation)
      *<p>
      * Feature is disabled by default.
      */
@@ -290,7 +291,23 @@ public enum MapperFeature implements ConfigFeature
      * @since 2.1
      */
     USE_WRAPPER_NAME_AS_PROPERTY_NAME(false),
-    
+
+    /**
+     * Feature that may be enabled to enforce strict compatibility with
+     * Bean name introspection, instead of slightly different mechanism
+     * Jackson defaults to.
+     * Specific difference is that Jackson always lower cases leading upper-case
+     * letters, so "getURL()" becomes "url" property; whereas standard Bean
+     * naming <b>only</b> lower-cases the first letter if it is NOT followed by
+     * another upper-case letter (so "getURL()" would result in "URL" property).
+     *<p>
+     * Feature is disabled by default for backwards compatibility purposes: earlier
+     * Jackson versions used Jackson's own mechanism.
+     *
+     * @since 2.5
+     */
+    USE_STD_BEAN_NAMING(false),
+
     /*
     /******************************************************
     /* Other features

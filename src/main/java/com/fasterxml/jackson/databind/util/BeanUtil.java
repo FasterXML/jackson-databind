@@ -10,21 +10,27 @@ public class BeanUtil
 {
     /*
     /**********************************************************
-    /* Handling "getter" names
+    /* Handling property names
     /**********************************************************
      */
 
-    public static String okNameForGetter(AnnotatedMethod am)
-    {
+    /**
+     * @since 2.5
+     */
+    public static String okNameForGetter(AnnotatedMethod am, boolean stdNaming) {
         String name = am.getName();
-        String str = okNameForIsGetter(am, name);
+        String str = okNameForIsGetter(am, name, stdNaming);
         if (str == null) {
-            str = okNameForRegularGetter(am, name);
+            str = okNameForRegularGetter(am, name, stdNaming);
         }
         return str;
     }
-
-    public static String okNameForRegularGetter(AnnotatedMethod am, String name)
+    
+    /**
+     * @since 2.5
+     */
+    public static String okNameForRegularGetter(AnnotatedMethod am, String name,
+            boolean stdNaming)
     {
         if (name.startsWith("get")) {
             /* 16-Feb-2009, tatu: To handle [JACKSON-53], need to block
@@ -39,59 +45,96 @@ public class BeanUtil
                     return null;
                 }
             } else if ("getMetaClass".equals(name)) {
-                /* 30-Apr-2009, tatu: [JACKSON-103], need to suppress
-                 *    serialization of a cyclic (and useless) reference
-                 */
+                // 30-Apr-2009, tatu: Need to suppress serialization of a cyclic reference
                 if (isGroovyMetaClassGetter(am)) {
                     return null;
                 }
             }
-            return manglePropertyName(name.substring(3));
+            return stdNaming
+                    ? stdManglePropertyName(name, 3)
+                    : legacyManglePropertyName(name, 3);
         }
         return null;
     }
 
-    public static String okNameForIsGetter(AnnotatedMethod am, String name)
+    /**
+     * @since 2.5
+     */
+    public static String okNameForIsGetter(AnnotatedMethod am, String name,
+            boolean stdNaming)
     {
-        if (name.startsWith("is")) {
-            // plus, must return boolean...
+        if (name.startsWith("is")) { // plus, must return a boolean
             Class<?> rt = am.getRawType();
-            if (rt != Boolean.class && rt != Boolean.TYPE) {
-                return null;
+            if (rt == Boolean.class || rt == Boolean.TYPE) {
+                return stdNaming
+                        ? stdManglePropertyName(name, 2)
+                        : legacyManglePropertyName(name, 2);
             }
-            return manglePropertyName(name.substring(2));
         }
-        // no, not a match by name
         return null;
     }
 
-    public static String okNameForSetter(AnnotatedMethod am)
-    {
-        String name = okNameForMutator(am, "set");
-        if (name != null) {
-            // 26-Nov-2009 [JACSON-103], need to suppress this internal groovy method
-            if ("metaClass".equals(name)) {
-                if (isGroovyMetaClassSetter(am)) {
-                    return null;
-                }
-            }
+    /**
+     * @since 2.5
+     */
+    public static String okNameForSetter(AnnotatedMethod am, boolean stdNaming) {
+        String name = okNameForMutator(am, "set", stdNaming);
+        if ((name != null) 
+            // 26-Nov-2009, tatu: need to suppress this internal groovy method
+                && (!"metaClass".equals(name) || !isGroovyMetaClassSetter(am))) {
             return name;
         }
         return null;
     }
 
-    public static String okNameForMutator(AnnotatedMethod am, String prefix)
-    {
+    /**
+     * @since 2.5
+     */
+    public static String okNameForMutator(AnnotatedMethod am, String prefix,
+            boolean stdNaming) {
         String name = am.getName();
         if (name.startsWith(prefix)) {
-            return manglePropertyName(name.substring(prefix.length()));
+            return stdNaming
+                    ? stdManglePropertyName(name, prefix.length())
+                    : legacyManglePropertyName(name, prefix.length());
         }
         return null;
     }
 
     /*
     /**********************************************************
-    /* Helper methods for bean property name handling
+    /* Handling property names, deprecated methods
+    /**********************************************************
+     */
+
+    @Deprecated // since 2.5
+    public static String okNameForGetter(AnnotatedMethod am) {
+        return okNameForGetter(am, false);
+    }
+
+    @Deprecated // since 2.5
+    public static String okNameForRegularGetter(AnnotatedMethod am, String name) {
+        return okNameForRegularGetter(am, name, false);
+    }
+
+    @Deprecated // since 2.5
+    public static String okNameForIsGetter(AnnotatedMethod am, String name) {
+        return okNameForIsGetter(am, name, false);
+    }
+
+    @Deprecated // since 2.5
+    public static String okNameForSetter(AnnotatedMethod am) {
+        return okNameForSetter(am, false);
+    }
+
+    @Deprecated // since 2.5
+    public static String okNameForMutator(AnnotatedMethod am, String prefix) {
+        return okNameForMutator(am, prefix, false);
+    }
+
+    /*
+    /**********************************************************
+    /* Special case handling
     /**********************************************************
      */
 
@@ -161,6 +204,12 @@ public class BeanUtil
         return false;
     }
 
+    /*
+    /**********************************************************
+    /* Actual name mangling methods
+    /**********************************************************
+     */
+
     /**
      * Method called to figure out name of the property, given 
      * corresponding suggested name based on a method or field name.
@@ -168,59 +217,56 @@ public class BeanUtil
      * @param basename Name of accessor/mutator method, not including prefix
      *  ("get"/"is"/"set")
      */
-    protected static String manglePropertyName(String basename)
+    protected static String legacyManglePropertyName(final String basename, final int offset)
     {
-        int len = basename.length();
-
-        // First things first: empty basename is no good
-        if (len == 0) {
+        final int end = basename.length();
+        if (end == offset) { // empty name, nope
             return null;
         }
         // otherwise, lower case initial chars
         StringBuilder sb = null;
-        for (int i = 0; i < len; ++i) {
+        for (int i = offset; i < end; ++i) {
             char upper = basename.charAt(i);
             char lower = Character.toLowerCase(upper);
             if (upper == lower) {
                 break;
             }
             if (sb == null) {
-                sb = new StringBuilder(basename);
+                int l = end-offset;
+                sb = new StringBuilder(l);
+                sb.append(basename, offset, end);
             }
-            sb.setCharAt(i, lower);
+            sb.setCharAt(i-offset, lower);
         }
-        return (sb == null) ? basename : sb.toString();
+        return (sb == null) ? basename.substring(offset) : sb.toString();
     }
 
-    /* 17-Dec-2014, tatu: This is how it should really work; need to figure out
-     *     a good way to phase this in.
+    /**
+     * @since 2.5
      */
-/*
-    protected static String manglePropertyName(String basename)
+    protected static String stdManglePropertyName(final String basename, final int offset)
     {
-        int len = basename.length();
-
-        // First things first: empty basename is no good
-        if (len == 0) {
+        final int end = basename.length();
+        if (end == offset) { // empty name, nope
             return null;
         }
         // first: if it doesn't start with capital, return as-is
-        char c0 = basename.charAt(0);
+        char c0 = basename.charAt(offset);
         char c1 = Character.toLowerCase(c0);
         if (c0 == c1) {
-            return basename;
+            return basename.substring(offset);
         }
         // 17-Dec-2014, tatu: As per [databind#653], need to follow more
         //   closely Java Beans spec; specifically, if two first are upper-case,
         //   then no lower-casing should be done.
-        if (len > 1) {
-            if (Character.isUpperCase(basename.charAt(1))) {
-                return basename;
+        if ((offset + 1) < end) {
+            if (Character.isUpperCase(basename.charAt(offset+1))) {
+                return basename.substring(offset);
             }
         }
-        StringBuilder sb = new StringBuilder(basename);
-        sb.setCharAt(0, c1);
+        StringBuilder sb = new StringBuilder(end - offset);
+        sb.append(c1);
+        sb.append(basename, offset+1, end);
         return sb.toString();
     }
-*/
 }

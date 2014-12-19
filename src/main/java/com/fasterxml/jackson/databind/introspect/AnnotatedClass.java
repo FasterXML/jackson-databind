@@ -752,18 +752,18 @@ public final class AnnotatedClass
          * -- at least not yet!
          */
         if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedMethod(m, _emptyAnnotationMap(), null);
+            return new AnnotatedMethod(this, m, _emptyAnnotationMap(), null);
         }
-        return new AnnotatedMethod(m, _collectRelevantAnnotations(m.getDeclaredAnnotations()), null);
+        return new AnnotatedMethod(this, m, _collectRelevantAnnotations(m.getDeclaredAnnotations()), null);
     }
 
     protected AnnotatedConstructor _constructConstructor(Constructor<?> ctor, boolean defaultCtor)
     {
         if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedConstructor(ctor, _emptyAnnotationMap(), _emptyAnnotationMaps(ctor.getParameterTypes().length));
+            return new AnnotatedConstructor(this, ctor, _emptyAnnotationMap(), _emptyAnnotationMaps(ctor.getParameterTypes().length));
         }
         if (defaultCtor) {
-            return new AnnotatedConstructor(ctor, _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), null);
+            return new AnnotatedConstructor(this, ctor, _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), null);
         }
         Annotation[][] paramAnns = ctor.getParameterAnnotations();
         int paramCount = ctor.getParameterTypes().length;
@@ -801,25 +801,25 @@ public final class AnnotatedClass
         } else {
             resolvedAnnotations = _collectRelevantAnnotations(paramAnns);
         }
-        return new AnnotatedConstructor(ctor, _collectRelevantAnnotations(ctor.getDeclaredAnnotations()),
-                resolvedAnnotations);
+        return new AnnotatedConstructor(this, ctor,
+                _collectRelevantAnnotations(ctor.getDeclaredAnnotations()), resolvedAnnotations);
     }
 
     protected AnnotatedMethod _constructCreatorMethod(Method m)
     {
         if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedMethod(m, _emptyAnnotationMap(), _emptyAnnotationMaps(m.getParameterTypes().length));
+            return new AnnotatedMethod(this, m, _emptyAnnotationMap(), _emptyAnnotationMaps(m.getParameterTypes().length));
         }
-        return new AnnotatedMethod(m, _collectRelevantAnnotations(m.getDeclaredAnnotations()),
+        return new AnnotatedMethod(this, m, _collectRelevantAnnotations(m.getDeclaredAnnotations()),
                                    _collectRelevantAnnotations(m.getParameterAnnotations()));
     }
 
     protected AnnotatedField _constructField(Field f)
     {
         if (_annotationIntrospector == null) { // when annotation processing is disabled
-            return new AnnotatedField(f, _emptyAnnotationMap());
+            return new AnnotatedField(this, f, _emptyAnnotationMap());
         }
-        return new AnnotatedField(f, _collectRelevantAnnotations(f.getDeclaredAnnotations()));
+        return new AnnotatedField(this, f, _collectRelevantAnnotations(f.getDeclaredAnnotations()));
     }
  
     private AnnotationMap _emptyAnnotationMap() {

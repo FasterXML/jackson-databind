@@ -44,7 +44,7 @@ public final class AnnotatedParameter
     public AnnotatedParameter(AnnotatedWithParams owner, Type type,  AnnotationMap annotations,
             int index)
     {
-        super(annotations);
+        super((owner == null) ? null : owner.getContextClass(), annotations);
         _owner = owner;
         _type = type;
         _index = index;

@@ -36,15 +36,15 @@ public final class AnnotatedField
     /**********************************************************
      */
 
-    public AnnotatedField(Field field, AnnotationMap annMap)
+    public AnnotatedField(AnnotatedClass contextClass, Field field, AnnotationMap annMap)
     {
-        super(annMap);
+        super(contextClass, annMap);
         _field = field;
     }
     
     @Override
     public AnnotatedField withAnnotations(AnnotationMap ann) {
-        return new AnnotatedField(_field, ann);
+        return new AnnotatedField(_context, _field, ann);
     }
 
     /**
@@ -52,7 +52,7 @@ public final class AnnotatedField
      */
     protected AnnotatedField(Serialization ser)
     {
-        super(null);
+        super(null, null);
         _field = null;
         _serialization = ser;
     }
@@ -168,7 +168,7 @@ public final class AnnotatedField
             if (!f.isAccessible()) {
                 ClassUtil.checkAndFixAccess(f);
             }
-            return new AnnotatedField(f, null);
+            return new AnnotatedField(null, f, null);
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not find method '"+_serialization.name
                         +"' from Class '"+clazz.getName());

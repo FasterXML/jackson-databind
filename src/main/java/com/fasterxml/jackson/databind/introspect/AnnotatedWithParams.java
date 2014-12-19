@@ -30,9 +30,9 @@ public abstract class AnnotatedWithParams
     /**********************************************************
      */
 
-    protected AnnotatedWithParams(AnnotationMap annotations, AnnotationMap[] paramAnnotations)
+    protected AnnotatedWithParams(AnnotatedClass ctxt, AnnotationMap annotations, AnnotationMap[] paramAnnotations)
     {
-        super(annotations);
+        super(ctxt, annotations);
         _paramAnnotations = paramAnnotations;
     }
 

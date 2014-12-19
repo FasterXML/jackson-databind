@@ -18,19 +18,71 @@ public abstract class AnnotatedMember
 {
     private static final long serialVersionUID = 1L; // since 2.5
 
+    // 19-Dec-2014, tatu: Similarly, assumed NOT to be needed in cases where
+    //    owning object (ObjectMapper or relatives) is being JDK-serialized
+    /**
+     * Class that was resolved to produce this member instance; either class that declared
+     * the member, or one of its subtypes that inherited it.
+     * 
+     * @since 2.5
+     */
+    protected final transient AnnotatedClass _context;
+
     // Transient since information not needed after construction, so
     // no need to persist
     protected final transient AnnotationMap _annotations;
 
+    /*
+    @Deprecated // since 2.5
     protected AnnotatedMember(AnnotationMap annotations) {
+        this(null, annotations);
+    }
+    */
+
+    protected AnnotatedMember(AnnotatedClass ctxt, AnnotationMap annotations) {
         super();
+        _context = ctxt;
         _annotations = annotations;
     }
 
+    /**
+     * Copy-constructor.
+     *
+     * @since 2.5
+     */
+    protected AnnotatedMember(AnnotatedMember base) {
+        _context = base._context;
+        _annotations = base._annotations;
+    }
+    
+    /**
+     * Actual physical class in which this memmber was declared.
+     * Note that this may be different from what {@link #getContextClass()} returns;
+     * "owner" may be a sub-type of "declaring class".
+     */
     public abstract Class<?> getDeclaringClass();
 
     public abstract Member getMember();
 
+    /**
+     * Accessor for {@link AnnotatedClass} that was the type that was resolved
+     * and that contains this member: this is either the {@link java.lang.Class}
+     * in which member was declared, or one of its super types. If distinction
+     * between result type, and actual class in which declaration was found matters,
+     * you can compare return value to that of {@link #getDeclaringClass()}.
+     * The main use for this accessor is (usually) to access class annotations.
+     *<p>
+     * Also note that owner property is NOT (JDK-)serialized; this should usually not
+     * matter, but means that while it is accessible during construction of various
+     * (de)serializers, it may not be available on per-call basis, if (but only if)
+     * <code>ObjectMapper</code> (etc) has been serialized/deserialized.
+     * 
+     * @since 2.5
+     */
+    public AnnotatedClass getContextClass() {
+        return _context;
+    }
+    
     @Override
     public Iterable<Annotation> annotations() {
         if (_annotations == null) {

@@ -155,6 +155,6 @@ public final class InnerClassProperty
         if (_annotated != null) {
             return this;
         }
-        return new InnerClassProperty(this, new AnnotatedConstructor(_creator, null, null));
+        return new InnerClassProperty(this, new AnnotatedConstructor(null, _creator, null, null));
     }
 }

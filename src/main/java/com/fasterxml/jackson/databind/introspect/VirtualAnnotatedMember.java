@@ -10,6 +10,7 @@ import java.lang.reflect.*;
  * @since 2.5
  */
 public class VirtualAnnotatedMember extends AnnotatedMember
+    implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -18,16 +19,17 @@ public class VirtualAnnotatedMember extends AnnotatedMember
     protected final Class<?> _rawType;
 
     protected final String _name;
-    
+
     /*
     /**********************************************************
     /* Life-cycle
     /**********************************************************
      */
 
-    public VirtualAnnotatedMember(Class<?> declaringClass, String name, Class<?> rawType)
+    public VirtualAnnotatedMember(AnnotatedClass contextClass, Class<?> declaringClass,
+            String name, Class<?> rawType)
     {
-        super(/* AnnotationMap*/ null);
+        super(contextClass, /* AnnotationMap*/ null);
         _declaringClass = declaringClass;
         _rawType = rawType;
         _name = name;

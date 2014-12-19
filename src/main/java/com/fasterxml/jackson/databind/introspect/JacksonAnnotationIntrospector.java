@@ -564,7 +564,7 @@ public class JacksonAnnotationIntrospector
             propName = new PropertyName(attrName);
         }
         // now, then, we need a placeholder for member (no real Field/Method):
-        AnnotatedMember member = new VirtualAnnotatedMember(ac.getRawType(),
+        AnnotatedMember member = new VirtualAnnotatedMember(ac, ac.getRawType(),
                 attrName, type.getRawClass());
         // and with that and property definition
         SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(config,
@@ -582,7 +582,7 @@ public class JacksonAnnotationIntrospector
         PropertyName propName = _propertyName(prop.name(), prop.namespace());
         JavaType type = config.constructType(prop.type());
         // now, then, we need a placeholder for member (no real Field/Method):
-        AnnotatedMember member = new VirtualAnnotatedMember(ac.getRawType(),
+        AnnotatedMember member = new VirtualAnnotatedMember(ac, ac.getRawType(),
                 propName.getSimpleName(), type.getRawClass());
         // and with that and property definition
         SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(config,

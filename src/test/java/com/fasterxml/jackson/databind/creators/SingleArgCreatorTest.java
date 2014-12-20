@@ -57,7 +57,7 @@ public class SingleArgCreatorTest extends BaseMapTest
             return value;
         }
     }
-    
+
     @SuppressWarnings("serial")
     static class MyParamIntrospector extends JacksonAnnotationIntrospector
     {
@@ -83,7 +83,7 @@ public class SingleArgCreatorTest extends BaseMapTest
     /* Test methods
     /**********************************************************
      */
-    
+
     private final ObjectMapper MAPPER = objectMapper();
 
     public void testNamedSingleArg() throws Exception

@@ -803,7 +803,7 @@ public class JacksonAnnotationIntrospector
          */
         return _hasAnnotation(am, JsonAnyGetter.class);
     }
-    
+
     @Override
     public boolean hasCreatorAnnotation(Annotated a)
     {
@@ -811,7 +811,8 @@ public class JacksonAnnotationIntrospector
          * if needs to be ignored (and if so, is handled prior
          * to this method getting called)
          */
-        return _hasAnnotation(a, JsonCreator.class);
+         JsonCreator ann = _findAnnotation(a, JsonCreator.class);
+         return (ann != null && ann.mode() != JsonCreator.Mode.DISABLED);
     }
 
     @Override

@@ -78,6 +78,44 @@ public class SingleArgCreatorTest extends BaseMapTest
         }
     }
 
+    // [databind#660]
+    static class ExplicitFactoryBean1 {
+        private String value;
+
+        private ExplicitFactoryBean1(String str) {
+            value = null;
+        }
+
+        private ExplicitFactoryBean1(String str, boolean b) {
+            value = str;
+        }
+
+        @JsonCreator
+        public ExplicitFactoryBean1 create(String str) {
+            ExplicitFactoryBean1 bean = new ExplicitFactoryBean1(str, false);
+            bean.value = str;
+            return bean;
+        }
+
+        public String value() { return value; }
+    }
+
+    // [databind#660]
+    static class ExplicitFactoryBean2 {
+        private String value;
+
+        @JsonCreator
+        private ExplicitFactoryBean2(String str) {
+            value = null;
+        }
+
+        public static ExplicitFactoryBean2 valueOf(String str) {
+            return new ExplicitFactoryBean2(null);
+        }
+
+        public String value() { return value; }
+    }
+    
     /*
     /**********************************************************
     /* Test methods
@@ -116,6 +154,19 @@ public class SingleArgCreatorTest extends BaseMapTest
         SingleNamedButStillDelegating bean = MAPPER.readValue(quote("xyz"),
                 SingleNamedButStillDelegating.class);
         assertEquals("xyz", bean.value);
+    }
+
+    public void testExplicitFactory660() throws Exception
+    {
+        // First, explicit override for factory
+        ExplicitFactoryBean1 bean = MAPPER.readValue(quote("abc"), ExplicitFactoryBean1.class);
+        assertNotNull(bean);
+        assertEquals("abc", bean.value());
+
+        // and then one for private constructor
+        ExplicitFactoryBean2 bean2 = MAPPER.readValue(quote("def"), ExplicitFactoryBean2.class);
+        assertNotNull(bean2);
+        assertEquals("def", bean2.value());
     }
 }
 

@@ -4,13 +4,13 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.BeanProperty;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.ContainerSerializer;
 
 @JacksonStdImpl
+@SuppressWarnings("serial")
 public class IterableSerializer
     extends AsArraySerializerBase<Iterable<?>>
 {

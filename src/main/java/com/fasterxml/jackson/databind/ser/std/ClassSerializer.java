@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
  * Also: default bean access will not do much good with Class.class. But
  * we can just serialize the class name and that should be enough.
  */
+@SuppressWarnings("serial")
 public class ClassSerializer
     extends StdScalarSerializer<Class<?>>
 {

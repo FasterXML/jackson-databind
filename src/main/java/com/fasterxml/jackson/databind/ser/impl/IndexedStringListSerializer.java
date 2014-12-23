@@ -26,6 +26,8 @@ public final class IndexedStringListSerializer
     extends StaticListSerializerBase<List<String>>
     implements ContextualSerializer
 {
+    private static final long serialVersionUID = 1L;
+
     public final static IndexedStringListSerializer instance = new IndexedStringListSerializer();
     
     protected final JsonSerializer<String> _serializer;

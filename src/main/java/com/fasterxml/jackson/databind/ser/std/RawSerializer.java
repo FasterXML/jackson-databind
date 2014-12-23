@@ -4,7 +4,6 @@ import java.lang.reflect.Type;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
@@ -13,6 +12,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * This is a simple dummy serializer that will just output raw values by calling
  * toString() on value to serialize.
  */
+@SuppressWarnings("serial")
 public class RawSerializer<T>
     extends StdSerializer<T>
 {
@@ -26,16 +26,14 @@ public class RawSerializer<T>
     }
 
     @Override
-    public void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
-    {
+    public void serialize(T value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeRawValue(value.toString());
     }
 
     @Override
     public void serializeWithType(T value, JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         typeSer.writeTypePrefixForScalar(value, jgen);
         serialize(value, jgen, provider);
@@ -50,8 +48,7 @@ public class RawSerializer<T>
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException
     {
         visitor.expectStringFormat(typeHint);
     }

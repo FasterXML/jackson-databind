@@ -4,7 +4,6 @@ import java.lang.reflect.Type;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -17,6 +16,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
  * more exotic types (java.lang.Void).
  */
 @JacksonStdImpl
+@SuppressWarnings("serial")
 public class NullSerializer
     extends StdSerializer<Object>
 {
@@ -25,23 +25,17 @@ public class NullSerializer
     private NullSerializer() { super(Object.class); }
     
     @Override
-    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
-    {
+    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         jgen.writeNull();
     }
     
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        throws JsonMappingException
-    {
+    public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
         return createSchemaNode("null");
     }
     
     @Override
-    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-        throws JsonMappingException
-    {
+    public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
         visitor.expectNullFormat(typeHint);
     }
 }

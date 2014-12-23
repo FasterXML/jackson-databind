@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
  * that should not be used by plain SQL date.
  */
 @JacksonStdImpl
+@SuppressWarnings("serial")
 public class SqlDateSerializer
     extends DateTimeSerializerBase<java.sql.Date>
 {

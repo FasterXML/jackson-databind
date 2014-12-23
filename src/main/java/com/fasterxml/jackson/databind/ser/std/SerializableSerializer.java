@@ -5,8 +5,6 @@ import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.core.*;
-
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -27,6 +25,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * interface, can not be checked for direct class equivalence.
  */
 @JacksonStdImpl
+@SuppressWarnings("serial")
 public class SerializableSerializer
     extends StdSerializer<JsonSerializable>
 {
@@ -38,17 +37,13 @@ public class SerializableSerializer
     protected SerializableSerializer() { super(JsonSerializable.class); }
 
     @Override
-    public void serialize(JsonSerializable value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
-    {
+    public void serialize(JsonSerializable value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
         value.serialize(jgen, provider);
     }
 
     @Override
     public final void serializeWithType(JsonSerializable value, JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer)
-        throws IOException, JsonGenerationException
-    {
+            TypeSerializer typeSer) throws IOException {
         value.serializeWithType(jgen, provider, typeSer);
     }
     

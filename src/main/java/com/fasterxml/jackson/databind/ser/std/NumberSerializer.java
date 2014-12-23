@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonNumberFormatVisitor
  * like {@link BigInteger} and {@link BigDecimal}.
  */
 @JacksonStdImpl
+@SuppressWarnings("serial")
 public class NumberSerializer
     extends StdScalarSerializer<Number>
 {

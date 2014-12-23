@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
 public final class StringSerializer
     extends NonTypedScalarSerializerBase<String>
 {
+    private static final long serialVersionUID = 1L;
+
     public StringSerializer() { super(String.class); }
 
     /**

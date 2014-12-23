@@ -31,6 +31,8 @@ public class MapSerializer
     extends ContainerSerializer<Map<?,?>>
     implements ContextualSerializer
 {
+    private static final long serialVersionUID = -3465193297149553004L;
+
     protected final static JavaType UNSPECIFIED_TYPE = TypeFactory.unknownType();
 
     /**

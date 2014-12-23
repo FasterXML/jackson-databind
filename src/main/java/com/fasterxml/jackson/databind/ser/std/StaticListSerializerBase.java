@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
  * Intermediate base class for Lists, Collections and Arrays
  * that contain static (non-dynamic) value types.
  */
+@SuppressWarnings("serial")
 public abstract class StaticListSerializerBase<T extends Collection<?>>
     extends StdSerializer<T>
 {

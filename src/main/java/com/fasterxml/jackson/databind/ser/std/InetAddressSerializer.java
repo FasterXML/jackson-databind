@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 
@@ -12,14 +11,14 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
  * Simple serializer for {@link java.net.InetAddress}. Main complexity is
  * with registration, since same serializer is to be used for sub-classes.
  */
+@SuppressWarnings("serial")
 public class InetAddressSerializer
     extends StdScalarSerializer<InetAddress>
 {
     public InetAddressSerializer() { super(InetAddress.class); }
 
     @Override
-    public void serialize(InetAddress value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serialize(InetAddress value, JsonGenerator jgen, SerializerProvider provider) throws IOException
     {
         // Ok: get textual description; choose "more specific" part
         String str = value.toString().trim();

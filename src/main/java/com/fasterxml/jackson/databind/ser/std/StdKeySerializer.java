@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 import java.util.Date;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,6 +16,7 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
  * serializer, when serializing {@link java.util.Map}s to JSON
  * Objects.
  */
+@SuppressWarnings("serial")
 public class StdKeySerializer extends StdSerializer<Object>
 {
     public StdKeySerializer() { super(Object.class); }

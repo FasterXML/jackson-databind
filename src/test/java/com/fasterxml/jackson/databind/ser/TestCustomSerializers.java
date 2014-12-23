@@ -111,6 +111,7 @@ public class TestCustomSerializers extends BaseMapTest
         }
     }
     
+    @SuppressWarnings("serial")
     static class ParentClassSerializer
         extends StdScalarSerializer<Object>
     {

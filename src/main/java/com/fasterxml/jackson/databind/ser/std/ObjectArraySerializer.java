@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * Generic serializer for Object arrays (<code>Object[]</code>).
  */
 @JacksonStdImpl
+@SuppressWarnings("serial")
 public class ObjectArraySerializer
     extends ArraySerializerBase<Object[]>
     implements ContextualSerializer

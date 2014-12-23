@@ -140,7 +140,7 @@ public class TestEnumSerialization
         A, B;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "serial" })
     static class LowerCasingEnumSerializer extends StdSerializer<Enum>
     {
         public LowerCasingEnumSerializer() { super(Enum.class); }

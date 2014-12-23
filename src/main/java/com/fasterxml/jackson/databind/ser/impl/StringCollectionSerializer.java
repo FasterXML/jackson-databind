@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -22,6 +21,7 @@ import com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase;
  * String serializer.
  */
 @JacksonStdImpl
+@SuppressWarnings("serial")
 public class StringCollectionSerializer
     extends StaticListSerializerBase<Collection<String>>
     implements ContextualSerializer

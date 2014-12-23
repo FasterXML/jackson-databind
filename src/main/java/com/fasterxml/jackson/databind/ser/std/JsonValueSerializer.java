@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
  *  This must be done from {@link #createContextual} method, and NOT from constructor;
  * otherwise we could end up with an infinite loop.
  */
+@SuppressWarnings("serial")
 @JacksonStdImpl
 public class JsonValueSerializer
     extends StdSerializer<Object>

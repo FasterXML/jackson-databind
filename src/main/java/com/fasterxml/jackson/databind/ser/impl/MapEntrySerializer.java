@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 /**
  * @since 2.5
  */
+@SuppressWarnings("serial")
 @JacksonStdImpl
 public class MapEntrySerializer
     extends ContainerSerializer<Map.Entry<?,?>>

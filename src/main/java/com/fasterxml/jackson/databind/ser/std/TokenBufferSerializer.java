@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,6 +20,7 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * (which is only included in the mapper package)
  */
 @JacksonStdImpl
+@SuppressWarnings("serial")
 public class TokenBufferSerializer
     extends StdSerializer<TokenBuffer>
 {

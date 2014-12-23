@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * Can be used for custom bean serializers as well, although that
  * is not the primary design goal.
  */
+@SuppressWarnings("serial")
 public abstract class BeanSerializerBase
     extends StdSerializer<Object>
     implements ContextualSerializer, ResolvableSerializer,

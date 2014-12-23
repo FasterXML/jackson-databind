@@ -108,16 +108,15 @@ public abstract class DefaultDeserializationContext
 
         if (resolver == null) {
             resolver = resolverType.newForDeserialization(this);
-            // 19-Dec-2014, tatu: For 2.5.0, remove temporary (2.4.x) work-around
+            // 19-Dec-2014, tatu: For final 2.5.0, remove temporary (2.4.x) work-around
             //   needed to clear state between calls.
-            // ... but only for 2.5.0-rc2 or later; rc1 annotations still missing proper clearing
-
             // !!! 18-Jun-2014, pgelinas: Temporary fix for [#490] until real
             //    fix (for jackson-annotations, SimpleObjectIdResolver) can be added.
+            /*
             if (resolverType.getClass() == SimpleObjectIdResolver.class) {
-               resolver = new SimpleObjectIdResolver();
+                resolver = new SimpleObjectIdResolver();
             }
-
+            */
             _objectIdResolvers.add(resolver);
         }
 

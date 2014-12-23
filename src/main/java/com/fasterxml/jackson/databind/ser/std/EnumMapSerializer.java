@@ -6,7 +6,6 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -29,6 +28,7 @@ import com.fasterxml.jackson.databind.util.EnumValues;
  * @deprecated Since 2.4.4; standard {@link MapSerializer} works better.
  *   (to be removed from 2.6)
  */
+@SuppressWarnings("serial")
 @JacksonStdImpl
 @Deprecated
 public class EnumMapSerializer

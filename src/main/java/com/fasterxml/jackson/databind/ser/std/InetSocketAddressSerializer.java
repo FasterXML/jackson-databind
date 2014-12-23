@@ -13,13 +13,14 @@ import java.net.InetSocketAddress;
 /**
  * Simple serializer for {@link InetSocketAddress}.
  */
+@SuppressWarnings("serial")
 public class InetSocketAddressSerializer
     extends StdScalarSerializer<InetSocketAddress>
 {
     public InetSocketAddressSerializer() { super(InetSocketAddress.class); }
 
     @Override
-    public void serialize(InetSocketAddress value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException
+    public void serialize(InetSocketAddress value, JsonGenerator jgen, SerializerProvider provider) throws IOException
     {
         InetAddress addr = value.getAddress();
         String str = addr == null ? value.getHostName() : addr.toString().trim();

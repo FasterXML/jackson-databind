@@ -79,20 +79,20 @@ public class SingleArgCreatorTest extends BaseMapTest
     }
 
     // [databind#660]
-    static class ExplicitFactoryBean1 {
+    static class ExplicitFactoryBeanA {
         private String value;
 
-        private ExplicitFactoryBean1(String str) {
-            value = null;
+        private ExplicitFactoryBeanA(String str) {
+            throw new IllegalStateException("Should not get called!");
         }
 
-        private ExplicitFactoryBean1(String str, boolean b) {
+        private ExplicitFactoryBeanA(String str, boolean b) {
             value = str;
         }
 
         @JsonCreator
-        public ExplicitFactoryBean1 create(String str) {
-            ExplicitFactoryBean1 bean = new ExplicitFactoryBean1(str, false);
+        public static ExplicitFactoryBeanA create(String str) {
+            ExplicitFactoryBeanA bean = new ExplicitFactoryBeanA(str, false);
             bean.value = str;
             return bean;
         }
@@ -101,16 +101,16 @@ public class SingleArgCreatorTest extends BaseMapTest
     }
 
     // [databind#660]
-    static class ExplicitFactoryBean2 {
+    static class ExplicitFactoryBeanB {
         private String value;
 
         @JsonCreator
-        private ExplicitFactoryBean2(String str) {
-            value = null;
+        private ExplicitFactoryBeanB(String str) {
+            value = str;
         }
 
-        public static ExplicitFactoryBean2 valueOf(String str) {
-            return new ExplicitFactoryBean2(null);
+        public static ExplicitFactoryBeanB valueOf(String str) {
+            return new ExplicitFactoryBeanB(null);
         }
 
         public String value() { return value; }
@@ -156,15 +156,18 @@ public class SingleArgCreatorTest extends BaseMapTest
         assertEquals("xyz", bean.value);
     }
 
-    public void testExplicitFactory660() throws Exception
+    public void testExplicitFactory660a() throws Exception
     {
         // First, explicit override for factory
-        ExplicitFactoryBean1 bean = MAPPER.readValue(quote("abc"), ExplicitFactoryBean1.class);
+        ExplicitFactoryBeanA bean = MAPPER.readValue(quote("abc"), ExplicitFactoryBeanA.class);
         assertNotNull(bean);
         assertEquals("abc", bean.value());
+    }
 
+    public void testExplicitFactory660b() throws Exception
+    {
         // and then one for private constructor
-        ExplicitFactoryBean2 bean2 = MAPPER.readValue(quote("def"), ExplicitFactoryBean2.class);
+        ExplicitFactoryBeanB bean2 = MAPPER.readValue(quote("def"), ExplicitFactoryBeanB.class);
         assertNotNull(bean2);
         assertEquals("def", bean2.value());
     }

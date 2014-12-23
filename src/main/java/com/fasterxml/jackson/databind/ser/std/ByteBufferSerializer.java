@@ -4,17 +4,16 @@ import java.io.*;
 import java.nio.ByteBuffer;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.util.ByteBufferBackedInputStream;
 
+@SuppressWarnings("serial")
 public class ByteBufferSerializer extends StdScalarSerializer<ByteBuffer>
 {
     public ByteBufferSerializer() { super(ByteBuffer.class); }
 
     @Override
-    public void serialize(ByteBuffer bbuf, JsonGenerator gen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serialize(ByteBuffer bbuf, JsonGenerator gen, SerializerProvider provider) throws IOException
     {
         // first, simple case when wrapping an array...
         if (bbuf.hasArray()) {

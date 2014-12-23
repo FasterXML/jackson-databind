@@ -65,6 +65,7 @@ Project: jackson-databind
 #653: Jackson doesn't follow JavaBean naming convention (added `MapperFeature.USE_STD_BEAN_NAMING`)
 #654: Add support for (re)configuring `JsonGenerator.setRootValueSeparator()` via `ObjectWriter`
 #655: Add `ObjectWriter.writeValues()` for writing value sequences
+#660: `@JsonCreator`-annotated factory method is ignored if constructor exists
 - Allow use of `Shape.ARRAY` for Enums, as an alias to 'use index'
 - Start using `JsonGenerator.writeStartArray(int)` to help data formats
   that benefit from knowing number of elements in arrays (and would otherwise

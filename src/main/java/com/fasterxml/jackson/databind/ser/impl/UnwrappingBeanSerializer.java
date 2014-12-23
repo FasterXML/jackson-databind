@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.ser.impl;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -14,6 +13,8 @@ import java.io.IOException;
 public class UnwrappingBeanSerializer
     extends BeanSerializerBase
 {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Transformer used to add prefix and/or suffix for properties
      * of unwrapped POJO.

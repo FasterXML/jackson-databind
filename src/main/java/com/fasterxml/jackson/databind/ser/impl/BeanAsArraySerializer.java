@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ser.impl;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -44,6 +43,8 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
 public class BeanAsArraySerializer
     extends BeanSerializerBase
 {
+    private static final long serialVersionUID = -893701886577615846L;
+
     /**
      * Serializer that would produce JSON Object version; used in
      * cases where array output can not be used.

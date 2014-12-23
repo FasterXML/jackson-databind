@@ -434,7 +434,7 @@ public abstract class BasicDeserializerFactory
                     AnnotatedParameter arg = ctor.getParameter(0);
                     properties[0] = constructCreatorProperty(ctxt, beanDesc, name, 0, arg,
                             intr.findInjectableValueId(arg));
-                    creators.addPropertyCreator(ctor, properties);
+                    creators.addPropertyCreator(ctor, isCreator, properties);
                 } else {
                     /*boolean added = */ _handleSingleArgumentConstructor(ctxt, beanDesc, vchecker, intr, creators,
                             ctor, isCreator,
@@ -494,10 +494,10 @@ public abstract class BasicDeserializerFactory
             if (isCreator || explicitNameCount > 0 || injectCount > 0) {
                 // simple case; everything covered:
                 if ((namedCount + injectCount) == argCount) {
-                    creators.addPropertyCreator(ctor, properties);
+                    creators.addPropertyCreator(ctor, isCreator, properties);
                 } else if ((explicitNameCount == 0) && ((injectCount + 1) == argCount)) {
                     // [712] secondary: all but one injectable, one un-annotated (un-named)
-                    creators.addDelegatingCreator(ctor, properties);
+                    creators.addDelegatingCreator(ctor, isCreator, properties);
                 } else { // otherwise, epic fail
                     throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()
                             +" of constructor "+ctor+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
@@ -544,39 +544,39 @@ public abstract class BasicDeserializerFactory
     {
         // otherwise either 'simple' number, String, or general delegate:
         Class<?> type = ctor.getRawParameterType(0);
-        if (type == String.class) {
+        if (type == String.class || type == CharSequence.class) {
             if (isCreator || isVisible) {
-                creators.addStringCreator(ctor);
+                creators.addStringCreator(ctor, isCreator);
             }
             return true;
         }
         if (type == int.class || type == Integer.class) {
             if (isCreator || isVisible) {
-                creators.addIntCreator(ctor);
+                creators.addIntCreator(ctor, isCreator);
             }
             return true;
         }
         if (type == long.class || type == Long.class) {
             if (isCreator || isVisible) {
-                creators.addLongCreator(ctor);
+                creators.addLongCreator(ctor, isCreator);
             }
             return true;
         }
         if (type == double.class || type == Double.class) {
             if (isCreator || isVisible) {
-                creators.addDoubleCreator(ctor);
+                creators.addDoubleCreator(ctor, isCreator);
             }
             return true;
         }
         if (type == boolean.class || type == Boolean.class) {
             if (isCreator || isVisible) {
-                creators.addBooleanCreator(ctor);
+                creators.addBooleanCreator(ctor, isCreator);
             }
             return true;
         }
         // Delegating Creator ok iff it has @JsonCreator (etc)
         if (isCreator) {
-            creators.addDelegatingCreator(ctor, null);
+            creators.addDelegatingCreator(ctor, isCreator, null);
             return true;
         }
         return false;
@@ -686,10 +686,10 @@ public abstract class BasicDeserializerFactory
             if (isCreator || explicitNameCount > 0 || injectCount > 0) {
                 // simple case; everything covered:
                 if ((namedCount + injectCount) == argCount) {
-                    creators.addPropertyCreator(factory, properties);
+                    creators.addPropertyCreator(factory, isCreator, properties);
                 } else if ((explicitNameCount == 0) && ((injectCount + 1) == argCount)) {
                     // [712] secondary: all but one injectable, one un-annotated (un-named)
-                    creators.addDelegatingCreator(factory, properties);
+                    creators.addDelegatingCreator(factory, isCreator, properties);
                 } else { // otherwise, epic fail
                     throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()
                             +" of factory method "+factory+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
@@ -706,38 +706,38 @@ public abstract class BasicDeserializerFactory
     {
         Class<?> type = factory.getRawParameterType(0);
         
-        if (type == String.class) {
+        if (type == String.class || type == CharSequence.class) {
             if (isCreator || vchecker.isCreatorVisible(factory)) {
-                creators.addStringCreator(factory);
+                creators.addStringCreator(factory, isCreator);
             }
             return true;
         }
         if (type == int.class || type == Integer.class) {
             if (isCreator || vchecker.isCreatorVisible(factory)) {
-                creators.addIntCreator(factory);
+                creators.addIntCreator(factory, isCreator);
             }
             return true;
         }
         if (type == long.class || type == Long.class) {
             if (isCreator || vchecker.isCreatorVisible(factory)) {
-                creators.addLongCreator(factory);
+                creators.addLongCreator(factory, isCreator);
             }
             return true;
         }
         if (type == double.class || type == Double.class) {
             if (isCreator || vchecker.isCreatorVisible(factory)) {
-                creators.addDoubleCreator(factory);
+                creators.addDoubleCreator(factory, isCreator);
             }
             return true;
         }
         if (type == boolean.class || type == Boolean.class) {
             if (isCreator || vchecker.isCreatorVisible(factory)) {
-                creators.addBooleanCreator(factory);
+                creators.addBooleanCreator(factory, isCreator);
             }
             return true;
         }
         if (isCreator) {
-            creators.addDelegatingCreator(factory, null);
+            creators.addDelegatingCreator(factory, isCreator, null);
             return true;
         }
         return false;

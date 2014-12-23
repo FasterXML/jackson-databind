@@ -6,7 +6,6 @@ import java.util.*;
 import java.util.concurrent.atomic.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonIntegerFormatVisitor;
@@ -17,6 +16,7 @@ import com.fasterxml.jackson.databind.ser.BasicSerializerFactory;
  * are serializer as scalars; some using basic {@link ToStringSerializer},
  * others explicit serializers.
  */
+@SuppressWarnings("serial")
 public class StdJdkSerializers
 {
     /**
@@ -64,7 +64,7 @@ public class StdJdkSerializers
     /**********************************************************
      */
 
-    public final static class AtomicBooleanSerializer
+    public static class AtomicBooleanSerializer
         extends StdScalarSerializer<AtomicBoolean>
     {
         public AtomicBooleanSerializer() { super(AtomicBoolean.class, false); }
@@ -85,7 +85,7 @@ public class StdJdkSerializers
         }
     }
     
-    public final static class AtomicIntegerSerializer
+    public static class AtomicIntegerSerializer
         extends StdScalarSerializer<AtomicInteger>
     {
         public AtomicIntegerSerializer() { super(AtomicInteger.class, false); }
@@ -110,7 +110,7 @@ public class StdJdkSerializers
         }
     }
 
-    public final static class AtomicLongSerializer
+    public static class AtomicLongSerializer
         extends StdScalarSerializer<AtomicLong>
     {
         public AtomicLongSerializer() { super(AtomicLong.class, false); }
@@ -135,8 +135,8 @@ public class StdJdkSerializers
             }
         }
     }
-    
-    public final static class AtomicReferenceSerializer
+
+    public static class AtomicReferenceSerializer
         extends StdSerializer<AtomicReference<?>>
     {
         public AtomicReferenceSerializer() { super(AtomicReference.class, false); }

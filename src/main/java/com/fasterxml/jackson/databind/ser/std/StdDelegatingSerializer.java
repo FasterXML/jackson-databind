@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.ser.std;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
@@ -24,6 +23,7 @@ import java.lang.reflect.Type;
  *
  * @since 2.1
  */
+@SuppressWarnings("serial")
 public class StdDelegatingSerializer
     extends StdSerializer<Object>
     implements ContextualSerializer, ResolvableSerializer,

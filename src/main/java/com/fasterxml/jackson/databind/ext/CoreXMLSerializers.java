@@ -1,16 +1,17 @@
 package com.fasterxml.jackson.databind.ext;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
+import java.util.Calendar;
 
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.ser.ContextualSerializer;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import com.fasterxml.jackson.databind.ser.std.CalendarSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
@@ -36,31 +37,76 @@ public class CoreXMLSerializers extends Serializers.Base
             return ToStringSerializer.instance;
         }
         if (XMLGregorianCalendar.class.isAssignableFrom(raw)) {
-            return new XMLGregorianCalendarSerializer();
+            return XMLGregorianCalendarSerializer.instance;
         }
         return null;
     }
 
-    public static class XMLGregorianCalendarSerializer extends StdSerializer<XMLGregorianCalendar>
+    @SuppressWarnings("serial")
+    public static class XMLGregorianCalendarSerializer
+        extends StdSerializer<XMLGregorianCalendar>
+        implements ContextualSerializer
     {
+        final static XMLGregorianCalendarSerializer instance = new XMLGregorianCalendarSerializer();
+
+        final JsonSerializer<Object> _delegate;
+        
         public XMLGregorianCalendarSerializer() {
+            this(CalendarSerializer.instance);
+        }
+
+        @SuppressWarnings("unchecked")
+        protected XMLGregorianCalendarSerializer(JsonSerializer<?> del) {
             super(XMLGregorianCalendar.class);
+            _delegate = (JsonSerializer<Object>) del;
+        }
+
+        @Override
+        public JsonSerializer<?> getDelegatee() {
+            return _delegate;
+        }
+
+        @Deprecated
+        @Override
+        public boolean isEmpty(XMLGregorianCalendar value) {
+            return _delegate.isEmpty(_convert(value));
+        }
+
+        @Override
+        public boolean isEmpty(SerializerProvider provider, XMLGregorianCalendar value) {
+            return _delegate.isEmpty(provider, _convert(value));
         }
 
         @Override
         public void serialize(XMLGregorianCalendar value, JsonGenerator jgen, SerializerProvider provider)
-                throws IOException, JsonGenerationException {
-            CalendarSerializer.instance.serialize(value.toGregorianCalendar(), jgen, provider);
+                throws IOException {
+            _delegate.serialize(_convert(value), jgen, provider);
         }
-        
+
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) throws JsonMappingException {
-            return CalendarSerializer.instance.getSchema(provider, typeHint);
+        public void serializeWithType(XMLGregorianCalendar value, JsonGenerator gen, SerializerProvider provider,
+                TypeSerializer typeSer) throws IOException
+        {
+            _delegate.serializeWithType(_convert(value), gen, provider, typeSer);
         }
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint) throws JsonMappingException {
-            CalendarSerializer.instance.acceptJsonFormatVisitor(visitor, null);
+            _delegate.acceptJsonFormatVisitor(visitor, null);
+        }
+
+        @Override
+        public JsonSerializer<?> createContextual(SerializerProvider prov, BeanProperty property)
+                throws JsonMappingException {
+            JsonSerializer<?> ser = prov.handlePrimaryContextualization(_delegate, property);
+            if (ser != _delegate) {
+                return new XMLGregorianCalendarSerializer(ser);
+            }
+            return this;
+        }
+
+        protected Calendar _convert(XMLGregorianCalendar input) {
+            return (input == null) ? null : input.toGregorianCalendar();
         }
     }
 }

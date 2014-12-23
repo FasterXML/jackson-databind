@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.ser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
@@ -14,6 +13,7 @@ import com.fasterxml.jackson.databind.ser.*;
  * 
  * @param <T> Type of arrays serializer handles
  */
+@SuppressWarnings("serial")
 public abstract class ArraySerializerBase<T>
     extends ContainerSerializer<T>
 {

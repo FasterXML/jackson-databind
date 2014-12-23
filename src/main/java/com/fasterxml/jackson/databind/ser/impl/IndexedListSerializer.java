@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.ser.std.AsArraySerializerBase;
 public final class IndexedListSerializer
     extends AsArraySerializerBase<List<?>>
 {
+    private static final long serialVersionUID = 1L;
+
     public IndexedListSerializer(JavaType elemType, boolean staticTyping, TypeSerializer vts,
             BeanProperty property, JsonSerializer<Object> valueSerializer)
     {

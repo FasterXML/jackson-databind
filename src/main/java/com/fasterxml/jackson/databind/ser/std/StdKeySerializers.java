@@ -7,6 +7,7 @@ import java.util.Date;
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 
+@SuppressWarnings("serial")
 public class StdKeySerializers
 {
     protected final static JsonSerializer<Object> DEFAULT_KEY_SERIALIZER = new StdKeySerializer();

@@ -24,6 +24,8 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
 public class CollectionSerializer
     extends AsArraySerializerBase<Collection<?>>
 {
+    private static final long serialVersionUID = 1L;
+
     /*
     /**********************************************************
     /* Life-cycle

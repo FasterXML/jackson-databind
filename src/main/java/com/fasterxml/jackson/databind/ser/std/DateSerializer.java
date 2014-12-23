@@ -5,7 +5,6 @@ import java.text.DateFormat;
 import java.util.*;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 
@@ -14,6 +13,7 @@ import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
  * potentially more readable Strings.
  */
 @JacksonStdImpl
+@SuppressWarnings("serial")
 public class DateSerializer
     extends DateTimeSerializerBase<Date>
 {

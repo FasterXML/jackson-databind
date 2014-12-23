@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  * Dummy container class to group standard homogenous array serializer implementations
  * (primitive arrays and String array).
  */
+@SuppressWarnings("serial")
 public class StdArraySerializers
 {
     protected final static HashMap<String, JsonSerializer<?>> _arraySerializers =
@@ -81,7 +82,7 @@ public class StdArraySerializers
      */
 
     @JacksonStdImpl
-    public final static class BooleanArraySerializer extends ArraySerializerBase<boolean[]>
+    public static class BooleanArraySerializer extends ArraySerializerBase<boolean[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Boolean.class);
@@ -169,7 +170,7 @@ public class StdArraySerializers
      * NOTE: since it is NOT serialized as an array, can not use AsArraySerializer as base
      */
     @JacksonStdImpl
-    public final static class ByteArraySerializer extends StdSerializer<byte[]>
+    public static class ByteArraySerializer extends StdSerializer<byte[]>
     {
         public ByteArraySerializer() {
             super(byte[].class);
@@ -221,7 +222,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class ShortArraySerializer extends TypedPrimitiveArraySerializer<short[]>
+    public static class ShortArraySerializer extends TypedPrimitiveArraySerializer<short[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Short.TYPE);
@@ -317,7 +318,7 @@ public class StdArraySerializers
      * NOTE: since it is NOT serialized as an array, can not use AsArraySerializer as base
      */
     @JacksonStdImpl
-    public final static class CharArraySerializer extends StdSerializer<char[]>
+    public static class CharArraySerializer extends StdSerializer<char[]>
     {
         public CharArraySerializer() { super(char[].class); }
         
@@ -388,7 +389,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class IntArraySerializer extends ArraySerializerBase<int[]>
+    public static class IntArraySerializer extends ArraySerializerBase<int[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Integer.TYPE);
@@ -465,7 +466,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class LongArraySerializer extends TypedPrimitiveArraySerializer<long[]>
+    public static class LongArraySerializer extends TypedPrimitiveArraySerializer<long[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Long.TYPE);
@@ -554,7 +555,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class FloatArraySerializer extends TypedPrimitiveArraySerializer<float[]>
+    public static class FloatArraySerializer extends TypedPrimitiveArraySerializer<float[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Float.TYPE);
@@ -641,7 +642,7 @@ public class StdArraySerializers
     }
 
     @JacksonStdImpl
-    public final static class DoubleArraySerializer extends ArraySerializerBase<double[]>
+    public static class DoubleArraySerializer extends ArraySerializerBase<double[]>
     {
         // as above, assuming no one re-defines primitive/wrapper types
         private final static JavaType VALUE_TYPE = TypeFactory.defaultInstance().uncheckedSimpleType(Double.TYPE);

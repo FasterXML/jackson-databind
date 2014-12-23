@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ser.impl.PropertySerializerMap;
  * arrays; typically serializers used for {@link java.util.Collection}
  * and array types.
  */
+@SuppressWarnings("serial")
 public abstract class AsArraySerializerBase<T>
     extends ContainerSerializer<T>
     implements ContextualSerializer

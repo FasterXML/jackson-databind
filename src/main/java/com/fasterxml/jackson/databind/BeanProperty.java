@@ -68,6 +68,10 @@ public interface BeanProperty extends Named
     /**
      * Whether value for property is marked as required using
      * annotations or associated schema.
+     * Equivalent to:
+     *<code>
+     *  getMetadata().isRequired()
+     *</code>
      * 
      * @since 2.2
      */

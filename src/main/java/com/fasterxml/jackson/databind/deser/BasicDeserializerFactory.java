@@ -757,13 +757,17 @@ public abstract class BasicDeserializerFactory
         final DeserializationConfig config = ctxt.getConfig();
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         PropertyMetadata metadata;
-
         {
-            Boolean b = (intr == null) ? null : intr.hasRequiredMarker(param);
-            boolean req = (b != null && b.booleanValue());
-            String desc = (intr == null) ? null : intr.findPropertyDescription(param);
-            Integer idx = (intr == null) ? null : intr.findPropertyIndex(param);
-            metadata = PropertyMetadata.construct(req, desc, idx);
+            if (intr == null) {
+                metadata = PropertyMetadata.STD_REQUIRED_OR_OPTIONAL;
+            } else {
+                Boolean b = intr.hasRequiredMarker(param);
+                boolean req = (b != null && b.booleanValue());
+                String desc = intr.findPropertyDescription(param);
+                Integer idx = intr.findPropertyIndex(param);
+                String def = intr.findPropertyDefaultValue(param);
+                metadata = PropertyMetadata.construct(req, desc, idx, def);
+            }
         }
             
         JavaType t0 = config.getTypeFactory().constructType(param.getParameterType(), beanDesc.bindingsForBeanType());

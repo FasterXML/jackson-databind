@@ -195,7 +195,7 @@ public class TestPOJOPropertiesCollector
 
         public void setA(String a) { this.a = a; }
 
-        @JsonProperty(required=true, index=B_INDEX)
+        @JsonProperty(required=true, index=B_INDEX, defaultValue="13")
         public int getB() { return b; }
     }
     
@@ -418,23 +418,23 @@ public class TestPOJOPropertiesCollector
     {
         // start via deser
         BeanDescription beanDesc = mapper.getDeserializationConfig().introspect(mapper.constructType(PropDescBean.class));
-        _verifyProperty(beanDesc, true, false);
+        _verifyProperty(beanDesc, true, false, "13");
         // and then via ser:
         beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(PropDescBean.class));
-        _verifyProperty(beanDesc, true, false);
+        _verifyProperty(beanDesc, true, false, "13");
     }
 
     // [#438]: Support @JsonProperty.index
     public void testPropertyIndex() throws Exception
     {
         BeanDescription beanDesc = mapper.getDeserializationConfig().introspect(mapper.constructType(PropDescBean.class));
-        _verifyProperty(beanDesc, false, true);
+        _verifyProperty(beanDesc, false, true, "13");
         beanDesc = mapper.getSerializationConfig().introspect(mapper.constructType(PropDescBean.class));
-        _verifyProperty(beanDesc, false, true);
+        _verifyProperty(beanDesc, false, true, "13");
     }
 
     private void _verifyProperty(BeanDescription beanDesc,
-    		boolean verifyDesc, boolean verifyIndex)
+    		boolean verifyDesc, boolean verifyIndex, String expDefaultValue)
     {
         assertNotNull(beanDesc);
         List<BeanPropertyDefinition> props = beanDesc.findProperties();
@@ -459,6 +459,9 @@ public class TestPOJOPropertiesCollector
                 }
                 if (verifyIndex) {
                 	assertEquals(Integer.valueOf(PropDescBean.B_INDEX), md.getIndex());
+                }
+                if (expDefaultValue != null) {
+                    assertEquals(expDefaultValue, md.getDefaultValue());
                 }
             } else {
                 fail("Unrecognized property '"+name+"'");

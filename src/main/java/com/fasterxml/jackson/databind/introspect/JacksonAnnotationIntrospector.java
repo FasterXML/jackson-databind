@@ -462,7 +462,12 @@ public class JacksonAnnotationIntrospector
     @Override
     public String findPropertyDefaultValue(Annotated ann) {
         JsonProperty prop = _findAnnotation(ann, JsonProperty.class);
-        return (prop == null) ? null : prop.defaultValue();
+        if (prop == null) {
+            return null;
+        }
+        String str = prop.defaultValue();
+        // Since annotations do not allow nulls, need to assume empty means "none"
+        return str.isEmpty() ? null : str;
     }
 
     @Override

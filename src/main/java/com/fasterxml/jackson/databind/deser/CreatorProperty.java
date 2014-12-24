@@ -95,7 +95,7 @@ public class CreatorProperty
     {
         this(new PropertyName(name), type, wrapperName, typeDeser,
                 contextAnnotations, param, index, injectableValueId,
-                PropertyMetadata.construct(isRequired, null, null));
+                PropertyMetadata.construct(isRequired, null, null, null));
     }
     
     /**

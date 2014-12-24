@@ -392,7 +392,6 @@ public class TestPOJOPropertiesCollector
         assertNotNull(beanDesc);
     }
 
-    @SuppressWarnings("hiding")
     public void testJackson703() throws Exception
     {
     	// note: need a separate mapper, need to reconfigure

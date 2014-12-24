@@ -421,7 +421,13 @@ public class AnnotationIntrospectorPair
         }
         return name;
     }
-    
+
+    @Override
+    public String findPropertyDefaultValue(Annotated ann) {
+        String str = _primary.findPropertyDefaultValue(ann);
+        return (str == null || str.isEmpty()) ? _secondary.findPropertyDefaultValue(ann) : str;
+    }
+
     @Override
     public String findPropertyDescription(Annotated ann) {
         String r = _primary.findPropertyDescription(ann);
@@ -433,7 +439,7 @@ public class AnnotationIntrospectorPair
         Integer r = _primary.findPropertyIndex(ann);
         return (r == null) ? _secondary.findPropertyIndex(ann) : r;
     }
-    
+
     @Override
     public String findImplicitPropertyName(AnnotatedMember param) {
         String r = _primary.findImplicitPropertyName(param);

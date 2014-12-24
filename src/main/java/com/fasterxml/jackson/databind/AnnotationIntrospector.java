@@ -477,6 +477,16 @@ public abstract class AnnotationIntrospector
     public PropertyName findWrapperName(Annotated ann) { return null; }
 
     /**
+     * Method for finding suggested default value (as simple textual serialization)
+     * for the property. While core databind does not make any use of it, it is exposed
+     * for extension modules to use: an expected use is generation of schema representations
+     * and documentation.
+     *
+     * @since 2.5
+     */
+    public String findPropertyDefaultValue(Annotated ann) { return null; }
+
+    /**
      * Method used to check whether specified property member (accessor
      * or mutator) defines human-readable description to use for documentation.
      * There are no further definitions for contents; for example, whether
@@ -515,7 +525,7 @@ public abstract class AnnotationIntrospector
      * @since 2.4
      */
     public String findImplicitPropertyName(AnnotatedMember member) { return null; }
-    
+
     /*
     /**********************************************************
     /* Serialization: general annotations

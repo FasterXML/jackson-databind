@@ -460,6 +460,12 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
+    public String findPropertyDefaultValue(Annotated ann) {
+        JsonProperty prop = _findAnnotation(ann, JsonProperty.class);
+        return (prop == null) ? null : prop.defaultValue();
+    }
+
+    @Override
     public String findPropertyDescription(Annotated ann) {
         JsonPropertyDescription desc = _findAnnotation(ann, JsonPropertyDescription.class);
         return (desc == null) ? null : desc.value();

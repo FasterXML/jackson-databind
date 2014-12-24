@@ -1846,6 +1846,14 @@ public class ObjectMapper
      * type (it can be an array type, however): typically a bean, array
      * or a wrapper type (like {@link java.lang.Boolean}).
      *<p>
+     * If a low-level I/O problem (missing input, network error) occurs,
+     * a {@link IOException} will be thrown.
+     * If a parsing problem occurs (invalid JSON),
+     * {@link JsonParseException} will be thrown.
+     * If the input JSON structure does not match structure expected for
+     * result type (or has other mismatch issues), a {@link JsonMappingException}
+     * will be thrown.
+     *<p>
      * Note: this method should NOT be used if the result type is a
      * container ({@link java.util.Collection} or {@link java.util.Map}.
      * The reason is that due to type erasure, key and value types
@@ -1865,6 +1873,14 @@ public class ObjectMapper
      * "super type token" (see )
      * and specifically needs to be used if the root type is a 
      * parameterized (generic) container type.
+     *<p>
+     * If a low-level I/O problem (missing input, network error) occurs,
+     * a {@link IOException} will be thrown.
+     * If a parsing problem occurs (invalid JSON),
+     * {@link JsonParseException} will be thrown.
+     * If the input JSON structure does not match structure expected for
+     * result type (or has other mismatch issues), a {@link JsonMappingException}
+     * will be thrown.
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -1879,6 +1895,14 @@ public class ObjectMapper
      * to which is passed as argument. Type is passed using 
      * Jackson specific type; instance of which can be constructed using
      * {@link TypeFactory}.
+     *<p>
+     * If a low-level I/O problem (missing input, network error) occurs,
+     * a {@link IOException} will be thrown.
+     * If a parsing problem occurs (invalid JSON),
+     * {@link JsonParseException} will be thrown.
+     * If the input JSON structure does not match structure expected for
+     * result type (or has other mismatch issues), a {@link JsonMappingException}
+     * will be thrown.
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -1889,7 +1913,7 @@ public class ObjectMapper
     }
 
     /**
-     * Type-safe overloaded method, basically alias for {@link #readValue(JsonParser, ResolvedType)}.
+     * Type-safe overloaded method, basically alias for {@link #readValue(JsonParser, Class)}.
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser jp, JavaType valueType)
@@ -1904,6 +1928,19 @@ public class ObjectMapper
      * root of the resulting tree (where root can consist
      * of just a single node if the current event is a
      * value event, not container).
+     *<p>
+     * If a low-level I/O problem (missing input, network error) occurs,
+     * a {@link IOException} will be thrown.
+     * If a parsing problem occurs (invalid JSON),
+     * {@link JsonParseException} will be thrown.
+     * If no content is found from input (end-of-input), Java
+     * <code>null</code> will be returned.
+     * 
+     * @return a {@link JsonNode}, if valid JSON content found; null
+     *   if input has no content to bind -- note, however, that if
+     *   JSON <code>null</code> token is found, it will be represented
+     *   as a non-null {@link JsonNode} (one that returns <code>true</code>
+     *   for {@link JsonNode#isNull()}
      */
     @Override
     public <T extends TreeNode> T readTree(JsonParser jp)
@@ -1999,9 +2036,22 @@ public class ObjectMapper
      * Returns root of the resulting tree (where root can consist
      * of just a single node if the current event is a
      * value event, not container).
-     *
+     *<p>
+     * If a low-level I/O problem (missing input, network error) occurs,
+     * a {@link IOException} will be thrown.
+     * If a parsing problem occurs (invalid JSON),
+     * {@link JsonParseException} will be thrown.
+     * If no content is found from input (end-of-input), Java
+     * <code>null</code> will be returned.
+     * 
      * @param in Input stream used to read JSON content
      *   for building the JSON tree.
+     * 
+     * @return a {@link JsonNode}, if valid JSON content found; null
+     *   if input has no content to bind -- note, however, that if
+     *   JSON <code>null</code> token is found, it will be represented
+     *   as a non-null {@link JsonNode} (one that returns <code>true</code>
+     *   for {@link JsonNode#isNull()}
      */
     public JsonNode readTree(InputStream in)
         throws IOException, JsonProcessingException
@@ -2016,9 +2066,22 @@ public class ObjectMapper
      * Returns root of the resulting tree (where root can consist
      * of just a single node if the current event is a
      * value event, not container).
+     *<p>
+     * If a low-level I/O problem (missing input, network error) occurs,
+     * a {@link IOException} will be thrown.
+     * If a parsing problem occurs (invalid JSON),
+     * {@link JsonParseException} will be thrown.
+     * If no content is found from input (end-of-input), Java
+     * <code>null</code> will be returned.
      *
      * @param r Reader used to read JSON content
      *   for building the JSON tree.
+     * 
+     * @return a {@link JsonNode}, if valid JSON content found; null
+     *   if input has no content to bind -- note, however, that if
+     *   JSON <code>null</code> token is found, it will be represented
+     *   as a non-null {@link JsonNode} (one that returns <code>true</code>
+     *   for {@link JsonNode#isNull()}
      */
     public JsonNode readTree(Reader r)
         throws IOException, JsonProcessingException
@@ -2031,8 +2094,21 @@ public class ObjectMapper
      * Method to deserialize JSON content as tree expressed using set of {@link JsonNode} instances.
      * Returns root of the resulting tree (where root can consist of just a single node if the current
      * event is a value event, not container).
+     *<p>
+     * If a low-level I/O problem (missing input, network error) occurs,
+     * a {@link IOException} will be thrown.
+     * If a parsing problem occurs (invalid JSON),
+     * {@link JsonParseException} will be thrown.
+     * If no content is found from input (end-of-input), Java
+     * <code>null</code> will be returned.
      *
      * @param content JSON content to parse to build the JSON tree.
+     * 
+     * @return a {@link JsonNode}, if valid JSON content found; null
+     *   if input has no content to bind -- note, however, that if
+     *   JSON <code>null</code> token is found, it will be represented
+     *   as a non-null {@link JsonNode} (one that returns <code>true</code>
+     *   for {@link JsonNode#isNull()}
      */
     public JsonNode readTree(String content)
         throws IOException, JsonProcessingException

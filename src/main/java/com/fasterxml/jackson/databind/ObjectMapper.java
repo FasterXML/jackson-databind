@@ -1846,18 +1846,19 @@ public class ObjectMapper
      * type (it can be an array type, however): typically a bean, array
      * or a wrapper type (like {@link java.lang.Boolean}).
      *<p>
-     * If a low-level I/O problem (missing input, network error) occurs,
-     * a {@link IOException} will be thrown.
-     * If a parsing problem occurs (invalid JSON),
-     * {@link JsonParseException} will be thrown.
-     * If the input JSON structure does not match structure expected for
-     * result type (or has other mismatch issues), a {@link JsonMappingException}
-     * will be thrown.
-     *<p>
      * Note: this method should NOT be used if the result type is a
      * container ({@link java.util.Collection} or {@link java.util.Map}.
      * The reason is that due to type erasure, key and value types
      * can not be introspected when using this method.
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws JsonMappingException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -1873,14 +1874,15 @@ public class ObjectMapper
      * "super type token" (see )
      * and specifically needs to be used if the root type is a 
      * parameterized (generic) container type.
-     *<p>
-     * If a low-level I/O problem (missing input, network error) occurs,
-     * a {@link IOException} will be thrown.
-     * If a parsing problem occurs (invalid JSON),
-     * {@link JsonParseException} will be thrown.
-     * If the input JSON structure does not match structure expected for
-     * result type (or has other mismatch issues), a {@link JsonMappingException}
-     * will be thrown.
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws JsonMappingException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -1895,14 +1897,15 @@ public class ObjectMapper
      * to which is passed as argument. Type is passed using 
      * Jackson specific type; instance of which can be constructed using
      * {@link TypeFactory}.
-     *<p>
-     * If a low-level I/O problem (missing input, network error) occurs,
-     * a {@link IOException} will be thrown.
-     * If a parsing problem occurs (invalid JSON),
-     * {@link JsonParseException} will be thrown.
-     * If the input JSON structure does not match structure expected for
-     * result type (or has other mismatch issues), a {@link JsonMappingException}
-     * will be thrown.
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws JsonMappingException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
      */
     @Override
     @SuppressWarnings("unchecked")
@@ -1914,6 +1917,15 @@ public class ObjectMapper
 
     /**
      * Type-safe overloaded method, basically alias for {@link #readValue(JsonParser, Class)}.
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws JsonMappingException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
      */
     @SuppressWarnings("unchecked")
     public <T> T readValue(JsonParser jp, JavaType valueType)
@@ -1928,19 +1940,19 @@ public class ObjectMapper
      * root of the resulting tree (where root can consist
      * of just a single node if the current event is a
      * value event, not container).
-     *<p>
-     * If a low-level I/O problem (missing input, network error) occurs,
-     * a {@link IOException} will be thrown.
-     * If a parsing problem occurs (invalid JSON),
-     * {@link JsonParseException} will be thrown.
-     * If no content is found from input (end-of-input), Java
-     * <code>null</code> will be returned.
      * 
      * @return a {@link JsonNode}, if valid JSON content found; null
      *   if input has no content to bind -- note, however, that if
      *   JSON <code>null</code> token is found, it will be represented
      *   as a non-null {@link JsonNode} (one that returns <code>true</code>
      *   for {@link JsonNode#isNull()}
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
      */
     @Override
     public <T extends TreeNode> T readTree(JsonParser jp)
@@ -2052,6 +2064,9 @@ public class ObjectMapper
      *   JSON <code>null</code> token is found, it will be represented
      *   as a non-null {@link JsonNode} (one that returns <code>true</code>
      *   for {@link JsonNode#isNull()}
+     *   
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
      */
     public JsonNode readTree(InputStream in)
         throws IOException, JsonProcessingException
@@ -2109,6 +2124,9 @@ public class ObjectMapper
      *   JSON <code>null</code> token is found, it will be represented
      *   as a non-null {@link JsonNode} (one that returns <code>true</code>
      *   for {@link JsonNode#isNull()}
+     *
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
      */
     public JsonNode readTree(String content)
         throws IOException, JsonProcessingException
@@ -2123,6 +2141,15 @@ public class ObjectMapper
      * event is a value event, not container).
      *
      * @param content JSON content to parse to build the JSON tree.
+     * 
+     * @return a {@link JsonNode}, if valid JSON content found; null
+     *   if input has no content to bind -- note, however, that if
+     *   JSON <code>null</code> token is found, it will be represented
+     *   as a non-null {@link JsonNode} (one that returns <code>true</code>
+     *   for {@link JsonNode#isNull()}
+     *
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
      */
     public JsonNode readTree(byte[] content)
         throws IOException, JsonProcessingException
@@ -2137,6 +2164,19 @@ public class ObjectMapper
      * event is a value event, not container).
      *
      * @param file File of which contents to parse as JSON for building a tree instance
+     * 
+     * @return a {@link JsonNode}, if valid JSON content found; null
+     *   if input has no content to bind -- note, however, that if
+     *   JSON <code>null</code> token is found, it will be represented
+     *   as a non-null {@link JsonNode} (one that returns <code>true</code>
+     *   for {@link JsonNode#isNull()}
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
      */
     public JsonNode readTree(File file)
         throws IOException, JsonProcessingException
@@ -2151,6 +2191,19 @@ public class ObjectMapper
      * event is a value event, not container).
      *
      * @param source URL to use for fetching contents to parse as JSON for building a tree instance
+     * 
+     * @return a {@link JsonNode}, if valid JSON content found; null
+     *   if input has no content to bind -- note, however, that if
+     *   JSON <code>null</code> token is found, it will be represented
+     *   as a non-null {@link JsonNode} (one that returns <code>true</code>
+     *   for {@link JsonNode#isNull()}
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
      */
     public JsonNode readTree(URL source)
         throws IOException, JsonProcessingException
@@ -2398,6 +2451,18 @@ public class ObjectMapper
     /**********************************************************
      */
 
+    /**
+     * Method to deserialize JSON content from given file into given Java type.
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws JsonMappingException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
+     */
     @SuppressWarnings("unchecked")
     public <T> T readValue(File src, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
@@ -2405,6 +2470,18 @@ public class ObjectMapper
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
+    /**
+     * Method to deserialize JSON content from given file into given Java type.
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws JsonMappingException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
+     */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T readValue(File src, TypeReference valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
@@ -2412,13 +2489,37 @@ public class ObjectMapper
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueTypeRef));
     } 
 
+    /**
+     * Method to deserialize JSON content from given file into given Java type.
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws JsonMappingException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
+     */
     @SuppressWarnings("unchecked")
     public <T> T readValue(File src, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException
     {
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
-    } 
+    }
 
+    /**
+     * Method to deserialize JSON content from given resource into given Java type.
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws JsonMappingException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
+     */
     @SuppressWarnings("unchecked")
     public <T> T readValue(URL src, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
@@ -2428,6 +2529,18 @@ public class ObjectMapper
         return (T) _readMapAndClose(_jsonFactory.createParser(src), _typeFactory.constructType(valueType));
     } 
 
+    /**
+     * Method to deserialize JSON content from given resource into given Java type.
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws JsonMappingException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
+     */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T readValue(URL src, TypeReference valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
@@ -2442,6 +2555,18 @@ public class ObjectMapper
         return (T) _readMapAndClose(_jsonFactory.createParser(src), valueType);
     } 
 
+    /**
+     * Method to deserialize JSON content from given JSON content String.
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws JsonMappingException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
+     */
     @SuppressWarnings("unchecked")
     public <T> T readValue(String content, Class<T> valueType)
         throws IOException, JsonParseException, JsonMappingException
@@ -2451,6 +2576,18 @@ public class ObjectMapper
         return (T) _readMapAndClose(_jsonFactory.createParser(content), _typeFactory.constructType(valueType));
     } 
 
+    /**
+     * Method to deserialize JSON content from given JSON content String.
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws JsonMappingException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
+     */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public <T> T readValue(String content, TypeReference valueTypeRef)
         throws IOException, JsonParseException, JsonMappingException
@@ -2458,6 +2595,18 @@ public class ObjectMapper
         return (T) _readMapAndClose(_jsonFactory.createParser(content), _typeFactory.constructType(valueTypeRef));
     } 
 
+    /**
+     * Method to deserialize JSON content from given JSON content String.
+     * 
+     * @throws IOException if a low-level I/O problem (unexpected end-of-input,
+     *   network error) occurs (passed through as-is without additional wrapping -- note
+     *   that this is one case where {@link DeserializationFeature#WRAP_EXCEPTIONS}
+     *   does NOT result in wrapping of exception even if enabled)
+     * @throws JsonParseException if underlying input contains invalid content
+     *    of type {@link JsonParser} supports (JSON for default case)
+     * @throws JsonMappingException if the input JSON structure does not match structure
+     *   expected for result type (or has other mismatch issues)
+     */
     @SuppressWarnings("unchecked")
     public <T> T readValue(String content, JavaType valueType)
         throws IOException, JsonParseException, JsonMappingException

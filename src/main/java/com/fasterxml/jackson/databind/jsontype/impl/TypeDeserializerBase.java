@@ -159,7 +159,7 @@ public abstract class TypeDeserializerBase
                     // As per [JACKSON-614], use the default impl if no type id available:
                     deser = _findDefaultImplDeserializer(ctxt);
                     if (deser == null) {
-                        throw ctxt.unknownTypeException(_baseType, typeId);
+                        deser = _handleUnknownTypeId(ctxt, typeId, _idResolver, _baseType);
                     }
                 } else {
                     /* 16-Dec-2010, tatu: Since nominal type we get here has no (generic) type parameters,
@@ -242,5 +242,36 @@ public abstract class TypeDeserializerBase
             deser = _findDeserializer(ctxt, typeIdStr);
         }
         return deser.deserialize(jp, ctxt);
+    }
+
+    /**
+     * Helper method called when given type id can not be resolved into 
+     * concrete deserializer either directly (using given {@link  TypeIdResolver}),
+     * or using default type.
+     * Default implementation simply throws a {@link JsonMappingException} to
+     * indicate the problem; sub-classes may choose
+     *
+     * @return If it is possible to resolve type id into a {@link JsonDeserializer}
+     *   should return that deserializer; otherwise throw an exception to indicate
+     *   the problem.
+     *
+     * @since 2.5
+     */
+    protected JsonDeserializer<Object> _handleUnknownTypeId(DeserializationContext ctxt, String typeId,
+            TypeIdResolver idResolver, JavaType baseType)
+        throws IOException
+    {
+        String extraDesc;
+        if (idResolver instanceof TypeIdResolverBase) {
+            extraDesc = ((TypeIdResolverBase) idResolver).getDescForKnownTypeIds();
+            if (extraDesc == null) {
+                extraDesc = "known type ids are not statically known";
+            } else {
+                extraDesc = "known type ids = " + extraDesc;
+            }
+        } else {
+            extraDesc = null;
+        }
+        throw ctxt.unknownTypeException(_baseType, typeId, extraDesc);
     }
 }

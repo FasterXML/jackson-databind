@@ -72,6 +72,7 @@ Project: jackson-databind
   that benefit from knowing number of elements in arrays (and would otherwise
   need to buffer values to know length)
 - Added new overload for `JsonSerializer.isEmpty()`, to eventually solve #588
+- Improve error messaging (related to [jaxb-annotations#38]) to include known subtype ids.
 
 2.4.5 (not yet released)
 

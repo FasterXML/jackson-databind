@@ -71,4 +71,14 @@ public abstract class TypeIdResolverBase
     public JavaType typeFromId(DatabindContext context, String id) {
         return typeFromId(id);
     }
+
+    /**
+     * Helper method used to get a simple description of all known type ids,
+     * for use in error messages.
+     *<p>
+     * TODO: demote down to be part of {@link TypeIdResolver} in 2.6 or 2.7
+     */
+    public String getDescForKnownTypeIds() {
+        return null;
+    }
 }

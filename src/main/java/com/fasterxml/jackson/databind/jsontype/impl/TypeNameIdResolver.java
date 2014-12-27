@@ -132,7 +132,12 @@ public class TypeNameIdResolver extends TypeIdResolverBase
          */
         return _idToType.get(id);
     }    
-    
+
+    @Override
+    public String getDescForKnownTypeIds() {
+        return new TreeSet<String>(_idToType.keySet()).toString();
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

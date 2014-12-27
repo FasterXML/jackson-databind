@@ -120,11 +120,12 @@ public class TestHandlerInstantiation extends BaseMapTest
         public CustomIdResolver(String idForBean) {
             _id = idForBean;
         }
-        
+
         @Override
         public Id getMechanism() {
             return Id.CUSTOM;
         }
+
         @Override
         public String idFromValue(Object value)
         {
@@ -133,16 +134,19 @@ public class TestHandlerInstantiation extends BaseMapTest
             }
             return "unknown";
         }
+
         @Override
         public String idFromValueAndType(Object value, Class<?> type) {
             return idFromValue(value);
         }
+
         @Override
         public void init(JavaType baseType) {
             if (initTypes != null) {
                 initTypes.add(baseType);
             }
         }
+
         @Override
         public JavaType typeFromId(DatabindContext context, String id)
         {

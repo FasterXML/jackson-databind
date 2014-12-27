@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.jsontype;
 
 
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
@@ -65,7 +66,22 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
     static class DefaultImpl505 extends SuperTypeWithoutDefault {
         public int a;
     }
-    
+
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME, include=As.PROPERTY, property="type")
+    @JsonSubTypes({ @JsonSubTypes.Type(ImplX.class),
+          @JsonSubTypes.Type(ImplY.class) })
+    static abstract class BaseX { }
+
+    @JsonTypeName("x")
+    static class ImplX extends BaseX {
+        public int x;
+    }
+
+    @JsonTypeName("y")
+    static class ImplY extends BaseX {
+        public int y;
+    }
+
     /*
     /**********************************************************
     /* Unit tests
@@ -211,5 +227,14 @@ public class TestSubtypes extends com.fasterxml.jackson.databind.BaseMapTest
         assertEquals(0, ((DefaultImpl505) bean).a);
     
     }
-}
 
+    public void testErrorMessage() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            mapper.readValue("{ \"type\": \"z\"}", BaseX.class);
+            fail("Should have failed");
+        } catch (JsonMappingException e) {
+            verifyException(e, "known type ids =");
+        }
+    }
+}

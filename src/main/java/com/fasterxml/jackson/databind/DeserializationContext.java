@@ -876,15 +876,28 @@ public abstract class DeserializationContext
      * Helper method for constructing exception to indicate that given
      * type id (parsed from JSON) could not be converted to a Java type.
      */
+    @Deprecated // since 2.5, use overloaded variant
     public JsonMappingException unknownTypeException(JavaType type, String id) {
         return JsonMappingException.from(_parser, "Could not resolve type id '"+id+"' into a subtype of "+type);
+    }
+
+    /**
+     * @since 2.5
+     */
+    public JsonMappingException unknownTypeException(JavaType type, String id,
+            String extraDesc) {
+        String msg = "Could not resolve type id '"+id+"' into a subtype of "+type;
+        if (extraDesc != null) {
+            msg = msg + ": "+extraDesc;
+        }
+        return JsonMappingException.from(_parser, msg);
     }
 
     public JsonMappingException endOfInputException(Class<?> instClass) {
         return JsonMappingException.from(_parser, "Unexpected end-of-input when trying to deserialize a "
                 +instClass.getName());
     }
-    
+
     /*
     /**********************************************************
     /* Overridable internal methods

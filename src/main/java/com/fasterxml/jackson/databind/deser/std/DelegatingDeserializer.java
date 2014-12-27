@@ -67,7 +67,9 @@ public abstract class DelegatingDeserializer
             BeanProperty property)
         throws JsonMappingException
     {
-        JsonDeserializer<?> del = ctxt.handleSecondaryContextualization(_delegatee, property);
+        JavaType vt = ctxt.constructType(_delegatee.handledType());
+        JsonDeserializer<?> del = ctxt.handleSecondaryContextualization(_delegatee,
+                property, vt);
         if (del == _delegatee) {
             return this;
         }

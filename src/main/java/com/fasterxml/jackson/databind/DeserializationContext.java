@@ -128,6 +128,15 @@ public abstract class DeserializationContext
      * @since 2.3
      */
     protected transient ContextAttributes _attributes;
+
+    /**
+     * Type of {@link JsonDeserializer} (or, more specifically,
+     *   {@link ContextualizableDeserializer}) that is being
+     *   contextualized currently.
+     *
+     * @since 2.5
+     */
+    protected LinkedNode<JavaType> _currentType;
     
     /*
     /**********************************************************
@@ -224,7 +233,7 @@ public abstract class DeserializationContext
 
     /*
     /**********************************************************
-    /* Generic attributes (2.3+)
+    /* Access to per-call state, like generic attributes (2.3+)
     /**********************************************************
      */
 
@@ -239,10 +248,27 @@ public abstract class DeserializationContext
         _attributes = _attributes.withPerCallAttribute(key, value);
         return this;
     }
-    
+
+    /**
+     * Accessor to {@link JavaType} of currently contextualized
+     * {@link ContextualDeserializer}, if any.
+     * This is sometimes useful for generic {@link JsonDeserializer}s that
+     * do not get passed (or do not retain) type information when being
+     * constructed: happens for example for deserializers constructed
+     * from annotations.
+     * 
+     * @since 2.5
+     *
+     * @return Type of {@link ContextualDeserializer} being contextualized,
+     *   if process is on-going; null if not.
+     */
+    public JavaType getContextualType() {
+        return (_currentType == null) ? null : _currentType.value();
+    }
+
     /*
     /**********************************************************
-    /* Public API, accessors
+    /* Public API, config setting accessors
     /**********************************************************
      */
 
@@ -379,7 +405,7 @@ public abstract class DeserializationContext
     {
         JsonDeserializer<Object> deser = _cache.findValueDeserializer(this, _factory, type);
         if (deser != null) {
-            deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, prop);
+            deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, prop, type);
         }
         return deser;
     }
@@ -391,8 +417,8 @@ public abstract class DeserializationContext
      * {@link #findRootValueDeserializer(JavaType)}.
      * This method is usually called from within {@link ResolvableDeserializer#resolve},
      * and expectation is that caller then calls either
-     * {@link #handlePrimaryContextualization(JsonDeserializer, BeanProperty)} or
-     * {@link #handleSecondaryContextualization(JsonDeserializer, BeanProperty)} at a
+     * {@link #handlePrimaryContextualization(JsonDeserializer, BeanProperty, JavaType)} or
+     * {@link #handleSecondaryContextualization(JsonDeserializer, BeanProperty, JavaType)} at a
      * later point, as necessary.
      *
      * @since 2.5
@@ -415,7 +441,7 @@ public abstract class DeserializationContext
         if (deser == null) { // can this occur?
             return null;
         }
-        deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, null);
+        deser = (JsonDeserializer<Object>) handleSecondaryContextualization(deser, null, type);
         TypeDeserializer typeDeser = _factory.findTypeDeserializer(_config, type);
         if (typeDeser != null) {
             // important: contextualize to indicate this is for root value
@@ -576,18 +602,31 @@ public abstract class DeserializationContext
      * 
      * @param prop Property for which the given primary deserializer is used; never null.
      * 
-     * @since 2.3
+     * @since 2.5
      */
     public JsonDeserializer<?> handlePrimaryContextualization(JsonDeserializer<?> deser,
-            BeanProperty prop)
+            BeanProperty prop, JavaType type)
         throws JsonMappingException
     {
         if (deser instanceof ContextualDeserializer) {
-            deser = ((ContextualDeserializer) deser).createContextual(this, prop);
+            _currentType = new LinkedNode<JavaType>(type, _currentType);
+            try {
+                deser = ((ContextualDeserializer) deser).createContextual(this, prop);
+            } finally {
+                _currentType = _currentType.next();
+            }
         }
         return deser;
     }
 
+    @Deprecated // since 2.5; remove from 2.6
+    public JsonDeserializer<?> handlePrimaryContextualization(JsonDeserializer<?> deser,
+            BeanProperty prop)
+        throws JsonMappingException
+    {
+        return handlePrimaryContextualization(deser, prop, TypeFactory.unknownType());
+    }
+    
     /**
      * Method called for secondary property deserializers (ones
      * NOT directly created to deal with an annotatable POJO property,
@@ -602,8 +641,24 @@ public abstract class DeserializationContext
      * @param prop Property for which deserializer is used, if any; null
      *    when deserializing root values
      * 
-     * @since 2.3
+     * @since 2.5
      */
+    public JsonDeserializer<?> handleSecondaryContextualization(JsonDeserializer<?> deser,
+            BeanProperty prop, JavaType type)
+        throws JsonMappingException
+    {
+        if (deser instanceof ContextualDeserializer) {
+            _currentType = new LinkedNode<JavaType>(type, _currentType);
+            try {
+                deser = ((ContextualDeserializer) deser).createContextual(this, prop);
+            } finally {
+                _currentType = _currentType.next();
+            }
+        }
+        return deser;
+    }
+
+    @Deprecated // since 2.5; remove from 2.6
     public JsonDeserializer<?> handleSecondaryContextualization(JsonDeserializer<?> deser,
             BeanProperty prop)
         throws JsonMappingException
@@ -613,7 +668,7 @@ public abstract class DeserializationContext
         }
         return deser;
     }
-    
+
     /*
     /**********************************************************
     /* Parsing methods that may use reusable/-cyclable objects

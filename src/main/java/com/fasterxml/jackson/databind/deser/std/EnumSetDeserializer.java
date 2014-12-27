@@ -64,7 +64,7 @@ public class EnumSetDeserializer
         if (deser == null) {
             deser = ctxt.findContextualValueDeserializer(_enumType, property);
         } else { // if directly assigned, probably not yet contextual, so:
-            deser = ctxt.handleSecondaryContextualization(deser, property);
+            deser = ctxt.handleSecondaryContextualization(deser, property, _enumType);
         }
         return withDeserializer(deser);
     }

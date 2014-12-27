@@ -154,11 +154,11 @@ public class CollectionDeserializer
         JsonDeserializer<?> valueDeser = _valueDeserializer;
         // #125: May have a content converter
         valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
+        final JavaType vt = _collectionType.getContentType();
         if (valueDeser == null) {
-            valueDeser = ctxt.findContextualValueDeserializer(
-                    _collectionType.getContentType(), property);
+            valueDeser = ctxt.findContextualValueDeserializer(vt, property);
         } else { // if directly assigned, probably not yet contextual, so:
-            valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property);
+            valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property, vt);
         }
         // and finally, type deserializer needs context as well
         TypeDeserializer valueTypeDeser = _valueTypeDeserializer;

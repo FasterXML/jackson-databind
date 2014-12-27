@@ -106,15 +106,16 @@ public final class StringCollectionDeserializer
             }
         }
         JsonDeserializer<?> valueDeser = _valueDeserializer;
+        final JavaType valueType = _collectionType.getContentType();
         if (valueDeser == null) {
             // #125: May have a content converter
             valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
             if (valueDeser == null) {
             // And we may also need to get deserializer for String
-                valueDeser = ctxt.findContextualValueDeserializer( _collectionType.getContentType(), property);
+                valueDeser = ctxt.findContextualValueDeserializer(valueType, property);
             }
         } else { // if directly assigned, probably not yet contextual, so:
-            valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property);
+            valueDeser = ctxt.handleSecondaryContextualization(valueDeser, property, valueType);
         } 
         if (isDefaultDeserializer(valueDeser)) {
             valueDeser = null;

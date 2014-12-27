@@ -89,10 +89,11 @@ public class ObjectArrayDeserializer
         JsonDeserializer<?> deser = _elementDeserializer;
         // #125: May have a content converter
         deser = findConvertingContentDeserializer(ctxt, property, deser);
+        final JavaType vt = _arrayType.getContentType();
         if (deser == null) {
-            deser = ctxt.findContextualValueDeserializer(_arrayType.getContentType(), property);
+            deser = ctxt.findContextualValueDeserializer(vt, property);
         } else { // if directly assigned, probably not yet contextual, so:
-            deser = ctxt.handleSecondaryContextualization(deser, property);
+            deser = ctxt.handleSecondaryContextualization(deser, property, vt);
         }
         TypeDeserializer elemTypeDeser = _elementTypeDeserializer;
         if (elemTypeDeser != null) {

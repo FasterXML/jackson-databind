@@ -144,10 +144,11 @@ public final class StringArrayDeserializer
         JsonDeserializer<?> deser = _elementDeserializer;
         // #125: May have a content converter
         deser = findConvertingContentDeserializer(ctxt, property, deser);
+        JavaType type = ctxt.constructType(String.class);
         if (deser == null) {
-            deser = ctxt.findContextualValueDeserializer(ctxt.constructType(String.class), property);
+            deser = ctxt.findContextualValueDeserializer(type, property);
         } else { // if directly assigned, probably not yet contextual, so:
-            deser = ctxt.handleSecondaryContextualization(deser, property);
+            deser = ctxt.handleSecondaryContextualization(deser, property, type);
         }
         // Ok ok: if all we got is the default String deserializer, can just forget about it
         if (deser != null && this.isDefaultDeserializer(deser)) {

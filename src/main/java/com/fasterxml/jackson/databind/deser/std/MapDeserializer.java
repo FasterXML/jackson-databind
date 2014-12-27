@@ -236,10 +236,11 @@ public class MapDeserializer
         JsonDeserializer<?> vd = _valueDeserializer;
         // #125: May have a content converter
         vd = findConvertingContentDeserializer(ctxt, property, vd);
+        final JavaType vt = _mapType.getContentType();
         if (vd == null) {
-            vd = ctxt.findContextualValueDeserializer(_mapType.getContentType(), property);
+            vd = ctxt.findContextualValueDeserializer(vt, property);
         } else { // if directly assigned, probably not yet contextual, so:
-            vd = ctxt.handleSecondaryContextualization(vd, property);
+            vd = ctxt.handleSecondaryContextualization(vd, property, vt);
         }
         TypeDeserializer vtd = _valueTypeDeserializer;
         if (vtd != null) {

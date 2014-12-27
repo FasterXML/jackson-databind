@@ -8,11 +8,12 @@ import java.lang.annotation.Target;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
+import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 /**
@@ -20,17 +21,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
  * that can use contextual information (like field/method
  * annotations) for configuration.
  */
+@SuppressWarnings("serial")
 public class TestContextualDeserialization extends BaseMapTest
 {
-    /*
-    /**********************************************************
-    /* Helper classes
-    /**********************************************************
-     */
-
-    /* NOTE: important; MUST be considered a 'Jackson' annotation to be seen
-     * (or recognized otherwise via AnnotationIntrospect.isHandled())
-     */
     @Target({ElementType.FIELD, ElementType.PARAMETER, ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
     @JacksonAnnotation
@@ -153,6 +146,34 @@ public class TestContextualDeserialization extends BaseMapTest
             return new MyContextualDeserializer(propertyName);
         }
     }
+
+    static class GenericStringDeserializer
+        extends StdScalarDeserializer<Object>
+        implements ContextualDeserializer
+    {
+        final String _value;
+
+        public GenericStringDeserializer() { this("N/A"); }
+        protected GenericStringDeserializer(String value) {
+            super(String.class);
+            _value = value;
+        }
+
+        @Override
+        public JsonDeserializer<?> createContextual(DeserializationContext ctxt, BeanProperty property) {
+            return new GenericStringDeserializer(String.valueOf(ctxt.getContextualType().getRawClass().getSimpleName()));
+        }
+
+        @Override
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) {
+            return _value;
+        }
+    }
+
+    static class GenericBean {
+        @JsonDeserialize(contentUsing=GenericStringDeserializer.class)
+        public Map<Integer, String> stuff;
+    }
     
     /*
     /**********************************************************
@@ -259,7 +280,16 @@ public class TestContextualDeserialization extends BaseMapTest
         assertEquals("1", entry.getKey());
         assertEquals("map=2", entry.getValue().value);
     }
-    
+
+    // for [databind#165]
+    public void testContextualType() throws Exception {
+        GenericBean bean = new ObjectMapper().readValue(aposToQuotes("{'stuff':{'1':'b'}}"),
+                GenericBean.class);
+        assertNotNull(bean.stuff);
+        assertEquals(1, bean.stuff.size());
+        assertEquals("String", bean.stuff.get(Integer.valueOf(1)));
+    }
+
     /*
     /**********************************************************
     /* Helper methods

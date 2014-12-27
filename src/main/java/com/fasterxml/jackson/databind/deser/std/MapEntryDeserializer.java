@@ -132,10 +132,11 @@ public class MapEntryDeserializer
         }
         JsonDeserializer<?> vd = _valueDeserializer;
         vd = findConvertingContentDeserializer(ctxt, property, vd);
+        JavaType contentType = _type.containedType(1);
         if (vd == null) {
-            vd = ctxt.findContextualValueDeserializer(_type.containedType(1), property);
+            vd = ctxt.findContextualValueDeserializer(contentType, property);
         } else { // if directly assigned, probably not yet contextual, so:
-            vd = ctxt.handleSecondaryContextualization(vd, property);
+            vd = ctxt.handleSecondaryContextualization(vd, property, contentType);
         }
         TypeDeserializer vtd = _valueTypeDeserializer;
         if (vtd != null) {

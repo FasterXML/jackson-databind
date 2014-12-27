@@ -441,7 +441,8 @@ public abstract class BeanDeserializerBase
                 /* Important! This is the only place where actually handle "primary"
                  * property deserializers -- call is different from other places.
                  */
-                JsonDeserializer<?> cd = ctxt.handlePrimaryContextualization(deser, prop);
+                JsonDeserializer<?> cd = ctxt.handlePrimaryContextualization(deser, prop,
+                        prop.getType());
                 if (cd != deser) {
                     prop = prop.withValueDeserializer(cd);
                 }

@@ -797,7 +797,7 @@ public abstract class BasicDeserializerFactory
                 metadata);
         if (deser != null) {
             // As per [Issue#462] need to ensure we contextualize deserializer before passing it on
-            deser = ctxt.handlePrimaryContextualization(deser, prop);
+            deser = ctxt.handlePrimaryContextualization(deser, prop, type);
             prop = prop.withValueDeserializer(deser);
         }
         return prop;

@@ -58,8 +58,12 @@ public abstract class PropertyBindingException
     /**********************************************************
      */
 
-    private final static int MAX_DESC_LENGTH = 200;
-    
+    /**
+     * Somewhat arbitrary limit, but let's try not to create uselessly
+     * huge error messages
+     */
+    private final static int MAX_DESC_LENGTH = 1000;
+
     @Override
     public String getMessageSuffix()
     {

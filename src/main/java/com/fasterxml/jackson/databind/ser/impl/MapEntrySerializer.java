@@ -174,7 +174,7 @@ public class MapEntrySerializer
     }
 
     @Override
-    public boolean isEmpty(Entry<?, ?> value) {
+    public boolean isEmpty(SerializerProvider prov, Entry<?, ?> value) {
         return (value == null);
     }
 

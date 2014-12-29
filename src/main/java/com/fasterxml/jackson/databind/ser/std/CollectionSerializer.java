@@ -62,7 +62,7 @@ public class CollectionSerializer
      */
 
     @Override
-    public boolean isEmpty(Collection<?> value) {
+    public boolean isEmpty(SerializerProvider prov, Collection<?> value) {
         return (value == null) || value.isEmpty();
     }
 

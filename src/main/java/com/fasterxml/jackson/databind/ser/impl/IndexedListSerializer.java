@@ -47,7 +47,7 @@ public final class IndexedListSerializer
      */
     
     @Override
-    public boolean isEmpty(List<?> value) {
+    public boolean isEmpty(SerializerProvider prov, List<?> value) {
         return (value == null) || value.isEmpty();
     }
 

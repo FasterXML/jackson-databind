@@ -84,18 +84,25 @@ public abstract class ContainerSerializer<T>
      * {@link com.fasterxml.jackson.databind.SerializerProvider#findValueSerializer}.
      */
     public abstract JsonSerializer<?> getContentSerializer();
-    
+
     /*
     /**********************************************************
     /* Abstract methods for sub-classes to implement
     /**********************************************************
      */
-    
+
     /* Overridden as abstract, to force re-implementation; necessary for all
      * collection types.
      */
     @Override
-    public abstract boolean isEmpty(T value);
+    @Deprecated
+    public boolean isEmpty(T value) {
+        return isEmpty(null, value);
+    }
+
+    // since 2.5: should be declared abstract in future (2.6)
+//    @Override
+//    public abstract boolean isEmpty(SerializerProvider prov, T value);
 
     /**
      * Method called to determine if the given value (of type handled by

@@ -401,7 +401,7 @@ public class MapSerializer
     }
     
     @Override
-    public boolean isEmpty(Map<?,?> value) {
+    public boolean isEmpty(SerializerProvider prov, Map<?,?> value) {
         return (value == null) || value.isEmpty();
     }
 

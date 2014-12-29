@@ -138,7 +138,10 @@ public abstract class DefaultDeserializationContext
         if (_objectIds == null) {
             return;
         }
-
+        // 29-Dec-2014, tatu: As per [databind#299], may also just let unresolved refs be...
+        if (!isEnabled(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)) {
+            return;
+        }
         UnresolvedForwardReference exception = null;
         for (Entry<IdKey,ReadableObjectId> entry : _objectIds.entrySet()) {
             ReadableObjectId roid = entry.getValue();
@@ -146,7 +149,7 @@ public abstract class DefaultDeserializationContext
                 if (exception == null) {
                     exception = new UnresolvedForwardReference("Unresolved forward references for: ");
                 }
-                for (Iterator<Referring> iterator = roid.referringProperties(); iterator.hasNext();) {
+                for (Iterator<Referring> iterator = roid.referringProperties(); iterator.hasNext(); ) {
                     Referring referring = iterator.next();
                     exception.addUnresolvedId(roid.getKey().key, referring.getBeanType(), referring.getLocation());
                 }

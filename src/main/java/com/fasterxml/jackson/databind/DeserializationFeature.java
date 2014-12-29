@@ -173,6 +173,22 @@ public enum DeserializationFeature implements ConfigFeature
     FAIL_ON_IGNORED_PROPERTIES(false),
 
     /**
+     * Feature that determines what happens if an Object Id reference is encountered
+     * that does not refer to an actual Object with that id ("unresolved Object Id"):
+     * either an exception is thrown (<code>true</code>), or a null object is used
+     * instead (<code>false</code>).
+     * Note that if this is set to <code>false</code>, no further processing is done;
+     * specifically, if reference is defined via setter method, that method will NOT
+     * be called.
+     *<p>
+     * Feature is enabled by default, so that unknown Object Ids will result in an
+     * exception being thrown, at the end of deserialization.
+     * 
+     * @since 2.5
+     */
+    FAIL_ON_UNRESOLVED_OBJECT_IDS(true),
+
+    /**
      * Feature that determines whether Jackson code should catch
      * and wrap {@link Exception}s (but never {@link Error}s!)
      * to add additional information about
@@ -188,7 +204,7 @@ public enum DeserializationFeature implements ConfigFeature
      * Feature is enabled by default.
      */
     WRAP_EXCEPTIONS(true),
-    
+
     /*
     /******************************************************
     /* Structural conversion features

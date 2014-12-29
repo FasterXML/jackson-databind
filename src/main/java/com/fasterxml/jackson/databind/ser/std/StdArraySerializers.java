@@ -110,7 +110,7 @@ public class StdArraySerializers
         }
         
         @Override
-        public boolean isEmpty(boolean[] value) {
+        public boolean isEmpty(SerializerProvider prov, boolean[] value) {
             return (value == null) || (value.length == 0);
         }
 
@@ -249,7 +249,7 @@ public class StdArraySerializers
         }
         
         @Override
-        public boolean isEmpty(short[] value) {
+        public boolean isEmpty(SerializerProvider prov, short[] value) {
             return (value == null) || (value.length == 0);
         }
 
@@ -417,7 +417,7 @@ public class StdArraySerializers
         }
         
         @Override
-        public boolean isEmpty(int[] value) {
+        public boolean isEmpty(SerializerProvider prov, int[] value) {
             return (value == null) || (value.length == 0);
         }
 
@@ -494,7 +494,7 @@ public class StdArraySerializers
         }
         
         @Override
-        public boolean isEmpty(long[] value) {
+        public boolean isEmpty(SerializerProvider prov, long[] value) {
             return (value == null) || (value.length == 0);
         }
 
@@ -585,7 +585,7 @@ public class StdArraySerializers
         }
         
         @Override
-        public boolean isEmpty(float[] value) {
+        public boolean isEmpty(SerializerProvider prov, float[] value) {
             return (value == null) || (value.length == 0);
         }
 
@@ -670,7 +670,7 @@ public class StdArraySerializers
         }
         
         @Override
-        public boolean isEmpty(double[] value) {
+        public boolean isEmpty(SerializerProvider prov, double[] value) {
             return (value == null) || (value.length == 0);
         }
 

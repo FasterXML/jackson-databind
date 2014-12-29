@@ -162,7 +162,7 @@ public class EnumMapSerializer
     }
     
     @Override
-    public boolean isEmpty(EnumMap<? extends Enum<?>,?> value) {
+    public boolean isEmpty(SerializerProvider prov, EnumMap<? extends Enum<?>,?> value) {
         return (value == null) || value.isEmpty();
     }
 

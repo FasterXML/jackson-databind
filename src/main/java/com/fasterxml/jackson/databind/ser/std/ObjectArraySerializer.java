@@ -174,7 +174,7 @@ public class ObjectArraySerializer
     }
 
     @Override
-    public boolean isEmpty(Object[] value) {
+    public boolean isEmpty(SerializerProvider prov, Object[] value) {
         return (value == null) || (value.length == 0);
     }
 
@@ -190,8 +190,7 @@ public class ObjectArraySerializer
      */
 
     @Override
-    public final void serialize(Object[] value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public final void serialize(Object[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
     {
     	final int len = value.length;
         if ((len == 1) && provider.isEnabled(SerializationFeature.WRITE_SINGLE_ELEM_ARRAYS_UNWRAPPED)) {
@@ -204,8 +203,7 @@ public class ObjectArraySerializer
     }
     
     @Override
-    public void serializeContents(Object[] value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serializeContents(Object[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
     {
         final int len = value.length;
         if (len == 0) {
@@ -262,8 +260,7 @@ public class ObjectArraySerializer
     }
 
     public void serializeContentsUsing(Object[] value, JsonGenerator jgen, SerializerProvider provider,
-            JsonSerializer<Object> ser)
-        throws IOException, JsonGenerationException
+            JsonSerializer<Object> ser) throws IOException
     {
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;
@@ -297,8 +294,7 @@ public class ObjectArraySerializer
         }
     }
 
-    public void serializeTypedContents(Object[] value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
+    public void serializeTypedContents(Object[] value, JsonGenerator jgen, SerializerProvider provider) throws IOException
     {
         final int len = value.length;
         final TypeSerializer typeSer = _valueTypeSerializer;

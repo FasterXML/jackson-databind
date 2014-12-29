@@ -10,6 +10,8 @@ Project: jackson-databind
 #113: Problem deserializing polymorphic types with @JsonCreator
 #165: Add `DeserializationContext.getContextualType()` to let deserializer
   known the expected type.
+#299: Add `DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS` to allow missing
+  Object Ids (as global default)
 #408: External type id does not allow use of 'visible=true'
 #421: @JsonCreator not used in case of multiple creators with parameter names
  (reported by Lovro P, lpandzic@github)

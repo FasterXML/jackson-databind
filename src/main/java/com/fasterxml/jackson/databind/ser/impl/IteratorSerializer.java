@@ -28,7 +28,7 @@ public class IteratorSerializer
     }
 
     @Override
-    public boolean isEmpty(Iterator<?> value) {
+    public boolean isEmpty(SerializerProvider prov, Iterator<?> value) {
         return (value == null) || !value.hasNext();
     }
 

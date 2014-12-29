@@ -35,7 +35,7 @@ public class EnumSetSerializer
     }
     
     @Override
-    public boolean isEmpty(EnumSet<? extends Enum<?>> value) {
+    public boolean isEmpty(SerializerProvider prov, EnumSet<? extends Enum<?>> value) {
         return (value == null) || value.isEmpty();
     }
 

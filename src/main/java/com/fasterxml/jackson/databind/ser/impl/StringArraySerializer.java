@@ -130,7 +130,7 @@ public class StringArraySerializer
     }
     
     @Override
-    public boolean isEmpty(String[] value) {
+    public boolean isEmpty(SerializerProvider prov, String[] value) {
         return (value == null) || (value.length == 0);
     }
 

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.ObjectIdResolver;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
@@ -339,6 +340,16 @@ public class TestObjectIdDeserialization extends BaseMapTest
             assertEquals(firstUnresolvedId.getId(), secondUnresolvedId.getId());
             assertEquals(Employee.class, secondUnresolvedId.getType());
         }
+    }
+
+    // [databind#299]: Allow unresolved ids to become nulls
+    public void testUnresolvableAsNull() throws Exception
+    {
+        IdWrapper w = mapper.reader(IdWrapper.class)
+                .without(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
+                .readValue(aposToQuotes("{'node':123}"));
+        assertNotNull(w);
+        assertNull(w.node);
     }
 
     public void testKeepCollectionOrdering() throws Exception

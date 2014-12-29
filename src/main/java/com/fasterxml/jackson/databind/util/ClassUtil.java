@@ -599,9 +599,14 @@ public final class ClassUtil
         return (implClass.getAnnotation(JacksonStdImpl.class) != null);
     }
 
-    public final static boolean isBogusClass(Class<?> cls) {
+    public static boolean isBogusClass(Class<?> cls) {
         return (cls == Void.class || cls == Void.TYPE
                 || cls == com.fasterxml.jackson.databind.annotation.NoClass.class);
+    }
+
+    public static boolean isNonStaticInnerClass(Class<?> cls) {
+        return (cls.getEnclosingClass() != null)
+                && !Modifier.isStatic(cls.getModifiers());
     }
     
     /*

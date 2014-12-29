@@ -499,7 +499,13 @@ public abstract class BasicDeserializerFactory
                     // [712] secondary: all but one injectable, one un-annotated (un-named)
                     creators.addDelegatingCreator(ctor, isCreator, properties);
                 } else { // otherwise, epic fail
-                    throw new IllegalArgumentException("Argument #"+nonAnnotatedParam.getIndex()
+                    // 28-Dec-2014, tatu: Let's consider non-static inner class as a special case...
+                    int ix = nonAnnotatedParam.getIndex();
+                    if ((ix == 0) && ClassUtil.isNonStaticInnerClass(ctor.getDeclaringClass())) {
+                        throw new IllegalArgumentException("Non-static inner classes like "
+                                +ctor.getDeclaringClass().getName()+" can not use @JsonCreator for constructors");
+                    }
+                    throw new IllegalArgumentException("Argument #"+ix
                             +" of constructor "+ctor+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
                 }
             }

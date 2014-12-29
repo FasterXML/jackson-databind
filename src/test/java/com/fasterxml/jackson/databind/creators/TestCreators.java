@@ -399,7 +399,7 @@ public class TestCreators
         bean = MAPPER.readValue("0.25", MultiBean.class);
         assertEquals(Double.valueOf(0.25), bean.value);
     }
-
+    
     /*
     /**********************************************************
     /* Test methods, valid cases, deferred, no mixins

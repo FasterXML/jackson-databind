@@ -3,9 +3,9 @@ package com.fasterxml.jackson.databind.struct;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
@@ -187,6 +187,17 @@ public class TestPOJOAsArray extends BaseMapTest
         assertEquals("foobar", result.name);
     }
 
+    static class CreatorWithIndex {
+        protected int _a, _b;
+
+        @JsonCreator
+        public CreatorWithIndex(@JsonProperty(index=0, value="a") int a,
+                @JsonProperty(index=1, value="b") int b) {
+            this._a = a;
+            this._b = b;
+        }
+    }
+
     /*
     /*****************************************************
     /* Round-trip tests
@@ -213,5 +224,13 @@ public class TestPOJOAsArray extends BaseMapTest
         assertNotNull(output.attrs);
         assertEquals(1, output.attrs.size());
         assertEquals(Integer.valueOf(2), output.attrs.get(1));
+    }
+
+    public void testSimpleWithIndex() throws Exception
+    {
+        CreatorWithIndex value = MAPPER.readValue(aposToQuotes("{'b':1,'a':2}"),
+                CreatorWithIndex.class);
+        assertEquals(2, value._a);
+        assertEquals(1, value._b);
     }
 }

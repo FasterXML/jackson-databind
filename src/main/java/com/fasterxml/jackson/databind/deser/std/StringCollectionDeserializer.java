@@ -173,16 +173,19 @@ public final class StringCollectionDeserializer
         if (_valueDeserializer != null) {
             return deserializeUsingCustom(jp, ctxt, result, _valueDeserializer);
         }
-        JsonToken t;
-
         try {
-            while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-                String value;
-                if (t == JsonToken.VALUE_STRING) {
-                    value = jp.getText();
-                } else if (t == JsonToken.VALUE_NULL) {
-                    value = null;
-                } else {
+            while (true) {
+                // First the common case:
+                String value = jp.nextTextValue();
+                if (value != null) {
+                    result.add(value);
+                    continue;
+                }
+                JsonToken t = jp.getCurrentToken();
+                if (t == JsonToken.END_ARRAY) {
+                    break;
+                }
+                if (t != JsonToken.VALUE_NULL) {
                     value = _parseString(jp, ctxt);
                 }
                 result.add(value);

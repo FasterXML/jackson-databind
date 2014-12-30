@@ -54,18 +54,18 @@ public final class StringArrayDeserializer
         Object[] chunk = buffer.resetAndStart();
 
         int ix = 0;
-        JsonToken t;
 
         try {
-            while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-                // Ok: no need to convert Strings, but must recognize nulls
-                String value;
-                if (t == JsonToken.VALUE_STRING) {
-                    value = jp.getText();
-                } else if (t == JsonToken.VALUE_NULL) {
-                    value = null; // since we have established that '_elementDeserializer == null' earlier
-                } else {
-                    value = _parseString(jp, ctxt);
+            while (true) {
+                String value = jp.nextTextValue();
+                if (value == null) {
+                    JsonToken t = jp.getCurrentToken();
+                    if (t == JsonToken.END_ARRAY) {
+                        break;
+                    }
+                    if (t != JsonToken.VALUE_NULL) {
+                        value = _parseString(jp, ctxt);
+                    }
                 }
                 if (ix >= chunk.length) {
                     chunk = buffer.appendCompletedChunk(chunk);

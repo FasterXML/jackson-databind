@@ -60,6 +60,35 @@ public class ReadValuesTest extends BaseMapTest
         assertEquals(3, set.iterator().next().a);
     }
 
+    public void testRootBeansInArray() throws Exception
+    {
+        final String JSON = "[{\"a\":6}, {\"a\":-7}]";
+
+        MappingIterator<Bean> it = MAPPER.reader(Bean.class).readValues(JSON);
+
+        assertNotNull(it.getCurrentLocation());
+        assertTrue(it.hasNext());
+        Bean b = it.next();
+        assertEquals(6, b.a);
+        assertTrue(it.hasNext());
+        b = it.next();
+        assertEquals(-7, b.a);
+        assertFalse(it.hasNext());
+        it.close();
+
+        // Also, test 'readAll()'
+        it = MAPPER.reader(Bean.class).readValues(JSON);
+        List<Bean> all = it.readAll();
+        assertEquals(2, all.size());
+        it.close();
+
+        it = MAPPER.reader(Bean.class).readValues("[{\"a\":4},{\"a\":4}]");
+        Set<Bean> set = it.readAll(new HashSet<Bean>());
+        assertEquals(HashSet.class, set.getClass());
+        assertEquals(1, set.size());
+        assertEquals(4, set.iterator().next().a);
+    }
+
     public void testRootMaps() throws Exception
     {
         final String JSON = "{\"a\":3}{\"a\":27}  ";
@@ -120,7 +149,7 @@ public class ReadValuesTest extends BaseMapTest
         assertEquals(3, array[0]);
         assertFalse(it.hasNext());
     }
-    
+
     public void testHasNextWithEndArray() throws Exception {
         final String JSON = "[1,3]";
         JsonParser jp = MAPPER.getFactory().createParser(JSON);
@@ -140,7 +169,7 @@ public class ReadValuesTest extends BaseMapTest
         assertFalse(it.hasNext());
         assertFalse(it.hasNext());
     }
-    
+
     public void testHasNextWithEndArrayManagedParser() throws Exception {
         final String JSON = "[1,3]";
 
@@ -154,7 +183,7 @@ public class ReadValuesTest extends BaseMapTest
         assertFalse(it.hasNext());
         assertFalse(it.hasNext());
     }
-    
+
     /*
     /**********************************************************
     /* Unit tests; non-root arrays

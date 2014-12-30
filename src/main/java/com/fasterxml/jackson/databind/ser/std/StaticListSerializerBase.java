@@ -19,8 +19,14 @@ public abstract class StaticListSerializerBase<T extends Collection<?>>
         super(cls, false);
     }
 
+    @Deprecated // since 2.5
     @Override
     public boolean isEmpty(T value) {
+        return isEmpty(null, value);
+    }
+
+    @Override
+    public boolean isEmpty(SerializerProvider provider, T value) {
         return (value == null) || (value.size() == 0);
     }
     

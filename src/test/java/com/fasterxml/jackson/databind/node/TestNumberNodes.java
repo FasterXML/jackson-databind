@@ -269,6 +269,11 @@ public class TestNumberNodes extends NodeTestBase
 
         // also via ObjectWriter:
         assertEquals("{\"x\":100}", mapper.writer().writeValueAsString(node));
+
+        // and once more for [core#175]:
+        BigDecimal bigDecimal = new BigDecimal(100);
+        JsonNode tree = mapper.valueToTree(bigDecimal);
+        assertEquals("100", mapper.writeValueAsString(tree));
     }
 
     // Related to [Issue#333]

@@ -52,8 +52,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
 
     @Override
     public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-            TypeDeserializer typeDeserializer)
-        throws IOException, JsonProcessingException
+            TypeDeserializer typeDeserializer) throws IOException
     {
         /* Should there be separate handling for base64 stuff?
          * for now this should be enough:
@@ -76,8 +75,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         public CharDeser() { super(char[].class); }
 
         @Override
-        public char[] deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public char[] deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             /* Won't take arrays, must get a String (could also
              * convert other tokens to Strings... but let's not bother
@@ -170,8 +168,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             return builder.completeAndClearBuffer(chunk, ix);
         }
 
-        private final boolean[] handleNonArray(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        private final boolean[] handleNonArray(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             // [JACKSON-620] Empty String can become null...
             if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
@@ -200,8 +197,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         public ByteDeser() { super(byte[].class); }
 
         @Override
-        public byte[] deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public byte[] deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             JsonToken t = jp.getCurrentToken();
             
@@ -250,8 +246,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             return builder.completeAndClearBuffer(chunk, ix);
         }
 
-        private final byte[] handleNonArray(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        private final byte[] handleNonArray(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             // [JACKSON-620] Empty String can become null...
             if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
@@ -288,8 +283,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         public ShortDeser() { super(short[].class); }
 
         @Override
-        public short[] deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public short[] deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             if (!jp.isExpectedStartArrayToken()) {
                 return handleNonArray(jp, ctxt);
@@ -313,8 +307,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             return builder.completeAndClearBuffer(chunk, ix);
         }
 
-        private final short[] handleNonArray(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        private final short[] handleNonArray(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             // [JACKSON-620] Empty String can become null...
             if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
@@ -341,8 +334,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         public IntDeser() { super(int[].class); }
 
         @Override
-        public int[] deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public int[] deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             if (!jp.isExpectedStartArrayToken()) {
                 return handleNonArray(jp, ctxt);
@@ -367,8 +359,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             return builder.completeAndClearBuffer(chunk, ix);
         }
 
-        private final int[] handleNonArray(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        private final int[] handleNonArray(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             // [JACKSON-620] Empty String can become null...
             if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
@@ -395,8 +386,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         public LongDeser() { super(long[].class); }
 
         @Override
-        public long[] deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public long[] deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             if (!jp.isExpectedStartArrayToken()) {
                 return handleNonArray(jp, ctxt);
@@ -420,8 +410,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             return builder.completeAndClearBuffer(chunk, ix);
         }
 
-        private final long[] handleNonArray(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        private final long[] handleNonArray(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             // [JACKSON-620] Empty String can become null...
             if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)
@@ -498,8 +487,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
         public DoubleDeser() { super(double[].class); }
 
         @Override
-        public double[] deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public double[] deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             if (!jp.isExpectedStartArrayToken()) {
                 return handleNonArray(jp, ctxt);
@@ -523,8 +511,7 @@ public abstract class PrimitiveArrayDeserializers<T> extends StdDeserializer<T>
             return builder.completeAndClearBuffer(chunk, ix);
         }
 
-        private final double[] handleNonArray(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        private final double[] handleNonArray(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             // [JACKSON-620] Empty String can become null...
             if ((jp.getCurrentToken() == JsonToken.VALUE_STRING)

@@ -199,12 +199,20 @@ public final class StringCollectionDeserializer
     private Collection<String> deserializeUsingCustom(JsonParser jp, DeserializationContext ctxt,
             Collection<String> result, final JsonDeserializer<String> deser) throws IOException
     {
-        JsonToken t;
-        while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
+        while (true) {
+            /* 30-Dec-2014, tatu: This may look odd, but let's actually call method
+             *   that suggest we are expecting a String; this helps with some formats,
+             *   notably XML. Note, however, that while we can get String, we can't
+             *   assume that's what we use due to custom deserializer
+             */
             String value;
-
-            if (t == JsonToken.VALUE_NULL) {
-                value = deser.getNullValue();
+            if (jp.nextTextValue() == null) {
+                JsonToken t = jp.getCurrentToken();
+                if (t == JsonToken.END_ARRAY) {
+                    break;
+                }
+                // Ok: no need to convert Strings, but must recognize nulls
+                value = (t == JsonToken.VALUE_NULL) ? deser.getNullValue() : deser.deserialize(jp, ctxt);
             } else {
                 value = deser.deserialize(jp, ctxt);
             }
@@ -220,7 +228,7 @@ public final class StringCollectionDeserializer
     }
 
     /**
-     * Helper method called when current token is no START_ARRAY. Will either
+     * Helper method called when current token is not START_ARRAY. Will either
      * throw an exception, or try to handle value as if member of implicit
      * array, depending on configuration.
      */

@@ -91,12 +91,25 @@ public final class StringArrayDeserializer
         final JsonDeserializer<String> deser = _elementDeserializer;
         
         int ix = 0;
-        JsonToken t;
 
         try {
-            while ((t = jp.nextToken()) != JsonToken.END_ARRAY) {
-                // Ok: no need to convert Strings, but must recognize nulls
-                String value = (t == JsonToken.VALUE_NULL) ? deser.getNullValue() : deser.deserialize(jp, ctxt);
+            while (true) {
+                /* 30-Dec-2014, tatu: This may look odd, but let's actually call method
+                 *   that suggest we are expecting a String; this helps with some formats,
+                 *   notably XML. Note, however, that while we can get String, we can't
+                 *   assume that's what we use due to custom deserializer
+                 */
+                String value;
+                if (jp.nextTextValue() == null) {
+                    JsonToken t = jp.getCurrentToken();
+                    if (t == JsonToken.END_ARRAY) {
+                        break;
+                    }
+                    // Ok: no need to convert Strings, but must recognize nulls
+                    value = (t == JsonToken.VALUE_NULL) ? deser.getNullValue() : deser.deserialize(jp, ctxt);
+                } else {
+                    value = deser.deserialize(jp, ctxt);
+                }
                 if (ix >= chunk.length) {
                     chunk = buffer.appendCompletedChunk(chunk);
                     ix = 0;

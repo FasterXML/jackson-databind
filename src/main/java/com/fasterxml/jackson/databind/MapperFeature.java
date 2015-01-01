@@ -64,7 +64,7 @@ public enum MapperFeature implements ConfigFeature
      AUTO_DETECT_FIELDS(true),
     
     /**
-     * Feature that determines whether regualr "getter" methods are
+     * Feature that determines whether regular "getter" methods are
      * automatically detected based on standard Bean naming convention
      * or not. If yes, then all public zero-argument methods that
      * start with prefix "get" 

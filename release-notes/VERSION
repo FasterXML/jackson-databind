@@ -4,6 +4,10 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.5.1 (not yet released)
+
+#667: Problem with bogus conflict between single-arg-String vs `CharSequence` constructor
+
 2.5.0 (01-Jan-2015)
 
 #47: Support `@JsonValue` for (Map) key serialization 

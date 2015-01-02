@@ -420,6 +420,12 @@ public class TestJdkTypes extends BaseMapTest
         assertEquals(0, result.remaining());
     }
 
+    public void testStringBuilder() throws Exception
+    {
+        StringBuilder sb = MAPPER.readValue(quote("abc"), StringBuilder.class);
+        assertEquals("abc", sb.toString());
+    }
+    
     // [Issue#429]
     public void testStackTraceElementWithCustom() throws Exception
     {

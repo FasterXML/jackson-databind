@@ -188,3 +188,6 @@ Konstantin Labun (kulabun@github)
   * Reported #647: Deserialization fails when @JsonUnwrapped property contains an object with same property name
    (2.5.0)
 
+Christopher Smith (chrylis@github)
+  * Reported #594: `@JsonValue` on enum not used when enum value is a Map key
+   (2.5.0)

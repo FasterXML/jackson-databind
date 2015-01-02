@@ -163,7 +163,25 @@ public class TestEnumSerialization
         @JsonFormat(shape=Shape.NUMBER)
         public PoNUM value = PoNUM.B;
     }
-    
+
+    static enum MyEnum594 {
+        VALUE_WITH_A_REALLY_LONG_NAME_HERE("longValue");
+
+        private final String key;
+        private MyEnum594(String k) { key = k; }
+
+        @JsonValue
+        public String getKey() { return key; }
+    }
+
+    static class MyStuff594 {
+        public Map<MyEnum594,String> stuff = new EnumMap<MyEnum594,String>(MyEnum594.class);
+        
+        public MyStuff594(String value) {
+            stuff.put(MyEnum594.VALUE_WITH_A_REALLY_LONG_NAME_HERE, value);
+        }
+    }
+
     /*
     /**********************************************************
     /* Tests
@@ -315,6 +333,12 @@ public class TestEnumSerialization
 
     public void testOverrideEnumAsNumber() throws Exception {
         assertEquals("{\"value\":1}", mapper.writeValueAsString(new PoOverrideAsNumber()));
+    }
+
+    // [databind#594]
+    public void testJsonValueForEnumMapKey() throws Exception {
+        assertEquals(aposToQuotes("{'stuff':{'longValue':'foo'}}"),
+                mapper.writeValueAsString(new MyStuff594("foo")));
     }
 }
 

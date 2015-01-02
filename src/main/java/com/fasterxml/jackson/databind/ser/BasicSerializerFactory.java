@@ -230,7 +230,11 @@ public abstract class BasicSerializerFactory
                         final Class<?> rawType = am.getRawReturnType();
                         JsonSerializer<?> delegate = StdKeySerializers.getStdKeySerializer(config,
                                 rawType, true);
-                        ser = new JsonValueSerializer(am.getAnnotated(), delegate);
+                        Method m = am.getAnnotated();
+                        if (config.canOverrideAccessModifiers()) {
+                            ClassUtil.checkAndFixAccess(m);
+                        }
+                        ser = new JsonValueSerializer(m, delegate);
                     } else {
                         ser = StdKeySerializers.getDefault();
                     }

@@ -42,6 +42,8 @@ Project: jackson-databind
  (requested by herau@github)
 #576: Add fluent API for adding mixins
  (contributed by Adam S, adstro@github)
+#594: `@JsonValue` on enum not used when enum value is a Map key
+ (reported by chrylis@github)
 #596: Add support for `@JsonProperty.defaultValue`, exposed via `BeanProperty.getMetadata().getDefaultValue()`
 #597: Improve error messaging for cases where JSON Creator returns null (which
   is illegal)

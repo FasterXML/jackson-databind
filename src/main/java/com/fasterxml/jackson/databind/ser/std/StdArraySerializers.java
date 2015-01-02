@@ -177,13 +177,13 @@ public class StdArraySerializers
         }
         
         @Override
-        public boolean isEmpty(byte[] value) {
+        public boolean isEmpty(SerializerProvider prov, byte[] value) {
             return (value == null) || (value.length == 0);
         }
         
         @Override
         public void serialize(byte[] value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             jgen.writeBinary(provider.getConfig().getBase64Variant(),
                     value, 0, value.length);
@@ -192,7 +192,7 @@ public class StdArraySerializers
         @Override
         public void serializeWithType(byte[] value, JsonGenerator jgen, SerializerProvider provider,
                 TypeSerializer typeSer)
-            throws IOException, JsonGenerationException
+            throws IOException
         {
             typeSer.writeTypePrefixForScalar(value, jgen);
             jgen.writeBinary(provider.getConfig().getBase64Variant(),
@@ -323,7 +323,7 @@ public class StdArraySerializers
         public CharArraySerializer() { super(char[].class); }
         
         @Override
-        public boolean isEmpty(char[] value) {
+        public boolean isEmpty(SerializerProvider prov, char[] value) {
             return (value == null) || (value.length == 0);
         }
         

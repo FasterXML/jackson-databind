@@ -149,8 +149,7 @@ public class JsonValueSerializer
      */
     
     @Override
-    public void serialize(Object bean, JsonGenerator jgen, SerializerProvider prov)
-        throws IOException, JsonGenerationException
+    public void serialize(Object bean, JsonGenerator jgen, SerializerProvider prov) throws IOException
     {
         try {
             Object value = _accessorMethod.invoke(bean);
@@ -188,8 +187,7 @@ public class JsonValueSerializer
 
     @Override
     public void serializeWithType(Object bean, JsonGenerator jgen, SerializerProvider provider,
-            TypeSerializer typeSer0)
-        throws IOException, JsonProcessingException
+            TypeSerializer typeSer0) throws IOException
     {
         // Regardless of other parts, first need to find value to serialize:
         Object value = null;

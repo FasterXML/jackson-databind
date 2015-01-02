@@ -3,6 +3,7 @@ package com.fasterxml.jackson.databind.ser;
 import java.io.*;
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -182,6 +183,30 @@ public class TestEnumSerialization
         }
     }
 
+    public class MyBean661 {
+        private Map<Foo661, String> foo = new EnumMap<Foo661, String>(Foo661.class);
+
+        public MyBean661(String value) {
+            foo.put(Foo661.FOO, value);
+        }
+
+        @JsonAnyGetter
+        @JsonSerialize(keyUsing = Foo661.Serializer.class)
+        public Map<Foo661, String> getFoo() {
+            return foo;
+        }
+    }
+
+    enum Foo661 {
+        FOO;
+        public static class Serializer extends JsonSerializer<Foo661> {
+            @Override
+            public void serialize(Foo661 value, JsonGenerator jgen, SerializerProvider provider) 
+                    throws IOException {
+                jgen.writeFieldName("X-"+value.name());
+            }
+        }
+    }
     /*
     /**********************************************************
     /* Tests
@@ -339,6 +364,12 @@ public class TestEnumSerialization
     public void testJsonValueForEnumMapKey() throws Exception {
         assertEquals(aposToQuotes("{'stuff':{'longValue':'foo'}}"),
                 mapper.writeValueAsString(new MyStuff594("foo")));
+    }
+
+    // [databind#661]
+    public void testCustomEnumMapKeySerializer() throws Exception {
+        String json = mapper.writeValueAsString(new MyBean661("abc"));
+        assertEquals(aposToQuotes("{'X-FOO':'abc'}"), json);
     }
 }
 

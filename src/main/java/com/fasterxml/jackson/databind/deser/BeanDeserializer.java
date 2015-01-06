@@ -20,20 +20,13 @@ public class BeanDeserializer
 {
     /* TODOs for future versions:
      * 
-     * For 2.6
+     * For 2.6?
      * 
-     * - Start using new (2.5) methods in JsonParser, like
-     *   * 'hasTokenId(xxx)'
-     *   * 'nextFieldName()'
-     *   
-     *   for slightly more efficient property lookups, handling
-     *   (2-3% faster deserialization)
-     *   Not done for 2.5 since it was just introduced, trying to
-     *   keep some level of compatibility between "adjacent" minor
-     *   versions.
-     *   Also: need to ensure efficient impl of those methods for Smile, CBOR
-     *   at least (in addition to JSON)
-     * 
+     * - New method in JsonDeserializer (deserializeNext()) to allow use of more
+     *   efficient 'nextXxx()' method `JsonParser` provides.
+     *
+     * Also: need to ensure efficient impl of those methods for Smile, CBOR
+     * at least (in addition to JSON)
      */
 
     private static final long serialVersionUID = 1L;
@@ -47,8 +40,7 @@ public class BeanDeserializer
     /**
      * Constructor used by {@link BeanDeserializerBuilder}.
      */
-    public BeanDeserializer(BeanDeserializerBuilder builder,
-            BeanDescription beanDesc,
+    public BeanDeserializer(BeanDeserializerBuilder builder, BeanDescription beanDesc,
             BeanPropertyMap properties, Map<String, SettableBeanProperty> backRefs,
             HashSet<String> ignorableProps, boolean ignoreAllUnknown,
             boolean hasViews)
@@ -126,12 +118,10 @@ public class BeanDeserializer
      * like Afterburner change definition.
      */
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt)
-        throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
         // common case first
-        if (t == JsonToken.START_OBJECT) { // TODO: in 2.6, use 'p.hasTokenId()'
+        if (p.isExpectedStartObjectToken()) {
             if (_vanillaProcessing) {
                 return vanillaDeserialize(p, ctxt, p.nextToken());
             }
@@ -141,6 +131,7 @@ public class BeanDeserializer
             }
             return deserializeFromObject(p, ctxt);
         }
+        JsonToken t = p.getCurrentToken();
         return _deserializeOther(p, ctxt, t);
     }
 
@@ -177,9 +168,7 @@ public class BeanDeserializer
         }
     }
 
-    protected Object _missingToken(JsonParser p, DeserializationContext ctxt)
-        throws JsonProcessingException
-    {
+    protected Object _missingToken(JsonParser p, DeserializationContext ctxt) throws IOException {
         throw ctxt.endOfInputException(handledType());
     }
     
@@ -189,8 +178,7 @@ public class BeanDeserializer
      * after collecting some or all of the properties to set.
      */
     @Override
-    public Object deserialize(JsonParser p, DeserializationContext ctxt, Object bean)
-        throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt, Object bean) throws IOException
     {
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(bean);
@@ -203,10 +191,20 @@ public class BeanDeserializer
         if (_externalTypeIdHandler != null) {
             return deserializeWithExternalTypeId(p, ctxt, bean);
         }
-        JsonToken t = p.getCurrentToken();
+        String propName;
+
         // 23-Mar-2010, tatu: In some cases, we start with full JSON object too...
-        if (t == JsonToken.START_OBJECT) {
-            t = p.nextToken();
+        if (p.isExpectedStartObjectToken()) {
+            propName = p.nextFieldName();
+            if (propName == null) {
+                return bean;
+            }
+        } else {
+            if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
+                propName = p.getCurrentName();
+            } else {
+                return bean;
+            }
         }
         if (_needViewProcesing) {
             Class<?> view = ctxt.getActiveView();
@@ -214,13 +212,12 @@ public class BeanDeserializer
                 return deserializeWithView(p, ctxt, bean, view);
             }
         }
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+        do {
             p.nextToken();
             if (!_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
                 handleUnknownVanilla(p, ctxt, bean, propName);
             }
-        }
+        } while ((propName = p.nextFieldName()) != null);
         return bean;
     }
 
@@ -241,17 +238,6 @@ public class BeanDeserializer
         final Object bean = _valueInstantiator.createUsingDefault(ctxt);
         // [databind#631]: Assign current value, to be accessible by custom serializers
         p.setCurrentValue(bean);
-
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
-            p.nextToken();
-            if (!_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
-                handleUnknownVanilla(p, ctxt, bean, propName);
-            }
-        }
-
-        // 13-Dec-2014, tatu: For 2.6, we'll do:
-        /*
         if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
             String propName = p.getCurrentName();
             do {
@@ -261,7 +247,6 @@ public class BeanDeserializer
                 }
             } while ((propName = p.nextFieldName()) != null);
         }
-        */
         return bean;
     }
 
@@ -280,7 +265,7 @@ public class BeanDeserializer
          */
         if (_objectIdReader != null && _objectIdReader.maySerializeAsObject()) {
             // TODO: in 2.6, use 'p.hasTokenId()'
-            if ((p.getCurrentTokenId() == JsonTokenId.ID_FIELD_NAME)
+            if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)
                     && _objectIdReader.isValidReferencePropertyName(p.getCurrentName(), p)) {
                 return deserializeFromObjectId(p, ctxt);
             }
@@ -328,16 +313,6 @@ public class BeanDeserializer
                 return deserializeWithView(p, ctxt, bean, view);
             }
         }
-        JsonToken t = p.getCurrentToken();
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
-            p.nextToken();
-            if (!_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
-                handleUnknownVanilla(p, ctxt, bean, propName);
-            }
-        }
-        // 13-Dec-2014, tatu: For 2.6, we'll do:
-        /*
         if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
             String propName = p.getCurrentName();
             do {
@@ -347,7 +322,6 @@ public class BeanDeserializer
                 }
             } while ((propName = p.nextFieldName()) != null);
         }
-        */
         return bean;
     }
 
@@ -459,30 +433,31 @@ public class BeanDeserializer
     /* Deserializing when we have to consider an active View
     /**********************************************************
      */
-    
+
     protected final Object deserializeWithView(JsonParser p, DeserializationContext ctxt,
             Object bean, Class<?> activeView)
         throws IOException
     {
-        JsonToken t = p.getCurrentToken();
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+        if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)) {
             String propName = p.getCurrentName();
-            // Skip field name:
-            p.nextToken();
-            SettableBeanProperty prop = _beanProperties.find(propName);
-            if (prop != null) {
-                if (!prop.visibleInView(activeView)) {
-                    p.skipChildren();
+            do {
+                p.nextToken();
+                // TODO: 06-Jan-2015, tatu: try streamlining call sequences here as well
+                SettableBeanProperty prop = _beanProperties.find(propName);
+                if (prop != null) {
+                    if (!prop.visibleInView(activeView)) {
+                        p.skipChildren();
+                        continue;
+                    }
+                    try {
+                        prop.deserializeAndSet(p, ctxt, bean);
+                    } catch (Exception e) {
+                        wrapAndThrow(e, bean, propName, ctxt);
+                    }
                     continue;
                 }
-                try {
-                    prop.deserializeAndSet(p, ctxt, bean);
-                } catch (Exception e) {
-                    wrapAndThrow(e, bean, propName, ctxt);
-                }
-                continue;
-            }
-            handleUnknownVanilla(p, ctxt, bean, propName);
+                handleUnknownVanilla(p, ctxt, bean, propName);
+            } while ((propName = p.nextFieldName()) != null);
         }
         return bean;
     }

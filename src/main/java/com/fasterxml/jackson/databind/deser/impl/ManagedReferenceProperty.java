@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.PropertyName;
@@ -95,20 +95,20 @@ public final class ManagedReferenceProperty
      */
 
     @Override
-    public void deserializeAndSet(JsonParser jp, DeserializationContext ctxt, Object instance)
-            throws IOException, JsonProcessingException {
-        set(instance, _managedProperty.deserialize(jp, ctxt));
+    public void deserializeAndSet(JsonParser p, DeserializationContext ctxt, Object instance)
+            throws IOException {
+        set(instance, _managedProperty.deserialize(p, ctxt));
     }
 
     @Override
-    public Object deserializeSetAndReturn(JsonParser jp, DeserializationContext ctxt, Object instance)
-            throws IOException, JsonProcessingException {
-        return setAndReturn(instance, deserialize(jp, ctxt));
+    public Object deserializeSetAndReturn(JsonParser p, DeserializationContext ctxt, Object instance)
+            throws IOException {
+        return setAndReturn(instance, deserialize(p, ctxt));
     }
     
     @Override
     public final void set(Object instance, Object value) throws IOException {
-    	setAndReturn(instance, value);
+        setAndReturn(instance, value);
     }
 
     @Override

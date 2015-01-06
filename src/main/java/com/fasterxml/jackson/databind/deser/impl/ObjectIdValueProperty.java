@@ -34,15 +34,9 @@ public final class ObjectIdValueProperty
         _objectIdReader = src._objectIdReader;
     }
 
-    @Deprecated // since 2.3
     protected ObjectIdValueProperty(ObjectIdValueProperty src, PropertyName newName) {
         super(src, newName);
         _objectIdReader = src._objectIdReader;
-    }
-    
-    @Deprecated // since 2.3
-    protected ObjectIdValueProperty(ObjectIdValueProperty src, String newName) {
-        this(src, new PropertyName(newName));
     }
 
     @Override
@@ -71,18 +65,18 @@ public final class ObjectIdValueProperty
      */
 
     @Override
-    public void deserializeAndSet(JsonParser jp, DeserializationContext ctxt,
+    public void deserializeAndSet(JsonParser p, DeserializationContext ctxt,
             Object instance) throws IOException
     {
-        deserializeSetAndReturn(jp, ctxt, instance);
+        deserializeSetAndReturn(p, ctxt, instance);
     }
 
     @Override
-    public Object deserializeSetAndReturn(JsonParser jp,
+    public Object deserializeSetAndReturn(JsonParser p,
     		DeserializationContext ctxt, Object instance) throws IOException
     {
         // note: no null checks (unlike usually); deserializer should fail if one found
-        Object id = _valueDeserializer.deserialize(jp, ctxt);
+        Object id = _valueDeserializer.deserialize(p, ctxt);
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
         roid.bindItem(instance);
         // also: may need to set a property value as well

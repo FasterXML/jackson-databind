@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
@@ -46,6 +47,7 @@ public class StdKeyDeserializer extends KeyDeserializer
     public final static int TYPE_URI = 13;
     public final static int TYPE_URL = 14;
     public final static int TYPE_CLASS = 15;
+    public final static int TYPE_CURRENCY = 16;
 
     final protected int _kind;
     final protected Class<?> _keyClass;
@@ -104,6 +106,9 @@ public class StdKeyDeserializer extends KeyDeserializer
         } else if (raw == Locale.class) {
             FromStringDeserializer<?> deser = FromStringDeserializer.findDeserializer(Locale.class);
             return new StdKeyDeserializer(TYPE_LOCALE, raw, deser);
+        } else if (raw == Currency.class) {
+            FromStringDeserializer<?> deser = FromStringDeserializer.findDeserializer(Currency.class);
+            return new StdKeyDeserializer(TYPE_CURRENCY, raw, deser);
         } else {
             return null;
         }
@@ -183,7 +188,12 @@ public class StdKeyDeserializer extends KeyDeserializer
             } catch (IOException e) {
                 throw ctxt.weirdKeyException(_keyClass, key, "unable to parse key as locale");
             }
-
+        case TYPE_CURRENCY:
+            try {
+                return _deser._deserialize(key, ctxt);
+            } catch (IOException e) {
+                throw ctxt.weirdKeyException(_keyClass, key, "unable to parse key as currency");
+            }
         case TYPE_DATE:
             return ctxt.parseDate(key);
         case TYPE_CALENDAR:

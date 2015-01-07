@@ -1,14 +1,19 @@
 package com.fasterxml.jackson.databind.struct;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.BaseMapTest;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.*;
+import java.io.IOException;
 
 /**
  * Unit test(s) for [databind#622], supporting non-scalar-Object-ids,
@@ -186,5 +191,49 @@ public class JSOGDeserialize622Test extends BaseMapTest
         IdentifiableExampleJSOG jsog = (IdentifiableExampleJSOG) out.jsog;
         assertEquals(123, jsog.foo);
         assertSame(jsog, jsog.next);
+    }
+
+    //
+    // For databind issue #669
+    //
+
+    @JsonIdentityInfo(generator=JSOGGenerator.class)
+    @JsonTypeInfo(use=Id.CLASS, include= As.PROPERTY, property="@class")
+    public static class Inner {
+        public String bar;
+
+        public Inner() {}
+        public Inner(String bar) { this.bar = bar; }
+    }
+
+    public static class SubInner extends Inner {
+        public String extra;
+
+        public SubInner() {}
+        public SubInner(String bar, String extra) {
+            super(bar);
+            this.extra = extra;
+        }
+    }
+
+    @JsonIdentityInfo(generator=JSOGGenerator.class)
+    public static class Outer {
+        public String foo;
+        public Inner inner1;
+        public Inner inner2;
+    }
+
+    // polymorphic alternative for [#669]
+    public void testAlterativePolymorphicRoundTrip() throws Exception
+    {
+        Outer outer = new Outer();
+        outer.foo = "foo";
+        outer.inner1 = outer.inner2 = new SubInner("bar", "extra");
+
+        String jsog = MAPPER.writeValueAsString(outer);
+
+        Outer back = MAPPER.readValue(jsog, Outer.class);
+
+        assertSame(back.inner1, back.inner2);
     }
 }

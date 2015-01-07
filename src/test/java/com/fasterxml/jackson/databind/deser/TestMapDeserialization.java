@@ -463,6 +463,19 @@ public class TestMapDeserialization
         assertEquals(key, ob);
     }
 
+    public void testCurrencyKeyMap() throws Exception {
+        Currency key = Currency.getInstance("USD");
+        String JSON = "{ \"" + key + "\":4}";
+        Map<Currency, Object> result = MAPPER.readValue(JSON, new TypeReference<Map<Currency, Object>>() {
+        });
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        Object ob = result.keySet().iterator().next();
+        assertNotNull(ob);
+        assertEquals(Currency.class, ob.getClass());
+        assertEquals(key, ob);
+    }
+
     // Test confirming that @JsonCreator may be used with Map Key types
     public void testKeyWithCreator() throws Exception
     {

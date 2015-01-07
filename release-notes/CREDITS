@@ -191,3 +191,7 @@ Konstantin Labun (kulabun@github)
 Christopher Smith (chrylis@github)
   * Reported #594: `@JsonValue` on enum not used when enum value is a Map key
    (2.5.0)
+
+Alexandre Santana Campelo (alexqi200@github):
+  * Contributed #671: Adding `java.util.Currency` deserialization support for maps
+   (2.5.1)

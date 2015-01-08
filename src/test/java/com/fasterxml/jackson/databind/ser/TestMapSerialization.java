@@ -4,19 +4,16 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.*;
+
 import com.fasterxml.jackson.core.*;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @SuppressWarnings("serial")
-public class TestMapSerialization
-    extends BaseMapTest
+public class TestMapSerialization extends BaseMapTest
 {
-    /**
-     * Class needed for testing [JACKSON-220]
-     */
     @JsonSerialize(using=MapSerializer.class)    
     static class PseudoMap extends LinkedHashMap<String,String>
     {
@@ -116,6 +113,30 @@ public class TestMapSerialization
             return this;
         }
     }
+
+    // for [databind#47]
+    public static class Wat
+    {
+        private final String wat;
+
+        @JsonCreator
+        Wat(String wat) {
+            this.wat = wat;
+        }
+
+        @JsonValue
+        public String getWat() {
+            return wat;
+        }
+
+        @Override
+        public String toString() {
+            return "(String)[Wat: " + wat + "]";
+        }
+    }
+
+    @SuppressWarnings("serial")
+    static class WatMap extends HashMap<Wat,Boolean> { }
 
     /*
     /**********************************************************
@@ -247,4 +268,16 @@ public class TestMapSerialization
             .add("c", "bar"));
         assertEquals(aposToQuotes("{'stuff':{'a':'foo','c':'bar'}}"), json);
     }
+
+    // [databind#47]
+    public void testMapJsonValueKey() throws Exception
+    {
+        WatMap input = new WatMap();
+        input.put(new Wat("3"), true);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(input);
+        assertEquals(aposToQuotes("{'3':true}"), json);
+    }
 }
+

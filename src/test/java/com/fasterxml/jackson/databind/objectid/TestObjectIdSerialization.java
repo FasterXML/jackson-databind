@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.struct;
+package com.fasterxml.jackson.databind.objectid;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;

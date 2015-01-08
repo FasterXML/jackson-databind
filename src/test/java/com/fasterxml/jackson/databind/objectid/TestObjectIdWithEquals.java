@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.struct;
+package com.fasterxml.jackson.databind.objectid;
 
 import java.util.*;
 

@@ -7,7 +7,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.struct.TestObjectId.Employee;
+import com.fasterxml.jackson.databind.objectid.TestObjectId.Employee;
 import com.fasterxml.jackson.failing.TestObjectIdDeserialization.EnumMapCompany.FooEnum;
 
 /**

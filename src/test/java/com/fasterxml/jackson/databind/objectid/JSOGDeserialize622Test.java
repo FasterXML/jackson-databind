@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.struct;
+package com.fasterxml.jackson.databind.objectid;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -233,12 +233,14 @@ public class JSOGDeserialize622Test extends BaseMapTest
     // polymorphic alternative for [databind#669]
     public void testAlterativePolymorphicRoundTrip669() throws Exception
     {
+        ObjectMapper MAPPER = new ObjectMapper();
+        
         Outer outer = new Outer();
         outer.foo = "foo";
         outer.inner1 = outer.inner2 = new SubInner("bar", "extra");
 
         String jsog = MAPPER.writeValueAsString(outer);
-
+        
         Outer back = MAPPER.readValue(jsog, Outer.class);
 
         assertSame(back.inner1, back.inner2);

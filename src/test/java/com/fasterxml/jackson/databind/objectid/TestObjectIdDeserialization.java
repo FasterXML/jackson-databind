@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.databind.struct;
+package com.fasterxml.jackson.databind.objectid;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,8 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.cfg.ContextAttributes;
 import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 import com.fasterxml.jackson.databind.deser.UnresolvedId;
-import com.fasterxml.jackson.databind.struct.TestObjectId.Company;
-import com.fasterxml.jackson.databind.struct.TestObjectId.Employee;
+import com.fasterxml.jackson.databind.objectid.TestObjectId.Company;
+import com.fasterxml.jackson.databind.objectid.TestObjectId.Employee;
 
 /**
  * Unit test to verify handling of Object Id deserialization

@@ -29,7 +29,7 @@ public class TestObjectId154 extends BaseMapTest
 
         String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(bar);
 
-        System.out.println("JSON: "+json);
+//        System.out.println("JSON: "+json);
         
         BaseEntity result = mapper.readValue(json, BaseEntity.class);
         assertNotNull(result);

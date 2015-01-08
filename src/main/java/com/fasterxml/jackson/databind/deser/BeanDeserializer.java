@@ -264,7 +264,6 @@ public class BeanDeserializer
          *   but let's only do that if and when that becomes necessary.
          */
         if (_objectIdReader != null && _objectIdReader.maySerializeAsObject()) {
-            // TODO: in 2.6, use 'p.hasTokenId()'
             if (p.hasTokenId(JsonTokenId.ID_FIELD_NAME)
                     && _objectIdReader.isValidReferencePropertyName(p.getCurrentName(), p)) {
                 return deserializeFromObjectId(p, ctxt);

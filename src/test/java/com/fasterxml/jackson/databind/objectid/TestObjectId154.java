@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.objectid;
 
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.*;
 public class TestObjectId154 extends BaseMapTest
 {
     @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")
+    @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
     public static class BaseEntity {  }
 
-    @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
     public static class Foo extends BaseEntity {
         public BaseEntity ref;
     }
@@ -22,19 +22,18 @@ public class TestObjectId154 extends BaseMapTest
     {
         final ObjectMapper mapper = new ObjectMapper();
 
-        Bar bar = new Bar();
-        Foo foo = new Foo();
-        bar.next = foo;
-        foo.ref = bar;
+        Bar inputRoot = new Bar();
+        Foo inputChild = new Foo();
+        inputRoot.next = inputChild;
+        inputChild.ref = inputRoot;
 
-        String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(bar);
-
-//        System.out.println("JSON: "+json);
+        String json = mapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(inputRoot);
         
-        BaseEntity result = mapper.readValue(json, BaseEntity.class);
-        assertNotNull(result);
-        assertTrue(result instanceof Bar);
-        Bar first = (Bar) result;
+        BaseEntity resultRoot = mapper.readValue(json, BaseEntity.class);
+        assertNotNull(resultRoot);
+        assertTrue(resultRoot instanceof Bar);
+        Bar first = (Bar) resultRoot;
 
         assertNotNull(first.next);
         assertTrue(first.next instanceof Foo);

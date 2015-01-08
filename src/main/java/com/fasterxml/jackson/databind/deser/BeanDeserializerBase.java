@@ -947,10 +947,19 @@ public abstract class BeanDeserializerBase
             }
             // or, Object Ids Jackson explicitly sets
             JsonToken t = p.getCurrentToken();
-            // for now (2.2.x) we only allow scalar types (Strings, integral numbers):
-            // NOTE: may  need to allow handling of structured values in future for JSOG
-            if (t != null && (t.isScalarValue() || _objectIdReader.maySerializeAsObject())) {
-                return deserializeFromObjectId(p, ctxt);
+            if (t != null) {
+                // Most commonly, a scalar (int id, uuid String, ...)
+                if (t.isScalarValue()) {
+                    return deserializeFromObjectId(p, ctxt);
+                }
+                // but, with 2.5+, a simple Object-wrapped value also legal:
+                if (t == JsonToken.START_OBJECT) {
+                    t = p.nextToken();
+                }
+                if (t == JsonToken.FIELD_NAME && _objectIdReader.maySerializeAsObject()
+                        && _objectIdReader.isValidReferencePropertyName(p.getCurrentName(), p)) {
+                    return deserializeFromObjectId(p, ctxt);
+                }
             }
         }
         // In future could check current token... for now this should be enough:

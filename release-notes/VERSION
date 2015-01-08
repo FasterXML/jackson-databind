@@ -7,7 +7,7 @@ Project: jackson-databind
 2.5.1 (not yet released)
 
 #667: Problem with bogus conflict between single-arg-String vs `CharSequence` constructor
-#6659: JSOG usage of @JsonTypeInfo and @JsonIdentityInfo(generator=JSOGGenerator.class) fails
+#669: JSOG usage of @JsonTypeInfo and @JsonIdentityInfo(generator=JSOGGenerator.class) fails
  (reported by ericali78@github)
 #671: Adding `java.util.Currency` deserialization support for maps
  (contributed by Alexandre S-C)

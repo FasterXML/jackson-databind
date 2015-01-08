@@ -10,9 +10,11 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.io.IOException;
 
 /**
@@ -97,8 +99,15 @@ public class JSOGDeserialize622Test extends BaseMapTest
       @Override
       public JSOGRef deserialize(JsonParser jp, DeserializationContext ctx) throws IOException {
           JsonNode node = jp.readValueAsTree();
-          return node.isTextual()
-                  ? new JSOGRef(node.asInt()) : new JSOGRef(node.get(REF_KEY).asInt());
+          if (node.isTextual()) {
+              return new JSOGRef(node.asInt());
+          }
+          JsonNode n = node.get(REF_KEY);
+          if (n == null) {
+              throw new JsonMappingException("Could not find key '"+REF_KEY
+                      +"' from ("+node.getClass().getName()+"): "+node);
+          }
+          return new JSOGRef(n.asInt());
       }
     }
 
@@ -156,6 +165,34 @@ public class JSOGDeserialize622Test extends BaseMapTest
         public JSOGWrapper(int v) { value = v; }
     }
 
+    // For [databind#669]
+
+    @JsonIdentityInfo(generator=JSOGGenerator.class)
+    @JsonTypeInfo(use=Id.CLASS, include= As.PROPERTY, property="@class")
+    public static class Inner {
+        public String bar;
+
+        protected Inner() {}
+        public Inner(String bar) { this.bar = bar; }
+    }
+
+    public static class SubInner extends Inner {
+        public String extra;
+
+        protected SubInner() {}
+        public SubInner(String bar, String extra) {
+            super(bar);
+            this.extra = extra;
+        }
+    }
+
+    @JsonIdentityInfo(generator=JSOGGenerator.class)
+    public static class Outer {
+        public String foo;
+        public Inner inner1;
+        public Inner inner2;
+    }
+    
     /*
     /**********************************************************************
     /* Test methods
@@ -164,7 +201,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
 
     private final ObjectMapper MAPPER = new ObjectMapper();
     
-    // Basic for [#622]
+    // Basic for [databind#622]
     public void testStructJSOGRef() throws Exception
     {
         IdentifiableExampleJSOG result = MAPPER.readValue(EXP_EXAMPLE_JSOG,
@@ -173,7 +210,7 @@ public class JSOGDeserialize622Test extends BaseMapTest
         assertSame(result, result.next);
     }
 
-    // polymorphic alternative for [#622]
+    // polymorphic alternative for [databind#622]
     public void testPolymorphicRoundTrip() throws Exception
     {
         JSOGWrapper w = new JSOGWrapper(15);
@@ -193,38 +230,8 @@ public class JSOGDeserialize622Test extends BaseMapTest
         assertSame(jsog, jsog.next);
     }
 
-    //
-    // For databind issue #669
-    //
-
-    @JsonIdentityInfo(generator=JSOGGenerator.class)
-    @JsonTypeInfo(use=Id.CLASS, include= As.PROPERTY, property="@class")
-    public static class Inner {
-        public String bar;
-
-        public Inner() {}
-        public Inner(String bar) { this.bar = bar; }
-    }
-
-    public static class SubInner extends Inner {
-        public String extra;
-
-        public SubInner() {}
-        public SubInner(String bar, String extra) {
-            super(bar);
-            this.extra = extra;
-        }
-    }
-
-    @JsonIdentityInfo(generator=JSOGGenerator.class)
-    public static class Outer {
-        public String foo;
-        public Inner inner1;
-        public Inner inner2;
-    }
-
-    // polymorphic alternative for [#669]
-    public void testAlterativePolymorphicRoundTrip() throws Exception
+    // polymorphic alternative for [databind#669]
+    public void testAlterativePolymorphicRoundTrip669() throws Exception
     {
         Outer outer = new Outer();
         outer.foo = "foo";

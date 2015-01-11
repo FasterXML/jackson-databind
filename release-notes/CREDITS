@@ -195,3 +195,8 @@ Christopher Smith (chrylis@github)
 Alexandre Santana Campelo (alexqi200@github):
   * Contributed #671: Adding `java.util.Currency` deserialization support for maps
    (2.5.1)
+
+Zoltan Farkas (zolyfarkas@github)
+
+  * Reported #674: Spring CGLIB proxies not handled as intended
+   (2.5.1)

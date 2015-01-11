@@ -145,9 +145,6 @@ public class BeanUtil
      * with name "getCallbacks" and we need to determine if it is
      * indeed injectect by Cglib. We do this by verifying that the
      * result type is "net.sf.cglib.proxy.Callback[]"
-     *<p>
-     * Also, see [JACKSON-177]; Hibernate may repackage cglib
-     * it uses, so we better catch that too
      */
     protected static boolean isCglibGetCallbacks(AnnotatedMethod am)
     {
@@ -165,10 +162,15 @@ public class BeanUtil
         Package pkg = compType.getPackage();
         if (pkg != null) {
             String pname = pkg.getName();
-            if (pname.startsWith("net.sf.cglib")
-                // also, as per [JACKSON-177]
-                || pname.startsWith("org.hibernate.repackage.cglib")) {
-                return true;
+            if (pname.contains(".cglib")) {
+                if (pname.startsWith("net.sf.cglib")
+                    // also, as per [JACKSON-177]
+                    || pname.startsWith("org.hibernate.repackage.cglib")
+                    // and [core#674]
+                    || pname.startsWith("org.springframework.cglib")
+                        ) {
+                    return true;
+                }
             }
         }
         return false;

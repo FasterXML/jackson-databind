@@ -11,6 +11,8 @@ Project: jackson-databind
  (reported by ericali78@github)
 #671: Adding `java.util.Currency` deserialization support for maps
  (contributed by Alexandre S-C)
+#674: Spring CGLIB proxies not handled as intended
+ (reported by Zoltan F)
 
 2.5.0 (01-Jan-2015)
 

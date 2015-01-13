@@ -968,7 +968,7 @@ public class ObjectMapper
     public SerializerProvider getSerializerProvider() {
         return _serializerProvider;
     }
-    
+
     /*
     /**********************************************************
     /* Configuration: mix-in annotations
@@ -3308,7 +3308,7 @@ public class ObjectMapper
      * Method for visiting type hierarchy for given type, using specified visitor.
      *<p>
      * This method can be used for things like
-     * generating <a href="http://json-schema.org/">Json Schema</a>
+     * generating <a href="http://json-schema.org/">JSON Schema</a>
      * instance for specified type.
      *
      * @param type Type to generate schema for (possibly with generic signature)
@@ -3326,7 +3326,7 @@ public class ObjectMapper
      * Visitation uses <code>Serializer</code> hierarchy and related properties
      *<p>
      * This method can be used for things like
-     * generating <a href="http://json-schema.org/">Json Schema</a>
+     * generating <a href="http://json-schema.org/">JSON Schema</a>
      * instance for specified type.
      *
      * @param type Type to generate schema for (possibly with generic signature)

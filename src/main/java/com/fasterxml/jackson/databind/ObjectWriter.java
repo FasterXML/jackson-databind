@@ -973,15 +973,21 @@ public class ObjectWriter
      * 
      * @since 2.2
      */
-    public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor)
-        throws JsonMappingException
+    public void acceptJsonFormatVisitor(JavaType type, JsonFormatVisitorWrapper visitor) throws JsonMappingException
     {
         if (type == null) {
             throw new IllegalArgumentException("type must be provided");
         }
         _serializerProvider(_config).acceptJsonFormatVisitor(type, visitor);
     }
-    
+
+    /**
+     * Since 2.6
+     */
+    public void acceptJsonFormatVisitor(Class<?> rawType, JsonFormatVisitorWrapper visitor) throws JsonMappingException {
+        acceptJsonFormatVisitor(_config.constructType(rawType), visitor);
+    }
+
     public boolean canSerialize(Class<?> type) {
         return _serializerProvider(_config).hasSerializerFor(type, null);
     }

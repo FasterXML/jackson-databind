@@ -492,9 +492,9 @@ public class BeanDeserializer
             injectValues(ctxt, bean);
         }
         final Class<?> activeView = _needViewProcesing ? ctxt.getActiveView() : null;
-        JsonToken t = p.getCurrentToken();
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String propName = p.getCurrentName();
+        String propName = p.hasTokenId(JsonTokenId.ID_FIELD_NAME) ? p.getCurrentName() : null;
+
+        for (; propName != null; propName = p.nextFieldName()) {
             p.nextToken();
             SettableBeanProperty prop = _beanProperties.find(propName);
             if (prop != null) { // normal case

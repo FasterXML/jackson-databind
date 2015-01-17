@@ -325,9 +325,9 @@ public class BeanPropertyWriter extends PropertyWriter
         if (newName.equals(_name.toString())) {
             return this;
         }
-        return new BeanPropertyWriter(this, new PropertyName(newName));
+        return new BeanPropertyWriter(this, PropertyName.construct(newName));
     }
-    
+
     /**
      * Method called to assign value serializer for property
      * 
@@ -384,7 +384,7 @@ public class BeanPropertyWriter extends PropertyWriter
     @Override public PropertyName getFullName() { // !!! TODO: impl properly
         return new PropertyName(_name.getValue());
     }
-    
+
     @Override public JavaType getType() { return _declaredType; }
     @Override public PropertyName getWrapperName() { return _wrapperName; }
     @Override public boolean isRequired() { return _metadata.isRequired(); }

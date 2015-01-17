@@ -440,7 +440,7 @@ public class JacksonAnnotationIntrospector
             return null;
         }
         // In future may need to allow passing namespace?
-        PropertyName name = new PropertyName(info.property());
+        PropertyName name = PropertyName.construct(info.property());
         return new ObjectIdInfo(name, info.scope(), info.generator(), info.resolver());
     }
 
@@ -572,7 +572,7 @@ public class JacksonAnnotationIntrospector
         // allow explicit renaming; if none, default to attribute name
         PropertyName propName = _propertyName(attr.propName(), attr.propNamespace());
         if (!propName.hasSimpleName()) {
-            propName = new PropertyName(attrName);
+            propName = PropertyName.construct(attrName);
         }
         // now, then, we need a placeholder for member (no real Field/Method):
         AnnotatedMember member = new VirtualAnnotatedMember(ac, ac.getRawType(),
@@ -637,10 +637,7 @@ public class JacksonAnnotationIntrospector
                 return null;
             }
         }
-        if (name.length() == 0) { // empty String means 'default'
-            return PropertyName.USE_DEFAULT;
-        }
-        return new PropertyName(name);
+        return PropertyName.construct(name);
     }
 
     @Override
@@ -790,10 +787,7 @@ public class JacksonAnnotationIntrospector
                 return null;
             }
         }
-        if (name.length() == 0) { // empty String means 'default'
-            return PropertyName.USE_DEFAULT;
-        }
-        return new PropertyName(name);
+        return PropertyName.construct(name);
     }
     
     @Override
@@ -861,9 +855,9 @@ public class JacksonAnnotationIntrospector
             return PropertyName.USE_DEFAULT;
         }
         if (namespace == null || namespace.isEmpty()) {
-            return new PropertyName(localName);
+            return PropertyName.construct(localName);
         }
-        return new PropertyName(localName, namespace);
+        return PropertyName.construct(localName, namespace);
     }
 
     /**

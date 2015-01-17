@@ -90,7 +90,7 @@ public class TestAnnotionBundles extends com.fasterxml.jackson.databind.BaseMapT
         {
             InformativeHolder informativeHolder = a.getAnnotation(InformativeHolder.class);
             if ((informativeHolder != null) && informativeHolder.important()) {
-                return new PropertyName("important");
+                return PropertyName.construct("important");
             }
             return super.findNameForSerialization(a);
         }

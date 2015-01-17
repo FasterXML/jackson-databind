@@ -76,7 +76,18 @@ public class PropertyName
         }
         return this;
     }
-    
+
+    /**
+     * @since 2.6
+     */
+    public static PropertyName construct(String simpleName)
+    {
+        if (simpleName == null || simpleName.length() == 0) {
+            return USE_DEFAULT;
+        }
+        return new PropertyName(InternCache.instance.intern(simpleName), null);
+    }
+
     public static PropertyName construct(String simpleName, String ns)
     {
         if (simpleName == null) {
@@ -85,7 +96,7 @@ public class PropertyName
         if (ns == null && simpleName.length() == 0) {
             return USE_DEFAULT;
         }
-        return new PropertyName(simpleName, ns);
+        return new PropertyName(InternCache.instance.intern(simpleName), ns);
     }
 
     public PropertyName internSimpleName()
@@ -100,7 +111,6 @@ public class PropertyName
         return new PropertyName(interned, _namespace);
     }
 
-    
     /**
      * Fluent factory method for constructing an instance with different
      * simple name.

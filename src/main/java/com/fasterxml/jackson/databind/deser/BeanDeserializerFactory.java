@@ -642,7 +642,7 @@ public class BeanDeserializerFactory
                 if (fixAccess) {
                     m.fixAccess(); // to ensure we can call it
                 }
-                builder.addInjectable(new PropertyName(m.getName()),
+                builder.addInjectable(PropertyName.construct(m.getName()),
                         beanDesc.resolveType(m.getGenericType()),
                         beanDesc.getClassAnnotations(), m, entry.getKey());
             }
@@ -663,7 +663,7 @@ public class BeanDeserializerFactory
         }
         // we know it's a 2-arg method, second arg is the value
         JavaType type = beanDesc.bindingsForBeanType().resolveType(setter.getGenericParameterType(1));
-        BeanProperty.Std property = new BeanProperty.Std(new PropertyName(setter.getName()),
+        BeanProperty.Std property = new BeanProperty.Std(PropertyName.construct(setter.getName()),
                 type, null, beanDesc.getClassAnnotations(), setter,
                 PropertyMetadata.STD_OPTIONAL);
         type = resolveType(ctxt, beanDesc, type, setter);

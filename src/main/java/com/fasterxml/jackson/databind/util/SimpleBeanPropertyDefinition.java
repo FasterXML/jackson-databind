@@ -99,7 +99,7 @@ public class SimpleBeanPropertyDefinition
      */
     public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
     		AnnotatedMember member) {
-        return new SimpleBeanPropertyDefinition(member, new PropertyName(member.getName()),
+        return new SimpleBeanPropertyDefinition(member, PropertyName.construct(member.getName()),
                 (config == null) ? null : config.getAnnotationIntrospector(),
                         null, null);
     }
@@ -110,7 +110,7 @@ public class SimpleBeanPropertyDefinition
     @Deprecated
     public static SimpleBeanPropertyDefinition construct(MapperConfig<?> config,
     		AnnotatedMember member, String name) {
-        return new SimpleBeanPropertyDefinition(member, new PropertyName(name),
+        return new SimpleBeanPropertyDefinition(member, PropertyName.construct(name),
                 (config == null) ? null : config.getAnnotationIntrospector(),
                         null, null);
     }

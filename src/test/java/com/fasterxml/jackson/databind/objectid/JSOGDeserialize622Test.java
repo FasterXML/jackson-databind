@@ -233,8 +233,6 @@ public class JSOGDeserialize622Test extends BaseMapTest
     // polymorphic alternative for [databind#669]
     public void testAlterativePolymorphicRoundTrip669() throws Exception
     {
-        ObjectMapper MAPPER = new ObjectMapper();
-        
         Outer outer = new Outer();
         outer.foo = "foo";
         outer.inner1 = outer.inner2 = new SubInner("bar", "extra");

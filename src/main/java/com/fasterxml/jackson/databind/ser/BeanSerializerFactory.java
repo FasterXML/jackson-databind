@@ -395,7 +395,7 @@ public class BeanSerializerFactory
             MapSerializer mapSer = MapSerializer.construct(/* ignored props*/ null, type, staticTyping,
                     typeSer, null, null, /*filterId*/ null);
             // TODO: can we find full PropertyName?
-            PropertyName name = new PropertyName(anyGetter.getName());
+            PropertyName name = PropertyName.construct(anyGetter.getName());
             BeanProperty.Std anyProp = new BeanProperty.Std(name, valueType, null,
                     beanDesc.getClassAnnotations(), anyGetter, PropertyMetadata.STD_OPTIONAL);
             builder.setAnyGetter(new AnyGetterWriter(anyProp, anyGetter, mapSer));

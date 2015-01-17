@@ -482,7 +482,7 @@ public class POJOPropertiesCollector
             if (!_annotationIntrospector.hasCreatorAnnotation(param.getOwner())) {
                 return;
             }
-            pn = new PropertyName(impl);
+            pn = PropertyName.construct(impl);
         }
 
         // shouldn't need to worry about @JsonIgnore, since creators only added
@@ -907,7 +907,7 @@ public class POJOPropertiesCollector
     {
         POJOPropertyBuilder prop = _properties.get(implName);
         if (prop == null) {
-            prop = new POJOPropertyBuilder(new PropertyName(implName),
+            prop = new POJOPropertyBuilder(PropertyName.construct(implName),
                     _annotationIntrospector, _forSerialization);
             _properties.put(implName, prop);
         }

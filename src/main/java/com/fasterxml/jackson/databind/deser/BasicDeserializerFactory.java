@@ -821,7 +821,7 @@ public abstract class BasicDeserializerFactory
             */
             String str = intr.findImplicitPropertyName(param);
             if (str != null && !str.isEmpty()) {
-                return new PropertyName(str);
+                return PropertyName.construct(str);
             }
         }
         return null;
@@ -839,7 +839,7 @@ public abstract class BasicDeserializerFactory
     {
         String str = intr.findImplicitPropertyName(param);
         if (str != null && !str.isEmpty()) {
-            return new PropertyName(str);
+            return PropertyName.construct(str);
         }
         return null;
     }

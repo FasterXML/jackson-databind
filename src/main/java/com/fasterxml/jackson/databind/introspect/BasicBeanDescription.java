@@ -545,26 +545,25 @@ public class BasicBeanDescription extends BeanDescription
 
     protected PropertyName _findCreatorPropertyName(AnnotatedParameter param)
     {
-    	PropertyName name = _annotationIntrospector.findNameForDeserialization(param);
-    	if (name == null || name.isEmpty()) {
-    		String str = _annotationIntrospector.findImplicitPropertyName(param);
-    		if (str != null && !str.isEmpty()) {
-    			name = new PropertyName(str);
-    		}
-    	}
-    	return name;
+        PropertyName name = _annotationIntrospector.findNameForDeserialization(param);
+        if (name == null || name.isEmpty()) {
+            String str = _annotationIntrospector.findImplicitPropertyName(param);
+            if (str != null && !str.isEmpty()) {
+                name = PropertyName.construct(str);
+            }
+        }
+        return name;
     }
-    
+
     /*
     /**********************************************************
     /* Introspection for deserialization, other
     /**********************************************************
      */
-    
+
     @Override
-    public Class<?> findPOJOBuilder()
-    {
-    	return (_annotationIntrospector == null) ?
+    public Class<?> findPOJOBuilder() {
+        return (_annotationIntrospector == null) ?
     			null : _annotationIntrospector.findPOJOBuilder(_classInfo);
     }
 

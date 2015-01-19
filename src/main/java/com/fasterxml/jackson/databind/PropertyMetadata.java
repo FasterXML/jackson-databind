@@ -144,7 +144,11 @@ public class PropertyMetadata
     /**
      * @since 2.5
      */
-    public boolean hasDefuaultValue() { return (_defaultValue != null); }
+    public boolean hasDefuaultValue() { return hasDefaultValue(); }
+
+    // NOTE: officially only added in 2.6 (to replace 'hasDefuaultValue()'; actually added in 2.5.1
+    //  for forwards-compatibility
+    public boolean hasDefaultValue() { return (_defaultValue != null); }
     
     public boolean isRequired() { return (_required != null) && _required.booleanValue(); }
     

@@ -142,12 +142,17 @@ public class PropertyMetadata
     public String getDefaultValue() { return _defaultValue; }
 
     /**
-     * @since 2.5
+     * @deprecated Since 2.6: typo in name, use {@link #hasDefaultValue()} instead.
      */
+    @Deprecated
     public boolean hasDefuaultValue() { return hasDefaultValue(); }
 
-    // NOTE: officially only added in 2.6 (to replace 'hasDefuaultValue()'; actually added in 2.5.1
-    //  for forwards-compatibility
+    /**
+     * Accessor for determining whether property has declared "default value",
+     * which may be used by extension modules.
+     *
+     * @since 2.6
+     */
     public boolean hasDefaultValue() { return (_defaultValue != null); }
     
     public boolean isRequired() { return (_required != null) && _required.booleanValue(); }

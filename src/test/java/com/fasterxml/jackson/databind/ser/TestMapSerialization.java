@@ -135,7 +135,6 @@ public class TestMapSerialization extends BaseMapTest
         }
     }
 
-    @SuppressWarnings("serial")
     static class WatMap extends HashMap<Wat,Boolean> { }
 
     /*
@@ -278,6 +277,15 @@ public class TestMapSerialization extends BaseMapTest
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(input);
         assertEquals(aposToQuotes("{'3':true}"), json);
+    }
+
+    // [databind#682]
+    public void testClassKey() throws IOException
+    {
+        Map<Class<?>,Integer> map = new LinkedHashMap<Class<?>,Integer>();
+        map.put(String.class, 2);
+        String json = MAPPER.writeValueAsString(map);
+        assertEquals(aposToQuotes("{'java.lang.String':2}"), json);
     }
 }
 

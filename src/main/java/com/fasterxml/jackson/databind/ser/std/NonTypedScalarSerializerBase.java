@@ -21,6 +21,10 @@ public abstract class NonTypedScalarSerializerBase<T>
         super(t);
     }
 
+    protected NonTypedScalarSerializerBase(Class<?> t, boolean bogus) {
+        super(t, bogus);
+    }
+    
     @Override
     public final void serializeWithType(T value, JsonGenerator jgen, SerializerProvider provider,
             TypeSerializer typeSer) throws IOException

@@ -20,29 +20,33 @@ import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrappe
  */
 @JacksonStdImpl
 public final class StringSerializer
-    extends NonTypedScalarSerializerBase<String>
+// NOTE: generic parameter changed from String to Object in 2.6, to avoid
+//   use of bridge methods
+    extends NonTypedScalarSerializerBase<Object>
 {
     private static final long serialVersionUID = 1L;
 
-    public StringSerializer() { super(String.class); }
+    public StringSerializer() { super(String.class, false); }
 
     /**
      * For Strings, both null and Empty String qualify for emptiness.
      */
     @Override
     @Deprecated
-    public boolean isEmpty(String value) {
-        return (value == null) || (value.length() == 0);
+    public boolean isEmpty(Object value) {
+        String str = (String) value;
+        return (str == null) || (str.length() == 0);
     }
 
     @Override
-    public boolean isEmpty(SerializerProvider prov, String value) {
-        return (value == null) || (value.length() == 0);
+    public boolean isEmpty(SerializerProvider prov, Object value) {
+        String str = (String) value;
+        return (str == null) || (str.length() == 0);
     }
     
     @Override
-    public void serialize(String value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-        jgen.writeString(value);
+    public void serialize(Object value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
+        jgen.writeString((String) value);
     }
 
     @Override

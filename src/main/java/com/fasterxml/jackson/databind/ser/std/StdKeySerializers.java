@@ -37,6 +37,9 @@ public class StdKeySerializers
                     || Number.class.isAssignableFrom(rawKeyType)) {
                 return DEFAULT_KEY_SERIALIZER;
             }
+            if (rawKeyType == Class.class) {
+                return (JsonSerializer<Object>) ClassKeySerializer.instance;
+            }
             if (Date.class.isAssignableFrom(rawKeyType)) {
                 return (JsonSerializer<Object>) DateKeySerializer.instance;
             }
@@ -94,6 +97,17 @@ public class StdKeySerializers
         @Override
         public void serialize(Calendar value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
             provider.defaultSerializeDateKey(value.getTimeInMillis(), jgen);
+        }
+    }
+
+    public static class ClassKeySerializer extends StdSerializer<Class<?>> {
+        protected final static JsonSerializer<?> instance = new ClassKeySerializer();
+
+        public ClassKeySerializer() { super(Class.class, false); }
+        
+        @Override
+        public void serialize(Class<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
+            jgen.writeFieldName(value.getName());
         }
     }
 }

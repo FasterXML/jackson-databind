@@ -197,6 +197,9 @@ Alexandre Santana Campelo (alexqi200@github):
    (2.5.1)
 
 Zoltan Farkas (zolyfarkas@github)
-
   * Reported #674: Spring CGLIB proxies not handled as intended
+   (2.5.1)
+
+Ludevik@github:
+  * Reported #682: Class<?>-valued Map keys not serialized properly
    (2.5.1)

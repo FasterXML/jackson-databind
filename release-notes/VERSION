@@ -13,6 +13,8 @@ Project: jackson-databind
  (contributed by Alexandre S-C)
 #674: Spring CGLIB proxies not handled as intended
  (reported by Zoltan F)
+#682: Class<?>-valued Map keys not serialized properly
+ (reported by Ludevik@github)
 
 2.5.0 (01-Jan-2015)
 

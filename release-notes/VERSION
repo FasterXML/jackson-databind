@@ -15,6 +15,7 @@ Project: jackson-databind
  (reported by Zoltan F)
 #682: Class<?>-valued Map keys not serialized properly
  (reported by Ludevik@github)
+- Add a work-around in `ISO8601DateFormat` to allow omission of ':' from timezone
 
 2.5.0 (01-Jan-2015)
 

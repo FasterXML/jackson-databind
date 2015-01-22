@@ -92,7 +92,7 @@ Project: jackson-databind
 - Added new overload for `JsonSerializer.isEmpty()`, to eventually solve #588
 - Improve error messaging (related to [jaxb-annotations#38]) to include known subtype ids.
 
-2.4.5 (not yet released)
+2.4.5 (13-Jan-2015)
 
 #635: Reduce cachability of `Map` deserializers, to avoid problems with per-property config changes
     (regression due to #604)

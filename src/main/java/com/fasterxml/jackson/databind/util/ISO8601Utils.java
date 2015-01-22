@@ -195,8 +195,18 @@ public class ISO8601Utils
             }
 
             TimeZone timezone = TimeZone.getTimeZone(timezoneId);
-            if (!timezone.getID().equals(timezoneId)) {
-                throw new IndexOutOfBoundsException();
+            String act = timezone.getID();
+            if (!act.equals(timezoneId)) {
+                /* 22-Jan-2015, tatu: Looks like canonical version has colons, but we may be given
+                 *    one without. If so, don't sweat.
+                 *   Yes, very inefficient. Hopefully not hit often.
+                 *   If it becomes a perf problem, add 'loose' comparison instead.
+                 */
+                String cleaned = act.replace(":", "");
+                if (!cleaned.equals(timezoneId)) {
+                    throw new IndexOutOfBoundsException("Mismatching time zone indicator: "+timezoneId+" given, resolves to "
+                            +timezone.getID());
+                }
             }
 
             Calendar calendar = new GregorianCalendar(timezone);
@@ -221,7 +231,13 @@ public class ISO8601Utils
             fail = e;
         }
         String input = (date == null) ? null : ('"' + date + "'");
-        throw new ParseException("Failed to parse date [" + input + "]: " + fail.getMessage(), pos.getIndex());
+        String msg = fail.getMessage();
+        if (msg == null || msg.isEmpty()) {
+            msg = "("+fail.getClass().getName()+")";
+        }
+        ParseException ex = new ParseException("Failed to parse date [" + input + "]: " + msg, pos.getIndex());
+        ex.initCause(fail);
+        throw ex;
     }
 
     /**

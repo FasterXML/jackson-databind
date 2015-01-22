@@ -7,6 +7,7 @@ import java.util.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 public class TestDateDeserialization
     extends BaseMapTest
@@ -441,6 +442,19 @@ public class TestDateDeserialization
         assertEquals(Calendar.JANUARY, c.get(Calendar.MONTH));
         assertEquals(1, c.get(Calendar.DAY_OF_MONTH));
         assertEquals(9, c.get(Calendar.HOUR_OF_DAY));
+    }
+
+    // Based on an external report; was throwing an exception for second case here
+    public void testISO8601Directly() throws Exception
+    {
+        final String TIME_STR = "2015-01-21T08:56:13.533+0000";
+        Date d = MAPPER.readValue(quote(TIME_STR), Date.class);
+        assertNotNull(d);
+
+        ISO8601DateFormat f = new ISO8601DateFormat();
+        Date d2 = f.parse(TIME_STR);
+        assertNotNull(d2);
+        assertEquals(d.getTime(), d2.getTime());
     }
 
     /*

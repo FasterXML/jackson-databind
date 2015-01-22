@@ -76,9 +76,7 @@ public class EnumDeserializer
         // But let's consider int acceptable as well (if within ordinal range)
         if (curr == JsonToken.VALUE_NUMBER_INT) {
             // ... unless told not to do that. :-) (as per [JACKSON-412]
-            if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
-                throw ctxt.mappingException("Not allowed to deserialize Enum value out of JSON number (disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow)");
-            }
+            _checkFailOnNumber(ctxt);
             
             int index = jp.getIntValue();
             Enum<?> result = _resolver.getEnum(index);
@@ -105,6 +103,7 @@ public class EnumDeserializer
             if (c >= '0' && c <= '9') {
                 try {
                     int ix = Integer.parseInt(name);
+                    _checkFailOnNumber(ctxt);
                     Enum<?> result = _resolver.getEnum(ix);
                     if (result != null) {
                         return result;
@@ -121,7 +120,7 @@ public class EnumDeserializer
         return null;
     }
 
-    private final Enum<?> _deserializeOther(JsonParser jp, DeserializationContext ctxt) throws IOException
+    protected Enum<?> _deserializeOther(JsonParser jp, DeserializationContext ctxt) throws IOException
     {
         JsonToken curr = jp.getCurrentToken();
         // Issue#381
@@ -137,7 +136,14 @@ public class EnumDeserializer
         }
         throw ctxt.mappingException(_resolver.getEnumClass());
     }
-    
+
+    protected void _checkFailOnNumber(DeserializationContext ctxt) throws IOException
+    {
+        if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
+            throw ctxt.mappingException("Not allowed to deserialize Enum value out of JSON number (disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow)");
+        }
+    }
+
     /*
     /**********************************************************
     /* Additional helper classes

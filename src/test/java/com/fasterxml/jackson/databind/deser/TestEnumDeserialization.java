@@ -245,10 +245,18 @@ public class TestEnumDeserialization
         assertSame(TestEnum.RULES, value);
 
         // but can also be changed to errors:
-        ObjectMapper m = new ObjectMapper();
-        m.configure(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS, true);
+        ObjectReader r = MAPPER.reader(TestEnum.class)
+                .with(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS);
         try {
-            value = m.readValue("1", TestEnum.class);
+            value = r.readValue("1");
+            fail("Expected an error");
+        } catch (JsonMappingException e) {
+            verifyException(e, "Not allowed to deserialize Enum value out of JSON number");
+        }
+
+        // and [databind#684]
+        try {
+            value = r.readValue(quote("1"));
             fail("Expected an error");
         } catch (JsonMappingException e) {
             verifyException(e, "Not allowed to deserialize Enum value out of JSON number");

@@ -965,7 +965,7 @@ public abstract class DeserializationContext
             return _dateFormat;
         }
         /* 24-Feb-2012, tatu: At this point, all timezone configuration
-         *    should have occured, with respect to default dateformat
+         *    should have occurred, with respect to default dateformat
          *    and timezone configuration. But we still better clone
          *    an instance as formatters may be stateful.
          */

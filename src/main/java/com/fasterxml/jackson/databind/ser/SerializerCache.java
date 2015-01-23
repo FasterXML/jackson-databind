@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.ser;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
@@ -33,7 +34,8 @@ public final class SerializerCache
     /**
      * Most recent read-only instance, created from _sharedMap, if any.
      */
-    private volatile ReadOnlyClassToSerializerMap _readOnlyMap = null;
+    private final AtomicReference<ReadOnlyClassToSerializerMap> _readOnlyMap
+        = new AtomicReference<ReadOnlyClassToSerializerMap>();
 
     public SerializerCache() { }
 
@@ -43,16 +45,22 @@ public final class SerializerCache
      */
     public ReadOnlyClassToSerializerMap getReadOnlyLookupMap()
     {
-        ReadOnlyClassToSerializerMap m = _readOnlyMap;
-        if(m == null) {
-            synchronized (this) {
-                m = _readOnlyMap;
-                if (m == null) {
-                    _readOnlyMap = m = ReadOnlyClassToSerializerMap.from(_sharedMap);
-                }
-            }
+        ReadOnlyClassToSerializerMap m = _readOnlyMap.get();
+        if (m != null) {
+            return m.instance();
         }
-        return m.instance();
+        return _makeReadOnlyLookupMap();
+    }
+
+    private final synchronized ReadOnlyClassToSerializerMap _makeReadOnlyLookupMap() {
+        // double-locking; safe, but is it really needed? Not doing that is only a perf problem,
+        // not correctness
+        ReadOnlyClassToSerializerMap m = _readOnlyMap.get();
+        if (m == null) {
+            m = ReadOnlyClassToSerializerMap.from(_sharedMap);
+            _readOnlyMap.set(m);
+        }
+        return m;
     }
 
     /*
@@ -113,7 +121,7 @@ public final class SerializerCache
         synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, true), ser) == null) {
                 // let's invalidate the read-only copy, too, to get it updated
-                _readOnlyMap = null;
+                _readOnlyMap.set(null);
             }
         }
     }
@@ -123,7 +131,7 @@ public final class SerializerCache
         synchronized (this) {
             if (_sharedMap.put(new TypeKey(cls, true), ser) == null) {
                 // let's invalidate the read-only copy, too, to get it updated
-                _readOnlyMap = null;
+                _readOnlyMap.set(null);
             }
         }
     }
@@ -134,8 +142,7 @@ public final class SerializerCache
     {
         synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
-                // let's invalidate the read-only copy, too, to get it updated
-                _readOnlyMap = null;
+                _readOnlyMap.set(null);
             }
             /* Finally: some serializers want to do post-processing, after
              * getting registered (to handle cyclic deps).
@@ -156,8 +163,7 @@ public final class SerializerCache
     {
         synchronized (this) {
             if (_sharedMap.put(new TypeKey(type, false), ser) == null) {
-                // let's invalidate the read-only copy, too, to get it updated
-                _readOnlyMap = null;
+                _readOnlyMap.set(null);
             }
             /* Finally: some serializers want to do post-processing, after
              * getting registered (to handle cyclic deps).

@@ -195,7 +195,8 @@ public abstract class SerializerProvider
     }
 
     /**
-     * "Copy-constructor", used by sub-classes.
+     * "Copy-constructor", used by sub-classes when creating actual non-blueprint
+     * instances to use.
      *
      * @param src Blueprint object used as the baseline for this instance
      */
@@ -217,20 +218,20 @@ public abstract class SerializerProvider
         _stdNullValueSerializer = (_nullValueSerializer == DEFAULT_NULL_KEY_SERIALIZER);
 
         _rootNames = src._rootNames;
-        
+
+        _serializationView = config.getActiveView();
+        _attributes = config.getAttributes();
+
         /* Non-blueprint instances do have a read-only map; one that doesn't
          * need synchronization for lookups.
          */
         _knownSerializers = _serializerCache.getReadOnlyLookupMap();
-
-        _serializationView = config.getActiveView();
-        _attributes = config.getAttributes();
     }
 
     /**
      * Copy-constructor used when making a copy of a blueprint instance.
      * 
-     * @since 2.4.4
+     * @since 2.5.0
      */
     protected SerializerProvider(SerializerProvider src)
     {

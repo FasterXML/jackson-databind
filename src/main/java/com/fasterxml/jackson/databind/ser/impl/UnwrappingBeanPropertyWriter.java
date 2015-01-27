@@ -3,15 +3,16 @@ package com.fasterxml.jackson.databind.ser.impl;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.ser.*;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.util.NameTransformer;
 
 /**
@@ -135,21 +136,28 @@ public class UnwrappingBeanPropertyWriter
     /**********************************************************
      */
 
-    // TODO: if/how to change this? Base class has this
-/*    
     @Override
-    public void depositSchemaProperty(JsonObjectFormatVisitor objectVisitor)
-        throws JsonMappingException
-    {
-        if (objectVisitor != null) {
-            if (isRequired()) {
-                objectVisitor.property(this); 
-            } else {
-                objectVisitor.optionalProperty(this);
-            }
+    public void depositSchemaProperty(final JsonObjectFormatVisitor visitor)
+            throws JsonMappingException {
+        SerializerProvider provider = visitor.getProvider();
+        JsonSerializer<Object> ser = provider
+                .findValueSerializer(this.getType(), this)
+                .unwrappingSerializer(_nameTransformer);
+        
+        if (ser.isUnwrappingSerializer()) {
+            ser.acceptJsonFormatVisitor(new JsonFormatVisitorNullWrapper(provider) {
+                // an unwrapping serializer will always expect ObjectFormat,
+                // hence, the other cases do not have to be implemented
+                @Override
+                public JsonObjectFormatVisitor expectObjectFormat(JavaType type)
+                        throws JsonMappingException {
+                    return visitor;
+                }
+            }, this.getType());
+        } else {
+            super.depositSchemaProperty(visitor);
         }
     }
-    */
     
     // Override needed to support legacy JSON Schema generator
     @Override

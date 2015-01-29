@@ -33,45 +33,56 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     @Override
     public void writeTypePrefixForObject(Object value, JsonGenerator jgen) throws IOException
     {
-        final String typeId = idFromValue(value);
+        String typeId = idFromValue(value);
         if (jgen.canWriteTypeId()) {
-            jgen.writeTypeId(typeId);
+            if (typeId != null) {
+                jgen.writeTypeId(typeId);
+            }
             jgen.writeStartObject();
         } else {
             // wrapper
             jgen.writeStartObject();
             // and then JSON Object start caller wants
-            jgen.writeObjectFieldStart(typeId);
+
+            // 28-Jan-2015, tatu: No really good answer here; can not really change
+            //   structure, so change null to empty String...
+            jgen.writeObjectFieldStart(_validTypeId(typeId));
         }
     }
 
     @Override
     public void writeTypePrefixForObject(Object value, JsonGenerator jgen, Class<?> type) throws IOException
     {
-        final String typeId = idFromValueAndType(value, type);
+        String typeId = idFromValueAndType(value, type);
         if (jgen.canWriteTypeId()) {
-            jgen.writeTypeId(typeId);
+            if (typeId != null) {
+                jgen.writeTypeId(typeId);
+            }
             jgen.writeStartObject();
         } else {
             // wrapper
             jgen.writeStartObject();
             // and then JSON Object start caller wants
-            jgen.writeObjectFieldStart(typeId);
+
+            // 28-Jan-2015, tatu: No really good answer here; can not really change
+            //   structure, so change null to empty String...
+            jgen.writeObjectFieldStart(_validTypeId(typeId));
         }
     }
     
     @Override
     public void writeTypePrefixForArray(Object value, JsonGenerator jgen) throws IOException
     {
-        final String typeId = idFromValue(value);
+        String typeId = idFromValue(value);
         if (jgen.canWriteTypeId()) {
-            jgen.writeTypeId(typeId);
-            jgen.writeStartObject();
+            if (typeId != null) {
+                jgen.writeTypeId(typeId);
+            }
+            jgen.writeStartArray();
         } else {
             // can still wrap ok
             jgen.writeStartObject();
-            // and then JSON Array start caller wants
-            jgen.writeArrayFieldStart(typeId);
+            jgen.writeArrayFieldStart(_validTypeId(typeId));
         }
     }
 
@@ -80,13 +91,15 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     {
         final String typeId = idFromValueAndType(value, type);
         if (jgen.canWriteTypeId()) {
-            jgen.writeTypeId(typeId);
-            jgen.writeStartObject();
+            if (typeId != null) {
+                jgen.writeTypeId(typeId);
+            }
+            jgen.writeStartArray();
         } else {
             // can still wrap ok
             jgen.writeStartObject();
             // and then JSON Array start caller wants
-            jgen.writeArrayFieldStart(typeId);
+            jgen.writeArrayFieldStart(_validTypeId(typeId));
         }
     }
 
@@ -94,11 +107,13 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     public void writeTypePrefixForScalar(Object value, JsonGenerator jgen) throws IOException {
         final String typeId = idFromValue(value);
         if (jgen.canWriteTypeId()) {
-            jgen.writeTypeId(typeId);
+            if (typeId != null) {
+                jgen.writeTypeId(typeId);
+            }
         } else {
             // can still wrap ok
             jgen.writeStartObject();
-            jgen.writeFieldName(typeId);
+            jgen.writeFieldName(_validTypeId(typeId));
         }
     }
 
@@ -107,11 +122,13 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     {
         final String typeId = idFromValueAndType(value, type);
         if (jgen.canWriteTypeId()) {
-            jgen.writeTypeId(typeId);
+            if (typeId != null) {
+                jgen.writeTypeId(typeId);
+            }
         } else {
             // can still wrap ok
             jgen.writeStartObject();
-            jgen.writeFieldName(typeId);
+            jgen.writeFieldName(_validTypeId(typeId));
         }
     }
     
@@ -154,32 +171,38 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
     @Override
     public void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId) throws IOException {
         if (jgen.canWriteTypeId()) {
-            jgen.writeTypeId(typeId);
+            if (typeId != null) {
+                jgen.writeTypeId(typeId);
+            }
             jgen.writeStartObject();
         } else {
             jgen.writeStartObject();
-            jgen.writeObjectFieldStart(typeId);
+            jgen.writeObjectFieldStart(_validTypeId(typeId));
         }
     }
     
     @Override
     public void writeCustomTypePrefixForArray(Object value, JsonGenerator jgen, String typeId) throws IOException {
         if (jgen.canWriteTypeId()) {
-            jgen.writeTypeId(typeId);
+            if (typeId != null) {
+                jgen.writeTypeId(typeId);
+            }
             jgen.writeStartArray();
         } else {
             jgen.writeStartObject();
-            jgen.writeArrayFieldStart(typeId);
+            jgen.writeArrayFieldStart(_validTypeId(typeId));
         }
     }
 
     @Override
     public void writeCustomTypePrefixForScalar(Object value, JsonGenerator jgen, String typeId) throws IOException {
         if (jgen.canWriteTypeId()) {
-            jgen.writeTypeId(typeId);
+            if (typeId != null) {
+                jgen.writeTypeId(typeId);
+            }
         } else {
             jgen.writeStartObject();
-            jgen.writeFieldName(typeId);
+            jgen.writeFieldName(_validTypeId(typeId));
         }
     }
 
@@ -202,5 +225,18 @@ public class AsWrapperTypeSerializer extends TypeSerializerBase
         if (!jgen.canWriteTypeId()) {
             writeTypeSuffixForScalar(value, jgen); // standard impl works fine
         }
+    }
+
+    /*
+    /**********************************************************
+    /* Internal helper methods
+    /**********************************************************
+     */
+    
+    /**
+     * @since 2.6.0
+     */
+    protected String _validTypeId(String typeId) {
+        return (typeId == null) ? "" : typeId;
     }
 }

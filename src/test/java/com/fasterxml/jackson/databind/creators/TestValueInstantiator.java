@@ -497,7 +497,6 @@ public class TestValueInstantiator extends BaseMapTest
     /**********************************************************
      */
 
-    
     /**
      * Beyond basic features, it should be possible to even implement
      * polymorphic handling...
@@ -513,7 +512,7 @@ public class TestValueInstantiator extends BaseMapTest
         assertEquals("Axel", ((PolymorphicBean) result).name);
     }
 
-    public void testJackson633() throws Exception
+    public void testEmptyBean() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         AnnotatedBean bean = mapper.readValue("{}", AnnotatedBean.class);

@@ -43,7 +43,9 @@ public class AsPropertyTypeSerializer
     public void writeTypePrefixForObject(Object value, JsonGenerator jgen) throws IOException
     {
         final String typeId = idFromValue(value);
-        if (jgen.canWriteTypeId()) {
+        if (typeId == null) {
+            jgen.writeStartObject();
+        } else if (jgen.canWriteTypeId()) {
             jgen.writeTypeId(typeId);
             jgen.writeStartObject();
         } else {
@@ -56,7 +58,9 @@ public class AsPropertyTypeSerializer
     public void writeTypePrefixForObject(Object value, JsonGenerator jgen, Class<?> type) throws IOException
     {
         final String typeId = idFromValueAndType(value, type);
-        if (jgen.canWriteTypeId()) {
+        if (typeId == null) {
+            jgen.writeStartObject();
+        } else if (jgen.canWriteTypeId()) {
             jgen.writeTypeId(typeId);
             jgen.writeStartObject();
         } else {
@@ -91,7 +95,9 @@ public class AsPropertyTypeSerializer
     @Override
     public void writeCustomTypePrefixForObject(Object value, JsonGenerator jgen, String typeId) throws IOException
     {
-        if (jgen.canWriteTypeId()) {
+        if (typeId == null) {
+            jgen.writeStartObject();
+        } else if (jgen.canWriteTypeId()) {
             jgen.writeTypeId(typeId);
             jgen.writeStartObject();
         } else {

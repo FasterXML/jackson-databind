@@ -733,7 +733,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public void writeNumber(double d) throws IOException,JsonGenerationException {
+    public void writeNumber(double d) throws IOException {
         _append(JsonToken.VALUE_NUMBER_FLOAT, Double.valueOf(d));
     }
 
@@ -743,7 +743,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public void writeNumber(BigDecimal dec) throws IOException,JsonGenerationException {
+    public void writeNumber(BigDecimal dec) throws IOException {
         if (dec == null) {
             writeNull();
         } else {
@@ -769,7 +769,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
 
     @Override
-    public void writeBoolean(boolean state) throws IOException,JsonGenerationException {
+    public void writeBoolean(boolean state) throws IOException {
         _append(state ? JsonToken.VALUE_TRUE : JsonToken.VALUE_FALSE);
     }
 
@@ -1189,7 +1189,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
          */
         
         @Override
-        public JsonToken nextToken() throws IOException, JsonParseException
+        public JsonToken nextToken() throws IOException
         {
             // If we are closed, nothing more to do
             if (_closed || (_segment == null)) return null;
@@ -1225,6 +1225,23 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         }
 
         @Override
+        public String nextFieldName() throws IOException
+        {
+            // inlined common case from nextToken()
+            if (_closed || (_segment == null)) return null;
+
+            int ptr = _segmentPtr+1;
+            if (ptr < Segment.TOKENS_PER_SEGMENT && _segment.type(ptr) == JsonToken.FIELD_NAME) {
+                _segmentPtr = ptr;
+                Object ob = _segment.get(ptr); // inlined _currentObject();
+                String name = (ob instanceof String) ? ((String) ob) : ob.toString();
+                _parsingContext.setCurrentName(name);
+                return name;
+            }
+            return (nextToken() == JsonToken.FIELD_NAME) ? getCurrentName() : null;
+        }
+
+        @Override
         public boolean isClosed() { return _closed; }
 
         /*
@@ -1232,7 +1249,7 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
         /* Public API, token accessors
         /**********************************************************
          */
-        
+
         @Override
         public JsonStreamContext getParsingContext() { return _parsingContext; }
 
@@ -1261,13 +1278,13 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
                 throw new RuntimeException(e);
             }
         }
-        
+
         /*
         /**********************************************************
         /* Public API, access to token information, text
         /**********************************************************
          */
-        
+
         @Override
         public String getText()
         {

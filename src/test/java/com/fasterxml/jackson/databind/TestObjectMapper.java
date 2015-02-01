@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.DefaultDeserializationContext;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -27,7 +28,10 @@ public class TestObjectMapper extends BaseMapTest
             return super.createDeserializationContext(jp, cfg);
         }
     }
-    
+
+    @SuppressWarnings("serial")
+    static class MyAnnotationIntrospector extends JacksonAnnotationIntrospector { }
+
     /*
     /**********************************************************
     /* Test methods
@@ -166,5 +170,19 @@ public class TestObjectMapper extends BaseMapTest
         assertEquals(0, m2.getSerializationConfig().mixInCount());
         assertEquals(1, m.getDeserializationConfig().mixInCount());
         assertEquals(0, m2.getDeserializationConfig().mixInCount());
+    }
+
+    public void testAnnotationIntrospectorCopyin() 
+    {
+        ObjectMapper m = new ObjectMapper();
+        m.setAnnotationIntrospector(new MyAnnotationIntrospector());
+        assertEquals(MyAnnotationIntrospector.class,
+                m.getDeserializationConfig().getAnnotationIntrospector().getClass());
+        ObjectMapper m2 = m.copy();
+
+        assertEquals(MyAnnotationIntrospector.class,
+                m2.getDeserializationConfig().getAnnotationIntrospector().getClass());
+        assertEquals(MyAnnotationIntrospector.class,
+                m2.getSerializationConfig().getAnnotationIntrospector().getClass());
     }
 }

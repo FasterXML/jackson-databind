@@ -17,6 +17,8 @@ Project: jackson-databind
  (reported by Ludevik@github)
 #684: FAIL_ON_NUMBERS_FOR_ENUMS does not fail when integer value is quoted
  (reported by kllp@github)
+#696: Copy constructor does not preserve `_injectableValues`
+ (reported by Charles A)
 - Add a work-around in `ISO8601DateFormat` to allow omission of ':' from timezone
 - Bit more work to complete #633
 

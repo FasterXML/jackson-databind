@@ -5,7 +5,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.annotation.*;
-
 import com.fasterxml.jackson.core.*;
 
 import com.fasterxml.jackson.databind.*;
@@ -136,6 +135,11 @@ public class TestMapSerialization extends BaseMapTest
     }
 
     static class WatMap extends HashMap<Wat,Boolean> { }
+
+    // for [databind#691]
+    @JsonTypeInfo(use=JsonTypeInfo.Id.NAME)
+    @JsonTypeName("mymap")
+    static class MapWithTypedValues extends LinkedHashMap<String,String> { }
 
     /*
     /**********************************************************
@@ -287,5 +291,18 @@ public class TestMapSerialization extends BaseMapTest
         String json = MAPPER.writeValueAsString(map);
         assertEquals(aposToQuotes("{'java.lang.String':2}"), json);
     }
+
+    // [databind#691]
+    public void testNullJsonMapping691() throws Exception
+    {
+        MapWithTypedValues input = new MapWithTypedValues();
+        input.put("id", "Test");
+        input.put("NULL", null);
+
+        String json = MAPPER.writeValueAsString(input);
+
+        assertEquals(aposToQuotes("{'@type':'mymap','id':'Test','NULL':null}"),
+                json);
+    }    
 }
 

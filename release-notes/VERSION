@@ -7,6 +7,8 @@ Project: jackson-databind
 2.6.0 (not yet released)
 
 #649: Make `BeanDeserializer` use new `parser.nextFieldName()` and `.hasTokenId()` methods
+#696: Copy constructor does not preserve `_injectableValues`
+ (reported by Charles A)
 
 2.5.1 (not yet released)
 

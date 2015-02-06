@@ -47,6 +47,7 @@ public class TestObjectMapper extends BaseMapTest
         assertNotNull(m.getNodeFactory());
         JsonNodeFactory nf = JsonNodeFactory.instance;
         m.setNodeFactory(nf);
+        assertNull(m.getInjectableValues());
         assertSame(nf, m.getNodeFactory());
     }
 
@@ -138,6 +139,8 @@ public class TestObjectMapper extends BaseMapTest
         assertTrue(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
         m.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         assertFalse(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+        InjectableValues inj = new InjectableValues.Std();
+        m.setInjectableValues(inj);
 
         // // First: verify that handling of features is decoupled:
         
@@ -145,6 +148,8 @@ public class TestObjectMapper extends BaseMapTest
         assertFalse(m2.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
         m2.enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         assertTrue(m2.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
+        assertSame(inj, m2.getInjectableValues());
+
         // but should NOT change the original
         assertFalse(m.isEnabled(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES));
 

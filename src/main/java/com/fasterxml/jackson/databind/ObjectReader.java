@@ -834,7 +834,14 @@ public class ObjectReader
     public ContextAttributes getAttributes() {
         return _config.getAttributes();
     }
-    
+
+    /**
+     * @since 2.6
+     */
+    public InjectableValues getInjectableValues() {
+        return _injectableValues;
+    }
+
     /*
     /**********************************************************
     /* Deserialization methods; basic ones to support ObjectCodec first

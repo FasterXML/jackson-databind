@@ -412,6 +412,8 @@ public class ObjectMapper
         _subtypeResolver = src._subtypeResolver;
         _rootNames = new RootNameLookup();
         _typeFactory = src._typeFactory;
+        _injectableValues = src._injectableValues;
+
         HashMap<ClassKey,Class<?>> mixins = new HashMap<ClassKey,Class<?>>(src._mixInAnnotations);
         _mixInAnnotations = mixins;
         _serializationConfig = new SerializationConfig(src._serializationConfig, mixins);
@@ -1522,7 +1524,14 @@ public class ObjectMapper
         _injectableValues = injectableValues;
         return this;
     }
-    
+
+    /**
+     * @since 2.6
+     */
+    public InjectableValues getInjectableValues() {
+        return _injectableValues;
+    }
+
     /**
      * Method for overriding default locale to use for formatting.
      * Default value used is {@link Locale#getDefault()}.

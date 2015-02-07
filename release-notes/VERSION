@@ -10,6 +10,11 @@ Project: jackson-databind
 #696: Copy constructor does not preserve `_injectableValues`
  (reported by Charles A)
 
+2.5.2 (not yet released)
+
+#691: Jackson 2.5.0. NullSerializer for MapProperty failing
+ (reported by Antibrumm@github)
+
 2.5.1 (06-Feb-2015)
 
 #667: Problem with bogus conflict between single-arg-String vs `CharSequence` constructor

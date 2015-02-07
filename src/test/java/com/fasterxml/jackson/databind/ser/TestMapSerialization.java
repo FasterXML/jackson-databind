@@ -141,6 +141,9 @@ public class TestMapSerialization extends BaseMapTest
     @JsonTypeName("mymap")
     static class MapWithTypedValues extends LinkedHashMap<String,String> { }
 
+    @JsonTypeInfo(use = Id.CLASS)
+    public static class Mixin691 { }
+
     /*
     /**********************************************************
     /* Test methods
@@ -304,5 +307,16 @@ public class TestMapSerialization extends BaseMapTest
         assertEquals(aposToQuotes("{'@type':'mymap','id':'Test','NULL':null}"),
                 json);
     }    
+
+    // [databind#691]
+    public void testNullJsonInTypedMap691() throws Exception {
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("NULL", null);
+    
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.addMixIn(Object.class, Mixin691.class);
+        String json = mapper.writeValueAsString(map);
+        assertEquals("{\"@class\":\"java.util.HashMap\",\"NULL\":null}", json);
+    }
 }
 

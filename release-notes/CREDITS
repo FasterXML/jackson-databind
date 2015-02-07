@@ -204,6 +204,10 @@ Ludevik@github:
   * Reported #682: Class<?>-valued Map keys not serialized properly
    (2.5.1)
 
-Charles Allen (drcrallen@github)
+Antibrumm@github:
+  * Reported #691: Jackson 2.5.0. NullSerializer for MapProperty failing
+   (2.5.2)
+
+Charles Allen (drcrallen@github):
   * Reported #696: Copy constructor does not preserve `_injectableValues`
    (2.6.0)

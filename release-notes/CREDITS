@@ -203,3 +203,7 @@ Zoltan Farkas (zolyfarkas@github)
 Ludevik@github:
   * Reported #682: Class<?>-valued Map keys not serialized properly
    (2.5.1)
+
+Antibrumm@github:
+  * Reported #691: Jackson 2.5.0. NullSerializer for MapProperty failing
+   (2.5.2)

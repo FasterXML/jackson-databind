@@ -772,8 +772,6 @@ public class MapSerializer
                     continue;
                 }
                 valueSer = provider.getDefaultNullValueSerializer();
-                keySerializer.serialize(keyElem, gen, provider);
-                provider.defaultSerializeNull(gen);
             } else {
                 valueSer = _valueSerializer;
                 Class<?> cc = valueElem.getClass();

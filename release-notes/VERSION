@@ -10,7 +10,7 @@ Project: jackson-databind
 #696: Copy constructor does not preserve `_injectableValues`
  (reported by Charles A)
 
-2.5.1 (not yet released)
+2.5.1 (06-Feb-2015)
 
 #667: Problem with bogus conflict between single-arg-String vs `CharSequence` constructor
 #669: JSOG usage of @JsonTypeInfo and @JsonIdentityInfo(generator=JSOGGenerator.class) fails

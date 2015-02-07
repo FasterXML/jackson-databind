@@ -83,7 +83,7 @@ javax.xml.datatype, javax.xml.namespace, javax.xml.parsers
     <dependency>
       <groupId>cglib</groupId>
       <artifactId>cglib</artifactId>
-      <version>2.2.2</version>
+      <version>3.1</version>
       <scope>test</scope>
     </dependency>
     <!-- For testing TestNoClassDefFoundDeserializer -->

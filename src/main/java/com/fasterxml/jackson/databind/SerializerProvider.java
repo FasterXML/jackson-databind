@@ -908,7 +908,7 @@ public abstract class SerializerProvider
     
     /*
     /********************************************************
-    /* Convenience methods
+    /* Convenience methods for serializing using default methods
     /********************************************************
      */
 
@@ -919,8 +919,7 @@ public abstract class SerializerProvider
      * field values are best handled calling
      * {@link #defaultSerializeField} instead.
      */
-    public final void defaultSerializeValue(Object value, JsonGenerator jgen)
-        throws IOException, JsonProcessingException
+    public final void defaultSerializeValue(Object value, JsonGenerator jgen) throws IOException
     {
         if (value == null) {
             if (_stdNullValueSerializer) { // minor perf optimization
@@ -940,7 +939,7 @@ public abstract class SerializerProvider
      * null) using standard serializer locating functionality.
      */
     public final void defaultSerializeField(String fieldName, Object value, JsonGenerator jgen)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         jgen.writeFieldName(fieldName);
         if (value == null) {
@@ -958,12 +957,6 @@ public abstract class SerializerProvider
         }
     }
 
-    /*
-    /**********************************************************
-    /* Convenience methods
-    /**********************************************************
-     */
-
     /**
      * Method that will handle serialization of Date(-like) values, using
      * {@link SerializationConfig} settings to determine expected serialization
@@ -972,7 +965,7 @@ public abstract class SerializerProvider
      * Java convention (and not date-only values like in SQL)
      */
     public final void defaultSerializeDateValue(long timestamp, JsonGenerator jgen)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // [JACKSON-87]: Support both numeric timestamps and textual
         if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
@@ -990,7 +983,7 @@ public abstract class SerializerProvider
      * Java convention (and not date-only values like in SQL)
      */
     public final void defaultSerializeDateValue(Date date, JsonGenerator jgen)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         // [JACKSON-87]: Support both numeric timestamps and textual
         if (isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
@@ -1006,7 +999,7 @@ public abstract class SerializerProvider
      * value (and if using textual representation, configured date format)
      */
     public void defaultSerializeDateKey(long timestamp, JsonGenerator jgen)
-        throws IOException, JsonProcessingException
+        throws IOException
     {
         if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
             jgen.writeFieldName(String.valueOf(timestamp));
@@ -1020,8 +1013,7 @@ public abstract class SerializerProvider
      * based on {@link SerializationFeature#WRITE_DATE_KEYS_AS_TIMESTAMPS}
      * value (and if using textual representation, configured date format)
      */
-    public void defaultSerializeDateKey(Date date, JsonGenerator jgen)
-        throws IOException, JsonProcessingException
+    public void defaultSerializeDateKey(Date date, JsonGenerator jgen) throws IOException
     {
         if (isEnabled(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS)) {
             jgen.writeFieldName(String.valueOf(date.getTime()));
@@ -1029,9 +1021,8 @@ public abstract class SerializerProvider
             jgen.writeFieldName(_dateFormat().format(date));
         }
     }
-    
-    public final void defaultSerializeNull(JsonGenerator jgen)
-        throws IOException, JsonProcessingException
+
+    public final void defaultSerializeNull(JsonGenerator jgen) throws IOException
     {
         if (_stdNullValueSerializer) { // minor perf optimization
             jgen.writeNull();
@@ -1042,10 +1033,26 @@ public abstract class SerializerProvider
 
     /*
     /********************************************************
+    /* Error reporting
+    /********************************************************
+     */
+
+    /**
+     * @since 2.6
+     */
+    public JsonMappingException mappingException(String message, Object... args) {
+        if (args != null && args.length > 0) {
+            message = String.format(message, args);
+        }
+        return new JsonMappingException(message);
+    }
+
+    /*
+    /********************************************************
     /* Helper methods
     /********************************************************
      */
-    
+
     protected void _reportIncompatibleRootType(Object value, JavaType rootType)
         throws IOException, JsonProcessingException
     {
@@ -1099,7 +1106,7 @@ public abstract class SerializerProvider
     /* serializers
     /**********************************************************
      */
-    
+
     /**
      * Method that will try to construct a value serializer; and if
      * one is successfully created, cache it for reuse.

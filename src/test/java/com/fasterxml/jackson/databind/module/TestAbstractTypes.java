@@ -54,7 +54,7 @@ public class TestAbstractTypes extends BaseMapTest
         assertEquals(LinkedList.class, result.getClass());
     }
 
-    public void testMapDefaulting() throws Exception
+    public void testMapDefaultingBasic() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
@@ -64,7 +64,24 @@ public class TestAbstractTypes extends BaseMapTest
         Map<?,?> result = mapper.readValue("{}", Map.class);
         assertEquals(TreeMap.class, result.getClass());
     }
-    
+
+    /* 11-Feb-2015, tatu: too tricky to fix in 2.5.x; move to 2.6
+    // [databind#700]
+    public void testMapDefaultingRecursive() throws Exception
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
+        // default is HashMap, so:
+        mod.addAbstractTypeMapping(Map.class, TreeMap.class);
+        mapper.registerModule(mod);
+        Object result = mapper.readValue("[ {} ]", Object.class);
+        assertEquals(ArrayList.class, result.getClass());
+        Object v = ((List<?>) result).get(0);
+        assertNotNull(v);
+        assertEquals(TreeMap.class, v.getClass());
+    }
+    */
+
     public void testInterfaceDefaulting() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();

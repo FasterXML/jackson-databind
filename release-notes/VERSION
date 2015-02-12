@@ -9,6 +9,8 @@ Project: jackson-databind
 #649: Make `BeanDeserializer` use new `parser.nextFieldName()` and `.hasTokenId()` methods
 #696: Copy constructor does not preserve `_injectableValues`
  (reported by Charles A)
+#700: Cannot Change Default Abstract Type Mapper from LinkedHashMap
+ (reported by wealdtech@github)
 
 2.5.2 (not yet released)
 

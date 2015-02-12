@@ -2,7 +2,6 @@ package com.fasterxml.jackson.databind.module;
 
 import java.util.*;
 
-
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,22 +64,34 @@ public class TestAbstractTypes extends BaseMapTest
         assertEquals(TreeMap.class, result.getClass());
     }
 
-    /* 11-Feb-2015, tatu: too tricky to fix in 2.5.x; move to 2.6
     // [databind#700]
-    public void testMapDefaultingRecursive() throws Exception
+    public void testDefaultingRecursive() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule mod = new SimpleModule("test", Version.unknownVersion());
-        // default is HashMap, so:
+
+        // defaults: LinkedHashMap, ArrayList
         mod.addAbstractTypeMapping(Map.class, TreeMap.class);
+        mod.addAbstractTypeMapping(List.class, LinkedList.class);
+
         mapper.registerModule(mod);
-        Object result = mapper.readValue("[ {} ]", Object.class);
-        assertEquals(ArrayList.class, result.getClass());
+        Object result;
+
+        result = mapper.readValue("[ {} ]", Object.class);
+        assertEquals(LinkedList.class, result.getClass());
         Object v = ((List<?>) result).get(0);
         assertNotNull(v);
         assertEquals(TreeMap.class, v.getClass());
+
+        result = mapper.readValue("{ \"x\": [ 3 ] }", Object.class);
+        assertEquals(TreeMap.class, result.getClass());
+        Map<?,?> map = (Map<?,?>) result;
+        assertEquals(1, map.size());
+        v = map.get("x");
+        assertNotNull(v);
+        assertEquals(LinkedList.class, v.getClass());
+        assertEquals(1, ((List<?>) v).size());
     }
-    */
 
     public void testInterfaceDefaulting() throws Exception
     {

@@ -42,7 +42,7 @@ public abstract class DeserializationContext
     extends DatabindContext
     implements java.io.Serializable
 {
-    private static final long serialVersionUID = -4290063686213707727L;
+    private static final long serialVersionUID = 1L; // 2.6
 
     /**
      * Let's limit length of error messages, for cases where underlying data

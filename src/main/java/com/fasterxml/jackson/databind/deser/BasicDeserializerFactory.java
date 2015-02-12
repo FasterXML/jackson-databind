@@ -178,13 +178,12 @@ public abstract class BasicDeserializerFactory
 
     /*
     /**********************************************************
-    /* JsonDeserializerFactory impl (partial): type mappings
+    /* DeserializerFactory impl (partial): type mappings
     /**********************************************************
      */
 
     @Override
-    public JavaType mapAbstractType(DeserializationConfig config, JavaType type)
-        throws JsonMappingException
+    public JavaType mapAbstractType(DeserializationConfig config, JavaType type) throws JsonMappingException
     {
         // first, general mappings
         while (true) {
@@ -192,10 +191,8 @@ public abstract class BasicDeserializerFactory
             if (next == null) {
                 return type;
             }
-            /* Should not have to worry about cycles; but better verify since they will invariably
-             * occur... :-)
-             * (also: guard against invalid resolution to a non-related type)
-             */
+            // Should not have to worry about cycles; but better verify since they will invariably occur... :-)
+            // (also: guard against invalid resolution to a non-related type)
             Class<?> prevCls = type.getRawClass();
             Class<?> nextCls = next.getRawClass();
             if ((prevCls == nextCls) || !prevCls.isAssignableFrom(nextCls)) {
@@ -1437,7 +1434,17 @@ public abstract class BasicDeserializerFactory
         Class<?> rawType = type.getRawClass();
         // Object ("untyped"), String equivalents:
         if (rawType == CLASS_OBJECT) {
-            return new UntypedObjectDeserializer();
+            // 11-Feb-2015, tatu: As per [databind#700] need to be careful wrt non-default Map, List.
+            DeserializationConfig config = ctxt.getConfig();
+            JavaType lt, mt;
+            
+            if (_factoryConfig.hasAbstractTypeResolvers()) {
+                lt = _findRemappedType(config, List.class);
+                mt = _findRemappedType(config, Map.class);
+            } else {
+                lt = mt = null;
+            }
+            return new UntypedObjectDeserializer(lt, mt);
         }
         if (rawType == CLASS_STRING || rawType == CLASS_CHAR_BUFFER) {
             return StringDeserializer.instance;
@@ -1505,6 +1512,11 @@ public abstract class BasicDeserializerFactory
             return deser;
         }
         return JdkDeserializers.find(rawType, clsName);
+    }
+
+    protected JavaType _findRemappedType(DeserializationConfig config, Class<?> rawType) throws JsonMappingException {
+        JavaType type = mapAbstractType(config, config.constructType(rawType));
+        return (type == null || type.hasRawClass(rawType)) ? null : type;
     }
 
     /*

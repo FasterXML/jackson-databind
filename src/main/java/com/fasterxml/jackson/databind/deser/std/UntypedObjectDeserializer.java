@@ -41,7 +41,7 @@ public class UntypedObjectDeserializer
      * @deprecated Since 2.3, construct a new instance, needs to be resolved
      */
     @Deprecated
-    public final static UntypedObjectDeserializer instance = new UntypedObjectDeserializer();
+    public final static UntypedObjectDeserializer instance = new UntypedObjectDeserializer(null, null);
 
     /*
     /**********************************************************
@@ -56,9 +56,35 @@ public class UntypedObjectDeserializer
     protected JsonDeserializer<Object> _stringDeserializer;
 
     protected JsonDeserializer<Object> _numberDeserializer;
-    
+
+    /**
+     * If {@link java.util.List} has been mapped to non-default implementation,
+     * we'll store type here
+     *
+     * @since 2.6
+     */
+    protected JavaType _listType;
+
+    /**
+     * If {@link java.util.Map} has been mapped to non-default implementation,
+     * we'll store type here
+     *
+     * @since 2.6
+     */
+    protected JavaType _mapType;
+
+    /**
+     * @deprecated Since 2.6 use variant takes type arguments
+     */
+    @Deprecated
     public UntypedObjectDeserializer() {
+        this(null, null);
+    }
+
+    public UntypedObjectDeserializer(JavaType listType, JavaType mapType) {
         super(Object.class);
+        _listType = listType;
+        _mapType = mapType;
     }
 
     @SuppressWarnings("unchecked")
@@ -71,6 +97,8 @@ public class UntypedObjectDeserializer
         _listDeserializer = (JsonDeserializer<Object>) listDeser;
         _stringDeserializer = (JsonDeserializer<Object>) stringDeser;
         _numberDeserializer = (JsonDeserializer<Object>) numberDeser;
+        _listType = base._listType;
+        _mapType = base._mapType;
     }
 
     /*
@@ -102,8 +130,16 @@ public class UntypedObjectDeserializer
          */
 
         // So: first find possible custom instances
-        _mapDeserializer = _findCustomDeser(ctxt, tf.constructMapType(Map.class, stringType, obType));
-        _listDeserializer = _findCustomDeser(ctxt, tf.constructCollectionType(List.class, obType));
+        if (_listType == null) {
+            _listDeserializer = _clearIfStdImpl(_findCustomDeser(ctxt, tf.constructCollectionType(List.class, obType)));
+        } else {
+            _listDeserializer = _findCustomDeser(ctxt, _listType);
+        }
+        if (_mapType == null) {
+            _mapDeserializer = _clearIfStdImpl(_findCustomDeser(ctxt, tf.constructMapType(Map.class, stringType, obType)));
+        } else {
+            _mapDeserializer = _findCustomDeser(ctxt, _mapType);
+        }
         _stringDeserializer = _findCustomDeser(ctxt, stringType);
         _numberDeserializer = _findCustomDeser(ctxt, tf.constructType(Number.class));
 
@@ -116,17 +152,16 @@ public class UntypedObjectDeserializer
         _numberDeserializer = (JsonDeserializer<Object>) ctxt.handleSecondaryContextualization(_numberDeserializer, null, unknown);
     }
 
-    @SuppressWarnings("unchecked")
     protected JsonDeserializer<Object> _findCustomDeser(DeserializationContext ctxt, JavaType type)
         throws JsonMappingException
     {
         // Since we are calling from `resolve`, we should NOT try to contextualize yet;
         // contextualization will only occur at a later point
-        JsonDeserializer<?> deser = ctxt.findNonContextualValueDeserializer(type);
-        if (ClassUtil.isJacksonStdImpl(deser)) {
-            return null;
-        }
-        return (JsonDeserializer<Object>) deser;
+        return ctxt.findNonContextualValueDeserializer(type);
+    }
+
+    protected JsonDeserializer<Object> _clearIfStdImpl(JsonDeserializer<Object> deser) {
+        return ClassUtil.isJacksonStdImpl(deser) ? null : deser;
     }
 
     /**

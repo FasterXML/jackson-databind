@@ -208,6 +208,14 @@ Antibrumm@github:
   * Reported #691: Jackson 2.5.0. NullSerializer for MapProperty failing
    (2.5.2)
 
+Shumpei Akai (flexfrank@github)
+  * Reported #703: Multiple calls to ObjectMapper#canSerialize(Object.class) returns different values
+   (2.5.2)
+
+Francisco A. Lozano (flozano@github)
+  * Contributed fix for #703 (see above)
+   (2.5.2)
+
 Charles Allen (drcrallen@github):
   * Reported #696: Copy constructor does not preserve `_injectableValues`
    (2.6.0)

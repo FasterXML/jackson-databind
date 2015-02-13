@@ -190,4 +190,13 @@ public class TestObjectMapper extends BaseMapTest
         assertEquals(MyAnnotationIntrospector.class,
                 m2.getSerializationConfig().getAnnotationIntrospector().getClass());
     }
+
+    // For [databind#703]
+    public void testNonSerializabilityOfObject()
+    {
+        ObjectMapper m = new ObjectMapper();
+        assertFalse(m.canSerialize(Object.class));
+        // but this used to pass, incorrectly
+        assertFalse(m.canSerialize(Object.class));
+    }
 }

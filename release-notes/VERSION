@@ -8,6 +8,8 @@ Project: jackson-databind
 
 #691: NullSerializer for MapProperty failing when using polymorphic handling
  (reported by Antibrumm@github)
+#703: Multiple calls to ObjectMapper#canSerialize(Object.class) returns different values
+ (reported by flexfrank@github)
 
 2.5.1 (06-Feb-2015)
 

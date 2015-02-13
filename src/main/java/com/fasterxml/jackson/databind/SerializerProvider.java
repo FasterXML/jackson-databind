@@ -1087,15 +1087,15 @@ public abstract class SerializerProvider
             ser = _serializerCache.untypedValueSerializer(runtimeType);
             if (ser == null) {
                 ser = _createAndCacheUntypedSerializer(runtimeType);
-                /* 18-Sep-2014, tatu: This is unfortunate patch over related change
-                 *    that pushes creation of "unknown type" serializer deeper down
-                 *    in BeanSerializerFactory; as a result, we need to "undo" creation
-                 *    here.
-                 */
-                if (isUnknownTypeSerializer(ser)) {
-                    return null;
-                }
             }
+        }
+        /* 18-Sep-2014, tatu: This is unfortunate patch over related change
+         *    that pushes creation of "unknown type" serializer deeper down
+         *    in BeanSerializerFactory; as a result, we need to "undo" creation
+         *    here.
+         */
+        if (isUnknownTypeSerializer(ser)) {
+            return null;
         }
         return ser;
     }

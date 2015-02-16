@@ -1,14 +1,19 @@
 Project: jackson-databind
-Version: 2.3.5 (13-Jan-2014)
+Version: 2.3.6 (not yet released)
+
+#707: Error in getting string representation of an ObjectNode with a float number value
+ (reported by @navidqar)
+
+------------------------------------------------------------------------
+=== History: ===
+------------------------------------------------------------------------
+
+2.3.5 (13-Jan-2014)
 
 #496: Wrong result for TextNode("false").asBoolean(true)
  (reported by Ivar R, ivarru@github)
 #543: Problems resolving self-referential generic types.
 #656: defaultImpl configuration is ignored for WRAPPER_OBJECT
-
-------------------------------------------------------------------------
-=== History: ===
-------------------------------------------------------------------------
 
 2.3.4 (17-Jul-2014)
 

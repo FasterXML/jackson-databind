@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.4.6 (not yet released)
+
+#707: Error in getting string representation of an ObjectNode with a float number value
+ (reported by @navidqar)
+
 2.4.5 (13-Jan-2015)
 
 #635: Reduce cachability of `Map` deserializers, to avoid problems with per-property config changes

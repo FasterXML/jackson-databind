@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
@@ -143,9 +144,9 @@ public class UnwrappingBeanPropertyWriter
         JsonSerializer<Object> ser = provider
                 .findValueSerializer(this.getType(), this)
                 .unwrappingSerializer(_nameTransformer);
-        
+
         if (ser.isUnwrappingSerializer()) {
-            ser.acceptJsonFormatVisitor(new JsonFormatVisitorNullWrapper(provider) {
+            ser.acceptJsonFormatVisitor(new JsonFormatVisitorWrapper.Base(provider) {
                 // an unwrapping serializer will always expect ObjectFormat,
                 // hence, the other cases do not have to be implemented
                 @Override
@@ -158,7 +159,7 @@ public class UnwrappingBeanPropertyWriter
             super.depositSchemaProperty(visitor);
         }
     }
-    
+
     // Override needed to support legacy JSON Schema generator
     @Override
     protected void _depositSchemaProperty(ObjectNode propertiesNode, JsonNode schemaNode)

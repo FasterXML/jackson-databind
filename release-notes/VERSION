@@ -6,6 +6,7 @@ Project: jackson-databind
 
 2.4.6 (not yet released)
 
+#706: Add support for @JsonUnwrapper via JSON Schema module
 #707: Error in getting string representation of an ObjectNode with a float number value
  (reported by @navidqar)
 

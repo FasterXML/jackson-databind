@@ -391,22 +391,18 @@ public class BeanSerializerFactory
             JavaType valueType = type.getContentType();
             TypeSerializer typeSer = createTypeSerializer(config, valueType);
             // last 2 nulls; don't know key, value serializers (yet)
-            // 23-Feb-2015, tatu: As per [#705], need to support custom serializers
-            JsonSerializer<?> anySer = findSerializerFromAnnotation(prov, anyGetter);
-            if (anySer == null) {
-                // TODO: support '@JsonIgnoreProperties' with any setter?
-                anySer = MapSerializer.construct(/* ignored props*/ null, type, staticTyping,
-                        typeSer, null, null, /*filterId*/ null);
-            }
+            // TODO: support '@JsonIgnoreProperties' with any setter?
+            MapSerializer mapSer = MapSerializer.construct(/* ignored props*/ null, type, staticTyping,
+                    typeSer, null, null, /*filterId*/ null);
             // TODO: can we find full PropertyName?
-            PropertyName name = PropertyName.construct(anyGetter.getName());
+            PropertyName name = new PropertyName(anyGetter.getName());
             BeanProperty.Std anyProp = new BeanProperty.Std(name, valueType, null,
                     beanDesc.getClassAnnotations(), anyGetter, PropertyMetadata.STD_OPTIONAL);
-            builder.setAnyGetter(new AnyGetterWriter(anyProp, anyGetter, anySer));
+            builder.setAnyGetter(new AnyGetterWriter(anyProp, anyGetter, mapSer));
         }
         // Next: need to gather view information, if any:
         processViews(config, builder);
-
+        
         // Finally: let interested parties mess with the result bit more...
         if (_factoryConfig.hasSerializerModifiers()) {
             for (BeanSerializerModifier mod : _factoryConfig.serializerModifiers()) {

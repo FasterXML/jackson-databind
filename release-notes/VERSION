@@ -10,6 +10,8 @@ Project: jackson-databind
  (reported by Antibrumm@github)
 #703: Multiple calls to ObjectMapper#canSerialize(Object.class) returns different values
  (reported by flexfrank@github)
+#705: JsonAnyGetter doesn't work with JsonSerialize (except with keyUsing)
+ (reported by natnan@github)
 
 2.5.1 (06-Feb-2015)
 

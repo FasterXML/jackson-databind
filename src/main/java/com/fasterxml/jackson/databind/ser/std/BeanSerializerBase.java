@@ -342,6 +342,7 @@ public abstract class BeanSerializerBase
 
         // also, any-getter may need to be resolved
         if (_anyGetterWriter != null) {
+            // 23-Feb-2015, tatu: Misleading, as this actually triggers call to contextualization...
             _anyGetterWriter.resolve(provider);
         }
     }

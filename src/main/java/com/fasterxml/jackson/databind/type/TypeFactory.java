@@ -563,15 +563,25 @@ public final class TypeFactory
     /**
      * Factory method for constructing {@link JavaType} that
      * represents a parameterized type. For example, to represent
-     * type <code>List&lt;Set&lt;Integer>></code>, you could
+     * type <code>List&ltInteger></code>, you could
      * call
      *<pre>
-     *  TypeFactory.parametricType(List.class, Integer.class);
+     *  TypeFactory.constructParametrizedType(List.class, List.class, Integer.class);
      *</pre>
      *<p>
+     * The reason for first two arguments to be separate is that parameterization may
+     * apply to a super-type. For example, if generic type was instead to be
+     * constructed for <code>ArrayList<Integer></code>, the usual call would be:
+     *<pre>
+     *  TypeFactory.constructParametrizedType(ArrayList.class, List.class, Integer.class);
+     *</pre>
+     * since parameterization is applied to {@link java.util.List}.
+     * In most cases distinction does not matter, but there are types where it does;
+     * one such example is parameterization of types that implement {@link java.util.Iterator}.
+     *<p>
      * NOTE: type modifiers are NOT called on constructed type itself; but are called
-     * for contained types.
-     * 
+     * when resolving <code>parameterClasses</code> into {@link JavaType}.
+     *
      * @param parametrized Type-erased type of instance being constructed
      * @param parametersFor class or interface for which type parameters are applied; either
      *   <code>parametrized</code> or one of its supertypes
@@ -604,13 +614,21 @@ public final class TypeFactory
      * type <code>List&lt;Set&lt;Integer>></code>, you could
      * call
      *<pre>
-     *  JavaType inner = TypeFactory.parametricType(Set.class, Integer.class);
-     *  TypeFactory.parametricType(List.class, inner);
+     *  JavaType inner = TypeFactory.constructParametrizedType(Set.class, Set.class, Integer.class);
+     *  return TypeFactory.constructParametrizedType(ArrayList.class, List.class, inner);
      *</pre>
      *<p>
-     * NOTE: type modifiers are NOT called on constructed type itself; but are called
-     * for contained types.
-     * 
+     * The reason for first two arguments to be separate is that parameterization may
+     * apply to a super-type. For example, if generic type was instead to be
+     * constructed for <code>ArrayList<Integer></code>, the usual call would be:
+     *<pre>
+     *  TypeFactory.constructParametrizedType(ArrayList.class, List.class, Integer.class);
+     *</pre>
+     * since parameterization is applied to {@link java.util.List}.
+     * In most cases distinction does not matter, but there are types where it does;
+     * one such example is parameterization of types that implement {@link java.util.Iterator}.
+     *<p>
+     * NOTE: type modifiers are NOT called on constructed type.
      * 
      * @param parametrized Actual full type
      * @param parametersFor class or interface for which type parameters are applied; either

@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.introspect.*;
 
 /**
  * Tests Scala-style JVM naming patterns for properties.

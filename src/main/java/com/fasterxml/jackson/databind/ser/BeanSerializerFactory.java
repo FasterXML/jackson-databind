@@ -289,8 +289,8 @@ public class BeanSerializerFactory
         if (b == null) {
             return createTypeSerializer(config, baseType);
         }
-        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(
-                accessor, config, ai, baseType);
+        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(
+                config, accessor, baseType);
         return b.buildTypeSerializer(config, baseType, subtypes);
     }
 
@@ -315,8 +315,8 @@ public class BeanSerializerFactory
         if (b == null) {
             return createTypeSerializer(config, contentType);
         }
-        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(accessor,
-                config, ai, contentType);
+        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(config,
+                accessor, contentType);
         return b.buildTypeSerializer(config, contentType, subtypes);
     }
     

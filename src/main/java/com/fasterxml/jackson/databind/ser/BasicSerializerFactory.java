@@ -271,7 +271,7 @@ public abstract class BasicSerializerFactory
         if (b == null) {
             b = config.getDefaultTyper(baseType);
         } else {
-            subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(ac, config, ai);
+            subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByClass(config, ac);
         }
         if (b == null) {
             return null;

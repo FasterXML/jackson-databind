@@ -1247,7 +1247,7 @@ public abstract class BasicDeserializerFactory
                 return null;
             }
         } else {
-            subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(ac, config, ai);
+            subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByName(config, ac);
         }
         // [JACKSON-505]: May need to figure out default implementation, if none found yet
         // (note: check for abstract type is not 100% mandatory, more of an optimization)
@@ -1356,7 +1356,7 @@ public abstract class BasicDeserializerFactory
         // [JACKSON-749] Also, need to consider @JsonValue, if one found
         return StdKeyDeserializers.constructEnumKeyDeserializer(enumRes);
     }
-    
+
     /*
     /**********************************************************
     /* Extended API
@@ -1387,8 +1387,8 @@ public abstract class BasicDeserializerFactory
             return findTypeDeserializer(config, baseType);
         }
         // but if annotations found, may need to resolve subtypes:
-        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(
-                annotated, config, ai, baseType);
+        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByName(
+                config, annotated, baseType);
         return b.buildTypeDeserializer(config, baseType, subtypes);
     }
     
@@ -1415,8 +1415,8 @@ public abstract class BasicDeserializerFactory
             return findTypeDeserializer(config, contentType);
         }
         // but if annotations found, may need to resolve subtypes:
-        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypes(
-                propertyEntity, config, ai, contentType);
+        Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByName(
+                config, propertyEntity, contentType);
         return b.buildTypeDeserializer(config, contentType, subtypes);
     }
 

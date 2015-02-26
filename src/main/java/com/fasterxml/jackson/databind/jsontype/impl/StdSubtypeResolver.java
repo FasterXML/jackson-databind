@@ -48,11 +48,7 @@ public class StdSubtypeResolver
     }
     
     /**
-     * 
-     * @param property Base member to use for type resolution: either annotated type (class),
-     *    or property (field, getter/setter)
-     *    
-     * @since 2.1
+     * @deprecated Since 2.6
      */
     @Override
     public Collection<NamedType> collectAndResolveSubtypes(AnnotatedMember property,
@@ -87,6 +83,7 @@ public class StdSubtypeResolver
             
         // and finally subtypes via annotations from base type (recursively)
         _collectAndResolve(ac, rootType, config, ai, collected);
+
         return new ArrayList<NamedType>(collected.values());
     }
 

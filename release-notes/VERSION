@@ -12,6 +12,8 @@ Project: jackson-databind
  (reported by flexfrank@github)
 #705: JsonAnyGetter doesn't work with JsonSerialize (except with keyUsing)
  (reported by natnan@github)
+- Improvement to handling of custom `ValueInstantiator` for delegating mode; no more NPE
+  if `getDelegateCreator()` returns null
 
 2.5.1 (06-Feb-2015)
 

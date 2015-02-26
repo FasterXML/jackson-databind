@@ -6,6 +6,7 @@ Project: jackson-databind
 
 2.6.0 (not yet released)
 
+#312: Support Type Id mappings where two ids map to same Class
 #649: Make `BeanDeserializer` use new `parser.nextFieldName()` and `.hasTokenId()` methods
 #696: Copy constructor does not preserve `_injectableValues`
  (reported by Charles A)

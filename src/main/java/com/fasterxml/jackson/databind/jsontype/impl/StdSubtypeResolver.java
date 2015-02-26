@@ -121,19 +121,65 @@ public class StdSubtypeResolver
      */
 
     @Override
-    public Collection<NamedType> collectAndResolveSubtypesByName(MapperConfig<?> config, 
+    public Collection<NamedType> collectAndResolveSubtypesByTypeId(MapperConfig<?> config, 
             AnnotatedMember property, JavaType baseType)
     {
-        // !!! TODO: implement properly
-        return collectAndResolveSubtypesByClass(config, property, baseType);
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        Class<?> rawBase = (baseType == null) ? property.getRawType() : baseType.getRawClass();
+
+        // Need to keep track of classes that have been handled already 
+        Set<Class<?>> typesHandled = new HashSet<Class<?>>();
+        Map<String,NamedType> byName = new LinkedHashMap<String,NamedType>();
+
+        // start with lowest-precedence, which is from type hierarchy
+        NamedType rootType = new NamedType(rawBase, null);
+        AnnotatedClass ac = AnnotatedClass.constructWithoutSuperTypes(rawBase, ai, config);
+        _collectAndResolveByTypeId(ac, rootType, config, typesHandled, byName);
+        
+        // then with definitions from property
+        Collection<NamedType> st = ai.findSubtypes(property);
+        if (st != null) {
+            for (NamedType nt : st) {
+                ac = AnnotatedClass.constructWithoutSuperTypes(nt.getType(), ai, config);
+                _collectAndResolveByTypeId(ac, nt, config, typesHandled, byName);
+            }            
+        }
+        
+        // and finally explicit type registrations (highest precedence)
+        if (_registeredSubtypes != null) {
+            for (NamedType subtype : _registeredSubtypes) {
+                // is it a subtype of root type?
+                if (rawBase.isAssignableFrom(subtype.getType())) { // yes
+                    AnnotatedClass curr = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), ai, config);
+                    _collectAndResolveByTypeId(curr, subtype, config, typesHandled, byName);
+                }
+            }
+        }
+        return _combineNamedAndUnnamed(typesHandled, byName);
     }
 
     @Override
-    public Collection<NamedType> collectAndResolveSubtypesByName(MapperConfig<?> config,
+    public Collection<NamedType> collectAndResolveSubtypesByTypeId(MapperConfig<?> config,
             AnnotatedClass type)
     {
-        // !!! TODO: implement properly
-        return collectAndResolveSubtypesByClass(config, type);
+        Set<Class<?>> typesHandled = new HashSet<Class<?>>();
+        Map<String,NamedType> byName = new LinkedHashMap<String,NamedType>();
+
+        NamedType rootType = new NamedType(type.getRawType(), null);
+        _collectAndResolveByTypeId(type, rootType, config, typesHandled, byName);
+        
+        if (_registeredSubtypes != null) {
+            Class<?> rawBase = type.getRawType();
+            for (NamedType subtype : _registeredSubtypes) {
+                // is it a subtype of root type?
+                if (rawBase.isAssignableFrom(subtype.getType())) { // yes
+                    final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+                    AnnotatedClass curr = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), ai, config);
+                    _collectAndResolveByTypeId(curr, subtype, config, typesHandled, byName);
+                }
+            }
+        }
+        return _combineNamedAndUnnamed(typesHandled, byName);
     }
 
     /*
@@ -143,6 +189,7 @@ public class StdSubtypeResolver
      */
 
     @Override
+    @Deprecated
     public Collection<NamedType> collectAndResolveSubtypes(AnnotatedMember property,
         MapperConfig<?> config, AnnotationIntrospector ai, JavaType baseType)
     {
@@ -150,6 +197,7 @@ public class StdSubtypeResolver
     }
 
     @Override
+    @Deprecated
     public Collection<NamedType> collectAndResolveSubtypes(AnnotatedClass type,
             MapperConfig<?> config, AnnotationIntrospector ai)
     {
@@ -163,7 +211,8 @@ public class StdSubtypeResolver
      */
 
     /**
-     * Method called to find subtypes for a specific type (class)
+     * Method called to find subtypes for a specific type (class), using
+     * type (class) as the unique key (in case of conflicts).
      */
     protected void _collectAndResolve(AnnotatedClass annotatedType, NamedType namedType,
             MapperConfig<?> config, AnnotationIntrospector ai,
@@ -193,12 +242,60 @@ public class StdSubtypeResolver
         if (st != null && !st.isEmpty()) {
             for (NamedType subtype : st) {
                 AnnotatedClass subtypeClass = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), ai, config);
-                // One more thing: name may be either in reference, or in subtype:
-                if (!subtype.hasName()) {
-                    subtype = new NamedType(subtype.getType(), ai.findTypeName(subtypeClass));
-                }
                 _collectAndResolve(subtypeClass, subtype, config, ai, collectedSubtypes);
             }
         }
+    }
+
+    /**
+     * Method called to find subtypes for a specific type (class), using
+     * type id as the unique key (in case of conflicts).
+     */
+    protected void _collectAndResolveByTypeId(AnnotatedClass annotatedType, NamedType namedType,
+            MapperConfig<?> config,
+            Set<Class<?>> typesHandled, Map<String,NamedType> byName)
+    {
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
+        if (!namedType.hasName()) {
+            String name = ai.findTypeName(annotatedType);
+            if (name != null) {
+                namedType = new NamedType(namedType.getType(), name);
+            }
+        }
+        if (namedType.hasName()) {
+            byName.put(namedType.getName(), namedType);
+        }
+        
+        // only check subtypes if this type hadn't yet been handled
+        if (typesHandled.add(namedType.getType())) {
+            Collection<NamedType> st = ai.findSubtypes(annotatedType);
+            if (st != null && !st.isEmpty()) {
+                for (NamedType subtype : st) {
+                    AnnotatedClass subtypeClass = AnnotatedClass.constructWithoutSuperTypes(subtype.getType(), ai, config);
+                    _collectAndResolveByTypeId(subtypeClass, subtype, config, typesHandled, byName);
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper method used for merging explicitly named types and handled classes
+     * without explicit names.
+     */
+    protected Collection<NamedType> _combineNamedAndUnnamed(Set<Class<?>> typesHandled,
+            Map<String,NamedType> byName)
+    {
+        ArrayList<NamedType> result = new ArrayList<NamedType>(byName.values());
+
+        // Ok, so... we will figure out which classes have no explicitly assigned name,
+        // by removing Classes from Set. And for remaining classes, add an anonymous
+        // marker
+        for (NamedType t : byName.values()) {
+            typesHandled.remove(t.getType());
+        }
+        for (Class<?> cls : typesHandled) {
+            result.add(new NamedType(cls));
+        }
+        return result;
     }
 }

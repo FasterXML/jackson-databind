@@ -750,7 +750,7 @@ public final class DeserializationConfig
                 return null;
             }
         } else {
-            subtypes = getSubtypeResolver().collectAndResolveSubtypesByName(this, ac);
+            subtypes = getSubtypeResolver().collectAndResolveSubtypesByTypeId(this, ac);
         }
         /* 04-May-2014, tatu: When called from DeserializerFactory, additional code like
          *   this is invoked. But here we do not actually have access to mappings, so not

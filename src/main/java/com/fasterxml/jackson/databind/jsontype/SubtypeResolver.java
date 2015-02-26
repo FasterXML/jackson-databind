@@ -83,7 +83,7 @@ public abstract class SubtypeResolver
      * 
      * @since 2.6
      */
-    public Collection<NamedType> collectAndResolveSubtypesByName(MapperConfig<?> config, 
+    public Collection<NamedType> collectAndResolveSubtypesByTypeId(MapperConfig<?> config, 
             AnnotatedMember property, JavaType baseType) {
         // for backwards compatibility...
         return collectAndResolveSubtypes(property, config,
@@ -101,7 +101,7 @@ public abstract class SubtypeResolver
      * 
      * @since 2.6
      */
-    public Collection<NamedType> collectAndResolveSubtypesByName(MapperConfig<?> config,
+    public Collection<NamedType> collectAndResolveSubtypesByTypeId(MapperConfig<?> config,
             AnnotatedClass baseType) {
         // for backwards compatibility...
         return collectAndResolveSubtypes(baseType, config, config.getAnnotationIntrospector());
@@ -116,7 +116,7 @@ public abstract class SubtypeResolver
     /**
      * @deprecated Since 2.6 Use either
      *   {@link #collectAndResolveSubtypesByClass(MapperConfig, AnnotatedMember, JavaType)}
-     *   or {@link #collectAndResolveSubtypesByName(MapperConfig, AnnotatedMember, JavaType)}
+     *   or {@link #collectAndResolveSubtypesByTypeId(MapperConfig, AnnotatedMember, JavaType)}
      *   instead.
      */
     @Deprecated
@@ -126,7 +126,7 @@ public abstract class SubtypeResolver
     /**
      * @deprecated Since 2.6 Use either
      *   {@link #collectAndResolveSubtypesByClass(MapperConfig, AnnotatedClass)}
-     *   or {@link #collectAndResolveSubtypesByName(MapperConfig, AnnotatedClass)}
+     *   or {@link #collectAndResolveSubtypesByTypeId(MapperConfig, AnnotatedClass)}
      *   instead.
      */
     @Deprecated

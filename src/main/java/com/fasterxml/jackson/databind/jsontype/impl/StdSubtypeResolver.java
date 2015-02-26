@@ -24,7 +24,7 @@ public class StdSubtypeResolver
     
     /*
     /**********************************************************
-    /* Public API
+    /* Subtype registration
     /**********************************************************
      */
 
@@ -46,14 +46,18 @@ public class StdSubtypeResolver
         }
         registerSubtypes(types);
     }
-    
-    /**
-     * @deprecated Since 2.6
+
+    /*
+    /**********************************************************
+    /* Resolution by class (serialization)
+    /**********************************************************
      */
+
     @Override
-    public Collection<NamedType> collectAndResolveSubtypes(AnnotatedMember property,
-        MapperConfig<?> config, AnnotationIntrospector ai, JavaType baseType)
+    public Collection<NamedType> collectAndResolveSubtypesByClass(MapperConfig<?> config, 
+            AnnotatedMember property, JavaType baseType)
     {
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
         // for backwards compatibility, must allow null here:
         Class<?> rawBase = (baseType == null) ? property.getRawType() : baseType.getRawClass();
         
@@ -88,9 +92,10 @@ public class StdSubtypeResolver
     }
 
     @Override
-    public Collection<NamedType> collectAndResolveSubtypes(AnnotatedClass type,
-            MapperConfig<?> config, AnnotationIntrospector ai)
+    public Collection<NamedType> collectAndResolveSubtypesByClass(MapperConfig<?> config,
+            AnnotatedClass type)
     {
+        final AnnotationIntrospector ai = config.getAnnotationIntrospector();
         HashMap<NamedType, NamedType> subtypes = new HashMap<NamedType, NamedType>();
         // [JACKSON-257] then consider registered subtypes (which have precedence over annotations)
         if (_registeredSubtypes != null) {
@@ -111,10 +116,52 @@ public class StdSubtypeResolver
 
     /*
     /**********************************************************
+    /* Resolution by class (deserialization)
+    /**********************************************************
+     */
+
+    @Override
+    public Collection<NamedType> collectAndResolveSubtypesByName(MapperConfig<?> config, 
+            AnnotatedMember property, JavaType baseType)
+    {
+        // !!! TODO: implement properly
+        return collectAndResolveSubtypesByClass(config, property, baseType);
+    }
+
+    @Override
+    public Collection<NamedType> collectAndResolveSubtypesByName(MapperConfig<?> config,
+            AnnotatedClass type)
+    {
+        // !!! TODO: implement properly
+        return collectAndResolveSubtypesByClass(config, type);
+    }
+
+    /*
+    /**********************************************************
+    /* Deprecated method overrides
+    /**********************************************************
+     */
+
+    @Override
+    public Collection<NamedType> collectAndResolveSubtypes(AnnotatedMember property,
+        MapperConfig<?> config, AnnotationIntrospector ai, JavaType baseType)
+    {
+        return collectAndResolveSubtypesByClass(config, property, baseType);
+    }
+
+    @Override
+    public Collection<NamedType> collectAndResolveSubtypes(AnnotatedClass type,
+            MapperConfig<?> config, AnnotationIntrospector ai)
+    {
+        return collectAndResolveSubtypesByClass(config, type);
+    }
+
+    /*
+    /**********************************************************
     /* Internal methods
     /**********************************************************
      */
-    
+
     /**
      * Method called to find subtypes for a specific type (class)
      */

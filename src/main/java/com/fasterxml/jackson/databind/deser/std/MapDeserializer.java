@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.deser.*;
 import com.fasterxml.jackson.databind.deser.impl.PropertyBasedCreator;
 import com.fasterxml.jackson.databind.deser.impl.PropertyValueBuffer;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ArrayBuilders;
 
@@ -235,7 +236,9 @@ public class MapDeserializer
         }
         JsonDeserializer<?> vd = _valueDeserializer;
         // #125: May have a content converter
-        vd = findConvertingContentDeserializer(ctxt, property, vd);
+        if (property != null) {
+            vd = findConvertingContentDeserializer(ctxt, property, vd);
+        }
         final JavaType vt = _mapType.getContentType();
         if (vd == null) {
             vd = ctxt.findContextualValueDeserializer(vt, property);
@@ -249,11 +252,14 @@ public class MapDeserializer
         HashSet<String> ignored = _ignorableProperties;
         AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (intr != null && property != null) {
-            String[] moreToIgnore = intr.findPropertiesToIgnore(property.getMember());
-            if (moreToIgnore != null) {
-                ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);
-                for (String str : moreToIgnore) {
-                    ignored.add(str);
+            AnnotatedMember member = property.getMember();
+            if (member != null) {
+                String[] moreToIgnore = intr.findPropertiesToIgnore(member);
+                if (moreToIgnore != null) {
+                    ignored = (ignored == null) ? new HashSet<String>() : new HashSet<String>(ignored);
+                    for (String str : moreToIgnore) {
+                        ignored.add(str);
+                    }
                 }
             }
         }

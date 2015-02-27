@@ -151,6 +151,18 @@ public enum MapperFeature implements ConfigFeature
      * may be called to enable access to otherwise unaccessible
      * objects.
      *<p>
+     * Note that this setting usually has significant performance implications,
+     * since access override helps remove costly access checks on each
+     * and every Reflection access. If you are considering disabling
+     * this feature, be sure to verify performance consequences if usage
+     * is performance sensitive.
+     * Especially on standard JavaSE platforms difference is significant.
+     *<p>
+     * Conversely, on some platforms, it may be necessary to disable this feature
+     * as platform does not allow such calls. For example, when developing
+     * Applets (or other Java code that runs on tightly restricted sandbox),
+     * it may be necessary to disable the feature regardless of performance effects.
+     *<p>
      * Feature is enabled by default.
      */
     CAN_OVERRIDE_ACCESS_MODIFIERS(true),

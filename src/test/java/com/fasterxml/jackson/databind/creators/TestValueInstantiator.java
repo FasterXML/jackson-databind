@@ -1,11 +1,13 @@
 package com.fasterxml.jackson.databind.creators;
 
+import java.io.IOException;
 import java.util.*;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonValueInstantiator;
 import com.fasterxml.jackson.databind.deser.*;
+import com.fasterxml.jackson.databind.introspect.AnnotatedWithParams;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
@@ -259,7 +261,7 @@ public class TestValueInstantiator extends BaseMapTest
     {
         @Override
         public String getValueTypeDesc() {
-            return MyMap.class.getName();
+            return AnnotatedBean.class.getName();
         }
         
         @Override
@@ -280,13 +282,50 @@ public class TestValueInstantiator extends BaseMapTest
             this.addValueInstantiator(cls, inst);
         }
     }
-    
+
+    @JsonValueInstantiator(AnnotatedBeanDelegatingInstantiator.class)
+    static class AnnotatedBeanDelegating {
+        protected final Object value;
+
+        public AnnotatedBeanDelegating(Object v, boolean bogus) {
+            value = v;
+        }
+    }
+
+    static class AnnotatedBeanDelegatingInstantiator extends InstantiatorBase
+    {
+        @Override
+        public String getValueTypeDesc() {
+            return AnnotatedBeanDelegating.class.getName();
+        }
+        
+        @Override
+        public boolean canCreateUsingDelegate() { return true; }
+
+        @Override
+        public JavaType getDelegateType(DeserializationConfig config) {
+            return config.constructType(Map.class);
+        }
+
+        @Override
+        public AnnotatedWithParams getDelegateCreator() {
+            return null;
+        }
+        
+        @Override
+        public Object createUsingDelegate(DeserializationContext ctxt, Object delegate) throws IOException {
+            return new AnnotatedBeanDelegating(delegate, false);
+        }
+    }
+
     /*
     /**********************************************************
     /* Unit tests for default creators
     /**********************************************************
      */
 
+    private final ObjectMapper MAPPER = objectMapper();
+    
     public void testCustomBeanInstantiator() throws Exception
     {
         ObjectMapper mapper = new ObjectMapper();
@@ -349,6 +388,15 @@ public class TestValueInstantiator extends BaseMapTest
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(Integer.valueOf(123), result.values().iterator().next());
+    }
+
+    public void testCustomDelegateInstantiator() throws Exception
+    {
+        AnnotatedBeanDelegating value = MAPPER.readValue("{\"a\":3}", AnnotatedBeanDelegating.class);
+        assertNotNull(value);
+        Object ob = value.value;
+        assertNotNull(ob);
+        assertTrue(ob instanceof Map);
     }
 
     /*
@@ -514,8 +562,7 @@ public class TestValueInstantiator extends BaseMapTest
 
     public void testEmptyBean() throws Exception
     {
-        ObjectMapper mapper = new ObjectMapper();
-        AnnotatedBean bean = mapper.readValue("{}", AnnotatedBean.class);
+        AnnotatedBean bean = MAPPER.readValue("{}", AnnotatedBean.class);
         assertNotNull(bean);
         assertEquals("foo", bean.a);
         assertEquals(3, bean.b);

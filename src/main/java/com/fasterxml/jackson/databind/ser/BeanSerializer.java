@@ -1,10 +1,13 @@
 package com.fasterxml.jackson.databind.ser;
 
 import java.io.IOException;
+import java.util.Stack;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.impl.BeanAsArraySerializer;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.UnwrappingBeanSerializer;
@@ -17,32 +20,32 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * by a sequence of {@link BeanPropertyWriter}s that will handle
  * access value to serialize and call appropriate serializers to
  * write out JSON.
- *<p>
+ * <p/>
  * Implementation note: we will post-process resulting serializer,
  * to figure out actual serializers for final types. This must be
  * done from {@link #resolve} method, and NOT from constructor;
  * otherwise we could end up with an infinite loop.
  */
 public class BeanSerializer
-    extends BeanSerializerBase
-{
+        extends BeanSerializerBase {
     /*
     /**********************************************************
     /* Life-cycle: constructors
     /**********************************************************
      */
 
+    private Stack<Object> stack = new Stack<Object>();
+
     /**
-     * @param builder Builder object that contains collected information
-     *   that may be needed for serializer
+     * @param builder    Builder object that contains collected information
+     *                   that may be needed for serializer
      * @param properties Property writers used for actual serialization
      */
     public BeanSerializer(JavaType type, BeanSerializerBuilder builder,
-            BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties)
-    {
+                          BeanPropertyWriter[] properties, BeanPropertyWriter[] filteredProperties) {
         super(type, builder, properties, filteredProperties);
     }
-    
+
     /**
      * Alternate copy constructor that can be used to construct
      * standard {@link BeanSerializer} passing an instance of
@@ -53,15 +56,15 @@ public class BeanSerializer
     }
 
     protected BeanSerializer(BeanSerializerBase src,
-            ObjectIdWriter objectIdWriter) {
+                             ObjectIdWriter objectIdWriter) {
         super(src, objectIdWriter);
     }
 
     protected BeanSerializer(BeanSerializerBase src,
-            ObjectIdWriter objectIdWriter, Object filterId) {
+                             ObjectIdWriter objectIdWriter, Object filterId) {
         super(src, objectIdWriter, filterId);
     }
-    
+
     protected BeanSerializer(BeanSerializerBase src, String[] toIgnore) {
         super(src, toIgnore);
     }
@@ -76,8 +79,7 @@ public class BeanSerializer
      * Method for constructing dummy bean serializer; one that
      * never outputs any properties
      */
-    public static BeanSerializer createDummy(JavaType forType)
-    {
+    public static BeanSerializer createDummy(JavaType forType) {
         return new BeanSerializer(forType, null, NO_PROPS, null);
     }
 
@@ -108,8 +110,7 @@ public class BeanSerializer
      * serializer as is.
      */
     @Override
-    protected BeanSerializerBase asArraySerializer()
-    {
+    protected BeanSerializerBase asArraySerializer() {
         /* Can not:
          * 
          * - have Object Id (may be allowed in future)
@@ -139,28 +140,40 @@ public class BeanSerializer
      */
     @Override
     public final void serialize(Object bean, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException
-    {
+            throws IOException, JsonGenerationException {
+
         if (_objectIdWriter != null) {
             _serializeWithObjectId(bean, jgen, provider, true);
             return;
         }
         jgen.writeStartObject();
-        if (_propertyFilterId != null) {
-            serializeFieldsFiltered(bean, jgen, provider);
-        } else {
-            serializeFields(bean, jgen, provider);
+
+        boolean objectAlreadyInStack = stack.contains(bean);
+
+        try {
+            stack.add(bean);
+            if (!objectAlreadyInStack) {               // To break cyclic loop, if objectAlreadyInStack then do nothing.
+                if (_propertyFilterId != null) {
+                    serializeFieldsFiltered(bean, jgen, provider);
+                } else {
+                    serializeFields(bean, jgen, provider);
+                }
+            }
+        } finally {
+            stack.pop();
         }
+
         jgen.writeEndObject();
     }
-    
+
     /*
     /**********************************************************
     /* Standard methods
     /**********************************************************
      */
 
-    @Override public String toString() {
-        return "BeanSerializer for "+handledType().getName();
+    @Override
+    public String toString() {
+        return "BeanSerializer for " + handledType().getName();
     }
 }

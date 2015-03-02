@@ -1,13 +1,13 @@
 package com.fasterxml.jackson.failing;
 
-import java.io.*;
-import java.util.*;
-
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 
 public class TestExternalTypeId222 extends BaseMapTest
 {
+    // 25-Feb-2015, tatu: Where does this belong? Not releated to #222...
+
+    /*
 	@SuppressWarnings("unused")
 	public void testTypes() throws IOException {
         final ObjectMapper mapper = new ObjectMapper();
@@ -73,6 +73,7 @@ public class TestExternalTypeId222 extends BaseMapTest
             this.p = p;
         }
     }
+    */
 
     // [Issue#222]
     static class Issue222Bean

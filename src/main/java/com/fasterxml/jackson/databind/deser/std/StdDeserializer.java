@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonParser.NumberType;
 import com.fasterxml.jackson.core.io.NumberInput;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.Converter;
@@ -903,14 +904,17 @@ public abstract class StdDeserializer<T>
     {
         final AnnotationIntrospector intr = ctxt.getAnnotationIntrospector();
         if (intr != null && prop != null) {
-            Object convDef = intr.findDeserializationContentConverter(prop.getMember());
-            if (convDef != null) {
-                Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
-                JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
-                if (existingDeserializer == null) {
-                    existingDeserializer = ctxt.findContextualValueDeserializer(delegateType, prop);
+            AnnotatedMember member = prop.getMember();
+            if (member != null) {
+                Object convDef = intr.findDeserializationContentConverter(member);
+                if (convDef != null) {
+                    Converter<Object,Object> conv = ctxt.converterInstance(prop.getMember(), convDef);
+                    JavaType delegateType = conv.getInputType(ctxt.getTypeFactory());
+                    if (existingDeserializer == null) {
+                        existingDeserializer = ctxt.findContextualValueDeserializer(delegateType, prop);
+                    }
+                    return new StdDelegatingDeserializer<Object>(conv, delegateType, existingDeserializer);
                 }
-                return new StdDelegatingDeserializer<Object>(conv, delegateType, existingDeserializer);
             }
         }
         return existingDeserializer;

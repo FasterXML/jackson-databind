@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
@@ -15,6 +16,7 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
  * Deserializer class that can deserialize instances of
  * specified Enum class from Strings and Integers.
  */
+@JacksonStdImpl // was missing until 2.6
 public class EnumDeserializer
     extends StdScalarDeserializer<Enum<?>>
 {
@@ -58,18 +60,18 @@ public class EnumDeserializer
      */
     @Override
     public boolean isCachable() { return true; }
-    
+
     @Override
-    public Enum<?> deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public Enum<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken curr = jp.getCurrentToken();
+        JsonToken curr = p.getCurrentToken();
         
         // Usually should just get string value:
         if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
-            String name = jp.getText();
+            String name = p.getText();
             Enum<?> result = _resolver.findEnum(name);
             if (result == null) {
-                return _deserializeAltString(jp, ctxt, name);
+                return _deserializeAltString(p, ctxt, name);
             }
             return result;
         }
@@ -78,7 +80,7 @@ public class EnumDeserializer
             // ... unless told not to do that. :-) (as per [JACKSON-412]
             _checkFailOnNumber(ctxt);
             
-            int index = jp.getIntValue();
+            int index = p.getIntValue();
             Enum<?> result = _resolver.getEnum(index);
             if (result == null && !ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
                 throw ctxt.weirdNumberException(Integer.valueOf(index), _resolver.getEnumClass(),
@@ -86,10 +88,10 @@ public class EnumDeserializer
             }
             return result;
         }
-        return _deserializeOther(jp, ctxt);
+        return _deserializeOther(p, ctxt);
     }
 
-    private final Enum<?> _deserializeAltString(JsonParser jp, DeserializationContext ctxt,
+    private final Enum<?> _deserializeAltString(JsonParser p, DeserializationContext ctxt,
             String name) throws IOException
     {
         name = name.trim();
@@ -120,16 +122,16 @@ public class EnumDeserializer
         return null;
     }
 
-    protected Enum<?> _deserializeOther(JsonParser jp, DeserializationContext ctxt) throws IOException
+    protected Enum<?> _deserializeOther(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken curr = jp.getCurrentToken();
+        JsonToken curr = p.getCurrentToken();
         // Issue#381
         if (curr == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-            jp.nextToken();
-            final Enum<?> parsed = deserialize(jp, ctxt);
-            curr = jp.nextToken();
+            p.nextToken();
+            final Enum<?> parsed = deserialize(p, ctxt);
+            curr = p.nextToken();
             if (curr != JsonToken.END_ARRAY) {
-                throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY,
+                throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY,
                         "Attempted to unwrap single value array for single '" + _resolver.getEnumClass().getName() + "' value but there was more than a single value in the array");
             }
             return parsed;
@@ -195,13 +197,13 @@ public class EnumDeserializer
         }
         
         @Override
-        public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             Object value;
             if (_deser != null) {
-                value = _deser.deserialize(jp, ctxt);
+                value = _deser.deserialize(p, ctxt);
             } else {
-                value = jp.getValueAsString();
+                value = p.getValueAsString();
             }
             try {
                 return _factory.invoke(_valueClass, value);
@@ -215,11 +217,11 @@ public class EnumDeserializer
         }
 
         @Override
-        public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
+        public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException {
             if (_deser == null) { // String never has type info
-                return deserialize(jp, ctxt);
+                return deserialize(p, ctxt);
             }
-            return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
+            return typeDeserializer.deserializeTypedFromAny(p, ctxt);
         }
     }
 }

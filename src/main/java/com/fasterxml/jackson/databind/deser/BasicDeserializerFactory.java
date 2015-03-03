@@ -1330,7 +1330,7 @@ public abstract class BasicDeserializerFactory
             return StdKeyDeserializers.constructDelegatingKeyDeserializer(config, type, custom);
         }
 
-        EnumResolver<?> enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueMethod());
+        EnumResolver enumRes = constructEnumResolver(enumClass, config, beanDesc.findJsonValueMethod());
         // [JACKSON-193] May have @JsonCreator for static factory method:
         for (AnnotatedMethod factory : beanDesc.getFactoryMethods()) {
             if (config.getAnnotationIntrospector().hasCreatorAnnotation(factory)) {
@@ -1803,7 +1803,7 @@ public abstract class BasicDeserializerFactory
         return type;
     }
     
-    protected EnumResolver<?> constructEnumResolver(Class<?> enumClass,
+    protected EnumResolver constructEnumResolver(Class<?> enumClass,
             DeserializationConfig config, AnnotatedMethod jsonValueMethod)
     {
         if (jsonValueMethod != null) {

@@ -318,11 +318,11 @@ public class StdKeyDeserializer extends KeyDeserializer
     {
         private static final long serialVersionUID = 1L;
 
-        protected final EnumResolver<?> _resolver;
+        protected final EnumResolver _resolver;
 
         protected final AnnotatedMethod _factory;
 
-        protected EnumKD(EnumResolver<?> er, AnnotatedMethod factory) {
+        protected EnumKD(EnumResolver er, AnnotatedMethod factory) {
             super(-1, er.getEnumClass());
             _resolver = er;
             _factory = factory;

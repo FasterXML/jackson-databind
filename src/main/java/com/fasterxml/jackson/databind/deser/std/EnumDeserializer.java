@@ -18,13 +18,13 @@ import com.fasterxml.jackson.databind.util.EnumResolver;
  */
 @JacksonStdImpl // was missing until 2.6
 public class EnumDeserializer
-    extends StdScalarDeserializer<Enum<?>>
+    extends StdScalarDeserializer<Object>
 {
     private static final long serialVersionUID = 1L;
 
-    protected final EnumResolver<?> _resolver;
+    protected final EnumResolver _resolver;
     
-    public EnumDeserializer(EnumResolver<?> res)
+    public EnumDeserializer(EnumResolver res)
     {
         super(Enum.class);
         _resolver = res;
@@ -62,7 +62,7 @@ public class EnumDeserializer
     public boolean isCachable() { return true; }
 
     @Override
-    public Enum<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         JsonToken curr = p.getCurrentToken();
         
@@ -122,13 +122,13 @@ public class EnumDeserializer
         return null;
     }
 
-    protected Enum<?> _deserializeOther(JsonParser p, DeserializationContext ctxt) throws IOException
+    protected Object _deserializeOther(JsonParser p, DeserializationContext ctxt) throws IOException
     {
         JsonToken curr = p.getCurrentToken();
         // Issue#381
         if (curr == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             p.nextToken();
-            final Enum<?> parsed = deserialize(p, ctxt);
+            final Object parsed = deserialize(p, ctxt);
             curr = p.nextToken();
             if (curr != JsonToken.END_ARRAY) {
                 throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY,

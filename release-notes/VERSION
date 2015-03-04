@@ -12,6 +12,7 @@ Project: jackson-databind
  (reported by Charles A)
 #700: Cannot Change Default Abstract Type Mapper from LinkedHashMap
  (reported by wealdtech@github)
+- Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.2 (not yet released)
 

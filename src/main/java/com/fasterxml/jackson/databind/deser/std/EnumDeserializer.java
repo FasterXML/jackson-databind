@@ -77,7 +77,7 @@ public class EnumDeserializer
         }
         // But let's consider int acceptable as well (if within ordinal range)
         if (curr == JsonToken.VALUE_NUMBER_INT) {
-            // ... unless told not to do that. :-) (as per [JACKSON-412]
+            // ... unless told not to do that. :-) (as per [JACKSON-412])
             _checkFailOnNumber(ctxt);
             
             int index = p.getIntValue();

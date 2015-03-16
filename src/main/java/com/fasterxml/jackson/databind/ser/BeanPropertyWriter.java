@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.SerializableString;
 import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.introspect.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
@@ -32,6 +33,7 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * code and this is to reduce likelihood of data corruption and
  * synchronization issues.
  */
+@JacksonStdImpl // since 2.6. NOTE: sub-classes typically are not
 public class BeanPropertyWriter extends PropertyWriter
     implements BeanProperty
 {

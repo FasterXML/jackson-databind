@@ -650,6 +650,19 @@ public abstract class DeserializationContext
         return deser;
     }
 
+    @Deprecated // since 2.5; remove from 2.7
+    public JsonDeserializer<?> handlePrimaryContextualization(JsonDeserializer<?> deser, BeanProperty prop) throws JsonMappingException {
+        return handlePrimaryContextualization(deser, prop, TypeFactory.unknownType());
+    }
+
+    @Deprecated // since 2.5; remove from 2.7
+    public JsonDeserializer<?> handleSecondaryContextualization(JsonDeserializer<?> deser, BeanProperty prop) throws JsonMappingException {
+        if (deser instanceof ContextualDeserializer) {
+            deser = ((ContextualDeserializer) deser).createContextual(this, prop);
+        }
+        return deser;
+    }
+
     /*
     /**********************************************************
     /* Parsing methods that may use reusable/-cyclable objects

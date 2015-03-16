@@ -20,7 +20,7 @@ public class POJOPropertiesCollector
     /* Configuration
     /**********************************************************
      */
-    
+
     /**
      * Configuration settings
      */

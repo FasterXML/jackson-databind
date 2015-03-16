@@ -78,8 +78,8 @@ public class MultiArgConstructorTest extends BaseMapTest
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new MyParamIntrospector());
-        MultiArgCtorBean bean = mapper.readValue(aposToQuotes("{'b2':7, 'c':222, 'a':-99}"),
-                MultiArgCtorBean.class);
+        MultiArgCtorBeanWithAnnotations bean = mapper.readValue(aposToQuotes("{'b2':7, 'c':222, 'a':-99}"),
+                MultiArgCtorBeanWithAnnotations.class);
         assertNotNull(bean);
         assertEquals(7, bean._b);
         assertEquals(-99, bean._a);

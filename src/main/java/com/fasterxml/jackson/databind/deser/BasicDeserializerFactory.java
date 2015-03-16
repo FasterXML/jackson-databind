@@ -6,11 +6,12 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+
 import com.fasterxml.jackson.core.JsonLocation;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
-import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
 import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
@@ -19,11 +20,7 @@ import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.type.*;
-import com.fasterxml.jackson.databind.util.ClassUtil;
-import com.fasterxml.jackson.databind.util.EnumResolver;
-import com.fasterxml.jackson.databind.util.NameTransformer;
-import com.fasterxml.jackson.databind.util.SimpleBeanPropertyDefinition;
-import com.fasterxml.jackson.databind.util.TokenBuffer;
+import com.fasterxml.jackson.databind.util.*;
 
 /**
  * Abstract factory base class that can provide deserializers for standard
@@ -495,10 +492,18 @@ public abstract class BasicDeserializerFactory
                 // simple case; everything covered:
                 if ((namedCount + injectCount) == argCount) {
                     creators.addPropertyCreator(ctor, isCreator, properties);
-                } else if ((explicitNameCount == 0) && ((injectCount + 1) == argCount)) {
+                    continue;
+                }
+                if ((explicitNameCount == 0) && ((injectCount + 1) == argCount)) {
                     // Secondary: all but one injectable, one un-annotated (un-named)
                     creators.addDelegatingCreator(ctor, isCreator, properties);
-                } else { // otherwise, epic fail
+                    continue;
+                }
+                // otherwise, epic fail?
+                // 16-Mar-2015, tatu: due to [#725], need to be more permissive. For now let's
+                //    only report problem if there's no implicit name
+                PropertyName impl = _findImplicitParamName(nonAnnotatedParam, intr);
+                if (impl == null || impl.isEmpty()) {
                     // Let's consider non-static inner class as a special case...
                     int ix = nonAnnotatedParam.getIndex();
                     if ((ix == 0) && ClassUtil.isNonStaticInnerClass(ctor.getDeclaringClass())) {
@@ -508,7 +513,6 @@ public abstract class BasicDeserializerFactory
                     throw new IllegalArgumentException("Argument #"+ix
                             +" of constructor "+ctor+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
                 }
-                continue;
             }
             // [#725]: as a fallback, all-implicit names may work as well
             if (!creators.hasDefaultCreator()) {
@@ -518,7 +522,6 @@ public abstract class BasicDeserializerFactory
                 implicitCtors.add(ctor);
             }
         }
-
         // last option, as per [#725]: consider implicit-names-only, visible constructor,
         // if just one found
         if ((implicitCtors != null) && !creators.hasDelegatingCreator()
@@ -546,7 +549,6 @@ public abstract class BasicDeserializerFactory
                 continue;
             }
             // as per earlier notes, only end up here if no properties associated with creator
-
             final int argCount = ctor.getParameterCount();
             CreatorProperty[] properties = new CreatorProperty[argCount];
             for (int i = 0; i < argCount; ++i) {
@@ -889,21 +891,20 @@ public abstract class BasicDeserializerFactory
         return null;
     }
 
-    @Deprecated // in 2.6, remove from 2.7
-    protected PropertyName _findExplicitParamName(AnnotatedParameter param, AnnotationIntrospector intr)
-    {
-        if (param != null && intr != null) {
-            return intr.findNameForDeserialization(param);
-        }
-        return null;
-    }
-
-    @Deprecated // in 2.6, remove from 2.7
     protected PropertyName _findImplicitParamName(AnnotatedParameter param, AnnotationIntrospector intr)
     {
         String str = intr.findImplicitPropertyName(param);
         if (str != null && !str.isEmpty()) {
             return PropertyName.construct(str);
+        }
+        return null;
+    }
+
+    @Deprecated // in 2.6, remove from 2.7
+    protected PropertyName _findExplicitParamName(AnnotatedParameter param, AnnotationIntrospector intr)
+    {
+        if (param != null && intr != null) {
+            return intr.findNameForDeserialization(param);
         }
         return null;
     }
@@ -917,7 +918,7 @@ public abstract class BasicDeserializerFactory
         }
         return false;
     }
-    
+
     /*
     /**********************************************************
     /* JsonDeserializerFactory impl: array deserializers

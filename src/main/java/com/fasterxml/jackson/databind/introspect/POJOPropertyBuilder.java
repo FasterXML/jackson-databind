@@ -127,7 +127,12 @@ public class POJOPropertyBuilder
     public PropertyName getFullName() {
         return _name;
     }
-    
+
+    @Override
+    public boolean hasName(PropertyName name) {
+        return _name.equals(name);
+    }
+
     @Override
     public String getInternalName() { return _internalName.getSimpleName(); }
 

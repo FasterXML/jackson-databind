@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.failing;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
@@ -11,14 +12,28 @@ public class MultiArgConstructorTest extends BaseMapTest
 {
     static class MultiArgCtorBean
     {
-        protected int a, b;
+        protected int _a, _b;
 
+        public int c;
+        
         public MultiArgCtorBean(int a, int b) {
-            this.a = a;
-            this.b = b;
+            _a = a;
+            _b = b;
         }
     }
 
+    static class MultiArgCtorBeanWithAnnotations
+    {
+        protected int _a, _b;
+
+        public int c;
+        
+        public MultiArgCtorBeanWithAnnotations(int a, @JsonProperty("b2") int b) {
+            _a = a;
+            _b = b;
+        }
+    }
+    
     /* Before JDK8, we won't have parameter names available, so let's
      * fake it before that...
      */
@@ -50,13 +65,27 @@ public class MultiArgConstructorTest extends BaseMapTest
     {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new MyParamIntrospector());
-        MultiArgCtorBean bean = mapper.readValue(aposToQuotes("{'b':13,  'a':-99}"),
+        MultiArgCtorBean bean = mapper.readValue(aposToQuotes("{'b':13, 'c':2, 'a':-99}"),
                 MultiArgCtorBean.class);
         assertNotNull(bean);
-        assertEquals(13, bean.b);
-        assertEquals(-99, bean.a);
+        assertEquals(13, bean._b);
+        assertEquals(-99, bean._a);
+        assertEquals(2, bean.c);
     }
 
+    // But besides visibility, also allow overrides
+    public void testMultiArgWithPartialOverride() throws Exception
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new MyParamIntrospector());
+        MultiArgCtorBean bean = mapper.readValue(aposToQuotes("{'b2':7, 'c':222, 'a':-99}"),
+                MultiArgCtorBean.class);
+        assertNotNull(bean);
+        assertEquals(7, bean._b);
+        assertEquals(-99, bean._a);
+        assertEquals(222, bean.c);
+    }
+    
     // but let's also ensure that it is possible to prevent use of that constructor
     // with different visibility
     public void testMultiArgNotVisible() throws Exception

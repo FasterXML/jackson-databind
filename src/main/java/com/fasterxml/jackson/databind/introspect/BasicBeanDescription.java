@@ -163,6 +163,36 @@ public class BasicBeanDescription extends BeanDescription
         }
         return false;
     }
+
+    public boolean addProperty(BeanPropertyDefinition def)
+    {
+        // first: ensure we do not have such property
+        if (hasProperty(def.getFullName())) {
+            return false;
+        }
+        _properties.add(def);
+        return true;
+    }
+    
+    /**
+     * @since 2.6
+     */
+    public boolean hasProperty(PropertyName name) {
+        return findProperty(name) != null;
+    }
+    
+    /**
+     * @since 2.6
+     */
+    public BeanPropertyDefinition findProperty(PropertyName name)
+    {
+        for (BeanPropertyDefinition prop : _properties) {
+            if (prop.hasName(name)) {
+                return prop;
+            }
+        }
+        return null;
+    }
     
     /*
     /**********************************************************

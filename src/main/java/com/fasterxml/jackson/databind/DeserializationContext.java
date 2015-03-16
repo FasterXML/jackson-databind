@@ -619,14 +619,6 @@ public abstract class DeserializationContext
         return deser;
     }
 
-    @Deprecated // since 2.5; remove from 2.6
-    public JsonDeserializer<?> handlePrimaryContextualization(JsonDeserializer<?> deser,
-            BeanProperty prop)
-        throws JsonMappingException
-    {
-        return handlePrimaryContextualization(deser, prop, TypeFactory.unknownType());
-    }
-    
     /**
      * Method called for secondary property deserializers (ones
      * NOT directly created to deal with an annotatable POJO property,
@@ -654,17 +646,6 @@ public abstract class DeserializationContext
             } finally {
                 _currentType = _currentType.next();
             }
-        }
-        return deser;
-    }
-
-    @Deprecated // since 2.5; remove from 2.6
-    public JsonDeserializer<?> handleSecondaryContextualization(JsonDeserializer<?> deser,
-            BeanProperty prop)
-        throws JsonMappingException
-    {
-        if (deser instanceof ContextualDeserializer) {
-            deser = ((ContextualDeserializer) deser).createContextual(this, prop);
         }
         return deser;
     }

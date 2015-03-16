@@ -20,8 +20,8 @@ public class SimpleBeanPropertyDefinition
     extends BeanPropertyDefinition
 {
 	protected final AnnotationIntrospector _introspector;
-	
-    /**
+
+	/**
      * Member that defines logical property. Assumption is that it
      * should be a 'simple' accessor; meaning a zero-argument getter,
      * single-argument setter or constructor parameter.
@@ -34,23 +34,23 @@ public class SimpleBeanPropertyDefinition
      * @since 2.5
      */
     protected final PropertyMetadata _metadata;
-    
+
     /**
      * @since 2.5
      */
     protected final PropertyName _fullName;
-    
+
     /**
      * @since 2.5
      */
     protected final JsonInclude.Include _inclusion;
-    
+
     /**
      * @deprecated Since 2.5 use <code>_fullName</code> instead.
      */
     @Deprecated
     protected final String _name;
-    
+
     /*
     /**********************************************************
     /* Construction
@@ -103,7 +103,7 @@ public class SimpleBeanPropertyDefinition
                 (config == null) ? null : config.getAnnotationIntrospector(),
                         null, null);
     }
-    
+
     /**
      * @deprecated Since 2.5
      */
@@ -122,7 +122,7 @@ public class SimpleBeanPropertyDefinition
             AnnotatedMember member, PropertyName name) {
         return construct(config, member, name, null, null);
     }
-    
+
     /**
      * @since 2.5
      */
@@ -132,16 +132,16 @@ public class SimpleBeanPropertyDefinition
           return new SimpleBeanPropertyDefinition(member, name,
                   (config == null) ? null : config.getAnnotationIntrospector(),
                           metadata, inclusion);
-      }
-    
+    }
+
     /*
     /**********************************************************
     /* Fluent factories
     /**********************************************************
      */
 
-    @Deprecated // since 2.3
-    @Override
+    // Note: removed from base class in 2.6; left here until 2.7
+    @Deprecated // since 2.3 (remove in 2.7)
     public BeanPropertyDefinition withName(String newName) {
         return withSimpleName(newName);
     }
@@ -185,7 +185,7 @@ public class SimpleBeanPropertyDefinition
         return new SimpleBeanPropertyDefinition(_member, _fullName,
                 _introspector, _metadata, inclusion);
     }
-    
+
     /*
     /**********************************************************
     /* Basic property information, name, type
@@ -197,6 +197,11 @@ public class SimpleBeanPropertyDefinition
 
     @Override
     public PropertyName getFullName() { return _fullName; }
+
+    @Override
+    public boolean hasName(PropertyName name) {
+        return _fullName.equals(name);
+    }
 
     @Override
     public String getInternalName() { return getName(); }
@@ -243,7 +248,7 @@ public class SimpleBeanPropertyDefinition
 
     @Override
     public boolean hasConstructorParameter() { return (_member instanceof AnnotatedParameter); }
-    
+
     @Override
     public AnnotatedMethod getGetter() {
         if ((_member instanceof AnnotatedMethod)
@@ -252,7 +257,7 @@ public class SimpleBeanPropertyDefinition
         }
         return null;
     }
-        
+
     @Override
     public AnnotatedMethod getSetter() {
         if ((_member instanceof AnnotatedMethod)
@@ -280,7 +285,7 @@ public class SimpleBeanPropertyDefinition
         }
         return Collections.singleton(param).iterator();
     }
-    
+
     /**
      * Method used to find accessor (getter, field to access) to use for accessing
      * value of the property.

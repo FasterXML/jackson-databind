@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig;
 import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
+import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.deser.impl.CreatorCollector;
 import com.fasterxml.jackson.databind.deser.std.*;
 import com.fasterxml.jackson.databind.ext.OptionalHandlerFactory;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.type.*;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.databind.util.EnumResolver;
 import com.fasterxml.jackson.databind.util.NameTransformer;
+import com.fasterxml.jackson.databind.util.SimpleBeanPropertyDefinition;
 import com.fasterxml.jackson.databind.util.TokenBuffer;
 
 /**
@@ -310,9 +312,12 @@ public abstract class BasicDeserializerFactory
          *  declarations (which are needed to access creator annotation, amongst other things).
          *  Easiest to combine that info first, then pass it to remaining processing.
          */
+        /* 15-Mar-2015, tatu: Alas, this won't help with constructors that only have implicit
+         *   names. Those will need to be resolved later on.
+         */
         Map<AnnotatedWithParams,BeanPropertyDefinition[]> creatorDefs = _findCreatorsFromProperties(ctxt,
                 beanDesc);
-        
+
         /* Important: first add factory methods; then constructors, so
          * latter can override former!
          */
@@ -337,7 +342,7 @@ public abstract class BasicDeserializerFactory
                 final int index = param.getIndex();
                 
                 if (defs == null) {
-                    if (result.isEmpty()) {
+                    if (result.isEmpty()) { // since emptyMap is immutable need to create a 'real' one
                         result = new LinkedHashMap<AnnotatedWithParams,BeanPropertyDefinition[]>();
                     }
                     defs = new BeanPropertyDefinition[owner.getParameterCount()];
@@ -391,15 +396,6 @@ public abstract class BasicDeserializerFactory
                 config.canOverrideAccessModifiers());
     }
 
-    @Deprecated // since 2.5.0, removed from 2.6.0
-    protected void _addDeserializerConstructors(DeserializationContext ctxt, BeanDescription beanDesc, VisibilityChecker<?> vchecker,
-            AnnotationIntrospector intr, CreatorCollector creators)
-        throws JsonMappingException
-    {
-        _addDeserializerConstructors(ctxt, beanDesc, vchecker, intr, creators,
-                Collections.<AnnotatedWithParams,BeanPropertyDefinition[]>emptyMap());
-    }
-    
     protected void _addDeserializerConstructors
         (DeserializationContext ctxt, BeanDescription beanDesc, VisibilityChecker<?> vchecker,
          AnnotationIntrospector intr, CreatorCollector creators,
@@ -415,6 +411,10 @@ public abstract class BasicDeserializerFactory
                 creators.setDefaultCreator(defaultCtor);
             }
         }
+
+        // may need to keep track for [#725]
+        List<AnnotatedConstructor> implicitCtors = null;
+        
         for (AnnotatedConstructor ctor : beanDesc.getConstructors()) {
             final boolean isCreator = intr.hasCreatorAnnotation(ctor);
             BeanPropertyDefinition[] propDefs = creatorParams.get(ctor);
@@ -447,16 +447,21 @@ public abstract class BasicDeserializerFactory
             }
 
             // 2 or more args; all params must have names or be injectable
-            AnnotatedParameter nonAnnotatedParam = null;            
+            // 14-Mar-2015, tatu (2.6): Or, as per [#725], implicit names will also
+            //   do, with some constraints. But that will require bit post processing...
+            
+            AnnotatedParameter nonAnnotatedParam = null;
             CreatorProperty[] properties = new CreatorProperty[argCount];
             int explicitNameCount = 0;
-            int implicitNameCount = 0;
-            int injectCount = 0;            
+            int implicitWithCreatorCount = 0;
+            int injectCount = 0;
+
             for (int i = 0; i < argCount; ++i) {
                 final AnnotatedParameter param = ctor.getParameter(i);
                 BeanPropertyDefinition propDef = (propDefs == null) ? null : propDefs[i];
                 Object injectId = intr.findInjectableValueId(param);
                 final PropertyName name = (propDef == null) ? null : propDef.getFullName();
+
                 if (propDef != null && propDef.isExplicitlyNamed()) {
                     ++explicitNameCount;
                     properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
@@ -474,29 +479,27 @@ public abstract class BasicDeserializerFactory
                     continue;
                 }
                 // One more thing: implicit names are ok iff ctor has creator annotation
-                if (isCreator) {
-                    if (name != null && !name.isEmpty()) {
-                        ++implicitNameCount;
-                        properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
-                        continue;
-                    }
+                if (isCreator && (name != null && !name.isEmpty())) {
+                    ++implicitWithCreatorCount;
+                    properties[i] = constructCreatorProperty(ctxt, beanDesc, name, i, param, injectId);
+                    continue;
                 }
                 if (nonAnnotatedParam == null) {
                     nonAnnotatedParam = param;
                 }
             }
 
-            final int namedCount = explicitNameCount + implicitNameCount;
+            final int namedCount = explicitNameCount + implicitWithCreatorCount;
             // Ok: if named or injectable, we have more work to do
-            if (isCreator || explicitNameCount > 0 || injectCount > 0) {
+            if (isCreator || (explicitNameCount > 0) || (injectCount > 0)) {
                 // simple case; everything covered:
                 if ((namedCount + injectCount) == argCount) {
                     creators.addPropertyCreator(ctor, isCreator, properties);
                 } else if ((explicitNameCount == 0) && ((injectCount + 1) == argCount)) {
-                    // [712] secondary: all but one injectable, one un-annotated (un-named)
+                    // Secondary: all but one injectable, one un-annotated (un-named)
                     creators.addDelegatingCreator(ctor, isCreator, properties);
                 } else { // otherwise, epic fail
-                    // 28-Dec-2014, tatu: Let's consider non-static inner class as a special case...
+                    // Let's consider non-static inner class as a special case...
                     int ix = nonAnnotatedParam.getIndex();
                     if ((ix == 0) && ClassUtil.isNonStaticInnerClass(ctor.getDeclaringClass())) {
                         throw new IllegalArgumentException("Non-static inner classes like "
@@ -504,6 +507,77 @@ public abstract class BasicDeserializerFactory
                     }
                     throw new IllegalArgumentException("Argument #"+ix
                             +" of constructor "+ctor+" has no property name annotation; must have name when multiple-parameter constructor annotated as Creator");
+                }
+                continue;
+            }
+            // [#725]: as a fallback, all-implicit names may work as well
+            if (!creators.hasDefaultCreator()) {
+                if (implicitCtors == null) {
+                    implicitCtors = new LinkedList<AnnotatedConstructor>();
+                }
+                implicitCtors.add(ctor);
+            }
+        }
+
+        // last option, as per [#725]: consider implicit-names-only, visible constructor,
+        // if just one found
+        if ((implicitCtors != null) && !creators.hasDelegatingCreator()
+                && !creators.hasPropertyBasedCreator()) {
+            _checkImplicitlyNamedConstructors(ctxt, beanDesc, vchecker, intr,
+                    creators, implicitCtors);
+        }
+    }
+
+    protected void _checkImplicitlyNamedConstructors(DeserializationContext ctxt,
+            BeanDescription beanDesc, VisibilityChecker<?> vchecker,
+            AnnotationIntrospector intr, CreatorCollector creators,
+            List<AnnotatedConstructor> implicitCtors) throws JsonMappingException
+    {
+        AnnotatedConstructor found = null;
+        CreatorProperty[] foundProps = null;
+
+        // Further checks: (a) must have names for all parameters, (b) only one visible
+        // Also, since earlier matching of properties and creators relied on existence of
+        // `@JsonCreator` (or equivalent) annotation, we need to do bit more re-inspection...
+
+        main_loop:
+        for (AnnotatedConstructor ctor : implicitCtors) {
+            if (!vchecker.isCreatorVisible(ctor)) {
+                continue;
+            }
+            // as per earlier notes, only end up here if no properties associated with creator
+
+            final int argCount = ctor.getParameterCount();
+            CreatorProperty[] properties = new CreatorProperty[argCount];
+            for (int i = 0; i < argCount; ++i) {
+                final AnnotatedParameter param = ctor.getParameter(i);
+                final PropertyName name = _findParamName(param, intr);
+
+                // must have name (implicit fine)
+                if (name == null || name.isEmpty()) {
+                    continue main_loop;
+                }
+                properties[i] = constructCreatorProperty(ctxt, beanDesc, name, param.getIndex(),
+                        param, /*injectId*/ null);
+            }
+            if (found != null) { // only one allowed
+                found = null;
+                break;
+            }
+            found = ctor;
+            foundProps = properties;
+        }
+        // found one and only one visible? Ship it!
+        if (found != null) {
+            creators.addPropertyCreator(found, /*isCreator*/ false, foundProps);
+            BasicBeanDescription bbd = (BasicBeanDescription) beanDesc;
+            // Also: add properties, to keep error messages complete wrt known properties...
+            for (CreatorProperty prop : foundProps) {
+                PropertyName pn = prop.getFullName();
+                if (!bbd.hasProperty(pn)) {
+                    BeanPropertyDefinition newDef = SimpleBeanPropertyDefinition.construct(
+                            ctxt.getConfig(), prop.getMember(), pn);
+                    bbd.addProperty(newDef);
                 }
             }
         }
@@ -583,15 +657,6 @@ public abstract class BasicDeserializerFactory
             return true;
         }
         return false;
-    }
-
-    @Deprecated // since 2.5, remove from 2.6
-    protected void _addDeserializerFactoryMethods(DeserializationContext ctxt, BeanDescription beanDesc, VisibilityChecker<?> vchecker,
-            AnnotationIntrospector intr, CreatorCollector creators)
-        throws JsonMappingException
-    {
-        _addDeserializerFactoryMethods(ctxt, beanDesc, vchecker, intr, creators,
-                Collections.<AnnotatedWithParams,BeanPropertyDefinition[]>emptyMap());
     }
 
     protected void _addDeserializerFactoryMethods
@@ -805,7 +870,7 @@ public abstract class BasicDeserializerFactory
         }
         return prop;
     }
-    
+
     protected PropertyName _findParamName(AnnotatedParameter param, AnnotationIntrospector intr)
     {
         if (param != null && intr != null) {
@@ -813,9 +878,9 @@ public abstract class BasicDeserializerFactory
             if (name != null) {
                 return name;
             }
-            /* 14-Apr-2014, tatu: Need to also consider possible implicit name
-            *   (for JDK8, or via paranamer)
-            */
+            // 14-Apr-2014, tatu: Need to also consider possible implicit name
+            //  (for JDK8, or via paranamer)
+
             String str = intr.findImplicitPropertyName(param);
             if (str != null && !str.isEmpty()) {
                 return PropertyName.construct(str);
@@ -824,6 +889,7 @@ public abstract class BasicDeserializerFactory
         return null;
     }
 
+    @Deprecated // in 2.6, remove from 2.7
     protected PropertyName _findExplicitParamName(AnnotatedParameter param, AnnotationIntrospector intr)
     {
         if (param != null && intr != null) {
@@ -832,6 +898,7 @@ public abstract class BasicDeserializerFactory
         return null;
     }
 
+    @Deprecated // in 2.6, remove from 2.7
     protected PropertyName _findImplicitParamName(AnnotatedParameter param, AnnotationIntrospector intr)
     {
         String str = intr.findImplicitPropertyName(param);
@@ -840,7 +907,8 @@ public abstract class BasicDeserializerFactory
         }
         return null;
     }
-    
+
+    @Deprecated // in 2.6, remove from 2.7
     protected boolean _hasExplicitParamName(AnnotatedParameter param, AnnotationIntrospector intr)
     {
         if (param != null && intr != null) {

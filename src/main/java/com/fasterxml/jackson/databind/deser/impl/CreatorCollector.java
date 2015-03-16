@@ -56,12 +56,12 @@ public class CreatorCollector
      * @since 2.5
      */
     protected int _explicitCreators = 0;
-    
+
     protected boolean _hasNonDefaultCreator = false;
-    
+
     // when there are injectable values along with delegate:
     protected CreatorProperty[] _delegateArgs;
-    
+
     protected CreatorProperty[] _propertyBasedArgs;
 
     protected AnnotatedParameter _incompleteParameter;
@@ -240,12 +240,6 @@ public class CreatorCollector
         addPropertyCreator(creator, false, properties);
     }
 
-    @Deprecated // since 2.5, remove from 2.6
-    protected AnnotatedWithParams verifyNonDup(AnnotatedWithParams newOne, int typeIndex) {
-        verifyNonDup(newOne, typeIndex, false);
-        return _creators[typeIndex];
-    }
-    
     /*
     /**********************************************************
     /* Accessors
@@ -259,6 +253,20 @@ public class CreatorCollector
         return _creators[C_DEFAULT] != null;
     }
 
+    /**
+     * @since 2.6
+     */
+    public boolean hasDelegatingCreator() {
+        return _creators[C_DELEGATE] != null;
+    }
+
+    /**
+     * @since 2.6
+     */
+    public boolean hasPropertyBasedCreator() {
+        return _creators[C_PROPS] != null;
+    }
+    
     /*
     /**********************************************************
     /* Helper methods

@@ -25,9 +25,6 @@ public abstract class BeanPropertyDefinition
     /**********************************************************
      */
 
-    @Deprecated // since 2.3
-    public BeanPropertyDefinition withName(String newName) { return withSimpleName(newName); }
-
     /**
      * Method that can be used to create a definition with
      * same settings as this one, but with different
@@ -59,6 +56,13 @@ public abstract class BeanPropertyDefinition
     public abstract String getName();
 
     public abstract PropertyName getFullName();
+
+    /**
+     * @since 2.6
+     */
+    public boolean hasName(PropertyName name) {
+        return getFullName().equals(name);
+    }
     
     /**
      * Accessor that can be used to determine implicit name from underlying

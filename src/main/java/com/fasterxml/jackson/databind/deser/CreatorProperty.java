@@ -55,7 +55,7 @@ public class CreatorProperty
      * @since 2.3
      */
     protected final SettableBeanProperty _fallbackSetter;
-    
+
     /**
      * @param name Name of the logical property
      * @param type Type of the property, used to find deserializer
@@ -83,18 +83,6 @@ public class CreatorProperty
         _fallbackSetter = null;
     }
 
-    @Deprecated // since 2.3
-    public CreatorProperty(String name, JavaType type, PropertyName wrapperName,
-            TypeDeserializer typeDeser,
-            Annotations contextAnnotations, AnnotatedParameter param,
-            int index, Object injectableValueId,
-            boolean isRequired)
-    {
-        this(new PropertyName(name), type, wrapperName, typeDeser,
-                contextAnnotations, param, index, injectableValueId,
-                PropertyMetadata.construct(isRequired, null, null, null));
-    }
-    
     /**
      * @since 2.3
      */
@@ -104,11 +92,6 @@ public class CreatorProperty
         _creatorIndex = src._creatorIndex;
         _injectableValueId = src._injectableValueId;
         _fallbackSetter = src._fallbackSetter;
-    }
-
-    @Deprecated // since 2.3
-    protected CreatorProperty(CreatorProperty src, String newName) {
-        this(src, new PropertyName(newName));
     }
 
     protected CreatorProperty(CreatorProperty src, JsonDeserializer<?> deser) {

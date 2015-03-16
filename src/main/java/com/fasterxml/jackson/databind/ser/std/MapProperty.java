@@ -45,18 +45,6 @@ public class MapProperty extends PropertyWriter
     }
 
     /**
-     * Deprecated method with wrong signature; value should not be assigned
-     * to property, should be passed via proper call-through methods.
-     * 
-     * @deprecated Since 2.5, remove in 2.6
-     */
-    @Deprecated // since 2.5
-    public void reset(Object key, Object value,
-            JsonSerializer<Object> keySer, JsonSerializer<Object> valueSer) {
-        reset(key, keySer, valueSer);
-    }
-    
-    /**
      * Initialization method that needs to be called before passing
      * property to filter.
      */

@@ -13,17 +13,17 @@ import com.fasterxml.jackson.databind.cfg.MapperConfig;
 public final class EnumValues
 {
     private final Class<Enum<?>> _enumClass;
-    
-    /**
-     * Use a more optimized String value here, to possibly speed up
-     * serialization.
-     */
-    private final EnumMap<?,SerializableString> _values;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private EnumValues(Class<Enum<?>> enumClass, Map<Enum<?>,SerializableString> v) {
+    private final Enum<?>[] _values;
+    private final SerializableString[] _textual;
+
+    private transient EnumMap<?,SerializableString> _asMap;
+
+    private EnumValues(Class<Enum<?>> enumClass, SerializableString[] textual)
+    {
         _enumClass = enumClass;
-        _values = new EnumMap(v);
+        _values = enumClass.getEnumConstants();
+        _textual = textual;
     }
 
     public static EnumValues construct(SerializationConfig config, Class<Enum<?>> enumClass) {
@@ -41,13 +41,12 @@ public final class EnumValues
         Class<? extends Enum<?>> cls = ClassUtil.findEnumType(enumClass);
         Enum<?>[] values = cls.getEnumConstants();
         if (values != null) {
-            // Type juggling... unfortunate
-            Map<Enum<?>,SerializableString> map = new HashMap<Enum<?>,SerializableString>();
+            SerializableString[] textual = new SerializableString[values.length];
             for (Enum<?> en : values) {
                 String value = config.getAnnotationIntrospector().findEnumValue(en);
-                map.put(en, config.compileString(value));
+                textual[en.ordinal()] = config.compileString(value);
             }
-            return new EnumValues(enumClass, map);
+            return new EnumValues(enumClass, textual);
         }
         throw new IllegalArgumentException("Can not determine enum constants for Class "+enumClass.getName());
     }
@@ -57,23 +56,39 @@ public final class EnumValues
         Class<? extends Enum<?>> cls = ClassUtil.findEnumType(enumClass);
         Enum<?>[] values = cls.getEnumConstants();
         if (values != null) {
-            // Type juggling... unfortunate
-            Map<Enum<?>,SerializableString> map = new HashMap<Enum<?>,SerializableString>();
+            SerializableString[] textual = new SerializableString[values.length];
             for (Enum<?> en : values) {
-                map.put(en, config.compileString(en.toString()));
+                textual[en.ordinal()] = config.compileString(en.toString());
             }
-            return new EnumValues(enumClass, map);
+            return new EnumValues(enumClass, textual);
         }
         throw new IllegalArgumentException("Can not determine enum constants for Class "+enumClass.getName());
     }
 
-    public SerializableString serializedValueFor(Enum<?> key) { return _values.get(key); }
-    public Collection<SerializableString> values() { return _values.values(); }
+    public SerializableString serializedValueFor(Enum<?> key) {
+        return _textual[key.ordinal()];
+    }
+
+    public Collection<SerializableString> values() {
+        return Arrays.asList(_textual);
+    }
 
     /**
      * Method used for serialization and introspection by core Jackson code.
      */
-    public EnumMap<?,SerializableString> internalMap() { return _values; }
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public EnumMap<?,SerializableString> internalMap() {
+        EnumMap<?,SerializableString> result = _asMap;
+        if (result == null) {
+            // Alas, need to create it in a round-about way, due to typing constraints...
+            Map<Enum<?>,SerializableString> map = new LinkedHashMap<Enum<?>,SerializableString>();
+            for (Enum<?> en : _values) {
+                map.put(en, _textual[en.ordinal()]);
+            }
+            result = new EnumMap(map);
+        }
+        return result;
+    }
 
     /**
      * @since 2.2

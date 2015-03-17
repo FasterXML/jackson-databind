@@ -3,7 +3,7 @@ package com.fasterxml.jackson.databind.ser.impl;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ser.SerializerCache.TypeKey;
+import com.fasterxml.jackson.databind.util.TypeKey;
 
 /**
  * Specialized read-only map used for storing and accessing serializers by type.

@@ -24,70 +24,85 @@ public class TypeKey
 
     public TypeKey() { }
 
+    public TypeKey(TypeKey src) {
+        _hashCode = src._hashCode;
+        _class = src._class;
+        _type = src._type;
+        _isTyped = src._isTyped;
+    }
+
     public TypeKey(Class<?> key, boolean typed) {
         _class = key;
         _type = null;
         _isTyped = typed;
-        _hashCode = hash(key, typed);
+        _hashCode = typed ? typedHash(key) : untypedHash(key);
     }
 
     public TypeKey(JavaType key, boolean typed) {
         _type = key;
         _class = null;
         _isTyped = typed;
-        _hashCode = hash(key, typed);
+        _hashCode = typed ? typedHash(key) : untypedHash(key);
     }
 
-    private final static int hash(Class<?> cls, boolean typed) {
-        int hash = cls.getName().hashCode();
-        if (typed) {
-            ++hash;
-        }
-        return hash;
+    public final static int untypedHash(Class<?> cls) {
+        return cls.getName().hashCode();
     }
 
-    private final static int hash(JavaType type, boolean typed) {
-        int hash = type.hashCode() - 1;
-        if (typed) {
-            --hash;
-        }
-        return hash;
+    public final static int typedHash(Class<?> cls) {
+        return cls.getName().hashCode()+1;
+    }
+
+    public final static int untypedHash(JavaType type) {
+        return type.hashCode() - 1;
+    }
+    
+    public final static int typedHash(JavaType type) {
+        return type.hashCode() - 2;
     }
     
     public final void resetTyped(Class<?> cls) {
         _type = null;
         _class = cls;
         _isTyped = true;
-        _hashCode = hash(cls, true);
+        _hashCode = typedHash(cls);
     }
 
     public final void resetUntyped(Class<?> cls) {
         _type = null;
         _class = cls;
         _isTyped = false;
-        _hashCode = hash(cls, false);
+        _hashCode = untypedHash(cls);
     }
     
     public final void resetTyped(JavaType type) {
         _type = type;
         _class = null;
         _isTyped = true;
-        _hashCode = hash(type, true);
+        _hashCode = typedHash(type);
     }
 
     public final void resetUntyped(JavaType type) {
         _type = type;
         _class = null;
         _isTyped = false;
-        _hashCode = hash(type, false);
+        _hashCode = untypedHash(type);
     }
-    
+
+    public boolean isTyped() {
+        return _isTyped;
+    }
+
+    public Class<?> getRawType() {
+        return _class;
+    }
+
+    public JavaType getType() {
+        return _type;
+    }
+
     @Override public final int hashCode() { return _hashCode; }
 
-    public final int hashCode(int hashAreaSize) {
-        return _hashCode & (hashAreaSize-1);
-    }
-    
     @Override public final String toString() {
         if (_class != null) {
             return "{class: "+_class.getName()+", typed? "+_isTyped+"}";

@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.ser.impl;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.util.TypeKey;
 
@@ -17,16 +18,18 @@ public class JsonSerializerMap
     private final Bucket[] _buckets;
 
     private final int _size;
+
+    private final int _mask;
     
     public JsonSerializerMap(Map<TypeKey,JsonSerializer<Object>> serializers)
     {
         int size = findSize(serializers.size());
         _size = size;
-        int hashMask = (size-1);
+        _mask = (size-1);
         Bucket[] buckets = new Bucket[size];
         for (Map.Entry<TypeKey,JsonSerializer<Object>> entry : serializers.entrySet()) {
             TypeKey key = entry.getKey();
-            int index = key.hashCode() & hashMask;
+            int index = key.hashCode() & _mask;
             buckets[index] = new Bucket(buckets[index], key, entry.getValue());
         }
         _buckets = buckets;
@@ -51,32 +54,72 @@ public class JsonSerializerMap
 
     public int size() { return _size; }
     
-    public JsonSerializer<Object> find(TypeKey key)
+    public JsonSerializer<Object> findTyped(JavaType type)
     {
-        Bucket bucket = _buckets[key.hashCode(_buckets.length)];
-        /* Ok let's actually try unrolling loop slightly as this shows up in profiler;
-         * and also because in vast majority of cases first entry is either null
-         * or matches.
-         */
-        if ((bucket != null) && bucket.key.equals(key)) {
-            return bucket.value;
-        }
-        return _find(key, bucket);
-    }
-    
-    private final JsonSerializer<Object> _find(TypeKey key, Bucket bucket) {
+        Bucket bucket = _buckets[TypeKey.typedHash(type) & _mask];
         if (bucket == null) {
             return null;
         }
-        while (true) {
-            bucket = bucket.next;
-            if (bucket == null) {
-                return null;
-            }
-            if (key.equals(bucket.key)) {
+        if (bucket.matchesTyped(type)) {
+            return bucket.value;
+        }
+        while ((bucket = bucket.next) != null) {
+            if (bucket.matchesTyped(type)) {
                 return bucket.value;
             }
         }
+        return null;
+    }
+
+    public JsonSerializer<Object> findTyped(Class<?> type)
+    {
+        Bucket bucket = _buckets[TypeKey.typedHash(type) & _mask];
+        if (bucket == null) {
+            return null;
+        }
+        if (bucket.matchesTyped(type)) {
+            return bucket.value;
+        }
+        while ((bucket = bucket.next) != null) {
+            if (bucket.matchesTyped(type)) {
+                return bucket.value;
+            }
+        }
+        return null;
+    }
+
+    public JsonSerializer<Object> findUntyped(JavaType type)
+    {
+        Bucket bucket = _buckets[TypeKey.untypedHash(type) & _mask];
+        if (bucket == null) {
+            return null;
+        }
+        if (bucket.matchesUntyped(type)) {
+            return bucket.value;
+        }
+        while ((bucket = bucket.next) != null) {
+            if (bucket.matchesUntyped(type)) {
+                return bucket.value;
+            }
+        }
+        return null;
+    }
+
+    public JsonSerializer<Object> findUntyped(Class<?> type)
+    {
+        Bucket bucket = _buckets[TypeKey.untypedHash(type) & _mask];
+        if (bucket == null) {
+            return null;
+        }
+        if (bucket.matchesUntyped(type)) {
+            return bucket.value;
+        }
+        while ((bucket = bucket.next) != null) {
+            if (bucket.matchesUntyped(type)) {
+                return bucket.value;
+            }
+        }
+        return null;
     }
 
     /*
@@ -87,15 +130,37 @@ public class JsonSerializerMap
 
     private final static class Bucket
     {
-        public final TypeKey key;
         public final JsonSerializer<Object> value;
         public final Bucket next;
+
+        protected final Class<?> _class;
+        protected final JavaType _type;
+
+        protected final boolean _isTyped;
         
         public Bucket(Bucket next, TypeKey key, JsonSerializer<Object> value)
         {
             this.next = next;
-            this.key = key;
             this.value = value;
+            _isTyped = key.isTyped();
+            _class = key.getRawType();
+            _type = key.getType();
+        }
+
+        public boolean matchesTyped(Class<?> key) {
+            return (_class == key) && _isTyped;
+        }
+
+        public boolean matchesUntyped(Class<?> key) {
+            return (_class == key) && !_isTyped;
+        }
+
+        public boolean matchesTyped(JavaType key) {
+            return _isTyped && key.equals(_type);
+        }
+
+        public boolean matchesUntyped(JavaType key) {
+            return !_isTyped && key.equals(_type);
         }
     }
 }

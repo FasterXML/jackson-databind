@@ -12,20 +12,18 @@ import com.fasterxml.jackson.databind.util.TypeKey;
  * needed for accessors.
  */
 public final class ReadOnlyClassToSerializerMap
+    /* Yeah, pretty unclean from OOP perspective, but saves us from trouble of
+     * allocating key instances. So we'll take that for this simple internal class.
+     */
+    extends TypeKey // since 2.6
 {
     /**
      * Actual mappings from type key to serializers
      */
     protected final JsonSerializerMap _map;
 
-    /**
-     * We'll reuse key class to avoid unnecessary instantiations; since
-     * this is not shared between threads, we can just reuse single
-     * instance.
-     */
-    protected TypeKey _cacheKey = null;
-    
     private ReadOnlyClassToSerializerMap(JsonSerializerMap map) {
+        super();
         _map = map;
     }
 
@@ -43,38 +41,22 @@ public final class ReadOnlyClassToSerializerMap
     }
 
     public JsonSerializer<Object> typedValueSerializer(JavaType type) { 
-        if (_cacheKey == null) {
-            _cacheKey = new TypeKey(type, true);
-        } else {
-            _cacheKey.resetTyped(type);
-        }
-        return _map.find(_cacheKey);
+        resetTyped(type);
+        return _map.find(this);
     }
 
     public JsonSerializer<Object> typedValueSerializer(Class<?> cls) { 
-        if (_cacheKey == null) {
-            _cacheKey = new TypeKey(cls, true);
-        } else {
-            _cacheKey.resetTyped(cls);
-        }
-        return _map.find(_cacheKey);
+        resetTyped(cls);
+        return _map.find(this);
     }
 
     public JsonSerializer<Object> untypedValueSerializer(JavaType type) { 
-        if (_cacheKey == null) {
-            _cacheKey = new TypeKey(type, false);
-        } else {
-            _cacheKey.resetUntyped(type);
-        }
-        return _map.find(_cacheKey);
+        resetUntyped(type);
+        return _map.find(this);
     }
 
     public JsonSerializer<Object> untypedValueSerializer(Class<?> cls) { 
-        if (_cacheKey == null) {
-            _cacheKey = new TypeKey(cls, false);
-        } else {
-            _cacheKey.resetUntyped(cls);
-        }
-        return _map.find(_cacheKey);
+        resetUntyped(cls);
+        return _map.find(this);
     }
 }

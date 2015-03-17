@@ -22,6 +22,8 @@ public class TypeKey
      */
     protected boolean _isTyped;
 
+    public TypeKey() { }
+
     public TypeKey(Class<?> key, boolean typed) {
         _class = key;
         _type = null;
@@ -82,6 +84,10 @@ public class TypeKey
     
     @Override public final int hashCode() { return _hashCode; }
 
+    public final int hashCode(int hashAreaSize) {
+        return _hashCode & (hashAreaSize-1);
+    }
+    
     @Override public final String toString() {
         if (_class != null) {
             return "{class: "+_class.getName()+", typed? "+_isTyped+"}";

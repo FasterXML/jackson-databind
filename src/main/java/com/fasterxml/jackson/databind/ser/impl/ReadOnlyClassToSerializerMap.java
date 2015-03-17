@@ -23,14 +23,8 @@ public final class ReadOnlyClassToSerializerMap
         _map = map;
     }
 
-    public ReadOnlyClassToSerializerMap instance() {
-        return new ReadOnlyClassToSerializerMap(_map);
-    }
-
     /**
-     * Factory method for creating the "blueprint" lookup map. Such map
-     * can not be used as is but just shared: to get an actual usable
-     * instance, {@link #instance} has to be called first.
+     * Factory method for constructing an instance.
      */
     public static ReadOnlyClassToSerializerMap from(HashMap<TypeKey, JsonSerializer<Object>> src) {
         return new ReadOnlyClassToSerializerMap(new JsonSerializerMap(src));

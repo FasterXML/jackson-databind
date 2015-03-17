@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ser.impl.ReadOnlyClassToSerializerMap;
  * number of distinct read-only maps constructed, and number of
  * serializers constructed.
  *<p>
- * Since version 1.5 cache will actually contain three kinds of entries,
+ * Cache contains three kinds of entries,
  * based on combination of class pair key. First class in key is for the
  * type to serialize, and second one is type used for determining how
  * to resolve value type. One (but not both) of entries can be null.
@@ -29,7 +29,7 @@ public final class SerializerCache
      * NOTE: keys are of various types (see below for key types), in addition to
      * basic {@link JavaType} used for "untyped" serializers.
      */
-    private HashMap<com.fasterxml.jackson.databind.util.TypeKey, JsonSerializer<Object>> _sharedMap
+    private final HashMap<com.fasterxml.jackson.databind.util.TypeKey, JsonSerializer<Object>> _sharedMap
         = new HashMap<com.fasterxml.jackson.databind.util.TypeKey, JsonSerializer<Object>>(64);
 
     /**
@@ -48,7 +48,7 @@ public final class SerializerCache
     {
         ReadOnlyClassToSerializerMap m = _readOnlyMap.get();
         if (m != null) {
-            return m.instance();
+            return m;
         }
         return _makeReadOnlyLookupMap();
     }
@@ -73,7 +73,7 @@ public final class SerializerCache
     public synchronized int size() {
         return _sharedMap.size();
     }
-    
+
     /**
      * Method that checks if the shared (and hence, synchronized) lookup Map might have
      * untyped serializer for given type.

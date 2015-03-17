@@ -548,11 +548,12 @@ public class BeanSerializerFactory
                 }
                 continue;
             }
-            // [JACKSON-235]: suppress writing of back references
+            //Cyclic loop is handled in commit(6ed5f144d5fbffe41c16c885d8476f8382930827) ,Hence enabling back reference to maintain forward reference in de serialization.
+            /*// [JACKSON-235]: suppress writing of back references
             AnnotationIntrospector.ReferenceProperty refType = property.findReferenceType();
             if (refType != null && refType.isBackReference()) {
                 continue;
-            }
+            }*/
             if (accessor instanceof AnnotatedMethod) {
                 result.add(_constructWriter(prov, property, typeBind, pb, staticTyping, (AnnotatedMethod) accessor));
             } else {

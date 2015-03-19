@@ -449,11 +449,16 @@ public class ObjectWriter
             pf = Prefetch.empty;
         } else {
             // 15-Mar-2013, tatu: Important! Indicate that static typing is needed:
-            rootType = rootType.withStaticTyping();
+            /* 19-Mar-2015, tatu: Except when dealing with Collection, Map types, where
+             *    this does more harm than help.
+             */
+            if (!rootType.isContainerType()) {
+                rootType = rootType.withStaticTyping();
+            }
             pf = _prefetchRootSerializer(_config, rootType);
         }
         return (pf == _prefetch) ? this : _new(_generatorSettings, pf);
-    }    
+    }
 
     /**
      * Method that will construct a new instance that uses specific type

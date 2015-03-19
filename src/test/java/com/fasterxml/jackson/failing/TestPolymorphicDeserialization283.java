@@ -17,7 +17,7 @@ import org.junit.Test;
  * Whether this is wrong, and if so, can we fix it, is unknown at this point
  * (2.3): quite possibly this can not be changed.
  */
-public class TestPolymorphicDeserialization extends BaseMapTest
+public class TestPolymorphicDeserialization283 extends BaseMapTest
 {
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", defaultImpl = ClassA.class)
     @JsonSubTypes({

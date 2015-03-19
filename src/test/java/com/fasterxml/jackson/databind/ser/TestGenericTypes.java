@@ -106,8 +106,7 @@ public class TestGenericTypes extends BaseMapTest
     /**********************************************************
      */
 
-//    final ObjectMapper MAPPER = new ObjectMapper();
-    final ObjectMapper MAPPER = objectMapper();
+    final ObjectMapper MAPPER = new ObjectMapper();
 
     @SuppressWarnings("unchecked")
     public void testIssue468a() throws Exception

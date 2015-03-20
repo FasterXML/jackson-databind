@@ -13,6 +13,7 @@ Project: jackson-databind
 #700: Cannot Change Default Abstract Type Mapper from LinkedHashMap
  (reported by wealdtech@github)
 #725: Auto-detect multi-argument constructor with implicit names if it is the only visible creator
+#727: Improve `ObjectWriter.forType()` to avoid forcing base type for container types
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.2 (not yet released)

@@ -50,9 +50,9 @@ public final class BeanPropertyMap
      */
     private int _nextBucketIndex = 0;
 
-    public BeanPropertyMap(Collection<SettableBeanProperty> properties, boolean caseInsensitivePropertyComparison)
+    private BeanPropertyMap(Collection<SettableBeanProperty> properties, boolean caseInsensitive)
     {
-        _caseInsensitive = caseInsensitivePropertyComparison;
+        _caseInsensitive = caseInsensitive;
         _size = properties.size();
         int bucketCount = findSize(_size);
         _hashMask = bucketCount-1;
@@ -64,14 +64,21 @@ public final class BeanPropertyMap
         }
         _buckets = buckets;
     }
-
-    private BeanPropertyMap(Bucket[] buckets, int size, int index, boolean caseInsensitivePropertyComparison)
+    
+    private BeanPropertyMap(Bucket[] buckets, int size, int index, boolean caseInsensitive)
     {
         _buckets = buckets;
         _size = size;
         _hashMask = buckets.length-1;
         _nextBucketIndex = index;
-        _caseInsensitive = caseInsensitivePropertyComparison;
+        _caseInsensitive = caseInsensitive;
+    }
+
+    /**
+     * @since 2.6
+     */
+    public static BeanPropertyMap construct(Collection<SettableBeanProperty> props, boolean caseInsensitive) {
+        return new BeanPropertyMap(props, caseInsensitive);
     }
     
     /**

@@ -317,7 +317,7 @@ public class BeanDeserializerBuilder
     public JsonDeserializer<?> build()
     {
         Collection<SettableBeanProperty> props = _properties.values();
-        BeanPropertyMap propertyMap = new BeanPropertyMap(props, _caseInsensitivePropertyComparison);
+        BeanPropertyMap propertyMap = BeanPropertyMap.construct(props, _caseInsensitivePropertyComparison);
         propertyMap.assignIndexes();
 
         // view processing must be enabled if:
@@ -381,7 +381,7 @@ public class BeanDeserializerBuilder
         }
         // And if so, we can try building the deserializer
         Collection<SettableBeanProperty> props = _properties.values();
-        BeanPropertyMap propertyMap = new BeanPropertyMap(props, _caseInsensitivePropertyComparison);
+        BeanPropertyMap propertyMap = BeanPropertyMap.construct(props, _caseInsensitivePropertyComparison);
         propertyMap.assignIndexes();
 
         boolean anyViews = !_defaultViewInclusion;

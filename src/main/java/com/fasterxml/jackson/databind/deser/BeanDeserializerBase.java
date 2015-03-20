@@ -1208,7 +1208,8 @@ public abstract class BeanDeserializerBase
             } catch (Exception e) {
                 wrapInstantiationProblem(e, ctxt);
             }
-        } else if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+        }
+        if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
             JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY && ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
                 return null;
@@ -1219,7 +1220,8 @@ public abstract class BeanDeserializerBase
                         "Attempted to unwrap single value array for single '" + _valueClass.getName() + "' value but there was more than a single value in the array");
             }
             return value;
-        } else if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
+        }
+        if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT)) {
             JsonToken t = p.nextToken();
             if (t == JsonToken.END_ARRAY) {
                 return null;

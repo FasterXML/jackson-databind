@@ -876,6 +876,7 @@ public final class TypeFactory
 
         // Ok: Map or Collection?
         if (Map.class.isAssignableFrom(rawType)) {
+            // 19-Mar-2015, tatu: Looks like 2nd arg ough to be Map.class, but that causes fails
             JavaType subtype = constructSimpleType(rawType, rawType, pt);
             JavaType[] mapParams = findTypeParameters(subtype, Map.class);
             if (mapParams.length != 2) {
@@ -884,6 +885,7 @@ public final class TypeFactory
             return MapType.construct(rawType, mapParams[0], mapParams[1]);
         }
         if (Collection.class.isAssignableFrom(rawType)) {
+            // 19-Mar-2015, tatu: Looks like 2nd arg ough to be Collection.class, but that causes fails
             JavaType subtype = constructSimpleType(rawType, rawType, pt);
             JavaType[] collectionParams = findTypeParameters(subtype, Collection.class);
             if (collectionParams.length != 1) {

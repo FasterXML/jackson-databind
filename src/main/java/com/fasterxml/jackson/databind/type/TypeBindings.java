@@ -239,7 +239,7 @@ public class TypeBindings
     protected void _resolveBindings(Type t)
     {
         if (t == null) return;
-        
+
         Class<?> raw;
         if (t instanceof ParameterizedType) {
             ParameterizedType pt = (ParameterizedType) t;

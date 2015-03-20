@@ -1,4 +1,4 @@
-package com.fasterxml.jackson.failing;
+package com.fasterxml.jackson.databind.type;
 
 import com.fasterxml.jackson.databind.*;
 

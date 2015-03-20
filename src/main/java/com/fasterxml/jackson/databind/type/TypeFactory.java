@@ -773,7 +773,7 @@ public final class TypeFactory
             context = new TypeBindings(this, cls);
         }
         */
-        
+
         // First: do we have an array type?
         if (clz.isArray()) {
             result = ArrayType.construct(_constructType(clz.getComponentType(), null), null, null);
@@ -876,7 +876,7 @@ public final class TypeFactory
 
         // Ok: Map or Collection?
         if (Map.class.isAssignableFrom(rawType)) {
-            JavaType subtype = constructSimpleType(rawType, pt);
+            JavaType subtype = constructSimpleType(rawType, rawType, pt);
             JavaType[] mapParams = findTypeParameters(subtype, Map.class);
             if (mapParams.length != 2) {
                 throw new IllegalArgumentException("Could not find 2 type parameters for Map class "+rawType.getName()+" (found "+mapParams.length+")");
@@ -884,7 +884,7 @@ public final class TypeFactory
             return MapType.construct(rawType, mapParams[0], mapParams[1]);
         }
         if (Collection.class.isAssignableFrom(rawType)) {
-            JavaType subtype = constructSimpleType(rawType, pt);
+            JavaType subtype = constructSimpleType(rawType, rawType, pt);
             JavaType[] collectionParams = findTypeParameters(subtype, Collection.class);
             if (collectionParams.length != 1) {
                 throw new IllegalArgumentException("Could not find 1 type parameter for Collection class "+rawType.getName()+" (found "+collectionParams.length+")");
@@ -906,19 +906,21 @@ public final class TypeFactory
 
     protected JavaType _fromVariable(TypeVariable<?> type, TypeBindings context)
     {
-        /* 26-Sep-2009, tatus: It should be possible to try "partial"
-         *  resolution; meaning that it is ok not to find bindings.
-         *  For now this is indicated by passing null context.
-         */
+        final String name = type.getName();
+        // 19-Mar-2015: Without context, all we can check are bounds.
         if (context == null) {
-            return _unknownType();
-        }
-
-        // Ok: here's where context might come in handy!
-        String name = type.getName();
-        JavaType actualType = context.findType(name);
-        if (actualType != null) {
-            return actualType;
+            // And to prevent infinite loops, now need this:
+            context = new TypeBindings(this, (Class<?>) null);
+        } else {
+            // Ok: here's where context might come in handy!
+            /* 19-Mar-2015, tatu: As per [databind#609], may need to allow
+             *   unresolved type variables to handle some cases where bounds
+             *   are enough. Let's hope it does not hide real fail cases.
+             */
+            JavaType actualType = context.findType(name, false);
+            if (actualType != null) {
+                return actualType;
+            }
         }
 
         /* 29-Jan-2010, tatu: We used to throw exception here, if type was
@@ -941,7 +943,7 @@ public final class TypeFactory
          *   (T extends Comparable<T>). Need to add "placeholder"
          *   for resolution to catch those.
          */
-        context._addPlaceholder(name);        
+        context._addPlaceholder(name);
         return _constructType(bounds[0], context);
     }
 

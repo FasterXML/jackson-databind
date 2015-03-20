@@ -144,6 +144,32 @@ public class TestMapSerialization extends BaseMapTest
     @JsonTypeInfo(use = Id.CLASS)
     public static class Mixin691 { }
 
+    // For [databind#47]
+    
+    public static class Wat
+    {
+        private final String wat;
+
+        @JsonCreator
+        Wat(String wat) {
+            this.wat = wat;
+        }
+
+        @JsonValue
+        public String getWat() {
+            return wat;
+        }
+
+        @Override
+        public String toString() {
+            return "(String)[Wat: " + wat + "]";
+        }
+    }
+
+    // For [databind#47]
+    @SuppressWarnings("serial")
+    static class WatMap extends HashMap<Wat,Boolean> { }
+
     /*
     /**********************************************************
     /* Test methods
@@ -318,5 +344,14 @@ public class TestMapSerialization extends BaseMapTest
         String json = mapper.writeValueAsString(map);
         assertEquals("{\"@class\":\"java.util.HashMap\",\"NULL\":null}", json);
     }
-}
 
+    public void testMapJsonValueKey47() throws Exception
+    {
+        WatMap input = new WatMap();
+        input.put(new Wat("3"), true);
+
+        ObjectMapper mapper = new ObjectMapper();
+        String json = mapper.writeValueAsString(input);
+        assertEquals(aposToQuotes("{'3':true}"), json);
+    }    
+}

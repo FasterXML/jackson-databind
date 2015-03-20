@@ -18,12 +18,17 @@ Project: jackson-databind
 
 2.5.2 (not yet released)
 
+#609: Problem resolving locally declared generic type
+ (repoted by Hal H)
 #691: NullSerializer for MapProperty failing when using polymorphic handling
  (reported by Antibrumm@github)
 #703: Multiple calls to ObjectMapper#canSerialize(Object.class) returns different values
  (reported by flexfrank@github)
 #705: JsonAnyGetter doesn't work with JsonSerialize (except with keyUsing)
  (reported by natnan@github)
+#728: TypeFactory#_fromVariable returns unknownType() even though it has enough information
+  to provide a more specific type
+ (reported by jkochaniak@github)
 - Improvement to handling of custom `ValueInstantiator` for delegating mode; no more NPE
   if `getDelegateCreator()` returns null
 - Refactor `TypedKey` into separate util class

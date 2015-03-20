@@ -65,7 +65,8 @@ Project: jackson-databind
 #539: Problem with post-procesing of "empty bean" serializer; was not calling
   'BeanSerializerModifier.modifySerializer()` for empty beans
  (reported by Fabien R, fabienrenaud@github)
-#540: Support deserializing `[]` as null or empty collection when the java type is a not an object
+#540: Support deserializing `[]` as null or empty collection when the java type
+  is a not an object, `DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT`
  (requested by Fabien R, fabienrenaud@github)
 #543: Problem resolving self-referential recursive types
  (reported by ahgittin@github)

@@ -183,13 +183,17 @@ public abstract class BeanPropertyMap
      * (note: entry MUST exist; otherwise exception is thrown) with
      * specified replacement.
      */
-    public abstract void replace(SettableBeanProperty property);
+    public void replace(SettableBeanProperty property) {
+        throw new NoSuchElementException("No entry '"+property.getName()+"' found, can't replace");
+    }
 
     /**
      * Specialized method for removing specified existing entry.
      * NOTE: entry MUST exist, otherwise an exception is thrown.
      */
-    public abstract void remove(SettableBeanProperty property);
+    public void remove(SettableBeanProperty property) {
+        throw new NoSuchElementException("No entry '"+property.getName()+"' found, can't remove");
+    }
 
     /*
     /**********************************************************
@@ -276,7 +280,7 @@ public abstract class BeanPropertyMap
 
         public Small(boolean caseInsensitive, SettableBeanProperty p1, SettableBeanProperty p2, SettableBeanProperty p3) {
             super(caseInsensitive);
-            size = 2;
+            size = 3;
             key1 = p1.getName();
             prop1 = p1;
             key2 = p2.getName();
@@ -284,11 +288,47 @@ public abstract class BeanPropertyMap
             key3 = p3.getName();
             prop3 = p3;
         }
-        
+
         @Override
-        public BeanPropertyMap withProperty(SettableBeanProperty newProperty) {
-            // !!! TBI
-            throw new UnsupportedOperationException();
+        public BeanPropertyMap withProperty(SettableBeanProperty prop)
+        {
+            final String key = prop.getName();
+            // First: replace existing one?
+            switch (size) {
+            case 3:
+                if (key.equals(key3)) {
+                    prop3 = prop;
+                    return this;
+                }
+            case 2:
+                if (key.equals(key2)) {
+                    prop2 = prop;
+                    return this;
+                }
+            case 1:
+                if (key.equals(key1)) {
+                    prop1 = prop;
+                    return this;
+                }
+            }
+
+            // If not, append. Easy if we aren't yet full
+            switch (size) {
+            case 2:
+                return new Small(_caseInsensitive, prop1, prop2, prop);
+            case 1:
+                return new Small(_caseInsensitive, prop1, prop);
+            case 0:
+                return new Small(_caseInsensitive, prop);
+            }
+            // But if we have all 3, "upgrade"
+            prop.assignIndex(3);
+            List<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(4);
+            props.add(prop1);
+            props.add(prop2);
+            props.add(prop3);
+            props.add(prop);
+            return new Default(props, _caseInsensitive);
         }
 
         @Override
@@ -363,16 +403,15 @@ public abstract class BeanPropertyMap
                 key = key.toLowerCase();
             }
             SettableBeanProperty prop = find(key);
-            if (prop == null) {
-                return false;
+            if (prop != null) {
+                try {
+                    prop.deserializeAndSet(p, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, key, ctxt);
+                }
+                return true;
             }
-            try {
-                prop.deserializeAndSet(p, ctxt, bean);
-            } catch (Exception e) {
-                wrapAndThrow(e, bean, key, ctxt);
-            }
-            return true;
-
+            return false;
         }
 
         @Override
@@ -408,13 +447,38 @@ public abstract class BeanPropertyMap
                     return;
                 }
             }
-            throw new NoSuchElementException("No entry '"+key+"' found, can't replace");
+            super.replace(prop);
         }
 
         @Override
-        public void remove(SettableBeanProperty property) {
-            // !!! TBI
-            throw new UnsupportedOperationException();
+        public void remove(SettableBeanProperty prop) {
+            final String key = prop.getName();
+            switch (size) {
+            case 3:
+                if (key.equals(key3)) {
+                    prop3 = null;
+                    key3 = null;
+                    size = 2;
+                    return;
+                }
+            case 2:
+                if (key.equals(key2)) {
+                    prop2 = prop3;
+                    key2 = key3;
+                    --size;
+                    return;
+                }
+            case 1:
+                if (key.equals(key1)) {
+                    prop1 = prop2;
+                    key1 = key2;
+                    prop2 = prop3;
+                    key2 = key3;
+                    --size;
+                    return;
+                }
+            }
+            super.remove(prop);
         }
     }
 
@@ -556,8 +620,8 @@ public abstract class BeanPropertyMap
                  // and then insert the new property:
                  int index = propName.hashCode() & _hashMask;
                  newBuckets[index] = new Bucket(newBuckets[index],
-                         propName, newProperty, _nextBucketIndex++);
-                 return new Default(newBuckets, _size+1, _nextBucketIndex, _caseInsensitive);
+                         propName, newProperty, _nextBucketIndex);
+                 return new Default(newBuckets, _size+1, _nextBucketIndex+1, _caseInsensitive);
             }
             // replace: easy, close + replace
             BeanPropertyMap newMap = new Default(newBuckets, bcount, _nextBucketIndex, _caseInsensitive);
@@ -606,9 +670,9 @@ public abstract class BeanPropertyMap
         }
 
         @Override
-        public void replace(SettableBeanProperty property)
+        public void replace(SettableBeanProperty prop)
         {
-            String name = getPropertyName(property);
+            String name = getPropertyName(prop);
             int index = name.hashCode() & (_buckets.length-1);
 
             /* This is bit tricky just because buckets themselves
@@ -626,14 +690,16 @@ public abstract class BeanPropertyMap
                 }
             }
             // Not finding specified entry is error, so:
-            if (foundIndex < 0) {
-                throw new NoSuchElementException("No entry '"+property+"' found, can't replace");
+            if (foundIndex >= 0) {
+                /* So let's attach replacement in front: useful also because
+                 * it allows replacement even when iterating over entries
+                 */
+                _buckets[index] = new Bucket(tail, name, prop, foundIndex);
+                return;
             }
-            /* So let's attach replacement in front: useful also because
-             * it allows replacement even when iterating over entries
-             */
-            _buckets[index] = new Bucket(tail, name, property, foundIndex);
+            super.replace(prop);
         }
+
         @Override
         public Iterator<SettableBeanProperty> iterator() {
             return new IteratorImpl(_buckets);

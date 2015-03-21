@@ -81,27 +81,11 @@ public abstract class BeanPropertyMap
         if (transformer == null || (transformer == NameTransformer.NOP)) {
             return this;
         }
-        Iterator<SettableBeanProperty> it = iterator();
-        ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>();
-        while (it.hasNext()) {
-            SettableBeanProperty prop = it.next();
-            String newName = transformer.transform(prop.getName());
-            prop = prop.withSimpleName(newName);
-            JsonDeserializer<?> deser = prop.getValueDeserializer();
-            if (deser != null) {
-                @SuppressWarnings("unchecked")
-                JsonDeserializer<Object> newDeser = (JsonDeserializer<Object>)
-                    deser.unwrappingDeserializer(transformer);
-                if (newDeser != deser) {
-                    prop = prop.withValueDeserializer(newDeser);
-                }
-            }
-            newProps.add(prop);
-        }
-        // should we try to re-index? Ordering probably changed but called probably doesn't want changes...
-        return construct(newProps, _caseInsensitive);
+        return _renameAll(transformer);
     }
 
+    protected abstract BeanPropertyMap _renameAll(NameTransformer transformer);
+    
     // Confining this case insensitivity to this function (and the find method) in case we want to
     // apply a particular locale to the lower case function.  For now, using the default.
     protected final String getPropertyName(SettableBeanProperty prop) {
@@ -202,9 +186,25 @@ public abstract class BeanPropertyMap
     /**********************************************************
      */
 
-    /**
-     * @since 2.5
-     */
+    protected SettableBeanProperty _rename(SettableBeanProperty prop, NameTransformer xf)
+    {
+        if (prop == null) {
+            return prop;
+        }
+        String newName = xf.transform(prop.getName());
+        prop = prop.withSimpleName(newName);
+        JsonDeserializer<?> deser = prop.getValueDeserializer();
+        if (deser != null) {
+            @SuppressWarnings("unchecked")
+            JsonDeserializer<Object> newDeser = (JsonDeserializer<Object>)
+                deser.unwrappingDeserializer(xf);
+            if (newDeser != deser) {
+                prop = prop.withValueDeserializer(newDeser);
+            }
+        }
+        return prop;
+    }
+
     protected void wrapAndThrow(Throwable t, Object bean, String fieldName, DeserializationContext ctxt)
         throws IOException
     {
@@ -260,36 +260,41 @@ public abstract class BeanPropertyMap
         }
 
         public Small(boolean caseInsensitive, SettableBeanProperty p1) {
-            super(caseInsensitive);
-            size = 1;
-            key1 = p1.getName();
-            prop1 = p1;
-            key2 = key3 = null;
-            prop2 = prop3 = null;
+            this(caseInsensitive, 1, p1, null, null);
         }
 
         public Small(boolean caseInsensitive, SettableBeanProperty p1, SettableBeanProperty p2) {
-            super(caseInsensitive);
-            size = 2;
-            key1 = p1.getName();
-            prop1 = p1;
-            key2 = p2.getName();
-            prop2 = p2;
-            key3 = null;
-            prop3 = null;
+            this(caseInsensitive, 2, p1, p2, null);
         }
 
         public Small(boolean caseInsensitive, SettableBeanProperty p1, SettableBeanProperty p2, SettableBeanProperty p3) {
-            super(caseInsensitive);
-            size = 3;
-            key1 = p1.getName();
-            prop1 = p1;
-            key2 = p2.getName();
-            prop2 = p2;
-            key3 = p3.getName();
-            prop3 = p3;
+            this(caseInsensitive, 3, p1, p2, p3);
         }
 
+        protected Small(boolean caseInsensitive, int sz,
+                SettableBeanProperty p1, SettableBeanProperty p2, SettableBeanProperty p3) {
+            super(caseInsensitive);
+            size = sz;
+            prop1 = p1;
+            key1 = (p1 == null) ? null : p1.getName();
+            prop2 = p2;
+            key2 = (p2 == null) ? null : p2.getName();
+            prop3 = p3;
+            key3 = (p3 == null) ? null : p3.getName();
+        }
+        
+        @Override
+        protected BeanPropertyMap _renameAll(NameTransformer transformer)
+        {
+            if (size == 0) {
+                return this;
+            }
+            return new Small(_caseInsensitive, size,
+                    _rename(prop1, transformer),
+                    _rename(prop2, transformer),
+                    _rename(prop3, transformer));
+        }
+        
         @Override
         public BeanPropertyMap withProperty(SettableBeanProperty prop)
         {
@@ -509,15 +514,6 @@ public abstract class BeanPropertyMap
          * used by as-array serialization, deserialization.
          */
         private SettableBeanProperty[] _propsInOrder;
-        
-        /**
-         * Counter we use to keep track of insertion order of properties
-         * (to be able to recreate insertion order when needed).
-         *<p>
-         * Note: is kept up-to-date with additions, but can NOT handle
-         * removals (i.e. "holes" may be left)
-         */
-        protected int _nextBucketIndex = 0;
 
         public Default(boolean caseInsensitive, Collection<SettableBeanProperty> props)
         {
@@ -541,6 +537,11 @@ public abstract class BeanPropertyMap
             int spills = 0;
 
             for (SettableBeanProperty prop : props) {
+                // Due to removal, renaming, theoretically possible we'll have "holes" so:
+                if (prop == null) {
+                    continue;
+                }
+                
                 String key = getPropertyName(prop);
                 int slot = key.hashCode() & _hashMask;
 
@@ -583,6 +584,27 @@ public abstract class BeanPropertyMap
         }
 
         @Override
+        protected BeanPropertyMap _renameAll(NameTransformer transformer)
+        {
+            // Try to retain insertion ordering as well
+            final int len = _propsInOrder.length;
+            ArrayList<SettableBeanProperty> newProps = new ArrayList<SettableBeanProperty>(len);
+
+            for (int i = 0; i < len; ++i) {
+                SettableBeanProperty prop = _propsInOrder[i];
+                
+                // What to do with holes? For now, retain
+                if (prop == null) {
+                    newProps.add(prop);
+                    continue;
+                }
+                newProps.add(_rename(prop, transformer));
+            }
+            // should we try to re-index? Ordering probably changed but called probably doesn't want changes...
+            return new Default(_caseInsensitive, newProps);
+        }
+
+        @Override
         public BeanPropertyMap withProperty(SettableBeanProperty newProp)
         {
             // First: may be able to just replace?
@@ -591,14 +613,34 @@ public abstract class BeanPropertyMap
                 SettableBeanProperty prop = _propsHash[i];
                 if ((prop != null) && prop.getName().equals(key)) {
                     _propsHash[i] = newProp;
+                    _propsInOrder[_findFromOrdered(prop)] = newProp;
                     return this;
                 }
             }
-            // If not, re-create
-            List<SettableBeanProperty> props = properties();
-            props.add(newProp);
-            init(props);
-            ++_nextBucketIndex;
+            // If not, append
+
+            int slot = key.hashCode() & _hashMask;
+
+            // primary slot not free?
+            if (_keys[slot] != null) {
+                // secondary?
+                slot = _size + (slot >> 1);
+                if (_keys[slot] != null) {
+                    // ok, spill over.
+                    slot = _size + (_size >> 1) + _spillCount;
+                    ++_spillCount;
+                    if (slot >= _keys.length) {
+                        _keys = Arrays.copyOf(_keys, _keys.length + 4);
+                        _propsHash = Arrays.copyOf(_propsHash, _propsHash.length + 4);
+                    }
+                }
+            }
+            _keys[slot] = key;
+            _propsHash[slot] = newProp;
+
+            int last = _propsInOrder.length;
+            _propsInOrder = Arrays.copyOf(_propsInOrder, last+1);
+            _propsInOrder[last] = newProp;
 
             // should we just create a new one? Or is resetting ok?
             
@@ -615,7 +657,6 @@ public abstract class BeanPropertyMap
                     prop.assignIndex(index++);
                 }
             }
-            _nextBucketIndex = index;
             return this;
         }
         
@@ -666,7 +707,7 @@ public abstract class BeanPropertyMap
         }
 
         private List<SettableBeanProperty> properties() {
-            ArrayList<SettableBeanProperty> p = new ArrayList<SettableBeanProperty>(_nextBucketIndex);
+            ArrayList<SettableBeanProperty> p = new ArrayList<SettableBeanProperty>(_size);
             for (SettableBeanProperty prop : _propsHash) {
                 if (prop != null) {
                     p.add(prop);
@@ -681,8 +722,7 @@ public abstract class BeanPropertyMap
         }
         
         @Override
-        public SettableBeanProperty[] getPropertiesInInsertionOrder()
-        {
+        public SettableBeanProperty[] getPropertiesInInsertionOrder() {
             return _propsInOrder;
         }
 

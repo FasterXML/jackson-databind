@@ -43,11 +43,17 @@ public abstract class BeanPropertyMap
      * @since 2.6
      */
     public static BeanPropertyMap construct(Collection<SettableBeanProperty> props, boolean caseInsensitive) {
+        if (props.isEmpty()) {
+            return new Small(caseInsensitive);
+        }
+        Iterator<SettableBeanProperty> it = props.iterator();
         switch (props.size()) {
-        case 0:
         case 1:
+            return new Small(caseInsensitive, it.next());
         case 2:
+            return new Small(caseInsensitive, it.next(), it.next());
         case 3:
+            return new Small(caseInsensitive, it.next(), it.next(), it.next());
         }
         return new Default(props, caseInsensitive);
     }
@@ -226,8 +232,193 @@ public abstract class BeanPropertyMap
     /**********************************************************
      */
 
-    protected static class Default
+    /**
+     * Note on implementation: can not make most fields final because of 'remove'
+     * operation.
+     */
+    protected static class Small
         extends BeanPropertyMap
+    {
+        private static final long serialVersionUID = 1L;
+
+        protected String key1, key2, key3;
+
+        protected SettableBeanProperty prop1, prop2, prop3;
+
+        protected int size;
+
+        public Small(boolean caseInsensitive) {
+            super(caseInsensitive);
+            size = 0;
+            key1 = key2 = key3 = null;
+            prop1 = prop2 = prop3 = null;
+        }
+
+        public Small(boolean caseInsensitive, SettableBeanProperty p1) {
+            super(caseInsensitive);
+            size = 1;
+            key1 = p1.getName();
+            prop1 = p1;
+            key2 = key3 = null;
+            prop2 = prop3 = null;
+        }
+
+        public Small(boolean caseInsensitive, SettableBeanProperty p1, SettableBeanProperty p2) {
+            super(caseInsensitive);
+            size = 2;
+            key1 = p1.getName();
+            prop1 = p1;
+            key2 = p2.getName();
+            prop2 = p2;
+            key3 = null;
+            prop3 = null;
+        }
+
+        public Small(boolean caseInsensitive, SettableBeanProperty p1, SettableBeanProperty p2, SettableBeanProperty p3) {
+            super(caseInsensitive);
+            size = 2;
+            key1 = p1.getName();
+            prop1 = p1;
+            key2 = p2.getName();
+            prop2 = p2;
+            key3 = p3.getName();
+            prop3 = p3;
+        }
+        
+        @Override
+        public BeanPropertyMap withProperty(SettableBeanProperty newProperty) {
+            // !!! TBI
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public BeanPropertyMap assignIndexes() {
+            int ix = 0;
+            if (prop1 != null) {
+                prop1.assignIndex(ix++);
+            }
+            if (prop2 != null) {
+                prop2.assignIndex(ix++);
+            }
+            if (prop3 != null) {
+                prop3.assignIndex(ix++);
+            }
+            return this;
+        }
+
+        @Override
+        public Iterator<SettableBeanProperty> iterator() {
+            if (size == 0) {
+                return Collections.<SettableBeanProperty>emptyList().iterator();
+            }
+            ArrayList<SettableBeanProperty> list = new ArrayList<SettableBeanProperty>();
+            list.add(prop1);
+            if (size > 1) {
+                list.add(prop2);
+                if (size > 2) {
+                    list.add(prop3);
+                }
+            }
+            return list.iterator();
+        }
+
+        @Override
+        public SettableBeanProperty[] getPropertiesInInsertionOrder() {
+            SettableBeanProperty[] props = new SettableBeanProperty[size];
+            switch (size) {
+            case 3:
+                props[2] = prop3;
+            case 2:
+                props[1] = prop2;
+            case 1:
+                props[0] = prop1;
+            }
+            return props;
+        }
+
+        @Override
+        public int size() {
+            return size;
+        }
+
+        @Override
+        public SettableBeanProperty find(String key) {
+            if (key == key1) return prop1;
+            if (key == key2) return prop2;
+            if (key == key3) return prop3;
+            return _findWithEquals(key);
+        }
+
+        private SettableBeanProperty _findWithEquals(String key) {
+            if (key.equals(key1)) return prop1;
+            if (key.equals(key2)) return prop2;
+            if (key.equals(key3)) return prop3;
+            return null;
+        }
+        
+        @Override
+        public boolean findDeserializeAndSet(JsonParser p,
+                DeserializationContext ctxt, Object bean, String key) throws IOException {
+            if (_caseInsensitive) {
+                key = key.toLowerCase();
+            }
+            SettableBeanProperty prop = find(key);
+            if (prop == null) {
+                return false;
+            }
+            try {
+                prop.deserializeAndSet(p, ctxt, bean);
+            } catch (Exception e) {
+                wrapAndThrow(e, bean, key, ctxt);
+            }
+            return true;
+
+        }
+
+        @Override
+        public SettableBeanProperty find(int index) {
+            switch (size) {
+            case 3:
+                if (prop3.getPropertyIndex() == index) return prop3;
+            case 2:
+                if (prop2.getPropertyIndex() == index) return prop2;
+            case 1:
+                if (prop1.getPropertyIndex() == index) return prop1;
+            }
+            return null;
+        }
+
+        @Override
+        public void replace(SettableBeanProperty prop) {
+            final String key = prop.getName();
+            switch (size) {
+            case 3:
+                if (key.equals(key3)) {
+                    prop3 = prop;
+                    return;
+                }
+            case 2:
+                if (key.equals(key2)) {
+                    prop2 = prop;
+                    return;
+                }
+            case 1:
+                if (key.equals(key1)) {
+                    prop1 = prop;
+                    return;
+                }
+            }
+            throw new NoSuchElementException("No entry '"+key+"' found, can't replace");
+        }
+
+        @Override
+        public void remove(SettableBeanProperty property) {
+            // !!! TBI
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    protected static class Default extends BeanPropertyMap
     {
         private static final long serialVersionUID = 1L;
 

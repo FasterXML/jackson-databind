@@ -25,7 +25,8 @@ import com.fasterxml.jackson.databind.util.NameTransformer;
  * as it is done for each and every POJO property deserialized.
  */
 public abstract class BeanPropertyMap
-    implements Iterable<SettableBeanProperty>, java.io.Serializable
+    implements Iterable<SettableBeanProperty>,
+        java.io.Serializable
 {
     private static final long serialVersionUID = 2L;
 
@@ -140,7 +141,7 @@ public abstract class BeanPropertyMap
      */
     @Override
     public abstract Iterator<SettableBeanProperty> iterator();
-    
+
     /**
      * Method that will re-create initial insertion-ordering of
      * properties contained in this map. Note that if properties
@@ -351,13 +352,14 @@ public abstract class BeanPropertyMap
             if (size == 0) {
                 return Collections.<SettableBeanProperty>emptyList().iterator();
             }
+            if (size == 1) {
+                return Collections.singleton(prop1).iterator();
+            }
             ArrayList<SettableBeanProperty> list = new ArrayList<SettableBeanProperty>();
             list.add(prop1);
-            if (size > 1) {
-                list.add(prop2);
-                if (size > 2) {
-                    list.add(prop3);
-                }
+            list.add(prop2);
+            if (size > 2) {
+                list.add(prop3);
             }
             return list.iterator();
         }
@@ -505,55 +507,6 @@ public abstract class BeanPropertyMap
             }
         }
 
-        private final static class IteratorImpl implements Iterator<SettableBeanProperty>
-        {
-            private final Bucket[] _buckets;
-
-            private Bucket _currentBucket;
-
-            private int _nextBucketIndex;
-            
-            public IteratorImpl(Bucket[] buckets) {
-                _buckets = buckets;
-                // need to initialize to point to first entry...
-                int i = 0;
-                for (int len = _buckets.length; i < len; ) {
-                    Bucket b = _buckets[i++];
-                    if (b != null) {
-                        _currentBucket = b;
-                        break;
-                    }
-                }
-                _nextBucketIndex = i;
-            }
-
-            @Override
-            public boolean hasNext() {
-                return _currentBucket != null;
-            }
-
-            @Override
-            public SettableBeanProperty next()
-            {
-                Bucket curr = _currentBucket;
-                if (curr == null) { // sanity check
-                    throw new NoSuchElementException();
-                }
-                // need to advance, too
-                Bucket b = curr.next;
-                while (b == null && _nextBucketIndex < _buckets.length) {
-                    b = _buckets[_nextBucketIndex++];
-                }
-                _currentBucket = b;
-                return curr.value;
-            }
-
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-        }
-        
         private final Bucket[] _buckets;
         
         private final int _hashMask;
@@ -702,7 +655,14 @@ public abstract class BeanPropertyMap
 
         @Override
         public Iterator<SettableBeanProperty> iterator() {
-            return new IteratorImpl(_buckets);
+            List<SettableBeanProperty> list = new ArrayList<SettableBeanProperty>(_nextBucketIndex);
+            // no need to order in particular order
+            for (Bucket root : _buckets) {
+                for (Bucket bucket = root; bucket != null; bucket = bucket.next) {
+                    list.add(bucket.value);
+                }
+            }
+            return list.iterator();
         }
         
         @Override

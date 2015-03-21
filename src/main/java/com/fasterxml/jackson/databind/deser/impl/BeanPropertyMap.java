@@ -120,10 +120,10 @@ public abstract class BeanPropertyMap
         StringBuilder sb = new StringBuilder();
         sb.append("Properties=[");
         int count = 0;
-        for (SettableBeanProperty prop : getPropertiesInInsertionOrder()) {
-            if (prop == null) {
-                continue;
-            }
+
+        Iterator<SettableBeanProperty> it = iterator();
+        while (it.hasNext()) {
+            SettableBeanProperty prop = it.next();
             if (count++ > 0) {
                 sb.append(", ");
             }
@@ -496,8 +496,20 @@ public abstract class BeanPropertyMap
         private int _hashMask, _size, _spillCount;
 
         private String[] _keys;
-        private SettableBeanProperty[] _props;
 
+        /**
+         * Hash area for properties, sparsely populated. Starts with the primary
+         * hash (size of {@link #_size}), followed by secondary (with half the size
+         * of primary), and with optional variable size spillover.
+         */
+        private SettableBeanProperty[] _propsHash;
+
+        /**
+         * Array of properties in the exact order they were handed in. This is
+         * used by as-array serialization, deserialization.
+         */
+        private SettableBeanProperty[] _propsInOrder;
+        
         /**
          * Counter we use to keep track of insertion order of properties
          * (to be able to recreate insertion order when needed).
@@ -510,6 +522,7 @@ public abstract class BeanPropertyMap
         public Default(boolean caseInsensitive, Collection<SettableBeanProperty> props)
         {
             super(caseInsensitive);
+            _propsInOrder = props.toArray(new SettableBeanProperty[props.size()]);
             init(props);
         }
         
@@ -528,7 +541,7 @@ public abstract class BeanPropertyMap
             int spills = 0;
 
             for (SettableBeanProperty prop : props) {
-                String key = prop.getName();
+                String key = getPropertyName(prop);
                 int slot = key.hashCode() & _hashMask;
 
                 // primary slot not free?
@@ -549,7 +562,7 @@ public abstract class BeanPropertyMap
                 fieldHash[slot] = prop;
             }
             _keys = keys;
-            _props = fieldHash;
+            _propsHash = fieldHash;
             _spillCount = spills;
         }
 
@@ -574,15 +587,14 @@ public abstract class BeanPropertyMap
         {
             // First: may be able to just replace?
             String key = getPropertyName(newProp);
-            for (int i = 0, end = _props.length; i < end; ++i) {
-                SettableBeanProperty prop = _props[i];
+            for (int i = 0, end = _propsHash.length; i < end; ++i) {
+                SettableBeanProperty prop = _propsHash[i];
                 if ((prop != null) && prop.getName().equals(key)) {
-                    _props[i] = newProp;
+                    _propsHash[i] = newProp;
                     return this;
                 }
             }
             // If not, re-create
-            newProp.assignIndex(_nextBucketIndex);
             List<SettableBeanProperty> props = properties();
             props.add(newProp);
             init(props);
@@ -598,7 +610,7 @@ public abstract class BeanPropertyMap
         {
             // order is arbitrary, but stable:
             int index = 0;
-            for (SettableBeanProperty prop : _props) {
+            for (SettableBeanProperty prop : _propsHash) {
                 if (prop != null) {
                     prop.assignIndex(index++);
                 }
@@ -616,16 +628,19 @@ public abstract class BeanPropertyMap
             ArrayList<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(_size);
             String key = getPropertyName(propToRm);
             boolean found = false;
-            for (SettableBeanProperty prop : _props) {
-                if (prop != null) {
-                    if (!found) {
-                        found = key.equals(prop.getName());
-                        if (found) {
-                            continue;
-                        }
-                    }
-                    props.add(prop);
+            for (SettableBeanProperty prop : _propsHash) {
+                if (prop == null) {
+                    continue;
                 }
+                if (!found) {
+                    found = key.equals(prop.getName());
+                    if (found) {
+                        // need to leave a hole here
+                        _propsInOrder[_findFromOrdered(prop)] = null;
+                        continue;
+                    }
+                }
+                props.add(prop);
             }
             if (found) {
                 init(props);
@@ -638,12 +653,12 @@ public abstract class BeanPropertyMap
         public void replace(SettableBeanProperty newProp)
         {
             String key = getPropertyName(newProp);
-            for (int i = 0, end = _props.length; i < end; ++i) {
-                SettableBeanProperty prop = _props[i];
+            for (int i = 0, end = _propsHash.length; i < end; ++i) {
+                SettableBeanProperty prop = _propsHash[i];
                 if ((prop != null) && prop.getName().equals(key)) {
-                    // 20-Mar-2015, tatu: Already set?
-//                    newProp.assignIndex(prop.getPropertyIndex());
-                    _props[i] = newProp;
+                    _propsHash[i] = newProp;
+                    // also, replace in in-order
+                    _propsInOrder[_findFromOrdered(prop)] = newProp;
                     return;
                 }
             }
@@ -652,7 +667,7 @@ public abstract class BeanPropertyMap
 
         private List<SettableBeanProperty> properties() {
             ArrayList<SettableBeanProperty> p = new ArrayList<SettableBeanProperty>(_nextBucketIndex);
-            for (SettableBeanProperty prop : _props) {
+            for (SettableBeanProperty prop : _propsHash) {
                 if (prop != null) {
                     p.add(prop);
                 }
@@ -668,19 +683,13 @@ public abstract class BeanPropertyMap
         @Override
         public SettableBeanProperty[] getPropertiesInInsertionOrder()
         {
-            SettableBeanProperty[] result = new SettableBeanProperty[_nextBucketIndex];
-            for (SettableBeanProperty prop : _props) {
-                if (prop != null) {
-                    result[prop.getPropertyIndex()] = prop;
-                }
-            }
-            return result;
+            return _propsInOrder;
         }
 
         @Override
         public SettableBeanProperty find(int index)
         {
-            for (SettableBeanProperty prop : _props) {
+            for (SettableBeanProperty prop : _propsHash) {
                 if ((prop != null) && (index == prop.getPropertyIndex())) {
                     return prop;
                 }
@@ -700,7 +709,7 @@ public abstract class BeanPropertyMap
             int slot = key.hashCode() & _hashMask;
             String match = _keys[slot];
             if ((match == key) || key.equals(match)) {
-                return _props[slot];
+                return _propsHash[slot];
             }
             if (match == null) {
                 return null;
@@ -709,21 +718,10 @@ public abstract class BeanPropertyMap
             slot = (_hashMask+1) + (slot>>1);
             match = _keys[slot];
             if (key.equals(match)) {
-                return _props[slot];
+                return _propsHash[slot];
             }
             // or spill?
             return _findFromSpill(key);
-        }
-
-        private SettableBeanProperty _findFromSpill(String key) {
-            int hashSize = _hashMask+1;
-            int i = hashSize + (hashSize>>1);
-            for (int end = i + _spillCount; i < end; ++i) {
-                if (key.equals(_keys[i])) {
-                    return _props[1];
-                }
-            }
-            return null;
         }
 
         @Override
@@ -740,6 +738,26 @@ public abstract class BeanPropertyMap
                 wrapAndThrow(e, bean, key, ctxt);
             }
             return true;
+        }
+
+        private SettableBeanProperty _findFromSpill(String key) {
+            int hashSize = _hashMask+1;
+            int i = hashSize + (hashSize>>1);
+            for (int end = i + _spillCount; i < end; ++i) {
+                if (key.equals(_keys[i])) {
+                    return _propsHash[1];
+                }
+            }
+            return null;
+        }
+
+        private int _findFromOrdered(SettableBeanProperty prop) {
+            for (int i = 0, end = _propsInOrder.length; i < end; ++i) {
+                if (_propsInOrder[i] == prop) {
+                    return i;
+                }
+            }
+            throw new IllegalStateException("Illegal state: property '"+prop.getName()+"' missing from _propsInOrder");
         }
     }
 }

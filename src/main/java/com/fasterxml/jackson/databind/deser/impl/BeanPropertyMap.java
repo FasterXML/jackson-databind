@@ -533,7 +533,7 @@ public abstract class BeanPropertyMap
             // and allocate enough to contain primary/secondary, expand for spillovers as need be
             int alloc = size + (size>>1);
             String[] keys = new String[alloc];
-            SettableBeanProperty[] fieldHash = new SettableBeanProperty[alloc];
+            SettableBeanProperty[] propHash = new SettableBeanProperty[alloc];
             int spills = 0;
 
             for (SettableBeanProperty prop : props) {
@@ -555,15 +555,21 @@ public abstract class BeanPropertyMap
                         ++spills;
                         if (slot >= keys.length) {
                             keys = Arrays.copyOf(keys, keys.length + 4);
-                            fieldHash = Arrays.copyOf(fieldHash, fieldHash.length + 4);
+                            propHash = Arrays.copyOf(propHash, propHash.length + 4);
                         }
                     }
                 }
+//System.err.println(" add '"+key+" at #"+slot+" (hashed at "+(key.hashCode() & _hashMask)+")");             
                 keys[slot] = key;
-                fieldHash[slot] = prop;
+                propHash[slot] = prop;
             }
+/*
+for (int i = 0; i < keys.length; ++i) {
+    System.err.printf("#%02d: %s\n", i, (keys[i] == null) ? "-" : keys[i]);
+}
+*/
             _keys = keys;
-            _propsHash = fieldHash;
+            _propsHash = propHash;
             _spillCount = spills;
         }
 
@@ -620,14 +626,15 @@ public abstract class BeanPropertyMap
             // If not, append
 
             int slot = key.hashCode() & _hashMask;
+            int hashSize = _hashMask+1;
 
             // primary slot not free?
             if (_keys[slot] != null) {
                 // secondary?
-                slot = _size + (slot >> 1);
+                slot = hashSize + (slot >> 1);
                 if (_keys[slot] != null) {
                     // ok, spill over.
-                    slot = _size + (_size >> 1) + _spillCount;
+                    slot = hashSize + (hashSize >> 1) + _spillCount;
                     ++_spillCount;
                     if (slot >= _keys.length) {
                         _keys = Arrays.copyOf(_keys, _keys.length + 4);
@@ -780,12 +787,13 @@ public abstract class BeanPropertyMap
             return true;
         }
 
-        private SettableBeanProperty _findFromSpill(String key) {
+        private SettableBeanProperty _findFromSpill(String key)
+        {
             int hashSize = _hashMask+1;
             int i = hashSize + (hashSize>>1);
             for (int end = i + _spillCount; i < end; ++i) {
                 if (key.equals(_keys[i])) {
-                    return _propsHash[1];
+                    return _propsHash[i];
                 }
             }
             return null;

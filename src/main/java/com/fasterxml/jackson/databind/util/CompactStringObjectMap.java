@@ -192,7 +192,7 @@ public abstract class CompactStringObjectMap
             int i = hashSize + (hashSize>>1);
             for (int end = i + _spillCount; i < end; ++i) {
                 if (key.equals(_keys[i])) {
-                    return _values[1];
+                    return _values[i];
                 }
             }
             return null;

@@ -56,7 +56,7 @@ public abstract class BeanPropertyMap
         case 3:
             return new Small(caseInsensitive, it.next(), it.next(), it.next());
         }
-        return new Default(props, caseInsensitive);
+        return new Default(caseInsensitive, props);
     }
     
     /**
@@ -329,7 +329,7 @@ public abstract class BeanPropertyMap
             props.add(prop2);
             props.add(prop3);
             props.add(prop);
-            return new Default(props, _caseInsensitive);
+            return new Default(_caseInsensitive, props);
         }
 
         @Override
@@ -484,34 +484,19 @@ public abstract class BeanPropertyMap
         }
     }
 
-    protected static class Default extends BeanPropertyMap
+    /**
+     * For non-trivial number of properties let's use a hash map.
+     * Alas, can not use {@link com.fasterxml.jackson.databind.util.CompactStringObjectMap}
+     * as is (need to add index), but structure is similar.
+     */
+    protected final static class Default extends BeanPropertyMap
     {
         private static final long serialVersionUID = 1L;
 
-        private final static class Bucket implements java.io.Serializable
-        {
-            private static final long serialVersionUID = 1L;
-    
-            public final Bucket next;
-            public final String key;
-            public final SettableBeanProperty value;
-    
-            public final int index;
-            
-            public Bucket(Bucket next, String key, SettableBeanProperty value, int index)
-            {
-                this.next = next;
-                this.key = key;
-                this.value = value;
-                this.index = index;
-            }
-        }
+        private int _hashMask, _size, _spillCount;
 
-        private final Bucket[] _buckets;
-        
-        private final int _hashMask;
-
-        private final int _size;
+        private String[] _keys;
+        private SettableBeanProperty[] _props;
 
         /**
          * Counter we use to keep track of insertion order of properties
@@ -522,35 +507,62 @@ public abstract class BeanPropertyMap
          */
         protected int _nextBucketIndex = 0;
 
-        public Default(Collection<SettableBeanProperty> properties, boolean caseInsensitive)
+        public Default(boolean caseInsensitive, Collection<SettableBeanProperty> props)
         {
             super(caseInsensitive);
-            _size = properties.size();
-            int bucketCount = findSize(_size);
-            _hashMask = bucketCount-1;
-            Bucket[] buckets = new Bucket[bucketCount];
-            for (SettableBeanProperty property : properties) {
-                String key = getPropertyName(property);
-                int index = key.hashCode() & _hashMask;
-                buckets[index] = new Bucket(buckets[index], key, property, _nextBucketIndex++);
-            }
-            _buckets = buckets;
+            init(props);
         }
-
-        private Default(Bucket[] buckets, int size, int index, boolean caseInsensitive)
+        
+        protected void init(Collection<SettableBeanProperty> props)
         {
-            super(caseInsensitive);
-            _buckets = buckets;
-            _size = size;
-            _hashMask = buckets.length-1;
-            _nextBucketIndex = index;
+            _size = props.size();
+            
+            // First: calculate size of primary hash area
+            final int size = findSize(_size);
+            _hashMask = size-1;
+
+            // and allocate enough to contain primary/secondary, expand for spillovers as need be
+            int alloc = size + (size>>1);
+            String[] keys = new String[alloc];
+            SettableBeanProperty[] fieldHash = new SettableBeanProperty[alloc];
+            int spills = 0;
+
+            for (SettableBeanProperty prop : props) {
+                String key = prop.getName();
+                int slot = key.hashCode() & _hashMask;
+
+                // primary slot not free?
+                if (keys[slot] != null) {
+                    // secondary?
+                    slot = size + (slot >> 1);
+                    if (keys[slot] != null) {
+                        // ok, spill over.
+                        slot = size + (size >> 1) + spills;
+                        ++spills;
+                        if (slot >= keys.length) {
+                            keys = Arrays.copyOf(keys, keys.length + 4);
+                            fieldHash = Arrays.copyOf(fieldHash, fieldHash.length + 4);
+                        }
+                    }
+                }
+                keys[slot] = key;
+                fieldHash[slot] = prop;
+            }
+            _keys = keys;
+            _props = fieldHash;
+            _spillCount = spills;
         }
 
         private final static int findSize(int size)
         {
-            // For small enough results (32 or less), we'll require <= 50% fill rate; otherwise 80%
-            int needed = (size <= 32) ? (size + size) : (size + (size >> 2));
-            int result = 2;
+            if (size <= 5) {
+                return 8;
+            }
+            if (size <= 12) {
+                return 16;
+            }
+            int needed = size + (size >> 2); // at most 80% full
+            int result = 32;
             while (result < needed) {
                 result += result;
             }
@@ -558,28 +570,27 @@ public abstract class BeanPropertyMap
         }
 
         @Override
-        public BeanPropertyMap withProperty(SettableBeanProperty newProperty)
+        public BeanPropertyMap withProperty(SettableBeanProperty newProp)
         {
-            // first things first: can just copy hash area:
-            final int bcount = _buckets.length;
-            Bucket[] newBuckets = new Bucket[bcount];
-            System.arraycopy(_buckets, 0, newBuckets, 0, bcount);
-            final String propName = getPropertyName(newProperty);
-            // and then see if it's add or replace:
-            SettableBeanProperty oldProp = find(propName);
-            if (oldProp == null) { // add
-                // first things first: add or replace?
-                 // can do a straight copy, since all additions are at the front
-                 // and then insert the new property:
-                 int index = propName.hashCode() & _hashMask;
-                 newBuckets[index] = new Bucket(newBuckets[index],
-                         propName, newProperty, _nextBucketIndex);
-                 return new Default(newBuckets, _size+1, _nextBucketIndex+1, _caseInsensitive);
+            // First: may be able to just replace?
+            String key = getPropertyName(newProp);
+            for (int i = 0, end = _props.length; i < end; ++i) {
+                SettableBeanProperty prop = _props[i];
+                if ((prop != null) && prop.getName().equals(key)) {
+                    _props[i] = newProp;
+                    return this;
+                }
             }
-            // replace: easy, close + replace
-            BeanPropertyMap newMap = new Default(newBuckets, bcount, _nextBucketIndex, _caseInsensitive);
-            newMap.replace(newProperty);
-            return newMap;
+            // If not, re-create
+            newProp.assignIndex(_nextBucketIndex);
+            List<SettableBeanProperty> props = properties();
+            props.add(newProp);
+            init(props);
+            ++_nextBucketIndex;
+
+            // should we just create a new one? Or is resetting ok?
+            
+            return this;
         }
 
         @Override
@@ -587,12 +598,12 @@ public abstract class BeanPropertyMap
         {
             // order is arbitrary, but stable:
             int index = 0;
-            for (Bucket bucket : _buckets) {
-                while (bucket != null) {
-                    bucket.value.assignIndex(index++);
-                    bucket = bucket.next;
+            for (SettableBeanProperty prop : _props) {
+                if (prop != null) {
+                    prop.assignIndex(index++);
                 }
             }
+            _nextBucketIndex = index;
             return this;
         }
         
@@ -600,92 +611,78 @@ public abstract class BeanPropertyMap
         public int size() { return _size; }
 
         @Override
-        public void remove(SettableBeanProperty property)
+        public void remove(SettableBeanProperty propToRm)
         {
-            // Mostly this is the same as code with 'replace', just bit simpler...
-            String name = getPropertyName(property);
-            int index = name.hashCode() & (_buckets.length-1);
-            Bucket tail = null;
+            ArrayList<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(_size);
+            String key = getPropertyName(propToRm);
             boolean found = false;
-            // slightly complex just because chain is immutable, must recreate
-            for (Bucket bucket = _buckets[index]; bucket != null; bucket = bucket.next) {
-                // match to remove?
-                if (!found && bucket.key.equals(name)) {
-                    found = true;
-                } else {
-                    tail = new Bucket(tail, bucket.key, bucket.value, bucket.index);
+            for (SettableBeanProperty prop : _props) {
+                if (prop != null) {
+                    if (!found) {
+                        found = key.equals(prop.getName());
+                        if (found) {
+                            continue;
+                        }
+                    }
+                    props.add(prop);
                 }
             }
-            if (!found) { // must be found
-                throw new NoSuchElementException("No entry '"+property+"' found, can't remove");
-            }
-            _buckets[index] = tail;
-        }
-
-        @Override
-        public void replace(SettableBeanProperty prop)
-        {
-            String name = getPropertyName(prop);
-            int index = name.hashCode() & (_buckets.length-1);
-
-            /* This is bit tricky just because buckets themselves
-             * are immutable, so we need to recreate the chain. Fine.
-             */
-            Bucket tail = null;
-            int foundIndex = -1;
-            
-            for (Bucket bucket = _buckets[index]; bucket != null; bucket = bucket.next) {
-                // match to remove?
-                if (foundIndex < 0 && bucket.key.equals(name)) {
-                    foundIndex = bucket.index;
-                } else {
-                    tail = new Bucket(tail, bucket.key, bucket.value, bucket.index);
-                }
-            }
-            // Not finding specified entry is error, so:
-            if (foundIndex >= 0) {
-                /* So let's attach replacement in front: useful also because
-                 * it allows replacement even when iterating over entries
-                 */
-                _buckets[index] = new Bucket(tail, name, prop, foundIndex);
+            if (found) {
+                init(props);
                 return;
             }
-            super.replace(prop);
+            super.remove(propToRm);
         }
 
         @Override
-        public Iterator<SettableBeanProperty> iterator() {
-            List<SettableBeanProperty> list = new ArrayList<SettableBeanProperty>(_nextBucketIndex);
-            // no need to order in particular order
-            for (Bucket root : _buckets) {
-                for (Bucket bucket = root; bucket != null; bucket = bucket.next) {
-                    list.add(bucket.value);
+        public void replace(SettableBeanProperty newProp)
+        {
+            String key = getPropertyName(newProp);
+            for (int i = 0, end = _props.length; i < end; ++i) {
+                SettableBeanProperty prop = _props[i];
+                if ((prop != null) && prop.getName().equals(key)) {
+                    // 20-Mar-2015, tatu: Already set?
+//                    newProp.assignIndex(prop.getPropertyIndex());
+                    _props[i] = newProp;
+                    return;
                 }
             }
-            return list.iterator();
+            super.replace(newProp);
+        }
+
+        private List<SettableBeanProperty> properties() {
+            ArrayList<SettableBeanProperty> p = new ArrayList<SettableBeanProperty>(_nextBucketIndex);
+            for (SettableBeanProperty prop : _props) {
+                if (prop != null) {
+                    p.add(prop);
+                }
+            }
+            return p;
+        }
+        
+        @Override
+        public Iterator<SettableBeanProperty> iterator() {
+            return properties().iterator();
         }
         
         @Override
         public SettableBeanProperty[] getPropertiesInInsertionOrder()
         {
-            int len = _nextBucketIndex;
-            SettableBeanProperty[] result = new SettableBeanProperty[len];
-            for (Bucket root : _buckets) {
-                for (Bucket bucket = root; bucket != null; bucket = bucket.next) {
-                    result[bucket.index] = bucket.value;
+            SettableBeanProperty[] result = new SettableBeanProperty[_nextBucketIndex];
+            for (SettableBeanProperty prop : _props) {
+                if (prop != null) {
+                    result[prop.getPropertyIndex()] = prop;
                 }
             }
             return result;
         }
 
         @Override
-        public SettableBeanProperty find(int propertyIndex)
+        public SettableBeanProperty find(int index)
         {
-            for (int i = 0, end = _buckets.length; i < end; ++i) {
-                for (Bucket bucket = _buckets[i]; bucket != null; bucket = bucket.next) {
-                    if (bucket.index == propertyIndex) {
-                        return bucket.value;
-                    }
+            for (SettableBeanProperty prop : _props) {
+                if ((prop != null) && (index == prop.getPropertyIndex())) {
+                    return prop;
                 }
             }
             return null;
@@ -700,67 +697,42 @@ public abstract class BeanPropertyMap
             if (_caseInsensitive) {
                 key = key.toLowerCase();
             }
-            int index = key.hashCode() & _hashMask;
-            Bucket bucket = _buckets[index];
-            // Let's unroll first lookup since that is null or match in 90+% cases
-            if (bucket == null) {
+            int slot = key.hashCode() & _hashMask;
+            String match = _keys[slot];
+            if ((match == key) || key.equals(match)) {
+                return _props[slot];
+            }
+            if (match == null) {
                 return null;
             }
-            // Primarily we do just identity comparison as keys should be interned
-            if (bucket.key == key) {
-                return bucket.value;
+            // no? secondary?
+            slot = (_hashMask+1) + (slot>>1);
+            match = _keys[slot];
+            if (key.equals(match)) {
+                return _props[slot];
             }
-            while ((bucket = bucket.next) != null) {
-                if (bucket.key == key) {
-                    return bucket.value;
+            // or spill?
+            return _findFromSpill(key);
+        }
+
+        private SettableBeanProperty _findFromSpill(String key) {
+            int hashSize = _hashMask+1;
+            int i = hashSize + (hashSize>>1);
+            for (int end = i + _spillCount; i < end; ++i) {
+                if (key.equals(_keys[i])) {
+                    return _props[1];
                 }
             }
-            // Do we need fallback for non-interned Strings?
-            return _findWithEquals(key, index);
+            return null;
         }
 
         @Override
         public boolean findDeserializeAndSet(JsonParser p, DeserializationContext ctxt,
                 Object bean, String key) throws IOException
         {
-            if (_caseInsensitive) {
-                key = key.toLowerCase();
-            }
-            int index = key.hashCode() & _hashMask;
-            Bucket bucket = _buckets[index];
-            // Let's unroll first lookup since that is null or match in 90+% cases
-            if (bucket == null) {
+            final SettableBeanProperty prop = find(key);
+            if (prop == null) {
                 return false;
-            }
-            // Primarily we do just identity comparison as keys should be interned
-            if (bucket.key == key) {
-                try {
-                    bucket.value.deserializeAndSet(p, ctxt, bean);
-                } catch (Exception e) {
-                    wrapAndThrow(e, bean, key, ctxt);
-                }
-                return true;
-            } 
-            return _findDeserializeAndSet2(p, ctxt, bean, key, index);
-        }
-
-        private final boolean _findDeserializeAndSet2(JsonParser p, DeserializationContext ctxt,
-                Object bean, String key, int index) throws IOException
-        {
-            SettableBeanProperty prop = null;
-            Bucket bucket = _buckets[index];
-            while (true) {
-                if ((bucket = bucket.next) == null) {
-                    prop = _findWithEquals(key, index);
-                    if (prop == null) {
-                        return false;
-                    }
-                    break;
-                }
-                if (bucket.key == key) {
-                    prop = bucket.value;
-                    break;
-                }
             }
             try {
                 prop.deserializeAndSet(p, ctxt, bean);
@@ -768,18 +740,6 @@ public abstract class BeanPropertyMap
                 wrapAndThrow(e, bean, key, ctxt);
             }
             return true;
-        }
-        
-        protected SettableBeanProperty _findWithEquals(String key, int index)
-        {
-            Bucket bucket = _buckets[index];
-            while (bucket != null) {
-                if (key.equals(bucket.key)) {
-                    return bucket.value;
-                }
-                bucket = bucket.next;
-            }
-            return null;
         }
     }
 }

@@ -85,7 +85,7 @@ public abstract class BeanPropertyMap
     }
 
     protected abstract BeanPropertyMap _renameAll(NameTransformer transformer);
-    
+
     // Confining this case insensitivity to this function (and the find method) in case we want to
     // apply a particular locale to the lower case function.  For now, using the default.
     protected final String getPropertyName(SettableBeanProperty prop) {
@@ -276,11 +276,11 @@ public abstract class BeanPropertyMap
             super(caseInsensitive);
             size = sz;
             prop1 = p1;
-            key1 = (p1 == null) ? null : p1.getName();
+            key1 = (p1 == null) ? null : getPropertyName(p1);
             prop2 = p2;
-            key2 = (p2 == null) ? null : p2.getName();
+            key2 = (p2 == null) ? null : getPropertyName(p2);
             prop3 = p3;
-            key3 = (p3 == null) ? null : p3.getName();
+            key3 = (p3 == null) ? null : getPropertyName(p3);
         }
         
         @Override
@@ -298,7 +298,7 @@ public abstract class BeanPropertyMap
         @Override
         public BeanPropertyMap withProperty(SettableBeanProperty prop)
         {
-            final String key = prop.getName();
+            final String key = getPropertyName(prop);
             // First: replace existing one?
             switch (size) {
             case 3:
@@ -390,6 +390,9 @@ public abstract class BeanPropertyMap
 
         @Override
         public SettableBeanProperty find(String key) {
+            if (_caseInsensitive) {
+                key = key.toLowerCase();
+            }
             if (key == key1) return prop1;
             if (key == key2) return prop2;
             if (key == key3) return prop3;
@@ -543,6 +546,7 @@ public abstract class BeanPropertyMap
                 }
                 
                 String key = getPropertyName(prop);
+//                int slot = _hashCode(key);
                 int slot = key.hashCode() & _hashMask;
 
                 // primary slot not free?
@@ -559,15 +563,16 @@ public abstract class BeanPropertyMap
                         }
                     }
                 }
-//System.err.println(" add '"+key+" at #"+slot+" (hashed at "+(key.hashCode() & _hashMask)+")");             
+//System.err.println(" add '"+key+" at #"+slot+"/"+size+" (hashed at "+_hashCode(key)+")");             
                 keys[slot] = key;
                 propHash[slot] = prop;
             }
-/*
+            /*
 for (int i = 0; i < keys.length; ++i) {
     System.err.printf("#%02d: %s\n", i, (keys[i] == null) ? "-" : keys[i]);
 }
 */
+
             _keys = keys;
             _propsHash = propHash;
             _spillCount = spills;
@@ -625,7 +630,9 @@ for (int i = 0; i < keys.length; ++i) {
             }
             // If not, append
 
+//            int slot = _hashCode(key);
             int slot = key.hashCode() & _hashMask;
+
             int hashSize = _hashMask+1;
 
             // primary slot not free?
@@ -753,6 +760,7 @@ for (int i = 0; i < keys.length; ++i) {
             if (_caseInsensitive) {
                 key = key.toLowerCase();
             }
+//            int slot = _hashCode(key);
             int slot = key.hashCode() & _hashMask;
             String match = _keys[slot];
             if ((match == key) || key.equals(match)) {
@@ -807,5 +815,13 @@ for (int i = 0; i < keys.length; ++i) {
             }
             throw new IllegalStateException("Illegal state: property '"+prop.getName()+"' missing from _propsInOrder");
         }
+
+        /*
+        private final int _hashCode(String key) {
+            int h = key.hashCode();
+            h ^= h >> 13;
+            return h & _hashMask;
+        }
+        */
     }
 }

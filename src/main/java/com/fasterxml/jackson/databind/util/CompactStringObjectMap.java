@@ -47,7 +47,7 @@ public abstract class CompactStringObjectMap
         protected final String key1, key2;
         protected final Object value1, value2;
 
-        private Small(Map.Entry<String,?> e1, Map.Entry<String,?> e2)
+        public Small(Map.Entry<String,?> e1, Map.Entry<String,?> e2)
         {
             if (e1 == null) {
                 key1 = null;
@@ -99,15 +99,13 @@ public abstract class CompactStringObjectMap
     {
         private final int _hashMask, _spillCount;
 
-        private final String[] _keys;
-        private final Object[] _values;
+        private final Object[] _hashArea;
 
-        private Big(int hashMask, int spillCount, String[] keys, Object[] fields)
+        private Big(int hashMask, int spillCount, Object[] hashArea)
         {
             _hashMask = hashMask;
             _spillCount = spillCount;
-            _keys = keys;
-            _values = fields;
+            _hashArea = hashArea;
         }
 
         public static <T> Big construct(Map<String,T> all)
@@ -116,34 +114,33 @@ public abstract class CompactStringObjectMap
             final int size = findSize(all.size());
             final int mask = size-1;
             // and allocate enough to contain primary/secondary, expand for spillovers as need be
-            int alloc = size + (size>>1);
-            String[] keys = new String[alloc];
-            Object[] fieldHash = new Object[alloc];
-            int spills = 0;
+            int alloc = (size + (size>>1)) * 2;
+            Object[] hashArea = new Object[alloc];
+            int spillCount = 0;
 
             for (Map.Entry<String,T> entry : all.entrySet()) {
                 String key = entry.getKey();
 
                 int slot = key.hashCode() & mask;
+                int ix = slot+slot;
 
                 // primary slot not free?
-                if (keys[slot] != null) {
+                if (hashArea[ix] != null) {
                     // secondary?
-                    slot = size + (slot >> 1);
-                    if (keys[slot] != null) {
+                    ix = (size + (slot >> 1)) << 1;
+                    if (hashArea[ix] != null) {
                         // ok, spill over.
-                        slot = size + (size >> 1) + spills;
-                        ++spills;
-                        if (slot >= keys.length) {
-                            keys = Arrays.copyOf(keys, keys.length + 4);
-                            fieldHash = Arrays.copyOf(fieldHash, fieldHash.length + 4);
+                        ix = ((size + (size >> 1) ) << 1) + spillCount;
+                        spillCount += 2;
+                        if (ix >= hashArea.length) {
+                            hashArea = Arrays.copyOf(hashArea, hashArea.length + 4);
                         }
                     }
                 }
-                keys[slot] = key;
-                fieldHash[slot] = entry.getValue();
+                hashArea[ix] = key;
+                hashArea[ix+1] = entry.getValue();
             }
-            return new Big(mask, spills, keys, fieldHash);
+            return new Big(mask, spillCount, hashArea);
         }
 
         private final static int findSize(int size)
@@ -161,33 +158,36 @@ public abstract class CompactStringObjectMap
             }
             return result;
         }
-        
+
         @Override
         public Object find(String key) {
             int slot = key.hashCode() & _hashMask;
-            String match = _keys[slot];
+            int ix = (slot<<1);
+            Object match = _hashArea[ix];
             if ((match == key) || key.equals(match)) {
-                return _values[slot];
+                return _hashArea[ix+1];
             }
+            return _find2(key, slot, match);
+        }
+
+        private final Object _find2(String key, int slot, Object match)
+        {
             if (match == null) {
                 return null;
             }
-            // no? secondary?
-            slot = (_hashMask+1) + (slot>>1);
-            match = _keys[slot];
-            if (key.equals(match)) {
-                return _values[slot];
-            }
-            // or spill?
-            return _findFromSpill(key);
-        }
-
-        private Object _findFromSpill(String key) {
             int hashSize = _hashMask+1;
-            int i = hashSize + (hashSize>>1);
-            for (int end = i + _spillCount; i < end; ++i) {
-                if (key.equals(_keys[i])) {
-                    return _values[i];
+            int ix = hashSize + (slot>>1) << 1;
+            match = _hashArea[ix];
+            if (key.equals(match)) {
+                return _hashArea[ix+1];
+            }
+            if (match != null) { // _findFromSpill(...)
+                int i = (hashSize + (hashSize>>1)) << 1;
+                for (int end = i + _spillCount; i < end; i += 2) {
+                    match = _hashArea[i];
+                    if ((match == key) || key.equals(match)) {
+                        return _hashArea[i+1];
+                    }
                 }
             }
             return null;
@@ -195,13 +195,15 @@ public abstract class CompactStringObjectMap
 
         @Override
         public List<String> keys() {
-            List<String> keys = new ArrayList<String>(_keys.length >> 1);
-            for (String key : _keys) {
+            final int end = _hashArea.length;
+            List<String> keys = new ArrayList<String>(end >> 2);
+            for (int i = 0; i < end; i += 2) {
+                Object key = _hashArea[i];
                 if (key != null) {
-                    keys.add(key);
+                    keys.add((String) key);
                 }
             }
             return keys;
         }
-}    
+    }
 }

@@ -319,6 +319,30 @@ System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
         return _find2(key, slot, match);
     }
 
+    private final SettableBeanProperty _find2(String key, int slot, Object match)
+    {
+        if (match == null) {
+            return null;
+        }
+        // no? secondary?
+        int hashSize = _hashMask+1;
+        int ix = hashSize + (slot>>1) << 1;
+        match = _hashArea[ix];
+        if (key.equals(match)) {
+            return (SettableBeanProperty) _hashArea[ix+1];
+        }
+        if (match != null) { // _findFromSpill(...)
+            int i = (hashSize + (hashSize>>1)) << 1;
+            for (int end = i + _spillCount; i < end; i += 2) {
+                match = _hashArea[i];
+                if ((match == key) || key.equals(match)) {
+                    return (SettableBeanProperty) _hashArea[i+1];
+                }
+            }
+        }
+        return null;
+    }
+    
     /*
     /**********************************************************
     /* Public API
@@ -452,30 +476,6 @@ System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
             }
         }
         throw JsonMappingException.wrapWithPath(t, bean, fieldName);
-    }
-        
-    private final SettableBeanProperty _find2(String key, int slot, Object match)
-    {
-        if (match == null) {
-            return null;
-        }
-        // no? secondary?
-        int hashSize = _hashMask+1;
-        int ix = hashSize + (slot>>1) << 1;
-        match = _hashArea[ix];
-        if (key.equals(match)) {
-            return (SettableBeanProperty) _hashArea[ix+1];
-        }
-        if (match != null) { // _findFromSpill(...)
-            int i = (hashSize + (hashSize>>1)) << 1;
-            for (int end = i + _spillCount; i < end; i += 2) {
-                match = _hashArea[i];
-                if ((match == key) || key.equals(match)) {
-                    return (SettableBeanProperty) _hashArea[i+1];
-                }
-            }
-        }
-        return null;
     }
 
     private int _findFromOrdered(SettableBeanProperty prop) {

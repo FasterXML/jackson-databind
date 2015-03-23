@@ -501,16 +501,19 @@ public abstract class BeanPropertyMap
     {
         private static final long serialVersionUID = 1L;
 
-        private int _hashMask, _size, _spillCount;
-
-        private String[] _keys;
+        private int _hashMask;
 
         /**
-         * Hash area for properties, sparsely populated. Starts with the primary
-         * hash (size of {@link #_size}), followed by secondary (with half the size
-         * of primary), and with optional variable size spillover.
+         * Number of entries stored in the hash area.
          */
-        private SettableBeanProperty[] _propsHash;
+        private int _size;
+        
+        private int _spillCount;
+
+        /**
+         * Hash area that contains key/property pairs in adjacent elements.
+         */
+        private Object[] _hashArea;
 
         /**
          * Array of properties in the exact order they were handed in. This is
@@ -534,10 +537,9 @@ public abstract class BeanPropertyMap
             _hashMask = size-1;
 
             // and allocate enough to contain primary/secondary, expand for spillovers as need be
-            int alloc = size + (size>>1);
-            String[] keys = new String[alloc];
-            SettableBeanProperty[] propHash = new SettableBeanProperty[alloc];
-            int spills = 0;
+            int alloc = (size + (size>>1)) * 2;
+            Object[] hashed = new Object[alloc];
+            int spillCount = 0;
 
             for (SettableBeanProperty prop : props) {
                 // Due to removal, renaming, theoretically possible we'll have "holes" so:
@@ -546,36 +548,33 @@ public abstract class BeanPropertyMap
                 }
                 
                 String key = getPropertyName(prop);
-//                int slot = _hashCode(key);
-                int slot = key.hashCode() & _hashMask;
+                int slot = _hashCode(key);
+                int ix = (slot<<1);
 
                 // primary slot not free?
-                if (keys[slot] != null) {
+                if (hashed[ix] != null) {
                     // secondary?
-                    slot = size + (slot >> 1);
-                    if (keys[slot] != null) {
+                    ix = (size + (slot >> 1)) << 1;
+                    if (hashed[ix] != null) {
                         // ok, spill over.
-                        slot = size + (size >> 1) + spills;
-                        ++spills;
-                        if (slot >= keys.length) {
-                            keys = Arrays.copyOf(keys, keys.length + 4);
-                            propHash = Arrays.copyOf(propHash, propHash.length + 4);
+                        ix = ((size + (size >> 1) ) << 1) + spillCount;
+                        spillCount += 2;
+                        if (ix >= hashed.length) {
+                            hashed = Arrays.copyOf(hashed, hashed.length + 4);
                         }
                     }
                 }
-//System.err.println(" add '"+key+" at #"+slot+"/"+size+" (hashed at "+_hashCode(key)+")");             
-                keys[slot] = key;
-                propHash[slot] = prop;
+//System.err.println(" add '"+key+" at #"+(ix>>1)+"/"+size+" (hashed at "+slot+")");             
+                hashed[ix] = key;
+                hashed[ix+1] = prop;
             }
-            /*
-for (int i = 0; i < keys.length; ++i) {
-    System.err.printf("#%02d: %s\n", i, (keys[i] == null) ? "-" : keys[i]);
+/*
+for (int i = 0; i < hashed.length; i += 2) {
+    System.err.printf("#%02d: %s\n", i>>1, (hashed[i] == null) ? "-" : hashed[i]);
 }
 */
-
-            _keys = keys;
-            _propsHash = propHash;
-            _spillCount = spills;
+            _hashArea = hashed;
+            _spillCount = spillCount;
         }
 
         private final static int findSize(int size)
@@ -620,37 +619,35 @@ for (int i = 0; i < keys.length; ++i) {
         {
             // First: may be able to just replace?
             String key = getPropertyName(newProp);
-            for (int i = 0, end = _propsHash.length; i < end; ++i) {
-                SettableBeanProperty prop = _propsHash[i];
+
+            for (int i = 1, end = _hashArea.length; i < end; i += 2) {
+                SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
                 if ((prop != null) && prop.getName().equals(key)) {
-                    _propsHash[i] = newProp;
+                    _hashArea[i] = newProp;
                     _propsInOrder[_findFromOrdered(prop)] = newProp;
                     return this;
                 }
             }
             // If not, append
-
-//            int slot = _hashCode(key);
-            int slot = key.hashCode() & _hashMask;
-
+            int slot = _hashCode(key);
             int hashSize = _hashMask+1;
 
             // primary slot not free?
-            if (_keys[slot] != null) {
+            if (_hashArea[slot << 1] != null) {
                 // secondary?
                 slot = hashSize + (slot >> 1);
-                if (_keys[slot] != null) {
+                if (_hashArea[slot << 1] != null) {
                     // ok, spill over.
                     slot = hashSize + (hashSize >> 1) + _spillCount;
-                    ++_spillCount;
-                    if (slot >= _keys.length) {
-                        _keys = Arrays.copyOf(_keys, _keys.length + 4);
-                        _propsHash = Arrays.copyOf(_propsHash, _propsHash.length + 4);
+                    _spillCount += 2;
+                    if ((slot << 1) >= _hashArea.length) {
+                        _hashArea = Arrays.copyOf(_hashArea, _hashArea.length + 4);
                     }
                 }
             }
-            _keys[slot] = key;
-            _propsHash[slot] = newProp;
+            int ix = slot << 1;
+            _hashArea[ix] = key;
+            _hashArea[ix+1] = newProp;
 
             int last = _propsInOrder.length;
             _propsInOrder = Arrays.copyOf(_propsInOrder, last+1);
@@ -666,7 +663,8 @@ for (int i = 0; i < keys.length; ++i) {
         {
             // order is arbitrary, but stable:
             int index = 0;
-            for (SettableBeanProperty prop : _propsHash) {
+            for (int i = 1, end = _hashArea.length; i < end; i += 2) {
+                SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
                 if (prop != null) {
                     prop.assignIndex(index++);
                 }
@@ -683,7 +681,9 @@ for (int i = 0; i < keys.length; ++i) {
             ArrayList<SettableBeanProperty> props = new ArrayList<SettableBeanProperty>(_size);
             String key = getPropertyName(propToRm);
             boolean found = false;
-            for (SettableBeanProperty prop : _propsHash) {
+
+            for (int i = 1, end = _hashArea.length; i < end; i += 2) {
+                SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
                 if (prop == null) {
                     continue;
                 }
@@ -708,10 +708,10 @@ for (int i = 0; i < keys.length; ++i) {
         public void replace(SettableBeanProperty newProp)
         {
             String key = getPropertyName(newProp);
-            for (int i = 0, end = _propsHash.length; i < end; ++i) {
-                SettableBeanProperty prop = _propsHash[i];
+            for (int i = 1, end = _hashArea.length; i < end; i += 2) {
+                SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
                 if ((prop != null) && prop.getName().equals(key)) {
-                    _propsHash[i] = newProp;
+                    _hashArea[i] = newProp;
                     // also, replace in in-order
                     _propsInOrder[_findFromOrdered(prop)] = newProp;
                     return;
@@ -722,7 +722,8 @@ for (int i = 0; i < keys.length; ++i) {
 
         private List<SettableBeanProperty> properties() {
             ArrayList<SettableBeanProperty> p = new ArrayList<SettableBeanProperty>(_size);
-            for (SettableBeanProperty prop : _propsHash) {
+            for (int i = 1, end = _hashArea.length; i < end; i += 2) {
+                SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
                 if (prop != null) {
                     p.add(prop);
                 }
@@ -743,7 +744,8 @@ for (int i = 0; i < keys.length; ++i) {
         @Override
         public SettableBeanProperty find(int index)
         {
-            for (SettableBeanProperty prop : _propsHash) {
+            for (int i = 1, end = _hashArea.length; i < end; i += 2) {
+                SettableBeanProperty prop = (SettableBeanProperty) _hashArea[i];
                 if ((prop != null) && (index == prop.getPropertyIndex())) {
                     return prop;
                 }
@@ -760,20 +762,25 @@ for (int i = 0; i < keys.length; ++i) {
             if (_caseInsensitive) {
                 key = key.toLowerCase();
             }
-//            int slot = _hashCode(key);
+
+            // inlined `_hashCode(key)`
             int slot = key.hashCode() & _hashMask;
-            String match = _keys[slot];
+            
+//            int slot = key.hashCode() & _hashMask;
+
+            int ix = (slot<<1);
+            Object match = _hashArea[ix];
             if ((match == key) || key.equals(match)) {
-                return _propsHash[slot];
+                return (SettableBeanProperty) _hashArea[ix+1];
             }
             if (match == null) {
                 return null;
             }
             // no? secondary?
-            slot = (_hashMask+1) + (slot>>1);
-            match = _keys[slot];
+            ix = ((_hashMask+1) + (slot>>1)) << 1;
+            match = _hashArea[ix];
             if (key.equals(match)) {
-                return _propsHash[slot];
+                return (SettableBeanProperty) _hashArea[ix+1];
             }
             // or spill?
             return _findFromSpill(key);
@@ -798,10 +805,11 @@ for (int i = 0; i < keys.length; ++i) {
         private SettableBeanProperty _findFromSpill(String key)
         {
             int hashSize = _hashMask+1;
-            int i = hashSize + (hashSize>>1);
-            for (int end = i + _spillCount; i < end; ++i) {
-                if (key.equals(_keys[i])) {
-                    return _propsHash[i];
+            int i = (hashSize + (hashSize>>1)) << 1;
+            for (int end = i + _spillCount; i < end; i += 2) {
+                Object match = _hashArea[i];
+                if ((match == key) || key.equals(match)) {
+                    return (SettableBeanProperty) _hashArea[i+1];
                 }
             }
             return null;
@@ -816,12 +824,16 @@ for (int i = 0; i < keys.length; ++i) {
             throw new IllegalStateException("Illegal state: property '"+prop.getName()+"' missing from _propsInOrder");
         }
 
-        /*
+        // Offlined version for convenience if we want to change hashing scheme
         private final int _hashCode(String key) {
+            // This method produces better hash, fewer collisions... yet for some
+            // reason produces slightly worse performance. Very strange.
+            /*
             int h = key.hashCode();
-            h ^= h >> 13;
+            h = h + (h >> 13);
             return h & _hashMask;
+            */
+            return key.hashCode() & _hashMask;
         }
-        */
     }
 }

@@ -214,9 +214,17 @@ public class BeanDeserializer
         }
         do {
             p.nextToken();
-            if (!_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
-                handleUnknownVanilla(p, ctxt, bean, propName);
+            SettableBeanProperty prop = _beanProperties.find(propName);
+            
+            if (prop != null) { // normal case
+                try {
+                    prop.deserializeAndSet(p, ctxt, bean);
+                } catch (Exception e) {
+                    wrapAndThrow(e, bean, propName, ctxt);
+                }
+                continue;
             }
+            handleUnknownVanilla(p, ctxt, bean, propName);
         } while ((propName = p.nextFieldName()) != null);
         return bean;
     }
@@ -242,9 +250,17 @@ public class BeanDeserializer
             String propName = p.getCurrentName();
             do {
                 p.nextToken();
-                if (!_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
-                    handleUnknownVanilla(p, ctxt, bean, propName);
+                SettableBeanProperty prop = _beanProperties.find(propName);
+                
+                if (prop != null) { // normal case
+                    try {
+                        prop.deserializeAndSet(p, ctxt, bean);
+                    } catch (Exception e) {
+                        wrapAndThrow(e, bean, propName, ctxt);
+                    }
+                    continue;
                 }
+                handleUnknownVanilla(p, ctxt, bean, propName);
             } while ((propName = p.nextFieldName()) != null);
         }
         return bean;
@@ -316,9 +332,16 @@ public class BeanDeserializer
             String propName = p.getCurrentName();
             do {
                 p.nextToken();
-                if (!_beanProperties.findDeserializeAndSet(p, ctxt, bean, propName)) {
-                    handleUnknownVanilla(p, ctxt, bean, propName);
+                SettableBeanProperty prop = _beanProperties.find(propName);
+                if (prop != null) { // normal case
+                    try {
+                        prop.deserializeAndSet(p, ctxt, bean);
+                    } catch (Exception e) {
+                        wrapAndThrow(e, bean, propName, ctxt);
+                    }
+                    continue;
                 }
+                handleUnknownVanilla(p, ctxt, bean, propName);
             } while ((propName = p.nextFieldName()) != null);
         }
         return bean;

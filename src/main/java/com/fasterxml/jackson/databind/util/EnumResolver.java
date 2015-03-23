@@ -116,6 +116,10 @@ public class EnumResolver implements java.io.Serializable
         Class<Enum<?>> enumCls = (Class<Enum<?>>) rawEnumCls;
         return constructUsingMethod(enumCls, accessor);
     }
+
+    public CompactStringObjectMap constructLookup() {
+        return CompactStringObjectMap.construct(_enumsById);
+    }
     
     public Enum<?> findEnum(String key) { return _enumsById.get(key); }
 
@@ -126,6 +130,10 @@ public class EnumResolver implements java.io.Serializable
         return _enums[index];
     }
 
+    public Enum<?>[] getRawEnums() {
+        return _enums;
+    }
+    
     public List<Enum<?>> getEnums() {
         ArrayList<Enum<?>> enums = new ArrayList<Enum<?>>(_enums.length);
         for (Enum<?> e : _enums) {

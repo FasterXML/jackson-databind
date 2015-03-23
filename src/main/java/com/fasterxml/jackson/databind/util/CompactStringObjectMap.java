@@ -17,74 +17,57 @@ import java.util.*;
 public abstract class CompactStringObjectMap
 {
     public static CompactStringObjectMap empty() {
-        return Empty.instance;
+        return Small.EMPTY;
     }
 
     public static <T> CompactStringObjectMap construct(Map<String,T> contents)
     {
         if (contents.size() == 0) { // can this occur?
-            return Empty.instance;
+            return empty();
         }
         Iterator<Map.Entry<String,T>> it = contents.entrySet().iterator();
         switch (contents.size()) {
         case 1:
-            return new Small1(it.next());
+            return new Small(it.next(), null);
         case 2:
-            return new Small2(it.next(), it.next());
+            return new Small(it.next(), it.next());
         }
         // General-purpose "big" one needed:
         return Big.construct(contents);
     }
 
-    public abstract Object findField(String key);
+    public abstract Object find(String key);
 
-    static class Empty extends CompactStringObjectMap {
-        public final static Empty instance = new Empty();
-
-        private Empty() {
-            super();
-        }
-
-        @Override
-        public Object findField(String key) {
-            return null;
-        }
-    }
-
-    static class Small1 extends CompactStringObjectMap
+    public abstract List<String> keys();
+    
+    final static class Small extends CompactStringObjectMap
     {
-        protected final String key1;
-        protected final Object value1;
-
-        private Small1(Map.Entry<String,?> entry) {
-            key1 = entry.getKey();
-            value1 = entry.getValue();
-        }
-
-        @Override
-        public Object findField(String key) {
-            if (key == key1 || key.equals(key1)) {
-                return value1;
-            }
-            return null;
-        }
-    }
-
-    final static class Small2 extends CompactStringObjectMap
-    {
+        public final static Small EMPTY = new Small(null, null);
+        
         protected final String key1, key2;
         protected final Object value1, value2;
 
-        private Small2(Map.Entry<String,?> e1, Map.Entry<String,?> e2)
+        private Small(Map.Entry<String,?> e1, Map.Entry<String,?> e2)
         {
-            key1 = e1.getKey();
-            value1 = e1.getValue();
-            key2 = e2.getKey();
-            value2 = e2.getValue();
+            if (e1 == null) {
+                key1 = null;
+                value1 = null;
+            } else {
+                key1 = e1.getKey();
+                value1 = e1.getValue();
+            }
+            if (e2 == null) {
+                key2 = null;
+                value2 = null;
+            } else {
+                key2 = e2.getKey();
+                value2 = e2.getValue();
+            }
         }
 
         @Override
-        public Object findField(String key) {
+        public Object find(String key) {
+            // no assumption of key being intern()ed:
             if (key.equals(key1)) {
                 return value1;
             }
@@ -93,7 +76,19 @@ public abstract class CompactStringObjectMap
             }
             return null;
         }
-    }
+
+        @Override
+        public List<String> keys() {
+            ArrayList<String> keys = new ArrayList<String>(2);
+            if (key1 != null) {
+                keys.add(key1);
+            }
+            if (key2 != null) {
+                keys.add(key2);
+            }
+            return keys;
+        }
+}
 
     /**
      * Raw mapping from keys to indices, optimized for fast access via
@@ -151,8 +146,24 @@ public abstract class CompactStringObjectMap
             return new Big(mask, spills, keys, fieldHash);
         }
 
+        private final static int findSize(int size)
+        {
+            if (size <= 5) {
+                return 8;
+            }
+            if (size <= 12) {
+                return 16;
+            }
+            int needed = size + (size >> 2); // at most 80% full
+            int result = 32;
+            while (result < needed) {
+                result += result;
+            }
+            return result;
+        }
+        
         @Override
-        public Object findField(String key) {
+        public Object find(String key) {
             int slot = key.hashCode() & _hashMask;
             String match = _keys[slot];
             if ((match == key) || key.equals(match)) {
@@ -171,22 +182,6 @@ public abstract class CompactStringObjectMap
             return _findFromSpill(key);
         }
 
-        private final static int findSize(int size)
-        {
-            if (size <= 5) {
-                return 8;
-            }
-            if (size <= 12) {
-                return 16;
-            }
-            int needed = size + (size >> 2); // at most 80% full
-            int result = 32;
-            while (result < needed) {
-                result += result;
-            }
-            return result;
-        }
-
         private Object _findFromSpill(String key) {
             int hashSize = _hashMask+1;
             int i = hashSize + (hashSize>>1);
@@ -197,5 +192,16 @@ public abstract class CompactStringObjectMap
             }
             return null;
         }
-    }    
+
+        @Override
+        public List<String> keys() {
+            List<String> keys = new ArrayList<String>(_keys.length >> 1);
+            for (String key : _keys) {
+                if (key != null) {
+                    keys.add(key);
+                }
+            }
+            return keys;
+        }
+}    
 }

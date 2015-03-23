@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.databind.util.CompactStringObjectMap;
 import com.fasterxml.jackson.databind.util.EnumResolver;
 
 /**
@@ -22,12 +23,21 @@ public class EnumDeserializer
 {
     private static final long serialVersionUID = 1L;
 
-    protected final EnumResolver _resolver;
-    
+    /**
+     * @since 2.6
+     */
+    protected final CompactStringObjectMap _enumLookup;
+
+    /**
+     * @since 2.6
+     */
+    protected Object[] _enumsByIndex;
+
     public EnumDeserializer(EnumResolver res)
     {
-        super(Enum.class);
-        _resolver = res;
+        super(res.getEnumClass());
+        _enumLookup = res.constructLookup();
+        _enumsByIndex = res.getRawEnums();
     }
 
     /**
@@ -69,7 +79,7 @@ public class EnumDeserializer
         // Usually should just get string value:
         if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
             String name = p.getText();
-            Enum<?> result = _resolver.findEnum(name);
+            Object result = _enumLookup.find(name);
             if (result == null) {
                 return _deserializeAltString(p, ctxt, name);
             }
@@ -81,17 +91,19 @@ public class EnumDeserializer
             _checkFailOnNumber(ctxt);
             
             int index = p.getIntValue();
-            Enum<?> result = _resolver.getEnum(index);
-            if (result == null && !ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-                throw ctxt.weirdNumberException(Integer.valueOf(index), _resolver.getEnumClass(),
-                        "index value outside legal index range [0.."+_resolver.lastValidIndex()+"]");
+            if (index >= 0 && index <= _enumsByIndex.length) {
+                return _enumsByIndex[index];
             }
-            return result;
+            if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
+                throw ctxt.weirdNumberException(Integer.valueOf(index), _enumClass(),
+                        "index value outside legal index range [0.."+(_enumsByIndex.length-1)+"]");
+            }
+            return null;
         }
         return _deserializeOther(p, ctxt);
     }
 
-    private final Enum<?> _deserializeAltString(JsonParser p, DeserializationContext ctxt,
+    private final Object _deserializeAltString(JsonParser p, DeserializationContext ctxt,
             String name) throws IOException
     {
         name = name.trim();
@@ -106,9 +118,8 @@ public class EnumDeserializer
                 try {
                     int ix = Integer.parseInt(name);
                     _checkFailOnNumber(ctxt);
-                    Enum<?> result = _resolver.getEnum(ix);
-                    if (result != null) {
-                        return result;
+                    if (ix >= 0 && ix <= _enumsByIndex.length) {
+                        return _enumsByIndex[ix];
                     }
                 } catch (NumberFormatException e) {
                     // fine, ignore, was not an integer
@@ -116,8 +127,8 @@ public class EnumDeserializer
             }
         }
         if (!ctxt.isEnabled(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL)) {
-            throw ctxt.weirdStringException(name, _resolver.getEnumClass(),
-                    "value not one of declared Enum instance names: "+_resolver.getEnums());
+            throw ctxt.weirdStringException(name, _enumClass(),
+                    "value not one of declared Enum instance names: "+_enumLookup.keys());
         }
         return null;
     }
@@ -132,11 +143,11 @@ public class EnumDeserializer
             curr = p.nextToken();
             if (curr != JsonToken.END_ARRAY) {
                 throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY,
-                        "Attempted to unwrap single value array for single '" + _resolver.getEnumClass().getName() + "' value but there was more than a single value in the array");
+                        "Attempted to unwrap single value array for single '" + _enumClass().getName() + "' value but there was more than a single value in the array");
             }
             return parsed;
         }
-        throw ctxt.mappingException(_resolver.getEnumClass());
+        throw ctxt.mappingException(_enumClass());
     }
 
     protected void _checkFailOnNumber(DeserializationContext ctxt) throws IOException
@@ -144,6 +155,10 @@ public class EnumDeserializer
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS)) {
             throw ctxt.mappingException("Not allowed to deserialize Enum value out of JSON number (disable DeserializationConfig.DeserializationFeature.FAIL_ON_NUMBERS_FOR_ENUMS to allow)");
         }
+    }
+
+    protected Class<?> _enumClass() {
+        return handledType();
     }
 
     /*

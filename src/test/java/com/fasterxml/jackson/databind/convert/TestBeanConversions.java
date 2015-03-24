@@ -63,7 +63,15 @@ public class TestBeanConversions
         public Leaf() { }
         public Leaf(int v) { value = v; }
     }
-    
+
+    public static class DummyBean {
+        public final int a, b;
+        public DummyBean(int v1, int v2) {
+            a = v1 * 2;
+            b = v2 * 2;
+        }
+    }
+
     // [Issue#288]
 
     @JsonSerialize(converter = ConvertingBeanConverter.class)
@@ -75,20 +83,31 @@ public class TestBeanConversions
        }
     }
 
-    public static class DummyBean {
-       public final int a, b;
-       public DummyBean(int v1, int v2) {
-          a = v1 * 2;
-          b = v2 * 2;
-       }
-    }
-
     static class ConvertingBeanConverter extends StdConverter<ConvertingBean, DummyBean>
     {
        @Override
        public DummyBean convert(ConvertingBean cb) {
           return new DummyBean(cb.x, cb.y);
        }
+    }
+
+    // [Issue#731]
+
+    @JsonSerialize(converter = UntypedConvertingBeanConverter.class)
+    static class ConvertingBeanWithUntypedConverter {
+        public int x, y;
+        public ConvertingBeanWithUntypedConverter(int v1, int v2) {
+            x = v1;
+            y = v2;
+        }
+    }
+
+    static class UntypedConvertingBeanConverter extends StdConverter<ConvertingBeanWithUntypedConverter, Object>
+    {
+        @Override
+        public Object convert(ConvertingBeanWithUntypedConverter cb) {
+            return new DummyBean(cb.x, cb.y);
+        }
     }
 
     /*
@@ -252,5 +271,12 @@ public class TestBeanConversions
         String json = MAPPER.writeValueAsString(new ConvertingBean(1, 2));
         // must be  {"a":2,"b":4}
         assertEquals("{\"a\":2,\"b\":4}", json);
-     }
+    }
+
+    public void testIssue731() throws Exception
+    {
+        String json = MAPPER.writeValueAsString(new ConvertingBeanWithUntypedConverter(1, 2));
+        // must be  {"a":2,"b":4}
+        assertEquals("{\"a\":2,\"b\":4}", json);
+    }
 }

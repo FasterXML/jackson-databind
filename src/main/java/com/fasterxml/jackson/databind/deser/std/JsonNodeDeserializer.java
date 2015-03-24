@@ -134,14 +134,14 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt,
             TypeDeserializer typeDeserializer)
         throws IOException
     {
         /* Output can be as JSON Object, Array or scalar: no way to know
          * a priori. So:
          */
-        return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
+        return typeDeserializer.deserializeTypedFromAny(p, ctxt);
     }
 
     /* 07-Nov-2014, tatu: When investigating [databind#604], realized that it makes
@@ -157,8 +157,8 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     /**********************************************************
      */
 
-    protected void _reportProblem(JsonParser jp, String msg) throws JsonMappingException {
-        throw new JsonMappingException(msg, jp.getTokenLocation());
+    protected void _reportProblem(JsonParser p, String msg) throws JsonMappingException {
+        throw new JsonMappingException(msg, p.getTokenLocation());
     }
 
     /**
@@ -187,7 +187,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
      *   was added
      * @param newValue Newly added value just added to the object node
      */
-    protected void _handleDuplicateField(JsonParser jp, DeserializationContext ctxt,
+    protected void _handleDuplicateField(JsonParser p, DeserializationContext ctxt,
             JsonNodeFactory nodeFactory,
             String fieldName, ObjectNode objectNode,
             JsonNode oldValue, JsonNode newValue)
@@ -195,7 +195,7 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     {
         // [Issue#237]: Report an error if asked to do so:
         if (ctxt.isEnabled(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY)) {
-            _reportProblem(jp, "Duplicate field '"+fieldName+"' for ObjectNode: not allowed when FAIL_ON_READING_DUP_TREE_KEY enabled");
+            _reportProblem(p, "Duplicate field '"+fieldName+"' for ObjectNode: not allowed when FAIL_ON_READING_DUP_TREE_KEY enabled");
         }
         // Backwards-compatibility; call in case it's overloaded
         _handleDuplicateField(fieldName, objectNode, oldValue, newValue);
@@ -207,30 +207,30 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
     /**********************************************************
      */
 
-    protected final ObjectNode deserializeObject(JsonParser jp, DeserializationContext ctxt,
+    protected final ObjectNode deserializeObject(JsonParser p, DeserializationContext ctxt,
             final JsonNodeFactory nodeFactory) throws IOException
     {
         ObjectNode node = nodeFactory.objectNode();
-        JsonToken t = jp.getCurrentToken();
+        JsonToken t = p.getCurrentToken();
         if (t == JsonToken.START_OBJECT) {
-            t = jp.nextToken();
+            t = p.nextToken();
         }
-        for (; t == JsonToken.FIELD_NAME; t = jp.nextToken()) {
-            String fieldName = jp.getCurrentName();
+        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
+            String fieldName = p.getCurrentName();
             JsonNode value;
-            t = jp.nextToken();
+            t = p.nextToken();
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
-                value = deserializeObject(jp, ctxt, nodeFactory);
+                value = deserializeObject(p, ctxt, nodeFactory);
                 break;
             case JsonTokenId.ID_START_ARRAY:
-                value = deserializeArray(jp, ctxt, nodeFactory);
+                value = deserializeArray(p, ctxt, nodeFactory);
                 break;
             case JsonTokenId.ID_STRING:
-                value = nodeFactory.textNode(jp.getText());
+                value = nodeFactory.textNode(p.getText());
                 break;
             case JsonTokenId.ID_NUMBER_INT:
-                value = _fromInt(jp, ctxt, nodeFactory);
+                value = _fromInt(p, ctxt, nodeFactory);
                 break;
             case JsonTokenId.ID_TRUE:
                 value = nodeFactory.booleanNode(true);
@@ -242,40 +242,40 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 value = nodeFactory.nullNode();
                 break;
             default:
-                value = deserializeAny(jp, ctxt, nodeFactory);
+                value = deserializeAny(p, ctxt, nodeFactory);
             }
             JsonNode old = node.replace(fieldName, value);
             if (old != null) {
-                _handleDuplicateField(jp, ctxt, nodeFactory,
+                _handleDuplicateField(p, ctxt, nodeFactory,
                         fieldName, node, old, value);
             }
         }
         return node;
     }
 
-    protected final ArrayNode deserializeArray(JsonParser jp, DeserializationContext ctxt,
+    protected final ArrayNode deserializeArray(JsonParser p, DeserializationContext ctxt,
             final JsonNodeFactory nodeFactory) throws IOException
     {
         ArrayNode node = nodeFactory.arrayNode();
         while (true) {
-            JsonToken t = jp.nextToken();
+            JsonToken t = p.nextToken();
             if (t == null) {
                 throw ctxt.mappingException("Unexpected end-of-input when binding data into ArrayNode");
             }
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
-                node.add(deserializeObject(jp, ctxt, nodeFactory));
+                node.add(deserializeObject(p, ctxt, nodeFactory));
                 break;
             case JsonTokenId.ID_START_ARRAY:
-                node.add(deserializeArray(jp, ctxt, nodeFactory));
+                node.add(deserializeArray(p, ctxt, nodeFactory));
                 break;
             case JsonTokenId.ID_END_ARRAY:
                 return node;
             case JsonTokenId.ID_STRING:
-                node.add(nodeFactory.textNode(jp.getText()));
+                node.add(nodeFactory.textNode(p.getText()));
                 break;
             case JsonTokenId.ID_NUMBER_INT:
-                node.add(_fromInt(jp, ctxt, nodeFactory));
+                node.add(_fromInt(p, ctxt, nodeFactory));
                 break;
             case JsonTokenId.ID_TRUE:
                 node.add(nodeFactory.booleanNode(true));
@@ -287,31 +287,31 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
                 node.add(nodeFactory.nullNode());
                 break;
             default:
-                node.add(deserializeAny(jp, ctxt, nodeFactory));
+                node.add(deserializeAny(p, ctxt, nodeFactory));
                 break;
             }
         }
     }
 
-    protected final JsonNode deserializeAny(JsonParser jp, DeserializationContext ctxt,
+    protected final JsonNode deserializeAny(JsonParser p, DeserializationContext ctxt,
             final JsonNodeFactory nodeFactory) throws IOException
     {
-        switch (jp.getCurrentTokenId()) {
+        switch (p.getCurrentTokenId()) {
         case JsonTokenId.ID_START_OBJECT:
         case JsonTokenId.ID_END_OBJECT: // for empty JSON Objects we may point to this
-            return deserializeObject(jp, ctxt, nodeFactory);
+            return deserializeObject(p, ctxt, nodeFactory);
         case JsonTokenId.ID_START_ARRAY:
-            return deserializeArray(jp, ctxt, nodeFactory);
+            return deserializeArray(p, ctxt, nodeFactory);
         case JsonTokenId.ID_FIELD_NAME:
-            return deserializeObject(jp, ctxt, nodeFactory);
+            return deserializeObject(p, ctxt, nodeFactory);
         case JsonTokenId.ID_EMBEDDED_OBJECT:
-            return _fromEmbedded(jp, ctxt, nodeFactory);
+            return _fromEmbedded(p, ctxt, nodeFactory);
         case JsonTokenId.ID_STRING:
-            return nodeFactory.textNode(jp.getText());
+            return nodeFactory.textNode(p.getText());
         case JsonTokenId.ID_NUMBER_INT:
-            return _fromInt(jp, ctxt, nodeFactory);
+            return _fromInt(p, ctxt, nodeFactory);
         case JsonTokenId.ID_NUMBER_FLOAT:
-            return _fromFloat(jp, ctxt, nodeFactory);
+            return _fromFloat(p, ctxt, nodeFactory);
         case JsonTokenId.ID_TRUE:
             return nodeFactory.booleanNode(true);
         case JsonTokenId.ID_FALSE:
@@ -329,36 +329,36 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
         }
     }
 
-    protected final JsonNode _fromInt(JsonParser jp, DeserializationContext ctxt,
+    protected final JsonNode _fromInt(JsonParser p, DeserializationContext ctxt,
             JsonNodeFactory nodeFactory) throws IOException
     {
-        JsonParser.NumberType nt = jp.getNumberType();
+        JsonParser.NumberType nt = p.getNumberType();
         if (nt == JsonParser.NumberType.BIG_INTEGER
             || ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
-            return nodeFactory.numberNode(jp.getBigIntegerValue());
+            return nodeFactory.numberNode(p.getBigIntegerValue());
         }
         if (nt == JsonParser.NumberType.INT) {
-            return nodeFactory.numberNode(jp.getIntValue());
+            return nodeFactory.numberNode(p.getIntValue());
         }
-        return nodeFactory.numberNode(jp.getLongValue());
+        return nodeFactory.numberNode(p.getLongValue());
     }
 
-    protected final JsonNode _fromFloat(JsonParser jp, DeserializationContext ctxt,
+    protected final JsonNode _fromFloat(JsonParser p, DeserializationContext ctxt,
             final JsonNodeFactory nodeFactory) throws IOException
     {
-        JsonParser.NumberType nt = jp.getNumberType();
+        JsonParser.NumberType nt = p.getNumberType();
         if (nt == JsonParser.NumberType.BIG_DECIMAL
             || ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-            return nodeFactory.numberNode(jp.getDecimalValue());
+            return nodeFactory.numberNode(p.getDecimalValue());
         }
-        return nodeFactory.numberNode(jp.getDoubleValue());
+        return nodeFactory.numberNode(p.getDoubleValue());
     }
 
-    protected final JsonNode _fromEmbedded(JsonParser jp, DeserializationContext ctxt,
+    protected final JsonNode _fromEmbedded(JsonParser p, DeserializationContext ctxt,
             JsonNodeFactory nodeFactory) throws IOException
     {
         // [JACKSON-796]
-        Object ob = jp.getEmbeddedObject();
+        Object ob = p.getEmbeddedObject();
         if (ob == null) { // should this occur?
             return nodeFactory.nullNode();
         }

@@ -180,6 +180,7 @@ public class TestMapDeserialization
     public void testSpecialMap() throws IOException
     {
        final ObjectWrapperMap map = MAPPER.readValue(UNTYPED_MAP_JSON, ObjectWrapperMap.class);
+       assertNotNull(map);
        _doTestUntyped(map);
     }
 
@@ -193,13 +194,15 @@ public class TestMapDeserialization
     
     private void _doTestUntyped(final Map<String, ObjectWrapper> map)
     {
-       assertEquals(Double.valueOf(42), map.get("double").getObject());
-       assertEquals("string", map.get("string").getObject());
-       assertEquals(Boolean.TRUE, map.get("boolean").getObject());
-       assertEquals(Collections.singletonList("list0"), map.get("list").getObject());
-       assertTrue(map.containsKey("null"));
-       assertNull(map.get("null"));
-       assertEquals(5, map.size());
+        ObjectWrapper w = map.get("double");
+        assertNotNull(w);
+        assertEquals(Double.valueOf(42), w.getObject());
+        assertEquals("string", map.get("string").getObject());
+        assertEquals(Boolean.TRUE, map.get("boolean").getObject());
+        assertEquals(Collections.singletonList("list0"), map.get("list").getObject());
+        assertTrue(map.containsKey("null"));
+        assertNull(map.get("null"));
+        assertEquals(5, map.size());
     }
     
     // [JACKSON-620]: allow "" to mean 'null' for Maps

@@ -211,14 +211,22 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             final JsonNodeFactory nodeFactory) throws IOException
     {
         ObjectNode node = nodeFactory.objectNode();
-        JsonToken t = p.getCurrentToken();
-        if (t == JsonToken.START_OBJECT) {
-            t = p.nextToken();
+        String key;
+        if (p.isExpectedStartObjectToken()) {
+            key = p.nextFieldName();
+        } else {
+            JsonToken t = p.getCurrentToken();
+            if (t == JsonToken.END_OBJECT) {
+                return node;
+            }
+            if (t != JsonToken.FIELD_NAME) {
+                throw ctxt.mappingException(handledType(), p.getCurrentToken());
+            }
+            key = p.getCurrentName();
         }
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            String fieldName = p.getCurrentName();
+        for (; key != null; key = p.nextFieldName()) {
             JsonNode value;
-            t = p.nextToken();
+            JsonToken t = p.nextToken();
             switch (t.id()) {
             case JsonTokenId.ID_START_OBJECT:
                 value = deserializeObject(p, ctxt, nodeFactory);
@@ -244,10 +252,10 @@ abstract class BaseNodeDeserializer<T extends JsonNode>
             default:
                 value = deserializeAny(p, ctxt, nodeFactory);
             }
-            JsonNode old = node.replace(fieldName, value);
+            JsonNode old = node.replace(key, value);
             if (old != null) {
                 _handleDuplicateField(p, ctxt, nodeFactory,
-                        fieldName, node, old, value);
+                        key, node, old, value);
             }
         }
         return node;

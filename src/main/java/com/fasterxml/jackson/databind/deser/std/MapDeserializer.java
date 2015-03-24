@@ -389,10 +389,6 @@ public class MapDeserializer
     protected final void _readAndBind(JsonParser p, DeserializationContext ctxt,
             Map<Object,Object> result) throws IOException
     {
-        JsonToken t = p.getCurrentToken();
-        if (t == JsonToken.START_OBJECT) {
-            t = p.nextToken();
-        }
         final KeyDeserializer keyDes = _keyDeserializer;
         final JsonDeserializer<Object> valueDes = _valueDeserializer;
         final TypeDeserializer typeDeser = _valueTypeDeserializer;
@@ -402,17 +398,30 @@ public class MapDeserializer
         if (useObjectId) {
             referringAccumulator = new MapReferringAccumulator(_mapType.getContentType().getRawClass(), result);
         }
-        for (; t == JsonToken.FIELD_NAME; t = p.nextToken()) {
-            // Must point to field name
-            String fieldName = p.getCurrentName();
-            Object key = keyDes.deserializeKey(fieldName, ctxt);
+
+        String keyStr;
+        if (p.isExpectedStartObjectToken()) {
+            keyStr = p.nextFieldName();
+        } else {
+            JsonToken t = p.getCurrentToken();
+            if (t == JsonToken.END_OBJECT) {
+                return;
+            }
+            if (t != JsonToken.FIELD_NAME) {
+                throw ctxt.mappingException(_mapType.getRawClass(), p.getCurrentToken());
+            }
+            keyStr = p.getCurrentName();
+        }
+        
+        for (; keyStr != null; keyStr = p.nextFieldName()) {
+            Object key = keyDes.deserializeKey(keyStr, ctxt);
             // And then the value...
-            t = p.nextToken();
-            if (_ignorableProperties != null && _ignorableProperties.contains(fieldName)) {
+            JsonToken t = p.nextToken();
+            if (_ignorableProperties != null && _ignorableProperties.contains(keyStr)) {
                 p.skipChildren();
                 continue;
             }
-            try{
+            try {
                 // Note: must handle null explicitly here; value deserializers won't
                 Object value;
                 if (t == JsonToken.VALUE_NULL) {
@@ -434,7 +443,7 @@ public class MapDeserializer
             } catch (UnresolvedForwardReference reference) {
                 handleUnresolvedReference(p, referringAccumulator, key, reference);
             } catch (Exception e) {
-                wrapAndThrow(e, result, fieldName);
+                wrapAndThrow(e, result, keyStr);
             }
         }
     }
@@ -458,19 +467,18 @@ public class MapDeserializer
         String key;
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();
-        } else { // should we verify it's FIELD_NAME?
+        } else {
             JsonToken t = p.getCurrentToken();
             if (t == JsonToken.END_OBJECT) {
                 return;
             }
-            if (!p.hasToken(JsonToken.FIELD_NAME)) {
+            if (t != JsonToken.FIELD_NAME) {
                 throw ctxt.mappingException(_mapType.getRawClass(), p.getCurrentToken());
             }
             key = p.getCurrentName();
         }
 
         for (; key != null; key = p.nextFieldName()) {
-            // And then the value...
             JsonToken t = p.nextToken();
             if (_ignorableProperties != null && _ignorableProperties.contains(key)) {
                 p.skipChildren();
@@ -513,13 +521,10 @@ public class MapDeserializer
         String key;
         if (p.isExpectedStartObjectToken()) {
             key = p.nextFieldName();
-        } else { // should we verify it's FIELD_NAME?
-            JsonToken t = p.getCurrentToken();
-            if (p.hasToken(JsonToken.FIELD_NAME)) {
-                key = p.getCurrentName();
-            } else {
-                key = null;
-            }
+        } else if (p.hasToken(JsonToken.FIELD_NAME)) {
+            key = p.getCurrentName();
+        } else {
+            key = null;
         }
         
         for (; key != null; key = p.nextFieldName()) {

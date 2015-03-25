@@ -380,43 +380,60 @@ public class UntypedObjectDeserializer
     /**
      * Method called to map a JSON Object into a Java value.
      */
-    protected Object mapObject(JsonParser jp, DeserializationContext ctxt) throws IOException
+    protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
+        String key1;
+
+        JsonToken t = p.getCurrentToken();
+        
         if (t == JsonToken.START_OBJECT) {
-            t = jp.nextToken();
+            key1 = p.nextFieldName();
+        } else if (t == JsonToken.FIELD_NAME) {
+            key1 = p.getCurrentName();
+        } else {
+            if (t != JsonToken.END_OBJECT) {
+                throw ctxt.mappingException(handledType(), p.getCurrentToken());
+            }
+            key1 = null;
         }
+
         // minor optimization; let's handle 1 and 2 entry cases separately
-        if (t == JsonToken.END_OBJECT) { // and empty one too
+        if (key1 == null) {
             // empty map might work; but caller may want to modify... so better just give small modifiable
             return new LinkedHashMap<String,Object>(2);
         }
-        String field1 = jp.getCurrentName();
-        jp.nextToken();
-        Object value1 = deserialize(jp, ctxt);
-        if (jp.nextToken() == JsonToken.END_OBJECT) { // single entry; but we want modifiable
+        // 24-Mar-2015, tatu: Ideally, could use one of 'nextXxx()' methods, but for
+        //   that we'd need new method(s) in JsonDeserializer. So not quite yet.
+        p.nextToken();
+        Object value1 = deserialize(p, ctxt);
+
+        String key2 = p.nextFieldName();
+        if (key2 == null) { // has to be END_OBJECT, then
+            // single entry; but we want modifiable
             LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(2);
-            result.put(field1, value1);
+            result.put(key1, value1);
             return result;
         }
-        String field2 = jp.getCurrentName();
-        jp.nextToken();
-        Object value2 = deserialize(jp, ctxt);
-        if (jp.nextToken() == JsonToken.END_OBJECT) {
+        p.nextToken();
+        Object value2 = deserialize(p, ctxt);
+
+        String key = p.nextFieldName();
+
+        if (key == null) {
             LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(4);
-            result.put(field1, value1);
-            result.put(field2, value2);
+            result.put(key1, value1);
+            result.put(key2, value2);
             return result;
         }
         // And then the general case; default map size is 16
         LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>();
-        result.put(field1, value1);
-        result.put(field2, value2);
+        result.put(key1, value1);
+        result.put(key2, value2);
+
         do {
-            String fieldName = jp.getCurrentName();
-            jp.nextToken();
-            result.put(fieldName, deserialize(jp, ctxt));
-        } while (jp.nextToken() != JsonToken.END_OBJECT);
+            p.nextToken();
+            result.put(key, deserialize(p, ctxt));
+        } while ((key = p.nextFieldName()) != null);
         return result;
     }
 
@@ -596,35 +613,37 @@ public class UntypedObjectDeserializer
         /**
          * Method called to map a JSON Object into a Java value.
          */
-        protected Object mapObject(JsonParser jp, DeserializationContext ctxt) throws IOException
+        protected Object mapObject(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             // will point to FIELD_NAME at this point, guaranteed
-            String field1 = jp.getText();
-            jp.nextToken();
-            Object value1 = deserialize(jp, ctxt);
-            if (jp.nextToken() == JsonToken.END_OBJECT) { // single entry; but we want modifiable
+            String key1 = p.getText();
+            p.nextToken();
+            Object value1 = deserialize(p, ctxt);
+
+            String key2 = p.nextFieldName();
+            if (key2 == null) { // single entry; but we want modifiable
                 LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(2);
-                result.put(field1, value1);
+                result.put(key1, value1);
                 return result;
             }
-            String field2 = jp.getText();
-            jp.nextToken();
-            Object value2 = deserialize(jp, ctxt);
-            if (jp.nextToken() == JsonToken.END_OBJECT) {
+            p.nextToken();
+            Object value2 = deserialize(p, ctxt);
+
+            String key = p.nextFieldName();
+            if (key == null) {
                 LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>(4);
-                result.put(field1, value1);
-                result.put(field2, value2);
+                result.put(key1, value1);
+                result.put(key2, value2);
                 return result;
             }
             // And then the general case; default map size is 16
             LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>();
-            result.put(field1, value1);
-            result.put(field2, value2);
+            result.put(key1, value1);
+            result.put(key2, value2);
             do {
-                String fieldName = jp.getText();
-                jp.nextToken();
-                result.put(fieldName, deserialize(jp, ctxt));
-            } while (jp.nextToken() != JsonToken.END_OBJECT);
+                p.nextToken();
+                result.put(key, deserialize(p, ctxt));
+            } while ((key = p.nextFieldName()) != null);
             return result;
         }
 

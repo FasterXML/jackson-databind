@@ -133,15 +133,17 @@ public class UntypedObjectDeserializer
         if (_listType == null) {
             _listDeserializer = _clearIfStdImpl(_findCustomDeser(ctxt, tf.constructCollectionType(List.class, obType)));
         } else {
+            // NOTE: if non-default List type, always consider to be non-standard deser
             _listDeserializer = _findCustomDeser(ctxt, _listType);
         }
         if (_mapType == null) {
             _mapDeserializer = _clearIfStdImpl(_findCustomDeser(ctxt, tf.constructMapType(Map.class, stringType, obType)));
         } else {
+            // NOTE: if non-default Map type, always consider to be non-standard deser
             _mapDeserializer = _findCustomDeser(ctxt, _mapType);
         }
-        _stringDeserializer = _findCustomDeser(ctxt, stringType);
-        _numberDeserializer = _findCustomDeser(ctxt, tf.constructType(Number.class));
+        _stringDeserializer = _clearIfStdImpl(_findCustomDeser(ctxt, stringType));
+        _numberDeserializer = _clearIfStdImpl(_findCustomDeser(ctxt, tf.constructType(Number.class)));
 
         // and then do bogus contextualization, in case custom ones need to resolve dependencies of
         // their own

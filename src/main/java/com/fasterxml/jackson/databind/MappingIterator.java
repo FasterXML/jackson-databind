@@ -182,17 +182,22 @@ public class MappingIterator<T> implements Iterator<T>, Closeable
             return _throwNoSuchElement();
         }
         _hasNextChecked = false;
-        T result;
-        
-        if (_updatedValue == null) {
-            result = _deserializer.deserialize(_parser, _context);
-        } else{
-            _deserializer.deserialize(_parser, _context, _updatedValue);
-            result = _updatedValue;
+
+        try {
+            if (_updatedValue == null) {
+                return _deserializer.deserialize(_parser, _context);
+            } else{
+                _deserializer.deserialize(_parser, _context, _updatedValue);
+                return _updatedValue;
+            }
+        } finally {
+            /* 24-Mar-2015, tatu: As per [#733], need to mark token consumed no
+             *   matter what, to avoid infinite loop for certain failure cases.
+             *   For 2.6 need to improve further.
+             */
+            // Need to consume the token too
+            _parser.clearCurrentToken();
         }
-        // Need to consume the token too
-        _parser.clearCurrentToken();
-        return result;
     }
 
     /**

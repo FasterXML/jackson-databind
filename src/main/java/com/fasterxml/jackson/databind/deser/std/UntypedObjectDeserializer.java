@@ -202,7 +202,13 @@ public class UntypedObjectDeserializer
      *   since it's not uncommon to "read anything"
      */
     @Override
-    public boolean isCachable() { return true; }
+    public boolean isCachable() {
+        /* 26-Mar-2015, tatu: With respect to [databind#735], there are concerns over
+         *   cachability. It seems like we SHOULD be safe here; but just in case there
+         *   are problems with false sharing, this may need to be revisited.
+         */
+        return true;
+    }
 
     @Override
     public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException

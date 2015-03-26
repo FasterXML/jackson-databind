@@ -54,7 +54,13 @@ public class EnumSetDeserializer
      * let's cache instances by default.
      */
     @Override
-    public boolean isCachable() { return true; }
+    public boolean isCachable() {
+        // One caveat: content deserializer should prevent caching
+        if (_enumType.getValueHandler() != null) {
+            return false;
+        }
+        return true;
+    }
     
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext ctxt,

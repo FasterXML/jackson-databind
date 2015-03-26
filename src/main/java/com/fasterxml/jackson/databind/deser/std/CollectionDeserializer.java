@@ -45,9 +45,9 @@ public class CollectionDeserializer
     protected final TypeDeserializer _valueTypeDeserializer;
 
     // // Instance construction settings:
-    
+
     protected final ValueInstantiator _valueInstantiator;
-    
+
     /**
      * Deserializer that is used iff delegate-based creator is
      * to be used for deserializing from JSON Object.
@@ -121,7 +121,11 @@ public class CollectionDeserializer
     // Important: do NOT cache if polymorphic values
     @Override // since 2.5
     public boolean isCachable() {
-        return (_valueTypeDeserializer == null);
+        // 26-Mar-2015, tatu: As per [databind#735], need to be careful
+        return (_valueDeserializer == null)
+                && (_valueTypeDeserializer == null)
+                && (_delegateDeserializer == null)
+                ;
     }
 
     /*
@@ -152,6 +156,7 @@ public class CollectionDeserializer
         }
         // also, often value deserializer is resolved here:
         JsonDeserializer<?> valueDeser = _valueDeserializer;
+        
         // #125: May have a content converter
         valueDeser = findConvertingContentDeserializer(ctxt, property, valueDeser);
         final JavaType vt = _collectionType.getContentType();

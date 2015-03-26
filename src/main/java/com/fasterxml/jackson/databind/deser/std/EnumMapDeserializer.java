@@ -94,7 +94,9 @@ public class EnumMapDeserializer
     @Override
     public boolean isCachable() {
         // Important: do NOT cache if polymorphic values
-        return (_valueTypeDeserializer == null);
+        return (_valueDeserializer == null)
+                && (_keyDeserializer == null)
+                && (_valueTypeDeserializer == null);
     }
 
     /*

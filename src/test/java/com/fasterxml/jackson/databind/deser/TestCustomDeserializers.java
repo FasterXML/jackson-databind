@@ -226,7 +226,22 @@ public class TestCustomDeserializers
             }
             return this;
         }
-        
+    }
+
+    // For [databind#735]
+    public static class TestMapBean735 {
+
+        @JsonDeserialize(contentUsing = CustomDeserializer735.class)
+        public Map<String, Integer> map1;
+
+        public Map<String, Integer> map2;
+    }
+
+    public static class TestListBean735 {
+        public List<Integer> list1;
+
+        @JsonDeserialize(contentUsing = CustomDeserializer735.class)
+        public List<Integer> list100;
     }
 
     // for [databind#631]
@@ -235,7 +250,18 @@ public class TestCustomDeserializers
         @JsonDeserialize(using=ParentClassDeserializer.class)
         public Object prop;
     }
-    
+
+    public static class CustomDeserializer735 extends StdDeserializer<Integer> {
+        public CustomDeserializer735() {
+            super(Integer.class);
+        }
+
+        @Override
+        public Integer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            return 100 * p.getValueAsInt();
+        }
+    }
+
     static class ParentClassDeserializer
         extends StdScalarDeserializer<Object>
     {
@@ -249,7 +275,7 @@ public class TestCustomDeserializers
             Object parent = p.getCurrentValue();
             String desc = (parent == null) ? "NULL" : parent.getClass().getSimpleName();
             return "prop/"+ desc;
-        }
+	}
     }
 
     /*
@@ -381,5 +407,22 @@ public class TestCustomDeserializers
                 Issue631Bean.class);
         assertNotNull(bean);
         assertEquals("prop/Issue631Bean", bean.prop);
+    }
+
+    // [databind#735]: erroneous application of custom deserializer
+    public void testCustomMapValueDeser735() throws Exception {
+        String json = "{\"map1\":{\"a\":1},\"map2\":{\"a\":1}}";
+        TestMapBean735 bean = MAPPER.readValue(json, TestMapBean735.class);
+
+        assertEquals(100, bean.map1.get("a").intValue());
+        assertEquals(1, bean.map2.get("a").intValue());
+    }
+
+    public void testCustomListValueDeser735() throws Exception {
+        String json = "{\"list1\":[1],\"list100\":[1]}";
+        TestListBean735 bean = MAPPER.readValue(json, TestListBean735.class);
+
+        assertEquals(1, bean.list1.get(0).intValue());
+        assertEquals(100, bean.list100.get(0).intValue());
     }
 }

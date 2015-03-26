@@ -104,8 +104,8 @@ public class ObjectArrayDeserializer
 
     @Override // since 2.5
     public boolean isCachable() {
-        // Important: do NOT cache if polymorphic values
-        return (_elementTypeDeserializer == null);
+        // Important: do NOT cache if polymorphic values, or ones with custom deserializer
+        return (_elementDeserializer == null) && (_elementTypeDeserializer == null);
     }
     
     /*

@@ -84,7 +84,8 @@ public final class StringCollectionDeserializer
 
     @Override // since 2.5
     public boolean isCachable() {
-        return true;
+        // 26-Mar-2015, tatu: Important: prevent caching if custom deserializers are involved
+        return (_valueDeserializer == null) && (_delegateDeserializer == null);
     }
     
     /*

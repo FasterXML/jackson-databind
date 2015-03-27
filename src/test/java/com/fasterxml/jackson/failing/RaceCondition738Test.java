@@ -8,16 +8,9 @@ import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.BaseMapTest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 public class RaceCondition738Test extends BaseMapTest
 {
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
-    @JsonSubTypes({
-        @JsonSubTypes.Type(value = TypeOne.class, name = "one"),
-        @JsonSubTypes.Type(value = TypeTwo.class, name = "two"),
-        @JsonSubTypes.Type(value = TypeThree.class, name = "three")
-    })
     static abstract class AbstractHasSubTypes implements HasSubTypes { }
 
     static class TypeOne extends AbstractHasSubTypes {
@@ -35,36 +28,10 @@ public class RaceCondition738Test extends BaseMapTest
         }
     }
 
-    static class TypeTwo extends AbstractHasSubTypes {
-        private final String id;
-        public TypeTwo(String id) {
-            this.id = id;
-        }
-        @JsonProperty
-        public String getId() {
-            return id;
-        }
-        @Override
-        public String getType() {
-            return TypeTwo.class.getSimpleName();
-        }
-    }    
-
-    static class TypeThree extends AbstractHasSubTypes {
-        private final String id;
-        public TypeThree(String id) {
-            this.id = id;
-        }
-        @JsonProperty
-        public String getId() {
-            return id;
-        }
-        @Override
-        public String getType() {
-            return TypeThree.class.getSimpleName();
-        }
-    }
-
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)
+    @JsonSubTypes({
+        @JsonSubTypes.Type(value = TypeOne.class, name = "one")
+    })
     public interface HasSubTypes {
         String getType();
     }
@@ -89,12 +56,13 @@ public class RaceCondition738Test extends BaseMapTest
      */
     
     public void testRepeatedly() throws Exception {
-        for (int i = 0; i < 1000; i++) {
-            runOnce();
+        final int COUNT = 50;
+        for (int i = 0; i < COUNT; i++) {
+            runOnce(i, COUNT);
         }
     }
     
-    void runOnce() throws Exception {
+    void runOnce(int round, int max) throws Exception {
         final ObjectMapper mapper = getObjectMapper();
         Callable<String> writeJson = new Callable<String>() {
             @Override
@@ -120,17 +88,14 @@ public class RaceCondition738Test extends BaseMapTest
             JsonNode wrapped = tree.get("hasSubTypes");
 
             if (!wrapped.has("one")) {
-                throw new IllegalStateException("Missing 'one', source: "+json);
+System.out.println("JSON wrong: "+json);
+                throw new IllegalStateException("Round #"+round+"/"+max+" ; missing property 'one', source: "+json);
             }
+System.out.println("JSON fine: "+json);
         }
     }
 
     private static ObjectMapper getObjectMapper() {
-        SimpleModule module = new SimpleModule("subTypeRace");
-        module.setMixInAnnotation(HasSubTypes.class, AbstractHasSubTypes.class);
-
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.registerModule(module);
-        return mapper;
+        return new ObjectMapper();
     }
 }

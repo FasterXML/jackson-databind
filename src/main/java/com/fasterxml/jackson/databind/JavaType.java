@@ -372,6 +372,11 @@ public abstract class JavaType
     @SuppressWarnings("unchecked")
     public <T> T getTypeHandler() { return (T) _typeHandler; }
 
+    /**
+     * @since 2.6
+     */
+    public boolean hasValueHandler() { return _valueHandler != null; }
+    
     /*
     /**********************************************************
     /* Support for producing signatures

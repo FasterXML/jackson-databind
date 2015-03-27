@@ -231,34 +231,6 @@ public class TestCustomDeserializers
         }
     }
 
-    // For [databind#735]
-    public static class TestMapBean735 {
-
-        @JsonDeserialize(contentUsing = CustomDeserializer735.class)
-        public Map<String, Integer> map1;
-
-        public Map<String, Integer> map2;
-    }
-
-    public static class TestListBean735 {
-
-        @JsonDeserialize(contentUsing = CustomDeserializer735.class)
-        public List<Integer> list1;
-
-        public List<Integer> list2;
-    }
-    
-    public static class CustomDeserializer735 extends StdDeserializer<Integer> {
-        public CustomDeserializer735() {
-            super(Integer.class);
-        }
-
-        @Override
-        public Integer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            return 100 * p.getValueAsInt();
-        }
-    }
-
     /*
     /**********************************************************
     /* Unit tests
@@ -359,22 +331,5 @@ public class TestCustomDeserializers
         assertNotNull(w.value);
         assertNotNull(w.value.inner);
         assertEquals(-13, w.value.inner.x);
-    }
-
-    // [databind#735]: erroneous application of custom deserializer
-    public void testCustomMapValueDeser735() throws Exception {
-        String json = "{\"map1\":{\"a\":1},\"map2\":{\"a\":1}}";
-        TestMapBean735 bean = MAPPER.readValue(json, TestMapBean735.class);
-
-        assertEquals(100, bean.map1.get("a").intValue());
-        assertEquals(1, bean.map2.get("a").intValue());
-    }
-
-    public void testCustomListValueDeser735() throws Exception {
-        String json = "{\"list1\":[1],\"list2\":[1]}";
-        TestListBean735 bean = MAPPER.readValue(json, TestListBean735.class);
-
-        assertEquals(100, bean.list1.get(0).intValue());
-        assertEquals(1, bean.list2.get(0).intValue());
     }
 }

@@ -1111,12 +1111,13 @@ public abstract class SerializerProvider
      * Method that will try to construct a value serializer; and if
      * one is successfully created, cache it for reuse.
      */
-    protected JsonSerializer<Object> _createAndCacheUntypedSerializer(Class<?> type)
+    protected JsonSerializer<Object> _createAndCacheUntypedSerializer(Class<?> rawType)
         throws JsonMappingException
-    {        
+    {
+        JavaType type = _config.constructType(rawType);
         JsonSerializer<Object> ser;
         try {
-            ser = _createUntypedSerializer(_config.constructType(type));
+            ser = _createUntypedSerializer(type);
         } catch (IllegalArgumentException iae) {
             /* We better only expose checked exceptions, since those
              * are what caller is expected to handle
@@ -1155,8 +1156,15 @@ public abstract class SerializerProvider
     protected JsonSerializer<Object> _createUntypedSerializer(JavaType type)
         throws JsonMappingException
     {
-        // 17-Feb-2013, tatu: Used to call deprecated method (that passed property)
-        return (JsonSerializer<Object>)_serializerFactory.createSerializer(this, type);
+        /* 27-Mar-2015, tatu: Wish I knew exactly why/what, but [databind#738]
+         *    can be prevented by synchronizing on cache (not on 'this', however,
+         *    since there's one instance per serialization).
+         *   Perhaps not-yet-resolved instance might be exposed too early to callers.
+         */
+        synchronized (_serializerCache) {
+            // 17-Feb-2013, tatu: Used to call deprecated method (that passed property)
+            return (JsonSerializer<Object>)_serializerFactory.createSerializer(this, type);
+        }
     }
 
     /**

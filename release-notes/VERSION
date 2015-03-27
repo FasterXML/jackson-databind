@@ -19,6 +19,8 @@ Project: jackson-databind
  (reported by jkochaniak@github)
 #733: MappingIterator should move past errors or not return hasNext() == true
  (reported by Lorrin N, lorrin@github)
+#738: @JsonTypeInfo non-deterministically ignored in 2.5.1 (concurrency issue)
+ (reported by Dylan S, dylanscott@github)
 - Improvement to handling of custom `ValueInstantiator` for delegating mode; no more NPE
   if `getDelegateCreator()` returns null
 

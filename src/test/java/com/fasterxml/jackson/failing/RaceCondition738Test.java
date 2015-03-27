@@ -56,7 +56,7 @@ public class RaceCondition738Test extends BaseMapTest
      */
     
     public void testRepeatedly() throws Exception {
-        final int COUNT = 50;
+        final int COUNT = 2000;
         for (int i = 0; i < COUNT; i++) {
             runOnce(i, COUNT);
         }
@@ -88,10 +88,8 @@ public class RaceCondition738Test extends BaseMapTest
             JsonNode wrapped = tree.get("hasSubTypes");
 
             if (!wrapped.has("one")) {
-System.out.println("JSON wrong: "+json);
                 throw new IllegalStateException("Round #"+round+"/"+max+" ; missing property 'one', source: "+json);
             }
-System.out.println("JSON fine: "+json);
         }
     }
 

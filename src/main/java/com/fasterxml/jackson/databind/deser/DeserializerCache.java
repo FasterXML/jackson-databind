@@ -204,6 +204,9 @@ public final class DeserializerCache
         if (type == null) {
             throw new IllegalArgumentException("Null JavaType passed");
         }
+        if (_hasCustomValueHandler(type)) {
+            return null;
+        }
         return _cachedDeserializers.get(type);
     }
 
@@ -214,7 +217,7 @@ public final class DeserializerCache
      * @param ctxt Currently active deserialization context
      * @param type Type of property to deserialize
      */
-    protected JsonDeserializer<Object>_createAndCacheValueDeserializer(DeserializationContext ctxt,
+    protected JsonDeserializer<Object> _createAndCacheValueDeserializer(DeserializationContext ctxt,
             DeserializerFactory factory, JavaType type)
         throws JsonMappingException
     {
@@ -273,7 +276,8 @@ public final class DeserializerCache
          */
         // 08-Jun-2010, tatu: Related to [JACKSON-296], need to avoid caching MapSerializers... so:
         boolean isResolvable = (deser instanceof ResolvableDeserializer);
-        boolean addToCache = deser.isCachable();
+        // 27-Mar-2015, tatu: As per [databind#735], avoid caching types with custom value desers
+        boolean addToCache = !_hasCustomValueHandler(type) && deser.isCachable();
 
         /* we will temporarily hold on to all created deserializers (to
          * handle cyclic references, and possibly reuse non-cached
@@ -538,6 +542,26 @@ public final class DeserializerCache
         return type;
     }
 
+    /*
+    /**********************************************************
+    /* Helper methods, other
+    /**********************************************************
+     */
+
+    /**
+     * Helper method used to prevent both caching and cache lookups for structured
+     * types that have custom value handlers
+     *
+     * @since 2.4.6
+     */
+    private boolean _hasCustomValueHandler(JavaType t) {
+        if (t.isContainerType()) {
+            JavaType ct = t.getContentType();
+            return (ct != null) && (ct.getValueHandler() != null);
+        }
+        return false;
+    }
+
     private Class<?> _verifyAsClass(Object src, String methodName, Class<?> noneClass)
     {
         if (src == null) {
@@ -552,7 +576,7 @@ public final class DeserializerCache
         }
         return cls;
     }
-    
+
     /*
     /**********************************************************
     /* Overridable error reporting methods

@@ -116,6 +116,11 @@ Project: jackson-databind
 - Added new overload for `JsonSerializer.isEmpty()`, to eventually solve #588
 - Improve error messaging (related to [jaxb-annotations#38]) to include known subtype ids.
 
+2.4.6 (not yet released)
+
+#735: (complete fix) @JsonDeserialize on Map with contentUsing custom deserializer overwrites default behavior
+ (reported by blackfyre512@github) (regression due to #604)
+
 2.4.5.1 (26-Mar-2015)
 
 Special one-off "micro patch" for:
@@ -123,8 +128,7 @@ Special one-off "micro patch" for:
 #706: Add support for `@JsonUnwrapped` via JSON Schema module
 #707: Error in getting string representation of an ObjectNode with a float number value
  (reported by @navidqar)
-#735: @JsonDeserialize on Map with contentUsing custom deserializer overwrites default behavior
- (reported by blackfyre512@github) (regression due to #604)
+#735: (partial) @JsonDeserialize on Map with contentUsing custom deserializer overwrites default behavior
 
 2.4.5 (13-Jan-2015)
 

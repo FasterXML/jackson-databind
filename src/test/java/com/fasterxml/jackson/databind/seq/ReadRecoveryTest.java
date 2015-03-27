@@ -1,7 +1,6 @@
 package com.fasterxml.jackson.databind.seq;
 
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.seq.ReadValuesTest.Bean;
 
 /**
  * Tests to verify aspects of error recover for reading using

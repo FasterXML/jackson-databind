@@ -216,6 +216,11 @@ Francisco A. Lozano (flozano@github)
   * Contributed fix for #703 (see above)
    (2.5.2)
 
+Dylan Scott (dylanscott@github)
+  * Reported #738: #738: @JsonTypeInfo non-deterministically ignored in 2.5.1 (concurrency
+    issue)
+   (2.5.2)
+
 Charles Allen (drcrallen@github):
   * Reported #696: Copy constructor does not preserve `_injectableValues`
    (2.6.0)

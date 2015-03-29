@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.5.2 (not yet released)
+2.5.2 (29-Mar-2015)
 
 #609: Problem resolving locally declared generic type
  (repoted by Hal H)

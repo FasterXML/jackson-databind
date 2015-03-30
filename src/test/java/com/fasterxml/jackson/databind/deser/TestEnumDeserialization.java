@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
@@ -12,7 +13,9 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.EnumDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 @SuppressWarnings("serial")
@@ -123,7 +126,34 @@ public class TestEnumDeserialization
             throw new RuntimeException("Foobar!");
         }
     }
-    
+
+    // [Issue#745]
+    static class DelegatingDeserializers extends Deserializers.Base
+    {
+        @Override
+        public JsonDeserializer<?> findEnumDeserializer(final Class<?> type, final DeserializationConfig config, final BeanDescription beanDesc) throws JsonMappingException {
+            final Collection<AnnotatedMethod> factoryMethods = beanDesc.getFactoryMethods();
+            if (factoryMethods != null) {
+                for (AnnotatedMethod am : factoryMethods) {
+                    final JsonCreator creator = am.getAnnotation(JsonCreator.class);
+                    if (creator != null) {
+                        return EnumDeserializer.deserializerForCreator(config, type, am);
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    // [Issue#745]
+    static class DelegatingDeserializersModule extends SimpleModule
+    {
+        @Override
+        public void setupModule(final SetupContext context) {
+            context.addDeserializers(new DelegatingDeserializers());
+        }
+    }
+
     /*
     /**********************************************************
     /* Tests
@@ -423,5 +453,15 @@ public class TestEnumDeserialization
         // but also with quoted Strings
         en = MAPPER.readValue(quote("1"), TestEnum.class);
         assertSame(TestEnum.values()[1], en);
+    }
+
+    // [Issue#745]
+    public void testDeserializerForCreatorWithEnumMaps() throws Exception
+    {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new DelegatingDeserializersModule());
+        EnumMap<EnumWithCreator,String> value = mapper.readValue("{\"enumA\":\"value\"}",
+            new TypeReference<EnumMap<EnumWithCreator,String>>() {});
+        assertEquals("value", value.get(EnumWithCreator.A));
     }
 }

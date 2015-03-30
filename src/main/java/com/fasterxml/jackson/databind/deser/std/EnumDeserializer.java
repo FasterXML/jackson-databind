@@ -218,7 +218,12 @@ public class EnumDeserializer
             if (_deser != null) {
                 value = _deser.deserialize(p, ctxt);
             } else {
-                value = p.getValueAsString();
+                JsonToken curr = p.getCurrentToken();
+                if (curr == JsonToken.VALUE_STRING || curr == JsonToken.FIELD_NAME) {
+                    value = p.getText();
+                } else {
+                    value = p.getValueAsString();
+                }
             }
             try {
                 return _factory.invoke(_valueClass, value);

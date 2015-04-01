@@ -4,6 +4,11 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
+2.5.3 (not yet released)
+
+#745: EnumDeserializer.deserializerForCreator fails when used to deserialize a Map key
+ (contributed by John M)
+
 2.5.2 (29-Mar-2015)
 
 #609: Problem resolving locally declared generic type

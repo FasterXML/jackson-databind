@@ -220,3 +220,8 @@ Dylan Scott (dylanscott@github)
   * Reported #738: #738: @JsonTypeInfo non-deterministically ignored in 2.5.1 (concurrency
     issue)
    (2.5.2)
+
+John Meyer (jpmeyer@github)
+  * Reported, contributed fix for #745: EnumDeserializer.deserializerForCreator fails
+    when used to deserialize a Map key
+   (2.5.3)

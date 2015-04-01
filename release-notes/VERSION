@@ -16,6 +16,11 @@ Project: jackson-databind
 #727: Improve `ObjectWriter.forType()` to avoid forcing base type for container types
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
+2.5.3 (not yet released)
+
+#745: EnumDeserializer.deserializerForCreator fails when used to deserialize a Map key
+ (contributed by John M)
+
 2.5.2 (29-Mar-2015)
 
 #609: Problem resolving locally declared generic type

@@ -221,6 +221,11 @@ Dylan Scott (dylanscott@github)
     issue)
    (2.5.2)
 
+John Meyer (jpmeyer@github)
+  * Reported, contributed fix for #745: EnumDeserializer.deserializerForCreator fails
+    when used to deserialize a Map key
+   (2.5.3)
+
 Charles Allen (drcrallen@github):
   * Reported #696: Copy constructor does not preserve `_injectableValues`
    (2.6.0)

@@ -366,7 +366,9 @@ public abstract class BeanSerializerBase
                 if (convDef != null) {
                     Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
                     JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
-                    JsonSerializer<?> ser = provider.findValueSerializer(delegateType, prop);
+                    // [databind#731]: Should skip if nominally java.lang.Object
+                    JsonSerializer<?> ser = delegateType.isJavaLangObject() ? null
+                            : provider.findValueSerializer(delegateType, prop);
                     return new StdDelegatingSerializer(conv, delegateType, ser);
                 }
             }

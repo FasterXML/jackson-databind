@@ -23,6 +23,8 @@ Project: jackson-databind
 
 2.5.3 (not yet released)
 
+#731: XmlAdapter result marshaling error in case of ValueType=Object
+ (reported, debugged by Dmitry S)
 #742: Allow deserialization of `null` Object Id (missing already allowed)
 #744: Custom deserializer with parent object update failing
  (reported by migel@github)

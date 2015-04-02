@@ -250,7 +250,6 @@ public abstract class StdSerializer<T>
          *   when applying contextual content converter; this is not ideal way,
          *   but should work for most cases.
          */
-
         final AnnotationIntrospector intr = provider.getAnnotationIntrospector();
         if (intr != null && prop != null) {
             AnnotatedMember m = prop.getMember();
@@ -259,7 +258,8 @@ public abstract class StdSerializer<T>
                 if (convDef != null) {
                     Converter<Object,Object> conv = provider.converterInstance(prop.getMember(), convDef);
                     JavaType delegateType = conv.getOutputType(provider.getTypeFactory());
-                    if (existingSerializer == null) {
+                    // [databind#731]: Should skip if nominally java.lang.Object
+                    if (existingSerializer == null && !delegateType.hasRawClass(Object.class)) {
                         existingSerializer = provider.findValueSerializer(delegateType);
                     }
                     return new StdDelegatingSerializer(conv, delegateType, existingSerializer);

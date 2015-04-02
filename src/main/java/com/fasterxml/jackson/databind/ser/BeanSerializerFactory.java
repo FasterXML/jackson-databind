@@ -159,7 +159,8 @@ public class BeanSerializerFactory
             // [#359]: explicitly check (again) for @JsonSerializer...
             ser = findSerializerFromAnnotation(prov, beanDesc.getClassInfo());
         }
-        if (ser == null) {
+        // [databind#731]: Should skip if nominally java.lang.Object
+        if (ser == null && !delegateType.isJavaLangObject()) {
             ser = _createSerializer2(prov, delegateType, beanDesc, true);
         }
         return new StdDelegatingSerializer(conv, delegateType, ser);

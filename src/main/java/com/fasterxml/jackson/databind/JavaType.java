@@ -291,6 +291,17 @@ public abstract class JavaType
     public boolean isMapLikeType() { return false; }
 
     /**
+     * Convenience method, short-hand for
+     *<code>
+     *   getRawClass() == Object.class
+     *</code>
+     * and used to figure if we basically have "untyped" type object.
+     *
+     * @since 2.5
+     */
+    public final boolean isJavaLangObject() { return _class == Object.class; }
+
+    /**
      * Accessor for checking whether handlers for dealing with values of
      * this type should use static typing (as opposed to dynamic typing).
      * Note that while value of 'true' does mean that static typing is to
@@ -299,7 +310,7 @@ public abstract class JavaType
      * @since 2.2
      */
     public final boolean useStaticType() { return _asStatic; }
-    
+
     /*
     /**********************************************************
     /* Public API, type parameter access; pass-through

@@ -115,13 +115,20 @@ public class StdDelegatingSerializer
             if (delegateType == null) {
                 delegateType = _converter.getOutputType(provider.getTypeFactory());
             }
-            delSer = provider.findValueSerializer(delegateType);
+            /* 02-Apr-2015, tatu: For "dynamic case", where type is only specified as
+             *    java.lang.Object (or missing generic), [databind#731]
+             */
+            if (!delegateType.isJavaLangObject()) {
+                delSer = provider.findValueSerializer(delegateType);
+            }
         }
         if (delSer instanceof ContextualSerializer) {
             delSer = provider.handleSecondaryContextualization(delSer, property);
         }
-        return (delSer == _delegateSerializer) ? this
-                : withDelegate(_converter, delegateType, delSer);
+        if (delSer == _delegateSerializer && delegateType == _delegateType) {
+            return this;
+        }
+        return withDelegate(_converter, delegateType, delSer);
     }
 
     /*
@@ -154,7 +161,12 @@ public class StdDelegatingSerializer
             provider.defaultSerializeNull(gen);
             return;
         }
-        _delegateSerializer.serialize(delegateValue, gen, provider);
+        // 02-Apr-2015, tatu: As per [databind#731] may need to do dynamic lookup
+        JsonSerializer<Object> ser = _delegateSerializer;
+        if (ser == null) {
+            ser = _findSerializer(delegateValue, provider);
+        }
+        ser.serialize(delegateValue, gen, provider);
     }
 
     @Override
@@ -165,14 +177,21 @@ public class StdDelegatingSerializer
          *    let's give it a chance?
          */
         Object delegateValue = convertValue(value);
-        _delegateSerializer.serializeWithType(delegateValue, gen, provider, typeSer);
+        JsonSerializer<Object> ser = _delegateSerializer;
+        if (ser == null) {
+            ser = _findSerializer(value, provider);
+        }
+        ser.serializeWithType(delegateValue, gen, provider, typeSer);
     }
 
     @Override
-    @Deprecated // since 1.5
+    @Deprecated // since 2.5
     public boolean isEmpty(Object value)
     {
         Object delegateValue = convertValue(value);
+        if (_delegateSerializer == null) { // best we can do for now, too costly to look up
+            return (value == null);
+        }
         return _delegateSerializer.isEmpty(delegateValue);
     }
 
@@ -180,6 +199,9 @@ public class StdDelegatingSerializer
     public boolean isEmpty(SerializerProvider prov, Object value)
     {
         Object delegateValue = convertValue(value);
+        if (_delegateSerializer == null) { // best we can do for now, too costly to look up
+            return (value == null);
+        }
         return _delegateSerializer.isEmpty(prov, delegateValue);
     }
 
@@ -216,7 +238,10 @@ public class StdDelegatingSerializer
         /* 03-Sep-2012, tatu: Not sure if this can be made to really work
          *    properly... but for now, try this:
          */
-        _delegateSerializer.acceptJsonFormatVisitor(visitor, typeHint);
+        // 02-Apr-2015, tatu: For dynamic case, very little we can do
+        if (_delegateSerializer != null) {
+            _delegateSerializer.acceptJsonFormatVisitor(visitor, typeHint);
+        }
     }
 
     /*
@@ -238,5 +263,20 @@ public class StdDelegatingSerializer
      */
     protected Object convertValue(Object value) {
         return _converter.convert(value);
+    }
+
+    /**
+     * Helper method used for locating serializer to use in dynamic use case, where
+     * actual type value gets converted to is not specified beyond basic
+     * {@link java.lang.Object}, and where serializer needs to be located dynamically
+     * based on actual value type.
+     *
+     * @since 2.6
+     */
+    protected JsonSerializer<Object> _findSerializer(Object value, SerializerProvider serializers)
+        throws JsonMappingException
+    {
+        // NOTE: will NOT call contextualization
+        return serializers.findValueSerializer(value.getClass());
     }
 }

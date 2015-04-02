@@ -1,14 +1,14 @@
 package com.fasterxml.jackson.databind.ser;
 
 import com.fasterxml.jackson.annotation.*;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * This unit test suite tests functioning of {@link JsonRawValue}
  * annotation with bean serialization.
  */
-public class TestJsonRawValue
+public class RawValueTest
     extends com.fasterxml.jackson.databind.BaseMapTest
 {
     /*
@@ -31,37 +31,53 @@ public class TestJsonRawValue
         
         @JsonProperty @JsonRawValue protected T value() { return _value; }
     }
-    
+
+    // [databind#348]
+    static class RawWrapped
+    {
+        @JsonRawValue
+        private final String json;
+
+        public RawWrapped(String str) {
+            json = str;
+        }
+    }
+
     /*
     /*********************************************************
     /* Test cases
     /*********************************************************
      */
 
+    private final ObjectMapper MAPPER = objectMapper();
+    
     public void testSimpleStringGetter() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         String value = "abc";
-        String result = m.writeValueAsString(new ClassGetter<String>(value));
+        String result = MAPPER.writeValueAsString(new ClassGetter<String>(value));
         String expected = String.format("{\"nonRaw\":\"%s\",\"raw\":%s,\"value\":%s}", value, value, value);
         assertEquals(expected, result);
     }
 
     public void testSimpleNonStringGetter() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
         int value = 123;
-        String result = m.writeValueAsString(new ClassGetter<Integer>(value));
+        String result = MAPPER.writeValueAsString(new ClassGetter<Integer>(value));
         String expected = String.format("{\"nonRaw\":%d,\"raw\":%d,\"value\":%d}", value, value, value);
         assertEquals(expected, result);
     }
 
     public void testNullStringGetter() throws Exception
     {
-        ObjectMapper m = new ObjectMapper();
-        String result = m.writeValueAsString(new ClassGetter<String>(null));
+        String result = MAPPER.writeValueAsString(new ClassGetter<String>(null));
         String expected = "{\"nonRaw\":null,\"raw\":null,\"value\":null}";
         assertEquals(expected, result);
     }
 
+    public void testWithValueToTree() throws Exception
+    {
+        JsonNode w = MAPPER.valueToTree(new RawWrapped("{ }"));
+        assertNotNull(w);
+        assertEquals("{\"json\":{ }}", MAPPER.writeValueAsString(w));
+    }
 }

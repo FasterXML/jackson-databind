@@ -631,7 +631,9 @@ public class JacksonAnnotationIntrospector
             JsonProperty pann = _findAnnotation(a, JsonProperty.class);
             if (pann != null) {
                 name = pann.value();
-            } else if (_hasAnnotation(a, JsonSerialize.class) || _hasAnnotation(a, JsonView.class)) {
+            } else if (_hasAnnotation(a, JsonSerialize.class)
+                    || _hasAnnotation(a, JsonView.class)
+                    || _hasAnnotation(a, JsonRawValue.class)) {
                 name = "";
             } else {
                 return null;

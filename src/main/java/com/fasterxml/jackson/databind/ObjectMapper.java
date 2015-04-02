@@ -2351,12 +2351,14 @@ public class ObjectMapper
      * to serializing value into JSON and parsing JSON as tree, but
      * more efficient.
      *<p>
-     * NOTE: one known difference from actual serialization is that so-called
-     * "raw values" are not supported -- since they are opaque sequence of
-     * bytes to include (which may or may not be supported by the backend)
-     * they can not be converted using this method. It may be possible to
-     * support conversions using full serialization, if raw values must be
-     * preserved.
+     * NOTE: while results are usually identical to that of serialization followed
+     * by deserialization, this is not always the case. In some cases serialization
+     * into intermediate representation will retain encapsulation of things like
+     * raw value ({@link com.fasterxml.jackson.databind.util.RawValue}) or basic
+     * node identity ({@link JsonNode}). If so, result is a valid tree, but values
+     * are not re-constructed through actual JSON representation. So if transformation
+     * requires actual materialization of JSON (or other data format that this mapper
+     * produces), it will be necessary to do actual serialization.
      * 
      * @param <T> Actual node type; usually either basic {@link JsonNode} or
      *  {@link com.fasterxml.jackson.databind.node.ObjectNode}

@@ -229,3 +229,8 @@ John Meyer (jpmeyer@github)
 Charles Allen (drcrallen@github):
   * Reported #696: Copy constructor does not preserve `_injectableValues`
    (2.6.0)
+
+Chris Pimlott (pimlottc@github):
+  * Suggested #348: ObjectMapper.valueToTree does not work with @JsonRawValue
+   (2.6.0)
+

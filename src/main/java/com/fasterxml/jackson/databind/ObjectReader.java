@@ -1362,7 +1362,10 @@ public class ObjectReader
         throws JsonMappingException
     {
         if (_rootDeserializer != null) {
-            return _rootDeserializer;
+            // 02-Apr-2015, tatu: Patch for #744 (better fix in 2.5.3)
+            if (valueType != JSON_NODE_TYPE) {
+                return _rootDeserializer;
+            }
         }
 
         // Sanity check: must have actual type...

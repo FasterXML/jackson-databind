@@ -83,6 +83,16 @@ public final class ObjectIdValueProperty
     {
         // note: no null checks (unlike usually); deserializer should fail if one found
         Object id = _valueDeserializer.deserialize(jp, ctxt);
+
+        /* 02-Apr-2015, tatu: Actually, as per [databind#742], let it be;
+         *  missing or null id is needed for some cases, such as cases where id
+         *  will be generated externally, at a later point, and is not available
+         *  quite yet. Typical use case is with DB inserts.
+         */
+        if (id == null) {
+            return null;
+        }
+        
         ReadableObjectId roid = ctxt.findObjectId(id, _objectIdReader.generator, _objectIdReader.resolver);
         roid.bindItem(instance);
         // also: may need to set a property value as well

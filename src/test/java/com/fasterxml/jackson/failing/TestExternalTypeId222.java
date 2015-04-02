@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.*;
 
 public class TestExternalTypeId222 extends BaseMapTest
 {
-    // 25-Feb-2015, tatu: Where does this belong? Not releated to #222...
+    // 25-Feb-2015, tatu: Where does this belong? Not related to #222...
 
     /*
 	@SuppressWarnings("unused")
@@ -91,6 +91,7 @@ public class TestExternalTypeId222 extends BaseMapTest
         }
     }
 
+    @JsonTypeName("222b") // shouldn't actually matter
     static class Issue222BeanB
     {
         public int x;

@@ -277,7 +277,7 @@ public class TokenBuffer
      * references (from core to mapper package); and as such we also
      * can not take second argument.
      */
-    public void serialize(JsonGenerator jgen) throws IOException
+    public void serialize(JsonGenerator gen) throws IOException
     {
         Segment segment = _first;
         int ptr = -1;
@@ -298,36 +298,36 @@ public class TokenBuffer
             if (hasIds) {
                 Object id = segment.findObjectId(ptr);
                 if (id != null) {
-                    jgen.writeObjectId(id);
+                    gen.writeObjectId(id);
                 }
                 id = segment.findTypeId(ptr);
                 if (id != null) {
-                    jgen.writeTypeId(id);
+                    gen.writeTypeId(id);
                 }
             }
             
             // Note: copied from 'copyCurrentEvent'...
             switch (t) {
             case START_OBJECT:
-                jgen.writeStartObject();
+                gen.writeStartObject();
                 break;
             case END_OBJECT:
-                jgen.writeEndObject();
+                gen.writeEndObject();
                 break;
             case START_ARRAY:
-                jgen.writeStartArray();
+                gen.writeStartArray();
                 break;
             case END_ARRAY:
-                jgen.writeEndArray();
+                gen.writeEndArray();
                 break;
             case FIELD_NAME:
             {
                 // 13-Dec-2010, tatu: Maybe we should start using different type tokens to reduce casting?
                 Object ob = segment.get(ptr);
                 if (ob instanceof SerializableString) {
-                    jgen.writeFieldName((SerializableString) ob);
+                    gen.writeFieldName((SerializableString) ob);
                 } else {
-                    jgen.writeFieldName((String) ob);
+                    gen.writeFieldName((String) ob);
                 }
             }
                 break;
@@ -335,9 +335,9 @@ public class TokenBuffer
                 {
                     Object ob = segment.get(ptr);
                     if (ob instanceof SerializableString) {
-                        jgen.writeString((SerializableString) ob);
+                        gen.writeString((SerializableString) ob);
                     } else {
-                        jgen.writeString((String) ob);
+                        gen.writeString((String) ob);
                     }
                 }
                 break;
@@ -345,15 +345,15 @@ public class TokenBuffer
                 {
                     Object n = segment.get(ptr);
                     if (n instanceof Integer) {
-                        jgen.writeNumber((Integer) n);
+                        gen.writeNumber((Integer) n);
                     } else if (n instanceof BigInteger) {
-                        jgen.writeNumber((BigInteger) n);
+                        gen.writeNumber((BigInteger) n);
                     } else if (n instanceof Long) {
-                        jgen.writeNumber((Long) n);
+                        gen.writeNumber((Long) n);
                     } else if (n instanceof Short) {
-                        jgen.writeNumber((Short) n);
+                        gen.writeNumber((Short) n);
                     } else {
-                        jgen.writeNumber(((Number) n).intValue());
+                        gen.writeNumber(((Number) n).intValue());
                     }
                 }
                 break;
@@ -361,31 +361,38 @@ public class TokenBuffer
                 {
                     Object n = segment.get(ptr);
                     if (n instanceof Double) {
-                        jgen.writeNumber(((Double) n).doubleValue());
+                        gen.writeNumber(((Double) n).doubleValue());
                     } else if (n instanceof BigDecimal) {
-                        jgen.writeNumber((BigDecimal) n);
+                        gen.writeNumber((BigDecimal) n);
                     } else if (n instanceof Float) {
-                        jgen.writeNumber(((Float) n).floatValue());
+                        gen.writeNumber(((Float) n).floatValue());
                     } else if (n == null) {
-                        jgen.writeNull();
+                        gen.writeNull();
                     } else if (n instanceof String) {
-                        jgen.writeNumber((String) n);
+                        gen.writeNumber((String) n);
                     } else {
                         throw new JsonGenerationException("Unrecognized value type for VALUE_NUMBER_FLOAT: "+n.getClass().getName()+", can not serialize");
                     }
                 }
                 break;
             case VALUE_TRUE:
-                jgen.writeBoolean(true);
+                gen.writeBoolean(true);
                 break;
             case VALUE_FALSE:
-                jgen.writeBoolean(false);
+                gen.writeBoolean(false);
                 break;
             case VALUE_NULL:
-                jgen.writeNull();
+                gen.writeNull();
                 break;
             case VALUE_EMBEDDED_OBJECT:
-                jgen.writeObject(segment.get(ptr));
+                {
+                    Object value = segment.get(ptr);
+                    if (value instanceof RawValue) {
+                        ((RawValue) value).serialize(gen);
+                    } else {
+                        gen.writeObject(value);
+                    }
+                }
                 break;
             default:
                 throw new RuntimeException("Internal error: should never end up through this code path");
@@ -656,16 +663,14 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
     }
     
     @Override
-    public void writeRawUTF8String(byte[] text, int offset, int length)
-        throws IOException
+    public void writeRawUTF8String(byte[] text, int offset, int length) throws IOException
     {
         // could add support for buffering if we really want it...
         _reportUnsupportedOperation();
     }
 
     @Override
-    public void writeUTF8String(byte[] text, int offset, int length)
-        throws IOException
+    public void writeUTF8String(byte[] text, int offset, int length) throws IOException
     {
         // could add support for buffering if we really want it...
         _reportUnsupportedOperation();
@@ -698,17 +703,20 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
 
     @Override
     public void writeRawValue(String text) throws IOException {
-        _reportUnsupportedOperation();
+        _append(JsonToken.VALUE_EMBEDDED_OBJECT, new RawValue(text));
     }
 
     @Override
     public void writeRawValue(String text, int offset, int len) throws IOException {
-        _reportUnsupportedOperation();
+        if (offset > 0 || len != text.length()) {
+            text = text.substring(offset, offset+len);
+        }
+        _append(JsonToken.VALUE_EMBEDDED_OBJECT, new RawValue(text));
     }
 
     @Override
     public void writeRawValue(char[] text, int offset, int len) throws IOException {
-        _reportUnsupportedOperation();
+        _append(JsonToken.VALUE_EMBEDDED_OBJECT, new String(text, offset, len));
     }
 
     /*
@@ -792,10 +800,11 @@ sb.append("NativeObjectIds=").append(_hasNativeObjectIds).append(",");
             return;
         }
         Class<?> raw = value.getClass();
-        if (raw == byte[].class) {
+        if (raw == byte[].class || (value instanceof RawValue)) {
             _append(JsonToken.VALUE_EMBEDDED_OBJECT, value);
             return;
-        } else if (_objectCodec == null) {
+        }
+        if (_objectCodec == null) {
             /* 28-May-2014, tatu: Tricky choice here; if no codec, should we
              *   err out, or just embed? For now, do latter.
              */

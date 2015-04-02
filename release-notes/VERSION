@@ -14,6 +14,7 @@ Project: jackson-databind
  (reported by wealdtech@github)
 #725: Auto-detect multi-argument constructor with implicit names if it is the only visible creator
 #727: Improve `ObjectWriter.forType()` to avoid forcing base type for container types
+#743: Add `RawValue` helper type, for piping raw values through `TokenBuffer`
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.3 (not yet released)

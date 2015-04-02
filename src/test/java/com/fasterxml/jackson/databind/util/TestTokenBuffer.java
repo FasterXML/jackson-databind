@@ -334,4 +334,23 @@ public class TestTokenBuffer extends BaseMapTest
         buf3.close();
         buf4.close();
     }    
+
+    // [Issue#743]
+    public void testRawValues() throws Exception
+    {
+        final String RAW = "{\"a\":1}";
+        TokenBuffer buf = new TokenBuffer(null, false);
+        buf.writeRawValue(RAW);
+        // first: raw value won't be transformed in any way:
+        JsonParser p = buf.asParser();
+        assertToken(JsonToken.VALUE_EMBEDDED_OBJECT, p.nextToken());
+        assertEquals(RawValue.class, p.getEmbeddedObject().getClass());
+        assertNull(p.nextToken());
+        p.close();
+        buf.close();
+
+        // then verify it would be serialized just fine
+        ObjectMapper mapper = objectMapper();
+        assertEquals(RAW, mapper.writeValueAsString(buf));
+    }
 }

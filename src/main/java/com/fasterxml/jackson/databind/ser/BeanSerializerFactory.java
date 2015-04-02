@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.impl.FilteredBeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator;
+import com.fasterxml.jackson.databind.ser.std.DynamicSerializer;
 import com.fasterxml.jackson.databind.ser.std.MapSerializer;
 import com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer;
 import com.fasterxml.jackson.databind.type.*;
@@ -340,7 +341,7 @@ public class BeanSerializerFactory
         // 13-Oct-2010, tatu: quick sanity check: never try to create bean serializer for plain Object
         // 05-Jul-2012, tatu: ... but we should be able to just return "unknown type" serializer, right?
         if (beanDesc.getBeanClass() == Object.class) {
-            return prov.getUnknownTypeSerializer(Object.class);
+            return new DynamicSerializer(prov.getUnknownTypeSerializer(Object.class));
 //            throw new IllegalArgumentException("Can not create bean serializer for Object.class");
         }
         final SerializationConfig config = prov.getConfig();

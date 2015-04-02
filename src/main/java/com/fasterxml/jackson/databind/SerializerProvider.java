@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.*;
 import com.fasterxml.jackson.databind.ser.impl.*;
+import com.fasterxml.jackson.databind.ser.std.DynamicSerializer;
 import com.fasterxml.jackson.databind.ser.std.NullSerializer;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.ClassUtil;
@@ -829,6 +830,16 @@ public abstract class SerializerProvider
     public boolean isUnknownTypeSerializer(JsonSerializer<?> ser) {
         return (ser == _unknownTypeSerializer) || (ser == null);
     }
+
+    /**
+     * Helper method called to see if given serializer is a dynamic serializer, that is, something
+     * for which no regular serializer was found or constructed and it will be a try to find actual serializer in runtime.
+     *
+     * @since 2.5
+     */
+    public boolean isDynamicSerializer(JsonSerializer<?> ser) {
+        return ser instanceof DynamicSerializer;
+    }
     
     /*
     /**********************************************************
@@ -1094,8 +1105,9 @@ public abstract class SerializerProvider
          *    that pushes creation of "unknown type" serializer deeper down
          *    in BeanSerializerFactory; as a result, we need to "undo" creation
          *    here.
+         * 14-Mar-2015 If we have DynamicSerializer here it means that we actually don't have explicit serializer and will try to detect it in runtime
          */
-        if (isUnknownTypeSerializer(ser)) {
+        if (isDynamicSerializer(ser) || isUnknownTypeSerializer(ser)) {
             return null;
         }
         return ser;

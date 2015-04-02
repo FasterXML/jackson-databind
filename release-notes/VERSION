@@ -23,6 +23,7 @@ Project: jackson-databind
 
 2.5.3 (not yet released)
 
+#742: Allow deserialization of `null` Object Id (missing already allowed)
 #745: EnumDeserializer.deserializerForCreator fails when used to deserialize a Map key
  (contributed by John M)
 

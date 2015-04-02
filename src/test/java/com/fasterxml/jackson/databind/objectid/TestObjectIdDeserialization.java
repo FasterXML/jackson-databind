@@ -188,14 +188,14 @@ public class TestObjectIdDeserialization extends BaseMapTest
     /*****************************************************
      */
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper MAPPER = new ObjectMapper();
     
     private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"value\":13,\"next\":1}";
 
     public void testSimpleDeserializationClass() throws Exception
     {
         // then bring back...
-        Identifiable result = mapper.readValue(EXP_SIMPLE_INT_CLASS, Identifiable.class);
+        Identifiable result = MAPPER.readValue(EXP_SIMPLE_INT_CLASS, Identifiable.class);
         assertEquals(13, result.value);
         assertSame(result, result.next);
     }
@@ -203,7 +203,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     // Should be ok NOT to have Object id, as well
     public void testMissingObjectId() throws Exception
     {
-        Identifiable result = mapper.readValue(aposToQuotes("{'value':28, 'next':{'value':29}}"),
+        Identifiable result = MAPPER.readValue(aposToQuotes("{'value':28, 'next':{'value':29}}"),
                 Identifiable.class);
         assertNotNull(result);
         assertEquals(28, result.value);
@@ -222,10 +222,10 @@ public class TestObjectIdDeserialization extends BaseMapTest
         child2.parent = root;
         child1.first = child2;
 
-        String json = mapper.writeValueAsString(root);
+        String json = MAPPER.writeValueAsString(root);
 
         // and should come back the same too...
-        UUIDNode result = mapper.readValue(json, UUIDNode.class);
+        UUIDNode result = MAPPER.readValue(json, UUIDNode.class);
         assertEquals(1, result.value);
         UUIDNode result2 = result.first;
         UUIDNode result3 = result.second;
@@ -244,7 +244,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
         
     public void testSimpleDeserializationProperty() throws Exception
     {
-        IdWrapper result = mapper.readValue(EXP_SIMPLE_INT_PROP, IdWrapper.class);
+        IdWrapper result = MAPPER.readValue(EXP_SIMPLE_INT_PROP, IdWrapper.class);
         assertEquals(7, result.node.value);
         assertSame(result.node, result.node.next.node);
     }
@@ -252,7 +252,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     // Another test to ensure ordering is not required (i.e. can do front references)
     public void testSimpleDeserWithForwardRefs() throws Exception
     {
-        IdWrapper result = mapper.readValue("{\"node\":{\"value\":7,\"next\":{\"node\":1}, \"@id\":1}}"
+        IdWrapper result = MAPPER.readValue("{\"node\":{\"value\":7,\"next\":{\"node\":1}, \"@id\":1}}"
                 ,IdWrapper.class);
         assertEquals(7, result.node.value);
         assertSame(result.node, result.node.next.node);
@@ -265,7 +265,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
                       + "{\"id\":1,\"name\":\"First\",\"manager\":2,\"reports\":[]},"
                       + "{\"id\":2,\"name\":\"Second\",\"manager\":null,\"reports\":[1]}"
                       + "]}";
-        Company company = mapper.readValue(json, Company.class);
+        Company company = MAPPER.readValue(json, Company.class);
         assertEquals(2, company.employees.size());
         Employee firstEmployee = company.employees.get(0);
         Employee secondEmployee = company.employees.get(1);
@@ -282,7 +282,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
                       + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
                       + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
                       + "]}";
-        Company company = mapper.readValue(json, Company.class);
+        Company company = MAPPER.readValue(json, Company.class);
         assertEquals(2, company.employees.size());
         Employee firstEmployee = company.employees.get(0);
         Employee secondEmployee = company.employees.get(1);
@@ -297,7 +297,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
                       + "\"2\": 2,"
                       + "\"3\":{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
                       + "}}";
-        MappedCompany company = mapper.readValue(json, MappedCompany.class);
+        MappedCompany company = MAPPER.readValue(json, MappedCompany.class);
         assertEquals(3, company.employees.size());
         Employee firstEmployee = company.employees.get(1);
         Employee secondEmployee = company.employees.get(3);
@@ -315,7 +315,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
 
     public void testForwardReferenceAnySetterCombo() throws Exception {
         String json = "{\"@id\":1, \"foo\":2, \"bar\":{\"@id\":2, \"foo\":1}}";
-        AnySetterObjectId value = mapper.readValue(json, AnySetterObjectId.class);
+        AnySetterObjectId value = MAPPER.readValue(json, AnySetterObjectId.class);
         assertSame(value.values.get("bar"), value.values.get("foo"));
     }
 
@@ -327,7 +327,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
                       + "{\"id\":2,\"name\":\"Second\",\"manager\":3,\"reports\":[]}" 
                       + "]}";
         try {
-            mapper.readValue(json, Company.class);
+            MAPPER.readValue(json, Company.class);
             fail("Should have thrown.");
         } catch (UnresolvedForwardReference exception) {
             // Expected
@@ -345,7 +345,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     // [databind#299]: Allow unresolved ids to become nulls
     public void testUnresolvableAsNull() throws Exception
     {
-        IdWrapper w = mapper.reader(IdWrapper.class)
+        IdWrapper w = MAPPER.reader(IdWrapper.class)
                 .without(DeserializationFeature.FAIL_ON_UNRESOLVED_OBJECT_IDS)
                 .readValue(aposToQuotes("{'node':123}"));
         assertNotNull(w);
@@ -358,7 +358,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
                 + "{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
                 + "{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
                 + "]}";
-        Company company = mapper.readValue(json, Company.class);
+        Company company = MAPPER.readValue(json, Company.class);
         assertEquals(4, company.employees.size());
         // Deser must keep object ordering.
         Employee firstEmployee = company.employees.get(1);
@@ -376,7 +376,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
                       + "\"3\":{\"id\":1,\"name\":\"First\",\"manager\":null,\"reports\":[2]},"
                       + "\"4\":{\"id\":2,\"name\":\"Second\",\"manager\":1,\"reports\":[]}"
                       + "}}";
-        MappedCompany company = mapper.readValue(json, MappedCompany.class);
+        MappedCompany company = MAPPER.readValue(json, MappedCompany.class);
         assertEquals(4, company.employees.size());
         Employee firstEmployee = company.employees.get(2);
         Employee secondEmployee = company.employees.get(1);
@@ -401,7 +401,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     public void testCustomDeserializationClass() throws Exception
     {
         // then bring back...
-        IdentifiableCustom result = mapper.readValue(EXP_CUSTOM_VIA_CLASS, IdentifiableCustom.class);
+        IdentifiableCustom result = MAPPER.readValue(EXP_CUSTOM_VIA_CLASS, IdentifiableCustom.class);
         assertEquals(-900, result.value);
         assertSame(result, result.next);
     }
@@ -411,7 +411,7 @@ public class TestObjectIdDeserialization extends BaseMapTest
     public void testCustomDeserializationProperty() throws Exception
     {
         // then bring back...
-    	IdWrapperExt result = mapper.readValue(EXP_CUSTOM_VIA_PROP, IdWrapperExt.class);
+        IdWrapperExt result = MAPPER.readValue(EXP_CUSTOM_VIA_PROP, IdWrapperExt.class);
         assertEquals(99, result.node.value);
         assertSame(result.node, result.node.next.node);
         assertEquals(3, result.node.customId);
@@ -422,8 +422,8 @@ public class TestObjectIdDeserialization extends BaseMapTest
     /* Unit tests, custom id resolver
     /*****************************************************
      */
-    public void testCustomPoolResolver()
-        throws Exception
+
+    public void testCustomPoolResolver() throws Exception
     {
         Map<Object,WithCustomResolution> pool = new HashMap<Object,WithCustomResolution>();
         pool.put(1, new WithCustomResolution(1, 1));
@@ -431,12 +431,39 @@ public class TestObjectIdDeserialization extends BaseMapTest
         pool.put(3, new WithCustomResolution(3, 3));
         pool.put(4, new WithCustomResolution(4, 4));
         pool.put(5, new WithCustomResolution(5, 5));
-        ContextAttributes attrs = mapper.getDeserializationConfig().getAttributes().withSharedAttribute(POOL_KEY, pool);
+        ContextAttributes attrs = MAPPER.getDeserializationConfig().getAttributes().withSharedAttribute(POOL_KEY, pool);
         String content = "{\"data\":[1,2,3,4,5]}";
-        CustomResolutionWrapper wrapper = mapper.reader(CustomResolutionWrapper.class).with(attrs).readValue(content);
+        CustomResolutionWrapper wrapper = MAPPER.reader(CustomResolutionWrapper.class).with(attrs).readValue(content);
         assertFalse(wrapper.data.isEmpty());
         for (WithCustomResolution ob : wrapper.data) {
             assertSame(pool.get(ob.id), ob);
         }
+    }
+
+    /*
+    /*****************************************************
+    /* Unit tests, missing/null Object id [databind#742]
+    /*****************************************************
+     */
+
+    /*
+    private final static String EXP_SIMPLE_INT_CLASS = "{\"id\":1,\"value\":13,\"next\":1}";
+    @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="id")
+    static class Identifiable
+    {
+        public int value;
+
+        public Identifiable next;
+    }
+    */
+
+    public void testNullObjectId() throws Exception
+    {
+        // Ok, so missing Object Id is ok, but so is null.
+        
+        Identifiable value = MAPPER.readValue
+                (aposToQuotes("{'value':3, 'next':null, 'id':null}"), Identifiable.class);
+        assertNotNull(value);
+        assertEquals(3, value.value);
     }
 }

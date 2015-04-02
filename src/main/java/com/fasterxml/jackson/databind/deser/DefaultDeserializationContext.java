@@ -81,6 +81,13 @@ public abstract class DefaultDeserializationContext
     @Override
     public ReadableObjectId findObjectId(Object id, ObjectIdGenerator<?> gen, ObjectIdResolver resolverType)
     {
+        /* 02-Apr-2015, tatu: As per [databind#742] should allow 'null', similar to how
+         *   missing id already works.
+         */
+        if (id == null) {
+            return null;
+        }
+
         final ObjectIdGenerator.IdKey key = gen.key(id);
 
         if (_objectIds == null) {

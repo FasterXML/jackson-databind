@@ -1,8 +1,7 @@
 package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.util.RawValue;
 
@@ -59,6 +58,17 @@ public class ObjectNode
             ret._children.put(entry.getKey(), entry.getValue().deepCopy());
 
         return ret;
+    }
+
+    /*
+    /**********************************************************
+    /* Overrides for JsonSerializable.Base
+    /**********************************************************
+     */
+
+    @Override
+    public boolean isEmpty(SerializerProvider serializers) {
+        return _children.isEmpty();
     }
 
     /*

@@ -45,6 +45,17 @@ public class ArrayNode
 
     /*
     /**********************************************************
+    /* Overrides for JsonSerializable.Base
+    /**********************************************************
+     */
+
+    @Override
+    public boolean isEmpty(SerializerProvider serializers) {
+        return _children.isEmpty();
+    }
+    
+    /*
+    /**********************************************************
     /* Implementation of core JsonNode API
     /**********************************************************
      */

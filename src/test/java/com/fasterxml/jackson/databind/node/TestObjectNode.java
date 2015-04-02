@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -36,6 +37,15 @@ public class TestObjectNode
         @JsonValue
         public ObjectNode value() { return root; }
         */
+    }
+
+    static class ObNodeWrapper {
+        @JsonInclude(JsonInclude.Include.NON_EMPTY)
+        public ObjectNode node;
+
+        public ObNodeWrapper(ObjectNode n) {
+            node = n;
+        }
     }
     
     /*
@@ -365,5 +375,14 @@ public class TestObjectNode
         assertNotNull(rnode);
         assertTrue(rnode.isObject());
         assertEquals(3, rnode.path("a").intValue());
+    }
+
+    public void testNonEmptySerialization() throws Exception
+    {
+        ObNodeWrapper w = new ObNodeWrapper(MAPPER.createObjectNode()
+                .put("a", 3));
+        assertEquals("{\"node\":{\"a\":3}}", MAPPER.writeValueAsString(w));
+        w = new ObNodeWrapper(MAPPER.createObjectNode());
+        assertEquals("{}", MAPPER.writeValueAsString(w));
     }
 }

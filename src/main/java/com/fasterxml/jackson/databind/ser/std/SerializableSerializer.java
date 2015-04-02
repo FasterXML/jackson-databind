@@ -37,14 +37,27 @@ public class SerializableSerializer
     protected SerializableSerializer() { super(JsonSerializable.class); }
 
     @Override
-    public void serialize(JsonSerializable value, JsonGenerator jgen, SerializerProvider provider) throws IOException {
-        value.serialize(jgen, provider);
+    public boolean isEmpty(SerializerProvider serializers, JsonSerializable value) {
+        if (value instanceof JsonSerializable.Base) {
+            return ((JsonSerializable.Base) value).isEmpty(serializers);
+        }
+        return false;
+    }
+
+    @Deprecated
+    public boolean isEmpty(JsonSerializable value) {
+        return isEmpty(null, value);
     }
 
     @Override
-    public final void serializeWithType(JsonSerializable value, JsonGenerator jgen, SerializerProvider provider,
+    public void serialize(JsonSerializable value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        value.serialize(gen, serializers);
+    }
+
+    @Override
+    public final void serializeWithType(JsonSerializable value, JsonGenerator gen, SerializerProvider serializers,
             TypeSerializer typeSer) throws IOException {
-        value.serializeWithType(jgen, provider, typeSer);
+        value.serializeWithType(gen, serializers, typeSer);
     }
     
     @Override

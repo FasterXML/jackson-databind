@@ -37,8 +37,8 @@ import com.fasterxml.jackson.databind.util.EmptyIterator;
  * and {@link ObjectMapper#treeAsTokens(TreeNode)}
  */
 public abstract class JsonNode
-    implements TreeNode, Iterable<JsonNode>,
-        JsonSerializable // since 2.5; bit tricky if anyone is sub-classing but...
+    extends JsonSerializable.Base // i.e. implements JsonSerializable
+    implements TreeNode, Iterable<JsonNode>
 {
     /*
     /**********************************************************

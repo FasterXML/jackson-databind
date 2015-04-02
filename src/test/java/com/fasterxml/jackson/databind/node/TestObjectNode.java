@@ -43,7 +43,7 @@ public class TestObjectNode
     /* Test methods
     /**********************************************************
      */
-    
+
     private final ObjectMapper MAPPER = objectMapper();
 
     public void testSimpleObject() throws Exception

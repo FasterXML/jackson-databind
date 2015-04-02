@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.databind.util.RawValue;
+
 /**
  * Interface that defines common "creator" functionality implemented
  * both by {@link JsonNodeFactory} and {@link ContainerNode} (that is,
@@ -34,12 +36,28 @@ public interface JsonNodeCreator
     public ValueNode numberNode(Double value);
     public ValueNode numberNode(BigDecimal v);
 
-    // Textual nodes, other value (non-structured) nodes
+    // Textual nodes
 
     public ValueNode textNode(String text);
+
+    // Other value (non-structured) nodes
+    
     public ValueNode binaryNode(byte[] data);
     public ValueNode binaryNode(byte[] data, int offset, int length);
     public ValueNode pojoNode(Object pojo);
+
+    /**
+     * Factory method to use for adding "raw values"; pre-encoded values
+     * that are included exactly as-is when node is serialized.
+     * This may be used, for example, to include fully serialized JSON
+     * sub-trees.
+     * Note that the concept may not work with all backends, and since
+     * no translation of any kinds is done it will not work when converting
+     * between data formats.
+     * 
+     * @since 2.6
+     */
+    public ValueNode rawValueNode(RawValue value);
 
     // Structured nodes:
     // (bit unkosher, due to forward references... but has to do for now)

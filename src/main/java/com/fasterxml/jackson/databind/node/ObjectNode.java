@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.util.RawValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -568,6 +569,13 @@ public class ObjectNode
         return _put(fieldName, pojoNode(pojo));
     }
 
+    /**
+     * @since 2.6
+     */
+    public ObjectNode putRawValue(String fieldName, RawValue raw) {
+        return _put(fieldName, rawValueNode(raw));
+    }
+    
     /**
      * @return This node (to allow chaining)
      */

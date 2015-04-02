@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
  * This intermediate base class is used for all container nodes,
@@ -22,8 +22,7 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
      */
     protected final JsonNodeFactory _nodeFactory;
 
-    protected ContainerNode(JsonNodeFactory nc)
-    {
+    protected ContainerNode(JsonNodeFactory nc) {
         _nodeFactory = nc;
     }
 
@@ -126,12 +125,9 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
     @Override
     public final ValueNode pojoNode(Object pojo) { return _nodeFactory.pojoNode(pojo); }
 
-    /**
-     * @deprecated Since 2.3 Use {@link #pojoNode} instead.
-     */
-    @Deprecated
-    public final POJONode POJONode(Object pojo) { return (POJONode) _nodeFactory.pojoNode(pojo); }
-    
+    @Override
+    public final ValueNode rawValueNode(RawValue value) { return _nodeFactory.rawValueNode(value); }
+
     /*
     /**********************************************************
     /* Common mutators

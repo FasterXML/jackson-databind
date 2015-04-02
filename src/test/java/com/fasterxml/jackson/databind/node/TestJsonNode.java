@@ -1,7 +1,9 @@
 package com.fasterxml.jackson.databind.node;
 
 import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.io.SerializedString;
 import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.util.RawValue;
 
 /**
  * Basic tests for {@link JsonNode} base class and some features
@@ -9,6 +11,8 @@ import com.fasterxml.jackson.databind.*;
  */
 public class TestJsonNode extends NodeTestBase
 {
+    private final ObjectMapper MAPPER = objectMapper();
+
     public void testText()
     {
         assertNull(TextNode.valueOf(null));
@@ -106,5 +110,14 @@ public class TestJsonNode extends NodeTestBase
         assertNodeNumbersForNonNumeric(n);
         // but if wrapping actual number, use it
         assertNodeNumbers(new POJONode(Integer.valueOf(123)), 123, 123.0);
+    }
+
+    // [databind#743]
+    public void testRawValue() throws Exception
+    {
+        ObjectNode root = MAPPER.createObjectNode();
+        root.putRawValue("a", new RawValue(new SerializedString("[1, 2, 3]")));
+
+        assertEquals("{\"a\":[1, 2, 3]}", MAPPER.writeValueAsString(root));
     }
 }

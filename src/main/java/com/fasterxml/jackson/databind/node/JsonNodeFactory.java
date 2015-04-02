@@ -3,6 +3,8 @@ package com.fasterxml.jackson.databind.node;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.fasterxml.jackson.databind.util.RawValue;
+
 /**
  * Base class that specifies methods for getting access to
  * Node instances (newly constructed, or shared, depending
@@ -15,7 +17,7 @@ public class JsonNodeFactory
         ,JsonNodeCreator // since 2.3
 {
     // with 2.2
-    private static final long serialVersionUID = -3271940633258788634L;
+    private static final long serialVersionUID = 1L;
 
     private final boolean _cfgBigDecimalExact;
 
@@ -327,11 +329,10 @@ public class JsonNodeFactory
     @Override
     public ValueNode pojoNode(Object pojo) { return new POJONode(pojo); }
 
-    /**
-     * @deprecated Since 2.3 Use {@link #pojoNode} instead.
-     */
-    @Deprecated
-    public POJONode POJONode(Object pojo) { return new POJONode(pojo); }
+    @Override
+    public ValueNode rawValueNode(RawValue value) {
+        return new POJONode(value);
+    }
 
     /*
     /**********************************************************

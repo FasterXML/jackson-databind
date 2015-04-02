@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.util.RawValue;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -338,6 +339,20 @@ public class ArrayNode
         return this;
     }
 
+    /**
+     * @return This array node, to allow chaining
+     * 
+     * @since 2.6
+     */
+    public ArrayNode addRawValue(RawValue raw) {
+        if (raw == null) {
+            addNull();
+        } else {
+            _add(rawValueNode(raw));
+        }
+        return this;
+    }
+    
     /**
      * Method that will add a null value at the end of this array node.
      * 

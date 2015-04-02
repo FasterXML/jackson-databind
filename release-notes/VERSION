@@ -24,6 +24,8 @@ Project: jackson-databind
 2.5.3 (not yet released)
 
 #742: Allow deserialization of `null` Object Id (missing already allowed)
+#744: Custom deserializer with parent object update failing
+ (reported by migel@github)
 #745: EnumDeserializer.deserializerForCreator fails when used to deserialize a Map key
  (contributed by John M)
 
@@ -147,6 +149,7 @@ Project: jackson-databind
 
 #735: (complete fix) @JsonDeserialize on Map with contentUsing custom deserializer overwrites default behavior
  (reported by blackfyre512@github) (regression due to #604)
+$744: Custom deserializer with parent object update fails
 
 2.4.5.1 (26-Mar-2015)
 

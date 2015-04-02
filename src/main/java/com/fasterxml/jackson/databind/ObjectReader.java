@@ -138,12 +138,14 @@ public class ObjectReader
      */
 
     /**
-     * Root-level cached deserializers
+     * Root-level cached deserializers.
+     * Passed by {@link ObjectMapper}, shared with it.
      */
     final protected ConcurrentHashMap<JavaType, JsonDeserializer<Object>> _rootDeserializers;
 
     /**
      * Cache for root names used when root-wrapping is enabled.
+     * Passed by {@link ObjectMapper}, shared with it.
      */
     protected final RootNameLookup _rootNames;
     
@@ -1471,7 +1473,7 @@ public class ObjectReader
             result = NullNode.instance;
         } else {
             DeserializationContext ctxt = createDeserializationContext(jp, _config);
-            JsonDeserializer<Object> deser = _findRootDeserializer(ctxt, JSON_NODE_TYPE);
+            JsonDeserializer<Object> deser = _findTreeDeserializer(ctxt);
             if (_unwrapRoot) {
                 result = (JsonNode) _unwrapAndDeserialize(jp, ctxt, JSON_NODE_TYPE, deser);
             } else {
@@ -1566,6 +1568,24 @@ public class ObjectReader
             throw new JsonMappingException("Can not find a deserializer for type "+valueType);
         }
         _rootDeserializers.put(valueType, deser);
+        return deser;
+    }
+
+    /**
+     * @since 2.6
+     */
+    protected JsonDeserializer<Object> _findTreeDeserializer(DeserializationContext ctxt)
+        throws JsonMappingException
+    {
+        JsonDeserializer<Object> deser = _rootDeserializers.get(JSON_NODE_TYPE);
+        if (deser == null) {
+            // Nope: need to ask provider to resolve it
+            deser = ctxt.findRootValueDeserializer(JSON_NODE_TYPE);
+            if (deser == null) { // can this happen?
+                throw new JsonMappingException("Can not find a deserializer for type "+JSON_NODE_TYPE);
+            }
+            _rootDeserializers.put(JSON_NODE_TYPE, deser);
+        }
         return deser;
     }
 

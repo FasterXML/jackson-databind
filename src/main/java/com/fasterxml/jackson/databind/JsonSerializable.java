@@ -53,7 +53,7 @@ public interface JsonSerializable
      *
      * @since 2.6
      */
-    public static class Base
+    public abstract static class Base implements JsonSerializable
     {
         /**
          * Method that may be called on instance to determine if it is considered

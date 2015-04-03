@@ -8,9 +8,10 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.JsonGenerationException;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.*;
@@ -46,11 +47,11 @@ public abstract class DateTimeSerializerBase<T>
     public abstract DateTimeSerializerBase<T> withFormat(Boolean timestamp, DateFormat customFormat);
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider prov,
+    public JsonSerializer<?> createContextual(SerializerProvider serializers,
             BeanProperty property) throws JsonMappingException
     {
         if (property != null) {
-            JsonFormat.Value format = prov.getAnnotationIntrospector().findFormat((Annotated)property.getMember());
+            JsonFormat.Value format = serializers.getAnnotationIntrospector().findFormat((Annotated)property.getMember());
             if (format != null) {
 
             	// Simple case first: serialize as numeric timestamp?
@@ -63,20 +64,20 @@ public abstract class DateTimeSerializerBase<T>
                 TimeZone tz = format.getTimeZone();
                 if (format.hasPattern()) {
                     String pattern = format.getPattern();
-                    final Locale loc = format.hasLocale() ? format.getLocale() : prov.getLocale();
+                    final Locale loc = format.hasLocale() ? format.getLocale() : serializers.getLocale();
                     SimpleDateFormat df = new SimpleDateFormat(pattern, loc);
                     if (tz == null) {
-                        tz = prov.getTimeZone();
+                        tz = serializers.getTimeZone();
                     }
                     df.setTimeZone(tz);
                     return withFormat(asNumber, df);
                 }
                 // If not, do we at least have a custom timezone?
                 if (tz != null) {
-                    DateFormat df = prov.getConfig().getDateFormat();
+                    DateFormat df = serializers.getConfig().getDateFormat();
                     // one shortcut: with our custom format, can simplify handling a bit
                     if (df.getClass() == StdDateFormat.class) {
-                        final Locale loc = format.hasLocale() ? format.getLocale() : prov.getLocale();
+                        final Locale loc = format.hasLocale() ? format.getLocale() : serializers.getLocale();
                         df = StdDateFormat.getISO8601Format(tz, loc);
                     } else {
                         // otherwise need to clone, re-set timezone:
@@ -96,18 +97,25 @@ public abstract class DateTimeSerializerBase<T>
     /**********************************************************
      */
 
+    @Deprecated
     @Override
     public boolean isEmpty(T value) {
         // let's assume "null date" (timestamp 0) qualifies for empty
         return (value == null) || (_timestamp(value) == 0L);
     }
 
+    @Override
+    public boolean isEmpty(SerializerProvider serializers, T value) {
+        // let's assume "null date" (timestamp 0) qualifies for empty
+        return (value == null) || (_timestamp(value) == 0L);
+    }
+    
     protected abstract long _timestamp(T value);
     
     @Override
-    public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
+    public JsonNode getSchema(SerializerProvider serializers, Type typeHint) {
         //todo: (ryan) add a format for the date in the schema?
-        return createSchemaNode(_asTimestamp(provider) ? "number" : "string", true);
+        return createSchemaNode(_asTimestamp(serializers) ? "number" : "string", true);
     }
 
     @Override
@@ -123,8 +131,8 @@ public abstract class DateTimeSerializerBase<T>
      */
 
     @Override
-    public abstract void serialize(T value, JsonGenerator jgen, SerializerProvider provider)
-        throws IOException, JsonGenerationException;
+    public abstract void serialize(T value, JsonGenerator gen, SerializerProvider serializers)
+        throws IOException;
 
     /*
     /**********************************************************
@@ -132,17 +140,17 @@ public abstract class DateTimeSerializerBase<T>
     /**********************************************************
      */
     
-    protected boolean _asTimestamp(SerializerProvider provider)
+    protected boolean _asTimestamp(SerializerProvider serializers)
     {
         if (_useTimestamp != null) {
             return _useTimestamp.booleanValue();
         }
         if (_customFormat == null) {
-            if (provider != null) {
-                return provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            if (serializers != null) {
+                return serializers.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
             }
             // 12-Jun-2014, tatu: Is it legal not to have provider? Was NPE:ing earlier so leave a check
-            throw new IllegalArgumentException("Null 'provider' passed for "+handledType().getName());
+            throw new IllegalArgumentException("Null SerializerProvider passed for "+handledType().getName());
         }
         return false;
     }

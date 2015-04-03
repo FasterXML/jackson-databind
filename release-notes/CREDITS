@@ -239,3 +239,6 @@ Chris Pimlott (pimlottc@github):
   * Suggested #348: ObjectMapper.valueToTree does not work with @JsonRawValue
    (2.6.0)
 
+Laird Nelson (ljnelson@github)
+  * Suggested #688: Provide a means for an ObjectMapper to discover mixin annotation
+    classes on demand

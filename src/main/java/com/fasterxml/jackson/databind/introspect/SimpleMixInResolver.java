@@ -42,10 +42,18 @@ public class SimpleMixInResolver
         _localMixIns = mixins;
     }
 
-    protected SimpleMixInResolver withOverrides(ClassIntrospector.MixInResolver overrides) {
+    /**
+     * Mutant factory for constructor a new resolver instance with given
+     * mix-in resolver override.
+     */
+    public SimpleMixInResolver withOverrides(ClassIntrospector.MixInResolver overrides) {
         return new SimpleMixInResolver(overrides, _localMixIns);
     }
 
+    /**
+     * Mutant factory method that constructs a new instance that has no locally
+     * defined mix-in/target mappings.
+     */
     public SimpleMixInResolver withoutLocalDefinitions() {
         return new SimpleMixInResolver(_overrides, null);
     }

@@ -271,8 +271,10 @@ public class ObjectMapper
      * same field or method. They can be further masked by sub-classes:
      * you can think of it as injecting annotations between the target
      * class and its sub-classes (or interfaces)
+     * 
+     * @since 2.6 (earlier was a simple {@link java.util.Map}
      */
-    protected SimpleMixInResolver _mixInAnnotations;
+    protected SimpleMixInResolver _mixIns;
 
     /*
     /**********************************************************
@@ -414,8 +416,8 @@ public class ObjectMapper
         _typeFactory = src._typeFactory;
         _injectableValues = src._injectableValues;
 
-        SimpleMixInResolver mixins = src._mixInAnnotations.copy();
-        _mixInAnnotations = mixins;
+        SimpleMixInResolver mixins = src._mixIns.copy();
+        _mixIns = mixins;
         _serializationConfig = new SerializationConfig(src._serializationConfig, mixins);
         _deserializationConfig = new DeserializationConfig(src._deserializationConfig, mixins);
         _serializerProvider = src._serializerProvider.copy();
@@ -460,7 +462,7 @@ public class ObjectMapper
         _typeFactory = TypeFactory.defaultInstance();
 
         SimpleMixInResolver mixins = new SimpleMixInResolver(null);
-        _mixInAnnotations = mixins;
+        _mixIns = mixins;
 
         BaseSettings base = DEFAULT_BASE.withClassIntrospector(defaultClassIntrospector());
         _serializationConfig = new SerializationConfig(base,
@@ -997,7 +999,7 @@ public class ObjectMapper
     public ObjectMapper setMixIns(Map<Class<?>, Class<?>> sourceMixins)
     {
         // NOTE: does NOT change possible externally configured resolver, just local defs
-        _mixInAnnotations.setLocalDefinitions(sourceMixins);
+        _mixIns.setLocalDefinitions(sourceMixins);
         return this;
     }
 
@@ -1015,17 +1017,36 @@ public class ObjectMapper
      */
     public ObjectMapper addMixIn(Class<?> target, Class<?> mixinSource)
     {
-        _mixInAnnotations.addLocalDefinition(target, mixinSource);
+        _mixIns.addLocalDefinition(target, mixinSource);
         return this;
     }
 
+    /**
+     * Method that can be called to specify given resolver for locating
+     * mix-in classes to use, overriding directly added mappings.
+     * Note that direct mappings are not cleared, but they are only applied
+     * if resolver does not provide mix-in matches.
+     *
+     * @since 2.6
+     */
+    public ObjectMapper setMixInResolver(ClassIntrospector.MixInResolver resolver)
+    {
+        SimpleMixInResolver r = _mixIns.withOverrides(resolver);
+        if (r != _mixIns) {
+            _mixIns = r;
+            _deserializationConfig = new DeserializationConfig(_deserializationConfig, r);
+            _serializationConfig = new SerializationConfig(_serializationConfig, r);
+        }
+        return this;
+    }
+    
     public Class<?> findMixInClassFor(Class<?> cls) {
-        return _mixInAnnotations.findMixInClassFor(cls);
+        return _mixIns.findMixInClassFor(cls);
     }
 
     // For testing only:
     public int mixInCount() {
-        return _mixInAnnotations.localSize();
+        return _mixIns.localSize();
     }
 
     /**

@@ -11,6 +11,8 @@ Project: jackson-databind
  (reported by Chris P, pimlottc@github)
 #649: Make `BeanDeserializer` use new `parser.nextFieldName()` and `.hasTokenId()` methods
 #679: Add `isEmpty()` implementation for `JsonNode` serializers
+#688: Provide a means for an ObjectMapper to discover mixin annotation classes on demand
+ (requested by Laird N)
 #696: Copy constructor does not preserve `_injectableValues`
  (reported by Charles A)
 #700: Cannot Change Default Abstract Type Mapper from LinkedHashMap

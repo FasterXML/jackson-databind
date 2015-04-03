@@ -213,16 +213,17 @@ In addition, you may need to change some of low-level JSON parsing, generation d
 // JsonParser.Feature for configuring parsing settings:
 
 // to allow C/C++ style comments in JSON (non-standard, disabled by default)
-mapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
+// (note: with Jackson 2.5, there is also `mapper.enable(feature)` / `mapper.disable(feature)`)
+mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
 // to allow (non-standard) unquoted field names in JSON:
-mapper.enable(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES);
+mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 // to allow use of apostrophes (single quotes), non standard
-mapper.enable(JsonParser.Feature.ALLOW_SINGLE_QUOTES);
+mapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
 
 // JsonGenerator.Feature for configuring low-level JSON generation:
 
 // to force escaping of non-ASCII characters:
-mapper.enable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
+mapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
 ```
 
 Full set of features are explained on [Jackson Features](https://github.com/FasterXML/jackson-databind/wiki/JacksonFeatures) page.

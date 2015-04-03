@@ -3,24 +3,17 @@ package com.fasterxml.jackson.databind;
 import java.text.DateFormat;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.cfg.BaseSettings;
-import com.fasterxml.jackson.databind.cfg.ContextAttributes;
-import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
-import com.fasterxml.jackson.databind.cfg.MapperConfigBase;
+
+import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.deser.DeserializationProblemHandler;
-import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
-import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
-import com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector;
-import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
-import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
-import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
-import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.introspect.*;
+import com.fasterxml.jackson.databind.jsontype.*;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.LinkedNode;
 
@@ -80,7 +73,7 @@ public final class DeserializationConfig
      * Constructor used by ObjectMapper to create default configuration object instance.
      */
     public DeserializationConfig(BaseSettings base,
-            SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
+            SubtypeResolver str, SimpleMixInResolver mixins)
     {
         super(base, str, mixins);
         _deserFeatures = collectFeatureDefaults(DeserializationFeature.class);
@@ -170,7 +163,7 @@ public final class DeserializationConfig
     /**
      * @since 2.1
      */
-    protected DeserializationConfig(DeserializationConfig src, Map<ClassKey,Class<?>> mixins)
+    protected DeserializationConfig(DeserializationConfig src, SimpleMixInResolver mixins)
     {
         super(src, mixins);
         _deserFeatures = src._deserFeatures;

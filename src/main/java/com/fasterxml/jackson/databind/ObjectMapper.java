@@ -272,8 +272,8 @@ public class ObjectMapper
      * you can think of it as injecting annotations between the target
      * class and its sub-classes (or interfaces)
      */
-    protected final HashMap<ClassKey,Class<?>> _mixInAnnotations;
-    
+    protected SimpleMixInResolver _mixInAnnotations;
+
     /*
     /**********************************************************
     /* Configuration settings, serialization
@@ -414,7 +414,7 @@ public class ObjectMapper
         _typeFactory = src._typeFactory;
         _injectableValues = src._injectableValues;
 
-        HashMap<ClassKey,Class<?>> mixins = new HashMap<ClassKey,Class<?>>(src._mixInAnnotations);
+        SimpleMixInResolver mixins = src._mixInAnnotations.copy();
         _mixInAnnotations = mixins;
         _serializationConfig = new SerializationConfig(src._serializationConfig, mixins);
         _deserializationConfig = new DeserializationConfig(src._deserializationConfig, mixins);
@@ -459,7 +459,7 @@ public class ObjectMapper
         // and default type factory is shared one
         _typeFactory = TypeFactory.defaultInstance();
 
-        HashMap<ClassKey,Class<?>> mixins = new HashMap<ClassKey,Class<?>>();
+        SimpleMixInResolver mixins = new SimpleMixInResolver(null);
         _mixInAnnotations = mixins;
 
         BaseSettings base = DEFAULT_BASE.withClassIntrospector(defaultClassIntrospector());
@@ -988,17 +988,16 @@ public class ObjectMapper
      * Annotations from source classes (and their supertypes)
      * will <b>override</b>
      * annotations that target classes (and their super-types) have.
+     *<p>
+     * Note that this method will CLEAR any previously defined mix-ins
+     * for this mapper.
      *
      * @since 2.5
      */
     public ObjectMapper setMixIns(Map<Class<?>, Class<?>> sourceMixins)
     {
-        _mixInAnnotations.clear();
-        if (sourceMixins != null && sourceMixins.size() > 0) {
-            for (Map.Entry<Class<?>,Class<?>> en : sourceMixins.entrySet()) {
-                _mixInAnnotations.put(new ClassKey(en.getKey()), en.getValue());
-            }
-        }
+        // NOTE: does NOT change possible externally configured resolver, just local defs
+        _mixInAnnotations.setLocalDefinitions(sourceMixins);
         return this;
     }
 
@@ -1016,18 +1015,18 @@ public class ObjectMapper
      */
     public ObjectMapper addMixIn(Class<?> target, Class<?> mixinSource)
     {
-        _mixInAnnotations.put(new ClassKey(target), mixinSource);
+        _mixInAnnotations.addLocalDefinition(target, mixinSource);
         return this;
     }
 
     public Class<?> findMixInClassFor(Class<?> cls) {
-        return (_mixInAnnotations == null) ? null : _mixInAnnotations.get(new ClassKey(cls));
+        return _mixInAnnotations.findMixInClassFor(cls);
     }
 
+    // For testing only:
     public int mixInCount() {
-        return (_mixInAnnotations == null) ? 0 : _mixInAnnotations.size();
+        return _mixInAnnotations.localSize();
     }
-
 
     /**
      * @deprecated Since 2.5: replaced by a fluent form of the method; {@link #setMixIns}.

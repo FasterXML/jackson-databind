@@ -3,20 +3,21 @@ package com.fasterxml.jackson.databind;
 import java.text.DateFormat;
 import java.util.*;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+
 import com.fasterxml.jackson.core.*;
-import com.fasterxml.jackson.databind.cfg.BaseSettings;
-import com.fasterxml.jackson.databind.cfg.ContextAttributes;
-import com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
-import com.fasterxml.jackson.databind.cfg.MapperConfigBase;
+
+import com.fasterxml.jackson.databind.cfg.*;
 import com.fasterxml.jackson.databind.introspect.ClassIntrospector;
+import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.jsontype.SubtypeResolver;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
-import com.fasterxml.jackson.databind.type.ClassKey;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
@@ -79,7 +80,7 @@ public final class SerializationConfig
      * Constructor used by ObjectMapper to create default configuration object instance.
      */
     public SerializationConfig(BaseSettings base,
-            SubtypeResolver str, Map<ClassKey,Class<?>> mixins)
+            SubtypeResolver str, SimpleMixInResolver mixins)
     {
         super(base, str, mixins);
         _serFeatures = collectFeatureDefaults(SerializationFeature.class);
@@ -163,7 +164,7 @@ public final class SerializationConfig
     /**
      * @since 2.1
      */
-    protected SerializationConfig(SerializationConfig src, Map<ClassKey,Class<?>> mixins)
+    protected SerializationConfig(SerializationConfig src, SimpleMixInResolver mixins)
     {
         super(src, mixins);
         _serFeatures = src._serFeatures;

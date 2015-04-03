@@ -186,7 +186,6 @@ public class TestMixinSerForMethods
         ob = result.get("hashCode");
         assertNotNull(ob);
         assertEquals(Integer.class, ob.getClass());
-//        assertEquals("java.lang.Object", result.get("class"));
     }
 
     // [databind#688]

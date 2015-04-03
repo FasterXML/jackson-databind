@@ -277,15 +277,16 @@ public class NumberDeserializers
         final static IntegerDeserializer primitiveInstance = new IntegerDeserializer(Integer.class, 0);
         final static IntegerDeserializer wrapperInstance = new IntegerDeserializer(Integer.TYPE, null);
         
-        public IntegerDeserializer(Class<Integer> cls, Integer nvl)
-        {
+        public IntegerDeserializer(Class<Integer> cls, Integer nvl) {
             super(cls, nvl);
         }
 
+        // since 2.6, slightly faster lookups for this very common type
         @Override
-        public Integer deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-        {
+        public boolean isCachable() { return true; }
+
+        @Override
+        public Integer deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             return _parseInteger(jp, ctxt);
         }
 
@@ -293,8 +294,7 @@ public class NumberDeserializers
         // (is it an error to even call this version?)
         @Override
         public Integer deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-                TypeDeserializer typeDeserializer)
-            throws IOException, JsonProcessingException
+                TypeDeserializer typeDeserializer) throws IOException
         {
             return _parseInteger(jp, ctxt);
         }
@@ -309,15 +309,16 @@ public class NumberDeserializers
         final static LongDeserializer primitiveInstance = new LongDeserializer(Long.class, Long.valueOf(0L));
         final static LongDeserializer wrapperInstance = new LongDeserializer(Long.TYPE, null);
         
-        public LongDeserializer(Class<Long> cls, Long nvl)
-        {
+        public LongDeserializer(Class<Long> cls, Long nvl) {
             super(cls, nvl);
         }
 
+        // since 2.6, slightly faster lookups for this very common type
         @Override
-        public Long deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-        {
+        public boolean isCachable() { return true; }
+        
+        @Override
+        public Long deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             return _parseLong(jp, ctxt);
         }
     }
@@ -331,14 +332,12 @@ public class NumberDeserializers
         final static FloatDeserializer primitiveInstance = new FloatDeserializer(Float.class, 0.f);
         final static FloatDeserializer wrapperInstance = new FloatDeserializer(Float.TYPE, null);
         
-        public FloatDeserializer(Class<Float> cls, Float nvl)
-        {
+        public FloatDeserializer(Class<Float> cls, Float nvl) {
             super(cls, nvl);
         }
 
         @Override
-        public Float deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public Float deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             /* 22-Jan-2009, tatu: Bounds/range checks would be tricky
              *   here, so let's not bother even trying...
@@ -356,15 +355,12 @@ public class NumberDeserializers
         final static DoubleDeserializer primitiveInstance = new DoubleDeserializer(Double.class, 0.d);
         final static DoubleDeserializer wrapperInstance = new DoubleDeserializer(Double.TYPE, null);
         
-        public DoubleDeserializer(Class<Double> cls, Double nvl)
-        {
+        public DoubleDeserializer(Class<Double> cls, Double nvl) {
             super(cls, nvl);
         }
 
         @Override
-        public Double deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
-        {
+        public Double deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
             return _parseDouble(jp, ctxt);
         }
 
@@ -372,8 +368,7 @@ public class NumberDeserializers
         // (is it an error to even call this version?)
         @Override
         public Double deserializeWithType(JsonParser jp, DeserializationContext ctxt,
-                TypeDeserializer typeDeserializer)
-            throws IOException, JsonProcessingException
+                TypeDeserializer typeDeserializer) throws IOException
         {
             return _parseDouble(jp, ctxt);
         }
@@ -399,8 +394,7 @@ public class NumberDeserializers
         public NumberDeserializer() { super(Number.class); }
 
         @Override
-        public Number deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+        public Number deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
         {
             JsonToken t = jp.getCurrentToken();
             if (t == JsonToken.VALUE_NUMBER_INT) {
@@ -482,7 +476,7 @@ public class NumberDeserializers
         @Override
         public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
                                           TypeDeserializer typeDeserializer)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             switch (jp.getCurrentToken()) {
             case VALUE_NUMBER_INT:
@@ -518,7 +512,7 @@ public class NumberDeserializers
         @SuppressWarnings("incomplete-switch")
         @Override
         public BigInteger deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             JsonToken t = jp.getCurrentToken();
             String text;
@@ -570,7 +564,7 @@ public class NumberDeserializers
 
         @Override
         public BigDecimal deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException
+            throws IOException
         {
             JsonToken t = jp.getCurrentToken();
             if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) {
@@ -603,6 +597,4 @@ public class NumberDeserializers
             throw ctxt.mappingException(_valueClass, t);
         }
     }
-
-
 }

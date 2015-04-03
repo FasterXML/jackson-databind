@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-public class TestObjectMapper extends BaseMapTest
+public class ObjectMapperTest extends BaseMapTest
 {
     static class Bean {
         int value = 3;
@@ -119,7 +119,8 @@ public class TestObjectMapper extends BaseMapTest
         // and then should get one constructed for:
         Bean bean = m.readValue(JSON, Bean.class);
         assertNotNull(bean);
-        assertEquals(1, m._deserializationContext._cache.cachedDeserializersCount());
+        // Since 2.6, serializer for int also cached:
+        assertEquals(2, m._deserializationContext._cache.cachedDeserializersCount());
         m._deserializationContext._cache.flushCachedDeserializers();
         assertEquals(0, m._deserializationContext._cache.cachedDeserializersCount());
 
@@ -128,8 +129,8 @@ public class TestObjectMapper extends BaseMapTest
         List<?> stuff = m.readValue("[ ]", List.class);
         assertNotNull(stuff);
         // may look odd, but due to "Untyped" deserializer thing, we actually have
-        // 3 deserializers (List<?>, Map<?,?>, Object)
-        assertEquals(3, m._deserializationContext._cache.cachedDeserializersCount());
+        // 4 deserializers (int, List<?>, Map<?,?>, Object)
+        assertEquals(4, m._deserializationContext._cache.cachedDeserializersCount());
     }
     
     // [Issue#28]: ObjectMapper.copy()

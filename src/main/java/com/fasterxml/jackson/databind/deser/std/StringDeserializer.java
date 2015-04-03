@@ -3,7 +3,6 @@ package com.fasterxml.jackson.databind.deser.std;
 import java.io.IOException;
 
 import com.fasterxml.jackson.core.*;
-
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
@@ -20,6 +19,10 @@ public final class StringDeserializer extends StdScalarDeserializer<String>
     public final static StringDeserializer instance = new StringDeserializer();
     
     public StringDeserializer() { super(String.class); }
+
+    // since 2.6, slightly faster lookups for this very common type
+    @Override
+    public boolean isCachable() { return true; }
 
     @Override
     public String deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException

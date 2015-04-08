@@ -376,31 +376,6 @@ public class TestEnumSerialization
         String json = mapper.writeValueAsString(new MyBean661("abc"));
         assertEquals(aposToQuotes("{'X-FOO':'abc'}"), json);
     }
-
-    // [databind#749]
-
-    public void testEnumMapSerDefault() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        EnumMap<LowerCaseEnum, String> m = new EnumMap<LowerCaseEnum, String>(LowerCaseEnum.class);
-        m.put(LowerCaseEnum.A, "value");
-        assertEquals("{\"A\":\"value\"}", mapper.writeValueAsString(m));
-    }
-    
-    public void testEnumMapSerDisableToString() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter w = mapper.writer().without(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-        EnumMap<LowerCaseEnum, String> m = new EnumMap<LowerCaseEnum, String>(LowerCaseEnum.class);
-        m.put(LowerCaseEnum.A, "value");
-        assertEquals("{\"A\":\"value\"}", w.writeValueAsString(m));
-    }
-    
-    public void testEnumMapSerEnableToString() throws Exception {
-        final ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter w = mapper.writer().with(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-        EnumMap<LowerCaseEnum, String> m = new EnumMap<LowerCaseEnum, String>(LowerCaseEnum.class);
-        m.put(LowerCaseEnum.A, "value");
-        assertEquals("{\"a\":\"value\"}", w.writeValueAsString(m));
-    }
 }
 
 // [JACKSON-757], non-inner enum

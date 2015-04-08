@@ -211,6 +211,7 @@ public class EnumMapSerializer
         Class<?> prevClass = null;
         EnumValues keyEnums = _keyEnums;
         final boolean skipNulls = !provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
+        final boolean useToString = provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         final TypeSerializer vts = _valueTypeSerializer;
 
         for (Map.Entry<? extends Enum<?>,?> entry : value.entrySet()) {
@@ -219,18 +220,22 @@ public class EnumMapSerializer
                 continue;
             }
             // First, serialize key
-            Enum<?> key = entry.getKey();
-            if (keyEnums == null) {
-                /* 15-Oct-2009, tatu: This is clumsy, but still the simplest efficient
-                 * way to do it currently, as Serializers get cached. (it does assume we'll always use
-                 * default serializer tho -- so ideally code should be rewritten)
-                 */
-                // ... and lovely two-step casting process too...
-                StdSerializer<?> ser = (StdSerializer<?>) provider.findValueSerializer(
-                        key.getDeclaringClass(), _property);
-                keyEnums = ((EnumSerializer) ser).getEnumValues();
+            final Enum<?> key = entry.getKey();
+            if (useToString) {
+                jgen.writeFieldName(key.toString());
+            } else {
+                if (keyEnums == null) {
+                    /* 15-Oct-2009, tatu: This is clumsy, but still the simplest efficient
+                     * way to do it currently, as Serializers get cached. (it does assume we'll always use
+                     * default serializer tho -- so ideally code should be rewritten)
+                     */
+                    // ... and lovely two-step casting process too...
+                    StdSerializer<?> ser = (StdSerializer<?>) provider.findValueSerializer(
+                            key.getDeclaringClass(), _property);
+                    keyEnums = ((EnumSerializer) ser).getEnumValues();
+                }
+                jgen.writeFieldName(keyEnums.serializedValueFor(key));
             }
-            jgen.writeFieldName(keyEnums.serializedValueFor(key));
             if (valueElem == null) {
                 provider.defaultSerializeNull(jgen);
                 continue;
@@ -263,6 +268,7 @@ public class EnumMapSerializer
     {
         EnumValues keyEnums = _keyEnums;
         final boolean skipNulls = !provider.isEnabled(SerializationFeature.WRITE_NULL_MAP_VALUES);
+        final boolean useToString = provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
         final TypeSerializer vts = _valueTypeSerializer;
         
         for (Map.Entry<? extends Enum<?>,?> entry : value.entrySet()) {
@@ -271,13 +277,17 @@ public class EnumMapSerializer
                 continue;
             }
             Enum<?> key = entry.getKey();
-            if (keyEnums == null) {
-                // clumsy, but has to do for now:
-                StdSerializer<?> ser = (StdSerializer<?>) provider.findValueSerializer(key.getDeclaringClass(),
-                        _property);
-                keyEnums = ((EnumSerializer) ser).getEnumValues();
+            if (useToString) {
+                jgen.writeFieldName(key.toString());
+            } else {
+                if (keyEnums == null) {
+                    // clumsy, but has to do for now:
+                    StdSerializer<?> ser = (StdSerializer<?>) provider.findValueSerializer(key.getDeclaringClass(),
+                            _property);
+                    keyEnums = ((EnumSerializer) ser).getEnumValues();
+                }
+                jgen.writeFieldName(keyEnums.serializedValueFor(key));
             }
-            jgen.writeFieldName(keyEnums.serializedValueFor(key));
             if (valueElem == null) {
                 provider.defaultSerializeNull(jgen);
                 continue;

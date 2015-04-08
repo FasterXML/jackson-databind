@@ -26,6 +26,10 @@ public final class EnumValues
         _textual = textual;
     }
 
+    /**
+     * NOTE: do NOT call this if configuration may change, and choice between toString()
+     *   and name() might change dynamically.
+     */
     public static EnumValues construct(SerializationConfig config, Class<Enum<?>> enumClass) {
         if (config.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
             return constructFromToString(config, enumClass);

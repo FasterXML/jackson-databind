@@ -80,8 +80,11 @@ public class EnumSerializer
     public static EnumSerializer construct(Class<?> enumClass, SerializationConfig config,
             BeanDescription beanDesc, JsonFormat.Value format)
     {
-        // [JACKSON-212]: If toString() is to be used instead, leave EnumValues null
-        EnumValues v = EnumValues.construct(config, (Class<Enum<?>>) enumClass);
+        /* 08-Apr-2015, tatu: As per [databind#749], we can not statically determine
+         *   between name() and toString(), need to construct `EnumValues` with names,
+         *   handle toString() case dynamically (for example)
+         */
+        EnumValues v = EnumValues.constructFromName(config, (Class<Enum<?>>) enumClass);
         Boolean serializeAsIndex = _isShapeWrittenUsingIndex(enumClass, format, true);
         return new EnumSerializer(v, serializeAsIndex);
     }
@@ -121,15 +124,20 @@ public class EnumSerializer
      */
     
     @Override
-    public final void serialize(Enum<?> en, JsonGenerator jgen, SerializerProvider provider)
+    public final void serialize(Enum<?> en, JsonGenerator gen, SerializerProvider serializers)
         throws IOException
     {
         // [JACKSON-684]: serialize as index?
-        if (_serializeAsIndex(provider)) {
-            jgen.writeNumber(en.ordinal());
+        if (_serializeAsIndex(serializers)) {
+            gen.writeNumber(en.ordinal());
             return;
         }
-        jgen.writeString(_values.serializedValueFor(en));
+        // [databind#749]: or via toString()?
+        if (serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
+            gen.writeString(en.toString());
+            return;
+        }
+        gen.writeString(_values.serializedValueFor(en));
     }
     
     @Override
@@ -156,23 +164,28 @@ public class EnumSerializer
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
-        // [JACKSON-684]: serialize as index?
-        if (_serializeAsIndex(visitor.getProvider())) {
+        SerializerProvider serializers = visitor.getProvider();
+        if (_serializeAsIndex(serializers)) {
             JsonIntegerFormatVisitor v2 = visitor.expectIntegerFormat(typeHint);
             if (v2 != null) { // typically serialized as a small number (byte or int)
                 v2.numberType(JsonParser.NumberType.INT);
             }
-        } else {
-    		JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
-    		if (typeHint != null && stringVisitor != null) {
-    			if (typeHint.isEnumType()) {
-    				Set<String> enums = new LinkedHashSet<String>();
-    				for (SerializableString value : _values.values()) {
-    					enums.add(value.getValue());
-    				}
-    				stringVisitor.enumTypes(enums);
-    			}
-    		}
+            return;
+        }
+        boolean usingToString = (serializers != null)  && 
+                serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
+
+        JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
+        if (typeHint != null && stringVisitor != null) {
+            Set<String> enums = new LinkedHashSet<String>();
+            for (SerializableString value : _values.values()) {
+                if (usingToString) {
+                    enums.add(value.toString());
+                } else {
+                    enums.add(value.getValue());
+                }
+            }
+            stringVisitor.enumTypes(enums);
         }
     }
 
@@ -182,13 +195,12 @@ public class EnumSerializer
     /**********************************************************
      */
     
-    protected final boolean _serializeAsIndex(SerializerProvider provider)
+    protected final boolean _serializeAsIndex(SerializerProvider serializers)
     {
         if (_serializeAsIndex != null) {
             return _serializeAsIndex.booleanValue();
         }
-        return provider.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX);
-        
+        return serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_INDEX);
     }
 
     /**
@@ -217,4 +229,3 @@ public class EnumSerializer
                     +" annotation");
     }
 }
-

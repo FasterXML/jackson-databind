@@ -35,9 +35,7 @@ public final class EnumValues
 
     public static EnumValues constructFromName(MapperConfig<?> config, Class<Enum<?>> enumClass)
     {
-        /* [JACKSON-214]: Enum types with per-instance sub-classes
-         *   need special handling
-         */
+        // Enum types with per-instance sub-classes need special handling
         Class<? extends Enum<?>> cls = ClassUtil.findEnumType(enumClass);
         Enum<?>[] values = cls.getEnumConstants();
         if (values != null) {

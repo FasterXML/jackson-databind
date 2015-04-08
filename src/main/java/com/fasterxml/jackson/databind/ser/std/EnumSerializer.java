@@ -65,7 +65,7 @@ public class EnumSerializer
 
     public EnumSerializer(EnumValues v, Boolean serializeAsIndex)
     {
-        super(Enum.class, false);
+        super(v.getEnumClass(), false);
         _values = v;
         _serializeAsIndex = serializeAsIndex;
     }

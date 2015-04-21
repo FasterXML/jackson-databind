@@ -33,6 +33,8 @@ Project: jackson-databind
  (reported by migel@github)
 #745: EnumDeserializer.deserializerForCreator fails when used to deserialize a Map key
  (contributed by John M)
+#761: Builder deserializer: in-compatible type exception when return type is super type
+ (contributed by Alexey G)
 
 2.5.2 (29-Mar-2015)
 

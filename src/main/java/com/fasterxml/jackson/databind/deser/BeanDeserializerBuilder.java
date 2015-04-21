@@ -374,10 +374,13 @@ public class BeanDeserializerBuilder
         }
         // also: type of the method must be compatible
         Class<?> rawBuildType = _buildMethod.getRawReturnType();
-        if (!valueType.getRawClass().isAssignableFrom(rawBuildType)) {
+        Class<?> rawValueType = valueType.getRawClass();
+        if ((rawBuildType != rawValueType)
+                && !rawBuildType.isAssignableFrom(rawValueType)
+                && !rawValueType.isAssignableFrom(rawBuildType)) {
             throw new IllegalArgumentException("Build method '"+_buildMethod.getFullName()
-        			+" has bad return type ("+rawBuildType.getName()
-        			+"), not compatible with POJO type ("+valueType.getRawClass().getName()+")");
+                    +" has bad return type ("+rawBuildType.getName()
+                    +"), not compatible with POJO type ("+valueType.getRawClass().getName()+")");
         }
         // And if so, we can try building the deserializer
         Collection<SettableBeanProperty> props = _properties.values();

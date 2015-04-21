@@ -337,7 +337,7 @@ are set via setters or directly using fields.
 One useful (but not very widely known) feature of Jackson is its ability
 to do arbitrary POJO-to-POJO conversions. Conceptually you can think of conversions as sequence of 2 steps: first, writing a POJO as JSON, and second, binding that JSON into another kind of POJO. Implementation just skips actual generation of JSON, and uses more efficient intermediate representation.
 
-Conversations work between any compatible types, and invocation is as simple as:
+Conversions work between any compatible types, and invocation is as simple as:
 
 ```java
 ResultType result = mapper.convertValue(sourceObject, ResultType.class);

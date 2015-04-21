@@ -172,16 +172,19 @@ public class EnumSerializer
             }
             return;
         }
-        boolean usingToString = (serializers != null)  && 
-                serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-
         JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
-        if (typeHint != null && stringVisitor != null) {
+        if (stringVisitor != null) {
             Set<String> enums = new LinkedHashSet<String>();
-            for (SerializableString value : _values.values()) {
-                if (usingToString) {
-                    enums.add(value.toString());
-                } else {
+
+            // Use toString()?
+            if ((serializers != null) && 
+                    serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {
+                for (Enum<?> e : _values.enums()) {
+                    enums.add(e.toString());
+                }
+            } else {
+                // No, serialize using name() or explicit overrides
+                for (SerializableString value : _values.values()) {
                     enums.add(value.getValue());
                 }
             }

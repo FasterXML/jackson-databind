@@ -159,11 +159,18 @@ public class TestBuilderSimple extends BaseMapTest
         }
     }
 
+    // for [databind#761]
+
     @JsonDeserialize(builder=ValueInterfaceBuilder.class)
     interface ValueInterface {
         int getX();
     }
 
+    @JsonDeserialize(builder=ValueInterface2Builder.class)
+    interface ValueInterface2 {
+        int getX();
+    }
+    
     static class ValueInterfaceImpl implements ValueInterface
     {
         final int _x;
@@ -177,6 +184,21 @@ public class TestBuilderSimple extends BaseMapTest
             return _x;
         }
     }
+
+    static class ValueInterface2Impl implements ValueInterface2
+    {
+        final int _x;
+
+        protected ValueInterface2Impl(int x) {
+            _x = x+1;
+        }
+
+        @Override
+        public int getX() {
+            return _x;
+        }
+    }
+    
     static class ValueInterfaceBuilder
     {
         public int x;
@@ -190,10 +212,27 @@ public class TestBuilderSimple extends BaseMapTest
             return new ValueInterfaceImpl(x);
         }
     }
+
+    static class ValueInterface2Builder
+    {
+        public int x;
+
+        public ValueInterface2Builder withX(int x0) {
+            this.x = x0;
+            return this;
+        }
+
+        // should also be ok: more specific type
+        public ValueInterface2Impl build() {
+            return new ValueInterface2Impl(x);
+        }
+    }
+    
+    // for [databind#761]
     @JsonDeserialize(builder = ValueBuilderWrongBuildType.class)
     static class ValueClassWrongBuildType {
-
     }
+
     static class ValueBuilderWrongBuildType
     {
         public int x;
@@ -207,7 +246,8 @@ public class TestBuilderSimple extends BaseMapTest
             return null;
         }
     }
-	/*
+
+    /*
     /**********************************************************
     /* Unit tests
     /**********************************************************
@@ -217,25 +257,25 @@ public class TestBuilderSimple extends BaseMapTest
     
     public void testSimple() throws Exception
     {
-    	String json = "{\"x\":1,\"y\":2}";
-    	Object o = mapper.readValue(json, ValueClassXY.class);
-    	assertNotNull(o);
-    	assertSame(ValueClassXY.class, o.getClass());
-    	ValueClassXY value = (ValueClassXY) o;
-    	// note: ctor adds one to both values
-    	assertEquals(value._x, 2);
-    	assertEquals(value._y, 3);
+        String json = "{\"x\":1,\"y\":2}";
+        Object o = mapper.readValue(json, ValueClassXY.class);
+        assertNotNull(o);
+    	    assertSame(ValueClassXY.class, o.getClass());
+    	    ValueClassXY value = (ValueClassXY) o;
+    	    // note: ctor adds one to both values
+    	    assertEquals(value._x, 2);
+    	    assertEquals(value._y, 3);
     }
 
     public void testMultiAccess() throws Exception
     {
-    	String json = "{\"c\":3,\"a\":2,\"b\":-9}";
-    	ValueClassABC value = mapper.readValue(json, ValueClassABC.class);
-    	assertNotNull(value);
-    	// note: ctor adds one to both values
-    	assertEquals(value.a, 2);
-    	assertEquals(value.b, -9);
-    	assertEquals(value.c, 3);
+        String json = "{\"c\":3,\"a\":2,\"b\":-9}";
+        ValueClassABC value = mapper.readValue(json, ValueClassABC.class);
+        assertNotNull(value);
+    	    // note: ctor adds one to both values
+        assertEquals(value.a, 2);
+        assertEquals(value.b, -9);
+        assertEquals(value.c, 3);
     }
 
     // test for Immutable builder, to ensure return value is used
@@ -264,13 +304,22 @@ public class TestBuilderSimple extends BaseMapTest
         assertEquals(3, value.c);
     }
 
-    public void testBuilderMethodReturnInterface() throws Exception
+    // for [databind#761]
+    
+    public void testBuilderMethodReturnMoreGeneral() throws Exception
     {
         final String json = "{\"x\":1}";
         ValueInterface value = mapper.readValue(json, ValueInterface.class);
         assertEquals(2, value.getX());
     }
 
+    public void testBuilderMethodReturnMoreSpecific() throws Exception
+    {
+        final String json = "{\"x\":1}";
+        ValueInterface2 value = mapper.readValue(json, ValueInterface2.class);
+        assertEquals(2, value.getX());
+    }
+    
     public void testBuilderMethodReturnInvalidType() throws Exception
     {
         final String json = "{\"x\":1}";

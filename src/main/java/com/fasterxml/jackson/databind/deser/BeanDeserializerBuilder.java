@@ -374,7 +374,7 @@ public class BeanDeserializerBuilder
         }
         // also: type of the method must be compatible
         Class<?> rawBuildType = _buildMethod.getRawReturnType();
-        if (!valueType.getRawClass().isAssignableFrom(rawBuildType)) {
+        if (!rawBuildType.isAssignableFrom(valueType.getRawClass())) {
             throw new IllegalArgumentException("Build method '"+_buildMethod.getFullName()
         			+" has bad return type ("+rawBuildType.getName()
         			+"), not compatible with POJO type ("+valueType.getRawClass().getName()+")");

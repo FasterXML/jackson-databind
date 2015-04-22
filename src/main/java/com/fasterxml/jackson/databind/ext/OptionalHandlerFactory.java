@@ -45,11 +45,11 @@ public class OptionalHandlerFactory implements java.io.Serializable
         String className = rawType.getName();
         String factoryName;
         
-        if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML)
-                || hasSupertypeStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
-            factoryName = SERIALIZERS_FOR_JAVAX_XML;
-        } else if (doesImplement(rawType, CLASS_NAME_DOM_NODE)) {
+        if (doesImplement(rawType, CLASS_NAME_DOM_NODE)) {
             return (JsonSerializer<?>) instantiate(SERIALIZER_FOR_DOM_NODE);
+        }
+        if (className.startsWith(PACKAGE_PREFIX_JAVAX_XML) || hasSupertypeStartingWith(rawType, PACKAGE_PREFIX_JAVAX_XML)) {
+            factoryName = SERIALIZERS_FOR_JAVAX_XML;
         } else {
             return null;
         }

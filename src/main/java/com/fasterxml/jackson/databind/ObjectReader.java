@@ -538,6 +538,20 @@ public class ObjectReader
     }
 
     /**
+     * Convenience method that is same as calling:
+     *<code>
+     *   withRootName("")
+     *</code>
+     * which will forcibly prevent use of root name wrapping when writing
+     * values with this {@link ObjectReader}.
+     * 
+     * @since 2.6
+     */
+    public ObjectReader withoutRootName() {
+        return _with(_config.withRootName(""));
+    }
+    
+    /**
      * Method for constructing a new instance with configuration that
      * passes specified {@link FormatSchema} to {@link JsonParser} that
      * is constructed for parsing content.

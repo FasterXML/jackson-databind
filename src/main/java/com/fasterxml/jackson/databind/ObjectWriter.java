@@ -402,12 +402,30 @@ public class ObjectWriter
      *<p>
      * Note that method does NOT change state of this reader, but
      * rather construct and returns a newly configured instance.
+     * 
+     * @param rootName Root name to use, if non-empty; `null` for "use defaults",
+     *    and empty String ("") for "do NOT add root wrapper"
      */
     public ObjectWriter withRootName(String rootName) {
         SerializationConfig newConfig = _config.withRootName(rootName);
         return (newConfig == _config) ? this :  _new(this, newConfig);
     }
 
+    /**
+     * Convenience method that is same as calling:
+     *<code>
+     *   withRootName("")
+     *</code>
+     * which will forcibly prevent use of root name wrapping when writing
+     * values with this {@link ObjectWriter}.
+     * 
+     * @since 2.6
+     */
+    public ObjectWriter withoutRootName() {
+        SerializationConfig newConfig = _config.withRootName("");
+        return (newConfig == _config) ? this :  _new(this, newConfig);
+    }
+    
     /**
      * Method that will construct a new instance that uses specific format schema
      * for serialization.

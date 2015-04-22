@@ -98,8 +98,22 @@ public class TestRootName extends BaseMapTest
         json = wrapping.writer().withRootName("").writeValueAsString(new Bean());
         assertEquals("{\"a\":3}", json);
 
+        // 21-Apr-2015, tatu: Alternative available with 2.6 as well:
+        json = wrapping.writer().withoutRootName().writeValueAsString(new Bean());
+        assertEquals("{\"a\":3}", json);
+
         bean = wrapping.reader(Bean.class).withRootName("").readValue(json);
         assertNotNull(bean);
+        assertEquals(3, bean.a);
+
+        bean = wrapping.reader(Bean.class).withoutRootName().readValue("{\"a\":4}");
+        assertNotNull(bean);
+        assertEquals(4, bean.a);
+
+        // and back to defaults
+        bean = wrapping.reader(Bean.class).readValue("{\"rudy\":{\"a\":7}}");
+        assertNotNull(bean);
+        assertEquals(7, bean.a);
     }
 
     /*

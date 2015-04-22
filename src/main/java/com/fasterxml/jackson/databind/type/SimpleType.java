@@ -155,7 +155,7 @@ public final class SimpleType
     @Override
     public SimpleType withStaticTyping() {
         return _asStatic ? this : new SimpleType(_class,
-                _typeNames, _typeParameters, _valueHandler, _typeHandler, _asStatic, _typeParametersFor);
+                _typeNames, _typeParameters, _valueHandler, _typeHandler, true, _typeParametersFor);
     }
 
     @Override

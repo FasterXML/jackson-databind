@@ -22,6 +22,7 @@ Project: jackson-databind
 #737: Add support for writing raw values in TokenBuffer
  (suggested by Guillaume S, gsmet@github)
 #743: Add `RawValue` helper type, for piping raw values through `TokenBuffer`
+#765: `SimpleType.withStaticTyping()` impl incorrect
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.3 (not yet released)

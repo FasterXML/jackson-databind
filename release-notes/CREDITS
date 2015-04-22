@@ -221,6 +221,11 @@ Dylan Scott (dylanscott@github)
     issue)
    (2.5.2)
 
+Alain Gilbert (agilbert314@github)
+  * Reporter, contributed #766: Fix Infinite recursion (StackOverflowError) when
+    serializing a SOAP object
+   (2.5.3)
+
 Alexey Gavrilov (Alexey1Gavrilov@github)
   * Reported, contributed fix for #761: Builder deserializer: in-compatible type exception
     when return type is super type

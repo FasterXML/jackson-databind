@@ -48,6 +48,12 @@ public abstract class SerializerProvider
         new FailingSerializer("Null key for a Map not allowed in JSON (use a converting NullKeySerializer?)");
 
     /**
+     * Placeholder serializer used when <code>java.lang.Object</code> typed property
+     * is marked to be serialized.
+     *<br />
+     * NOTE: starting with 2.6, this instance is NOT used for any other types, and
+     * separate instances are constructed for "empty" Beans.
+     *<p>
      * NOTE: changed to <code>protected</code> for 2.3; no need to be publicly available.
      */
     protected final static JsonSerializer<Object> DEFAULT_UNKNOWN_SERIALIZER = new UnknownSerializer();
@@ -816,7 +822,12 @@ public abstract class SerializerProvider
      * @param unknownType Type for which no serializer is found
      */
     public JsonSerializer<Object> getUnknownTypeSerializer(Class<?> unknownType) {
-        return _unknownTypeSerializer;
+        // 23-Apr-2015, tatu: Only return shared instance if nominal type is Object.class
+        if (unknownType == Object.class) {
+            return _unknownTypeSerializer;
+        }
+        // otherwise construct explicit instance with property handled type
+        return new UnknownSerializer(unknownType);
     }
 
     /**
@@ -827,7 +838,17 @@ public abstract class SerializerProvider
      * @since 2.5
      */
     public boolean isUnknownTypeSerializer(JsonSerializer<?> ser) {
-        return (ser == _unknownTypeSerializer) || (ser == null);
+        if ((ser == _unknownTypeSerializer) || (ser == null)) {
+            return true;
+        }
+        // 23-Apr-2015, tatu: "empty" serializer is trickier; needs to consider
+        //    error handling
+        if (isEnabled(SerializationFeature.FAIL_ON_EMPTY_BEANS)) {
+            if (ser.getClass() == UnknownSerializer.class) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /*

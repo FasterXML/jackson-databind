@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.4.6 (not yet released)
+2.4.6 (23-Apr-2015)
 
 #735: (complete fix) @JsonDeserialize on Map with contentUsing custom deserializer overwrites default behavior
  (reported by blackfyre512@github) (regression due to #604)

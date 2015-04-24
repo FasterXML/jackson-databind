@@ -4,7 +4,7 @@ Project: jackson-databind
 === Releases ===
 ------------------------------------------------------------------------
 
-2.5.3 (not yet released)
+2.5.3 (24-Apr-2015)
 
 #731: XmlAdapter result marshaling error in case of ValueType=Object
  (reported, debugged by Dmitry S)

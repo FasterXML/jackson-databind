@@ -69,6 +69,16 @@ public final class EnumValues
         throw new IllegalArgumentException("Can not determine enum constants for Class "+enumClass.getName());
     }
 
+    /**
+     * Convenience accessor for getting raw Enum instances.
+     * 
+     * @since 2.6
+     */
+    @SuppressWarnings("unchecked")
+    public Collection<Enum<?>> enums() {
+        return (Collection<Enum<?>>) _values.keySet();
+    }
+
     public SerializableString serializedValueFor(Enum<?> key) { return _values.get(key); }
     public Collection<SerializableString> values() { return _values.values(); }
 

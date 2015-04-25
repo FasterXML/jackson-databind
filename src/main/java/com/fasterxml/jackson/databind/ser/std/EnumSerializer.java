@@ -176,12 +176,14 @@ public class EnumSerializer
                 serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
 
         JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
-        if (typeHint != null && stringVisitor != null) {
+        if (stringVisitor != null) {
             Set<String> enums = new LinkedHashSet<String>();
-            for (SerializableString value : _values.values()) {
-                if (usingToString) {
-                    enums.add(value.toString());
-                } else {
+            if (usingToString) {
+                for (Enum<?> en : _values.enums()) {
+                    enums.add(en.toString());
+                }
+            } else {
+                for (SerializableString value : _values.values()) {
                     enums.add(value.getValue());
                 }
             }

@@ -1,6 +1,8 @@
 package com.fasterxml.jackson.databind.introspect;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -894,55 +896,58 @@ public final class AnnotatedClass
 
     protected AnnotationMap _collectRelevantAnnotations(Annotation[] anns)
     {
-        AnnotationMap annMap = new AnnotationMap();
-        _addAnnotationsIfNotPresent(annMap, anns);
-        return annMap;
+        return _addAnnotationsIfNotPresent(new AnnotationMap(), anns);
     }
     
     /* Helper method used to add all applicable annotations from given set.
      * Takes into account possible "annotation bundles" (meta-annotations to
      * include instead of main-level annotation)
      */
-    private void _addAnnotationsIfNotPresent(AnnotationMap result, Annotation[] anns)
+    private AnnotationMap _addAnnotationsIfNotPresent(AnnotationMap result, Annotation[] anns)
     {
         if (anns != null) {
-            List<Annotation[]> bundles = null;
+            List<Annotation> fromBundles = null;
             for (Annotation ann : anns) { // first: direct annotations
                 // note: we will NOT filter out non-Jackson anns any more
                 boolean wasNotPresent = result.addIfNotPresent(ann);
                 if (wasNotPresent && _isAnnotationBundle(ann)) {
-                    if (bundles == null) {
-                        bundles = new LinkedList<Annotation[]>();
-                    }
-                    bundles.add(ann.annotationType().getDeclaredAnnotations());
+                    fromBundles = _addFromBundle(ann, fromBundles);
                 }
             }
-            if (bundles != null) { // and secondarily handle bundles, if any found: precedence important
-                for (Annotation[] annotations : bundles) {
-                    _addAnnotationsIfNotPresent(result, annotations);
-                }
+            if (fromBundles != null) { // and secondarily handle bundles, if any found: precedence important
+                _addAnnotationsIfNotPresent(result, fromBundles.toArray(new Annotation[fromBundles.size()]));
             }
         }
+        return result;
     }
 
+    private List<Annotation> _addFromBundle(Annotation bundle, List<Annotation> result)
+    {
+        for (Annotation a : bundle.annotationType().getDeclaredAnnotations()) {
+            // minor optimization: by-pass 2 common JDK meta-annotations
+            if ((a instanceof Target) || (a instanceof Retention)) {
+                continue;
+            }
+            if (result == null) {
+                result = new ArrayList<Annotation>();
+            }
+            result.add(a);
+        }
+        return result;
+    }
+    
     private void _addAnnotationsIfNotPresent(AnnotatedMember target, Annotation[] anns)
     {
         if (anns != null) {
-            List<Annotation[]> bundles = null;
+            List<Annotation> fromBundles = null;
             for (Annotation ann : anns) { // first: direct annotations
-                // note: we will NOT filter out non-Jackson anns any more
                 boolean wasNotPresent = target.addIfNotPresent(ann);
                 if (wasNotPresent && _isAnnotationBundle(ann)) {
-                    if (bundles == null) {
-                        bundles = new LinkedList<Annotation[]>();
-                    }
-                    bundles.add(ann.annotationType().getDeclaredAnnotations());
+                    fromBundles = _addFromBundle(ann, fromBundles);
                 }
             }
-            if (bundles != null) { // and secondarily handle bundles, if any found: precedence important
-                for (Annotation[] annotations : bundles) {
-                    _addAnnotationsIfNotPresent(target, annotations);
-                }
+            if (fromBundles != null) { // and secondarily handle bundles, if any found: precedence important
+                _addAnnotationsIfNotPresent(target, fromBundles.toArray(new Annotation[fromBundles.size()]));
             }
         }
     }
@@ -950,21 +955,15 @@ public final class AnnotatedClass
     private void _addOrOverrideAnnotations(AnnotatedMember target, Annotation[] anns)
     {
         if (anns != null) {
-            List<Annotation[]> bundles = null;
+            List<Annotation> fromBundles = null;
             for (Annotation ann : anns) { // first: direct annotations
-                // note: we will NOT filter out non-Jackson anns any more
                 boolean wasModified = target.addOrOverride(ann);
                 if (wasModified && _isAnnotationBundle(ann)) {
-                    if (bundles == null) {
-                        bundles = new LinkedList<Annotation[]>();
-                    }
-                    bundles.add(ann.annotationType().getDeclaredAnnotations());
+                    fromBundles = _addFromBundle(ann, fromBundles);
                 }
             }
-            if (bundles != null) { // and then bundles, if any: important for precedence
-                for (Annotation[] annotations : bundles) {
-                    _addOrOverrideAnnotations(target, annotations);
-                }
+            if (fromBundles != null) { // and then bundles, if any: important for precedence
+                _addOrOverrideAnnotations(target, fromBundles.toArray(new Annotation[fromBundles.size()]));
             }
         }
     }
@@ -1013,10 +1012,10 @@ public final class AnnotatedClass
         _addAnnotationsIfNotPresent(target, src.getDeclaredAnnotations());
     }
 
-   private final boolean _isAnnotationBundle(Annotation ann) {
-       return (_annotationIntrospector != null) && _annotationIntrospector.isAnnotationBundle(ann);
-   }
-   
+    private final boolean _isAnnotationBundle(Annotation ann) {
+        return (_annotationIntrospector != null) && _annotationIntrospector.isAnnotationBundle(ann);
+    }
+
     /*
     /**********************************************************
     /* Other methods

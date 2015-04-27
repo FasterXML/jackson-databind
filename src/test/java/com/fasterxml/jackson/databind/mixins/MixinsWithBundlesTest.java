@@ -22,7 +22,7 @@ public class MixinsWithBundlesTest extends BaseMapTest
         public abstract String getStuff();
     }
 
-    public class Foo {
+    public static class Foo {
 
         private String stuff;
 

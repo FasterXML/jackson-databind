@@ -241,6 +241,10 @@ John Meyer (jpmeyer@github)
     when used to deserialize a Map key
    (2.5.3)
 
+Andrew Duckett (andrewduckett@github)
+  * Reported #771: Annotation bundles ignored when added to Mixin
+   (2.5.4)
+
 Charles Allen (drcrallen@github):
   * Reported #696: Copy constructor does not preserve `_injectableValues`
    (2.6.0)
@@ -252,3 +256,4 @@ Chris Pimlott (pimlottc@github):
 Laird Nelson (ljnelson@github)
   * Suggested #688: Provide a means for an ObjectMapper to discover mixin annotation
     classes on demand
+

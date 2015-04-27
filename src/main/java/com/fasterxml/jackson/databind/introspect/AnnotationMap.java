@@ -82,6 +82,9 @@ public final class AnnotationMap implements Annotations
 
     /**
      * Method called to add specified annotation in the Map.
+     * 
+     * @return True if the addition changed the contents, that is, this map did not
+     *   already have specified annotation
      */
     public boolean add(Annotation ann) {
         return _add(ann);
@@ -106,7 +109,7 @@ public final class AnnotationMap implements Annotations
             _annotations = new HashMap<Class<? extends Annotation>,Annotation>();
         }
         Annotation previous = _annotations.put(ann.annotationType(), ann);
-        return (previous != null) && previous.equals(ann);
+        return (previous == null) || !previous.equals(ann);
     }
 }
 

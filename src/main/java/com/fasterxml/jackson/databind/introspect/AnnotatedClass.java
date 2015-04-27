@@ -424,7 +424,7 @@ public final class AnnotatedClass
         AnnotatedMethodMap mixins = new AnnotatedMethodMap();
         // first: methods from the class itself
         _addMemberMethods(_class, _memberMethods, _primaryMixIn, mixins);
-
+        
         // and then augment these with annotations from super-types:
         for (Class<?> cls : _superTypes) {
             Class<?> mixin = (_mixInResolver == null) ? null : _mixInResolver.findMixInClassFor(cls);         
@@ -594,7 +594,7 @@ public final class AnnotatedClass
         // first, mixIns, since they have higher priority then class methods
         if (mixInCls != null) {
             _addMethodMixIns(cls, methods, mixInCls, mixIns);
-        }        
+        }
         if (cls == null) { // just so caller need not check when passing super-class
             return;
         }

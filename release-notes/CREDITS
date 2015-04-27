@@ -240,3 +240,8 @@ John Meyer (jpmeyer@github)
   * Reported, contributed fix for #745: EnumDeserializer.deserializerForCreator() fails
     when used to deserialize a Map key
    (2.5.3)
+
+Andrew Duckett (andrewduckett@github)
+  * Reported #771: Annotation bundles ignored when added to Mixin
+   (2.5.4)
+

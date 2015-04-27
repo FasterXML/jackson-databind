@@ -6,6 +6,8 @@ Project: jackson-databind
 
 2.5.4 (not yet released)
 
+#771: Annotation bundles ignored when added to Mixin
+ (reported by Andrew D)
 - Fix handling of Enums wrt JSON Schema, when 'toString()' used for serialization
 
 2.5.3 (24-Apr-2015)

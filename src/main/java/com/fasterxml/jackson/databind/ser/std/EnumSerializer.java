@@ -175,7 +175,7 @@ public class EnumSerializer
         JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
         if (stringVisitor != null) {
             Set<String> enums = new LinkedHashSet<String>();
-
+            
             // Use toString()?
             if ((serializers != null) && 
                     serializers.isEnabled(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)) {

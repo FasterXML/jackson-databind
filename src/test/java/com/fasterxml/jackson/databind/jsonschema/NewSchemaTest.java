@@ -2,6 +2,7 @@ package com.fasterxml.jackson.databind.jsonschema;
 
 import java.util.*;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
@@ -22,6 +23,15 @@ public class NewSchemaTest extends BaseMapTest
         }
     }
 
+    enum TestEnumWithJsonValue {
+        A, B, C;
+        
+        @JsonValue
+        public String forSerialize() {
+            return "value-"+name();
+        }
+    }
+    
     private final ObjectMapper MAPPER = new ObjectMapper();
 
     public void testSimpleEnum() throws Exception
@@ -33,6 +43,7 @@ public class NewSchemaTest extends BaseMapTest
             @Override
             public JsonStringFormatVisitor expectStringFormat(JavaType type) {
                 return new JsonStringFormatVisitor() {
+                    @Override
                     public void enumTypes(Set<String> enums) {
                         values.addAll(enums);
                     }
@@ -48,6 +59,33 @@ public class NewSchemaTest extends BaseMapTest
                         "ToString:A",
                         "ToString:B",
                         "ToString:C"
+                        ));
+        assertEquals(exp, values);
+    }
+
+    public void testEnumWithJsonValue() throws Exception
+    {
+        final Set<String> values = new TreeSet<String>();
+        MAPPER.acceptJsonFormatVisitor(TestEnumWithJsonValue.class, new JsonFormatVisitorWrapper.Base() {
+            @Override
+            public JsonStringFormatVisitor expectStringFormat(JavaType type) {
+                return new JsonStringFormatVisitor() {
+                    @Override
+                    public void enumTypes(Set<String> enums) {
+                        values.addAll(enums);
+                    }
+
+                    @Override
+                    public void format(JsonValueFormat format) { }
+                };
+            }
+        });
+
+        assertEquals(3, values.size());
+        TreeSet<String> exp = new TreeSet<String>(Arrays.asList(
+                        "value-A",
+                        "value-B",
+                        "value-C"
                         ));
         assertEquals(exp, values);
     }

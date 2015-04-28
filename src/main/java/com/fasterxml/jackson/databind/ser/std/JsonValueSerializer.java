@@ -5,12 +5,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
 import com.fasterxml.jackson.databind.jsonschema.SchemaAware;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.fasterxml.jackson.databind.ser.BeanSerializer;
@@ -246,11 +249,26 @@ public class JsonValueSerializer
         }
         return com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
     {
+        /* 27-Apr-2015, tatu: First things first; for JSON Schema introspection,
+         *    Enums are special, and unfortunately we will need to add special
+         *    handling here (see https://github.com/FasterXML/jackson-module-jsonSchema/issues/57
+         *    for details).
+         */
+        Class<?> decl = (typeHint == null) ? null : typeHint.getRawClass();
+        if (decl == null) {
+            decl = _accessorMethod.getDeclaringClass();
+        }
+        if ((decl != null) && (decl.isEnum())) {
+            if (_acceptJsonFormatVisitorForEnum(visitor, typeHint, decl)) {
+                return;
+            }
+        }
+        
         JsonSerializer<Object> ser = _valueSerializer;
         if (ser == null) {
             if (typeHint == null) {
@@ -258,7 +276,7 @@ public class JsonValueSerializer
                     typeHint = _property.getType();
                 }
                 if (typeHint == null) {
-                    typeHint = visitor.getProvider().constructType(_accessorMethod.getReturnType());
+                    typeHint = visitor.getProvider().constructType(_handledType);
                 }
             }
             ser = visitor.getProvider().findTypedValueSerializer(typeHint, false, _property);
@@ -270,6 +288,43 @@ public class JsonValueSerializer
         ser.acceptJsonFormatVisitor(visitor, null); 
     }
 
+    /**
+     * Overridable helper method used for special case handling of schema information for
+     * Enums
+     * 
+     * @return True if method handled callbacks; false if not; in latter case caller will
+     *   send default callbacks
+     *
+     * @since 2.6
+     */
+    protected boolean _acceptJsonFormatVisitorForEnum(JsonFormatVisitorWrapper visitor,
+            JavaType typeHint, Class<?> enumType)
+        throws JsonMappingException
+    {
+        // Copied from EnumSerializer#acceptJsonFormatVisitor
+        JsonStringFormatVisitor stringVisitor = visitor.expectStringFormat(typeHint);
+        if (stringVisitor != null) {
+            Set<String> enums = new LinkedHashSet<String>();
+            for (Object en : enumType.getEnumConstants()) {
+                try {
+                    enums.add(String.valueOf(_accessorMethod.invoke(en)));
+                } catch (Exception e) {
+                    Throwable t = e;
+                    while (t instanceof InvocationTargetException && t.getCause() != null) {
+                        t = t.getCause();
+                    }
+                    if (t instanceof Error) {
+                        throw (Error) t;
+                    }
+                    throw JsonMappingException.wrapWithPath(t, en, _accessorMethod.getName() + "()");
+                }
+            }
+            stringVisitor.enumTypes(enums);
+        }
+        return true;
+        
+    }
+    
     protected boolean isNaturalTypeWithStdHandling(Class<?> rawType, JsonSerializer<?> ser)
     {
         // First: do we have a natural type being handled?

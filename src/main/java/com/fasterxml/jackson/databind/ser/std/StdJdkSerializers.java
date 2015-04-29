@@ -38,11 +38,9 @@ public class StdJdkSerializers
         sers.put(java.util.regex.Pattern.class, sls);
         sers.put(Locale.class, sls);
 
-        // starting with 1.7, use compact String for Locale
         sers.put(Locale.class, sls);
         
-        // then atomic types
-        sers.put(AtomicReference.class, AtomicReferenceSerializer.class);
+        // then atomic types (note: AtomicReference needs better handling)
         sers.put(AtomicBoolean.class, AtomicBooleanSerializer.class);
         sers.put(AtomicInteger.class, AtomicIntegerSerializer.class);
         sers.put(AtomicLong.class, AtomicLongSerializer.class);
@@ -70,8 +68,8 @@ public class StdJdkSerializers
         public AtomicBooleanSerializer() { super(AtomicBoolean.class, false); }
     
         @Override
-        public void serialize(AtomicBoolean value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
-            jgen.writeBoolean(value.get());
+        public void serialize(AtomicBoolean value, JsonGenerator gen, SerializerProvider provider) throws IOException, JsonGenerationException {
+            gen.writeBoolean(value.get());
         }
     
         @Override
@@ -91,8 +89,8 @@ public class StdJdkSerializers
         public AtomicIntegerSerializer() { super(AtomicInteger.class, false); }
     
         @Override
-        public void serialize(AtomicInteger value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
-            jgen.writeNumber(value.get());
+        public void serialize(AtomicInteger value, JsonGenerator gen, SerializerProvider provider) throws IOException, JsonGenerationException {
+            gen.writeNumber(value.get());
         }
     
         @Override
@@ -116,8 +114,8 @@ public class StdJdkSerializers
         public AtomicLongSerializer() { super(AtomicLong.class, false); }
     
         @Override
-        public void serialize(AtomicLong value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
-            jgen.writeNumber(value.get());
+        public void serialize(AtomicLong value, JsonGenerator gen, SerializerProvider provider) throws IOException, JsonGenerationException {
+            gen.writeNumber(value.get());
         }
     
         @Override
@@ -133,29 +131,6 @@ public class StdJdkSerializers
             if (v2 != null) {
                 v2.numberType(JsonParser.NumberType.LONG);
             }
-        }
-    }
-
-    public static class AtomicReferenceSerializer
-        extends StdSerializer<AtomicReference<?>>
-    {
-        public AtomicReferenceSerializer() { super(AtomicReference.class, false); }
-
-        @Override
-        public void serialize(AtomicReference<?> value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonGenerationException {
-            provider.defaultSerializeValue(value.get(), jgen);
-        }
-
-        @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
-            return createSchemaNode("any", true);
-        }
-        
-        @Override
-        public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
-        {
-            visitor.expectAnyFormat(typeHint);
         }
     }
 }

@@ -175,7 +175,7 @@ public abstract class JsonSerializer<T>
      */
     @Deprecated
     public boolean isEmpty(T value) {
-        return (value == null);
+        return isEmpty(null, value);
     }
 
     /**
@@ -190,8 +190,7 @@ public abstract class JsonSerializer<T>
      * @since 2.5
      */
     public boolean isEmpty(SerializerProvider provider, T value) {
-        // replace with implementation in 2.6 or later
-        return isEmpty(value);
+        return (value == null);
     }
     
     /**

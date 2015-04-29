@@ -227,6 +227,13 @@ public abstract class JavaType
     @Override
     public final boolean hasRawClass(Class<?> clz) { return _class == clz; }
 
+    /**
+     * @since 2.6
+     */
+    public final boolean isTypeOrSubTypeOf(Class<?> clz) {
+        return (_class == clz) || (clz.isAssignableFrom(_class));
+    }
+
     @Override
     public boolean isAbstract() {
         return Modifier.isAbstract(_class.getModifiers());

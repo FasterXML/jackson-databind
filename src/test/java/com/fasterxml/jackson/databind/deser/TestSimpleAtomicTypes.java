@@ -2,9 +2,11 @@ package com.fasterxml.jackson.databind.deser;
 
 import java.util.concurrent.atomic.*;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TestSimpleAtomicTypes
@@ -35,6 +37,13 @@ public class TestSimpleAtomicTypes
         public RefWrapper(int i) {
             w = new AtomicReference<Base>(new Impl(i));
         }
+    }
+
+    static class SimpleWrapper {
+        public AtomicReference<Object> value;
+
+        public SimpleWrapper() { }
+        public SimpleWrapper(Object o) { value = new AtomicReference<Object>(o); }
     }
     
     /*
@@ -75,7 +84,7 @@ public class TestSimpleAtomicTypes
         assertEquals(2, longs[1]);
     }
 
-    // [Issue#340]
+    // [databind#340]
     public void testPolymorphicAtomicReference() throws Exception
     {
         RefWrapper input = new RefWrapper(13);
@@ -86,5 +95,25 @@ public class TestSimpleAtomicTypes
         Object ob = result.w.get();
         assertEquals(Impl.class, ob.getClass());
         assertEquals(13, ((Impl) ob).value);
+    }
+
+    // [databind#740]
+    public void testFilteringOfAtomicReference() throws Exception
+    {
+        SimpleWrapper input = new SimpleWrapper(null);
+        ObjectMapper mapper = MAPPER;
+
+        // by default, include as null
+        assertEquals("{\"value\":null}", mapper.writeValueAsString(input));
+
+        // ditto with "no nulls"
+        mapper = new ObjectMapper().setSerializationInclusion(JsonInclude
+                .Include.NON_NULL);
+        assertEquals("{\"value\":null}", mapper.writeValueAsString(input));
+
+        // but not with "non empty"
+        mapper = new ObjectMapper().setSerializationInclusion(JsonInclude
+                .Include.NON_EMPTY);
+        assertEquals("{}", mapper.writeValueAsString(input));
     }
 }

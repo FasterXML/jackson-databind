@@ -67,6 +67,7 @@ public class TestUpdateValue extends BaseMapTest
             super(DataA.class);
         }
 
+        @Override
         public DataA deserialize(JsonParser jp, DeserializationContext ctxt)
                 throws JsonProcessingException, IOException {
             if (jp.getCurrentToken() != JsonToken.START_OBJECT) {

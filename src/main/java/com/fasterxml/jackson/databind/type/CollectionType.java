@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.JavaType;
 public final class CollectionType
     extends CollectionLikeType
 {
-    private static final long serialVersionUID = -7834910259750909424L;
+    private static final long serialVersionUID = 1L;
 
     /*
     /**********************************************************

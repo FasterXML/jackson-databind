@@ -10,10 +10,10 @@ import com.fasterxml.jackson.databind.JavaType;
  * need not know anything further, since we have no way of dealing
  * with generic types other than Collections and Maps.
  */
-public final class SimpleType
+public class SimpleType // note: until 2.6 was final
     extends TypeBase
 {
-    private static final long serialVersionUID = -800374828948534376L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * In case there are resolved type parameters, this field stores reference
@@ -76,6 +76,20 @@ public final class SimpleType
         _typeParametersFor = parametersFrom;
     }
 
+    /**
+     * Pass-through constructor used by {@link ReferencedType}
+     * 
+     * @since 2.6
+     */
+    protected SimpleType(Class<?> cls, int extraHash,
+            Object valueHandler, Object typeHandler, boolean asStatic)
+    {
+        super(cls, extraHash, valueHandler, typeHandler, asStatic);
+        _typeNames = null;
+        _typeParameters = null;
+        _typeParametersFor = cls;
+    }
+    
     /**
      * Method used by core Jackson classes: NOT to be used by application code.
      *<p>
@@ -235,7 +249,7 @@ public final class SimpleType
         sb.append(';');
         return sb;
     }
-    
+
     /*
     /**********************************************************
     /* Standard methods

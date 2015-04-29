@@ -326,6 +326,9 @@ public abstract class JavaType
     @Override
     public JavaType getContentType() { return null; }
 
+    @Override // since 2.6
+    public JavaType getReferencedType() { return null; }
+    
     @Override
     public int containedTypeCount() { return 0; }
 

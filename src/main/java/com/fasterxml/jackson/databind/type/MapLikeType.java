@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JavaType;
  */
 public class MapLikeType extends TypeBase
 {
-    private static final long serialVersionUID = 416067702302823522L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Type of keys of Map.

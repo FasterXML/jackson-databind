@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.JavaType;
 public final class ArrayType
     extends TypeBase
 {
-    private static final long serialVersionUID = 9040058063449087477L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Type of elements in the array.
@@ -25,8 +25,8 @@ public final class ArrayType
      * it is essentially immutable and thus can be shared.
      */
     protected final Object _emptyArray;
-    
-    private ArrayType(JavaType componentType, Object emptyInstance,
+
+    protected ArrayType(JavaType componentType, Object emptyInstance,
             Object valueHandler, Object typeHandler, boolean asStatic)
     {
         super(emptyInstance.getClass(), componentType.hashCode(),

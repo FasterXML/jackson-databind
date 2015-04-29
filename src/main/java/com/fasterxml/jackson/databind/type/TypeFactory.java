@@ -1,6 +1,7 @@
 package com.fasterxml.jackson.databind.type;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.lang.reflect.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -531,7 +532,10 @@ public final class TypeFactory
     public JavaType constructSimpleType(Class<?> rawType, JavaType[] parameterTypes) {
         return constructSimpleType(rawType, rawType, parameterTypes);
     }
-    
+
+    /**
+     * Method for constructing a type instance with specified parameterization.
+     */
     public JavaType constructSimpleType(Class<?> rawType, Class<?> parameterTarget,
             JavaType[] parameterTypes)
     {
@@ -548,6 +552,14 @@ public final class TypeFactory
         }
         return new SimpleType(rawType, names, parameterTypes, null, null, false, parameterTarget);
     } 
+
+    /**
+     * @since 2.6
+     */
+    public JavaType constructReferenceType(Class<?> rawType, JavaType refType)
+    {
+        return new ReferenceType(rawType, refType, null, null, false);
+    }
 
     /**
      * Method that will force construction of a simple type, without trying to
@@ -791,9 +803,15 @@ public final class TypeFactory
         } else if (Collection.class.isAssignableFrom(clz)) {
             result =  _collectionType(clz);
         } else {
+            // 28-Apr-2015, tatu: New class of types, referential...
+            if (AtomicReference.class.isAssignableFrom(clz)) {
+                JavaType[] pts = findTypeParameters(clz, AtomicReference.class);
+                JavaType rt = (pts == null || pts.length != 1) ? unknownType() : pts[0];
+                result = constructReferenceType(clz, rt);
+                
             // 29-Sep-2014, tatu: We may want to pre-resolve well-known generic types
-            if (Map.Entry.class.isAssignableFrom(clz)) {
-                JavaType[] pts = this.findTypeParameters(clz, Map.Entry.class);
+            } else if (Map.Entry.class.isAssignableFrom(clz)) {
+                JavaType[] pts = findTypeParameters(clz, Map.Entry.class);
                 JavaType kt, vt;
                 if (pts == null || pts.length != 2) {
                     kt = vt = unknownType();

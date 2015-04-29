@@ -42,13 +42,13 @@ public class SqlDateSerializer
     }
     
     @Override
-    public void serialize(java.sql.Date value, JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(java.sql.Date value, JsonGenerator gen, SerializerProvider provider)
         throws IOException, JsonGenerationException
     {
-        if (_useTimestamp) {
-            jgen.writeNumber(_timestamp(value));
+        if (_asTimestamp(provider)) {
+            gen.writeNumber(_timestamp(value));
         } else {
-        	jgen.writeString(value.toString());
+            gen.writeString(value.toString());
         }
     }
 

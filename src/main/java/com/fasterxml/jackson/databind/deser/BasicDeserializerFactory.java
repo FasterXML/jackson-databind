@@ -1518,6 +1518,17 @@ public abstract class BasicDeserializerFactory
         if (rawType == CLASS_STRING || rawType == CLASS_CHAR_BUFFER) {
             return StringDeserializer.instance;
         }
+        
+        if (type.isReferenceType()) {
+            JavaType referencedType = type.getReferencedType();
+            if (AtomicReference.class.isAssignableFrom(rawType)) {
+                TypeDeserializer vts = findTypeDeserializer(ctxt.getConfig(), referencedType);
+                BeanDescription refdDesc = ctxt.getConfig().introspectClassAnnotations(referencedType);
+                JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, refdDesc.getClassInfo());
+                return new AtomicReferenceDeserializer(referencedType, vts, deser);
+            }
+            // Hmmh. Should we continue here for unknown referential types?
+        }
         if (rawType == CLASS_ITERABLE) {
             // [Issue#199]: Can and should 'upgrade' to a Collection type:
             TypeFactory tf = ctxt.getTypeFactory();
@@ -1528,19 +1539,18 @@ public abstract class BasicDeserializerFactory
             return createCollectionDeserializer(ctxt, ct, beanDesc);
         }
         if (rawType == CLASS_MAP_ENTRY) {
-            final DeserializationConfig config = ctxt.getConfig();
-            TypeFactory tf = ctxt.getTypeFactory();
-            JavaType[] tps = tf.findTypeParameters(type, CLASS_MAP_ENTRY);
-            JavaType kt, vt;
-            if (tps == null || tps.length != 2) {
-                kt = vt = TypeFactory.unknownType();
-            } else {
-                kt = tps[0];
-                vt = tps[1];
+            // 28-Apr-2015, tatu: TypeFactory does it all for us already so
+            JavaType kt = type.containedType(0);
+            if (kt == null) {
+                kt = TypeFactory.unknownType();
+            }
+            JavaType vt = type.containedType(1);
+            if (vt == null) {
+                vt = TypeFactory.unknownType();
             }
             TypeDeserializer vts = (TypeDeserializer) vt.getTypeHandler();
             if (vts == null) {
-                vts = findTypeDeserializer(config, vt);
+                vts = findTypeDeserializer(ctxt.getConfig(), vt);
             }
             JsonDeserializer<Object> valueDeser = vt.getValueHandler();
             KeyDeserializer keyDes = (KeyDeserializer) kt.getValueHandler();
@@ -1560,21 +1570,6 @@ public abstract class BasicDeserializerFactory
         // and a few Jackson types as well:
         if (rawType == TokenBuffer.class) {
             return new TokenBufferDeserializer();
-        }
-        if (AtomicReference.class.isAssignableFrom(rawType)) {
-            // Must find parameterization
-            TypeFactory tf = ctxt.getTypeFactory();
-            JavaType[] params = tf.findTypeParameters(type, AtomicReference.class);
-            JavaType referencedType;
-            if (params == null || params.length < 1) { // untyped (raw)
-                referencedType = TypeFactory.unknownType();
-            } else {
-                referencedType = params[0];
-            }
-            TypeDeserializer vts = findTypeDeserializer(ctxt.getConfig(), referencedType);
-            BeanDescription refdDesc = ctxt.getConfig().introspectClassAnnotations(referencedType);
-            JsonDeserializer<?> deser = findDeserializerFromAnnotation(ctxt, refdDesc.getClassInfo());
-            return new AtomicReferenceDeserializer(referencedType, vts, deser);
         }
         JsonDeserializer<?> deser = findOptionalStdDeserializer(ctxt, type, beanDesc);
         if (deser != null) {

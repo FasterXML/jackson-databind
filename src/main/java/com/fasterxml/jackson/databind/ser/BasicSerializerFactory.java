@@ -384,13 +384,14 @@ public abstract class BasicSerializerFactory
             return DateSerializer.instance;
         }
         if (Map.Entry.class.isAssignableFrom(raw)) {
-            JavaType kt, vt;
-            JavaType[] params = prov.getTypeFactory().findTypeParameters(type, Map.Entry.class);
-            if (params == null || params.length != 2) { // assume that if we don't get 2, they are wrong...
-                kt = vt = TypeFactory.unknownType();
-            } else {
-                kt = params[0];
-                vt = params[1];
+            // 28-Apr-2015, tatu: TypeFactory does it all for us already so
+            JavaType kt = type.containedType(0);
+            if (kt == null) {
+                kt = TypeFactory.unknownType();
+            }
+            JavaType vt = type.containedType(1);
+            if (vt == null) {
+                vt = TypeFactory.unknownType();
             }
             return buildMapEntrySerializer(prov.getConfig(), type, beanDesc, staticTyping, kt, vt);
         }

@@ -805,10 +805,10 @@ public final class TypeFactory
         } else {
             // 28-Apr-2015, tatu: New class of types, referential...
             if (AtomicReference.class.isAssignableFrom(clz)) {
+                
                 JavaType[] pts = findTypeParameters(clz, AtomicReference.class);
                 JavaType rt = (pts == null || pts.length != 1) ? unknownType() : pts[0];
                 result = constructReferenceType(clz, rt);
-                
             // 29-Sep-2014, tatu: We may want to pre-resolve well-known generic types
             } else if (Map.Entry.class.isAssignableFrom(clz)) {
                 JavaType[] pts = findTypeParameters(clz, Map.Entry.class);
@@ -894,7 +894,7 @@ public final class TypeFactory
 
         // Ok: Map or Collection?
         if (Map.class.isAssignableFrom(rawType)) {
-            // 19-Mar-2015, tatu: Looks like 2nd arg ough to be Map.class, but that causes fails
+            // 19-Mar-2015, tatu: Looks like 2nd arg ought to be Map.class, but that causes fails
             JavaType subtype = constructSimpleType(rawType, rawType, pt);
             JavaType[] mapParams = findTypeParameters(subtype, Map.class);
             if (mapParams.length != 2) {
@@ -903,7 +903,7 @@ public final class TypeFactory
             return MapType.construct(rawType, mapParams[0], mapParams[1]);
         }
         if (Collection.class.isAssignableFrom(rawType)) {
-            // 19-Mar-2015, tatu: Looks like 2nd arg ough to be Collection.class, but that causes fails
+            // 19-Mar-2015, tatu: Looks like 2nd arg ought to be Collection.class, but that causes fails
             JavaType subtype = constructSimpleType(rawType, rawType, pt);
             JavaType[] collectionParams = findTypeParameters(subtype, Collection.class);
             if (collectionParams.length != 1) {
@@ -911,13 +911,48 @@ public final class TypeFactory
             }
             return CollectionType.construct(rawType, collectionParams[0]);
         }
+        // 28-Apr-2015, tatu: New class of types, referential...
+        if (AtomicReference.class.isAssignableFrom(rawType)) {
+            JavaType rt = null;
+
+            if (rawType == AtomicReference.class) {
+                if (paramCount == 1) {
+                    rt = pt[0];
+                }
+            } else {
+                JavaType[] pts = findTypeParameters(rawType, AtomicReference.class);
+                if (pts != null && pts.length != 1) {
+                    rt = pts[0];
+                }
+            }
+            return constructReferenceType(rawType, (rt == null) ? unknownType() : rt);
+        }
+        if (Map.Entry.class.isAssignableFrom(rawType)) {
+            JavaType kt = null, vt = null;
+
+            if (rawType == Map.Entry.class) {
+                if (paramCount == 2) {
+                    kt = pt[0];
+                    vt = pt[1];
+                }
+            } else {
+                JavaType[] pts = findTypeParameters(rawType, Map.Entry.class);
+                if (pts != null && pts.length != 2) {
+                    kt = pts[0];
+                    vt = pts[1];
+                }
+            }
+            return constructSimpleType(rawType, Map.Entry.class, new JavaType[] {
+                (kt == null) ? unknownType() : kt,
+                (vt == null) ? unknownType() : vt });
+        }
+        
         if (paramCount == 0) { // no generics
             return new SimpleType(rawType);
         }
         return constructSimpleType(rawType, pt);
     }
 
-    
     protected JavaType _fromArrayType(GenericArrayType type, TypeBindings context)
     {
         JavaType compType = _constructType(type.getGenericComponentType(), context);

@@ -15,6 +15,7 @@ Project: jackson-databind
  (requested by Laird N)
 #696: Copy constructor does not preserve `_injectableValues`
  (reported by Charles A)
+#698: Add support for referential types (ReferenceType)
 #700: Cannot Change Default Abstract Type Mapper from LinkedHashMap
  (reported by wealdtech@github)
 #725: Auto-detect multi-argument constructor with implicit names if it is the only visible creator

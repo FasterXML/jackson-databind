@@ -185,6 +185,8 @@ public class ReferenceType extends SimpleType
 
         ReferenceType other = (ReferenceType) o;
 
+        if (other._class != _class) return false;
+        
         // Otherwise actually mostly worry about referenced type
         return _referencedType.equals(other._referencedType);
     }

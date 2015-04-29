@@ -22,6 +22,7 @@ Project: jackson-databind
 #727: Improve `ObjectWriter.forType()` to avoid forcing base type for container types
 #737: Add support for writing raw values in TokenBuffer
  (suggested by Guillaume S, gsmet@github)
+#740: Ensure proper `null` (as empty) handling for `AtomicReference`
 #743: Add `RawValue` helper type, for piping raw values through `TokenBuffer`
 #756: Disabling SerializationFeature.FAIL_ON_EMPTY_BEANS does not affect `canSerialize()`
  (reported by nickwongdev@github)

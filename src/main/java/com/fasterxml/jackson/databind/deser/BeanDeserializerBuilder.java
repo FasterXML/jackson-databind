@@ -368,10 +368,13 @@ public class BeanDeserializerBuilder
     		String expBuildMethodName)
     {
         // First: validation; must have build method that returns compatible type
-        if (_buildMethod == null) {
+        // ("" means you don't need a build method, just cast the last builder)
+        if (_buildMethod == null && !"".equals(expBuildMethodName)) {
             throw new IllegalArgumentException("Builder class "+_beanDesc.getBeanClass().getName()
                     +" does not have build method '"+expBuildMethodName+"()'");
         }
+
+    if(_buildMethod != null) {
         // also: type of the method must be compatible
         Class<?> rawBuildType = _buildMethod.getRawReturnType();
         Class<?> rawValueType = valueType.getRawClass();
@@ -382,6 +385,7 @@ public class BeanDeserializerBuilder
                     +" has bad return type ("+rawBuildType.getName()
                     +"), not compatible with POJO type ("+valueType.getRawClass().getName()+")");
         }
+    }
         // And if so, we can try building the deserializer
         Collection<SettableBeanProperty> props = _properties.values();
         BeanPropertyMap propertyMap = BeanPropertyMap.construct(props, _caseInsensitivePropertyComparison);

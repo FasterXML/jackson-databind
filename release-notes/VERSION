@@ -28,6 +28,8 @@ Project: jackson-databind
  (reported by nickwongdev@github)
 #762: Add `ObjectWriter.withoutRootName()`, `ObjectReader.withoutRootName()`
 #765: `SimpleType.withStaticTyping()` impl incorrect
+#769: Fix `JacksonAnnotationIntrospector.findDeserializer` to return `Object` (as per
+  `AnnotationIntrospector`); similarly for other `findXxx(De)Serializer(...)` methods
 - Remove old cglib compatibility tests; cause problems in Eclipse
 
 2.5.4 (not yet released)

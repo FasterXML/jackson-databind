@@ -309,7 +309,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Class<? extends JsonSerializer<?>> findKeySerializer(Annotated a)
+    public Object findKeySerializer(Annotated a)
     {
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
@@ -322,7 +322,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Class<? extends JsonSerializer<?>> findContentSerializer(Annotated a)
+    public Object findContentSerializer(Annotated a)
     {
         JsonSerialize ann = _findAnnotation(a, JsonSerialize.class);
         if (ann != null) {
@@ -669,7 +669,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Class<? extends KeyDeserializer> findKeyDeserializer(Annotated a)
+    public Object findKeyDeserializer(Annotated a)
     {
         JsonDeserialize ann = _findAnnotation(a, JsonDeserialize.class);
         if (ann != null) {
@@ -682,7 +682,7 @@ public class JacksonAnnotationIntrospector
     }
 
     @Override
-    public Class<? extends JsonDeserializer<?>> findContentDeserializer(Annotated a)
+    public Object findContentDeserializer(Annotated a)
     {
         JsonDeserialize ann = _findAnnotation(a, JsonDeserialize.class);
         if (ann != null) {

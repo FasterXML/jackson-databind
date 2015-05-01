@@ -656,7 +656,7 @@ public class JacksonAnnotationIntrospector
      */
 
     @Override
-    public Class<? extends JsonDeserializer<?>> findDeserializer(Annotated a)
+    public Object findDeserializer(Annotated a)
     {
         JsonDeserialize ann = _findAnnotation(a, JsonDeserialize.class);
         if (ann != null) {

@@ -211,129 +211,129 @@ public class UntypedObjectDeserializer
     }
 
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+    public Object deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
     {
-        switch (jp.getCurrentToken()) {
-        case FIELD_NAME:
-        case START_OBJECT:
+        switch (p.getCurrentTokenId()) {
+        case JsonTokenId.ID_START_OBJECT:
+        case JsonTokenId.ID_FIELD_NAME:
             if (_mapDeserializer != null) {
-                return _mapDeserializer.deserialize(jp, ctxt);
+                return _mapDeserializer.deserialize(p, ctxt);
             }
-            return mapObject(jp, ctxt);
-        case START_ARRAY:
+            return mapObject(p, ctxt);
+        case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.USE_JAVA_ARRAY_FOR_JSON_ARRAY)) {
-                return mapArrayToArray(jp, ctxt);
+                return mapArrayToArray(p, ctxt);
             }
             if (_listDeserializer != null) {
-                return _listDeserializer.deserialize(jp, ctxt);
+                return _listDeserializer.deserialize(p, ctxt);
             }
-            return mapArray(jp, ctxt);
-        case VALUE_EMBEDDED_OBJECT:
-            return jp.getEmbeddedObject();
-        case VALUE_STRING:
+            return mapArray(p, ctxt);
+        case JsonTokenId.ID_EMBEDDED_OBJECT:
+            return p.getEmbeddedObject();
+        case JsonTokenId.ID_STRING:
             if (_stringDeserializer != null) {
-                return _stringDeserializer.deserialize(jp, ctxt);
+                return _stringDeserializer.deserialize(p, ctxt);
             }
-            return jp.getText();
+            return p.getText();
 
-        case VALUE_NUMBER_INT:
+        case JsonTokenId.ID_NUMBER_INT:
             if (_numberDeserializer != null) {
-                return _numberDeserializer.deserialize(jp, ctxt);
+                return _numberDeserializer.deserialize(p, ctxt);
             }
             /* [JACKSON-100]: caller may want to get all integral values
              * returned as BigInteger, for consistency
              */
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
-                return jp.getBigIntegerValue(); // should be optimal, whatever it is
+                return p.getBigIntegerValue(); // should be optimal, whatever it is
             }
-            return jp.getNumberValue(); // should be optimal, whatever it is
+            return p.getNumberValue(); // should be optimal, whatever it is
 
-        case VALUE_NUMBER_FLOAT:
+        case JsonTokenId.ID_NUMBER_FLOAT:
             if (_numberDeserializer != null) {
-                return _numberDeserializer.deserialize(jp, ctxt);
+                return _numberDeserializer.deserialize(p, ctxt);
             }
             /* [JACKSON-72]: need to allow overriding the behavior regarding
              *   which type to use
              */
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                return jp.getDecimalValue();
+                return p.getDecimalValue();
             }
-            return Double.valueOf(jp.getDoubleValue());
+            return p.getDoubleValue();
 
-        case VALUE_TRUE:
+        case JsonTokenId.ID_TRUE:
             return Boolean.TRUE;
-        case VALUE_FALSE:
+        case JsonTokenId.ID_FALSE:
             return Boolean.FALSE;
 
-        case VALUE_NULL: // should not get this but...
+        case JsonTokenId.ID_NULL: // should not get this but...
             return null;
 
-        case END_ARRAY: // invalid
-        case END_OBJECT: // invalid
+//        case JsonTokenId.ID_END_ARRAY: // invalid
+//        case JsonTokenId.ID_END_OBJECT: // invalid
         default:
-            throw ctxt.mappingException(Object.class);
         }
+        throw ctxt.mappingException(Object.class);
     }
 
     @Override
-    public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException
+    public Object deserializeWithType(JsonParser p, DeserializationContext ctxt, TypeDeserializer typeDeserializer) throws IOException
     {
-        JsonToken t = jp.getCurrentToken();
-        switch (t) {
+        switch (p.getCurrentTokenId()) {
         // First: does it look like we had type id wrapping of some kind?
-        case START_ARRAY:
-        case START_OBJECT:
-        case FIELD_NAME:
+        case JsonTokenId.ID_START_ARRAY:
+        case JsonTokenId.ID_START_OBJECT:
+        case JsonTokenId.ID_FIELD_NAME:
             /* Output can be as JSON Object, Array or scalar: no way to know
              * a this point:
              */
-            return typeDeserializer.deserializeTypedFromAny(jp, ctxt);
+            return typeDeserializer.deserializeTypedFromAny(p, ctxt);
 
+        case JsonTokenId.ID_EMBEDDED_OBJECT:
+            return p.getEmbeddedObject();
+            
         /* Otherwise we probably got a "native" type (ones that map
          * naturally and thus do not need or use type ids)
          */
-        case VALUE_STRING:
+        case JsonTokenId.ID_STRING:
             if (_stringDeserializer != null) {
-                return _stringDeserializer.deserialize(jp, ctxt);
+                return _stringDeserializer.deserialize(p, ctxt);
             }
-            return jp.getText();
+            return p.getText();
 
-        case VALUE_NUMBER_INT:
+        case JsonTokenId.ID_NUMBER_INT:
             if (_numberDeserializer != null) {
-                return _numberDeserializer.deserialize(jp, ctxt);
+                return _numberDeserializer.deserialize(p, ctxt);
             }
             // For [JACKSON-100], see above:
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
-                return jp.getBigIntegerValue();
+                return p.getBigIntegerValue();
             }
             /* and as per [JACKSON-839], allow "upgrade" to bigger types: out-of-range
              * entries can not be produced without type, so this should "just work",
              * even if it is bit unclean
              */
-            return jp.getNumberValue();
+            return p.getNumberValue();
 
-        case VALUE_NUMBER_FLOAT:
+        case JsonTokenId.ID_NUMBER_FLOAT:
             if (_numberDeserializer != null) {
-                return _numberDeserializer.deserialize(jp, ctxt);
+                return _numberDeserializer.deserialize(p, ctxt);
             }
             // For [JACKSON-72], see above
             if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                return jp.getDecimalValue();
+                return p.getDecimalValue();
             }
-            return Double.valueOf(jp.getDoubleValue());
+            return Double.valueOf(p.getDoubleValue());
 
-        case VALUE_TRUE:
+        case JsonTokenId.ID_TRUE:
             return Boolean.TRUE;
-        case VALUE_FALSE:
+        case JsonTokenId.ID_FALSE:
             return Boolean.FALSE;
-        case VALUE_EMBEDDED_OBJECT:
-            return jp.getEmbeddedObject();
 
-        case VALUE_NULL: // should not get this far really but...
+        case JsonTokenId.ID_NULL: // should not get this far really but...
             return null;
         default:
-            throw ctxt.mappingException(Object.class);
         }
+        throw ctxt.mappingException(Object.class);
     }
 
     /*

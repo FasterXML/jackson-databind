@@ -39,6 +39,13 @@ public abstract class BaseMapTest
         public IntWrapper() { }
         public IntWrapper(int value) { i = value; }
     }
+
+    protected static class LongWrapper {
+        public long l;
+
+        public LongWrapper() { }
+        public LongWrapper(long value) { l = value; }
+    }
     
     /**
      * Simple wrapper around String type, usually to test value

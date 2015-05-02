@@ -280,6 +280,20 @@ public enum DeserializationFeature implements ConfigFeature
      * @since 2.5
      */
     ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT(false),
+
+    /**
+     * Feature that determines whether coercion from JSON floating point
+     * number (anything with command (`.`) or exponent portion (`e` / `E'))
+     * to an expected integral number (`int`, `long`, `java.lang.Integer`, `java.lang.Long`,
+     * `java.math.BigDecimal`) is allowed or not.
+     * If enabled, coercion truncates value; if disabled, a {@link JsonMappingException}
+     * will be thrown.
+     *<p>
+     * Feature is enabled by default.
+     * 
+     * @since 2.6
+     */
+    ACCEPT_FLOAT_AS_INT(true),
     
     /**
      * Feature that allows unknown Enum values to be parsed as null values. 

@@ -8,6 +8,7 @@ import java.util.HashSet;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.JsonTokenId;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -233,19 +234,19 @@ public class NumberDeserializers
         }
 
         @Override
-        public Character deserialize(JsonParser jp, DeserializationContext ctxt)
+        public Character deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException, JsonProcessingException
         {
-            JsonToken t = jp.getCurrentToken();
-            
-            if (t == JsonToken.VALUE_NUMBER_INT) { // ok iff ascii value
-                int value = jp.getIntValue();
+            switch (p.getCurrentTokenId()) {
+            case JsonTokenId.ID_NUMBER_INT: // ok iff ascii value
+                int value = p.getIntValue();
                 if (value >= 0 && value <= 0xFFFF) {
                     return Character.valueOf((char) value);
                 }
-            } else if (t == JsonToken.VALUE_STRING) { // this is the usual type
+                break;
+            case JsonTokenId.ID_STRING: // this is the usual type
                 // But does it have to be exactly one char?
-                String text = jp.getText();
+                String text = p.getText();
                 if (text.length() == 1) {
                     return Character.valueOf(text.charAt(0));
                 }
@@ -253,18 +254,20 @@ public class NumberDeserializers
                 if (text.length() == 0) {
                     return (Character) getEmptyValue();
                 }               
-            } else if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                //Issue#381
-                jp.nextToken();
-                final Character value = deserialize(jp, ctxt);
-                if (jp.nextToken() != JsonToken.END_ARRAY) {
-                    throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
-                            "Attempted to unwrap single value array for single '" + _valueClass.getName() + "' value but there was more than a single value in the array"
-                            );
+                break;
+            case JsonTokenId.ID_START_ARRAY:
+                if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                    p.nextToken();
+                    final Character C = deserialize(p, ctxt);
+                    if (p.nextToken() != JsonToken.END_ARRAY) {
+                        throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
+                                "Attempted to unwrap single value array for single '" + _valueClass.getName() + "' value but there was more than a single value in the array"
+                                );
+                    }
+                    return C;
                 }
-                return value;
             }
-            throw ctxt.mappingException(_valueClass, t);
+            throw ctxt.mappingException(_valueClass, p.getCurrentToken());
         }
     }
 
@@ -286,17 +289,23 @@ public class NumberDeserializers
         public boolean isCachable() { return true; }
 
         @Override
-        public Integer deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-            return _parseInteger(jp, ctxt);
+        public Integer deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+                return p.getIntValue();
+            }
+            return _parseInteger(p, ctxt);
         }
 
         // 1.6: since we can never have type info ("natural type"; String, Boolean, Integer, Double):
         // (is it an error to even call this version?)
         @Override
-        public Integer deserializeWithType(JsonParser jp, DeserializationContext ctxt,
+        public Integer deserializeWithType(JsonParser p, DeserializationContext ctxt,
                 TypeDeserializer typeDeserializer) throws IOException
         {
-            return _parseInteger(jp, ctxt);
+            if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+                return p.getIntValue();
+            }
+            return _parseInteger(p, ctxt);
         }
     }
 
@@ -318,8 +327,11 @@ public class NumberDeserializers
         public boolean isCachable() { return true; }
         
         @Override
-        public Long deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-            return _parseLong(jp, ctxt);
+        public Long deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            if (p.hasToken(JsonToken.VALUE_NUMBER_INT)) {
+                return p.getLongValue();
+            }
+            return _parseLong(p, ctxt);
         }
     }
 
@@ -394,29 +406,25 @@ public class NumberDeserializers
         public NumberDeserializer() { super(Number.class); }
 
         @Override
-        public Number deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException
+        public Number deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            JsonToken t = jp.getCurrentToken();
-            if (t == JsonToken.VALUE_NUMBER_INT) {
+            switch (p.getCurrentTokenId()) {
+            case JsonTokenId.ID_NUMBER_INT:
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_INTEGER_FOR_INTS)) {
-                    return jp.getBigIntegerValue();
+                    return p.getBigIntegerValue();
                 }
-                return jp.getNumberValue();
-            } else if (t == JsonToken.VALUE_NUMBER_FLOAT) {
-                /* [JACKSON-72]: need to allow overriding the behavior
-                 * regarding which type to use
-                 */
+                return p.getNumberValue();
+            case JsonTokenId.ID_NUMBER_FLOAT:
                 if (ctxt.isEnabled(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)) {
-                    return jp.getDecimalValue();
+                    return p.getDecimalValue();
                 }
-                return Double.valueOf(jp.getDoubleValue());
-            }
+                return Double.valueOf(p.getDoubleValue());
 
-            /* Textual values are more difficult... not parsing itself, but figuring
-             * out 'minimal' type to use 
-             */
-            if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
-                String text = jp.getText().trim();
+            case JsonTokenId.ID_STRING:
+                /* Textual values are more difficult... not parsing itself, but figuring
+                 * out 'minimal' type to use 
+                 */
+                String text = p.getText().trim();
                 if (text.length() == 0) {
                     return getEmptyValue();
                 }
@@ -450,20 +458,21 @@ public class NumberDeserializers
                 } catch (IllegalArgumentException iae) {
                     throw ctxt.weirdStringException(text, _valueClass, "not a valid number");
                 }
-            }
-            
-            if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                jp.nextToken();
-                final Number value = deserialize(jp, ctxt);
-                if (jp.nextToken() != JsonToken.END_ARRAY) {
-                    throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY, 
-                            "Attempted to unwrap single value array for single '" + _valueClass.getName() + "' value but there was more than a single value in the array"
-                            );
+            case JsonTokenId.ID_START_ARRAY:
+                if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                    p.nextToken();
+                    final Number value = deserialize(p, ctxt);
+                    if (p.nextToken() != JsonToken.END_ARRAY) {
+                        throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY, 
+                                "Attempted to unwrap single value array for single '" + _valueClass.getName() + "' value but there was more than a single value in the array"
+                                );
+                    }
+                    return value;
                 }
-                return value;
+                break;
             }
             // Otherwise, no can do:
-            throw ctxt.mappingException(_valueClass, t);
+            throw ctxt.mappingException(_valueClass, p.getCurrentToken());
         }
 
         /**
@@ -472,16 +481,15 @@ public class NumberDeserializers
          * we must actually check for "raw" integers and doubles first, before
          * calling type deserializer.
          */
-        @SuppressWarnings("incomplete-switch")
         @Override
         public Object deserializeWithType(JsonParser jp, DeserializationContext ctxt,
                                           TypeDeserializer typeDeserializer)
             throws IOException
         {
-            switch (jp.getCurrentToken()) {
-            case VALUE_NUMBER_INT:
-            case VALUE_NUMBER_FLOAT:
-            case VALUE_STRING:
+            switch (jp.getCurrentTokenId()) {
+            case JsonTokenId.ID_NUMBER_INT:
+            case JsonTokenId.ID_NUMBER_FLOAT:
+            case JsonTokenId.ID_STRING:
                 // can not point to type information: hence must be non-typed (int/double)
                 return deserialize(jp, ctxt);
             }
@@ -511,45 +519,47 @@ public class NumberDeserializers
 
         @SuppressWarnings("incomplete-switch")
         @Override
-        public BigInteger deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException
+        public BigInteger deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
-            JsonToken t = jp.getCurrentToken();
-            String text;
-
-            if (t == JsonToken.VALUE_NUMBER_INT) {
-                switch (jp.getNumberType()) {
+            switch (p.getCurrentTokenId()) {
+            case JsonTokenId.ID_NUMBER_INT:
+                switch (p.getNumberType()) {
                 case INT:
                 case LONG:
-                    return BigInteger.valueOf(jp.getLongValue());
+                case BIG_INTEGER:
+                    return p.getBigIntegerValue();
                 }
-            } else if (t == JsonToken.VALUE_NUMBER_FLOAT) {
-                /* Whether to fail if there's non-integer part?
-                 * Could do by calling BigDecimal.toBigIntegerExact()
-                 */
-                return jp.getDecimalValue().toBigInteger();
-            } else if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                jp.nextToken();
-                final BigInteger value = deserialize(jp, ctxt);
-                if (jp.nextToken() != JsonToken.END_ARRAY) {
-                    throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY,
-                        "Attempted to unwrap single value array for single 'BigInteger' value but there was more than a single value in the array"
-                    );
+                break;
+            case JsonTokenId.ID_NUMBER_FLOAT:
+                if (!ctxt.isEnabled(DeserializationFeature.ACCEPT_FLOAT_AS_INT)) {
+                    _failDoubleToIntCoercion(p, ctxt, "java.math.BigInteger");
                 }
-                return value;
-            } else if (t != JsonToken.VALUE_STRING) { // let's do implicit re-parse
-                // String is ok too, can easily convert; otherwise, no can do:
-                throw ctxt.mappingException(_valueClass, t);
-            }            
-            text = jp.getText().trim();
-            if (text.length() == 0) {
-                return null;
+                return p.getDecimalValue().toBigInteger();
+            case JsonTokenId.ID_START_ARRAY:
+                if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                    p.nextToken();
+                    final BigInteger value = deserialize(p, ctxt);
+                    if (p.nextToken() != JsonToken.END_ARRAY) {
+                        throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY,
+                            "Attempted to unwrap single value array for single 'BigInteger' value but there was more than a single value in the array"
+                        );
+                    }
+                    return value;
+                }
+                break;
+            case JsonTokenId.ID_STRING: // let's do implicit re-parse
+                String text = p.getText().trim();
+                if (text.length() == 0) {
+                    return null;
+                }
+                try {
+                    return new BigInteger(text);
+                } catch (IllegalArgumentException iae) {
+                    throw ctxt.weirdStringException(text, _valueClass, "not a valid representation");
+                }
             }
-            try {
-                return new BigInteger(text);
-            } catch (IllegalArgumentException iae) {
-                throw ctxt.weirdStringException(text, _valueClass, "not a valid representation");
-            }
+            // String is ok too, can easily convert; otherwise, no can do:
+            throw ctxt.mappingException(_valueClass, p.getCurrentToken());
         }
     }
     
@@ -563,16 +573,15 @@ public class NumberDeserializers
         public BigDecimalDeserializer() { super(BigDecimal.class); }
 
         @Override
-        public BigDecimal deserialize(JsonParser jp, DeserializationContext ctxt)
+        public BigDecimal deserialize(JsonParser p, DeserializationContext ctxt)
             throws IOException
         {
-            JsonToken t = jp.getCurrentToken();
-            if (t == JsonToken.VALUE_NUMBER_INT || t == JsonToken.VALUE_NUMBER_FLOAT) {
-                return jp.getDecimalValue();
-            }
-            // String is ok too, can easily convert
-            if (t == JsonToken.VALUE_STRING) { // let's do implicit re-parse
-                String text = jp.getText().trim();
+            switch (p.getCurrentTokenId()) {
+            case JsonTokenId.ID_NUMBER_INT:
+            case JsonTokenId.ID_NUMBER_FLOAT:
+                return p.getDecimalValue();
+            case JsonTokenId.ID_STRING:
+                String text = p.getText().trim();
                 if (text.length() == 0) {
                     return null;
                 }
@@ -581,20 +590,21 @@ public class NumberDeserializers
                 } catch (IllegalArgumentException iae) {
                     throw ctxt.weirdStringException(text, _valueClass, "not a valid representation");
                 }
-            }
-            
-            if (t == JsonToken.START_ARRAY && ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                jp.nextToken();
-                final BigDecimal value = deserialize(jp, ctxt);
-                if (jp.nextToken() != JsonToken.END_ARRAY) {
-                    throw ctxt.wrongTokenException(jp, JsonToken.END_ARRAY,
-                        "Attempted to unwrap single value array for single 'BigDecimal' value but there was more than a single value in the array"
-                    );
+            case JsonTokenId.ID_START_ARRAY:
+                if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
+                    p.nextToken();
+                    final BigDecimal value = deserialize(p, ctxt);
+                    if (p.nextToken() != JsonToken.END_ARRAY) {
+                        throw ctxt.wrongTokenException(p, JsonToken.END_ARRAY,
+                            "Attempted to unwrap single value array for single 'BigDecimal' value but there was more than a single value in the array"
+                        );
+                    }
+                    return value;
                 }
-                return value;
+                break;
             }
             // Otherwise, no can do:
-            throw ctxt.mappingException(_valueClass, t);
+            throw ctxt.mappingException(_valueClass, p.getCurrentToken());
         }
     }
 }

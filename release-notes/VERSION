@@ -10,6 +10,9 @@ Project: jackson-databind
 #348: ObjectMapper.valueToTree does not work with @JsonRawValue
  (reported by Chris P, pimlottc@github)
 #649: Make `BeanDeserializer` use new `parser.nextFieldName()` and `.hasTokenId()` methods
+#664: Add `DeserializationFeature.ACCEPT_FLOAT_AS_INT` to prevent coercion of floating point
+ numbers int `int`/`long`/`Integer`/`Long`
+ (requested by wenzis@github)
 #679: Add `isEmpty()` implementation for `JsonNode` serializers
 #688: Provide a means for an ObjectMapper to discover mixin annotation classes on demand
  (requested by Laird N)

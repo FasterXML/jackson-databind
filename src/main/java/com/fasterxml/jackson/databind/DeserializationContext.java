@@ -685,7 +685,8 @@ public abstract class DeserializationContext
             DateFormat df = getDateFormat();
             return df.parse(dateStr);
         } catch (ParseException e) {
-            throw new IllegalArgumentException("Failed to parse Date value '"+dateStr+"': "+e.getMessage());
+            throw new IllegalArgumentException(String.format(
+                    "Failed to parse Date value '%s': %s", dateStr, e.getMessage()));
         }
     }
 
@@ -826,7 +827,9 @@ public abstract class DeserializationContext
     }
 
     public JsonMappingException mappingException(Class<?> targetClass, JsonToken token) {
-        return JsonMappingException.from(_parser, "Can not deserialize instance of "+_calcName(targetClass)+" out of "+token+" token");
+        return JsonMappingException.from(_parser,
+                String.format("Can not deserialize instance of %s out of %s token",
+                        _calcName(targetClass), token));
     }
     
     /**
@@ -844,23 +847,12 @@ public abstract class DeserializationContext
      */
     public JsonMappingException instantiationException(Class<?> instClass, Throwable t) {
         return JsonMappingException.from(_parser,
-                "Can not construct instance of "+instClass.getName()+", problem: "+t.getMessage(), t);
+                String.format("Can not construct instance of %s, problem: %s", instClass.getName(), t.getMessage()), t);
     }
 
     public JsonMappingException instantiationException(Class<?> instClass, String msg) {
-        return JsonMappingException.from(_parser, "Can not construct instance of "+instClass.getName()+", problem: "+msg);
-    }
-    
-    /**
-     * Method that will construct an exception suitable for throwing when
-     * some String values are acceptable, but the one encountered is not.
-     * 
-     * 
-     * @deprecated Since 2.1 should use variant that takes value
-     */
-    @Deprecated
-    public JsonMappingException weirdStringException(Class<?> instClass, String msg) {
-        return weirdStringException(null, instClass, msg);
+        return JsonMappingException.from(_parser,
+                String.format("Can not construct instance of %s, problem: %s", instClass.getName(), msg));
     }
 
     /**
@@ -875,17 +867,9 @@ public abstract class DeserializationContext
      */
     public JsonMappingException weirdStringException(String value, Class<?> instClass, String msg) {
         return InvalidFormatException.from(_parser,
-                "Can not construct instance of "+instClass.getName()+" from String value '"+_valueDesc()+"': "+msg,
+                String.format("Can not construct instance of %s from String value '%s': %s",
+                        instClass.getName(), _valueDesc(), msg),
                 value, instClass);
-    }
-
-    /**
-     * Helper method for constructing exception to indicate that input JSON
-     * Number was not suitable for deserializing into given type.
-     */
-    @Deprecated
-    public JsonMappingException weirdNumberException(Class<?> instClass, String msg) {
-        return weirdStringException(null, instClass, msg);
     }
 
     /**
@@ -894,7 +878,8 @@ public abstract class DeserializationContext
      */
     public JsonMappingException weirdNumberException(Number value, Class<?> instClass, String msg) {
         return InvalidFormatException.from(_parser,
-                "Can not construct instance of "+instClass.getName()+" from number value ("+_valueDesc()+"): "+msg,
+                String.format("Can not construct instance of %s from number value (%s): %s",
+                        instClass.getName(), _valueDesc(), msg),
                 null, instClass);
     }
     
@@ -905,7 +890,8 @@ public abstract class DeserializationContext
      */
     public JsonMappingException weirdKeyException(Class<?> keyClass, String keyValue, String msg) {
         return InvalidFormatException.from(_parser,
-                "Can not construct Map key of type "+keyClass.getName()+" from String \""+_desc(keyValue)+"\": "+msg,
+                String.format("Can not construct Map key of type %s from String \"%s\": ",
+                        keyClass.getName(), _desc(keyValue), msg),
                 keyValue, keyClass);
     }
 
@@ -914,7 +900,8 @@ public abstract class DeserializationContext
      * token.
      */
     public JsonMappingException wrongTokenException(JsonParser p, JsonToken expToken, String msg0) {
-        String msg = "Unexpected token ("+p.getCurrentToken()+"), expected "+expToken;
+        String msg = String.format("Unexpected token (%s), expected %s",
+                p.getCurrentToken(), expToken);
         if (msg0 != null) {
             msg = msg + ": "+msg0;
         }

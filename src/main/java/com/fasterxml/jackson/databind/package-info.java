@@ -1,34 +1,41 @@
 /**
 Contains basic mapper (conversion) functionality that
-allows for converting between regular streaming json content and
-Java objects (beans or Tree Model: support for both is via
-{@link com.fasterxml.jackson.databind.ObjectMapper} class, as well
-as convenience methods included in
-{@link com.fasterxml.jackson.core.JsonParser}
+allows for converting between regular streaming JSON content and
+Java objects (POJOs or Tree Model: support for both is via
+{@link com.fasterxml.jackson.databind.ObjectMapper},
+{@link com.fasterxml.jackson.databind.ObjectReader} and
+{@link com.fasterxml.jackson.databind.ObjectWriter},
+ classes.
 <p>
-Object mapper will convert Json content to ant from
-basic Java wrapper types (Integer, Boolean, Double),
-Collection types (List, Map), Java Beans,
-Strings and nulls.
+The main starting point for operations is {@link com.fasterxml.jackson.databind.ObjectMapper},
+which can be used either directly (via multiple overloaded
+<code>readValue</code>,
+<code>readTree</code>,
+<code>writeValue</code> and
+<code>writeTree</code> methods, or it can be used as a configurable factory for constructing
+fully immutable, thread-safe and reusable {@link com.fasterxml.jackson.databind.ObjectReader}
+and {@link com.fasterxml.jackson.databind.ObjectWriter} objects.
 <p>
-Tree mapper builds dynamically typed tree of {@link com.fasterxml.jackson.databind.JsonNode}s
-from JSON content (and writes such trees as JSON),
-similar to how DOM model works with XML.
-Main benefits over Object mapping are:
+In addition to simple reading and writing of JSON as POJOs or JSON trees (represented as
+{@link com.fasterxml.jackson.databind.JsonNode}, and configurability needed to change aspects
+of reading/writing, mapper contains additional functionality such as:
 <ul>
- <li>No null checks are needed (dummy
-nodes are created as necessary to represent "missing" Object fields
-and Array elements)
+ <li>Value conversions using {@link com.fasterxml.jackson.databind.ObjectMapper#convertValue(Object, Class)},
+  {@link com.fasterxml.jackson.databind.ObjectMapper#valueToTree(Object)} and
+  {@link com.fasterxml.jackson.databind.ObjectMapper#treeToValue(com.fasterxml.jackson.core.TreeNode, Class)} methods.
   </li>
- <li>No type casts are usually needed: all public access methods are defined
-in basic <code>JsonNode</code> class, and when "incompatible" method (such as Array
-element access on, say, Boolean node) is used, returned node is
-virtual "missing" node.
+ <li>Type introspection needed for things like generation of Schemas (like JSON Schema, Avro Schema, or protoc
+   definitions), using {@link com.fasterxml.jackson.databind.ObjectMapper#acceptJsonFormatVisitor(Class, com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper)}
+   (note: actual handles are usually provided by various Jackson modules: mapper simply initiates calling of
+   callbacks, based on serializers registered)
   </li>
 </ul>
-Because of its dynamic nature, Tree mapping is often convenient
-for basic path access and tree navigation, where structure of
-the resulting tree is known in advance.
+<p>
+For more usage, refer to
+{@link com.fasterxml.jackson.databind.ObjectMapper},
+{@link com.fasterxml.jackson.databind.ObjectReader} and
+{@link com.fasterxml.jackson.databind.ObjectWriter}
+Javadocs.
 */
 
 package com.fasterxml.jackson.databind;

@@ -35,13 +35,24 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
 /**
  * This mapper (or, data binder, or codec) provides functionality for
  * converting between Java objects (instances of JDK provided core classes,
- * beans), and matching JSON constructs.
- * It will use instances of {@link JsonParser} and {@link JsonGenerator}
+ * beans), and matching JSON constructs. It offers configurability for
+ * process, and also acts as a factory for more advanced {@link ObjectReader}
+ * and {@link ObjectWriter} classes.
+ * Mapper (and {@link ObjectReader}s, {@link ObjectWriter}s it constructs) will
+ * use instances of {@link JsonParser} and {@link JsonGenerator}
  * for implementing actual reading/writing of JSON.
+ * Note that although most read and write methods are exposed through this class,
+ * some of the functionality is only exposed via {@link ObjectReader} and
+ * {@link ObjectWriter}: specifically, reading/writing of longer sequences of
+ * values is only available through {@link ObjectReader#readValues(InputStream)}
+ * and {@link ObjectWriter#writeValues(OutputStream)}.
  *<p>
  * The main conversion API is defined in {@link ObjectCodec}, so that
  * implementation details of this class need not be exposed to
- * streaming parser and generator classes.
+ * streaming parser and generator classes. Usage via {@link ObjectCodec} is,
+ * however, usually only for cases where dependency to {@link ObjectMapper} is
+ * either not possible (from Streaming API), or undesireable (when only relying
+ * on Streaming API).
  *<p>
  * Note on caching: root-level deserializers are always cached, and accessed
  * using full (generics-aware) type information. This is different from
@@ -52,6 +63,30 @@ import com.fasterxml.jackson.databind.util.TokenBuffer;
  * produce differing deserializers), and that the performance impact
  * greatest at root level (since it'll essentially cache the full
  * graph of deserializers involved).
+ *<p> 
+ * Mapper instances are fully thread-safe provided that ALL configuration of the
+ * instance occurs before ANY read or write calls. If configuration of a mapper
+ * is modified after first usage, changes may or may not take effect, and configuration
+ * calls themselves may fail.
+ * If you need to use different configuration, you have two main possibilities:
+ *<ul>
+ * <li>Construct and use {@link ObjectReader} for reading, {@link ObjectWriter} for writing.
+ *    Both types are fully immutable and you can freely create new instances with different
+ *    configuration using either factory methods of {@link ObjectMapper}, or readers/writers
+ *    themselves. Construction of new {@link ObjectReader}s and {@link ObjectWriter}s is
+ *    a very light-weight operation so it is usually appropriate to create these on per-call
+ *    basis, as needed, for configuring things like optional indentation of JSON.
+ *  </li>
+ * <li>If the specific kind of configurability is not available via {@link ObjectReader} and
+ *   {@link ObjectWriter}, you may need to use multiple {@link ObjectMapper} instead (for example:
+ *   you can not change mix-in annotations on-the-fly; or, set of custom (de)serializers).
+ *   To help with this usage, you may want to use method {@link #copy()} which creates a clone
+ *   of the mapper with specific configuration, and allows configuration of the copied instance
+ *   before it gets used. Note that {@link #copy} operation is as expensive as constructing
+ *   a new {@link ObjectMapper} instance: if possible, you should still pool and reuse mappers
+ *   if you intend to use them for multiple operations.
+ *  </li>
+ * </ul>
  */
 public class ObjectMapper
     extends ObjectCodec

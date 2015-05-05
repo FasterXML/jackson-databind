@@ -44,11 +44,6 @@ public class SerializableSerializer
         return false;
     }
 
-    @Deprecated
-    public boolean isEmpty(JsonSerializable value) {
-        return isEmpty(null, value);
-    }
-
     @Override
     public void serialize(JsonSerializable value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         value.serialize(gen, serializers);
@@ -88,14 +83,14 @@ public class SerializableSerializer
         objectNode.put("type", schemaType);
         if (objectProperties != null) {
             try {
-                objectNode.put("properties", _getObjectMapper().readTree(objectProperties));
+                objectNode.set("properties", _getObjectMapper().readTree(objectProperties));
             } catch (IOException e) {
                 throw new JsonMappingException("Failed to parse @JsonSerializableSchema.schemaObjectPropertiesDefinition value");
             }
         }
         if (itemDefinition != null) {
             try {
-                objectNode.put("items", _getObjectMapper().readTree(itemDefinition));
+                objectNode.set("items", _getObjectMapper().readTree(itemDefinition));
             } catch (IOException e) {
                 throw new JsonMappingException("Failed to parse @JsonSerializableSchema.schemaItemDefinition value");
             }

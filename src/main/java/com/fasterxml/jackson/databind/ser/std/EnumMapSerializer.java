@@ -324,7 +324,7 @@ public class EnumMapSerializer
                             	com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
                     propsNode.set(provider.getConfig().getAnnotationIntrospector().findEnumValue((Enum<?>)enumValue), schemaNode);
                 }
-                o.put("properties", propsNode);
+                o.set("properties", propsNode);
             }
         }
         return o;

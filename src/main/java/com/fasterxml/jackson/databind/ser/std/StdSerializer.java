@@ -76,7 +76,7 @@ public abstract class StdSerializer<T>
     
     @Override
     public abstract void serialize(T value, JsonGenerator gen, SerializerProvider provider)
-        throws IOException, JsonGenerationException;
+        throws IOException;
 
     /*
     /**********************************************************

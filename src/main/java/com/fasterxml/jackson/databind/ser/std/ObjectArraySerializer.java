@@ -341,19 +341,19 @@ public class ObjectArraySerializer
                 Class<?> componentType = ((ArrayType) javaType).getContentType().getRawClass();
                 // 15-Oct-2010, tatu: We can't serialize plain Object.class; but what should it produce here? Untyped?
                 if (componentType == Object.class) {
-                    o.put("items", com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode());
+                    o.set("items", com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode());
                 } else {
                     JsonSerializer<Object> ser = provider.findValueSerializer(componentType, _property);
                     JsonNode schemaNode = (ser instanceof SchemaAware) ?
                             ((SchemaAware) ser).getSchema(provider, null) :
                             	com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
-                    o.put("items", schemaNode);
+                    o.set("items", schemaNode);
                 }
             }
         }
         return o;
     }
-    
+
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException
@@ -394,5 +394,4 @@ public class ObjectArraySerializer
         }
         return result.serializer;
     }
-
 }

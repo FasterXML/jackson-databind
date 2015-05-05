@@ -220,7 +220,7 @@ public abstract class AsArraySerializerBase<T>
             if (schemaNode == null) {
                 schemaNode = com.fasterxml.jackson.databind.jsonschema.JsonSchema.getDefaultSchemaNode();
             }
-            o.put("items", schemaNode);
+            o.set("items", schemaNode);
         }
         return o;
     }
